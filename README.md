@@ -1,4 +1,6 @@
-# Knowledge Graph Pipeline (Paper-First)
+# psychedelics_knowledge_graph
+
+Knowledge Graph Pipeline (Paper-First)
 
 This repository is a deterministic pipeline for building a provenance-aware
 knowledge graph from scientific papers.
