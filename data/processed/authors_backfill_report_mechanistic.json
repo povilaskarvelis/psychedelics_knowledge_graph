@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-02-12T05:46:24.738746+00:00",
+  "dataset": "mechanistic",
+  "status_filter": "pending_curation",
+  "mark_ready": true,
+  "fallback_unknown": false,
+  "apply": true,
+  "counts": {
+    "stubs_total": 358,
+    "candidates": 0,
+    "updated_rows": 0,
+    "ready_marked": 0,
+    "resolved_from_paper_db": 0,
+    "resolved_from_openalex": 0,
+    "resolved_from_crossref": 0,
+    "resolved_from_fallback_unknown": 0,
+    "unresolved": 0,
+    "paper_db_rows_updated": 0,
+    "openalex_attempted": 0,
+    "openalex_errors": 0,
+    "crossref_attempted": 0,
+    "crossref_errors": 0
+  },
+  "rows": []
+}

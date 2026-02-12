@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-02-12T18:10:12.208566+00:00",
+  "dataset": "mechanistic",
+  "ready_status": "ready_for_promotion",
+  "apply": true,
+  "counts": {
+    "stubs_total": 174,
+    "ready_rows": 0,
+    "curated_before": 35,
+    "curated_normalized": 0,
+    "curated_deduped": 0,
+    "curated_pruned_by_triage": 1,
+    "curated_after": 34
+  },
+  "errors": [],
+  "warnings": [
+    "Pruned 1 curated row(s) marked likely_irrelevant by latest triage report",
+    "No rows with the requested ready status",
+    "Applied curated cleanup without promoting new rows"
+  ],
+  "promoted": [],
+  "duplicates": [],
+  "triage_pruned_samples": [
+    {
+      "study_doi": "10.1038/s41380-023-02391-7",
+      "compound": "Psilocin",
+      "target": "5-HT2A"
+    }
+  ],
+  "status": "applied_curated_normalization_only"
+}

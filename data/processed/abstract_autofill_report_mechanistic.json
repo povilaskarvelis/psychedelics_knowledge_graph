@@ -1,0 +1,3290 @@
+{
+  "generated_at": "2026-02-12T18:08:17.652543+00:00",
+  "dataset": "mechanistic",
+  "status_filter": "pending_curation",
+  "mark_ready": true,
+  "apply": true,
+  "counts": {
+    "stubs_total": 174,
+    "considered": 174,
+    "matched_paper": 174,
+    "updated_rows": 174,
+    "marked_ready": 0
+  },
+  "rows": [
+    {
+      "stub_index": 1,
+      "study_doi": "10.1002/brb3.1423",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 2,
+      "study_doi": "10.1002/cmdc.201700810",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 3,
+      "study_doi": "10.1002/j.1939-4640.2000.tb02122.x",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 4,
+      "study_doi": "10.1002/prp2.70079",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 5,
+      "study_doi": "10.1002/wps.20269",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 6,
+      "study_doi": "10.1007/s00213-006-0566-1",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 7,
+      "study_doi": "10.1007/s00406-023-01570-5",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 8,
+      "study_doi": "10.1007/s12640-017-9759-0",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 9,
+      "study_doi": "10.1007/s43440-023-00539-4",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 10,
+      "study_doi": "10.1016/j.bbrc.2013.11.104",
+      "matched_paper": true,
+      "changed_fields": [
+        "assay_type",
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 11,
+      "study_doi": "10.1016/j.bmcl.2018.01.055",
+      "matched_paper": true,
+      "changed_fields": [
+        "assay_type",
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 12,
+      "study_doi": "10.1016/j.drugalcdep.2023.110446",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 13,
+      "study_doi": "10.1016/j.ejmech.2014.07.077",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 14,
+      "study_doi": "10.1016/j.jpsychires.2016.10.023",
+      "matched_paper": true,
+      "changed_fields": [
+        "assay_type",
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 15,
+      "study_doi": "10.1016/j.neuint.2018.09.008",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 16,
+      "study_doi": "10.1016/j.neuint.2018.09.008",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 17,
+      "study_doi": "10.1016/j.neulet.2012.12.053",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 18,
+      "study_doi": "10.1016/j.neuropharm.2011.04.001",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 19,
+      "study_doi": "10.1016/j.neuropharm.2015.07.037",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 20,
+      "study_doi": "10.1016/j.neuropharm.2017.11.049",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 21,
+      "study_doi": "10.1016/j.neuropharm.2018.06.018",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 22,
+      "study_doi": "10.1016/j.neuropharm.2018.06.018",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 23,
+      "study_doi": "10.1016/j.neuropharm.2021.108612",
+      "matched_paper": true,
+      "changed_fields": [
+        "assay_type",
+        "authors",
+        "evidence_locator",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 24,
+      "study_doi": "10.1016/j.nucmedbio.2005.12.001",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator",
+        "system"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 25,
+      "study_doi": "10.1016/j.pbb.2013.05.005",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 26,
+      "study_doi": "10.1016/j.pbb.2021.173154",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 27,
+      "study_doi": "10.1016/s0006-3223(01)01110-6",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 28,
+      "study_doi": "10.1016/s0006-3223(01)01258-6",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 29,
+      "study_doi": "10.1016/s0006-3223(01)01265-3",
+      "matched_paper": true,
+      "changed_fields": [
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 30,
+      "study_doi": "10.1016/s0014-2999(97)01116-3",
+      "matched_paper": true,
+      "changed_fields": [
+        "assay_type",
+        "authors",
+        "evidence_locator",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 31,
+      "study_doi": "10.1017/S1461145714000261",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 32,
+      "study_doi": "10.1017/s1092852919001470",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 33,
+      "study_doi": "10.1021/acs.jmedchem.2c00702",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 34,
+      "study_doi": "10.1021/acs.jmedchem.5b01214",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 35,
+      "study_doi": "10.1021/acs.orglett.7b02177",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 36,
+      "study_doi": "10.1021/acscentsci.3c00616",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 37,
+      "study_doi": "10.1021/acschemneuro.2c00170",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 38,
+      "study_doi": "10.1021/acschemneuro.3c00267",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 39,
+      "study_doi": "10.1021/acschemneuro.4c00513",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 40,
+      "study_doi": "10.1021/acschemneuro.5c00443",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 41,
+      "study_doi": "10.1021/acschemneuro.5c00647",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 42,
+      "study_doi": "10.1021/acschemneuro.5c00782",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 43,
+      "study_doi": "10.1021/acschemneuro.9b00302",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 44,
+      "study_doi": "10.1021/bi500175p",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 45,
+      "study_doi": "10.1021/cn400216u",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 46,
+      "study_doi": "10.1038/mp.2013.130",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 47,
+      "study_doi": "10.1038/s41398-019-0624-1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 48,
+      "study_doi": "10.1038/s41398-021-01540-2",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 49,
+      "study_doi": "10.1038/s41398-023-02456-9",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 50,
+      "study_doi": "10.1038/sj.bjp.0707473",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 51,
+      "study_doi": "10.1038/sj.mp.4001093",
+      "matched_paper": true,
+      "changed_fields": [
+        "assay_type",
+        "authors",
+        "evidence_locator"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 52,
+      "study_doi": "10.1055/s-0032-1307601",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 53,
+      "study_doi": "10.1055/s-0033-1336484",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 54,
+      "study_doi": "10.1055/s-0033-1336485",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 55,
+      "study_doi": "10.1055/s-0033-1336486",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 56,
+      "study_doi": "10.1055/s-0035-1545192",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 57,
+      "study_doi": "10.1071/ch23010",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 58,
+      "study_doi": "10.1074/jbc.m505055200",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 59,
+      "study_doi": "10.1093/brain/awab406",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 60,
+      "study_doi": "10.1093/brain/awab406",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 61,
+      "study_doi": "10.1093/ijnp/pyv065",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 62,
+      "study_doi": "10.1093/ijnp/pyy094",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 63,
+      "study_doi": "10.1093/ijnp/pyz041",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 64,
+      "study_doi": "10.1093/schbul/sbs069",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 65,
+      "study_doi": "10.1096/fasebj.2018.32.1_supplement.680.6",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 66,
+      "study_doi": "10.1096/fasebj.2018.32.1_supplement.829.10",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 67,
+      "study_doi": "10.1096/fasebj.2020.34.s1.05856",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 68,
+      "study_doi": "10.1096/fasebj.2020.34.s1.05856",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 69,
+      "study_doi": "10.1096/fasebj.2022.36.s1.r5394",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 70,
+      "study_doi": "10.1096/fasebj.21.6.a776-a",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 71,
+      "study_doi": "10.1096/fasebj.30.1_supplement.1186.7",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 72,
+      "study_doi": "10.1096/fj.11-195016",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 73,
+      "study_doi": "10.1096/fj.11-195016",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 74,
+      "study_doi": "10.1097/00000539-199811000-00039",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 75,
+      "study_doi": "10.1097/00000542-199910000-00026",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 76,
+      "study_doi": "10.1097/00000542-200208000-00029",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 77,
+      "study_doi": "10.1097/00000542-200501000-00030",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 78,
+      "study_doi": "10.1097/aln.0000000000000243",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 79,
+      "study_doi": "10.1097/fbp.0000000000000014",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 80,
+      "study_doi": "10.1101/2021.02.03.429325",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 81,
+      "study_doi": "10.1101/2021.07.22.453441",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 82,
+      "study_doi": "10.1101/2022.11.15.516655",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 83,
+      "study_doi": "10.1101/2024.04.12.589282",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 84,
+      "study_doi": "10.1101/2024.10.20.619256",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 85,
+      "study_doi": "10.1101/2024.10.22.619393",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 86,
+      "study_doi": "10.1111/bph.12520",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 87,
+      "study_doi": "10.1111/bph.12520",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 88,
+      "study_doi": "10.1111/cns.14464",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 89,
+      "study_doi": "10.1111/j.1749-6632.1999.tb08033.x",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 90,
+      "study_doi": "10.1111/jnc.12114",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 91,
+      "study_doi": "10.1113/jphysiol.2009.176297",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 92,
+      "study_doi": "10.1155/2014/734749",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 93,
+      "study_doi": "10.1155/2017/2319094",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 94,
+      "study_doi": "10.1155/2020/5798285",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 95,
+      "study_doi": "10.1177/0269881119849821",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 96,
+      "study_doi": "10.1177/02698811251330741",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 97,
+      "study_doi": "10.1177/02698811251361453",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 98,
+      "study_doi": "10.1177/02698811251361453",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 99,
+      "study_doi": "10.1177/1536012118788636",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 100,
+      "study_doi": "10.1177/2040622315579059",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 101,
+      "study_doi": "10.1186/1471-2210-6-6",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 102,
+      "study_doi": "10.1192/bjo.2023.535",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 103,
+      "study_doi": "10.1192/j.eurpsy.2021.1114",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 104,
+      "study_doi": "10.1212/wnl.48.5.1212",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 105,
+      "study_doi": "10.1213/00000539-199811000-00039",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 106,
+      "study_doi": "10.12688/f1000research.14344.1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 107,
+      "study_doi": "10.12688/f1000research.8384.1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 108,
+      "study_doi": "10.12740/pp/onlinefirst/134330",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 109,
+      "study_doi": "10.1371/journal.pone.0089985",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 110,
+      "study_doi": "10.1371/journal.pone.0106533",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 111,
+      "study_doi": "10.1371/journal.pone.0194984",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 112,
+      "study_doi": "10.14814/phy2.15088",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 113,
+      "study_doi": "10.1517/13543776.2014.972938",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 114,
+      "study_doi": "10.1523/eneuro.0157-23.2023",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 115,
+      "study_doi": "10.1523/eneuro.0285-16.2017",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 116,
+      "study_doi": "10.1523/jneurosci.1171-11.2011",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 117,
+      "study_doi": "10.1523/jneurosci.1547-16.2016",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 118,
+      "study_doi": "10.1523/jneurosci.17-08-02921.1997",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 119,
+      "study_doi": "10.1523/jneurosci.22-01-j0003.2002",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 120,
+      "study_doi": "10.1523/jneurosci.4034-14.2015",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 121,
+      "study_doi": "10.1523/jneurosci.4034-14.2015",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 122,
+      "study_doi": "10.17615/wb9e-4z40",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 123,
+      "study_doi": "10.20944/preprints202202.0156.v1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 124,
+      "study_doi": "10.20944/preprints202202.0156.v2",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 125,
+      "study_doi": "10.20944/preprints202305.2199.v1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 126,
+      "study_doi": "10.21203/rs.3.rs-4242829/v1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 127,
+      "study_doi": "10.2174/157015911795017254",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 128,
+      "study_doi": "10.2174/157015911795017425",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 129,
+      "study_doi": "10.2174/1570159x14666160321123221",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 130,
+      "study_doi": "10.22215/etd/2023-15485",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 131,
+      "study_doi": "10.26434/chemrxiv-2023-h7h38",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 132,
+      "study_doi": "10.26434/chemrxiv.5728286.v1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 133,
+      "study_doi": "10.30773/pi.2019.0236",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 134,
+      "study_doi": "10.3109/00207454.2012.761215",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 135,
+      "study_doi": "10.32592/ari.2023.78.5.1603",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 136,
+      "study_doi": "10.3389/fmolb.2023.1233743",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 137,
+      "study_doi": "10.3389/fnbeh.2014.00180",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 138,
+      "study_doi": "10.3389/fnins.2021.672526",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 139,
+      "study_doi": "10.3389/fphar.2015.00190",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 140,
+      "study_doi": "10.3389/fphar.2019.01406",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 141,
+      "study_doi": "10.3389/fphar.2021.711255",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 142,
+      "study_doi": "10.3389/fphar.2021.740996",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 143,
+      "study_doi": "10.3389/fphar.2023.1228895",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 144,
+      "study_doi": "10.3389/fphar.2023.1228895",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 145,
+      "study_doi": "10.3390/biom10060947",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 146,
+      "study_doi": "10.3390/biom10081134",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 147,
+      "study_doi": "10.3390/biomedicines11102664",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 148,
+      "study_doi": "10.3390/biomedicines8020034",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 149,
+      "study_doi": "10.3390/ijms17111953",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 150,
+      "study_doi": "10.3390/ijms21207581",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 151,
+      "study_doi": "10.3390/ijms21217951",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 152,
+      "study_doi": "10.3390/ijms222312995",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 153,
+      "study_doi": "10.3390/ijms222312995",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 154,
+      "study_doi": "10.3390/ijms23052514",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 155,
+      "study_doi": "10.3390/ijms232214148",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 156,
+      "study_doi": "10.3390/ijms241612987",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 157,
+      "study_doi": "10.3390/ijms252413658",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 158,
+      "study_doi": "10.3390/medicina55070393",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 159,
+      "study_doi": "10.3390/molecules26092451",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 160,
+      "study_doi": "10.3390/ph15080997",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 161,
+      "study_doi": "10.3390/ph16040634",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 162,
+      "study_doi": "10.3390/ph16050742",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 163,
+      "study_doi": "10.3390/ph16071013",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 164,
+      "study_doi": "10.3390/ph16111572",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 165,
+      "study_doi": "10.3390/ph18020157",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 166,
+      "study_doi": "10.37506/ijfmt.v16i4.18608",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 167,
+      "study_doi": "10.52965/001c.25091",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 168,
+      "study_doi": "10.54254/2753-8818/21/20230859",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 169,
+      "study_doi": "10.5451/unibas-006616893",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design",
+        "system"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 170,
+      "study_doi": "10.5772/intechopen.1010820",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 3,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value",
+        "assay_type"
+      ]
+    },
+    {
+      "stub_index": 171,
+      "study_doi": "10.7554/elife.104006",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 172,
+      "study_doi": "10.7554/elife.104006.1",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 173,
+      "study_doi": "10.9758/cpn.2014.12.1.72",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_level",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    },
+    {
+      "stub_index": 174,
+      "study_doi": "10.9758/cpn.22.1034",
+      "matched_paper": true,
+      "changed_fields": [
+        "access_level",
+        "assay_type",
+        "authors",
+        "evidence_location",
+        "evidence_locator",
+        "notes",
+        "study_design"
+      ],
+      "blocker_count_after": 2,
+      "blocker_fields_after": [
+        "affinity_unit",
+        "affinity_value"
+      ]
+    }
+  ]
+}

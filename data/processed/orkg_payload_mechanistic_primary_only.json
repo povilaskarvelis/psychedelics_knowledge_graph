@@ -1,0 +1,802 @@
+{
+  "contract_version": "1.0",
+  "dataset": "mechanistic",
+  "evidence_view": "primary_only",
+  "template": "Psychedelics: Mechanistic Targets",
+  "input_file": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/curated/claims.json",
+  "row_count": 24,
+  "contributions": [
+    {
+      "external_id": "mech-907542bd09eeb923",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1007/s00213-011-2616-6",
+        "openalex_id": "",
+        "title": "Behavioral effects of α,α,β,β-tetradeutero-5-MeO-DMT in rats: comparison with 5-MeO-DMT administered in combination with a monoamine oxidase inhibitor",
+        "authors": "Adam L. Halberstadt; David E. Nichols; Mark A. Geyer",
+        "year": 2012
+      },
+      "resources": {
+        "compound": "5-MeO-DMT",
+        "target": "5-HT1A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 3.0,
+        "affinity_unit": "nM",
+        "species": "human (cloned receptors)",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table 1",
+        "study_design": "in_vitro_binding_assay",
+        "notes": "Table 1 receptor binding data ([3H]8-OH-DPAT), human cloned receptors"
+      }
+    },
+    {
+      "external_id": "mech-a0477ee783c1b1e5",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1007/s00213-011-2616-6",
+        "openalex_id": "",
+        "title": "Behavioral effects of α,α,β,β-tetradeutero-5-MeO-DMT in rats: comparison with 5-MeO-DMT administered in combination with a monoamine oxidase inhibitor",
+        "authors": "Adam L. Halberstadt; David E. Nichols; Mark A. Geyer",
+        "year": 2012
+      },
+      "resources": {
+        "compound": "5-MeO-DMT",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 907.0,
+        "affinity_unit": "nM",
+        "species": "human (cloned receptors)",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table 1",
+        "study_design": "in_vitro_binding_assay",
+        "notes": "Table 1 receptor binding data ([3H]ketanserin), human cloned receptors"
+      }
+    },
+    {
+      "external_id": "mech-90d5fb27edae87a7",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1007/s00213-011-2616-6",
+        "openalex_id": "",
+        "title": "Behavioral effects of α,α,β,β-tetradeutero-5-MeO-DMT in rats: comparison with 5-MeO-DMT administered in combination with a monoamine oxidase inhibitor",
+        "authors": "Adam L. Halberstadt; David E. Nichols; Mark A. Geyer",
+        "year": 2012
+      },
+      "resources": {
+        "compound": "5-MeO-DMT",
+        "target": "5-HT2C"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 418.0,
+        "affinity_unit": "nM",
+        "species": "rat (cloned receptors)",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table 1",
+        "study_design": "in_vitro_binding_assay",
+        "notes": "Table 1 receptor binding data ([3H]mesulergine), rat cloned receptors"
+      }
+    },
+    {
+      "external_id": "mech-b2919c167b62c411",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.3389/fphar.2025.1703480",
+        "openalex_id": "",
+        "title": "Receptor interaction profiles of 4-alkoxy-2,6-dimethoxyphenethylamines (Ψ derivatives) and related amphetamines",
+        "authors": "Karolina E. Kolaczynska; Daniel Trachsel; Marius C. Hoener; Matthias E. Liechti; Dino Luethi",
+        "year": 2025
+      },
+      "resources": {
+        "compound": "DMT",
+        "target": "TAAR1"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 120.0,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: rat ( K i \u0003 1.6 nM), and mouse ( K i \u0003 120 nM) TAAR1, 120 nM) TAAR1, the h \u0003 1A adrenoceptor ( K i \u0003",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-67a9a523a58f3008",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1007/s00213-013-3234-2",
+        "openalex_id": "",
+        "title": "Co-administration of 5-HT6 receptor antagonists with clozapine, risperidone, and a 5-HT2A receptor antagonist: effects on prepulse inhibition in rats",
+        "authors": "Katarzyna Fijał; Piotr Popik; Agnieszka Nikiforuk",
+        "year": 2013
+      },
+      "resources": {
+        "compound": "LSD",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "functional assay",
+        "affinity_type": "Ki",
+        "affinity_value": 10.96,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vivo",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: rotonin r e ceptors, t h e af fin i ty of clozapine f or 5-HT2A f or 5-HT2A rece p- tors (Ki = 10.96 nM) i s",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-5494259e7264765a",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1038/s41386-018-0076-y",
+        "openalex_id": "",
+        "title": "Chronic cannabis promotes pro-hallucinogenic signaling of 5-HT2A receptors through Akt/mTOR pathway",
+        "authors": "Inés Ibarra‐Lecue; Irene Mollinedo-Gajate; J. Javier Meana; Luís F. Callado; Rebeca Dı́ez-Alarcia; Leyre Urigüen",
+        "year": 2018
+      },
+      "resources": {
+        "compound": "LSD",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Kd",
+        "affinity_value": 10.0,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: moved, cortex dissected, and samples stored at \u0015 80 °C until use. Membrane- enriched fraction (P2) was prepared as described [ 18 ]. Radioligand binding [ 3 H]Ketanserin saturation",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-4fced2fad9684b5a",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.3389/fphar.2019.01406",
+        "openalex_id": "",
+        "title": "Neurochemical and Behavioral Profiling in Male and Female Rats of the Psychedelic Agent 25I-NBOMe",
+        "authors": "Cristina Miliano; Matteo Marti; Nicholas Pintori; M. Paola Castelli; Micaela Tirri; Raffaella Arfè; Maria Antonietta De Luca",
+        "year": 2019
+      },
+      "resources": {
+        "compound": "LSD",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "functional assay",
+        "affinity_type": "Ki",
+        "affinity_value": 0.044,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vivo",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: e), a r e p r o b a b l y t h e m os t fa m o u s; t h e y u s e d t o b e m a r k et e d a s a lega l l ys er g ic acid diet h y l a mide (LS D), w i t h a li a s es s uc h a s ",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-e1147454d5ab3a00",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1089/psymed.2023.0015",
+        "openalex_id": "",
+        "title": "Methylenedioxymethamphetamine (MDMA): History, Neurobiology, and Therapeutic Potential",
+        "authors": "Not available (DOI metadata unresolved)",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "DAT"
+      },
+      "properties": {
+        "assay_type": "uptake inhibition",
+        "affinity_type": "IC50",
+        "affinity_value": 17.0,
+        "affinity_unit": "uM",
+        "species": "human (in vitro)",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_uptake_assay",
+        "notes": "Table reports range 12-24 uM"
+      }
+    },
+    {
+      "external_id": "mech-611628225e179315",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1038/s41380-025-03201-y",
+        "openalex_id": "",
+        "title": "Cell membrane cholesterol affects serotonin transporter efflux due to altered transporter oligomerization",
+        "authors": "Deborah Rudin; Dino Luethi; Marco Niello; Jae‐Won Yang; Isabella Burger; Walter Sandtner; Ruth Birner‐Gruenberger; Gerhard J. Schütz; Harald H. Sitte",
+        "year": 2025
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "DAT (SLC6A3)"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Other",
+        "affinity_value": 6.0,
+        "affinity_unit": "mM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: e ratio of V max of [ 3 H]5-HT uptake (Fig. 1 )/ B max of [ 3 H]imipramine binding (Fig. 2 )) [ 62 ] were 103 ± 2.3, 60 ± 2.1, and 105 ± 3.9 min \u0015 1 for control, 6 m M M \u0001 CD, and",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-a586554464cfa0be",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1371/journal.pcbi.1002909",
+        "openalex_id": "",
+        "title": "Mutational Analysis of the High-Affinity Zinc Binding Site Validates a Refined Human Dopamine Transporter Homology Model",
+        "authors": "Thomas Stockner; Therese Montgomery; Oliver Kudlacek; René Weissensteiner; Gerhard F. Ecker; Michael Freissmuth; Harald H. Sitte",
+        "year": 2013
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "DAT (SLC6A3)"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "IC50",
+        "affinity_value": 1.0,
+        "affinity_unit": "M",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: [18,21]. We assessed the ability of zinc to inhibit substrate uptake by these mutants and used wild-type DAT and DAT-H193K as reference: in wild-type DAT (black symbols in Fig. 8D)",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-ddced65cd172dfaf",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1371/journal.pone.0136641",
+        "openalex_id": "",
+        "title": "A Physical Interaction between the Dopamine Transporter and DJ-1 Facilitates Increased Dopamine Reuptake",
+        "authors": "Beryl Luk; Mohinuddin Mohammed; Fang Liu; Frank J.S. Lee",
+        "year": 2015
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "DAT (SLC6A3)"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Other",
+        "affinity_value": 50.0,
+        "affinity_unit": "mM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: ada) was used to determine protein concentratio ns by reading absorbanc e values at 595 nm on a Victor Plate Re ader (PerkinElmer, Woodbridge, ON, Canada ). Affinity purification a",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-4447a121795f0438",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.3389/fchem.2021.753990",
+        "openalex_id": "",
+        "title": "Bile Acids Gate Dopamine Transporter Mediated Currents",
+        "authors": "Tiziana Romanazzi; Daniele Zanella; Mary Hongying Cheng; Behrgen Smith; Angela M. Carter; Aurelio Galli; İvet Bahar; Elena Bossi",
+        "year": 2021
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "DAT (SLC6A3)"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Other",
+        "affinity_value": 30.0,
+        "affinity_unit": "uM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: to hDAT D79 (D46 in dDAT) plays a major role in coordinating the binding of the amine group through a salt bridge formation FIG URE 2 | OCA modulates t he mDAT-med i ated leak curr",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-bc4e05b4f8695a72",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.3389/fphar.2021.654061",
+        "openalex_id": "",
+        "title": "Effects of Hydroxylated Mephedrone Metabolites on Monoamine Transporter Activity in vitro",
+        "authors": "Marco Niello; Daniela Cintulová; Philip Raithmayr; Marion Holy; Kathrin Jäntsch; Claire Colas; Gerhard F. Ecker; Harald H. Sitte; Marko D. Mihovilovič",
+        "year": 2021
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "DAT (SLC6A3)"
+      },
+      "properties": {
+        "assay_type": "uptake inhibition",
+        "affinity_type": "IC50",
+        "affinity_value": 30.0,
+        "affinity_unit": "uM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: e curves and therefore we cannot conclude if metabolism convert the full-releaser mephedrone in a partial substrate. Future work will be dedicated to this aspect. However, given th",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-e28da142c907d597",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.3390/ijms252011276",
+        "openalex_id": "",
+        "title": "Design and Synthesis of Potential Multi-Target Antidepressants: Exploration of 1-(4-(7-Azaindole)-3,6-dihydropyridin-1-yl)alkyl-3-(1H-indol-3-yl)pyrrolidine-2,5-dione Derivatives with Affinity for the Serotonin Transporter",
+        "authors": "Martyna Z. Wróbel; Andrzej Chodkowski; Agata Siwek; Grzegorz Satała; Andrzej J. Bojarski; Maciej Dawidowski",
+        "year": 2024
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "DAT (SLC6A3)"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Other",
+        "affinity_value": 120.0,
+        "affinity_unit": "mM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: er , W altham, MA, USA). All assays wer e carried out in duplicates. W orking solutions of 50 \u0016 L of the tested compounds, 50 \u0016 L of [ 3 H]-imipramine (\u0002nal concentration 2 nM) and",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-e911a036885cc469",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1089/psymed.2023.0015",
+        "openalex_id": "",
+        "title": "Methylenedioxymethamphetamine (MDMA): History, Neurobiology, and Therapeutic Potential",
+        "authors": "Not available (DOI metadata unresolved)",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "NET"
+      },
+      "properties": {
+        "assay_type": "uptake inhibition",
+        "affinity_type": "IC50",
+        "affinity_value": 0.447,
+        "affinity_unit": "uM",
+        "species": "human (in vitro)",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_uptake_assay",
+        "notes": "Table reports range 0.13-0.8 uM"
+      }
+    },
+    {
+      "external_id": "mech-a9df56e6d918e917",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1089/psymed.2023.0015",
+        "openalex_id": "",
+        "title": "Methylenedioxymethamphetamine (MDMA): History, Neurobiology, and Therapeutic Potential",
+        "authors": "Not available (DOI metadata unresolved)",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "SERT"
+      },
+      "properties": {
+        "assay_type": "uptake inhibition",
+        "affinity_type": "IC50",
+        "affinity_value": 1.36,
+        "affinity_unit": "uM",
+        "species": "human (in vitro)",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_uptake_assay",
+        "notes": "Table reports range 0.83-2.1 uM"
+      }
+    },
+    {
+      "external_id": "mech-e8114f320ee470b4",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1038/s41380-023-02064-5",
+        "openalex_id": "",
+        "title": "Ethanol inhibits dopamine uptake via organic cation transporter 3: Implications for ethanol and cocaine co-abuse",
+        "authors": "Nikki Clauss; Felix P. Mayer; William A. Owens; Melissa Vitela; K. Clarke; Marjorie A. Bowman; Robert Horton; Dirk Gründemann; Diethart Schmid; Maja Holy",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "SERT (SLC6A4)"
+      },
+      "properties": {
+        "assay_type": "uptake inhibition",
+        "affinity_type": "Ki",
+        "affinity_value": 1.0,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: ti me fol low ed si mi la r pat te rn s (SI Ta bl e 1). Dr ugs ge ne ral ly di d not ha ve sig ni \u0001 can t Table 1. Ki va lues for displacement of radioliga nds for DA T , NET and S",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-632c3fc20707550e",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1371/journal.pone.0036476",
+        "openalex_id": "",
+        "title": "Duloxetine Inhibits Effects of MDMA (“Ecstasy\") In Vitro and in Humans in a Randomized Placebo-Controlled Laboratory Study",
+        "authors": "Cédric M. Hysek; Linda D. Simmler; V.G. Nicola; Nerina Vischer; Massimiliano Donzelli; Stephan Krähenbühl; Eric Grouzmann; Jörg Huwyler; Marius C. Hoener; Matthias E. Liechti",
+        "year": 2012
+      },
+      "resources": {
+        "compound": "MDMA",
+        "target": "SERT (SLC6A4)"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Kd",
+        "affinity_value": 2.2,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: 3 H]-citalopram ( , 72 C i / mmol; Perkin-Elmer) was the radioligand for the SERT for the SERT assay and had a K d of 2.2 nM.",
+        "study_design": "randomized_controlled_trial",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-0c70e9f6a013b41b",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1016/S0014-2999(97)01116-3",
+        "openalex_id": "",
+        "title": "Norketamine is a noncompetitive antagonist at the NMDA receptor",
+        "authors": "Bjarke Ebert; Soren Mikkelsen; Christian Thorkildsen; Finn M. Borgbjerg",
+        "year": 1997
+      },
+      "resources": {
+        "compound": "R-ketamine",
+        "target": "NMDA receptor"
+      },
+      "properties": {
+        "assay_type": "[3H]MK-801 binding",
+        "affinity_type": "Ki",
+        "affinity_value": 1.4,
+        "affinity_unit": "uM",
+        "species": "rat",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "abstract_only",
+        "evidence_location": "abstract",
+        "evidence_locator": "Abstract",
+        "study_design": "in_vitro_binding_assay",
+        "notes": "Ki reported for R-ketamine in abstract"
+      }
+    },
+    {
+      "external_id": "mech-df6848ab7aac2078",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1007/s12640-017-9759-0",
+        "openalex_id": "",
+        "title": "Comparison of the Psychopharmacological Effects of Tiletamine and Ketamine in Rodents",
+        "authors": "Piotr Popik; Małgorzata Hołuj; Tomasz Kos; Gabriel Nowak; Tadeusz Librowski; Kinga Sałat",
+        "year": 2017
+      },
+      "resources": {
+        "compound": "S-ketamine",
+        "target": "NMDA receptor"
+      },
+      "properties": {
+        "assay_type": "functional assay",
+        "affinity_type": "Ki",
+        "affinity_value": 1000.0,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vivo",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: r ol ; # P < 0. 05 v s. ac qu is it io n tr ia l 55 0 N eu ro to x Re s ( 20 17 ) 32 :5 44  55 4 R R ti me s mo re po te nt . At pr es en t, we ca nn ot of fe r an ex pl an at io",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-13908d6b4b3b921a",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1016/S0014-2999(97)01116-3",
+        "openalex_id": "",
+        "title": "Norketamine is a noncompetitive antagonist at the NMDA receptor",
+        "authors": "Bjarke Ebert; Soren Mikkelsen; Christian Thorkildsen; Finn M. Borgbjerg",
+        "year": 1997
+      },
+      "resources": {
+        "compound": "S-ketamine",
+        "target": "NMDA receptor"
+      },
+      "properties": {
+        "assay_type": "[3H]MK-801 binding",
+        "affinity_type": "Ki",
+        "affinity_value": 0.3,
+        "affinity_unit": "uM",
+        "species": "rat",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "abstract_only",
+        "evidence_location": "abstract",
+        "evidence_locator": "Abstract",
+        "study_design": "in_vitro_binding_assay",
+        "notes": "Ki reported for S-ketamine in abstract"
+      }
+    },
+    {
+      "external_id": "mech-e9483d39f8d78992",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1038/s41386-023-01614-3",
+        "openalex_id": "",
+        "title": "Therapeutic potential of N-methyl-D-aspartate receptor modulators in psychiatry",
+        "authors": "Jesse E. Hanson; Hongjie Yuan; Riley E. Perszyk; Tue G. Banke; Hao Xing; Ming‐Chi Tsai; Frank S. Menniti; Stephen F. Traynelis",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "S-ketamine",
+        "target": "NMDA receptor"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Other",
+        "affinity_value": 100.0,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vivo",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: AM-bound NTD on the agonist binding domain to increase apparent glutamate af \u0001 nity, thereby increasing receptor occupancy at low glutamate levels. A potential consequence is that",
+        "study_design": "in_vitro_binding_assay",
+        "notes": "Auto-generated stub from DOI queue; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-992a34894b2e7a57",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1038/s41386-023-01783-1",
+        "openalex_id": "",
+        "title": "GM-1020: a novel, orally bioavailable NMDA receptor antagonist with rapid and robust antidepressant-like effects at well-tolerated doses in rodents",
+        "authors": "Adam K. Klein; Eric W. Austin; Michael J. Cunningham; Dino Dvořák; Silvia Gatti; Sarah K. Hulls; L. L. Kiss; Andrew C. Kruegel; Gerard J. Marek; Mariusz Papp",
+        "year": 2024
+      },
+      "resources": {
+        "compound": "S-ketamine",
+        "target": "NMDA receptor"
+      },
+      "properties": {
+        "assay_type": "functional assay",
+        "affinity_type": "Ki",
+        "affinity_value": 3.25,
+        "affinity_unit": "uM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: n d in th e sup pl em en tar y m eth od s. Th e r e s u lts o f th e s t a t ist ic al te st s a r e de sc ri be d i n t h e co rre sp on di ng \u0001 gu re le gen d. RESULTS NMDAR bind",
+        "study_design": "preclinical_study",
+        "notes": "Auto-generated stub from DOI queue; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-3c10573d182d5f12",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1038/s41467-020-14889-7",
+        "openalex_id": "",
+        "title": "Nanobody-enabled monitoring of kappa opioid receptor states",
+        "authors": "Tao Che; Justin G. English; B. Krumm; Kuglae Kim; Els Pardon; Reid H. J. Olsen; Sheng Wang; Shicheng Zhang; Jeffrey F. DiBerto; Noah Sciaky",
+        "year": 2020
+      },
+      "resources": {
+        "compound": "Salvinorin A",
+        "target": "kappa opioid receptor (OPRK1)"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Kd",
+        "affinity_value": 0.065,
+        "affinity_unit": "nM",
+        "species": "",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "provenance": {
+        "source_type": "primary_study",
+        "access_level": "full_text_seen",
+        "evidence_location": "text",
+        "evidence_locator": "PDF extraction snippet: has a much higher binding af \u0001 nity than Sal A a t wild type KOR wild type KOR (Kd, 0.065 nM for JDTic vs 10.9 nM for",
+        "study_design": "in_vitro_binding_assay",
+        "notes": "Auto-generated stub from DOI queue; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    }
+  ]
+}

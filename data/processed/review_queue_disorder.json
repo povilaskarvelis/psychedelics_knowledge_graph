@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-02-12T05:17:18.565676+00:00",
+  "dataset": "disorder",
+  "status_filter": "pending_curation",
+  "apply": false,
+  "counts": {
+    "stubs_total": 209,
+    "in_scope": 0,
+    "clean_rows": 0,
+    "blocked_rows": 0
+  },
+  "status_updates": {
+    "mark_ready": false,
+    "set_status": "",
+    "row_indices": "",
+    "updated_count": 0
+  },
+  "rows": []
+}

@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Local paper library downloads (large binary assets)
+data/raw/papers/

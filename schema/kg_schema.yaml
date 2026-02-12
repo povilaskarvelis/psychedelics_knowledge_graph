@@ -1,0 +1,99 @@
+version: 0.2
+name: psychedelics_mechanistic_targets
+
+entities:
+  - name: Compound
+    description: Psychoactive compound or prodrug
+    id_fields: [name]
+  - name: Target
+    description: Receptor, transporter, or enzyme target
+    id_fields: [name]
+  - name: Disorder
+    description: Clinical disorder or indication
+    id_fields: [name]
+  - name: Study
+    description: Published study or preprint with mechanistic evidence
+    id_fields: [doi, openalex_id]
+
+relations:
+  - name: targets
+    from: Compound
+    to: Target
+    description: Aggregated evidence across studies
+    properties:
+      - name: evidence_count
+        type: integer
+      - name: evidence_level
+        type: enum
+        values: [low, medium, high]
+      - name: source
+        type: string
+
+  - name: investigates
+    from: Study
+    to: Compound
+    properties:
+      - name: year
+        type: integer
+      - name: source
+        type: string
+
+  - name: reports_binding
+    from: Study
+    to: Target
+    properties:
+      - name: compound
+        type: string
+      - name: assay_type
+        type: string
+      - name: affinity_type
+        type: enum
+        values: [Ki, Kd, IC50, EC50, EC90, Other]
+      - name: affinity_value
+        type: number
+      - name: affinity_unit
+        type: string
+      - name: species
+        type: string
+      - name: system
+        type: enum
+        values: [in_vitro, in_vivo, ex_vivo, unknown]
+      - name: evidence_level
+        type: enum
+        values: [low, medium, high]
+      - name: source
+        type: string
+
+  - name: treats
+    from: Compound
+    to: Disorder
+    description: Aggregate evidence that a compound impacts a disorder
+    properties:
+      - name: evidence_count
+        type: integer
+      - name: evidence_level
+        type: enum
+        values: [low, medium, high]
+      - name: source
+        type: string
+
+  - name: reports_outcome
+    from: Study
+    to: Disorder
+    properties:
+      - name: compound
+        type: string
+      - name: outcome_type
+        type: string
+      - name: outcome_measure
+        type: string
+      - name: population
+        type: string
+      - name: system
+        type: enum
+        values: [clinical, preclinical, observational, unknown]
+      - name: evidence_level
+        type: enum
+        values: [low, medium, high]
+      - name: source
+        type: string

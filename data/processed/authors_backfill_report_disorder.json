@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-02-12T05:17:14.773862+00:00",
+  "dataset": "disorder",
+  "status_filter": "pending_curation",
+  "mark_ready": true,
+  "fallback_unknown": true,
+  "apply": true,
+  "counts": {
+    "stubs_total": 209,
+    "candidates": 5,
+    "updated_rows": 5,
+    "ready_marked": 5,
+    "resolved_from_paper_db": 0,
+    "resolved_from_openalex": 0,
+    "resolved_from_crossref": 0,
+    "resolved_from_fallback_unknown": 5,
+    "unresolved": 0,
+    "paper_db_rows_updated": 5,
+    "openalex_attempted": 5,
+    "openalex_errors": 5,
+    "crossref_attempted": 5,
+    "crossref_errors": 5
+  },
+  "rows": [
+    {
+      "stub_index": 11,
+      "study_doi": "10.1002/pu.31300",
+      "source_used": "fallback_unknown",
+      "authors_after": "Unknown",
+      "changed_fields": [
+        "authors",
+        "stub_status"
+      ],
+      "openalex_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "crossref_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 38,
+      "study_doi": "10.1093/alcalc/agad094",
+      "source_used": "fallback_unknown",
+      "authors_after": "Unknown",
+      "changed_fields": [
+        "authors",
+        "stub_status"
+      ],
+      "openalex_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "crossref_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 70,
+      "study_doi": "10.1002/pu.30946",
+      "source_used": "fallback_unknown",
+      "authors_after": "Unknown",
+      "changed_fields": [
+        "authors",
+        "stub_status"
+      ],
+      "openalex_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "crossref_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 95,
+      "study_doi": "10.1002/pu.30675",
+      "source_used": "fallback_unknown",
+      "authors_after": "Unknown",
+      "changed_fields": [
+        "authors",
+        "stub_status"
+      ],
+      "openalex_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "crossref_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 164,
+      "study_doi": "10.1002/pu.30352",
+      "source_used": "fallback_unknown",
+      "authors_after": "Unknown",
+      "changed_fields": [
+        "authors",
+        "stub_status"
+      ],
+      "openalex_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "crossref_error": "URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+      "blocker_fields_after": []
+    }
+  ]
+}

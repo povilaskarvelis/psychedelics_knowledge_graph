@@ -1,0 +1,2005 @@
+{
+  "generated_at": "2026-02-12T04:27:29.763573+00:00",
+  "dataset": "disorder",
+  "apply": true,
+  "mode": "move",
+  "relevance_labels": [
+    "likely_irrelevant"
+  ],
+  "triage_json": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/processed/triage_report_disorder.json",
+  "paper_db_json": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/processed/paper_library_disorder.json",
+  "paper_db_csv": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/processed/paper_library_disorder.csv",
+  "archive_dir": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded",
+  "counts": {
+    "candidates": 110,
+    "operations_planned": 110,
+    "moved": 110,
+    "deleted": 0,
+    "failed": 0,
+    "bytes_affected": 148710671
+  },
+  "operations": [
+    {
+      "study_doi": "10.1007/s00210-018-1589-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00210-018-1589-y__84a6bd8726.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 885516,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00210-018-1589-y__84a6bd8726.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-016-4377-8",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-016-4377-8__a5c43c4ca4.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 740544,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-016-4377-8__a5c43c4ca4.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-016-4453-0",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-016-4453-0__ede8ecc020.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 836250,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-016-4453-0__ede8ecc020.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-017-4650-5",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-017-4650-5__c4bcd0e5a8.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 788351,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-017-4650-5__c4bcd0e5a8.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-017-4733-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-017-4733-3__0025d1b918.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 516932,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-017-4733-3__0025d1b918.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-017-4820-5",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-017-4820-5__896345364e.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1346604,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-017-4820-5__896345364e.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-018-5049-7",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-018-5049-7__2ba5f7d118.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 714977,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-018-5049-7__2ba5f7d118.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-019-05236-w",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-019-05236-w__bc10476024.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1031160,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-019-05236-w__bc10476024.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-019-05414-w",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-019-05414-w__3dd66e70c5.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 810488,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-019-05414-w__3dd66e70c5.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-019-05417-7",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-019-05417-7__bad5b1f716.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 486949,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-019-05417-7__bad5b1f716.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-020-05719-1",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-020-05719-1__77ff81b2ef.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 724881,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-020-05719-1__77ff81b2ef.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00213-022-06187-5",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-022-06187-5__2496d86857.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1772574,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00213-022-06187-5__2496d86857.pdf"
+    },
+    {
+      "study_doi": "10.1007/s00787-024-02458-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00787-024-02458-y__f258f1d013.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1816,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s00787-024-02458-y__f258f1d013.pdf"
+    },
+    {
+      "study_doi": "10.1007/s11136-018-1825-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11136-018-1825-4__31032108aa.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 943919,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s11136-018-1825-4__31032108aa.pdf"
+    },
+    {
+      "study_doi": "10.1007/s11136-018-2063-5",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11136-018-2063-5__718bdbcbc8.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1128201,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s11136-018-2063-5__718bdbcbc8.pdf"
+    },
+    {
+      "study_doi": "10.1007/s11136-021-02788-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11136-021-02788-3__2f498551d2.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 728378,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s11136-021-02788-3__2f498551d2.pdf"
+    },
+    {
+      "study_doi": "10.1007/s11255-022-03374-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11255-022-03374-3__16fbdc0673.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1817,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s11255-022-03374-3__16fbdc0673.pdf"
+    },
+    {
+      "study_doi": "10.1007/s11259-024-10542-6",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11259-024-10542-6__bdf6fdffab.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 876506,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s11259-024-10542-6__bdf6fdffab.pdf"
+    },
+    {
+      "study_doi": "10.1007/s11920-024-01567-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11920-024-01567-4__eb5f50775c.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 686503,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s11920-024-01567-4__eb5f50775c.pdf"
+    },
+    {
+      "study_doi": "10.1007/s12105-018-0981-8",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s12105-018-0981-8__1cc0ce9d9f.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 479324,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s12105-018-0981-8__1cc0ce9d9f.pdf"
+    },
+    {
+      "study_doi": "10.1007/s13311-017-0542-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s13311-017-0542-y__6ce85e813e.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 384941,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s13311-017-0542-y__6ce85e813e.pdf"
+    },
+    {
+      "study_doi": "10.1007/s13311-020-00962-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s13311-020-00962-y__c1bca6541f.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 604482,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s13311-020-00962-y__c1bca6541f.pdf"
+    },
+    {
+      "study_doi": "10.1007/s13555-024-01103-5",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s13555-024-01103-5__2dc0d22d07.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 901941,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s13555-024-01103-5__2dc0d22d07.pdf"
+    },
+    {
+      "study_doi": "10.1007/s40262-017-0513-9",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40262-017-0513-9__3224277632.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 952049,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s40262-017-0513-9__3224277632.pdf"
+    },
+    {
+      "study_doi": "10.1007/s40263-020-00748-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40263-020-00748-y__2f2dc3d9a6.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1090490,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s40263-020-00748-y__2f2dc3d9a6.pdf"
+    },
+    {
+      "study_doi": "10.1007/s40263-024-01114-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40263-024-01114-y__bd36af75ed.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1495939,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s40263-024-01114-y__bd36af75ed.pdf"
+    },
+    {
+      "study_doi": "10.1007/s40290-024-00526-x",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40290-024-00526-x__b5928032e2.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 604418,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1007_s40290-024-00526-x__b5928032e2.pdf"
+    },
+    {
+      "study_doi": "10.1016/j.jad.2020.02.023",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1016_j.jad.2020.02.023__f5c2f60b2f.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 127468,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1016_j.jad.2020.02.023__f5c2f60b2f.pdf"
+    },
+    {
+      "study_doi": "10.1016/j.josat.2023.209063",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1016_j.josat.2023.209063__7bbb4e2e7e.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1817,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1016_j.josat.2023.209063__7bbb4e2e7e.pdf"
+    },
+    {
+      "study_doi": "10.1016/j.pmip.2023.100100",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1016_j.pmip.2023.100100__6c3b0a6e01.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1817,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1016_j.pmip.2023.100100__6c3b0a6e01.pdf"
+    },
+    {
+      "study_doi": "10.1017/S1047951117002761",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1017_s1047951117002761__d84cb7c06b.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 32151,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1017_s1047951117002761__d84cb7c06b.pdf"
+    },
+    {
+      "study_doi": "10.1038/npp.2017.84",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_npp.2017.84__214330b420.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 421851,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_npp.2017.84__214330b420.pdf"
+    },
+    {
+      "study_doi": "10.1038/npp.2017.86",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_npp.2017.86__f88deaf9f7.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 3460732,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_npp.2017.86__f88deaf9f7.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41380-021-01121-1",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41380-021-01121-1__61735602fc.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1697827,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41380-021-01121-1__61735602fc.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41380-021-01200-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41380-021-01200-3__6e80f666db.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1337237,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41380-021-01200-3__6e80f666db.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41380-022-01719-z",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41380-022-01719-z__aea654edd2.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 876190,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41380-022-01719-z__aea654edd2.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41386-019-0324-9",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-019-0324-9__a1987414ca.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 388046,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41386-019-0324-9__a1987414ca.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41386-019-0569-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-019-0569-3__c37905fc10.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1314953,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41386-019-0569-3__c37905fc10.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41386-020-00883-6",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-020-00883-6__71732ddf9a.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1973182,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41386-020-00883-6__71732ddf9a.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41386-020-0694-z",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-020-0694-z__919a845978.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 345725,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41386-020-0694-z__919a845978.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41386-022-01389-z",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-022-01389-z__8634d4aeb9.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 687586,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41386-022-01389-z__8634d4aeb9.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41392-023-01341-7",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41392-023-01341-7__7db1aad7f3.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 6150768,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41392-023-01341-7__7db1aad7f3.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41392-024-01738-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41392-024-01738-y__989be1b606.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 5514003,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41392-024-01738-y__989be1b606.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41398-019-0460-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41398-019-0460-3__45471315a4.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1532393,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41398-019-0460-3__45471315a4.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41398-023-02592-2",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41398-023-02592-2__17e92bf9b7.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 2545381,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41398-023-02592-2__17e92bf9b7.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41467-020-20190-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41467-020-20190-4__e7110cd595.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 428138,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41467-020-20190-4__e7110cd595.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41573-023-00670-0",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41573-023-00670-0__64c5c42bf6.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 942707,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41573-023-00670-0__64c5c42bf6.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41573-023-00703-8",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41573-023-00703-8__6a7b3bee2d.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 715790,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41573-023-00703-8__6a7b3bee2d.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41586-023-06204-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41586-023-06204-3__b3408bee22.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 15627018,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41586-023-06204-3__b3408bee22.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41586-024-07266-7",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41586-024-07266-7__2dec0d51ae.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 4481236,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41586-024-07266-7__2dec0d51ae.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41593-023-01316-5__2a0579926f.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 13548414,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41593-023-01316-5__2a0579926f.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41598-019-51974-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41598-019-51974-4__0706763ae7.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 6396278,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41598-019-51974-4__0706763ae7.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41598-020-59282-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41598-020-59282-y__26250f20ca.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1983579,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41598-020-59282-y__26250f20ca.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41598-021-01209-2",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41598-021-01209-2__e90cbc43ad.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 2844681,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41598-021-01209-2__e90cbc43ad.pdf"
+    },
+    {
+      "study_doi": "10.1038/s41746-019-0166-1",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41746-019-0166-1__a2cc03c6c9.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1384073,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_s41746-019-0166-1__a2cc03c6c9.pdf"
+    },
+    {
+      "study_doi": "10.1038/sdata.2018.308",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_sdata.2018.308__4c76f32ce6.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 719188,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_sdata.2018.308__4c76f32ce6.pdf"
+    },
+    {
+      "study_doi": "10.1038/srep46421",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_srep46421__0f05a128e1.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 2894909,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_srep46421__0f05a128e1.pdf"
+    },
+    {
+      "study_doi": "10.1038/tp.2017.54",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_tp.2017.54__4fd7de8f04.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 492739,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1038_tp.2017.54__4fd7de8f04.pdf"
+    },
+    {
+      "study_doi": "10.1055/a-1310-3990",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1055_a-1310-3990__a607ebc0f9.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 297832,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1055_a-1310-3990__a607ebc0f9.pdf"
+    },
+    {
+      "study_doi": "10.1055/a-1721-2914",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1055_a-1721-2914__2a2ba93c29.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 608665,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1055_a-1721-2914__2a2ba93c29.pdf"
+    },
+    {
+      "study_doi": "10.1089/psymed.2023.0012",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1089_psymed.2023.0012__afde597f8d.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1817,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1089_psymed.2023.0012__afde597f8d.pdf"
+    },
+    {
+      "study_doi": "10.1101/cshperspect.a019026",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1101_cshperspect.a019026__47133a2321.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1057450,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1101_cshperspect.a019026__47133a2321.pdf"
+    },
+    {
+      "study_doi": "10.1136/bjsports-2019-100715",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1136_bjsports-2019-100715__f271214f6b.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1915532,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1136_bjsports-2019-100715__f271214f6b.pdf"
+    },
+    {
+      "study_doi": "10.1136/bmj.l1141",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1136_bmj.l1141__496e550513.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 998138,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1136_bmj.l1141__496e550513.pdf"
+    },
+    {
+      "study_doi": "10.1136/bmjgast-2015-000071",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1136_bmjgast-2015-000071__b174157bb5.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 959831,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1136_bmjgast-2015-000071__b174157bb5.pdf"
+    },
+    {
+      "study_doi": "10.1177/14799731231157771",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1177_14799731231157771__c9c2076996.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1817,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1177_14799731231157771__c9c2076996.pdf"
+    },
+    {
+      "study_doi": "10.1177/1877718X241292315",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1177_1877718x241292315__bc32c0a08c.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1381917,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1177_1877718x241292315__bc32c0a08c.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12888-018-1824-6",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-018-1824-6__57120610e1.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 688702,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12888-018-1824-6__57120610e1.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12888-018-1910-9",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-018-1910-9__5755d2ec5e.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1135985,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12888-018-1910-9__5755d2ec5e.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12888-019-2288-z",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-019-2288-z__d7c84be83d.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 499841,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12888-019-2288-z__d7c84be83d.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12888-023-04546-w",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-023-04546-w__7cb8c9c2d6.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1422923,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12888-023-04546-w__7cb8c9c2d6.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12906-020-02926-3",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12906-020-02926-3__7ff85c4850.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1066811,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12906-020-02926-3__7ff85c4850.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12954-019-0308-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12954-019-0308-4__806ef7fe5b.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 982492,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12954-019-0308-4__806ef7fe5b.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12954-021-00489-1",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12954-021-00489-1__b58618b032.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1014773,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12954-021-00489-1__b58618b032.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12955-016-0481-z",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12955-016-0481-z__b7defd00b1.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 487865,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12955-016-0481-z__b7defd00b1.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12955-020-01312-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12955-020-01312-4__257de8250b.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1334920,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12955-020-01312-4__257de8250b.pdf"
+    },
+    {
+      "study_doi": "10.1186/s12958-019-0557-9",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12958-019-0557-9__bc9ff1df98.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 606963,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s12958-019-0557-9__bc9ff1df98.pdf"
+    },
+    {
+      "study_doi": "10.1186/s13054-024-04815-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s13054-024-04815-4__8901c86df6.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1284091,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s13054-024-04815-4__8901c86df6.pdf"
+    },
+    {
+      "study_doi": "10.1186/s13063-020-04454-4",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s13063-020-04454-4__76889326e8.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 447980,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s13063-020-04454-4__76889326e8.pdf"
+    },
+    {
+      "study_doi": "10.1186/s43556-024-00205-y",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s43556-024-00205-y__c2cf7512f0.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 3374429,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1186_s43556-024-00205-y__c2cf7512f0.pdf"
+    },
+    {
+      "study_doi": "10.1192/bjo.2021.1061",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1192_bjo.2021.1061__9c51cf1831.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 638119,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1192_bjo.2021.1061__9c51cf1831.pdf"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0211023",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1371_journal.pone.0211023__ef9b85c71f.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1181902,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1371_journal.pone.0211023__ef9b85c71f.pdf"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0293349",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1371_journal.pone.0293349__cee758c191.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 710818,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1371_journal.pone.0293349__cee758c191.pdf"
+    },
+    {
+      "study_doi": "10.14336/AD.2024.0538",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.14336_ad.2024.0538__406263359a.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 639726,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.14336_ad.2024.0538__406263359a.pdf"
+    },
+    {
+      "study_doi": "10.1590/0004-282X20180071",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1590_0004-282x20180071__4d4352e008.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1761,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1590_0004-282x20180071__4d4352e008.pdf"
+    },
+    {
+      "study_doi": "10.1590/1516-4446-2015-1701",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1590_1516-4446-2015-1701__c305a4b82b.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 161074,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.1590_1516-4446-2015-1701__c305a4b82b.pdf"
+    },
+    {
+      "study_doi": "10.21037/jtd-23-1895",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.21037_jtd-23-1895__49b259e857.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1816,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.21037_jtd-23-1895__49b259e857.pdf"
+    },
+    {
+      "study_doi": "10.2196/15708",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.2196_15708__4812c72d09.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1304935,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.2196_15708__4812c72d09.pdf"
+    },
+    {
+      "study_doi": "10.2500/aap.2017.38.4002",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.2500_aap.2017.38.4002__0d2a49c824.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 60285,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.2500_aap.2017.38.4002__0d2a49c824.pdf"
+    },
+    {
+      "study_doi": "10.30773/pi.2019.0171",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.30773_pi.2019.0171__54190743ed.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 318990,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.30773_pi.2019.0171__54190743ed.pdf"
+    },
+    {
+      "study_doi": "10.3389/fnbeh.2018.00258",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fnbeh.2018.00258__f2ce13e0e1.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 824945,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fnbeh.2018.00258__f2ce13e0e1.pdf"
+    },
+    {
+      "study_doi": "10.3389/fnhum.2017.00245",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fnhum.2017.00245__579c7c8dcb.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1080499,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fnhum.2017.00245__579c7c8dcb.pdf"
+    },
+    {
+      "study_doi": "10.3389/fnins.2018.00129",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fnins.2018.00129__cedfc94881.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 182533,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fnins.2018.00129__cedfc94881.pdf"
+    },
+    {
+      "study_doi": "10.3389/fphar.2018.00172",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fphar.2018.00172__e8bd277a86.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1680521,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fphar.2018.00172__e8bd277a86.pdf"
+    },
+    {
+      "study_doi": "10.3389/fphar.2018.00733",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fphar.2018.00733__495edfc36f.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 803126,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fphar.2018.00733__495edfc36f.pdf"
+    },
+    {
+      "study_doi": "10.3389/fphar.2018.00897",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fphar.2018.00897__36e493c770.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1176423,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fphar.2018.00897__36e493c770.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyg.2018.01424",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2018.01424__581369db8a.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1695170,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyg.2018.01424__581369db8a.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyg.2018.01475",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2018.01475__71debfe0d8.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1430026,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyg.2018.01475__71debfe0d8.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyg.2021.645246",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2021.645246__fd613c609d.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 436179,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyg.2021.645246__fd613c609d.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyg.2022.887255",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2022.887255__2f9e2f88e3.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 880080,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyg.2022.887255__2f9e2f88e3.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyt.2019.00672",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2019.00672__7a3e08eb29.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 980643,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyt.2019.00672__7a3e08eb29.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyt.2019.00955",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2019.00955__322326c15a.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 651470,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyt.2019.00955__322326c15a.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyt.2020.00005",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2020.00005__3752097f67.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 959039,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyt.2020.00005__3752097f67.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyt.2021.661233",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2021.661233__569b21c92a.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 769193,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyt.2021.661233__569b21c92a.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyt.2021.724606",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2021.724606__4fb3d5afc1.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1630965,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyt.2021.724606__4fb3d5afc1.pdf"
+    },
+    {
+      "study_doi": "10.3389/fpsyt.2021.727117",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2021.727117__778b7d0561.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 1291381,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.3389_fpsyt.2021.727117__778b7d0561.pdf"
+    },
+    {
+      "study_doi": "10.48550/arXiv.2505.20810",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.48550_arxiv.2505.20810__764f51ee0f.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 2560419,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.48550_arxiv.2505.20810__764f51ee0f.pdf"
+    },
+    {
+      "study_doi": "10.5005/jp-journals-10024-2836",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.5005_jp-journals-10024-2836__1f52f8f9c9.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 496430,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.5005_jp-journals-10024-2836__1f52f8f9c9.pdf"
+    },
+    {
+      "study_doi": "10.7554/eLife.67569",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.7554_elife.67569__dc067ae8eb.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 144523,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.7554_elife.67569__dc067ae8eb.pdf"
+    },
+    {
+      "study_doi": "10.7860/JCDR/2016/18204.7916",
+      "pdf_path_before": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.7860_jcdr_2016_18204.7916__65bf6d69b1.pdf",
+      "mode": "move",
+      "status": "moved",
+      "error": "",
+      "pdf_size_bytes": 43079,
+      "pdf_path_after": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/excluded/10.7860_jcdr_2016_18204.7916__65bf6d69b1.pdf"
+    }
+  ],
+  "candidates": [
+    {
+      "row_index": 1,
+      "study_doi": "10.1007/s00210-018-1589-y",
+      "study_title": "Assessment of spatial learning and memory in the Barnes maze task in rodents—methodological consideration",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00210-018-1589-y__84a6bd8726.pdf",
+      "pdf_size_bytes": 885516
+    },
+    {
+      "row_index": 2,
+      "study_doi": "10.1007/s00213-016-4377-8",
+      "study_title": "Ayahuasca enhances creative divergent thinking while decreasing conventional convergent thinking",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-016-4377-8__a5c43c4ca4.pdf",
+      "pdf_size_bytes": 740544
+    },
+    {
+      "row_index": 3,
+      "study_doi": "10.1007/s00213-016-4453-0",
+      "study_title": "Alterations of consciousness and mystical-type experiences after acute LSD in humans",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-016-4453-0__ede8ecc020.pdf",
+      "pdf_size_bytes": 836250
+    },
+    {
+      "row_index": 4,
+      "study_doi": "10.1007/s00213-017-4650-5",
+      "study_title": "Direct comparison of the acute subjective, emotional, autonomic, and endocrine effects of MDMA, methylphenidate, and modafinil in healthy subjects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-017-4650-5__c4bcd0e5a8.pdf",
+      "pdf_size_bytes": 788351
+    },
+    {
+      "row_index": 5,
+      "study_doi": "10.1007/s00213-017-4733-3",
+      "study_title": "Long-lasting subjective effects of LSD in normal subjects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-017-4733-3__0025d1b918.pdf",
+      "pdf_size_bytes": 516932
+    },
+    {
+      "row_index": 7,
+      "study_doi": "10.1007/s00213-017-4820-5",
+      "study_title": "The hidden therapist: evidence for a central role of music in psychedelic therapy",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-017-4820-5__896345364e.pdf",
+      "pdf_size_bytes": 1346604
+    },
+    {
+      "row_index": 9,
+      "study_doi": "10.1007/s00213-018-5049-7",
+      "study_title": "Exploring the effect of microdosing psychedelics on creativity in an open-label natural setting",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-018-5049-7__2ba5f7d118.pdf",
+      "pdf_size_bytes": 714977
+    },
+    {
+      "row_index": 10,
+      "study_doi": "10.1007/s00213-019-05236-w",
+      "study_title": "A single inhalation of vapor from dried toad secretion containing 5-methoxy-N,N-dimethyltryptamine (5-MeO-DMT) in a naturalistic setting is related to sustained enhancement of satisfaction with life, mindfulness-related capacities, and a decrement of psychopathological symptoms",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-019-05236-w__bc10476024.pdf",
+      "pdf_size_bytes": 1031160
+    },
+    {
+      "row_index": 12,
+      "study_doi": "10.1007/s00213-019-05414-w",
+      "study_title": "Prospective examination of synthetic 5-methoxy-N,N-dimethyltryptamine inhalation: effects on salivary IL-6, cortisol levels, affect, and non-judgment",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-019-05414-w__3dd66e70c5.pdf",
+      "pdf_size_bytes": 810488
+    },
+    {
+      "row_index": 13,
+      "study_doi": "10.1007/s00213-019-05417-7",
+      "study_title": "Safety, tolerability, pharmacokinetics, and pharmacodynamics of low dose lysergic acid diethylamide (LSD) in healthy older volunteers",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-019-05417-7__bad5b1f716.pdf",
+      "pdf_size_bytes": 486949
+    },
+    {
+      "row_index": 15,
+      "study_doi": "10.1007/s00213-020-05719-1",
+      "study_title": "Classic serotonergic psychedelics for mood and depressive symptoms: a meta-analysis of mood disorder patients and healthy participants",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "meta_analysis",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-020-05719-1__77ff81b2ef.pdf",
+      "pdf_size_bytes": 724881
+    },
+    {
+      "row_index": 17,
+      "study_doi": "10.1007/s00213-022-06187-5",
+      "study_title": "The Watts Connectedness Scale: a new scale for measuring a sense of connectedness to self, others, and world",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00213-022-06187-5__2496d86857.pdf",
+      "pdf_size_bytes": 1772574
+    },
+    {
+      "row_index": 20,
+      "study_doi": "10.1007/s00787-024-02458-y",
+      "study_title": "Ketamine for mood disorders, anxiety, and suicidality in children and adolescents: a systematic review",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s00787-024-02458-y__f258f1d013.pdf",
+      "pdf_size_bytes": 1816
+    },
+    {
+      "row_index": 21,
+      "study_doi": "10.1007/s11136-018-1825-4",
+      "study_title": "Survivorship care plans have a negative impact on long-term quality of life and anxiety through more threatening illness perceptions in gynecological cancer patients: the ROGY care trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11136-018-1825-4__31032108aa.pdf",
+      "pdf_size_bytes": 943919
+    },
+    {
+      "row_index": 22,
+      "study_doi": "10.1007/s11136-018-2063-5",
+      "study_title": "Group singing improves depression and life quality in patients with stable COPD: a randomized community-based trial in China",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11136-018-2063-5__718bdbcbc8.pdf",
+      "pdf_size_bytes": 1128201
+    },
+    {
+      "row_index": 23,
+      "study_doi": "10.1007/s11136-021-02788-3",
+      "study_title": "Effectiveness of motivational interviewing on anxiety, depression, sleep quality and quality of life in heart failure patients: secondary analysis of the MOTIVATE-HF randomized controlled trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11136-021-02788-3__2f498551d2.pdf",
+      "pdf_size_bytes": 728378
+    },
+    {
+      "row_index": 25,
+      "study_doi": "10.1007/s11255-022-03374-3",
+      "study_title": "The effect of psychosocial interventions on depression, anxiety, and quality of life in hemodialysis patients: a systematic review and a meta-analysis",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "meta_analysis",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11255-022-03374-3__16fbdc0673.pdf",
+      "pdf_size_bytes": 1817
+    },
+    {
+      "row_index": 26,
+      "study_doi": "10.1007/s11259-024-10542-6",
+      "study_title": "Single-dose 1cp-LSD administration for canine anxiety: a pilot study",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11259-024-10542-6__bdf6fdffab.pdf",
+      "pdf_size_bytes": 876506
+    },
+    {
+      "row_index": 27,
+      "study_doi": "10.1007/s11920-024-01567-4",
+      "study_title": "Psychedelic Research for Alcohol Use Disorder with Comorbid Major Depressive Disorder: An Unmet Need",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s11920-024-01567-4__eb5f50775c.pdf",
+      "pdf_size_bytes": 686503
+    },
+    {
+      "row_index": 28,
+      "study_doi": "10.1007/s12105-018-0981-8",
+      "study_title": "Ulcerated Lesions of the Oral Mucosa: Clinical and Histologic Review",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s12105-018-0981-8__1cc0ce9d9f.pdf",
+      "pdf_size_bytes": 479324
+    },
+    {
+      "row_index": 30,
+      "study_doi": "10.1007/s13311-017-0542-y",
+      "study_title": "Potential Therapeutic Effects of Psilocybin",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s13311-017-0542-y__6ce85e813e.pdf",
+      "pdf_size_bytes": 384941
+    },
+    {
+      "row_index": 31,
+      "study_doi": "10.1007/s13311-020-00962-y",
+      "study_title": "Exploratory Controlled Study of the Migraine-Suppressing Effects of Psilocybin",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s13311-020-00962-y__c1bca6541f.pdf",
+      "pdf_size_bytes": 604482
+    },
+    {
+      "row_index": 32,
+      "study_doi": "10.1007/s13555-024-01103-5",
+      "study_title": "Clinical and Disease Burden of Patients with Generalized Pustular Psoriasis: A Review of Real-World Evidence",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s13555-024-01103-5__2dc0d22d07.pdf",
+      "pdf_size_bytes": 901941
+    },
+    {
+      "row_index": 33,
+      "study_doi": "10.1007/s40262-017-0513-9",
+      "study_title": "Pharmacokinetics and Pharmacodynamics of Lysergic Acid Diethylamide in Healthy Subjects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40262-017-0513-9__3224277632.pdf",
+      "pdf_size_bytes": 952049
+    },
+    {
+      "row_index": 34,
+      "study_doi": "10.1007/s40263-020-00748-y",
+      "study_title": "Psychedelic Treatments for Psychiatric Disorders: A Systematic Review and Thematic Synthesis of Patient Experiences in Qualitative Studies",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40263-020-00748-y__2f2dc3d9a6.pdf",
+      "pdf_size_bytes": 1090490
+    },
+    {
+      "row_index": 35,
+      "study_doi": "10.1007/s40263-024-01114-y",
+      "study_title": "Glutamatergic Modulators for Major Depression from Theory to Clinical Use",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40263-024-01114-y__bd36af75ed.pdf",
+      "pdf_size_bytes": 1495939
+    },
+    {
+      "row_index": 36,
+      "study_doi": "10.1007/s40290-024-00526-x",
+      "study_title": "Endpoints for Pharmacotherapy Trials for Alcohol Use Disorder",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1007_s40290-024-00526-x__b5928032e2.pdf",
+      "pdf_size_bytes": 604418
+    },
+    {
+      "row_index": 41,
+      "study_doi": "10.1016/j.jad.2020.02.023",
+      "study_title": "The identification, assessment and management of difficult-to-treat depression: An international consensus statement",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1016_j.jad.2020.02.023__f5c2f60b2f.pdf",
+      "pdf_size_bytes": 127468
+    },
+    {
+      "row_index": 42,
+      "study_doi": "10.1016/j.josat.2023.209063",
+      "study_title": "Pilot randomized controlled trial of a hospital-based substance use treatment and recovery team (START) to improve initiation of medication for alcohol or opioid use disorder and linkage to follow-up care",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1016_j.josat.2023.209063__7bbb4e2e7e.pdf",
+      "pdf_size_bytes": 1817
+    },
+    {
+      "row_index": 43,
+      "study_doi": "10.1016/j.pmip.2023.100100",
+      "study_title": "Personalized definition of surgical targets in major depression and obsessive-compulsive disorder: A potential role for low-intensity focused ultrasound?",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1016_j.pmip.2023.100100__6c3b0a6e01.pdf",
+      "pdf_size_bytes": 1817
+    },
+    {
+      "row_index": 47,
+      "study_doi": "10.1017/S1047951117002761",
+      "study_title": "A randomised trial of early palliative care for maternal stress in infants prenatally diagnosed with single-ventricle heart disease",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1017_s1047951117002761__d84cb7c06b.pdf",
+      "pdf_size_bytes": 32151
+    },
+    {
+      "row_index": 53,
+      "study_doi": "10.1038/npp.2017.84",
+      "study_title": "The Therapeutic Potential of Psychedelic Drugs: Past, Present, and Future",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_npp.2017.84__214330b420.pdf",
+      "pdf_size_bytes": 421851
+    },
+    {
+      "row_index": 54,
+      "study_doi": "10.1038/npp.2017.86",
+      "study_title": "Modern Clinical Research on LSD",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_npp.2017.86__f88deaf9f7.pdf",
+      "pdf_size_bytes": 3460732
+    },
+    {
+      "row_index": 55,
+      "study_doi": "10.1038/s41380-021-01121-1",
+      "study_title": "Molecular mechanisms underlying the antidepressant actions of arketamine: beyond the NMDA receptor",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41380-021-01121-1__61735602fc.pdf",
+      "pdf_size_bytes": 1697827
+    },
+    {
+      "row_index": 56,
+      "study_doi": "10.1038/s41380-021-01200-3",
+      "study_title": "Treatment resistance in psychiatry: state of the art and new directions",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41380-021-01200-3__6e80f666db.pdf",
+      "pdf_size_bytes": 1337237
+    },
+    {
+      "row_index": 57,
+      "study_doi": "10.1038/s41380-022-01719-z",
+      "study_title": "Advances in human oxytocin measurement: challenges and proposed solutions",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41380-022-01719-z__aea654edd2.pdf",
+      "pdf_size_bytes": 876190
+    },
+    {
+      "row_index": 61,
+      "study_doi": "10.1038/s41386-019-0324-9",
+      "study_title": "Psychedelic effects of psilocybin correlate with serotonin 2A receptor occupancy and plasma psilocin levels",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-019-0324-9__a1987414ca.pdf",
+      "pdf_size_bytes": 388046
+    },
+    {
+      "row_index": 62,
+      "study_doi": "10.1038/s41386-019-0569-3",
+      "study_title": "Distinct acute effects of LSD, MDMA, and d-amphetamine in healthy subjects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-019-0569-3__c37905fc10.pdf",
+      "pdf_size_bytes": 1314953
+    },
+    {
+      "row_index": 64,
+      "study_doi": "10.1038/s41386-020-00883-6",
+      "study_title": "Acute dose-dependent effects of lysergic acid diethylamide in a double-blind placebo-controlled study in healthy subjects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-020-00883-6__71732ddf9a.pdf",
+      "pdf_size_bytes": 1973182
+    },
+    {
+      "row_index": 66,
+      "study_doi": "10.1038/s41386-020-0694-z",
+      "study_title": "Psilocybin and LSD have no long-lasting effects in an animal model of alcohol relapse",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-020-0694-z__919a845978.pdf",
+      "pdf_size_bytes": 345725
+    },
+    {
+      "row_index": 70,
+      "study_doi": "10.1038/s41386-022-01389-z",
+      "study_title": "Towards an understanding of psychedelic-induced neuroplasticity",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41386-022-01389-z__8634d4aeb9.pdf",
+      "pdf_size_bytes": 687586
+    },
+    {
+      "row_index": 73,
+      "study_doi": "10.1038/s41392-023-01341-7",
+      "study_title": "Targeting epigenetic regulators to overcome drug resistance in cancers",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41392-023-01341-7__7db1aad7f3.pdf",
+      "pdf_size_bytes": 6150768
+    },
+    {
+      "row_index": 74,
+      "study_doi": "10.1038/s41392-024-01738-y",
+      "study_title": "Major depressive disorder: hypothesis, mechanism, prevention and treatment",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41392-024-01738-y__989be1b606.pdf",
+      "pdf_size_bytes": 5514003
+    },
+    {
+      "row_index": 75,
+      "study_doi": "10.1038/s41398-019-0460-3",
+      "study_title": "Prognosis and improved outcomes in major depression: a review",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41398-019-0460-3__45471315a4.pdf",
+      "pdf_size_bytes": 1532393
+    },
+    {
+      "row_index": 81,
+      "study_doi": "10.1038/s41398-023-02592-2",
+      "study_title": "Natural language processing for mental health interventions: a systematic review and research framework",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41398-023-02592-2__17e92bf9b7.pdf",
+      "pdf_size_bytes": 2545381
+    },
+    {
+      "row_index": 84,
+      "study_doi": "10.1038/s41467-020-20190-4",
+      "study_title": "The role of dissociation in ketamine’s antidepressant effects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41467-020-20190-4__e7110cd595.pdf",
+      "pdf_size_bytes": 428138
+    },
+    {
+      "row_index": 85,
+      "study_doi": "10.1038/s41573-023-00670-0",
+      "study_title": "Overcoming barriers to patient adherence: the case for developing innovative drug delivery systems",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41573-023-00670-0__64c5c42bf6.pdf",
+      "pdf_size_bytes": 942707
+    },
+    {
+      "row_index": 86,
+      "study_doi": "10.1038/s41573-023-00703-8",
+      "study_title": "Deuterium in drug discovery: progress, opportunities and challenges",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41573-023-00703-8__6a7b3bee2d.pdf",
+      "pdf_size_bytes": 715790
+    },
+    {
+      "row_index": 87,
+      "study_doi": "10.1038/s41586-023-06204-3",
+      "study_title": "Psychedelics reopen the social reward learning critical period",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41586-023-06204-3__b3408bee22.pdf",
+      "pdf_size_bytes": 15627018
+    },
+    {
+      "row_index": 88,
+      "study_doi": "10.1038/s41586-024-07266-7",
+      "study_title": "Interim analyses of a first-in-human phase 1/2 mRNA trial for propionic acidaemia",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41586-024-07266-7__2dec0d51ae.pdf",
+      "pdf_size_bytes": 4481236
+    },
+    {
+      "row_index": 94,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "study_title": "Psychedelics promote plasticity by directly binding to BDNF receptor TrkB",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41593-023-01316-5__2a0579926f.pdf",
+      "pdf_size_bytes": 13548414
+    },
+    {
+      "row_index": 97,
+      "study_doi": "10.1038/s41598-019-51974-4",
+      "study_title": "Neural correlates of the DMT experience assessed with multivariate EEG",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41598-019-51974-4__0706763ae7.pdf",
+      "pdf_size_bytes": 6396278
+    },
+    {
+      "row_index": 98,
+      "study_doi": "10.1038/s41598-020-59282-y",
+      "study_title": "Emotions and brain function are altered up to one month after a single high dose of psilocybin",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41598-020-59282-y__26250f20ca.pdf",
+      "pdf_size_bytes": 1983579
+    },
+    {
+      "row_index": 101,
+      "study_doi": "10.1038/s41598-021-01209-2",
+      "study_title": "Psychedelics alter metaphysical beliefs",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41598-021-01209-2__e90cbc43ad.pdf",
+      "pdf_size_bytes": 2844681
+    },
+    {
+      "row_index": 104,
+      "study_doi": "10.1038/s41746-019-0166-1",
+      "study_title": "Toward clinical digital phenotyping: a timely opportunity to consider purpose, quality, and safety",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_s41746-019-0166-1__a2cc03c6c9.pdf",
+      "pdf_size_bytes": 1384073
+    },
+    {
+      "row_index": 105,
+      "study_doi": "10.1038/sdata.2018.308",
+      "study_title": "A mind-brain-body dataset of MRI, EEG, cognition, emotion, and peripheral physiology in young and old adults",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_sdata.2018.308__4c76f32ce6.pdf",
+      "pdf_size_bytes": 719188
+    },
+    {
+      "row_index": 106,
+      "study_doi": "10.1038/srep46421",
+      "study_title": "Increased spontaneous MEG signal diversity for psychoactive doses of ketamine, LSD and psilocybin",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_srep46421__0f05a128e1.pdf",
+      "pdf_size_bytes": 2894909
+    },
+    {
+      "row_index": 107,
+      "study_doi": "10.1038/tp.2017.54",
+      "study_title": "Acute effects of LSD on amygdala activity during processing of fearful stimuli in healthy subjects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1038_tp.2017.54__4fd7de8f04.pdf",
+      "pdf_size_bytes": 492739
+    },
+    {
+      "row_index": 108,
+      "study_doi": "10.1055/a-1310-3990",
+      "study_title": "The History of Psychedelics in Psychiatry",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1055_a-1310-3990__a607ebc0f9.pdf",
+      "pdf_size_bytes": 297832
+    },
+    {
+      "row_index": 109,
+      "study_doi": "10.1055/a-1721-2914",
+      "study_title": "Classic Psychedelic Drugs: Update on Biological Mechanisms",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1055_a-1721-2914__2a2ba93c29.pdf",
+      "pdf_size_bytes": 608665
+    },
+    {
+      "row_index": 110,
+      "study_doi": "10.1089/psymed.2023.0012",
+      "study_title": "Psilocybin for Opioid Use Disorder in Two Adults Stabilized on Buprenorphine: A Technical Report on Study Modifications and Preliminary Findings",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1089_psymed.2023.0012__afde597f8d.pdf",
+      "pdf_size_bytes": 1817
+    },
+    {
+      "row_index": 115,
+      "study_doi": "10.1101/cshperspect.a019026",
+      "study_title": "Adult Neurogenesis and Psychiatric Disorders",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1101_cshperspect.a019026__47133a2321.pdf",
+      "pdf_size_bytes": 1057450
+    },
+    {
+      "row_index": 121,
+      "study_doi": "10.1136/bjsports-2019-100715",
+      "study_title": "Mental health in elite athletes: International Olympic Committee consensus statement (2019)",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1136_bjsports-2019-100715__f271214f6b.pdf",
+      "pdf_size_bytes": 1915532
+    },
+    {
+      "row_index": 122,
+      "study_doi": "10.1136/bmj.l1141",
+      "study_title": "Medicinal use of cannabis based products and cannabinoids",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1136_bmj.l1141__496e550513.pdf",
+      "pdf_size_bytes": 998138
+    },
+    {
+      "row_index": 123,
+      "study_doi": "10.1136/bmjgast-2015-000071",
+      "study_title": "Effectiveness of disease-specific cognitive–behavioural therapy on depression, anxiety, quality of life and the clinical course of disease in adolescents with inflammatory bowel disease: study protocol of a multicentre randomised controlled trial (HAPPY-IBD)",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1136_bmjgast-2015-000071__b174157bb5.pdf",
+      "pdf_size_bytes": 959831
+    },
+    {
+      "row_index": 129,
+      "study_doi": "10.1177/14799731231157771",
+      "study_title": "Effect of telemonitoring on quality of life for patients with chronic obstructive pulmonary disease-A randomized controlled trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1177_14799731231157771__c9c2076996.pdf",
+      "pdf_size_bytes": 1817
+    },
+    {
+      "row_index": 130,
+      "study_doi": "10.1177/1877718X241292315",
+      "study_title": "Subthalamic and nigral stimulation for freezing of gait in Parkinson's disease: Randomized pilot trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1177_1877718x241292315__bc32c0a08c.pdf",
+      "pdf_size_bytes": 1381917
+    },
+    {
+      "row_index": 132,
+      "study_doi": "10.1186/s12888-018-1824-6",
+      "study_title": "Inclusion of people of color in psychedelic-assisted psychotherapy: a review of the literature",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-018-1824-6__57120610e1.pdf",
+      "pdf_size_bytes": 688702
+    },
+    {
+      "row_index": 133,
+      "study_doi": "10.1186/s12888-018-1910-9",
+      "study_title": "Salivary cortisol in post-traumatic stress disorder: a systematic review and meta-analysis",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "meta_analysis",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-018-1910-9__5755d2ec5e.pdf",
+      "pdf_size_bytes": 1135985
+    },
+    {
+      "row_index": 134,
+      "study_doi": "10.1186/s12888-019-2288-z",
+      "study_title": "Serotonergic hallucinogens/psychedelics could be promising treatments for depressive and anxiety disorders in end-stage cancer",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-019-2288-z__d7c84be83d.pdf",
+      "pdf_size_bytes": 499841
+    },
+    {
+      "row_index": 140,
+      "study_doi": "10.1186/s12888-023-04546-w",
+      "study_title": "Cognitive behavior therapy for diabetes distress, depression, health anxiety, quality of life and treatment adherence among patients with type-II diabetes mellitus: a randomized control trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12888-023-04546-w__7cb8c9c2d6.pdf",
+      "pdf_size_bytes": 1422923
+    },
+    {
+      "row_index": 143,
+      "study_doi": "10.1186/s12906-020-02926-3",
+      "study_title": "Online yoga to reduce post traumatic stress in women who have experienced stillbirth: a randomized control feasibility trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12906-020-02926-3__7ff85c4850.pdf",
+      "pdf_size_bytes": 1066811
+    },
+    {
+      "row_index": 144,
+      "study_doi": "10.1186/s12954-019-0308-4",
+      "study_title": "Psychedelic microdosing benefits and challenges: an empirical codebook",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12954-019-0308-4__806ef7fe5b.pdf",
+      "pdf_size_bytes": 982492
+    },
+    {
+      "row_index": 145,
+      "study_doi": "10.1186/s12954-021-00489-1",
+      "study_title": "Ethical and legal issues in psychedelic harm reduction and integration therapy",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12954-021-00489-1__b58618b032.pdf",
+      "pdf_size_bytes": 1014773
+    },
+    {
+      "row_index": 146,
+      "study_doi": "10.1186/s12955-016-0481-z",
+      "study_title": "Effects of social support, hope and resilience on quality of life among Chinese bladder cancer patients: a cross-sectional study",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12955-016-0481-z__b7defd00b1.pdf",
+      "pdf_size_bytes": 487865
+    },
+    {
+      "row_index": 147,
+      "study_doi": "10.1186/s12955-020-01312-4",
+      "study_title": "Health-related qualify of life, angina type and coronary artery disease in patients with stable chest pain",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12955-020-01312-4__257de8250b.pdf",
+      "pdf_size_bytes": 1334920
+    },
+    {
+      "row_index": 148,
+      "study_doi": "10.1186/s12958-019-0557-9",
+      "study_title": "Lifestyles and sexuality in men and women: the gender perspective in sexual medicine",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s12958-019-0557-9__bc9ff1df98.pdf",
+      "pdf_size_bytes": 606963
+    },
+    {
+      "row_index": 152,
+      "study_doi": "10.1186/s13054-024-04815-4",
+      "study_title": "Trajectories of post-traumatic stress in sepsis survivors two years after ICU discharge: a secondary analysis of a randomized controlled trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s13054-024-04815-4__8901c86df6.pdf",
+      "pdf_size_bytes": 1284091
+    },
+    {
+      "row_index": 154,
+      "study_doi": "10.1186/s13063-020-04454-4",
+      "study_title": "A pilot study of therapeutic plasma exchange for serious SARS CoV-2 disease (COVID-19): A structured summary of a randomized controlled trial study protocol",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s13063-020-04454-4__76889326e8.pdf",
+      "pdf_size_bytes": 447980
+    },
+    {
+      "row_index": 161,
+      "study_doi": "10.1186/s43556-024-00205-y",
+      "study_title": "Treatment-resistant depression: molecular mechanisms and management",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1186_s43556-024-00205-y__c2cf7512f0.pdf",
+      "pdf_size_bytes": 3374429
+    },
+    {
+      "row_index": 164,
+      "study_doi": "10.1192/bjo.2021.1061",
+      "study_title": "Ketamine for the treatment of mental health and substance use disorders: comprehensive systematic review",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1192_bjo.2021.1061__9c51cf1831.pdf",
+      "pdf_size_bytes": 638119
+    },
+    {
+      "row_index": 170,
+      "study_doi": "10.1371/journal.pone.0211023",
+      "study_title": "A systematic study of microdosing psychedelics",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1371_journal.pone.0211023__ef9b85c71f.pdf",
+      "pdf_size_bytes": 1181902
+    },
+    {
+      "row_index": 171,
+      "study_doi": "10.1371/journal.pone.0293349",
+      "study_title": "Extended difficulties following the use of psychedelic drugs: A mixed methods study",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1371_journal.pone.0293349__cee758c191.pdf",
+      "pdf_size_bytes": 710818
+    },
+    {
+      "row_index": 172,
+      "study_doi": "10.14336/AD.2024.0538",
+      "study_title": "Gut Microbiota and Its Metabolites: The Emerging Bridge Between Coronary Artery Disease and Anxiety and Depression?",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.14336_ad.2024.0538__406263359a.pdf",
+      "pdf_size_bytes": 639726
+    },
+    {
+      "row_index": 175,
+      "study_doi": "10.1590/0004-282X20180071",
+      "study_title": "The effect of resistance training on the anxiety symptoms and quality of life in elderly people with Parkinson's disease: a randomized controlled trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1590_0004-282x20180071__4d4352e008.pdf",
+      "pdf_size_bytes": 1761
+    },
+    {
+      "row_index": 176,
+      "study_doi": "10.1590/1516-4446-2015-1701",
+      "study_title": "Antidepressive and anxiolytic effects of ayahuasca: a systematic literature review of animal and human studies",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.1590_1516-4446-2015-1701__c305a4b82b.pdf",
+      "pdf_size_bytes": 161074
+    },
+    {
+      "row_index": 178,
+      "study_doi": "10.21037/jtd-23-1895",
+      "study_title": "Effects of the teach-back method on the health status of patients with chronic obstructive pulmonary disease: a real-world community-based cluster-randomized controlled trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.21037_jtd-23-1895__49b259e857.pdf",
+      "pdf_size_bytes": 1816
+    },
+    {
+      "row_index": 182,
+      "study_doi": "10.2196/15708",
+      "study_title": "Machine Learning and Natural Language Processing in Mental Health: Systematic Review",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "meta_analysis",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.2196_15708__4812c72d09.pdf",
+      "pdf_size_bytes": 1304935
+    },
+    {
+      "row_index": 183,
+      "study_doi": "10.2500/aap.2017.38.4002",
+      "study_title": "Factors that determine parents' perception of their child's risk of life-threatening food-induced anaphylaxis",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.2500_aap.2017.38.4002__0d2a49c824.pdf",
+      "pdf_size_bytes": 60285
+    },
+    {
+      "row_index": 187,
+      "study_doi": "10.30773/pi.2019.0171",
+      "study_title": "Understanding the Complex of Suicide in Depression: from Research to Clinics",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.30773_pi.2019.0171__54190743ed.pdf",
+      "pdf_size_bytes": 318990
+    },
+    {
+      "row_index": 192,
+      "study_doi": "10.3389/fnbeh.2018.00258",
+      "study_title": "Treating PTSD: A Review of Evidence-Based Psychotherapy Interventions",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fnbeh.2018.00258__f2ce13e0e1.pdf",
+      "pdf_size_bytes": 824945
+    },
+    {
+      "row_index": 193,
+      "study_doi": "10.3389/fnhum.2017.00245",
+      "study_title": "Looking for the Self: Phenomenology, Neurophysiology and Philosophical Significance of Drug-induced Ego Dissolution",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fnhum.2017.00245__579c7c8dcb.pdf",
+      "pdf_size_bytes": 1080499
+    },
+    {
+      "row_index": 195,
+      "study_doi": "10.3389/fnins.2018.00129",
+      "study_title": "The Meaning-Enhancing Properties of Psychedelics and Their Mediator Role in Psychedelic Therapy, Spirituality, and Creativity",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fnins.2018.00129__cedfc94881.pdf",
+      "pdf_size_bytes": 182533
+    },
+    {
+      "row_index": 197,
+      "study_doi": "10.3389/fphar.2018.00172",
+      "study_title": "Unifying Theories of Psychedelic Drug Effects",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fphar.2018.00172__e8bd277a86.pdf",
+      "pdf_size_bytes": 1680521
+    },
+    {
+      "row_index": 198,
+      "study_doi": "10.3389/fphar.2018.00733",
+      "study_title": "Psychedelic-Assisted Psychotherapy: A Paradigm Shift in Psychiatric Research and Development",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fphar.2018.00733__495edfc36f.pdf",
+      "pdf_size_bytes": 803126
+    },
+    {
+      "row_index": 199,
+      "study_doi": "10.3389/fphar.2018.00897",
+      "study_title": "Predicting Responses to Psychedelics: A Prospective Study",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fphar.2018.00897__36e493c770.pdf",
+      "pdf_size_bytes": 1176423
+    },
+    {
+      "row_index": 201,
+      "study_doi": "10.3389/fpsyg.2018.01424",
+      "study_title": "DMT Models the Near-Death Experience",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2018.01424__581369db8a.pdf",
+      "pdf_size_bytes": 1695170
+    },
+    {
+      "row_index": 202,
+      "study_doi": "10.3389/fpsyg.2018.01475",
+      "study_title": "Psychedelics, Meditation, and Self-Consciousness",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2018.01475__71debfe0d8.pdf",
+      "pdf_size_bytes": 1430026
+    },
+    {
+      "row_index": 204,
+      "study_doi": "10.3389/fpsyg.2021.645246",
+      "study_title": "Psychedelic Harm Reduction and Integration: A Transtheoretical Model for Clinical Practice",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2021.645246__fd613c609d.pdf",
+      "pdf_size_bytes": 436179
+    },
+    {
+      "row_index": 205,
+      "study_doi": "10.3389/fpsyg.2022.887255",
+      "study_title": "Psychedelic-Assisted Psychotherapy—A Systematic Review of Associated Psychological Interventions",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyg.2022.887255__2f9e2f88e3.pdf",
+      "pdf_size_bytes": 880080
+    },
+    {
+      "row_index": 209,
+      "study_doi": "10.3389/fpsyt.2019.00672",
+      "study_title": "Self-Rated Effectiveness of Microdosing With Psychedelics for Mental and Physical Health Problems Among Microdosers",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2019.00672__7a3e08eb29.pdf",
+      "pdf_size_bytes": 980643
+    },
+    {
+      "row_index": 211,
+      "study_doi": "10.3389/fpsyt.2019.00955",
+      "study_title": "Persisting Reductions in Cannabis, Opioid, and Stimulant Misuse After Naturalistic Psychedelic Use: An Online Survey",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2019.00955__322326c15a.pdf",
+      "pdf_size_bytes": 651470
+    },
+    {
+      "row_index": 212,
+      "study_doi": "10.3389/fpsyt.2020.00005",
+      "study_title": "Learning to Let Go: A Cognitive-Behavioral Model of How Psychedelic Therapy Promotes Acceptance",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2020.00005__3752097f67.pdf",
+      "pdf_size_bytes": 959039
+    },
+    {
+      "row_index": 216,
+      "study_doi": "10.3389/fpsyt.2021.661233",
+      "study_title": "Does Psychedelic Therapy Have a Transdiagnostic Action and Prophylactic Potential?",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2021.661233__569b21c92a.pdf",
+      "pdf_size_bytes": 769193
+    },
+    {
+      "row_index": 217,
+      "study_doi": "10.3389/fpsyt.2021.724606",
+      "study_title": "Psychedelics and Neuroplasticity: A Systematic Review Unraveling the Biological Underpinnings of Psychedelics",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "review",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2021.724606__4fb3d5afc1.pdf",
+      "pdf_size_bytes": 1630965
+    },
+    {
+      "row_index": 218,
+      "study_doi": "10.3389/fpsyt.2021.727117",
+      "study_title": "Psychedelics and Other Psychoplastogens for Treating Mental Illness",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.3389_fpsyt.2021.727117__778b7d0561.pdf",
+      "pdf_size_bytes": 1291381
+    },
+    {
+      "row_index": 234,
+      "study_doi": "10.48550/arXiv.2505.20810",
+      "study_title": "The Role of AI in Early Detection of Life-Threatening Diseases: A Retinal Imaging Perspective",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.48550_arxiv.2505.20810__764f51ee0f.pdf",
+      "pdf_size_bytes": 2560419
+    },
+    {
+      "row_index": 235,
+      "study_doi": "10.5005/jp-journals-10024-2836",
+      "study_title": "Depression, Anxiety, and Psychological Distress among Health-care Providers During the Outbreak of the Life-threatening Coronavirus Disease (COVID-19)",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "other",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.5005_jp-journals-10024-2836__1f52f8f9c9.pdf",
+      "pdf_size_bytes": 496430
+    },
+    {
+      "row_index": 239,
+      "study_doi": "10.7554/eLife.67569",
+      "study_title": "Association of Toll-like receptor 7 variants with life-threatening COVID-19 disease in males: findings from a nested case-control study",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.7554_elife.67569__dc067ae8eb.pdf",
+      "pdf_size_bytes": 144523
+    },
+    {
+      "row_index": 244,
+      "study_doi": "10.7860/JCDR/2016/18204.7916",
+      "study_title": "Effects of Yog a on Physiological Indices, Anxiety and Social Functioning in Multiple Sclerosis Patients: A Randomized Trial",
+      "relevance_suggested": "likely_irrelevant",
+      "source_type_suggested": "primary_study",
+      "pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/papers/disorder/pdfs/10.7860_jcdr_2016_18204.7916__65bf6d69b1.pdf",
+      "pdf_size_bytes": 43079
+    }
+  ]
+}

@@ -1,0 +1,3637 @@
+{
+  "generated_at": "2026-02-12T04:42:26.048854+00:00",
+  "dataset": "disorder",
+  "status_filter": "*",
+  "mark_ready": true,
+  "apply": false,
+  "counts": {
+    "stubs_total": 600,
+    "considered": 600,
+    "matched": 3,
+    "unmatched": 597,
+    "updated_rows": 3
+  },
+  "rows": [
+    {
+      "stub_index": 1,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.nsa.2025.105779|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 2,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agag001|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 3,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agag006|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 4,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.15288/jsad.25-00113|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 5,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.59973/emjsr.317|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 6,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.biopsych.2025.02.424|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 7,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyaf052.159|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 8,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.64719/pb.4478|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 9,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2025.112773|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 10,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.pnpbp.2025.111565|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 11,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.7759/cureus.82532|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 12,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.20230884|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 13,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.70018|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 14,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamanetworkopen.2025.24119|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 15,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2025.112709|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 16,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1155/da/2171041|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 17,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1136/jmg-2024-110383|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 18,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.70110|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 19,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2147/ndt.s514640|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 20,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.15288/jsad.25-00180|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 21,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40501-025-00360-1|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 22,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.neubiorev.2025.106163|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 23,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/17534666251385677|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 24,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.euroneuro.2025.09.011|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 25,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2025.1317|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 26,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/cpt.3555|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 27,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.33178/smj.2025.1.4|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 28,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.70187|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 29,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agaf060|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 30,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.70164|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 31,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.70193|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 32,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/13872877251350295|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 33,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.alcohol.2025.10.004|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 34,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1093/alcalc/agaf010|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 35,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11136-025-03922-1|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 36,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2025.112641|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 37,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/02698811251362390|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 38,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.64719/pb.4414|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 39,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s40501-025-00369-6|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 40,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s40263-025-01162-y|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 41,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1371/journal.pone.0327778|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 42,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.20230887|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 43,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2024.4789|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 44,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.30574/wjarr.2025.28.2.3931|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 45,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/medicina61040558|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 46,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15529|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 47,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agaf001|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 48,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.70152|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 49,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.eclinm.2025.103149|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 50,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.5167/uzh-284304|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 51,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/pu.31300|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 52,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.12659/msm.948302|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 53,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/bs.irn.2025.03.005|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 54,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40263-025-01199-z|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 55,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.16762|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 56,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-025-02091-6|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 57,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.70097|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 58,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.4088/jcp.24m15449|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 59,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1002/jimd.70014|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 60,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/00048674251315642|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 61,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyaf027|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 62,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.20231063|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 63,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/02698811251319457|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 64,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1021/acsptsci.5c00445|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 65,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/ph18040555|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 66,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/bjp.2025.102|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 67,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40429-025-00700-4|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 68,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.48550/arXiv.2505.20810|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 69,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/medicina61020278|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 70,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agaf029|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 71,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.70178|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 72,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/cts.2024.274|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 73,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/npr2.12485|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 74,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/brainsci14030248|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 75,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jad.2024.01.142|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 76,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15224|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 77,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41380-024-02869-y|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 78,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15313|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 79,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/S0033291723003653|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 80,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.pnpbp.2024.111129|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 81,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s13555-024-01103-5|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 82,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.psychres.2024.115843|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 83,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41380-024-02468-x|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 84,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agae078|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 85,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2147/NDT.S463028|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 86,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41591-023-02764-z|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 87,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1556/2054.2024.00383|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 88,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.conctc.2024.101333|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 89,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/md.0000000000040028|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 90,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.36131/cnfioritieditore20240102|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 91,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15263|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 92,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.21037/jtd-23-1895|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 93,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.psychres.2024.116337|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 94,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jpsychires.2024.04.008|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 95,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/978-981-97-4402-2_3|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 96,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/14728214.2024.2342951|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 97,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40290-024-00526-x|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 98,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/wnf.0000000000000578|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 99,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.7759/cureus.53987|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 100,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41591-024-03063-x|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 101,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40263-024-01114-y|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 102,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.14336/AD.2024.0538|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 103,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2024.1346697|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 104,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15436|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 105,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41586-024-07266-7|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 106,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jpsychires.2024.11.010|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 107,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00787-024-02458-y|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 108,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamanetworkopen.2024.17786|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 109,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/bjp.2024.99|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 110,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1172/jci180217|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 111,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41392-024-01738-y|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 112,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/02791072.2024.2424272|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 113,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/tbm/ibae053|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 114,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agae062|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 115,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/09540261.2024.2357668|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 116,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15259|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 117,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1001/jama.2023.24035|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 118,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1155/2024/1177925|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 119,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.25040/ntsh2024.01.07|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 120,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41598-024-53188-9|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 121,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41398-024-03180-8|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 122,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15470|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 123,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1089/psymed.2024.0032|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 124,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1089/psymed.2024.0030|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 125,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.21203/rs.3.rs-3829237/v1|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 126,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.medj.2024.01.005|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 127,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12888-024-05502-y|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 128,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41598-024-52967-8|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 129,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11920-024-01567-4|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 130,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/mjt.0000000000001727|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 131,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/MJT.0000000000001726|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 132,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/14651858.CD015383.pub2|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 133,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/ccr3.9305|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 134,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acps.13778|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 135,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/psychoactives3040029|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 136,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41380-024-02800-5|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 137,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agae022|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 138,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2023.110063|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 139,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15301|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 140,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11259-024-10542-6|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 141,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jad.2024.03.165|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 142,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/1877718X241292315|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 143,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1089/psymed.2024.0002|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 144,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40429-024-00581-z|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 145,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jpsychires.2024.10.009|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 146,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jad.2024.12.061|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 147,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.20230666|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 148,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s13054-024-04815-4|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 149,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1146/annurev-med-050423-095712|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 150,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s43556-024-00205-y|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 151,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2024.1406888|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 152,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-024-06644-3|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 153,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15450|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 154,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.56367/oag-042-10690|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 155,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s13670-023-00389-1|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 156,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyad014|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 157,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2023.1133414|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 158,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/j.eurpsy.2023.1175|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 159,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/20008066.2023.2240691|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 160,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2023.1215250|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 161,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11154-023-09833-1|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 162,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2022.947622|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 163,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41398-023-02467-6|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 164,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/14651858.cd011006.pub4|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 165,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.pn.2023.09.9.20|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 166,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/bcp.15841|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 167,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.16325|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 168,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s43440-023-00539-4|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 169,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2023.1181447|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 170,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12888-023-04546-w|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 171,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15155|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 172,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-023-01607-2|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 173,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.brs.2023.06.003|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 174,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.15288/jsad.21-00392|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 175,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agad094|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 176,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.9758/cpn.23.1134|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 177,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41398-023-02337-1|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 178,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41573-023-00703-8|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 179,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamanetworkopen.2023.0147|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 180,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jaac.2023.05.031|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 181,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/14799731231157771|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 182,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s11136-023-03451-9|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 183,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2147/NDT.S391096|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 184,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/bjp.2023.79|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 185,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.7334/psicothema2022.309|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 186,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1136/gpsych-2023-101007|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 187,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1056/NEJMoa2304145|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 188,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3892/etm.2023.11810|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 189,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12888-023-05017-y|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 190,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamanetworkopen.2023.28817|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 191,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1371/journal.pone.0293349|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 192,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/20451253231198466|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 193,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/braincomms/fcad068|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 194,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2023.1250980|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 195,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3390/life13102015|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 196,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1200/jco.23.00857|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 197,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1056/NEJMoa2302399|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 198,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agad065|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 199,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/yic.0000000000000482|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 200,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40263-023-01008-5|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 201,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1101/2023.08.17.23293955|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 202,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.focus.23021011|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 203,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/diseases11040159|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 204,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.20944/preprints202308.1847.v1|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 205,
+      "status_before": "pending_curation",
+      "status_after": "ready_for_promotion",
+      "match": true,
+      "match_key": "10.1038/s41591-023-02565-4|MDMA|Post-traumatic stress disorder",
+      "changed_fields": [
+        "outcome_measure",
+        "outcome_type",
+        "population",
+        "stub_status"
+      ]
+    },
+    {
+      "stub_index": 206,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agad044|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 207,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41398-023-02592-2|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 208,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2023.1215972|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 209,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/mhw.33794|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 210,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/bs.pbr.2023.02.005|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 211,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1101/2023.05.16.540994|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 212,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.medj.2022.12.003|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 213,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/15622975.2023.2169349|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 214,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41573-023-00670-0|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 215,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/S0033291723001514|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 216,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.pmip.2023.100100|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 217,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/ph16111572|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 218,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.20230025|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 219,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.josat.2023.209063|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 220,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1089/psymed.2023.0012|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 221,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-023-01648-7|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 222,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/bjo.2023.535|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 223,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/02698811231190858|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 224,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-023-06432-5|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 225,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/inm.13214|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 226,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.euroneuro.2023.07.011|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 227,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41398-023-02690-1|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 228,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/cells12060963|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 229,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/02791072.2023.2190319|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 230,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41593-023-01316-5|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 231,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41586-023-06204-3|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 232,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.9758/cpn.2023.21.1.49|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 233,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41398-023-02451-0|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 234,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1037/adb0000935|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 235,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agad066|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 236,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s13034-023-00647-2|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 237,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jama.2023.14530|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 238,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.jad.2023.01.108|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 239,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41392-023-01341-7|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 240,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.15143|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 241,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/10600280231199666|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 242,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/COC.0000000000000998|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 243,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.26685/urncst.420|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 244,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/bjb.2023.25|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 245,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s13063-023-07556-x|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 246,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2023.1134454|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 247,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/s0140-6736(23)00953-4|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 248,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/wps.21120|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 249,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1111/irv.13116|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 250,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/jcp.0000000000001608|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 251,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/alcalc/agac004|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 252,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.tics.2022.11.006|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 253,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12967-022-03356-0|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 254,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41380-022-01719-z|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 255,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.16104|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 256,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.neuropharm.2022.109219|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 257,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1101/2022.06.30.497950|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 258,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1055/a-1721-2914|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 259,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/hup.2836|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 260,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.amp.2022.05.008|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 261,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/s1092852922000293|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 262,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41380-022-01677-6|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 263,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/14767058.2022.2089550|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 264,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fendo.2022.886148|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 265,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1055/s-0042-1759062|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 266,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-022-01297-2|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 267,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamanetworkopen.2022.30367|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 268,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.16025|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 269,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2022.109266|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 270,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/17534666221111876|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 271,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2022.109601|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 272,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s40261-022-01193-z|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 273,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/jcp.0000000000001571|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 274,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1172/jci.insight.159863|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 275,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2022.944849|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 276,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/bs.apha.2021.10.003|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 277,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1371/journal.pone.0264161|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 278,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41591-022-01744-z|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 279,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fnhum.2022.890682|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 280,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyac075|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 281,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/00048674221127186|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 282,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/02698811221104052|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 283,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2022.939302|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 284,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.nsa.2022.100104|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 285,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.euroneuro.2022.07.004|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 286,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2022.2096|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 287,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.31234/osf.io/kh3cx|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 288,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jama.2022.15436|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 289,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.cct.2022.106976|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 290,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1136/bmj.o2623|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 291,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1136/bmjopen-2022-066019|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 292,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/pu.30946|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 293,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.jns.2022.120332|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 294,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2022.887255|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 295,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3928/00485713-20220804-01|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 296,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s40345-022-00265-5|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 297,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1136/archdischild-2021-323421|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 298,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11136-021-03066-y|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 299,
+      "status_before": "pending_curation",
+      "status_after": "ready_for_promotion",
+      "match": true,
+      "match_key": "10.1056/NEJMoa2206443|Psilocybin|Treatment-resistant depression",
+      "changed_fields": [
+        "outcome_measure",
+        "outcome_type",
+        "population",
+        "stub_status"
+      ]
+    },
+    {
+      "stub_index": 300,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s13722-022-00345-y|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 301,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1155/2022/1104668|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 302,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/07067437221111371|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 303,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2022.845520|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 304,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-022-06187-5|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 305,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/02698811221084055|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 306,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/jnc.15587|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 307,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11255-022-03374-3|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 308,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12888-022-04388-y|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 309,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fphar.2021.788155|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 310,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2022.965641|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 311,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41386-022-01389-z|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 312,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1089/jicm.2021.0306|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 313,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2022.863552|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 314,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.17992/lbl.2022.09.706|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 315,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/jcm11040951|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 316,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.7759/cureus.24632|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 317,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/S1478951521000754|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 318,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2021.108961|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 319,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/20008198.2021.1947570|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 320,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-021-05817-8|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 321,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s13063-021-05394-3|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 322,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/cpt.2487|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 323,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.7554/eLife.67569|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 324,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/0269881121997099|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 325,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.drugpo.2021.103380|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 326,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-020-05719-1|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 327,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1159/000517074|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 328,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2021.109239|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 329,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/ner.13505|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 330,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1037/pha0000437|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 331,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2021.621284|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 332,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2021.586682|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 333,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2021.661233|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 334,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/20008198.2021.1943188|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 335,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2147/ndt.s314874|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 336,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11136-021-02788-3|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 337,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/healthcare9101351|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 338,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.15771|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 339,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/02698811211013579|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 340,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12888-021-03538-y|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 341,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/j.eurpsy.2021.391|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 342,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-021-01055-w|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 343,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.2020.20010018|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 344,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12954-021-00489-1|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 345,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s40263-021-00851-8|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 346,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1037/PHA0000460|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 347,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.bpsc.2021.10.005|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 348,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2021.648691|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 349,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1192/bjo.2021.1061|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 350,
+      "status_before": "pending_curation",
+      "status_after": "ready_for_promotion",
+      "match": true,
+      "match_key": "10.1038/s41591-021-01336-3|MDMA|Post-traumatic stress disorder",
+      "changed_fields": [
+        "outcome_measure",
+        "outcome_type",
+        "population",
+        "stub_status"
+      ]
+    },
+    {
+      "stub_index": 351,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2533/chimia.2021.508|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 352,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s12264-021-00638-3|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 353,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1093/brain/awab406|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 354,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41380-021-01121-1|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 355,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/s1092852921000791|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 356,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.amjmed.2021.07.033|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 357,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/20008198.2020.1824381|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 358,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41398-021-01706-y|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 359,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2021.645246|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 360,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/YCO.0000000000000759|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 361,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41598-021-01209-2|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 362,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2174/1568026621666211201145800|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 363,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2021.724606|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 364,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2021.727117|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 365,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-021-06027-y|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 366,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1093/ibd/izab083|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 367,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.drugalcdep.2021.109014|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 368,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.52965/001c.25091|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 369,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/pu.30675|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 370,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.7759/cureus.15070|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 371,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/molecules26102948|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 372,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/02692163211042528|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 373,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.4088/jcp.20ac13787|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 374,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1089/acm.2020.0417|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 375,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/erv.2823|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 376,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41380-021-01200-3|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 377,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3928/02793695-20210816-01|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 378,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1056/NEJMoa2111563|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 379,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.15560|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 380,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/j.pbj.0000000000000128|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 381,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.12740/PP/ONLINEFIRST/133919|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 382,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41398-021-01512-6|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 383,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2147/ndt.s198774|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 384,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1590/1516-4446-2020-0980|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 385,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/02791072.2020.1769878|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 386,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.31234/osf.io/nhbjk|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 387,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.31234/osf.io/sgujx|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 388,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/hep.31496|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 389,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyaa025|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 390,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s13063-020-04454-4|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 391,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/S1092852920001455|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 392,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12888-020-02713-x|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 393,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12888-020-02739-1|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 394,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41386-020-00883-6|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 395,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2174/1568026620666200131100316|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 396,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/s2215-0366(19)30533-4|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 397,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1126/science.abd4585|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 398,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/biom10111575|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 399,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.5005/jp-journals-10024-2836|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 400,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/09546634.2019.1612836|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 401,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1001/jama.2020.10044|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 402,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12884-020-2826-1|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 403,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acer.14352|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 404,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2020.3285|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 405,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamainternmed.2020.0249|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 406,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.brs.2021.03.015|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 407,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41598-020-59282-y|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 408,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.4088/jcp.19m12891|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 409,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyaa068|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 410,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.4088/jcp.19m13191|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 411,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/s2215-0366(19)30521-8|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 412,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/2042098620937899|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 413,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s13311-020-00962-y|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 414,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1523/jneurosci.1659-20.2020|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 415,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12955-020-01312-4|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 416,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s13063-020-04670-y|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 417,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3233/JPD-191894|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 418,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1097/MD.0000000000022134|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 419,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/add.15270|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 420,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/bs.apha.2020.02.005|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 421,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-020-0663-6|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 422,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2020.00005|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 423,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-020-00829-y|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 424,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12958-019-0557-9|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 425,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/0269881119897615|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 426,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41598-020-75706-1|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 427,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.2196/15708|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 428,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1097/yic.0000000000000327|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 429,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41386-020-0718-8|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 430,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41598-020-65166-y|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 431,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.17759/cpse.2020090210|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 432,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.imr.2020.100464|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 433,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.4088/jcp.19m12786|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 434,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12906-020-02926-3|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 435,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2019.00955|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 436,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/ph13060116|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 437,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2020.595584|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 438,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41386-020-0694-z|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 439,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3390/biomedicines8090331|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 440,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40263-020-00748-y|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 441,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1124/pharmrev.120.000056|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 442,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-020-05548-2|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 443,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acps.13200|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 444,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.brainresbull.2020.07.022|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 445,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12991-020-00262-x|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 446,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyaa018|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 447,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1055/a-1310-3990|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 448,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.jad.2020.02.023|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 449,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41467-020-20190-4|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 450,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2019.00943|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 451,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acps.13249|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 452,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/0269881119895520|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 453,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1073/pnas.1918477117|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 454,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyaa034|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 455,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.30773/pi.2019.0171|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 456,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s12888-020-02717-7|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 457,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2196/preprints.18482|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 458,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2019.00138|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 459,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.2019.19070684|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 460,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/sdata.2018.308|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 461,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-019-05236-w|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 462,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1371/journal.pone.0211023|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 463,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2019.00650|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 464,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41598-019-50612-3|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 465,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2019.0951|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 466,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1556/2054.2019.016|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 467,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41386-019-0569-3|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 468,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s10597-019-00424-6|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 469,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.30476/IJCBNM.2019.40846|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 470,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1001/jamaneurol.2019.0534|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 471,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/ijnp/pyz039|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 472,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.2019.19020172|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 473,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2019.1189|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 474,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2019.0638|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 475,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1192/bjo.2019.52|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 476,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11136-018-2063-5|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 477,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.jagp.2019.03.008|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 478,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/s1092852919001159|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 479,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.focus.20180030|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 480,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1101/2019.12.04.19013896|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 481,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1136/bmj.l1141|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 482,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1136/bjsports-2019-100715|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 483,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2019.01234|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 484,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41598-019-51974-4|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 485,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.concog.2019.01.011|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 486,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3233/jpd-191683|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 487,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/1357633X18775850|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 488,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/wps.20656|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 489,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/15412555.2019.1679102|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 490,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41398-019-0460-3|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 491,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-019-05414-w|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 492,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.31887/dcns.2019.21.2/dnutt|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 493,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41386-019-0324-9|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 494,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12954-019-0308-4|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 495,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1124/pr.118.017160|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 496,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-019-05249-5|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 497,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/2040622319838439|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 498,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1093/med/9780190929565.003.0013|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 499,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-019-05417-7|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 500,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyt.2019.00672|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 501,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12888-019-2288-z|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 502,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.2018.18070834|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 503,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1080/07317115.2019.1580811|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 504,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.22204/2410-4639-2019-104-04-49-58|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 505,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.2174/2589645801913010012|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 506,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1556/2054.2019.015|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 507,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/ipm.2019.39|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 508,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/s41746-019-0166-1|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 509,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.brainresbull.2019.09.011|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 510,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/S2215-0366(18)30135-4|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 511,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/s2215-0366(18)30170-6|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 512,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1017/S1047951117002761|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 513,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1111/adb.12646|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 514,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00210-018-1589-y|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 515,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.2018.18020138|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 516,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1093/ajcn/nqy007|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 517,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fphar.2018.00100|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 518,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2018.01424|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 519,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1177/1526602818760488|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 520,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1093/jpepsy/jsy029|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 521,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/acps.12904|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 522,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.2018.17060720|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 523,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/17512433.2018.1511424|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 524,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-018-5049-7|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 525,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3390/brainsci8030047|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 526,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12888-018-1824-6|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 527,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1124/pr.117.015198|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 528,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/pu.30352|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 529,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1002/da.22788|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 530,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s40359-018-0274-8|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 531,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fphar.2018.00897|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 532,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fphar.2018.00733|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 533,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fpsyg.2018.01475|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 534,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fphar.2017.00974|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 535,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1891/1933-3196.12.3.94|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 536,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/S0033291718001356|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 537,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-018-5010-9|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 538,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12888-018-1910-9|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 539,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.pnpbp.2017.09.012|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 540,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s11136-018-1825-4|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 541,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1089/jpm.2017.0684|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 542,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fnins.2018.00129|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 543,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1146/annurev-pharmtox-010818-021701|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 544,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.3389/fphar.2018.00132|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 545,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-017-4820-5|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 546,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1186/s13063-018-2753-x|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 547,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1556/2054.2018.009|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 548,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fnbeh.2018.00258|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 549,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1056/NEJMoa1507598|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 550,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s12105-018-0981-8|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 551,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fphar.2018.00172|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 552,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/20008198.2017.1331108|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 553,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1101/103531|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 554,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/tp.2017.54|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 555,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1017/S0269964817000146|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 556,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3233/JAD-170410|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 557,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/jcpp.12851|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 558,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/papt.12103|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 559,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-017-4650-5|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 560,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.2174/1573413713666170619092629|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 561,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1037/ccp0000227|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 562,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1111/ijn.12519|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 563,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2017.3739|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 564,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.2500/aap.2017.38.4002|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 565,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.neuropharm.2017.12.041|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 566,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/srep46421|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 567,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-017-4733-3|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 568,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.3389/fnhum.2017.00245|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 569,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/npp.2017.86|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 570,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/0022167817709585|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 571,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s40262-017-0513-9|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 572,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s13311-017-0542-y|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 573,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1038/s41598-017-13282-7|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 574,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1007/s00213-017-4771-x|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 575,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1080/02791072.2017.1320734|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 576,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1016/j.neuropharm.2017.12.040|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 577,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1093/nc/nix016|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 578,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/dar.12544|Psilocybin|Alcohol use disorder"
+    },
+    {
+      "stub_index": 579,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1176/appi.ajp.2017.17040472|S-ketamine|Major depressive disorder"
+    },
+    {
+      "stub_index": 580,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1038/npp.2017.84|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 581,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1590/0004-282X20180071|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 582,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/0269881117711712|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 583,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.4103/2542-3932.211589|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 584,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1159/000442260|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 585,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1101/cshperspect.a019026|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 586,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-016-4453-0|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 587,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/s2215-0366(16)30087-6|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 588,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1590/1516-4446-2015-1701|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 589,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1177/2045125316638008|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 590,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00213-016-4377-8|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 591,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1111/jcpp.12673|MDMA|Post-traumatic stress disorder"
+    },
+    {
+      "stub_index": 592,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1001/jamapsychiatry.2016.0152|Psilocybin|Treatment-resistant depression"
+    },
+    {
+      "stub_index": 593,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1007/s00059-016-4414-8|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 594,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1097/MIB.0000000000000567|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 595,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1136/bmjgast-2015-000071|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 596,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.7860/JCDR/2016/18204.7916|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 597,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1186/s12955-016-0481-z|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 598,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.4103/1735-1995.196607|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 599,
+      "status": "excluded_not_relevant",
+      "match": false,
+      "match_key": "10.1093/ecco-jcc/jjw165|LSD|Anxiety associated with life-threatening disease"
+    },
+    {
+      "stub_index": 600,
+      "status": "pending_curation",
+      "match": false,
+      "match_key": "10.1016/j.biopsych.2016.07.005|S-ketamine|Major depressive disorder"
+    }
+  ]
+}

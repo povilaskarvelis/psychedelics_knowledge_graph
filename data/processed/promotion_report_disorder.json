@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-02-12T18:22:17.881068+00:00",
+  "dataset": "disorder",
+  "ready_status": "ready_for_promotion",
+  "apply": true,
+  "counts": {
+    "stubs_total": 481,
+    "ready_rows": 0,
+    "curated_before": 489,
+    "curated_normalized": 0,
+    "curated_deduped": 0,
+    "curated_pruned_by_triage": 0,
+    "curated_pruned_from_irrelevant": 0,
+    "curated_pruned_from_unmatched_context": 0,
+    "curated_after": 489
+  },
+  "errors": [],
+  "warnings": [
+    "No rows with the requested ready status"
+  ],
+  "promoted": [],
+  "duplicates": [],
+  "triage_pruned_samples": [],
+  "status": "no_ready_rows"
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics Mechanistic Claims",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "compound",
+      "target",
+      "assay_type",
+      "affinity_type",
+      "affinity_value",
+      "affinity_unit",
+      "authors",
+      "study_year",
+      "evidence_level",
+      "source",
+      "source_type",
+      "access_level",
+      "evidence_location",
+      "evidence_locator",
+      "study_design"
+    ],
+    "properties": {
+      "compound": {"type": "string"},
+      "target": {"type": "string"},
+      "assay_type": {"type": "string"},
+      "affinity_type": {"type": "string", "enum": ["Ki", "Kd", "IC50", "EC50", "EC90", "Other"]},
+      "affinity_value": {"type": "number"},
+      "affinity_unit": {"type": "string"},
+      "species": {"type": "string"},
+      "system": {"type": "string", "enum": ["in_vitro", "in_vivo", "ex_vivo", "unknown"]},
+      "study_doi": {"type": "string"},
+      "openalex_id": {"type": "string"},
+      "study_title": {"type": "string"},
+      "authors": {"type": "string"},
+      "study_year": {"type": "integer"},
+      "evidence_level": {"type": "string", "enum": ["low", "medium", "high"]},
+      "source": {"type": "string"},
+      "source_type": {
+        "type": "string",
+        "enum": ["primary_study", "review", "meta_analysis", "registry", "other"]
+      },
+      "access_level": {
+        "type": "string",
+        "enum": ["full_text_seen", "abstract_only", "secondary_summary"]
+      },
+      "evidence_location": {
+        "type": "string",
+        "enum": ["table", "figure", "text", "abstract", "supplement", "mixed", "unknown"]
+      },
+      "evidence_locator": {"type": "string"},
+      "study_design": {"type": "string"},
+      "notes": {"type": "string"}
+    },
+    "oneOf": [
+      {"required": ["study_doi"]},
+      {"required": ["openalex_id"]}
+    ]
+  }
+}

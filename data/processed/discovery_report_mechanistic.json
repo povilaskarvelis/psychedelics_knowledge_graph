@@ -1,0 +1,207 @@
+{
+  "generated_at": "2026-02-12T17:19:35.486372+00:00",
+  "dataset": "mechanistic",
+  "provider": "hybrid",
+  "require_doi": true,
+  "settings": {
+    "semantic_scholar_rps": 0.33,
+    "openalex_rps": 2.0,
+    "max_retries": 4,
+    "max_results_per_seed": 0,
+    "max_results": 0,
+    "expand_seeds_from_config": true,
+    "auto_seeds_only": false,
+    "auto_template_mode": "focused",
+    "auto_max_compounds": 0,
+    "auto_max_entities": 0,
+    "auto_max_pairs": 3,
+    "auto_max_seeds": 1200
+  },
+  "counts": {
+    "seed_count": 25,
+    "seed_manual": 0,
+    "seed_default": 22,
+    "seed_auto": 3,
+    "raw_rows": 0,
+    "merged_rows": 0
+  },
+  "queue_out": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/raw/doi_queue.mechanistic.discovered.txt",
+  "per_seed": [
+    {
+      "query": "LSD 5-HT2A receptor binding affinity Ki radioligand",
+      "compound": "LSD",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "LSD 5-HT2C receptor binding affinity",
+      "compound": "LSD",
+      "entity": "5-HT2C",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "psilocin 5-HT2A receptor binding affinity",
+      "compound": "Psilocin",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "psilocin 5-HT1A receptor binding affinity",
+      "compound": "Psilocin",
+      "entity": "5-HT1A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "psilocybin psilocin 5-HT2A agonist receptor",
+      "compound": "Psilocybin",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "DMT 5-HT2A receptor binding affinity",
+      "compound": "DMT",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "DMT sigma-1 receptor binding affinity",
+      "compound": "DMT",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "psychedelic TAAR1 trace amine receptor 1 binding",
+      "compound": "DMT",
+      "entity": "TAAR1",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "5-MeO-DMT 5-HT1A receptor binding affinity",
+      "compound": "5-MeO-DMT",
+      "entity": "5-HT1A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "mescaline 5-HT2A receptor binding affinity",
+      "compound": "Mescaline",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "MDMA SERT DAT NET transporter affinity",
+      "compound": "MDMA",
+      "entity": "SERT (SLC6A4)",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "MDMA dopamine transporter DAT affinity",
+      "compound": "MDMA",
+      "entity": "DAT (SLC6A3)",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "MDMA norepinephrine transporter NET affinity",
+      "compound": "MDMA",
+      "entity": "NET (SLC6A2)",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "ibogaine noribogaine kappa opioid receptor binding",
+      "compound": "Ibogaine",
+      "entity": "kappa opioid receptor (OPRK1)",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "ibogaine NMDA receptor binding affinity",
+      "compound": "Ibogaine",
+      "entity": "NMDA receptor",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "ketamine NMDA receptor affinity binding Ki",
+      "compound": "Ketamine",
+      "entity": "NMDA receptor",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "esketamine NMDA receptor affinity binding",
+      "compound": "S-ketamine",
+      "entity": "NMDA receptor",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "arketamine NMDA receptor affinity binding",
+      "compound": "R-ketamine",
+      "entity": "NMDA receptor",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "salvinorin A kappa opioid receptor affinity",
+      "compound": "Salvinorin A",
+      "entity": "kappa opioid receptor (OPRK1)",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "2C-B 5-HT2A receptor binding affinity",
+      "compound": "2C-B",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "DOI 5-HT2A receptor binding affinity",
+      "compound": "DOI",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "psychedelic mGluR2 GRM2 receptor interaction",
+      "compound": "LSD",
+      "entity": "mGluR2 (GRM2)",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "LSD 5-HT2A receptor binding affinity Ki",
+      "compound": "LSD",
+      "entity": "5-HT2A",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "LSD 5-HT2B receptor binding affinity Ki",
+      "compound": "LSD",
+      "entity": "5-HT2B",
+      "rows_retrieved": 0,
+      "errors": []
+    },
+    {
+      "query": "LSD 5-HT2C receptor binding affinity Ki",
+      "compound": "LSD",
+      "entity": "5-HT2C",
+      "rows_retrieved": 0,
+      "errors": []
+    }
+  ],
+  "rows": []
+}

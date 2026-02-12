@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Psychedelics Knowledge Graph</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="pill">Extensive Search • Living Evidence</div>
+        <h1>Psychedelics Knowledge Graph</h1>
+        <p>
+          Curated claims from the extensive search pipeline across targets and
+          indications, with provenance.
+        </p>
+      </div>
+      <div class="hero-stats" id="stats">
+        <div class="stat">
+          <span class="stat-label">Compounds</span>
+          <span class="stat-value" data-stat="compounds">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" id="rightStatLabel">Indications</span>
+          <span class="stat-value" data-stat="targets">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Claims</span>
+          <span class="stat-value" data-stat="claims">0</span>
+        </div>
+        <div
+          class="stat stat-clickable"
+          id="studiesStatCard"
+          role="button"
+          tabindex="0"
+          aria-label="Open study bibliography"
+        >
+          <span class="stat-label">Studies</span>
+          <span class="stat-value" data-stat="studies">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="panel graph-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Indications Graph</h2>
+            <p>Compound-indication links.</p>
+          </div>
+          <div class="graph-header-controls">
+            <div class="mode-toggle" role="tablist" aria-label="Graph mode">
+              <button class="ghost small" data-mode="mechanistic" role="tab" aria-selected="false">
+                Targets
+              </button>
+              <button class="ghost small active" data-mode="disorders" role="tab" aria-selected="true">
+                Indications
+              </button>
+            </div>
+            <div class="year-range-inline" aria-label="Year range">
+              <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
+              <span>-</span>
+              <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
+            </div>
+          </div>
+          <div class="legend" id="evidenceLegend" aria-label="Evidence legend">
+            <span class="legend-item evidence-chip high" data-evidence="high" tabindex="0" role="button">High</span>
+            <span class="legend-item evidence-chip medium" data-evidence="medium" tabindex="0" role="button">Medium</span>
+            <span class="legend-item evidence-chip low" data-evidence="low" tabindex="0" role="button">Low</span>
+          </div>
+        </div>
+        <aside class="evidence-popover" id="evidenceInfoPopover" aria-hidden="true">
+          <div class="evidence-popover-header">
+            <h4 id="evidenceInfoTitle">Evidence level</h4>
+            <button class="ghost small" id="evidenceInfoClose" type="button" aria-label="Close evidence info">Close</button>
+          </div>
+          <div class="evidence-popover-body" id="evidenceInfoBody"></div>
+        </aside>
+        <div class="graph-grid">
+          <div class="graph" id="graph"></div>
+          <aside class="graph-detail" id="graphDetail">
+            <div class="detail-header">
+              <div>
+                <h3>Graph Detail</h3>
+                <p>Hover or click a node or edge to inspect evidence.</p>
+              </div>
+              <button class="ghost small" id="clearSelection" type="button">Clear</button>
+            </div>
+            <div class="detail-body" id="detailBody">
+              <div class="detail-empty">No selection yet.</div>
+            </div>
+          </aside>
+        </div>
+        <div class="tooltip" id="tooltip" aria-hidden="true"></div>
+      </section>
+
+      <section class="panel cards-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Claim Cards</h2>
+            <p>Each claim includes assay details and provenance.</p>
+          </div>
+          <div class="search">
+            <input id="searchInput" type="search" placeholder="Search compounds, targets, or assays" />
+          </div>
+        </div>
+        <div class="cards" id="cards"></div>
+      </section>
+
+      <section class="panel bibliography-panel" id="bibliographyPanel">
+        <div class="panel-header">
+          <div>
+            <h2>Study Bibliography</h2>
+            <p>Unique studies in the current filtered view.</p>
+          </div>
+        </div>
+        <div class="study-list" id="studyList"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        Built from curated mechanistic evidence. UI demo powered by the pipeline outputs.
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
