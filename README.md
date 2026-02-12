@@ -16,6 +16,20 @@ It supports:
 The current example domain is psychedelics, but the workflow is reusable for
 other domains with configuration updates.
 
+## Live Website
+
+- GUI: [https://povilaskarvelis.github.io/psychedelics_knowledge_graph/](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/)
+
+![GUI screenshot](ui/assets/gui-screenshot.svg)
+
+This repo includes a GitHub Pages deployment workflow:
+- `.github/workflows/deploy-pages.yml`
+- root `index.html` redirects to `ui/`
+
+One-time GitHub setting (if Pages is not active yet):
+1. Open repository `Settings -> Pages`.
+2. Set `Build and deployment` source to `GitHub Actions`.
+
 ## What You Need To Provide
 
 Before running the pipeline, prepare these inputs:

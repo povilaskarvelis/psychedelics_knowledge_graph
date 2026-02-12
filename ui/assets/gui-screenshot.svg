@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="940" viewBox="0 0 1600 940" role="img" aria-label="Psychedelics Knowledge Graph GUI preview">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f1a" />
+      <stop offset="55%" stop-color="#111b30" />
+      <stop offset="100%" stop-color="#0f1729" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <rect width="1600" height="940" fill="url(#bg)" />
+
+  <rect x="48" y="32" width="1504" height="120" rx="22" fill="rgba(16,22,38,0.85)" stroke="rgba(255,255,255,0.10)" />
+  <text x="82" y="88" fill="#e8eefc" font-family="Arial, sans-serif" font-size="46" font-weight="700">Psychedelics Knowledge Graph</text>
+  <text x="82" y="122" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="20">Extensive Search and Living Evidence</text>
+
+  <rect x="48" y="176" width="1504" height="430" rx="24" fill="rgba(16,22,38,0.85)" stroke="rgba(255,255,255,0.10)" filter="url(#shadow)" />
+  <text x="82" y="224" fill="#e8eefc" font-family="Arial, sans-serif" font-size="34" font-weight="700">Indications Graph</text>
+  <text x="82" y="254" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="18">Compound-indication links.</text>
+
+  <rect x="640" y="196" width="250" height="42" rx="21" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.16)" />
+  <rect x="645" y="201" width="120" height="32" rx="16" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.16)" />
+  <rect x="770" y="201" width="115" height="32" rx="16" fill="rgba(73,214,200,0.24)" stroke="rgba(73,214,200,0.64)" />
+  <text x="683" y="222" fill="#e8eefc" font-family="Arial, sans-serif" font-size="14">Targets</text>
+  <text x="803" y="222" fill="#eafffb" font-family="Arial, sans-serif" font-size="14">Indications</text>
+
+  <rect x="915" y="198" width="212" height="38" rx="10" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)" />
+  <rect x="924" y="204" width="88" height="26" rx="8" fill="rgba(15,23,40,0.78)" stroke="rgba(255,255,255,0.18)" />
+  <rect x="1030" y="204" width="88" height="26" rx="8" fill="rgba(15,23,40,0.78)" stroke="rgba(255,255,255,0.18)" />
+  <text x="953" y="222" fill="#c7d2ea" font-family="Arial, sans-serif" font-size="13">1995</text>
+  <text x="1018" y="222" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="13">-</text>
+  <text x="1061" y="222" fill="#c7d2ea" font-family="Arial, sans-serif" font-size="13">2026</text>
+
+  <rect x="1166" y="202" width="58" height="28" rx="10" fill="rgba(73,214,200,0.2)" />
+  <rect x="1232" y="202" width="74" height="28" rx="10" fill="rgba(241,183,75,0.2)" />
+  <rect x="1314" y="202" width="56" height="28" rx="10" fill="rgba(239,108,154,0.2)" />
+  <text x="1183" y="221" fill="#75f5e5" font-family="Arial, sans-serif" font-size="13">High</text>
+  <text x="1249" y="221" fill="#f8c96d" font-family="Arial, sans-serif" font-size="13">Medium</text>
+  <text x="1331" y="221" fill="#ff8fb4" font-family="Arial, sans-serif" font-size="13">Low</text>
+
+  <rect x="76" y="276" width="1002" height="304" rx="18" fill="rgba(10,16,30,0.45)" stroke="rgba(255,255,255,0.08)" />
+  <rect x="1094" y="276" width="430" height="304" rx="18" fill="rgba(8,12,22,0.8)" stroke="rgba(255,255,255,0.10)" />
+  <text x="1118" y="314" fill="#e8eefc" font-family="Arial, sans-serif" font-size="22" font-weight="700">Graph Detail</text>
+  <text x="1118" y="340" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="15">LSD -> Distress associated with life-threatening disease</text>
+
+  <path d="M260,330 C520,330 540,440 790,440" fill="none" stroke="#49d6c8" stroke-width="6" />
+  <path d="M260,380 C520,390 540,470 790,500" fill="none" stroke="#f1b74b" stroke-width="4" />
+  <path d="M260,430 C520,450 540,530 790,560" fill="none" stroke="#ef6c9a" stroke-width="3" />
+
+  <circle cx="232" cy="326" r="12" fill="rgba(241,183,75,0.24)" stroke="rgba(241,183,75,0.8)" stroke-width="2" />
+  <circle cx="232" cy="380" r="12" fill="rgba(241,183,75,0.24)" stroke="rgba(241,183,75,0.8)" stroke-width="2" />
+  <circle cx="232" cy="434" r="12" fill="rgba(241,183,75,0.24)" stroke="rgba(241,183,75,0.8)" stroke-width="2" />
+
+  <circle cx="816" cy="438" r="12" fill="rgba(73,214,200,0.24)" stroke="rgba(73,214,200,0.8)" stroke-width="2" />
+  <circle cx="816" cy="500" r="12" fill="rgba(73,214,200,0.24)" stroke="rgba(73,214,200,0.8)" stroke-width="2" />
+  <circle cx="816" cy="562" r="12" fill="rgba(73,214,200,0.24)" stroke="rgba(73,214,200,0.8)" stroke-width="2" />
+
+  <text x="96" y="332" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">LSD</text>
+  <text x="96" y="386" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">Psilocybin</text>
+  <text x="96" y="440" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">MDMA</text>
+
+  <text x="836" y="442" fill="#e8eefc" font-family="Arial, sans-serif" font-size="14">Distress associated with</text>
+  <text x="836" y="460" fill="#e8eefc" font-family="Arial, sans-serif" font-size="14">life-threatening disease</text>
+  <text x="836" y="504" fill="#e8eefc" font-family="Arial, sans-serif" font-size="14">Alcohol use disorder</text>
+  <text x="836" y="566" fill="#e8eefc" font-family="Arial, sans-serif" font-size="14">Treatment-resistant depression</text>
+
+  <rect x="1118" y="362" width="382" height="62" rx="12" fill="rgba(18,26,43,0.9)" stroke="rgba(255,255,255,0.10)" />
+  <rect x="1118" y="434" width="382" height="62" rx="12" fill="rgba(18,26,43,0.9)" stroke="rgba(255,255,255,0.10)" />
+  <rect x="1118" y="506" width="382" height="62" rx="12" fill="rgba(18,26,43,0.9)" stroke="rgba(255,255,255,0.10)" />
+
+  <text x="1138" y="390" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">reduces anxiety/depression symptoms</text>
+  <text x="1138" y="409" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="13">DOI: 10.1001/example.1234</text>
+  <text x="1138" y="462" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">improves abstinence outcomes</text>
+  <text x="1138" y="481" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="13">DOI: 10.1001/example.5678</text>
+  <text x="1138" y="534" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">improves depressive symptoms</text>
+  <text x="1138" y="553" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="13">DOI: 10.1001/example.9012</text>
+
+  <rect x="48" y="624" width="1504" height="268" rx="24" fill="rgba(16,22,38,0.85)" stroke="rgba(255,255,255,0.10)" />
+  <text x="82" y="668" fill="#e8eefc" font-family="Arial, sans-serif" font-size="30" font-weight="700">Claim Cards</text>
+  <rect x="80" y="694" width="470" height="172" rx="16" fill="rgba(10,16,30,0.72)" stroke="rgba(255,255,255,0.08)" />
+  <rect x="564" y="694" width="470" height="172" rx="16" fill="rgba(10,16,30,0.72)" stroke="rgba(255,255,255,0.08)" />
+  <rect x="1048" y="694" width="470" height="172" rx="16" fill="rgba(10,16,30,0.72)" stroke="rgba(255,255,255,0.08)" />
+  <text x="102" y="728" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">Psilocybin -> Alcohol use disorder</text>
+  <text x="102" y="754" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="13">Outcome: reduces heavy drinking outcomes</text>
+  <text x="586" y="728" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">LSD -> Distress associated with life-threatening disease</text>
+  <text x="586" y="754" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="13">Outcome: reduces anxiety/depression symptoms</text>
+  <text x="1070" y="728" fill="#e8eefc" font-family="Arial, sans-serif" font-size="15">MDMA -> Post-traumatic stress disorder</text>
+  <text x="1070" y="754" fill="#9aa4bf" font-family="Arial, sans-serif" font-size="13">Outcome: improves core PTSD symptoms</text>
+</svg>
