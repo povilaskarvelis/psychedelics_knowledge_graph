@@ -20,7 +20,7 @@ other domains with configuration updates.
 
 - GUI: [https://povilaskarvelis.github.io/psychedelics_knowledge_graph/](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/)
 
-![GUI screenshot](ui/assets/gui-screenshot.svg)
+![GUI screenshot](ui/assets/gui-screenshot.png)
 
 This repo includes a GitHub Pages deployment workflow:
 - `.github/workflows/deploy-pages.yml`
