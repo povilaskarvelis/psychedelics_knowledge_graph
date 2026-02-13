@@ -66,9 +66,21 @@
               </button>
             </div>
             <div class="year-range-inline" aria-label="Year range">
-              <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
-              <span>-</span>
-              <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
+              <div class="year-field">
+                <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
+                <div class="year-stepper" aria-hidden="true">
+                  <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
+                  <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
+                </div>
+              </div>
+              <span>—</span>
+              <div class="year-field">
+                <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
+                <div class="year-stepper" aria-hidden="true">
+                  <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
+                  <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="legend" id="evidenceLegend" aria-label="Evidence legend">
@@ -118,8 +130,15 @@
       <section class="panel bibliography-panel" id="bibliographyPanel">
         <div class="panel-header">
           <div>
-            <h2>Study Bibliography</h2>
+            <h2>Bibliography</h2>
             <p>Unique studies in the current filtered view.</p>
+          </div>
+          <div class="search">
+            <input
+              id="bibliographySearchInput"
+              type="search"
+              placeholder="Search title, author, keyword, DOI"
+            />
           </div>
         </div>
         <div class="study-list" id="studyList"></div>

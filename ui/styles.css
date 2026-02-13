@@ -11,6 +11,7 @@
   --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   --glow: 0 0 24px rgba(241, 183, 75, 0.35);
   --kg-workspace-height: 980px;
+  --header-control-height: 40px;
 }
 
 * {
@@ -118,6 +119,9 @@ button:hover {
   border: 1px solid var(--stroke);
   border-radius: 16px;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(12px);
 }
@@ -166,29 +170,23 @@ button:hover {
 
 .graph-panel .panel-header {
   display: grid;
-  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
-  align-items: start;
-  gap: 12px 16px;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  align-items: center;
+  gap: 20px;
+  margin-top: 2px;
+  margin-bottom: 14px;
 }
 
 .graph-panel .panel-header > :first-child {
-  grid-column: 1;
-  grid-row: 1;
   justify-self: start;
 }
 
 .graph-panel .panel-header > .graph-header-controls {
-  grid-column: 1;
-  grid-row: 1;
-  justify-self: end;
-  align-self: start;
+  justify-self: center;
 }
 
 .graph-panel .panel-header > .legend {
-  grid-column: 2;
-  grid-row: 1;
   justify-self: end;
-  align-self: start;
 }
 
 .panel-header {
@@ -202,8 +200,11 @@ button:hover {
 
 .mode-toggle {
   display: inline-flex;
+  align-items: center;
   gap: 8px;
   padding: 4px;
+  height: var(--header-control-height);
+  box-sizing: border-box;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -223,23 +224,33 @@ button:hover {
 .graph-header-controls {
   display: inline-flex;
   align-items: center;
-  gap: 16px;
+  gap: 26px;
   flex-wrap: nowrap;
 }
 
 .year-range-inline {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
+  gap: 4px;
+  padding: 0;
+  height: auto;
+  border: none;
+  background: transparent;
+}
+
+.year-field {
+  display: inline-flex;
+  align-items: stretch;
+  position: relative;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .year-range-inline span {
-  color: var(--muted);
-  font-size: 0.82rem;
+  color: rgba(232, 238, 252, 0.88);
+  font-size: 0.86rem;
+  font-weight: 700;
   letter-spacing: 0.02em;
   min-width: 12px;
   text-align: center;
@@ -248,27 +259,66 @@ button:hover {
 .year-range-inline input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
-  width: 78px;
+  width: 82px;
   min-width: 0;
-  height: 34px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 0.86rem;
+  height: 28px;
+  padding: 3px 18px 3px 9px;
+  border-radius: 0;
+  font-size: 0.84rem;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(15, 23, 40, 0.72);
+  border: none;
+  background: transparent;
 }
 
 .year-range-inline input[type="number"]:focus-visible {
   outline: none;
-  border-color: rgba(73, 214, 200, 0.65);
-  box-shadow: 0 0 0 2px rgba(73, 214, 200, 0.2);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
 }
 
 .year-range-inline input[type="number"]::-webkit-outer-spin-button,
 .year-range-inline input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.year-stepper {
+  position: absolute;
+  right: 8px;
+  top: 3px;
+  bottom: 3px;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  width: 12px;
+  background: transparent;
+}
+
+.year-step {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  font-size: 8px;
+  line-height: 0.8;
+  color: rgba(154, 164, 191, 0.72);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: color 0.12s ease, transform 0.12s ease;
+  pointer-events: auto;
+}
+
+.year-step:hover {
+  transform: none;
+  box-shadow: none;
+  background: transparent;
+  color: rgba(200, 209, 229, 0.82);
+}
+
+.year-step:focus-visible {
+  outline: 0;
+  background: transparent;
+  color: rgba(200, 209, 229, 0.82);
 }
 
 .panel h2 {
@@ -283,7 +333,8 @@ button:hover {
 
 .legend {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
 }
 
 .legend-item {
@@ -633,6 +684,19 @@ input[type="number"] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  align-content: start;
+  grid-auto-rows: max-content;
+}
+
+.cards-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 320px;
+  max-height: 640px;
 }
 
 .study-list {
@@ -686,10 +750,10 @@ input[type="number"] {
 .card {
   background: rgba(12, 18, 32, 0.9);
   border-radius: 18px;
-  padding: 16px;
+  padding: 21px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: grid;
-  gap: 10px;
+  gap: 13px;
   animation: fadeUp 0.4s ease;
 }
 
@@ -773,6 +837,10 @@ input[type="number"] {
 
   .graph {
     height: 560px;
+  }
+
+  .cards-panel {
+    max-height: none;
   }
 }
 

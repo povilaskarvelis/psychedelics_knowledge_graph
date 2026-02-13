@@ -2,7 +2,9 @@ const graphEl = document.getElementById("graph");
 const cardsEl = document.getElementById("cards");
 const yearMinFilter = document.getElementById("yearMinFilter");
 const yearMaxFilter = document.getElementById("yearMaxFilter");
+const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
+const bibliographySearchInput = document.getElementById("bibliographySearchInput");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
 const detailSubtitle = document.querySelector("#graphDetail p");
@@ -468,7 +470,6 @@ function updateStats(data) {
 }
 
 function applyFilters() {
-  const searchValue = normalizeValue(searchInput.value);
   const rightKey = mode === "mechanistic" ? "target" : "disorder";
   const activeClaims = activeClaimsForMode();
   const yearRange = activeYearRange(activeClaims);
@@ -478,21 +479,6 @@ function applyFilters() {
       const year = parseYearValue(claim.study_year);
       if (year === null) return false;
       if (year < yearRange.min || year > yearRange.max) return false;
-    }
-
-    if (searchValue) {
-      const haystack = [
-        claim.compound,
-        claim[rightKey],
-        claim.assay_type,
-        claim.study_title,
-        claim.affinity_type,
-        claim.outcome_type,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      if (!haystack.includes(searchValue)) return false;
     }
 
     return true;
@@ -534,9 +520,31 @@ function evidenceClass(level) {
 }
 
 function renderCards(data) {
+  const searchValue = normalizeValue(searchInput?.value);
+  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const cardData = !searchValue
+    ? data
+    : data.filter((claim) => {
+        const haystack = [
+          claim.compound,
+          claim[rightKey],
+          claim.assay_type,
+          claim.study_title,
+          claim.affinity_type,
+          claim.outcome_type,
+          claimAuthors(claim),
+          claim.study_doi,
+          claim.openalex_id,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(searchValue);
+      });
+
   cardsEl.innerHTML = "";
 
-  const rows = data.slice(0, MAX_CARDS_RENDER);
+  const rows = cardData.slice(0, MAX_CARDS_RENDER);
   rows.forEach((claim) => {
     const card = document.createElement("div");
     card.className = "card";
@@ -583,10 +591,10 @@ function renderCards(data) {
     cardsEl.appendChild(card);
   });
 
-  if (data.length > rows.length) {
+  if (cardData.length > rows.length) {
     const note = document.createElement("div");
     note.className = "detail-empty";
-    note.textContent = `Showing ${rows.length} of ${data.length} claim cards. Filter to narrow further.`;
+    note.textContent = `Showing ${rows.length} of ${cardData.length} claim cards. Filter to narrow further.`;
     cardsEl.appendChild(note);
   }
 }
@@ -653,12 +661,29 @@ function renderBibliography(data) {
       return a.title.localeCompare(b.title);
     });
 
-  if (!rows.length) {
+  const bibliographyQuery = normalizeValue(bibliographySearchInput?.value);
+  const filteredRows = !bibliographyQuery
+    ? rows
+    : rows.filter((entry) => {
+        const haystack = normalizeValue(
+          [
+            entry.title,
+            entry.authorsText,
+            entry.compoundsText,
+            entry.rightsText,
+            entry.doi,
+            entry.openalexId,
+          ].join(" ")
+        );
+        return haystack.includes(bibliographyQuery);
+      });
+
+  if (!filteredRows.length) {
     studyListEl.innerHTML = '<div class="detail-empty">No studies in the current view.</div>';
     return;
   }
 
-  const visibleRows = rows.slice(0, MAX_BIBLIOGRAPHY_RENDER);
+  const visibleRows = filteredRows.slice(0, MAX_BIBLIOGRAPHY_RENDER);
   studyListEl.innerHTML = visibleRows
     .map((entry) => {
       const doiLink = entry.doi
@@ -687,10 +712,10 @@ function renderBibliography(data) {
     })
     .join("");
 
-  if (rows.length > visibleRows.length) {
+  if (filteredRows.length > visibleRows.length) {
     const note = document.createElement("div");
     note.className = "detail-empty";
-    note.textContent = `Showing ${visibleRows.length} of ${rows.length} studies. Filter to narrow further.`;
+    note.textContent = `Showing ${visibleRows.length} of ${filteredRows.length} studies. Filter to narrow further.`;
     studyListEl.appendChild(note);
   }
 }
@@ -1475,7 +1500,31 @@ if (yearMinFilter) {
 if (yearMaxFilter) {
   yearMaxFilter.addEventListener("change", scheduleRender);
 }
-searchInput.addEventListener("input", scheduleRender);
+if (yearStepButtons.length) {
+  yearStepButtons.forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
+      const targetId = btn.dataset.target || "";
+      const dir = btn.dataset.dir || "";
+      const input = document.getElementById(targetId);
+      if (!(input instanceof HTMLInputElement) || input.disabled) return;
+      if (dir === "up") input.stepUp();
+      if (dir === "down") input.stepDown();
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+      input.focus({ preventScroll: true });
+    });
+  });
+}
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    renderCards(applyFilters());
+  });
+}
+if (bibliographySearchInput) {
+  bibliographySearchInput.addEventListener("input", () => {
+    renderBibliography(applyFilters());
+  });
+}
 clearSelectionBtn.addEventListener("click", clearSelection);
 if (evidenceLegend) {
   evidenceLegend.querySelectorAll(".evidence-chip").forEach((chip) => {
