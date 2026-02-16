@@ -284,7 +284,7 @@ button:hover {
   border-radius: 10px;
   border: none;
   min-height: 32px;
-  background: rgba(8, 12, 22, 0.8);
+  background: rgba(8, 12, 22, 0.55);
 }
 
 .year-range-inline span {
