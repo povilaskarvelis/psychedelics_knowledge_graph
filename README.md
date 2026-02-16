@@ -16,6 +16,50 @@ It supports:
 The current example domain is psychedelics, but the workflow is reusable for
 other domains with configuration updates.
 
+## Layman Summary (First-Time Users)
+
+If you have never built an automated literature pipeline before, this is the
+simple idea:
+
+1. Find papers likely to be relevant.
+2. Build a local paper library (metadata + PDFs when available).
+3. Mark which papers are relevant enough to keep.
+4. Turn paper evidence into structured claim rows.
+5. Convert those rows into a graph you can explore in the GUI.
+
+In plain terms, this repository is a "paper-to-graph" assembly line:
+- search many papers quickly
+- keep only relevant ones
+- extract structured evidence
+- validate it
+- publish/visualize the resulting knowledge graph
+
+### Plain Language -> Technical Terms
+
+| Plain concept | Technical implementation in this repo |
+| --- | --- |
+| "Find candidate papers" | `pipeline/ingest/discover_literature.py` or `pipeline/ingest/run_extensive_search.py` |
+| "Paper database/library" | `data/processed/paper_library_<dataset>.json` |
+| "What we have vs what is missing" | `data/processed/paper_inventory_<dataset>.md` (`in_database`, `needs_download`, `needs_manual_access`) |
+| "Only keep relevant papers" | `pipeline/review/triage_paper_library.py` -> `data/raw/doi_queue.<dataset>.triage_relevant.txt` |
+| "Draft structured evidence rows" | `pipeline/ingest/seed_from_dois.py` -> `data/processed/*_claim_stubs.json` |
+| "Fill draft rows from abstracts/PDFs" | `pipeline/review/autofill_*.py` scripts |
+| "Final curated claims used to build the graph" | `data/curated/claims.json` and `data/curated/disorder_claims.json` |
+| "Graph view in browser" | `ui/` (reads curated/payload outputs) |
+| "Check data quality before export" | `pipeline/validate/validate_claims.py` |
+| "Export package for ORKG ingestion" | `pipeline/publish/export_orkg_payload.py` -> `data/processed/orkg_payload_*.json` |
+| "Did search miss key papers?" | `pipeline/ingest/recall_audit.py` + `data/raw/benchmark_known_dois.*.txt` |
+
+### How To Reuse This In Another Domain
+
+You do not need to rewrite the whole system. Usually you only update:
+1. domain vocabulary (`pipeline/config.example.yaml`)
+2. entity/relation schema (`schema/`)
+3. seed queries or DOI seed files (`data/raw/doi_queue.*.template.txt`)
+4. disorder/label alias rules if needed (`schema/disorder_canonicalization.json`)
+
+After that, run the same pipeline steps described below.
+
 ## Live Website
 
 - GUI: [https://povilaskarvelis.github.io/psychedelics_knowledge_graph/](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/)
@@ -145,6 +189,12 @@ High-recall one-command run (auto-seed expansion + broader query templates):
 ```bash
 python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1200 --auto-max-seeds 3000 --max-results-per-seed 120 --max-results 5000
 ```
+
+Recommended for large runs: use the staged principled strategy documented in
+`pipeline/ingest/README.md` ("Recommended principled search strategy"), including:
+- Stage A (faster broad pass): `provider=openalex`, focused templates
+- Stage B (targeted expansion): `provider=hybrid`, broad templates
+- Recall benchmark gate: `pipeline/ingest/recall_audit.py`
 
 This command now runs a triage-first download strategy by default:
 1. discovery
@@ -388,6 +438,10 @@ python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid -
 
 # optional: high-recall one-command run (config-driven seed expansion)
 python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1200 --auto-max-seeds 3000 --max-results-per-seed 120 --max-results 5000
+
+# recommended: run recall benchmark audit after discovery
+python pipeline/ingest/recall_audit.py --dataset mechanistic --known-doi-file data/raw/benchmark_known_dois.mechanistic.txt
+python pipeline/ingest/recall_audit.py --dataset disorder --known-doi-file data/raw/benchmark_known_dois.disorder.txt
 
 # 5) build stubs from triaged-relevant queues
 python pipeline/ingest/seed_from_dois.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt --replace

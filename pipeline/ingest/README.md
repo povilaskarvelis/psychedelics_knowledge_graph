@@ -37,6 +37,59 @@ Custom seeds:
 - OpenAlex default is `2.0 req/s`.
 - Configure in `pipeline/config.example.yaml` or override with CLI flags.
 
+## Recommended principled search strategy (high recall + efficient + reproducible)
+Use this sequence for large runs:
+1. broad/faster discovery pass (OpenAlex-focused)
+2. targeted high-recall expansion pass (hybrid)
+3. recall audit against a known DOI benchmark
+4. only then run metadata sync, triage, and PDF download
+
+### Step A: broad/faster discovery pass
+Run one dataset at a time first for easy monitoring:
+
+`python pipeline/ingest/run_extensive_search.py --dataset mechanistic --provider openalex --expand-seeds-from-config --auto-template-mode focused --auto-max-pairs 800 --auto-max-seeds 1200 --max-results-per-seed 40 --max-results 5000 --openalex-email your_email@example.com --discover-only`
+
+`python pipeline/ingest/run_extensive_search.py --dataset disorder --provider openalex --expand-seeds-from-config --auto-template-mode focused --auto-max-pairs 800 --auto-max-seeds 1200 --max-results-per-seed 40 --max-results 5000 --openalex-email your_email@example.com --discover-only`
+
+### Step B: targeted high-recall expansion pass
+Use hybrid provider with broader templates after Step A:
+
+`python pipeline/ingest/run_extensive_search.py --dataset mechanistic --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1400 --auto-max-seeds 1800 --max-results-per-seed 80 --max-results 8000 --openalex-email your_email@example.com --semantic-scholar-rps 0.5 --openalex-rps 3.0 --max-retries 3 --discover-only`
+
+`python pipeline/ingest/run_extensive_search.py --dataset disorder --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1400 --auto-max-seeds 1800 --max-results-per-seed 80 --max-results 8000 --openalex-email your_email@example.com --semantic-scholar-rps 0.5 --openalex-rps 3.0 --max-retries 3 --discover-only`
+
+Notes:
+- The new `run_extensive_search.py` flags `--semantic-scholar-rps`, `--openalex-rps`,
+  and `--max-retries` let you tune speed/retry policy without editing config.
+- If you get 429/rate-limit errors, reduce RPS values.
+- If retrieval quality drops, reduce speed and/or increase retries.
+
+### Step C: recall audit (benchmark gate)
+Maintain benchmark DOI lists (known must-find papers):
+- `data/raw/benchmark_known_dois.mechanistic.txt`
+- `data/raw/benchmark_known_dois.disorder.txt`
+
+Run the recall audit:
+
+`python pipeline/ingest/recall_audit.py --dataset mechanistic --known-doi-file data/raw/benchmark_known_dois.mechanistic.txt`
+
+`python pipeline/ingest/recall_audit.py --dataset disorder --known-doi-file data/raw/benchmark_known_dois.disorder.txt`
+
+Outputs:
+- `data/processed/recall_audit_<dataset>.json`
+- `data/processed/recall_audit_<dataset>.csv`
+
+Suggested gate before sync/download:
+- `in_discovered_queue` coverage >= 95% for benchmark DOIs
+- if below threshold: add synonyms/seeds and rerun discovery
+
+### Step D: sync + triage + download
+After passing recall gate:
+
+`python pipeline/ingest/run_extensive_search.py --dataset mechanistic --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1400 --auto-max-seeds 1800 --max-results-per-seed 80 --max-results 8000 --openalex-email your_email@example.com --semantic-scholar-rps 0.5 --openalex-rps 3.0 --max-retries 3`
+
+`python pipeline/ingest/run_extensive_search.py --dataset disorder --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1400 --auto-max-seeds 1800 --max-results-per-seed 80 --max-results 8000 --openalex-email your_email@example.com --semantic-scholar-rps 0.5 --openalex-rps 3.0 --max-retries 3`
+
 Discovery outputs:
 - `data/raw/doi_queue.<dataset>.discovered.txt`
 - `data/processed/discovery_report_<dataset>.json`

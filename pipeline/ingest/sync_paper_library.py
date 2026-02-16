@@ -319,6 +319,22 @@ def pdf_filename_for_doi(doi: str) -> str:
     return f"{slug}__{digest}.pdf"
 
 
+def looks_like_pdf_bytes(raw: bytes) -> bool:
+    if not raw:
+        return False
+    # Some providers prepend whitespace/newlines before the PDF header.
+    lead = raw[:2048].lstrip(b"\x00\t\r\n\f ")
+    return lead.startswith(b"%PDF-")
+
+
+def file_is_valid_pdf(path: Path) -> bool:
+    try:
+        head = path.read_bytes()[:4096]
+    except Exception:
+        return False
+    return looks_like_pdf_bytes(head)
+
+
 def read_existing_json(path: Path) -> List[dict]:
     if not path.exists():
         return []
@@ -472,7 +488,9 @@ def download_pdf(
     target_path: Path,
 ) -> Tuple[str, str, int]:
     if target_path.exists() and target_path.stat().st_size > 0:
-        return "already_present", "", int(target_path.stat().st_size)
+        if file_is_valid_pdf(target_path):
+            return "already_present", "", int(target_path.stat().st_size)
+        return "invalid_pdf_existing", "local_file_is_not_pdf", int(target_path.stat().st_size)
 
     body = client.get_bytes(
         url=pdf_url,
@@ -482,6 +500,8 @@ def download_pdf(
     )
     if not body:
         return "download_failed", "empty_response", 0
+    if not looks_like_pdf_bytes(body):
+        return "invalid_pdf_content", "response_not_pdf", 0
 
     target_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = target_path.with_suffix(".tmp")
@@ -646,13 +666,29 @@ def main() -> int:
         pdf_size_bytes = 0
         pdf_sha256 = ""
 
+        had_invalid_local_pdf = False
         if pdf_path.exists() and pdf_path.stat().st_size > 0:
-            download_status = "already_present"
-            already_present += 1
-            pdf_size_bytes = int(pdf_path.stat().st_size)
-            pdf_sha256 = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+            if file_is_valid_pdf(pdf_path):
+                download_status = "already_present"
+                already_present += 1
+                pdf_size_bytes = int(pdf_path.stat().st_size)
+                pdf_sha256 = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+            else:
+                had_invalid_local_pdf = True
+                download_status = "invalid_pdf_existing"
+                download_error = "local_file_is_not_pdf"
+                # Remove bad local artifact so subsequent retries can fetch cleanly.
+                try:
+                    pdf_path.unlink()
+                except Exception:
+                    pass
+
+        if download_status == "already_present":
+            pass
         elif args.skip_download:
-            if is_oa and best_pdf_url:
+            if had_invalid_local_pdf:
+                download_status = "invalid_pdf_existing"
+            elif is_oa and best_pdf_url:
                 download_status = "skipped"
             elif is_oa and not best_pdf_url:
                 download_status = "no_pdf_url"
@@ -669,12 +705,26 @@ def main() -> int:
                     downloaded_now += 1
                 elif download_status == "already_present":
                     already_present += 1
+                elif download_status in {"invalid_pdf_existing", "invalid_pdf_content"}:
+                    download_failures += 1
                 if pdf_path.exists() and pdf_path.stat().st_size > 0:
-                    pdf_sha256 = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+                    if file_is_valid_pdf(pdf_path):
+                        pdf_sha256 = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+                    else:
+                        download_status = "invalid_pdf_existing"
+                        download_error = "local_file_is_not_pdf"
+                        try:
+                            pdf_path.unlink()
+                        except Exception:
+                            pass
             except Exception as err:
                 download_status = "download_failed"
                 download_error = f"{type(err).__name__}: {err}"
                 download_failures += 1
+        elif had_invalid_local_pdf:
+            download_status = "invalid_pdf_existing"
+            if not download_error:
+                download_error = "local_file_is_not_pdf"
         elif is_oa and not best_pdf_url:
             download_status = "no_pdf_url"
         else:
@@ -702,7 +752,11 @@ def main() -> int:
             "open_access_status": normalize(oa.get("oa_status", "")),
             "open_access_url": normalize(oa.get("oa_url", "")),
             "best_pdf_url": best_pdf_url,
-            "pdf_local_path": str(pdf_path) if pdf_path.exists() and pdf_path.stat().st_size > 0 else "",
+            "pdf_local_path": (
+                str(pdf_path)
+                if pdf_path.exists() and pdf_path.stat().st_size > 0 and file_is_valid_pdf(pdf_path)
+                else ""
+            ),
             "pdf_size_bytes": pdf_size_bytes if pdf_size_bytes else "",
             "pdf_sha256": pdf_sha256,
             "pdf_download_status": download_status,
@@ -781,6 +835,13 @@ def main() -> int:
             "downloaded_now": downloaded_now,
             "already_present": already_present,
             "download_failures": download_failures,
+            "invalid_pdf_artifacts": len(
+                [
+                    row
+                    for row in output_rows
+                    if normalize(row.get("pdf_download_status", "")) in {"invalid_pdf_existing", "invalid_pdf_content"}
+                ]
+            ),
             "metadata_errors": len(fetch_errors),
         },
         "in_database": [compact_inventory_row(row) for row in in_database],

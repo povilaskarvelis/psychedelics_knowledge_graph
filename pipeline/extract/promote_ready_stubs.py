@@ -359,6 +359,11 @@ def main() -> int:
     parser.add_argument("--ready-status", default="ready_for_promotion")
     parser.add_argument("--apply", action="store_true", help="Write changes to curated/stub files")
     parser.add_argument(
+        "--upsert-duplicates",
+        action="store_true",
+        help="When signature already exists in curated rows, update curated row from ready stub instead of skipping",
+    )
+    parser.add_argument(
         "--report",
         default="",
         help="Optional report output path (defaults to data/processed/promotion_report_<dataset>.json)",
@@ -456,6 +461,7 @@ def main() -> int:
         "warnings": [],
         "promoted": [],
         "duplicates": [],
+        "upserted": [],
         "triage_pruned_samples": triage_pruned_samples,
     }
 
@@ -496,9 +502,13 @@ def main() -> int:
         return 0
 
     curated_signatures = {signature(row, cfg["id_fields"]) for row in curated}
+    curated_signature_to_index = {
+        signature(row, cfg["id_fields"]): idx for idx, row in enumerate(curated)
+    }
 
     promotable_cleaned = []
     promoted_signatures = set()
+    upserted_signatures = set()
     duplicate_signatures = set()
     for idx, row in enumerate(ready_rows, start=1):
         normalized_row = (
@@ -528,6 +538,19 @@ def main() -> int:
 
         sig = signature(cleaned, cfg["id_fields"])
         if sig in curated_signatures:
+            if args.upsert_duplicates:
+                curated_idx = curated_signature_to_index.get(sig)
+                if curated_idx is not None and curated[curated_idx] != cleaned:
+                    curated[curated_idx] = cleaned
+                    upserted_signatures.add(sig)
+                    report["upserted"].append(
+                        {
+                            "row_index": idx,
+                            "study_doi": normalize(cleaned.get("study_doi", "")),
+                            "signature": list(sig),
+                        }
+                    )
+                    continue
             duplicate_signatures.add(sig)
             report["duplicates"].append(
                 {
@@ -551,6 +574,7 @@ def main() -> int:
 
     report["counts"]["validated_ready_rows"] = len(ready_rows)
     report["counts"]["promotable_rows"] = len(promotable_cleaned)
+    report["counts"]["upserted_rows"] = len(report["upserted"])
     report["counts"]["duplicate_rows"] = len(report["duplicates"])
     report["counts"]["error_rows"] = len(report["errors"])
 
@@ -595,6 +619,10 @@ def main() -> int:
                 updated = dict(normalized_row)
                 updated["stub_status"] = "duplicate_existing"
                 remaining_rows.append(updated)
+            elif sig in upserted_signatures:
+                updated = dict(normalized_row)
+                updated["stub_status"] = "duplicate_existing"
+                remaining_rows.append(updated)
             elif sig in promoted_signatures:
                 continue
             else:
@@ -609,6 +637,7 @@ def main() -> int:
     print(f"Dataset: {args.dataset}")
     print(f"Ready rows: {len(ready_rows)}")
     print(f"Promotable rows: {len(promotable_cleaned)}")
+    print(f"Upserted rows: {len(report['upserted'])}")
     print(f"Duplicates: {len(report['duplicates'])}")
     print(f"Errors: {len(report['errors'])}")
     print(f"Status: {report['status']}")

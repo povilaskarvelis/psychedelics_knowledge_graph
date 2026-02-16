@@ -1,31 +1,199 @@
 {
-  "generated_at": "2026-02-12T18:10:12.208566+00:00",
+  "generated_at": "2026-02-16T03:35:48.951950+00:00",
   "dataset": "mechanistic",
   "ready_status": "ready_for_promotion",
   "apply": true,
   "counts": {
-    "stubs_total": 174,
-    "ready_rows": 0,
-    "curated_before": 35,
+    "stubs_total": 218,
+    "ready_rows": 16,
+    "curated_before": 34,
     "curated_normalized": 0,
     "curated_deduped": 0,
-    "curated_pruned_by_triage": 1,
-    "curated_after": 34
+    "curated_pruned_by_triage": 15,
+    "curated_pruned_from_irrelevant": 0,
+    "curated_pruned_from_unmatched_context": 15,
+    "validated_ready_rows": 16,
+    "promotable_rows": 14,
+    "duplicate_rows": 2,
+    "error_rows": 0,
+    "curated_after": 33
   },
   "errors": [],
   "warnings": [
-    "Pruned 1 curated row(s) marked likely_irrelevant by latest triage report",
-    "No rows with the requested ready status",
-    "Applied curated cleanup without promoting new rows"
+    "Pruned 15 curated context row(s) not matched by triage context detection"
   ],
-  "promoted": [],
-  "duplicates": [],
-  "triage_pruned_samples": [
+  "promoted": [
     {
-      "study_doi": "10.1038/s41380-023-02391-7",
-      "compound": "Psilocin",
-      "target": "5-HT2A"
+      "row_index": 1,
+      "study_doi": "10.1007/s00406-023-01571-4",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 2,
+      "study_doi": "10.1007/s00406-023-01571-4",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 4,
+      "study_doi": "10.1038/s41380-020-0740-6",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 5,
+      "study_doi": "10.1038/s41398-021-01540-2",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 6,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 7,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "compound": "Psilocin"
+    },
+    {
+      "row_index": 8,
+      "study_doi": "10.1186/1471-2210-6-6",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 9,
+      "study_doi": "10.1186/1471-2210-6-6",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 10,
+      "study_doi": "10.12688/f1000research.14344.1",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 11,
+      "study_doi": "10.1523/jneurosci.1171-11.2011",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 12,
+      "study_doi": "10.1523/jneurosci.1171-11.2011",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 13,
+      "study_doi": "10.1523/jneurosci.4034-14.2015",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 14,
+      "study_doi": "10.1523/jneurosci.4034-14.2015",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 15,
+      "study_doi": "10.1523/jneurosci.4722-05.2006",
+      "compound": "Ketamine"
     }
   ],
-  "status": "applied_curated_normalization_only"
+  "duplicates": [
+    {
+      "row_index": 3,
+      "study_doi": "10.1007/s12640-017-9759-0",
+      "signature": [
+        "compound=S-ketamine",
+        "target=NMDA receptor",
+        "study_doi=10.1007/s12640-017-9759-0",
+        "openalex_id=",
+        "assay_type=functional assay"
+      ]
+    },
+    {
+      "row_index": 16,
+      "study_doi": "10.3389/fphar.2019.01406",
+      "signature": [
+        "compound=LSD",
+        "target=5-HT2A",
+        "study_doi=10.3389/fphar.2019.01406",
+        "openalex_id=",
+        "assay_type=functional assay"
+      ]
+    }
+  ],
+  "triage_pruned_samples": [
+    {
+      "study_doi": "10.1371/journal.pone.0036476",
+      "compound": "MDMA",
+      "target": "SERT"
+    },
+    {
+      "study_doi": "10.1038/s41386-023-01783-1",
+      "compound": "S-ketamine",
+      "target": "NMDA receptor"
+    },
+    {
+      "study_doi": "10.1371/journal.pcbi.1002909",
+      "compound": "MDMA",
+      "target": "DAT (SLC6A3)"
+    },
+    {
+      "study_doi": "10.3389/fchem.2021.753990",
+      "compound": "MDMA",
+      "target": "DAT (SLC6A3)"
+    },
+    {
+      "study_doi": "10.1007/s00213-013-3234-2",
+      "compound": "LSD",
+      "target": "5-HT2A"
+    },
+    {
+      "study_doi": "10.1038/s41380-023-02064-5",
+      "compound": "MDMA",
+      "target": "SERT (SLC6A4)"
+    },
+    {
+      "study_doi": "10.1038/s41380-025-03201-y",
+      "compound": "MDMA",
+      "target": "DAT (SLC6A3)"
+    },
+    {
+      "study_doi": "10.1038/s41386-018-0076-y",
+      "compound": "LSD",
+      "target": "5-HT2A"
+    },
+    {
+      "study_doi": "10.1038/s41386-023-01614-3",
+      "compound": "S-ketamine",
+      "target": "NMDA receptor"
+    },
+    {
+      "study_doi": "10.1038/s41467-020-14889-7",
+      "compound": "Salvinorin A",
+      "target": "kappa opioid receptor (OPRK1)"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0036476",
+      "compound": "MDMA",
+      "target": "SERT (SLC6A4)"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0136641",
+      "compound": "MDMA",
+      "target": "DAT (SLC6A3)"
+    },
+    {
+      "study_doi": "10.3389/fphar.2021.654061",
+      "compound": "MDMA",
+      "target": "DAT (SLC6A3)"
+    },
+    {
+      "study_doi": "10.3389/fphar.2025.1703480",
+      "compound": "DMT",
+      "target": "TAAR1"
+    },
+    {
+      "study_doi": "10.3390/ijms252011276",
+      "compound": "MDMA",
+      "target": "DAT (SLC6A3)"
+    }
+  ],
+  "status": "applied"
 }

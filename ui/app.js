@@ -5,6 +5,7 @@ const yearMaxFilter = document.getElementById("yearMaxFilter");
 const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
 const bibliographySearchInput = document.getElementById("bibliographySearchInput");
+const fullTextOnlyToggle = document.getElementById("fullTextOnlyToggle");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
 const detailSubtitle = document.querySelector("#graphDetail p");
@@ -424,6 +425,15 @@ function openAlexUrl(openalexId) {
   return `https://openalex.org/${id}`;
 }
 
+function doiUrl(doiValue) {
+  const raw = (doiValue || "").toString().trim();
+  if (!raw) return "";
+  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+  const normalized = raw.replace(/^doi:\s*/i, "").replace(/^https?:\/\/doi\.org\//i, "");
+  if (!normalized) return "";
+  return `https://doi.org/${encodeURI(normalized)}`;
+}
+
 function normalizeAuthors(value) {
   if (Array.isArray(value)) {
     return value
@@ -473,8 +483,13 @@ function applyFilters() {
   const rightKey = mode === "mechanistic" ? "target" : "disorder";
   const activeClaims = activeClaimsForMode();
   const yearRange = activeYearRange(activeClaims);
+  const fullTextOnly = Boolean(fullTextOnlyToggle?.checked);
 
   const baseFiltered = activeClaims.filter((claim) => {
+    if (fullTextOnly && normalizeValue(claim.access_level) !== "full_text_seen") {
+      return false;
+    }
+
     if (yearRange.constrained) {
       const year = parseYearValue(claim.study_year);
       if (year === null) return false;
@@ -553,8 +568,9 @@ function renderCards(data) {
       claim.evidence_level || "low"
     } evidence</span>`;
 
-    const source = claim.study_doi
-      ? `DOI: ${claim.study_doi}`
+    const doiHref = doiUrl(claim.study_doi);
+    const source = doiHref
+      ? `DOI: <a href="${doiHref}" target="_blank" rel="noopener noreferrer">${claim.study_doi}</a>`
       : claim.openalex_id
       ? `OpenAlex: ${claim.openalex_id}`
       : "";
@@ -568,7 +584,7 @@ function renderCards(data) {
         : "";
 
     card.innerHTML = `
-      <div>
+      <div class="card-header">
         <h3>${relation}</h3>
         ${badge}
       </div>
@@ -758,30 +774,39 @@ function renderEdgeDetail(compound, target, edgeClaims) {
   });
 
   const list = sortedClaims
-    .map(
-      (claim) => `
+    .map((claim) => {
+      const disorderMeasureLine = claim.outcome_measure
+        ? `<div class="meta">Measure: ${claim.outcome_measure}</div>`
+        : "";
+      const detailSource = claim.study_doi
+        ? `DOI: <a href="${doiUrl(claim.study_doi)}" target="_blank" rel="noopener noreferrer">${claim.study_doi}</a>`
+        : claim.openalex_id
+        ? `OpenAlex: <a href="${openAlexUrl(claim.openalex_id)}" target="_blank" rel="noopener noreferrer">${claim.openalex_id}</a>`
+        : "";
+
+      return `
       <div class="detail-item">
         <h4>${
           mode === "mechanistic"
             ? `${claim.affinity_type} ${claim.affinity_value} ${claim.affinity_unit}`
             : `${claim.outcome_type || "Outcome"}`
         }</h4>
-        <div class="meta">${
+        ${
           mode === "mechanistic"
-            ? `Assay: ${claim.assay_type}`
-            : `Measure: ${claim.outcome_measure || "reported"}`
-        }</div>
+            ? `<div class="meta">Assay: ${claim.assay_type}</div>`
+            : disorderMeasureLine
+        }
         <div class="meta">${
           mode === "mechanistic"
             ? `System: ${claim.system || "unknown"} • Species: ${claim.species || "unknown"}`
             : `Population: ${claim.population || "unknown"} • System: ${claim.system || "unknown"}`
         }</div>
         <div class="meta">Study: ${claim.study_title || "Unknown"} (${claim.study_year || ""})</div>
-        <div class="meta">${claim.study_doi ? `DOI: ${claim.study_doi}` : claim.openalex_id ? `OpenAlex: ${claim.openalex_id}` : ""}</div>
+        <div class="meta">${detailSource}</div>
         ${badgeHtml(claim.evidence_level)}
       </div>
     `
-    )
+    })
     .join("");
 
   detailBody.innerHTML = `
@@ -1524,6 +1549,9 @@ if (bibliographySearchInput) {
   bibliographySearchInput.addEventListener("input", () => {
     renderBibliography(applyFilters());
   });
+}
+if (fullTextOnlyToggle) {
+  fullTextOnlyToggle.addEventListener("change", scheduleRender);
 }
 clearSelectionBtn.addEventListener("click", clearSelection);
 if (evidenceLegend) {

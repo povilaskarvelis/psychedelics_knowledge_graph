@@ -1,0 +1,5 @@
+# Add one DOI per line for known mechanistic "must-find" papers.
+# Example:
+# 10.1038/s41386-023-01587-0
+# 10.1038/nature25552
+

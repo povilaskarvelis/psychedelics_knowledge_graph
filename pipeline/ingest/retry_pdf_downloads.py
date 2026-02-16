@@ -92,7 +92,7 @@ def main() -> int:
     parser.add_argument("--dataset", choices=["mechanistic", "disorder"], required=True)
     parser.add_argument(
         "--statuses",
-        default="download_failed,no_pdf_url",
+        default="download_failed,no_pdf_url,invalid_pdf_content,invalid_pdf_existing",
         help="Comma-separated pdf_download_status values to retry",
     )
     parser.add_argument("--limit", type=int, default=0, help="Optional max DOI rows to queue")

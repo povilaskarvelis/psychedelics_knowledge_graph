@@ -1,29 +1,27 @@
 {
-  "generated_at": "2026-02-12T18:21:36.339719+00:00",
+  "generated_at": "2026-02-16T17:55:37.527910+00:00",
   "status": "ok",
   "datasets": {
     "mechanistic": {
       "metrics": {
-        "rows": 34,
+        "rows": 33,
         "source_type_counts": {
           "review": 9,
-          "primary_study": 24,
-          "other": 1
+          "primary_study": 24
         },
         "access_level_counts": {
           "secondary_summary": 15,
           "abstract_only": 2,
-          "full_text_seen": 17
+          "full_text_seen": 16
         },
         "evidence_level_counts": {
-          "medium": 24,
-          "high": 10
+          "medium": 25,
+          "high": 8
         },
         "study_design_counts": {
-          "in_vitro_binding_assay": 16,
+          "in_vitro_binding_assay": 15,
           "in_vitro_uptake_assay": 3,
-          "randomized_controlled_trial": 2,
-          "preclinical_study": 13
+          "preclinical_study": 15
         },
         "warnings_count": 4,
         "errors_count": 0
@@ -38,130 +36,47 @@
     },
     "disorder": {
       "metrics": {
-        "rows": 489,
+        "rows": 722,
         "source_type_counts": {
-          "primary_study": 385,
-          "meta_analysis": 25,
-          "other": 54,
-          "review": 25
+          "primary_study": 720,
+          "other": 2
         },
         "access_level_counts": {
-          "secondary_summary": 96,
-          "abstract_only": 393
+          "abstract_only": 396,
+          "secondary_summary": 80,
+          "full_text_seen": 246
         },
         "evidence_level_counts": {
-          "high": 196,
-          "medium": 89,
-          "low": 204
+          "medium": 66,
+          "high": 341,
+          "low": 315
         },
         "study_design_counts": {
-          "randomized_controlled_trial": 181,
+          "phase_2_trial": 13,
+          "randomized_controlled_trial": 326,
           "clinical_trial": 1,
-          "open_label_trial": 24,
-          "phase_3_randomized_controlled_trial": 3,
+          "open_label_trial": 42,
+          "phase_3_randomized_controlled_trial": 1,
           "observational_follow_up": 1,
-          "meta_analysis": 25,
-          "systematic_review": 17,
-          "pending_curation": 84,
-          "phase_3_trial": 12,
-          "preclinical_study": 108,
-          "review": 8,
-          "pilot_trial": 4,
-          "phase_2_trial": 9,
-          "observational_study": 12
+          "pending_curation": 79,
+          "preclinical_study": 207,
+          "phase_3_trial": 14,
+          "pilot_trial": 9,
+          "observational_study": 29
         },
-        "warnings_count": 87,
+        "warnings_count": 8,
         "errors_count": 0
       },
       "errors": [],
       "warnings": [
-        "disorder row 14: evidence_locator is weak (`Unspecified`)",
-        "disorder row 26: evidence_locator is weak (`Unspecified`)",
-        "disorder row 27: evidence_locator is weak (`Unspecified`)",
-        "disorder row 34: evidence_locator is weak (`Unspecified`)",
-        "disorder row 47: evidence_locator is weak (`Unspecified`)",
-        "disorder row 51: evidence_locator is weak (`Unspecified`)",
-        "disorder row 53: evidence_locator is weak (`Unspecified`)",
-        "disorder row 55: evidence_locator is weak (`Unspecified`)",
-        "disorder row 59: evidence_locator is weak (`Unspecified`)",
-        "disorder row 64: evidence_locator is weak (`Unspecified`)",
-        "disorder row 71: evidence_locator is weak (`Unspecified`)",
-        "disorder row 72: evidence_locator is weak (`Unspecified`)",
-        "disorder row 73: evidence_locator is weak (`Unspecified`)",
-        "disorder row 74: evidence_locator is weak (`Unspecified`)",
-        "disorder row 76: evidence_locator is weak (`Unspecified`)",
-        "disorder row 78: evidence_locator is weak (`Unspecified`)",
-        "disorder row 84: evidence_locator is weak (`Unspecified`)",
-        "disorder row 86: evidence_locator is weak (`Unspecified`)",
-        "disorder row 87: evidence_locator is weak (`Unspecified`)",
-        "disorder row 101: evidence_locator is weak (`Unspecified`)",
-        "disorder row 105: evidence_locator is weak (`Unspecified`)",
-        "disorder row 116: evidence_locator is weak (`Unspecified`)",
-        "disorder row 124: evidence_locator is weak (`Unspecified`)",
-        "disorder row 131: evidence_locator is weak (`Unspecified`)",
-        "disorder row 132: evidence_locator is weak (`Unspecified`)",
-        "disorder row 137: evidence_locator is weak (`Unspecified`)",
-        "disorder row 147: evidence_locator is weak (`Unspecified`)",
-        "disorder row 149: evidence_locator is weak (`Unspecified`)",
-        "disorder row 167: evidence_locator is weak (`Unspecified`)",
-        "disorder row 171: evidence_locator is weak (`Unspecified`)",
-        "disorder row 173: evidence_locator is weak (`Unspecified`)",
-        "disorder row 192: evidence_locator is weak (`Unspecified`)",
-        "disorder row 193: evidence_locator is weak (`Unspecified`)",
-        "disorder row 200: evidence_locator is weak (`Unspecified`)",
-        "disorder row 202: evidence_locator is weak (`Unspecified`)",
-        "disorder row 203: evidence_locator is weak (`Unspecified`)",
-        "disorder row 208: evidence_locator is weak (`Unspecified`)",
+        "disorder row 207: authors missing or unresolved (`Unknown`)",
+        "disorder row 208: authors missing or unresolved (`Unknown`)",
         "disorder row 209: authors missing or unresolved (`Unknown`)",
         "disorder row 210: authors missing or unresolved (`Unknown`)",
-        "disorder row 211: authors missing or unresolved (`Unknown`)",
-        "disorder row 212: authors missing or unresolved (`Unknown`)",
-        "disorder row 223: evidence_locator is weak (`Unspecified`)",
-        "disorder row 225: evidence_locator is weak (`Unspecified`)",
-        "disorder row 226: evidence_locator is weak (`Unspecified`)",
-        "disorder row 227: evidence_locator is weak (`Unspecified`)",
-        "disorder row 228: evidence_locator is weak (`Unspecified`)",
-        "disorder row 231: evidence_locator is weak (`Unspecified`)",
-        "disorder row 232: evidence_locator is weak (`Unspecified`)",
-        "disorder row 234: evidence_locator is weak (`Unspecified`)",
-        "disorder row 235: evidence_locator is weak (`Unspecified`)",
-        "disorder row 236: evidence_locator is weak (`Unspecified`)",
-        "disorder row 238: evidence_locator is weak (`Unspecified`)",
-        "disorder row 239: evidence_locator is weak (`Unspecified`)",
-        "disorder row 240: evidence_locator is weak (`Unspecified`)",
-        "disorder row 241: evidence_locator is weak (`Unspecified`)",
-        "disorder row 242: evidence_locator is weak (`Unspecified`)",
-        "disorder row 246: evidence_locator is weak (`Unspecified`)",
-        "disorder row 256: evidence_locator is weak (`Unspecified`)",
-        "disorder row 263: evidence_locator is weak (`Unspecified`)",
-        "disorder row 264: evidence_locator is weak (`Unspecified`)",
-        "disorder row 314: evidence_locator is weak (`Unspecified`)",
-        "disorder row 354: evidence_locator is weak (`Unspecified`)",
-        "disorder row 357: evidence_locator is weak (`Unspecified`)",
-        "disorder row 366: evidence_locator is weak (`Unspecified`)",
-        "disorder row 380: evidence_locator is weak (`Unspecified`)",
-        "disorder row 413: evidence_locator is weak (`Unspecified`)",
-        "disorder row 447: evidence_locator is weak (`Unspecified`)",
-        "disorder row 448: evidence_locator is weak (`Unspecified`)",
-        "disorder row 449: evidence_locator is weak (`Unspecified`)",
-        "disorder row 450: evidence_locator is weak (`Unspecified`)",
-        "disorder row 451: evidence_locator is weak (`Unspecified`)",
-        "disorder row 452: evidence_locator is weak (`Unspecified`)",
-        "disorder row 453: evidence_locator is weak (`Unspecified`)",
-        "disorder row 455: evidence_locator is weak (`Unspecified`)",
-        "disorder row 456: evidence_locator is weak (`Unspecified`)",
-        "disorder row 457: evidence_locator is weak (`Unspecified`)",
-        "disorder row 458: evidence_locator is weak (`Unspecified`)",
-        "disorder row 460: evidence_locator is weak (`Unspecified`)",
-        "disorder row 461: evidence_locator is weak (`Unspecified`)",
-        "disorder row 462: evidence_locator is weak (`Unspecified`)",
-        "disorder row 465: evidence_locator is weak (`Unspecified`)",
-        "disorder row 467: evidence_locator is weak (`Unspecified`)",
-        "disorder row 472: evidence_locator is weak (`Unspecified`)",
-        "disorder row 475: evidence_locator is weak (`Unspecified`)",
-        "disorder row 476: evidence_locator is weak (`Unspecified`)",
-        "disorder row 484: evidence_locator is weak (`Unspecified`)",
-        "disorder row 486: evidence_locator is weak (`Unspecified`)"
+        "disorder row 362: evidence_locator is weak (`Unspecified`)",
+        "disorder row 409: evidence_locator is weak (`Unspecified`)",
+        "disorder row 468: evidence_locator is weak (`Unspecified`)",
+        "disorder row 480: evidence_locator is weak (`Unspecified`)"
       ]
     }
   },
@@ -177,6 +92,6 @@
   },
   "totals": {
     "errors": 0,
-    "warnings": 91
+    "warnings": 12
   }
 }

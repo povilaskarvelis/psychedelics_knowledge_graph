@@ -1,25 +1,5167 @@
 {
-  "generated_at": "2026-02-12T18:22:17.881068+00:00",
+  "generated_at": "2026-02-16T17:55:37.450857+00:00",
   "dataset": "disorder",
-  "ready_status": "ready_for_promotion",
+  "ready_status": "duplicate_existing",
   "apply": true,
   "counts": {
-    "stubs_total": 481,
-    "ready_rows": 0,
-    "curated_before": 489,
+    "stubs_total": 482,
+    "ready_rows": 467,
+    "curated_before": 722,
     "curated_normalized": 0,
     "curated_deduped": 0,
     "curated_pruned_by_triage": 0,
     "curated_pruned_from_irrelevant": 0,
     "curated_pruned_from_unmatched_context": 0,
-    "curated_after": 489
+    "validated_ready_rows": 467,
+    "promotable_rows": 0,
+    "upserted_rows": 467,
+    "duplicate_rows": 0,
+    "error_rows": 0,
+    "curated_after": 722
   },
   "errors": [],
-  "warnings": [
-    "No rows with the requested ready status"
-  ],
+  "warnings": [],
   "promoted": [],
   "duplicates": [],
+  "upserted": [
+    {
+      "row_index": 1,
+      "study_doi": "10.1001/jamanetworkopen.2023.28817",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1001/jamanetworkopen.2023.28817",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 2,
+      "study_doi": "10.1001/jamanetworkopen.2025.24119",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1001/jamanetworkopen.2025.24119",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 3,
+      "study_doi": "10.1001/jamapsychiatry.2024.4387",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1001/jamapsychiatry.2024.4387",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 4,
+      "study_doi": "10.1001/jamapsychiatry.2025.0200",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1001/jamapsychiatry.2025.0200",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 5,
+      "study_doi": "10.1001/jamapsychiatry.2025.1317",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1001/jamapsychiatry.2025.1317",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 6,
+      "study_doi": "10.1001/jamapsychiatry.2025.1317",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1001/jamapsychiatry.2025.1317",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 7,
+      "study_doi": "10.1002/14651858.cd011006.pub4",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1002/14651858.cd011006.pub4",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 8,
+      "study_doi": "10.1002/cncr.35010",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1002/cncr.35010",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 9,
+      "study_doi": "10.1002/cncr.35024",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1002/cncr.35024",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 10,
+      "study_doi": "10.1002/cpt.3050",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1002/cpt.3050",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 11,
+      "study_doi": "10.1002/cpt.3555",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1002/cpt.3555",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 12,
+      "study_doi": "10.1002/eat.24041",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Eating disorders",
+        "study_doi=10.1002/eat.24041",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 13,
+      "study_doi": "10.1002/hup.2836",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1002/hup.2836",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 14,
+      "study_doi": "10.1002/med4.45",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1002/med4.45",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 15,
+      "study_doi": "10.1002/mhw.33794",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1002/mhw.33794",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 16,
+      "study_doi": "10.1002/npr2.12485",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1002/npr2.12485",
+        "openalex_id=",
+        "outcome_type=no significant change in PTSD severity"
+      ]
+    },
+    {
+      "row_index": 17,
+      "study_doi": "10.1002/pcn5.70042",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1002/pcn5.70042",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 18,
+      "study_doi": "10.1007/s00213-019-05249-5",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1007/s00213-019-05249-5",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 19,
+      "study_doi": "10.1007/s00213-020-05548-2",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1007/s00213-020-05548-2",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 20,
+      "study_doi": "10.1007/s00213-023-06388-6",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s00213-023-06388-6",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 21,
+      "study_doi": "10.1007/s00213-023-06432-5",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s00213-023-06432-5",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 22,
+      "study_doi": "10.1007/s00406-024-01913-w",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s00406-024-01913-w",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 23,
+      "study_doi": "10.1007/s11136-023-03451-9",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1007/s11136-023-03451-9",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 24,
+      "study_doi": "10.1007/s11469-024-01253-9",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1007/s11469-024-01253-9",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 25,
+      "study_doi": "10.1007/s12325-025-03149-z",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s12325-025-03149-z",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 26,
+      "study_doi": "10.1007/s40263-023-01026-3",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s40263-023-01026-3",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 27,
+      "study_doi": "10.1007/s40267-024-01106-4",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s40267-024-01106-4",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 28,
+      "study_doi": "10.1007/s40273-022-01220-z",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s40273-022-01220-z",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 29,
+      "study_doi": "10.1007/s40519-025-01771-y",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1007/s40519-025-01771-y",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 30,
+      "study_doi": "10.1007/s40801-024-00425-2",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s40801-024-00425-2",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 31,
+      "study_doi": "10.1016/S2215-0366(18)30135-4",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1016/S2215-0366(18)30135-4",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 32,
+      "study_doi": "10.1016/j.ajp.2023.103720",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.ajp.2023.103720",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 33,
+      "study_doi": "10.1016/j.ajp.2025.104413",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1016/j.ajp.2025.104413",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 34,
+      "study_doi": "10.1016/j.biopsych.2025.02.424",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.biopsych.2025.02.424",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 35,
+      "study_doi": "10.1016/j.cct.2022.106976",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1016/j.cct.2022.106976",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 36,
+      "study_doi": "10.1016/j.conctc.2024.101333",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1016/j.conctc.2024.101333",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 37,
+      "study_doi": "10.1016/j.eclinm.2024.102799",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.eclinm.2024.102799",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 38,
+      "study_doi": "10.1016/j.eclinm.2025.103149",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1016/j.eclinm.2025.103149",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 39,
+      "study_doi": "10.1016/j.euroneuro.2023.04.011",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.euroneuro.2023.04.011",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 40,
+      "study_doi": "10.1016/j.euroneuro.2023.07.011",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.euroneuro.2023.07.011",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 41,
+      "study_doi": "10.1016/j.euroneuro.2024.05.009",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.euroneuro.2024.05.009",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 42,
+      "study_doi": "10.1016/j.euroneuro.2024.12.013",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.euroneuro.2024.12.013",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 43,
+      "study_doi": "10.1016/j.jaac.2023.05.031",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.jaac.2023.05.031",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 44,
+      "study_doi": "10.1016/j.jad.2022.09.083",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2022.09.083",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 45,
+      "study_doi": "10.1016/j.jad.2023.01.005",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2023.01.005",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 46,
+      "study_doi": "10.1016/j.jad.2024.09.038",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2024.09.038",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 47,
+      "study_doi": "10.1016/j.jad.2024.09.141",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2024.09.141",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 48,
+      "study_doi": "10.1016/j.jpsychires.2024.03.002",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jpsychires.2024.03.002",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 49,
+      "study_doi": "10.1016/j.jpsychires.2024.04.008",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.jpsychires.2024.04.008",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 50,
+      "study_doi": "10.1016/j.jpsychires.2024.11.010",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.jpsychires.2024.11.010",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 51,
+      "study_doi": "10.1016/j.medj.2024.01.005",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.medj.2024.01.005",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 52,
+      "study_doi": "10.1016/j.neuropharm.2022.109219",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.neuropharm.2022.109219",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 53,
+      "study_doi": "10.1016/j.neuropharm.2022.109219",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.neuropharm.2022.109219",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 54,
+      "study_doi": "10.1016/j.neuropharm.2023.109610",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1016/j.neuropharm.2023.109610",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 55,
+      "study_doi": "10.1016/j.neuropharm.2023.109610",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1016/j.neuropharm.2023.109610",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 56,
+      "study_doi": "10.1016/j.pnpbp.2025.111565",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.pnpbp.2025.111565",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 57,
+      "study_doi": "10.1016/j.psychres.2023.115165",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.psychres.2023.115165",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 58,
+      "study_doi": "10.1016/j.psychres.2024.115829",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.psychres.2024.115829",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 59,
+      "study_doi": "10.1016/j.psychres.2024.116125",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.psychres.2024.116125",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 60,
+      "study_doi": "10.1016/s2215-0366(16)30087-6",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/s2215-0366(16)30087-6",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 61,
+      "study_doi": "10.1017/S0033291723001514",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1017/S0033291723001514",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 62,
+      "study_doi": "10.1017/S0033291723003653",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1017/S0033291723003653",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 63,
+      "study_doi": "10.1017/S1092852924002451",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1017/S1092852924002451",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 64,
+      "study_doi": "10.1017/cts.2024.274",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1017/cts.2024.274",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 65,
+      "study_doi": "10.1017/dep.2025.10001",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1017/dep.2025.10001",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 66,
+      "study_doi": "10.1017/ipm.2019.39",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1017/ipm.2019.39",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 67,
+      "study_doi": "10.1017/jme.2025.10109",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1017/jme.2025.10109",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 68,
+      "study_doi": "10.1017/jme.2025.10109",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1017/jme.2025.10109",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 69,
+      "study_doi": "10.1017/s1092852919001159",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1017/s1092852919001159",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 70,
+      "study_doi": "10.1017/s1092852921000791",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1017/s1092852921000791",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 71,
+      "study_doi": "10.1017/s1092852922000293",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1017/s1092852922000293",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 72,
+      "study_doi": "10.1021/acschemneuro.5c00152",
+      "signature": [
+        "compound=LSD",
+        "disorder=Cluster headache",
+        "study_doi=10.1021/acschemneuro.5c00152",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 73,
+      "study_doi": "10.1021/acsptsci.5c00094",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1021/acsptsci.5c00094",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 74,
+      "study_doi": "10.1021/acsptsci.5c00445",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1021/acsptsci.5c00445",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 75,
+      "study_doi": "10.1037/pha0000437",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1037/pha0000437",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 76,
+      "study_doi": "10.1037/pha0000650",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1037/pha0000650",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 77,
+      "study_doi": "10.1038/s41380-024-02478-9",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41380-024-02478-9",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 78,
+      "study_doi": "10.1038/s41380-024-02786-0",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1038/s41380-024-02786-0",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 79,
+      "study_doi": "10.1038/s41386-023-01577-5",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41386-023-01577-5",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 80,
+      "study_doi": "10.1038/s41386-023-01586-4",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41386-023-01586-4",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 81,
+      "study_doi": "10.1038/s41386-023-01648-7",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41386-023-01648-7",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 82,
+      "study_doi": "10.1038/s41398-023-02451-0",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41398-023-02451-0",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 83,
+      "study_doi": "10.1038/s41398-024-02973-1",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1038/s41398-024-02973-1",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 84,
+      "study_doi": "10.1038/s41591-021-01336-3",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1038/s41591-021-01336-3",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 85,
+      "study_doi": "10.1038/s41591-023-02565-4",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1038/s41591-023-02565-4",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 86,
+      "study_doi": "10.1038/s41591-024-03063-x",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41591-024-03063-x",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 87,
+      "study_doi": "10.1038/s41598-022-06580-2",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Cocaine use disorder",
+        "study_doi=10.1038/s41598-022-06580-2",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 88,
+      "study_doi": "10.1038/s41598-024-52967-8",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1038/s41598-024-52967-8",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 89,
+      "study_doi": "10.1038/s41598-024-58318-x",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1038/s41598-024-58318-x",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 90,
+      "study_doi": "10.1055/a-2179-8884",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1055/a-2179-8884",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 91,
+      "study_doi": "10.1055/s-0042-1759062",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1055/s-0042-1759062",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 92,
+      "study_doi": "10.1056/NEJMoa2206443",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1056/NEJMoa2206443",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 93,
+      "study_doi": "10.1056/NEJMoa2304145",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1056/NEJMoa2304145",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 94,
+      "study_doi": "10.1080/02791072.2020.1769878",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1080/02791072.2020.1769878",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 95,
+      "study_doi": "10.1080/02791072.2024.2424272",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1080/02791072.2024.2424272",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 96,
+      "study_doi": "10.1080/02791072.2024.2424272",
+      "signature": [
+        "compound=Ayahuasca",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1080/02791072.2024.2424272",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 97,
+      "study_doi": "10.1080/03007995.2023.2239045",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1080/03007995.2023.2239045",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 98,
+      "study_doi": "10.1080/03007995.2024.2380743",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1080/03007995.2024.2380743",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 99,
+      "study_doi": "10.1080/09540261.2024.2357668",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1080/09540261.2024.2357668",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 100,
+      "study_doi": "10.1080/10550887.2023.2195777",
+      "signature": [
+        "compound=Ibogaine",
+        "disorder=Opioid use disorder",
+        "study_doi=10.1080/10550887.2023.2195777",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 101,
+      "study_doi": "10.1080/13651501.2022.2030757",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1080/13651501.2022.2030757",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 102,
+      "study_doi": "10.1080/13651501.2024.2398788",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1080/13651501.2024.2398788",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 103,
+      "study_doi": "10.1080/13696998.2023.2188845",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1080/13696998.2023.2188845",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 104,
+      "study_doi": "10.1080/15622975.2023.2169349",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1080/15622975.2023.2169349",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 105,
+      "study_doi": "10.1080/15622975.2023.2169349",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1080/15622975.2023.2169349",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 106,
+      "study_doi": "10.1080/17512433.2018.1511424",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1080/17512433.2018.1511424",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 107,
+      "study_doi": "10.1080/17581869.2026.2613800",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1080/17581869.2026.2613800",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 108,
+      "study_doi": "10.1080/18387357.2023.2235030",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Eating disorders",
+        "study_doi=10.1080/18387357.2023.2235030",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 109,
+      "study_doi": "10.1089/jpm.2024.0040",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1089/jpm.2024.0040",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 110,
+      "study_doi": "10.1089/psymed.2023.0018",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1089/psymed.2023.0018",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 111,
+      "study_doi": "10.1089/psymed.2024.0030",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1089/psymed.2024.0030",
+        "openalex_id=",
+        "outcome_type=no significant change in alcohol use outcomes"
+      ]
+    },
+    {
+      "row_index": 112,
+      "study_doi": "10.1089/psymed.2024.0032",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1089/psymed.2024.0032",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 113,
+      "study_doi": "10.1093/9780197675212.003.0027",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1093/9780197675212.003.0027",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 114,
+      "study_doi": "10.1093/ijnp/pyaa034",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1093/ijnp/pyaa034",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 115,
+      "study_doi": "10.1093/ijnp/pyaa068",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1093/ijnp/pyaa068",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 116,
+      "study_doi": "10.1093/ijnp/pyac081",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1093/ijnp/pyac081",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 117,
+      "study_doi": "10.1093/ijnp/pyad014",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1093/ijnp/pyad014",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 118,
+      "study_doi": "10.1093/ijnp/pyae017",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1093/ijnp/pyae017",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 119,
+      "study_doi": "10.1093/ijnp/pyae046",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1093/ijnp/pyae046",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 120,
+      "study_doi": "10.1093/ijnp/pyae057",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1093/ijnp/pyae057",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 121,
+      "study_doi": "10.1093/ijnp/pyae058",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1093/ijnp/pyae058",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 122,
+      "study_doi": "10.1093/ijnp/pyae059.237",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1093/ijnp/pyae059.237",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 123,
+      "study_doi": "10.1093/ijnp/pyaf027",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1093/ijnp/pyaf027",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 124,
+      "study_doi": "10.1093/ijnp/pyaf027",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1093/ijnp/pyaf027",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 125,
+      "study_doi": "10.1093/ijnp/pyaf052.084",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1093/ijnp/pyaf052.084",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 126,
+      "study_doi": "10.1093/ijnp/pyaf052.159",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1093/ijnp/pyaf052.159",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 127,
+      "study_doi": "10.1093/ijnp/pyaf052.159",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1093/ijnp/pyaf052.159",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 128,
+      "study_doi": "10.1093/ijnp/pyaf052.368",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1093/ijnp/pyaf052.368",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 129,
+      "study_doi": "10.1093/ijnp/pyaf052.372",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1093/ijnp/pyaf052.372",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 130,
+      "study_doi": "10.1093/ijnp/pyaf056",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1093/ijnp/pyaf056",
+        "openalex_id=",
+        "outcome_type=no significant change in alcohol use outcomes"
+      ]
+    },
+    {
+      "row_index": 131,
+      "study_doi": "10.1093/ijnp/pyz039",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1093/ijnp/pyz039",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 132,
+      "study_doi": "10.1093/med/9780192863607.003.0005",
+      "signature": [
+        "compound=LSD",
+        "disorder=Cluster headache",
+        "study_doi=10.1093/med/9780192863607.003.0005",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 133,
+      "study_doi": "10.1093/sw/swae019",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Substance use disorder",
+        "study_doi=10.1093/sw/swae019",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 134,
+      "study_doi": "10.1093/tbm/ibae053",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1093/tbm/ibae053",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 135,
+      "study_doi": "10.1097/MD.0000000000041495",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1097/MD.0000000000041495",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 136,
+      "study_doi": "10.1097/PRA.0000000000000723",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1097/PRA.0000000000000723",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 137,
+      "study_doi": "10.1097/TA.0000000000004835",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1097/TA.0000000000004835",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 138,
+      "study_doi": "10.1097/YCO.0000000000000759",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1097/YCO.0000000000000759",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 139,
+      "study_doi": "10.1097/YIC.0000000000000482",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1097/YIC.0000000000000482",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 140,
+      "study_doi": "10.1097/YIC.0000000000000482",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1097/YIC.0000000000000482",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 141,
+      "study_doi": "10.1097/jcp.0000000000001571",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1097/jcp.0000000000001571",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 142,
+      "study_doi": "10.1097/jcp.0000000000001608",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1097/jcp.0000000000001608",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 143,
+      "study_doi": "10.1097/mjt.0000000000001723",
+      "signature": [
+        "compound=Ibogaine",
+        "disorder=Opioid use disorder",
+        "study_doi=10.1097/mjt.0000000000001723",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 144,
+      "study_doi": "10.1097/mjt.0000000000001725",
+      "signature": [
+        "compound=Ayahuasca",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1097/mjt.0000000000001725",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 145,
+      "study_doi": "10.1097/mjt.0000000000001727",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1097/mjt.0000000000001727",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 146,
+      "study_doi": "10.1097/mjt.0000000000001727",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1097/mjt.0000000000001727",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 147,
+      "study_doi": "10.1097/wnf.0000000000000517",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1097/wnf.0000000000000517",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 148,
+      "study_doi": "10.1097/wnf.0000000000000578",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1097/wnf.0000000000000578",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 149,
+      "study_doi": "10.1097/yic.0000000000000327",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1097/yic.0000000000000327",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 150,
+      "study_doi": "10.1101/2023.05.16.540994",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1101/2023.05.16.540994",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 151,
+      "study_doi": "10.1101/2023.08.17.23293955",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1101/2023.08.17.23293955",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 152,
+      "study_doi": "10.1101/2023.09.12.23294678",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1101/2023.09.12.23294678",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 153,
+      "study_doi": "10.1101/2023.12.12.571374",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1101/2023.12.12.571374",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 154,
+      "study_doi": "10.1101/2024.01.09.24300998",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1101/2024.01.09.24300998",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 155,
+      "study_doi": "10.1101/2024.06.25.600634",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1101/2024.06.25.600634",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 156,
+      "study_doi": "10.1101/2025.08.01.25332769",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1101/2025.08.01.25332769",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 157,
+      "study_doi": "10.1111/acps.12904",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1111/acps.12904",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 158,
+      "study_doi": "10.1111/acps.13778",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1111/acps.13778",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 159,
+      "study_doi": "10.1111/acps.13778/v2/response1",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1111/acps.13778/v2/response1",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 160,
+      "study_doi": "10.1111/add.15560",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1111/add.15560",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 161,
+      "study_doi": "10.1111/add.16762",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1111/add.16762",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 162,
+      "study_doi": "10.1111/add.16762",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Tobacco use disorder",
+        "study_doi=10.1111/add.16762",
+        "openalex_id=",
+        "outcome_type=supports smoking abstinence"
+      ]
+    },
+    {
+      "row_index": 163,
+      "study_doi": "10.1111/add.70152",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1111/add.70152",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 164,
+      "study_doi": "10.1111/add.70187",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Methamphetamine use disorder",
+        "study_doi=10.1111/add.70187",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 165,
+      "study_doi": "10.1111/add.70284",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Methamphetamine use disorder",
+        "study_doi=10.1111/add.70284",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 166,
+      "study_doi": "10.1111/bcp.15841",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1111/bcp.15841",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 167,
+      "study_doi": "10.1111/bdi.13296",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1111/bdi.13296",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 168,
+      "study_doi": "10.1111/bph.70088",
+      "signature": [
+        "compound=Ayahuasca",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1111/bph.70088",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 169,
+      "study_doi": "10.1111/dar.12544",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1111/dar.12544",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 170,
+      "study_doi": "10.1111/papr.13314",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1111/papr.13314",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 171,
+      "study_doi": "10.1111/pcn.13734",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1111/pcn.13734",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 172,
+      "study_doi": "10.1136/bmjmilitary-2025-nato.30",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1136/bmjmilitary-2025-nato.30",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 173,
+      "study_doi": "10.1136/bmjopen-2022-066019",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1136/bmjopen-2022-066019",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 174,
+      "study_doi": "10.1136/bmjopen-2024-084844",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1136/bmjopen-2024-084844",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 175,
+      "study_doi": "10.1136/gpsych-2023-101007",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1136/gpsych-2023-101007",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 176,
+      "study_doi": "10.1136/rapm-2023-105035",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1136/rapm-2023-105035",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 177,
+      "study_doi": "10.1155/2022/1104668",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1155/2022/1104668",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 178,
+      "study_doi": "10.1155/2024/7262794",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1155/2024/7262794",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 179,
+      "study_doi": "10.1158/1538-7445.sabcs22-ot3-20-01",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1158/1538-7445.sabcs22-ot3-20-01",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 180,
+      "study_doi": "10.1159/000550863",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1159/000550863",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 181,
+      "study_doi": "10.1176/appi.ajp.2018.17060720",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1176/appi.ajp.2018.17060720",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 182,
+      "study_doi": "10.1176/appi.ajp.2019.19020172",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1176/appi.ajp.2019.19020172",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 183,
+      "study_doi": "10.1176/appi.ajp.20230025",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1176/appi.ajp.20230025",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 184,
+      "study_doi": "10.1176/appi.ajp.20230025",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1176/appi.ajp.20230025",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 185,
+      "study_doi": "10.1176/appi.ajp.20230884",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1176/appi.ajp.20230884",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 186,
+      "study_doi": "10.1176/appi.ajp.20230887",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1176/appi.ajp.20230887",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 187,
+      "study_doi": "10.1176/appi.ajp.20231023",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Substance use disorder",
+        "study_doi=10.1176/appi.ajp.20231023",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 188,
+      "study_doi": "10.1176/appi.ajp.20231063",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1176/appi.ajp.20231063",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 189,
+      "study_doi": "10.1176/appi.focus.20180030",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1176/appi.focus.20180030",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 190,
+      "study_doi": "10.1176/appi.focus.20230041",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1176/appi.focus.20230041",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 191,
+      "study_doi": "10.1176/appi.focus.22020004",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1176/appi.focus.22020004",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 192,
+      "study_doi": "10.1176/appi.focus.23021011",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1176/appi.focus.23021011",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 193,
+      "study_doi": "10.1176/appi.focus.24022012",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1176/appi.focus.24022012",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 194,
+      "study_doi": "10.1176/appi.pn.2022.11.11.13",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1176/appi.pn.2022.11.11.13",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 195,
+      "study_doi": "10.1176/appi.pn.2023.03.3.22",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Eating disorders",
+        "study_doi=10.1176/appi.pn.2023.03.3.22",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 196,
+      "study_doi": "10.1176/appi.pn.2023.09.9.20",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1176/appi.pn.2023.09.9.20",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 197,
+      "study_doi": "10.1177/00048674221083868",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1177/00048674221083868",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 198,
+      "study_doi": "10.1177/00048674221127186",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1177/00048674221127186",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 199,
+      "study_doi": "10.1177/00048674251315642",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1177/00048674251315642",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 200,
+      "study_doi": "10.1177/0022167817709585",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/0022167817709585",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 201,
+      "study_doi": "10.1177/00912174231225087",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1177/00912174231225087",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 202,
+      "study_doi": "10.1177/0269881117711712",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1177/0269881117711712",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 203,
+      "study_doi": "10.1177/0269881119895520",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/0269881119895520",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 204,
+      "study_doi": "10.1177/02698811211013579",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1177/02698811211013579",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 205,
+      "study_doi": "10.1177/02698811211073759",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1177/02698811211073759",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 206,
+      "study_doi": "10.1177/0269881121997099",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/0269881121997099",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 207,
+      "study_doi": "10.1177/02698811221084055",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1177/02698811221084055",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 208,
+      "study_doi": "10.1177/02698811221104052",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1177/02698811221104052",
+        "openalex_id=",
+        "outcome_type=no significant change in PTSD severity"
+      ]
+    },
+    {
+      "row_index": 209,
+      "study_doi": "10.1177/02698811221123046",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/02698811221123046",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 210,
+      "study_doi": "10.1177/02698811231154852",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1177/02698811231154852",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 211,
+      "study_doi": "10.1177/02698811241237873",
+      "signature": [
+        "compound=Ibogaine",
+        "disorder=Opioid use disorder",
+        "study_doi=10.1177/02698811241237873",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 212,
+      "study_doi": "10.1177/02698811241269751",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1177/02698811241269751",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 213,
+      "study_doi": "10.1177/02698811241287542",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1177/02698811241287542",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 214,
+      "study_doi": "10.1177/02698811251319457",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1177/02698811251319457",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 215,
+      "study_doi": "10.1177/02698811251332831",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/02698811251332831",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 216,
+      "study_doi": "10.1177/02698811251378512",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1177/02698811251378512",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 217,
+      "study_doi": "10.1177/07067437221111371",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/07067437221111371",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 218,
+      "study_doi": "10.1177/07067437251328316",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Generalized anxiety disorder",
+        "study_doi=10.1177/07067437251328316",
+        "openalex_id=",
+        "outcome_type=no significant change in anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 219,
+      "study_doi": "10.1177/10398562231211171",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/10398562231211171",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 220,
+      "study_doi": "10.1177/2042098620937899",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1177/2042098620937899",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 221,
+      "study_doi": "10.1177/20420986241310685",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1177/20420986241310685",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 222,
+      "study_doi": "10.1177/20420986251347360",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/20420986251347360",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 223,
+      "study_doi": "10.1177/2045125316638008",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/2045125316638008",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 224,
+      "study_doi": "10.1177/20451253231151327",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1177/20451253231151327",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 225,
+      "study_doi": "10.1177/20451253231202723",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1177/20451253231202723",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 226,
+      "study_doi": "10.1177/20451253251342319",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1177/20451253251342319",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 227,
+      "study_doi": "10.1177/20451253251342319",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1177/20451253251342319",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 228,
+      "study_doi": "10.1177/20494637231182804",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1177/20494637231182804",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 229,
+      "study_doi": "10.1177/25158163251345472",
+      "signature": [
+        "compound=LSD",
+        "disorder=Cluster headache",
+        "study_doi=10.1177/25158163251345472",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 230,
+      "study_doi": "10.1186/s12888-021-03538-y",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1186/s12888-021-03538-y",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 231,
+      "study_doi": "10.1186/s12888-022-04388-y",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1186/s12888-022-04388-y",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 232,
+      "study_doi": "10.1186/s12888-023-05017-y",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1186/s12888-023-05017-y",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 233,
+      "study_doi": "10.1186/s12888-024-05502-y",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1186/s12888-024-05502-y",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 234,
+      "study_doi": "10.1186/s12888-024-05716-0",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1186/s12888-024-05716-0",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 235,
+      "study_doi": "10.1186/s12955-023-02113-1",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1186/s12955-023-02113-1",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 236,
+      "study_doi": "10.1186/s12991-020-00262-x",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1186/s12991-020-00262-x",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 237,
+      "study_doi": "10.1186/s13034-023-00647-2",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1186/s13034-023-00647-2",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 238,
+      "study_doi": "10.1186/s13034-023-00647-2",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1186/s13034-023-00647-2",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 239,
+      "study_doi": "10.1186/s13063-023-07556-x",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1186/s13063-023-07556-x",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 240,
+      "study_doi": "10.1186/s13063-024-08268-6",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1186/s13063-024-08268-6",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 241,
+      "study_doi": "10.1186/s40337-024-01005-z",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1186/s40337-024-01005-z",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 242,
+      "study_doi": "10.1186/s40345-023-00308-5",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1186/s40345-023-00308-5",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 243,
+      "study_doi": "10.1186/s43045-023-00369-3",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1186/s43045-023-00369-3",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 244,
+      "study_doi": "10.1186/s43045-024-00428-3",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1186/s43045-024-00428-3",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 245,
+      "study_doi": "10.1192/bjb.2023.25",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/bjb.2023.25",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 246,
+      "study_doi": "10.1192/bjo.2019.52",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1192/bjo.2019.52",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 247,
+      "study_doi": "10.1192/bjo.2023.245",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/bjo.2023.245",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 248,
+      "study_doi": "10.1192/bjo.2023.53",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/bjo.2023.53",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 249,
+      "study_doi": "10.1192/bjo.2023.535",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/bjo.2023.535",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 250,
+      "study_doi": "10.1192/bjo.2025.10895",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1192/bjo.2025.10895",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 251,
+      "study_doi": "10.1192/bjp.2023.79",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/bjp.2023.79",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 252,
+      "study_doi": "10.1192/bjp.2024.276",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/bjp.2024.276",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 253,
+      "study_doi": "10.1192/bjp.2025.102",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/bjp.2025.102",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 254,
+      "study_doi": "10.1192/j.eurpsy.2021.391",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1192/j.eurpsy.2021.391",
+        "openalex_id=",
+        "outcome_type=no significant change in PTSD severity"
+      ]
+    },
+    {
+      "row_index": 255,
+      "study_doi": "10.1192/j.eurpsy.2024.1440",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1192/j.eurpsy.2024.1440",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 256,
+      "study_doi": "10.1192/j.eurpsy.2025.1415",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1192/j.eurpsy.2025.1415",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 257,
+      "study_doi": "10.1200/jco.2024.42.16_suppl.12123",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1200/jco.2024.42.16_suppl.12123",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 258,
+      "study_doi": "10.12659/AJCR.945475",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.12659/AJCR.945475",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 259,
+      "study_doi": "10.12659/msm.948302",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.12659/msm.948302",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 260,
+      "study_doi": "10.1371/journal.pone.0300501",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1371/journal.pone.0300501",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 261,
+      "study_doi": "10.1371/journal.pone.0327778",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1371/journal.pone.0327778",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 262,
+      "study_doi": "10.14710/jai.v0i0.68607",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.14710/jai.v0i0.68607",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 263,
+      "study_doi": "10.1556/2054.2019.016",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1556/2054.2019.016",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 264,
+      "study_doi": "10.1556/2054.2022.00234",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1556/2054.2022.00234",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 265,
+      "study_doi": "10.1556/2054.2024.00383",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1556/2054.2024.00383",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 266,
+      "study_doi": "10.1590/1516-4446-2020-0980",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1590/1516-4446-2020-0980",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 267,
+      "study_doi": "10.17992/lbl.2022.09.706",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.17992/lbl.2022.09.706",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 268,
+      "study_doi": "10.18553/jmcp.2025.24240",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.18553/jmcp.2025.24240",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 269,
+      "study_doi": "10.20944/preprints202308.1847.v1",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.20944/preprints202308.1847.v1",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 270,
+      "study_doi": "10.21203/rs.3.rs-3189970/v1",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.21203/rs.3.rs-3189970/v1",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 271,
+      "study_doi": "10.21203/rs.3.rs-3373293/v1",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.21203/rs.3.rs-3373293/v1",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 272,
+      "study_doi": "10.21203/rs.3.rs-3474764/v1",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.21203/rs.3.rs-3474764/v1",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 273,
+      "study_doi": "10.21203/rs.3.rs-3829237/v1",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.21203/rs.3.rs-3829237/v1",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 274,
+      "study_doi": "10.21203/rs.3.rs-3879934/v1",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.21203/rs.3.rs-3879934/v1",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 275,
+      "study_doi": "10.21203/rs.3.rs-4718815/v1",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.21203/rs.3.rs-4718815/v1",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 276,
+      "study_doi": "10.2139/ssrn.4107711",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.2139/ssrn.4107711",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 277,
+      "study_doi": "10.2147/NDT.S388764",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.2147/NDT.S388764",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 278,
+      "study_doi": "10.2147/NDT.S391096",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.2147/NDT.S391096",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 279,
+      "study_doi": "10.2147/NDT.S548944",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.2147/NDT.S548944",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 280,
+      "study_doi": "10.2147/jpr.s358070",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.2147/jpr.s358070",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 281,
+      "study_doi": "10.2147/ndt.s198774",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.2147/ndt.s198774",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 282,
+      "study_doi": "10.2147/ndt.s314874",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.2147/ndt.s314874",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 283,
+      "study_doi": "10.2147/ndt.s403997",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.2147/ndt.s403997",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 284,
+      "study_doi": "10.2174/011570159x337670241029062524",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.2174/011570159x337670241029062524",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 285,
+      "study_doi": "10.2174/1568026620666200131100316",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.2174/1568026620666200131100316",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 286,
+      "study_doi": "10.2174/1568026621666211201145800",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.2174/1568026621666211201145800",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 287,
+      "study_doi": "10.2196/54406",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.2196/54406",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 288,
+      "study_doi": "10.2217/pmt-2023-0037",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.2217/pmt-2023-0037",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 289,
+      "study_doi": "10.26685/urncst.420",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.26685/urncst.420",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 290,
+      "study_doi": "10.30574/wjarr.2025.28.2.3931",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.30574/wjarr.2025.28.2.3931",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 291,
+      "study_doi": "10.31083/JIN26766",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.31083/JIN26766",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 292,
+      "study_doi": "10.31234/osf.io/hmnsw_v1",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.31234/osf.io/hmnsw_v1",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 293,
+      "study_doi": "10.31234/osf.io/kh3cx",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.31234/osf.io/kh3cx",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 294,
+      "study_doi": "10.31234/osf.io/nhbjk",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.31234/osf.io/nhbjk",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 295,
+      "study_doi": "10.31234/osf.io/sgujx",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.31234/osf.io/sgujx",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 296,
+      "study_doi": "10.31234/osf.io/v3f4w",
+      "signature": [
+        "compound=Ibogaine",
+        "disorder=Opioid use disorder",
+        "study_doi=10.31234/osf.io/v3f4w",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 297,
+      "study_doi": "10.31435/ijitss.3(47).2025.3650",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.31435/ijitss.3(47).2025.3650",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 298,
+      "study_doi": "10.31486/toj.23.0076",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Generalized anxiety disorder",
+        "study_doi=10.31486/toj.23.0076",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 299,
+      "study_doi": "10.31887/dcns.2019.21.2/dnutt",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.31887/dcns.2019.21.2/dnutt",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 300,
+      "study_doi": "10.31986/issn.2689-0690_rdw.stratford_research_day.149_2024",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Substance use disorder",
+        "study_doi=10.31986/issn.2689-0690_rdw.stratford_research_day.149_2024",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 301,
+      "study_doi": "10.33178/smj.2025.1.4",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.33178/smj.2025.1.4",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 302,
+      "study_doi": "10.3389/fpain.2022.1022767",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.3389/fpain.2022.1022767",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 303,
+      "study_doi": "10.3389/fpain.2023.1268985",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.3389/fpain.2023.1268985",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 304,
+      "study_doi": "10.3389/fphar.2017.00974",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fphar.2017.00974",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 305,
+      "study_doi": "10.3389/fphar.2018.00100",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.3389/fphar.2018.00100",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 306,
+      "study_doi": "10.3389/fpsyg.2021.648691",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3389/fpsyg.2021.648691",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 307,
+      "study_doi": "10.3389/fpsyt.2019.00138",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3389/fpsyt.2019.00138",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 308,
+      "study_doi": "10.3389/fpsyt.2019.00650",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3389/fpsyt.2019.00650",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 309,
+      "study_doi": "10.3389/fpsyt.2021.586682",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2021.586682",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 310,
+      "study_doi": "10.3389/fpsyt.2022.830301",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2022.830301",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 311,
+      "study_doi": "10.3389/fpsyt.2022.863552",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3389/fpsyt.2022.863552",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 312,
+      "study_doi": "10.3389/fpsyt.2022.939302",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3389/fpsyt.2022.939302",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 313,
+      "study_doi": "10.3389/fpsyt.2022.947622",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3389/fpsyt.2022.947622",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 314,
+      "study_doi": "10.3389/fpsyt.2022.965641",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3389/fpsyt.2022.965641",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 315,
+      "study_doi": "10.3389/fpsyt.2023.1118737",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2023.1118737",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 316,
+      "study_doi": "10.3389/fpsyt.2023.1123424",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Methamphetamine use disorder",
+        "study_doi=10.3389/fpsyt.2023.1123424",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 317,
+      "study_doi": "10.3389/fpsyt.2023.1134454",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.3389/fpsyt.2023.1134454",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 318,
+      "study_doi": "10.3389/fpsyt.2023.1178529",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.3389/fpsyt.2023.1178529",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 319,
+      "study_doi": "10.3389/fpsyt.2023.1181447",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3389/fpsyt.2023.1181447",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 320,
+      "study_doi": "10.3389/fpsyt.2023.1215972",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.3389/fpsyt.2023.1215972",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 321,
+      "study_doi": "10.3389/fpsyt.2023.1250980",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3389/fpsyt.2023.1250980",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 322,
+      "study_doi": "10.3389/fpsyt.2023.1250980",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2023.1250980",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 323,
+      "study_doi": "10.3389/fpsyt.2023.1250987",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2023.1250987",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 324,
+      "study_doi": "10.3389/fpsyt.2023.1278823",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.3389/fpsyt.2023.1278823",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 325,
+      "study_doi": "10.3389/fpsyt.2024.1325399",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.3389/fpsyt.2024.1325399",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 326,
+      "study_doi": "10.3389/fpsyt.2024.1346697",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3389/fpsyt.2024.1346697",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 327,
+      "study_doi": "10.3389/fpsyt.2024.1372373",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.3389/fpsyt.2024.1372373",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 328,
+      "study_doi": "10.3389/fpsyt.2024.1394787",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2024.1394787",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 329,
+      "study_doi": "10.3389/fpsyt.2024.1406888",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3389/fpsyt.2024.1406888",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 330,
+      "study_doi": "10.3389/fpsyt.2024.1416420",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3389/fpsyt.2024.1416420",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 331,
+      "study_doi": "10.3389/fpsyt.2024.1490907",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Methamphetamine use disorder",
+        "study_doi=10.3389/fpsyt.2024.1490907",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 332,
+      "study_doi": "10.3389/fpsyt.2025.1536232",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2025.1536232",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 333,
+      "study_doi": "10.3389/fpsyt.2025.1623659",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3389/fpsyt.2025.1623659",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 334,
+      "study_doi": "10.3389/fpsyt.2025.1726818",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.3389/fpsyt.2025.1726818",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 335,
+      "study_doi": "10.3390/brainsci13101494",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3390/brainsci13101494",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 336,
+      "study_doi": "10.3390/brainsci14030248",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3390/brainsci14030248",
+        "openalex_id=",
+        "outcome_type=no significant change in PTSD severity"
+      ]
+    },
+    {
+      "row_index": 337,
+      "study_doi": "10.3390/brainsci14030248",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3390/brainsci14030248",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 338,
+      "study_doi": "10.3390/brainsci15080893",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.3390/brainsci15080893",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 339,
+      "study_doi": "10.3390/cells12060963",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.3390/cells12060963",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 340,
+      "study_doi": "10.3390/diseases11040159",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3390/diseases11040159",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 341,
+      "study_doi": "10.3390/healthcare12161560",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.3390/healthcare12161560",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 342,
+      "study_doi": "10.3390/healthcare13212668",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Substance use disorder",
+        "study_doi=10.3390/healthcare13212668",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 343,
+      "study_doi": "10.3390/jcm13164767",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3390/jcm13164767",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 344,
+      "study_doi": "10.3390/jpm15040161",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3390/jpm15040161",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 345,
+      "study_doi": "10.3390/medicina61040558",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3390/medicina61040558",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 346,
+      "study_doi": "10.3390/ph13060116",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3390/ph13060116",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 347,
+      "study_doi": "10.3390/ph17091143",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3390/ph17091143",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 348,
+      "study_doi": "10.3390/ph18020173",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3390/ph18020173",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 349,
+      "study_doi": "10.3390/ph18040555",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.3390/ph18040555",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 350,
+      "study_doi": "10.3390/ph18071066",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3390/ph18071066",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 351,
+      "study_doi": "10.3390/psychoactives3040029",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.3390/psychoactives3040029",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 352,
+      "study_doi": "10.3390/psychoactives3040029",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3390/psychoactives3040029",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 353,
+      "study_doi": "10.33920/med-01-2407-10",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Generalized anxiety disorder",
+        "study_doi=10.33920/med-01-2407-10",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 354,
+      "study_doi": "10.36076/ppj.2023.26.e111",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.36076/ppj.2023.26.e111",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 355,
+      "study_doi": "10.3892/etm.2023.11810",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3892/etm.2023.11810",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 356,
+      "study_doi": "10.3892/etm.2023.11810",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3892/etm.2023.11810",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 357,
+      "study_doi": "10.4088/jcp.19m12891",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.4088/jcp.19m12891",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 358,
+      "study_doi": "10.4088/jcp.19m13191",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.4088/jcp.19m13191",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 359,
+      "study_doi": "10.4088/jcp.20ac13787",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.4088/jcp.20ac13787",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 360,
+      "study_doi": "10.4088/jcp.23m14974",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.4088/jcp.23m14974",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 361,
+      "study_doi": "10.4103/aip.aip_195_23",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.4103/aip.aip_195_23",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 362,
+      "study_doi": "10.47626/2237-6089-2022-0593",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.47626/2237-6089-2022-0593",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 363,
+      "study_doi": "10.5167/uzh-284304",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.5167/uzh-284304",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 364,
+      "study_doi": "10.51731/cjht.2023.809",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.51731/cjht.2023.809",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 365,
+      "study_doi": "10.51731/cjht.2024.845",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.51731/cjht.2024.845",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 366,
+      "study_doi": "10.52965/001c.25091",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.52965/001c.25091",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 367,
+      "study_doi": "10.55905/rdelosv18.n75-120",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.55905/rdelosv18.n75-120",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 368,
+      "study_doi": "10.56367/oag-042-10690",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.56367/oag-042-10690",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 369,
+      "study_doi": "10.5812/ijpbs-137879",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.5812/ijpbs-137879",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 370,
+      "study_doi": "10.59973/emjsr.317",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.59973/emjsr.317",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 371,
+      "study_doi": "10.6084/m9.figshare.22187904",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.6084/m9.figshare.22187904",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 372,
+      "study_doi": "10.6084/m9.figshare.31260127",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.6084/m9.figshare.31260127",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 373,
+      "study_doi": "10.6084/m9.figshare.31260127.v1",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.6084/m9.figshare.31260127.v1",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 374,
+      "study_doi": "10.61373/pp024k.0031",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.61373/pp024k.0031",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 375,
+      "study_doi": "10.61373/pp024r.0028",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.61373/pp024r.0028",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 376,
+      "study_doi": "10.61373/pp025i.0044",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.61373/pp025i.0044",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 377,
+      "study_doi": "10.64719/pb.4414",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.64719/pb.4414",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 378,
+      "study_doi": "10.64719/pb.4478",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.64719/pb.4478",
+        "openalex_id=",
+        "outcome_type=no significant change in depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 379,
+      "study_doi": "10.64719/pb.4478",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.64719/pb.4478",
+        "openalex_id=",
+        "outcome_type=no significant clinical change"
+      ]
+    },
+    {
+      "row_index": 380,
+      "study_doi": "10.64719/pb.4579",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.64719/pb.4579",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 381,
+      "study_doi": "10.64719/pb.4588",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.64719/pb.4588",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 382,
+      "study_doi": "10.7759/cureus.15070",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.7759/cureus.15070",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 383,
+      "study_doi": "10.7759/cureus.24632",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.7759/cureus.24632",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 384,
+      "study_doi": "10.7759/cureus.38498",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.7759/cureus.38498",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 385,
+      "study_doi": "10.7759/cureus.82532",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.7759/cureus.82532",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 386,
+      "study_doi": "10.9758/cpn.23.1120",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.9758/cpn.23.1120",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 387,
+      "study_doi": "10.9758/cpn.23.1134",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.9758/cpn.23.1134",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 388,
+      "study_doi": "10.1001/jama.2022.15436",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1001/jama.2022.15436",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 389,
+      "study_doi": "10.1002/14651858.CD015373.pub2",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1002/14651858.CD015373.pub2",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 390,
+      "study_doi": "10.1007/978-981-19-7376-5_21",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/978-981-19-7376-5_21",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 391,
+      "study_doi": "10.1007/s00213-017-4771-x",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s00213-017-4771-x",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 392,
+      "study_doi": "10.1007/s00213-024-06644-3",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s00213-024-06644-3",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 393,
+      "study_doi": "10.1007/s00216-023-04556-3",
+      "signature": [
+        "compound=Ayahuasca",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1007/s00216-023-04556-3",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 394,
+      "study_doi": "10.1007/s00406-024-01920-x",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Suicidal ideation",
+        "study_doi=10.1007/s00406-024-01920-x",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 395,
+      "study_doi": "10.1007/s00508-024-02358-w",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s00508-024-02358-w",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 396,
+      "study_doi": "10.1007/s11916-023-01150-1",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1007/s11916-023-01150-1",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 397,
+      "study_doi": "10.1007/s13670-023-00389-1",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1007/s13670-023-00389-1",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 398,
+      "study_doi": "10.1007/s13670-023-00389-1",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1007/s13670-023-00389-1",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 399,
+      "study_doi": "10.1007/s40261-022-01193-z",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1007/s40261-022-01193-z",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 400,
+      "study_doi": "10.1007/s40263-021-00851-8",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1007/s40263-021-00851-8",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 401,
+      "study_doi": "10.1007/s40263-025-01162-y",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1007/s40263-025-01162-y",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 402,
+      "study_doi": "10.1007/s40263-025-01234-z",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1007/s40263-025-01234-z",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 403,
+      "study_doi": "10.1007/s40501-025-00369-6",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1007/s40501-025-00369-6",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 404,
+      "study_doi": "10.1016/bs.apha.2020.02.005",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/bs.apha.2020.02.005",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 405,
+      "study_doi": "10.1016/j.bionps.2024.100104",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.bionps.2024.100104",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 406,
+      "study_doi": "10.1016/j.biopsych.2016.07.005",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.biopsych.2016.07.005",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 407,
+      "study_doi": "10.1016/j.biopsych.2023.02.075",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.biopsych.2023.02.075",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 408,
+      "study_doi": "10.1016/j.brs.2023.06.003",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.brs.2023.06.003",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 409,
+      "study_doi": "10.1016/j.comppsych.2025.152619",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1016/j.comppsych.2025.152619",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 410,
+      "study_doi": "10.1016/j.drugalcdep.2023.110063",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1016/j.drugalcdep.2023.110063",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 411,
+      "study_doi": "10.1016/j.jaac.2023.07.666",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1016/j.jaac.2023.07.666",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 412,
+      "study_doi": "10.1016/j.jad.2024.01.142",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2024.01.142",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 413,
+      "study_doi": "10.1016/j.jad.2024.01.142",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2024.01.142",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 414,
+      "study_doi": "10.1016/j.jad.2024.03.165",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2024.03.165",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 415,
+      "study_doi": "10.1016/j.jad.2024.04.039",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2024.04.039",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 416,
+      "study_doi": "10.1016/j.jad.2024.12.061",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jad.2024.12.061",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 417,
+      "study_doi": "10.1016/j.jagp.2023.06.016",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jagp.2023.06.016",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 418,
+      "study_doi": "10.1016/j.jpsychires.2024.10.009",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.jpsychires.2024.10.009",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 419,
+      "study_doi": "10.1016/j.medj.2022.12.003",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.medj.2022.12.003",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 420,
+      "study_doi": "10.1016/j.medj.2023.08.003",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1016/j.medj.2023.08.003",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 421,
+      "study_doi": "10.1016/j.neuropharm.2017.12.041",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.neuropharm.2017.12.041",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 422,
+      "study_doi": "10.1016/j.psychres.2023.115378",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1016/j.psychres.2023.115378",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 423,
+      "study_doi": "10.1016/j.psychres.2023.115531",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/j.psychres.2023.115531",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 424,
+      "study_doi": "10.1016/s2215-0366(18)30170-6",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1016/s2215-0366(18)30170-6",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 425,
+      "study_doi": "10.1016/s2215-0366(19)30521-8",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/s2215-0366(19)30521-8",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 426,
+      "study_doi": "10.1016/s2215-0366(19)30533-4",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1016/s2215-0366(19)30533-4",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 427,
+      "study_doi": "10.1017/s109285292400213x",
+      "signature": [
+        "compound=Ayahuasca",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1017/s109285292400213x",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 428,
+      "study_doi": "10.1017/s1092852924002268",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Obsessive-compulsive disorder",
+        "study_doi=10.1017/s1092852924002268",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 429,
+      "study_doi": "10.1037/adb0000935",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Alcohol use disorder",
+        "study_doi=10.1037/adb0000935",
+        "openalex_id=",
+        "outcome_type=reduces heavy drinking outcomes"
+      ]
+    },
+    {
+      "row_index": 430,
+      "study_doi": "10.1038/s41380-024-02575-9",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1038/s41380-024-02575-9",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 431,
+      "study_doi": "10.1038/s41398-024-03180-8",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1038/s41398-024-03180-8",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 432,
+      "study_doi": "10.1038/s41398-024-03180-8",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41398-024-03180-8",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 433,
+      "study_doi": "10.1038/s41591-023-02458-6",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1038/s41591-023-02458-6",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 434,
+      "study_doi": "10.1038/s41598-017-13282-7",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41598-017-13282-7",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 435,
+      "study_doi": "10.1038/s41598-024-53188-9",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1038/s41598-024-53188-9",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 436,
+      "study_doi": "10.1038/s44220-024-00298-y",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1038/s44220-024-00298-y",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 437,
+      "study_doi": "10.1080/15360288.2023.2284976",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.1080/15360288.2023.2284976",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 438,
+      "study_doi": "10.1080/20008198.2020.1824381",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.1080/20008198.2020.1824381",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 439,
+      "study_doi": "10.1089/cap.2024.0082",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Generalized anxiety disorder",
+        "study_doi=10.1089/cap.2024.0082",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 440,
+      "study_doi": "10.1089/psymed.2023.0023",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Autism spectrum disorder",
+        "study_doi=10.1089/psymed.2023.0023",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 441,
+      "study_doi": "10.1093/med/9780190929565.003.0013",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1093/med/9780190929565.003.0013",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 442,
+      "study_doi": "10.1097/YIC.0000000000000527",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1097/YIC.0000000000000527",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 443,
+      "study_doi": "10.1101/2022.06.30.497950",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1101/2022.06.30.497950",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 444,
+      "study_doi": "10.1111/inm.13214",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1111/inm.13214",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 445,
+      "study_doi": "10.1136/bmj.o2623",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1136/bmj.o2623",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 446,
+      "study_doi": "10.1136/ijgc-2023-004659",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1136/ijgc-2023-004659",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 447,
+      "study_doi": "10.1136/ijgc-2023-004659",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.1136/ijgc-2023-004659",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 448,
+      "study_doi": "10.1146/annurev-med-050423-095712",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1146/annurev-med-050423-095712",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 449,
+      "study_doi": "10.1176/appi.ajp.2018.18020138",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.1176/appi.ajp.2018.18020138",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 450,
+      "study_doi": "10.1176/appi.ajp.20240515",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1176/appi.ajp.20240515",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 451,
+      "study_doi": "10.1177/00185787251384516",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.1177/00185787251384516",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 452,
+      "study_doi": "10.1186/s40337-025-01274-2",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.1186/s40337-025-01274-2",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 453,
+      "study_doi": "10.12740/PP/ONLINEFIRST/133919",
+      "signature": [
+        "compound=MDMA",
+        "disorder=Post-traumatic stress disorder",
+        "study_doi=10.12740/PP/ONLINEFIRST/133919",
+        "openalex_id=",
+        "outcome_type=reduces PTSD severity"
+      ]
+    },
+    {
+      "row_index": 454,
+      "study_doi": "10.2147/NDT.S500337",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.2147/NDT.S500337",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 455,
+      "study_doi": "10.2147/NDT.S500337",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Distress associated with life-threatening disease",
+        "study_doi=10.2147/NDT.S500337",
+        "openalex_id=",
+        "outcome_type=reduces anxiety/depression symptoms"
+      ]
+    },
+    {
+      "row_index": 456,
+      "study_doi": "10.22215/cujs.v5i1.5285",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.22215/cujs.v5i1.5285",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 457,
+      "study_doi": "10.3389/fphar.2023.1221719",
+      "signature": [
+        "compound=Ibogaine",
+        "disorder=Opioid use disorder",
+        "study_doi=10.3389/fphar.2023.1221719",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 458,
+      "study_doi": "10.3389/fpsyt.2024.1338581",
+      "signature": [
+        "compound=Ketamine",
+        "disorder=Chronic pain",
+        "study_doi=10.3389/fpsyt.2024.1338581",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 459,
+      "study_doi": "10.3390/children11070801",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3390/children11070801",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 460,
+      "study_doi": "10.3390/ph16111572",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.3390/ph16111572",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 461,
+      "study_doi": "10.3928/02793695-20210816-01",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.3928/02793695-20210816-01",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 462,
+      "study_doi": "10.4088/JCP.23m15102",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.4088/JCP.23m15102",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 463,
+      "study_doi": "10.4088/jcp.24m15449",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Major depressive disorder",
+        "study_doi=10.4088/jcp.24m15449",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 464,
+      "study_doi": "10.61373/pp024e.0034",
+      "signature": [
+        "compound=Psilocybin",
+        "disorder=Anorexia nervosa",
+        "study_doi=10.61373/pp024e.0034",
+        "openalex_id=",
+        "outcome_type=improves clinical symptoms"
+      ]
+    },
+    {
+      "row_index": 465,
+      "study_doi": "10.7759/cureus.53987",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Major depressive disorder",
+        "study_doi=10.7759/cureus.53987",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 466,
+      "study_doi": "10.7759/cureus.53987",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.7759/cureus.53987",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    },
+    {
+      "row_index": 467,
+      "study_doi": "10.9758/cpn.23.1097",
+      "signature": [
+        "compound=S-ketamine",
+        "disorder=Treatment-resistant depression",
+        "study_doi=10.9758/cpn.23.1097",
+        "openalex_id=",
+        "outcome_type=reduces depressive symptoms"
+      ]
+    }
+  ],
   "triage_pruned_samples": [],
-  "status": "no_ready_rows"
+  "status": "applied"
 }

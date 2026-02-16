@@ -56,6 +56,9 @@ def print_header(
     auto_max_entities: int,
     auto_max_pairs: int,
     auto_max_seeds: int,
+    semantic_scholar_rps: float | None,
+    openalex_rps: float | None,
+    max_retries: int | None,
 ) -> None:
     print("=== Extensive Literature Run ===")
     print(f"Datasets: {', '.join(datasets)}")
@@ -75,6 +78,13 @@ def print_header(
         )
     else:
         print("Seed expansion: off (default seeds unless explicit --seed/--query)")
+    if semantic_scholar_rps is not None or openalex_rps is not None or max_retries is not None:
+        print(
+            "Rate/retry overrides: "
+            f"s2-rps={semantic_scholar_rps if semantic_scholar_rps is not None else 'config/default'} "
+            f"oa-rps={openalex_rps if openalex_rps is not None else 'config/default'} "
+            f"max-retries={max_retries if max_retries is not None else 'config/default'}"
+        )
     if discover_only:
         print("Mode: discovery only")
     elif sync_only:
@@ -281,6 +291,9 @@ def main() -> int:
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
     parser.add_argument("--openalex-email", default="")
     parser.add_argument("--semantic-scholar-api-key", default="")
+    parser.add_argument("--semantic-scholar-rps", type=float, default=None)
+    parser.add_argument("--openalex-rps", type=float, default=None)
+    parser.add_argument("--max-retries", type=int, default=None)
     parser.add_argument("--skip-download", action="store_true", help="Do not download PDFs")
     parser.add_argument("--replace-library", action="store_true", help="Replace existing paper library outputs")
     parser.add_argument("--discover-only", action="store_true", help="Run discovery without paper sync")
@@ -313,6 +326,9 @@ def main() -> int:
         auto_max_entities=args.auto_max_entities,
         auto_max_pairs=args.auto_max_pairs,
         auto_max_seeds=args.auto_max_seeds,
+        semantic_scholar_rps=args.semantic_scholar_rps,
+        openalex_rps=args.openalex_rps,
+        max_retries=args.max_retries,
     )
 
     for dataset in datasets:
@@ -366,6 +382,12 @@ def main() -> int:
                 discover_cmd.extend(["--openalex-email", args.openalex_email])
             if args.semantic_scholar_api_key:
                 discover_cmd.extend(["--semantic-scholar-api-key", args.semantic_scholar_api_key])
+            if args.semantic_scholar_rps is not None:
+                discover_cmd.extend(["--semantic-scholar-rps", str(args.semantic_scholar_rps)])
+            if args.openalex_rps is not None:
+                discover_cmd.extend(["--openalex-rps", str(args.openalex_rps)])
+            if args.max_retries is not None:
+                discover_cmd.extend(["--max-retries", str(args.max_retries)])
             discover_cmd.append("--progress")
             discovery_info = run_step(
                 discover_cmd,

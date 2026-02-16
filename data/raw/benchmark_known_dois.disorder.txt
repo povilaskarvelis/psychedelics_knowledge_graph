@@ -1,0 +1,5 @@
+# Add one DOI per line for known disorder/clinical "must-find" papers.
+# Example:
+# 10.1056/NEJMoa2206443
+# 10.1176/appi.ajp.2021.21060664
+

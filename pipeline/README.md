@@ -42,6 +42,11 @@ Deterministic ETL for building the KG.
   `python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid --max-results-per-seed 100 --max-results 600`
 - High-recall seed expansion run:
   `python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1200 --auto-max-seeds 3000 --max-results-per-seed 120 --max-results 5000`
+- Recommended staged strategy (faster + reproducible):
+  see `pipeline/ingest/README.md` section "Recommended principled search strategy"
+- Recall benchmark audit:
+  `python pipeline/ingest/recall_audit.py --dataset mechanistic --known-doi-file data/raw/benchmark_known_dois.mechanistic.txt`
+  `python pipeline/ingest/recall_audit.py --dataset disorder --known-doi-file data/raw/benchmark_known_dois.disorder.txt`
 - Retry failed/no-URL downloads:
   `python pipeline/ingest/retry_pdf_downloads.py --dataset mechanistic`
   `python pipeline/ingest/retry_pdf_downloads.py --dataset disorder`

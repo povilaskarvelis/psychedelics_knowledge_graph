@@ -16,10 +16,10 @@
     <div class="bg" aria-hidden="true"></div>
     <header class="hero">
       <div class="hero-inner">
-        <div class="pill">Extensive Search • Living Evidence</div>
+        <div class="pill"> Living Evidence</div>
         <h1>Psychedelics Knowledge Graph</h1>
         <p>
-          Curated claims from the extensive search pipeline across targets and
+          Curated claims from open-access literature across targets and
           indications, with provenance.
         </p>
       </div>
@@ -83,10 +83,16 @@
               </div>
             </div>
           </div>
-          <div class="legend" id="evidenceLegend" aria-label="Evidence legend">
-            <span class="legend-item evidence-chip high" data-evidence="high" tabindex="0" role="button">High</span>
-            <span class="legend-item evidence-chip medium" data-evidence="medium" tabindex="0" role="button">Medium</span>
-            <span class="legend-item evidence-chip low" data-evidence="low" tabindex="0" role="button">Low</span>
+          <div class="right-controls">
+            <label class="access-toggle" for="fullTextOnlyToggle">
+              <input id="fullTextOnlyToggle" type="checkbox" checked />
+              <span>Full text only</span>
+            </label>
+            <div class="legend" id="evidenceLegend" aria-label="Evidence legend">
+              <span class="legend-item evidence-chip high" data-evidence="high" tabindex="0" role="button">High</span>
+              <span class="legend-item evidence-chip medium" data-evidence="medium" tabindex="0" role="button">Medium</span>
+              <span class="legend-item evidence-chip low" data-evidence="low" tabindex="0" role="button">Low</span>
+            </div>
           </div>
         </div>
         <aside class="evidence-popover" id="evidenceInfoPopover" aria-hidden="true">
@@ -147,7 +153,8 @@
 
     <footer class="footer">
       <div>
-        Built from curated mechanistic evidence. UI demo powered by the pipeline outputs.
+        Developed by Povilas Karvelis. The code for literature search and knowledge graph construction is open source and available
+        <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">here</a>.
       </div>
     </footer>
 

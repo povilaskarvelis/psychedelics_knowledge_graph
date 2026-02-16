@@ -22,7 +22,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -47,7 +47,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -72,7 +72,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -97,7 +97,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -122,7 +122,82 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDMA",
+    "target": "NET (SLC6A2)",
+    "assay_type": "uptake inhibition",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1007/978-1-59259-158-9_1",
+    "openalex_id": "",
+    "study_title": "Regulation of Monoamine Transporters",
+    "authors": "Sammanda Ramamoorthy",
+    "study_year": "2002",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: The monoamines that include dopamine (DA), norepinephrine (NE), and serotonin (5-hydroxytryptamine, 5-HT) act as neurotransmitters in peripheral and central nervous syste",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "DOI",
+    "target": "5-HT2A",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1007/bf02245187",
+    "openalex_id": "",
+    "study_title": "Evidence that 1-(2,5-dimethoxy-4-iodophenyl)-2-aminopropane (DOI)-induced hyperthermia in rats is mediated by stimulation of 5-HT2A receptors",
+    "authors": "Pascale Mazzola‐Pomietto; Charanjit S. Aulakh; Kinga Woźniak; James Hill; Dennis L. Murphy",
+    "study_year": "1995",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "secondary_summary",
+    "evidence_location": "unknown",
+    "evidence_locator": "Metadata/title snippet: Evidence that 1-(2,5-dimethoxy-4-iodophenyl)-2-aminopropane (DOI)-induced hyperthermia in rats is mediated by stimulation of 5-HT2A receptors",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "DOI",
+    "target": "5-HT2A",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1007/bf02246047",
+    "openalex_id": "",
+    "study_title": "Acute immobilization stress reduces (±DOI)-induced 5-HT2A receptor-mediated head shakes in rats",
+    "authors": "Satoru Yamada; Akihiko Watanabe; Masahiro Nankai; Michio Toru",
+    "study_year": "1995",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "secondary_summary",
+    "evidence_location": "unknown",
+    "evidence_locator": "Metadata/title snippet: Acute immobilization stress reduces (±DOI)-induced 5-HT2A receptor-mediated head shakes in rats",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -147,35 +222,10 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
-    "compound": "S-ketamine",
-    "target": "NMDA receptor",
-    "assay_type": "functional assay",
-    "affinity_type": "Other",
-    "affinity_value": "",
-    "affinity_unit": "",
-    "species": "",
-    "system": "unknown",
-    "study_doi": "10.1007/s00406-023-01570-5",
-    "openalex_id": "",
-    "study_title": "Arketamine for cognitive impairment in psychiatric disorders",
-    "authors": "Kenji Hashimoto",
-    "study_year": "2023",
-    "evidence_level": "low",
-    "source": "doi",
-    "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Abstract Cognitive impairment has been observed in patients with various psychiatric disorders, including schizophrenia, major depressive disorder (MDD), and bipolar diso",
-    "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
-    "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
-  },
-  {
-    "compound": "LSD",
+    "compound": "DOI",
     "target": "5-HT2A",
     "assay_type": "",
     "affinity_type": "Other",
@@ -183,21 +233,46 @@
     "affinity_unit": "",
     "species": "",
     "system": "unknown",
-    "study_doi": "10.1007/s43440-023-00539-4",
+    "study_doi": "10.1007/s00221-013-3636-8",
     "openalex_id": "",
-    "study_title": "Cardiovascular safety of psychedelic medicine: current status and future directions",
-    "authors": "Agnieszka Wsół",
-    "study_year": "2023",
+    "study_title": "Multiple conformations of 5-HT2A and 5-HT2C receptors in rat brain: an autoradiographic study with [125I](±)DOI",
+    "authors": "Juan F. López‐Giménez; M. Teresa Vilaró; José Palacios; Guadalupe Mengod",
+    "study_year": "2013",
     "evidence_level": "low",
     "source": "doi",
     "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Abstract Psychedelics are powerful psychoactive substances that alter perception and mood processes. Their effectiveness in the treatment of psychiatric diseases was know",
-    "study_design": "pending_curation",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "access_level": "secondary_summary",
+    "evidence_location": "unknown",
+    "evidence_locator": "Metadata/title snippet: Multiple conformations of 5-HT2A and 5-HT2C receptors in rat brain: an autoradiographic study with [125I](±)DOI",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Ibogaine",
+    "target": "NMDA receptor",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1016/0361-9230(96)00039-1",
+    "openalex_id": "",
+    "study_title": "The effect of ibogaine on sigma- and NMDA-receptor- mediated release of [3H]dopamine",
+    "authors": "Henry Sershen; Audrey Hashim; Ábel Lajtha",
+    "study_year": "1996",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "secondary_summary",
+    "evidence_location": "unknown",
+    "evidence_locator": "Metadata/title snippet: The effect of ibogaine on sigma- and NMDA-receptor- mediated release of [3H]dopamine",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "DOI",
@@ -222,7 +297,32 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Salvinorin A",
+    "target": "kappa opioid receptor (OPRK1)",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1016/j.bmc.2008.12.012",
+    "openalex_id": "",
+    "study_title": "Modification of the furan ring of salvinorin A: Identification of a selective partial agonist at the kappa opioid receptor",
+    "authors": "Cécile Béguin; Katharine K. Duncan; Thomas A. Munro; Douglas M. Ho; Wei Xu; Lee‐Yuan Liu‐Chen; William A. Carlezon; Bruce M. Cohen",
+    "study_year": "2008",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "secondary_summary",
+    "evidence_location": "unknown",
+    "evidence_locator": "Metadata/title snippet: Modification of the furan ring of salvinorin A: Identification of a selective partial agonist at the kappa opioid receptor",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -247,7 +347,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -272,7 +372,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -297,7 +397,32 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Salvinorin A",
+    "target": "kappa opioid receptor (OPRK1)",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1016/j.jmgm.2009.12.008",
+    "openalex_id": "",
+    "study_title": "CoMFA analyses of C-2 position Salvinorin A analogs at the kappa-opioid receptor provides insights into epimer selectivity",
+    "authors": "Donna L. McGovern; Philip D. Mosier; Bryan L. Roth; Richard B. Westkaemper",
+    "study_year": "2010",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "secondary_summary",
+    "evidence_location": "unknown",
+    "evidence_locator": "Metadata/title snippet: CoMFA analyses of C-2 position Salvinorin A analogs at the kappa-opioid receptor provides insights into epimer selectivity",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -322,7 +447,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -347,7 +472,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -372,7 +497,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -397,7 +522,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -422,7 +547,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -447,7 +572,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -472,7 +597,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -497,7 +622,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -522,12 +647,12 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "DMT",
     "target": "Sigma-1 receptor (SIGMAR1)",
-    "assay_type": "functional assay",
+    "assay_type": "radioligand binding",
     "affinity_type": "Other",
     "affinity_value": "",
     "affinity_unit": "",
@@ -541,13 +666,38 @@
     "evidence_level": "low",
     "source": "doi",
     "source_type": "primary_study",
-    "access_level": "secondary_summary",
-    "evidence_location": "unknown",
-    "evidence_locator": "Metadata/title snippet: N,N-Dimethyltryptamine attenuates spreading depolarization and restrains neurodegeneration by sigma-1 receptor activation in the ischemic rat brain",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Dimethyltryptamine (DMT), an endogenous ligand of sigma-1 receptors (Sig-1Rs), acts against systemic hypoxia, but whether DMT may prevent cerebral ischemic injury is unex",
     "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDMA",
+    "target": "NET (SLC6A2)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1016/j.ntt.2011.09.005",
+    "openalex_id": "",
+    "study_title": "Prenatal exposure to MDMA alters noradrenergic neurodevelopment in the rat",
+    "authors": "Valerie B. Thompson; James B. Koprich; E.Y. Chen; Jeffrey H. Kordower; Brian T. Terpstra; Jack W. Lipton",
+    "study_year": "2011",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: 3,4-methylenedioxymethamphetamine (MDMA; ecstasy) binds with high affinity to the norepinephrine transporter (NET), making the noradrenergic system a potential target dur",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -572,7 +722,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -597,7 +747,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -622,7 +772,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -647,7 +797,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -672,7 +822,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -697,7 +847,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -722,7 +872,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "DOI",
+    "target": "5-HT2A",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1016/s0022-3565(25)20792-3",
+    "openalex_id": "",
+    "study_title": "LSD and the phenethylamine hallucinogen DOI are potent partial agonists at 5-HT2A receptors on interneurons in rat piriform cortex.",
+    "authors": "Gerard J. Marek; G K Aghajanian",
+    "study_year": "1996",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "secondary_summary",
+    "evidence_location": "unknown",
+    "evidence_locator": "Metadata/title snippet: LSD and the phenethylamine hallucinogen DOI are potent partial agonists at 5-HT2A receptors on interneurons in rat piriform cortex.",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -747,7 +922,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -772,7 +947,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -797,7 +972,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -822,7 +997,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -847,7 +1022,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -872,7 +1047,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -897,7 +1072,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -922,7 +1097,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -947,7 +1122,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -972,7 +1147,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -997,7 +1172,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1022,7 +1197,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "DOI",
@@ -1047,7 +1222,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Salvinorin A",
+    "target": "kappa opioid receptor (OPRK1)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1021/bi050490d",
+    "openalex_id": "",
+    "study_title": "Identification of the Molecular Mechanisms by Which the Diterpenoid Salvinorin A Binds to κ-Opioid Receptors",
+    "authors": "Feng Yan; Philip D. Mosier; Richard B. Westkaemper; Jeremy Stewart; Jordan K. Zjawiony; Timothy A. Vortherms; Douglas J. Sheffler; Bryan L. Roth",
+    "study_year": "2005",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Salvinorin A is a naturally occurring hallucinogenic diterpenoid from the plant Salvia divinorumthat selectively and potently activates kappa-opioid receptors (KORs). Sal",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "DMT",
@@ -1072,7 +1272,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "2C-B",
@@ -1097,82 +1297,157 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
-    "compound": "Ketamine",
-    "target": "NMDA receptor",
-    "assay_type": "",
-    "affinity_type": "Other",
-    "affinity_value": "",
-    "affinity_unit": "",
-    "species": "",
-    "system": "unknown",
-    "study_doi": "10.1038/mp.2013.130",
-    "openalex_id": "",
-    "study_title": "Lanicemine: a low-trapping NMDA channel blocker produces sustained antidepressant efficacy with minimal psychotomimetic adverse effects",
-    "authors": "Gerard Sanacora; Mark A. Smith; Sanjeev Pathak; H-L Su; Peter H. Boeijinga; Dennis J. McCarthy; Michael C. Quirk",
-    "study_year": "2013",
-    "evidence_level": "low",
-    "source": "doi",
-    "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Ketamine, an N-methyl-D-aspartate receptor (NMDAR) channel blocker, has been found to induce rapid and robust antidepressant-like effects in rodent models and in treatmen",
-    "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
-    "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
-  },
-  {
-    "compound": "Ketamine",
-    "target": "NMDA receptor",
-    "assay_type": "functional assay",
-    "affinity_type": "Other",
-    "affinity_value": "",
-    "affinity_unit": "",
-    "species": "",
-    "system": "unknown",
-    "study_doi": "10.1038/s41398-019-0624-1",
-    "openalex_id": "",
-    "study_title": "Molecular and cellular mechanisms underlying the antidepressant effects of ketamine enantiomers and its metabolites",
-    "authors": "Chun Yang; Jianjun Yang; Ailin Luo; Kenji Hashimoto",
-    "study_year": "2019",
-    "evidence_level": "low",
-    "source": "doi",
-    "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Abstract Although the robust antidepressant effects of the N -methyl- d -aspartate receptor (NMDAR) antagonist ketamine in patients with treatment-resistant depression ar",
-    "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
-    "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
-  },
-  {
-    "compound": "S-ketamine",
-    "target": "NMDA receptor",
+    "compound": "DOB",
+    "target": "5-HT2A",
     "assay_type": "radioligand binding",
     "affinity_type": "Other",
     "affinity_value": "",
     "affinity_unit": "",
     "species": "",
     "system": "unknown",
-    "study_doi": "10.1038/s41398-021-01540-2",
+    "study_doi": "10.1021/jm0100739",
     "openalex_id": "",
-    "study_title": "N-methyl-D-aspartate receptor availability in first-episode psychosis: a PET-MR brain imaging study",
-    "authors": "Katherine Beck; Atheeshaan Arumuham; Mattia Veronese; Barbara Santangelo; Colm J. McGinnity; Joel Dunn; Robert A. McCutcheon; Stephen J. Kaar; Nisha Singh; Toby Pillinger",
-    "study_year": "2021",
+    "study_title": "1-[2-Methoxy-5-(3-phenylpropyl)]-2-aminopropane Unexpectedly Shows 5-HT<sub>2A</sub> Serotonin Receptor Affinity and Antagonist Character",
+    "authors": "Jagadeesh B. Rangisetty; Maƚgorzata Dukat; Cynthia S. Dowd; Katharine Herrick‐Davis; Ann DuPre; Samir K. Gadepalli; Milt Teitler; Curtis R. Kelley; Najam A. Sharif; Richard A. Glennon",
+    "study_year": "2001",
     "evidence_level": "low",
     "source": "doi",
     "source_type": "primary_study",
     "access_level": "abstract_only",
     "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Abstract N-methyl-D-aspartate receptor (NMDAR) hypofunction is hypothesised to underlie psychosis but this has not been tested early in illness. To address this, we studi",
+    "evidence_locator": "Abstract snippet: Certain phenylethylamines, such as 1-(4-bromo-2,5-dimethoxyphenyl)-2-aminopropane (DOB; 1a), are high-affinity 5-HT2 agonists. Previous structure−affinity studies have co",
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Salvinorin A",
+    "target": "kappa opioid receptor (OPRK1)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1021/jm049438q",
+    "openalex_id": "",
+    "study_title": "Studies toward the Pharmacophore of Salvinorin A, a Potent κ Opioid Receptor Agonist",
+    "authors": "Thomas A. Munro; Mark A. Rizzacasa; Bryan L. Roth; Beth Ann Toth; Feng Yan",
+    "study_year": "2004",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Salvinorin A (1), from the sage Salvia divinorum, is a potent and selective kappa opioid receptor (KOR) agonist. We screened other salvinorins and derivatives for binding",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Salvinorin A",
+    "target": "kappa opioid receptor (OPRK1)",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vitro",
+    "study_doi": "10.1021/jm701162g",
+    "openalex_id": "",
+    "study_title": "Herkinorin Analogues with Differential β-Arrestin-2 Interactions",
+    "authors": "Kevin Tidgewell; Chad E. Groer; Wayne W. Harding; Anthony Lozama; Matthew Schmidt; Alfred Marquam; Jessica A. Hiemstra; John S. Partilla; Christina M. Dersch; Richard B. Rothman",
+    "study_year": "2008",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Salvinorin A is a psychoactive natural product that has been found to be a potent and selective kappa opioid receptor agonist in vitro and in vivo. The activity of salvin",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "LSD",
+    "target": "5-HT2C",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vitro",
+    "study_doi": "10.1021/jm970219x",
+    "openalex_id": "",
+    "study_title": "Dihydrobenzofuran Analogues of Hallucinogens. 4. Mescaline Derivatives",
+    "authors": "Aaron Monte; Steve R. Waldman; Danuta Marona‐Lewicka; David B. Wainscott; David L. Nelson; Elaine Sanders‐Bush; David E. Nichols",
+    "study_year": "1997",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Dihydrobenzofuran and tetrahydrobenzodifuran functionalities were employed as conformationally restricted bioisosteres of the aromatic methoxy groups in the prototypical",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "LSD",
+    "target": "5-HT2C",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vitro",
+    "study_doi": "10.1021/jm980076u",
+    "openalex_id": "",
+    "study_title": "Substituted Naphthofurans as Hallucinogenic Phenethylamine−Ergoline Hybrid Molecules with Unexpected Muscarinic Antagonist Activity",
+    "authors": "Aaron Monte; Danuta Marona‐Lewicka; Mechelle M. Lewis; Richard B. Mailman; David B. Wainscott; David L. Nelson; David E. Nichols",
+    "study_year": "1998",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: A series of substituted racemic naphthofurans were synthesized as \"hybrid\" molecules of the two major prototypical hallucinogenic drug classes, the phenethylamines and th",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Salvinorin A",
+    "target": "kappa opioid receptor (OPRK1)",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1021/jo051813e",
+    "openalex_id": "",
+    "study_title": "Autoxidation of Salvinorin A under Basic Conditions",
+    "authors": "Thomas A. Munro; Glenn W. Goetchius; Bryan L. Roth; Timothy A. Vortherms; Mark A. Rizzacasa",
+    "study_year": "2005",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: [reaction: see text] Treatment of salvinorin A (1a) with KOH in MeOH gave the enedione 3, for which the dienone structure 7 was recently proposed. Also isolated, after me",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -1197,7 +1472,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1222,7 +1497,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1247,7 +1522,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -1272,7 +1547,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -1297,7 +1572,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -1322,7 +1597,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -1347,7 +1622,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -1372,7 +1647,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocin",
@@ -1397,7 +1672,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1422,7 +1697,82 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDMA",
+    "target": "SERT (SLC6A4)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1074/jbc.m505055200",
+    "openalex_id": "",
+    "study_title": "Tyr-95 and Ile-172 in Transmembrane Segments 1 and 3 of Human Serotonin Transporters Interact to Establish High Affinity Recognition of Antidepressants",
+    "authors": "L. Keith Henry; Julie R. Field; Erika M. Adkins; M. Laura Parnas; Roxanne A. Vaughan; Mu‐Fa Zou; Amy Hauck Newman; Randy Blakely",
+    "study_year": "2005",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: In previous studies examining the structural determinants of antidepressant and substrate recognition by serotonin transporters (SERTs), we identified Tyr-95 in transmemb",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Salvinorin A",
+    "target": "kappa opioid receptor (OPRK1)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1074/jbc.m609264200",
+    "openalex_id": "",
+    "study_title": "Differential Helical Orientations among Related G Protein-coupled Receptors Provide a Novel Mechanism for Selectivity",
+    "authors": "Timothy A. Vortherms; Philip D. Mosier; Richard B. Westkaemper; Bryan L. Roth",
+    "study_year": "2006",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Salvinorin A, the active component of the hallucinogenic sage Salvia divinorum, is an apparently selective and highly potent kappa-opioid receptor (KOR) agonist. Salvinor",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "DOI",
+    "target": "5-HT2A",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1089/adt.2005.3.649",
+    "openalex_id": "",
+    "study_title": "Development of Homogeneous High-Affinity Agonist Binding Assays for 5-HT <sub>2</sub> Receptor Subtypes",
+    "authors": "Jianping Song; Douglas Hanniford; Chris Doucette; E. Scott Graham; Michelle Fontilla Poole; Anthony E. Ting; Bruce A. Sherf; John Harrington; Kurt R. Brunden; Alain Stricker‐Krongrad",
+    "study_year": "2005",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: The serotonin (5-hydroxytryptamine) 5-HT2 receptor subfamily consists of three members, 5-HT2A, 5-HT2B, and 5-HT2C. These receptors share high homology in their amino aci",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -1447,7 +1797,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -1472,7 +1822,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -1497,7 +1847,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -1522,7 +1872,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1547,7 +1897,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "S-ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vivo",
+    "study_doi": "10.1093/ijnp/pyz041",
+    "openalex_id": "",
+    "study_title": "(R)-Ketamine Induces a Greater Increase in Prefrontal 5-HT Release Than (S)-Ketamine and Ketamine Metabolites via an AMPA Receptor-Independent Mechanism",
+    "authors": "Yukio Ago; Wataru Tanabe; Momoko Higuchi; Shinji Tsukada; Tatsunori Tanaka; Takumi Yamaguchi; Hisato Igarashi; Rei Yokoyama; Kaoru Seiriki; Atsushi Kasai",
+    "study_year": "2019",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Abstract Background Although recent studies provide insight into the molecular mechanisms of the effects of ketamine, the antidepressant mechanism of ketamine enantiomers",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1572,7 +1947,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1597,7 +1972,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -1622,7 +1997,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1647,7 +2022,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1672,7 +2047,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1697,7 +2072,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1722,7 +2097,32 @@
     "study_design": "pilot_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDMA",
+    "target": "SERT (SLC6A4)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vitro",
+    "study_doi": "10.1096/fasebj.21.6.a776-a",
+    "openalex_id": "",
+    "study_title": "A novel amphetamine‐related photoaffinity probe",
+    "authors": "Nicholas V. Cozzi; Kevin F Foley; Dominique Fontanilla; Anupama Gopalakrishnan; Arnold E. Ruoho",
+    "study_year": "2007",
+    "evidence_level": "medium",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: We have synthesized a novel methcathinone analog as a potential photoaffinity label for amphetamine binding sites. This compound, 1‐(4‐iodophenyl)‐2‐(methylamino)propan‐1",
+    "study_design": "pilot_trial",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1747,7 +2147,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1772,7 +2172,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -1797,7 +2197,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1822,7 +2222,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1847,7 +2247,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1872,7 +2272,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1897,7 +2297,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -1922,7 +2322,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -1947,7 +2347,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -1972,7 +2372,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ibogaine",
@@ -1997,7 +2397,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDA",
+    "target": "CB1 receptor (CNR1)",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vitro",
+    "study_doi": "10.1101/2022.01.12.476071",
+    "openalex_id": "",
+    "study_title": "The Mechanisms of GPR55 Receptor Functonal Selectivity",
+    "authors": "Mikhail Akimov; N. M. Gretskaya; Polina V. Dudina; Galina D. Sherstyanykh; Г. Н. Зинченко; О. В. Серова; Ksenia O. Degtyaryova; I. E. Deyev; В. В. Безуглов",
+    "study_year": "2022",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Abstract The objective of the study was to establish the mechanisms of multidirectional signal transmission through the same G-protein coupled receptor GPR55. Using the C",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocin",
@@ -2022,7 +2447,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -2047,7 +2472,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -2072,7 +2497,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "2C-B",
@@ -2097,7 +2522,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -2122,7 +2547,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -2147,7 +2572,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -2172,7 +2597,57 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "LSD",
+    "target": "NMDA receptor",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1111/j.1476-5381.1996.tb15746.x",
+    "openalex_id": "",
+    "study_title": "Regionally different N‐methyl‐D‐aspartate receptors distinguished by ligand binding and quantitative autoradiography of [<sup>3</sup>H]‐CGP 39653 in rat brain",
+    "authors": "Manolo Mugnaini; F. Th. M. van Amsterdam; Emiliangelo Ratti; David G. Trist; Norman G. Bowery",
+    "study_year": "1996",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: 1. Binding of D,L-(E)-2-amino-4-[3H]-propyl-5-phosphono-3-pentenoic acid ([3H]-CGP 39653), a high affinity, selective antagonist at the glutamate site of the N-methyl-D-a",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Ibogaine",
+    "target": "NMDA receptor",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1111/j.1749-6632.1998.tb08239.x",
+    "openalex_id": "",
+    "study_title": "Effect of Ibogaine on the Various Sites of the NMDA Receptor Complex and Sigma Binding Sites in Rat Brain<sup>a</sup>",
+    "authors": "Yossef Itzhak; Syed F. Ali",
+    "study_year": "1998",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: ABSTRACT: Although the alkaloid ibogaine is a potent hallucinogenic agent some indications suggest that it may be useful for the treatment of opioid and cocaine addiction",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2197,7 +2672,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -2222,7 +2697,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2247,7 +2722,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -2272,7 +2747,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2297,7 +2772,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -2322,7 +2797,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "DOI",
+    "target": "5-HT2A",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1159/000026634",
+    "openalex_id": "",
+    "study_title": "Effect of Lithium Carbonate on the Enhancement of Serotonin 2A Receptor Elicited by Dexamethasone",
+    "authors": "Hiroaki Jitsuiki; Ariyuki Kagaya; Shinichiro Goto; Jun Horiguchi; Shigeto Yamawaki",
+    "study_year": "2000",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: The purpose of this study was to investigate whether chronic dexamethasone (Dex) administration induces serotonin (5-HT) 2A receptor supersensitivity and if chronic lithi",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -2347,7 +2847,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -2372,7 +2872,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -2397,7 +2897,7 @@
     "study_design": "observational_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -2422,7 +2922,7 @@
     "study_design": "observational_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2447,7 +2947,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2472,32 +2972,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
-  },
-  {
-    "compound": "MDMA",
-    "target": "SERT",
-    "assay_type": "uptake inhibition",
-    "affinity_type": "Other",
-    "affinity_value": "",
-    "affinity_unit": "",
-    "species": "",
-    "system": "unknown",
-    "study_doi": "10.1186/1471-2210-6-6",
-    "openalex_id": "",
-    "study_title": "Comparison of the monoamine transporters from human and mouse in their sensitivities to psychostimulant drugs",
-    "authors": "Dawn D. Han; Howard H. Gu",
-    "study_year": "2006",
-    "evidence_level": "low",
-    "source": "doi",
-    "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Abstract Background The plasma membrane neurotransmitter transporters terminate neurotransmissions by the reuptake of the released neurotransmitters. The transporters for",
-    "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
-    "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -2522,7 +2997,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -2547,7 +3022,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2572,7 +3047,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2597,32 +3072,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
-  },
-  {
-    "compound": "S-ketamine",
-    "target": "NMDA receptor",
-    "assay_type": "functional assay",
-    "affinity_type": "Other",
-    "affinity_value": "",
-    "affinity_unit": "",
-    "species": "",
-    "system": "unknown",
-    "study_doi": "10.12688/f1000research.14344.1",
-    "openalex_id": "",
-    "study_title": "Ketamine and rapid-acting antidepressants: a new era in the battle against depression and suicide",
-    "authors": "Ronald S. Duman",
-    "study_year": "2018",
-    "evidence_level": "low",
-    "source": "doi",
-    "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: <ns4:p>Therapeutic medications for the treatment of depression have serious limitations, particularly delayed onset and low rates of efficacy. However, the discovery that",
-    "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
-    "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -2647,7 +3097,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -2672,7 +3122,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2697,7 +3147,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "DMT",
@@ -2722,7 +3172,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2747,7 +3197,32 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDMA",
+    "target": "NET (SLC6A2)",
+    "assay_type": "uptake inhibition",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1385/1-59259-158-2:001",
+    "openalex_id": "",
+    "study_title": "Regulation of Monoamine Transporters: Regulated Phosphorylation, Dephosphorylation, and Trafficking",
+    "authors": "Sammanda Ramamoorthy",
+    "study_year": "2003",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: The monoamines that include dopamine (DA), norepinephrine (NE), and serotonin (5-hydroxytryptamine, 5-HT) act as neurotransmitters in peripheral and central nervous syste",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -2772,7 +3247,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2797,7 +3272,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2822,7 +3297,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -2847,32 +3322,57 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
-    "compound": "MDMA",
-    "target": "SERT",
-    "assay_type": "uptake inhibition",
+    "compound": "Ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "functional assay",
     "affinity_type": "Other",
     "affinity_value": "",
     "affinity_unit": "",
     "species": "",
-    "system": "in_vitro",
-    "study_doi": "10.1523/jneurosci.1171-11.2011",
+    "system": "in_vivo",
+    "study_doi": "10.1523/jneurosci.0501-11.2011",
     "openalex_id": "",
-    "study_title": "Characterization of 3,4-Methylenedioxymethamphetamine (MDMA) Enantiomers<i>In Vitro</i>and in the MPTP-Lesioned Primate:<i>R</i>-MDMA Reduces Severity of Dyskinesia, Whereas<i>S</i>-MDMA Extends Duration of ON-Time",
-    "authors": "Philippe Huot; Tom H. Johnston; Katie D. Lewis; James B. Koprich; M. Gabriela Reyes; Susan H. Fox; Matthew Piggott; Jonathan M. Brotchie",
+    "study_title": "Ketamine Disrupts Theta Modulation of Gamma in a Computer Model of Hippocampus",
+    "authors": "Samuel A. Neymotin; Maciej T. Lazarewicz; Mohamed Sherif; Diego Contreras; Leif H. Finkel; William W. Lytton",
     "study_year": "2011",
     "evidence_level": "low",
     "source": "doi",
     "source_type": "primary_study",
     "access_level": "abstract_only",
     "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: l -3,4-Dihydroxyphenylalanine ( l -DOPA) is the most effective treatment for Parkinson's disease, but long-term l -DOPA administration is marred by the emergence of motor",
+    "evidence_locator": "Abstract snippet: Abnormalities in oscillations have been suggested to play a role in schizophrenia. We studied theta-modulated gamma oscillations in a computer model of hippocampal CA3 in",
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "LSD",
+    "target": "5-HT1A",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.1523/jneurosci.07-03-00894.1987",
+    "openalex_id": "",
+    "study_title": "Characterization of a novel 3H-5-hydroxytryptamine binding site subtype in bovine brain membranes",
+    "authors": "RE Heuring; SJ Peroutka",
+    "study_year": "1987",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: 3H-5-Hydroxytryptamine (5-HT) binding sites were analyzed in bovine brain membranes. The addition of either the 5-HT1A-selective drug 8-OH- DPAT (100 nM) or the 5-HT1C-se",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -2897,7 +3397,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -2922,7 +3422,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -2947,57 +3447,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
-  },
-  {
-    "compound": "MDMA",
-    "target": "SERT",
-    "assay_type": "uptake inhibition",
-    "affinity_type": "Other",
-    "affinity_value": "",
-    "affinity_unit": "",
-    "species": "",
-    "system": "in_vivo",
-    "study_doi": "10.1523/jneurosci.4034-14.2015",
-    "openalex_id": "",
-    "study_title": "Amphetamine Action at the Cocaine- and Antidepressant-Sensitive Serotonin Transporter Is Modulated by αCaMKII",
-    "authors": "Thomas Steinkellner; Therese Montgomery; Tina Hofmaier; Oliver Kudlacek; Jae‐Won Yang; Mattias Rickhag; Gyou-Chul Jung; Gert Lübec; Ulrik Gether; Michael Freissmuth",
-    "study_year": "2015",
-    "evidence_level": "low",
-    "source": "doi",
-    "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Serotonergic neurotransmission is terminated by reuptake of extracellular serotonin (5-HT) by the high-affinity serotonin transporter (SERT). Selective 5-HT reuptake inhi",
-    "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
-    "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
-  },
-  {
-    "compound": "MDMA",
-    "target": "SERT (SLC6A4)",
-    "assay_type": "uptake inhibition",
-    "affinity_type": "Other",
-    "affinity_value": "",
-    "affinity_unit": "",
-    "species": "",
-    "system": "in_vivo",
-    "study_doi": "10.1523/jneurosci.4034-14.2015",
-    "openalex_id": "",
-    "study_title": "Amphetamine Action at the Cocaine- and Antidepressant-Sensitive Serotonin Transporter Is Modulated by αCaMKII",
-    "authors": "Thomas Steinkellner; Therese Montgomery; Tina Hofmaier; Oliver Kudlacek; Jae‐Won Yang; Mattias Rickhag; Gyou-Chul Jung; Gert Lübec; Ulrik Gether; Michael Freissmuth",
-    "study_year": "2015",
-    "evidence_level": "low",
-    "source": "doi",
-    "source_type": "primary_study",
-    "access_level": "abstract_only",
-    "evidence_location": "abstract",
-    "evidence_locator": "Abstract snippet: Serotonergic neurotransmission is terminated by reuptake of extracellular serotonin (5-HT) by the high-affinity serotonin transporter (SERT). Selective 5-HT reuptake inhi",
-    "study_design": "preclinical_study",
-    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
-    "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -3022,7 +3472,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -3047,7 +3497,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -3072,7 +3522,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -3097,7 +3547,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -3122,7 +3572,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -3147,7 +3597,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -3172,7 +3622,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -3197,7 +3647,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -3222,7 +3672,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Psilocybin",
+    "target": "5-HT2A",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.2492/inflammregen.29.47",
+    "openalex_id": "",
+    "study_title": "Historical overview of psychoactive mushrooms",
+    "authors": "Yoshihiro Matsushima; Fumio Eguchi; Tadahiro Kikukawa; Takahide Matsuda",
+    "study_year": "2009",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Humans have used psychoactive mushrooms for medical, recreational, religious and ritual purposes since pre-history. Previous studies have clarified that psychoactive mush",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -3247,7 +3722,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -3272,7 +3747,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDMA",
+    "target": "5-HT1B",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.26686/wgtn.17014775.v1",
+    "openalex_id": "",
+    "study_title": "The role of 5-HT1A and 5-HT1B receptors in MDMA self-administration",
+    "authors": "Dane Aronsen",
+    "study_year": "2016",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: &lt;p&gt;Rationale: 3,4-methylenedioxymethamphetamine (MDMA) is a less efficacious reinforcer than other drugs of abuse. However, following repeated self-administration,",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3297,7 +3797,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -3322,7 +3822,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "5-MeO-DMT",
@@ -3347,7 +3847,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "DOI",
+    "target": "5-HT2A",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vivo",
+    "study_doi": "10.3389/conf.fimmu.2015.05.00043",
+    "openalex_id": "",
+    "study_title": "Inhibition of Jurkat and human peripheral blood mononuclear cells proliferation by serotonin and valerenic acid",
+    "authors": "Rodríguez-Cruz Alfredo; Mendiola-Précoma Jesús; Escobar-Cabrera Jesica; Padilla Karla; García-Alcocer Guadalupe; Berumen Laura",
+    "study_year": "2015",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Event Abstract Back to Event Inhibition of Jurkat and human peripheral blood mononuclear cells proliferation by serotonin and valerenic acid Alfredo Rodríguez-Cruz1, Jesú",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -3372,7 +3897,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -3397,7 +3922,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3422,7 +3947,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Salvinorin A",
@@ -3447,7 +3972,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -3472,7 +3997,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3497,7 +4022,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -3522,7 +4047,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3547,7 +4072,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3572,7 +4097,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -3597,7 +4122,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -3622,7 +4147,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -3647,7 +4172,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -3672,7 +4197,32 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Ibogaine",
+    "target": "Sigma-2 receptor (TMEM97)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.3390/ijms20030488",
+    "openalex_id": "",
+    "study_title": "Morphing of Ibogaine: A Successful Attempt into the Search for Sigma-2 Receptor Ligands",
+    "authors": "Giuseppe Floresta; Maria Dichiara; Davide Gentile; Orazio Prezzavento; Agostino Marrazzo; Antonio Rescifina; Emanuele Amata",
+    "study_year": "2019",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Ibogaine is a psychoactive indole alkaloid with high affinity for several targets including the σ2 receptor. Indeed, extensive data support the involvement of the σ2 rece",
+    "study_design": "pending_curation",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -3697,7 +4247,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3722,7 +4272,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "R-ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.3390/ijms21217951",
+    "openalex_id": "",
+    "study_title": "Candidate Strategies for Development of a Rapid-Acting Antidepressant Class That Does Not Result in Neuropsychiatric Adverse Effects: Prevention of Ketamine-Induced Neuropsychiatric Adverse Reactions",
+    "authors": "Motohiro Okada; Yasuhiro Kawano; Kouji Fukuyama; Eishi Motomura; Takashi Shiroyama",
+    "study_year": "2020",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Non-competitive N-methyl-D-aspartate/glutamate receptor (NMDAR) antagonism has been considered to play important roles in the pathophysiology of schizophrenia. In spite o",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -3747,7 +4322,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "MDMA",
@@ -3772,7 +4347,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "DMT",
@@ -3797,7 +4372,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -3822,7 +4397,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3847,7 +4422,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -3872,7 +4447,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "DOI",
@@ -3897,7 +4472,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -3922,7 +4497,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3947,7 +4522,32 @@
     "study_design": "phase_3_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "R-ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vitro",
+    "study_doi": "10.3390/ph15080997",
+    "openalex_id": "",
+    "study_title": "Pharmacological Comparative Characterization of REL-1017 (Esmethadone-HCl) and Other NMDAR Channel Blockers in Human Heterodimeric N-Methyl-D-Aspartate Receptors",
+    "authors": "Ezio Bettini; Stephen M. Stahl; Sara De Martin; Andrea Mattarei; Jacopo Sgrignani; Corrado Carignani; Selena Nola; Patrizia Locatelli; M. Pappagallo; Charles E. Inturrisi",
+    "study_year": "2022",
+    "evidence_level": "high",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Excessive Ca2+ currents via N-methyl-D-aspartate receptors (NMDARs) have been implicated in many disorders. Uncompetitive NMDAR channel blockers are an emerging class of",
+    "study_design": "phase_3_trial",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -3972,7 +4572,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -3997,7 +4597,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "R-ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.3390/ph16050742",
+    "openalex_id": "",
+    "study_title": "Ketamine and the Disinhibition Hypothesis: Neurotrophic Factor-Mediated Treatment of Depression",
+    "authors": "Philip Borsellino; Reese I. Krider; Deanna Chea; Ryan Grinnell; Thomas A. Vida",
+    "study_year": "2023",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Ketamine is a promising alternative to traditional pharmacotherapies for major depressive disorder, treatment-resistant depression, and other psychiatric conditions that",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -4022,7 +4647,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "R-ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.3390/ph16071013",
+    "openalex_id": "",
+    "study_title": "Exploring the Molecular Targets for the Antidepressant and Antisuicidal Effects of Ketamine Enantiomers by Using Network Pharmacology and Molecular Docking",
+    "authors": "Glorister A. Altê; Ana Lúcia S. Rodrigues",
+    "study_year": "2023",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Ketamine, a racemic mixture of esketamine (S-ketamine) and arketamine (R-ketamine), has received particular attention for its rapid antidepressant and antisuicidal effect",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -4047,7 +4697,32 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "R-ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.3390/ph16111572",
+    "openalex_id": "",
+    "study_title": "Pharmacotherapies Targeting GABA-Glutamate Neurotransmission for Treatment-Resistant Depression",
+    "authors": "Courtney M. Vecera; Alan C. Courtes; Gregory Jones; Jair C. Soares; Rodrigo Machado‐Vieira",
+    "study_year": "2023",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Treatment-resistant depression (TRD) is a term used to describe a particular type of major depressive disorder (MDD). There is no consensus about what defines TRD, with v",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -4072,7 +4747,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -4097,7 +4772,32 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "MDA",
+    "target": "Sigma-1 receptor (SIGMAR1)",
+    "assay_type": "radioligand binding",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.51435/turkjac.1585651",
+    "openalex_id": "",
+    "study_title": "Evaluation cytotoxic activity of Zn(II) phthalocyanine on cancer cells and molecular docking studies",
+    "authors": "Uğur Uzuner; Selcen Çelik Uzuner; İsmail Hakkı Kaya; Çağla Akkol; M. Yilmaz; Ece Tuğba Saka",
+    "study_year": "2024",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: In this work, 2(3), 9(10), 16(17), 23(24)-tetrakis-[N-methyl-(1-benzylpiperidin-4-yl)oxy) phthalocyaninato]zinc(II) iodide was synthesized and its agregation behavior was",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -4122,7 +4822,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocin",
@@ -4147,7 +4847,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -4172,7 +4872,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "R-ketamine",
@@ -4197,7 +4897,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -4222,7 +4922,7 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Psilocybin",
@@ -4247,7 +4947,32 @@
     "study_design": "pending_curation",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "Ketamine",
+    "target": "DAT (SLC6A3)",
+    "assay_type": "functional assay",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "in_vitro",
+    "study_doi": "10.9734/indj/2023/v19i1362",
+    "openalex_id": "",
+    "study_title": "Review of Experimental Models of Schizophrenia",
+    "authors": "Bushra Naz; Prabhat Singh; Simon Nyarko; Ramzan Ali Banjara",
+    "study_year": "2023",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: Schizophrenia is a severe psychiatric disease that has a lifetime prevalence of 1% in most of the populations studied. The neuropathology and psychopathology of Schizophr",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "Ketamine",
@@ -4272,7 +4997,7 @@
     "study_design": "randomized_controlled_trial",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
@@ -4297,14 +5022,39 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
     "stub_status": "pending_curation",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
+  },
+  {
+    "compound": "R-ketamine",
+    "target": "NMDA receptor",
+    "assay_type": "uptake inhibition",
+    "affinity_type": "Other",
+    "affinity_value": "",
+    "affinity_unit": "",
+    "species": "",
+    "system": "unknown",
+    "study_doi": "10.9758/cpn.22.1034",
+    "openalex_id": "",
+    "study_title": "The Role of Glutamate Underlying Treatment-resistant Depression",
+    "authors": "Jeongseop Kim; Tae-Eun Kim; Seung‐Hwan Lee; Ja Wook Koo",
+    "study_year": "2023",
+    "evidence_level": "low",
+    "source": "doi",
+    "source_type": "primary_study",
+    "access_level": "abstract_only",
+    "evidence_location": "abstract",
+    "evidence_locator": "Abstract snippet: The monoamine hypothesis has significantly improved our understanding of mood disorders and their treatment by linking monoaminergic abnormalities to the pathophysiology",
+    "study_design": "preclinical_study",
+    "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata",
+    "stub_status": "pending_curation",
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "S-ketamine",
     "target": "NMDA receptor",
     "assay_type": "functional assay",
     "affinity_type": "Ki",
-    "affinity_value": 1000.0,
+    "affinity_value": 69.0,
     "affinity_unit": "nM",
     "species": "",
     "system": "in_vivo",
@@ -4322,7 +5072,7 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields",
     "stub_status": "duplicate_existing",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   },
   {
     "compound": "LSD",
@@ -4347,6 +5097,6 @@
     "study_design": "preclinical_study",
     "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields",
     "stub_status": "duplicate_existing",
-    "created_at_utc": "2026-02-12T18:08:12.518265+00:00"
+    "created_at_utc": "2026-02-16T03:34:38.767719+00:00"
   }
 ]

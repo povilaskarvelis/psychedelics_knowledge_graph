@@ -24,6 +24,8 @@ body {
   color: var(--fg);
   background: var(--bg);
   min-height: 100vh;
+  scrollbar-color: rgba(154, 164, 191, 0.55) rgba(8, 12, 22, 0.9);
+  scrollbar-width: thin;
 }
 
 .bg {
@@ -170,9 +172,9 @@ button:hover {
 
 .graph-panel .panel-header {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  grid-template-columns: minmax(180px, 0.8fr) auto minmax(260px, 1.2fr);
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   margin-top: 2px;
   margin-bottom: 14px;
 }
@@ -182,11 +184,11 @@ button:hover {
 }
 
 .graph-panel .panel-header > .graph-header-controls {
-  justify-self: center;
+  justify-self: start;
 }
 
-.graph-panel .panel-header > .legend {
-  justify-self: end;
+.graph-panel .panel-header > .right-controls {
+  justify-self: start;
 }
 
 .panel-header {
@@ -196,6 +198,12 @@ button:hover {
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 16px;
+}
+
+.search {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .mode-toggle {
@@ -224,8 +232,39 @@ button:hover {
 .graph-header-controls {
   display: inline-flex;
   align-items: center;
-  gap: 26px;
+  gap: 100px;
   flex-wrap: nowrap;
+}
+
+.access-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--fg);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.access-toggle input[type="checkbox"] {
+  accent-color: var(--accent-2);
+  width: 12px;
+  height: 12px;
+  margin: 0;
+}
+
+.right-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 130px;
+  margin-left: 0;
 }
 
 .year-range-inline {
@@ -243,8 +282,9 @@ button:hover {
   align-items: stretch;
   position: relative;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  min-height: 32px;
+  background: rgba(8, 12, 22, 0.8);
 }
 
 .year-range-inline span {
@@ -261,7 +301,7 @@ button:hover {
   -moz-appearance: textfield;
   width: 82px;
   min-width: 0;
-  height: 28px;
+  height: 32px;
   padding: 3px 18px 3px 9px;
   border-radius: 0;
   font-size: 0.84rem;
@@ -272,7 +312,7 @@ button:hover {
 
 .year-range-inline input[type="number"]:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+  box-shadow: none;
 }
 
 .year-range-inline input[type="number"]::-webkit-outer-spin-button,
@@ -284,11 +324,12 @@ button:hover {
 .year-stepper {
   position: absolute;
   right: 8px;
-  top: 3px;
-  bottom: 3px;
+  top: 6px;
+  bottom: 6px;
   display: grid;
   grid-template-rows: 1fr 1fr;
-  width: 12px;
+  width: 11px;
+  row-gap: 0;
   background: transparent;
 }
 
@@ -299,7 +340,7 @@ button:hover {
   margin: 0;
   font-size: 8px;
   line-height: 0.8;
-  color: rgba(154, 164, 191, 0.72);
+  color: rgba(112, 124, 151, 0.9);
   background: transparent;
   display: grid;
   place-items: center;
@@ -312,13 +353,13 @@ button:hover {
   transform: none;
   box-shadow: none;
   background: transparent;
-  color: rgba(200, 209, 229, 0.82);
+  color: rgba(155, 167, 196, 0.92);
 }
 
 .year-step:focus-visible {
   outline: 0;
   background: transparent;
-  color: rgba(200, 209, 229, 0.82);
+  color: rgba(155, 167, 196, 0.92);
 }
 
 .panel h2 {
@@ -531,8 +572,20 @@ button:hover {
 .detail-item .meta {
   color: var(--muted);
   font-size: 0.8rem;
-  display: grid;
-  gap: 2px;
+  display: block;
+}
+
+.detail-item .meta a {
+  color: #a9f7ef;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(169, 247, 239, 0.45);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.detail-item .meta a:hover,
+.detail-item .meta a:focus-visible {
+  color: #d8fffa;
+  border-bottom-color: rgba(216, 255, 250, 0.9);
 }
 
 .tooltip {
@@ -680,6 +733,11 @@ input[type="number"] {
   font-size: 0.95rem;
 }
 
+.search input[type="search"] {
+  width: min(100%, 640px);
+  min-width: 480px;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -753,13 +811,26 @@ input[type="number"] {
   padding: 21px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: grid;
+  align-content: start;
   gap: 13px;
   animation: fadeUp 0.4s ease;
+}
+
+.card-header {
+  display: grid;
+  align-content: start;
+  gap: 10px;
 }
 
 .card h3 {
   margin: 0;
   font-size: 1.1rem;
+  line-height: 1.3;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-family: "Space Grotesk", sans-serif;
 }
 
@@ -768,6 +839,19 @@ input[type="number"] {
   font-size: 0.85rem;
   display: grid;
   gap: 2px;
+}
+
+.card .meta a {
+  color: #a9f7ef;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(169, 247, 239, 0.45);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.card .meta a:hover,
+.card .meta a:focus-visible {
+  color: #d8fffa;
+  border-bottom-color: rgba(216, 255, 250, 0.9);
 }
 
 .badge {
@@ -799,6 +883,20 @@ input[type="number"] {
   padding: 24px 8vw 40px;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.footer a {
+  color: var(--accent-2);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(73, 214, 200, 0.55);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.footer a:hover,
+.footer a:focus-visible {
+  color: #a9f7ef;
+  border-bottom-color: rgba(169, 247, 239, 0.9);
 }
 
 @keyframes fadeUp {
@@ -857,4 +955,32 @@ input[type="number"] {
   .cards {
     grid-template-columns: 1fr;
   }
+
+  .search {
+    justify-content: stretch;
+  }
+
+  .search input[type="search"] {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(8, 12, 22, 0.9);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(154, 164, 191, 0.65), rgba(73, 214, 200, 0.55));
+  border-radius: 999px;
+  border: 2px solid rgba(8, 12, 22, 0.9);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(173, 183, 204, 0.8), rgba(90, 229, 214, 0.7));
 }

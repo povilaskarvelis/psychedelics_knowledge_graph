@@ -1,0 +1,3781 @@
+{
+  "generated_at": "2026-02-16T17:47:02.771302+00:00",
+  "dataset": "disorder",
+  "status_filter": "*",
+  "mark_ready": true,
+  "apply": true,
+  "counts": {
+    "stubs_total": 482,
+    "considered": 482,
+    "rows_with_pdf": 177,
+    "rows_with_text": 152,
+    "updated_rows": 116,
+    "ready_marked": 0,
+    "no_pdf": 305,
+    "extraction_failures": 25
+  },
+  "rows": [
+    {
+      "stub_index": 1,
+      "study_doi": "10.1002/pu.30352",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 2,
+      "study_doi": "10.1002/pu.30675",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 3,
+      "study_doi": "10.1002/pu.30946",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 4,
+      "study_doi": "10.1002/pu.31058",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 5,
+      "study_doi": "10.1002/pu.31300",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 6,
+      "study_doi": "10.1002/pu.31394",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 7,
+      "study_doi": "10.1111/acps.13778/v1/decision1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 8,
+      "study_doi": "10.1111/acps.13778/v1/review1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 9,
+      "study_doi": "10.1111/acps.13778/v1/review2",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 10,
+      "study_doi": "10.1111/acps.13778/v2/decision1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 11,
+      "study_doi": "10.1111/acps.13778/v2/review1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 12,
+      "study_doi": "10.1192/j.eurpsy.2023.272",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 13,
+      "study_doi": "10.3389/fpsyt.2025.1726818.s001",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 14,
+      "study_doi": "10.5152/alphapsychiatry.2024.241549",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 15,
+      "study_doi": "10.56126/75.s1.22",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 16,
+      "study_doi": "10.1001/jamanetworkopen.2023.28817",
+      "pdf_found": true,
+      "changed_fields": [
+        "access_level",
+        "evidence_location",
+        "notes"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 17,
+      "study_doi": "10.1001/jamanetworkopen.2025.24119",
+      "pdf_found": true,
+      "changed_fields": [
+        "access_level",
+        "evidence_location",
+        "notes"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 18,
+      "study_doi": "10.1001/jamapsychiatry.2024.4387",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 19,
+      "study_doi": "10.1001/jamapsychiatry.2025.0200",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 20,
+      "study_doi": "10.1001/jamapsychiatry.2025.1317",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 21,
+      "study_doi": "10.1001/jamapsychiatry.2025.1317",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 22,
+      "study_doi": "10.1002/14651858.cd011006.pub4",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 23,
+      "study_doi": "10.1002/cncr.35010",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 24,
+      "study_doi": "10.1002/cncr.35024",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 25,
+      "study_doi": "10.1002/cpt.3050",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 26,
+      "study_doi": "10.1002/cpt.3555",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 27,
+      "study_doi": "10.1002/eat.24041",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 28,
+      "study_doi": "10.1002/hup.2836",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 29,
+      "study_doi": "10.1002/med4.45",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 30,
+      "study_doi": "10.1002/mhw.33794",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 31,
+      "study_doi": "10.1002/npr2.12485",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 32,
+      "study_doi": "10.1002/pcn5.70042",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 33,
+      "study_doi": "10.1007/s00213-019-05249-5",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 34,
+      "study_doi": "10.1007/s00213-020-05548-2",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 35,
+      "study_doi": "10.1007/s00213-023-06388-6",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 36,
+      "study_doi": "10.1007/s00213-023-06432-5",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 37,
+      "study_doi": "10.1007/s00406-024-01913-w",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 38,
+      "study_doi": "10.1007/s11136-023-03451-9",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 39,
+      "study_doi": "10.1007/s11469-024-01253-9",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 40,
+      "study_doi": "10.1007/s12325-025-03149-z",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 41,
+      "study_doi": "10.1007/s40263-023-01026-3",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 42,
+      "study_doi": "10.1007/s40267-024-01106-4",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 43,
+      "study_doi": "10.1007/s40273-022-01220-z",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 44,
+      "study_doi": "10.1007/s40519-025-01771-y",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 45,
+      "study_doi": "10.1007/s40801-024-00425-2",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 46,
+      "study_doi": "10.1016/S2215-0366(18)30135-4",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 47,
+      "study_doi": "10.1016/j.ajp.2023.103720",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 48,
+      "study_doi": "10.1016/j.ajp.2025.104413",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 49,
+      "study_doi": "10.1016/j.biopsych.2025.02.424",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 50,
+      "study_doi": "10.1016/j.cct.2022.106976",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 51,
+      "study_doi": "10.1016/j.conctc.2024.101333",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 52,
+      "study_doi": "10.1016/j.eclinm.2024.102799",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 53,
+      "study_doi": "10.1016/j.eclinm.2025.103149",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 54,
+      "study_doi": "10.1016/j.euroneuro.2023.04.011",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 55,
+      "study_doi": "10.1016/j.euroneuro.2023.07.011",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 56,
+      "study_doi": "10.1016/j.euroneuro.2024.05.009",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 57,
+      "study_doi": "10.1016/j.euroneuro.2024.12.013",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 58,
+      "study_doi": "10.1016/j.jaac.2023.05.031",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 59,
+      "study_doi": "10.1016/j.jad.2022.09.083",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 60,
+      "study_doi": "10.1016/j.jad.2023.01.005",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 61,
+      "study_doi": "10.1016/j.jad.2024.09.038",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 62,
+      "study_doi": "10.1016/j.jad.2024.09.141",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 63,
+      "study_doi": "10.1016/j.jpsychires.2024.03.002",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 64,
+      "study_doi": "10.1016/j.jpsychires.2024.04.008",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 65,
+      "study_doi": "10.1016/j.jpsychires.2024.11.010",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 66,
+      "study_doi": "10.1016/j.medj.2024.01.005",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 67,
+      "study_doi": "10.1016/j.neuropharm.2022.109219",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 68,
+      "study_doi": "10.1016/j.neuropharm.2022.109219",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 69,
+      "study_doi": "10.1016/j.neuropharm.2023.109610",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 70,
+      "study_doi": "10.1016/j.neuropharm.2023.109610",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 71,
+      "study_doi": "10.1016/j.pnpbp.2025.111565",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 72,
+      "study_doi": "10.1016/j.psychres.2023.115165",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 73,
+      "study_doi": "10.1016/j.psychres.2024.115829",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 74,
+      "study_doi": "10.1016/j.psychres.2024.116125",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 75,
+      "study_doi": "10.1016/s2215-0366(16)30087-6",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 76,
+      "study_doi": "10.1017/S0033291723001514",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 77,
+      "study_doi": "10.1017/S0033291723003653",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 78,
+      "study_doi": "10.1017/S1092852924002451",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 79,
+      "study_doi": "10.1017/cts.2024.274",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 80,
+      "study_doi": "10.1017/dep.2025.10001",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 81,
+      "study_doi": "10.1017/ipm.2019.39",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 82,
+      "study_doi": "10.1017/jme.2025.10109",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 83,
+      "study_doi": "10.1017/jme.2025.10109",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 84,
+      "study_doi": "10.1017/s1092852919001159",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 85,
+      "study_doi": "10.1017/s1092852921000791",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 86,
+      "study_doi": "10.1017/s1092852922000293",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 87,
+      "study_doi": "10.1021/acschemneuro.5c00152",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 88,
+      "study_doi": "10.1021/acsptsci.5c00094",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 89,
+      "study_doi": "10.1021/acsptsci.5c00445",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 90,
+      "study_doi": "10.1037/pha0000437",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 91,
+      "study_doi": "10.1037/pha0000650",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 92,
+      "study_doi": "10.1038/s41380-024-02478-9",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 93,
+      "study_doi": "10.1038/s41380-024-02786-0",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 94,
+      "study_doi": "10.1038/s41386-023-01577-5",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 95,
+      "study_doi": "10.1038/s41386-023-01586-4",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 96,
+      "study_doi": "10.1038/s41386-023-01648-7",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 97,
+      "study_doi": "10.1038/s41398-023-02451-0",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 98,
+      "study_doi": "10.1038/s41398-024-02973-1",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 99,
+      "study_doi": "10.1038/s41591-021-01336-3",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 100,
+      "study_doi": "10.1038/s41591-023-02565-4",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 101,
+      "study_doi": "10.1038/s41591-024-03063-x",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 102,
+      "study_doi": "10.1038/s41598-022-06580-2",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 103,
+      "study_doi": "10.1038/s41598-024-52967-8",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 104,
+      "study_doi": "10.1038/s41598-024-58318-x",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 105,
+      "study_doi": "10.1055/a-2179-8884",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 106,
+      "study_doi": "10.1055/s-0042-1759062",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 107,
+      "study_doi": "10.1056/NEJMoa2206443",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 108,
+      "study_doi": "10.1056/NEJMoa2304145",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 109,
+      "study_doi": "10.1080/02791072.2020.1769878",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 110,
+      "study_doi": "10.1080/02791072.2024.2424272",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 111,
+      "study_doi": "10.1080/02791072.2024.2424272",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 112,
+      "study_doi": "10.1080/03007995.2023.2239045",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 113,
+      "study_doi": "10.1080/03007995.2024.2380743",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 114,
+      "study_doi": "10.1080/09540261.2024.2357668",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 115,
+      "study_doi": "10.1080/10550887.2023.2195777",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 116,
+      "study_doi": "10.1080/13651501.2022.2030757",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 117,
+      "study_doi": "10.1080/13651501.2024.2398788",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 118,
+      "study_doi": "10.1080/13696998.2023.2188845",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 119,
+      "study_doi": "10.1080/15622975.2023.2169349",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 120,
+      "study_doi": "10.1080/15622975.2023.2169349",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 121,
+      "study_doi": "10.1080/17512433.2018.1511424",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 122,
+      "study_doi": "10.1080/17581869.2026.2613800",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 123,
+      "study_doi": "10.1080/18387357.2023.2235030",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 124,
+      "study_doi": "10.1089/jpm.2024.0040",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 125,
+      "study_doi": "10.1089/psymed.2023.0018",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 126,
+      "study_doi": "10.1089/psymed.2024.0030",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 127,
+      "study_doi": "10.1089/psymed.2024.0032",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 128,
+      "study_doi": "10.1093/9780197675212.003.0027",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 129,
+      "study_doi": "10.1093/ijnp/pyaa034",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 130,
+      "study_doi": "10.1093/ijnp/pyaa068",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 131,
+      "study_doi": "10.1093/ijnp/pyac081",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 132,
+      "study_doi": "10.1093/ijnp/pyad014",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 133,
+      "study_doi": "10.1093/ijnp/pyae017",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 134,
+      "study_doi": "10.1093/ijnp/pyae046",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 135,
+      "study_doi": "10.1093/ijnp/pyae057",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 136,
+      "study_doi": "10.1093/ijnp/pyae058",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 137,
+      "study_doi": "10.1093/ijnp/pyae059.237",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 138,
+      "study_doi": "10.1093/ijnp/pyaf027",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 139,
+      "study_doi": "10.1093/ijnp/pyaf027",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 140,
+      "study_doi": "10.1093/ijnp/pyaf052.084",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 141,
+      "study_doi": "10.1093/ijnp/pyaf052.159",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 142,
+      "study_doi": "10.1093/ijnp/pyaf052.159",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 143,
+      "study_doi": "10.1093/ijnp/pyaf052.368",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 144,
+      "study_doi": "10.1093/ijnp/pyaf052.372",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 145,
+      "study_doi": "10.1093/ijnp/pyaf056",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 146,
+      "study_doi": "10.1093/ijnp/pyz039",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 147,
+      "study_doi": "10.1093/med/9780192863607.003.0005",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 148,
+      "study_doi": "10.1093/sw/swae019",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 149,
+      "study_doi": "10.1093/tbm/ibae053",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 150,
+      "study_doi": "10.1097/MD.0000000000041495",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 151,
+      "study_doi": "10.1097/PRA.0000000000000723",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 152,
+      "study_doi": "10.1097/TA.0000000000004835",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 153,
+      "study_doi": "10.1097/YCO.0000000000000759",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 154,
+      "study_doi": "10.1097/YIC.0000000000000482",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 155,
+      "study_doi": "10.1097/YIC.0000000000000482",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 156,
+      "study_doi": "10.1097/jcp.0000000000001571",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 157,
+      "study_doi": "10.1097/jcp.0000000000001608",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 158,
+      "study_doi": "10.1097/mjt.0000000000001723",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 159,
+      "study_doi": "10.1097/mjt.0000000000001725",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 160,
+      "study_doi": "10.1097/mjt.0000000000001727",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 161,
+      "study_doi": "10.1097/mjt.0000000000001727",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 162,
+      "study_doi": "10.1097/wnf.0000000000000517",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 163,
+      "study_doi": "10.1097/wnf.0000000000000578",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 164,
+      "study_doi": "10.1097/yic.0000000000000327",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 165,
+      "study_doi": "10.1101/2023.05.16.540994",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 166,
+      "study_doi": "10.1101/2023.08.17.23293955",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 167,
+      "study_doi": "10.1101/2023.09.12.23294678",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 168,
+      "study_doi": "10.1101/2023.12.12.571374",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 169,
+      "study_doi": "10.1101/2024.01.09.24300998",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 170,
+      "study_doi": "10.1101/2024.06.25.600634",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 171,
+      "study_doi": "10.1101/2025.08.01.25332769",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 172,
+      "study_doi": "10.1111/acps.12904",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 173,
+      "study_doi": "10.1111/acps.13778",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 174,
+      "study_doi": "10.1111/acps.13778/v2/response1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 175,
+      "study_doi": "10.1111/add.15560",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 176,
+      "study_doi": "10.1111/add.16762",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 177,
+      "study_doi": "10.1111/add.16762",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 178,
+      "study_doi": "10.1111/add.70152",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 179,
+      "study_doi": "10.1111/add.70187",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 180,
+      "study_doi": "10.1111/add.70284",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 181,
+      "study_doi": "10.1111/bcp.15841",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 182,
+      "study_doi": "10.1111/bdi.13296",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 183,
+      "study_doi": "10.1111/bph.70088",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 184,
+      "study_doi": "10.1111/dar.12544",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 185,
+      "study_doi": "10.1111/papr.13314",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 186,
+      "study_doi": "10.1111/pcn.13734",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 187,
+      "study_doi": "10.1136/bmjmilitary-2025-nato.30",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 188,
+      "study_doi": "10.1136/bmjopen-2022-066019",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 189,
+      "study_doi": "10.1136/bmjopen-2024-084844",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 190,
+      "study_doi": "10.1136/gpsych-2023-101007",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 191,
+      "study_doi": "10.1136/rapm-2023-105035",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 192,
+      "study_doi": "10.1155/2022/1104668",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 193,
+      "study_doi": "10.1155/2024/7262794",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 194,
+      "study_doi": "10.1158/1538-7445.sabcs22-ot3-20-01",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 195,
+      "study_doi": "10.1159/000550863",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 196,
+      "study_doi": "10.1176/appi.ajp.2018.17060720",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 197,
+      "study_doi": "10.1176/appi.ajp.2019.19020172",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 198,
+      "study_doi": "10.1176/appi.ajp.20230025",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 199,
+      "study_doi": "10.1176/appi.ajp.20230025",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 200,
+      "study_doi": "10.1176/appi.ajp.20230884",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 201,
+      "study_doi": "10.1176/appi.ajp.20230887",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 202,
+      "study_doi": "10.1176/appi.ajp.20231023",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 203,
+      "study_doi": "10.1176/appi.ajp.20231063",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 204,
+      "study_doi": "10.1176/appi.focus.20180030",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 205,
+      "study_doi": "10.1176/appi.focus.20230041",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 206,
+      "study_doi": "10.1176/appi.focus.22020004",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 207,
+      "study_doi": "10.1176/appi.focus.23021011",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 208,
+      "study_doi": "10.1176/appi.focus.24022012",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 209,
+      "study_doi": "10.1176/appi.pn.2022.11.11.13",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 210,
+      "study_doi": "10.1176/appi.pn.2023.03.3.22",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 211,
+      "study_doi": "10.1176/appi.pn.2023.09.9.20",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 212,
+      "study_doi": "10.1177/00048674221083868",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 213,
+      "study_doi": "10.1177/00048674221127186",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 214,
+      "study_doi": "10.1177/00048674251315642",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 215,
+      "study_doi": "10.1177/0022167817709585",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 216,
+      "study_doi": "10.1177/00912174231225087",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 217,
+      "study_doi": "10.1177/0269881117711712",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 218,
+      "study_doi": "10.1177/0269881119895520",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 219,
+      "study_doi": "10.1177/02698811211013579",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 220,
+      "study_doi": "10.1177/02698811211073759",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 221,
+      "study_doi": "10.1177/0269881121997099",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 222,
+      "study_doi": "10.1177/02698811221084055",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 223,
+      "study_doi": "10.1177/02698811221104052",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 224,
+      "study_doi": "10.1177/02698811221123046",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 225,
+      "study_doi": "10.1177/02698811231154852",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 226,
+      "study_doi": "10.1177/02698811241237873",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 227,
+      "study_doi": "10.1177/02698811241269751",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 228,
+      "study_doi": "10.1177/02698811241287542",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 229,
+      "study_doi": "10.1177/02698811251319457",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 230,
+      "study_doi": "10.1177/02698811251332831",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 231,
+      "study_doi": "10.1177/02698811251378512",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 232,
+      "study_doi": "10.1177/07067437221111371",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 233,
+      "study_doi": "10.1177/07067437251328316",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 234,
+      "study_doi": "10.1177/10398562231211171",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 235,
+      "study_doi": "10.1177/2042098620937899",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 236,
+      "study_doi": "10.1177/20420986241310685",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 237,
+      "study_doi": "10.1177/20420986251347360",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 238,
+      "study_doi": "10.1177/2045125316638008",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 239,
+      "study_doi": "10.1177/20451253231151327",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 240,
+      "study_doi": "10.1177/20451253231202723",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 241,
+      "study_doi": "10.1177/20451253251342319",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 242,
+      "study_doi": "10.1177/20451253251342319",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 243,
+      "study_doi": "10.1177/20494637231182804",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 244,
+      "study_doi": "10.1177/25158163251345472",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 245,
+      "study_doi": "10.1186/s12888-021-03538-y",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 246,
+      "study_doi": "10.1186/s12888-022-04388-y",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 247,
+      "study_doi": "10.1186/s12888-023-05017-y",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 248,
+      "study_doi": "10.1186/s12888-024-05502-y",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 249,
+      "study_doi": "10.1186/s12888-024-05716-0",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 250,
+      "study_doi": "10.1186/s12955-023-02113-1",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 251,
+      "study_doi": "10.1186/s12991-020-00262-x",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 252,
+      "study_doi": "10.1186/s13034-023-00647-2",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 253,
+      "study_doi": "10.1186/s13034-023-00647-2",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 254,
+      "study_doi": "10.1186/s13063-023-07556-x",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 255,
+      "study_doi": "10.1186/s13063-024-08268-6",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 256,
+      "study_doi": "10.1186/s40337-024-01005-z",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 257,
+      "study_doi": "10.1186/s40345-023-00308-5",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 258,
+      "study_doi": "10.1186/s43045-023-00369-3",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 259,
+      "study_doi": "10.1186/s43045-024-00428-3",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 260,
+      "study_doi": "10.1192/bjb.2023.25",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 261,
+      "study_doi": "10.1192/bjo.2019.52",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 262,
+      "study_doi": "10.1192/bjo.2023.245",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 263,
+      "study_doi": "10.1192/bjo.2023.53",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 264,
+      "study_doi": "10.1192/bjo.2023.535",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 265,
+      "study_doi": "10.1192/bjo.2025.10895",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 266,
+      "study_doi": "10.1192/bjp.2023.79",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 267,
+      "study_doi": "10.1192/bjp.2024.276",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 268,
+      "study_doi": "10.1192/bjp.2025.102",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 269,
+      "study_doi": "10.1192/j.eurpsy.2021.391",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 270,
+      "study_doi": "10.1192/j.eurpsy.2024.1440",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 271,
+      "study_doi": "10.1192/j.eurpsy.2025.1415",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 272,
+      "study_doi": "10.1200/jco.2024.42.16_suppl.12123",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 273,
+      "study_doi": "10.12659/AJCR.945475",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 274,
+      "study_doi": "10.12659/msm.948302",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 275,
+      "study_doi": "10.1371/journal.pone.0300501",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 276,
+      "study_doi": "10.1371/journal.pone.0327778",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 277,
+      "study_doi": "10.14710/jai.v0i0.68607",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 278,
+      "study_doi": "10.1556/2054.2019.016",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 279,
+      "study_doi": "10.1556/2054.2022.00234",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 280,
+      "study_doi": "10.1556/2054.2024.00383",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 281,
+      "study_doi": "10.1590/1516-4446-2020-0980",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 282,
+      "study_doi": "10.17992/lbl.2022.09.706",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 283,
+      "study_doi": "10.18553/jmcp.2025.24240",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 284,
+      "study_doi": "10.20944/preprints202308.1847.v1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 285,
+      "study_doi": "10.21203/rs.3.rs-3189970/v1",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 286,
+      "study_doi": "10.21203/rs.3.rs-3373293/v1",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 287,
+      "study_doi": "10.21203/rs.3.rs-3474764/v1",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 288,
+      "study_doi": "10.21203/rs.3.rs-3829237/v1",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 289,
+      "study_doi": "10.21203/rs.3.rs-3879934/v1",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 290,
+      "study_doi": "10.21203/rs.3.rs-4718815/v1",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 291,
+      "study_doi": "10.2139/ssrn.4107711",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 292,
+      "study_doi": "10.2147/NDT.S388764",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 293,
+      "study_doi": "10.2147/NDT.S391096",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 294,
+      "study_doi": "10.2147/NDT.S548944",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 295,
+      "study_doi": "10.2147/jpr.s358070",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 296,
+      "study_doi": "10.2147/ndt.s198774",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 297,
+      "study_doi": "10.2147/ndt.s314874",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 298,
+      "study_doi": "10.2147/ndt.s403997",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 299,
+      "study_doi": "10.2174/011570159x337670241029062524",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 300,
+      "study_doi": "10.2174/1568026620666200131100316",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 301,
+      "study_doi": "10.2174/1568026621666211201145800",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 302,
+      "study_doi": "10.2196/54406",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 303,
+      "study_doi": "10.2217/pmt-2023-0037",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 304,
+      "study_doi": "10.26685/urncst.420",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 305,
+      "study_doi": "10.30574/wjarr.2025.28.2.3931",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 306,
+      "study_doi": "10.31083/JIN26766",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 307,
+      "study_doi": "10.31234/osf.io/hmnsw_v1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 308,
+      "study_doi": "10.31234/osf.io/kh3cx",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 309,
+      "study_doi": "10.31234/osf.io/nhbjk",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 310,
+      "study_doi": "10.31234/osf.io/sgujx",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 311,
+      "study_doi": "10.31234/osf.io/v3f4w",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 312,
+      "study_doi": "10.31435/ijitss.3(47).2025.3650",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 313,
+      "study_doi": "10.31486/toj.23.0076",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 314,
+      "study_doi": "10.31887/dcns.2019.21.2/dnutt",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 315,
+      "study_doi": "10.31986/issn.2689-0690_rdw.stratford_research_day.149_2024",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 316,
+      "study_doi": "10.33178/smj.2025.1.4",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 317,
+      "study_doi": "10.3389/fpain.2022.1022767",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 318,
+      "study_doi": "10.3389/fpain.2023.1268985",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 319,
+      "study_doi": "10.3389/fphar.2017.00974",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 320,
+      "study_doi": "10.3389/fphar.2018.00100",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 321,
+      "study_doi": "10.3389/fpsyg.2021.648691",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 322,
+      "study_doi": "10.3389/fpsyt.2019.00138",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 323,
+      "study_doi": "10.3389/fpsyt.2019.00650",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 324,
+      "study_doi": "10.3389/fpsyt.2021.586682",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 325,
+      "study_doi": "10.3389/fpsyt.2022.830301",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 326,
+      "study_doi": "10.3389/fpsyt.2022.863552",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 327,
+      "study_doi": "10.3389/fpsyt.2022.939302",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 328,
+      "study_doi": "10.3389/fpsyt.2022.947622",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 329,
+      "study_doi": "10.3389/fpsyt.2022.965641",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 330,
+      "study_doi": "10.3389/fpsyt.2023.1118737",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 331,
+      "study_doi": "10.3389/fpsyt.2023.1123424",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 332,
+      "study_doi": "10.3389/fpsyt.2023.1134454",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 333,
+      "study_doi": "10.3389/fpsyt.2023.1178529",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 334,
+      "study_doi": "10.3389/fpsyt.2023.1181447",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 335,
+      "study_doi": "10.3389/fpsyt.2023.1215972",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 336,
+      "study_doi": "10.3389/fpsyt.2023.1250980",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 337,
+      "study_doi": "10.3389/fpsyt.2023.1250980",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 338,
+      "study_doi": "10.3389/fpsyt.2023.1250987",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 339,
+      "study_doi": "10.3389/fpsyt.2023.1278823",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 340,
+      "study_doi": "10.3389/fpsyt.2024.1325399",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 341,
+      "study_doi": "10.3389/fpsyt.2024.1346697",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 342,
+      "study_doi": "10.3389/fpsyt.2024.1372373",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 343,
+      "study_doi": "10.3389/fpsyt.2024.1394787",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 344,
+      "study_doi": "10.3389/fpsyt.2024.1406888",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 345,
+      "study_doi": "10.3389/fpsyt.2024.1416420",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 346,
+      "study_doi": "10.3389/fpsyt.2024.1490907",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 347,
+      "study_doi": "10.3389/fpsyt.2025.1536232",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 348,
+      "study_doi": "10.3389/fpsyt.2025.1623659",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 349,
+      "study_doi": "10.3389/fpsyt.2025.1726818",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 350,
+      "study_doi": "10.3390/brainsci13101494",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 351,
+      "study_doi": "10.3390/brainsci14030248",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 352,
+      "study_doi": "10.3390/brainsci14030248",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 353,
+      "study_doi": "10.3390/brainsci15080893",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 354,
+      "study_doi": "10.3390/cells12060963",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 355,
+      "study_doi": "10.3390/diseases11040159",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 356,
+      "study_doi": "10.3390/healthcare12161560",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 357,
+      "study_doi": "10.3390/healthcare13212668",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 358,
+      "study_doi": "10.3390/jcm13164767",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 359,
+      "study_doi": "10.3390/jpm15040161",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 360,
+      "study_doi": "10.3390/medicina61040558",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 361,
+      "study_doi": "10.3390/ph13060116",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 362,
+      "study_doi": "10.3390/ph17091143",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 363,
+      "study_doi": "10.3390/ph18020173",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 364,
+      "study_doi": "10.3390/ph18040555",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 365,
+      "study_doi": "10.3390/ph18071066",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 366,
+      "study_doi": "10.3390/psychoactives3040029",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 367,
+      "study_doi": "10.3390/psychoactives3040029",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 368,
+      "study_doi": "10.33920/med-01-2407-10",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 369,
+      "study_doi": "10.36076/ppj.2023.26.e111",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 370,
+      "study_doi": "10.3892/etm.2023.11810",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 371,
+      "study_doi": "10.3892/etm.2023.11810",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 372,
+      "study_doi": "10.4088/jcp.19m12891",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 373,
+      "study_doi": "10.4088/jcp.19m13191",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 374,
+      "study_doi": "10.4088/jcp.20ac13787",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 375,
+      "study_doi": "10.4088/jcp.23m14974",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 376,
+      "study_doi": "10.4103/aip.aip_195_23",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 377,
+      "study_doi": "10.47626/2237-6089-2022-0593",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 378,
+      "study_doi": "10.5167/uzh-284304",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 379,
+      "study_doi": "10.51731/cjht.2023.809",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 380,
+      "study_doi": "10.51731/cjht.2024.845",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 381,
+      "study_doi": "10.52965/001c.25091",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 382,
+      "study_doi": "10.55905/rdelosv18.n75-120",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 383,
+      "study_doi": "10.56367/oag-042-10690",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 384,
+      "study_doi": "10.5812/ijpbs-137879",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 385,
+      "study_doi": "10.59973/emjsr.317",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 386,
+      "study_doi": "10.6084/m9.figshare.22187904",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 387,
+      "study_doi": "10.6084/m9.figshare.31260127",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 388,
+      "study_doi": "10.6084/m9.figshare.31260127.v1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 389,
+      "study_doi": "10.61373/pp024k.0031",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 390,
+      "study_doi": "10.61373/pp024r.0028",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 391,
+      "study_doi": "10.61373/pp025i.0044",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 392,
+      "study_doi": "10.64719/pb.4414",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 393,
+      "study_doi": "10.64719/pb.4478",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 394,
+      "study_doi": "10.64719/pb.4478",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 395,
+      "study_doi": "10.64719/pb.4579",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 396,
+      "study_doi": "10.64719/pb.4588",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 397,
+      "study_doi": "10.7759/cureus.15070",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 398,
+      "study_doi": "10.7759/cureus.24632",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 399,
+      "study_doi": "10.7759/cureus.38498",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 400,
+      "study_doi": "10.7759/cureus.82532",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 401,
+      "study_doi": "10.9758/cpn.23.1120",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 402,
+      "study_doi": "10.9758/cpn.23.1134",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 403,
+      "study_doi": "10.1001/jama.2022.15436",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 404,
+      "study_doi": "10.1002/14651858.CD015373.pub2",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 405,
+      "study_doi": "10.1007/978-981-19-7376-5_21",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 406,
+      "study_doi": "10.1007/s00213-017-4771-x",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 407,
+      "study_doi": "10.1007/s00213-024-06644-3",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 408,
+      "study_doi": "10.1007/s00216-023-04556-3",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 409,
+      "study_doi": "10.1007/s00406-024-01920-x",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 410,
+      "study_doi": "10.1007/s00508-024-02358-w",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 411,
+      "study_doi": "10.1007/s11916-023-01150-1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 412,
+      "study_doi": "10.1007/s13670-023-00389-1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 413,
+      "study_doi": "10.1007/s13670-023-00389-1",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 414,
+      "study_doi": "10.1007/s40261-022-01193-z",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 415,
+      "study_doi": "10.1007/s40263-021-00851-8",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 416,
+      "study_doi": "10.1007/s40263-025-01162-y",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 417,
+      "study_doi": "10.1007/s40263-025-01234-z",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 418,
+      "study_doi": "10.1007/s40501-025-00369-6",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 419,
+      "study_doi": "10.1016/bs.apha.2020.02.005",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 420,
+      "study_doi": "10.1016/j.bionps.2024.100104",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 421,
+      "study_doi": "10.1016/j.biopsych.2016.07.005",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 422,
+      "study_doi": "10.1016/j.biopsych.2023.02.075",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 423,
+      "study_doi": "10.1016/j.brs.2023.06.003",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 424,
+      "study_doi": "10.1016/j.comppsych.2025.152619",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 425,
+      "study_doi": "10.1016/j.drugalcdep.2023.110063",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 426,
+      "study_doi": "10.1016/j.jaac.2023.07.666",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 427,
+      "study_doi": "10.1016/j.jad.2024.01.142",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 428,
+      "study_doi": "10.1016/j.jad.2024.01.142",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 429,
+      "study_doi": "10.1016/j.jad.2024.03.165",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 430,
+      "study_doi": "10.1016/j.jad.2024.04.039",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 431,
+      "study_doi": "10.1016/j.jad.2024.12.061",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 432,
+      "study_doi": "10.1016/j.jagp.2023.06.016",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 433,
+      "study_doi": "10.1016/j.jpsychires.2024.10.009",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 434,
+      "study_doi": "10.1016/j.medj.2022.12.003",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 435,
+      "study_doi": "10.1016/j.medj.2023.08.003",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 436,
+      "study_doi": "10.1016/j.neuropharm.2017.12.041",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 437,
+      "study_doi": "10.1016/j.psychres.2023.115378",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 438,
+      "study_doi": "10.1016/j.psychres.2023.115531",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 439,
+      "study_doi": "10.1016/s2215-0366(18)30170-6",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 440,
+      "study_doi": "10.1016/s2215-0366(19)30521-8",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 441,
+      "study_doi": "10.1016/s2215-0366(19)30533-4",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 442,
+      "study_doi": "10.1017/s109285292400213x",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 443,
+      "study_doi": "10.1017/s1092852924002268",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 444,
+      "study_doi": "10.1037/adb0000935",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 445,
+      "study_doi": "10.1038/s41380-024-02575-9",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 446,
+      "study_doi": "10.1038/s41398-024-03180-8",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 447,
+      "study_doi": "10.1038/s41398-024-03180-8",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 448,
+      "study_doi": "10.1038/s41591-023-02458-6",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 449,
+      "study_doi": "10.1038/s41598-017-13282-7",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 450,
+      "study_doi": "10.1038/s41598-024-53188-9",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 451,
+      "study_doi": "10.1038/s44220-024-00298-y",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 452,
+      "study_doi": "10.1080/15360288.2023.2284976",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 453,
+      "study_doi": "10.1080/20008198.2020.1824381",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 454,
+      "study_doi": "10.1089/cap.2024.0082",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 455,
+      "study_doi": "10.1089/psymed.2023.0023",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 456,
+      "study_doi": "10.1093/med/9780190929565.003.0013",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 457,
+      "study_doi": "10.1097/YIC.0000000000000527",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 458,
+      "study_doi": "10.1101/2022.06.30.497950",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 459,
+      "study_doi": "10.1111/inm.13214",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 460,
+      "study_doi": "10.1136/bmj.o2623",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 461,
+      "study_doi": "10.1136/ijgc-2023-004659",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 462,
+      "study_doi": "10.1136/ijgc-2023-004659",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 463,
+      "study_doi": "10.1146/annurev-med-050423-095712",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 464,
+      "study_doi": "10.1176/appi.ajp.2018.18020138",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 465,
+      "study_doi": "10.1176/appi.ajp.20240515",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 466,
+      "study_doi": "10.1177/00185787251384516",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 467,
+      "study_doi": "10.1186/s40337-025-01274-2",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 468,
+      "study_doi": "10.12740/PP/ONLINEFIRST/133919",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 469,
+      "study_doi": "10.2147/NDT.S500337",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 470,
+      "study_doi": "10.2147/NDT.S500337",
+      "pdf_found": true,
+      "changed_fields": [],
+      "reason": "no_text_segments_extracted"
+    },
+    {
+      "stub_index": 471,
+      "study_doi": "10.22215/cujs.v5i1.5285",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 472,
+      "study_doi": "10.3389/fphar.2023.1221719",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 473,
+      "study_doi": "10.3389/fpsyt.2024.1338581",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 474,
+      "study_doi": "10.3390/children11070801",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 475,
+      "study_doi": "10.3390/ph16111572",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 476,
+      "study_doi": "10.3928/02793695-20210816-01",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 477,
+      "study_doi": "10.4088/JCP.23m15102",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 478,
+      "study_doi": "10.4088/jcp.24m15449",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 479,
+      "study_doi": "10.61373/pp024e.0034",
+      "pdf_found": false,
+      "changed_fields": [],
+      "reason": "pdf_not_available"
+    },
+    {
+      "stub_index": 480,
+      "study_doi": "10.7759/cureus.53987",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 481,
+      "study_doi": "10.7759/cureus.53987",
+      "pdf_found": true,
+      "changed_fields": [],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    },
+    {
+      "stub_index": 482,
+      "study_doi": "10.9758/cpn.23.1097",
+      "pdf_found": true,
+      "changed_fields": [
+        "evidence_location"
+      ],
+      "blocker_count_after": 0,
+      "blocker_fields_after": []
+    }
+  ]
+}
