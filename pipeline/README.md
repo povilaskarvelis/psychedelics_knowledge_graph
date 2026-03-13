@@ -158,3 +158,11 @@ Deterministic ETL for building the KG.
   `python pipeline/validate/validate_claims.py`
 - Report output:
   `data/processed/validation_report.json`
+- Build a cleanup triage report for weak curated rows:
+  `python pipeline/validate/build_cleanup_report.py`
+- Move only auto-demote rows into exploratory curated files:
+  `python pipeline/validate/apply_cleanup_demotions.py --apply`
+- Refresh stale abstract locators from local PDFs for the provenance-fix bucket:
+  `python pipeline/validate/refresh_pdf_provenance.py --apply`
+- Resolve the clearest high-impact disorder manual-review rows with conservative title/abstract rules:
+  `python pipeline/validate/resolve_high_impact_manual_review.py --apply`

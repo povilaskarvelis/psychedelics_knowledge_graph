@@ -7,8 +7,10 @@ clinical or preclinical outcome evidence.
 - `compound`
 - `disorder`
 - `outcome_type`
+- `result_direction`
 - `authors`
 - `study_year`
+- `paper_type`
 - `evidence_level`
 - `source`
 - `source_type`
@@ -31,6 +33,7 @@ clinical or preclinical outcome evidence.
   "compound": "Psilocybin",
   "disorder": "Major depressive disorder",
   "outcome_type": "reduces symptoms",
+  "result_direction": "positive",
   "outcome_measure": "MADRS",
   "population": "adults with treatment-resistant depression",
   "system": "clinical",
@@ -38,6 +41,7 @@ clinical or preclinical outcome evidence.
   "study_title": "Example trial",
   "authors": "A. Author; B. Author; C. Author",
   "study_year": 2021,
+  "paper_type": "primary_results",
   "evidence_level": "high",
   "source": "doi",
   "source_type": "primary_study",

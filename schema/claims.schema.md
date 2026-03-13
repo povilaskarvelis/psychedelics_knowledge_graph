@@ -11,6 +11,7 @@ This schema defines the structured claims we curate and publish to ORKG.
 - `affinity_unit`
 - `authors`
 - `study_year`
+- `paper_type`
 - `evidence_level`
 - `source`
 - `source_type`
@@ -41,6 +42,7 @@ This schema defines the structured claims we curate and publish to ORKG.
   "study_title": "Example study",
   "authors": "A. Author; B. Author; C. Author",
   "study_year": 2010,
+  "paper_type": "primary_results",
   "evidence_level": "high",
   "source": "doi",
   "source_type": "primary_study",

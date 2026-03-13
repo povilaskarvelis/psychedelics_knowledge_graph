@@ -160,9 +160,11 @@ def validate_dataset(
     now_year = dt.date.today().year
 
     source_type_counter = Counter()
+    paper_type_counter = Counter()
     access_counter = Counter()
     evidence_counter = Counter()
     design_counter = Counter()
+    result_direction_counter = Counter()
 
     dedupe_keys = [
         "compound",
@@ -232,6 +234,7 @@ def validate_dataset(
         access_level = normalize_value(row.get("access_level", ""))
         evidence_location = normalize_value(row.get("evidence_location", ""))
         source_type = normalize_value(row.get("source_type", ""))
+        paper_type = normalize_value(row.get("paper_type", ""))
         evidence_locator = normalize_value(row.get("evidence_locator", ""))
         authors = normalize_value(row.get("authors", ""))
 
@@ -243,11 +246,26 @@ def validate_dataset(
         if evidence_locator.lower() in {"", "unspecified", "unknown", "n/a"}:
             warnings.append(f"{row_label}: evidence_locator is weak (`{evidence_locator}`)")
 
+        if access_level == "full_text_seen" and evidence_locator.lower().startswith("abstract snippet:"):
+            warnings.append(f"{row_label}: full_text_seen row still uses abstract snippet locator")
+
         if source_type == "review" and normalize_value(row.get("evidence_level", "")) == "high":
             warnings.append(f"{row_label}: high evidence claim sourced as review")
 
+        if paper_type != "primary_results" and normalize_value(row.get("evidence_level", "")) == "high":
+            warnings.append(f"{row_label}: high evidence claim uses weak paper_type `{paper_type}`")
+
+        if paper_type != "primary_results" and source_type == "primary_study":
+            warnings.append(f"{row_label}: source_type is primary_study but paper_type is `{paper_type}`")
+
         if not authors or authors.lower() in {"unknown", "not available", "tbd", "n/a"}:
             warnings.append(f"{row_label}: authors missing or unresolved (`{authors}`)")
+
+        if dataset_name == "disorder":
+            result_direction = normalize_value(row.get("result_direction", ""))
+            if paper_type == "protocol" and result_direction not in {"", "unclear"}:
+                warnings.append(f"{row_label}: protocol row has result_direction `{result_direction}`")
+            result_direction_counter[result_direction] += 1
 
         row_for_sig = dict(row)
         if dataset_name == "disorder":
@@ -261,6 +279,7 @@ def validate_dataset(
         seen_signatures.add(signature)
 
         source_type_counter[source_type] += 1
+        paper_type_counter[paper_type] += 1
         access_counter[access_level] += 1
         evidence_counter[normalize_value(row.get("evidence_level", ""))] += 1
         design_counter[normalize_value(row.get("study_design", ""))] += 1
@@ -268,9 +287,11 @@ def validate_dataset(
     metrics = {
         "rows": len(rows),
         "source_type_counts": dict(source_type_counter),
+        "paper_type_counts": dict(paper_type_counter),
         "access_level_counts": dict(access_counter),
         "evidence_level_counts": dict(evidence_counter),
         "study_design_counts": dict(design_counter),
+        "result_direction_counts": dict(result_direction_counter) if dataset_name == "disorder" else {},
         "warnings_count": len(warnings),
         "errors_count": len(errors),
     }

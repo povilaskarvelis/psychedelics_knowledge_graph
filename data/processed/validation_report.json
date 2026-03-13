@@ -1,82 +1,200 @@
 {
-  "generated_at": "2026-02-16T17:55:37.527910+00:00",
+  "generated_at": "2026-03-13T22:06:03.308598+00:00",
   "status": "ok",
   "datasets": {
     "mechanistic": {
       "metrics": {
-        "rows": 33,
+        "rows": 22,
         "source_type_counts": {
-          "review": 9,
-          "primary_study": 24
+          "primary_study": 22
+        },
+        "paper_type_counts": {
+          "other": 3,
+          "primary_results": 19
         },
         "access_level_counts": {
-          "secondary_summary": 15,
+          "secondary_summary": 6,
           "abstract_only": 2,
-          "full_text_seen": 16
+          "full_text_seen": 14
         },
         "evidence_level_counts": {
-          "medium": 25,
-          "high": 8
+          "medium": 17,
+          "high": 5
         },
         "study_design_counts": {
-          "in_vitro_binding_assay": 15,
           "in_vitro_uptake_assay": 3,
-          "preclinical_study": 15
+          "in_vitro_binding_assay": 6,
+          "preclinical_study": 13
         },
-        "warnings_count": 4,
+        "result_direction_counts": {},
+        "warnings_count": 3,
         "errors_count": 0
       },
       "errors": [],
       "warnings": [
-        "mechanistic row 15: evidence_locator is weak (`Unspecified`)",
-        "mechanistic row 15: high evidence claim sourced as review",
-        "mechanistic row 16: high evidence claim sourced as review",
-        "mechanistic row 17: high evidence claim sourced as review"
+        "mechanistic row 1: source_type is primary_study but paper_type is `other`",
+        "mechanistic row 2: source_type is primary_study but paper_type is `other`",
+        "mechanistic row 3: source_type is primary_study but paper_type is `other`"
       ]
     },
     "disorder": {
       "metrics": {
-        "rows": 722,
+        "rows": 453,
         "source_type_counts": {
-          "primary_study": 720,
+          "primary_study": 451,
           "other": 2
         },
+        "paper_type_counts": {
+          "primary_results": 353,
+          "other": 100
+        },
         "access_level_counts": {
-          "abstract_only": 396,
-          "secondary_summary": 80,
-          "full_text_seen": 246
+          "abstract_only": 258,
+          "secondary_summary": 64,
+          "full_text_seen": 131
         },
         "evidence_level_counts": {
-          "medium": 66,
-          "high": 341,
-          "low": 315
+          "medium": 55,
+          "high": 188,
+          "low": 210
         },
         "study_design_counts": {
-          "phase_2_trial": 13,
-          "randomized_controlled_trial": 326,
+          "phase_2_trial": 12,
+          "randomized_controlled_trial": 191,
           "clinical_trial": 1,
-          "open_label_trial": 42,
+          "open_label_trial": 29,
           "phase_3_randomized_controlled_trial": 1,
           "observational_follow_up": 1,
-          "pending_curation": 79,
-          "preclinical_study": 207,
-          "phase_3_trial": 14,
+          "pending_curation": 59,
+          "phase_3_trial": 10,
+          "preclinical_study": 119,
           "pilot_trial": 9,
-          "observational_study": 29
+          "observational_study": 21
         },
-        "warnings_count": 8,
+        "result_direction_counts": {
+          "mixed": 36,
+          "positive": 230,
+          "unclear": 184,
+          "null": 3
+        },
+        "warnings_count": 113,
         "errors_count": 0
       },
       "errors": [],
       "warnings": [
-        "disorder row 207: authors missing or unresolved (`Unknown`)",
-        "disorder row 208: authors missing or unresolved (`Unknown`)",
-        "disorder row 209: authors missing or unresolved (`Unknown`)",
-        "disorder row 210: authors missing or unresolved (`Unknown`)",
-        "disorder row 362: evidence_locator is weak (`Unspecified`)",
-        "disorder row 409: evidence_locator is weak (`Unspecified`)",
-        "disorder row 468: evidence_locator is weak (`Unspecified`)",
-        "disorder row 480: evidence_locator is weak (`Unspecified`)"
+        "disorder row 19: source_type is primary_study but paper_type is `other`",
+        "disorder row 20: source_type is primary_study but paper_type is `other`",
+        "disorder row 33: source_type is primary_study but paper_type is `other`",
+        "disorder row 42: source_type is primary_study but paper_type is `other`",
+        "disorder row 43: source_type is primary_study but paper_type is `other`",
+        "disorder row 44: source_type is primary_study but paper_type is `other`",
+        "disorder row 60: source_type is primary_study but paper_type is `other`",
+        "disorder row 64: source_type is primary_study but paper_type is `other`",
+        "disorder row 70: source_type is primary_study but paper_type is `other`",
+        "disorder row 79: source_type is primary_study but paper_type is `other`",
+        "disorder row 80: source_type is primary_study but paper_type is `other`",
+        "disorder row 83: full_text_seen row still uses abstract snippet locator",
+        "disorder row 83: source_type is primary_study but paper_type is `other`",
+        "disorder row 90: source_type is primary_study but paper_type is `other`",
+        "disorder row 94: source_type is primary_study but paper_type is `other`",
+        "disorder row 96: source_type is primary_study but paper_type is `other`",
+        "disorder row 98: source_type is primary_study but paper_type is `other`",
+        "disorder row 102: source_type is primary_study but paper_type is `other`",
+        "disorder row 103: source_type is primary_study but paper_type is `other`",
+        "disorder row 114: source_type is primary_study but paper_type is `other`",
+        "disorder row 117: source_type is primary_study but paper_type is `other`",
+        "disorder row 118: source_type is primary_study but paper_type is `other`",
+        "disorder row 120: source_type is primary_study but paper_type is `other`",
+        "disorder row 123: source_type is primary_study but paper_type is `other`",
+        "disorder row 129: source_type is primary_study but paper_type is `other`",
+        "disorder row 130: authors missing or unresolved (`Unknown`)",
+        "disorder row 131: authors missing or unresolved (`Unknown`)",
+        "disorder row 132: authors missing or unresolved (`Unknown`)",
+        "disorder row 133: authors missing or unresolved (`Unknown`)",
+        "disorder row 142: source_type is primary_study but paper_type is `other`",
+        "disorder row 159: source_type is primary_study but paper_type is `other`",
+        "disorder row 160: source_type is primary_study but paper_type is `other`",
+        "disorder row 166: source_type is primary_study but paper_type is `other`",
+        "disorder row 175: source_type is primary_study but paper_type is `other`",
+        "disorder row 176: source_type is primary_study but paper_type is `other`",
+        "disorder row 178: source_type is primary_study but paper_type is `other`",
+        "disorder row 180: source_type is primary_study but paper_type is `other`",
+        "disorder row 186: source_type is primary_study but paper_type is `other`",
+        "disorder row 199: source_type is primary_study but paper_type is `other`",
+        "disorder row 200: source_type is primary_study but paper_type is `other`",
+        "disorder row 211: full_text_seen row still uses abstract snippet locator",
+        "disorder row 211: source_type is primary_study but paper_type is `other`",
+        "disorder row 216: source_type is primary_study but paper_type is `other`",
+        "disorder row 217: source_type is primary_study but paper_type is `other`",
+        "disorder row 231: source_type is primary_study but paper_type is `other`",
+        "disorder row 232: source_type is primary_study but paper_type is `other`",
+        "disorder row 242: source_type is primary_study but paper_type is `other`",
+        "disorder row 246: evidence_locator is weak (`Unspecified`)",
+        "disorder row 251: source_type is primary_study but paper_type is `other`",
+        "disorder row 257: source_type is primary_study but paper_type is `other`",
+        "disorder row 266: full_text_seen row still uses abstract snippet locator",
+        "disorder row 266: source_type is primary_study but paper_type is `other`",
+        "disorder row 271: evidence_locator is weak (`Unspecified`)",
+        "disorder row 285: source_type is primary_study but paper_type is `other`",
+        "disorder row 290: source_type is primary_study but paper_type is `other`",
+        "disorder row 291: source_type is primary_study but paper_type is `other`",
+        "disorder row 292: source_type is primary_study but paper_type is `other`",
+        "disorder row 293: source_type is primary_study but paper_type is `other`",
+        "disorder row 294: source_type is primary_study but paper_type is `other`",
+        "disorder row 295: source_type is primary_study but paper_type is `other`",
+        "disorder row 296: source_type is primary_study but paper_type is `other`",
+        "disorder row 298: source_type is primary_study but paper_type is `other`",
+        "disorder row 300: source_type is primary_study but paper_type is `other`",
+        "disorder row 301: source_type is primary_study but paper_type is `other`",
+        "disorder row 303: evidence_locator is weak (`Unspecified`)",
+        "disorder row 303: source_type is primary_study but paper_type is `other`",
+        "disorder row 304: source_type is primary_study but paper_type is `other`",
+        "disorder row 306: source_type is primary_study but paper_type is `other`",
+        "disorder row 307: source_type is primary_study but paper_type is `other`",
+        "disorder row 308: source_type is primary_study but paper_type is `other`",
+        "disorder row 309: source_type is primary_study but paper_type is `other`",
+        "disorder row 312: source_type is primary_study but paper_type is `other`",
+        "disorder row 318: source_type is primary_study but paper_type is `other`",
+        "disorder row 324: source_type is primary_study but paper_type is `other`",
+        "disorder row 325: source_type is primary_study but paper_type is `other`",
+        "disorder row 328: source_type is primary_study but paper_type is `other`",
+        "disorder row 339: source_type is primary_study but paper_type is `other`",
+        "disorder row 343: source_type is primary_study but paper_type is `other`",
+        "disorder row 349: source_type is primary_study but paper_type is `other`",
+        "disorder row 352: source_type is primary_study but paper_type is `other`",
+        "disorder row 353: source_type is primary_study but paper_type is `other`",
+        "disorder row 355: source_type is primary_study but paper_type is `other`",
+        "disorder row 370: source_type is primary_study but paper_type is `other`",
+        "disorder row 381: source_type is primary_study but paper_type is `other`",
+        "disorder row 383: source_type is primary_study but paper_type is `other`",
+        "disorder row 384: source_type is primary_study but paper_type is `other`",
+        "disorder row 385: source_type is primary_study but paper_type is `other`",
+        "disorder row 394: full_text_seen row still uses abstract snippet locator",
+        "disorder row 394: source_type is primary_study but paper_type is `other`",
+        "disorder row 398: full_text_seen row still uses abstract snippet locator",
+        "disorder row 398: source_type is primary_study but paper_type is `other`",
+        "disorder row 413: full_text_seen row still uses abstract snippet locator",
+        "disorder row 413: source_type is primary_study but paper_type is `other`",
+        "disorder row 417: full_text_seen row still uses abstract snippet locator",
+        "disorder row 417: source_type is primary_study but paper_type is `other`",
+        "disorder row 419: source_type is primary_study but paper_type is `other`",
+        "disorder row 420: source_type is primary_study but paper_type is `other`",
+        "disorder row 422: source_type is primary_study but paper_type is `other`",
+        "disorder row 423: source_type is primary_study but paper_type is `other`",
+        "disorder row 424: source_type is primary_study but paper_type is `other`",
+        "disorder row 429: source_type is primary_study but paper_type is `other`",
+        "disorder row 431: source_type is primary_study but paper_type is `other`",
+        "disorder row 432: source_type is primary_study but paper_type is `other`",
+        "disorder row 434: source_type is primary_study but paper_type is `other`",
+        "disorder row 437: source_type is primary_study but paper_type is `other`",
+        "disorder row 438: source_type is primary_study but paper_type is `other`",
+        "disorder row 439: source_type is primary_study but paper_type is `other`",
+        "disorder row 440: source_type is primary_study but paper_type is `other`",
+        "disorder row 449: source_type is primary_study but paper_type is `other`",
+        "disorder row 450: source_type is primary_study but paper_type is `other`",
+        "disorder row 451: source_type is primary_study but paper_type is `other`",
+        "disorder row 452: full_text_seen row still uses abstract snippet locator",
+        "disorder row 452: source_type is primary_study but paper_type is `other`"
       ]
     }
   },
@@ -92,6 +210,6 @@
   },
   "totals": {
     "errors": 0,
-    "warnings": 12
+    "warnings": 116
   }
 }

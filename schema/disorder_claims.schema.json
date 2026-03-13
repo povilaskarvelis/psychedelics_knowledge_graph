@@ -9,6 +9,8 @@
       "compound",
       "disorder",
       "outcome_type",
+      "result_direction",
+      "paper_type",
       "authors",
       "study_year",
       "evidence_level",
@@ -23,6 +25,10 @@
       "compound": {"type": "string"},
       "disorder": {"type": "string"},
       "outcome_type": {"type": "string"},
+      "result_direction": {
+        "type": "string",
+        "enum": ["positive", "null", "negative", "mixed", "unclear"]
+      },
       "outcome_measure": {"type": "string"},
       "population": {"type": "string"},
       "system": {"type": "string", "enum": ["clinical", "preclinical", "observational", "unknown"]},
@@ -31,6 +37,10 @@
       "study_title": {"type": "string"},
       "authors": {"type": "string"},
       "study_year": {"type": "integer"},
+      "paper_type": {
+        "type": "string",
+        "enum": ["primary_results", "review", "protocol", "conference_or_poster_abstract", "other"]
+      },
       "evidence_level": {"type": "string", "enum": ["low", "medium", "high"]},
       "source": {"type": "string"},
       "source_type": {

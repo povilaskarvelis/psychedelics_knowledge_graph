@@ -55,6 +55,40 @@ TYPE_UNIT_HEADER_RE = re.compile(
 )
 AFFINITY_TYPE_HINT_RE = re.compile(r"\b(?:ki|k\s*i|kd|k\s*d|ic50|ec50|ec90)\b", re.I)
 
+PROTOCOL_KEYWORDS = {
+    "study protocol",
+    "trial protocol",
+    "protocol for",
+    "protocol:",
+    "study design",
+}
+
+CONFERENCE_OR_POSTER_KEYWORDS = {
+    "poster abstract",
+    "poster abstracts",
+    "meeting abstract",
+    "meeting abstracts",
+    "annual meeting",
+    "scientific meeting",
+    "conference abstract",
+    "conference proceedings",
+    "psychopharmacology congress",
+    "supplement",
+}
+
+REVIEWISH_KEYWORDS = {
+    "systematic review",
+    "narrative review",
+    "scoping review",
+    "umbrella review",
+    "literature review",
+    "review article",
+    "rapid review",
+    "meta analysis",
+    "meta-analysis",
+    "pooled analysis",
+}
+
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -88,6 +122,36 @@ def normalize_text(raw: str) -> str:
     lowered = normalize(raw).lower()
     lowered = re.sub(r"[^a-z0-9\s\-\+\.]+", " ", lowered)
     return re.sub(r"\s+", " ", lowered).strip()
+
+
+def detect_paper_type(text_norm: str) -> str:
+    if any(normalize_text(kw) in text_norm for kw in CONFERENCE_OR_POSTER_KEYWORDS):
+        return "conference_or_poster_abstract"
+    if any(normalize_text(kw) in text_norm for kw in PROTOCOL_KEYWORDS):
+        return "protocol"
+    if any(normalize_text(kw) in text_norm for kw in REVIEWISH_KEYWORDS):
+        return "review"
+
+    primary_keywords = {
+        "binding",
+        "affinity",
+        "radioligand",
+        "assay",
+        "ic50",
+        "ec50",
+        "ki",
+        "kd",
+        "agonist",
+        "antagonist",
+        "receptor",
+        "transporter",
+        "in vitro",
+        "in vivo",
+    }
+    hits = [kw for kw in primary_keywords if normalize_text(kw) in text_norm]
+    if len(hits) >= 2:
+        return "primary_results"
+    return "other"
 
 
 def load_json_array(path: Path) -> List[dict]:
@@ -1018,7 +1082,14 @@ def main() -> int:
             new_row["assay_type"] = inferred_assay
             changed_fields.append("assay_type")
 
+        title = normalize(paper.get("study_title", ""))
         all_text = " ".join(segments[:5000])
+        text_norm = normalize_text(f"{title} {all_text}")
+        inferred_paper_type = detect_paper_type(text_norm)
+        if normalize(new_row.get("paper_type", "")) != inferred_paper_type:
+            new_row["paper_type"] = inferred_paper_type
+            changed_fields.append("paper_type")
+
         inferred_system = infer_system(all_text, new_row.get("system", ""))
         if inferred_system and normalize(new_row.get("system", "")) != inferred_system:
             new_row["system"] = inferred_system
@@ -1062,6 +1133,10 @@ def main() -> int:
             one_of_groups=one_of_groups,
             allowed_keys=allowed_keys,
         )
+
+        if normalize(new_row.get("paper_type", "")) != "primary_results":
+            blocker_fields = sorted(set(blocker_fields) | {"paper_type"})
+            blockers.append({"field": "paper_type", "reason": "not_primary_results"})
 
         if args.mark_ready and not blockers:
             if normalize(new_row.get("stub_status", "")) != "ready_for_promotion":

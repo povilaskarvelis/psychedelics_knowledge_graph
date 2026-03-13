@@ -48,6 +48,48 @@ REVIEW_KEYWORDS = {
     "literature review",
     "review article",
     "rapid review",
+    "review paper",
+    "review of literature",
+    "current state",
+    "consensus",
+    "viewpoint",
+    "approaches to treatment",
+    "role of",
+    "regulatory perspectives",
+}
+
+PROTOCOL_KEYWORDS = {
+    "study protocol",
+    "trial protocol",
+    "protocol for",
+    "protocol:",
+    "study design",
+}
+
+CONFERENCE_OR_POSTER_KEYWORDS = {
+    "poster abstract",
+    "poster abstracts",
+    "meeting abstract",
+    "meeting abstracts",
+    "annual meeting",
+    "scientific meeting",
+    "conference abstract",
+    "conference proceedings",
+    "psychopharmacology congress",
+    "supplement",
+}
+
+OTHER_NONCOUNTABLE_KEYWORDS = {
+    "cost effectiveness",
+    "cost-effectiveness",
+    "cost utility",
+    "cost-utility",
+    "model based",
+    "model-based",
+    "medical malpractice risk",
+    "physicians concerns",
+    "physicians' concerns",
+    "who will staff",
 }
 
 PRIMARY_KEYWORDS_DISORDER = {
@@ -62,6 +104,24 @@ PRIMARY_KEYWORDS_DISORDER = {
     "open-label",
     "participants",
     "patients",
+}
+
+PRIMARY_HINT_KEYWORDS_DISORDER = {
+    "case report",
+    "case series",
+    "single-case",
+    "qualitative study",
+    "phenomenological analysis",
+    "real world",
+    "real-world",
+    "retrospective",
+    "cohort",
+    "pilot study",
+    "pilot randomized controlled trial",
+    "use patterns",
+    "resource use",
+    "expanded use",
+    "single-arm",
 }
 
 PRIMARY_KEYWORDS_MECHANISTIC = {
@@ -224,6 +284,13 @@ TARGET_SYNONYMS = {
 }
 
 SOURCE_TYPE_ALLOWED = {"primary_study", "review", "meta_analysis", "registry", "other"}
+PAPER_TYPE_ALLOWED = {
+    "primary_results",
+    "review",
+    "protocol",
+    "conference_or_poster_abstract",
+    "other",
+}
 
 
 def now_utc() -> str:
@@ -441,6 +508,12 @@ def detect_source_type(text_norm: str, dataset: str) -> Tuple[str, List[str]]:
     if any(normalize_text(kw) in text_norm for kw in REVIEW_KEYWORDS):
         reasons.append("contains review keyword")
         return "review", reasons
+    if any(normalize_text(kw) in text_norm for kw in OTHER_NONCOUNTABLE_KEYWORDS):
+        reasons.append("contains non-countable analysis/editorial keyword")
+        return "other", reasons
+    if dataset == "disorder" and any(normalize_text(kw) in text_norm for kw in PRIMARY_HINT_KEYWORDS_DISORDER):
+        reasons.append("contains primary-study title hint")
+        return "primary_study", reasons
 
     primary_keywords = PRIMARY_KEYWORDS_DISORDER if dataset == "disorder" else PRIMARY_KEYWORDS_MECHANISTIC
     hits = [kw for kw in primary_keywords if normalize_text(kw) in text_norm]
@@ -449,6 +522,34 @@ def detect_source_type(text_norm: str, dataset: str) -> Tuple[str, List[str]]:
         return "primary_study", reasons
 
     reasons.append("no strong source-type signal")
+    return "other", reasons
+
+
+def detect_paper_type(text_norm: str, dataset: str) -> Tuple[str, List[str]]:
+    reasons: List[str] = []
+    if any(normalize_text(kw) in text_norm for kw in CONFERENCE_OR_POSTER_KEYWORDS):
+        reasons.append("contains conference/poster keyword")
+        return "conference_or_poster_abstract", reasons
+    if any(normalize_text(kw) in text_norm for kw in PROTOCOL_KEYWORDS):
+        reasons.append("contains protocol keyword")
+        return "protocol", reasons
+    if any(normalize_text(kw) in text_norm for kw in META_ANALYSIS_KEYWORDS | REVIEW_KEYWORDS):
+        reasons.append("contains review keyword")
+        return "review", reasons
+    if any(normalize_text(kw) in text_norm for kw in OTHER_NONCOUNTABLE_KEYWORDS):
+        reasons.append("contains non-countable analysis/editorial keyword")
+        return "other", reasons
+    if dataset == "disorder" and any(normalize_text(kw) in text_norm for kw in PRIMARY_HINT_KEYWORDS_DISORDER):
+        reasons.append("contains primary-results title hint")
+        return "primary_results", reasons
+
+    primary_keywords = PRIMARY_KEYWORDS_DISORDER if dataset == "disorder" else PRIMARY_KEYWORDS_MECHANISTIC
+    hits = [kw for kw in primary_keywords if normalize_text(kw) in text_norm]
+    if len(hits) >= 2:
+        reasons.append(f"contains primary-results signals ({', '.join(sorted(hits)[:4])})")
+        return "primary_results", reasons
+
+    reasons.append("no strong paper-type signal")
     return "other", reasons
 
 
@@ -567,7 +668,7 @@ def relevance_label(score: int) -> str:
 
 def flatten_triage_row(row: dict) -> dict:
     out = dict(row)
-    for key in ("source_type_reasons", "relevance_reasons"):
+    for key in ("source_type_reasons", "paper_type_reasons", "relevance_reasons"):
         value = out.get(key, [])
         out[key] = " | ".join(value) if isinstance(value, list) else normalize(value)
     for key in ("contexts", "contexts_all"):
@@ -718,6 +819,11 @@ def main() -> int:
         "source_review": 0,
         "source_meta_analysis": 0,
         "source_other": 0,
+        "paper_primary_results": 0,
+        "paper_review": 0,
+        "paper_protocol": 0,
+        "paper_conference_or_poster_abstract": 0,
+        "paper_other": 0,
     }
 
     for paper in papers:
@@ -725,6 +831,7 @@ def main() -> int:
         abstract = normalize(paper.get("abstract", ""))
         text_norm = normalize_text(f"{title} {abstract}")
         source_type, source_type_reasons = detect_source_type(text_norm, args.dataset)
+        paper_type, paper_type_reasons = detect_paper_type(text_norm, args.dataset)
         score, relevance_reasons, matched_contexts = relevance_score_for_row(
             dataset=args.dataset,
             text_norm=text_norm,
@@ -737,6 +844,7 @@ def main() -> int:
 
         counts[relevance] += 1
         counts[f"source_{source_type}" if f"source_{source_type}" in counts else "source_other"] += 1
+        counts[f"paper_{paper_type}" if f"paper_{paper_type}" in counts else "paper_other"] += 1
 
         triage_rows.append(
             {
@@ -746,6 +854,8 @@ def main() -> int:
                 "library_status": normalize(paper.get("library_status", "")),
                 "source_type_suggested": source_type,
                 "source_type_reasons": source_type_reasons,
+                "paper_type_suggested": paper_type,
+                "paper_type_reasons": paper_type_reasons,
                 "relevance_suggested": relevance,
                 "relevance_score": score,
                 "relevance_reasons": relevance_reasons,
@@ -781,6 +891,7 @@ def main() -> int:
         "updated": 0,
         "status_updates": 0,
         "source_type_updates": 0,
+        "paper_type_updates": 0,
         "missing_triage_match": 0,
     }
 
@@ -823,6 +934,15 @@ def main() -> int:
                 changed_fields.append("source_type")
                 stub_updates["source_type_updates"] += 1
 
+            suggested_paper_type = normalize(triage.get("paper_type_suggested", ""))
+            if (
+                suggested_paper_type in PAPER_TYPE_ALLOWED
+                and normalize(new_row.get("paper_type", "")) != suggested_paper_type
+            ):
+                new_row["paper_type"] = suggested_paper_type
+                changed_fields.append("paper_type")
+                stub_updates["paper_type_updates"] += 1
+
             suggested_relevance = normalize(triage.get("relevance_suggested", ""))
             if suggested_relevance == "likely_irrelevant":
                 if normalize(new_row.get("stub_status", "")) != args.irrelevant_status:
@@ -834,8 +954,15 @@ def main() -> int:
             new_row["triage_relevance"] = suggested_relevance
             new_row["triage_relevance_score"] = triage.get("relevance_score", "")
             new_row["triage_source_type_suggested"] = suggested_source_type
+            new_row["triage_paper_type_suggested"] = suggested_paper_type
             new_row["triage_checked_at_utc"] = now_utc()
-            for key in ("triage_relevance", "triage_relevance_score", "triage_source_type_suggested", "triage_checked_at_utc"):
+            for key in (
+                "triage_relevance",
+                "triage_relevance_score",
+                "triage_source_type_suggested",
+                "triage_paper_type_suggested",
+                "triage_checked_at_utc",
+            ):
                 if key not in changed_fields:
                     changed_fields.append(key)
 
@@ -849,6 +976,8 @@ def main() -> int:
                     "status_after": normalize(new_row.get("stub_status", "")),
                     "source_type_before": normalize(stub.get("source_type", "")),
                     "source_type_after": normalize(new_row.get("source_type", "")),
+                    "paper_type_before": normalize(stub.get("paper_type", "")),
+                    "paper_type_after": normalize(new_row.get("paper_type", "")),
                     "changed_fields": changed_fields,
                 }
             )
@@ -908,6 +1037,14 @@ def main() -> int:
         f"meta_analysis={counts['source_meta_analysis']} "
         f"other={counts['source_other']}"
     )
+    print(
+        "Paper-type suggestions: "
+        f"primary_results={counts['paper_primary_results']} "
+        f"review={counts['paper_review']} "
+        f"protocol={counts['paper_protocol']} "
+        f"conference_or_poster_abstract={counts['paper_conference_or_poster_abstract']} "
+        f"other={counts['paper_other']}"
+    )
     if args.apply_to_stubs:
         print(
             "Stub updates: "
@@ -915,6 +1052,7 @@ def main() -> int:
             f"updated={stub_updates['updated']} "
             f"status_updates={stub_updates['status_updates']} "
             f"source_type_updates={stub_updates['source_type_updates']} "
+            f"paper_type_updates={stub_updates['paper_type_updates']} "
             f"missing_triage_match={stub_updates['missing_triage_match']}"
         )
         print(f"Stubs JSON: {stubs_json}")

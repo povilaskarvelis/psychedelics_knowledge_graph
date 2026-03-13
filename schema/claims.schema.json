@@ -12,6 +12,7 @@
       "affinity_type",
       "affinity_value",
       "affinity_unit",
+      "paper_type",
       "authors",
       "study_year",
       "evidence_level",
@@ -36,6 +37,10 @@
       "study_title": {"type": "string"},
       "authors": {"type": "string"},
       "study_year": {"type": "integer"},
+      "paper_type": {
+        "type": "string",
+        "enum": ["primary_results", "review", "protocol", "conference_or_poster_abstract", "other"]
+      },
       "evidence_level": {"type": "string", "enum": ["low", "medium", "high"]},
       "source": {"type": "string"},
       "source_type": {

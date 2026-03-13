@@ -4,7 +4,7 @@
   "evidence_view": "primary_only",
   "template": "Psychedelics: Mechanistic Targets",
   "input_file": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/curated/claims.json",
-  "row_count": 24,
+  "row_count": 19,
   "contributions": [
     {
       "external_id": "mech-907542bd09eeb923",
@@ -31,6 +31,7 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "secondary_summary",
         "evidence_location": "table",
@@ -64,6 +65,7 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "secondary_summary",
         "evidence_location": "table",
@@ -97,6 +99,7 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "secondary_summary",
         "evidence_location": "table",
@@ -106,7 +109,7 @@
       }
     },
     {
-      "external_id": "mech-e0c3cf86c593f7d2",
+      "external_id": "mech-c0c12b687d526355",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1038/s41380-020-0740-6",
@@ -130,16 +133,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Abstract Patients with schizophrenia show increased striatal dopamine synthesis capacity in imaging studies. The mechanism underlying this is unclear but may be due to N-",
+        "evidence_locator": "PDF extraction snippet: in schizophrenia patients and were acquired using an equivalent PET imaging technique. It should be noted that we investigated dopamine synthesis capacity in the striatum and, alth",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-846bf49a01c7fdbb",
+      "external_id": "mech-7563e8ed11ccb575",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1523/jneurosci.4722-05.2006",
@@ -163,16 +167,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Several lines of evidence suggest that a hypoglutamatergic condition may induce a phenotypic loss of cortical parvalbumin (PV)-positive GABAergic interneurons, such as th",
+        "evidence_locator": "PDF extraction snippet: pClamp8 software package (Molecular Devices). The external recording solution was composed of the following (in m M): 155 NaCl, 3.5 KCl, 2 CaCl2, 1.5 MgSO4, 10 glucose, 10 HEPES, p",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-e7de6f5ce600b9fa",
+      "external_id": "mech-14a9f1b1f44532b5",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1038/s41593-023-01316-5",
@@ -196,12 +201,13 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Abstract Psychedelics produce fast and persistent antidepressant effects and induce neuroplasticity resembling the effects of clinically approved antidepressants. We rece",
+        "evidence_locator": "PDF extraction snippet: require intact TrkB signaling12,13, we set out to explore whether direct binding to TrkB might mediate the neuroplastic effects behind their therapeutic potential. Results Psychede",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
@@ -229,6 +235,7 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
@@ -238,106 +245,7 @@
       }
     },
     {
-      "external_id": "mech-e1147454d5ab3a00",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.1089/psymed.2023.0015",
-        "openalex_id": "",
-        "title": "Methylenedioxymethamphetamine (MDMA): History, Neurobiology, and Therapeutic Potential",
-        "authors": "Not available (DOI metadata unresolved)",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "MDMA",
-        "target": "DAT"
-      },
-      "properties": {
-        "assay_type": "uptake inhibition",
-        "affinity_type": "IC50",
-        "affinity_value": 17.0,
-        "affinity_unit": "uM",
-        "species": "human (in vitro)",
-        "system": "in_vitro",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "source_type": "primary_study",
-        "access_level": "secondary_summary",
-        "evidence_location": "table",
-        "evidence_locator": "Table (unspecified)",
-        "study_design": "in_vitro_uptake_assay",
-        "notes": "Table reports range 12-24 uM"
-      }
-    },
-    {
-      "external_id": "mech-e911a036885cc469",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.1089/psymed.2023.0015",
-        "openalex_id": "",
-        "title": "Methylenedioxymethamphetamine (MDMA): History, Neurobiology, and Therapeutic Potential",
-        "authors": "Not available (DOI metadata unresolved)",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "MDMA",
-        "target": "NET"
-      },
-      "properties": {
-        "assay_type": "uptake inhibition",
-        "affinity_type": "IC50",
-        "affinity_value": 0.447,
-        "affinity_unit": "uM",
-        "species": "human (in vitro)",
-        "system": "in_vitro",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "source_type": "primary_study",
-        "access_level": "secondary_summary",
-        "evidence_location": "table",
-        "evidence_locator": "Table (unspecified)",
-        "study_design": "in_vitro_uptake_assay",
-        "notes": "Table reports range 0.13-0.8 uM"
-      }
-    },
-    {
-      "external_id": "mech-a9df56e6d918e917",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.1089/psymed.2023.0015",
-        "openalex_id": "",
-        "title": "Methylenedioxymethamphetamine (MDMA): History, Neurobiology, and Therapeutic Potential",
-        "authors": "Not available (DOI metadata unresolved)",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "MDMA",
-        "target": "SERT"
-      },
-      "properties": {
-        "assay_type": "uptake inhibition",
-        "affinity_type": "IC50",
-        "affinity_value": 1.36,
-        "affinity_unit": "uM",
-        "species": "human (in vitro)",
-        "system": "in_vitro",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "source_type": "primary_study",
-        "access_level": "secondary_summary",
-        "evidence_location": "table",
-        "evidence_locator": "Table (unspecified)",
-        "study_design": "in_vitro_uptake_assay",
-        "notes": "Table reports range 0.83-2.1 uM"
-      }
-    },
-    {
-      "external_id": "mech-c86575c4679f0770",
+      "external_id": "mech-94c04f9bb0bf2c11",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1186/1471-2210-6-6",
@@ -361,16 +269,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Abstract Background The plasma membrane neurotransmitter transporters terminate neurotransmissions by the reuptake of the released neurotransmitters. The transporters for",
+        "evidence_locator": "PDF extraction snippet: Dawn D Han1 and Howard H Gu*1,2 Address: 1Department of Pharmacology, The Ohio State University College of Medicine, USA and 2Department of Psychiatry, The Ohio State University Co",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-09dbf31664fbd2cc",
+      "external_id": "mech-3247e49669b912a8",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1523/jneurosci.1171-11.2011",
@@ -394,16 +303,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: l -3,4-Dihydroxyphenylalanine ( l -DOPA) is the most effective treatment for Parkinson's disease, but long-term l -DOPA administration is marred by the emergence of motor",
+        "evidence_locator": "PDF extraction snippet: rters binding assays Receptor/transporter Brain tissue Radioligand (concentration) Nonspecific displacer Ionic conditions Incubation parameters 5-HT1A cerebral cortex [ 3H]-WAY-100",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-55564d5f5c9b0316",
+      "external_id": "mech-d1099678a0444725",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1523/jneurosci.4034-14.2015",
@@ -427,16 +337,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Serotonergic neurotransmission is terminated by reuptake of extracellular serotonin (5-HT) by the high-affinity serotonin transporter (SERT). Selective 5-HT reuptake inhi",
+        "evidence_locator": "PDF extraction snippet: 2011). Insights into the molecular underpinnings of amphet- amine action are therefore crucial for developing new strategies to treat and prevent amphetamine abuse. Here, we reexam",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-7a0643f11671145f",
+      "external_id": "mech-c7a438d74d5e29d8",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1186/1471-2210-6-6",
@@ -460,16 +371,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Abstract Background The plasma membrane neurotransmitter transporters terminate neurotransmissions by the reuptake of the released neurotransmitters. The transporters for",
+        "evidence_locator": "PDF extraction snippet: Dawn D Han1 and Howard H Gu*1,2 Address: 1Department of Pharmacology, The Ohio State University College of Medicine, USA and 2Department of Psychiatry, The Ohio State University Co",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-3043eb13eb0d3c5d",
+      "external_id": "mech-12ac07520b953406",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1523/jneurosci.1171-11.2011",
@@ -493,16 +405,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: l -3,4-Dihydroxyphenylalanine ( l -DOPA) is the most effective treatment for Parkinson's disease, but long-term l -DOPA administration is marred by the emergence of motor",
+        "evidence_locator": "PDF extraction snippet: rters binding assays Receptor/transporter Brain tissue Radioligand (concentration) Nonspecific displacer Ionic conditions Incubation parameters 5-HT1A cerebral cortex [ 3H]-WAY-100",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-08e5638b7f0edd63",
+      "external_id": "mech-aabede6567e1fb7d",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1523/jneurosci.4034-14.2015",
@@ -526,16 +439,17 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Serotonergic neurotransmission is terminated by reuptake of extracellular serotonin (5-HT) by the high-affinity serotonin transporter (SERT). Selective 5-HT reuptake inhi",
+        "evidence_locator": "PDF extraction snippet: 2011). Insights into the molecular underpinnings of amphet- amine action are therefore crucial for developing new strategies to treat and prevent amphetamine abuse. Here, we reexam",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
-      "external_id": "mech-64d36f0fc1017226",
+      "external_id": "mech-1395804b998e863e",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.1038/s41593-023-01316-5",
@@ -559,45 +473,13 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Abstract Psychedelics produce fast and persistent antidepressant effects and induce neuroplasticity resembling the effects of clinically approved antidepressants. We rece",
+        "evidence_locator": "PDF extraction snippet: require intact TrkB signaling12,13, we set out to explore whether direct binding to TrkB might mediate the neuroplastic effects behind their therapeutic potential. Results Psychede",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
-      }
-    },
-    {
-      "external_id": "mech-9ae037ed80708e76",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.1007/s00406-023-01571-4",
-        "openalex_id": "",
-        "title": "Esmethadone-HCl (REL-1017): a promising rapid antidepressant",
-        "authors": "Maurizio Fava; Stephen M. Stahl; Sara De Martin; Andrea Mattarei; Ezio Bettini; Stefano Comai; Andrea Alimonti; Francesco Bifari; Luca Pani; Franco Folli",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "R-ketamine",
-        "target": "NMDA receptor"
-      },
-      "properties": {
-        "assay_type": "functional assay",
-        "affinity_type": "IC50",
-        "affinity_value": 0.76,
-        "affinity_unit": "uM",
-        "species": "",
-        "system": "in_vitro",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Abstract This review article presents select recent studies that form the basis for the development of esmethadone into a potential new drug. Esmethadone is a promising m",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     },
     {
@@ -625,45 +507,13 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "abstract_only",
         "evidence_location": "abstract",
         "evidence_locator": "Abstract",
         "study_design": "in_vitro_binding_assay",
         "notes": "Ki reported for R-ketamine in abstract"
-      }
-    },
-    {
-      "external_id": "mech-63d8a29f8d0cedfc",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.1007/s00406-023-01571-4",
-        "openalex_id": "",
-        "title": "Esmethadone-HCl (REL-1017): a promising rapid antidepressant",
-        "authors": "Maurizio Fava; Stephen M. Stahl; Sara De Martin; Andrea Mattarei; Ezio Bettini; Stefano Comai; Andrea Alimonti; Francesco Bifari; Luca Pani; Franco Folli",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "target": "NMDA receptor"
-      },
-      "properties": {
-        "assay_type": "functional assay",
-        "affinity_type": "IC50",
-        "affinity_value": 0.76,
-        "affinity_unit": "uM",
-        "species": "",
-        "system": "in_vitro",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Abstract This review article presents select recent studies that form the basis for the development of esmethadone into a potential new drug. Esmethadone is a promising m",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
       }
     },
     {
@@ -691,6 +541,7 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
@@ -724,6 +575,7 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "abstract_only",
         "evidence_location": "abstract",
@@ -757,6 +609,7 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
@@ -766,7 +619,7 @@
       }
     },
     {
-      "external_id": "mech-86905a50088b9cf1",
+      "external_id": "mech-0c5ff7e2b50df812",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
         "doi": "10.12688/f1000research.14344.1",
@@ -790,12 +643,13 @@
         "source": "doi"
       },
       "provenance": {
+        "paper_type": "primary_results",
         "source_type": "primary_study",
         "access_level": "full_text_seen",
         "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: <ns4:p>Therapeutic medications for the treatment of depression have serious limitations, particularly delayed onset and low rates of efficacy. However, the discovery that",
+        "evidence_locator": "PDF extraction snippet: could find no evidence that (2R,6R)-HNK blocks NMDA receptors, including binding to known sites on the receptor complex or NMDA activ - ity in hippocampal slices, so the initial ce",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text"
       }
     }
   ]

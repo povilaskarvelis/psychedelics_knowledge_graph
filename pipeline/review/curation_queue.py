@@ -227,6 +227,9 @@ def main() -> int:
             one_of_groups=one_of_groups,
             allowed_keys=allowed_keys,
         )
+        if normalize(row.get("paper_type", "")) != "primary_results":
+            blocker_fields = sorted(set(blocker_fields) | {"paper_type"})
+            blockers.append({"field": "paper_type", "reason": "not_primary_results"})
         if blockers:
             blocked_indices.append(idx)
         else:

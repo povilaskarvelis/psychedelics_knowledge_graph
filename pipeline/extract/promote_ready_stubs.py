@@ -39,6 +39,7 @@ DATASET_CONFIG = {
             "study_title",
             "authors",
             "study_year",
+            "paper_type",
             "evidence_level",
             "source",
             "source_type",
@@ -62,6 +63,7 @@ DATASET_CONFIG = {
             "compound",
             "disorder",
             "outcome_type",
+            "result_direction",
             "outcome_measure",
             "population",
             "system",
@@ -70,6 +72,7 @@ DATASET_CONFIG = {
             "study_title",
             "authors",
             "study_year",
+            "paper_type",
             "evidence_level",
             "source",
             "source_type",
@@ -525,6 +528,12 @@ def main() -> int:
             one_of_groups=one_of_groups,
             allowed_keys=allowed_keys,
         )
+
+        paper_type = normalize(cleaned.get("paper_type", ""))
+        if paper_type != "primary_results":
+            row_errors.append(
+                f"paper_type `{paper_type or 'missing'}` is not promotable; only `primary_results` can enter curated claims"
+            )
 
         if row_errors:
             report["errors"].append(

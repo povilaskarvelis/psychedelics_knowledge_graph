@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+"""Move auto-demote cleanup candidates out of the main curated datasets."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, Iterable, List, Tuple
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+DATASETS = {
+    "mechanistic": {
+        "curated_json": ROOT / "data" / "curated" / "claims.json",
+        "curated_csv": ROOT / "data" / "curated" / "claims.csv",
+        "exploratory_json": ROOT / "data" / "curated" / "exploratory_claims.json",
+        "exploratory_csv": ROOT / "data" / "curated" / "exploratory_claims.csv",
+        "relation_key": "target",
+        "match_fields": [
+            "compound",
+            "target",
+            "study_title",
+            "study_doi",
+            "paper_type",
+            "source_type",
+            "evidence_level",
+            "access_level",
+        ],
+    },
+    "disorder": {
+        "curated_json": ROOT / "data" / "curated" / "disorder_claims.json",
+        "curated_csv": ROOT / "data" / "curated" / "disorder_claims.csv",
+        "exploratory_json": ROOT / "data" / "curated" / "exploratory_disorder_claims.json",
+        "exploratory_csv": ROOT / "data" / "curated" / "exploratory_disorder_claims.csv",
+        "relation_key": "disorder",
+        "match_fields": [
+            "compound",
+            "disorder",
+            "study_title",
+            "study_doi",
+            "paper_type",
+            "source_type",
+            "evidence_level",
+            "access_level",
+            "result_direction",
+        ],
+    },
+}
+
+EXPLORATORY_METADATA_FIELDS = [
+    "demoted_from",
+    "cleanup_bucket",
+    "recommended_action",
+    "cleanup_issues",
+    "original_row_index",
+    "demoted_at",
+]
+
+
+def normalize(value: object) -> str:
+    return str(value or "").strip()
+
+
+def slug(value: object) -> str:
+    return normalize(value).lower()
+
+
+def read_json_rows(path: Path) -> List[dict]:
+    return json.loads(path.read_text()) if path.exists() else []
+
+
+def write_json_rows(path: Path, rows: List[dict]) -> None:
+    path.write_text(json.dumps(rows, indent=2) + "\n")
+
+
+def write_csv_rows(path: Path, rows: List[dict], fieldnames: List[str]) -> None:
+    with path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: row.get(field, "") for field in fieldnames})
+
+
+def row_hash(row: dict, fields: Iterable[str]) -> str:
+    payload = {field: normalize(row.get(field, "")) for field in fields}
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha1(encoded.encode("utf-8")).hexdigest()[:12]
+
+
+def row_matches_candidate(row: dict, candidate: dict, fields: Iterable[str]) -> bool:
+    for field in fields:
+        if normalize(row.get(field, "")) != normalize(candidate.get(field, "")):
+            return False
+    return True
+
+
+def select_rows_for_demotion(rows: List[dict], candidates: List[dict], match_fields: List[str]) -> Tuple[List[int], List[dict]]:
+    selected_indexes: List[int] = []
+    selected_candidates: List[dict] = []
+
+    for candidate in candidates:
+        row_index = int(candidate["row_index"]) - 1
+        matches: List[int] = []
+
+        if 0 <= row_index < len(rows) and row_matches_candidate(rows[row_index], candidate, match_fields):
+            matches = [row_index]
+        else:
+            for idx, row in enumerate(rows):
+                if row_matches_candidate(row, candidate, match_fields):
+                    matches.append(idx)
+
+        if not matches:
+            continue
+        if len(matches) > 1:
+            raise RuntimeError(
+                "Ambiguous cleanup candidate match for row {row_index}: {study_title}".format(
+                    row_index=candidate["row_index"],
+                    study_title=candidate.get("study_title", ""),
+                )
+            )
+
+        selected_indexes.append(matches[0])
+        selected_candidates.append(candidate)
+
+    return selected_indexes, selected_candidates
+
+
+def merge_exploratory_rows(existing: List[dict], additions: List[dict], base_fields: List[str]) -> List[dict]:
+    merged = list(existing)
+    seen = {
+        row_hash(row, base_fields)
+        for row in existing
+    }
+
+    for row in additions:
+        key = row_hash(row, base_fields)
+        if key in seen:
+            continue
+        merged.append(row)
+        seen.add(key)
+
+    return merged
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--cleanup-json",
+        type=Path,
+        default=ROOT / "data" / "processed" / "cleanup_candidates.json",
+        help="Cleanup candidate JSON generated by build_cleanup_report.py",
+    )
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Write changes to the curated and exploratory files. Without this flag, print a dry-run summary only.",
+    )
+    parser.add_argument(
+        "--report-json",
+        type=Path,
+        default=ROOT / "data" / "processed" / "cleanup_apply_report.json",
+        help="Path to write the demotion report JSON when --apply is used.",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    cleanup_report = json.loads(args.cleanup_json.read_text())
+    demoted_at = datetime.now(timezone.utc).isoformat()
+
+    apply_report = {
+        "generated_at": demoted_at,
+        "cleanup_json": str(args.cleanup_json),
+        "datasets": {},
+    }
+
+    for dataset, config in DATASETS.items():
+        curated_rows = read_json_rows(config["curated_json"])
+        cleanup_dataset = cleanup_report["datasets"][dataset]
+        candidates = cleanup_dataset["auto_demote"]
+        match_fields = config["match_fields"]
+        relation_key = config["relation_key"]
+
+        selected_indexes, selected_candidates = select_rows_for_demotion(curated_rows, candidates, match_fields)
+        selected_index_set = set(selected_indexes)
+
+        remaining_rows: List[dict] = []
+        demoted_rows: List[dict] = []
+
+        selected_by_index = {index: candidate for index, candidate in zip(selected_indexes, selected_candidates)}
+        base_fields = list(curated_rows[0].keys()) if curated_rows else match_fields
+
+        for idx, row in enumerate(curated_rows):
+            if idx not in selected_index_set:
+                remaining_rows.append(row)
+                continue
+
+            candidate = selected_by_index[idx]
+            demoted = dict(row)
+            demoted["demoted_from"] = dataset
+            demoted["cleanup_bucket"] = "auto_demote"
+            demoted["recommended_action"] = normalize(candidate.get("recommended_action", ""))
+            demoted["cleanup_issues"] = "; ".join(candidate.get("issues", []))
+            demoted["original_row_index"] = int(candidate["row_index"])
+            demoted["demoted_at"] = demoted_at
+            demoted_rows.append(demoted)
+
+        exploratory_existing = read_json_rows(config["exploratory_json"])
+        exploratory_rows = merge_exploratory_rows(exploratory_existing, demoted_rows, base_fields)
+
+        apply_report["datasets"][dataset] = {
+            "curated_before": len(curated_rows),
+            "curated_after": len(remaining_rows),
+            "demoted_now": len(demoted_rows),
+            "exploratory_before": len(exploratory_existing),
+            "exploratory_after": len(exploratory_rows),
+            "sample": [
+                {
+                    "row_index": row["original_row_index"],
+                    "compound": normalize(row.get("compound", "")),
+                    relation_key: normalize(row.get(relation_key, "")),
+                    "study_title": normalize(row.get("study_title", "")),
+                    "paper_type": normalize(row.get("paper_type", "")),
+                    "evidence_level": normalize(row.get("evidence_level", "")),
+                }
+                for row in demoted_rows[:10]
+            ],
+        }
+
+        print(
+            f"{dataset}: curated {len(curated_rows)} -> {len(remaining_rows)}, "
+            f"demoted_now={len(demoted_rows)}, exploratory={len(exploratory_rows)}"
+        )
+
+        if not args.apply:
+            continue
+
+        write_json_rows(config["curated_json"], remaining_rows)
+        write_csv_rows(config["curated_csv"], remaining_rows, base_fields)
+
+        exploratory_fieldnames = base_fields + [
+            field for field in EXPLORATORY_METADATA_FIELDS if field not in base_fields
+        ]
+        write_json_rows(config["exploratory_json"], exploratory_rows)
+        write_csv_rows(config["exploratory_csv"], exploratory_rows, exploratory_fieldnames)
+
+    if args.apply:
+        args.report_json.write_text(json.dumps(apply_report, indent=2) + "\n")
+        print(f"wrote {args.report_json}")
+
+
+if __name__ == "__main__":
+    main()

@@ -45,6 +45,7 @@ In plain terms, this repository is a "paper-to-graph" assembly line:
 | "Draft structured evidence rows" | `pipeline/ingest/seed_from_dois.py` -> `data/processed/*_claim_stubs.json` |
 | "Fill draft rows from abstracts/PDFs" | `pipeline/review/autofill_*.py` scripts |
 | "Final curated claims used to build the graph" | `data/curated/claims.json` and `data/curated/disorder_claims.json` |
+| "Exploratory/demoted claims kept outside the main graph" | `data/curated/exploratory_claims.json` and `data/curated/exploratory_disorder_claims.json` |
 | "Graph view in browser" | `ui/` (reads curated/payload outputs) |
 | "Check data quality before export" | `pipeline/validate/validate_claims.py` |
 | "Export package for ORKG ingestion" | `pipeline/publish/export_orkg_payload.py` -> `data/processed/orkg_payload_*.json` |
@@ -102,7 +103,7 @@ Before running the pipeline, prepare these inputs:
 ## Repo Structure
 
 - `data/raw/`: source inputs and local PDFs
-- `data/curated/`: curated claims (CSV/JSON)
+- `data/curated/`: curated claims plus exploratory/demoted claims (CSV/JSON)
 - `data/processed/`: reports, stubs, validation, and payload outputs
 - `schema/`: JSON schemas and KG model
 - `pipeline/`: ingest, review, extract, validate, publish scripts

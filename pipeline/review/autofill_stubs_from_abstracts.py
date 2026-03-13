@@ -80,6 +80,40 @@ OUTCOME_MEASURE_PATTERNS = [
     ("relapse", "Relapse rate"),
 ]
 
+PROTOCOL_KEYWORDS = {
+    "study protocol",
+    "trial protocol",
+    "protocol for",
+    "protocol:",
+    "study design",
+}
+
+CONFERENCE_OR_POSTER_KEYWORDS = {
+    "poster abstract",
+    "poster abstracts",
+    "meeting abstract",
+    "meeting abstracts",
+    "annual meeting",
+    "scientific meeting",
+    "conference abstract",
+    "conference proceedings",
+    "psychopharmacology congress",
+    "supplement",
+}
+
+REVIEWISH_KEYWORDS = {
+    "systematic review",
+    "narrative review",
+    "scoping review",
+    "umbrella review",
+    "literature review",
+    "review article",
+    "rapid review",
+    "meta analysis",
+    "meta-analysis",
+    "pooled analysis",
+}
+
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -272,6 +306,50 @@ def infer_study_design(source_type: str, text_norm: str) -> str:
     return "pending_curation"
 
 
+def detect_paper_type(text_norm: str, dataset: str) -> str:
+    if any(normalize_text(kw) in text_norm for kw in CONFERENCE_OR_POSTER_KEYWORDS):
+        return "conference_or_poster_abstract"
+    if any(normalize_text(kw) in text_norm for kw in PROTOCOL_KEYWORDS):
+        return "protocol"
+    if any(normalize_text(kw) in text_norm for kw in REVIEWISH_KEYWORDS):
+        return "review"
+
+    primary_keywords = {
+        "randomized",
+        "placebo",
+        "double blind",
+        "double-blind",
+        "phase 2",
+        "phase 3",
+        "clinical trial",
+        "open label",
+        "open-label",
+        "participants",
+        "patients",
+    }
+    if dataset == "mechanistic":
+        primary_keywords = {
+            "binding",
+            "affinity",
+            "radioligand",
+            "assay",
+            "ic50",
+            "ec50",
+            "ki",
+            "kd",
+            "agonist",
+            "antagonist",
+            "receptor",
+            "transporter",
+            "in vitro",
+            "in vivo",
+        }
+    hits = [kw for kw in primary_keywords if normalize_text(kw) in text_norm]
+    if len(hits) >= 2:
+        return "primary_results"
+    return "other"
+
+
 def infer_evidence_level(source_type: str, study_design: str, text_norm: str, current: str) -> str:
     cur = normalize(current)
     if cur in {"high", "medium", "low"} and cur != "low":
@@ -319,6 +397,69 @@ def infer_outcome_type(disorder: str, text_norm: str, current: str) -> str:
     if "anxiety" in d or "distress associated with life-threatening disease" in d or "life-threatening disease" in d:
         return "no significant change in anxiety/depression symptoms" if negative else "reduces anxiety/depression symptoms"
     return "no significant clinical change" if negative else "improves clinical symptoms"
+
+
+def infer_result_direction(text_norm: str, outcome_type: str, current: str) -> str:
+    cur = normalize(current).lower()
+    if cur in {"positive", "null", "negative", "mixed", "unclear"}:
+        return cur
+
+    text = normalize_text(f"{normalize(outcome_type)} {normalize(text_norm)}")
+    has_null = any(
+        token in text
+        for token in {
+            "no significant",
+            "not significant",
+            "no difference",
+            "did not improve",
+            "did not reduce",
+            "not associated",
+            "no association",
+            "failed to show",
+        }
+    )
+    has_negative = any(
+        token in text
+        for token in {
+            "worsened",
+            "worsening",
+            "increased symptoms",
+            "greater severity",
+            "adverse effect",
+            "adverse effects",
+            "harmful",
+            "poorer outcome",
+            "poorer outcomes",
+        }
+    )
+    has_positive = any(
+        token in text
+        for token in {
+            "reduced symptoms",
+            "reduces",
+            "reduction",
+            "improved",
+            "improves",
+            "improvement",
+            "response",
+            "remission",
+            "abstinence",
+            "reduced drinking",
+            "reduced craving",
+            "decreased severity",
+            "supports smoking abstinence",
+        }
+    )
+
+    if sum([has_positive, has_null, has_negative]) >= 2:
+        return "mixed"
+    if has_null:
+        return "null"
+    if has_negative:
+        return "negative"
+    if has_positive:
+        return "positive"
+    return "unclear"
 
 
 def infer_outcome_measure(text_norm: str, current: str) -> str:
@@ -443,6 +584,10 @@ def main() -> int:
         abstract = normalize(paper.get("abstract", ""))
         text_norm = normalize_text(f"{title} {abstract}")
         source_type = normalize(new_row.get("source_type", ""))
+        inferred_paper_type = detect_paper_type(text_norm, args.dataset)
+        if normalize(new_row.get("paper_type", "")) != inferred_paper_type:
+            new_row["paper_type"] = inferred_paper_type
+            changed_fields.append("paper_type")
 
         # Generic metadata backfill.
         for key_stub, key_paper in (
@@ -481,10 +626,15 @@ def main() -> int:
                 changed_fields.append("evidence_locator")
 
         if args.dataset == "disorder":
-            inferred_outcome_type = infer_outcome_type(new_row.get("disorder", ""), text_norm, new_row.get("outcome_type", ""))
-            if inferred_outcome_type and normalize(new_row.get("outcome_type", "")) != inferred_outcome_type:
-                new_row["outcome_type"] = inferred_outcome_type
-                changed_fields.append("outcome_type")
+            if normalize(new_row.get("paper_type", "")) == "primary_results":
+                inferred_outcome_type = infer_outcome_type(
+                    new_row.get("disorder", ""),
+                    text_norm,
+                    new_row.get("outcome_type", ""),
+                )
+                if inferred_outcome_type and normalize(new_row.get("outcome_type", "")) != inferred_outcome_type:
+                    new_row["outcome_type"] = inferred_outcome_type
+                    changed_fields.append("outcome_type")
 
             inferred_measure = infer_outcome_measure(text_norm, new_row.get("outcome_measure", ""))
             if inferred_measure and normalize(new_row.get("outcome_measure", "")) != inferred_measure:
@@ -516,6 +666,19 @@ def main() -> int:
             if inferred_level and normalize(new_row.get("evidence_level", "")) != inferred_level:
                 new_row["evidence_level"] = inferred_level
                 changed_fields.append("evidence_level")
+
+            inferred_direction = (
+                infer_result_direction(
+                    text_norm=text_norm,
+                    outcome_type=normalize(new_row.get("outcome_type", "")),
+                    current=normalize(new_row.get("result_direction", "")),
+                )
+                if normalize(new_row.get("paper_type", "")) == "primary_results"
+                else "unclear"
+            )
+            if inferred_direction and normalize(new_row.get("result_direction", "")) != inferred_direction:
+                new_row["result_direction"] = inferred_direction
+                changed_fields.append("result_direction")
         else:
             inferred_assay = infer_mechanistic_assay_type(text_norm, new_row.get("assay_type", ""))
             if inferred_assay and normalize(new_row.get("assay_type", "")) != inferred_assay:
@@ -551,6 +714,10 @@ def main() -> int:
             one_of_groups=one_of_groups,
             allowed_keys=allowed_keys,
         )
+
+        if normalize(new_row.get("paper_type", "")) != "primary_results":
+            blocker_fields = sorted(set(blocker_fields) | {"paper_type"})
+            blockers.append({"field": "paper_type", "reason": "not_primary_results"})
 
         if args.mark_ready and not blockers:
             if normalize(new_row.get("stub_status", "")) != "ready_for_promotion":

@@ -84,10 +84,16 @@
             </div>
           </div>
           <div class="right-controls">
-            <label class="access-toggle" for="fullTextOnlyToggle">
-              <input id="fullTextOnlyToggle" type="checkbox" checked />
-              <span>Full text only</span>
-            </label>
+            <div class="filter-toggles" aria-label="Evidence filters">
+              <label class="access-toggle" for="primaryResultsOnlyToggle">
+                <input id="primaryResultsOnlyToggle" type="checkbox" checked />
+                <span>Primary results only</span>
+              </label>
+              <label class="access-toggle" for="fullTextOnlyToggle">
+                <input id="fullTextOnlyToggle" type="checkbox" checked />
+                <span>Full text only</span>
+              </label>
+            </div>
             <div class="legend" id="evidenceLegend" aria-label="Evidence legend">
               <span class="legend-item evidence-chip high" data-evidence="high" tabindex="0" role="button">High</span>
               <span class="legend-item evidence-chip medium" data-evidence="medium" tabindex="0" role="button">Medium</span>

@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-03-13T20:40:34.284789+00:00",
+  "cleanup_json": "/Users/frank/Library/CloudStorage/Dropbox/Agentic science/prototype/data/processed/cleanup_candidates.json",
+  "datasets": {
+    "mechanistic": {
+      "curated_before": 22,
+      "curated_after": 22,
+      "demoted_now": 0,
+      "exploratory_before": 11,
+      "exploratory_after": 11,
+      "sample": []
+    },
+    "disorder": {
+      "curated_before": 487,
+      "curated_after": 453,
+      "demoted_now": 34,
+      "exploratory_before": 235,
+      "exploratory_after": 269,
+      "sample": [
+        {
+          "row_index": 29,
+          "compound": "Psilocybin",
+          "disorder": "Alcohol use disorder",
+          "study_title": "The Emergence of Psilocybin in Psychiatry and Neuroscience",
+          "paper_type": "review",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 46,
+          "compound": "Psilocybin",
+          "disorder": "Treatment-resistant depression",
+          "study_title": "Transformative Therapies for Depression: Postpartum Depression, Major Depressive Disorder, and Treatment-Resistant Depression",
+          "paper_type": "review",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 47,
+          "compound": "Psilocybin",
+          "disorder": "Treatment-resistant depression",
+          "study_title": "Unraveling psilocybin\u2019s therapeutic potential: behavioral and neuroplasticity insights in Wistar-Kyoto and Wistar male rat models of treatment-resistant depression",
+          "paper_type": "other",
+          "evidence_level": "low"
+        },
+        {
+          "row_index": 48,
+          "compound": "Psilocybin",
+          "disorder": "Alcohol use disorder",
+          "study_title": "Who will staff the psychedelic resurgence?",
+          "paper_type": "other",
+          "evidence_level": "low"
+        },
+        {
+          "row_index": 49,
+          "compound": "S-ketamine",
+          "disorder": "Major depressive disorder",
+          "study_title": "A New Solution to an Age-old Problem: A Review of Ketamine and Esketamine for Treatment-resistant Depression in Late Life",
+          "paper_type": "review",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 66,
+          "compound": "S-ketamine",
+          "disorder": "Major depressive disorder",
+          "study_title": "Pharmacotherapies Targeting GABA-Glutamate Neurotransmission for Treatment-Resistant Depression",
+          "paper_type": "review",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 103,
+          "compound": "Psilocybin",
+          "disorder": "Treatment-resistant depression",
+          "study_title": "&lt;p&gt;Management of Treatment-Resistant Depression: Challenges and Strategies&lt;/p&gt;",
+          "paper_type": "review",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 153,
+          "compound": "S-ketamine",
+          "disorder": "Treatment-resistant depression",
+          "study_title": "Cost-Utility Analysis of Esketamine for Patients with Treatment-Resistant Depression in Italy",
+          "paper_type": "other",
+          "evidence_level": "low"
+        },
+        {
+          "row_index": 158,
+          "compound": "S-ketamine",
+          "disorder": "Treatment-resistant depression",
+          "study_title": "Esketamine in treatment-resistant depression patients comorbid with substance-use disorder: A viewpoint on its safety and effectiveness in a subsample of patients from the REAL-ESK study",
+          "paper_type": "review",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 174,
+          "compound": "Psilocybin",
+          "disorder": "Distress associated with life-threatening disease",
+          "study_title": "Psychedelic Treatment with Psilocybin: Addressing Medical Malpractice Risk and Physicians\u2019 Concerns",
+          "paper_type": "other",
+          "evidence_level": "low"
+        }
+      ]
+    }
+  }
+}

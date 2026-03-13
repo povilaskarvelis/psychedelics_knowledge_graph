@@ -5,6 +5,7 @@ const yearMaxFilter = document.getElementById("yearMaxFilter");
 const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
 const bibliographySearchInput = document.getElementById("bibliographySearchInput");
+const primaryResultsOnlyToggle = document.getElementById("primaryResultsOnlyToggle");
 const fullTextOnlyToggle = document.getElementById("fullTextOnlyToggle");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
@@ -85,7 +86,10 @@ function unique(values) {
 }
 
 function activeClaimsForMode() {
-  return mode === "mechanistic" ? claims : disorderClaims;
+  const baseClaims = mode === "mechanistic" ? claims : disorderClaims;
+  const primaryResultsOnly = Boolean(primaryResultsOnlyToggle?.checked);
+  if (!primaryResultsOnly) return baseClaims;
+  return baseClaims.filter((claim) => normalizeValue(claim.paper_type) === "primary_results");
 }
 
 function parseYearValue(raw) {
@@ -337,6 +341,42 @@ function badgeHtml(level) {
   return `<span class="badge ${safe}">${level || "low"} evidence</span>`;
 }
 
+function titleCaseFromSlug(value) {
+  return (value || "")
+    .toString()
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function paperTypeLabel(paperType) {
+  const normalized = normalizeValue(paperType);
+  if (normalized === "primary_results") return "Primary results";
+  if (normalized === "conference_or_poster_abstract") return "Conference/poster";
+  if (!normalized) return "Paper type unknown";
+  return titleCaseFromSlug(normalized);
+}
+
+function resultDirectionLabel(direction) {
+  const normalized = normalizeValue(direction);
+  if (!normalized) return "Unclear";
+  if (normalized === "null") return "Null finding";
+  return titleCaseFromSlug(normalized);
+}
+
+function paperTypeBadgeHtml(paperType) {
+  const normalized = normalizeValue(paperType) || "other";
+  const className = normalized.replace(/_/g, "-");
+  return `<span class="badge paper-type ${className}">${paperTypeLabel(normalized)}</span>`;
+}
+
+function resultDirectionBadgeHtml(direction) {
+  const normalized = normalizeValue(direction) || "unclear";
+  const className = normalized.replace(/_/g, "-");
+  return `<span class="badge direction ${className}">${resultDirectionLabel(normalized)}</span>`;
+}
+
 function setDetailHeader(title, subtitle) {
   detailTitle.textContent = title;
   detailSubtitle.textContent = subtitle;
@@ -547,6 +587,8 @@ function renderCards(data) {
           claim.study_title,
           claim.affinity_type,
           claim.outcome_type,
+          claim.result_direction,
+          claim.paper_type,
           claimAuthors(claim),
           claim.study_doi,
           claim.openalex_id,
@@ -564,9 +606,13 @@ function renderCards(data) {
     const card = document.createElement("div");
     card.className = "card";
 
-    const badge = `<span class="badge ${evidenceClass(claim.evidence_level)}">${
-      claim.evidence_level || "low"
-    } evidence</span>`;
+    const badges = [
+      badgeHtml(claim.evidence_level),
+      paperTypeBadgeHtml(claim.paper_type),
+      mode === "disorders" ? resultDirectionBadgeHtml(claim.result_direction) : "",
+    ]
+      .filter(Boolean)
+      .join("");
 
     const doiHref = doiUrl(claim.study_doi);
     const source = doiHref
@@ -582,22 +628,28 @@ function renderCards(data) {
       mode === "disorders"
         ? `<div>Outcome: ${claim.outcome_type || "reported"}${claim.outcome_measure ? ` • ${claim.outcome_measure}` : ""}</div>`
         : "";
+    const directionLine =
+      mode === "disorders"
+        ? `<div>Direction: <span class="meta-strong">${resultDirectionLabel(claim.result_direction)}</span></div>`
+        : "";
 
     card.innerHTML = `
       <div class="card-header">
         <h3>${relation}</h3>
-        ${badge}
+        <div class="badge-row">${badges}</div>
       </div>
       <div class="meta">
         ${
           mode === "mechanistic"
             ? `<div><strong>${claim.affinity_type}</strong>: ${claim.affinity_value} ${claim.affinity_unit}</div>
         <div>Assay: ${claim.assay_type}</div>`
-            : outcomeLine
+            : `${outcomeLine}
+        ${directionLine}`
         }
         <div>System: ${claim.system || "unknown"}</div>
         <div>${mode === "mechanistic" ? `Species: ${claim.species || "unknown"}` : `Population: ${claim.population || "unknown"}`}</div>
         <div>Study: ${claim.study_title || ""} (${claim.study_year || ""})</div>
+        <div>Paper type: ${paperTypeLabel(claim.paper_type)}</div>
         <div>Authors: ${authors || "not available"}</div>
         <div>${source}</div>
       </div>
@@ -778,6 +830,10 @@ function renderEdgeDetail(compound, target, edgeClaims) {
       const disorderMeasureLine = claim.outcome_measure
         ? `<div class="meta">Measure: ${claim.outcome_measure}</div>`
         : "";
+      const directionLine =
+        mode === "disorders"
+          ? `<div class="meta">Direction: ${resultDirectionLabel(claim.result_direction)}</div>`
+          : "";
       const detailSource = claim.study_doi
         ? `DOI: <a href="${doiUrl(claim.study_doi)}" target="_blank" rel="noopener noreferrer">${claim.study_doi}</a>`
         : claim.openalex_id
@@ -794,7 +850,8 @@ function renderEdgeDetail(compound, target, edgeClaims) {
         ${
           mode === "mechanistic"
             ? `<div class="meta">Assay: ${claim.assay_type}</div>`
-            : disorderMeasureLine
+            : `${disorderMeasureLine}
+        ${directionLine}`
         }
         <div class="meta">${
           mode === "mechanistic"
@@ -802,8 +859,13 @@ function renderEdgeDetail(compound, target, edgeClaims) {
             : `Population: ${claim.population || "unknown"} • System: ${claim.system || "unknown"}`
         }</div>
         <div class="meta">Study: ${claim.study_title || "Unknown"} (${claim.study_year || ""})</div>
+        <div class="meta">Paper type: ${paperTypeLabel(claim.paper_type)}</div>
         <div class="meta">${detailSource}</div>
-        ${badgeHtml(claim.evidence_level)}
+        <div class="badge-row">
+          ${badgeHtml(claim.evidence_level)}
+          ${paperTypeBadgeHtml(claim.paper_type)}
+          ${mode === "disorders" ? resultDirectionBadgeHtml(claim.result_direction) : ""}
+        </div>
       </div>
     `
     })
@@ -1404,6 +1466,7 @@ function mechanisticFromPayload(payload) {
       "",
     evidence_level: item?.properties?.evidence_level || "low",
     source: item?.properties?.source || "",
+    paper_type: item?.provenance?.paper_type || "",
     source_type: item?.provenance?.source_type || "",
     access_level: item?.provenance?.access_level || "",
     evidence_location: item?.provenance?.evidence_location || "",
@@ -1419,6 +1482,7 @@ function disorderFromPayload(payload) {
     compound: item?.resources?.compound || "",
     disorder: item?.resources?.disorder || "",
     outcome_type: item?.properties?.outcome_type || "",
+    result_direction: item?.properties?.result_direction || "",
     outcome_measure: item?.properties?.outcome_measure || "",
     population: item?.properties?.population || "",
     system: item?.properties?.system || "",
@@ -1434,6 +1498,7 @@ function disorderFromPayload(payload) {
       "",
     evidence_level: item?.properties?.evidence_level || "low",
     source: item?.properties?.source || "",
+    paper_type: item?.provenance?.paper_type || "",
     source_type: item?.provenance?.source_type || "",
     access_level: item?.provenance?.access_level || "",
     evidence_location: item?.provenance?.evidence_location || "",
@@ -1552,6 +1617,12 @@ if (bibliographySearchInput) {
 }
 if (fullTextOnlyToggle) {
   fullTextOnlyToggle.addEventListener("change", scheduleRender);
+}
+if (primaryResultsOnlyToggle) {
+  primaryResultsOnlyToggle.addEventListener("change", () => {
+    syncYearFilterControls(activeClaimsForMode());
+    scheduleRender();
+  });
 }
 clearSelectionBtn.addEventListener("click", clearSelection);
 if (evidenceLegend) {

@@ -196,6 +196,7 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "source": normalize(row.get("source", "")),
         },
         "provenance": {
+            "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
             "access_level": normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
@@ -223,6 +224,7 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
         },
         "properties": {
             "outcome_type": normalize(row.get("outcome_type", "")),
+            "result_direction": normalize(row.get("result_direction", "")),
             "outcome_measure": normalize(row.get("outcome_measure", "")),
             "population": normalize(row.get("population", "")),
             "system": normalize(row.get("system", "")),
@@ -230,6 +232,7 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "source": normalize(row.get("source", "")),
         },
         "provenance": {
+            "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
             "access_level": normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
@@ -270,7 +273,12 @@ def rows_for_view(rows: List[dict], view: str) -> List[dict]:
     if view == "all_evidence":
         return list(rows)
     if view == "primary_only":
-        return [row for row in rows if normalize(row.get("source_type", "")) == "primary_study"]
+        return [
+            row
+            for row in rows
+            if normalize(row.get("source_type", "")) == "primary_study"
+            and normalize(row.get("paper_type", "")) == "primary_results"
+        ]
     raise ValueError(f"Unsupported view: {view}")
 
 
