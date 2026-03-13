@@ -1,145 +1,121 @@
 # Psychedelics Knowledge Graph
 
-Provenance-aware literature pipeline and web interface for turning scientific
-papers into inspectable claims about psychedelics, mechanisms, and mental
-health outcomes.
+A provenance-aware literature pipeline and web interface for exploring
+structured claims about psychedelics, mechanisms, and mental health outcomes.
 
-[Open the live GUI](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/ui) |
-[Pipeline guide](pipeline/README.md) |
-[Evidence policy](docs/evidence_policy.md)
+[Live GUI](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/ui) |
+[Pipeline Guide](pipeline/README.md) |
+[Evidence Policy](docs/evidence_policy.md)
 
 ![Interface screenshot](ui/assets/gui-screenshot.png)
 
-## What This Repository Does
+## Overview
 
-This project turns a messy literature search problem into a structured,
-inspectable graph-building workflow.
+This repository builds a local literature corpus, sorts papers by relevance and
+evidence type, extracts structured claims, validates them, and publishes the
+result as a graph plus export files.
 
-At a high level it:
+The current focus is psychedelics. The workflow can be adapted to other
+scientific domains by changing the vocabularies, schemas, and search seeds.
 
-- searches for candidate papers
-- builds a local paper library with metadata and PDFs when available
-- sorts papers by relevance and evidence type
-- extracts structured claims with provenance
-- validates those claims and publishes them to a browser UI and ORKG-style
-  payloads
+## Agentic Science Context
 
-The current example domain is psychedelics, but the workflow is reusable for
-other scientific domains with different vocabularies and schemas.
+The project is a prototype for agentic science workflows. The pipeline gives an
+agent a concrete sequence of actions:
 
-## Why This Matters for Agentic Science
+- search the literature
+- assemble a working paper library
+- classify evidence strength and paper type
+- extract structured claims with provenance
+- publish the result in a form that a researcher can inspect
 
-Agentic science is not just about generating answers. It is about building
-systems that can search, decide, extract, and justify those decisions in a way
-that a human can inspect.
+The emphasis is on traceability. Claims are tied to papers, evidence locators,
+and validation rules rather than free-form summaries.
 
-This repository is a concrete prototype of that idea:
+## Workflow
 
-- the pipeline can search and triage literature at scale
-- claims keep provenance back to the source paper
-- weak evidence can be separated from countable evidence instead of silently
-  mixed into the main graph
-- the result is visible in a GUI rather than buried in notebooks or prompts
+### Literature Search
 
-In other words, this is a paper-to-graph workflow designed to support agentic
-reasoning over scientific evidence.
+Discovery scripts query literature APIs, generate DOI queues, and build a local
+paper library with titles, abstracts, access metadata, and PDFs when available.
 
-## How The Pipeline Works
+At the conceptual level:
 
-### 1. Literature Search
+- search is broad enough to support recall
+- the paper library becomes the working set for later triage and extraction
+- retrieval happens before strong evidence judgments are made
 
-The pipeline starts broad. It uses API-based discovery to generate candidate
-DOI queues and a local paper library covering titles, abstracts, access
-metadata, and PDFs when available.
+Technical note: search and sync live in `pipeline/ingest/` and write to
+`data/processed/paper_library_*.json` plus local PDFs under `data/raw/papers/`.
 
-Conceptually:
+### Sorting Papers
 
-- search is optimized for recall first
-- a paper can be found before we know whether it is strong evidence
-- the paper library becomes the local working set for later triage and
-  extraction
+Retrieved papers are classified by relevance and paper type. Current paper
+types include:
 
-Technical note: literature discovery and paper syncing live in
-`pipeline/ingest/` and write to `data/processed/paper_library_*.json` plus
-local PDFs under `data/raw/papers/`.
+- primary results
+- review or meta-analysis
+- protocol
+- conference or poster abstract
+- other
 
-### 2. Sorting and Evidence Gating
+Only primary results papers are admitted to the main curated claim set. Weaker
+material is retained separately in exploratory files so it stays visible
+without inflating the core graph.
 
-After retrieval, papers are sorted by relevance and document type. This is a
-critical step because not every paper that mentions a topic should count as
-main graph evidence.
+Technical note: the current implementation is mostly deterministic. It uses
+normalized titles, abstracts, metadata, and cleanup passes to assign
+`paper_type`, `source_type`, and evidence quality labels.
 
-The pipeline distinguishes between:
+### Claim Extraction
 
-- primary results papers
-- reviews and meta-analyses
-- protocols
-- conference or poster abstracts
-- other weak or non-countable sources
-
-Only primary results papers are allowed into the main curated claim set. Weaker
-rows are retained separately in exploratory files so they are still visible, but
-they do not silently inflate the core graph.
-
-Technical note: the current implementation is mostly deterministic and
-rule-based. It uses paper metadata, normalized title and abstract text, and
-cleanup passes to classify `paper_type`, `source_type`, and evidence quality.
-
-### 3. Claim Extraction
-
-Once papers are sorted, the pipeline seeds claim stubs from DOI queues and then
-fills structured fields from abstracts and PDFs.
-
-The extracted claims are intentionally simple and inspectable:
+The pipeline seeds claim stubs from DOI queues and fills structured fields from
+abstracts and PDFs.
 
 - mechanistic claims capture compound-target assay evidence
 - disorder claims capture compound-disorder outcome evidence
-- disorder rows also include a lightweight `result_direction` label
-  (`positive`, `null`, `negative`, `mixed`, `unclear`)
-- every row keeps a provenance locator back to text, table, figure, or abstract
+- disorder claims include a lightweight `result_direction` label:
+  `positive`, `null`, `negative`, `mixed`, `unclear`
+- each row keeps a provenance locator back to text, table, figure, or abstract
 
-Technical note: extraction today is still relatively conservative and
-schema-driven. The goal is not to produce fluent summaries, but to create rows
-that can be validated, audited, and later improved.
+The current extraction approach is schema-driven and conservative. The output is
+meant to be auditable and easy to improve over time.
 
-### 4. Validation, Graphing, and Export
+### Validation and Outputs
 
-Before publication, curated rows are validated against JSON schemas and
-evidence-policy checks. The outputs then feed:
+Curated rows are checked against JSON schemas and evidence-policy rules before
+publication.
 
-- the browser UI in `ui/`
+Main outputs:
+
+- browser interface in `ui/`
+- curated claim files in `data/curated/`
+- exploratory claim files for weak or demoted evidence
 - ORKG-style export payloads in `data/processed/orkg_payload_*.json`
 
 The GUI defaults to a stricter primary-results-only view and surfaces paper
-type and result direction so users can see evidence quality directly.
+type and result direction directly in the interface.
 
-## Data Model At A Glance
-
-- `data/curated/claims.json`: curated mechanistic claims
-- `data/curated/disorder_claims.json`: curated disorder claims
-- `data/curated/exploratory_*.json`: weak or demoted claims kept outside the
-  main evidence set
-- `data/processed/paper_library_*.json`: local paper metadata library
-- `data/processed/orkg_payload_*.json`: export payloads for downstream graph use
-
-## Minimal Repository Map
+## Repository Layout
 
 - `pipeline/ingest/`: discovery, paper sync, DOI seeding
 - `pipeline/review/`: triage and autofill
 - `pipeline/extract/`: promotion into curated claims
 - `pipeline/validate/`: validation, cleanup, and audit helpers
-- `pipeline/publish/`: ORKG export
+- `pipeline/publish/`: export
 - `schema/`: claim schemas and normalization rules
 - `ui/`: browser interface
+- `data/curated/`: main and exploratory claim sets
+- `data/processed/`: paper libraries, reports, stubs, and export payloads
 
-## Running The Pipeline
+## Quick Start
 
 Requirements:
 
 - Python 3.10+
 - standard library only
 
-Typical flow for one dataset:
+Example flow for one dataset:
 
 ```bash
 python pipeline/ingest/discover_literature.py --dataset disorder
@@ -150,4 +126,5 @@ python pipeline/extract/promote_ready_stubs.py --dataset disorder --apply
 python pipeline/publish/export_orkg_payload.py
 ```
 
-For the full operational walkthrough, see [pipeline/README.md](pipeline/README.md).
+For the operational walkthrough, command variants, and larger search runs, see
+[pipeline/README.md](pipeline/README.md).
