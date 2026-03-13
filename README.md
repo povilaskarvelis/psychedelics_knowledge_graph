@@ -18,20 +18,6 @@ result as a graph plus export files.
 The current focus is psychedelics. The workflow can be adapted to other
 scientific domains by changing the vocabularies, schemas, and search seeds.
 
-## Agentic Science Context
-
-The project is a prototype for agentic science workflows. The pipeline gives an
-agent a concrete sequence of actions:
-
-- search the literature
-- assemble a working paper library
-- classify evidence strength and paper type
-- extract structured claims with provenance
-- publish the result in a form that a researcher can inspect
-
-The emphasis is on traceability. Claims are tied to papers, evidence locators,
-and validation rules rather than free-form summaries.
-
 ## Workflow
 
 ### Literature Search
