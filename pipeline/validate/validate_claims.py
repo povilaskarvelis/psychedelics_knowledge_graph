@@ -16,6 +16,7 @@ from typing import Dict, Iterable, List, Tuple
 ROOT = Path(__file__).resolve().parents[2]
 DOI_RE = re.compile(r"^10\.\d{4,9}/\S+$", re.IGNORECASE)
 DISORDER_CANON_PATH = ROOT / "schema" / "disorder_canonicalization.json"
+ENTITY_REGISTRY_PATH = ROOT / "data" / "curated" / "entity_registry.json"
 TARGET_ALIASES = {
     "SERT": "SERT (SLC6A4)",
     "NET": "NET (SLC6A2)",
@@ -47,6 +48,42 @@ def load_csv_rows(path: Path) -> List[dict]:
 def load_schema(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def load_entity_registry(path: Path) -> Dict[str, set]:
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict):
+        return {}
+
+    out: Dict[str, set] = {}
+    for section in ["compounds", "targets", "disorders"]:
+        values = set()
+        entries = data.get(section, [])
+        if not isinstance(entries, list):
+            out[section] = values
+            continue
+        for entry in entries:
+            if isinstance(entry, str):
+                label = normalize_value(entry)
+                if label:
+                    values.add(label)
+                continue
+            if not isinstance(entry, dict):
+                continue
+            label = normalize_value(entry.get("label", "") or entry.get("name", ""))
+            if label:
+                values.add(label)
+            aliases = entry.get("aliases", [])
+            if isinstance(aliases, list):
+                for alias in aliases:
+                    alias_text = normalize_value(alias)
+                    if alias_text:
+                        values.add(alias_text)
+        out[section] = values
+    return out
 
 
 def parse_allowlists(path: Path) -> Dict[str, List[str]]:
@@ -151,6 +188,7 @@ def validate_dataset(
     rows: List[dict],
     schema: dict,
     allowlists: Dict[str, List[str]],
+    entity_registry: Dict[str, set],
 ) -> Tuple[List[str], List[str], Dict[str, object]]:
     errors: List[str] = []
     warnings: List[str] = []
@@ -165,6 +203,7 @@ def validate_dataset(
     evidence_counter = Counter()
     design_counter = Counter()
     result_direction_counter = Counter()
+    registry_missing_counter = Counter()
 
     dedupe_keys = [
         "compound",
@@ -218,6 +257,10 @@ def validate_dataset(
             allowed_targets = set(allowlists.get("allowed_targets", []))
             if allowed_targets and not is_allowed_with_alias(target, allowed_targets, TARGET_ALIASES):
                 errors.append(f"{row_label}: target `{target}` not in allowlist")
+            registered_targets = entity_registry.get("targets", set())
+            if registered_targets and target not in registered_targets:
+                warnings.append(f"{row_label}: target `{target}` not in entity registry")
+                registry_missing_counter["target"] += 1
 
         if dataset_name == "disorder":
             disorder = normalize_value(row.get("disorder", ""))
@@ -225,11 +268,19 @@ def validate_dataset(
             allowed_disorders = set(allowlists.get("allowed_disorders", []))
             if allowed_disorders and disorder_canonical not in allowed_disorders:
                 errors.append(f"{row_label}: disorder `{disorder}` not in allowlist")
+            registered_disorders = entity_registry.get("disorders", set())
+            if registered_disorders and disorder_canonical not in registered_disorders:
+                warnings.append(f"{row_label}: disorder `{disorder_canonical or disorder}` not in entity registry")
+                registry_missing_counter["disorder"] += 1
 
         compound = normalize_value(row.get("compound", ""))
         allowed_compounds = set(allowlists.get("allowed_compounds", []))
         if allowed_compounds and compound not in allowed_compounds:
             errors.append(f"{row_label}: compound `{compound}` not in allowlist")
+        registered_compounds = entity_registry.get("compounds", set())
+        if registered_compounds and compound not in registered_compounds:
+            warnings.append(f"{row_label}: compound `{compound}` not in entity registry")
+            registry_missing_counter["compound"] += 1
 
         access_level = normalize_value(row.get("access_level", ""))
         evidence_location = normalize_value(row.get("evidence_location", ""))
@@ -292,6 +343,7 @@ def validate_dataset(
         "evidence_level_counts": dict(evidence_counter),
         "study_design_counts": dict(design_counter),
         "result_direction_counts": dict(result_direction_counter) if dataset_name == "disorder" else {},
+        "entity_registry_missing_counts": dict(registry_missing_counter),
         "warnings_count": len(warnings),
         "errors_count": len(errors),
     }
@@ -342,10 +394,16 @@ def main() -> int:
         default=str(ROOT / "data" / "processed" / "validation_report.json"),
         help="Output path for machine-readable validation report",
     )
+    parser.add_argument(
+        "--entity-registry",
+        default=str(ENTITY_REGISTRY_PATH),
+        help="Optional entity registry JSON used for warning-level coverage checks",
+    )
     args = parser.parse_args()
 
     config_path = Path(args.config)
     report_path = Path(args.report)
+    entity_registry_path = Path(args.entity_registry)
 
     mechanistic_json_path = ROOT / "data" / "curated" / "claims.json"
     mechanistic_csv_path = ROOT / "data" / "curated" / "claims.csv"
@@ -355,6 +413,7 @@ def main() -> int:
     mechanistic_schema = load_schema(ROOT / "schema" / "claims.schema.json")
     disorder_schema = load_schema(ROOT / "schema" / "disorder_claims.schema.json")
     allowlists = parse_allowlists(config_path)
+    entity_registry = load_entity_registry(entity_registry_path)
 
     mech_json_rows = load_json_array(mechanistic_json_path)
     mech_csv_rows = load_csv_rows(mechanistic_csv_path)
@@ -362,10 +421,10 @@ def main() -> int:
     dis_csv_rows = load_csv_rows(disorder_csv_path)
 
     mech_errors, mech_warnings, mech_metrics = validate_dataset(
-        "mechanistic", mech_json_rows, mechanistic_schema, allowlists
+        "mechanistic", mech_json_rows, mechanistic_schema, allowlists, entity_registry
     )
     dis_errors, dis_warnings, dis_metrics = validate_dataset(
-        "disorder", dis_json_rows, disorder_schema, allowlists
+        "disorder", dis_json_rows, disorder_schema, allowlists, entity_registry
     )
 
     mech_cross_errors, mech_cross_warnings = compare_csv_json(
@@ -381,6 +440,10 @@ def main() -> int:
     report = {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "status": "ok" if not all_errors else "failed",
+        "inputs": {
+            "config": str(config_path),
+            "entity_registry": str(entity_registry_path),
+        },
         "datasets": {
             "mechanistic": {
                 "metrics": mech_metrics,

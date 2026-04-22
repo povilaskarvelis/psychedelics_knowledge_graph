@@ -1,0 +1,5739 @@
+{
+  "version": "0.1",
+  "dataset": "disorder",
+  "max_pairs": 200,
+  "pair_count": 200,
+  "supplement_count": 200,
+  "notes": [
+    "This plan intentionally does not add papers to the DOI queue.",
+    "ChEMBL/BindingDB/ClinicalTrials.gov outputs should be modeled as source-specific evidence.",
+    "Use this alongside DOI literature discovery and cite it in the run manifest."
+  ],
+  "supplements": [
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Obsessive-compulsive disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Obsessive-compulsive disorder",
+        "OCD"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Obsessive-compulsive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Eating disorders",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Eating disorders",
+        "eating disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Eating disorders",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Anorexia nervosa",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Anorexia nervosa"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Anorexia nervosa",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Autism spectrum disorder",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Autism spectrum disorder",
+        "autism",
+        "ASD"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Autism spectrum disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Demoralization",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Demoralization"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Demoralization",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Suicidal ideation",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Suicidal ideation",
+        "suicidality"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Suicidal ideation",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Cluster headache",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Cluster headache"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Cluster headache",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "LSD",
+      "disorder": "Chronic pain",
+      "compound_aliases": [
+        "LSD",
+        "lysergic acid diethylamide"
+      ],
+      "disorder_aliases": [
+        "Chronic pain"
+      ],
+      "planned_lookup": {
+        "query.intr": "LSD",
+        "query.cond": "Chronic pain",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Obsessive-compulsive disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Obsessive-compulsive disorder",
+        "OCD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Obsessive-compulsive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Eating disorders",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Eating disorders",
+        "eating disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Eating disorders",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Anorexia nervosa",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Anorexia nervosa"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Anorexia nervosa",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Autism spectrum disorder",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Autism spectrum disorder",
+        "autism",
+        "ASD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Autism spectrum disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Demoralization",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Demoralization"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Demoralization",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Suicidal ideation",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Suicidal ideation",
+        "suicidality"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Suicidal ideation",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Cluster headache",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Cluster headache"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Cluster headache",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocybin",
+      "disorder": "Chronic pain",
+      "compound_aliases": [
+        "Psilocybin"
+      ],
+      "disorder_aliases": [
+        "Chronic pain"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocybin",
+        "query.cond": "Chronic pain",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Obsessive-compulsive disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Obsessive-compulsive disorder",
+        "OCD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Obsessive-compulsive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Eating disorders",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Eating disorders",
+        "eating disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Eating disorders",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Anorexia nervosa",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Anorexia nervosa"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Anorexia nervosa",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Autism spectrum disorder",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Autism spectrum disorder",
+        "autism",
+        "ASD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Autism spectrum disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Demoralization",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Demoralization"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Demoralization",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Suicidal ideation",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Suicidal ideation",
+        "suicidality"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Suicidal ideation",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Cluster headache",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Cluster headache"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Cluster headache",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Psilocin",
+      "disorder": "Chronic pain",
+      "compound_aliases": [
+        "Psilocin",
+        "psilocyn"
+      ],
+      "disorder_aliases": [
+        "Chronic pain"
+      ],
+      "planned_lookup": {
+        "query.intr": "Psilocin",
+        "query.cond": "Chronic pain",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Obsessive-compulsive disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Obsessive-compulsive disorder",
+        "OCD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Obsessive-compulsive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Eating disorders",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Eating disorders",
+        "eating disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Eating disorders",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Anorexia nervosa",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Anorexia nervosa"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Anorexia nervosa",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Autism spectrum disorder",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Autism spectrum disorder",
+        "autism",
+        "ASD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Autism spectrum disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Demoralization",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Demoralization"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Demoralization",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Suicidal ideation",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Suicidal ideation",
+        "suicidality"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Suicidal ideation",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Cluster headache",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Cluster headache"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Cluster headache",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Mescaline",
+      "disorder": "Chronic pain",
+      "compound_aliases": [
+        "Mescaline"
+      ],
+      "disorder_aliases": [
+        "Chronic pain"
+      ],
+      "planned_lookup": {
+        "query.intr": "Mescaline",
+        "query.cond": "Chronic pain",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Obsessive-compulsive disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Obsessive-compulsive disorder",
+        "OCD"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Obsessive-compulsive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Eating disorders",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Eating disorders",
+        "eating disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Eating disorders",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Anorexia nervosa",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Anorexia nervosa"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Anorexia nervosa",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Autism spectrum disorder",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Autism spectrum disorder",
+        "autism",
+        "ASD"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Autism spectrum disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Demoralization",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Demoralization"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Demoralization",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Suicidal ideation",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Suicidal ideation",
+        "suicidality"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Suicidal ideation",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Cluster headache",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Cluster headache"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Cluster headache",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "DMT",
+      "disorder": "Chronic pain",
+      "compound_aliases": [
+        "DMT",
+        "N,N-dimethyltryptamine",
+        "dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Chronic pain"
+      ],
+      "planned_lookup": {
+        "query.intr": "DMT",
+        "query.cond": "Chronic pain",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Obsessive-compulsive disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Obsessive-compulsive disorder",
+        "OCD"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Obsessive-compulsive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Eating disorders",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Eating disorders",
+        "eating disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Eating disorders",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Anorexia nervosa",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Anorexia nervosa"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Anorexia nervosa",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Autism spectrum disorder",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Autism spectrum disorder",
+        "autism",
+        "ASD"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Autism spectrum disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Demoralization",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Demoralization"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Demoralization",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Suicidal ideation",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Suicidal ideation",
+        "suicidality"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Suicidal ideation",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Cluster headache",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Cluster headache"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Cluster headache",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "5-MeO-DMT",
+      "disorder": "Chronic pain",
+      "compound_aliases": [
+        "5-MeO-DMT",
+        "5-methoxy-N,N-dimethyltryptamine"
+      ],
+      "disorder_aliases": [
+        "Chronic pain"
+      ],
+      "planned_lookup": {
+        "query.intr": "5-MeO-DMT",
+        "query.cond": "Chronic pain",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Obsessive-compulsive disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Obsessive-compulsive disorder",
+        "OCD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Obsessive-compulsive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Eating disorders",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Eating disorders",
+        "eating disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Eating disorders",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Anorexia nervosa",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Anorexia nervosa"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Anorexia nervosa",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Autism spectrum disorder",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Autism spectrum disorder",
+        "autism",
+        "ASD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Autism spectrum disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Demoralization",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Demoralization"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Demoralization",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Suicidal ideation",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Suicidal ideation",
+        "suicidality"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Suicidal ideation",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Cluster headache",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Cluster headache"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Cluster headache",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Bufotenin",
+      "disorder": "Chronic pain",
+      "compound_aliases": [
+        "Bufotenin"
+      ],
+      "disorder_aliases": [
+        "Chronic pain"
+      ],
+      "planned_lookup": {
+        "query.intr": "Bufotenin",
+        "query.cond": "Chronic pain",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Treatment-resistant depression",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Treatment-resistant depression",
+        "TRD",
+        "resistant depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Treatment-resistant depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Major depressive disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Major depressive disorder",
+        "MDD",
+        "depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Major depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Bipolar depression",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Bipolar depression"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Bipolar depression",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Persistent depressive disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Persistent depressive disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Persistent depressive disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Post-traumatic stress disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Post-traumatic stress disorder",
+        "PTSD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Complex post-traumatic stress disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Complex post-traumatic stress disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Complex post-traumatic stress disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Alcohol use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Alcohol use disorder",
+        "AUD",
+        "alcohol dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Alcohol use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Tobacco use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Tobacco use disorder",
+        "smoking cessation",
+        "nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Tobacco use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Nicotine dependence",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Nicotine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Nicotine dependence",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Opioid use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Opioid use disorder",
+        "opioid dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Opioid use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Cannabis use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Cannabis use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Cannabis use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Cocaine use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Cocaine use disorder",
+        "cocaine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Cocaine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Methamphetamine use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Methamphetamine use disorder",
+        "methamphetamine dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Methamphetamine use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Stimulant use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Stimulant use disorder"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Stimulant use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Substance use disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Substance use disorder",
+        "drug dependence"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Substance use disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Generalized anxiety disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Generalized anxiety disorder",
+        "GAD"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Generalized anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Social anxiety disorder",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Social anxiety disorder",
+        "social anxiety"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Social anxiety disorder",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    },
+    {
+      "source": "ClinicalTrials.gov",
+      "role": "registered trial supplement",
+      "compound": "Ayahuasca",
+      "disorder": "Distress associated with life-threatening disease",
+      "compound_aliases": [
+        "Ayahuasca"
+      ],
+      "disorder_aliases": [
+        "Distress associated with life-threatening disease",
+        "life-threatening cancer",
+        "cancer anxiety",
+        "cancer depression",
+        "end-of-life anxiety",
+        "existential distress"
+      ],
+      "planned_lookup": {
+        "query.intr": "Ayahuasca",
+        "query.cond": "Distress associated with life-threatening disease",
+        "fields": [
+          "NCTId",
+          "BriefTitle",
+          "OverallStatus",
+          "Phases",
+          "Conditions",
+          "Interventions",
+          "PrimaryOutcomes",
+          "References"
+        ]
+      },
+      "output_expected": "trial registry evidence rows and linked publications"
+    }
+  ]
+}

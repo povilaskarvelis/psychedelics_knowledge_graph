@@ -87,6 +87,23 @@ def parse_statuses(raw: str) -> List[str]:
     return out
 
 
+def read_allowed_dois(path: Path) -> set[str]:
+    allowed: set[str] = set()
+    if not path.exists():
+        raise SystemExit(f"DOI filter file not found: {path}")
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        for row in csv.reader(handle):
+            if not row:
+                continue
+            first = normalize(row[0])
+            if not first or first.startswith("#"):
+                continue
+            doi = normalize_doi(first)
+            if doi:
+                allowed.add(doi.lower())
+    return allowed
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Retry PDF downloads for selected paper-library statuses")
     parser.add_argument("--dataset", choices=["mechanistic", "disorder"], required=True)
@@ -95,11 +112,29 @@ def main() -> int:
         default="download_failed,no_pdf_url,invalid_pdf_content,invalid_pdf_existing",
         help="Comma-separated pdf_download_status values to retry",
     )
+    parser.add_argument("--doi-file", default="", help="Optional DOI queue file limiting which rows can be retried")
     parser.add_argument("--limit", type=int, default=0, help="Optional max DOI rows to queue")
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
     parser.add_argument("--openalex-email", default="")
+    parser.add_argument("--openalex-api-key", default="")
     parser.add_argument("--openalex-rps", default="")
+    parser.add_argument("--ncbi-email", default="")
+    parser.add_argument("--ncbi-api-key", default="")
+    parser.add_argument("--pubmed-rps", default="")
+    parser.add_argument("--pmc-rps", default="")
+    parser.add_argument("--crossref-email", default="")
+    parser.add_argument("--crossref-rps", default="")
+    parser.add_argument("--unpaywall-email", default="")
+    parser.add_argument("--unpaywall-rps", default="")
+    parser.add_argument("--metadata-provider-order", default="")
     parser.add_argument("--max-retries", default="")
+    parser.add_argument("--timeout-sec", default="")
+    parser.add_argument("--max-retry-after-sec", default="")
+    parser.add_argument(
+        "--action-reason-contains",
+        default="",
+        help="Only retry rows whose action_reason contains this text",
+    )
     parser.add_argument("--progress-every", type=int, default=25)
     parser.add_argument("--queue-out", default="", help="Optional retry queue output path")
     parser.add_argument("--skip-sync", action="store_true", help="Only generate queue; do not run sync")
@@ -108,6 +143,7 @@ def main() -> int:
     statuses = set(parse_statuses(args.statuses))
     if not statuses:
         raise SystemExit("At least one retry status is required")
+    allowed_dois = read_allowed_dois(Path(args.doi_file).resolve()) if normalize(args.doi_file) else set()
 
     paper_db_json = ROOT / "data" / "processed" / f"paper_library_{args.dataset}.json"
     if not paper_db_json.exists():
@@ -120,7 +156,12 @@ def main() -> int:
         doi = normalize_doi(row.get("study_doi", ""))
         if not doi:
             continue
+        if allowed_dois and doi.lower() not in allowed_dois:
+            continue
         if normalize(row.get("pdf_download_status", "")) not in statuses:
+            continue
+        action_reason_filter = normalize(args.action_reason_contains).lower()
+        if action_reason_filter and action_reason_filter not in normalize(row.get("action_reason", "")).lower():
             continue
         key = doi.lower()
         if key in seen:
@@ -164,10 +205,34 @@ def main() -> int:
     ]
     if normalize(args.openalex_email):
         cmd.extend(["--openalex-email", normalize(args.openalex_email)])
+    if normalize(args.openalex_api_key):
+        cmd.extend(["--openalex-api-key", normalize(args.openalex_api_key)])
     if normalize(args.openalex_rps):
         cmd.extend(["--openalex-rps", normalize(args.openalex_rps)])
+    if normalize(args.ncbi_email):
+        cmd.extend(["--ncbi-email", normalize(args.ncbi_email)])
+    if normalize(args.ncbi_api_key):
+        cmd.extend(["--ncbi-api-key", normalize(args.ncbi_api_key)])
+    if normalize(args.pubmed_rps):
+        cmd.extend(["--pubmed-rps", normalize(args.pubmed_rps)])
+    if normalize(args.pmc_rps):
+        cmd.extend(["--pmc-rps", normalize(args.pmc_rps)])
+    if normalize(args.crossref_email):
+        cmd.extend(["--crossref-email", normalize(args.crossref_email)])
+    if normalize(args.crossref_rps):
+        cmd.extend(["--crossref-rps", normalize(args.crossref_rps)])
+    if normalize(args.unpaywall_email):
+        cmd.extend(["--unpaywall-email", normalize(args.unpaywall_email)])
+    if normalize(args.unpaywall_rps):
+        cmd.extend(["--unpaywall-rps", normalize(args.unpaywall_rps)])
+    if normalize(args.metadata_provider_order):
+        cmd.extend(["--metadata-provider-order", normalize(args.metadata_provider_order)])
     if normalize(args.max_retries):
         cmd.extend(["--max-retries", normalize(args.max_retries)])
+    if normalize(args.timeout_sec):
+        cmd.extend(["--timeout-sec", normalize(args.timeout_sec)])
+    if normalize(args.max_retry_after_sec):
+        cmd.extend(["--max-retry-after-sec", normalize(args.max_retry_after_sec)])
 
     print("Sync run: starting retry sync now...")
     proc = subprocess.run(cmd, cwd=ROOT, text=True)

@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Set
 
 ROOT = Path(__file__).resolve().parents[2]
+RECALL_STAGES = ("discovered", "triage", "paper_library", "with_local_pdf", "curated")
 
 
 def now_utc() -> str:
@@ -49,6 +50,30 @@ def read_known_dois(path: Path) -> List[str]:
             continue
         candidate = line.split(",", 1)[0].strip()
         doi = normalize_doi(candidate)
+        if not doi or doi in seen:
+            continue
+        seen.add(doi)
+        out.append(doi)
+    return out
+
+
+def read_benchmark_manifest(path: Path, dataset: str) -> List[str]:
+    if not path.exists():
+        raise FileNotFoundError(f"Benchmark manifest not found: {path}")
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    entries = payload.get("entries", []) if isinstance(payload, dict) else []
+    if not isinstance(entries, list):
+        return []
+
+    out: List[str] = []
+    seen: Set[str] = set()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        if normalize(entry.get("dataset", "")) != dataset:
+            continue
+        doi = normalize_doi(entry.get("doi", ""))
         if not doi or doi in seen:
             continue
         seen.add(doi)
@@ -124,20 +149,112 @@ def pct(found: int, total: int) -> float:
     return (found / total) * 100.0
 
 
+def threshold_percent(raw: str) -> float:
+    try:
+        value = float(raw)
+    except ValueError as err:
+        raise argparse.ArgumentTypeError(f"Expected percent threshold, got `{raw}`") from err
+    if value < 0 or value > 100:
+        raise argparse.ArgumentTypeError("Percent thresholds must be between 0 and 100")
+    return value
+
+
+def build_gate_report(
+    known_total: int,
+    coverage_percent: Dict[str, float],
+    thresholds: Dict[str, float],
+    fail_under_threshold: bool,
+) -> dict:
+    enabled = any(value > 0 for value in thresholds.values())
+    stage_results: Dict[str, dict] = {}
+    failed_stages: List[dict] = []
+
+    for stage in RECALL_STAGES:
+        threshold = thresholds.get(stage, 0.0)
+        coverage = coverage_percent.get(stage, 0.0)
+        threshold_enabled = threshold > 0
+        passed = not threshold_enabled or (known_total > 0 and coverage >= threshold)
+        if threshold_enabled and known_total == 0:
+            reason = "known_doi_file_empty"
+            status = "failed"
+        elif threshold_enabled and not passed:
+            reason = "below_threshold"
+            status = "failed"
+        elif threshold_enabled:
+            reason = ""
+            status = "passed"
+        else:
+            reason = ""
+            status = "not_checked"
+
+        stage_results[stage] = {
+            "coverage_percent": coverage,
+            "threshold_percent": threshold,
+            "status": status,
+            "reason": reason,
+        }
+        if status == "failed":
+            failed_stages.append(
+                {
+                    "stage": stage,
+                    "coverage_percent": coverage,
+                    "threshold_percent": threshold,
+                    "reason": reason,
+                }
+            )
+
+    if not enabled:
+        status = "not_enabled"
+    elif failed_stages:
+        status = "failed"
+    else:
+        status = "passed"
+
+    return {
+        "enabled": enabled,
+        "fail_under_threshold": fail_under_threshold,
+        "status": status,
+        "failed": bool(failed_stages),
+        "thresholds_percent": thresholds,
+        "stage_results": stage_results,
+        "failed_stages": failed_stages,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Recall audit for known relevant DOI benchmark set")
     parser.add_argument("--dataset", choices=["mechanistic", "disorder"], required=True)
-    parser.add_argument("--known-doi-file", required=True, help="Plain-text list of known relevant DOIs")
+    parser.add_argument(
+        "--known-doi-file",
+        default="",
+        help="Plain-text list of known relevant DOIs; overrides --benchmark-manifest when provided",
+    )
+    parser.add_argument(
+        "--benchmark-manifest",
+        default=str(ROOT / "data" / "raw" / "benchmark_manifest.json"),
+        help="Structured benchmark manifest used when --known-doi-file is omitted",
+    )
     parser.add_argument("--discovered-queue", default="", help="Optional override for discovered queue path")
     parser.add_argument("--triage-queue", default="", help="Optional override for triage queue path")
     parser.add_argument("--paper-library", default="", help="Optional override for paper library JSON")
     parser.add_argument("--curated", default="", help="Optional override for curated claims JSON")
     parser.add_argument("--report-out", default="", help="JSON report path")
     parser.add_argument("--csv-out", default="", help="CSV report path")
+    parser.add_argument("--min-discovered", type=threshold_percent, default=0.0)
+    parser.add_argument("--min-triage", type=threshold_percent, default=0.0)
+    parser.add_argument("--min-paper-library", type=threshold_percent, default=0.0)
+    parser.add_argument("--min-local-pdf", type=threshold_percent, default=0.0)
+    parser.add_argument("--min-curated", type=threshold_percent, default=0.0)
+    parser.add_argument(
+        "--fail-under-threshold",
+        action="store_true",
+        help="Exit non-zero when any enabled recall threshold is missed",
+    )
     args = parser.parse_args()
 
     dataset = args.dataset
-    known_doi_file = Path(args.known_doi_file).resolve()
+    known_doi_file = Path(args.known_doi_file).resolve() if args.known_doi_file else None
+    benchmark_manifest = Path(args.benchmark_manifest).resolve()
     discovered_queue = (
         Path(args.discovered_queue).resolve()
         if args.discovered_queue
@@ -174,7 +291,12 @@ def main() -> int:
         else ROOT / "data" / "processed" / f"recall_audit_{dataset}.csv"
     )
 
-    known_dois = read_known_dois(known_doi_file)
+    if known_doi_file:
+        known_dois = read_known_dois(known_doi_file)
+        benchmark_source = "known_doi_file"
+    else:
+        known_dois = read_benchmark_manifest(benchmark_manifest, dataset)
+        benchmark_source = "benchmark_manifest"
     known_set = set(known_dois)
     discovered_set = read_queue_dois(discovered_queue)
     triage_set = read_queue_dois(triage_queue)
@@ -207,12 +329,34 @@ def main() -> int:
     library_hits = sum(1 for doi in known_set if doi in library_map)
     with_pdf_hits = sum(1 for doi in known_set if normalize(library_map.get(doi, {}).get("pdf_local_path", "")))
     curated_hits = sum(1 for doi in known_set if doi in curated_set)
+    coverage_percent = {
+        "discovered": round(pct(discovered_hits, known_total), 2),
+        "triage": round(pct(triage_hits, known_total), 2),
+        "paper_library": round(pct(library_hits, known_total), 2),
+        "with_local_pdf": round(pct(with_pdf_hits, known_total), 2),
+        "curated": round(pct(curated_hits, known_total), 2),
+    }
+    thresholds = {
+        "discovered": args.min_discovered,
+        "triage": args.min_triage,
+        "paper_library": args.min_paper_library,
+        "with_local_pdf": args.min_local_pdf,
+        "curated": args.min_curated,
+    }
+    gate = build_gate_report(
+        known_total=known_total,
+        coverage_percent=coverage_percent,
+        thresholds=thresholds,
+        fail_under_threshold=args.fail_under_threshold,
+    )
 
     report = {
         "generated_at_utc": now_utc(),
         "dataset": dataset,
         "inputs": {
-            "known_doi_file": str(known_doi_file),
+            "benchmark_source": benchmark_source,
+            "known_doi_file": str(known_doi_file) if known_doi_file else "",
+            "benchmark_manifest": str(benchmark_manifest),
             "discovered_queue": str(discovered_queue),
             "triage_queue": str(triage_queue),
             "paper_library": str(paper_library),
@@ -226,13 +370,8 @@ def main() -> int:
             "with_local_pdf_hits": with_pdf_hits,
             "curated_hits": curated_hits,
         },
-        "coverage_percent": {
-            "discovered": round(pct(discovered_hits, known_total), 2),
-            "triage": round(pct(triage_hits, known_total), 2),
-            "paper_library": round(pct(library_hits, known_total), 2),
-            "with_local_pdf": round(pct(with_pdf_hits, known_total), 2),
-            "curated": round(pct(curated_hits, known_total), 2),
-        },
+        "coverage_percent": coverage_percent,
+        "gate": gate,
         "missing": {
             "discovered": sorted([doi for doi in known_set if doi not in discovered_set]),
             "triage": sorted([doi for doi in known_set if doi not in triage_set]),
@@ -270,14 +409,28 @@ def main() -> int:
         writer.writerows(rows)
 
     print(f"Dataset: {dataset}")
+    print(f"Benchmark source: {benchmark_source}")
     print(f"Known DOIs: {known_total}")
     print(f"In discovered queue: {discovered_hits}")
     print(f"In triage queue: {triage_hits}")
     print(f"In paper library: {library_hits}")
     print(f"With local PDF: {with_pdf_hits}")
     print(f"In curated claims: {curated_hits}")
+    if gate["enabled"]:
+        print(f"Recall gate: {gate['status']}")
+        for stage in RECALL_STAGES:
+            result = gate["stage_results"][stage]
+            threshold = result["threshold_percent"]
+            if threshold <= 0:
+                continue
+            print(
+                f"  {stage}: {result['coverage_percent']}% "
+                f"(threshold {threshold}%) - {result['status']}"
+            )
     print(f"Report JSON: {report_out}")
     print(f"Report CSV: {csv_out}")
+    if gate["failed"] and args.fail_under_threshold:
+        return 1
     return 0
 
 

@@ -401,7 +401,7 @@ def infer_outcome_type(disorder: str, text_norm: str, current: str) -> str:
 
 def infer_result_direction(text_norm: str, outcome_type: str, current: str) -> str:
     cur = normalize(current).lower()
-    if cur in {"positive", "null", "negative", "mixed", "unclear"}:
+    if cur in {"positive", "null", "negative", "mixed"}:
         return cur
 
     text = normalize_text(f"{normalize(outcome_type)} {normalize(text_norm)}")

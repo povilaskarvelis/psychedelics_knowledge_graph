@@ -3,6 +3,7 @@ orkg:
   api_key: ""
 
 openalex:
+  api_key: ""
   email: ""
   rate_limit_per_sec: 2.0
 
@@ -10,6 +11,22 @@ semantic_scholar:
   api_key: ""
   rate_limit_per_sec: 0.33
   max_retries: 4
+
+pubmed:
+  email: ""
+  api_key: ""
+  rate_limit_per_sec: 2.5
+
+pmc:
+  rate_limit_per_sec: 2.5
+
+crossref:
+  email: ""
+  rate_limit_per_sec: 5.0
+
+unpaywall:
+  email: ""
+  rate_limit_per_sec: 2.0
 
 validation:
   allowed_targets:

@@ -1,0 +1,208 @@
+{
+  "version": "0.1",
+  "description": "Starter recall benchmark for the psychedelics knowledge graph retrieval pipeline. This is a transparent smoke-test set, not a final systematic gold standard.",
+  "selection_policy": [
+    "Seeded from currently curated or intentionally selected landmark papers already known to the project.",
+    "Used for search tuning and regression detection, so it should not be treated as an unbiased performance estimate.",
+    "Expand with stratified recall and holdout challenge tiers before using the score as a defensible pipeline-quality claim."
+  ],
+  "tiers": {
+    "landmark_must_find": "Small set of canonical papers that any production retrieval pass should recover.",
+    "stratified_recall": "Future tier for sampled papers by compound, target or disorder, study type, database source, date range, and access status.",
+    "holdout_challenge": "Future locked tier selected independently of pipeline tuning."
+  },
+  "entries": [
+    {
+      "doi": "10.1038/s41593-023-01316-5",
+      "dataset": "mechanistic",
+      "title": "Psychedelics promote plasticity by directly binding to BDNF receptor TrkB",
+      "year": "2023",
+      "compound": "LSD",
+      "target": "TrkB",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1186/1471-2210-6-6",
+      "dataset": "mechanistic",
+      "title": "Comparison of the monoamine transporters from human and mouse in their sensitivities to psychostimulant drugs",
+      "year": "2006",
+      "compound": "MDMA",
+      "target": "SERT (SLC6A4)",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1523/jneurosci.4034-14.2015",
+      "dataset": "mechanistic",
+      "title": "Amphetamine action at the cocaine- and antidepressant-sensitive serotonin transporter is modulated by alphaCaMKII",
+      "year": "2015",
+      "compound": "MDMA",
+      "target": "SERT (SLC6A4)",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1523/jneurosci.1171-11.2011",
+      "dataset": "mechanistic",
+      "title": "Characterization of 3,4-methylenedioxymethamphetamine (MDMA) enantiomers in vitro and in the MPTP-lesioned primate",
+      "year": "2011",
+      "compound": "MDMA",
+      "target": "SERT (SLC6A4)",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1016/s0014-2999(97)01116-3",
+      "dataset": "mechanistic",
+      "title": "Norketamine is a noncompetitive antagonist at the NMDA receptor",
+      "year": "1997",
+      "compound": "Ketamine",
+      "target": "NMDA receptor",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1007/s00213-011-2616-6",
+      "dataset": "mechanistic",
+      "title": "Behavioral effects of alpha,alpha,beta,beta-tetradeutero-5-MeO-DMT in rats",
+      "year": "2012",
+      "compound": "5-MeO-DMT",
+      "target": "5-HT1A",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1056/nejmoa2206443",
+      "dataset": "disorder",
+      "title": "Single-dose psilocybin for a treatment-resistant episode of major depression",
+      "year": "2022",
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1001/jama.2023.14530",
+      "dataset": "disorder",
+      "title": "Single-dose psilocybin treatment for major depressive disorder",
+      "year": "2023",
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1001/jamapsychiatry.2020.3285",
+      "dataset": "disorder",
+      "title": "Effects of psilocybin-assisted therapy on major depressive disorder",
+      "year": "2021",
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1001/jamapsychiatry.2022.2096",
+      "dataset": "disorder",
+      "title": "Percentage of heavy drinking days following psilocybin-assisted psychotherapy vs placebo in alcohol use disorder",
+      "year": "2022",
+      "compound": "Psilocybin",
+      "disorder": "Alcohol use disorder",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1177/0269881116675512",
+      "dataset": "disorder",
+      "title": "Rapid and sustained symptom reduction following psilocybin treatment for anxiety and depression in patients with life-threatening cancer",
+      "year": "2016",
+      "compound": "Psilocybin",
+      "disorder": "distress associated with life-threatening disease",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1177/0269881116675513",
+      "dataset": "disorder",
+      "title": "Psilocybin produces substantial and sustained decreases in depression and anxiety in patients with life-threatening cancer",
+      "year": "2016",
+      "compound": "Psilocybin",
+      "disorder": "distress associated with life-threatening disease",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1038/s41591-021-01336-3",
+      "dataset": "disorder",
+      "title": "MDMA-assisted therapy for severe PTSD",
+      "year": "2021",
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1038/s41591-023-02565-4",
+      "dataset": "disorder",
+      "title": "MDMA-assisted therapy for moderate to severe PTSD",
+      "year": "2023",
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "PMC", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1016/s2215-0366(18)30135-4",
+      "dataset": "disorder",
+      "title": "MDMA-assisted psychotherapy for treatment of PTSD in military veterans, firefighters, and police officers",
+      "year": "2018",
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "Crossref", "OpenAlex", "Semantic Scholar"]
+    },
+    {
+      "doi": "10.1017/s0033291718001356",
+      "dataset": "disorder",
+      "title": "Rapid antidepressant effects of the psychedelic ayahuasca in treatment-resistant depression",
+      "year": "2018",
+      "compound": "Ayahuasca",
+      "disorder": "Treatment-resistant depression",
+      "tier": "landmark_must_find",
+      "source": "existing_curated_landmark_seed",
+      "tuning_status": "tuning",
+      "expected_sources": ["PubMed", "Crossref", "OpenAlex", "Semantic Scholar"]
+    }
+  ]
+}

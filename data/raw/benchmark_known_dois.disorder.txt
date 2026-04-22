@@ -1,5 +1,12 @@
-# Add one DOI per line for known disorder/clinical "must-find" papers.
-# Example:
-# 10.1056/NEJMoa2206443
-# 10.1176/appi.ajp.2021.21060664
-
+# Known disorder/clinical "must-find" DOI benchmark.
+# Seeded from currently curated landmark clinical rows; expand as the protocol matures.
+10.1056/nejmoa2206443
+10.1001/jama.2023.14530
+10.1001/jamapsychiatry.2020.3285
+10.1001/jamapsychiatry.2022.2096
+10.1177/0269881116675512
+10.1177/0269881116675513
+10.1038/s41591-021-01336-3
+10.1038/s41591-023-02565-4
+10.1016/s2215-0366(18)30135-4
+10.1017/s0033291718001356

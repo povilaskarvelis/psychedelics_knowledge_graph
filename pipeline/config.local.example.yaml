@@ -1,0 +1,34 @@
+# Copy this file to pipeline/config.local.yaml and fill in local credentials.
+# pipeline/config.local.yaml is ignored by git.
+#
+# Keep real keys out of pipeline/config.example.yaml.
+
+openalex:
+  # Required for OpenAlex API access.
+  api_key: ""
+  rate_limit_per_sec: 2.0
+
+semantic_scholar:
+  # Optional but recommended for reliability.
+  api_key: ""
+  rate_limit_per_sec: 0.33
+  max_retries: 4
+
+pubmed:
+  # Email is recommended by NCBI. API key is optional but raises rate limits.
+  email: "your_real_email@domain.org"
+  api_key: ""
+  rate_limit_per_sec: 2.5
+
+pmc:
+  rate_limit_per_sec: 2.5
+
+crossref:
+  # Recommended for Crossref polite pool.
+  email: "your_real_email@domain.org"
+  rate_limit_per_sec: 5.0
+
+unpaywall:
+  # Required by Unpaywall API.
+  email: "your_real_email@domain.org"
+  rate_limit_per_sec: 2.0

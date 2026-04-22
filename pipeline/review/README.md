@@ -26,6 +26,16 @@ Triage also writes a filtered DOI queue (default):
   - `contexts`: matched contexts used for downstream queue/stub mapping.
   - `contexts_all`: all original discovery contexts for traceability.
 
+Triage is recall-safe by default:
+- Benchmark-manifest and curated-claim DOI contexts are protected so known
+  relevant papers do not silently fall out of the PDF queue.
+- When discovery context is stale, triage can synthesize a new context from
+  title/abstract matches against allowed compounds and targets/disorders.
+- The report records `screening_status`, `triage_rescue_reasons`,
+  `synthesized_context_count`, and `protected_context_count`.
+- Disable these safeguards only for audits:
+  `--no-protected-rescue` or `--no-synthesize-contexts`.
+
 For disorder workflows, overlapping labels are normalized downstream during
 stub creation/promotion so graph nodes stay canonical
 (`End-of-life anxiety` -> `distress associated with life-threatening disease`).

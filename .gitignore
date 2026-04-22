@@ -1,5 +1,13 @@
 # macOS
 .DS_Store
 
+# Local environment / secrets
+.env
+.env.*
+*.env
+!.env.example
+pipeline/config.local.yaml
+pipeline/config.*.local.yaml
+
 # Local paper library downloads (large binary assets)
 data/raw/papers/

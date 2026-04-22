@@ -1,0 +1,14 @@
+{
+  "generated_at_utc": "2026-04-20T16:01:59.603062+00:00",
+  "dataset": "mechanistic",
+  "ledger": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/discovery_ledger_mechanistic.json",
+  "queue_out": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.discovered.txt",
+  "report_out": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/discovery_queue_export_mechanistic.json",
+  "ledger_rows_considered": 8838,
+  "previous_retained_rows": 8000,
+  "exported_rows": 8838,
+  "recovered_rows_over_previous_retained": 838,
+  "max_results": 0,
+  "include_history": false,
+  "preserve_current_order": true
+}

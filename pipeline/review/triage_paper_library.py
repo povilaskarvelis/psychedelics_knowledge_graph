@@ -20,6 +20,7 @@ DATASET_CONFIG = {
         "paper_db_json": ROOT / "data" / "processed" / "paper_library_mechanistic.json",
         "stubs_json": ROOT / "data" / "processed" / "mechanistic_claim_stubs.json",
         "stubs_csv": ROOT / "data" / "processed" / "mechanistic_claim_stubs.csv",
+        "curated_json": ROOT / "data" / "curated" / "claims.json",
         "entity_key": "target",
         "allowlist_key": "allowed_targets",
     },
@@ -27,6 +28,7 @@ DATASET_CONFIG = {
         "paper_db_json": ROOT / "data" / "processed" / "paper_library_disorder.json",
         "stubs_json": ROOT / "data" / "processed" / "disorder_claim_stubs.json",
         "stubs_csv": ROOT / "data" / "processed" / "disorder_claim_stubs.csv",
+        "curated_json": ROOT / "data" / "curated" / "disorder_claims.json",
         "entity_key": "disorder",
         "allowlist_key": "allowed_disorders",
     },
@@ -444,6 +446,108 @@ def load_json_array(path: Path) -> List[dict]:
     return data
 
 
+def context_identity(ctx: dict) -> Tuple[str, str]:
+    return (
+        normalize(ctx.get("compound", "")).lower(),
+        normalize(ctx.get("entity", "")).lower(),
+    )
+
+
+def normalize_context(ctx: dict, source: str = "") -> dict:
+    out = {
+        "compound": normalize(ctx.get("compound", "")),
+        "entity": normalize(ctx.get("entity", "")),
+    }
+    if normalize(ctx.get("compound_match", "")):
+        out["compound_match"] = normalize(ctx.get("compound_match", ""))
+    if normalize(ctx.get("entity_match", "")):
+        out["entity_match"] = normalize(ctx.get("entity_match", ""))
+    match_source = normalize(ctx.get("triage_match_source", "")) or source
+    if match_source:
+        out["triage_match_source"] = match_source
+    return out
+
+
+def dedupe_contexts(contexts: Iterable[dict]) -> List[dict]:
+    out: List[dict] = []
+    seen = set()
+    for ctx in contexts:
+        if not isinstance(ctx, dict):
+            continue
+        normalized = normalize_context(ctx)
+        compound, entity = context_identity(normalized)
+        if not compound or not entity:
+            continue
+        key = (
+            compound,
+            entity,
+            normalize(normalized.get("triage_match_source", "")).lower(),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(normalized)
+    return out
+
+
+def merge_context_maps(*maps: Dict[str, List[dict]]) -> Dict[str, List[dict]]:
+    merged: Dict[str, List[dict]] = {}
+    for mapping in maps:
+        for doi, contexts in mapping.items():
+            if not doi:
+                continue
+            merged[doi] = dedupe_contexts(merged.get(doi, []) + contexts)
+    return merged
+
+
+def load_benchmark_contexts(path: Path, dataset: str, entity_key: str) -> Dict[str, List[dict]]:
+    if not path.exists():
+        return {}
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    entries = payload.get("entries", []) if isinstance(payload, dict) else []
+    if not isinstance(entries, list):
+        return {}
+
+    out: Dict[str, List[dict]] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        if normalize(entry.get("dataset", "")) != dataset:
+            continue
+        doi = normalize_doi(entry.get("doi", "")).lower()
+        compound = normalize(entry.get("compound", ""))
+        entity = normalize(entry.get(entity_key, ""))
+        if not doi or not compound or not entity:
+            continue
+        out.setdefault(doi, []).append(
+            {
+                "compound": compound,
+                "entity": entity,
+                "triage_match_source": "protected_benchmark",
+            }
+        )
+    return {doi: dedupe_contexts(contexts) for doi, contexts in out.items()}
+
+
+def load_curated_contexts(path: Path, entity_key: str) -> Dict[str, List[dict]]:
+    out: Dict[str, List[dict]] = {}
+    for row in load_json_array(path):
+        doi = normalize_doi(row.get("study_doi", "")).lower()
+        compound = normalize(row.get("compound", ""))
+        entity = normalize(row.get(entity_key, ""))
+        if not doi or not compound or not entity:
+            continue
+        out.setdefault(doi, []).append(
+            {
+                "compound": compound,
+                "entity": entity,
+                "triage_match_source": "protected_curated",
+            }
+        )
+    return {doi: dedupe_contexts(contexts) for doi, contexts in out.items()}
+
+
 def write_json(path: Path, data: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -498,6 +602,21 @@ def contains_any(text_norm: str, terms: Iterable[str]) -> Tuple[bool, str]:
         if token in tokens:
             return True, term
     return False, ""
+
+
+def matched_allowed_terms(text_norm: str, labels: Iterable[str], expander) -> List[dict]:
+    matches: List[dict] = []
+    seen = set()
+    for label in labels:
+        normalized_label = normalize(label)
+        if not normalized_label:
+            continue
+        hit, term = contains_any(text_norm, expander(normalized_label))
+        key = normalized_label.lower()
+        if hit and key not in seen:
+            seen.add(key)
+            matches.append({"label": normalized_label, "match": normalize(term)})
+    return matches
 
 
 def detect_source_type(text_norm: str, dataset: str) -> Tuple[str, List[str]]:
@@ -560,13 +679,21 @@ def relevance_score_for_row(
     allowlists: Dict[str, List[str]],
     source_type: str,
     metadata_lookup_error: str,
-) -> Tuple[int, List[str], List[dict]]:
+    protected_contexts: List[dict] | None = None,
+    synthesize_global_contexts: bool = True,
+    max_synthesized_contexts: int = 12,
+) -> Tuple[int, List[str], List[dict], dict]:
     score = 0
     reasons: List[str] = []
     context_compound_hit = False
     context_entity_hit = False
     context_pair_hit = False
     matched_contexts: List[dict] = []
+    rescue_reasons: List[str] = []
+    synthesized_context_count = 0
+    protected_context_count = 0
+
+    protected_contexts = protected_contexts or []
 
     for ctx in contexts:
         if not isinstance(ctx, dict):
@@ -591,6 +718,7 @@ def relevance_score_for_row(
                     "entity": entity,
                     "compound_match": c_term,
                     "entity_match": e_term,
+                    "triage_match_source": "discovery_context",
                 }
             )
 
@@ -602,22 +730,66 @@ def relevance_score_for_row(
         score += 2
         reasons.append("compound+entity pair matched")
 
-    compound_terms_global = set()
-    for compound in allowlists.get("allowed_compounds", []):
-        compound_terms_global.update(expand_compound_terms(compound))
-    global_compound_hit, global_compound_term = contains_any(text_norm, compound_terms_global)
+    compound_matches = matched_allowed_terms(
+        text_norm,
+        allowlists.get("allowed_compounds", []),
+        expand_compound_terms,
+    )
+    global_compound_hit = bool(compound_matches)
+    global_compound_term = compound_matches[0]["match"] if compound_matches else ""
     if global_compound_hit and not context_compound_hit:
         score += 1
         reasons.append(f"allowed compound mention ({global_compound_term})")
 
-    entity_terms_global = set()
     key = "allowed_disorders" if dataset == "disorder" else "allowed_targets"
-    for entity in allowlists.get(key, []):
-        entity_terms_global.update(expand_entity_terms(dataset, entity))
-    global_entity_hit, global_entity_term = contains_any(text_norm, entity_terms_global)
+    entity_matches = matched_allowed_terms(
+        text_norm,
+        allowlists.get(key, []),
+        lambda entity: expand_entity_terms(dataset, entity),
+    )
+    global_entity_hit = bool(entity_matches)
+    global_entity_term = entity_matches[0]["match"] if entity_matches else ""
     if global_entity_hit and not context_entity_hit:
         score += 1
         reasons.append(f"allowed entity mention ({global_entity_term})")
+
+    if synthesize_global_contexts and not context_pair_hit and compound_matches and entity_matches:
+        max_contexts = max(0, max_synthesized_contexts)
+        for compound_match in compound_matches:
+            for entity_match in entity_matches:
+                if max_contexts and synthesized_context_count >= max_contexts:
+                    break
+                matched_contexts.append(
+                    {
+                        "compound": compound_match["label"],
+                        "entity": entity_match["label"],
+                        "compound_match": compound_match["match"],
+                        "entity_match": entity_match["match"],
+                        "triage_match_source": "synthesized_text",
+                    }
+                )
+                synthesized_context_count += 1
+            if max_contexts and synthesized_context_count >= max_contexts:
+                break
+        if synthesized_context_count:
+            score += 2
+            context_pair_hit = True
+            rescue_reasons.append("synthesized compound+entity context from title/abstract")
+            reasons.append("compound+entity pair synthesized from title/abstract")
+
+    for ctx in protected_contexts:
+        normalized = normalize_context(ctx)
+        compound = normalize(normalized.get("compound", ""))
+        entity = normalize(normalized.get("entity", ""))
+        if not compound or not entity:
+            continue
+        normalized.setdefault("triage_match_source", "protected")
+        matched_contexts.append(normalized)
+        protected_context_count += 1
+    if protected_context_count:
+        score = max(score, 5)
+        rescue_reasons.append("protected benchmark/curated context retained")
+        reasons.append("protected benchmark/curated DOI retained")
 
     if dataset == "disorder":
         keyword_hits = [kw for kw in PRIMARY_KEYWORDS_DISORDER if normalize_text(kw) in text_norm]
@@ -639,23 +811,14 @@ def relevance_score_for_row(
         score -= 2
         reasons.append("missing title/abstract text")
 
-    deduped_contexts = []
-    seen_contexts = set()
-    for ctx in matched_contexts:
-        key = (normalize(ctx.get("compound", "")).lower(), normalize(ctx.get("entity", "")).lower())
-        if key in seen_contexts:
-            continue
-        seen_contexts.add(key)
-        deduped_contexts.append(
-            {
-                "compound": normalize(ctx.get("compound", "")),
-                "entity": normalize(ctx.get("entity", "")),
-                "compound_match": normalize(ctx.get("compound_match", "")),
-                "entity_match": normalize(ctx.get("entity_match", "")),
-            }
-        )
-
-    return score, reasons, deduped_contexts
+    audit = {
+        "context_pair_matched": context_pair_hit,
+        "synthesized_context_count": synthesized_context_count,
+        "protected_context_count": protected_context_count,
+        "needs_metadata_or_manual_screen": bool(normalize(metadata_lookup_error) or not text_norm),
+        "triage_rescue_reasons": rescue_reasons,
+    }
+    return score, reasons, dedupe_contexts(matched_contexts), audit
 
 
 def relevance_label(score: int) -> str:
@@ -666,9 +829,23 @@ def relevance_label(score: int) -> str:
     return "likely_irrelevant"
 
 
+def screening_status_for_row(relevance: str, contexts: List[dict], audit: dict) -> str:
+    if audit.get("protected_context_count", 0):
+        return "included_protected"
+    if audit.get("synthesized_context_count", 0):
+        return "included_synthesized_context"
+    if contexts:
+        return "included_context_match"
+    if relevance in {"likely_relevant", "possible_relevant"}:
+        return "needs_context_review"
+    if audit.get("needs_metadata_or_manual_screen"):
+        return "needs_metadata_or_manual_screen"
+    return "excluded_low_signal"
+
+
 def flatten_triage_row(row: dict) -> dict:
     out = dict(row)
-    for key in ("source_type_reasons", "paper_type_reasons", "relevance_reasons"):
+    for key in ("source_type_reasons", "paper_type_reasons", "relevance_reasons", "triage_rescue_reasons"):
         value = out.get(key, [])
         out[key] = " | ".join(value) if isinstance(value, list) else normalize(value)
     for key in ("contexts", "contexts_all"):
@@ -757,6 +934,28 @@ def main() -> int:
     parser.add_argument("--report-json", default="", help="Triage report JSON path")
     parser.add_argument("--report-csv", default="", help="Flat triage CSV path")
     parser.add_argument(
+        "--benchmark-manifest",
+        default=str(ROOT / "data" / "raw" / "benchmark_manifest.json"),
+        help="Structured benchmark manifest used for protected triage rescue",
+    )
+    parser.add_argument("--curated-json", default="", help="Curated claims JSON used for protected triage rescue")
+    parser.add_argument(
+        "--no-protected-rescue",
+        action="store_true",
+        help="Do not force benchmark/curated contexts into the triage queue",
+    )
+    parser.add_argument(
+        "--no-synthesize-contexts",
+        action="store_true",
+        help="Do not synthesize text-supported compound/entity contexts when discovery contexts are stale",
+    )
+    parser.add_argument(
+        "--max-synthesized-contexts-per-paper",
+        type=int,
+        default=12,
+        help="Maximum text-synthesized compound/entity contexts to add per paper (0 = unlimited)",
+    )
+    parser.add_argument(
         "--apply-to-stubs",
         action="store_true",
         help="Apply source type/relevance suggestions to claim stubs by DOI",
@@ -801,6 +1000,8 @@ def main() -> int:
     )
     stubs_json = Path(args.stubs_json).resolve() if args.stubs_json else cfg["stubs_json"]
     stubs_csv = Path(args.stubs_csv).resolve() if args.stubs_csv else cfg["stubs_csv"]
+    curated_json = Path(args.curated_json).resolve() if args.curated_json else cfg["curated_json"]
+    benchmark_manifest = Path(args.benchmark_manifest).resolve()
 
     if not paper_db_json.exists():
         raise SystemExit(f"Paper library JSON not found: {paper_db_json}")
@@ -809,6 +1010,12 @@ def main() -> int:
     apply_statuses = {normalize(v) for v in args.apply_statuses.split(",") if normalize(v)}
     allowlists = parse_allowlists(Path(args.config).resolve())
     papers = load_json_array(paper_db_json)
+    protected_contexts_by_doi: Dict[str, List[dict]] = {}
+    if not args.no_protected_rescue:
+        protected_contexts_by_doi = merge_context_maps(
+            load_benchmark_contexts(benchmark_manifest, args.dataset, cfg["entity_key"]),
+            load_curated_contexts(curated_json, cfg["entity_key"]),
+        )
 
     triage_rows: List[dict] = []
     counts = {
@@ -824,31 +1031,52 @@ def main() -> int:
         "paper_protocol": 0,
         "paper_conference_or_poster_abstract": 0,
         "paper_other": 0,
+        "screening_included_context_match": 0,
+        "screening_included_synthesized_context": 0,
+        "screening_included_protected": 0,
+        "screening_needs_context_review": 0,
+        "screening_needs_metadata_or_manual_screen": 0,
+        "screening_excluded_low_signal": 0,
+        "rescued_by_protected_context": 0,
+        "rescued_by_synthesized_context": 0,
+        "needs_metadata_or_manual_screen": 0,
     }
 
     for paper in papers:
+        doi = normalize_doi(paper.get("study_doi", ""))
         title = normalize(paper.get("study_title", ""))
         abstract = normalize(paper.get("abstract", ""))
         text_norm = normalize_text(f"{title} {abstract}")
         source_type, source_type_reasons = detect_source_type(text_norm, args.dataset)
         paper_type, paper_type_reasons = detect_paper_type(text_norm, args.dataset)
-        score, relevance_reasons, matched_contexts = relevance_score_for_row(
+        score, relevance_reasons, matched_contexts, triage_audit = relevance_score_for_row(
             dataset=args.dataset,
             text_norm=text_norm,
             contexts=paper.get("contexts", []) if isinstance(paper.get("contexts", []), list) else [],
             allowlists=allowlists,
             source_type=source_type,
             metadata_lookup_error=normalize(paper.get("metadata_lookup_error", "")),
+            protected_contexts=protected_contexts_by_doi.get(doi.lower(), []),
+            synthesize_global_contexts=not args.no_synthesize_contexts,
+            max_synthesized_contexts=max(0, args.max_synthesized_contexts_per_paper),
         )
         relevance = relevance_label(score)
+        screening_status = screening_status_for_row(relevance, matched_contexts, triage_audit)
 
         counts[relevance] += 1
         counts[f"source_{source_type}" if f"source_{source_type}" in counts else "source_other"] += 1
         counts[f"paper_{paper_type}" if f"paper_{paper_type}" in counts else "paper_other"] += 1
+        counts[f"screening_{screening_status}"] += 1
+        if triage_audit.get("protected_context_count", 0):
+            counts["rescued_by_protected_context"] += 1
+        if triage_audit.get("synthesized_context_count", 0):
+            counts["rescued_by_synthesized_context"] += 1
+        if triage_audit.get("needs_metadata_or_manual_screen"):
+            counts["needs_metadata_or_manual_screen"] += 1
 
         triage_rows.append(
             {
-                "study_doi": normalize_doi(paper.get("study_doi", "")),
+                "study_doi": doi,
                 "study_title": title,
                 "study_year": normalize(paper.get("study_year", "")),
                 "library_status": normalize(paper.get("library_status", "")),
@@ -859,6 +1087,11 @@ def main() -> int:
                 "relevance_suggested": relevance,
                 "relevance_score": score,
                 "relevance_reasons": relevance_reasons,
+                "screening_status": screening_status,
+                "triage_rescue_reasons": triage_audit.get("triage_rescue_reasons", []),
+                "synthesized_context_count": triage_audit.get("synthesized_context_count", 0),
+                "protected_context_count": triage_audit.get("protected_context_count", 0),
+                "needs_metadata_or_manual_screen": triage_audit.get("needs_metadata_or_manual_screen", False),
                 "contexts": matched_contexts,
                 "contexts_all": paper.get("contexts", []),
                 "matched_context_count": len(matched_contexts),
@@ -1009,6 +1242,12 @@ def main() -> int:
         "queue_relevance": sorted(queue_relevance),
         "queue_rows_written": queue_rows_written,
         "queue_rows_skipped_no_context": queue_stats["skipped_no_context"],
+        "benchmark_manifest": str(benchmark_manifest),
+        "curated_json": str(curated_json),
+        "protected_rescue_enabled": not args.no_protected_rescue,
+        "synthesize_contexts_enabled": not args.no_synthesize_contexts,
+        "max_synthesized_contexts_per_paper": max(0, args.max_synthesized_contexts_per_paper),
+        "protected_doi_count": len(protected_contexts_by_doi),
         "apply_to_stubs": args.apply_to_stubs,
         "apply_statuses": sorted(apply_statuses),
         "irrelevant_status": args.irrelevant_status,
@@ -1044,6 +1283,21 @@ def main() -> int:
         f"protocol={counts['paper_protocol']} "
         f"conference_or_poster_abstract={counts['paper_conference_or_poster_abstract']} "
         f"other={counts['paper_other']}"
+    )
+    print(
+        "Screening statuses: "
+        f"context_match={counts['screening_included_context_match']} "
+        f"synthesized_context={counts['screening_included_synthesized_context']} "
+        f"protected={counts['screening_included_protected']} "
+        f"needs_context_review={counts['screening_needs_context_review']} "
+        f"needs_metadata_or_manual={counts['screening_needs_metadata_or_manual_screen']} "
+        f"excluded_low_signal={counts['screening_excluded_low_signal']}"
+    )
+    print(
+        "Recall-safety rescues: "
+        f"protected={counts['rescued_by_protected_context']} "
+        f"synthesized={counts['rescued_by_synthesized_context']} "
+        f"metadata_or_manual_screen={counts['needs_metadata_or_manual_screen']}"
     )
     if args.apply_to_stubs:
         print(

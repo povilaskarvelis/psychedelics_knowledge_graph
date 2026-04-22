@@ -1,0 +1,7 @@
+doi,in_discovered_queue,in_triage_queue,in_paper_library,has_local_pdf,in_curated_claims,library_status,pdf_download_status,study_title
+10.1038/s41593-023-01316-5,True,True,True,True,True,in_database,already_present,Psychedelics promote plasticity by directly binding to BDNF receptor TrkB
+10.1186/1471-2210-6-6,True,True,True,True,True,in_database,already_present,Comparison of the monoamine transporters from human and mouse in their sensitivities to psychostimulant drugs
+10.1523/jneurosci.4034-14.2015,True,True,True,True,True,in_database,already_present,Amphetamine Action at the Cocaine- and Antidepressant-Sensitive Serotonin Transporter Is Modulated by αCaMKII
+10.1523/jneurosci.1171-11.2011,True,True,True,True,True,in_database,already_present,"Characterization of 3,4-Methylenedioxymethamphetamine (MDMA) Enantiomers<i>In Vitro</i>and in the MPTP-Lesioned Primate:<i>R</i>-MDMA Reduces Severity of Dyskinesia, Whereas<i>S</i>-MDMA Extends Duration of ON-Time"
+10.1016/s0014-2999(97)01116-3,True,True,True,False,True,needs_manual_access,not_open_access,"Norketamine, the main metabolite of ketamine, is a non-competitive NMDA receptor antagonist in the rat cortex and spinal cord"
+10.1007/s00213-011-2616-6,True,True,True,False,True,needs_manual_access,not_open_access,"Behavioral effects of α,α,β,β-tetradeutero-5-MeO-DMT in rats: comparison with 5-MeO-DMT administered in combination with a monoamine oxidase inhibitor"

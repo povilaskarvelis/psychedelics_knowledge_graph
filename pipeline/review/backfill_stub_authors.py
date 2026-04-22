@@ -7,6 +7,7 @@ import argparse
 import csv
 import datetime as dt
 import json
+import os
 import random
 import sys
 import time
@@ -132,6 +133,34 @@ def parse_simple_yaml(path: Path) -> dict:
     return out
 
 
+def merge_simple_config(base: dict, override: dict) -> dict:
+    merged: Dict[str, dict] = {
+        section: values.copy() if isinstance(values, dict) else values
+        for section, values in base.items()
+    }
+    for section, values in override.items():
+        if not isinstance(values, dict):
+            if values != "":
+                merged[section] = values
+            continue
+        current = merged.setdefault(section, {})
+        if not isinstance(current, dict):
+            current = {}
+            merged[section] = current
+        for key, value in values.items():
+            if value != "":
+                current[key] = value
+    return merged
+
+
+def load_config(path: Path) -> dict:
+    config = parse_simple_yaml(path)
+    local_path = path.parent / "config.local.yaml"
+    if path.name == "config.example.yaml" and local_path.exists():
+        config = merge_simple_config(config, parse_simple_yaml(local_path))
+    return config
+
+
 def read_float(maybe_value: object, default: float) -> float:
     if maybe_value is None:
         return default
@@ -220,13 +249,15 @@ def authors_from_openalex(authorships: Iterable[dict], max_names: int = 10) -> s
     return "; ".join(names)
 
 
-def lookup_openalex_authors(client: RateLimitedHttpClient, doi: str, email: str) -> str:
+def lookup_openalex_authors(client: RateLimitedHttpClient, doi: str, email: str, api_key: str) -> str:
     endpoint = "https://api.openalex.org/works"
     params = {
         "filter": f"doi:https://doi.org/{doi}",
         "per-page": 1,
         "select": "authorships",
     }
+    if api_key:
+        params["api_key"] = api_key
     if email:
         params["mailto"] = email
     payload = client.get_json(endpoint, params=params, headers={})
@@ -350,6 +381,7 @@ def main() -> int:
     parser.add_argument("--all-statuses", action="store_true", help="Ignore status filter")
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
     parser.add_argument("--openalex-email", default="")
+    parser.add_argument("--openalex-api-key", default="")
     parser.add_argument("--crossref-mailto", default="")
     parser.add_argument("--openalex-rps", type=float, default=None)
     parser.add_argument("--max-retries", type=int, default=None)
@@ -383,11 +415,12 @@ def main() -> int:
     schema = load_schema(cfg["schema"])
     required, enums, types, one_of_groups, allowed_keys = parse_schema(schema)
 
-    config = parse_simple_yaml(Path(args.config).resolve())
+    config = load_config(Path(args.config).resolve())
     oa_cfg = config.get("openalex", {}) if isinstance(config.get("openalex", {}), dict) else {}
     s2_cfg = config.get("semantic_scholar", {}) if isinstance(config.get("semantic_scholar", {}), dict) else {}
 
-    openalex_email = args.openalex_email or str(oa_cfg.get("email", ""))
+    openalex_email = args.openalex_email or str(oa_cfg.get("email", "")) or os.getenv("OPENALEX_EMAIL", "")
+    openalex_api_key = args.openalex_api_key or str(oa_cfg.get("api_key", "")) or os.getenv("OPENALEX_API_KEY", "")
     crossref_mailto = args.crossref_mailto or openalex_email
     openalex_rps = args.openalex_rps if args.openalex_rps is not None else read_float(oa_cfg.get("rate_limit_per_sec"), 2.0)
     max_retries = args.max_retries if args.max_retries is not None else read_int(s2_cfg.get("max_retries"), 4)
@@ -453,7 +486,12 @@ def main() -> int:
         if not authors and doi and not args.skip_openalex:
             counts["openalex_attempted"] += 1
             try:
-                authors = lookup_openalex_authors(client=client, doi=doi, email=openalex_email)
+                authors = lookup_openalex_authors(
+                    client=client,
+                    doi=doi,
+                    email=openalex_email,
+                    api_key=openalex_api_key,
+                )
                 authors = normalize(authors)
                 if authors:
                     source_used = "openalex"

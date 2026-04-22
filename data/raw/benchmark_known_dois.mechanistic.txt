@@ -1,5 +1,8 @@
-# Add one DOI per line for known mechanistic "must-find" papers.
-# Example:
-# 10.1038/s41386-023-01587-0
-# 10.1038/nature25552
-
+# Known mechanistic "must-find" DOI benchmark.
+# Seeded from currently curated mechanistic rows; expand as the protocol matures.
+10.1038/s41593-023-01316-5
+10.1186/1471-2210-6-6
+10.1523/jneurosci.4034-14.2015
+10.1523/jneurosci.1171-11.2011
+10.1016/s0014-2999(97)01116-3
+10.1007/s00213-011-2616-6
