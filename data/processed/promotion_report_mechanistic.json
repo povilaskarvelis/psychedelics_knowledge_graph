@@ -1,199 +1,2859 @@
 {
-  "generated_at": "2026-02-16T03:35:48.951950+00:00",
+  "generated_at": "2026-04-22T16:06:52.494343+00:00",
   "dataset": "mechanistic",
   "ready_status": "ready_for_promotion",
   "apply": true,
   "counts": {
-    "stubs_total": 218,
-    "ready_rows": 16,
-    "curated_before": 34,
+    "stubs_total": 1646,
+    "ready_rows": 217,
+    "curated_before": 22,
     "curated_normalized": 0,
     "curated_deduped": 0,
-    "curated_pruned_by_triage": 15,
+    "curated_pruned_by_triage": 0,
     "curated_pruned_from_irrelevant": 0,
-    "curated_pruned_from_unmatched_context": 15,
-    "validated_ready_rows": 16,
-    "promotable_rows": 14,
-    "duplicate_rows": 2,
+    "curated_pruned_from_unmatched_context": 0,
+    "validated_ready_rows": 217,
+    "promotable_rows": 206,
+    "upserted_rows": 0,
+    "duplicate_rows": 11,
+    "duplicate_rows_with_diffs": 11,
+    "row_warning_count": 217,
     "error_rows": 0,
-    "curated_after": 33
+    "curated_after": 228
   },
   "errors": [],
-  "warnings": [
-    "Pruned 15 curated context row(s) not matched by triage context detection"
-  ],
-  "promoted": [
+  "warnings": [],
+  "row_warnings": [
     {
       "row_index": 1,
-      "study_doi": "10.1007/s00406-023-01571-4",
-      "compound": "S-ketamine"
+      "study_doi": "10.1002/dta.1732",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 2,
-      "study_doi": "10.1007/s00406-023-01571-4",
-      "compound": "R-ketamine"
+      "study_doi": "10.1002/minf.201300013",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 3,
+      "study_doi": "10.1002/npr2.12161",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 4,
-      "study_doi": "10.1038/s41380-020-0740-6",
-      "compound": "Ketamine"
+      "study_doi": "10.1002/npr2.12161",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 5,
-      "study_doi": "10.1038/s41398-021-01540-2",
-      "compound": "S-ketamine"
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 6,
-      "study_doi": "10.1038/s41593-023-01316-5",
-      "compound": "LSD"
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 7,
-      "study_doi": "10.1038/s41593-023-01316-5",
-      "compound": "Psilocin"
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 8,
-      "study_doi": "10.1186/1471-2210-6-6",
-      "compound": "MDMA"
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 9,
-      "study_doi": "10.1186/1471-2210-6-6",
-      "compound": "MDMA"
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 10,
-      "study_doi": "10.12688/f1000research.14344.1",
-      "compound": "S-ketamine"
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 11,
-      "study_doi": "10.1523/jneurosci.1171-11.2011",
-      "compound": "MDMA"
+      "study_doi": "10.1007/s00406-023-01571-4",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 12,
-      "study_doi": "10.1523/jneurosci.1171-11.2011",
-      "compound": "MDMA"
+      "study_doi": "10.1007/s00406-023-01571-4",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 13,
-      "study_doi": "10.1523/jneurosci.4034-14.2015",
-      "compound": "MDMA"
+      "study_doi": "10.1007/s12640-017-9759-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 14,
-      "study_doi": "10.1523/jneurosci.4034-14.2015",
-      "compound": "MDMA"
+      "study_doi": "10.1007/s43440-024-00679-1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
     },
     {
       "row_index": 15,
-      "study_doi": "10.1523/jneurosci.4722-05.2006",
-      "compound": "Ketamine"
-    }
-  ],
-  "duplicates": [
-    {
-      "row_index": 3,
-      "study_doi": "10.1007/s12640-017-9759-0",
-      "signature": [
-        "compound=S-ketamine",
-        "target=NMDA receptor",
-        "study_doi=10.1007/s12640-017-9759-0",
-        "openalex_id=",
-        "assay_type=functional assay"
+      "study_doi": "10.1007/s43440-024-00679-1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
       ]
     },
     {
       "row_index": 16,
+      "study_doi": "10.1007/s43440-025-00817-3",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 17,
+      "study_doi": "10.1016/j.brainres.2024.149425",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 18,
+      "study_doi": "10.1016/j.heliyon.2021.e07784",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 19,
+      "study_doi": "10.1016/j.jatmed.2024.07.001",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 20,
+      "study_doi": "10.1016/j.neuropharm.2016.08.004",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 21,
+      "study_doi": "10.1016/j.neuropharm.2018.06.018",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 22,
+      "study_doi": "10.1016/j.neuropharm.2018.06.018",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 23,
+      "study_doi": "10.1021/acs.jmedchem.2c00702",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 24,
+      "study_doi": "10.1021/acs.jmedchem.4c00082",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 25,
+      "study_doi": "10.1021/acscentsci.2c00442",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 26,
+      "study_doi": "10.1021/acscentsci.3c00616",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 27,
+      "study_doi": "10.1021/acschemneuro.3c00267",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 28,
+      "study_doi": "10.1021/acschemneuro.3c00610",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 29,
+      "study_doi": "10.1021/acschemneuro.4c00058",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 30,
+      "study_doi": "10.1021/acschemneuro.4c00513",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 31,
+      "study_doi": "10.1021/acschemneuro.5c00782",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 32,
+      "study_doi": "10.1021/acschemneuro.5c00782",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 33,
+      "study_doi": "10.1021/acsomega.2c03476",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 34,
+      "study_doi": "10.1021/acsptsci.2c00222",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 35,
+      "study_doi": "10.1021/acsptsci.3c00192",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 36,
+      "study_doi": "10.1021/acsptsci.3c00192",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 37,
+      "study_doi": "10.1021/cn500292d",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 38,
+      "study_doi": "10.1021/cn500292d",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 39,
+      "study_doi": "10.1021/cn500292d",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 40,
+      "study_doi": "10.1021/jacs.3c11617",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 41,
+      "study_doi": "10.1038/s41380-020-0740-6",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 42,
+      "study_doi": "10.1038/s41380-021-01121-1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 43,
+      "study_doi": "10.1038/s41380-025-02931-3",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 44,
+      "study_doi": "10.1038/s41380-025-03308-2",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 45,
+      "study_doi": "10.1038/s41380-025-03308-2",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 46,
+      "study_doi": "10.1038/s41386-019-0324-9",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 47,
+      "study_doi": "10.1038/s41386-019-0324-9",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 48,
+      "study_doi": "10.1038/s41398-021-01540-2",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 49,
+      "study_doi": "10.1038/s41398-021-01540-2",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 50,
+      "study_doi": "10.1038/s41467-022-31817-z",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 51,
+      "study_doi": "10.1038/s41467-024-51856-y",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 52,
+      "study_doi": "10.1038/s41467-025-64887-w",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 53,
+      "study_doi": "10.1038/s41467-025-66774-w",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 54,
+      "study_doi": "10.1038/s41586-023-06624-1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 55,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 56,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 57,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 58,
+      "study_doi": "10.1038/s41598-017-16060-7",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 59,
+      "study_doi": "10.1038/s41598-020-65849-6",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 60,
+      "study_doi": "10.1038/s41598-020-65849-6",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 61,
+      "study_doi": "10.1038/s41598-020-78595-6",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 62,
+      "study_doi": "10.1038/s41598-024-56712-z",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 63,
+      "study_doi": "10.1038/s44321-026-00381-0",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 64,
+      "study_doi": "10.1038/sj.bjp.0702293",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 65,
+      "study_doi": "10.1038/sj.bjp.0704961",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 66,
+      "study_doi": "10.1038/sj.bjp.0707473",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 67,
+      "study_doi": "10.1038/sj.bjp.0707473",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 68,
+      "study_doi": "10.1038/sj.bjp.0707638",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 69,
+      "study_doi": "10.1038/srep35320",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 70,
+      "study_doi": "10.1038/srep38808",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 71,
+      "study_doi": "10.1051/jbio/2023028",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 72,
+      "study_doi": "10.1073/pnas.1916570117",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 73,
+      "study_doi": "10.1073/pnas.2020705118",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 74,
+      "study_doi": "10.1074/jbc.M112.343681",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 75,
+      "study_doi": "10.1074/jbc.M112.343681",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 76,
+      "study_doi": "10.1074/jbc.M114.595090",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 77,
+      "study_doi": "10.1074/jbc.M117.797092",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 78,
+      "study_doi": "10.1085/jgp.201812066",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 79,
+      "study_doi": "10.1093/ijnp/pyaf052.234",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 80,
+      "study_doi": "10.1093/ijnp/pyy094",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 81,
+      "study_doi": "10.1093/ijnp/pyy101",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 82,
+      "study_doi": "10.1093/ijnp/pyz041",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 83,
+      "study_doi": "10.1093/ijnp/pyz041",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 84,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 85,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 86,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 87,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 88,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 89,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 90,
+      "study_doi": "10.1098/rstb.2023.0225",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 91,
+      "study_doi": "10.1101/2023.11.07.566121",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 92,
+      "study_doi": "10.1101/2023.11.07.566121",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 93,
+      "study_doi": "10.1101/2023.11.07.566121",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 94,
+      "study_doi": "10.1111/bph.12520",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 95,
+      "study_doi": "10.1111/bph.12520",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 96,
+      "study_doi": "10.1111/bph.13222",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 97,
+      "study_doi": "10.1111/cns.14464",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 98,
+      "study_doi": "10.1111/cns.14464",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 99,
+      "study_doi": "10.1111/j.1476-5381.1994.tb14809.x",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 100,
+      "study_doi": "10.1111/j.1476-5381.1995.tb14973.x",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 101,
+      "study_doi": "10.1111/j.1476-5381.1996.tb15149.x",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 102,
+      "study_doi": "10.1111/j.1476-5381.1996.tb15746.x",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 103,
+      "study_doi": "10.1111/pcn.12902",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 104,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 105,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 106,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 107,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 108,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 109,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 110,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 111,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 112,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 113,
+      "study_doi": "10.1124/jpet.111.179705",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 114,
+      "study_doi": "10.1155/2014/734749",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 115,
+      "study_doi": "10.1176/appi.ajp.20240378",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 116,
+      "study_doi": "10.1177/0269881120959644",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 117,
+      "study_doi": "10.1177/02698811231225609",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 118,
+      "study_doi": "10.1177/02698811231225609",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 119,
+      "study_doi": "10.1177/02698811231225609",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 120,
+      "study_doi": "10.1177/0271678X15608391",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 121,
+      "study_doi": "10.1177/0271678X241302937",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 122,
+      "study_doi": "10.1177/0271678X241302937",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 123,
+      "study_doi": "10.1177/10738584251403946",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 124,
+      "study_doi": "10.1177/15353702231170007",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 125,
+      "study_doi": "10.1186/1471-2210-6-6",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 126,
+      "study_doi": "10.1186/1471-2210-6-6",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 127,
+      "study_doi": "10.12688/f1000research.14344.1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 128,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 129,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 130,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 131,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 132,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 133,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 134,
+      "study_doi": "10.1371/journal.pone.0077262",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 135,
+      "study_doi": "10.1371/journal.pone.0077262",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 136,
+      "study_doi": "10.1523/JNEUROSCI.1173-17.2017",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 137,
+      "study_doi": "10.1523/JNEUROSCI.1316-22.2022",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 138,
+      "study_doi": "10.1523/JNEUROSCI.16-11-03727.1996",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 139,
+      "study_doi": "10.1523/jneurosci.0501-11.2011",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 140,
+      "study_doi": "10.1523/jneurosci.1171-11.2011",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 141,
+      "study_doi": "10.1523/jneurosci.1171-11.2011",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 142,
+      "study_doi": "10.1523/jneurosci.4722-05.2006",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 143,
+      "study_doi": "10.20944/preprints202211.0031.v1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 144,
+      "study_doi": "10.21203/rs.3.rs-2741902/v1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 145,
+      "study_doi": "10.21203/rs.3.rs-2741902/v1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 146,
+      "study_doi": "10.21203/rs.3.rs-2741902/v1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 147,
+      "study_doi": "10.21203/rs.3.rs-3138705/v1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 148,
+      "study_doi": "10.2174/157015911795017425",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 149,
+      "study_doi": "10.2174/157015911795017425",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 150,
+      "study_doi": "10.25082/jpbr.2021.02.003",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 151,
+      "study_doi": "10.25082/jpbr.2021.02.003",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 152,
+      "study_doi": "10.25082/jpbr.2021.02.003",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 153,
+      "study_doi": "10.31219/osf.io/gy6m9",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 154,
+      "study_doi": "10.31219/osf.io/gy6m9",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 155,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 156,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 157,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 158,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 159,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 160,
+      "study_doi": "10.3389/fnbeh.2015.00207",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 161,
+      "study_doi": "10.3389/fncel.2015.00200",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 162,
+      "study_doi": "10.3389/fncel.2022.832536",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 163,
+      "study_doi": "10.3389/fneur.2021.782190",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 164,
+      "study_doi": "10.3389/fnins.2020.00765",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 165,
+      "study_doi": "10.3389/fnmol.2018.00456",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 166,
+      "study_doi": "10.3389/fpain.2022.827372",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 167,
+      "study_doi": "10.3389/fphar.2017.00987",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 168,
+      "study_doi": "10.3389/fphar.2019.00157",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 169,
+      "study_doi": "10.3389/fphar.2019.01406",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 170,
+      "study_doi": "10.3389/fphar.2019.01423",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 171,
+      "study_doi": "10.3389/fphar.2019.01423",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 172,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 173,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 174,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 175,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 176,
+      "study_doi": "10.3389/fphar.2021.794254",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 177,
+      "study_doi": "10.3389/fphar.2023.1140656",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 178,
+      "study_doi": "10.3389/fphar.2023.1140656",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 179,
+      "study_doi": "10.3389/fphar.2025.1606976",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 180,
+      "study_doi": "10.3389/fphar.2025.1650926",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 181,
+      "study_doi": "10.3389/fphys.2021.782588",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 182,
+      "study_doi": "10.3390/biom10081134",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 183,
+      "study_doi": "10.3390/biom13091411",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 184,
+      "study_doi": "10.3390/biomedicines11102664",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 185,
+      "study_doi": "10.3390/biomedicines9060625",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 186,
+      "study_doi": "10.3390/cancers12020257",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 187,
+      "study_doi": "10.3390/ijms17111953",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 188,
+      "study_doi": "10.3390/ijms20030488",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 189,
+      "study_doi": "10.3390/ijms21217951",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 190,
+      "study_doi": "10.3390/ijms21217951",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 191,
+      "study_doi": "10.3390/ijms21217951",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 192,
+      "study_doi": "10.3390/ijms22020835",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 193,
+      "study_doi": "10.3390/ijms222312995",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 194,
+      "study_doi": "10.3390/ijms222312995",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 195,
+      "study_doi": "10.3390/ijms23137035",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 196,
+      "study_doi": "10.3390/medicina55070393",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 197,
+      "study_doi": "10.3390/molecules26092451",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 198,
+      "study_doi": "10.3390/molecules26092451",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 199,
+      "study_doi": "10.3390/molecules28020718",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 200,
+      "study_doi": "10.3390/molecules28114346",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 201,
+      "study_doi": "10.3390/molecules28114346",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 202,
+      "study_doi": "10.3390/molecules28114346",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 203,
+      "study_doi": "10.3390/molecules28124848",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 204,
+      "study_doi": "10.3390/molecules28247942",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 205,
+      "study_doi": "10.3390/ph15080997",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 206,
+      "study_doi": "10.3390/ph15080997",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 207,
+      "study_doi": "10.3390/ph15080997",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 208,
+      "study_doi": "10.3390/ph16101483",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 209,
+      "study_doi": "10.3390/ph18020157",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 210,
+      "study_doi": "10.3390/ph18020157",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 211,
+      "study_doi": "10.57098/scirevs.biology.2.2",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 212,
+      "study_doi": "10.57098/scirevs.biology.2.2",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 213,
+      "study_doi": "10.57098/scirevs.biology.2.2.1",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 214,
+      "study_doi": "10.69613/thv1dn30",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 215,
+      "study_doi": "10.7554/eLife.82641",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 216,
+      "study_doi": "10.7759/cureus.25414",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    },
+    {
+      "row_index": 217,
+      "study_doi": "10.1126/sciadv.abh2399",
+      "messages": [
+        "full_text_seen row still uses an abstract snippet as the evidence locator"
+      ]
+    }
+  ],
+  "promoted": [
+    {
+      "row_index": 1,
+      "study_doi": "10.1002/dta.1732",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 2,
+      "study_doi": "10.1002/minf.201300013",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 3,
+      "study_doi": "10.1002/npr2.12161",
+      "compound": "5-MeO-DiPT"
+    },
+    {
+      "row_index": 4,
+      "study_doi": "10.1002/npr2.12161",
+      "compound": "DiPT"
+    },
+    {
+      "row_index": 5,
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 6,
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 7,
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 8,
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 9,
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 10,
+      "study_doi": "10.1007/s00204-021-03024-0",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 11,
+      "study_doi": "10.1007/s00406-023-01571-4",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 12,
+      "study_doi": "10.1007/s00406-023-01571-4",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 13,
+      "study_doi": "10.1007/s12640-017-9759-0",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 14,
+      "study_doi": "10.1007/s43440-024-00679-1",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 15,
+      "study_doi": "10.1007/s43440-024-00679-1",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 16,
+      "study_doi": "10.1007/s43440-025-00817-3",
+      "compound": "Psilocin"
+    },
+    {
+      "row_index": 17,
+      "study_doi": "10.1016/j.brainres.2024.149425",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 18,
+      "study_doi": "10.1016/j.heliyon.2021.e07784",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 19,
+      "study_doi": "10.1016/j.jatmed.2024.07.001",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 20,
+      "study_doi": "10.1016/j.neuropharm.2016.08.004",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 21,
+      "study_doi": "10.1016/j.neuropharm.2018.06.018",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 22,
+      "study_doi": "10.1016/j.neuropharm.2018.06.018",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 23,
+      "study_doi": "10.1021/acs.jmedchem.2c00702",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 24,
+      "study_doi": "10.1021/acs.jmedchem.4c00082",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 25,
+      "study_doi": "10.1021/acscentsci.2c00442",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 26,
+      "study_doi": "10.1021/acscentsci.3c00616",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 27,
+      "study_doi": "10.1021/acschemneuro.3c00267",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 28,
+      "study_doi": "10.1021/acschemneuro.3c00610",
+      "compound": "Psilocin"
+    },
+    {
+      "row_index": 29,
+      "study_doi": "10.1021/acschemneuro.4c00058",
+      "compound": "Psilocin"
+    },
+    {
+      "row_index": 30,
+      "study_doi": "10.1021/acschemneuro.4c00513",
+      "compound": "5-MeO-DMT"
+    },
+    {
+      "row_index": 31,
+      "study_doi": "10.1021/acschemneuro.5c00782",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 32,
+      "study_doi": "10.1021/acschemneuro.5c00782",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 33,
+      "study_doi": "10.1021/acsomega.2c03476",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 34,
+      "study_doi": "10.1021/acsptsci.2c00222",
+      "compound": "Psilocin"
+    },
+    {
+      "row_index": 35,
+      "study_doi": "10.1021/acsptsci.3c00192",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 36,
+      "study_doi": "10.1021/acsptsci.3c00192",
+      "compound": "Lisuride"
+    },
+    {
+      "row_index": 37,
+      "study_doi": "10.1021/cn500292d",
+      "compound": "2C-I"
+    },
+    {
+      "row_index": 38,
+      "study_doi": "10.1021/cn500292d",
+      "compound": "2C-I"
+    },
+    {
+      "row_index": 39,
+      "study_doi": "10.1021/cn500292d",
+      "compound": "2C-I"
+    },
+    {
+      "row_index": 40,
+      "study_doi": "10.1021/jacs.3c11617",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 42,
+      "study_doi": "10.1038/s41380-021-01121-1",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 43,
+      "study_doi": "10.1038/s41380-025-02931-3",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 44,
+      "study_doi": "10.1038/s41380-025-03308-2",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 45,
+      "study_doi": "10.1038/s41380-025-03308-2",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 46,
+      "study_doi": "10.1038/s41386-019-0324-9",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 47,
+      "study_doi": "10.1038/s41386-019-0324-9",
+      "compound": "Psilocin"
+    },
+    {
+      "row_index": 49,
+      "study_doi": "10.1038/s41398-021-01540-2",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 50,
+      "study_doi": "10.1038/s41467-022-31817-z",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 51,
+      "study_doi": "10.1038/s41467-024-51856-y",
+      "compound": "Ibogaine"
+    },
+    {
+      "row_index": 52,
+      "study_doi": "10.1038/s41467-025-64887-w",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 53,
+      "study_doi": "10.1038/s41467-025-66774-w",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 54,
+      "study_doi": "10.1038/s41586-023-06624-1",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 57,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 58,
+      "study_doi": "10.1038/s41598-017-16060-7",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 59,
+      "study_doi": "10.1038/s41598-020-65849-6",
+      "compound": "MDA"
+    },
+    {
+      "row_index": 60,
+      "study_doi": "10.1038/s41598-020-65849-6",
+      "compound": "MDA"
+    },
+    {
+      "row_index": 61,
+      "study_doi": "10.1038/s41598-020-78595-6",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 62,
+      "study_doi": "10.1038/s41598-024-56712-z",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 63,
+      "study_doi": "10.1038/s44321-026-00381-0",
+      "compound": "Noribogaine"
+    },
+    {
+      "row_index": 64,
+      "study_doi": "10.1038/sj.bjp.0702293",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 65,
+      "study_doi": "10.1038/sj.bjp.0704961",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 66,
+      "study_doi": "10.1038/sj.bjp.0707473",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 67,
+      "study_doi": "10.1038/sj.bjp.0707473",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 68,
+      "study_doi": "10.1038/sj.bjp.0707638",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 69,
+      "study_doi": "10.1038/srep35320",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 70,
+      "study_doi": "10.1038/srep38808",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 71,
+      "study_doi": "10.1051/jbio/2023028",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 72,
+      "study_doi": "10.1073/pnas.1916570117",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 73,
+      "study_doi": "10.1073/pnas.2020705118",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 74,
+      "study_doi": "10.1074/jbc.M112.343681",
+      "compound": "Ibogaine"
+    },
+    {
+      "row_index": 75,
+      "study_doi": "10.1074/jbc.M112.343681",
+      "compound": "Ibogaine"
+    },
+    {
+      "row_index": 76,
+      "study_doi": "10.1074/jbc.M114.595090",
+      "compound": "Noribogaine"
+    },
+    {
+      "row_index": 77,
+      "study_doi": "10.1074/jbc.M117.797092",
+      "compound": "Noribogaine"
+    },
+    {
+      "row_index": 78,
+      "study_doi": "10.1085/jgp.201812066",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 79,
+      "study_doi": "10.1093/ijnp/pyaf052.234",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 80,
+      "study_doi": "10.1093/ijnp/pyy094",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 81,
+      "study_doi": "10.1093/ijnp/pyy101",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 82,
+      "study_doi": "10.1093/ijnp/pyz041",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 83,
+      "study_doi": "10.1093/ijnp/pyz041",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 84,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 85,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 86,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 87,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 88,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 89,
+      "study_doi": "10.1093/nsr/nwaf367",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 90,
+      "study_doi": "10.1098/rstb.2023.0225",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 91,
+      "study_doi": "10.1101/2023.11.07.566121",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 92,
+      "study_doi": "10.1101/2023.11.07.566121",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 93,
+      "study_doi": "10.1101/2023.11.07.566121",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 94,
+      "study_doi": "10.1111/bph.12520",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 95,
+      "study_doi": "10.1111/bph.12520",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 96,
+      "study_doi": "10.1111/bph.13222",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 97,
+      "study_doi": "10.1111/cns.14464",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 98,
+      "study_doi": "10.1111/cns.14464",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 99,
+      "study_doi": "10.1111/j.1476-5381.1994.tb14809.x",
+      "compound": "DOM"
+    },
+    {
+      "row_index": 100,
+      "study_doi": "10.1111/j.1476-5381.1995.tb14973.x",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 101,
+      "study_doi": "10.1111/j.1476-5381.1996.tb15149.x",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 102,
+      "study_doi": "10.1111/j.1476-5381.1996.tb15746.x",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 103,
+      "study_doi": "10.1111/pcn.12902",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 104,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 105,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 106,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 107,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 108,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 109,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 110,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "DOM"
+    },
+    {
+      "row_index": 111,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "DOM"
+    },
+    {
+      "row_index": 112,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "DiPT"
+    },
+    {
+      "row_index": 113,
+      "study_doi": "10.1124/jpet.111.179705",
+      "compound": "DiPT"
+    },
+    {
+      "row_index": 114,
+      "study_doi": "10.1155/2014/734749",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 115,
+      "study_doi": "10.1176/appi.ajp.20240378",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 116,
+      "study_doi": "10.1177/0269881120959644",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 117,
+      "study_doi": "10.1177/02698811231225609",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 118,
+      "study_doi": "10.1177/02698811231225609",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 119,
+      "study_doi": "10.1177/02698811231225609",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 120,
+      "study_doi": "10.1177/0271678X15608391",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 121,
+      "study_doi": "10.1177/0271678X241302937",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 122,
+      "study_doi": "10.1177/0271678X241302937",
+      "compound": "Lisuride"
+    },
+    {
+      "row_index": 123,
+      "study_doi": "10.1177/10738584251403946",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 124,
+      "study_doi": "10.1177/15353702231170007",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 128,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 129,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 130,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 131,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 132,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 133,
+      "study_doi": "10.1371/journal.pone.0059334",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 134,
+      "study_doi": "10.1371/journal.pone.0077262",
+      "compound": "Ibogaine"
+    },
+    {
+      "row_index": 135,
+      "study_doi": "10.1371/journal.pone.0077262",
+      "compound": "Noribogaine"
+    },
+    {
+      "row_index": 136,
+      "study_doi": "10.1523/JNEUROSCI.1173-17.2017",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 137,
+      "study_doi": "10.1523/JNEUROSCI.1316-22.2022",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 138,
+      "study_doi": "10.1523/JNEUROSCI.16-11-03727.1996",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 139,
+      "study_doi": "10.1523/jneurosci.0501-11.2011",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 143,
+      "study_doi": "10.20944/preprints202211.0031.v1",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 144,
+      "study_doi": "10.21203/rs.3.rs-2741902/v1",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 145,
+      "study_doi": "10.21203/rs.3.rs-2741902/v1",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 146,
+      "study_doi": "10.21203/rs.3.rs-2741902/v1",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 147,
+      "study_doi": "10.21203/rs.3.rs-3138705/v1",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 148,
+      "study_doi": "10.2174/157015911795017425",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 149,
+      "study_doi": "10.2174/157015911795017425",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 150,
+      "study_doi": "10.25082/jpbr.2021.02.003",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 151,
+      "study_doi": "10.25082/jpbr.2021.02.003",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 152,
+      "study_doi": "10.25082/jpbr.2021.02.003",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 153,
+      "study_doi": "10.31219/osf.io/gy6m9",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 154,
+      "study_doi": "10.31219/osf.io/gy6m9",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 155,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 156,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 157,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 158,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 159,
+      "study_doi": "10.31887/DCNS.2001.3.4/fxvollenweider",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 160,
+      "study_doi": "10.3389/fnbeh.2015.00207",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 161,
+      "study_doi": "10.3389/fncel.2015.00200",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 162,
+      "study_doi": "10.3389/fncel.2022.832536",
+      "compound": "Ibogaine"
+    },
+    {
+      "row_index": 163,
+      "study_doi": "10.3389/fneur.2021.782190",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 164,
+      "study_doi": "10.3389/fnins.2020.00765",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 165,
+      "study_doi": "10.3389/fnmol.2018.00456",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 166,
+      "study_doi": "10.3389/fpain.2022.827372",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 167,
+      "study_doi": "10.3389/fphar.2017.00987",
+      "compound": "Lisuride"
+    },
+    {
+      "row_index": 168,
+      "study_doi": "10.3389/fphar.2019.00157",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 170,
+      "study_doi": "10.3389/fphar.2019.01423",
+      "compound": "TMA"
+    },
+    {
+      "row_index": 171,
+      "study_doi": "10.3389/fphar.2019.01423",
+      "compound": "TMA-2"
+    },
+    {
+      "row_index": 172,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "compound": "Mescaline"
+    },
+    {
+      "row_index": 173,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "compound": "Mescaline"
+    },
+    {
+      "row_index": 174,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 175,
+      "study_doi": "10.3389/fphar.2020.609811",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 176,
+      "study_doi": "10.3389/fphar.2021.794254",
+      "compound": "Mescaline"
+    },
+    {
+      "row_index": 177,
+      "study_doi": "10.3389/fphar.2023.1140656",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 178,
+      "study_doi": "10.3389/fphar.2023.1140656",
+      "compound": "Ayahuasca"
+    },
+    {
+      "row_index": 179,
+      "study_doi": "10.3389/fphar.2025.1606976",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 180,
+      "study_doi": "10.3389/fphar.2025.1650926",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 181,
+      "study_doi": "10.3389/fphys.2021.782588",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 182,
+      "study_doi": "10.3390/biom10081134",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 183,
+      "study_doi": "10.3390/biom13091411",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 184,
+      "study_doi": "10.3390/biomedicines11102664",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 185,
+      "study_doi": "10.3390/biomedicines9060625",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 186,
+      "study_doi": "10.3390/cancers12020257",
+      "compound": "MDA"
+    },
+    {
+      "row_index": 187,
+      "study_doi": "10.3390/ijms17111953",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 188,
+      "study_doi": "10.3390/ijms20030488",
+      "compound": "Ibogaine"
+    },
+    {
+      "row_index": 189,
+      "study_doi": "10.3390/ijms21217951",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 190,
+      "study_doi": "10.3390/ijms21217951",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 191,
+      "study_doi": "10.3390/ijms21217951",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 192,
+      "study_doi": "10.3390/ijms22020835",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 193,
+      "study_doi": "10.3390/ijms222312995",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 194,
+      "study_doi": "10.3390/ijms222312995",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 195,
+      "study_doi": "10.3390/ijms23137035",
+      "compound": "MDMA"
+    },
+    {
+      "row_index": 196,
+      "study_doi": "10.3390/medicina55070393",
+      "compound": "DOI"
+    },
+    {
+      "row_index": 197,
+      "study_doi": "10.3390/molecules26092451",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 198,
+      "study_doi": "10.3390/molecules26092451",
+      "compound": "LSD"
+    },
+    {
+      "row_index": 199,
+      "study_doi": "10.3390/molecules28020718",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 200,
+      "study_doi": "10.3390/molecules28114346",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 201,
+      "study_doi": "10.3390/molecules28114346",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 202,
+      "study_doi": "10.3390/molecules28114346",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 203,
+      "study_doi": "10.3390/molecules28124848",
+      "compound": "Salvinorin A"
+    },
+    {
+      "row_index": 204,
+      "study_doi": "10.3390/molecules28247942",
+      "compound": "Mescaline"
+    },
+    {
+      "row_index": 205,
+      "study_doi": "10.3390/ph15080997",
+      "compound": "S-ketamine"
+    },
+    {
+      "row_index": 206,
+      "study_doi": "10.3390/ph15080997",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 207,
+      "study_doi": "10.3390/ph15080997",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 208,
+      "study_doi": "10.3390/ph16101483",
+      "compound": "MDA"
+    },
+    {
+      "row_index": 209,
+      "study_doi": "10.3390/ph18020157",
+      "compound": "R-ketamine"
+    },
+    {
+      "row_index": 210,
+      "study_doi": "10.3390/ph18020157",
+      "compound": "Ketamine"
+    },
+    {
+      "row_index": 211,
+      "study_doi": "10.57098/scirevs.biology.2.2",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 212,
+      "study_doi": "10.57098/scirevs.biology.2.2",
+      "compound": "5-MeO-DMT"
+    },
+    {
+      "row_index": 213,
+      "study_doi": "10.57098/scirevs.biology.2.2.1",
+      "compound": "DMT"
+    },
+    {
+      "row_index": 214,
+      "study_doi": "10.69613/thv1dn30",
+      "compound": "Psilocybin"
+    },
+    {
+      "row_index": 215,
+      "study_doi": "10.7554/eLife.82641",
+      "compound": "Ibogaine"
+    },
+    {
+      "row_index": 216,
+      "study_doi": "10.7759/cureus.25414",
+      "compound": "Psilocin"
+    },
+    {
+      "row_index": 217,
+      "study_doi": "10.1126/sciadv.abh2399",
+      "compound": "Psilocybin"
+    }
+  ],
+  "duplicates": [
+    {
+      "row_index": 41,
+      "existing_row_index": 11,
+      "study_doi": "10.1038/s41380-020-0740-6",
+      "signature": [
+        "compound=Ketamine",
+        "target=NMDA receptor",
+        "study_doi=10.1038/s41380-020-0740-6",
+        "openalex_id=",
+        "assay_type=functional assay",
+        "affinity_type=Ki",
+        "affinity_value=3.1",
+        "affinity_unit=uM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: in schizophrenia patients and were acquired using an equivalent PET imaging technique. It should be noted that we investigated dopamine synthesis capacity in the striatum and, alth",
+          "candidate": "Abstract snippet: Abstract Patients with schizophrenia show increased striatal dopamine synthesis capacity in imaging studies. The mechanism underlying this is unclear but may be due to N-"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 48,
+      "existing_row_index": 12,
+      "study_doi": "10.1038/s41398-021-01540-2",
+      "signature": [
+        "compound=S-ketamine",
+        "target=NMDA receptor",
+        "study_doi=10.1038/s41398-021-01540-2",
+        "openalex_id=",
+        "assay_type=radioligand binding",
+        "affinity_type=Ki",
+        "affinity_value=1000",
+        "affinity_unit=nM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "Metadata/title snippet: N-methyl-D-aspartate receptor availability in first-episode psychosis: a PET-MR brain imaging study",
+          "candidate": "Abstract snippet: N-methyl-D-aspartate receptor (NMDAR) hypofunction is hypothesised to underlie psychosis but this has not been tested early in illness. To address this, we studied 40 vol"
+        },
+        "study_design": {
+          "existing": "in_vitro_binding_assay",
+          "candidate": "preclinical_study"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Full-text PDF autofill for mechanistic affinity fields (comparator `>` retained in context only)",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields (comparator `>` retained in context only)"
+        }
+      }
+    },
+    {
+      "row_index": 55,
+      "existing_row_index": 13,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "signature": [
+        "compound=LSD",
+        "target=5-HT2A",
+        "study_doi=10.1038/s41593-023-01316-5",
+        "openalex_id=",
+        "assay_type=radioligand binding",
+        "affinity_type=Kd",
+        "affinity_value=0.425",
+        "affinity_unit=nM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: require intact TrkB signaling12,13, we set out to explore whether direct binding to TrkB might mediate the neuroplastic effects behind their therapeutic potential. Results Psychede",
+          "candidate": "Abstract snippet: Abstract Psychedelics produce fast and persistent antidepressant effects and induce neuroplasticity resembling the effects of clinically approved antidepressants. We rece"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 56,
+      "existing_row_index": 14,
+      "study_doi": "10.1038/s41593-023-01316-5",
+      "signature": [
+        "compound=Psilocin",
+        "target=5-HT2A",
+        "study_doi=10.1038/s41593-023-01316-5",
+        "openalex_id=",
+        "assay_type=radioligand binding",
+        "affinity_type=Kd",
+        "affinity_value=0.425",
+        "affinity_unit=nM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: require intact TrkB signaling12,13, we set out to explore whether direct binding to TrkB might mediate the neuroplastic effects behind their therapeutic potential. Results Psychede",
+          "candidate": "Abstract snippet: Abstract Psychedelics produce fast and persistent antidepressant effects and induce neuroplasticity resembling the effects of clinically approved antidepressants. We rece"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 125,
+      "existing_row_index": 15,
+      "study_doi": "10.1186/1471-2210-6-6",
+      "signature": [
+        "compound=MDMA",
+        "target=SERT",
+        "study_doi=10.1186/1471-2210-6-6",
+        "openalex_id=",
+        "assay_type=uptake inhibition",
+        "affinity_type=Ki",
+        "affinity_value=0.6",
+        "affinity_unit=uM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: Dawn D Han1 and Howard H Gu*1,2 Address: 1Department of Pharmacology, The Ohio State University College of Medicine, USA and 2Department of Psychiatry, The Ohio State University Co",
+          "candidate": "Abstract snippet: Abstract Background The plasma membrane neurotransmitter transporters terminate neurotransmissions by the reuptake of the released neurotransmitters. The transporters for"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 126,
+      "existing_row_index": 16,
+      "study_doi": "10.1186/1471-2210-6-6",
+      "signature": [
+        "compound=MDMA",
+        "target=SERT (SLC6A4)",
+        "study_doi=10.1186/1471-2210-6-6",
+        "openalex_id=",
+        "assay_type=uptake inhibition",
+        "affinity_type=Ki",
+        "affinity_value=0.6",
+        "affinity_unit=uM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: Dawn D Han1 and Howard H Gu*1,2 Address: 1Department of Pharmacology, The Ohio State University College of Medicine, USA and 2Department of Psychiatry, The Ohio State University Co",
+          "candidate": "Abstract snippet: Abstract Background The plasma membrane neurotransmitter transporters terminate neurotransmissions by the reuptake of the released neurotransmitters. The transporters for"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 127,
+      "existing_row_index": 17,
+      "study_doi": "10.12688/f1000research.14344.1",
+      "signature": [
+        "compound=S-ketamine",
+        "target=NMDA receptor",
+        "study_doi=10.12688/f1000research.14344.1",
+        "openalex_id=",
+        "assay_type=functional assay",
+        "affinity_type=Other",
+        "affinity_value=50",
+        "affinity_unit=uM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: could find no evidence that (2R,6R)-HNK blocks NMDA receptors, including binding to known sites on the receptor complex or NMDA activ - ity in hippocampal slices, so the initial ce",
+          "candidate": "Abstract snippet: <ns4:p>Therapeutic medications for the treatment of depression have serious limitations, particularly delayed onset and low rates of efficacy. However, the discovery that"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 140,
+      "existing_row_index": 18,
+      "study_doi": "10.1523/jneurosci.1171-11.2011",
+      "signature": [
+        "compound=MDMA",
+        "target=SERT",
+        "study_doi=10.1523/jneurosci.1171-11.2011",
+        "openalex_id=",
+        "assay_type=uptake inhibition",
+        "affinity_type=Other",
+        "affinity_value=2.5",
+        "affinity_unit=nM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: rters binding assays Receptor/transporter Brain tissue Radioligand (concentration) Nonspecific displacer Ionic conditions Incubation parameters 5-HT1A cerebral cortex [ 3H]-WAY-100",
+          "candidate": "Abstract snippet: l -3,4-Dihydroxyphenylalanine ( l -DOPA) is the most effective treatment for Parkinson's disease, but long-term l -DOPA administration is marred by the emergence of motor"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 141,
+      "existing_row_index": 19,
+      "study_doi": "10.1523/jneurosci.1171-11.2011",
+      "signature": [
+        "compound=MDMA",
+        "target=SERT (SLC6A4)",
+        "study_doi=10.1523/jneurosci.1171-11.2011",
+        "openalex_id=",
+        "assay_type=uptake inhibition",
+        "affinity_type=Other",
+        "affinity_value=2.5",
+        "affinity_unit=nM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: rters binding assays Receptor/transporter Brain tissue Radioligand (concentration) Nonspecific displacer Ionic conditions Incubation parameters 5-HT1A cerebral cortex [ 3H]-WAY-100",
+          "candidate": "Abstract snippet: l -3,4-Dihydroxyphenylalanine ( l -DOPA) is the most effective treatment for Parkinson's disease, but long-term l -DOPA administration is marred by the emergence of motor"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 142,
+      "existing_row_index": 22,
+      "study_doi": "10.1523/jneurosci.4722-05.2006",
+      "signature": [
+        "compound=Ketamine",
+        "target=NMDA receptor",
+        "study_doi=10.1523/jneurosci.4722-05.2006",
+        "openalex_id=",
+        "assay_type=radioligand binding",
+        "affinity_type=IC50",
+        "affinity_value=9262",
+        "affinity_unit=M"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: pClamp8 software package (Molecular Devices). The external recording solution was composed of the following (in m M): 155 NaCl, 3.5 KCl, 2 CaCl2, 1.5 MgSO4, 10 glucose, 10 HEPES, p",
+          "candidate": "Abstract snippet: Several lines of evidence suggest that a hypoglutamatergic condition may induce a phenotypic loss of cortical parvalbumin (PV)-positive GABAergic interneurons, such as th"
+        },
+        "notes": {
+          "existing": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; PDF provenance locator refreshed from local full text",
+          "candidate": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+        }
+      }
+    },
+    {
+      "row_index": 169,
+      "existing_row_index": 10,
       "study_doi": "10.3389/fphar.2019.01406",
       "signature": [
         "compound=LSD",
         "target=5-HT2A",
         "study_doi=10.3389/fphar.2019.01406",
         "openalex_id=",
-        "assay_type=functional assay"
-      ]
+        "assay_type=functional assay",
+        "affinity_type=Ki",
+        "affinity_value=0.044",
+        "affinity_unit=nM"
+      ],
+      "changed_fields": {
+        "evidence_locator": {
+          "existing": "PDF extraction snippet: e), a r e p r o b a b l y t h e m os t fa m o u s; t h e y u s e d t o b e m a r k et e d a s a lega l l ys er g ic acid diet h y l a mide (LS D), w i t h a li a s es s uc h a s \u0093",
+          "candidate": "Abstract snippet: 4-Iodo-2,5-dimethoxy-<i>N</i>-(2-methoxybenzyl)phenethylamine (25I-NBOMe), commonly called \"N-Bomb,\" is a synthetic phenethylamine with psychedelic and entactogenic effec"
+        }
+      }
     }
   ],
-  "triage_pruned_samples": [
-    {
-      "study_doi": "10.1371/journal.pone.0036476",
-      "compound": "MDMA",
-      "target": "SERT"
-    },
-    {
-      "study_doi": "10.1038/s41386-023-01783-1",
-      "compound": "S-ketamine",
-      "target": "NMDA receptor"
-    },
-    {
-      "study_doi": "10.1371/journal.pcbi.1002909",
-      "compound": "MDMA",
-      "target": "DAT (SLC6A3)"
-    },
-    {
-      "study_doi": "10.3389/fchem.2021.753990",
-      "compound": "MDMA",
-      "target": "DAT (SLC6A3)"
-    },
-    {
-      "study_doi": "10.1007/s00213-013-3234-2",
-      "compound": "LSD",
-      "target": "5-HT2A"
-    },
-    {
-      "study_doi": "10.1038/s41380-023-02064-5",
-      "compound": "MDMA",
-      "target": "SERT (SLC6A4)"
-    },
-    {
-      "study_doi": "10.1038/s41380-025-03201-y",
-      "compound": "MDMA",
-      "target": "DAT (SLC6A3)"
-    },
-    {
-      "study_doi": "10.1038/s41386-018-0076-y",
-      "compound": "LSD",
-      "target": "5-HT2A"
-    },
-    {
-      "study_doi": "10.1038/s41386-023-01614-3",
-      "compound": "S-ketamine",
-      "target": "NMDA receptor"
-    },
-    {
-      "study_doi": "10.1038/s41467-020-14889-7",
-      "compound": "Salvinorin A",
-      "target": "kappa opioid receptor (OPRK1)"
-    },
-    {
-      "study_doi": "10.1371/journal.pone.0036476",
-      "compound": "MDMA",
-      "target": "SERT (SLC6A4)"
-    },
-    {
-      "study_doi": "10.1371/journal.pone.0136641",
-      "compound": "MDMA",
-      "target": "DAT (SLC6A3)"
-    },
-    {
-      "study_doi": "10.3389/fphar.2021.654061",
-      "compound": "MDMA",
-      "target": "DAT (SLC6A3)"
-    },
-    {
-      "study_doi": "10.3389/fphar.2025.1703480",
-      "compound": "DMT",
-      "target": "TAAR1"
-    },
-    {
-      "study_doi": "10.3390/ijms252011276",
-      "compound": "MDMA",
-      "target": "DAT (SLC6A3)"
-    }
-  ],
+  "upserted": [],
+  "triage_pruned_samples": [],
   "status": "applied"
 }

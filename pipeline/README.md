@@ -1,168 +1,242 @@
 # Pipeline
 
-Deterministic ETL for building the KG.
+Deterministic ETL for building a provenance-aware psychedelics evidence graph.
+The current workflow is optimized for high-recall literature discovery, explicit
+screening provenance, conservative claim extraction, and schema-validated graph
+outputs.
 
 ## Stages
-1. Ingest: gather papers (manual or API export)
-2. Extract: create structured claims in CSV/JSON
-3. Validate: schema checks + field normalization
-4. Publish: push contributions to ORKG
+1. **Discover**: search multiple literature sources and write DOI queues.
+2. **Sync metadata**: build the paper library from PubMed, PMC, Unpaywall,
+   Crossref, and OpenAlex metadata.
+3. **Triage**: classify relevance and write triage-relevant DOI-context queues.
+4. **Acquire PDFs**: download legal OA PDFs only for triage-relevant papers.
+5. **Seed stubs**: create one claim stub per DOI + compound + target/disorder
+   context.
+6. **Autofill claims**: fill fields from abstracts first, then PDFs.
+7. **Promote**: move schema-clean rows into curated claim datasets.
+8. **Validate and publish**: run validation and export graph payloads.
 
-## Taxonomy config
-- Disorder canonicalization aliases are configured in:
-  `schema/disorder_canonicalization.json`
-- Update this file to merge/split overlapping disorder labels without changing
-  pipeline code.
+Detailed stage docs:
+- Ingest/discovery/PDF acquisition: `pipeline/ingest/README.md`
+- Triage/autofill/review queue: `pipeline/review/README.md`
+- Promotion: `pipeline/extract/README.md`
+- Validation: `pipeline/validate/`
+- Publishing: `pipeline/publish/README.md`
 
-## Ingest from DOI queue
-- Discover literature first (default Semantic Scholar):
-  `python pipeline/ingest/discover_literature.py --dataset mechanistic`
-- Use provider options:
-  `--provider semantic_scholar` (default), `--provider openalex`, `--provider hybrid`
-- Generate mechanistic stubs:
-  `python pipeline/ingest/seed_from_dois.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.template.txt --replace`
-- Generate disorder stubs:
-  `python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.template.txt --replace`
-- From discovered queues:
-  `data/raw/doi_queue.mechanistic.discovered.txt`, `data/raw/doi_queue.disorder.discovered.txt`
-- Ingest docs:
-  `pipeline/ingest/README.md`
-- Sync paper library (abstracts + OA + PDF download status):
-  `python pipeline/ingest/sync_paper_library.py --dataset mechanistic --skip-download`
-  `python pipeline/ingest/sync_paper_library.py --dataset disorder --skip-download`
-- Generate triage queue before download:
-  `python pipeline/review/triage_paper_library.py --dataset mechanistic`
-  `python pipeline/review/triage_paper_library.py --dataset disorder`
-- Filtered triage queues include only matched `(compound, entity)` contexts to
-  prevent DOI-level cross-mapping noise.
-- Download only triaged-relevant rows:
-  `python pipeline/ingest/sync_paper_library.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt`
-  `python pipeline/ingest/sync_paper_library.py --dataset disorder --doi-file data/raw/doi_queue.disorder.triage_relevant.txt`
-- Extensive run helper (discovery + triage-first sync):
-  `python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid --max-results-per-seed 100 --max-results 600`
-- High-recall seed expansion run:
-  `python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1200 --auto-max-seeds 3000 --max-results-per-seed 120 --max-results 5000`
-- Recommended staged strategy (faster + reproducible):
-  see `pipeline/ingest/README.md` section "Recommended principled search strategy"
-- Recall benchmark audit:
-  `python pipeline/ingest/recall_audit.py --dataset mechanistic --known-doi-file data/raw/benchmark_known_dois.mechanistic.txt`
-  `python pipeline/ingest/recall_audit.py --dataset disorder --known-doi-file data/raw/benchmark_known_dois.disorder.txt`
-- Retry failed/no-URL downloads:
-  `python pipeline/ingest/retry_pdf_downloads.py --dataset mechanistic`
-  `python pipeline/ingest/retry_pdf_downloads.py --dataset disorder`
-- Import manual PDFs into paper DB:
-  `python pipeline/ingest/import_manual_pdfs.py --dataset mechanistic --source-dir /absolute/path/to/manual_pdfs --apply`
-  `python pipeline/ingest/import_manual_pdfs.py --dataset disorder --source-dir /absolute/path/to/manual_pdfs --apply`
-- Ingest outputs:
-  `data/raw/doi_queue.<dataset>.discovered.txt`
-  `data/raw/doi_queue.<dataset>.triage_relevant.txt`
-  `data/raw/doi_queue.<dataset>.retry_pdf.txt`
-  `data/processed/discovery_report_<dataset>.json`
-  `data/processed/paper_library_<dataset>.json`
-  `data/processed/paper_library_<dataset>.csv`
-  `data/processed/paper_inventory_<dataset>.json`
-  `data/processed/paper_inventory_<dataset>.md`
-  `data/processed/manual_pdf_import_report_<dataset>.json`
-  `data/raw/papers/<dataset>/pdfs/`
+## Local Config
+Keep credentials in the ignored overlay file:
 
-## Promote curated-ready stubs
-- Mechanistic dry run:
-  `python pipeline/extract/promote_ready_stubs.py --dataset mechanistic`
-- Disorder dry run:
-  `python pipeline/extract/promote_ready_stubs.py --dataset disorder`
-- Disorder promotion canonicalizes overlapping labels to reduce graph
-  duplication (for example `End-of-life anxiety` is merged into
-  `distress associated with life-threatening disease`)
-- Promotion also prunes existing curated rows marked `likely_irrelevant` in the
-  latest triage report (same DOI+compound+entity context).
-- It also prunes existing curated rows for DOI-contexts that are missing from
-  triage matched `contexts` (even if the DOI itself is relevant), which removes
-  stale cross-mapped disorder/target edges from earlier runs.
-- Apply writes:
-  add `--apply` after confirming dry run has zero errors
-- Extract docs:
-  `pipeline/extract/README.md`
-- Promotion outputs:
-  `data/processed/promotion_report_<dataset>.json`
-  `data/curated/claims.json`, `data/curated/claims.csv`
-  `data/curated/disorder_claims.json`, `data/curated/disorder_claims.csv`
+```bash
+cp pipeline/config.local.example.yaml pipeline/config.local.yaml
+chmod 600 pipeline/config.local.yaml
+```
 
-## Review queue
-- Paper triage before queue review:
-  `python pipeline/review/triage_paper_library.py --dataset mechanistic`
-  `python pipeline/review/triage_paper_library.py --dataset disorder`
-- Apply triage to stubs:
-  add `--apply-to-stubs`
-- Mechanistic queue report:
-  `python pipeline/review/curation_queue.py --dataset mechanistic`
-- Disorder queue report:
-  `python pipeline/review/curation_queue.py --dataset disorder`
-- Autofill stubs from curated matches:
-  `python pipeline/review/autofill_stubs_from_curated.py --dataset mechanistic --mark-ready --apply`
-- Full-PDF mechanistic autofill (affinity fields):
-  `python pipeline/review/autofill_mechanistic_from_pdfs.py --dataset mechanistic --mark-ready --apply`
-- Full-PDF disorder autofill (outcome/provenance fields):
-  `python pipeline/review/autofill_disorder_from_pdfs.py --dataset disorder --mark-ready --apply`
-- Mark clean rows ready:
-  add `--mark-ready --apply`
-- Review docs:
-  `pipeline/review/README.md`
-- Review outputs:
-  `data/processed/triage_report_mechanistic.json`
-  `data/processed/triage_report_disorder.json`
-  `data/processed/review_queue_mechanistic.json`
-  `data/processed/review_queue_disorder.json`
-  `data/processed/pdf_autofill_report_mechanistic.json`
-  `data/processed/pdf_autofill_report_disorder.json`
-  `data/processed/autofill_report_mechanistic.json`
-  `data/processed/autofill_report_disorder.json`
+Set whichever services you have:
+- `openalex.api_key`
+- `pubmed.email`
+- `pubmed.api_key`
+- `crossref.email`
+- `unpaywall.email`
+- `semantic_scholar.api_key` (optional; the pipeline can run without it)
 
-## Author backfill
-- Backfill `authors` in curated datasets from DOI lookup:
-  `python pipeline/enrich/backfill_authors_from_lookup.py --apply`
-- Lookup file:
-  `data/raw/doi_authors_lookup.json`
+Scripts that use `pipeline/config.example.yaml` automatically overlay
+`pipeline/config.local.yaml` when it exists.
 
-## Publish-prep export
-- Export ORKG payload files:
-  `python pipeline/publish/export_orkg_payload.py`
-- Export one dataset:
-  add `--dataset mechanistic` or `--dataset disorder`
-- Export outputs:
-  `data/processed/orkg_payload_mechanistic.json` (all evidence)
-  `data/processed/orkg_payload_mechanistic_primary_only.json`
-  `data/processed/orkg_payload_disorder.json` (all evidence)
-  `data/processed/orkg_payload_disorder_primary_only.json`
-  `data/processed/orkg_payload_manifest.json`
-- Publish docs:
-  `pipeline/publish/README.md`
+## Recommended High-Recall Run
 
-## Inputs
-- `data/curated/claims.csv`
-- `data/curated/claims.json`
-- `data/curated/disorder_claims.csv`
-- `data/curated/disorder_claims.json`
+### 1. Discovery
+Run broad discovery, then a higher-recall expansion pass. Keep one dataset per
+terminal when monitoring long runs.
 
-## Outputs
-- `data/processed/claims.normalized.json`
-- `data/processed/disorder_claims.normalized.json`
-- ORKG contributions (public)
+```bash
+python pipeline/ingest/run_extensive_search.py \
+  --dataset mechanistic \
+  --provider hybrid \
+  --expand-seeds-from-config \
+  --auto-template-mode broad \
+  --auto-max-pairs 1400 \
+  --auto-max-seeds 1800 \
+  --balanced-seed-profile coverage \
+  --max-results-per-seed 80 \
+  --max-results 8000 \
+  --semantic-scholar-rps 0.5 \
+  --openalex-rps 3.0 \
+  --max-retries 3 \
+  --discover-only
+```
 
-## Minimum claim metadata
-- Provenance fields are mandatory for both datasets:
-  `source_type`, `access_level`, `evidence_location`, `evidence_locator`,
-  `study_design` (see `docs/evidence_policy.md`).
+Use `--dataset disorder` for disorder discovery. Use `--provider comprehensive`
+for a final recall-focused pass when PubMed/PMC/Crossref coverage should be
+included during discovery.
 
-## Validator
-- Run strict validation and write a quality report:
-  `python pipeline/validate/validate_claims.py`
-- Report output:
-  `data/processed/validation_report.json`
-- Build a cleanup triage report for weak curated rows:
-  `python pipeline/validate/build_cleanup_report.py`
-- Move only auto-demote rows into exploratory curated files:
-  `python pipeline/validate/apply_cleanup_demotions.py --apply`
-- Refresh stale abstract locators from local PDFs for the provenance-fix bucket:
-  `python pipeline/validate/refresh_pdf_provenance.py --apply`
-- Resolve the clearest high-impact disorder manual-review rows with conservative title/abstract rules:
-  `python pipeline/validate/resolve_high_impact_manual_review.py --apply`
+### 2. Recall Audit
+The benchmark manifest is `data/raw/benchmark_manifest.json`.
+
+```bash
+python pipeline/ingest/recall_audit.py --dataset mechanistic --min-discovered 95 --fail-under-threshold
+python pipeline/ingest/recall_audit.py --dataset disorder --min-discovered 95 --fail-under-threshold
+```
+
+If recall misses the threshold, improve seeds/synonyms before syncing and
+extracting claims.
+
+### 3. Metadata Sync
+Run metadata first, without downloads.
+
+```bash
+python pipeline/ingest/sync_paper_library.py \
+  --dataset mechanistic \
+  --skip-download \
+  --checkpoint-every 100 \
+  --progress-every 100
+```
+
+Default metadata provider order is:
+
+```text
+pubmed, pmc, unpaywall, crossref, openalex
+```
+
+This gives biomedical abstracts/PMCID signals first, OA/PDF resolution from
+Unpaywall, then broad metadata fallbacks.
+
+### 4. Triage
+Triage produces `data/raw/doi_queue.<dataset>.triage_relevant.txt`.
+
+```bash
+python pipeline/review/triage_paper_library.py --dataset mechanistic
+python pipeline/review/triage_paper_library.py --dataset disorder
+```
+
+Triage is recall-safe by default:
+- benchmark and curated DOI-contexts are protected
+- stale discovery contexts can be synthesized from title/abstract matches
+- reports include `screening_status`, rescue reasons, and protected/synthesized
+  context counts
+
+### 5. PDF Acquisition
+Download only from the triage-relevant queue.
+
+```bash
+python pipeline/ingest/sync_paper_library.py \
+  --dataset mechanistic \
+  --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt \
+  --metadata-provider-order pubmed,pmc,unpaywall,crossref,openalex \
+  --max-retries 1 \
+  --max-retry-after-sec 30 \
+  --timeout-sec 30 \
+  --checkpoint-every 100 \
+  --progress-every 100
+```
+
+The downloader tries multiple legal candidates where available, including PMC /
+Europe PMC, Unpaywall, OpenAlex, and publisher/repository URLs. Use
+`pipeline/ingest/retry_pdf_downloads.py` for targeted retry queues instead of
+rerunning the full sync.
+
+### 6. Seed Context-Level Stubs
+Generate stubs from the triage-relevant queues. Stubs are deduplicated by
+`DOI + compound + target/disorder`, not DOI alone, so multi-context papers
+produce all graph-relevant edges.
+
+```bash
+python pipeline/ingest/seed_from_dois.py \
+  --dataset mechanistic \
+  --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt \
+  --replace
+
+python pipeline/ingest/seed_from_dois.py \
+  --dataset disorder \
+  --doi-file data/raw/doi_queue.disorder.triage_relevant.txt \
+  --replace
+```
+
+### 7. Abstract-First Autofill
+Run abstract/metadata extraction for all triaged stubs.
+
+```bash
+python pipeline/review/autofill_stubs_from_abstracts.py --dataset mechanistic --mark-ready --apply
+python pipeline/review/autofill_stubs_from_abstracts.py --dataset disorder --mark-ready --apply
+```
+
+Abstract-only disorder rows can become ready when required outcome/provenance
+fields are present. Mechanistic rows usually still need PDF evidence for
+quantitative affinity fields.
+
+### 8. PDF Autofill
+PDF-heavy scripts auto-run inside the `psychkg-pdf` conda environment when it
+exists. See `pipeline/review/README.md` for one-time setup.
+
+```bash
+python pipeline/review/autofill_mechanistic_from_pdfs.py \
+  --dataset mechanistic \
+  --mark-ready \
+  --apply \
+  --progress-every 100
+
+python pipeline/review/autofill_disorder_from_pdfs.py \
+  --dataset disorder \
+  --mark-ready \
+  --apply \
+  --progress-every 100
+```
+
+### 9. Review Queue
+Inspect blockers before promotion.
+
+```bash
+python pipeline/review/curation_queue.py --dataset mechanistic
+python pipeline/review/curation_queue.py --dataset disorder
+```
+
+Reports:
+- `data/processed/review_queue_mechanistic.json`
+- `data/processed/review_queue_disorder.json`
+
+### 10. Promote, Validate, Export
+Dry-run promotion first.
+
+```bash
+python pipeline/extract/promote_ready_stubs.py --dataset mechanistic
+python pipeline/extract/promote_ready_stubs.py --dataset disorder
+```
+
+Apply when dry-run blockers are acceptable:
+
+```bash
+python pipeline/extract/promote_ready_stubs.py --dataset mechanistic --apply
+python pipeline/extract/promote_ready_stubs.py --dataset disorder --apply
+```
+
+Then validate and export:
+
+```bash
+python pipeline/validate/validate_claims.py
+python pipeline/publish/export_graph_payload.py
+```
+
+## Key Outputs
+- `data/raw/doi_queue.<dataset>.discovered.txt`
+- `data/raw/doi_queue.<dataset>.triage_relevant.txt`
+- `data/processed/discovery_report_<dataset>.json`
+- `data/processed/discovery_ledger_<dataset>.json`
+- `data/processed/paper_library_<dataset>.json`
+- `data/processed/paper_inventory_<dataset>.md`
+- `data/processed/triage_report_<dataset>.json`
+- `data/processed/*_claim_stubs.json`
+- `data/processed/abstract_autofill_report_<dataset>.json`
+- `data/processed/pdf_autofill_report_<dataset>.json`
+- `data/processed/promotion_report_<dataset>.json`
+- `data/processed/validation_report.json`
+- `data/processed/graph_payload_*.json`
+
+## Evidence Rules
+- Provenance fields are mandatory: `source_type`, `access_level`,
+  `evidence_location`, `evidence_locator`, and `study_design`.
+- Main curated rows should be primary evidence. Reviews, protocols, conference
+  abstracts, and weak/secondary evidence should remain blocked or be routed to
+  exploratory outputs.
+- Disorder labels are canonicalized with `schema/disorder_canonicalization.json`.
+- Promotion prunes stale curated DOI-contexts that no longer appear in the
+  latest triage matched contexts.

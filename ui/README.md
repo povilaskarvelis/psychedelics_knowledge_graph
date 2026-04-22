@@ -9,6 +9,6 @@ Run
   `http://localhost:8000/ui/`
 
 Ideas
-- Graph view: compounds and targets with edges for evidence
-- Claim cards: show study, assay, affinity, evidence level
-- Filters: compound, target, evidence level
+- Graph view: compounds and targets/indications with edges for claims
+- Claim cards: show study, assay/outcome, provenance, and factual chips such as `rct`, `full text`, and `positive`
+- Filters: compound, target/indication, year, primary results, and full text

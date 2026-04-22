@@ -1,9 +1,14 @@
 # Ingest: Web Discovery + DOI Queue to Claim Stubs
 
-This stage has three steps:
+This stage has four steps:
 1. Discover literature from web APIs and write DOI queue files.
-2. Convert DOI queues into normalized curation stubs.
-3. Sync the local paper library (abstracts + OA metadata + PDF downloads).
+2. Sync the local paper library for metadata/abstracts.
+3. Triage the paper library and write triage-relevant DOI-context queues.
+4. Download legal OA PDFs only for triage-relevant rows.
+
+Claim stubs should normally be generated after triage from
+`data/raw/doi_queue.<dataset>.triage_relevant.txt`, not directly from the full
+discovered queue.
 
 ## Discovery (web search)
 Default provider is `semantic_scholar` (relevance-focused). Additional modes:
@@ -252,6 +257,10 @@ Both use the same line format:
 - `doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors`
 - Lines starting with `#` are ignored.
 
+Stubs are deduplicated by `DOI + compound + target_or_disorder`, not by DOI
+alone. This preserves multi-context papers that support more than one graph
+edge.
+
 ## Run
 Mechanistic stubs:
 `python pipeline/ingest/seed_from_dois.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.template.txt --replace`
@@ -259,11 +268,14 @@ Mechanistic stubs:
 Disorder stubs:
 `python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.template.txt --replace`
 
-Mechanistic stubs from discovered queue:
-`python pipeline/ingest/seed_from_dois.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.discovered.txt --replace`
+Recommended stubs from triage-relevant queues:
+`python pipeline/ingest/seed_from_dois.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt --replace`
 
-Disorder stubs from discovered queue:
-`python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.discovered.txt --replace`
+`python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.triage_relevant.txt --replace`
+
+Avoid generating production stubs directly from
+`data/raw/doi_queue.<dataset>.discovered.txt`; that queue has not been screened
+and can include context noise that triage is designed to remove.
 
 ## Outputs
 - `data/processed/mechanistic_claim_stubs.json`
@@ -274,7 +286,11 @@ Disorder stubs from discovered queue:
 ## Paper library sync (abstracts + OA + PDFs)
 Run after discovery so the queue contains candidate DOIs.
 
-Default provider order is `pubmed,pmc,unpaywall,crossref,openalex`: PubMed/PMC first for biomedical abstracts and PMCID/full-text signals, Unpaywall next for legal OA/PDF resolution, then Crossref/OpenAlex as broader metadata fallbacks. If `unpaywall.email` is missing from local config, Unpaywall is skipped with a warning.
+Default provider order is `pubmed,pmc,unpaywall,crossref,openalex`: PubMed/PMC
+first for biomedical abstracts and PMCID/full-text signals, Unpaywall next for
+legal OA/PDF resolution, then Crossref/OpenAlex as broader metadata fallbacks.
+If `unpaywall.email` is missing from local config, Unpaywall is skipped with a
+warning.
 
 Mechanistic:
 `python pipeline/ingest/sync_paper_library.py --dataset mechanistic`
@@ -309,6 +325,12 @@ Use `--verbose` to print raw child script logs.
 Retry failed/no-URL PDF rows from existing paper DB:
 `python pipeline/ingest/retry_pdf_downloads.py --dataset mechanistic`
 `python pipeline/ingest/retry_pdf_downloads.py --dataset disorder`
+
+The retry helper builds a focused DOI queue from existing failed/no-URL rows
+and calls `sync_paper_library.py` again. It is useful after downloader fixes or
+provider-order changes because it avoids rerunning the full paper library sync.
+Use `--doi-file data/raw/doi_queue.<dataset>.triage_relevant.txt` to constrain
+retries to the current evidence-building set.
 
 Import manually acquired PDFs by DOI-style filenames:
 `python pipeline/ingest/import_manual_pdfs.py --dataset mechanistic --source-dir /absolute/path/to/manual_pdfs --apply`

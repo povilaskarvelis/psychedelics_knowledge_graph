@@ -41,4 +41,4 @@ Each paper should yield one or more binding/functional claims with provenance.
 ## Next step
 - Retrieve full text or tables for each paper and extract:
   compound, target, assay type, affinity type/value/unit, species, system,
-  study year, DOI/openalex id, and evidence level.
+  study year, DOI/openalex id, provenance, and internal evidence tier.

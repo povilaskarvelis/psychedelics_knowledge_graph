@@ -8,8 +8,20 @@
   },
   "compounds": [
     {
+      "label": "2C-I",
+      "aliases": ["2,5-dimethoxy-4-iodophenethylamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
       "label": "5-MeO-DMT",
       "aliases": ["5-methoxy-N,N-dimethyltryptamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-MeO-DiPT",
+      "aliases": ["5-methoxy-N,N-diisopropyltryptamine", "foxy methoxy"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
     },
@@ -26,8 +38,20 @@
       "status": "needs_external_id_lookup"
     },
     {
+      "label": "DiPT",
+      "aliases": ["N,N-diisopropyltryptamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
       "label": "DOI",
       "aliases": ["2,5-dimethoxy-4-iodoamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DOM",
+      "aliases": ["2,5-dimethoxy-4-methylamphetamine", "STP"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
     },
@@ -40,6 +64,12 @@
     {
       "label": "Ketamine",
       "aliases": ["racemic ketamine", "(R,S)-ketamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Lisuride",
+      "aliases": ["lysuride"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
     },
@@ -68,6 +98,12 @@
       "status": "needs_external_id_lookup"
     },
     {
+      "label": "Noribogaine",
+      "aliases": ["12-hydroxyibogamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
       "label": "Psilocin",
       "aliases": [],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
@@ -90,6 +126,24 @@
       "aliases": ["esketamine", "(S)-ketamine"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Salvinorin A",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TMA",
+      "aliases": ["3,4,5-trimethoxyamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TMA-2",
+      "aliases": ["2,4,5-trimethoxyamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
     }
   ],
   "targets": [
@@ -108,11 +162,39 @@
       "status": "needs_external_id_lookup"
     },
     {
+      "label": "5-HT2B",
+      "aliases": ["HTR2B", "serotonin 2B receptor"],
+      "ids": {"gene_symbol": "HTR2B", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
       "label": "5-HT2C",
       "aliases": ["HTR2C", "serotonin 2C receptor"],
       "ids": {"gene_symbol": "HTR2C", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT5A",
+      "aliases": ["HTR5A", "serotonin 5A receptor"],
+      "ids": {"gene_symbol": "HTR5A", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT7",
+      "aliases": ["HTR7", "serotonin 7 receptor"],
+      "ids": {"gene_symbol": "HTR7", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "AMPA receptor",
+      "aliases": ["AMPA-type glutamate receptor", "ionotropic AMPA receptor"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "complex_target_needs_subunit_mapping"
     },
     {
       "label": "DAT (SLC6A3)",
@@ -136,9 +218,65 @@
       "status": "complex_target_needs_subunit_mapping"
     },
     {
+      "label": "mGluR2 (GRM2)",
+      "aliases": ["mGluR2", "metabotropic glutamate receptor 2", "GRM2"],
+      "ids": {"gene_symbol": "GRM2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "M3 muscarinic receptor (CHRM3)",
+      "aliases": ["M3 receptor", "muscarinic acetylcholine receptor M3", "CHRM3"],
+      "ids": {"gene_symbol": "CHRM3", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "mu opioid receptor (OPRM1)",
+      "aliases": ["MOR", "mu opioid receptor", "OPRM1"],
+      "ids": {"gene_symbol": "OPRM1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
       "label": "SERT (SLC6A4)",
       "aliases": ["SERT", "serotonin transporter", "SLC6A4"],
       "ids": {"gene_symbol": "SLC6A4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Sigma-1 receptor (SIGMAR1)",
+      "aliases": ["SIGMA-1", "sigma-1 receptor", "SIGMAR1"],
+      "ids": {"gene_symbol": "SIGMAR1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Sigma-2 receptor (TMEM97)",
+      "aliases": ["SIGMA-2", "sigma-2 receptor", "TMEM97"],
+      "ids": {"gene_symbol": "TMEM97", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TAAR1",
+      "aliases": ["trace amine-associated receptor 1"],
+      "ids": {"gene_symbol": "TAAR1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TrkB (NTRK2)",
+      "aliases": ["TrkB", "BDNF receptor", "NTRK2", "tropomyosin receptor kinase B"],
+      "ids": {"gene_symbol": "NTRK2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "kappa opioid receptor (OPRK1)",
+      "aliases": ["KOR", "kappa opioid receptor", "OPRK1"],
+      "ids": {"gene_symbol": "OPRK1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
     }
@@ -148,8 +286,10 @@
     {"label": "Anorexia nervosa", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Autism spectrum disorder", "aliases": ["ASD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Bipolar depression", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Cannabis use disorder", "aliases": ["CUD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Chronic pain", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Cluster headache", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Complex post-traumatic stress disorder", "aliases": ["complex PTSD", "C-PTSD", "CPTSD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Cocaine use disorder", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Demoralization", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Distress associated with life-threatening disease", "aliases": ["cancer-related distress", "life-threatening disease distress"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
@@ -162,6 +302,8 @@
     {"label": "Opioid use disorder", "aliases": ["OUD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Persistent depressive disorder", "aliases": ["dysthymia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Post-traumatic stress disorder", "aliases": ["PTSD", "posttraumatic stress disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Social anxiety disorder", "aliases": ["SAD", "social phobia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Stimulant use disorder", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Substance use disorder", "aliases": ["SUD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Suicidal ideation", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Tobacco use disorder", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},

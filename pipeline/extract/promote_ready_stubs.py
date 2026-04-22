@@ -24,7 +24,16 @@ DATASET_CONFIG = {
         "triage_report_json": ROOT / "data" / "processed" / "triage_report_mechanistic.json",
         "schema": ROOT / "schema" / "claims.schema.json",
         "entity_key": "target",
-        "id_fields": ["compound", "target", "study_doi", "openalex_id", "assay_type"],
+        "id_fields": [
+            "compound",
+            "target",
+            "study_doi",
+            "openalex_id",
+            "assay_type",
+            "affinity_type",
+            "affinity_value",
+            "affinity_unit",
+        ],
         "csv_order": [
             "compound",
             "target",
@@ -58,7 +67,14 @@ DATASET_CONFIG = {
         "triage_report_json": ROOT / "data" / "processed" / "triage_report_disorder.json",
         "schema": ROOT / "schema" / "disorder_claims.schema.json",
         "entity_key": "disorder",
-        "id_fields": ["compound", "disorder", "study_doi", "openalex_id", "outcome_type"],
+        "id_fields": [
+            "compound",
+            "disorder",
+            "study_doi",
+            "openalex_id",
+            "outcome_type",
+            "outcome_measure",
+        ],
         "csv_order": [
             "compound",
             "disorder",
@@ -84,6 +100,37 @@ DATASET_CONFIG = {
         ],
     },
 }
+
+NUMERIC_SIGNATURE_FIELDS = {"affinity_value"}
+PROMOTION_DIFF_FIELDS = [
+    "compound",
+    "target",
+    "disorder",
+    "assay_type",
+    "affinity_type",
+    "affinity_value",
+    "affinity_unit",
+    "outcome_type",
+    "outcome_measure",
+    "result_direction",
+    "population",
+    "system",
+    "paper_type",
+    "source_type",
+    "access_level",
+    "evidence_location",
+    "evidence_locator",
+    "study_design",
+    "evidence_level",
+    "notes",
+]
+PROMOTION_BLOCKED_TITLE_PATTERNS = [
+    ("review record", re.compile(r"^\s*review for\b", re.IGNORECASE)),
+    ("author correction", re.compile(r"\bauthor correction\b", re.IGNORECASE)),
+    ("retraction note", re.compile(r"\bretraction note\b", re.IGNORECASE)),
+    ("recommendation record", re.compile(r"\bfaculty opinions recommendation\b", re.IGNORECASE)),
+]
+TRUNCATE_REPORT_VALUE_AT = 260
 
 
 def normalize(value) -> str:
@@ -266,8 +313,81 @@ def validate_ready_row(
     return cleaned, errors
 
 
+def normalize_signature_value(field: str, value) -> str:
+    text = normalize(value)
+    if text == "":
+        return ""
+    if field in NUMERIC_SIGNATURE_FIELDS:
+        try:
+            return f"{float(text):.12g}"
+        except ValueError:
+            return text
+    return text
+
+
 def signature(row: dict, id_fields: List[str]) -> Tuple[str, ...]:
-    return tuple(f"{field}={normalize(row.get(field, ''))}" for field in id_fields)
+    return tuple(f"{field}={normalize_signature_value(field, row.get(field, ''))}" for field in id_fields)
+
+
+def truncate_report_value(value) -> str:
+    text = normalize(value)
+    if len(text) <= TRUNCATE_REPORT_VALUE_AT:
+        return text
+    return text[: TRUNCATE_REPORT_VALUE_AT - 3].rstrip() + "..."
+
+
+def row_diff(existing: dict, candidate: dict, fields: List[str] = PROMOTION_DIFF_FIELDS) -> Dict[str, dict]:
+    out: Dict[str, dict] = {}
+    for field in fields:
+        old = existing.get(field, "")
+        new = candidate.get(field, "")
+        if normalize(old) == normalize(new):
+            continue
+        out[field] = {
+            "existing": truncate_report_value(old),
+            "candidate": truncate_report_value(new),
+        }
+    return out
+
+
+def promotion_evidence_errors(row: dict) -> List[str]:
+    errors: List[str] = []
+    access_level = normalize(row.get("access_level", ""))
+    evidence_location = normalize(row.get("evidence_location", ""))
+    evidence_locator = normalize(row.get("evidence_locator", ""))
+    source_type = normalize(row.get("source_type", ""))
+    study_title = normalize(row.get("study_title", ""))
+
+    if source_type != "primary_study":
+        errors.append(
+            f"source_type `{source_type or 'missing'}` is not promotable; curated graph claims must come from primary studies"
+        )
+
+    if access_level == "secondary_summary":
+        errors.append("access_level `secondary_summary` is not promotable into the primary evidence graph")
+
+    if evidence_location == "unknown":
+        errors.append("evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence")
+
+    locator_lower = evidence_locator.lower()
+    if locator_lower.startswith("metadata/title snippet:"):
+        errors.append("metadata/title-only evidence is not promotable; claim needs abstract or full-text support")
+
+    for label, pattern in PROMOTION_BLOCKED_TITLE_PATTERNS:
+        if pattern.search(study_title):
+            errors.append(f"study_title indicates a {label}, not a primary results paper")
+            break
+
+    return errors
+
+
+def promotion_evidence_warnings(row: dict) -> List[str]:
+    warnings: List[str] = []
+    access_level = normalize(row.get("access_level", ""))
+    evidence_locator = normalize(row.get("evidence_locator", ""))
+    if access_level == "full_text_seen" and evidence_locator.lower().startswith("abstract snippet:"):
+        warnings.append("full_text_seen row still uses an abstract snippet as the evidence locator")
+    return warnings
 
 
 def relevance_context_signature(dataset: str, row: dict, entity_key: str) -> Tuple[str, str, str]:
@@ -462,6 +582,7 @@ def main() -> int:
         },
         "errors": [],
         "warnings": [],
+        "row_warnings": [],
         "promoted": [],
         "duplicates": [],
         "upserted": [],
@@ -534,6 +655,17 @@ def main() -> int:
             row_errors.append(
                 f"paper_type `{paper_type or 'missing'}` is not promotable; only `primary_results` can enter curated claims"
             )
+        row_errors.extend(promotion_evidence_errors(cleaned))
+
+        row_warnings = promotion_evidence_warnings(cleaned)
+        if row_warnings:
+            report["row_warnings"].append(
+                {
+                    "row_index": idx,
+                    "study_doi": normalize(cleaned.get("study_doi", "")),
+                    "messages": row_warnings,
+                }
+            )
 
         if row_errors:
             report["errors"].append(
@@ -547,16 +679,20 @@ def main() -> int:
 
         sig = signature(cleaned, cfg["id_fields"])
         if sig in curated_signatures:
+            curated_idx = curated_signature_to_index.get(sig)
+            existing_row = curated[curated_idx] if curated_idx is not None else {}
+            changed_fields = row_diff(existing_row, cleaned) if existing_row else {}
             if args.upsert_duplicates:
-                curated_idx = curated_signature_to_index.get(sig)
                 if curated_idx is not None and curated[curated_idx] != cleaned:
                     curated[curated_idx] = cleaned
                     upserted_signatures.add(sig)
                     report["upserted"].append(
                         {
                             "row_index": idx,
+                            "existing_row_index": curated_idx + 1,
                             "study_doi": normalize(cleaned.get("study_doi", "")),
                             "signature": list(sig),
+                            "changed_fields": changed_fields,
                         }
                     )
                     continue
@@ -564,8 +700,10 @@ def main() -> int:
             report["duplicates"].append(
                 {
                     "row_index": idx,
+                    "existing_row_index": curated_idx + 1 if curated_idx is not None else None,
                     "study_doi": normalize(cleaned.get("study_doi", "")),
                     "signature": list(sig),
+                    "changed_fields": changed_fields,
                 }
             )
             continue
@@ -585,6 +723,10 @@ def main() -> int:
     report["counts"]["promotable_rows"] = len(promotable_cleaned)
     report["counts"]["upserted_rows"] = len(report["upserted"])
     report["counts"]["duplicate_rows"] = len(report["duplicates"])
+    report["counts"]["duplicate_rows_with_diffs"] = sum(
+        1 for row in report["duplicates"] if row.get("changed_fields")
+    )
+    report["counts"]["row_warning_count"] = len(report["row_warnings"])
     report["counts"]["error_rows"] = len(report["errors"])
 
     if report["errors"]:
@@ -620,6 +762,13 @@ def main() -> int:
                 one_of_groups=one_of_groups,
                 allowed_keys=allowed_keys,
             )
+            if not row_errors:
+                paper_type = normalize(cleaned.get("paper_type", ""))
+                if paper_type != "primary_results":
+                    row_errors.append(
+                        f"paper_type `{paper_type or 'missing'}` is not promotable; only `primary_results` can enter curated claims"
+                    )
+                row_errors.extend(promotion_evidence_errors(cleaned))
             if row_errors:
                 remaining_rows.append(normalized_row)
                 continue
@@ -648,6 +797,7 @@ def main() -> int:
     print(f"Promotable rows: {len(promotable_cleaned)}")
     print(f"Upserted rows: {len(report['upserted'])}")
     print(f"Duplicates: {len(report['duplicates'])}")
+    print(f"Row warnings: {len(report['row_warnings'])}")
     print(f"Errors: {len(report['errors'])}")
     print(f"Status: {report['status']}")
     print(f"Report: {report_path}")

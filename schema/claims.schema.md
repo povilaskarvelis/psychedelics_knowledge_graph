@@ -1,6 +1,6 @@
 # Claims Schema
 
-This schema defines the structured claims we curate and publish to ORKG.
+This schema defines the structured claims we curate and publish as graph payloads.
 
 ## Required fields
 - `compound`

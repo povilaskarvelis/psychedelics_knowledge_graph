@@ -1,23 +1,23 @@
-# Publish Prep: ORKG Payload Export
+# Publish Prep: Graph Payload Export
 
-This step exports curated claims into deterministic ORKG-ready payload JSON.
+This step exports curated claims into deterministic graph payload JSON.
 
 ## Run
 Export both datasets:
-`python pipeline/publish/export_orkg_payload.py`
+`python pipeline/publish/export_graph_payload.py`
 
 Mechanistic only:
-`python pipeline/publish/export_orkg_payload.py --dataset mechanistic`
+`python pipeline/publish/export_graph_payload.py --dataset mechanistic`
 
 Custom output directory:
-`python pipeline/publish/export_orkg_payload.py --out-dir data/processed`
+`python pipeline/publish/export_graph_payload.py --out-dir data/processed`
 
 ## Outputs
-- `data/processed/orkg_payload_mechanistic.json` (all evidence)
-- `data/processed/orkg_payload_mechanistic_primary_only.json`
-- `data/processed/orkg_payload_disorder.json` (all evidence)
-- `data/processed/orkg_payload_disorder_primary_only.json`
-- `data/processed/orkg_payload_manifest.json`
+- `data/processed/graph_payload_mechanistic.json` (all evidence)
+- `data/processed/graph_payload_mechanistic_primary_only.json`
+- `data/processed/graph_payload_disorder.json` (all evidence)
+- `data/processed/graph_payload_disorder_primary_only.json`
+- `data/processed/graph_payload_manifest.json`
 
 ## Contract
 Each payload contains:

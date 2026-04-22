@@ -45,7 +45,8 @@ Download PDFs only for triaged-relevant papers:
 `python pipeline/ingest/sync_paper_library.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt`
 
 ## Abstract-first autofill (claim fields)
-Use paper title/abstract metadata to populate missing stub fields.
+Use paper title/abstract metadata to populate missing stub fields for all
+triaged stubs before PDF extraction.
 
 Dry run:
 `python pipeline/review/autofill_stubs_from_abstracts.py --dataset disorder --mark-ready`
@@ -59,10 +60,55 @@ What it fills (when possible):
 - missing metadata (`study_title`, `authors`, `study_year`)
 - disorder claim hints (e.g., `outcome_type`, `study_design`, `system`,
   `evidence_level`)
+- clean disorder rows can be marked `ready_for_promotion` from abstracts alone
+- mechanistic rows usually remain blocked until quantitative affinity fields
+  are extracted from full text
 
 ## Mechanistic full-PDF autofill (affinity fields)
 Use local mechanistic PDFs to extract affinity evidence and fill schema-critical
 fields (`affinity_value`, `affinity_unit`, and often `affinity_type`).
+
+### PDF extraction environment
+PDF-heavy review scripts automatically re-run themselves inside the conda
+environment `psychkg-pdf` when it exists, so commands can be run normally from
+the repo root without manually activating the environment first.
+
+One-time setup:
+```bash
+conda create -n psychkg-pdf python=3.12 -y
+conda activate psychkg-pdf
+
+python -m pip install --upgrade pip setuptools wheel
+
+brew install poppler tesseract tesseract-lang qpdf ghostscript ocrmypdf
+
+python -m pip install \
+  pypdf \
+  pdfplumber \
+  pymupdf \
+  pdfminer.six \
+  pytesseract \
+  pdf2image \
+  pillow \
+  pandas \
+  "markitdown[all]" \
+  docling
+```
+
+Verification:
+```bash
+for tool in pdftotext pdftoppm tesseract qpdf ocrmypdf gs; do
+  command -v "$tool" || echo "missing: $tool"
+done
+
+conda run -n psychkg-pdf python -c "import pypdf, pdfplumber, fitz, pytesseract, pandas; from markitdown import MarkItDown; from docling.document_converter import DocumentConverter; print('PDF stack OK')"
+```
+
+Runtime controls:
+- Use a different conda env name:
+  `PSYCHKG_PDF_CONDA_ENV=my-env python pipeline/review/autofill_mechanistic_from_pdfs.py ...`
+- Disable auto-bootstrap:
+  `PSYCHKG_DISABLE_PDF_ENV_BOOTSTRAP=1 python pipeline/review/autofill_mechanistic_from_pdfs.py ...`
 
 Dry run:
 `python pipeline/review/autofill_mechanistic_from_pdfs.py --dataset mechanistic --mark-ready`
@@ -75,15 +121,26 @@ Notes:
   autofill.
 - It only uses locally available PDFs (from `sync_paper_library.py` output).
 - It performs multi-pass extraction (typed patterns + table/header-aware parsing).
-- If `pypdf` is not installed, it falls back to internal PDF stream decoding
-  (literal + hex text extraction).
+- Current text extraction aggregates multiple local readers: Poppler
+  `pdftotext -layout`, `pdfplumber` text/table extraction, PyMuPDF, `pypdf`,
+  and internal PDF stream decoding (literal + hex text extraction).
 - For scanned/image PDFs, OCR fallback (`pdftoppm` + `tesseract`) is used when
   extraction text is sparse; disable with `--disable-ocr-fallback`.
+- The `psychkg-pdf` environment also installs MarkItDown, Docling, and OCRmyPDF.
+  These are available for later conversion/cache upgrades, but the current
+  mechanistic extractor focuses on local text/table readers.
 - Tighten/loosen extraction confidence with `--min-score` (default `6`).
 
 ## Disorder full-PDF autofill (outcome + provenance fields)
 Use local disorder PDFs to upgrade abstract-only rows to full-text evidence and
-populate missing outcome/provenance fields.
+populate missing outcome/provenance fields. This is an upgrade/rescue pass after
+abstract extraction, not the only source of disorder claims.
+
+The disorder PDF extractor uses the same local reader stack as the mechanistic
+extractor for text/table recovery. Paper type is inferred from title-level
+source signals plus clinical-result language so incidental PDF words such as
+supplementary material or study-design headings do not by themselves demote a
+primary clinical trial.
 
 Dry run:
 `python pipeline/review/autofill_disorder_from_pdfs.py --dataset disorder --mark-ready`

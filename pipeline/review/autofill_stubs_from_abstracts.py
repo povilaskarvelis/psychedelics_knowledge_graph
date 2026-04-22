@@ -85,7 +85,6 @@ PROTOCOL_KEYWORDS = {
     "trial protocol",
     "protocol for",
     "protocol:",
-    "study design",
 }
 
 CONFERENCE_OR_POSTER_KEYWORDS = {
@@ -98,7 +97,6 @@ CONFERENCE_OR_POSTER_KEYWORDS = {
     "conference abstract",
     "conference proceedings",
     "psychopharmacology congress",
-    "supplement",
 }
 
 REVIEWISH_KEYWORDS = {

@@ -22,6 +22,9 @@ TARGET_ALIASES = {
     "NET": "NET (SLC6A2)",
     "DAT": "DAT (SLC6A3)",
     "VMAT2": "VMAT2 (SLC18A2)",
+    "TrkB": "TrkB (NTRK2)",
+    "BDNF receptor": "TrkB (NTRK2)",
+    "NTRK2": "TrkB (NTRK2)",
     "KOR": "kappa opioid receptor (OPRK1)",
     "MOR": "mu opioid receptor (OPRM1)",
     "DOR": "delta opioid receptor (OPRD1)",
@@ -30,6 +33,33 @@ TARGET_ALIASES = {
     "CB1": "CB1 receptor (CNR1)",
     "CB2": "CB2 receptor (CNR2)",
 }
+DATASET_DEDUPE_KEYS = {
+    "mechanistic": [
+        "compound",
+        "target",
+        "study_doi",
+        "openalex_id",
+        "assay_type",
+        "affinity_type",
+        "affinity_value",
+        "affinity_unit",
+    ],
+    "disorder": [
+        "compound",
+        "disorder",
+        "study_doi",
+        "openalex_id",
+        "outcome_type",
+        "outcome_measure",
+    ],
+}
+TITLE_WARNING_PATTERNS = [
+    ("review_record", re.compile(r"^\s*review for\b", re.IGNORECASE)),
+    ("author_correction", re.compile(r"\bauthor correction\b", re.IGNORECASE)),
+    ("retraction_note", re.compile(r"\bretraction note\b", re.IGNORECASE)),
+    ("recommendation_record", re.compile(r"\bfaculty opinions recommendation\b", re.IGNORECASE)),
+]
+NUMERIC_SIGNATURE_FIELDS = {"affinity_value"}
 
 
 def load_json_array(path: Path) -> List[dict]:
@@ -169,7 +199,46 @@ def build_enum_map(schema: dict) -> Dict[str, set]:
 
 
 def canonical_signature(row: dict, keys: Iterable[str]) -> Tuple[str, ...]:
-    return tuple(f"{key}={normalize_value(row.get(key, ''))}" for key in keys)
+    parts = []
+    for key in keys:
+        value = normalize_value(row.get(key, ""))
+        if key in NUMERIC_SIGNATURE_FIELDS and value:
+            try:
+                value = f"{float(value):.12g}"
+            except ValueError:
+                pass
+        parts.append(f"{key}={value}")
+    return tuple(parts)
+
+
+def warning_group(message: str) -> str:
+    if "secondary_summary" in message:
+        return "secondary_summary"
+    if "metadata/title" in message:
+        return "metadata_title_only"
+    if "evidence_location is unknown" in message:
+        return "unknown_evidence_location"
+    if "full_text_seen row still uses abstract snippet locator" in message:
+        return "full_text_uses_abstract_locator"
+    if "source_type is primary_study but paper_type" in message:
+        return "primary_study_with_nonprimary_paper_type"
+    if "source_type is" in message and "not primary_study" in message:
+        return "non_primary_source_type"
+    if "study_title indicates" in message:
+        return "non_primary_title_pattern"
+    if "evidence_locator is weak" in message:
+        return "weak_locator"
+    if "authors missing" in message:
+        return "authors_missing"
+    if "potential duplicate claim signature" in message:
+        return "duplicate_claim_signature"
+    if "not in entity registry" in message:
+        return "missing_entity_registry"
+    if "high evidence claim sourced as review" in message:
+        return "high_evidence_review"
+    if "high evidence claim uses weak paper_type" in message:
+        return "high_evidence_weak_paper_type"
+    return "other"
 
 
 def is_allowed_with_alias(value: str, allowed_values: set, aliases: Dict[str, str] | None = None) -> bool:
@@ -205,14 +274,7 @@ def validate_dataset(
     result_direction_counter = Counter()
     registry_missing_counter = Counter()
 
-    dedupe_keys = [
-        "compound",
-        "target" if dataset_name == "mechanistic" else "disorder",
-        "study_doi",
-        "openalex_id",
-        "evidence_locator",
-        "outcome_type" if dataset_name == "disorder" else "assay_type",
-    ]
+    dedupe_keys = DATASET_DEDUPE_KEYS[dataset_name]
     seen_signatures = set()
 
     for idx, row in enumerate(rows, start=1):
@@ -294,11 +356,23 @@ def validate_dataset(
                 f"{row_label}: access_level is abstract_only but evidence_location is `{evidence_location}`"
             )
 
+        if access_level == "secondary_summary":
+            warnings.append(f"{row_label}: secondary_summary row is weak evidence for the primary graph")
+
+        if evidence_location == "unknown":
+            warnings.append(f"{row_label}: evidence_location is unknown")
+
         if evidence_locator.lower() in {"", "unspecified", "unknown", "n/a"}:
             warnings.append(f"{row_label}: evidence_locator is weak (`{evidence_locator}`)")
 
+        if evidence_locator.lower().startswith("metadata/title snippet:"):
+            warnings.append(f"{row_label}: metadata/title-only evidence locator")
+
         if access_level == "full_text_seen" and evidence_locator.lower().startswith("abstract snippet:"):
             warnings.append(f"{row_label}: full_text_seen row still uses abstract snippet locator")
+
+        if source_type and source_type != "primary_study":
+            warnings.append(f"{row_label}: source_type is `{source_type}` not primary_study")
 
         if source_type == "review" and normalize_value(row.get("evidence_level", "")) == "high":
             warnings.append(f"{row_label}: high evidence claim sourced as review")
@@ -311,6 +385,12 @@ def validate_dataset(
 
         if not authors or authors.lower() in {"unknown", "not available", "tbd", "n/a"}:
             warnings.append(f"{row_label}: authors missing or unresolved (`{authors}`)")
+
+        study_title = normalize_value(row.get("study_title", ""))
+        for pattern_name, pattern in TITLE_WARNING_PATTERNS:
+            if pattern.search(study_title):
+                warnings.append(f"{row_label}: study_title indicates `{pattern_name}`")
+                break
 
         if dataset_name == "disorder":
             result_direction = normalize_value(row.get("result_direction", ""))
@@ -344,6 +424,7 @@ def validate_dataset(
         "study_design_counts": dict(design_counter),
         "result_direction_counts": dict(result_direction_counter) if dataset_name == "disorder" else {},
         "entity_registry_missing_counts": dict(registry_missing_counter),
+        "warning_group_counts": dict(Counter(warning_group(warning) for warning in warnings)),
         "warnings_count": len(warnings),
         "errors_count": len(errors),
     }
@@ -399,6 +480,15 @@ def main() -> int:
         default=str(ENTITY_REGISTRY_PATH),
         help="Optional entity registry JSON used for warning-level coverage checks",
     )
+    parser.add_argument(
+        "--fail-on-warning-groups",
+        default="",
+        help=(
+            "Comma-separated warning groups that should fail validation; use `all` to fail on any warning. "
+            "Useful groups include secondary_summary, metadata_title_only, unknown_evidence_location, "
+            "full_text_uses_abstract_locator, non_primary_title_pattern, and duplicate_claim_signature."
+        ),
+    )
     args = parser.parse_args()
 
     config_path = Path(args.config)
@@ -436,13 +526,26 @@ def main() -> int:
 
     all_errors = mech_errors + dis_errors + mech_cross_errors + dis_cross_errors
     all_warnings = mech_warnings + dis_warnings + mech_cross_warnings + dis_cross_warnings
+    fail_warning_groups = {
+        value.strip()
+        for value in args.fail_on_warning_groups.split(",")
+        if value.strip()
+    }
+    strict_warning_failures = []
+    if fail_warning_groups:
+        strict_warning_failures = [
+            warning
+            for warning in all_warnings
+            if "all" in fail_warning_groups or warning_group(warning) in fail_warning_groups
+        ]
 
     report = {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "status": "ok" if not all_errors else "failed",
+        "status": "ok" if not all_errors and not strict_warning_failures else "failed",
         "inputs": {
             "config": str(config_path),
             "entity_registry": str(entity_registry_path),
+            "fail_on_warning_groups": sorted(fail_warning_groups),
         },
         "datasets": {
             "mechanistic": {
@@ -469,7 +572,10 @@ def main() -> int:
         "totals": {
             "errors": len(all_errors),
             "warnings": len(all_warnings),
+            "strict_warning_failures": len(strict_warning_failures),
+            "warning_group_counts": dict(Counter(warning_group(warning) for warning in all_warnings)),
         },
+        "strict_warning_failures": strict_warning_failures,
     }
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -480,6 +586,8 @@ def main() -> int:
     print("Disorder rows:", dis_metrics["rows"])
     print("Errors:", len(all_errors))
     print("Warnings:", len(all_warnings))
+    if fail_warning_groups:
+        print("Strict warning failures:", len(strict_warning_failures))
 
     if all_errors:
         print("\nTop errors:")
@@ -491,7 +599,12 @@ def main() -> int:
         for line in all_warnings[:20]:
             print("-", line)
 
-    return 1 if all_errors else 0
+    if strict_warning_failures:
+        print("\nTop strict warning failures:")
+        for line in strict_warning_failures[:20]:
+            print("-", line)
+
+    return 1 if all_errors or strict_warning_failures else 0
 
 
 if __name__ == "__main__":

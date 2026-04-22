@@ -1,13 +1,14 @@
-# ORKG Mapping Plan
+# Graph Mapping Plan
 
 ## Concept
-Each study becomes an ORKG "contribution" with structured properties for
-mechanistic evidence. We then aggregate edges for compound -> target in the UI.
+Each curated claim becomes a graph contribution with structured properties for
+mechanistic or disorder evidence. We then aggregate edges in the UI.
 
 ## Entities
-- Compound (ORKG resource)
-- Target (ORKG resource)
-- Study (ORKG contribution)
+- Compound
+- Target or disorder
+- Study
+- Claim contribution
 
 ## Properties (per contribution)
 - `compound`
@@ -23,13 +24,14 @@ mechanistic evidence. We then aggregate edges for compound -> target in the UI.
 - `source`
 - `doi` or `openalex_id`
 
-## Suggested ORKG Template
-Create a template called:
+## Suggested Templates
+Use templates such as:
 - `Psychedelics: Mechanistic Targets`
+- `Psychedelics: Disorder Outcomes`
 
 Template fields mirror the properties above. Each new paper adds one or more
-contributions using the template. If a paper reports multiple targets, create
-one contribution per target.
+contributions using the relevant template. If a paper reports multiple targets
+or outcomes, create one contribution per claim.
 
 ## Provenance
 - Use DOI/openalex_id in the `source` field.

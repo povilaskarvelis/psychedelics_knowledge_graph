@@ -25,7 +25,6 @@
     <div class="bg" aria-hidden="true"></div>
     <header class="hero">
       <div class="hero-inner">
-        <div class="pill"> Living Evidence</div>
         <h1>Psychedelics Knowledge Graph</h1>
         <p>
           Curated claims from open-access literature across targets and
@@ -61,62 +60,46 @@
     <main class="content">
       <section class="panel graph-panel">
         <div class="panel-header">
-          <div>
-            <h2>Indications Graph</h2>
-            <p>Compound-indication links.</p>
-          </div>
-          <div class="graph-header-controls">
-            <div class="mode-toggle" role="tablist" aria-label="Graph mode">
-              <button class="ghost small" data-mode="mechanistic" role="tab" aria-selected="false">
-                Targets
-              </button>
-              <button class="ghost small active" data-mode="disorders" role="tab" aria-selected="true">
-                Indications
-              </button>
+          <div class="graph-main-header">
+            <div class="graph-title-block">
+              <h2>Indications Graph</h2>
+              <p>Compound-indication links.</p>
             </div>
-            <div class="year-range-inline" aria-label="Year range">
-              <div class="year-field">
-                <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
-                <div class="year-stepper" aria-hidden="true">
-                  <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
-                  <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
+            <div class="graph-header-controls">
+              <div class="mode-toggle" role="tablist" aria-label="Graph mode">
+                <button class="ghost small active" data-mode="disorders" role="tab" aria-selected="true">
+                  Indications
+                </button>
+                <button class="ghost small" data-mode="mechanistic" role="tab" aria-selected="false">
+                  Targets
+                </button>
+              </div>
+              <div class="year-range-inline" aria-label="Year range">
+                <div class="year-field">
+                  <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
+                  <div class="year-stepper" aria-hidden="true">
+                    <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
+                    <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
+                  </div>
+                </div>
+                <span>—</span>
+                <div class="year-field">
+                  <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
+                  <div class="year-stepper" aria-hidden="true">
+                    <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
+                    <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
+                  </div>
                 </div>
               </div>
-              <span>—</span>
-              <div class="year-field">
-                <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
-                <div class="year-stepper" aria-hidden="true">
-                  <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
-                  <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
-                </div>
+              <div class="filter-toggles" aria-label="Evidence filters">
+                <label class="access-toggle" for="fullTextOnlyToggle">
+                  <input id="fullTextOnlyToggle" type="checkbox" checked />
+                  <span>Full text only</span>
+                </label>
               </div>
-            </div>
-          </div>
-          <div class="right-controls">
-            <div class="filter-toggles" aria-label="Evidence filters">
-              <label class="access-toggle" for="primaryResultsOnlyToggle">
-                <input id="primaryResultsOnlyToggle" type="checkbox" checked />
-                <span>Primary results only</span>
-              </label>
-              <label class="access-toggle" for="fullTextOnlyToggle">
-                <input id="fullTextOnlyToggle" type="checkbox" checked />
-                <span>Full text only</span>
-              </label>
-            </div>
-            <div class="legend" id="evidenceLegend" aria-label="Evidence legend">
-              <span class="legend-item evidence-chip high" data-evidence="high" tabindex="0" role="button">High</span>
-              <span class="legend-item evidence-chip medium" data-evidence="medium" tabindex="0" role="button">Medium</span>
-              <span class="legend-item evidence-chip low" data-evidence="low" tabindex="0" role="button">Low</span>
             </div>
           </div>
         </div>
-        <aside class="evidence-popover" id="evidenceInfoPopover" aria-hidden="true">
-          <div class="evidence-popover-header">
-            <h4 id="evidenceInfoTitle">Evidence level</h4>
-            <button class="ghost small" id="evidenceInfoClose" type="button" aria-label="Close evidence info">Close</button>
-          </div>
-          <div class="evidence-popover-body" id="evidenceInfoBody"></div>
-        </aside>
         <div class="graph-grid">
           <div class="graph" id="graph"></div>
           <aside class="graph-detail" id="graphDetail">

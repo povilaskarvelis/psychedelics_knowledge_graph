@@ -11,7 +11,13 @@ Every claim must include:
 - `evidence_locator`: concrete location such as `Table 1`, `Figure 2`, `Results`, `Abstract`
 - `study_design`: normalized design label
 
-## Evidence level rubric
+## Internal evidence tier heuristic
+
+`evidence_level` is an internal sorting and audit heuristic. It is not a formal
+GRADE or Cochrane certainty rating and should not be foregrounded as a visible
+claim-card badge. The UI should prefer factual provenance labels such as
+`rct`, `open label`, `preclinical`, `full text`, `abstract`, and claim
+direction.
 
 ### Mechanistic claims
 - `high`: direct assay evidence from primary study with explicit assay values and target

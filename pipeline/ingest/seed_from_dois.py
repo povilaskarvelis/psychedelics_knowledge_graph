@@ -9,7 +9,7 @@ import datetime as dt
 import json
 import re
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
 DISORDER_CANON_PATH = ROOT / "schema" / "disorder_canonicalization.json"
@@ -54,6 +54,14 @@ def canonicalize_disorder_label(raw: str) -> str:
         return ""
     normalized = normalize_text(text)
     return DISORDER_ALIAS_MAP.get(normalized, text)
+
+
+def normalize_doi(raw: str) -> str:
+    doi = (raw or "").strip().lower()
+    for prefix in ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "http://dx.doi.org/", "doi:"):
+        if doi.startswith(prefix):
+            return doi[len(prefix) :].strip()
+    return doi
 
 
 def parse_doi_queue(path: Path) -> List[Dict[str, str]]:
@@ -155,19 +163,31 @@ def read_existing_json(path: Path) -> List[dict]:
     return data
 
 
-def dedupe(items: List[dict], key: str = "study_doi") -> List[dict]:
+def context_signature(item: dict, dataset: str) -> Tuple[str, str, str]:
+    doi = normalize_doi(str(item.get("study_doi", "")))
+    compound = normalize_text(str(item.get("compound", "")))
+    entity_key = "target" if dataset == "mechanistic" else "disorder"
+    entity = str(item.get(entity_key, "") or item.get("entity", ""))
+    if dataset == "disorder":
+        entity = canonicalize_disorder_label(entity)
+    return doi, compound, normalize_text(entity)
+
+
+def dedupe_by_context(items: List[dict], dataset: str) -> Tuple[List[dict], int]:
     seen = set()
     out: List[dict] = []
+    duplicates = 0
     for item in items:
-        value = str(item.get(key, "")).strip()
-        if not value:
+        sig = context_signature(item, dataset)
+        if not any(sig):
             out.append(item)
             continue
-        if value in seen:
+        if sig in seen:
+            duplicates += 1
             continue
-        seen.add(value)
+        seen.add(sig)
         out.append(item)
-    return out
+    return out, duplicates
 
 
 def write_csv(path: Path, rows: List[dict]) -> None:
@@ -218,10 +238,10 @@ def main() -> int:
     generated = [builder(item, timestamp) for item in queue_items]
 
     if args.replace:
-        merged = generated
+        merged, duplicate_contexts = dedupe_by_context(generated, args.dataset)
     else:
         existing = read_existing_json(json_out)
-        merged = dedupe(existing + generated, key="study_doi")
+        merged, duplicate_contexts = dedupe_by_context(existing + generated, args.dataset)
 
     json_out.parent.mkdir(parents=True, exist_ok=True)
     csv_out.parent.mkdir(parents=True, exist_ok=True)
@@ -230,6 +250,7 @@ def main() -> int:
 
     print(f"Dataset: {args.dataset}")
     print(f"DOIs read: {len(queue_items)}")
+    print(f"Context duplicates skipped: {duplicate_contexts}")
     print(f"Rows written: {len(merged)}")
     print(f"JSON output: {json_out}")
     print(f"CSV output: {csv_out}")

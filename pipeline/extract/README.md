@@ -4,12 +4,14 @@ This step promotes curated-ready rows from processed stub files into curated
 datasets, enforcing schema rules before write.
 
 ## Workflow
-1. Generate stubs from DOI queue (`pipeline/ingest/seed_from_dois.py`).
-2. Curate stubs in `data/processed/*_claim_stubs.json`:
+1. Generate context-level stubs from the triage-relevant DOI queue
+   (`pipeline/ingest/seed_from_dois.py`). Stubs are keyed by
+   `DOI + compound + target/disorder`.
+2. Autofill and curate stubs in `data/processed/*_claim_stubs.json`:
    - fill required fields
    - add `authors`
    - set `stub_status` to `ready_for_promotion`
-3. Run promotion in dry-run mode (default) to see blockers.
+3. Run promotion in dry-run mode (default) to see blockers and duplicates.
 4. Run with `--apply` to write curated JSON/CSV and remove promoted stubs.
 
 ## Commands

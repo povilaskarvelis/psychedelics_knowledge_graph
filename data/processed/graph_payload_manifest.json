@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-04-22T16:34:01.486468+00:00",
+  "contract_version": "1.0",
+  "datasets": {
+    "mechanistic": {
+      "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic.json",
+      "row_count": 222,
+      "sha256": "0c388793a5e6cb6d634be0fdaeb5fa7a792513eae146cdc12e17a5ef53af2c17",
+      "views": {
+        "all_evidence": {
+          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic.json",
+          "row_count": 222,
+          "sha256": "0c388793a5e6cb6d634be0fdaeb5fa7a792513eae146cdc12e17a5ef53af2c17"
+        },
+        "primary_only": {
+          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic_primary_only.json",
+          "row_count": 222,
+          "sha256": "3ebd7cf21d7b4bf44c9d2706db34faa36aa9cccf1d8329270cb616a522d17726"
+        }
+      }
+    },
+    "disorder": {
+      "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder.json",
+      "row_count": 2266,
+      "sha256": "69136230636d8335d2297d78b8c896ce5f5c04bd6feec9e61ec0a357ff3ce307",
+      "views": {
+        "all_evidence": {
+          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder.json",
+          "row_count": 2266,
+          "sha256": "69136230636d8335d2297d78b8c896ce5f5c04bd6feec9e61ec0a357ff3ce307"
+        },
+        "primary_only": {
+          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder_primary_only.json",
+          "row_count": 2266,
+          "sha256": "0c6d6bbbe4d7f141ba75ae1f8986ffbb11dabeb392b1b294c8356a94741b93a0"
+        }
+      }
+    }
+  },
+  "status": "ok",
+  "errors": []
+}

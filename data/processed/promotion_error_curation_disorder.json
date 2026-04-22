@@ -1,0 +1,705 @@
+{
+  "generated_at": "2026-04-22T15:37:31.204120+00:00",
+  "dataset": "disorder",
+  "apply": true,
+  "promotion_report": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/promotion_report_disorder.json",
+  "ready_status": "ready_for_promotion",
+  "set_status": "pending_curation",
+  "counts": {
+    "stubs_total": 4008,
+    "ready_rows": 2178,
+    "promotion_error_rows": 50,
+    "updates": 50,
+    "mapping_errors": 0
+  },
+  "updates": [
+    {
+      "stub_index": 80,
+      "ready_row_index": 52,
+      "study_doi": "10.1002/brb3.1674/v1/review1",
+      "compound": "Ketamine",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 81,
+      "ready_row_index": 53,
+      "study_doi": "10.1002/brb3.1674/v1/review1",
+      "compound": "Ketamine",
+      "disorder": "Bipolar depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 82,
+      "ready_row_index": 54,
+      "study_doi": "10.1002/brb3.1674/v1/review1",
+      "compound": "S-ketamine",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 83,
+      "ready_row_index": 55,
+      "study_doi": "10.1002/brb3.1674/v1/review1",
+      "compound": "S-ketamine",
+      "disorder": "Bipolar depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 84,
+      "ready_row_index": 56,
+      "study_doi": "10.1002/brb3.1674/v1/review1",
+      "compound": "R-ketamine",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 85,
+      "ready_row_index": 57,
+      "study_doi": "10.1002/brb3.1674/v1/review1",
+      "compound": "R-ketamine",
+      "disorder": "Bipolar depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 98,
+      "ready_row_index": 58,
+      "study_doi": "10.1002/brb3.1674/v2/review1",
+      "compound": "Ketamine",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 99,
+      "ready_row_index": 59,
+      "study_doi": "10.1002/brb3.1674/v2/review1",
+      "compound": "Ketamine",
+      "disorder": "Bipolar depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 100,
+      "ready_row_index": 60,
+      "study_doi": "10.1002/brb3.1674/v2/review1",
+      "compound": "S-ketamine",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 101,
+      "ready_row_index": 61,
+      "study_doi": "10.1002/brb3.1674/v2/review1",
+      "compound": "S-ketamine",
+      "disorder": "Bipolar depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 102,
+      "ready_row_index": 62,
+      "study_doi": "10.1002/brb3.1674/v2/review1",
+      "compound": "R-ketamine",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 103,
+      "ready_row_index": 63,
+      "study_doi": "10.1002/brb3.1674/v2/review1",
+      "compound": "R-ketamine",
+      "disorder": "Bipolar depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a review record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 345,
+      "ready_row_index": 192,
+      "study_doi": "10.1007/s40267-024-01106-4",
+      "compound": "S-ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 428,
+      "ready_row_index": 236,
+      "study_doi": "10.1016/j.biopsych.2022.02.624",
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 429,
+      "ready_row_index": 237,
+      "study_doi": "10.1016/j.biopsych.2025.02.424",
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 430,
+      "ready_row_index": 238,
+      "study_doi": "10.1016/j.biopsych.2025.02.431",
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 473,
+      "ready_row_index": 264,
+      "study_doi": "10.1016/j.euroneuro.2018.11.1016",
+      "compound": "S-ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 474,
+      "ready_row_index": 265,
+      "study_doi": "10.1016/j.euroneuro.2019.09.104",
+      "compound": "S-ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 503,
+      "ready_row_index": 278,
+      "study_doi": "10.1016/j.genhosppsych.2020.12.011",
+      "compound": "Ketamine",
+      "disorder": "Suicidal ideation",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 515,
+      "ready_row_index": 288,
+      "study_doi": "10.1016/j.jaac.2024.08.134",
+      "compound": "Ketamine",
+      "disorder": "Suicidal ideation",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 620,
+      "ready_row_index": 340,
+      "study_doi": "10.1016/j.jagp.2021.01.123",
+      "compound": "S-ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 635,
+      "ready_row_index": 352,
+      "study_doi": "10.1016/j.jpain.2016.01.394",
+      "compound": "Ketamine",
+      "disorder": "Chronic pain",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 690,
+      "ready_row_index": 375,
+      "study_doi": "10.1016/j.nsa.2025.105779",
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 691,
+      "ready_row_index": 376,
+      "study_doi": "10.1016/j.nsa.2025.106130",
+      "compound": "S-ketamine",
+      "disorder": "Obsessive-compulsive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 692,
+      "ready_row_index": 377,
+      "study_doi": "10.1016/j.nsa.2025.106818",
+      "compound": "LSD",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 958,
+      "ready_row_index": 539,
+      "study_doi": "10.1038/s41591-024-03331-w",
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a author correction, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 1773,
+      "ready_row_index": 1052,
+      "study_doi": "10.1186/isrctn49116945",
+      "compound": "Ketamine",
+      "disorder": "Chronic pain",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 1808,
+      "ready_row_index": 1080,
+      "study_doi": "10.1186/s12888-026-07808-5",
+      "compound": "Ketamine",
+      "disorder": "Suicidal ideation",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a retraction note, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 1931,
+      "ready_row_index": 1169,
+      "study_doi": "10.1192/j.eurpsy.2023.1779",
+      "compound": "Ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 1933,
+      "ready_row_index": 1171,
+      "study_doi": "10.1192/j.eurpsy.2023.271",
+      "compound": "S-ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 1934,
+      "ready_row_index": 1172,
+      "study_doi": "10.1192/j.eurpsy.2023.272",
+      "compound": "S-ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 2189,
+      "ready_row_index": 1316,
+      "study_doi": "10.2139/SSRN.3367057",
+      "compound": "Ketamine",
+      "disorder": "Suicidal ideation",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 2190,
+      "ready_row_index": 1317,
+      "study_doi": "10.2139/ssrn.4107711",
+      "compound": "Ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 2191,
+      "ready_row_index": 1318,
+      "study_doi": "10.2139/ssrn.5116026",
+      "compound": "Psilocybin",
+      "disorder": "Methamphetamine use disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 2691,
+      "ready_row_index": 1608,
+      "study_doi": "10.3410/f.726375864.793520560",
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a recommendation record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 2692,
+      "ready_row_index": 1609,
+      "study_doi": "10.3410/f.727188281.793531262",
+      "compound": "Ketamine",
+      "disorder": "Chronic pain",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a recommendation record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 2693,
+      "ready_row_index": 1610,
+      "study_doi": "10.3410/f.727188281.793537463",
+      "compound": "Ketamine",
+      "disorder": "Chronic pain",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "study_title indicates a recommendation record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 2694,
+      "ready_row_index": 1611,
+      "study_doi": "10.3410/f.738980632.793580383",
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support",
+        "study_title indicates a recommendation record, not a primary results paper"
+      ]
+    },
+    {
+      "stub_index": 2824,
+      "ready_row_index": 1694,
+      "study_doi": "10.5167/uzh-284304",
+      "compound": "Psilocybin",
+      "disorder": "Alcohol use disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "access_level `secondary_summary` is not promotable into the primary evidence graph",
+        "evidence_location `unknown` is not promotable; cite abstract, text, table, figure, supplement, or mixed evidence",
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3187,
+      "ready_row_index": 1854,
+      "study_doi": "10.1007/s40263-025-01250-z",
+      "compound": "DMT",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3188,
+      "ready_row_index": 1855,
+      "study_doi": "10.1007/s40263-025-01250-z",
+      "compound": "DMT",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3189,
+      "ready_row_index": 1856,
+      "study_doi": "10.1007/s40263-025-01250-z",
+      "compound": "5-MeO-DMT",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3190,
+      "ready_row_index": 1857,
+      "study_doi": "10.1007/s40263-025-01250-z",
+      "compound": "5-MeO-DMT",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3199,
+      "ready_row_index": 1861,
+      "study_doi": "10.1007/s40501-015-0065-2",
+      "compound": "Ketamine",
+      "disorder": "Suicidal ideation",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3444,
+      "ready_row_index": 1941,
+      "study_doi": "10.1038/s41386-019-0482-9",
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3527,
+      "ready_row_index": 1988,
+      "study_doi": "10.1093/ijnp/pyw043.222",
+      "compound": "Ketamine",
+      "disorder": "Suicidal ideation",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3681,
+      "ready_row_index": 2025,
+      "study_doi": "10.1590/1516-4446-2020-0020",
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3682,
+      "ready_row_index": 2026,
+      "study_doi": "10.1590/1516-4446-2020-0996",
+      "compound": "Ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3688,
+      "ready_row_index": 2028,
+      "study_doi": "10.18773/austprescr.2021.061",
+      "compound": "S-ketamine",
+      "disorder": "Treatment-resistant depression",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "metadata/title-only evidence is not promotable; claim needs abstract or full-text support"
+      ]
+    },
+    {
+      "stub_index": 3894,
+      "ready_row_index": 2114,
+      "study_doi": "10.3410/f.739937798.793584706",
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "old_status": "ready_for_promotion",
+      "new_status": "pending_curation",
+      "messages": [
+        "study_title indicates a recommendation record, not a primary results paper"
+      ]
+    }
+  ],
+  "errors": []
+}

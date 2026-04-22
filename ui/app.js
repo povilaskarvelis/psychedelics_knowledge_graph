@@ -5,7 +5,6 @@ const yearMaxFilter = document.getElementById("yearMaxFilter");
 const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
 const bibliographySearchInput = document.getElementById("bibliographySearchInput");
-const primaryResultsOnlyToggle = document.getElementById("primaryResultsOnlyToggle");
 const fullTextOnlyToggle = document.getElementById("fullTextOnlyToggle");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
@@ -16,14 +15,13 @@ const modeButtons = document.querySelectorAll("[data-mode]");
 const rightStatLabel = document.getElementById("rightStatLabel");
 const graphTitle = document.querySelector(".graph-panel h2");
 const graphSubtitle = document.querySelector(".graph-panel p");
-const evidenceLegend = document.getElementById("evidenceLegend");
-const evidenceInfoPopover = document.getElementById("evidenceInfoPopover");
-const evidenceInfoTitle = document.getElementById("evidenceInfoTitle");
-const evidenceInfoBody = document.getElementById("evidenceInfoBody");
-const evidenceInfoClose = document.getElementById("evidenceInfoClose");
 const studiesStatCard = document.getElementById("studiesStatCard");
 const bibliographyPanel = document.getElementById("bibliographyPanel");
 const studyListEl = document.getElementById("studyList");
+
+if (tooltip && tooltip.parentElement !== document.body) {
+  document.body.appendChild(tooltip);
+}
 
 const stats = {
   compounds: document.querySelector('[data-stat="compounds"]'),
@@ -36,6 +34,13 @@ const evidenceRank = { low: 1, medium: 2, high: 3 };
 const MAX_GRAPH_EDGES = 500;
 const MAX_CARDS_RENDER = 250;
 const MAX_BIBLIOGRAPHY_RENDER = 300;
+const GRAPH_COLOR_STOPS = [
+  { r: 73, g: 214, b: 200 },
+  { r: 119, g: 217, b: 141 },
+  { r: 216, g: 210, b: 111 },
+  { r: 241, g: 166, b: 106 },
+  { r: 232, g: 117, b: 141 },
+];
 
 let claims = [];
 let disorderClaims = [];
@@ -43,7 +48,6 @@ let selected = null;
 let isolateSelection = false;
 let mode = "disorders";
 let renderScheduled = false;
-let evidencePopoverLevel = "";
 const yearFilterState = {
   mechanistic: { min: "", max: "" },
   disorders: { min: "", max: "" },
@@ -52,29 +56,6 @@ const yearFilterState = {
 const defaultDetail = {
   title: "Graph Detail",
   subtitle: "Hover or click a node or edge to inspect evidence.",
-};
-
-const evidenceExplainers = {
-  high: {
-    title: "High evidence",
-    bullets: [
-      "Assigned when study design is randomized controlled trial or phase 3 trial.",
-    ],
-  },
-  medium: {
-    title: "Medium evidence",
-    bullets: [
-      "Assigned for review/meta-analysis source types.",
-      "Also assigned for phase 2, open-label, or pilot trial designs.",
-    ],
-  },
-  low: {
-    title: "Low evidence",
-    bullets: [
-      "Used for case report/retrospective signals or when stronger criteria are missing.",
-      "Rows start low by default before stronger design/source signals are found.",
-    ],
-  },
 };
 
 function normalizeValue(value) {
@@ -87,9 +68,12 @@ function unique(values) {
 
 function activeClaimsForMode() {
   const baseClaims = mode === "mechanistic" ? claims : disorderClaims;
-  const primaryResultsOnly = Boolean(primaryResultsOnlyToggle?.checked);
-  if (!primaryResultsOnly) return baseClaims;
-  return baseClaims.filter((claim) => normalizeValue(claim.paper_type) === "primary_results");
+  return baseClaims.filter(
+    (claim) =>
+      normalizeValue(claim.paper_type) === "primary_results" &&
+      normalizeValue(claim.source_type) === "primary_study" &&
+      normalizeValue(claim.access_level) !== "secondary_summary",
+  );
 }
 
 function parseYearValue(raw) {
@@ -209,6 +193,40 @@ function edgeWidthForCount(count, maxCount) {
   return minWidth + normalized * (maxWidth - minWidth);
 }
 
+function interpolateNumber(start, end, ratio) {
+  return Math.round(start + (end - start) * ratio);
+}
+
+function graphColorForIndex(index, total) {
+  if (total <= 1) return GRAPH_COLOR_STOPS[0];
+  const clampedIndex = clampNumber(index, 0, total - 1);
+  const position = (clampedIndex / (total - 1)) * (GRAPH_COLOR_STOPS.length - 1);
+  const lower = Math.floor(position);
+  const upper = Math.min(GRAPH_COLOR_STOPS.length - 1, lower + 1);
+  const ratio = position - lower;
+  const start = GRAPH_COLOR_STOPS[lower];
+  const end = GRAPH_COLOR_STOPS[upper];
+  return {
+    r: interpolateNumber(start.r, end.r, ratio),
+    g: interpolateNumber(start.g, end.g, ratio),
+    b: interpolateNumber(start.b, end.b, ratio),
+  };
+}
+
+function rgbString(color) {
+  return `rgb(${color.r}, ${color.g}, ${color.b})`;
+}
+
+function rgbaString(color, alpha) {
+  return `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+}
+
+function applyGraphNodeColor(node, color) {
+  node.style.setProperty("--node-color", rgbString(color));
+  node.style.setProperty("--node-fill", rgbaString(color, 0.2));
+  node.style.setProperty("--node-glow", rgbaString(color, 0.44));
+}
+
 function estimateLabelWidth(label) {
   const text = (label || "").toString();
   return Math.max(40, Math.ceil(text.length * 6.8));
@@ -322,59 +340,93 @@ function countStudies(items) {
   return new Set(items.map(studyId)).size;
 }
 
-function maxEvidenceLevel(items) {
-  if (!items.length) return "low";
-  let max = "low";
-  let maxRank = 0;
-  items.forEach((item) => {
-    const rank = evidenceRank[item.evidence_level] || 1;
-    if (rank > maxRank) {
-      maxRank = rank;
-      max = item.evidence_level;
-    }
-  });
-  return max || "low";
-}
-
-function badgeHtml(level) {
-  const safe = evidenceClass(level);
-  return `<span class="badge ${safe}">${level || "low"} evidence</span>`;
-}
-
-function titleCaseFromSlug(value) {
+function labelFromSlug(value) {
   return (value || "")
     .toString()
     .split(/[_\s]+/)
     .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+    .join(" ")
+    .toLowerCase();
 }
 
 function paperTypeLabel(paperType) {
   const normalized = normalizeValue(paperType);
-  if (normalized === "primary_results") return "Primary results";
-  if (normalized === "conference_or_poster_abstract") return "Conference/poster";
-  if (!normalized) return "Paper type unknown";
-  return titleCaseFromSlug(normalized);
+  if (normalized === "primary_results") return "primary results";
+  if (normalized === "conference_or_poster_abstract") return "conference/poster";
+  if (!normalized) return "paper type unknown";
+  return labelFromSlug(normalized);
 }
 
 function resultDirectionLabel(direction) {
   const normalized = normalizeValue(direction);
-  if (!normalized) return "Unclear";
-  if (normalized === "null") return "Null finding";
-  return titleCaseFromSlug(normalized);
+  if (!normalized) return "unclear";
+  if (normalized === "null") return "null finding";
+  return labelFromSlug(normalized);
+}
+
+function studyDesignLabel(design) {
+  const normalized = normalizeValue(design);
+  const labels = {
+    randomized_controlled_trial: "rct",
+    phase_3_randomized_controlled_trial: "phase 3 rct",
+    phase_3_trial: "phase 3",
+    phase_2_trial: "phase 2",
+    clinical_trial: "clinical trial",
+    open_label_trial: "open label",
+    pilot_trial: "pilot",
+    observational_follow_up: "follow-up",
+    observational_study: "observational",
+    preclinical_study: "preclinical",
+    case_report: "case report",
+    in_vitro_binding_assay: "binding assay",
+    in_vitro_uptake_assay: "uptake assay",
+  };
+  if (labels[normalized]) return labels[normalized];
+  if (!normalized || normalized === "unknown" || normalized === "pending_curation") return "";
+  return labelFromSlug(normalized);
+}
+
+function accessLevelLabel(accessLevel) {
+  const normalized = normalizeValue(accessLevel);
+  const labels = {
+    full_text_seen: "full text",
+    abstract_only: "abstract",
+    secondary_summary: "secondary summary",
+  };
+  return labels[normalized] || labelFromSlug(normalized);
+}
+
+function classToken(value) {
+  return normalizeValue(value).replace(/_/g, "-").replace(/[^a-z0-9-]+/g, "-") || "unknown";
+}
+
+function chipHtml(kind, label, token = label) {
+  if (!label) return "";
+  return `<span class="badge ${kind} ${classToken(token)}">${label}</span>`;
 }
 
 function paperTypeBadgeHtml(paperType) {
   const normalized = normalizeValue(paperType) || "other";
-  const className = normalized.replace(/_/g, "-");
-  return `<span class="badge paper-type ${className}">${paperTypeLabel(normalized)}</span>`;
+  if (normalized === "primary_results") return "";
+  return chipHtml("paper-type", paperTypeLabel(normalized), normalized);
 }
 
-function resultDirectionBadgeHtml(direction) {
-  const normalized = normalizeValue(direction) || "unclear";
-  const className = normalized.replace(/_/g, "-");
-  return `<span class="badge direction ${className}">${resultDirectionLabel(normalized)}</span>`;
+function studyDesignBadgeHtml(design) {
+  return chipHtml("study-design", studyDesignLabel(design), design);
+}
+
+function accessLevelBadgeHtml(accessLevel) {
+  return chipHtml("access-level", accessLevelLabel(accessLevel), accessLevel);
+}
+
+function claimBadgeHtml(claim) {
+  return [
+    studyDesignBadgeHtml(claim.study_design),
+    accessLevelBadgeHtml(claim.access_level),
+    paperTypeBadgeHtml(claim.paper_type),
+  ]
+    .filter(Boolean)
+    .join("");
 }
 
 function setDetailHeader(title, subtitle) {
@@ -402,15 +454,13 @@ function clearSelection() {
 
 function showTooltip(content, event) {
   tooltip.innerHTML = content;
-  tooltip.style.left = `${event.clientX + 12}px`;
-  tooltip.style.top = `${event.clientY + 12}px`;
   tooltip.style.opacity = "1";
   tooltip.style.transform = "translateY(0)";
+  positionTooltip(event);
 }
 
 function moveTooltip(event) {
-  tooltip.style.left = `${event.clientX + 12}px`;
-  tooltip.style.top = `${event.clientY + 12}px`;
+  positionTooltip(event);
 }
 
 function hideTooltip() {
@@ -418,44 +468,17 @@ function hideTooltip() {
   tooltip.style.transform = "translateY(6px)";
 }
 
-function closeEvidencePopover() {
-  if (!evidenceInfoPopover) return;
-  evidenceInfoPopover.classList.remove("open");
-  evidenceInfoPopover.setAttribute("aria-hidden", "true");
-  evidencePopoverLevel = "";
-}
+function positionTooltip(event) {
+  const gap = 25;
+  const padding = 8;
+  const rect = tooltip.getBoundingClientRect();
+  const maxLeft = Math.max(padding, window.innerWidth - rect.width - padding);
+  const maxTop = Math.max(padding, window.innerHeight - rect.height - padding);
+  const centeredLeft = event.clientX - rect.width / 2;
+  const desiredTop = event.clientY + gap;
 
-function openEvidencePopover(level, anchorEl) {
-  if (!evidenceInfoPopover || !evidenceInfoTitle || !evidenceInfoBody || !anchorEl) return;
-
-  const key = normalizeValue(level);
-  const explainer = evidenceExplainers[key] || evidenceExplainers.low;
-  evidenceInfoTitle.textContent = explainer.title;
-  evidenceInfoBody.innerHTML = explainer.bullets.map((item) => `<div>• ${item}</div>`).join("");
-
-  const panel = graphEl.closest(".graph-panel");
-  if (!panel) return;
-
-  evidenceInfoPopover.classList.add("open");
-  evidenceInfoPopover.setAttribute("aria-hidden", "false");
-
-  const panelRect = panel.getBoundingClientRect();
-  const anchorRect = anchorEl.getBoundingClientRect();
-  const popoverRect = evidenceInfoPopover.getBoundingClientRect();
-  const pad = 12;
-
-  let left = anchorRect.left - panelRect.left + anchorRect.width / 2 - popoverRect.width / 2;
-  left = clampNumber(left, pad, Math.max(pad, panel.clientWidth - popoverRect.width - pad));
-
-  let top = anchorRect.bottom - panelRect.top + 10;
-  if (top + popoverRect.height > panel.clientHeight - pad) {
-    top = anchorRect.top - panelRect.top - popoverRect.height - 10;
-  }
-  top = clampNumber(top, pad, Math.max(pad, panel.clientHeight - popoverRect.height - pad));
-
-  evidenceInfoPopover.style.left = `${left}px`;
-  evidenceInfoPopover.style.top = `${top}px`;
-  evidencePopoverLevel = key;
+  tooltip.style.left = `${clampNumber(centeredLeft, padding, maxLeft)}px`;
+  tooltip.style.top = `${clampNumber(desiredTop, padding, maxTop)}px`;
 }
 
 function openAlexUrl(openalexId) {
@@ -570,10 +593,6 @@ function selectionIsValid(data) {
   return false;
 }
 
-function evidenceClass(level) {
-  return level ? level.toLowerCase() : "low";
-}
-
 function renderCards(data) {
   const searchValue = normalizeValue(searchInput?.value);
   const rightKey = mode === "mechanistic" ? "target" : "disorder";
@@ -606,13 +625,7 @@ function renderCards(data) {
     const card = document.createElement("div");
     card.className = "card";
 
-    const badges = [
-      badgeHtml(claim.evidence_level),
-      paperTypeBadgeHtml(claim.paper_type),
-      mode === "disorders" ? resultDirectionBadgeHtml(claim.result_direction) : "",
-    ]
-      .filter(Boolean)
-      .join("");
+    const badges = claimBadgeHtml(claim);
 
     const doiHref = doiUrl(claim.study_doi);
     const source = doiHref
@@ -630,7 +643,7 @@ function renderCards(data) {
         : "";
     const directionLine =
       mode === "disorders"
-        ? `<div>Direction: <span class="meta-strong">${resultDirectionLabel(claim.result_direction)}</span></div>`
+        ? `<div>Direction: ${resultDirectionLabel(claim.result_direction)}</div>`
         : "";
 
     card.innerHTML = `
@@ -650,10 +663,11 @@ function renderCards(data) {
         <div>${mode === "mechanistic" ? `Species: ${claim.species || "unknown"}` : `Population: ${claim.population || "unknown"}`}</div>
         <div>Study: ${claim.study_title || ""} (${claim.study_year || ""})</div>
         <div>Paper type: ${paperTypeLabel(claim.paper_type)}</div>
+        <div>Study design: ${studyDesignLabel(claim.study_design) || "unknown"}</div>
+        <div>Access: ${accessLevelLabel(claim.access_level) || "unknown"}</div>
         <div>Authors: ${authors || "not available"}</div>
         <div>${source}</div>
       </div>
-      <div class="meta">${claim.notes || ""}</div>
     `;
 
     cardsEl.appendChild(card);
@@ -688,8 +702,6 @@ function renderBibliography(data) {
       compounds: new Set(),
       rights: new Set(),
       authors: new Set(),
-      maxEvidence: "low",
-      maxRank: 1,
     };
 
     existing.claims += 1;
@@ -706,11 +718,6 @@ function renderBibliography(data) {
     if (!existing.title && claim.study_title) existing.title = claim.study_title;
     if (!existing.year && Number(claim.study_year)) existing.year = Number(claim.study_year);
 
-    const rank = evidenceRank[claim.evidence_level] || 1;
-    if (rank > existing.maxRank) {
-      existing.maxRank = rank;
-      existing.maxEvidence = claim.evidence_level || "low";
-    }
     studies.set(id, existing);
   });
 
@@ -773,7 +780,6 @@ function renderBibliography(data) {
           <div class="study-links">
             ${doiLink ? `<span><strong>DOI:</strong> ${doiLink}</span>` : ""}
             ${openAlexLink ? `<span><strong>OpenAlex:</strong> ${openAlexLink}</span>` : ""}
-            ${badgeHtml(entry.maxEvidence)}
           </div>
         </article>
       `;
@@ -800,13 +806,8 @@ function summarizeConnections(items, key) {
   items.forEach((item) => {
     const label = item[key];
     if (!label) return;
-    const entry = map.get(label) || { count: 0, maxEvidence: "low", rank: 0 };
+    const entry = map.get(label) || { count: 0 };
     entry.count += 1;
-    const rank = evidenceRank[item.evidence_level] || 1;
-    if (rank > entry.rank) {
-      entry.rank = rank;
-      entry.maxEvidence = item.evidence_level;
-    }
     map.set(label, entry);
   });
   return Array.from(map.entries())
@@ -816,13 +817,12 @@ function summarizeConnections(items, key) {
 
 function renderEdgeDetail(compound, target, edgeClaims) {
   const studies = countStudies(edgeClaims);
-  const maxEvidence = maxEvidenceLevel(edgeClaims);
   setDetailHeader(`${compound} → ${target}`, `${edgeClaims.length} claims across ${studies} studies`);
 
   const sortedClaims = [...edgeClaims].sort((a, b) => {
-    const evidenceDiff = (evidenceRank[b.evidence_level] || 1) - (evidenceRank[a.evidence_level] || 1);
-    if (evidenceDiff !== 0) return evidenceDiff;
-    return (b.study_year || 0) - (a.study_year || 0);
+    const yearDiff = (b.study_year || 0) - (a.study_year || 0);
+    if (yearDiff !== 0) return yearDiff;
+    return (a.study_title || "").localeCompare(b.study_title || "");
   });
 
   const list = sortedClaims
@@ -860,11 +860,11 @@ function renderEdgeDetail(compound, target, edgeClaims) {
         }</div>
         <div class="meta">Study: ${claim.study_title || "Unknown"} (${claim.study_year || ""})</div>
         <div class="meta">Paper type: ${paperTypeLabel(claim.paper_type)}</div>
+        <div class="meta">Study design: ${studyDesignLabel(claim.study_design) || "unknown"}</div>
+        <div class="meta">Access: ${accessLevelLabel(claim.access_level) || "unknown"}</div>
         <div class="meta">${detailSource}</div>
         <div class="badge-row">
-          ${badgeHtml(claim.evidence_level)}
-          ${paperTypeBadgeHtml(claim.paper_type)}
-          ${mode === "disorders" ? resultDirectionBadgeHtml(claim.result_direction) : ""}
+          ${claimBadgeHtml(claim)}
         </div>
       </div>
     `
@@ -872,7 +872,6 @@ function renderEdgeDetail(compound, target, edgeClaims) {
     .join("");
 
   detailBody.innerHTML = `
-    <div class="detail-stat"><span>Highest evidence</span><strong>${maxEvidence}</strong></div>
     <div class="detail-stat"><span>Claims</span><strong>${edgeClaims.length}</strong></div>
     <div class="detail-stat"><span>Studies</span><strong>${studies}</strong></div>
     <div class="detail-list">${list}</div>
@@ -881,7 +880,6 @@ function renderEdgeDetail(compound, target, edgeClaims) {
 
 function renderNodeDetail(type, name, nodeClaims) {
   const studies = countStudies(nodeClaims);
-  const maxEvidence = maxEvidenceLevel(nodeClaims);
   const rightKey = mode === "mechanistic" ? "target" : "disorder";
   const connectionKey = type === "compound" ? rightKey : "compound";
   const rightTypeLabel = mode === "mechanistic" ? "Target" : "Indication";
@@ -899,14 +897,12 @@ function renderNodeDetail(type, name, nodeClaims) {
       <div class="detail-item">
         <h4>${entry.label}</h4>
         <div class="meta">Claims: ${entry.count}</div>
-        <div class="meta">Max evidence: ${entry.maxEvidence}</div>
       </div>
     `
     )
     .join("");
 
   detailBody.innerHTML = `
-    <div class="detail-stat"><span>Highest evidence</span><strong>${maxEvidence}</strong></div>
     <div class="detail-stat"><span>Claims</span><strong>${nodeClaims.length}</strong></div>
     <div class="detail-stat"><span>Studies</span><strong>${studies}</strong></div>
     <div class="detail-list">${list || "<div class=\"detail-empty\">No connected claims.</div>"}</div>
@@ -950,18 +946,18 @@ function buildGraph(data) {
   });
 
   const compounds = Array.from(compoundCounts.keys()).sort((a, b) => {
-    const byDegree = (compoundConnections.get(b)?.size || 0) - (compoundConnections.get(a)?.size || 0);
-    if (byDegree !== 0) return byDegree;
     const byClaims = (compoundCounts.get(b) || 0) - (compoundCounts.get(a) || 0);
     if (byClaims !== 0) return byClaims;
+    const byDegree = (compoundConnections.get(b)?.size || 0) - (compoundConnections.get(a)?.size || 0);
+    if (byDegree !== 0) return byDegree;
     return a.localeCompare(b);
   });
 
   const targets = Array.from(rightCounts.keys()).sort((a, b) => {
-    const byDegree = (rightConnections.get(b)?.size || 0) - (rightConnections.get(a)?.size || 0);
-    if (byDegree !== 0) return byDegree;
     const byClaims = (rightCounts.get(b) || 0) - (rightCounts.get(a) || 0);
     if (byClaims !== 0) return byClaims;
+    const byDegree = (rightConnections.get(b)?.size || 0) - (rightConnections.get(a)?.size || 0);
+    if (byDegree !== 0) return byDegree;
     return a.localeCompare(b);
   });
 
@@ -986,8 +982,8 @@ function buildGraph(data) {
   const compoundX = margin.left;
   const targetX = width - margin.right;
   const labelOffset = 22;
-  const leftLabelMaxWidth = Math.max(20, compoundX - 20);
-  const rightLabelMaxWidth = Math.max(20, width - targetX - 20);
+  const leftLabelMaxWidth = Math.max(20, compoundX - labelOffset - 10);
+  const rightLabelMaxWidth = Math.max(20, width - (targetX + labelOffset) - 10);
 
   const compoundStep = (height - margin.top - margin.bottom) / Math.max(compounds.length, 1);
   const targetStep = (height - margin.top - margin.bottom) / Math.max(targets.length, 1);
@@ -1029,7 +1025,6 @@ function buildGraph(data) {
     const key = `${claim.compound}|${claim[rightKey]}`;
     const existing = edges.get(key) || {
       count: 0,
-      maxEvidence: "low",
       rank: 0,
       claims: [],
     };
@@ -1038,7 +1033,6 @@ function buildGraph(data) {
     existing.claims.push(claim);
     if (rank > existing.rank) {
       existing.rank = rank;
-      existing.maxEvidence = claim.evidence_level;
     }
     edges.set(key, existing);
   });
@@ -1057,6 +1051,10 @@ function buildGraph(data) {
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  svg.appendChild(defs);
+  const compoundColors = new Map(compounds.map((compound, index) => [compound, graphColorForIndex(index, compounds.length)]));
+  const targetColors = new Map(targets.map((target, index) => [target, graphColorForIndex(index, targets.length)]));
   const maxEdgeCount = Math.max(
     1,
     ...edgeEntries.map((entry) => entry[1].count || 0)
@@ -1150,7 +1148,7 @@ function buildGraph(data) {
     clearFocusState();
   }
 
-  edgeEntries.forEach(([key, edge]) => {
+  edgeEntries.forEach(([key, edge], index) => {
     const [compound, target] = key.split("|");
     const cPos = compoundPositions.get(compound);
     const tPos = targetPositions.get(target);
@@ -1161,9 +1159,32 @@ function buildGraph(data) {
     const curve = 80;
     const d = `M ${cPos.x} ${cPos.y} C ${midX - curve} ${cPos.y}, ${midX + curve} ${tPos.y}, ${tPos.x} ${tPos.y}`;
     path.setAttribute("d", d);
-    path.setAttribute("class", `edge ${edge.maxEvidence || "low"}`);
+    path.setAttribute("class", "edge");
     const edgeWidth = edgeWidthForCount(edge.count, maxEdgeCount);
     path.style.setProperty("--edge-width", `${edgeWidth.toFixed(2)}px`);
+    const compoundColor = compoundColors.get(compound) || graphColorForIndex(0, 1);
+    const targetColor = targetColors.get(target) || graphColorForIndex(0, 1);
+    const gradientId = `edge-gradient-${index}`;
+    const gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+    gradient.setAttribute("id", gradientId);
+    gradient.setAttribute("gradientUnits", "userSpaceOnUse");
+    gradient.setAttribute("x1", `${cPos.x}`);
+    gradient.setAttribute("y1", `${cPos.y}`);
+    gradient.setAttribute("x2", `${tPos.x}`);
+    gradient.setAttribute("y2", `${tPos.y}`);
+    const start = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    start.setAttribute("offset", "0%");
+    start.setAttribute("stop-color", rgbString(compoundColor));
+    start.setAttribute("stop-opacity", "0.78");
+    const end = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    end.setAttribute("offset", "100%");
+    end.setAttribute("stop-color", rgbString(targetColor));
+    end.setAttribute("stop-opacity", "0.72");
+    gradient.appendChild(start);
+    gradient.appendChild(end);
+    defs.appendChild(gradient);
+    path.style.stroke = `url(#${gradientId})`;
+    path.style.setProperty("--edge-glow", rgbaString(compoundColor, 0.36));
     path.dataset.compound = compound;
     path.dataset.target = target;
     path.dataset.claimCount = `${edge.count}`;
@@ -1178,7 +1199,7 @@ function buildGraph(data) {
       path.classList.add("hovered");
       applyFocusForEdge(key);
       showTooltip(
-        `<strong>${compound} → ${target}</strong><br/>Claims: ${edge.count}<br/>Max evidence: ${edge.maxEvidence}`,
+        `<strong>${compound} → ${target}</strong><br/>claims: ${edge.count}`,
         event
       );
     });
@@ -1219,6 +1240,7 @@ function buildGraph(data) {
     node.setAttribute("cy", pos.y);
     node.setAttribute("r", 12);
     node.setAttribute("class", "node compound");
+    applyGraphNodeColor(node, compoundColors.get(compound) || graphColorForIndex(0, 1));
     if (selected?.type === "compound" && selected.name === compound) {
       node.classList.add("selected");
     }
@@ -1293,6 +1315,7 @@ function buildGraph(data) {
     node.setAttribute("cy", pos.y);
     node.setAttribute("r", 12);
     node.setAttribute("class", "node target");
+    applyGraphNodeColor(node, targetColors.get(target) || graphColorForIndex(0, 1));
     if (selected?.type === "target" && selected.name === target) {
       node.classList.add("selected");
     }
@@ -1539,9 +1562,9 @@ async function init() {
     loadErrors.push(`mechanistic curated: ${primaryErr.message}`);
     try {
       const { data } = await fetchJsonFromCandidates([
-        "../data/processed/orkg_payload_mechanistic.json",
-        "/data/processed/orkg_payload_mechanistic.json",
-        "data/processed/orkg_payload_mechanistic.json",
+        "../data/processed/graph_payload_mechanistic.json",
+        "/data/processed/graph_payload_mechanistic.json",
+        "data/processed/graph_payload_mechanistic.json",
       ]);
       claims = mechanisticFromPayload(data);
     } catch (fallbackErr) {
@@ -1561,9 +1584,9 @@ async function init() {
     loadErrors.push(`disorder curated: ${primaryErr.message}`);
     try {
       const { data } = await fetchJsonFromCandidates([
-        "../data/processed/orkg_payload_disorder.json",
-        "/data/processed/orkg_payload_disorder.json",
-        "data/processed/orkg_payload_disorder.json",
+        "../data/processed/graph_payload_disorder.json",
+        "/data/processed/graph_payload_disorder.json",
+        "data/processed/graph_payload_disorder.json",
       ]);
       disorderClaims = disorderFromPayload(data);
     } catch (fallbackErr) {
@@ -1618,39 +1641,7 @@ if (bibliographySearchInput) {
 if (fullTextOnlyToggle) {
   fullTextOnlyToggle.addEventListener("change", scheduleRender);
 }
-if (primaryResultsOnlyToggle) {
-  primaryResultsOnlyToggle.addEventListener("change", () => {
-    syncYearFilterControls(activeClaimsForMode());
-    scheduleRender();
-  });
-}
 clearSelectionBtn.addEventListener("click", clearSelection);
-if (evidenceLegend) {
-  evidenceLegend.querySelectorAll(".evidence-chip").forEach((chip) => {
-    const level = chip.dataset.evidence || "low";
-    const details = evidenceExplainers[normalizeValue(level)] || evidenceExplainers.low;
-    chip.setAttribute("title", details.title);
-    chip.setAttribute("aria-label", `${details.title}: click for details`);
-    chip.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const chipLevel = normalizeValue(chip.dataset.evidence || "");
-      if (evidenceInfoPopover?.classList.contains("open") && evidencePopoverLevel === chipLevel) {
-        closeEvidencePopover();
-      } else {
-        openEvidencePopover(chipLevel, chip);
-      }
-    });
-    chip.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        chip.click();
-      }
-    });
-  });
-}
-if (evidenceInfoClose) {
-  evidenceInfoClose.addEventListener("click", closeEvidencePopover);
-}
 if (studiesStatCard) {
   studiesStatCard.addEventListener("click", focusBibliography);
   studiesStatCard.addEventListener("keydown", (event) => {
@@ -1671,19 +1662,5 @@ modeButtons.forEach((button) => {
   });
 });
 window.addEventListener("resize", scheduleRender);
-window.addEventListener("resize", closeEvidencePopover);
-document.addEventListener("click", (event) => {
-  if (!evidenceInfoPopover?.classList.contains("open")) return;
-  const target = event.target;
-  if (target instanceof Element) {
-    if (evidenceInfoPopover.contains(target) || target.closest(".evidence-chip")) return;
-  }
-  closeEvidencePopover();
-});
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    closeEvidencePopover();
-  }
-});
 
 init();

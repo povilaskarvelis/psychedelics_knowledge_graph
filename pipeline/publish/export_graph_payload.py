@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export curated claim datasets into deterministic ORKG-ready payloads."""
+"""Export curated claim datasets into deterministic graph payloads."""
 
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ DATASET_CONFIG = {
         "curated_json": ROOT / "data" / "curated" / "claims.json",
         "schema": ROOT / "schema" / "claims.schema.json",
         "template": "Psychedelics: Mechanistic Targets",
-        "all_evidence_file": "orkg_payload_mechanistic.json",
-        "primary_only_file": "orkg_payload_mechanistic_primary_only.json",
+        "all_evidence_file": "graph_payload_mechanistic.json",
+        "primary_only_file": "graph_payload_mechanistic_primary_only.json",
         "id_fields": [
             "compound",
             "target",
@@ -36,8 +36,8 @@ DATASET_CONFIG = {
         "curated_json": ROOT / "data" / "curated" / "disorder_claims.json",
         "schema": ROOT / "schema" / "disorder_claims.schema.json",
         "template": "Psychedelics: Disorder Outcomes",
-        "all_evidence_file": "orkg_payload_disorder.json",
-        "primary_only_file": "orkg_payload_disorder_primary_only.json",
+        "all_evidence_file": "graph_payload_disorder.json",
+        "primary_only_file": "graph_payload_disorder_primary_only.json",
         "id_fields": [
             "compound",
             "disorder",
@@ -278,6 +278,7 @@ def rows_for_view(rows: List[dict], view: str) -> List[dict]:
             for row in rows
             if normalize(row.get("source_type", "")) == "primary_study"
             and normalize(row.get("paper_type", "")) == "primary_results"
+            and normalize(row.get("access_level", "")) != "secondary_summary"
         ]
     raise ValueError(f"Unsupported view: {view}")
 
@@ -359,16 +360,16 @@ def export_dataset(dataset: str, out_dir: Path) -> Tuple[dict, Dict[str, List[st
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Export ORKG-ready payload JSON from curated datasets")
+    parser = argparse.ArgumentParser(description="Export graph payload JSON from curated datasets")
     parser.add_argument("--dataset", choices=["mechanistic", "disorder", "all"], default="all")
     parser.add_argument(
         "--out-dir",
         default=str(ROOT / "data" / "processed"),
-        help="Output directory for ORKG payload files",
+        help="Output directory for graph payload files",
     )
     parser.add_argument(
         "--manifest",
-        default="orkg_payload_manifest.json",
+        default="graph_payload_manifest.json",
         help="Manifest filename written to --out-dir",
     )
     args = parser.parse_args()

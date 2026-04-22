@@ -27,7 +27,9 @@ DATASETS = {
     },
 }
 
-AUTO_DEMOTE_PAPER_TYPES = {"review", "protocol", "conference_or_poster_abstract"}
+PRIMARY_GRAPH_PAPER_TYPE = "primary_results"
+PRIMARY_GRAPH_SOURCE_TYPE = "primary_study"
+AUTO_DEMOTE_PAPER_TYPES = {"review", "protocol", "conference_or_poster_abstract", "other"}
 AUTO_DEMOTE_SOURCE_TYPES = {"review", "meta_analysis"}
 AUTO_DEMOTE_OTHER_TITLE_PATTERNS = [
     r"cost[- ]utility",
@@ -94,20 +96,28 @@ def build_candidate(dataset: str, row: Dict[str, object], row_index: int) -> Dic
         issues.append(f"source_type is {pretty_label(source_type)}")
         action = "demote_from_main_kg"
         priority += 90
+    elif source_type and source_type != PRIMARY_GRAPH_SOURCE_TYPE:
+        issues.append(f"source_type is {pretty_label(source_type)}")
+        action = "demote_from_main_kg"
+        priority += 85
     elif paper_type == "other" and title_matches(AUTO_DEMOTE_OTHER_TITLE_PATTERNS, title):
         issues.append("title matched obvious non-countable pattern")
         action = "demote_from_main_kg"
         priority += 80
-    elif paper_type and paper_type != "primary_results":
+    elif paper_type and paper_type != PRIMARY_GRAPH_PAPER_TYPE:
         issues.append(f"paper_type is {pretty_label(paper_type)}")
-        action = "manual_review"
-        priority += 60
+        action = "demote_from_main_kg"
+        priority += 75
+    elif access_level == "secondary_summary":
+        issues.append("secondary_summary")
+        action = "demote_from_main_kg"
+        priority += 70
 
-    if source_type == "primary_study" and paper_type != "primary_results":
+    if source_type == PRIMARY_GRAPH_SOURCE_TYPE and paper_type != PRIMARY_GRAPH_PAPER_TYPE:
         issues.append("source_type says primary_study but paper_type is weak")
         priority += 25
 
-    if evidence_level == "high" and paper_type != "primary_results":
+    if evidence_level == "high" and paper_type != PRIMARY_GRAPH_PAPER_TYPE:
         issues.append("high evidence attached to weak paper_type")
         priority += 20
 

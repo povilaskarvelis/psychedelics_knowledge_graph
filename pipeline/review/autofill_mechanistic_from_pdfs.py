@@ -7,6 +7,7 @@ import argparse
 import csv
 import datetime as dt
 import json
+import logging
 import re
 import shutil
 import subprocess
@@ -16,7 +17,15 @@ import zlib
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
+try:
+    from pipeline.review.pdf_runtime import ensure_pdf_runtime
+except ModuleNotFoundError:  # pragma: no cover - direct script execution path
+    from pdf_runtime import ensure_pdf_runtime
+
 ROOT = Path(__file__).resolve().parents[2]
+
+logging.getLogger("pdfminer").setLevel(logging.ERROR)
+logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 DATASET_CONFIG = {
     "mechanistic": {
@@ -60,7 +69,6 @@ PROTOCOL_KEYWORDS = {
     "trial protocol",
     "protocol for",
     "protocol:",
-    "study design",
 }
 
 CONFERENCE_OR_POSTER_KEYWORDS = {
@@ -73,7 +81,6 @@ CONFERENCE_OR_POSTER_KEYWORDS = {
     "conference abstract",
     "conference proceedings",
     "psychopharmacology congress",
-    "supplement",
 }
 
 REVIEWISH_KEYWORDS = {
@@ -124,12 +131,13 @@ def normalize_text(raw: str) -> str:
     return re.sub(r"\s+", " ", lowered).strip()
 
 
-def detect_paper_type(text_norm: str) -> str:
-    if any(normalize_text(kw) in text_norm for kw in CONFERENCE_OR_POSTER_KEYWORDS):
+def detect_paper_type(text_norm: str, title_norm: str = "") -> str:
+    source_type_text = title_norm or text_norm[:1000]
+    if any(normalize_text(kw) in source_type_text for kw in CONFERENCE_OR_POSTER_KEYWORDS):
         return "conference_or_poster_abstract"
-    if any(normalize_text(kw) in text_norm for kw in PROTOCOL_KEYWORDS):
+    if any(normalize_text(kw) in source_type_text for kw in PROTOCOL_KEYWORDS):
         return "protocol"
-    if any(normalize_text(kw) in text_norm for kw in REVIEWISH_KEYWORDS):
+    if any(normalize_text(kw) in source_type_text for kw in REVIEWISH_KEYWORDS):
         return "review"
 
     primary_keywords = {
@@ -518,40 +526,181 @@ def ocr_pdf_segments(
     return segments
 
 
-def extract_pdf_segments(
+def append_pdf_segment(
+    segments: List[str],
+    seen: Set[str],
+    raw: str,
+    chars: int,
+    max_segments: int,
+    max_chars: int,
+) -> Tuple[int, bool]:
+    line = normalize(" ".join(normalize(raw).split()))
+    if not line:
+        return chars, False
+    key = normalize_text(line)
+    if not key or key in seen:
+        return chars, False
+    seen.add(key)
+    segments.append(line)
+    chars += len(line)
+    return chars, len(segments) >= max_segments or chars >= max_chars
+
+
+def append_pdf_text(
+    segments: List[str],
+    seen: Set[str],
+    text: str,
+    chars: int,
+    max_segments: int,
+    max_chars: int,
+) -> Tuple[int, bool]:
+    for line in normalize(text).splitlines():
+        chars, done = append_pdf_segment(segments, seen, line, chars, max_segments, max_chars)
+        if done:
+            return chars, True
+    return chars, False
+
+
+def extract_pdf_segments_with_pdftotext(
     path: Path,
-    max_segments: int = 60000,
-    max_chars: int = 2_000_000,
-    enable_ocr_fallback: bool = True,
-    ocr_max_pages: int = 12,
-    ocr_lang: str = "eng",
-) -> Tuple[List[str], bool]:
+    segments: List[str],
+    seen: Set[str],
+    chars: int,
+    max_segments: int,
+    max_chars: int,
+) -> Tuple[int, bool]:
+    if not shutil.which("pdftotext"):
+        return chars, False
+    cmd = ["pdftotext", "-layout", "-enc", "UTF-8", str(path), "-"]
     try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
+    except Exception:
+        return chars, False
+    if proc.returncode != 0:
+        return chars, False
+    return append_pdf_text(segments, seen, proc.stdout, chars, max_segments, max_chars)
+
+
+def extract_pdf_segments_with_pdfplumber(
+    path: Path,
+    segments: List[str],
+    seen: Set[str],
+    chars: int,
+    max_segments: int,
+    max_chars: int,
+) -> Tuple[int, bool]:
+    try:
+        import pdfplumber  # type: ignore
+    except Exception:
+        return chars, False
+
+    try:
+        with pdfplumber.open(str(path)) as pdf:
+            for page in pdf.pages:
+                try:
+                    tables = page.extract_tables() or []
+                except Exception:
+                    tables = []
+                for table in tables:
+                    for row in table or []:
+                        cells = [normalize(cell) for cell in (row or []) if normalize(cell)]
+                        if len(cells) < 2:
+                            continue
+                        chars, done = append_pdf_segment(
+                            segments,
+                            seen,
+                            " | ".join(cells),
+                            chars,
+                            max_segments,
+                            max_chars,
+                        )
+                        if done:
+                            return chars, True
+
+                try:
+                    text = page.extract_text(x_tolerance=1, y_tolerance=3) or ""
+                except Exception:
+                    text = ""
+                chars, done = append_pdf_text(segments, seen, text, chars, max_segments, max_chars)
+                if done:
+                    return chars, True
+    except Exception:
+        return chars, False
+
+    return chars, False
+
+
+def extract_pdf_segments_with_pymupdf(
+    path: Path,
+    segments: List[str],
+    seen: Set[str],
+    chars: int,
+    max_segments: int,
+    max_chars: int,
+) -> Tuple[int, bool]:
+    try:
+        import fitz  # type: ignore
+    except Exception:
+        return chars, False
+
+    try:
+        try:
+            fitz.TOOLS.mupdf_display_errors(False)
+            fitz.TOOLS.mupdf_display_warnings(False)
+        except Exception:
+            pass
+        doc = fitz.open(str(path))
+        try:
+            for page in doc:
+                text = page.get_text("text") or ""
+                chars, done = append_pdf_text(segments, seen, text, chars, max_segments, max_chars)
+                if done:
+                    return chars, True
+        finally:
+            doc.close()
+    except Exception:
+        return chars, False
+
+    return chars, False
+
+
+def extract_pdf_segments_with_pypdf(
+    path: Path,
+    segments: List[str],
+    seen: Set[str],
+    chars: int,
+    max_segments: int,
+    max_chars: int,
+) -> Tuple[int, bool]:
+    try:
+        logging.getLogger("pypdf").setLevel(logging.ERROR)
         from pypdf import PdfReader  # type: ignore
 
         reader = PdfReader(str(path))
-        segments: List[str] = []
-        chars = 0
         for page in reader.pages:
             text = normalize(page.extract_text() or "")
-            if not text:
-                continue
-            for line in text.splitlines():
-                line = normalize(line)
-                if not line:
-                    continue
-                segments.append(line)
-                chars += len(line)
-                if len(segments) >= max_segments or chars >= max_chars:
-                    return segments, False
-        if segments:
-            return segments, False
+            chars, done = append_pdf_text(segments, seen, text, chars, max_segments, max_chars)
+            if done:
+                return chars, True
     except Exception:
-        pass
+        return chars, False
 
-    raw = path.read_bytes()
-    segments: List[str] = []
-    chars = 0
+    return chars, False
+
+
+def extract_pdf_segments_from_raw_streams(
+    path: Path,
+    segments: List[str],
+    seen: Set[str],
+    chars: int,
+    max_segments: int,
+    max_chars: int,
+) -> Tuple[int, bool]:
+    try:
+        raw = path.read_bytes()
+    except Exception:
+        return chars, False
+
     for match in STREAM_RE.finditer(raw):
         stream = match.group(1)
         stream_candidates: List[bytes] = []
@@ -564,33 +713,50 @@ def extract_pdf_segments(
             except Exception:
                 continue
 
-        # Fallback: some text streams are not flate-compressed.
         if not stream_candidates:
             stream_candidates.append(stream)
 
         for decoded in stream_candidates:
             for lit in LITERAL_STRING_RE.finditer(decoded):
                 token = decode_pdf_literal(lit.group(0)[1:-1])
-                token = normalize(" ".join(token.split()))
-                if not token:
-                    continue
-                segments.append(token)
-                chars += len(token)
-                if len(segments) >= max_segments or chars >= max_chars:
-                    return segments, False
+                chars, done = append_pdf_segment(segments, seen, token, chars, max_segments, max_chars)
+                if done:
+                    return chars, True
 
-            # Some PDFs encode text as hex strings.
             for hx in HEX_STRING_RE.finditer(decoded):
                 token = decode_pdf_hex(hx.group(1))
-                token = normalize(" ".join(token.split()))
-                if len(token) < 2:
+                if len(normalize(token)) < 2:
                     continue
-                segments.append(token)
-                chars += len(token)
-                if len(segments) >= max_segments or chars >= max_chars:
-                    return segments, False
+                chars, done = append_pdf_segment(segments, seen, token, chars, max_segments, max_chars)
+                if done:
+                    return chars, True
 
-    # OCR fallback helps scanned/image PDFs where text extraction returns little/no text.
+    return chars, False
+
+
+def extract_pdf_segments(
+    path: Path,
+    max_segments: int = 60000,
+    max_chars: int = 2_000_000,
+    enable_ocr_fallback: bool = True,
+    ocr_max_pages: int = 12,
+    ocr_lang: str = "eng",
+) -> Tuple[List[str], bool]:
+    segments: List[str] = []
+    seen: Set[str] = set()
+    chars = 0
+
+    for extractor in (
+        extract_pdf_segments_with_pdftotext,
+        extract_pdf_segments_with_pdfplumber,
+        extract_pdf_segments_with_pymupdf,
+        extract_pdf_segments_with_pypdf,
+        extract_pdf_segments_from_raw_streams,
+    ):
+        chars, done = extractor(path, segments, seen, chars, max_segments, max_chars)
+        if done:
+            return segments, False
+
     should_ocr = enable_ocr_fallback and (not segments or sum(len(s) for s in segments) < 800 or len(segments) < 40)
     if should_ocr:
         ocr_segments = ocr_pdf_segments(
@@ -601,7 +767,11 @@ def extract_pdf_segments(
             lang=ocr_lang,
         )
         if ocr_segments:
-            return ocr_segments, True
+            for segment in ocr_segments:
+                chars, done = append_pdf_segment(segments, seen, segment, chars, max_segments, max_chars)
+                if done:
+                    return segments, True
+            return segments, True
 
     return segments, False
 
@@ -896,6 +1066,8 @@ def extract_candidate_from_segments(
 
 
 def main() -> int:
+    ensure_pdf_runtime()
+
     parser = argparse.ArgumentParser(description="Autofill mechanistic stubs from local PDF full text")
     parser.add_argument("--dataset", choices=["mechanistic"], required=True)
     parser.add_argument("--status-filter", default="pending_curation", help="Only process rows with this status")
@@ -1085,7 +1257,7 @@ def main() -> int:
         title = normalize(paper.get("study_title", ""))
         all_text = " ".join(segments[:5000])
         text_norm = normalize_text(f"{title} {all_text}")
-        inferred_paper_type = detect_paper_type(text_norm)
+        inferred_paper_type = detect_paper_type(text_norm, title_norm=normalize_text(title))
         if normalize(new_row.get("paper_type", "")) != inferred_paper_type:
             new_row["paper_type"] = inferred_paper_type
             changed_fields.append("paper_type")
