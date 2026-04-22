@@ -4,7 +4,7 @@
   "evidence_view": "all_evidence",
   "template": "Psychedelics: Disorder Outcomes",
   "input_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/disorder_claims.json",
-  "row_count": 2266,
+  "row_count": 2263,
   "contributions": [
     {
       "external_id": "dis-30c940b7674e51b6",
@@ -5221,39 +5221,6 @@
       }
     },
     {
-      "external_id": "dis-f3dff8cd827ccb79",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/s1355617723011049",
-        "openalex_id": "",
-        "title": "22 The Effect of Ibogaine on Cognitive Functioning",
-        "authors": "Kirsten Cherian; Afik Faerman; Lauren Anker; Randi Brown; Or Keynan; TJ; Tiffany J. Ford; Jennifer Keller; Nolan Williams",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Ibogaine",
-        "disorder": "Post-traumatic stress disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in PTSD severity",
-        "result_direction": "mixed",
-        "outcome_measure": "",
-        "population": "adults with post-traumatic stress disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Objective: To determine the effects of the non-classic psychedelic, ibogaine, on cognitive functioning. Ibogaine is an indole alkaloid derived from the Tabernanthe Iboga",
-        "study_design": "observational_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-c04b72014ec694c8",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -8022,39 +7989,6 @@
         "evidence_location": "abstract",
         "evidence_locator": "Abstract snippet: Anecdotal reports suggest that the general anaesthetic drug ketamine, taken orally in low doses, can give rise to some extra analgesia in patients with refractory neuropa",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-a6dab688c7d5c466",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/cts.2019.99",
-        "openalex_id": "",
-        "title": "3447 Effects of intranasal ketamine on uncontrolled cancer related pain",
-        "authors": "Vinita Singh; Donald Harvey",
-        "year": 2019
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Chronic pain"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "MADRS",
-        "population": "adults with chronic pain",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: OBJECTIVES/SPECIFIC AIMS: If intranasal ketamine can be utilized for pain control in cancer patients, this could provide them with superior analgesia and better quality o",
-        "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
     },
@@ -35281,39 +35215,6 @@
         "evidence_locator": "Abstract snippet: BACKGROUND: Psilocybin-assisted psychotherapy shows promise in alcohol use disorder (AUD), but therapeutic mechanisms remain poorly understood. Previous qualitative studi",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-f7bcb3f5d0767c46",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/cts.2024.274",
-        "openalex_id": "",
-        "title": "300 Psilocybin-induced changes in neural reactivity to alcohol and emotional cues in patients with alcohol use disorder: An fMRI pilot study",
-        "authors": "Broc A. Pagni; Petros Petridis; Samantha K. Podrebarac; Jack Grinband; Eric D. Claus; Michael P. Bogenschutz",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Alcohol use disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces heavy drinking outcomes",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with alcohol use disorder",
-        "system": "clinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "PDF snippet: in patients with alcohol use disorder (AUD). METHODS/STUDY",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields; PDF provenance locator refreshed from local full text"
       }
     },
     {

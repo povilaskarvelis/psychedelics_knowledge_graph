@@ -1,6 +1,6 @@
 # Cleanup Report
 
-Generated: 2026-04-22T16:33:56.489025+00:00
+Generated: 2026-04-22T21:21:36.772274+00:00
 
 Purpose: identify weak curated rows that should be demoted from the main evidence set, reviewed manually, or fixed for provenance.
 
@@ -38,12 +38,12 @@ Preview limited to top 8 rows per section.
 
 ## Disorder
 
-- Curated rows: 2266
-- Cleanup candidates: 910
+- Curated rows: 2263
+- Cleanup candidates: 909
 - Auto-demote: 0
 - Manual review: 0
-- Provenance fix: 910
-- Paper types: {"primary_results": 2266}
+- Provenance fix: 909
+- Paper types: {"primary_results": 2263}
 
 ### Auto-demote preview
 
@@ -57,14 +57,14 @@ No rows in this bucket.
 
 | row | compound | disorder | paper_type | evidence | access | issues | study |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 325 | Ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Effect of Intraoperative Esketamine Infusion on Postoperative Sleep Disturban... |
-| 326 | S-ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Effect of Intraoperative Esketamine Infusion on Postoperative Sleep Disturban... |
-| 327 | Ketamine | Treatment-resistant depre... | primary results | high | full text seen | full_text_seen still points to abstract snippet | Ketamine vs Electroconvulsive Therapy for Treatment-Resistant Depression |
-| 329 | Psilocybin | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Acute Adverse Effects of Therapeutic Doses of Psilocybin |
-| 330 | Psilocybin | Treatment-resistant depre... | primary results | high | full text seen | full_text_seen still points to abstract snippet | Control Group Outcomes in Trials of Psilocybin, SSRIs, or Esketamine for Depr... |
-| 332 | Ketamine | Alcohol use disorder | primary results | medium | full text seen | full_text_seen still points to abstract snippet | Association of Combined Naltrexone and Ketamine With Depressive Symptoms in a... |
-| 335 | Ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Efficacy and Safety of Ketamine vs Electroconvulsive Therapy Among Patients W... |
-| 336 | S-ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Efficacy and Safety of Ketamine vs Electroconvulsive Therapy Among Patients W... |
+| 324 | Ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Effect of Intraoperative Esketamine Infusion on Postoperative Sleep Disturban... |
+| 325 | S-ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Effect of Intraoperative Esketamine Infusion on Postoperative Sleep Disturban... |
+| 326 | Ketamine | Treatment-resistant depre... | primary results | high | full text seen | full_text_seen still points to abstract snippet | Ketamine vs Electroconvulsive Therapy for Treatment-Resistant Depression |
+| 328 | Psilocybin | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Acute Adverse Effects of Therapeutic Doses of Psilocybin |
+| 329 | Psilocybin | Treatment-resistant depre... | primary results | high | full text seen | full_text_seen still points to abstract snippet | Control Group Outcomes in Trials of Psilocybin, SSRIs, or Esketamine for Depr... |
+| 331 | Ketamine | Alcohol use disorder | primary results | medium | full text seen | full_text_seen still points to abstract snippet | Association of Combined Naltrexone and Ketamine With Depressive Symptoms in a... |
+| 334 | Ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Efficacy and Safety of Ketamine vs Electroconvulsive Therapy Among Patients W... |
+| 335 | S-ketamine | Major depressive disorder | primary results | high | full text seen | full_text_seen still points to abstract snippet | Efficacy and Safety of Ketamine vs Electroconvulsive Therapy Among Patients W... |
 
 Preview limited to top 8 rows per section.
 

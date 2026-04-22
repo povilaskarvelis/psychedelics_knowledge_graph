@@ -45,6 +45,14 @@ AUTO_DEMOTE_OTHER_TITLE_PATTERNS = [
     r"\bwistar\b",
     r"blast exposure",
 ]
+NUMBERED_ABSTRACT_TITLE_RE = re.compile(r"^\s*\d{2,5}\s+[A-Za-z]")
+ABSTRACT_RECORD_CUE_PATTERNS = [
+    r"\bobjectives goals\b",
+    r"\bobjectives specific aims\b",
+    r"\bmethods study population\b",
+    r"\bresults anticipated results\b",
+    r"\bdiscussion significance\b",
+]
 
 
 def normalize(value: object) -> str:
@@ -76,6 +84,14 @@ def title_matches(patterns: Iterable[str], title: object) -> bool:
     return any(re.search(pattern, text) for pattern in patterns)
 
 
+def looks_like_abstract_record(title: object, locator: object) -> bool:
+    raw_title = normalize(title)
+    text = slug(f"{title} {locator}")
+    if NUMBERED_ABSTRACT_TITLE_RE.match(raw_title):
+        return True
+    return any(re.search(pattern, text) for pattern in ABSTRACT_RECORD_CUE_PATTERNS)
+
+
 def build_candidate(dataset: str, row: Dict[str, object], row_index: int) -> Dict[str, object] | None:
     paper_type = slug(row.get("paper_type"))
     source_type = slug(row.get("source_type"))
@@ -92,6 +108,10 @@ def build_candidate(dataset: str, row: Dict[str, object], row_index: int) -> Dic
         issues.append(f"paper_type is {pretty_label(paper_type)}")
         action = "demote_from_main_kg"
         priority += 100
+    elif looks_like_abstract_record(title, locator):
+        issues.append("numbered or structured abstract record")
+        action = "demote_from_main_kg"
+        priority += 95
     elif source_type in AUTO_DEMOTE_SOURCE_TYPES:
         issues.append(f"source_type is {pretty_label(source_type)}")
         action = "demote_from_main_kg"

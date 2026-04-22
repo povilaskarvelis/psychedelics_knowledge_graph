@@ -7,6 +7,7 @@ from pipeline.extract.promote_ready_stubs import (
     signature,
 )
 from pipeline.validate.validate_claims import warning_group
+from pipeline.validate.build_cleanup_report import build_candidate
 
 
 class PromotionIdentityTest(unittest.TestCase):
@@ -100,6 +101,28 @@ class ValidationWarningGroupTest(unittest.TestCase):
             warning_group("disorder row 1: secondary_summary row is weak evidence for the primary graph"),
             "secondary_summary",
         )
+
+
+class CleanupCandidateTest(unittest.TestCase):
+    def test_numbered_abstract_record_is_demoted(self) -> None:
+        row = {
+            "compound": "Psilocybin",
+            "disorder": "Alcohol use disorder",
+            "study_title": "300 Psilocybin-induced changes in neural reactivity to alcohol and emotional cues in patients with alcohol use disorder: An fMRI pilot study",
+            "study_doi": "10.1017/cts.2024.274",
+            "paper_type": "primary_results",
+            "source_type": "primary_study",
+            "evidence_level": "high",
+            "access_level": "full_text_seen",
+            "result_direction": "positive",
+            "evidence_locator": "PDF snippet: METHODS/STUDY POPULATION: Participants were recruited from a phase II trial.",
+        }
+
+        candidate = build_candidate("disorder", row, 1)
+
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate["recommended_action"], "demote_from_main_kg")
+        self.assertIn("numbered or structured abstract record", candidate["issues"])
 
 
 if __name__ == "__main__":

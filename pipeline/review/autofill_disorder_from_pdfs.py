@@ -107,7 +107,13 @@ CONFERENCE_OR_POSTER_KEYWORDS = {
     "conference abstract",
     "conference proceedings",
     "psychopharmacology congress",
+    "objectives/goals",
+    "objectives/specific aims",
+    "methods/study population",
+    "results/anticipated results",
+    "discussion/significance",
 }
+NUMBERED_ABSTRACT_TITLE_RE = re.compile(r"^\s*(\d{2,5})\s+[A-Za-z]")
 
 REVIEWISH_KEYWORDS = {
     "systematic review",
@@ -314,8 +320,15 @@ def infer_study_design(source_type: str, text_norm: str) -> str:
     return "pending_curation"
 
 
-def detect_paper_type(text_norm: str, title_norm: str = "") -> str:
-    source_type_text = title_norm or text_norm[:1000]
+def looks_like_numbered_abstract_title(title: str) -> bool:
+    match = NUMBERED_ABSTRACT_TITLE_RE.match(normalize(title))
+    return bool(match)
+
+
+def detect_paper_type(text_norm: str, title: str = "") -> str:
+    source_type_text = normalize_text(f"{title} {text_norm[:1000]}")
+    if looks_like_numbered_abstract_title(title):
+        return "conference_or_poster_abstract"
     if any(normalize_text(kw) in source_type_text for kw in CONFERENCE_OR_POSTER_KEYWORDS):
         return "conference_or_poster_abstract"
     if any(normalize_text(kw) in source_type_text for kw in PROTOCOL_KEYWORDS):
@@ -941,7 +954,7 @@ def main() -> int:
         full_text = " ".join(segments[:6000])
         text_norm = normalize_text(f"{title} {full_text}")
         source_type = normalize(new_row.get("source_type", ""))
-        inferred_paper_type = detect_paper_type(text_norm, title_norm=normalize_text(title))
+        inferred_paper_type = detect_paper_type(text_norm, title=title)
         if normalize(new_row.get("paper_type", "")) != inferred_paper_type:
             new_row["paper_type"] = inferred_paper_type
             changed_fields.append("paper_type")
@@ -955,7 +968,11 @@ def main() -> int:
                 new_row[key_stub] = paper.get(key_paper, "")
                 changed_fields.append(key_stub)
 
-        if normalize(new_row.get("access_level", "")) != "full_text_seen":
+        if inferred_paper_type == "conference_or_poster_abstract":
+            if normalize(new_row.get("access_level", "")) != "abstract_only":
+                new_row["access_level"] = "abstract_only"
+                changed_fields.append("access_level")
+        elif normalize(new_row.get("access_level", "")) != "full_text_seen":
             new_row["access_level"] = "full_text_seen"
             changed_fields.append("access_level")
 
