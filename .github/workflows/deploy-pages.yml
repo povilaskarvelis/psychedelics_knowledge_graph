@@ -35,11 +35,11 @@ jobs:
           cp -R ui site/ui
           mkdir -p site/data/curated site/data/processed
           cp data/curated/claims.json data/curated/disorder_claims.json site/data/curated/
-          cp data/processed/orkg_payload_mechanistic.json site/data/processed/
-          cp data/processed/orkg_payload_mechanistic_primary_only.json site/data/processed/
-          cp data/processed/orkg_payload_disorder.json site/data/processed/
-          cp data/processed/orkg_payload_disorder_primary_only.json site/data/processed/
-          cp data/processed/orkg_payload_manifest.json site/data/processed/
+          cp data/processed/graph_payload_mechanistic.json site/data/processed/
+          cp data/processed/graph_payload_mechanistic_primary_only.json site/data/processed/
+          cp data/processed/graph_payload_disorder.json site/data/processed/
+          cp data/processed/graph_payload_disorder_primary_only.json site/data/processed/
+          cp data/processed/graph_payload_manifest.json site/data/processed/
           cp index.html site/index.html
           touch site/.nojekyll
 
