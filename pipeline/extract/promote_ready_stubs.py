@@ -129,8 +129,16 @@ PROMOTION_BLOCKED_TITLE_PATTERNS = [
     ("author correction", re.compile(r"\bauthor correction\b", re.IGNORECASE)),
     ("retraction note", re.compile(r"\bretraction note\b", re.IGNORECASE)),
     ("recommendation record", re.compile(r"\bfaculty opinions recommendation\b", re.IGNORECASE)),
+    (
+        "opinion/research-direction article",
+        re.compile(
+            r"\b(is there a place for|future directions|research directions|where do we go from here|commentary|editorial)\b",
+            re.IGNORECASE,
+        ),
+    ),
 ]
 TRUNCATE_REPORT_VALUE_AT = 260
+HEALTHY_VOLUNTEER_RE = re.compile(r"\bhealthy (?:volunteers?|participants?|adults?|subjects?|controls?)\b", re.IGNORECASE)
 
 
 def normalize(value) -> str:
@@ -143,6 +151,56 @@ def normalize_text(raw: str) -> str:
     lowered = normalize(raw).lower()
     lowered = re.sub(r"[^a-z0-9]+", " ", lowered)
     return re.sub(r"\s+", " ", lowered).strip()
+
+
+def disorder_context_terms(disorder: str) -> Set[str]:
+    text = normalize_text(disorder)
+    terms = {text} if text else set()
+    if "major depressive disorder" in text:
+        terms.update({"depression", "mdd", "unipolar depression"})
+    if "treatment resistant depression" in text:
+        terms.update({"treatment resistant depression", "trd", "depression"})
+    if "post traumatic stress disorder" in text or "posttraumatic stress disorder" in text:
+        terms.update({"ptsd", "post traumatic stress disorder", "posttraumatic stress disorder"})
+    if "social anxiety disorder" in text:
+        terms.update({"social anxiety", "social anxiety disorder"})
+    if "substance use disorder" in text:
+        terms.update({"substance use disorder", "addiction"})
+    return {term for term in terms if term}
+
+
+def has_disorder_sample_context(disorder: str, text_norm: str) -> bool:
+    for term in disorder_context_terms(disorder):
+        escaped = re.escape(term)
+        if re.search(
+            rf"\b(?:patients?|participants?|adults?|volunteers?|subjects?|individuals?|people) with [a-z0-9 ]{{0,80}}\b{escaped}\b",
+            text_norm,
+        ):
+            return True
+        if re.search(rf"\bhealthy (?:volunteers?|participants?|controls?|subjects?) and [a-z0-9 ]{{0,50}}\b{escaped}\b", text_norm):
+            return True
+        if re.search(
+            rf"\b{escaped}\b [a-z0-9 ]{{0,60}}\b(?:patients?|participants?|adults?|volunteers?|subjects?|individuals?|people)\b",
+            text_norm,
+        ):
+            return True
+    return False
+
+
+def looks_like_healthy_volunteer_only_disorder_row(row: dict) -> bool:
+    disorder = normalize(row.get("disorder", ""))
+    if not disorder:
+        return False
+    text_norm = normalize_text(
+        " ".join(
+            [
+                normalize(row.get("study_title", "")),
+                normalize(row.get("population", "")),
+                normalize(row.get("evidence_locator", "")),
+            ]
+        )
+    )
+    return bool(HEALTHY_VOLUNTEER_RE.search(text_norm)) and not has_disorder_sample_context(disorder, text_norm)
 
 
 def load_disorder_alias_map(path: Path = DISORDER_CANON_PATH) -> Dict[str, str]:
@@ -372,6 +430,11 @@ def promotion_evidence_errors(row: dict) -> List[str]:
     locator_lower = evidence_locator.lower()
     if locator_lower.startswith("metadata/title snippet:"):
         errors.append("metadata/title-only evidence is not promotable; claim needs abstract or full-text support")
+
+    if looks_like_healthy_volunteer_only_disorder_row(row):
+        errors.append(
+            "healthy-volunteer safety/subjective-effects study is not promotable as a disorder efficacy claim"
+        )
 
     for label, pattern in PROMOTION_BLOCKED_TITLE_PATTERNS:
         if pattern.search(study_title):

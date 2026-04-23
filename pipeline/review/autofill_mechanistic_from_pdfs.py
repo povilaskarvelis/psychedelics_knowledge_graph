@@ -96,6 +96,18 @@ REVIEWISH_KEYWORDS = {
     "pooled analysis",
 }
 
+NON_COUNTABLE_ARTICLE_KEYWORDS = {
+    "commentary",
+    "editorial",
+    "future directions",
+    "highlight research directions",
+    "is there a place for",
+    "research directions",
+    "viewpoint",
+    "we aim to explore this topic",
+    "where do we go from here",
+}
+
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -132,13 +144,15 @@ def normalize_text(raw: str) -> str:
 
 
 def detect_paper_type(text_norm: str, title_norm: str = "") -> str:
-    source_type_text = title_norm or text_norm[:1000]
+    source_type_text = normalize_text(f"{title_norm} {text_norm[:1000]}")
     if any(normalize_text(kw) in source_type_text for kw in CONFERENCE_OR_POSTER_KEYWORDS):
         return "conference_or_poster_abstract"
     if any(normalize_text(kw) in source_type_text for kw in PROTOCOL_KEYWORDS):
         return "protocol"
     if any(normalize_text(kw) in source_type_text for kw in REVIEWISH_KEYWORDS):
         return "review"
+    if any(normalize_text(kw) in source_type_text for kw in NON_COUNTABLE_ARTICLE_KEYWORDS):
+        return "other"
 
     primary_keywords = {
         "binding",

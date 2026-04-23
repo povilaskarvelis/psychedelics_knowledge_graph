@@ -4,7 +4,7 @@
   "evidence_view": "primary_only",
   "template": "Psychedelics: Mechanistic Targets",
   "input_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/claims.json",
-  "row_count": 222,
+  "row_count": 220,
   "contributions": [
     {
       "external_id": "mech-f4c6718f4404e989",
@@ -823,40 +823,6 @@
       }
     },
     {
-      "external_id": "mech-705eccf5f76b9bd9",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.3389/fnbeh.2015.00207",
-        "openalex_id": "",
-        "title": "Commentary: Chronic SSRI stimulation of astrocytic 5-HT2B receptors change multiple gene expressions/editings and metabolism of glutamate, glucose and glycogen: a potential paradigm shift",
-        "authors": "Sophie M. Banas; Silvina L. Diaz; Stéphane Doly; Arnauld Belmer; Luc Maroteaux",
-        "year": 2015
-      },
-      "resources": {
-        "compound": "DOI",
-        "target": "5-HT2B"
-      },
-      "properties": {
-        "assay_type": "radioligand binding",
-        "affinity_type": "Ki",
-        "affinity_value": 5.0,
-        "affinity_unit": "nM",
-        "species": "",
-        "system": "in_vitro",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: GENERAL COMMENTARY article Front. Behav. Neurosci., 05 August 2015Sec. Pathological Conditions Volume 9 - 2015 | https://doi.org/10.3389/fnbeh.2015.00207",
-        "study_design": "in_vitro_binding_assay",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
-      }
-    },
-    {
       "external_id": "mech-ea28fb4b8abab1db",
       "template": "Psychedelics: Mechanistic Targets",
       "paper": {
@@ -1498,40 +1464,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "text",
         "evidence_locator": "Abstract snippet: Methods to assess neuronal receptor functions are needed in toxicology and for drug development. Human-based test systems that allow studies on glutamate signalling are s",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
-      }
-    },
-    {
-      "external_id": "mech-10a79f564a1d09b2",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.1016/j.jatmed.2024.07.001",
-        "openalex_id": "",
-        "title": "Ketamine and its two enantiomers in anesthesiology and psychiatry: A historical review and future directions",
-        "authors": "Kenji Hashimoto; Mingming Zhao; Tingting Zhu; Xingming Wang; Jianjun Yang",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "target": "NMDA receptor"
-      },
-      "properties": {
-        "assay_type": "radioligand binding",
-        "affinity_type": "Ki",
-        "affinity_value": 7.0,
-        "affinity_unit": "uM",
-        "species": "",
-        "system": "in_vivo",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Ketamine, a dissociative anesthetic, is widely utilized in both human and veterinary anesthesia. Its (<i>S</i>)-enantiomer, esketamine, is similarly employed for anesthes",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
       }

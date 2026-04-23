@@ -62,6 +62,18 @@ REVIEWISH_KEYWORDS = {
     "pooled analysis",
 }
 
+NON_COUNTABLE_ARTICLE_KEYWORDS = {
+    "commentary",
+    "editorial",
+    "future directions",
+    "highlight research directions",
+    "is there a place for",
+    "research directions",
+    "viewpoint",
+    "we aim to explore this topic",
+    "where do we go from here",
+}
+
 
 def normalize(value) -> str:
     if value is None:
@@ -133,6 +145,8 @@ def detect_paper_type(text_norm: str, dataset: str) -> str:
         return "protocol"
     if any(normalize_text(kw) in text_norm for kw in REVIEWISH_KEYWORDS):
         return "review"
+    if any(normalize_text(kw) in text_norm for kw in NON_COUNTABLE_ARTICLE_KEYWORDS):
+        return "other"
 
     primary_keywords = {
         "randomized",

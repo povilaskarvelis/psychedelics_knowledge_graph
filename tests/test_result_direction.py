@@ -2,11 +2,15 @@ import unittest
 
 from pipeline.review.autofill_disorder_from_pdfs import (
     detect_paper_type as detect_disorder_pdf_type,
+    infer_population as infer_pdf_population,
     infer_result_direction as infer_from_pdf,
     infer_system as infer_disorder_system,
 )
 from pipeline.review.autofill_mechanistic_from_pdfs import detect_paper_type as detect_mechanistic_pdf_type
-from pipeline.review.autofill_stubs_from_abstracts import infer_result_direction as infer_from_abstract
+from pipeline.review.autofill_stubs_from_abstracts import (
+    infer_population as infer_abstract_population,
+    infer_result_direction as infer_from_abstract,
+)
 
 
 class ResultDirectionInferenceTest(unittest.TestCase):
@@ -58,7 +62,7 @@ class DisorderPdfInferenceTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            detect_disorder_pdf_type(body, title_norm=title.lower()),
+            detect_disorder_pdf_type(body, title=title.lower()),
             "primary_results",
         )
 
@@ -66,6 +70,21 @@ class DisorderPdfInferenceTest(unittest.TestCase):
         text = "randomized clinical trial in adult patients with depression"
 
         self.assertEqual(infer_disorder_system(text, "preclinical"), "clinical")
+
+    def test_healthy_volunteer_only_population_is_not_mapped_to_disorder(self) -> None:
+        text = "phase 1 study administered DMT harmala in 9 healthy volunteers and assessed subjective effects"
+
+        for infer in [infer_abstract_population, infer_pdf_population]:
+            self.assertEqual(infer("Major depressive disorder", text, ""), "healthy volunteers")
+
+    def test_patient_and_healthy_control_population_stays_disorder_relevant(self) -> None:
+        text = "randomized trial in patients with major depressive disorder and healthy volunteers"
+
+        for infer in [infer_abstract_population, infer_pdf_population]:
+            self.assertEqual(
+                infer("Major depressive disorder", text, ""),
+                "adults with major depressive disorder",
+            )
 
 
 if __name__ == "__main__":

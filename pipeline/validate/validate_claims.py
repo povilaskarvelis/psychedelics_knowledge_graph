@@ -58,6 +58,13 @@ TITLE_WARNING_PATTERNS = [
     ("author_correction", re.compile(r"\bauthor correction\b", re.IGNORECASE)),
     ("retraction_note", re.compile(r"\bretraction note\b", re.IGNORECASE)),
     ("recommendation_record", re.compile(r"\bfaculty opinions recommendation\b", re.IGNORECASE)),
+    (
+        "opinion_research_direction_article",
+        re.compile(
+            r"\b(is there a place for|future directions|research directions|where do we go from here|commentary|editorial)\b",
+            re.IGNORECASE,
+        ),
+    ),
 ]
 NUMERIC_SIGNATURE_FIELDS = {"affinity_value"}
 

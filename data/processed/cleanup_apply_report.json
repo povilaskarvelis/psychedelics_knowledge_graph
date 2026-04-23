@@ -1,45 +1,101 @@
 {
-  "generated_at": "2026-04-22T21:21:26.314409+00:00",
+  "generated_at": "2026-04-23T03:17:48.301024+00:00",
   "cleanup_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/cleanup_candidates.json",
   "datasets": {
     "mechanistic": {
-      "curated_before": 222,
-      "curated_after": 222,
+      "curated_before": 220,
+      "curated_after": 220,
       "demoted_now": 0,
-      "exploratory_before": 17,
-      "exploratory_after": 17,
+      "exploratory_before": 19,
+      "exploratory_after": 19,
       "sample": []
     },
     "disorder": {
-      "curated_before": 2266,
-      "curated_after": 2263,
-      "demoted_now": 3,
-      "exploratory_before": 402,
-      "exploratory_after": 405,
+      "curated_before": 2224,
+      "curated_after": 2210,
+      "demoted_now": 14,
+      "exploratory_before": 444,
+      "exploratory_after": 458,
       "sample": [
         {
-          "row_index": 16,
+          "row_index": 165,
           "compound": "Psilocybin",
-          "disorder": "Alcohol use disorder",
-          "study_title": "300 Psilocybin-induced changes in neural reactivity to alcohol and emotional cues in patients with alcohol use disorder: An fMRI pilot study",
+          "disorder": "Major depressive disorder",
+          "study_title": "A novel psychedelic 5-HT <sub>2A</sub> receptor agonist GM-2505: The pharmacokinetic, safety, and pharmacodynamic profile from a randomized trial healthy volunteer",
           "paper_type": "primary_results",
           "evidence_level": "high"
         },
         {
-          "row_index": 675,
+          "row_index": 363,
+          "compound": "Psilocybin",
+          "disorder": "Major depressive disorder",
+          "study_title": "Acute Effects of Psilocybin After Escitalopram or Placebo Pretreatment in a Randomized, Double\u2010Blind, Placebo\u2010Controlled, Crossover Study in Healthy Subjects",
+          "paper_type": "primary_results",
+          "evidence_level": "high"
+        },
+        {
+          "row_index": 366,
           "compound": "Ketamine",
-          "disorder": "Chronic pain",
-          "study_title": "3447 Effects of intranasal ketamine on uncontrolled cancer related pain",
+          "disorder": "Major depressive disorder",
+          "study_title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)\u2010Hydroxynorketamine in Healthy Volunteers",
           "paper_type": "primary_results",
-          "evidence_level": "high"
+          "evidence_level": "medium"
         },
         {
-          "row_index": 687,
-          "compound": "Ibogaine",
-          "disorder": "Post-traumatic stress disorder",
-          "study_title": "22 The Effect of Ibogaine on Cognitive Functioning",
+          "row_index": 367,
+          "compound": "Ketamine",
+          "disorder": "Social anxiety disorder",
+          "study_title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)\u2010Hydroxynorketamine in Healthy Volunteers",
+          "paper_type": "primary_results",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 368,
+          "compound": "S-ketamine",
+          "disorder": "Major depressive disorder",
+          "study_title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)\u2010Hydroxynorketamine in Healthy Volunteers",
+          "paper_type": "primary_results",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 369,
+          "compound": "S-ketamine",
+          "disorder": "Social anxiety disorder",
+          "study_title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)\u2010Hydroxynorketamine in Healthy Volunteers",
+          "paper_type": "primary_results",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 370,
+          "compound": "R-ketamine",
+          "disorder": "Major depressive disorder",
+          "study_title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)\u2010Hydroxynorketamine in Healthy Volunteers",
+          "paper_type": "primary_results",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 371,
+          "compound": "R-ketamine",
+          "disorder": "Social anxiety disorder",
+          "study_title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)\u2010Hydroxynorketamine in Healthy Volunteers",
+          "paper_type": "primary_results",
+          "evidence_level": "medium"
+        },
+        {
+          "row_index": 499,
+          "compound": "Psilocybin",
+          "disorder": "Major depressive disorder",
+          "study_title": "Psilocybin induces acute and persisting alterations in immune status in healthy volunteers: An experimental, placebo-controlled study",
           "paper_type": "primary_results",
           "evidence_level": "low"
+        },
+        {
+          "row_index": 631,
+          "compound": "Psilocybin",
+          "disorder": "Major depressive disorder",
+          "study_title": "Safety pharmacology of acute psilocybin administration in healthy participants",
+          "paper_type": "primary_results",
+          "evidence_level": "high"
         }
       ]
     }

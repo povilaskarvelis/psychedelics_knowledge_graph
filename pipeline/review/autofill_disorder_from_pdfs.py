@@ -128,6 +128,20 @@ REVIEWISH_KEYWORDS = {
     "pooled analysis",
 }
 
+NON_COUNTABLE_ARTICLE_KEYWORDS = {
+    "commentary",
+    "editorial",
+    "future directions",
+    "highlight research directions",
+    "is there a place for",
+    "research directions",
+    "viewpoint",
+    "we aim to explore this topic",
+    "where do we go from here",
+}
+
+HEALTHY_VOLUNTEER_RE = re.compile(r"\bhealthy (?:volunteers?|participants?|adults?|subjects?|controls?)\b")
+
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -161,6 +175,40 @@ def normalize_text(raw: str) -> str:
     lowered = normalize(raw).lower()
     lowered = re.sub(r"[^a-z0-9]+", " ", lowered)
     return re.sub(r"\s+", " ", lowered).strip()
+
+
+def disorder_context_terms(disorder: str) -> Set[str]:
+    text = normalize_text(disorder)
+    terms = {text} if text else set()
+    if "major depressive disorder" in text:
+        terms.update({"depression", "mdd", "unipolar depression"})
+    if "treatment resistant depression" in text:
+        terms.update({"treatment resistant depression", "trd", "depression"})
+    if "post traumatic stress disorder" in text or "posttraumatic stress disorder" in text:
+        terms.update({"ptsd", "post traumatic stress disorder", "posttraumatic stress disorder"})
+    if "social anxiety disorder" in text:
+        terms.update({"social anxiety", "social anxiety disorder"})
+    if "substance use disorder" in text:
+        terms.update({"substance use disorder", "addiction"})
+    return {term for term in terms if term}
+
+
+def has_disorder_sample_context(disorder: str, text_norm: str) -> bool:
+    for term in disorder_context_terms(disorder):
+        escaped = re.escape(term)
+        if re.search(
+            rf"\b(?:patients?|participants?|adults?|volunteers?|subjects?|individuals?|people) with [a-z0-9 ]{{0,80}}\b{escaped}\b",
+            text_norm,
+        ):
+            return True
+        if re.search(rf"\bhealthy (?:volunteers?|participants?|controls?|subjects?) and [a-z0-9 ]{{0,50}}\b{escaped}\b", text_norm):
+            return True
+        if re.search(
+            rf"\b{escaped}\b [a-z0-9 ]{{0,60}}\b(?:patients?|participants?|adults?|volunteers?|subjects?|individuals?|people)\b",
+            text_norm,
+        ):
+            return True
+    return False
 
 
 def load_json_array(path: Path) -> List[dict]:
@@ -335,6 +383,8 @@ def detect_paper_type(text_norm: str, title: str = "") -> str:
         return "protocol"
     if any(normalize_text(kw) in source_type_text for kw in REVIEWISH_KEYWORDS):
         return "review"
+    if any(normalize_text(kw) in source_type_text for kw in NON_COUNTABLE_ARTICLE_KEYWORDS):
+        return "other"
 
     primary_keywords = {
         "randomized",
@@ -492,6 +542,10 @@ def infer_population(disorder: str, text_norm: str, current: str) -> str:
     if cur:
         return cur
     disorder_text = normalize(disorder).lower()
+    if has_disorder_sample_context(disorder, text_norm):
+        return f"adults with {disorder_text}"
+    if HEALTHY_VOLUNTEER_RE.search(text_norm):
+        return "healthy volunteers"
     if "adolescent" in text_norm or "children" in text_norm:
         return f"adolescents with {disorder_text}"
     if "adult" in text_norm or "participants" in text_norm or "patients" in text_norm:

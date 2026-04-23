@@ -71,6 +71,34 @@ class PromotionEvidenceGateTest(unittest.TestCase):
 
         self.assertEqual(promotion_evidence_errors(row), [])
 
+    def test_opinion_research_direction_title_is_blocked(self) -> None:
+        row = {
+            "source_type": "primary_study",
+            "access_level": "full_text_seen",
+            "evidence_location": "text",
+            "evidence_locator": "PDF snippet: patients with substance use disorder were mentioned in background text",
+            "study_title": "Is there a place for psychedelics in sports practice?",
+        }
+
+        errors = promotion_evidence_errors(row)
+
+        self.assertTrue(any("opinion/research-direction article" in error for error in errors))
+
+    def test_healthy_volunteer_only_disorder_claim_is_blocked(self) -> None:
+        row = {
+            "source_type": "primary_study",
+            "access_level": "full_text_seen",
+            "evidence_location": "text",
+            "evidence_locator": "PDF snippet: psychological effects were measured after dosing",
+            "study_title": "Acute experiences and persisting psychological effects associated with DMT-harmala",
+            "population": "healthy volunteers",
+            "disorder": "Major depressive disorder",
+        }
+
+        errors = promotion_evidence_errors(row)
+
+        self.assertTrue(any("healthy-volunteer" in error for error in errors))
+
     def test_duplicate_diff_reports_changed_evidence_fields(self) -> None:
         existing = {
             "access_level": "abstract_only",
@@ -123,6 +151,68 @@ class CleanupCandidateTest(unittest.TestCase):
         self.assertIsNotNone(candidate)
         self.assertEqual(candidate["recommended_action"], "demote_from_main_kg")
         self.assertIn("numbered or structured abstract record", candidate["issues"])
+
+    def test_opinion_research_direction_article_is_demoted(self) -> None:
+        row = {
+            "compound": "Ayahuasca",
+            "disorder": "Substance use disorder",
+            "study_title": "Is there a place for psychedelics in sports practice?",
+            "study_doi": "10.1017/neu.2025.13",
+            "paper_type": "primary_results",
+            "source_type": "primary_study",
+            "evidence_level": "high",
+            "access_level": "full_text_seen",
+            "result_direction": "mixed",
+            "evidence_locator": "Abstract snippet: We aim to explore this topic and highlight research directions.",
+        }
+
+        candidate = build_candidate("disorder", row, 1)
+
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate["recommended_action"], "demote_from_main_kg")
+        self.assertIn("non-countable opinion/research-direction article", candidate["issues"])
+
+    def test_healthy_volunteer_only_disorder_claim_is_demoted_with_paper_context(self) -> None:
+        row = {
+            "compound": "Ayahuasca",
+            "disorder": "Major depressive disorder",
+            "study_title": "Acute experiences and persisting psychological effects associated with an encapsulated DMT-harmala alkaloid combination: results of a phase 1 study",
+            "study_doi": "10.1038/s41598-025-25767-x",
+            "paper_type": "primary_results",
+            "source_type": "primary_study",
+            "evidence_level": "high",
+            "access_level": "full_text_seen",
+            "result_direction": "mixed",
+            "evidence_locator": "Abstract snippet: Mystical experiences were associated with persisting psychological effects.",
+        }
+        paper_context = {
+            "10.1038/s41598-025-25767-x": "DMT harmala was administered in 17 dosing sessions to 9 healthy volunteers. Findings suggest further trials in relevant patient populations."
+        }
+
+        candidate = build_candidate("disorder", row, 1, paper_context_by_doi=paper_context)
+
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate["recommended_action"], "demote_from_main_kg")
+        self.assertIn("healthy-volunteer-only study used as disorder efficacy evidence", candidate["issues"])
+
+    def test_patient_plus_healthy_control_disorder_claim_is_not_demoted_for_population(self) -> None:
+        row = {
+            "compound": "Ketamine",
+            "disorder": "Major depressive disorder",
+            "study_title": "Hippocampal volume changes after ketamine administration in patients with major depressive disorder and healthy volunteers",
+            "study_doi": "10.1000/example",
+            "paper_type": "primary_results",
+            "source_type": "primary_study",
+            "evidence_level": "high",
+            "access_level": "full_text_seen",
+            "result_direction": "mixed",
+            "evidence_locator": "PDF snippet: patients with major depressive disorder and healthy volunteers were enrolled.",
+        }
+
+        candidate = build_candidate("disorder", row, 1)
+
+        if candidate is not None:
+            self.assertNotIn("healthy-volunteer-only study used as disorder efficacy evidence", candidate["issues"])
 
 
 if __name__ == "__main__":

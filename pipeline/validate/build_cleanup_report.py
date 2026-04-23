@@ -22,6 +22,7 @@ DATASETS = {
     },
     "disorder": {
         "input_json": ROOT / "data" / "curated" / "disorder_claims.json",
+        "paper_db_json": ROOT / "data" / "processed" / "paper_library_disorder.json",
         "relation_key": "disorder",
         "relation_label": "disorder",
     },
@@ -45,6 +46,14 @@ AUTO_DEMOTE_OTHER_TITLE_PATTERNS = [
     r"\bwistar\b",
     r"blast exposure",
 ]
+NON_COUNTABLE_ARTICLE_PATTERNS = [
+    r"\bis there a place for\b",
+    r"\bcommentary\b",
+    r"\beditorial\b",
+    r"\bfuture directions\b",
+    r"\bresearch directions\b",
+    r"\bwhere do we go from here\b",
+]
 NUMBERED_ABSTRACT_TITLE_RE = re.compile(r"^\s*\d{2,5}\s+[A-Za-z]")
 ABSTRACT_RECORD_CUE_PATTERNS = [
     r"\bobjectives goals\b",
@@ -53,6 +62,7 @@ ABSTRACT_RECORD_CUE_PATTERNS = [
     r"\bresults anticipated results\b",
     r"\bdiscussion significance\b",
 ]
+HEALTHY_VOLUNTEER_RE = re.compile(r"\bhealthy (?:volunteers?|participants?|adults?|subjects?|controls?)\b")
 
 
 def normalize(value: object) -> str:
@@ -61,6 +71,82 @@ def normalize(value: object) -> str:
 
 def slug(value: object) -> str:
     return normalize(value).lower()
+
+
+def normalized_phrase_text(value: object) -> str:
+    text = slug(value)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def normalize_doi(value: object) -> str:
+    text = normalize(value)
+    if text.lower().startswith("doi:"):
+        text = text[4:]
+    for prefix in (
+        "https://doi.org/",
+        "http://doi.org/",
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+    ):
+        if text.lower().startswith(prefix):
+            text = text[len(prefix) :]
+            break
+    return text.lower().strip()
+
+
+def disorder_context_terms(disorder: object) -> List[str]:
+    text = normalized_phrase_text(disorder)
+    terms = {text} if text else set()
+    if "major depressive disorder" in text:
+        terms.update({"depression", "mdd", "unipolar depression"})
+    if "treatment resistant depression" in text:
+        terms.update({"treatment resistant depression", "trd", "depression"})
+    if "post traumatic stress disorder" in text or "posttraumatic stress disorder" in text:
+        terms.update({"ptsd", "post traumatic stress disorder", "posttraumatic stress disorder"})
+    if "social anxiety disorder" in text:
+        terms.update({"social anxiety", "social anxiety disorder"})
+    if "substance use disorder" in text:
+        terms.update({"substance use disorder", "addiction"})
+    return sorted(term for term in terms if term)
+
+
+def has_disorder_sample_context(disorder: object, text: object) -> bool:
+    text_norm = normalized_phrase_text(text)
+    for term in disorder_context_terms(disorder):
+        escaped = re.escape(term)
+        if re.search(
+            rf"\b(?:patients?|participants?|adults?|volunteers?|subjects?|individuals?|people) with [a-z0-9 ]{{0,80}}\b{escaped}\b",
+            text_norm,
+        ):
+            return True
+        if re.search(rf"\bhealthy (?:volunteers?|participants?|controls?|subjects?) and [a-z0-9 ]{{0,50}}\b{escaped}\b", text_norm):
+            return True
+        if re.search(
+            rf"\b{escaped}\b [a-z0-9 ]{{0,60}}\b(?:patients?|participants?|adults?|volunteers?|subjects?|individuals?|people)\b",
+            text_norm,
+        ):
+            return True
+    return False
+
+
+def load_paper_context_by_doi(dataset: str) -> Dict[str, str]:
+    path = DATASETS[dataset].get("paper_db_json")
+    if not path or not Path(path).exists():
+        return {}
+    rows = json.loads(Path(path).read_text())
+    context: Dict[str, str] = {}
+    for row in rows if isinstance(rows, list) else []:
+        doi = normalize_doi(row.get("study_doi"))
+        if not doi:
+            continue
+        context[doi] = " ".join(
+            [
+                normalize(row.get("study_title")),
+                normalize(row.get("abstract")),
+            ]
+        )
+    return context
 
 
 def pretty_label(value: str) -> str:
@@ -92,13 +178,57 @@ def looks_like_abstract_record(title: object, locator: object) -> bool:
     return any(re.search(pattern, text) for pattern in ABSTRACT_RECORD_CUE_PATTERNS)
 
 
-def build_candidate(dataset: str, row: Dict[str, object], row_index: int) -> Dict[str, object] | None:
+def looks_like_non_countable_article(title: object, locator: object) -> bool:
+    text = normalized_phrase_text(f"{title} {locator}")
+    return any(re.search(pattern, text) for pattern in NON_COUNTABLE_ARTICLE_PATTERNS)
+
+
+def looks_like_healthy_volunteer_only_disorder_row(row: Dict[str, object], paper_context: object = "") -> bool:
+    if not normalize(row.get("disorder")):
+        return False
+    row_text = normalized_phrase_text(
+        " ".join(
+            [
+                normalize(row.get("study_title")),
+                normalize(row.get("population")),
+                normalize(row.get("evidence_locator")),
+            ]
+        )
+    )
+    paper_text = normalized_phrase_text(paper_context)
+    title_text = normalized_phrase_text(row.get("study_title"))
+    evidence_text = normalized_phrase_text(
+        " ".join(
+            [
+                normalize(row.get("study_title")),
+                normalize(row.get("evidence_locator")),
+                normalize(paper_context),
+            ]
+        )
+    )
+    has_direct_row_signal = bool(HEALTHY_VOLUNTEER_RE.search(row_text))
+    has_phase1_paper_signal = (
+        bool(HEALTHY_VOLUNTEER_RE.search(paper_text))
+        and ("phase 1" in title_text or "phase 1" in paper_text)
+    )
+    return (has_direct_row_signal or has_phase1_paper_signal) and not has_disorder_sample_context(
+        row.get("disorder"), evidence_text
+    )
+
+
+def build_candidate(
+    dataset: str,
+    row: Dict[str, object],
+    row_index: int,
+    paper_context_by_doi: Dict[str, str] | None = None,
+) -> Dict[str, object] | None:
     paper_type = slug(row.get("paper_type"))
     source_type = slug(row.get("source_type"))
     access_level = slug(row.get("access_level"))
     evidence_level = slug(row.get("evidence_level"))
     locator = normalize(row.get("evidence_locator"))
     title = normalize(row.get("study_title"))
+    paper_context = (paper_context_by_doi or {}).get(normalize_doi(row.get("study_doi")), "")
 
     issues: List[str] = []
     priority = 0
@@ -110,6 +240,14 @@ def build_candidate(dataset: str, row: Dict[str, object], row_index: int) -> Dic
         priority += 100
     elif looks_like_abstract_record(title, locator):
         issues.append("numbered or structured abstract record")
+        action = "demote_from_main_kg"
+        priority += 95
+    elif looks_like_non_countable_article(title, locator):
+        issues.append("non-countable opinion/research-direction article")
+        action = "demote_from_main_kg"
+        priority += 95
+    elif dataset == "disorder" and looks_like_healthy_volunteer_only_disorder_row(row, paper_context):
+        issues.append("healthy-volunteer-only study used as disorder efficacy evidence")
         action = "demote_from_main_kg"
         priority += 95
     elif source_type in AUTO_DEMOTE_SOURCE_TYPES:
@@ -216,10 +354,15 @@ def render_table(dataset: str, rows: List[Dict[str, object]]) -> List[str]:
     return lines
 
 
-def dataset_report(dataset: str, rows: List[Dict[str, object]], limit: int) -> Dict[str, object]:
+def dataset_report(
+    dataset: str,
+    rows: List[Dict[str, object]],
+    limit: int,
+    paper_context_by_doi: Dict[str, str] | None = None,
+) -> Dict[str, object]:
     candidates = []
     for idx, row in enumerate(rows, start=1):
-        candidate = build_candidate(dataset, row, idx)
+        candidate = build_candidate(dataset, row, idx, paper_context_by_doi=paper_context_by_doi)
         if candidate:
             candidates.append(candidate)
 
@@ -315,7 +458,12 @@ def main() -> None:
 
     for dataset, config in DATASETS.items():
         rows = json.loads(config["input_json"].read_text())
-        report["datasets"][dataset] = dataset_report(dataset, rows, args.limit)
+        report["datasets"][dataset] = dataset_report(
+            dataset,
+            rows,
+            args.limit,
+            paper_context_by_doi=load_paper_context_by_doi(dataset),
+        )
 
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_md.parent.mkdir(parents=True, exist_ok=True)

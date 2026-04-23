@@ -86,12 +86,20 @@ OTHER_NONCOUNTABLE_KEYWORDS = {
     "cost-effectiveness",
     "cost utility",
     "cost-utility",
+    "commentary",
+    "editorial",
+    "future directions",
+    "highlight research directions",
+    "is there a place for",
     "model based",
     "model-based",
     "medical malpractice risk",
     "physicians concerns",
     "physicians' concerns",
+    "research directions",
+    "we aim to explore this topic",
     "who will staff",
+    "where do we go from here",
 }
 
 PRIMARY_KEYWORDS_DISORDER = {

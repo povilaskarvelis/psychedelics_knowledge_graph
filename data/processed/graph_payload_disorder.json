@@ -4,7 +4,7 @@
   "evidence_view": "all_evidence",
   "template": "Psychedelics: Disorder Outcomes",
   "input_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/disorder_claims.json",
-  "row_count": 2263,
+  "row_count": 2210,
   "contributions": [
     {
       "external_id": "dis-30c940b7674e51b6",
@@ -997,39 +997,6 @@
       }
     },
     {
-      "external_id": "dis-5014397574a55cf0",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Ayahuasca",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-0465a568e59d022d",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -1159,39 +1126,6 @@
         "evidence_locator": "Abstract snippet: Ayahuasca is a brew with psychoactive properties that has been used as an entheogen for centuries, with more recent studies suggesting it is a promising treatment for som",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-490bc8a33675278a",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1038/s41598-025-25767-x",
-        "openalex_id": "",
-        "title": "Acute experiences and persisting psychological effects associated with an encapsulated DMT-harmala alkaloid combination: results of a phase 1 study",
-        "authors": "Daniel Perkins; Andreas Halman; Anna Urokohara; Joseph Palumbo; Mitchell Low; Simon Ruffell; Nicole Leite Galvão‐Coelho; Lisa Collins; Amanda Norman; Jerome Sarris",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Ayahuasca",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-A",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "table",
-        "evidence_locator": "Abstract snippet: Acute subjective experiences induced by psychedelics have been identified as important mediators of therapeutic outcomes in many studies. Mystical experiences specificall",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
     {
@@ -1624,39 +1558,6 @@
       }
     },
     {
-      "external_id": "dis-26493293b9ea7559",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.3389/fpsyt.2023.1302559",
-        "openalex_id": "",
-        "title": "Potential therapeutic effects of an ayahuasca-inspired N,N-DMT and harmine formulation: a controlled trial in healthy subjects",
-        "authors": "Helena Aicher; Michael J. Mueller; Dario Dornbierer; Dila Suay; Claudius Elsner; Ilhui A Wicki; Daniel Meling; Luzia Caflisch; Alexandra Hempe; C. R. Steinhart",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Ayahuasca",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Background There is growing scientific evidence for the therapeutic benefits of the Amazonian plant-based psychedelic “ayahuasca” for neuropsychiatric disorders such as d",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-3bbeea58ba14dae6",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -1786,39 +1687,6 @@
         "evidence_locator": "Abstract snippet: OBJECTIVE: To assess endocannabinoid (anandamide, AEA; 2-arachidonoylglycerol, 2-AG) plasma levels in healthy volunteers and in volunteers with social anxiety disorder (S",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-46296573ab188d6c",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Ayahuasca",
-        "disorder": "Substance use disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with substance use disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
     {
@@ -2482,39 +2350,6 @@
       }
     },
     {
-      "external_id": "dis-77af075ba658d80e",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-ba5d7af10392a45b",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -2676,39 +2511,6 @@
         "evidence_location": "table",
         "evidence_locator": "Abstract snippet: Major depressive disorder (MDD) remains a leading cause of disability worldwide, with current treatments limited by delayed onset and low efficacy. The serotonergic psych",
         "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-b43c591bba4844b0",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1038/s41598-024-53363-y",
-        "openalex_id": "",
-        "title": "Effects of DMT on mental health outcomes in healthy volunteers",
-        "authors": "Christopher Timmermann; Richard J. Zeifman; David Erritzøe; David Nutt; Robin Carhart‐Harris",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "QIDS",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Abstract Psilocybin, a serotonergic psychedelic, is being increasingly researched in clinical studies for the treatment of psychiatric disorders. The relatively lengthy d",
-        "study_design": "observational_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
@@ -3142,39 +2944,6 @@
       }
     },
     {
-      "external_id": "dis-5edbc03dc3e14a0f",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-9e9eeb61f33cf277",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -3271,39 +3040,6 @@
         "evidence_locator": "Abstract snippet: Entheogens, a class of psychoactive substances with profound cultural and religious significance, have been utilized for centuries across diverse traditions for healing,",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-a4727a5f72f38e25",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Obsessive-compulsive disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with obsessive-compulsive disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
     },
     {
@@ -3472,39 +3208,6 @@
       }
     },
     {
-      "external_id": "dis-82d85de8ef278456",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Post-traumatic stress disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces PTSD severity",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with post-traumatic stress disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-cfcebae7a5e57ce3",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -3533,72 +3236,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "table",
         "evidence_locator": "Abstract snippet: Entheogens, a class of psychoactive substances with profound cultural and religious significance, have been utilized for centuries across diverse traditions for healing,",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-8e2f76f8433f4970",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Social anxiety disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces anxiety/depression symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with social anxiety disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-e7227baec7ad656b",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Substance use disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with substance use disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
@@ -3897,39 +3534,6 @@
         "evidence_location": "abstract",
         "evidence_locator": "Abstract snippet: Background Treatment-resistant depression (TRD) is a substantial public health burden, but current treatments have limited effectiveness. The aim was to investigate the s",
         "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-4e2f85d31697d657",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "DMT",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with treatment-resistant depression",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
     },
@@ -4990,39 +4594,6 @@
       }
     },
     {
-      "external_id": "dis-a10900be0dc0f377",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Ibogaine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-f729d0d4b32c539d",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -5415,39 +4986,6 @@
         "evidence_location": "abstract",
         "evidence_locator": "Abstract snippet: <i>Background:</i> Research in psychedelic medicine has focused primarily on civilian populations. Further study is needed to understand whether these treatments are effe",
         "study_design": "open_label_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-cf319dc74c97da01",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Ibogaine",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with treatment-resistant depression",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
     },
@@ -10369,39 +9907,6 @@
       }
     },
     {
-      "external_id": "dis-a20b002183b07eef",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1002/cpt.3391",
-        "openalex_id": "",
-        "title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)‐Hydroxynorketamine in Healthy Volunteers",
-        "authors": "Shruti M. Raja; Jeffrey T. Guptill; Michelle Mack; Marni Peterson; Stephen J. Byard; Robert Twieg; Lynn Jordan; Natalie Rich; Richard A. Castledine; Samuel L. Bourne",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: (R,S)-Ketamine (ketamine) is a dissociative anesthetic that also possesses analgesic and antidepressant activity. Undesirable dissociative side effects and misuse potenti",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-3f825798e0697a17",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -11257,39 +10762,6 @@
         "evidence_locator": "Abstract snippet: BACKGROUND: No clinically useful biomarkers currently predict antidepressant response to ketamine in treatment-resistant major depressive disorder (MDD) or bipolar disord",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-a8413ac3f20f6ca2",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1016/j.jatmed.2024.07.001",
-        "openalex_id": "",
-        "title": "Ketamine and its two enantiomers in anesthesiology and psychiatry: A historical review and future directions",
-        "authors": "Kenji Hashimoto; Mingming Zhao; Tingting Zhu; Xingming Wang; Jianjun Yang",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "BDI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Ketamine, a dissociative anesthetic, is widely utilized in both human and veterinary anesthesia. Its ( S )-enantiomer, esketamine, is similarly employed for anesthesia an",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
     {
@@ -14027,39 +13499,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "table",
         "evidence_locator": "Abstract snippet: The objective of this article is to assess the efficacy and safety of diverse therapeutic strategies for treatment-resistant depression (TRD), encompassing both pharmacol",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-cfae641f97ae4267",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.12775/qs.2025.46.66679",
-        "openalex_id": "",
-        "title": "The Role of Physical Activity in the Management of Treatment-Resistant Depression: Evidence and Future Directions",
-        "authors": "Justyna Klonowska; Szymon Kosek; Radosław Jan Walkowski; Weronika Wasiniewska; Marcin Barański; Tomasz Kandefer; Maria Izabela Sroka",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "STAI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Treatment-resistant depression (TRD) is a clinical condition characterized by failure to achieve remission after at least two trials of different antidepressants given at",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
@@ -17362,39 +16801,6 @@
         "evidence_locator": "Abstract snippet: Anxiety disorders represent a significant global mental health challenge, affecting approximately 4% of the world's population with a notably higher prevalence among wome",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-1931f6f482eecccf",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1002/cpt.3391",
-        "openalex_id": "",
-        "title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)‐Hydroxynorketamine in Healthy Volunteers",
-        "authors": "Shruti M. Raja; Jeffrey T. Guptill; Michelle Mack; Marni Peterson; Stephen J. Byard; Robert Twieg; Lynn Jordan; Natalie Rich; Richard A. Castledine; Samuel L. Bourne",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Social anxiety disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces anxiety/depression symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with social anxiety disorder",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: (R,S)-Ketamine (ketamine) is a dissociative anesthetic that also possesses analgesic and antidepressant activity. Undesirable dissociative side effects and misuse potenti",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
     },
     {
@@ -22513,39 +21919,6 @@
       }
     },
     {
-      "external_id": "dis-74a94eb47b7a4984",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1016/j.neuropharm.2022.109219",
-        "openalex_id": "",
-        "title": "Arketamine, a new rapid-acting antidepressant: A historical review and future directions",
-        "authors": "Jichun Zhang; Wei Yao; Kenji Hashimoto",
-        "year": 2022
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "STAI",
-        "population": "adults with treatment-resistant depression",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: The N-methyl-d-aspartate receptor (NMDAR) antagonist (R,S)-ketamine causes rapid onset and sustained antidepressant actions in treatment-resistant patients with major dep",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-b79a0a3fb5b652e7",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -25219,39 +24592,6 @@
       }
     },
     {
-      "external_id": "dis-5e598058e07bfff5",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1177/02698811221123046",
-        "openalex_id": "",
-        "title": "Commentary on Cochrane review: “Ketamine and other glutamate receptor modulators for depression in adults with unipolar major depressive disorder”",
-        "authors": "Stephane Borentain; Pooja Desai; Dong‐Jing Fu; Li Nancy Chen; Rosanne Lane; Maju Mathews; Carla M. Canuso",
-        "year": 2022
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "MADRS",
-        "population": "adults with treatment-resistant depression",
-        "system": "clinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "figure",
-        "evidence_locator": "Abstract snippet: Esketamine improves response, remission, and depressive symptoms as early as 24 h post-first dose among patients with TRD and among patients with MDD and active suicidal",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-c9f022d9f4ea9560",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -26205,39 +25545,6 @@
         "evidence_location": "figure",
         "evidence_locator": "Abstract snippet: Introduction ESCAPE-LTE was a phase 4, long-term, open-label extension (OLE) study for patients (pts) with treatment resistant depression (TRD) who were continuing esketa",
         "study_design": "open_label_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-6c047be1880216e8",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.12775/qs.2025.46.66679",
-        "openalex_id": "",
-        "title": "The Role of Physical Activity in the Management of Treatment-Resistant Depression: Evidence and Future Directions",
-        "authors": "Justyna Klonowska; Szymon Kosek; Radosław Jan Walkowski; Weronika Wasiniewska; Marcin Barański; Tomasz Kandefer; Maria Izabela Sroka",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "STAI",
-        "population": "adults with treatment-resistant depression",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Treatment-resistant depression (TRD) is a clinical condition characterized by failure to achieve remission after at least two trials of different antidepressants given at",
-        "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
@@ -28684,39 +27991,6 @@
       }
     },
     {
-      "external_id": "dis-12bb904bb7a9adfe",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "LSD",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-f75796f8a521be41",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -29443,39 +28717,6 @@
       }
     },
     {
-      "external_id": "dis-1a0dfe80ffb07886",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "LSD",
-        "disorder": "Substance use disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with substance use disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-8f1895811ba923ac",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -29971,39 +29212,6 @@
       }
     },
     {
-      "external_id": "dis-0c007dceaeb4c2f2",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1186/s40337-025-01409-5",
-        "openalex_id": "",
-        "title": "Exploring MDMA assisted therapy in eating disorders: mechanisms, clinical evidence, and future directions.",
-        "authors": "Harkhoe M; Offringa T; Vermetten E",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "MDMA",
-        "disorder": "Eating disorders"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "",
-        "population": "adults with eating disorders",
-        "system": "preclinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: BACKGROUND: Patients with eating disorders (EDs), particularly anorexia nervosa (AN), experience a complex psychiatric condition often characterized by extreme food restr",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-3f34b2a36ade4d7f",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -30199,39 +29407,6 @@
         "evidence_locator": "Abstract snippet: BACKGROUND: Major depressive disorder (MDD) is a leading cause of global disability, and current treatments often fail to provide sustained effectiveness. MDMA-assisted t",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-436ead6f927cf1f0",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "MDMA",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
     {
@@ -32380,39 +31555,6 @@
       }
     },
     {
-      "external_id": "dis-513dc5bf435e8fe0",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1186/s40337-025-01409-5",
-        "openalex_id": "",
-        "title": "Exploring MDMA assisted therapy in eating disorders: mechanisms, clinical evidence, and future directions.",
-        "authors": "Harkhoe M; Offringa T; Vermetten E",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "MDMA",
-        "disorder": "Post-traumatic stress disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces PTSD severity",
-        "result_direction": "mixed",
-        "outcome_measure": "",
-        "population": "adults with post-traumatic stress disorder",
-        "system": "preclinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: BACKGROUND: Patients with eating disorders (EDs), particularly anorexia nervosa (AN), experience a complex psychiatric condition often characterized by extreme food restr",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-e20b83d81a024191",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -34030,39 +33172,6 @@
       }
     },
     {
-      "external_id": "dis-a159cf3a2794eded",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "MDMA",
-        "disorder": "Substance use disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with substance use disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-dc77ce33aeeef9cc",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -34591,39 +33700,6 @@
       }
     },
     {
-      "external_id": "dis-d6d4b09522365ab1",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Psilocin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-259f863bd5e5b66e",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -34917,39 +33993,6 @@
         "evidence_location": "figure",
         "evidence_locator": "Abstract snippet: The need to identify effective therapies for the treatment of psychiatric disorders is a particularly important issue in modern societies. In addition, difficulties in fi",
         "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-99cb3670edf2cde1",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Psilocin",
-        "disorder": "Substance use disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with substance use disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
-        "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
@@ -39244,39 +38287,6 @@
       }
     },
     {
-      "external_id": "dis-ef958dc9375faa23",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1002/cpt.2487",
-        "openalex_id": "",
-        "title": "Acute Effects of Psilocybin After Escitalopram or Placebo Pretreatment in a Randomized, Double‐Blind, Placebo‐Controlled, Crossover Study in Healthy Subjects",
-        "authors": "Becker AM; Holze F; Grandinetti T; Klaiber A; Toedtli VE; Kolaczynska KE; Duthaler U; Varghese N; Eckert A; Grünblatt E",
-        "year": 2021
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "",
-        "population": "adults with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: The psychedelic psilocybin is being investigated for the treatment of depression and anxiety. Unclear is whether antidepressant treatments interact with psilocybin. The p",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-af604f5d740367a6",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -39805,39 +38815,6 @@
       }
     },
     {
-      "external_id": "dis-06094e5029b1027a",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1016/j.bbi.2023.09.004",
-        "openalex_id": "",
-        "title": "Psilocybin induces acute and persisting alterations in immune status in healthy volunteers: An experimental, placebo-controlled study",
-        "authors": "Natasha L. Mason; Attila Szabó; Kim P. C. Kuypers; Pablo Mallaroni; R. de la Torre Fornell; Johannes T. Reckweg; Desmond H. Y. Tse; Nadia R. P. W. Hutten; Amanda Feilding; Johannes G. Ramaekers",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "BDI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "table",
-        "evidence_locator": "Abstract snippet: Patients characterized by stress-related disorders such as depression display elevated circulating concentrations of pro-inflammatory cytokines and a hyperactive HPA axis",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-df1d46f03ab70dd9",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -40333,39 +39310,6 @@
       }
     },
     {
-      "external_id": "dis-92edde6620cea4af",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1016/j.nsa.2024.104060",
-        "openalex_id": "",
-        "title": "Safety pharmacology of acute psilocybin administration in healthy participants",
-        "authors": "Isabelle Straumann; Friederike Holze; A. Becker; Laura Ley; Nepomuk Halter; Matthias E. Liechti",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "STAI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "table",
-        "evidence_locator": "Abstract snippet: Psilocybin is being studied for its therapeutic potential in various mental health disorders, such as depression, anxiety, and addiction. Initial studies suggested that p",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-6f726b9bbc07570a",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -40658,39 +39602,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "table",
         "evidence_locator": "Abstract snippet: Psilocin and psilocybin showed no antidepressant-like effect in the FSL rats, despite a positive effect in humans. This suggests that other animal models of depression an",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-9744b9e6badfa782",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
@@ -41089,39 +40000,6 @@
         "evidence_locator": "Abstract snippet: Psilocybin therapy shows antidepressant potential, but its therapeutic actions are not well understood. We assessed the subacute impact of psilocybin on brain function in",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-1919b5699075e844",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1038/s41598-024-53363-y",
-        "openalex_id": "",
-        "title": "Effects of DMT on mental health outcomes in healthy volunteers",
-        "authors": "Christopher Timmermann; Richard J. Zeifman; David Erritzøe; David Nutt; Robin Carhart‐Harris",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "QIDS",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Abstract Psilocybin, a serotonergic psychedelic, is being increasingly researched in clinical studies for the treatment of psychiatric disorders. The relatively lengthy d",
-        "study_design": "observational_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
     {
@@ -42275,39 +41153,6 @@
         "access_level": "abstract_only",
         "evidence_location": "abstract",
         "evidence_locator": "Abstract snippet: Background: Post-traumatic stress disorder (PTSD) is a debilitating condition for which there are few efficacious treatments. Psilocybin is being studied for use in treat",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-5fc9366d4f664d82",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1177/02698811251378512",
-        "openalex_id": "",
-        "title": "A novel psychedelic 5-HT <sub>2A</sub> receptor agonist GM-2505: The pharmacokinetic, safety, and pharmacodynamic profile from a randomized trial healthy volunteer",
-        "authors": "Gerard J. Marek; Soma Makai‐Bölöni; Daniel Umbricht; Edward P. Christian; Jason Winters; Dino Dvořák; Shane Raines; Zoë A. Hughes; Eric W. Austin; Adam K. Klein",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "",
-        "population": "adults with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Background: The treatment of major depressive disorder (MDD) with available antidepressant drugs is characterized by considerable ineffectiveness. Classical psychedelics",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
@@ -43567,39 +42412,6 @@
       }
     },
     {
-      "external_id": "dis-f85e76b8e836e52c",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-61f9dc57eef883fc",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -44656,39 +43468,6 @@
       }
     },
     {
-      "external_id": "dis-94ce97786e5baed7",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Obsessive-compulsive disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with obsessive-compulsive disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-006f86bc3759896a",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -45217,39 +43996,6 @@
       }
     },
     {
-      "external_id": "dis-9fd3fe0ba4e217e7",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Post-traumatic stress disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces PTSD severity",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with post-traumatic stress disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-3996c41bae8dff50",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -45349,39 +44095,6 @@
       }
     },
     {
-      "external_id": "dis-f116230d096dd275",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Social anxiety disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces anxiety/depression symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with social anxiety disorder",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-17af3b1129c54eee",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -45443,39 +44156,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "text",
         "evidence_locator": "Abstract snippet: Psychedelics such as psilocybin reliably produce significantly altered states of consciousness with a variety of subjectively experienced effects. These include certain c",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-cc492391780429d3",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1017/neu.2025.13",
-        "openalex_id": "",
-        "title": "Is there a place for psychedelics in sports practice?",
-        "authors": "Marina A. M. Portes; Isabel Werle; Leandro J. Bertoglio",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Substance use disorder"
-      },
-      "properties": {
-        "outcome_type": "improves clinical symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "HAM-D",
-        "population": "adults with substance use disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Growing evidence suggests that psychedelic-assisted therapies can alleviate depression, anxiety, posttraumatic stress, and substance use disorder, offering relatively saf",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
@@ -49177,39 +47857,6 @@
       }
     },
     {
-      "external_id": "dis-204239819667d84b",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.55277/researchhub.aydefpsl",
-        "openalex_id": "",
-        "title": "Huberman Lab Podcast #93 Summary and Commentary",
-        "authors": "Jeffrey Koury",
-        "year": 2023
-      },
-      "resources": {
-        "compound": "Psilocybin",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adolescents with treatment-resistant depression",
-        "system": "preclinical",
-        "evidence_level": "high",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Podcast Host: Dr. Andrew Huberman (Stanford Associate Professor - brain development, brain plasticity, and neural regeneration and repair fields) - Youtube - Lab WebsiteP",
-        "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-3a6b250040350af7",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -50695,39 +49342,6 @@
       }
     },
     {
-      "external_id": "dis-cc151709868e19c5",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1002/cpt.3391",
-        "openalex_id": "",
-        "title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)‐Hydroxynorketamine in Healthy Volunteers",
-        "authors": "Shruti M. Raja; Jeffrey T. Guptill; Michelle Mack; Marni Peterson; Stephen J. Byard; Robert Twieg; Lynn Jordan; Natalie Rich; Richard A. Castledine; Samuel L. Bourne",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "R-ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: (R,S)-Ketamine (ketamine) is a dissociative anesthetic that also possesses analgesic and antidepressant activity. Undesirable dissociative side effects and misuse potenti",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-c5788cb849ae2241",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -51418,39 +50032,6 @@
         "evidence_locator": "Abstract snippet: BACKGROUND: No clinically useful biomarkers currently predict antidepressant response to ketamine in treatment-resistant major depressive disorder (MDD) or bipolar disord",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-2c33cd78a052cd5e",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1016/j.jatmed.2024.07.001",
-        "openalex_id": "",
-        "title": "Ketamine and its two enantiomers in anesthesiology and psychiatry: A historical review and future directions",
-        "authors": "Kenji Hashimoto; Mingming Zhao; Tingting Zhu; Xingming Wang; Jianjun Yang",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "R-ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "BDI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Ketamine, a dissociative anesthetic, is widely utilized in both human and veterinary anesthesia. Its ( S )-enantiomer, esketamine, is similarly employed for anesthesia an",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
     },
     {
@@ -53429,39 +52010,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "figure",
         "evidence_locator": "Abstract snippet: Therapeutic medications for the treatment of depression have serious limitations, particularly delayed onset and low rates of efficacy. However, the discovery that a sing",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-f0d64b02eb88235c",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.12775/qs.2025.46.66679",
-        "openalex_id": "",
-        "title": "The Role of Physical Activity in the Management of Treatment-Resistant Depression: Evidence and Future Directions",
-        "authors": "Justyna Klonowska; Szymon Kosek; Radosław Jan Walkowski; Weronika Wasiniewska; Marcin Barański; Tomasz Kandefer; Maria Izabela Sroka",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "R-ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "STAI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Treatment-resistant depression (TRD) is a clinical condition characterized by failure to achieve remission after at least two trials of different antidepressants given at",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
@@ -55843,39 +54391,6 @@
       }
     },
     {
-      "external_id": "dis-bbb29c05a25e2751",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1002/cpt.3391",
-        "openalex_id": "",
-        "title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)‐Hydroxynorketamine in Healthy Volunteers",
-        "authors": "Shruti M. Raja; Jeffrey T. Guptill; Michelle Mack; Marni Peterson; Stephen J. Byard; Robert Twieg; Lynn Jordan; Natalie Rich; Richard A. Castledine; Samuel L. Bourne",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "R-ketamine",
-        "disorder": "Social anxiety disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces anxiety/depression symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with social anxiety disorder",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: (R,S)-Ketamine (ketamine) is a dissociative anesthetic that also possesses analgesic and antidepressant activity. Undesirable dissociative side effects and misuse potenti",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-93ea93a64718b644",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -56960,39 +55475,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "text",
         "evidence_locator": "Abstract snippet: Aims: 1. Examine efficacy and durability of antidepressant effects. 2. Identify specific symptoms of improvement. 3. Compare response rates and duration of antidepressant",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-9619a1cece6208c4",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.12775/qs.2025.46.66679",
-        "openalex_id": "",
-        "title": "The Role of Physical Activity in the Management of Treatment-Resistant Depression: Evidence and Future Directions",
-        "authors": "Justyna Klonowska; Szymon Kosek; Radosław Jan Walkowski; Weronika Wasiniewska; Marcin Barański; Tomasz Kandefer; Maria Izabela Sroka",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "R-ketamine",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "STAI",
-        "population": "adults with treatment-resistant depression",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Treatment-resistant depression (TRD) is a clinical condition characterized by failure to achieve remission after at least two trials of different antidepressants given at",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }
@@ -59275,39 +57757,6 @@
       }
     },
     {
-      "external_id": "dis-7d8db5aff31698ba",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1002/cpt.3391",
-        "openalex_id": "",
-        "title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)‐Hydroxynorketamine in Healthy Volunteers",
-        "authors": "Shruti M. Raja; Jeffrey T. Guptill; Michelle Mack; Marni Peterson; Stephen J. Byard; Robert Twieg; Lynn Jordan; Natalie Rich; Richard A. Castledine; Samuel L. Bourne",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: (R,S)-Ketamine (ketamine) is a dissociative anesthetic that also possesses analgesic and antidepressant activity. Undesirable dissociative side effects and misuse potenti",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-0005ddc7e37733d0",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -60166,39 +58615,6 @@
       }
     },
     {
-      "external_id": "dis-b345178980dce42f",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1016/j.jatmed.2024.07.001",
-        "openalex_id": "",
-        "title": "Ketamine and its two enantiomers in anesthesiology and psychiatry: A historical review and future directions",
-        "authors": "Kenji Hashimoto; Mingming Zhao; Tingting Zhu; Xingming Wang; Jianjun Yang",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "no significant change in depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "BDI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "mixed",
-        "evidence_locator": "Abstract snippet: Ketamine, a dissociative anesthetic, is widely utilized in both human and veterinary anesthesia. Its ( S )-enantiomer, esketamine, is similarly employed for anesthesia an",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-1598664b0b07416b",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -60261,39 +58677,6 @@
         "evidence_location": "abstract",
         "evidence_locator": "Abstract snippet: Ketamine shows promise as a rapidly-acting treatment for depression and suicidal ideation, but side effects and abuse potential limit its use. Understanding its mechanism",
         "study_design": "randomized_controlled_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
-      "external_id": "dis-a30de68150c38782",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1016/j.neuropharm.2022.109219",
-        "openalex_id": "",
-        "title": "Arketamine, a new rapid-acting antidepressant: A historical review and future directions",
-        "authors": "Jichun Zhang; Wei Yao; Kenji Hashimoto",
-        "year": 2022
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "STAI",
-        "population": "adults with major depressive disorder",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: The N-methyl-d-aspartate receptor (NMDAR) antagonist (R,S)-ketamine causes rapid onset and sustained antidepressant actions in treatment-resistant patients with major dep",
-        "study_design": "phase_2_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
     },
@@ -64027,39 +62410,6 @@
       }
     },
     {
-      "external_id": "dis-69ebfc62932ff50c",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.12775/qs.2025.46.66679",
-        "openalex_id": "",
-        "title": "The Role of Physical Activity in the Management of Treatment-Resistant Depression: Evidence and Future Directions",
-        "authors": "Justyna Klonowska; Szymon Kosek; Radosław Jan Walkowski; Weronika Wasiniewska; Marcin Barański; Tomasz Kandefer; Maria Izabela Sroka",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "disorder": "Major depressive disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "STAI",
-        "population": "adults with major depressive disorder",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Treatment-resistant depression (TRD) is a clinical condition characterized by failure to achieve remission after at least two trials of different antidepressants given at",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
       "external_id": "dis-0086c397655c2951",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -67357,39 +65707,6 @@
         "evidence_locator": "Abstract snippet: Anxiety disorders represent a significant global mental health challenge, affecting approximately 4% of the world's population with a notably higher prevalence among wome",
         "study_design": "randomized_controlled_trial",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-8501717f70cc080e",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1002/cpt.3391",
-        "openalex_id": "",
-        "title": "A Phase 1 Assessment of the Safety, Tolerability, Pharmacokinetics and Pharmacodynamics of (2<i>R</i>,6<i>R</i>)‐Hydroxynorketamine in Healthy Volunteers",
-        "authors": "Shruti M. Raja; Jeffrey T. Guptill; Michelle Mack; Marni Peterson; Stephen J. Byard; Robert Twieg; Lynn Jordan; Natalie Rich; Richard A. Castledine; Samuel L. Bourne",
-        "year": 2024
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "disorder": "Social anxiety disorder"
-      },
-      "properties": {
-        "outcome_type": "reduces anxiety/depression symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "",
-        "population": "adults with social anxiety disorder",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: (R,S)-Ketamine (ketamine) is a dissociative anesthetic that also possesses analgesic and antidepressant activity. Undesirable dissociative side effects and misuse potenti",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
       }
     },
     {
@@ -71155,39 +69472,6 @@
       }
     },
     {
-      "external_id": "dis-08fc0e8541a64986",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.1177/02698811221123046",
-        "openalex_id": "",
-        "title": "Commentary on Cochrane review: “Ketamine and other glutamate receptor modulators for depression in adults with unipolar major depressive disorder”",
-        "authors": "Stephane Borentain; Pooja Desai; Dong‐Jing Fu; Li Nancy Chen; Rosanne Lane; Maju Mathews; Carla M. Canuso",
-        "year": 2022
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "positive",
-        "outcome_measure": "MADRS",
-        "population": "adults with treatment-resistant depression",
-        "system": "preclinical",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "abstract_only",
-        "evidence_location": "abstract",
-        "evidence_locator": "Abstract snippet: Background: Cochrane recently published a review of esketamine and other glutamate receptor modulators in depression. Aim: To address the limitations of the review, analy",
-        "study_design": "phase_2_trial",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata"
-      }
-    },
-    {
       "external_id": "dis-e8326b3935d41d1e",
       "template": "Psychedelics: Disorder Outcomes",
       "paper": {
@@ -72437,39 +70721,6 @@
         "access_level": "full_text_seen",
         "evidence_location": "text",
         "evidence_locator": "Abstract snippet: Introduction and purpose: Major depressive disorder (MDD) is the most common psychiatric illness, affecting millions of people worldwide. The first line of pharmacologica",
-        "study_design": "preclinical_study",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
-      }
-    },
-    {
-      "external_id": "dis-ee70c1dd9c88d589",
-      "template": "Psychedelics: Disorder Outcomes",
-      "paper": {
-        "doi": "10.12775/qs.2025.46.66679",
-        "openalex_id": "",
-        "title": "The Role of Physical Activity in the Management of Treatment-Resistant Depression: Evidence and Future Directions",
-        "authors": "Justyna Klonowska; Szymon Kosek; Radosław Jan Walkowski; Weronika Wasiniewska; Marcin Barański; Tomasz Kandefer; Maria Izabela Sroka",
-        "year": 2025
-      },
-      "resources": {
-        "compound": "S-ketamine",
-        "disorder": "Treatment-resistant depression"
-      },
-      "properties": {
-        "outcome_type": "reduces depressive symptoms",
-        "result_direction": "mixed",
-        "outcome_measure": "STAI",
-        "population": "adults with treatment-resistant depression",
-        "system": "clinical",
-        "evidence_level": "low",
-        "source": "doi"
-      },
-      "provenance": {
-        "paper_type": "primary_results",
-        "source_type": "primary_study",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Treatment-resistant depression (TRD) is a clinical condition characterized by failure to achieve remission after at least two trials of different antidepressants given at",
         "study_design": "preclinical_study",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for disorder fields"
       }

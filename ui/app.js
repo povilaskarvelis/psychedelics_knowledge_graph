@@ -12,7 +12,6 @@ const detailSubtitle = document.querySelector("#graphDetail p");
 const detailBody = document.getElementById("detailBody");
 const clearSelectionBtn = document.getElementById("clearSelection");
 const modeButtons = document.querySelectorAll("[data-mode]");
-const rightStatLabel = document.getElementById("rightStatLabel");
 const graphTitle = document.querySelector(".graph-panel h2");
 const graphSubtitle = document.querySelector(".graph-panel p");
 const studiesStatCard = document.getElementById("studiesStatCard");
@@ -25,8 +24,8 @@ if (tooltip && tooltip.parentElement !== document.body) {
 
 const stats = {
   compounds: document.querySelector('[data-stat="compounds"]'),
+  indications: document.querySelector('[data-stat="indications"]'),
   targets: document.querySelector('[data-stat="targets"]'),
-  claims: document.querySelector('[data-stat="claims"]'),
   studies: document.querySelector('[data-stat="studies"]'),
 };
 
@@ -41,6 +40,32 @@ const GRAPH_COLOR_STOPS = [
   { r: 241, g: 166, b: 106 },
   { r: 232, g: 117, b: 141 },
 ];
+const CATEGORY_COLORS = [
+  "#49d6c8",
+  "#f1b74b",
+  "#ef6c9a",
+  "#90baff",
+  "#77d98d",
+  "#cda7ff",
+  "#f6a66a",
+  "#9aa4bf",
+];
+const DIRECTION_COLORS = {
+  positive: "#90baff",
+  mixed: "#ef6c9a",
+  null: "#94a3b8",
+  negative: "#fb7185",
+  unclear: "#64748b",
+};
+const SYSTEM_COLORS = {
+  clinical: "#49d6c8",
+  preclinical: "#f1b74b",
+  in_vitro: "#90baff",
+  in_vivo: "#ef6c9a",
+  ex_vivo: "#cda7ff",
+  observational: "#ef6c9a",
+  unknown: "#9aa4bf",
+};
 
 let claims = [];
 let disorderClaims = [];
@@ -68,6 +93,10 @@ function unique(values) {
 
 function activeClaimsForMode() {
   const baseClaims = mode === "mechanistic" ? claims : disorderClaims;
+  return primaryEvidenceClaims(baseClaims);
+}
+
+function primaryEvidenceClaims(baseClaims) {
   return baseClaims.filter(
     (claim) =>
       normalizeValue(claim.paper_type) === "primary_results" &&
@@ -534,12 +563,21 @@ function claimAuthors(claim) {
   return "";
 }
 
-function updateStats(data) {
-  stats.compounds.textContent = unique(data.map((c) => c.compound)).length;
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
-  stats.targets.textContent = unique(data.map((c) => c[rightKey])).length;
-  stats.claims.textContent = data.length;
-  stats.studies.textContent = unique(data.map((c) => c.study_doi || c.openalex_id)).length;
+function updateStats() {
+  const disorderPrimary = primaryEvidenceClaims(disorderClaims);
+  const mechanisticPrimary = primaryEvidenceClaims(claims);
+  const totalClaims = [...disorderPrimary, ...mechanisticPrimary];
+
+  stats.compounds.textContent = formatCompactNumber(
+    unique(totalClaims.map((claim) => claim.compound).filter(Boolean)).length
+  );
+  stats.indications.textContent = formatCompactNumber(
+    unique(disorderPrimary.map((claim) => claim.disorder).filter(Boolean)).length
+  );
+  stats.targets.textContent = formatCompactNumber(
+    unique(mechanisticPrimary.map((claim) => claim.target).filter(Boolean)).length
+  );
+  stats.studies.textContent = formatCompactNumber(uniqueStudyCount(totalClaims));
 }
 
 function applyFilters() {
@@ -815,98 +853,489 @@ function summarizeConnections(items, key) {
     .sort((a, b) => b.count - a.count);
 }
 
-function renderEdgeDetail(compound, target, edgeClaims) {
-  const studies = countStudies(edgeClaims);
-  setDetailHeader(`${compound} → ${target}`, `${edgeClaims.length} claims across ${studies} studies`);
+function escapeHtml(value) {
+  return (value ?? "")
+    .toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
-  const sortedClaims = [...edgeClaims].sort((a, b) => {
-    const yearDiff = (b.study_year || 0) - (a.study_year || 0);
+function formatCompactNumber(value) {
+  const number = Number(value) || 0;
+  return number.toLocaleString("en-US");
+}
+
+function displayFieldLabel(value, fallback = "Unknown") {
+  const normalized = normalizeValue(value);
+  if (!normalized) return fallback;
+  if (normalized === "null") return "Null";
+  return labelFromSlug(normalized).replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function studyKey(claim, index) {
+  const id = studyId(claim);
+  if (id && id !== "unknown") return id;
+
+  const title = normalizeValue(claim.study_title);
+  const year = parseYearValue(claim.study_year);
+  if (title || year !== null) return `${title}|${year || ""}`;
+
+  return `claim-${index}`;
+}
+
+function uniqueStudyEntries(items) {
+  const seen = new Set();
+  const entries = [];
+
+  items.forEach((claim, index) => {
+    const key = studyKey(claim, index);
+    if (seen.has(key)) return;
+    seen.add(key);
+    entries.push({
+      key,
+      year: parseYearValue(claim.study_year),
+      claim,
+    });
+  });
+
+  return entries;
+}
+
+function uniqueStudyCount(items) {
+  return uniqueStudyEntries(items).length;
+}
+
+function yearStats(items) {
+  const years = uniqueStudyEntries(items)
+    .map((entry) => entry.year)
+    .filter((year) => year !== null)
+    .sort((a, b) => a - b);
+
+  if (!years.length) {
+    return { first: null, last: null, spanLabel: "No publication years" };
+  }
+
+  const first = years[0];
+  const last = years[years.length - 1];
+  return {
+    first,
+    last,
+    spanLabel: first === last ? String(first) : `${first}-${last}`,
+  };
+}
+
+function bucketStepForYears(minYear, maxYear) {
+  const span = maxYear - minYear + 1;
+  if (span > 28) return 5;
+  if (span > 16) return 2;
+  return 1;
+}
+
+function buildYearBuckets(items) {
+  const entries = uniqueStudyEntries(items).filter((entry) => entry.year !== null);
+  if (!entries.length) return [];
+
+  const years = entries.map((entry) => entry.year);
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  const step = bucketStepForYears(minYear, maxYear);
+  const startYear = Math.floor(minYear / step) * step;
+  const buckets = [];
+
+  for (let start = startYear; start <= maxYear; start += step) {
+    buckets.push({
+      start,
+      end: Math.min(start + step - 1, maxYear),
+      count: 0,
+    });
+  }
+
+  entries.forEach((entry) => {
+    const index = Math.floor((entry.year - startYear) / step);
+    if (buckets[index]) buckets[index].count += 1;
+  });
+
+  return buckets.map((bucket) => ({
+    ...bucket,
+    label: bucket.start === bucket.end ? String(bucket.start) : `${bucket.start}-${bucket.end}`,
+  }));
+}
+
+function summarizeConnectionEvidence(items, key) {
+  const map = new Map();
+
+  items.forEach((claim, index) => {
+    const label = claim[key];
+    if (!label) return;
+    const entry = map.get(label) || { label, claims: 0, studies: new Set() };
+    entry.claims += 1;
+    entry.studies.add(studyKey(claim, index));
+    map.set(label, entry);
+  });
+
+  return Array.from(map.values())
+    .map((entry) => ({
+      label: entry.label,
+      claims: entry.claims,
+      studies: entry.studies.size,
+    }))
+    .sort((a, b) => {
+      const byStudies = b.studies - a.studies;
+      if (byStudies !== 0) return byStudies;
+      const byClaims = b.claims - a.claims;
+      if (byClaims !== 0) return byClaims;
+      return a.label.localeCompare(b.label);
+    });
+}
+
+function countByField(items, field, options = {}) {
+  const counts = new Map();
+  const studySeen = new Set();
+
+  items.forEach((claim, index) => {
+    const value = normalizeValue(claim[field]) || "unknown";
+    if (options.uniqueStudies) {
+      const key = `${studyKey(claim, index)}|${value}`;
+      if (studySeen.has(key)) return;
+      studySeen.add(key);
+    }
+    counts.set(value, (counts.get(value) || 0) + 1);
+  });
+
+  return Array.from(counts.entries()).map(([label, count]) => ({ label, count }));
+}
+
+function sortCompositionEntries(entries, field) {
+  const orders = {
+    result_direction: ["positive", "mixed", "null", "negative", "unclear", "unknown"],
+    system: ["clinical", "preclinical", "in_vitro", "in_vivo", "ex_vivo", "observational", "unknown"],
+  };
+  const order = orders[field] || [];
+
+  return [...entries].sort((a, b) => {
+    const aIndex = order.indexOf(a.label);
+    const bIndex = order.indexOf(b.label);
+    if (aIndex !== -1 || bIndex !== -1) {
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    }
+    const byCount = b.count - a.count;
+    if (byCount !== 0) return byCount;
+    return a.label.localeCompare(b.label);
+  });
+}
+
+function limitCompositionEntries(entries, maxEntries = 5) {
+  if (entries.length <= maxEntries) return entries;
+  const visible = entries.slice(0, maxEntries - 1);
+  const otherCount = entries.slice(maxEntries - 1).reduce((sum, entry) => sum + entry.count, 0);
+  return [...visible, { label: "other", count: otherCount }];
+}
+
+function colorForCategory(label, index, field = "") {
+  const normalized = normalizeValue(label) || "unknown";
+  if (field === "result_direction" && DIRECTION_COLORS[normalized]) return DIRECTION_COLORS[normalized];
+  if (field === "system" && SYSTEM_COLORS[normalized]) return SYSTEM_COLORS[normalized];
+  return CATEGORY_COLORS[index % CATEGORY_COLORS.length];
+}
+
+function trendCardHtml(title, subtitle, body) {
+  return `
+    <section class="trend-card">
+      <div class="trend-card-header">
+        <h4>${escapeHtml(title)}</h4>
+        ${subtitle ? `<span>${escapeHtml(subtitle)}</span>` : ""}
+      </div>
+      ${body}
+    </section>
+  `;
+}
+
+function renderTrendStats(items, extraStats = []) {
+  const stats = [
+    { label: "Claims", value: formatCompactNumber(items.length) },
+    { label: "Studies", value: formatCompactNumber(uniqueStudyCount(items)) },
+    ...extraStats,
+  ];
+
+  return `
+    <div class="trend-summary-grid">
+      ${stats
+        .map(
+          (stat) => `
+            <div class="trend-stat">
+              <span>${escapeHtml(stat.label)}</span>
+              <strong>${escapeHtml(stat.value)}</strong>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderAnnualPublicationChart(items) {
+  const buckets = buildYearBuckets(items);
+  if (!buckets.length) {
+    return trendCardHtml("Publications by year", "Unique studies", '<div class="trend-empty">No publication years available.</div>');
+  }
+
+  const width = 280;
+  const height = 132;
+  const margin = { top: 12, right: 10, bottom: 24, left: 26 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const maxCount = Math.max(1, ...buckets.map((bucket) => bucket.count));
+  const step = plotWidth / buckets.length;
+  const barWidth = Math.max(3, Math.min(16, step * 0.68));
+  const bars = buckets
+    .map((bucket, index) => {
+      const x = margin.left + index * step + (step - barWidth) / 2;
+      const barHeight = (bucket.count / maxCount) * plotHeight;
+      const y = margin.top + plotHeight - barHeight;
+      return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${barHeight.toFixed(2)}" rx="2" fill="#49d6c8"><title>${escapeHtml(bucket.label)}: ${bucket.count} studies</title></rect>`;
+    })
+    .join("");
+  const firstLabel = buckets[0].label;
+  const lastLabel = buckets[buckets.length - 1].label;
+
+  return trendCardHtml(
+    "Publications by year",
+    `${yearStats(items).spanLabel} · unique studies`,
+    `
+      <svg class="trend-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publications by publication year">
+        <line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${width - margin.right}" y2="${margin.top + plotHeight}" class="trend-axis-line" />
+        <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotHeight}" class="trend-axis-line faint" />
+        ${bars}
+        <text x="${margin.left}" y="${height - 5}" class="trend-axis-label" text-anchor="start">${escapeHtml(firstLabel)}</text>
+        <text x="${width - margin.right}" y="${height - 5}" class="trend-axis-label" text-anchor="end">${escapeHtml(lastLabel)}</text>
+        <text x="${margin.left - 6}" y="${margin.top + 8}" class="trend-axis-label" text-anchor="end">${maxCount}</text>
+      </svg>
+    `
+  );
+}
+
+function renderHorizontalBarChart(entries, title, subtitle) {
+  if (!entries.length) {
+    return trendCardHtml(title, subtitle, '<div class="trend-empty">No connected evidence in this selection.</div>');
+  }
+
+  const maxStudies = Math.max(1, ...entries.map((entry) => entry.studies));
+  const body = `
+    <div class="trend-bars">
+      ${entries
+        .map((entry, index) => {
+          const width = Math.max(4, (entry.studies / maxStudies) * 100);
+          return `
+            <div class="trend-bar-row" style="--bar-width: ${width.toFixed(2)}%">
+              <div class="trend-bar-topline">
+                <span>${escapeHtml(entry.label)}</span>
+                <strong>${formatCompactNumber(entry.studies)}</strong>
+              </div>
+              <div class="trend-bar-track"><span></span></div>
+            </div>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+
+  return trendCardHtml(title, subtitle, body);
+}
+
+function renderCompositionChart(items, field, title, options = {}) {
+  let entries = sortCompositionEntries(countByField(items, field, options), field);
+  if (!entries.length) {
+    return trendCardHtml(title, "Claim composition", '<div class="trend-empty">No categorized evidence.</div>');
+  }
+  entries = limitCompositionEntries(entries, options.maxEntries || 6);
+
+  const total = entries.reduce((sum, entry) => sum + entry.count, 0);
+  const segments = entries
+    .map((entry, index) => {
+      const width = total ? (entry.count / total) * 100 : 0;
+      return `<span style="width: ${width.toFixed(2)}%; background: ${colorForCategory(entry.label, index, field)}" title="${escapeHtml(displayFieldLabel(entry.label))}: ${entry.count}"></span>`;
+    })
+    .join("");
+  const legend = entries
+    .map(
+      (entry, index) => `
+        <span class="trend-legend-item">
+          <i style="background: ${colorForCategory(entry.label, index, field)}"></i>
+          ${escapeHtml(displayFieldLabel(entry.label))} <strong>${formatCompactNumber(entry.count)}</strong>
+        </span>
+      `
+    )
+    .join("");
+
+  return trendCardHtml(
+    title,
+    options.subtitle || "Claims",
+    `
+      <div class="trend-stack">${segments}</div>
+      <div class="trend-legend">${legend}</div>
+    `
+  );
+}
+
+function renderDetailClaimCards(items) {
+  if (!items.length) {
+    return trendCardHtml("Claim cards", "", '<div class="trend-empty">No claim cards in this selection.</div>');
+  }
+
+  const sortedClaims = [...items].sort((a, b) => {
+    const yearDiff = (parseYearValue(b.study_year) || 0) - (parseYearValue(a.study_year) || 0);
     if (yearDiff !== 0) return yearDiff;
     return (a.study_title || "").localeCompare(b.study_title || "");
   });
 
-  const list = sortedClaims
-    .map((claim) => {
-      const disorderMeasureLine = claim.outcome_measure
-        ? `<div class="meta">Measure: ${claim.outcome_measure}</div>`
-        : "";
-      const directionLine =
-        mode === "disorders"
-          ? `<div class="meta">Direction: ${resultDirectionLabel(claim.result_direction)}</div>`
-          : "";
-      const detailSource = claim.study_doi
-        ? `DOI: <a href="${doiUrl(claim.study_doi)}" target="_blank" rel="noopener noreferrer">${claim.study_doi}</a>`
-        : claim.openalex_id
-        ? `OpenAlex: <a href="${openAlexUrl(claim.openalex_id)}" target="_blank" rel="noopener noreferrer">${claim.openalex_id}</a>`
-        : "";
+  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const body = `
+    <div class="detail-claim-cards">
+      ${sortedClaims
+        .map((claim) => {
+          const relation = `${claim.compound || "Unknown"} → ${claim[rightKey] || "Unknown"}`;
+          const doiHref = doiUrl(claim.study_doi);
+          const source = doiHref
+            ? `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(claim.study_doi)}</a>`
+            : claim.openalex_id
+            ? `<a href="${openAlexUrl(claim.openalex_id)}" target="_blank" rel="noopener noreferrer">${escapeHtml(claim.openalex_id)}</a>`
+            : "";
+          const mainLine =
+            mode === "mechanistic"
+              ? `${claim.affinity_type || "Affinity"} ${claim.affinity_value || ""} ${claim.affinity_unit || ""}`.trim()
+              : `${claim.outcome_type || "Outcome"}${claim.outcome_measure ? ` · ${claim.outcome_measure}` : ""}`;
+          const contextLine =
+            mode === "mechanistic"
+              ? `System: ${claim.system || "unknown"} · Species: ${claim.species || "unknown"}`
+              : `Direction: ${resultDirectionLabel(claim.result_direction)} · Population: ${claim.population || "unknown"}`;
 
-      return `
-      <div class="detail-item">
-        <h4>${
-          mode === "mechanistic"
-            ? `${claim.affinity_type} ${claim.affinity_value} ${claim.affinity_unit}`
-            : `${claim.outcome_type || "Outcome"}`
-        }</h4>
-        ${
-          mode === "mechanistic"
-            ? `<div class="meta">Assay: ${claim.assay_type}</div>`
-            : `${disorderMeasureLine}
-        ${directionLine}`
-        }
-        <div class="meta">${
-          mode === "mechanistic"
-            ? `System: ${claim.system || "unknown"} • Species: ${claim.species || "unknown"}`
-            : `Population: ${claim.population || "unknown"} • System: ${claim.system || "unknown"}`
-        }</div>
-        <div class="meta">Study: ${claim.study_title || "Unknown"} (${claim.study_year || ""})</div>
-        <div class="meta">Paper type: ${paperTypeLabel(claim.paper_type)}</div>
-        <div class="meta">Study design: ${studyDesignLabel(claim.study_design) || "unknown"}</div>
-        <div class="meta">Access: ${accessLevelLabel(claim.access_level) || "unknown"}</div>
-        <div class="meta">${detailSource}</div>
-        <div class="badge-row">
-          ${claimBadgeHtml(claim)}
-        </div>
-      </div>
-    `
-    })
-    .join("");
+          return `
+            <article class="detail-claim-card">
+              <h5>${escapeHtml(relation)}</h5>
+              <div class="detail-claim-meta">
+                <div>${escapeHtml(mainLine)}</div>
+                <div>${escapeHtml(contextLine)}</div>
+                <div>${escapeHtml(claim.study_title || "Unknown study")}${claim.study_year ? ` (${escapeHtml(claim.study_year)})` : ""}</div>
+                ${source ? `<div>${source}</div>` : ""}
+              </div>
+              <div class="badge-row">${claimBadgeHtml(claim)}</div>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+
+  return trendCardHtml("Claim cards", `${formatCompactNumber(sortedClaims.length)} claims`, body);
+}
+
+function renderEdgeDetail(compound, target, edgeClaims) {
+  const studies = uniqueStudyCount(edgeClaims);
+  setDetailHeader(`${compound} → ${target}`, `${edgeClaims.length} claims across ${studies} studies`);
+
+  const primaryComposition =
+    mode === "disorders"
+      ? renderCompositionChart(edgeClaims, "result_direction", "Result direction")
+      : renderCompositionChart(edgeClaims, "system", "Experimental system");
 
   detailBody.innerHTML = `
-    <div class="detail-stat"><span>Claims</span><strong>${edgeClaims.length}</strong></div>
-    <div class="detail-stat"><span>Studies</span><strong>${studies}</strong></div>
-    <div class="detail-list">${list}</div>
+    <div class="trend-dashboard">
+      ${renderTrendStats(edgeClaims)}
+      ${renderAnnualPublicationChart(edgeClaims)}
+      ${primaryComposition}
+      ${renderDetailClaimCards(edgeClaims)}
+    </div>
   `;
 }
 
 function renderNodeDetail(type, name, nodeClaims) {
-  const studies = countStudies(nodeClaims);
   const rightKey = mode === "mechanistic" ? "target" : "disorder";
   const connectionKey = type === "compound" ? rightKey : "compound";
   const rightTypeLabel = mode === "mechanistic" ? "Target" : "Indication";
-  const connections = summarizeConnections(nodeClaims, connectionKey);
+  const connections = summarizeConnectionEvidence(nodeClaims, connectionKey);
+  const connectionLabel = type === "compound" ? (mode === "mechanistic" ? "targets" : "indications") : "compounds";
 
   setDetailHeader(
     `${name} (${type === "compound" ? "Compound" : rightTypeLabel})`,
-    `${nodeClaims.length} claims across ${connections.length} ${connectionKey}s`
+    `${nodeClaims.length} claims across ${connections.length} ${connectionLabel}`
   );
 
-  const list = connections
-    .slice(0, 8)
-    .map(
-      (entry) => `
-      <div class="detail-item">
-        <h4>${entry.label}</h4>
-        <div class="meta">Claims: ${entry.count}</div>
-      </div>
-    `
-    )
-    .join("");
+  const composition =
+    mode === "disorders"
+      ? renderCompositionChart(nodeClaims, "result_direction", "Result direction")
+      : renderCompositionChart(nodeClaims, "system", "Experimental system");
 
   detailBody.innerHTML = `
-    <div class="detail-stat"><span>Claims</span><strong>${nodeClaims.length}</strong></div>
-    <div class="detail-stat"><span>Studies</span><strong>${studies}</strong></div>
-    <div class="detail-list">${list || "<div class=\"detail-empty\">No connected claims.</div>"}</div>
+    <div class="trend-dashboard">
+      ${renderTrendStats(nodeClaims, [{ label: "Connections", value: formatCompactNumber(connections.length) }])}
+      ${renderAnnualPublicationChart(nodeClaims)}
+      ${composition}
+      ${renderHorizontalBarChart(connections, displayFieldLabel(connectionLabel), "Ranked by unique studies")}
+      ${renderDetailClaimCards(nodeClaims)}
+    </div>
   `;
+}
+
+function renderOverviewDetail(data) {
+  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightLabel = mode === "mechanistic" ? "Targets" : "Indications";
+  const compoundEntries = summarizeConnectionEvidence(data, "compound");
+  const rightEntries = summarizeConnectionEvidence(data, rightKey);
+
+  setDetailHeader(
+    `${rightLabel} Overview`,
+    `Current filtered view across ${compoundEntries.length} compounds and ${rightEntries.length} ${rightLabel.toLowerCase()}.`
+  );
+
+  if (!data.length) {
+    detailBody.innerHTML = '<div class="detail-empty">No claims match the current filters.</div>';
+    return;
+  }
+
+  const composition =
+    mode === "disorders"
+      ? renderCompositionChart(data, "result_direction", "Result direction")
+      : renderCompositionChart(data, "system", "Experimental system");
+
+  detailBody.innerHTML = `
+    <div class="trend-dashboard">
+      ${renderTrendStats(data, [
+        { label: "Compounds", value: formatCompactNumber(compoundEntries.length) },
+        { label: rightLabel, value: formatCompactNumber(rightEntries.length) },
+      ])}
+      ${renderAnnualPublicationChart(data)}
+      ${composition}
+      ${renderHorizontalBarChart(compoundEntries, "Compounds", "Ranked by unique studies")}
+      ${renderHorizontalBarChart(rightEntries, rightLabel, "Ranked by unique studies")}
+    </div>
+  `;
+}
+
+function renderSelectedDetailFromData(data) {
+  if (!selected) return;
+
+  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  if (selected.type === "edge") {
+    const edgeClaims = data.filter(
+      (claim) => claim.compound === selected.compound && claim[rightKey] === selected.target
+    );
+    renderEdgeDetail(selected.compound, selected.target, edgeClaims);
+    return;
+  }
+
+  if (selected.type === "compound") {
+    const nodeClaims = data.filter((claim) => claim.compound === selected.name);
+    renderNodeDetail("compound", selected.name, nodeClaims);
+    return;
+  }
+
+  if (selected.type === "target") {
+    const nodeClaims = data.filter((claim) => claim[rightKey] === selected.name);
+    renderNodeDetail("target", selected.name, nodeClaims);
+  }
 }
 
 function buildGraph(data) {
@@ -1399,10 +1828,13 @@ function render() {
   if (selected && !selectionIsValid(filtered)) {
     selected = null;
     isolateSelection = false;
-    setDetailHeader(defaultDetail.title, defaultDetail.subtitle);
-    renderDetailEmpty();
   }
-  updateStats(filtered);
+  if (selected) {
+    renderSelectedDetailFromData(filtered);
+  } else {
+    renderOverviewDetail(filtered);
+  }
+  updateStats();
   renderCards(filtered);
   buildGraph(filtered);
   renderBibliography(filtered);
@@ -1419,11 +1851,9 @@ function scheduleRender() {
 
 function updateModeUI() {
   if (mode === "mechanistic") {
-    rightStatLabel.textContent = "Targets";
     graphTitle.textContent = "Targets Graph";
     graphSubtitle.textContent = "Compound-target links.";
   } else {
-    rightStatLabel.textContent = "Indications";
     graphTitle.textContent = "Indications Graph";
     graphSubtitle.textContent = "Compound-indication links.";
   }
