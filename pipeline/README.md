@@ -11,18 +11,31 @@ outputs.
    Crossref, and OpenAlex metadata.
 3. **Triage**: classify relevance and write triage-relevant DOI-context queues.
 4. **Acquire PDFs**: download legal OA PDFs only for triage-relevant papers.
-5. **Seed stubs**: create one claim stub per DOI + compound + target/disorder
+5. **Convert full text**: optionally convert local PDFs into reusable structured
+   full-text artifacts, then repair stale locators through an accepted-review
+   gate.
+6. **Seed stubs**: create one claim stub per DOI + compound + target/disorder
    context.
-6. **Autofill claims**: fill fields from abstracts first, then PDFs.
-7. **Promote**: move schema-clean rows into curated claim datasets.
-8. **Validate and publish**: run validation and export graph payloads.
+7. **Autofill claims**: fill fields from abstracts first, then PDFs.
+8. **Promote**: move schema-clean rows into curated claim datasets.
+9. **Validate and publish**: run validation and export graph payloads.
 
 Detailed stage docs:
 - Ingest/discovery/PDF acquisition: `pipeline/ingest/README.md`
+- Full-text conversion: `pipeline/fulltext/README.md`
 - Triage/autofill/review queue: `pipeline/review/README.md`
 - Promotion: `pipeline/extract/README.md`
 - Validation: `pipeline/validate/`
 - Publishing: `pipeline/publish/README.md`
+
+Run the non-destructive full-text provenance stage with:
+
+```bash
+python pipeline/fulltext/run_fulltext_provenance.py --dataset all --limit 50
+```
+
+This converts missing full-text artifacts, rebuilds provenance repair reports,
+and exports curator review CSVs. It does not apply curated-claim edits.
 
 ## Local Config
 Keep credentials in the ignored overlay file:
@@ -67,19 +80,25 @@ python pipeline/ingest/run_extensive_search.py \
 ```
 
 Use `--dataset disorder` for disorder discovery. Use `--provider comprehensive`
-for a final recall-focused pass when PubMed/PMC/Crossref coverage should be
-included during discovery.
+for a final search-completeness pass when PubMed/PMC/Crossref coverage should
+be included during discovery.
 
-### 2. Recall Audit
-The benchmark manifest is `data/raw/benchmark_manifest.json`.
+### 2. Search Completeness Check
+The known relevant study set is stored at `data/raw/benchmark_manifest.json`.
+The filename is retained for compatibility with older commands, but project
+documentation should treat it as a literature-search completeness aid rather
+than as a definitive claim that every relevant study has been found.
+See [`docs/search_completeness.md`](../docs/search_completeness.md) for the
+terminology and maintenance policy.
 
 ```bash
 python pipeline/ingest/recall_audit.py --dataset mechanistic --min-discovered 95 --fail-under-threshold
 python pipeline/ingest/recall_audit.py --dataset disorder --min-discovered 95 --fail-under-threshold
 ```
 
-If recall misses the threshold, improve seeds/synonyms before syncing and
-extracting claims.
+If the completeness check misses the threshold, revise seeds/synonyms or
+document why the missed study is outside scope or unavailable in the selected
+sources before syncing and extracting claims.
 
 ### 3. Metadata Sync
 Run metadata first, without downloads.
@@ -109,8 +128,8 @@ python pipeline/review/triage_paper_library.py --dataset mechanistic
 python pipeline/review/triage_paper_library.py --dataset disorder
 ```
 
-Triage is recall-safe by default:
-- benchmark and curated DOI-contexts are protected
+Triage is retrieval-safe by default:
+- known-study and curated DOI-contexts are protected
 - stale discovery contexts can be synthesized from title/abstract matches
 - reports include `screening_status`, rescue reasons, and protected/synthesized
   context counts

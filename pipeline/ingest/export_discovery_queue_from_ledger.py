@@ -42,7 +42,14 @@ def choose_context(entry: dict) -> dict:
     if not valid:
         return {}
 
-    preferred_prefixes = ("discovery:", "benchmark:", "curated", "triage_queue", "paper_library")
+    preferred_prefixes = (
+        "discovery:",
+        "known_study:",
+        "benchmark:",
+        "curated",
+        "triage_queue",
+        "paper_library",
+    )
     for prefix in preferred_prefixes:
         for context in valid:
             if normalize(context.get("source", "")).startswith(prefix):
@@ -61,6 +68,7 @@ def row_from_entry(entry: dict) -> dict:
         "authors": normalize(entry.get("authors", "")),
         "seen_in_latest_run": bool(entry.get("seen_in_latest_run")),
         "retained_in_latest_queue": bool(entry.get("retained_in_latest_queue")),
+        "is_known_study": bool(entry.get("is_known_study") or entry.get("is_benchmark")),
         "is_benchmark": bool(entry.get("is_benchmark")),
         "is_curated": bool(entry.get("is_curated")),
         "in_paper_library": bool(entry.get("in_paper_library")),
@@ -93,7 +101,8 @@ def year_sort_value(row: dict) -> int:
 
 def ledger_priority(row: dict) -> tuple:
     protected = bool(
-        row.get("is_benchmark")
+        row.get("is_known_study")
+        or row.get("is_benchmark")
         or row.get("is_curated")
         or row.get("in_paper_library")
         or row.get("in_triage_queue")

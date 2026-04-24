@@ -140,7 +140,7 @@ def print_header(
             "Recall gate: "
             f"enabled (discovered>={min_discovered_recall}%, triage>={min_triage_recall}%)"
         )
-    print(f"Benchmark manifest: {as_rel_path(str(benchmark_manifest))}")
+    print(f"Known relevant study set: {as_rel_path(str(benchmark_manifest))}")
     print(f"Protected retention: {'disabled' if disable_protected_retention else 'enabled'}")
     print(f"Discovery ledger: {'disabled' if disable_ledger else 'enabled'}")
     print("")
@@ -292,7 +292,7 @@ def run_recall_gate(
         str(ROOT / "pipeline" / "ingest" / "recall_audit.py"),
         "--dataset",
         dataset,
-        "--benchmark-manifest",
+        "--known-study-manifest",
         str(benchmark_manifest),
         "--min-discovered",
         str(min_discovered_recall),
@@ -391,9 +391,12 @@ def main() -> int:
     )
     parser.add_argument(
         "--citation-chase",
-        choices=["off", "benchmark", "query-results"],
+        choices=["off", "known-study-set", "benchmark", "query-results"],
         default="off",
-        help="Optionally expand discovery with Semantic Scholar references/citations",
+        help=(
+            "Optionally expand discovery with Semantic Scholar references/citations. "
+            "The older 'benchmark' value is retained as a compatibility alias."
+        ),
     )
     parser.add_argument(
         "--citation-chase-directions",
@@ -431,18 +434,27 @@ def main() -> int:
     parser.add_argument("--replace-library", action="store_true", help="Replace existing paper library outputs")
     parser.add_argument("--discover-only", action="store_true", help="Run discovery without paper sync")
     parser.add_argument("--sync-only", action="store_true", help="Run paper sync from existing discovered queues")
-    parser.add_argument("--recall-gate", action="store_true", help="Fail the run when benchmark DOI recall misses thresholds")
+    parser.add_argument(
+        "--recall-gate",
+        action="store_true",
+        help="Fail the run when known relevant study retrieval misses thresholds",
+    )
     parser.add_argument("--min-discovered-recall", type=float, default=95.0)
     parser.add_argument("--min-triage-recall", type=float, default=90.0)
     parser.add_argument(
         "--benchmark-manifest",
+        "--known-study-manifest",
+        dest="benchmark_manifest",
         default=str(ROOT / "data" / "raw" / "benchmark_manifest.json"),
-        help="Structured benchmark manifest used for recall gates and protected retention",
+        help=(
+            "Structured known relevant study set used for search completeness checks "
+            "and protected retention. The older flag name is retained for compatibility."
+        ),
     )
     parser.add_argument(
         "--disable-protected-retention",
         action="store_true",
-        help="Do not pin benchmark/curated/library DOIs before discovery caps",
+        help="Do not pin known-study/curated/library DOIs before discovery caps",
     )
     parser.add_argument(
         "--disable-ledger",
@@ -555,7 +567,7 @@ def main() -> int:
                 str(args.max_results),
                 "--config",
                 str(Path(args.config).resolve()),
-                "--benchmark-manifest",
+                "--known-study-manifest",
                 str(benchmark_manifest),
             ]
             if args.disable_protected_retention:
@@ -649,7 +661,7 @@ def main() -> int:
                 dataset,
                 "--config",
                 str(Path(args.config).resolve()),
-                "--benchmark-manifest",
+                "--known-study-manifest",
                 str(benchmark_manifest),
             ]
             if args.openalex_email:
@@ -704,6 +716,8 @@ def main() -> int:
                 dataset,
                 "--config",
                 str(Path(args.config).resolve()),
+                "--known-study-manifest",
+                str(benchmark_manifest),
             ]
             triage_info = run_step(
                 triage_cmd,

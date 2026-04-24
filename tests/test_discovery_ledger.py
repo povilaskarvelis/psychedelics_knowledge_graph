@@ -15,7 +15,7 @@ class DiscoveryLedgerTest(unittest.TestCase):
             rows=rows,
             max_results=1,
             protected_sources={
-                "10.example/protected-1": [{"source": "benchmark:landmark_must_find"}],
+                "10.example/protected-1": [{"source": "known_study:search_development_seed"}],
                 "10.example/protected-2": [{"source": "curated"}],
             },
         )

@@ -64,8 +64,9 @@ Provider-specific query hardening:
   runs, not automatically for every large all-pairs sweep.
 
 Bounded citation chasing:
-- `--citation-chase benchmark`: follow references/citations from benchmark
-  papers already in `data/raw/benchmark_manifest.json`.
+- `--citation-chase known-study-set`: follow references/citations from known
+  relevant studies already in `data/raw/benchmark_manifest.json`.
+- `--citation-chase benchmark`: compatibility alias for older commands.
 - `--citation-chase query-results`: follow references/citations from the first
   merged query results.
 - `--citation-chase-directions references|citations|both`: choose edge direction.
@@ -75,7 +76,7 @@ Bounded citation chasing:
 
 Example hardened discovery smoke run:
 
-`python pipeline/ingest/run_extensive_search.py --dataset all --provider comprehensive --query-variant-mode conservative --citation-chase benchmark --citation-chase-directions references --citation-chase-max-source-dois 20 --citation-chase-max-results-per-doi 20 --max-results-per-seed 80 --max-results 8000 --skip-unpaywall-enrichment --discover-only`
+`python pipeline/ingest/run_extensive_search.py --dataset all --provider comprehensive --query-variant-mode conservative --citation-chase known-study-set --citation-chase-directions references --citation-chase-max-source-dois 20 --citation-chase-max-results-per-doi 20 --max-results-per-seed 80 --max-results 8000 --skip-unpaywall-enrichment --discover-only`
 
 Custom seeds:
 `python pipeline/ingest/discover_literature.py --dataset disorder --seed \"MDMA PTSD randomized trial|MDMA|Post-traumatic stress disorder\"`
@@ -110,12 +111,12 @@ exists, so day-to-day commands do not need credential flags.
 Use this sequence for large runs:
 1. broad/faster discovery pass (OpenAlex-focused)
 2. targeted high-recall expansion pass (hybrid)
-3. recall audit against a known DOI benchmark, with an optional failing gate
+3. search completeness check against known relevant studies, with an optional failing gate
 4. only then run metadata sync, triage, and PDF download
 
 Before a major run, copy `data/raw/search_manifest.template.json` to a
 dataset/run-specific manifest and record the exact databases, query blocks,
-entity sets, inclusion/exclusion rules, and recall thresholds. The manifest is
+entity sets, inclusion/exclusion rules, and completeness thresholds. The manifest is
 the reproducibility record; the generated discovery report is the execution
 record.
 
@@ -137,17 +138,20 @@ They are intentionally plans, not DOI queues. Their outputs should become
 source-specific evidence rows, because registry records and assay databases are
 not the same kind of object as papers.
 
-The standing recall benchmark lives in `data/raw/benchmark_manifest.json`.
-It records why each must-find DOI is in the benchmark, which dataset it belongs
-to, and whether it is part of the tuning set. The legacy plain-text DOI lists are
-kept for compatibility, but new recall gates should use the manifest.
+The known relevant study set lives in `data/raw/benchmark_manifest.json`.
+The filename is retained for compatibility, but the file should be described as
+a known-study set or search completeness set in project methodology. It records
+why each DOI is in scope, which dataset it belongs to, how it was selected, and
+how it should be used during iterative search strategy development. The legacy
+plain-text DOI lists are kept for compatibility, but new completeness checks
+should use the structured manifest.
 
 Every discovery run also writes a cumulative ledger:
 - `data/processed/discovery_ledger_mechanistic.json`
 - `data/processed/discovery_ledger_disorder.json`
 
 The ledger preserves DOIs seen in previous runs, marks whether each DOI was seen
-and retained in the latest run, and records benchmark/triage/library/curated
+and retained in the latest run, and records known-study/triage/library/curated
 contexts. This prevents a capped queue from being mistaken for the full
 discovery history.
 
@@ -182,7 +186,8 @@ Use hybrid provider with broader templates after Step A:
 
 `python pipeline/ingest/run_extensive_search.py --dataset disorder --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1400 --auto-max-seeds 1800 --balanced-seed-profile coverage --max-results-per-seed 80 --max-results 8000 --semantic-scholar-rps 0.5 --openalex-rps 3.0 --max-retries 3 --discover-only`
 
-Use `--provider comprehensive` for the defensible recall pass after tuning seeds:
+Use `--provider comprehensive` for the defensible search-completeness pass after
+seed and synonym development:
 
 `python pipeline/ingest/run_extensive_search.py --dataset disorder --provider comprehensive --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1400 --auto-max-seeds 1800 --max-results-per-seed 80 --max-results 8000 --semantic-scholar-rps 0.5 --openalex-rps 3.0 --pubmed-rps 2.5 --pmc-rps 2.5 --crossref-rps 5.0 --max-retries 3 --skip-unpaywall-enrichment --discover-only`
 
@@ -191,20 +196,20 @@ Notes:
   and `--max-retries` let you tune speed/retry policy without editing config.
 - If you get 429/rate-limit errors, reduce RPS values.
 - If retrieval quality drops, reduce speed and/or increase retries.
-- For recall-only discovery runs, use `--skip-unpaywall-enrichment` and defer
+- For search-completeness discovery runs, use `--skip-unpaywall-enrichment` and defer
   OA/PDF enrichment to the paper-library sync stage.
 
-### Step C: recall audit (benchmark gate)
-Maintain the structured benchmark manifest:
+### Step C: search completeness check
+Maintain the structured known relevant study set:
 - `data/raw/benchmark_manifest.json`
 
-Run the recall audit:
+Run the completeness check:
 
 `python pipeline/ingest/recall_audit.py --dataset mechanistic`
 
 `python pipeline/ingest/recall_audit.py --dataset disorder`
 
-Fail the audit when benchmark recall misses the threshold:
+Fail the audit when known-study retrieval misses the threshold:
 
 `python pipeline/ingest/recall_audit.py --dataset mechanistic --min-discovered 95 --fail-under-threshold`
 
@@ -215,15 +220,16 @@ Outputs:
 - `data/processed/recall_audit_<dataset>.csv`
 
 Suggested gate before sync/download:
-- `in_discovered_queue` coverage >= 95% for benchmark DOIs
-- if below threshold: add synonyms/seeds and rerun discovery
+- `in_discovered_queue` coverage >= 95% for known relevant study DOIs
+- if below threshold: add synonyms/seeds or document scope/indexing rationale,
+  then rerun discovery
 
 `run_extensive_search.py` can enforce this directly:
 
 `python pipeline/ingest/run_extensive_search.py --dataset mechanistic --provider hybrid --expand-seeds-from-config --auto-template-mode broad --max-results-per-seed 80 --max-results 8000 --recall-gate`
 
-With `--recall-gate`, discovery must recover at least 95% of benchmark DOIs by
-default, and post-triage recall must retain at least 90%. Override with
+With `--recall-gate`, discovery must recover at least 95% of known relevant
+study DOIs by default, and post-triage retention must retain at least 90%. Override with
 `--min-discovered-recall` and `--min-triage-recall` when a protocol specifies a
 different threshold.
 
@@ -234,7 +240,7 @@ higher-ranked candidates were also found. Use `--disable-protected-retention`
 only for diagnostic comparisons.
 
 ### Step D: sync + triage + download
-After passing recall gate:
+After passing the completeness check:
 
 `python pipeline/ingest/run_extensive_search.py --dataset mechanistic --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1400 --auto-max-seeds 1800 --max-results-per-seed 80 --max-results 8000 --semantic-scholar-rps 0.5 --openalex-rps 3.0 --max-retries 3`
 

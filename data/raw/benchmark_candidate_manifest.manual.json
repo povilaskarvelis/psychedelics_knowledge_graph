@@ -1,0 +1,617 @@
+{
+  "version": "0.1",
+  "generated_at": "2026-04-23T23:48:34Z",
+  "status": "promoted_to_known_relevant_study_set",
+  "generation_mode": "manual_academic_literature_pass",
+  "description": "Manual candidate list compiled from PubMed, OpenAlex, source review reference lists, and publisher pages. Entries were reviewed by the user and promoted into the known relevant study set.",
+  "review_policy": [
+    "This file is retained as provenance for the manual expansion pass.",
+    "Use source_review_dois and rationale fields to audit why each study was considered relevant.",
+    "Future manual expansion passes should use literature-search language: known relevant studies, source reviews, citation chasing, and search completeness checks."
+  ],
+  "source_reviews": [
+    {
+      "doi": "10.1007/s00213-024-06598-6",
+      "pmid": "38683460",
+      "title": "In the new era of psychedelic assisted therapy: A systematic review of study methodology in randomized controlled trials",
+      "year": 2024,
+      "source_role": "broad RCT methods review"
+    },
+    {
+      "doi": "10.1111/add.16762",
+      "pmid": "39887551",
+      "title": "Psychedelic-assisted treatment for substance use disorder: A narrative systematic review",
+      "year": 2025,
+      "source_role": "substance-use-disorder review"
+    },
+    {
+      "doi": "10.1111/acps.13778",
+      "pmid": "39627679",
+      "title": "Randomized Controlled Trials of Psilocybin-Assisted Therapy in the Treatment of Major Depressive Disorder: Systematic Review and Meta-Analysis",
+      "year": 2025,
+      "source_role": "psilocybin depression RCT review"
+    },
+    {
+      "doi": "10.3390/curroncol32070380",
+      "pmid": "40710191",
+      "title": "Psychedelic-Assisted Therapies for Psychosocial Symptoms in Cancer: A Systematic Review and Meta-Analysis",
+      "year": 2025,
+      "source_role": "cancer distress review"
+    },
+    {
+      "doi": "10.1016/j.pnpbp.2019.109735",
+      "pmid": "31437480",
+      "title": "Efficacy of 3,4-methylenedioxymethamphetamine (MDMA)-assisted psychotherapy for posttraumatic stress disorder: A systematic review and meta-analysis",
+      "year": 2020,
+      "source_role": "MDMA PTSD meta-analysis"
+    },
+    {
+      "doi": "10.1523/JNEUROSCI.1659-20.2020",
+      "pmid": "33257322",
+      "title": "Hallucinogens in Mental Health: Preclinical and Clinical Studies on LSD, Psilocybin, MDMA, and Ketamine",
+      "year": 2021,
+      "source_role": "mechanistic and translational review"
+    },
+    {
+      "doi": "10.1124/pharmrev.120.000056",
+      "title": "Psychedelics in Psychiatry: Neuroplastic, Immunomodulatory, and Neurotransmitter Mechanisms",
+      "year": 2020,
+      "source_role": "mechanistic review"
+    }
+  ],
+  "entries": [
+    {
+      "doi": "10.1056/NEJMoa2032994",
+      "dataset": "disorder",
+      "title": "Trial of Psilocybin versus Escitalopram for Depression",
+      "year": 2021,
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.1111/acps.13778"
+      ],
+      "rationale": "Major modern psilocybin comparator trial not present in the current known relevant study set.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1007/s00213-018-5010-9",
+      "dataset": "disorder",
+      "title": "Reduction in social anxiety after MDMA-assisted psychotherapy with autistic adults: a randomized, double-blind, placebo-controlled pilot study",
+      "year": 2018,
+      "compound": "MDMA",
+      "disorder": "Autism spectrum disorder",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6"
+      ],
+      "rationale": "Expands clinical search-completeness coverage beyond depression/PTSD into autistic adults with social anxiety outcomes.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1097/NMD.0000000000000113",
+      "dataset": "disorder",
+      "title": "Safety and efficacy of lysergic acid diethylamide-assisted psychotherapy for anxiety associated with life-threatening diseases",
+      "year": 2014,
+      "compound": "LSD",
+      "disorder": "Distress associated with life-threatening disease",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.3390/curroncol32070380"
+      ],
+      "rationale": "Important LSD-assisted therapy trial for anxiety in life-threatening illness.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1001/archgenpsychiatry.2010.116",
+      "dataset": "disorder",
+      "title": "Pilot study of psilocybin treatment for anxiety in patients with advanced-stage cancer",
+      "year": 2011,
+      "compound": "Psilocybin",
+      "disorder": "Distress associated with life-threatening disease",
+      "study_design": "pilot_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.3390/curroncol32070380"
+      ],
+      "rationale": "Earlier psilocybin cancer anxiety study that complements the 2016 cancer distress trials already in the known relevant study set.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.biopsych.2022.08.025",
+      "dataset": "disorder",
+      "title": "Lysergic Acid Diethylamide-Assisted Therapy in Patients With Anxiety With and Without a Life-Threatening Illness: A Randomized, Double-Blind, Placebo-Controlled Phase II Study",
+      "year": 2023,
+      "compound": "LSD",
+      "disorder": "Generalized anxiety disorder",
+      "study_design": "phase_2_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.3390/curroncol32070380"
+      ],
+      "rationale": "Adds recent LSD anxiety trial coverage.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1177/0269881110378371",
+      "dataset": "disorder",
+      "title": "The safety and efficacy of (+/-)3,4-methylenedioxymethamphetamine-assisted psychotherapy in subjects with chronic, treatment-resistant posttraumatic stress disorder: the first randomized controlled pilot study",
+      "year": 2011,
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.1016/j.pnpbp.2019.109735"
+      ],
+      "rationale": "Early randomized MDMA-assisted psychotherapy PTSD trial.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.4088/jcp.v67n1110",
+      "dataset": "disorder",
+      "title": "Safety, tolerability, and efficacy of psilocybin in 9 patients with obsessive-compulsive disorder",
+      "year": 2006,
+      "compound": "Psilocybin",
+      "disorder": "Obsessive-compulsive disorder",
+      "study_design": "pilot_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6"
+      ],
+      "rationale": "Classic small psilocybin OCD study that broadens disorder coverage.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1177/0269881112464827",
+      "dataset": "disorder",
+      "title": "A randomized, controlled pilot study of MDMA (+/- 3,4-Methylenedioxymethamphetamine)-assisted psychotherapy for treatment of resistant, chronic Post-Traumatic Stress Disorder (PTSD)",
+      "year": 2013,
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.1016/j.pnpbp.2019.109735"
+      ],
+      "rationale": "Phase 2-era randomized MDMA PTSD trial.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1177/0269881118806297",
+      "dataset": "disorder",
+      "title": "3,4-Methylenedioxymethamphetamine-assisted psychotherapy for treatment of chronic posttraumatic stress disorder: A randomized phase 2 controlled trial",
+      "year": 2018,
+      "compound": "MDMA",
+      "disorder": "Post-traumatic stress disorder",
+      "study_design": "phase_2_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.1016/j.pnpbp.2019.109735"
+      ],
+      "rationale": "Additional MDMA PTSD phase 2 trial distinct from the Lancet Psychiatry veteran/firefighter/police officer trial already present.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.eclinm.2022.101809",
+      "dataset": "disorder",
+      "title": "Single-dose psilocybin-assisted therapy in major depressive disorder: A placebo-controlled, double-blind, randomised clinical trial",
+      "year": 2023,
+      "compound": "Psilocybin",
+      "disorder": "Major depressive disorder",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.1111/acps.13778"
+      ],
+      "rationale": "Modern MDD randomized trial absent from the current known relevant study set.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1038/s41598-020-75706-1",
+      "dataset": "disorder",
+      "title": "MDMA-assisted psychotherapy for treatment of anxiety and other psychological distress related to life-threatening illnesses: a randomized pilot study",
+      "year": 2020,
+      "compound": "MDMA",
+      "disorder": "Distress associated with life-threatening disease",
+      "study_design": "pilot_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6",
+        "10.3390/curroncol32070380"
+      ],
+      "rationale": "Adds MDMA-assisted therapy outside PTSD.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1007/s00213-017-4771-x",
+      "dataset": "disorder",
+      "title": "Psilocybin with psychological support for treatment-resistant depression: six-month follow-up",
+      "year": 2018,
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "study_design": "follow_up",
+      "source_review_dois": [
+        "10.1111/acps.13778",
+        "10.3390/curroncol32070380"
+      ],
+      "rationale": "Useful for follow-up coverage, but should be reviewed before being counted as a primary-trial completeness check.",
+      "proposed_study_role": "known_relevant_follow_up_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.medj.2024.01.005",
+      "dataset": "disorder",
+      "title": "Psilocybin-assisted psychotherapy for treatment resistant depression: A randomized clinical trial evaluating repeated doses of psilocybin",
+      "year": 2024,
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [
+        "10.1111/acps.13778"
+      ],
+      "rationale": "Newer repeated-dose psilocybin randomized trial.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1177/02698811261424214",
+      "dataset": "disorder",
+      "title": "A randomized clinical trial of repeated doses of psilocybin for the treatment of obsessive-compulsive disorder",
+      "year": 2026,
+      "compound": "Psilocybin",
+      "disorder": "Obsessive-compulsive disorder",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [],
+      "rationale": "Recent OCD trial found by targeted PubMed search; needs full manual check because it postdates several source reviews.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1001/jamapsychiatry.2026.0132",
+      "dataset": "disorder",
+      "title": "Efficacy and Safety of Psilocybin in Treatment-Resistant Major Depression: The EPISODE Randomized Clinical Trial",
+      "year": 2026,
+      "compound": "Psilocybin",
+      "disorder": "Treatment-resistant depression",
+      "study_design": "phase_2_trial",
+      "source_review_dois": [],
+      "rationale": "Recent active-placebo randomized psilocybin TRD trial found by targeted PubMed search.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1038/s41591-023-02455-9",
+      "dataset": "disorder",
+      "title": "Psilocybin therapy for females with anorexia nervosa: a phase 1, open-label feasibility study",
+      "year": 2023,
+      "compound": "Psilocybin",
+      "disorder": "Anorexia nervosa",
+      "study_design": "open_label_trial",
+      "source_review_dois": [],
+      "rationale": "Adds eating-disorder coverage; source was targeted PubMed/Nature search rather than a selected systematic review.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.2174/1874473708666150107121331",
+      "dataset": "disorder",
+      "title": "Psilocybin-occasioned mystical experiences in the treatment of tobacco addiction",
+      "year": 2014,
+      "compound": "Psilocybin",
+      "disorder": "Tobacco use disorder",
+      "study_design": "open_label_trial",
+      "source_review_dois": [
+        "10.1111/add.16762"
+      ],
+      "rationale": "Early psilocybin-facilitated smoking cessation study.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1177/02698811251319457",
+      "dataset": "disorder",
+      "title": "Single-dose psilocybin therapy for alcohol use disorder: Pharmacokinetics, feasibility, safety and efficacy in an open-label study",
+      "year": 2025,
+      "compound": "Psilocybin",
+      "disorder": "Alcohol use disorder",
+      "study_design": "open_label_trial",
+      "source_review_dois": [
+        "10.1111/add.16762"
+      ],
+      "rationale": "Newer AUD open-label study; useful for current coverage but not a completeness-check item without full-text review.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1097/JCP.0000000000001428",
+      "dataset": "disorder",
+      "title": "Ayahuasca Improves Self-perception of Speech Performance in Subjects With Social Anxiety Disorder: A Pilot, Proof-of-Concept, Randomized, Placebo-Controlled Trial",
+      "year": 2021,
+      "compound": "Ayahuasca",
+      "disorder": "Social anxiety disorder",
+      "study_design": "pilot_trial",
+      "source_review_dois": [
+        "10.1007/s00213-024-06598-6"
+      ],
+      "rationale": "Adds ayahuasca/social anxiety coverage.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1001/jamanetworkopen.2026.0972",
+      "dataset": "disorder",
+      "title": "Psilocybin or Nicotine Patch for Smoking Cessation: A Pilot Randomized Clinical Trial",
+      "year": 2026,
+      "compound": "Psilocybin",
+      "disorder": "Tobacco use disorder",
+      "study_design": "randomized_controlled_trial",
+      "source_review_dois": [],
+      "rationale": "Recent smoking-cessation randomized trial found by targeted search; should be checked because it is newer than the source reviews.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1371/journal.pone.0009019",
+      "dataset": "mechanistic",
+      "title": "Psychedelics and the Human Receptorome",
+      "year": 2010,
+      "compound": "LSD",
+      "target": "5-HT2A",
+      "study_design": "in_vitro_binding_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Reference work with broad receptor affinity data across psychedelic compounds.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.euroneuro.2016.05.001",
+      "dataset": "mechanistic",
+      "title": "Receptor interaction profiles of novel psychoactive tryptamines compared with classic hallucinogens",
+      "year": 2016,
+      "compound": "DMT",
+      "target": "5-HT2A",
+      "study_design": "in_vitro_binding_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Direct receptor/transporter interaction profiles for tryptamines and classic hallucinogens.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1007/s00213-014-3557-7",
+      "dataset": "mechanistic",
+      "title": "Interaction of psychoactive tryptamines with biogenic amine transporters and serotonin receptor subtypes",
+      "year": 2014,
+      "compound": "5-MeO-DMT",
+      "target": "SERT (SLC6A4)",
+      "study_design": "in_vitro_uptake_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Direct monoamine transporter and serotonin receptor assay coverage for psychoactive tryptamines.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.3389/fphar.2021.794254",
+      "dataset": "mechanistic",
+      "title": "Receptor Interaction Profiles of 4-Alkoxy-3,5-Dimethoxy-Phenethylamines (Mescaline Derivatives) and Related Amphetamines",
+      "year": 2021,
+      "compound": "Mescaline",
+      "target": "5-HT2A",
+      "study_design": "in_vitro_binding_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Adds phenethylamine/mescaline-derivative receptor profile coverage.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1126/science.1166127",
+      "dataset": "mechanistic",
+      "title": "The hallucinogen N,N-dimethyltryptamine (DMT) is an endogenous sigma-1 receptor regulator",
+      "year": 2009,
+      "compound": "DMT",
+      "target": "Sigma-1 receptor (SIGMAR1)",
+      "study_design": "in_vitro_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Canonical DMT sigma-1 receptor mechanistic paper.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1073/pnas.182234399",
+      "dataset": "mechanistic",
+      "title": "Salvinorin A: A potent naturally occurring nonnitrogenous kappa opioid selective agonist",
+      "year": 2002,
+      "compound": "Salvinorin A",
+      "target": "kappa opioid receptor (OPRK1)",
+      "study_design": "in_vitro_binding_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020"
+      ],
+      "rationale": "Canonical salvinorin A kappa-opioid receptor selectivity paper; DOI should be verified during manual review.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1021/jm049438q",
+      "dataset": "mechanistic",
+      "title": "Studies toward the pharmacophore of salvinorin A, a potent kappa opioid receptor agonist",
+      "year": 2005,
+      "compound": "Salvinorin A",
+      "target": "kappa opioid receptor (OPRK1)",
+      "study_design": "in_vitro_binding_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020"
+      ],
+      "rationale": "Additional salvinorin A KOR pharmacophore/binding coverage.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.ejphar.2012.12.006",
+      "dataset": "mechanistic",
+      "title": "Neurochemical profiles of some novel psychoactive substances",
+      "year": 2013,
+      "compound": "25I-NBOMe",
+      "target": "5-HT2A",
+      "study_design": "in_vitro_binding_assay",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020"
+      ],
+      "rationale": "Adds NBOMe/NPS neurochemical profile coverage.",
+      "proposed_study_role": "known_relevant_primary_or_mechanistic_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.cell.2016.12.033",
+      "dataset": "mechanistic",
+      "title": "Crystal Structure of an LSD-Bound Human Serotonin Receptor",
+      "year": 2017,
+      "compound": "LSD",
+      "target": "5-HT2B",
+      "study_design": "structural_biology",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020"
+      ],
+      "rationale": "Widely cited structural paper for LSD-bound serotonin receptor; target mapping should be checked before graph use.",
+      "proposed_study_role": "known_relevant_mechanistic_structure_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1038/nature06612",
+      "dataset": "mechanistic",
+      "title": "Identification of a serotonin/glutamate receptor complex implicated in psychosis",
+      "year": 2008,
+      "compound": "DOI",
+      "target": "mGluR2 (GRM2)",
+      "study_design": "preclinical_study",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Important 5-HT2A/mGluR2 complex paper often cited in psychedelic mechanism discussions.",
+      "proposed_study_role": "known_relevant_mechanistic_pathway_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.neuron.2007.01.008",
+      "dataset": "mechanistic",
+      "title": "Hallucinogens Recruit Specific Cortical 5-HT2A Receptor-Mediated Signaling Pathways to Affect Behavior",
+      "year": 2007,
+      "compound": "DOI",
+      "target": "5-HT2A",
+      "study_design": "preclinical_study",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Canonical hallucinogen-specific 5-HT2A signaling paper.",
+      "proposed_study_role": "known_relevant_mechanistic_pathway_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1073/pnas.0708862105",
+      "dataset": "mechanistic",
+      "title": "Agonist-directed signaling of the serotonin 2A receptor depends on beta-arrestin-2 interactions in vivo",
+      "year": 2008,
+      "compound": "DOI",
+      "target": "5-HT2A",
+      "study_design": "preclinical_study",
+      "source_review_dois": [
+        "10.1523/JNEUROSCI.1659-20.2020",
+        "10.1124/pharmrev.120.000056"
+      ],
+      "rationale": "Biased/agonist-directed 5-HT2A signaling paper relevant to psychedelic mechanism claims.",
+      "proposed_study_role": "known_relevant_mechanistic_pathway_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1038/s41586-024-07403-2",
+      "dataset": "mechanistic",
+      "title": "Structural pharmacology and therapeutic potential of 5-methoxytryptamines",
+      "year": 2024,
+      "compound": "5-MeO-DMT",
+      "target": "5-HT1A",
+      "study_design": "structural_biology",
+      "source_review_dois": [],
+      "rationale": "Recent high-impact structural pharmacology paper; target-specific extraction should be checked manually.",
+      "proposed_study_role": "known_relevant_mechanistic_structure_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    },
+    {
+      "doi": "10.1016/j.ejmech.2024.117049",
+      "dataset": "mechanistic",
+      "title": "Structural insights into tryptamine psychedelics: The role of hydroxyl indole ring site in 5-HT2A receptor activation and psychedelic-like activity",
+      "year": 2025,
+      "compound": "Psilocin",
+      "target": "5-HT2A",
+      "study_design": "in_vitro_assay",
+      "source_review_dois": [],
+      "rationale": "Recent psilocin/tryptamine 5-HT2A activation paper found by targeted search.",
+      "proposed_study_role": "known_relevant_mechanistic_structure_study",
+      "review_status": "reviewed_relevant_by_user_and_promoted",
+      "purpose": "search_completeness_check"
+    }
+  ],
+  "promoted_at_utc": "2026-04-24T00:51:11Z",
+  "promoted_to": "data/raw/benchmark_manifest.json",
+  "canonical_name": "manual_known_relevant_study_candidates"
+}

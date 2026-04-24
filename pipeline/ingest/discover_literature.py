@@ -1649,7 +1649,7 @@ def read_benchmark_manifest_contexts(path: Path, dataset: str) -> Dict[str, List
                 entity,
                 entry.get("title", ""),
                 entry.get("year", ""),
-                f"benchmark:{normalize(entry.get('tier', '')) or 'unspecified'}",
+                f"known_study:{normalize(entry.get('tier', '')) or 'unspecified'}",
             ),
         )
     return out
@@ -1729,7 +1729,7 @@ def protected_sources_for_dataset(dataset: str, benchmark_manifest: Path) -> Dic
     )
     return merge_context_maps(
         read_benchmark_manifest_contexts(benchmark_manifest, dataset),
-        read_known_doi_file(ROOT / "data" / "raw" / f"benchmark_known_dois.{dataset}.txt", "benchmark_legacy_file"),
+        read_known_doi_file(ROOT / "data" / "raw" / f"benchmark_known_dois.{dataset}.txt", "known_study_legacy_file"),
         read_queue_contexts(ROOT / "data" / "raw" / f"doi_queue.{dataset}.triage_relevant.txt", "triage_queue"),
         read_paper_library_contexts(ROOT / "data" / "processed" / f"paper_library_{dataset}.json"),
         read_curated_contexts(curated, dataset),
@@ -1875,7 +1875,14 @@ def update_ledger(
                 "queries": sorted(queries),
                 "contexts": contexts,
                 "protected_sources": protected_labels,
-                "is_benchmark": any(label.startswith("benchmark") for label in protected_labels),
+                "is_known_study": any(
+                    label.startswith("known_study") or label.startswith("benchmark")
+                    for label in protected_labels
+                ),
+                "is_benchmark": any(
+                    label.startswith("known_study") or label.startswith("benchmark")
+                    for label in protected_labels
+                ),
                 "is_curated": "curated" in protected_labels,
                 "in_paper_library": "paper_library" in protected_labels,
                 "in_triage_queue": "triage_queue" in protected_labels,
@@ -1893,6 +1900,7 @@ def update_ledger(
             "entries": len(entries),
             "seen_in_latest_run": sum(1 for entry in entries if entry.get("seen_in_latest_run")),
             "retained_in_latest_queue": sum(1 for entry in entries if entry.get("retained_in_latest_queue")),
+            "known_study_entries": sum(1 for entry in entries if entry.get("is_known_study")),
             "benchmark_entries": sum(1 for entry in entries if entry.get("is_benchmark")),
             "curated_entries": sum(1 for entry in entries if entry.get("is_curated")),
         },
@@ -1998,9 +2006,12 @@ def main() -> int:
     )
     parser.add_argument(
         "--citation-chase",
-        choices=["off", "benchmark", "query-results"],
+        choices=["off", "known-study-set", "benchmark", "query-results"],
         default="off",
-        help="Optionally expand discovery using Semantic Scholar references/citations.",
+        help=(
+            "Optionally expand discovery using Semantic Scholar references/citations. "
+            "The older 'benchmark' value is retained as a compatibility alias."
+        ),
     )
     parser.add_argument(
         "--citation-chase-directions",
@@ -2043,8 +2054,13 @@ def main() -> int:
     parser.add_argument("--report-out", default="")
     parser.add_argument(
         "--benchmark-manifest",
+        "--known-study-manifest",
+        dest="benchmark_manifest",
         default=str(ROOT / "data" / "raw" / "benchmark_manifest.json"),
-        help="Benchmark manifest used for protected retention and report provenance",
+        help=(
+            "Known relevant study set used for protected retention and report provenance. "
+            "The older flag name is retained for compatibility."
+        ),
     )
     parser.add_argument(
         "--ledger-out",
@@ -2059,7 +2075,7 @@ def main() -> int:
     parser.add_argument(
         "--disable-protected-retention",
         action="store_true",
-        help="Do not pin benchmark/curated/library DOIs before applying --max-results",
+        help="Do not pin known-study/curated/library DOIs before applying --max-results",
     )
     parser.add_argument(
         "--progress",
@@ -2300,7 +2316,7 @@ def main() -> int:
                 args.dataset,
                 max_rows=max(0, args.citation_chase_max_source_dois),
             )
-            if args.citation_chase == "benchmark"
+            if args.citation_chase in {"benchmark", "known-study-set"}
             else merge_rows(all_rows)[: max(0, args.citation_chase_max_source_dois)]
         )
         directions = (
@@ -2387,6 +2403,7 @@ def main() -> int:
         "backends": list(backends),
         "queue_out": str(queue_out),
         "report_out": str(report_out),
+        "known_study_manifest": str(benchmark_manifest),
         "benchmark_manifest": str(benchmark_manifest),
         "settings": {
             "max_results_per_seed": args.max_results_per_seed,
@@ -2465,6 +2482,7 @@ def main() -> int:
             "enrich_unpaywall": enrich_unpaywall,
             "skip_unpaywall_enrichment": args.skip_unpaywall_enrichment,
             "unpaywall_email_configured": bool(usable_email(unpaywall_email)),
+            "known_study_manifest": str(benchmark_manifest),
             "benchmark_manifest": str(benchmark_manifest),
             "ledger_out": "" if args.disable_ledger else str(ledger_out),
             "protected_retention_enabled": not args.disable_protected_retention,

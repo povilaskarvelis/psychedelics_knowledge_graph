@@ -532,7 +532,7 @@ def load_benchmark_contexts(path: Path, dataset: str, entity_key: str) -> Dict[s
             {
                 "compound": compound,
                 "entity": entity,
-                "triage_match_source": "protected_benchmark",
+                "triage_match_source": "protected_known_study",
             }
         )
     return {doi: dedupe_contexts(contexts) for doi, contexts in out.items()}
@@ -796,8 +796,8 @@ def relevance_score_for_row(
         protected_context_count += 1
     if protected_context_count:
         score = max(score, 5)
-        rescue_reasons.append("protected benchmark/curated context retained")
-        reasons.append("protected benchmark/curated DOI retained")
+        rescue_reasons.append("protected known-study/curated context retained")
+        reasons.append("protected known-study/curated DOI retained")
 
     if dataset == "disorder":
         keyword_hits = [kw for kw in PRIMARY_KEYWORDS_DISORDER if normalize_text(kw) in text_norm]
@@ -943,14 +943,19 @@ def main() -> int:
     parser.add_argument("--report-csv", default="", help="Flat triage CSV path")
     parser.add_argument(
         "--benchmark-manifest",
+        "--known-study-manifest",
+        dest="benchmark_manifest",
         default=str(ROOT / "data" / "raw" / "benchmark_manifest.json"),
-        help="Structured benchmark manifest used for protected triage rescue",
+        help=(
+            "Structured known relevant study set used for protected triage rescue. "
+            "The older flag name is retained for compatibility."
+        ),
     )
     parser.add_argument("--curated-json", default="", help="Curated claims JSON used for protected triage rescue")
     parser.add_argument(
         "--no-protected-rescue",
         action="store_true",
-        help="Do not force benchmark/curated contexts into the triage queue",
+        help="Do not force known-study/curated contexts into the triage queue",
     )
     parser.add_argument(
         "--no-synthesize-contexts",
@@ -1250,6 +1255,7 @@ def main() -> int:
         "queue_relevance": sorted(queue_relevance),
         "queue_rows_written": queue_rows_written,
         "queue_rows_skipped_no_context": queue_stats["skipped_no_context"],
+        "known_study_manifest": str(benchmark_manifest),
         "benchmark_manifest": str(benchmark_manifest),
         "curated_json": str(curated_json),
         "protected_rescue_enabled": not args.no_protected_rescue,

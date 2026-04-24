@@ -119,11 +119,11 @@
     },
     "citation_chasing": {
       "enabled": false,
-      "source": "benchmark",
+      "source": "known-study-set",
       "directions": "references",
       "max_source_dois": 20,
       "max_results_per_doi": 20,
-      "notes": "Enable after initial query recall passes; keep bounded until Semantic Scholar API limits are stable."
+      "notes": "Enable after initial query completeness checks pass; keep bounded until Semantic Scholar API limits are stable."
     }
   },
   "source_specific_supplements": [
@@ -155,8 +155,8 @@
     "Non-scientific articles, commentaries without original data, and unrelated uses of overlapping acronyms.",
     "Rows where compound, target/disorder, or DOI/title identity cannot be normalized after reconciliation."
   ],
-  "recall_gate": {
-    "benchmark_doi_file": "data/raw/benchmark_known_dois.mechanistic.txt",
+  "search_completeness_check": {
+    "known_study_manifest": "data/raw/benchmark_manifest.json",
     "minimum_discovered_percent": 95,
     "minimum_triage_percent": 90
   },

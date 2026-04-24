@@ -37,7 +37,7 @@ class TriagePaperLibraryTest(unittest.TestCase):
             )
         )
 
-    def test_protected_benchmark_context_survives_without_entity_text_match(self) -> None:
+    def test_protected_known_study_context_survives_without_entity_text_match(self) -> None:
         allowlists = {
             "allowed_compounds": ["5-MeO-DMT", "DMT"],
             "allowed_targets": ["5-HT1A", "5-HT2A"],
@@ -53,24 +53,24 @@ class TriagePaperLibraryTest(unittest.TestCase):
                 {
                     "compound": "5-MeO-DMT",
                     "entity": "5-HT1A",
-                    "triage_match_source": "protected_benchmark",
+                    "triage_match_source": "protected_known_study",
                 }
             ],
         )
 
         self.assertEqual(relevance_label(score), "likely_relevant")
-        self.assertIn("protected benchmark/curated DOI retained", reasons)
+        self.assertIn("protected known-study/curated DOI retained", reasons)
         self.assertEqual(audit["protected_context_count"], 1)
         self.assertTrue(
             any(
                 ctx["compound"] == "5-MeO-DMT"
                 and ctx["entity"] == "5-HT1A"
-                and ctx["triage_match_source"] == "protected_benchmark"
+                and ctx["triage_match_source"] == "protected_known_study"
                 for ctx in contexts
             )
         )
 
-    def test_loads_dataset_specific_benchmark_contexts(self) -> None:
+    def test_loads_dataset_specific_known_study_contexts(self) -> None:
         with TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "benchmark_manifest.json"
             path.write_text(

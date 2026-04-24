@@ -26,8 +26,8 @@ Triage also writes a filtered DOI queue (default):
   - `contexts`: matched contexts used for downstream queue/stub mapping.
   - `contexts_all`: all original discovery contexts for traceability.
 
-Triage is recall-safe by default:
-- Benchmark-manifest and curated-claim DOI contexts are protected so known
+Triage is retrieval-safe by default:
+- Known-study and curated-claim DOI contexts are protected so known
   relevant papers do not silently fall out of the PDF queue.
 - When discovery context is stale, triage can synthesize a new context from
   title/abstract matches against allowed compounds and targets/disorders.

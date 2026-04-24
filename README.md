@@ -5,6 +5,7 @@ structured claims about psychedelics, mechanisms, and mental health outcomes.
 
 [Live GUI](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/ui) |
 [Pipeline Guide](pipeline/README.md) |
+[Search Completeness](docs/search_completeness.md) |
 [Evidence Policy](docs/evidence_policy.md)
 
 ![Interface screenshot](ui/assets/gui-screenshot.png)
@@ -28,9 +29,9 @@ PDFs when available.
 
 At the conceptual level:
 
-- search is broad enough to support recall across OpenAlex, Semantic Scholar,
+- search is broad enough to support retrieval across OpenAlex, Semantic Scholar,
   PubMed/PMC, Crossref, and OA metadata sources
-- recall can be audited against benchmark DOI manifests before downstream work
+- retrieval can be checked against a known relevant study set before downstream work
 - metadata sync happens before triage; PDF download happens after triage
 - retrieval provenance is retained in discovery reports and ledgers
 
@@ -56,7 +57,7 @@ material is blocked or retained separately in exploratory files so it stays
 visible without inflating the core graph.
 
 Technical note: the current implementation is mostly deterministic. It uses
-normalized titles, abstracts, metadata, protected benchmark/curated contexts,
+normalized titles, abstracts, metadata, protected known-study/curated contexts,
 and synthesized context rescue to assign relevance, `paper_type`,
 `source_type`, and evidence quality labels.
 
@@ -127,5 +128,5 @@ python pipeline/validate/validate_claims.py
 python pipeline/publish/export_graph_payload.py
 ```
 
-For the operational walkthrough, recall gates, provider settings, PDF runtime
-setup, and larger search runs, see [pipeline/README.md](pipeline/README.md).
+For the operational walkthrough, search completeness checks, provider settings,
+PDF runtime setup, and larger search runs, see [pipeline/README.md](pipeline/README.md).

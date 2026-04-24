@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit recall of known relevant DOIs across search pipeline stages."""
+"""Check retrieval of known relevant studies across search workflow stages."""
 
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def read_known_dois(path: Path) -> List[str]:
 
 def read_benchmark_manifest(path: Path, dataset: str) -> List[str]:
     if not path.exists():
-        raise FileNotFoundError(f"Benchmark manifest not found: {path}")
+        raise FileNotFoundError(f"Known relevant study manifest not found: {path}")
 
     payload = json.loads(path.read_text(encoding="utf-8"))
     entries = payload.get("entries", []) if isinstance(payload, dict) else []
@@ -78,6 +78,32 @@ def read_benchmark_manifest(path: Path, dataset: str) -> List[str]:
             continue
         seen.add(doi)
         out.append(doi)
+    return out
+
+
+def read_known_study_manifest(path: Path, dataset: str) -> List[str]:
+    """Compatibility wrapper for the known relevant study set manifest."""
+    return read_benchmark_manifest(path, dataset)
+
+
+def read_known_study_metadata(path: Path, dataset: str) -> Dict[str, dict]:
+    if not path.exists():
+        return {}
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    entries = payload.get("entries", []) if isinstance(payload, dict) else []
+    if not isinstance(entries, list):
+        return {}
+
+    out: Dict[str, dict] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        if normalize(entry.get("dataset", "")) != dataset:
+            continue
+        doi = normalize_doi(entry.get("doi", ""))
+        if doi and doi not in out:
+            out[doi] = entry
     return out
 
 
@@ -222,17 +248,27 @@ def build_gate_report(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Recall audit for known relevant DOI benchmark set")
+    parser = argparse.ArgumentParser(
+        description="Search completeness check for known relevant DOI records"
+    )
     parser.add_argument("--dataset", choices=["mechanistic", "disorder"], required=True)
     parser.add_argument(
         "--known-doi-file",
         default="",
-        help="Plain-text list of known relevant DOIs; overrides --benchmark-manifest when provided",
+        help=(
+            "Plain-text list of known relevant DOIs; overrides the structured "
+            "known-study manifest when provided"
+        ),
     )
     parser.add_argument(
         "--benchmark-manifest",
+        "--known-study-manifest",
+        dest="benchmark_manifest",
         default=str(ROOT / "data" / "raw" / "benchmark_manifest.json"),
-        help="Structured benchmark manifest used when --known-doi-file is omitted",
+        help=(
+            "Structured known relevant study set used when --known-doi-file is omitted. "
+            "The older filename is retained for compatibility."
+        ),
     )
     parser.add_argument("--discovered-queue", default="", help="Optional override for discovered queue path")
     parser.add_argument("--triage-queue", default="", help="Optional override for triage queue path")
@@ -293,10 +329,12 @@ def main() -> int:
 
     if known_doi_file:
         known_dois = read_known_dois(known_doi_file)
-        benchmark_source = "known_doi_file"
+        known_study_metadata: Dict[str, dict] = {}
+        known_study_source = "known_doi_file"
     else:
-        known_dois = read_benchmark_manifest(benchmark_manifest, dataset)
-        benchmark_source = "benchmark_manifest"
+        known_dois = read_known_study_manifest(benchmark_manifest, dataset)
+        known_study_metadata = read_known_study_metadata(benchmark_manifest, dataset)
+        known_study_source = "known_study_manifest"
     known_set = set(known_dois)
     discovered_set = read_queue_dois(discovered_queue)
     triage_set = read_queue_dois(triage_queue)
@@ -306,12 +344,17 @@ def main() -> int:
     rows: List[dict] = []
     for doi in known_dois:
         library_row = library_map.get(doi, {})
+        known_entry = known_study_metadata.get(doi, {})
         pdf_local_path = normalize(library_row.get("pdf_local_path", ""))
         in_library = doi in library_map
         with_pdf = bool(pdf_local_path)
         rows.append(
             {
                 "doi": doi,
+                "known_study_title": normalize(known_entry.get("title", "")),
+                "known_study_role": normalize(known_entry.get("tier", "")),
+                "known_study_review_status": normalize(known_entry.get("review_status", "")),
+                "known_study_selection_method": normalize(known_entry.get("selection_method", "")),
                 "in_discovered_queue": doi in discovered_set,
                 "in_triage_queue": doi in triage_set,
                 "in_paper_library": in_library,
@@ -354,8 +397,10 @@ def main() -> int:
         "generated_at_utc": now_utc(),
         "dataset": dataset,
         "inputs": {
-            "benchmark_source": benchmark_source,
+            "known_study_source": known_study_source,
+            "benchmark_source": known_study_source,
             "known_doi_file": str(known_doi_file) if known_doi_file else "",
+            "known_study_manifest": str(benchmark_manifest),
             "benchmark_manifest": str(benchmark_manifest),
             "discovered_queue": str(discovered_queue),
             "triage_queue": str(triage_queue),
@@ -394,6 +439,10 @@ def main() -> int:
     csv_out.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "doi",
+        "known_study_title",
+        "known_study_role",
+        "known_study_review_status",
+        "known_study_selection_method",
         "in_discovered_queue",
         "in_triage_queue",
         "in_paper_library",
@@ -409,7 +458,7 @@ def main() -> int:
         writer.writerows(rows)
 
     print(f"Dataset: {dataset}")
-    print(f"Benchmark source: {benchmark_source}")
+    print(f"Known-study source: {known_study_source}")
     print(f"Known DOIs: {known_total}")
     print(f"In discovered queue: {discovered_hits}")
     print(f"In triage queue: {triage_hits}")
@@ -417,7 +466,7 @@ def main() -> int:
     print(f"With local PDF: {with_pdf_hits}")
     print(f"In curated claims: {curated_hits}")
     if gate["enabled"]:
-        print(f"Recall gate: {gate['status']}")
+        print(f"Completeness gate: {gate['status']}")
         for stage in RECALL_STAGES:
             result = gate["stage_results"][stage]
             threshold = result["threshold_percent"]

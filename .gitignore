@@ -11,3 +11,20 @@ pipeline/config.*.local.yaml
 
 # Local paper library downloads (large binary assets)
 data/raw/papers/
+
+# Generated full-text conversion artifacts can be large.
+data/processed/fulltext/*/*.json
+data/processed/fulltext/fulltext_report_*.json
+data/processed/fulltext/provenance_repair_report_*.json
+data/processed/fulltext/provenance_repair_report_*.csv
+data/processed/fulltext/provenance_review_*.csv
+data/processed/fulltext/provenance_apply_report_*.json
+data/processed/fulltext/fulltext_provenance_run_report*.json
+data/processed/fulltext/evidence_triage_report_*.json
+data/processed/fulltext/evidence_triage_report_*.csv
+data/processed/fulltext/evidence_triage_apply_report_*.json
+data/processed/fulltext/evidence_triage_qa_sample*.json
+data/processed/fulltext/evidence_triage_qa_sample*.csv
+data/processed/fulltext/grobid.safe.yaml
+data/processed/fulltext/grobid_batches/
+data/processed/fulltext/grobid_batch_reports/

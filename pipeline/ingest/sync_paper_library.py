@@ -1522,7 +1522,13 @@ def main() -> int:
     )
     parser.add_argument("--checkpoint-json", default="", help="Checkpoint JSON path")
     parser.add_argument("--paper-db-json", default="", help="Paper DB JSON output path")
-    parser.add_argument("--benchmark-manifest", default="", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--benchmark-manifest",
+        "--known-study-manifest",
+        dest="benchmark_manifest",
+        default="",
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument("--paper-db-csv", default="", help="Paper DB CSV output path")
     parser.add_argument("--inventory-json", default="", help="Inventory report JSON output path")
     parser.add_argument("--inventory-csv", default="", help="Inventory table CSV output path")
