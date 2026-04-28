@@ -405,6 +405,7 @@ def main() -> int:
     )
     parser.add_argument("--citation-chase-max-source-dois", type=int, default=25)
     parser.add_argument("--citation-chase-max-results-per-doi", type=int, default=20)
+    parser.add_argument("--citation-chase-max-pages-per-direction", type=int, default=5)
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
     parser.add_argument("--openalex-email", default="")
     parser.add_argument("--openalex-api-key", default="")
@@ -430,8 +431,15 @@ def main() -> int:
         help="Skip Unpaywall enrichment during discovery; useful for recall-only runs",
     )
     parser.add_argument("--max-retries", type=int, default=None)
+    parser.add_argument("--max-retry-after-sec", type=int, default=120)
+    parser.add_argument("--http-hard-timeout-sec", type=int, default=180)
     parser.add_argument("--skip-download", action="store_true", help="Do not download PDFs")
     parser.add_argument("--replace-library", action="store_true", help="Replace existing paper library outputs")
+    parser.add_argument(
+        "--refresh-missing-metadata",
+        action="store_true",
+        help="Pass through to sync_paper_library.py to refetch rows missing title/abstract or previous metadata errors",
+    )
     parser.add_argument("--discover-only", action="store_true", help="Run discovery without paper sync")
     parser.add_argument("--sync-only", action="store_true", help="Run paper sync from existing discovered queues")
     parser.add_argument(
@@ -593,6 +601,7 @@ def main() -> int:
                 discover_cmd.extend(["--citation-chase-directions", args.citation_chase_directions])
                 discover_cmd.extend(["--citation-chase-max-source-dois", str(max(0, args.citation_chase_max_source_dois))])
                 discover_cmd.extend(["--citation-chase-max-results-per-doi", str(max(0, args.citation_chase_max_results_per_doi))])
+                discover_cmd.extend(["--citation-chase-max-pages-per-direction", str(max(1, args.citation_chase_max_pages_per_direction))])
             if args.openalex_email:
                 discover_cmd.extend(["--openalex-email", args.openalex_email])
             if args.openalex_api_key:
@@ -619,10 +628,12 @@ def main() -> int:
                 discover_cmd.extend(["--unpaywall-rps", str(args.unpaywall_rps)])
             if args.enrich_unpaywall:
                 discover_cmd.append("--enrich-unpaywall")
-            if args.skip_unpaywall_enrichment:
+            if args.skip_unpaywall_enrichment or (args.skip_download and not args.enrich_unpaywall):
                 discover_cmd.append("--skip-unpaywall-enrichment")
             if args.max_retries is not None:
                 discover_cmd.extend(["--max-retries", str(args.max_retries)])
+            discover_cmd.extend(["--max-retry-after-sec", str(max(0, args.max_retry_after_sec))])
+            discover_cmd.extend(["--http-hard-timeout-sec", str(max(0, args.http_hard_timeout_sec))])
             discover_cmd.append("--progress")
             discovery_info = run_step(
                 discover_cmd,
@@ -688,9 +699,12 @@ def main() -> int:
                 sync_cmd.extend(["--unpaywall-rps", str(args.unpaywall_rps)])
             if args.max_retries is not None:
                 sync_cmd.extend(["--max-retries", str(args.max_retries)])
+            sync_cmd.extend(["--max-retry-after-sec", str(max(0, args.max_retry_after_sec))])
             sync_cmd.append("--skip-download")
             if args.replace_library:
                 sync_cmd.append("--replace")
+            if args.refresh_missing_metadata:
+                sync_cmd.append("--refresh-missing-metadata")
             sync_info = run_step(
                 sync_cmd,
                 label=f"{dataset} / sync-metadata",
@@ -783,6 +797,9 @@ def main() -> int:
                     sync_triage_cmd.extend(["--unpaywall-rps", str(args.unpaywall_rps)])
                 if args.max_retries is not None:
                     sync_triage_cmd.extend(["--max-retries", str(args.max_retries)])
+                sync_triage_cmd.extend(["--max-retry-after-sec", str(max(0, args.max_retry_after_sec))])
+                if args.refresh_missing_metadata:
+                    sync_triage_cmd.append("--refresh-missing-metadata")
                 sync_triage_info = run_step(
                     sync_triage_cmd,
                     label=f"{dataset} / sync-download",

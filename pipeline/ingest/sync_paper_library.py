@@ -22,7 +22,7 @@ from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_METADATA_PROVIDER_ORDER = ["pubmed", "pmc", "unpaywall", "crossref", "openalex"]
+DEFAULT_METADATA_PROVIDER_ORDER = ["pubmed", "pmc", "unpaywall", "crossref", "openalex", "semantic_scholar"]
 PLACEHOLDER_EMAILS = {
     "test@example.com",
     "you@example.com",
@@ -273,6 +273,38 @@ def dedupe_queue_rows(rows: List[dict]) -> List[dict]:
     return sorted(merged.values(), key=lambda r: normalize(r.get("study_doi", "")))
 
 
+def paper_from_existing_row(row: dict) -> dict:
+    contexts = row.get("contexts", [])
+    if not isinstance(contexts, list):
+        contexts = []
+    return {
+        "study_doi": normalize_doi(row.get("study_doi", "")),
+        "study_title": normalize(row.get("study_title", "")),
+        "study_year": normalize(row.get("study_year", "")),
+        "authors": normalize(row.get("authors", "")),
+        "contexts": contexts,
+    }
+
+
+def include_existing_metadata_refresh_rows(papers: List[dict], existing_rows: List[dict]) -> List[dict]:
+    """Add existing library rows needing metadata refresh even if absent from the current DOI queue."""
+    seen = {
+        normalize_doi(paper.get("study_doi", "")).lower()
+        for paper in papers
+        if normalize_doi(paper.get("study_doi", ""))
+    }
+    refresh_papers = []
+    for row in existing_rows:
+        doi = normalize_doi(row.get("study_doi", ""))
+        key = doi.lower()
+        if not doi or key in seen or not row_needs_metadata_refresh(row):
+            continue
+        refresh_papers.append(paper_from_existing_row(row))
+        seen.add(key)
+    refresh_papers.sort(key=lambda row: normalize(row.get("study_doi", "")))
+    return papers + refresh_papers
+
+
 def authors_from_openalex(authorships: Iterable[dict], max_names: int = 10) -> str:
     names = []
     for authorship in authorships:
@@ -309,6 +341,19 @@ def authors_from_unpaywall(authors: Iterable[dict], max_names: int = 10) -> str:
         if not isinstance(author, dict):
             continue
         name = normalize(author.get("raw_author_name", ""))
+        if name:
+            names.append(name)
+        if len(names) >= max_names:
+            break
+    return "; ".join(names)
+
+
+def authors_from_semantic_scholar(authors: Iterable[dict], max_names: int = 10) -> str:
+    names = []
+    for author in authors:
+        if not isinstance(author, dict):
+            continue
+        name = normalize(author.get("name", ""))
         if name:
             names.append(name)
         if len(names) >= max_names:
@@ -736,6 +781,44 @@ def lookup_unpaywall_metadata(
     return metadata_from_unpaywall_payload(payload, paper)
 
 
+def lookup_semantic_scholar_metadata(
+    client: RateLimitedHttpClient,
+    doi: str,
+    api_key: str,
+    paper: dict,
+) -> Optional[dict]:
+    headers = {"x-api-key": api_key} if api_key else {}
+    payload = client.get_json(
+        f"https://api.semanticscholar.org/graph/v1/paper/{quote(f'DOI:{doi}', safe='')}",
+        params={"fields": "title,year,abstract,authors,externalIds,openAccessPdf,isOpenAccess,url"},
+        headers=headers,
+    )
+    if not isinstance(payload, dict) or payload.get("error"):
+        return None
+    external_ids = payload.get("externalIds", {}) if isinstance(payload.get("externalIds", {}), dict) else {}
+    open_access_pdf = payload.get("openAccessPdf", {}) if isinstance(payload.get("openAccessPdf", {}), dict) else {}
+    pdf_url = normalize(open_access_pdf.get("url", ""))
+    is_oa = payload.get("isOpenAccess", "")
+    return {
+        "metadata_provider": "semantic_scholar",
+        "metadata_provider_chain": "semantic_scholar",
+        "semantic_scholar_id": normalize(payload.get("paperId", "")),
+        "openalex_id": "",
+        "pmid": normalize(external_ids.get("PubMed", "")),
+        "pmcid": normalize(external_ids.get("PubMedCentral", "")),
+        "study_title": normalize(payload.get("title", "")) or normalize(paper.get("study_title", "")),
+        "study_year": normalize(payload.get("year", "")) or normalize(paper.get("study_year", "")),
+        "authors": authors_from_semantic_scholar(payload.get("authors", []) or []) or normalize(paper.get("authors", "")),
+        "abstract": normalize(payload.get("abstract", "")),
+        "is_oa": "true" if is_oa is True else "false" if is_oa is False else "",
+        "oa_status": "",
+        "oa_url": normalize(payload.get("url", "")),
+        "best_pdf_url": pdf_url,
+        "pdf_url_candidates": pdf_url,
+        "semantic_scholar_checked": "true",
+    }
+
+
 def is_probable_pdf_url(url: str) -> bool:
     lowered = url.lower()
     return lowered.endswith(".pdf") or ".pdf?" in lowered
@@ -1096,7 +1179,7 @@ def provider_can_help(provider: str, metadata: dict) -> bool:
         return True
     needs_abstract = not normalize(metadata.get("abstract", ""))
     needs_oa = metadata_needs_oa_resolution(metadata)
-    if needs_abstract and provider in {"openalex", "pubmed", "pmc", "crossref"}:
+    if needs_abstract and provider in {"openalex", "pubmed", "pmc", "crossref", "semantic_scholar"}:
         return True
     if needs_oa and provider in {"pmc", "unpaywall", "openalex"}:
         return True
@@ -1125,7 +1208,7 @@ def row_needs_oa_refresh(row: dict, provider_order: List[str]) -> bool:
 
 
 def parse_provider_order(raw: str) -> List[str]:
-    allowed = {"openalex", "pubmed", "pmc", "crossref", "unpaywall"}
+    allowed = {"openalex", "pubmed", "pmc", "crossref", "unpaywall", "semantic_scholar"}
     out = []
     for part in raw.split(","):
         provider = normalize(part).lower()
@@ -1149,6 +1232,7 @@ def fetch_metadata_with_fallbacks(
     ncbi_api_key: str,
     crossref_email: str,
     unpaywall_email: str,
+    semantic_scholar_api_key: str = "",
     initial_metadata: Optional[dict] = None,
 ) -> Tuple[dict, List[dict], List[str]]:
     metadata: dict = dict(initial_metadata or {})
@@ -1199,6 +1283,13 @@ def fetch_metadata_with_fallbacks(
                     clients[provider],
                     doi=doi,
                     email=unpaywall_email,
+                    paper=paper,
+                )
+            elif provider == "semantic_scholar":
+                current = lookup_semantic_scholar_metadata(
+                    clients[provider],
+                    doi=doi,
+                    api_key=semantic_scholar_api_key,
                     paper=paper,
                 )
             else:
@@ -1478,6 +1569,8 @@ def main() -> int:
     parser.add_argument("--openalex-email", default="")
     parser.add_argument("--openalex-api-key", default="")
     parser.add_argument("--openalex-rps", type=float, default=None)
+    parser.add_argument("--semantic-scholar-api-key", default="")
+    parser.add_argument("--semantic-scholar-rps", type=float, default=None)
     parser.add_argument(
         "--metadata-provider-order",
         default=",".join(DEFAULT_METADATA_PROVIDER_ORDER),
@@ -1512,7 +1605,10 @@ def main() -> int:
     parser.add_argument(
         "--refresh-missing-metadata",
         action="store_true",
-        help="Refetch only rows with missing title/abstract or previous metadata errors",
+        help=(
+            "Refetch rows with missing title/abstract or previous metadata errors, "
+            "including existing library rows absent from the current DOI queue"
+        ),
     )
     parser.add_argument(
         "--checkpoint-every",
@@ -1553,6 +1649,16 @@ def main() -> int:
     openalex_email = args.openalex_email or str(oa_cfg.get("email", "")) or os.getenv("OPENALEX_EMAIL", "")
     openalex_api_key = args.openalex_api_key or str(oa_cfg.get("api_key", "")) or os.getenv("OPENALEX_API_KEY", "")
     openalex_rps = args.openalex_rps if args.openalex_rps is not None else read_float(oa_cfg.get("rate_limit_per_sec"), 2.0)
+    semantic_scholar_api_key = (
+        args.semantic_scholar_api_key
+        or str(s2_cfg.get("api_key", ""))
+        or os.getenv("S2_API_KEY", "")
+    )
+    semantic_scholar_rps = (
+        args.semantic_scholar_rps
+        if args.semantic_scholar_rps is not None
+        else read_float(s2_cfg.get("rate_limit_per_sec"), 0.33)
+    )
     ncbi_email = args.ncbi_email or str(pubmed_cfg.get("email", "")) or os.getenv("NCBI_EMAIL", "")
     ncbi_api_key = args.ncbi_api_key or str(pubmed_cfg.get("api_key", "")) or os.getenv("NCBI_API_KEY", "")
     pubmed_rps = args.pubmed_rps if args.pubmed_rps is not None else read_float(pubmed_cfg.get("rate_limit_per_sec"), 2.5)
@@ -1663,13 +1769,23 @@ def main() -> int:
             max_retry_after_sec=max(0, args.max_retry_after_sec),
             user_agent="kg-pipeline/unpaywall-oa",
         ),
+        "semantic_scholar": RateLimitedHttpClient(
+            rps=semantic_scholar_rps,
+            max_retries=max_retries,
+            timeout_sec=max(1, args.timeout_sec),
+            max_retry_after_sec=max(0, args.max_retry_after_sec),
+            user_agent="kg-pipeline/semantic-scholar-metadata",
+        ),
     }
 
     queue_rows = parse_doi_queue(doi_file)
     papers = dedupe_queue_rows(queue_rows)
     existing_rows = [] if args.replace else read_existing_json(paper_db_json)
     checkpoint_rows = [] if args.replace else read_existing_json(checkpoint_json)
-    reusable_by_doi = rows_by_doi(merge_existing_rows(existing_rows, checkpoint_rows))
+    reusable_rows = merge_existing_rows(existing_rows, checkpoint_rows)
+    if args.refresh_missing_metadata and not args.replace:
+        papers = include_existing_metadata_refresh_rows(papers, reusable_rows)
+    reusable_by_doi = rows_by_doi(reusable_rows)
 
     output_rows: List[dict] = []
     fetch_errors: List[dict] = []
@@ -1756,6 +1872,7 @@ def main() -> int:
                 ncbi_api_key=ncbi_api_key,
                 crossref_email=crossref_email,
                 unpaywall_email=unpaywall_email,
+                semantic_scholar_api_key=semantic_scholar_api_key,
                 initial_metadata=None,
             )
             for error in provider_errors:

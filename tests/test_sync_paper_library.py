@@ -5,6 +5,7 @@ from pathlib import Path
 from pipeline.ingest.sync_paper_library import (
     download_pdf_candidates,
     fetch_metadata_with_fallbacks,
+    include_existing_metadata_refresh_rows,
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
@@ -38,7 +39,7 @@ class SyncPaperLibraryTest(unittest.TestCase):
     def test_default_order_uses_unpaywall_before_broad_fallbacks(self) -> None:
         self.assertEqual(
             parse_provider_order(""),
-            ["pubmed", "pmc", "unpaywall", "crossref", "openalex"],
+            ["pubmed", "pmc", "unpaywall", "crossref", "openalex", "semantic_scholar"],
         )
 
     def test_existing_row_without_unpaywall_or_pdf_gets_oa_refresh(self) -> None:
@@ -57,6 +58,33 @@ class SyncPaperLibraryTest(unittest.TestCase):
 
         row["pdf_download_status"] = "invalid_pdf_content"
         self.assertTrue(row_needs_oa_refresh(row, ["pubmed", "pmc", "unpaywall", "crossref"]))
+
+    def test_refresh_missing_metadata_includes_existing_rows_absent_from_queue(self) -> None:
+        papers = [{"study_doi": "10.1000/in-queue", "study_title": "Queued"}]
+        existing_rows = [
+            {
+                "study_doi": "10.1000/in-queue",
+                "study_title": "Queued",
+                "abstract": "",
+            },
+            {
+                "study_doi": "10.1000/missing-abstract",
+                "study_title": "Existing missing abstract",
+                "abstract": "",
+                "contexts": [{"compound": "psilocybin", "entity": "5-HT2A"}],
+            },
+            {
+                "study_doi": "10.1000/complete",
+                "study_title": "Complete",
+                "abstract": "Already complete.",
+            },
+        ]
+
+        out = include_existing_metadata_refresh_rows(papers, existing_rows)
+
+        self.assertEqual([row["study_doi"] for row in out], ["10.1000/in-queue", "10.1000/missing-abstract"])
+        self.assertEqual(out[1]["study_title"], "Existing missing abstract")
+        self.assertEqual(out[1]["contexts"], [{"compound": "psilocybin", "entity": "5-HT2A"}])
 
     def test_unpaywall_adds_pdf_without_overriding_pubmed_abstract_provider(self) -> None:
         doi = "10.1000/example"
@@ -145,6 +173,49 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(metadata["abstract"], "PubMed abstract.")
         self.assertEqual(metadata["best_pdf_url"], "https://repository.example/paper.pdf")
         self.assertEqual(metadata["unpaywall_checked"], "true")
+
+    def test_semantic_scholar_backfills_missing_abstract(self) -> None:
+        doi = "10.1000/example"
+        clients = {
+            "openalex": FakeClient(json_responses=[(lambda url, params: True, {"results": []})]),
+            "semantic_scholar": FakeClient(
+                json_responses=[
+                    (
+                        lambda url, params: url.endswith("DOI%3A10.1000%2Fexample"),
+                        {
+                            "paperId": "abc123",
+                            "title": "Semantic Scholar title",
+                            "year": 2024,
+                            "abstract": "Semantic Scholar abstract.",
+                            "authors": [{"name": "Doe J"}],
+                            "externalIds": {"DOI": doi, "PubMed": "12345"},
+                            "isOpenAccess": True,
+                            "openAccessPdf": {"url": "https://example.org/paper.pdf"},
+                        },
+                    )
+                ]
+            ),
+        }
+
+        metadata, errors, queried = fetch_metadata_with_fallbacks(
+            doi=doi,
+            paper={"study_doi": doi, "study_title": "Existing title"},
+            provider_order=["openalex", "semantic_scholar"],
+            clients=clients,
+            openalex_email="curator@example.org",
+            openalex_api_key="",
+            ncbi_email="curator@example.org",
+            ncbi_api_key="",
+            crossref_email="curator@example.org",
+            unpaywall_email="curator@example.org",
+        )
+
+        self.assertEqual(errors, [])
+        self.assertEqual(queried, ["openalex", "semantic_scholar"])
+        self.assertEqual(metadata["metadata_provider"], "semantic_scholar")
+        self.assertEqual(metadata["abstract"], "Semantic Scholar abstract.")
+        self.assertEqual(metadata["authors"], "Doe J")
+        self.assertEqual(metadata["best_pdf_url"], "https://example.org/paper.pdf")
 
     def test_unpaywall_pmc_landing_adds_europepmc_candidate(self) -> None:
         metadata = metadata_from_unpaywall_payload(

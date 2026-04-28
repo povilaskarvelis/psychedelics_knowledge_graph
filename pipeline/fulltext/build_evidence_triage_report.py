@@ -40,54 +40,101 @@ TRIAGE_CONFIG = {
     for dataset, cfg in DATASET_CONFIG.items()
 }
 
+SOURCE_FAMILY_BY_CLASSIFICATION = {
+    "primary_study": "original_empirical",
+    "case_report": "original_empirical",
+    "systematic_review": "evidence_synthesis",
+    "meta_analysis": "evidence_synthesis",
+    "review": "evidence_synthesis",
+    "commentary": "opinion_or_commentary",
+    "protocol": "protocol",
+    "correction": "correction",
+    "conference_abstract": "conference_abstract",
+}
+EVIDENCE_STRENGTH_BY_CLASSIFICATION = {
+    "primary_study": "medium",
+    "case_report": "low",
+    "systematic_review": "high",
+    "meta_analysis": "high",
+    "review": "medium",
+    "commentary": "very_low",
+    "protocol": "not_applicable",
+    "correction": "not_applicable",
+    "conference_abstract": "low",
+}
+NON_EMPIRICAL_CLASSES = {
+    "systematic_review",
+    "meta_analysis",
+    "review",
+    "commentary",
+    "protocol",
+    "correction",
+}
+
 TARGET_FIELDS = {
     "systematic_review": {
         "source_type": "secondary_evidence",
         "paper_type": "systematic_review",
         "study_design": "systematic_review",
+        "source_family": "evidence_synthesis",
+        "evidence_strength": "high",
     },
     "meta_analysis": {
         "source_type": "secondary_evidence",
         "paper_type": "meta_analysis",
         "study_design": "meta_analysis",
+        "source_family": "evidence_synthesis",
+        "evidence_strength": "high",
     },
     "review": {
         "source_type": "secondary_evidence",
         "paper_type": "review",
         "study_design": "review",
+        "source_family": "evidence_synthesis",
+        "evidence_strength": "medium",
     },
     "commentary": {
         "source_type": "commentary",
         "paper_type": "commentary",
         "study_design": "commentary",
+        "source_family": "opinion_or_commentary",
+        "evidence_strength": "very_low",
     },
     "protocol": {
         "source_type": "study_protocol",
         "paper_type": "protocol",
         "study_design": "protocol",
+        "source_family": "protocol",
+        "evidence_strength": "not_applicable",
     },
     "correction": {
         "source_type": "correction",
-        "paper_type": "erratum",
+        "paper_type": "correction",
         "study_design": "correction",
+        "source_family": "correction",
+        "evidence_strength": "not_applicable",
     },
     "conference_abstract": {
         "source_type": "conference_abstract",
         "paper_type": "conference_abstract",
         "study_design": "conference_abstract",
+        "source_family": "conference_abstract",
+        "evidence_strength": "low",
     },
     "case_report": {
-        "source_type": "case_report",
+        "source_type": "primary_study",
         "paper_type": "case_report",
         "study_design": "case_report",
+        "source_family": "original_empirical",
+        "evidence_strength": "low",
     },
     "primary_study": {
         "source_type": "primary_study",
         "paper_type": "primary_results",
+        "source_family": "original_empirical",
+        "evidence_strength": "medium",
     },
 }
-
-SECONDARY_CLASSES = set(TARGET_FIELDS) - {"primary_study"}
 
 CORRECTION_RE = re.compile(r"\b(erratum|corrigendum|correction|retraction|withdrawn)\b")
 PROTOCOL_RE = re.compile(r"\b(study protocol|trial protocol|protocol for|rationale and design|design and rationale)\b")
@@ -166,6 +213,8 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
         "action",
         "automation_status",
         "classification",
+        "source_family",
+        "evidence_strength",
         "confidence",
         "current_source_type",
         "target_source_type",
@@ -281,11 +330,11 @@ def classify_evidence(row: dict, extraction: dict) -> dict:
     best_score = by_class.get("primary_study", 0.35)
     for key in priority:
         score = by_class.get(key, 0.0)
-        if score > best_score or (score == best_score and key in SECONDARY_CLASSES and best_class == "primary_study"):
+        if score > best_score or (score == best_score and key in NON_EMPIRICAL_CLASSES and best_class == "primary_study"):
             best_class = key
             best_score = score
 
-    if best_class in SECONDARY_CLASSES:
+    if best_class in NON_EMPIRICAL_CLASSES:
         primary_score = by_class.get("primary_study", 0.0)
         confidence = min(0.99, 0.55 + (best_score * 0.25) - min(primary_score, 1.0) * 0.08)
     else:
@@ -353,17 +402,17 @@ def build_row(dataset: str, row: dict, row_index: int, artifact_dir: Path, auto_
         or current_paper_type != target_paper_type
         or (target_study_design and current_study_design != target_study_design)
     )
-    is_non_primary = classification["classification"] in SECONDARY_CLASSES
+    is_non_empirical = classification["classification"] in NON_EMPIRICAL_CLASSES
     confidence = float(classification["confidence"])
 
-    if is_non_primary and needs_change:
+    if is_non_empirical and needs_change:
         action = "propose_source_reclassification"
         automation_status = "auto_apply_eligible" if confidence >= auto_confidence else "needs_targeted_qa"
-    elif is_non_primary:
-        action = "keep_non_primary"
+    elif is_non_empirical:
+        action = "keep_non_empirical"
         automation_status = "already_classified"
     else:
-        action = "keep_primary"
+        action = "keep_original_empirical"
         automation_status = "no_change"
 
     return {
@@ -371,6 +420,8 @@ def build_row(dataset: str, row: dict, row_index: int, artifact_dir: Path, auto_
         "action": action,
         "automation_status": automation_status,
         "classification": classification["classification"],
+        "source_family": SOURCE_FAMILY_BY_CLASSIFICATION.get(classification["classification"], "unknown"),
+        "evidence_strength": EVIDENCE_STRENGTH_BY_CLASSIFICATION.get(classification["classification"], "unknown"),
         "confidence": confidence,
         "target_source_type": target_source_type,
         "target_paper_type": target_paper_type,
@@ -423,8 +474,10 @@ def build_report(
         "needs_targeted_qa": automation_counts.get("needs_targeted_qa", 0),
         "needs_fulltext_artifact": action_counts.get("needs_fulltext_artifact", 0),
         "propose_source_reclassification": action_counts.get("propose_source_reclassification", 0),
-        "keep_primary": action_counts.get("keep_primary", 0),
-        "keep_non_primary": action_counts.get("keep_non_primary", 0),
+        "keep_primary": action_counts.get("keep_original_empirical", 0),
+        "keep_non_primary": action_counts.get("keep_non_empirical", 0),
+        "keep_original_empirical": action_counts.get("keep_original_empirical", 0),
+        "keep_non_empirical": action_counts.get("keep_non_empirical", 0),
     }
     return {
         "generated_at_utc": now_utc(),

@@ -38,6 +38,7 @@ class ProvenanceRepairReportTest(unittest.TestCase):
     def test_is_non_primary_triaged_uses_source_and_paper_type(self) -> None:
         self.assertTrue(is_non_primary_triaged({"source_type": "secondary_evidence"}))
         self.assertTrue(is_non_primary_triaged({"paper_type": "commentary"}))
+        self.assertFalse(is_non_primary_triaged({"source_type": "primary_study", "paper_type": "case_report"}))
         self.assertFalse(is_non_primary_triaged({"source_type": "primary_study", "paper_type": "primary_results"}))
 
     def test_candidate_terms_include_disorder_synonyms_and_outcome_fields(self) -> None:

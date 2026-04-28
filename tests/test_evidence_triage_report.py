@@ -174,7 +174,59 @@ class EvidenceTriageReportTest(unittest.TestCase):
                 auto_confidence=0.85,
             )
 
-        self.assertEqual(report["rows"][0]["action"], "keep_primary")
+        self.assertEqual(report["rows"][0]["action"], "keep_original_empirical")
+
+    def test_case_report_is_original_empirical_low_strength(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            artifact_dir = Path(tmpdir)
+            doi = "10.1000/case"
+            artifact_path = artifact_dir / f"{doi_to_slug(doi)}.json"
+            artifact_path.write_text(
+                json.dumps(
+                    {
+                        "best_backend": "grobid",
+                        "extractions": [
+                            {
+                                "backend": "grobid",
+                                "status": "ok",
+                                "text": "",
+                                "sections": [
+                                    {
+                                        "heading": "Case report",
+                                        "snippet": "This case report describes ketamine treatment in one patient.",
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = build_report(
+                "disorder",
+                [
+                    {
+                        "study_doi": doi,
+                        "study_title": "Ketamine therapy: a case report",
+                        "compound": "Ketamine",
+                        "disorder": "Depression",
+                        "source_type": "primary_study",
+                        "paper_type": "case_report",
+                        "study_design": "case_report",
+                        "access_level": "full_text_seen",
+                    }
+                ],
+                artifact_dir=artifact_dir,
+                auto_confidence=0.85,
+            )
+
+        row = report["rows"][0]
+        self.assertEqual(row["classification"], "case_report")
+        self.assertEqual(row["source_family"], "original_empirical")
+        self.assertEqual(row["evidence_strength"], "low")
+        self.assertEqual(row["action"], "keep_original_empirical")
 
 
 if __name__ == "__main__":

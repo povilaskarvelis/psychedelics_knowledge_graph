@@ -1,11 +1,89 @@
-# Review: Stub Curation Queue
+# Review: Screening and Stub Curation
 
-Use this step to inspect pending stubs, identify blocking fields, and batch
-update `stub_status` before promotion.
+Use this step to screen synced literature candidates, inspect pending stubs,
+identify blocking fields, and batch update `stub_status` before promotion.
 
-## Paper triage (relevance + source type)
+## Local LLM abstract screening
+Use this as the semantic screening layer after metadata sync and before PDF
+download. The current strategy is a high-recall cascade:
+
+1. A deterministic pre-screen skips only obvious no-signal rows.
+2. All retained rows go to the main local Ollama model (`qwen3:14b`) for
+   title/abstract relevance and quote-supported compound/entity contexts only.
+
+Abstract screening deliberately does not assign source family, paper type, study
+design, evidence strength, claim-extraction hints, or download priority. Those
+labels require more context and are handled during full-text adjudication, or
+during the abstract-only evidence fallback when full text remains unavailable.
+
+The stage is non-destructive: it writes reports and queues, but does not edit
+the paper library or claim stubs.
+
+Recommended small validation run:
+`python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --deterministic-prescreen --deterministic-prescreen-only --limit 25 --only-with-abstract`
+
+Recommended full run for one dataset:
+
+1. `python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --only-undownloaded`
+2. `python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --doi-file data/raw/doi_queue.disorder.deterministic_prescreen_retained.txt --model qwen3:14b --only-with-abstract --continue-on-error --timeout-sec 0 --resume-from-checkpoint --num-ctx 4096`
+
+Use `--dataset mechanistic` for the mechanistic library. Run datasets separately
+when monitoring long local-model runs.
+
+Outputs:
+- `data/processed/deterministic_prescreen_report_<dataset>.json`
+- `data/processed/deterministic_prescreen_report_<dataset>.csv`
+- `data/raw/doi_queue.<dataset>.deterministic_prescreen_retained.txt`
+- `data/raw/doi_queue.<dataset>.deterministic_prescreen_excluded.txt`
+- `data/processed/llm_abstract_screening_report_<dataset>.json`
+- `data/processed/llm_abstract_screening_report_<dataset>.csv`
+- `data/raw/doi_queue.<dataset>.llm_fulltext_candidates.txt`
+- `data/raw/doi_queue.<dataset>.llm_relevant.txt`
+- `data/raw/doi_queue.<dataset>.llm_uncertain.txt`
+
+Queue meaning:
+- `llm_fulltext_candidates` is the high-recall DOI-level queue for PDF download.
+- `llm_relevant` contains only verified compound/entity contexts with exact
+  title/abstract quote support, so it is safer for context-level stub seeding.
+- `llm_uncertain` keeps plausible papers that need full text before excluding.
+
+The report replaces the old rule-based triage as the default screening output.
+Old heuristic triage fields are blank unless you explicitly opt in with
+`--use-heuristic-audit` or `--triage-report-json`; they are never shown to the
+model prompt.
+
+For relevant/uncertain papers with no available full text after acquisition
+attempts, use the full-text adjudication script in abstract-only mode:
+`python pipeline/fulltext/run_local_llm_evidence_adjudication.py --input data/processed/llm_abstract_screening_report_disorder.json --evidence-mode abstract_only --only-without-fulltext --only-with-abstract --model qwen3:14b --continue-on-error --timeout-sec 0`
+
+This fallback consumes verified contexts from the abstract-screening report,
+uses the same evidence-adjudication schema, and marks outputs with
+`evidence_mode=abstract_only`.
+
+Deterministic pre-screen behavior:
+- Enabled with `--deterministic-prescreen`.
+- Marks skipped rows with `screening_path=deterministic_excluded`.
+- Skips only rows with enough abstract text, no in-scope compound/intervention
+  term, and no text-supported candidate context term.
+- Escalates ambiguous cases, already downloaded papers, and rows mentioning
+  psychedelics/ketamine/entactogens or candidate compound/entity terms.
+- If `--use-heuristic-audit` is enabled, old heuristic retention also blocks
+  deterministic exclusion, but this is opt-in legacy behavior.
+- This gate was calibrated against the existing `qwen3:14b` disorder checkpoint
+  before use; any future tightening should be re-audited against checkpointed
+  LLM decisions.
+
+Do not use `--fast-screen-model qwen3:4b` as a universal pre-screen for now. In
+testing, structured `qwen3:4b` calls were too slow to justify an extra model call
+before `qwen3:14b`. The deterministic pre-screen is the preferred speedup.
+
+## Optional legacy paper triage (relevance + source type)
 Use rule-based triage to pre-label papers as likely relevant/irrelevant and
 suggest `source_type` (e.g., `review`, `meta_analysis`, `primary_study`).
+
+This older rule-based triage is no longer part of the default workflow. Use it
+only for legacy audits or targeted comparisons. PDF acquisition should use the
+`llm_fulltext_candidates` queue.
 
 Dry run report from paper library:
 `python pipeline/review/triage_paper_library.py --dataset mechanistic`

@@ -184,8 +184,16 @@ def sample_report(
         if row.get("action") == "propose_source_reclassification"
         and row.get("automation_status") == "needs_targeted_qa"
     ]
-    audited = [dict(row) for row in rows if row.get("action") == "keep_non_primary"]
-    controls = [dict(row) for row in rows if row.get("action") == "keep_primary"]
+    audited = [
+        dict(row)
+        for row in rows
+        if row.get("action") in {"keep_non_empirical", "keep_non_primary"}
+    ]
+    controls = [
+        dict(row)
+        for row in rows
+        if row.get("action") in {"keep_original_empirical", "keep_primary"}
+    ]
 
     sample = []
     sample.extend(sample_by_class(targeted, per_class_targeted, "targeted_rule_qa", salt=f"{salt}|targeted"))

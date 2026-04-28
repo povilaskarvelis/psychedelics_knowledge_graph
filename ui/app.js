@@ -8,12 +8,8 @@ const bibliographySearchInput = document.getElementById("bibliographySearchInput
 const fullTextOnlyToggle = document.getElementById("fullTextOnlyToggle");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
-const detailSubtitle = document.querySelector("#graphDetail p");
 const detailBody = document.getElementById("detailBody");
-const clearSelectionBtn = document.getElementById("clearSelection");
 const modeButtons = document.querySelectorAll("[data-mode]");
-const graphTitle = document.querySelector(".graph-panel h2");
-const graphSubtitle = document.querySelector(".graph-panel p");
 const studiesStatCard = document.getElementById("studiesStatCard");
 const bibliographyPanel = document.getElementById("bibliographyPanel");
 const studyListEl = document.getElementById("studyList");
@@ -80,7 +76,6 @@ const yearFilterState = {
 
 const defaultDetail = {
   title: "Graph Detail",
-  subtitle: "Hover or click a node or edge to inspect evidence.",
 };
 
 function normalizeValue(value) {
@@ -436,8 +431,9 @@ function chipHtml(kind, label, token = label) {
 
 function paperTypeBadgeHtml(paperType) {
   const normalized = normalizeValue(paperType) || "other";
-  if (normalized === "primary_results") return "";
-  return chipHtml("paper-type", paperTypeLabel(normalized), normalized);
+  const label =
+    normalized === "primary_results" ? "primary research" : paperTypeLabel(normalized);
+  return chipHtml("paper-type", label, normalized);
 }
 
 function studyDesignBadgeHtml(design) {
@@ -458,9 +454,8 @@ function claimBadgeHtml(claim) {
     .join("");
 }
 
-function setDetailHeader(title, subtitle) {
+function setDetailHeader(title) {
   detailTitle.textContent = title;
-  detailSubtitle.textContent = subtitle;
 }
 
 function renderDetailEmpty() {
@@ -475,7 +470,7 @@ function clearSelection() {
   selected = null;
   isolateSelection = false;
   clearSelectedStyles();
-  setDetailHeader(defaultDetail.title, defaultDetail.subtitle);
+  setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
   hideTooltip();
   scheduleRender();
@@ -666,22 +661,41 @@ function renderCards(data) {
     const badges = claimBadgeHtml(claim);
 
     const doiHref = doiUrl(claim.study_doi);
-    const source = doiHref
-      ? `DOI: <a href="${doiHref}" target="_blank" rel="noopener noreferrer">${claim.study_doi}</a>`
+    const sourceLine = doiHref
+      ? claimFieldLine(
+          "DOI",
+          `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+            claim.study_doi
+          )}</a>`
+        )
       : claim.openalex_id
-      ? `OpenAlex: ${claim.openalex_id}`
-      : "";
+        ? claimFieldLine("OpenAlex", escapeHtml(String(claim.openalex_id)))
+        : "";
 
     const relation = mode === "mechanistic" ? `${claim.compound} → ${claim.target}` : `${claim.compound} → ${claim.disorder}`;
     const authors = claimAuthors(claim);
 
+    const affinityValueInner = [
+      claim.affinity_value != null && String(claim.affinity_value).trim() !== ""
+        ? escapeHtml(String(claim.affinity_value))
+        : "",
+      claim.affinity_unit ? escapeHtml(String(claim.affinity_unit)) : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
     const outcomeLine =
       mode === "disorders"
-        ? `<div>Outcome: ${claim.outcome_type || "reported"}${claim.outcome_measure ? ` • ${claim.outcome_measure}` : ""}</div>`
+        ? claimFieldLine(
+            "Outcome",
+            `${escapeHtml(claim.outcome_type || "reported")}${
+              claim.outcome_measure ? ` • ${escapeHtml(claim.outcome_measure)}` : ""
+            }`
+          )
         : "";
     const directionLine =
       mode === "disorders"
-        ? `<div>Direction: ${resultDirectionLabel(claim.result_direction)}</div>`
+        ? claimFieldLine("Direction", escapeHtml(resultDirectionLabel(claim.result_direction)))
         : "";
 
     card.innerHTML = `
@@ -692,19 +706,23 @@ function renderCards(data) {
       <div class="meta">
         ${
           mode === "mechanistic"
-            ? `<div><strong>${claim.affinity_type}</strong>: ${claim.affinity_value} ${claim.affinity_unit}</div>
-        <div>Assay: ${claim.assay_type}</div>`
+            ? `${claimFieldLine(claim.affinity_type || "Measure", affinityValueInner)}
+        ${claimFieldLine("Assay", escapeHtml(claim.assay_type || ""))}`
             : `${outcomeLine}
         ${directionLine}`
         }
-        <div>System: ${claim.system || "unknown"}</div>
-        <div>${mode === "mechanistic" ? `Species: ${claim.species || "unknown"}` : `Population: ${claim.population || "unknown"}`}</div>
-        <div>Study: ${claim.study_title || ""} (${claim.study_year || ""})</div>
-        <div>Paper type: ${paperTypeLabel(claim.paper_type)}</div>
-        <div>Study design: ${studyDesignLabel(claim.study_design) || "unknown"}</div>
-        <div>Access: ${accessLevelLabel(claim.access_level) || "unknown"}</div>
-        <div>Authors: ${authors || "not available"}</div>
-        <div>${source}</div>
+        ${claimFieldLine("System", escapeHtml(claim.system || "unknown"))}
+        ${claimFieldLine(mode === "mechanistic" ? "Species" : "Population", escapeHtml((mode === "mechanistic" ? claim.species : claim.population) || "unknown"))}
+        ${claimFieldLine(
+          "Study",
+          `${escapeHtml(claim.study_title || "")}${
+            claim.study_year != null && String(claim.study_year) !== ""
+              ? ` (${escapeHtml(String(claim.study_year))})`
+              : ""
+          }`
+        )}
+        ${claimFieldLine("Authors", escapeHtml(authors || "not available"))}
+        ${sourceLine ? sourceLine : ""}
       </div>
     `;
 
@@ -861,6 +879,11 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/** Label ends with colon; bold styling comes from `.card-field-label` in CSS. */
+function claimFieldLine(label, valueHtml) {
+  return `<div><span class="card-field-label">${escapeHtml(label)}:</span> ${valueHtml}</div>`;
 }
 
 function formatCompactNumber(value) {
@@ -1041,6 +1064,29 @@ function colorForCategory(label, index, field = "") {
   return CATEGORY_COLORS[index % CATEGORY_COLORS.length];
 }
 
+/** Overview trend charts (#rrggbb only): soften fills slightly; alpha near 1 so colors stay saturated. */
+function chartFillSoft(hexColor, alpha = 0.96) {
+  const s = (hexColor || "").trim();
+  if (!s.startsWith("#")) return s;
+  const hex = s.slice(1);
+  let r;
+  let g;
+  let b;
+  if (hex.length === 6) {
+    r = parseInt(hex.slice(0, 2), 16);
+    g = parseInt(hex.slice(2, 4), 16);
+    b = parseInt(hex.slice(4, 6), 16);
+  } else if (hex.length === 3) {
+    r = parseInt(hex.slice(0, 1).repeat(2), 16);
+    g = parseInt(hex.slice(1, 2).repeat(2), 16);
+    b = parseInt(hex.slice(2, 3).repeat(2), 16);
+  } else {
+    return s;
+  }
+  if ([r, g, b].some((n) => Number.isNaN(n))) return s;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function trendCardHtml(title, subtitle, body) {
   return `
     <section class="trend-card">
@@ -1079,7 +1125,7 @@ function renderTrendStats(items, extraStats = []) {
 function renderAnnualPublicationChart(items) {
   const buckets = buildYearBuckets(items);
   if (!buckets.length) {
-    return trendCardHtml("Publications by year", "Unique studies", '<div class="trend-empty">No publication years available.</div>');
+    return trendCardHtml("Publications by year", "", '<div class="trend-empty">No publication years available.</div>');
   }
 
   const width = 280;
@@ -1095,7 +1141,9 @@ function renderAnnualPublicationChart(items) {
       const x = margin.left + index * step + (step - barWidth) / 2;
       const barHeight = (bucket.count / maxCount) * plotHeight;
       const y = margin.top + plotHeight - barHeight;
-      return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${barHeight.toFixed(2)}" rx="2" fill="#49d6c8"><title>${escapeHtml(bucket.label)}: ${bucket.count} studies</title></rect>`;
+      return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${barHeight.toFixed(2)}" rx="2" fill="${chartFillSoft(
+        "#49d6c8"
+      )}"><title>${escapeHtml(bucket.label)}: ${bucket.count} studies</title></rect>`;
     })
     .join("");
   const firstLabel = buckets[0].label;
@@ -1103,7 +1151,7 @@ function renderAnnualPublicationChart(items) {
 
   return trendCardHtml(
     "Publications by year",
-    `${yearStats(items).spanLabel} · unique studies`,
+    "",
     `
       <svg class="trend-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publications by publication year">
         <line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${width - margin.right}" y2="${margin.top + plotHeight}" class="trend-axis-line" />
@@ -1148,7 +1196,8 @@ function renderHorizontalBarChart(entries, title, subtitle) {
 function renderCompositionChart(items, field, title, options = {}) {
   let entries = sortCompositionEntries(countByField(items, field, options), field);
   if (!entries.length) {
-    return trendCardHtml(title, "Claim composition", '<div class="trend-empty">No categorized evidence.</div>');
+    const emptySubtitle = field === "result_direction" ? "" : "Claim composition";
+    return trendCardHtml(title, emptySubtitle, '<div class="trend-empty">No categorized evidence.</div>');
   }
   entries = limitCompositionEntries(entries, options.maxEntries || 6);
 
@@ -1156,23 +1205,31 @@ function renderCompositionChart(items, field, title, options = {}) {
   const segments = entries
     .map((entry, index) => {
       const width = total ? (entry.count / total) * 100 : 0;
-      return `<span style="width: ${width.toFixed(2)}%; background: ${colorForCategory(entry.label, index, field)}" title="${escapeHtml(displayFieldLabel(entry.label))}: ${entry.count}"></span>`;
+      return `<span style="width: ${width.toFixed(2)}%; background: ${chartFillSoft(
+        colorForCategory(entry.label, index, field)
+      )}" title="${escapeHtml(displayFieldLabel(entry.label))}: ${entry.count}"></span>`;
     })
     .join("");
   const legend = entries
     .map(
       (entry, index) => `
         <span class="trend-legend-item">
-          <i style="background: ${colorForCategory(entry.label, index, field)}"></i>
+          <i style="background: ${chartFillSoft(colorForCategory(entry.label, index, field))}"></i>
           ${escapeHtml(displayFieldLabel(entry.label))} <strong>${formatCompactNumber(entry.count)}</strong>
         </span>
       `
     )
     .join("");
 
+  const compositionSubtitle =
+    options.subtitle !== undefined
+      ? options.subtitle
+      : field === "result_direction"
+        ? ""
+        : "Claims";
   return trendCardHtml(
     title,
-    options.subtitle || "Claims",
+    compositionSubtitle,
     `
       <div class="trend-stack">${segments}</div>
       <div class="trend-legend">${legend}</div>
@@ -1229,12 +1286,12 @@ function renderDetailClaimCards(items) {
     </div>
   `;
 
-  return trendCardHtml("Claim cards", `${formatCompactNumber(sortedClaims.length)} claims`, body);
+  return trendCardHtml("Claim cards", "", body);
 }
 
 function renderEdgeDetail(compound, target, edgeClaims) {
   const studies = uniqueStudyCount(edgeClaims);
-  setDetailHeader(`${compound} → ${target}`, `${edgeClaims.length} claims across ${studies} studies`);
+  setDetailHeader(`${compound} → ${target}`);
 
   const primaryComposition =
     mode === "disorders"
@@ -1258,10 +1315,7 @@ function renderNodeDetail(type, name, nodeClaims) {
   const connections = summarizeConnectionEvidence(nodeClaims, connectionKey);
   const connectionLabel = type === "compound" ? (mode === "mechanistic" ? "targets" : "indications") : "compounds";
 
-  setDetailHeader(
-    `${name} (${type === "compound" ? "Compound" : rightTypeLabel})`,
-    `${nodeClaims.length} claims across ${connections.length} ${connectionLabel}`
-  );
+  setDetailHeader(`${name} (${type === "compound" ? "Compound" : rightTypeLabel})`);
 
   const composition =
     mode === "disorders"
@@ -1285,10 +1339,7 @@ function renderOverviewDetail(data) {
   const compoundEntries = summarizeConnectionEvidence(data, "compound");
   const rightEntries = summarizeConnectionEvidence(data, rightKey);
 
-  setDetailHeader(
-    `${rightLabel} Overview`,
-    `Current filtered view across ${compoundEntries.length} compounds and ${rightEntries.length} ${rightLabel.toLowerCase()}.`
-  );
+  setDetailHeader(mode === "mechanistic" ? "All targets" : "All indications");
 
   if (!data.length) {
     detailBody.innerHTML = '<div class="detail-empty">No claims match the current filters.</div>';
@@ -1850,14 +1901,6 @@ function scheduleRender() {
 }
 
 function updateModeUI() {
-  if (mode === "mechanistic") {
-    graphTitle.textContent = "Targets Graph";
-    graphSubtitle.textContent = "Compound-target links.";
-  } else {
-    graphTitle.textContent = "Indications Graph";
-    graphSubtitle.textContent = "Compound-indication links.";
-  }
-
   modeButtons.forEach((btn) => {
     const isActive = btn.dataset.mode === mode;
     btn.classList.toggle("active", isActive);
@@ -1873,7 +1916,7 @@ function switchMode(nextMode) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode());
-  setDetailHeader(defaultDetail.title, defaultDetail.subtitle);
+  setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
   scheduleRender();
 }
@@ -1962,7 +2005,7 @@ function disorderFromPayload(payload) {
 }
 
 function renderLoadError(messages) {
-  setDetailHeader("Data Load Error", "Unable to read local dataset files.");
+  setDetailHeader("Data Load Error");
   detailBody.innerHTML = `
     <div class="detail-empty">
       Start a local static server from the project root (for example: <code>python3 -m http.server</code>), then open <code>/ui/</code>.
@@ -2032,7 +2075,7 @@ async function init() {
 
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  setDetailHeader(defaultDetail.title, defaultDetail.subtitle);
+  setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
   scheduleRender();
 }
@@ -2071,7 +2114,6 @@ if (bibliographySearchInput) {
 if (fullTextOnlyToggle) {
   fullTextOnlyToggle.addEventListener("change", scheduleRender);
 }
-clearSelectionBtn.addEventListener("click", clearSelection);
 if (studiesStatCard) {
   studiesStatCard.addEventListener("click", focusBibliography);
   studiesStatCard.addEventListener("keydown", (event) => {

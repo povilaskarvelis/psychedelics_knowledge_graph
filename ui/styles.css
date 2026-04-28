@@ -12,6 +12,12 @@
   --glow: 0 0 24px rgba(241, 183, 75, 0.35);
   --kg-workspace-height: 980px;
   --header-control-height: 40px;
+  --control-surface: rgba(14, 18, 30, 0.9);
+  --control-surface-hover: rgba(20, 25, 40, 0.92);
+  --control-border: rgba(255, 255, 255, 0.09);
+  --control-border-hover: rgba(255, 255, 255, 0.13);
+  --control-active-fill: rgba(73, 214, 200, 0.15);
+  --control-active-border: rgba(73, 214, 200, 0.4);
 }
 
 * {
@@ -85,7 +91,11 @@ button {
   padding: 10px 18px;
   border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 button.small {
@@ -100,14 +110,28 @@ button.primary {
 }
 
 button.ghost {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--control-surface);
   color: var(--fg);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--control-border);
+}
+
+button.ghost:not(.active):hover {
+  background: var(--control-surface-hover);
+  border-color: var(--control-border-hover);
+}
+
+.mode-toggle button.active:hover {
+  background: rgba(73, 214, 200, 0.18);
+  border-color: rgba(73, 214, 200, 0.48);
 }
 
 button:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+button.primary:hover {
+  box-shadow: var(--glow), 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
 .hero-stats {
@@ -152,7 +176,7 @@ button:hover {
 }
 
 .content {
-  padding: 16px 8vw 80px;
+  padding: 16px 8vw 32px;
   display: grid;
   gap: 24px;
 }
@@ -168,30 +192,42 @@ button:hover {
 
 .graph-panel {
   position: relative;
+  overflow: visible;
+  --graph-column-pull: 14px;
 }
 
-.graph-panel .panel-header {
-  display: grid;
-  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
-  align-items: center;
-  column-gap: 16px;
-  row-gap: 0;
-  margin-top: 2px;
-  margin-bottom: 10px;
+.graph-column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Pull only the graph area up toward the panel edge without changing default .panel padding
+     so the indications overview stays put. */
+  margin-top: calc(-1 * var(--graph-column-pull));
 }
 
-.graph-main-header {
-  grid-column: 1;
+/* Float above the graph column without taking flex space (no extra row height).
+   Translate Y undoes graph-column-pull so toolbar inputs stay visually where they were. */
+.graph-toolbar {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: 100%;
+  margin-bottom: 20px;
+  transform: translate(-18px, calc(-10px + var(--graph-column-pull)));
+  z-index: 2;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.graph-header-controls {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
   flex-wrap: wrap;
-}
-
-.graph-title-block {
-  min-width: 180px;
+  gap: 12px clamp(22px, 3.5vw, 40px);
+  box-sizing: border-box;
 }
 
 .panel-header {
@@ -217,8 +253,8 @@ button:hover {
   height: var(--header-control-height);
   box-sizing: border-box;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--control-surface);
+  border: 1px solid var(--control-border);
 }
 
 .mode-toggle button {
@@ -226,17 +262,10 @@ button:hover {
 }
 
 .mode-toggle button.active {
-  background: rgba(73, 214, 200, 0.2);
-  border: 1px solid rgba(73, 214, 200, 0.6);
+  background: var(--control-active-fill);
+  border: 1px solid var(--control-active-border);
   color: #eafffb;
-  box-shadow: 0 0 16px rgba(73, 214, 200, 0.35);
-}
-
-.graph-header-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 48px;
-  flex-wrap: nowrap;
+  box-shadow: none;
 }
 
 .filter-toggles {
@@ -250,23 +279,29 @@ button:hover {
 .access-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 6px 10px;
+  gap: 9px;
+  height: 36px;
+  padding: 7px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--control-border);
+  background: var(--control-surface);
   color: var(--fg);
-  font-size: 0.8rem;
+  font-size: 0.825rem;
   white-space: nowrap;
   cursor: pointer;
 }
 
+.access-toggle:hover {
+  background: var(--control-surface-hover);
+  border-color: var(--control-border-hover);
+}
+
 .access-toggle input[type="checkbox"] {
   accent-color: var(--accent-2);
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   margin: 0;
+  flex-shrink: 0;
 }
 
 .year-range-inline {
@@ -284,9 +319,9 @@ button:hover {
   align-items: stretch;
   position: relative;
   border-radius: 10px;
-  border: none;
+  border: 1px solid var(--control-border);
   min-height: 32px;
-  background: rgba(8, 12, 22, 0.55);
+  background: var(--control-surface);
 }
 
 .year-range-inline span {
@@ -380,16 +415,23 @@ button:hover {
   gap: 16px;
   align-items: stretch;
   height: var(--kg-workspace-height);
+  overflow: visible;
 }
 
 .graph {
   height: 100%;
   min-height: 0;
   position: relative;
-  border-radius: 18px;
+  border-radius: 0;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(10, 16, 30, 0.6), rgba(10, 16, 30, 0.2));
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: transparent;
+  border: none;
+}
+
+.graph-column .graph {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
 }
 
 .graph-truncation-note {
@@ -425,14 +467,12 @@ button:hover {
 }
 
 .detail-header h3 {
-  margin: 0 0 4px;
+  margin: 0;
   font-family: "Space Grotesk", sans-serif;
 }
 
-.detail-header p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.9rem;
+.detail-header h3:empty {
+  display: none;
 }
 
 .detail-body {
@@ -868,7 +908,7 @@ input[type="number"] {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
   max-height: 100%;
   overflow-y: auto;
@@ -962,6 +1002,7 @@ input[type="number"] {
   line-height: 1.3;
   min-height: 2.6em;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -972,7 +1013,11 @@ input[type="number"] {
   color: var(--muted);
   font-size: 0.85rem;
   display: grid;
-  gap: 2px;
+  gap: 5px;
+}
+
+.card .card-field-label {
+  font-weight: 600;
 }
 
 .card .meta a {
@@ -1041,7 +1086,7 @@ input[type="number"] {
 }
 
 .footer {
-  padding: 24px 8vw 40px;
+  padding: 16px 8vw 28px;
   color: var(--muted);
   font-size: 0.9rem;
 }
@@ -1072,18 +1117,6 @@ input[type="number"] {
 }
 
 @media (max-width: 980px) {
-  .graph-panel .panel-header {
-    display: flex;
-  }
-
-  .graph-main-header {
-    align-items: flex-start;
-  }
-
-  .graph-header-controls {
-    flex-wrap: wrap;
-  }
-
   .hero {
     grid-template-columns: 1fr;
   }
@@ -1097,6 +1130,11 @@ input[type="number"] {
     height: auto;
   }
 
+  /* Single-column layout: no column pull; toolbar uses same offset as desktop compensation. */
+  .graph-panel {
+    --graph-column-pull: 0px;
+  }
+
   .filter-toggles {
     margin-left: 0;
   }
@@ -1106,12 +1144,17 @@ input[type="number"] {
     min-height: 420px;
   }
 
-  .graph {
+  .graph-column .graph {
+    flex: 0 0 auto;
     height: 560px;
   }
 
   .cards-panel {
     max-height: none;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

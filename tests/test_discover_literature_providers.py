@@ -3,10 +3,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from pipeline.ingest.discover_literature import (
+    DEFAULT_SEEDS,
     Seed,
     build_pubmed_query,
     enrich_rows_unpaywall,
     load_config,
+    parse_seed,
     query_variants_for_backend,
     search_crossref,
     search_openalex,
@@ -186,6 +188,29 @@ semantic_scholar:
         self.assertIn('SLC6A4[Title/Abstract]', query)
         self.assertIn('binding[Title/Abstract]', query)
 
+    def test_pubmed_disorder_query_uses_sensitive_rct_filter(self) -> None:
+        seed = Seed("psilocybin depression trial", "Psilocybin", "Major depressive disorder")
+
+        query = build_pubmed_query(seed, "disorder")
+
+        self.assertIn('"randomized controlled trial"[Publication Type]', query)
+        self.assertIn('"controlled clinical trial"[Publication Type]', query)
+        self.assertIn("randomised[Title/Abstract]", query)
+        self.assertIn("NOT (animals[MeSH Terms] NOT humans[MeSH Terms])", query)
+
+    def test_default_disorder_seeds_cover_known_gap_pairs(self) -> None:
+        seeds = [parse_seed(value) for value in DEFAULT_SEEDS["disorder"]]
+        pairs = {(seed.compound, seed.entity) for seed in seeds}
+
+        self.assertIn(("Ayahuasca", "Social anxiety disorder"), pairs)
+        self.assertIn(("Ayahuasca", "Obsessive-compulsive disorder"), pairs)
+        self.assertIn(("Ayahuasca", "Generalized anxiety disorder"), pairs)
+        self.assertIn(("Mescaline", "Major depressive disorder"), pairs)
+        self.assertIn(("5-MeO-DMT", "Major depressive disorder"), pairs)
+        self.assertIn(("LSD", "Alcohol use disorder"), pairs)
+        self.assertIn(("Ketamine", "Bipolar depression"), pairs)
+        self.assertIn(("Psilocybin", "Fibromyalgia"), pairs)
+
     def test_conservative_variants_add_pubmed_fielded_query_only(self) -> None:
         seed = Seed("MDMA SERT transporter", "MDMA", "SERT (SLC6A4)")
 
@@ -230,6 +255,42 @@ semantic_scholar:
         self.assertEqual(rows[0]["doi"], "10.3000/reference")
         self.assertEqual(rows[0]["provider"], "semantic_scholar_references")
         self.assertEqual(rows[0]["citation_source_doi"], "10.1000/source")
+
+    def test_semantic_scholar_edges_stop_after_page_cap_when_dois_are_sparse(self) -> None:
+        client = FakeClient(
+            [
+                (
+                    lambda url, params: url.endswith("/citations"),
+                    {
+                        "data": [
+                            {
+                                "citingPaper": {
+                                    "title": "Citation without DOI",
+                                    "year": 2024,
+                                    "externalIds": {},
+                                    "authors": [],
+                                }
+                            }
+                            for _ in range(5)
+                        ]
+                    },
+                )
+            ]
+        )
+
+        rows = search_semantic_scholar_edges(
+            client=client,
+            api_key="s2-key",
+            source_doi="10.1000/source",
+            seed=Seed("Source paper", "MDMA", "Post-traumatic stress disorder"),
+            direction="citations",
+            max_results=5,
+            require_doi=True,
+            max_pages=3,
+        )
+
+        self.assertEqual(rows, [])
+        self.assertEqual(len(client.calls), 3)
 
 
 if __name__ == "__main__":

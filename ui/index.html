@@ -27,8 +27,7 @@
       <div class="hero-inner">
         <h1>Psychedelics Knowledge Graph</h1>
         <p>
-          Curated claims from open-access literature across targets and
-          indications, with provenance.
+          A living map of psychedelic research, built for a future where evidence is connected, transparent, and continuously updated.
         </p>
       </div>
       <div class="hero-stats" id="stats">
@@ -59,56 +58,50 @@
 
     <main class="content">
       <section class="panel graph-panel">
-        <div class="panel-header">
-          <div class="graph-main-header">
-            <div class="graph-title-block">
-              <h2>Indications Graph</h2>
-              <p>Compound-indication links.</p>
-            </div>
-            <div class="graph-header-controls">
-              <div class="mode-toggle" role="tablist" aria-label="Graph mode">
-                <button class="ghost small active" data-mode="disorders" role="tab" aria-selected="true">
-                  Indications
-                </button>
-                <button class="ghost small" data-mode="mechanistic" role="tab" aria-selected="false">
-                  Targets
-                </button>
-              </div>
-              <div class="year-range-inline" aria-label="Year range">
-                <div class="year-field">
-                  <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
-                  <div class="year-stepper" aria-hidden="true">
-                    <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
-                    <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
-                  </div>
-                </div>
-                <span>—</span>
-                <div class="year-field">
-                  <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
-                  <div class="year-stepper" aria-hidden="true">
-                    <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
-                    <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
-                  </div>
-                </div>
-              </div>
-              <div class="filter-toggles" aria-label="Evidence filters">
-                <label class="access-toggle" for="fullTextOnlyToggle">
-                  <input id="fullTextOnlyToggle" type="checkbox" checked />
-                  <span>Full text only</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="graph-grid">
-          <div class="graph" id="graph"></div>
+          <div class="graph-column">
+            <div class="graph-toolbar">
+              <div class="graph-header-controls">
+                <div class="year-range-inline" aria-label="Year range">
+                  <div class="year-field">
+                    <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
+                    <div class="year-stepper" aria-hidden="true">
+                      <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
+                      <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
+                    </div>
+                  </div>
+                  <span>—</span>
+                  <div class="year-field">
+                    <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
+                    <div class="year-stepper" aria-hidden="true">
+                      <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
+                      <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="mode-toggle" role="tablist" aria-label="Graph mode">
+                  <button class="ghost small active" data-mode="disorders" role="tab" aria-selected="true">
+                    Indications
+                  </button>
+                  <button class="ghost small" data-mode="mechanistic" role="tab" aria-selected="false">
+                    Targets
+                  </button>
+                </div>
+                <div class="filter-toggles" aria-label="Evidence filters">
+                  <label class="access-toggle" for="fullTextOnlyToggle">
+                    <input id="fullTextOnlyToggle" type="checkbox" checked />
+                    <span>Full text only</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="graph" id="graph"></div>
+          </div>
           <aside class="graph-detail" id="graphDetail">
             <div class="detail-header">
               <div>
                 <h3>Graph Detail</h3>
-                <p>Hover or click a node or edge to inspect evidence.</p>
               </div>
-              <button class="ghost small" id="clearSelection" type="button">Clear</button>
             </div>
             <div class="detail-body" id="detailBody">
               <div class="detail-empty">No selection yet.</div>
@@ -122,7 +115,6 @@
         <div class="panel-header">
           <div>
             <h2>Claim Cards</h2>
-            <p>Each claim includes assay details and provenance.</p>
           </div>
           <div class="search">
             <input id="searchInput" type="search" placeholder="Search compounds, targets, or assays" />
@@ -135,7 +127,6 @@
         <div class="panel-header">
           <div>
             <h2>Bibliography</h2>
-            <p>Unique studies in the current filtered view.</p>
           </div>
           <div class="search">
             <input

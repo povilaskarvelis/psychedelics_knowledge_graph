@@ -9,8 +9,10 @@ outputs.
 1. **Discover**: search multiple literature sources and write DOI queues.
 2. **Sync metadata**: build the paper library from PubMed, PMC, Unpaywall,
    Crossref, and OpenAlex metadata.
-3. **Triage**: classify relevance and write triage-relevant DOI-context queues.
-4. **Acquire PDFs**: download legal OA PDFs only for triage-relevant papers.
+3. **Semantic abstract screening**: run a deterministic no-signal pre-screen,
+   then use a local LLM only to classify abstract-level relevance and
+   quote-supported compound/entity contexts for retained rows.
+4. **Acquire PDFs**: download legal OA PDFs only for screened-relevant papers.
 5. **Convert full text**: optionally convert local PDFs into reusable structured
    full-text artifacts, then repair stale locators through an accepted-review
    gate.
@@ -114,14 +116,107 @@ python pipeline/ingest/sync_paper_library.py \
 Default metadata provider order is:
 
 ```text
-pubmed, pmc, unpaywall, crossref, openalex
+pubmed, pmc, unpaywall, crossref, openalex, semantic_scholar
 ```
 
 This gives biomedical abstracts/PMCID signals first, OA/PDF resolution from
-Unpaywall, then broad metadata fallbacks.
+Unpaywall, then broad metadata fallbacks. To target missing abstracts without
+touching PDFs, rerun only missing metadata with abstract-focused providers:
 
-### 4. Triage
-Triage produces `data/raw/doi_queue.<dataset>.triage_relevant.txt`.
+```bash
+python pipeline/ingest/sync_paper_library.py \
+  --dataset mechanistic \
+  --skip-download \
+  --refresh-missing-metadata \
+  --metadata-provider-order semantic_scholar,openalex,pubmed,pmc,crossref \
+  --timeout-sec 30 \
+  --max-retry-after-sec 30 \
+  --checkpoint-every 100 \
+  --progress-every 100
+```
+
+### 4. Local LLM Abstract Screening
+Run semantic screening before PDF acquisition. The current strategy is a
+high-recall cascade: deterministic pre-screening removes obvious no-signal rows,
+then `qwen3:14b` reviews retained abstracts for relevance only. Source family,
+paper type, study design, evidence strength, and claim details are deferred to
+full-text adjudication or, when full text is unavailable, an explicit
+abstract-only evidence fallback.
+
+First run the deterministic pre-screen over the synced library:
+
+```bash
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset mechanistic \
+  --deterministic-prescreen \
+  --deterministic-prescreen-only \
+  --only-with-abstract \
+  --only-undownloaded
+
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset disorder \
+  --deterministic-prescreen \
+  --deterministic-prescreen-only \
+  --only-with-abstract \
+  --only-undownloaded
+```
+
+Then run LLM screening only on the retained DOI queue:
+
+```bash
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset mechanistic \
+  --doi-file data/raw/doi_queue.mechanistic.deterministic_prescreen_retained.txt \
+  --model qwen3:14b \
+  --only-with-abstract \
+  --continue-on-error \
+  --timeout-sec 0 \
+  --resume-from-checkpoint \
+  --num-ctx 4096
+
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset disorder \
+  --doi-file data/raw/doi_queue.disorder.deterministic_prescreen_retained.txt \
+  --model qwen3:14b \
+  --only-with-abstract \
+  --continue-on-error \
+  --timeout-sec 0 \
+  --resume-from-checkpoint \
+  --num-ctx 4096
+```
+
+Primary outputs:
+- `data/processed/deterministic_prescreen_report_<dataset>.json`
+- `data/raw/doi_queue.<dataset>.deterministic_prescreen_retained.txt`
+- `data/raw/doi_queue.<dataset>.deterministic_prescreen_excluded.txt`
+- `data/raw/doi_queue.<dataset>.llm_fulltext_candidates.txt`
+- `data/raw/doi_queue.<dataset>.llm_relevant.txt`
+- `data/raw/doi_queue.<dataset>.llm_uncertain.txt`
+
+During calibration, run small batches first with `--limit 25` and inspect the
+CSV report before treating the LLM queue as the default PDF-download gate. Rows
+skipped by the deterministic pre-screen are marked
+`screening_path=deterministic_excluded`.
+
+For relevant/uncertain papers that cannot be downloaded or converted to full
+text, run abstract-only adjudication after acquisition attempts:
+
+```bash
+python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+  --input data/processed/llm_abstract_screening_report_disorder.json \
+  --evidence-mode abstract_only \
+  --only-without-fulltext \
+  --only-with-abstract \
+  --model qwen3:14b \
+  --continue-on-error \
+  --timeout-sec 0
+```
+
+### Optional Legacy Heuristic Triage Audit
+Rule-based triage produces `data/raw/doi_queue.<dataset>.triage_relevant.txt`.
+This is no longer part of the default screening path. The abstract screener only
+loads an old triage report if you explicitly pass `--use-heuristic-audit` or
+`--triage-report-json`.
 
 ```bash
 python pipeline/review/triage_paper_library.py --dataset mechanistic
@@ -135,13 +230,13 @@ Triage is retrieval-safe by default:
   context counts
 
 ### 5. PDF Acquisition
-Download only from the triage-relevant queue.
+Download from the LLM full-text candidate queue.
 
 ```bash
 python pipeline/ingest/sync_paper_library.py \
   --dataset mechanistic \
-  --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt \
-  --metadata-provider-order pubmed,pmc,unpaywall,crossref,openalex \
+  --doi-file data/raw/doi_queue.mechanistic.llm_fulltext_candidates.txt \
+  --metadata-provider-order pubmed,pmc,unpaywall,crossref,openalex,semantic_scholar \
   --max-retries 1 \
   --max-retry-after-sec 30 \
   --timeout-sec 30 \
@@ -155,19 +250,19 @@ Europe PMC, Unpaywall, OpenAlex, and publisher/repository URLs. Use
 rerunning the full sync.
 
 ### 6. Seed Context-Level Stubs
-Generate stubs from the triage-relevant queues. Stubs are deduplicated by
+Generate stubs from the context-verified queues. Stubs are deduplicated by
 `DOI + compound + target/disorder`, not DOI alone, so multi-context papers
 produce all graph-relevant edges.
 
 ```bash
 python pipeline/ingest/seed_from_dois.py \
   --dataset mechanistic \
-  --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt \
+  --doi-file data/raw/doi_queue.mechanistic.llm_relevant.txt \
   --replace
 
 python pipeline/ingest/seed_from_dois.py \
   --dataset disorder \
-  --doi-file data/raw/doi_queue.disorder.triage_relevant.txt \
+  --doi-file data/raw/doi_queue.disorder.llm_relevant.txt \
   --replace
 ```
 
@@ -237,12 +332,14 @@ python pipeline/publish/export_graph_payload.py
 
 ## Key Outputs
 - `data/raw/doi_queue.<dataset>.discovered.txt`
-- `data/raw/doi_queue.<dataset>.triage_relevant.txt`
+- `data/raw/doi_queue.<dataset>.llm_fulltext_candidates.txt`
+- `data/raw/doi_queue.<dataset>.llm_relevant.txt`
+- `data/raw/doi_queue.<dataset>.llm_uncertain.txt`
 - `data/processed/discovery_report_<dataset>.json`
 - `data/processed/discovery_ledger_<dataset>.json`
 - `data/processed/paper_library_<dataset>.json`
 - `data/processed/paper_inventory_<dataset>.md`
-- `data/processed/triage_report_<dataset>.json`
+- `data/processed/llm_abstract_screening_report_<dataset>.json`
 - `data/processed/*_claim_stubs.json`
 - `data/processed/abstract_autofill_report_<dataset>.json`
 - `data/processed/pdf_autofill_report_<dataset>.json`

@@ -128,7 +128,6 @@ NON_PRIMARY_SOURCE_TYPES = {
     "study_protocol",
     "correction",
     "conference_abstract",
-    "case_report",
 }
 NON_PRIMARY_PAPER_TYPES = {
     "systematic_review",
@@ -136,9 +135,8 @@ NON_PRIMARY_PAPER_TYPES = {
     "review",
     "commentary",
     "protocol",
-    "erratum",
+    "correction",
     "conference_abstract",
-    "case_report",
 }
 
 

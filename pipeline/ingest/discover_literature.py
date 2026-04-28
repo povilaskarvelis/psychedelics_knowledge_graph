@@ -15,6 +15,7 @@ import json
 import os
 import random
 import re
+import signal
 import sys
 import time
 from dataclasses import dataclass
@@ -68,17 +69,29 @@ DEFAULT_SEEDS = {
         "psilocybin treatment-resistant depression randomized trial|Psilocybin|Treatment-resistant depression",
         "psilocybin major depressive disorder randomized trial|Psilocybin|Major depressive disorder",
         "ayahuasca major depressive disorder trial|Ayahuasca|Major depressive disorder",
+        "ayahuasca social anxiety disorder randomized trial|Ayahuasca|Social anxiety disorder",
+        "ayahuasca obsessive-compulsive disorder trial|Ayahuasca|Obsessive-compulsive disorder",
+        "ayahuasca generalized anxiety disorder trial|Ayahuasca|Generalized anxiety disorder",
         "ketamine treatment-resistant depression trial|Ketamine|Treatment-resistant depression",
+        "ketamine bipolar depression randomized trial|Ketamine|Bipolar depression",
         "esketamine treatment-resistant depression phase 3|S-ketamine|Treatment-resistant depression",
         "ketamine suicidal ideation randomized trial|Ketamine|Suicidal ideation",
         "MDMA post-traumatic stress disorder randomized trial|MDMA|Post-traumatic stress disorder",
         "LSD anxiety life-threatening disease trial|LSD|distress associated with life-threatening disease",
+        "LSD major depressive disorder randomized trial|LSD|Major depressive disorder",
+        "LSD generalized anxiety disorder randomized trial|LSD|Generalized anxiety disorder",
+        "LSD alcohol use disorder trial|LSD|Alcohol use disorder",
         "psilocybin cancer anxiety depression trial|Psilocybin|distress associated with life-threatening disease",
         "psilocybin generalized anxiety disorder trial|Psilocybin|Generalized anxiety disorder",
+        "psilocybin bipolar depression trial|Psilocybin|Bipolar depression",
+        "mescaline major depressive disorder clinical trial|Mescaline|Major depressive disorder",
+        "5-MeO-DMT major depressive disorder clinical trial|5-MeO-DMT|Major depressive disorder",
         "MDMA autism spectrum disorder social anxiety trial|MDMA|Autism spectrum disorder",
         "psilocybin obsessive-compulsive disorder trial|Psilocybin|Obsessive-compulsive disorder",
         "psilocybin anorexia nervosa trial|Psilocybin|Anorexia nervosa",
         "psilocybin eating disorders trial|Psilocybin|Eating disorders",
+        "psilocybin bulimia nervosa trial|Psilocybin|Bulimia nervosa",
+        "psilocybin binge eating disorder trial|Psilocybin|Binge-eating disorder",
         "psilocybin alcohol use disorder randomized trial|Psilocybin|Alcohol use disorder",
         "psilocybin tobacco use disorder trial|Psilocybin|Tobacco use disorder",
         "ibogaine opioid use disorder trial|Ibogaine|Opioid use disorder",
@@ -88,7 +101,12 @@ DEFAULT_SEEDS = {
         "psilocybin substance use disorder trial|Psilocybin|Substance use disorder",
         "psilocybin end-of-life anxiety trial|Psilocybin|distress associated with life-threatening disease",
         "LSD cluster headache trial|LSD|Cluster headache",
+        "psilocybin cluster headache trial|Psilocybin|Cluster headache",
+        "psychedelic headache disorders migraine trial||Headache disorders",
+        "psilocybin migraine headache trial|Psilocybin|Migraine",
         "ketamine chronic pain trial|Ketamine|Chronic pain",
+        "ketamine fibromyalgia randomized trial|Ketamine|Fibromyalgia",
+        "psilocybin fibromyalgia clinical trial|Psilocybin|Fibromyalgia",
     ],
 }
 
@@ -189,12 +207,16 @@ TARGET_ALIASES = {
 DISORDER_ALIASES = {
     "Treatment-resistant depression": ["treatment-resistant depression", "TRD", "resistant depression"],
     "Major depressive disorder": ["major depressive disorder", "MDD", "depression"],
+    "Bipolar depression": ["bipolar depression", "bipolar disorder", "bipolar I", "bipolar II"],
+    "Persistent depressive disorder": ["persistent depressive disorder", "dysthymia"],
     "Post-traumatic stress disorder": ["post-traumatic stress disorder", "PTSD"],
     "Alcohol use disorder": ["alcohol use disorder", "AUD", "alcohol dependence"],
     "Tobacco use disorder": ["tobacco use disorder", "smoking cessation", "nicotine dependence"],
     "Opioid use disorder": ["opioid use disorder", "opioid dependence"],
+    "Cannabis use disorder": ["cannabis use disorder", "cannabis dependence"],
     "Cocaine use disorder": ["cocaine use disorder", "cocaine dependence"],
     "Methamphetamine use disorder": ["methamphetamine use disorder", "methamphetamine dependence"],
+    "Stimulant use disorder": ["stimulant use disorder", "stimulant dependence"],
     "Substance use disorder": ["substance use disorder", "drug dependence"],
     "Generalized anxiety disorder": ["generalized anxiety disorder", "GAD"],
     "Social anxiety disorder": ["social anxiety disorder", "social anxiety"],
@@ -207,11 +229,17 @@ DISORDER_ALIASES = {
     ],
     "Obsessive-compulsive disorder": ["obsessive-compulsive disorder", "OCD"],
     "Anorexia nervosa": ["anorexia nervosa"],
-    "Eating disorders": ["eating disorder", "eating disorders"],
+    "Bulimia nervosa": ["bulimia nervosa", "bulimia"],
+    "Binge-eating disorder": ["binge-eating disorder", "binge eating disorder"],
+    "Eating disorders": ["eating disorder", "eating disorders", "disordered eating"],
     "Autism spectrum disorder": ["autism spectrum disorder", "autism", "ASD"],
+    "Demoralization": ["demoralization", "demoralisation"],
     "Suicidal ideation": ["suicidal ideation", "suicidality"],
     "Cluster headache": ["cluster headache"],
+    "Headache disorders": ["headache disorder", "headache disorders", "headache"],
+    "Migraine": ["migraine", "migraine disorder"],
     "Chronic pain": ["chronic pain"],
+    "Fibromyalgia": ["fibromyalgia"],
 }
 
 MECHANISTIC_PUBMED_TERMS = [
@@ -231,6 +259,7 @@ MECHANISTIC_PUBMED_TERMS = [
 DISORDER_PUBMED_TERMS = [
     "trial",
     "randomized",
+    "randomised",
     "clinical",
     "treatment",
     "therapy",
@@ -238,6 +267,20 @@ DISORDER_PUBMED_TERMS = [
     "phase 3",
     "outcome",
 ]
+
+COCHRANE_HIGHLY_SENSITIVE_RCT_FILTER = (
+    "("
+    '"randomized controlled trial"[Publication Type] OR '
+    '"controlled clinical trial"[Publication Type] OR '
+    "randomized[Title/Abstract] OR "
+    "randomised[Title/Abstract] OR "
+    "placebo[Title/Abstract] OR "
+    '"clinical trials as topic"[MeSH Terms] OR '
+    "randomly[Title/Abstract] OR "
+    "trial[Title] OR "
+    "groups[Title/Abstract]"
+    ") NOT (animals[MeSH Terms] NOT humans[MeSH Terms])"
+)
 
 
 @dataclass
@@ -248,11 +291,21 @@ class Seed:
 
 
 class RateLimitedHttpClient:
-    def __init__(self, rps: float, max_retries: int, timeout_sec: int = 30, user_agent: str = "kg-pipeline/0.1"):
+    def __init__(
+        self,
+        rps: float,
+        max_retries: int,
+        timeout_sec: int = 30,
+        max_retry_after_sec: int = 120,
+        hard_timeout_sec: int = 180,
+        user_agent: str = "kg-pipeline/0.1",
+    ):
         self.rps = max(0.01, rps)
         self.min_interval = 1.0 / self.rps
         self.max_retries = max_retries
         self.timeout_sec = timeout_sec
+        self.max_retry_after_sec = max(0, max_retry_after_sec)
+        self.hard_timeout_sec = max(0, hard_timeout_sec)
         self.user_agent = user_agent
         self._last_request_ts = 0.0
 
@@ -269,33 +322,57 @@ class RateLimitedHttpClient:
         if headers:
             request_headers.update(headers)
 
-        backoff = 2.5
-        for attempt in range(self.max_retries + 1):
-            self._wait_for_slot()
-            try:
-                req = Request(full_url, headers=request_headers)
-                with urlopen(req, timeout=self.timeout_sec) as response:
+        previous_alarm = None
+        previous_handler = None
+
+        def timeout_handler(_signum, _frame):
+            raise TimeoutError(f"HTTP request exceeded hard timeout of {self.hard_timeout_sec}s: {url}")
+
+        if self.hard_timeout_sec > 0 and hasattr(signal, "SIGALRM"):
+            previous_handler = signal.getsignal(signal.SIGALRM)
+            previous_alarm = signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.setitimer(signal.ITIMER_REAL, self.hard_timeout_sec)
+
+        try:
+            backoff = 2.5
+            for attempt in range(self.max_retries + 1):
+                self._wait_for_slot()
+                try:
+                    req = Request(full_url, headers=request_headers)
+                    with urlopen(req, timeout=self.timeout_sec) as response:
+                        self._last_request_ts = time.monotonic()
+                        body = response.read().decode("utf-8")
+                        return json.loads(body)
+                except HTTPError as err:
                     self._last_request_ts = time.monotonic()
-                    body = response.read().decode("utf-8")
-                    return json.loads(body)
-            except HTTPError as err:
-                self._last_request_ts = time.monotonic()
-                retryable = err.code in {429, 500, 502, 503, 504}
-                if attempt >= self.max_retries or not retryable:
-                    raise
-                retry_after = err.headers.get("Retry-After") if err.headers else None
-                if retry_after and retry_after.isdigit():
-                    delay = max(backoff, float(retry_after))
-                else:
-                    delay = backoff
-                time.sleep(delay + random.uniform(0.0, 0.35))
-                backoff *= 1.7
-            except URLError:
-                self._last_request_ts = time.monotonic()
-                if attempt >= self.max_retries:
-                    raise
-                time.sleep(backoff + random.uniform(0.0, 0.35))
-                backoff *= 1.7
+                    retryable = err.code in {429, 500, 502, 503, 504}
+                    if attempt >= self.max_retries or not retryable:
+                        raise
+                    retry_after = err.headers.get("Retry-After") if err.headers else None
+                    if retry_after and retry_after.isdigit():
+                        retry_after_sec = float(retry_after)
+                        if self.max_retry_after_sec and retry_after_sec > self.max_retry_after_sec:
+                            raise RuntimeError(
+                                f"Retry-After {retry_after_sec:.0f}s exceeds max_retry_after_sec={self.max_retry_after_sec}"
+                            ) from err
+                        delay = max(backoff, retry_after_sec)
+                    else:
+                        delay = backoff
+                    time.sleep(delay + random.uniform(0.0, 0.35))
+                    backoff *= 1.7
+                except URLError:
+                    self._last_request_ts = time.monotonic()
+                    if attempt >= self.max_retries:
+                        raise
+                    time.sleep(backoff + random.uniform(0.0, 0.35))
+                    backoff *= 1.7
+        finally:
+            if previous_handler is not None and previous_alarm is not None:
+                signal.setitimer(signal.ITIMER_REAL, 0)
+                signal.signal(signal.SIGALRM, previous_handler)
+                if previous_alarm[0] > 0:
+                    signal.setitimer(signal.ITIMER_REAL, previous_alarm[0], previous_alarm[1])
 
         raise RuntimeError("Unreachable retry state")
 
@@ -495,7 +572,7 @@ def pubmed_or_block(terms: List[str], max_terms: int = 8) -> str:
     return "(" + " OR ".join(fielded) + ")"
 
 
-def build_pubmed_query(seed: Seed, dataset: str) -> str:
+def build_pubmed_query(seed: Seed, dataset: str, include_sensitive_rct_filter: bool = True) -> str:
     if not normalize(seed.compound) or not normalize(seed.entity):
         return seed.query
 
@@ -509,6 +586,8 @@ def build_pubmed_query(seed: Seed, dataset: str) -> str:
         pubmed_or_block(entity_terms),
         pubmed_or_block(concept_terms, max_terms=12),
     ]
+    if dataset == "disorder" and include_sensitive_rct_filter:
+        blocks.append(f"({COCHRANE_HIGHLY_SENSITIVE_RCT_FILTER})")
     blocks = [block for block in blocks if block]
     return " AND ".join(blocks) if blocks else seed.query
 
@@ -530,7 +609,17 @@ def query_variants_for_backend(seed: Seed, dataset: str, backend: str, mode: str
 
     variants = [seed]
     if backend in {"pubmed", "pmc"}:
-        variants.append(Seed(query=build_pubmed_query(seed, dataset), compound=seed.compound, entity=seed.entity))
+        variants.append(
+            Seed(
+                query=build_pubmed_query(
+                    seed,
+                    dataset,
+                    include_sensitive_rct_filter=backend == "pubmed",
+                ),
+                compound=seed.compound,
+                entity=seed.entity,
+            )
+        )
     elif mode == "expanded":
         variants.append(
             Seed(
@@ -1043,6 +1132,7 @@ def search_semantic_scholar_edges(
     direction: str,
     max_results: int,
     require_doi: bool,
+    max_pages: int = 5,
 ) -> List[dict]:
     if direction not in {"references", "citations"}:
         raise ValueError(f"Unsupported Semantic Scholar edge direction: {direction}")
@@ -1054,8 +1144,9 @@ def search_semantic_scholar_edges(
     provider = f"semantic_scholar_{direction}"
     rows: List[dict] = []
     offset = 0
+    pages_seen = 0
 
-    while len(rows) < max_results:
+    while len(rows) < max_results and pages_seen < max(1, max_pages):
         page_size = min(100, max_results - len(rows))
         query = f"{direction}:DOI:{source_doi}"
         payload = client.get_json(
@@ -1067,6 +1158,7 @@ def search_semantic_scholar_edges(
             },
             headers=headers,
         )
+        pages_seen += 1
         items = payload.get("data", []) if isinstance(payload, dict) else []
         if not items:
             break
@@ -1378,6 +1470,8 @@ def enrich_rows_unpaywall(
     client: RateLimitedHttpClient,
     email: str,
     rows: List[dict],
+    progress: bool = False,
+    progress_every: int = 250,
 ) -> tuple[List[dict], List[dict]]:
     usable = usable_email(email)
     if not usable:
@@ -1385,7 +1479,8 @@ def enrich_rows_unpaywall(
 
     cache: Dict[str, dict] = {}
     errors: List[dict] = []
-    for row in rows:
+    total = len(rows)
+    for row_idx, row in enumerate(rows, start=1):
         doi = normalize_doi(row.get("doi", ""))
         if not doi:
             continue
@@ -1411,6 +1506,12 @@ def enrich_rows_unpaywall(
         row["unpaywall_best_url"] = normalize(best.get("url", "")) if isinstance(best, dict) else ""
         row["unpaywall_best_pdf_url"] = normalize(best.get("url_for_pdf", "")) if isinstance(best, dict) else ""
         row["unpaywall_checked"] = "true"
+        if progress and (row_idx == 1 or row_idx % max(1, progress_every) == 0 or row_idx == total):
+            print(
+                f"PROGRESS: unpaywall enrichment {row_idx}/{total} "
+                f"unique_dois_checked={len(cache)} errors={len(errors)}",
+                flush=True,
+            )
     return rows, errors
 
 
@@ -2021,6 +2122,15 @@ def main() -> int:
     )
     parser.add_argument("--citation-chase-max-source-dois", type=int, default=25)
     parser.add_argument("--citation-chase-max-results-per-doi", type=int, default=20)
+    parser.add_argument(
+        "--citation-chase-max-pages-per-direction",
+        type=int,
+        default=5,
+        help=(
+            "Maximum Semantic Scholar citation-edge pages to scan for each source DOI and direction. "
+            "Prevents high-citation papers with sparse DOI metadata from paging indefinitely."
+        ),
+    )
     parser.add_argument("--max-results-per-seed", type=int, default=20)
     parser.add_argument("--max-results", type=int, default=120)
     parser.add_argument("--require-doi", action="store_true", default=True)
@@ -2050,6 +2160,18 @@ def main() -> int:
         help="Skip Unpaywall enrichment even when --provider comprehensive is used",
     )
     parser.add_argument("--max-retries", type=int, default=None)
+    parser.add_argument(
+        "--max-retry-after-sec",
+        type=int,
+        default=120,
+        help="Treat larger Retry-After delays as per-request failures instead of sleeping indefinitely",
+    )
+    parser.add_argument(
+        "--http-hard-timeout-sec",
+        type=int,
+        default=180,
+        help="Hard wall-clock timeout for each provider HTTP request, including retries and retry sleeps",
+    )
     parser.add_argument("--queue-out", default="")
     parser.add_argument("--report-out", default="")
     parser.add_argument(
@@ -2169,12 +2291,50 @@ def main() -> int:
         else ROOT / "data" / "processed" / f"discovery_ledger_{args.dataset}.json"
     )
 
-    s2_client = RateLimitedHttpClient(rps=s2_rps, max_retries=max_retries, user_agent="kg-pipeline/semantic-scholar")
-    oa_client = RateLimitedHttpClient(rps=oa_rps, max_retries=max_retries, user_agent="kg-pipeline/openalex")
-    pubmed_client = RateLimitedHttpClient(rps=pubmed_rps, max_retries=max_retries, user_agent="kg-pipeline/pubmed")
-    pmc_client = RateLimitedHttpClient(rps=pmc_rps, max_retries=max_retries, user_agent="kg-pipeline/pmc")
-    crossref_client = RateLimitedHttpClient(rps=crossref_rps, max_retries=max_retries, user_agent="kg-pipeline/crossref")
-    unpaywall_client = RateLimitedHttpClient(rps=unpaywall_rps, max_retries=max_retries, user_agent="kg-pipeline/unpaywall")
+    max_retry_after_sec = max(0, args.max_retry_after_sec)
+    http_hard_timeout_sec = max(0, args.http_hard_timeout_sec)
+    s2_client = RateLimitedHttpClient(
+        rps=s2_rps,
+        max_retries=max_retries,
+        max_retry_after_sec=max_retry_after_sec,
+        hard_timeout_sec=http_hard_timeout_sec,
+        user_agent="kg-pipeline/semantic-scholar",
+    )
+    oa_client = RateLimitedHttpClient(
+        rps=oa_rps,
+        max_retries=max_retries,
+        max_retry_after_sec=max_retry_after_sec,
+        hard_timeout_sec=http_hard_timeout_sec,
+        user_agent="kg-pipeline/openalex",
+    )
+    pubmed_client = RateLimitedHttpClient(
+        rps=pubmed_rps,
+        max_retries=max_retries,
+        max_retry_after_sec=max_retry_after_sec,
+        hard_timeout_sec=http_hard_timeout_sec,
+        user_agent="kg-pipeline/pubmed",
+    )
+    pmc_client = RateLimitedHttpClient(
+        rps=pmc_rps,
+        max_retries=max_retries,
+        max_retry_after_sec=max_retry_after_sec,
+        hard_timeout_sec=http_hard_timeout_sec,
+        user_agent="kg-pipeline/pmc",
+    )
+    crossref_client = RateLimitedHttpClient(
+        rps=crossref_rps,
+        max_retries=max_retries,
+        max_retry_after_sec=max_retry_after_sec,
+        hard_timeout_sec=http_hard_timeout_sec,
+        user_agent="kg-pipeline/crossref",
+    )
+    unpaywall_client = RateLimitedHttpClient(
+        rps=unpaywall_rps,
+        max_retries=max_retries,
+        max_retry_after_sec=max_retry_after_sec,
+        hard_timeout_sec=http_hard_timeout_sec,
+        user_agent="kg-pipeline/unpaywall",
+    )
 
     all_rows: List[dict] = []
     per_seed = []
@@ -2342,6 +2502,7 @@ def main() -> int:
                         direction=direction,
                         max_results=max(0, args.citation_chase_max_results_per_doi),
                         require_doi=require_doi,
+                        max_pages=max(1, args.citation_chase_max_pages_per_direction),
                     )
                     all_rows.extend(rows)
                     citation_chase_report["raw_rows"] += len(rows)
@@ -2354,7 +2515,17 @@ def main() -> int:
                     citation_chase_report["errors"].append(error)
                     provider_errors.append({"provider": f"semantic_scholar_{direction}", "query": source_doi, "error": error["error"]})
 
+    if args.progress:
+        print(
+            f"PROGRESS: merging discovery rows raw_rows={len(all_rows)}",
+            flush=True,
+        )
     merged_all = merge_rows(all_rows)
+    if args.progress:
+        print(
+            f"PROGRESS: merged discovery rows merged_rows={len(merged_all)}",
+            flush=True,
+        )
     if args.disable_protected_retention:
         merged = merged_all[: args.max_results] if args.max_results > 0 else merged_all
         retention_report = {
@@ -2368,22 +2539,37 @@ def main() -> int:
         }
         protected_sources: Dict[str, List[dict]] = {}
     else:
+        if args.progress:
+            print("PROGRESS: loading protected retention sources", flush=True)
         protected_sources = protected_sources_for_dataset(args.dataset, benchmark_manifest)
         merged, retention_report = apply_protected_retention(
             rows=merged_all,
             max_results=args.max_results,
             protected_sources=protected_sources,
         )
+        if args.progress:
+            print(
+                f"PROGRESS: protected retention complete retained_rows={len(merged)} "
+                f"protected_available={retention_report.get('protected_dois_available', 0)}",
+                flush=True,
+            )
 
     enrich_unpaywall = (args.enrich_unpaywall or args.provider == "comprehensive") and not args.skip_unpaywall_enrichment
     unpaywall_errors: List[dict] = []
     if enrich_unpaywall:
+        if args.progress:
+            print(f"PROGRESS: unpaywall enrichment starting rows={len(merged)}", flush=True)
         merged, unpaywall_errors = enrich_rows_unpaywall(
             client=unpaywall_client,
             email=unpaywall_email,
             rows=merged,
+            progress=args.progress,
         )
+    elif args.progress:
+        print("PROGRESS: unpaywall enrichment skipped", flush=True)
 
+    if args.progress:
+        print(f"PROGRESS: writing discovery outputs retained_rows={len(merged)}", flush=True)
     write_queue(queue_out, merged, args.dataset)
     provider_counts = Counter(normalize(row.get("provider", "")) for row in all_rows)
     merged_provider_counts = Counter(
@@ -2424,6 +2610,7 @@ def main() -> int:
             "citation_chase_directions": args.citation_chase_directions,
             "citation_chase_max_source_dois": args.citation_chase_max_source_dois,
             "citation_chase_max_results_per_doi": args.citation_chase_max_results_per_doi,
+            "citation_chase_max_pages_per_direction": args.citation_chase_max_pages_per_direction,
             "disable_protected_retention": args.disable_protected_retention,
         },
         "counts": {
@@ -2461,6 +2648,8 @@ def main() -> int:
             "crossref_rps": crossref_rps,
             "unpaywall_rps": unpaywall_rps,
             "max_retries": max_retries,
+            "max_retry_after_sec": max_retry_after_sec,
+            "http_hard_timeout_sec": http_hard_timeout_sec,
             "max_results_per_seed": args.max_results_per_seed,
             "max_results": args.max_results,
             "expand_seeds_from_config": args.expand_seeds_from_config,
@@ -2479,6 +2668,7 @@ def main() -> int:
             "citation_chase_directions": args.citation_chase_directions,
             "citation_chase_max_source_dois": args.citation_chase_max_source_dois,
             "citation_chase_max_results_per_doi": args.citation_chase_max_results_per_doi,
+            "citation_chase_max_pages_per_direction": args.citation_chase_max_pages_per_direction,
             "enrich_unpaywall": enrich_unpaywall,
             "skip_unpaywall_enrichment": args.skip_unpaywall_enrichment,
             "unpaywall_email_configured": bool(usable_email(unpaywall_email)),

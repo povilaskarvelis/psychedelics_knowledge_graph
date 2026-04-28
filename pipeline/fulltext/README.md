@@ -175,6 +175,19 @@ Evidence triage is separate from locator repair. A row can legitimately have
 primary-study claim, such as a review, protocol, commentary, erratum, conference
 abstract, or case report.
 
+The triage taxonomy separates source family from evidence strength:
+
+- `original_empirical`: original data, including trials, observational studies,
+  preclinical assays, case reports, and case series.
+- `evidence_synthesis`: systematic reviews, meta-analyses, and narrative reviews.
+- `opinion_or_commentary`: editorials, letters, perspectives, critiques.
+- `protocol`: planned study/protocol without outcome results.
+- `correction`: errata/corrigenda/retractions.
+- `conference_abstract`: abstract-only meeting reports.
+
+Case reports are therefore not treated as synthesis/commentary. They are
+`original_empirical` with low evidence strength.
+
 Build the deterministic triage report:
 
 ```bash
@@ -222,9 +235,77 @@ Outputs:
 The sample includes:
 
 - `targeted_rule_qa`: uncertain rows, stratified by predicted class.
-- `auto_triage_audit`: already auto-triaged non-primary rows, for false-positive checks.
-- `primary_control`: rows kept as primary evidence, for false-negative checks.
+- `auto_triage_audit`: already auto-triaged non-empirical rows, for false-positive checks.
+- `primary_control`: rows kept as original empirical evidence, for false-negative checks.
 
 The CSV has blank quality-check columns such as `correct_classification`,
 `correct_primary_vs_non_primary`, and `review_notes`. Use this to estimate rule
 accuracy and decide which deterministic rules can be safely tightened next.
+
+## Local LLM Evidence Adjudication
+
+Run a local Ollama model over the QA sample to get semantic source-type,
+claim-support, locator, and variable-extraction proposals:
+
+```bash
+python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+  --model qwen3:14b \
+  --limit 10
+```
+
+If the model is not installed yet:
+
+```bash
+ollama pull qwen3:14b
+```
+
+For a quick smoke test with an already installed smaller model:
+
+```bash
+python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+  --model llama3.1:8b \
+  --limit 1
+```
+
+Outputs:
+
+- `data/processed/fulltext/local_llm_evidence_adjudication.json`
+- `data/processed/fulltext/local_llm_evidence_adjudication.csv`
+
+This stage is non-destructive. It supplies bounded GROBID evidence chunks to
+the model, asks for JSON matching a fixed schema, and records whether the
+model's `supporting_quote` is actually present in the supplied chunks. Treat
+LLM results as proposals until quote verification and QA metrics are acceptable.
+Rows are only marked `semantic_auto_eligible` when the quote verifies, model
+confidence exceeds the configured threshold, labels are internally consistent,
+and the model does not request a human check.
+
+### Abstract-Only Evidence Fallback
+
+For relevant/uncertain papers whose full text cannot be downloaded or converted,
+run the same adjudication schema in abstract-only mode. This is separate from
+abstract screening: screening only decides relevance, while this fallback
+extracts source/provenance and study variables that are explicitly stated in the
+abstract.
+
+```bash
+python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+  --input data/processed/llm_abstract_screening_report_disorder.json \
+  --evidence-mode abstract_only \
+  --only-without-fulltext \
+  --only-with-abstract \
+  --model qwen3:14b \
+  --continue-on-error \
+  --timeout-sec 0
+```
+
+Outputs default to:
+
+- `data/processed/fulltext/local_llm_abstract_only_adjudication.json`
+- `data/processed/fulltext/local_llm_abstract_only_adjudication.csv`
+
+When the input is an abstract-screening report, verified compound/entity
+contexts are expanded into claim-level adjudication rows. Rows are marked with
+`evidence_mode=abstract_only`; the prompt requires `best_evidence_location` to
+be `abstract` or `none` and tells the model to use `not_reported` for details
+not explicitly present in the abstract.

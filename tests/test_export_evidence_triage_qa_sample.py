@@ -32,7 +32,7 @@ class ExportEvidenceTriageQaSampleTest(unittest.TestCase):
             {
                 "row_index": 20,
                 "study_doi": "10.1000/audit",
-                "action": "keep_non_primary",
+                "action": "keep_non_empirical",
                 "automation_status": "already_classified",
                 "classification": "systematic_review",
                 "confidence": 0.9,
@@ -42,7 +42,7 @@ class ExportEvidenceTriageQaSampleTest(unittest.TestCase):
             {
                 "row_index": 21,
                 "study_doi": "10.1000/primary",
-                "action": "keep_primary",
+                "action": "keep_original_empirical",
                 "automation_status": "no_change",
                 "classification": "primary_study",
                 "confidence": 0.8,
