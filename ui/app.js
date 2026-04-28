@@ -1311,11 +1311,10 @@ function renderEdgeDetail(compound, target, edgeClaims) {
 function renderNodeDetail(type, name, nodeClaims) {
   const rightKey = mode === "mechanistic" ? "target" : "disorder";
   const connectionKey = type === "compound" ? rightKey : "compound";
-  const rightTypeLabel = mode === "mechanistic" ? "Target" : "Indication";
   const connections = summarizeConnectionEvidence(nodeClaims, connectionKey);
   const connectionLabel = type === "compound" ? (mode === "mechanistic" ? "targets" : "indications") : "compounds";
 
-  setDetailHeader(`${name} (${type === "compound" ? "Compound" : rightTypeLabel})`);
+  setDetailHeader(name);
 
   const composition =
     mode === "disorders"
