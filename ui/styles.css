@@ -12,10 +12,10 @@
   --glow: 0 0 24px rgba(241, 183, 75, 0.35);
   --kg-workspace-height: 980px;
   --header-control-height: 40px;
-  --control-surface: rgba(14, 18, 30, 0.9);
-  --control-surface-hover: rgba(20, 25, 40, 0.92);
-  --control-border: rgba(255, 255, 255, 0.09);
-  --control-border-hover: rgba(255, 255, 255, 0.13);
+  --control-surface: rgba(8, 12, 22, 0.35);
+  --control-surface-hover: rgba(255, 255, 255, 0.06);
+  --control-border: rgba(255, 255, 255, 0.234);
+  --control-border-hover: rgba(255, 255, 255, 0.273);
   --control-active-fill: rgba(73, 214, 200, 0.15);
   --control-active-border: rgba(73, 214, 200, 0.4);
 }
@@ -193,7 +193,6 @@ button.primary:hover {
 .graph-panel {
   position: relative;
   overflow: visible;
-  --graph-column-pull: 14px;
 }
 
 .graph-column {
@@ -201,32 +200,29 @@ button.primary:hover {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  /* Pull only the graph area up toward the panel edge without changing default .panel padding
-     so the indications overview stays put. */
-  margin-top: calc(-1 * var(--graph-column-pull));
+  gap: 0;
 }
 
-/* Float above the graph column without taking flex space (no extra row height).
-   Translate Y undoes graph-column-pull so toolbar inputs stay visually where they were. */
+/* Layout-only wrapper: controls sit directly on the panel surface (no nested strip). */
 .graph-toolbar {
-  position: absolute;
-  left: 0;
+  position: relative;
+  flex-shrink: 0;
   width: 100%;
-  bottom: 100%;
-  margin-bottom: 20px;
-  transform: translate(-18px, calc(-10px + var(--graph-column-pull)));
-  z-index: 2;
   box-sizing: border-box;
-  pointer-events: auto;
+  z-index: 2;
+  padding: 0 clamp(16px, 5vw, 40px) 0 clamp(24px, 5.5vw, 72px);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .graph-header-controls {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  gap: 12px clamp(22px, 3.5vw, 40px);
+  gap: 6px clamp(44px, 7.5vw, 88px);
   box-sizing: border-box;
 }
 
@@ -432,6 +428,7 @@ button.primary:hover {
   flex: 1 1 auto;
   min-height: 0;
   height: auto;
+  margin-top: -6px;
 }
 
 .graph-truncation-note {
@@ -1128,11 +1125,6 @@ input[type="number"] {
   .graph-grid {
     grid-template-columns: 1fr;
     height: auto;
-  }
-
-  /* Single-column layout: no column pull; toolbar uses same offset as desktop compensation. */
-  .graph-panel {
-    --graph-column-pull: 0px;
   }
 
   .filter-toggles {
