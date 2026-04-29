@@ -14,7 +14,7 @@
   --header-control-height: 40px;
   --control-surface: rgba(8, 12, 22, 0.35);
   --control-surface-hover: rgba(255, 255, 255, 0.06);
-  --control-border: rgba(255, 255, 255, 0.152);
+  --control-border: rgba(255, 255, 255, 0.165);
   --control-border-hover: rgba(255, 255, 255, 0.273);
   --control-active-fill: rgba(73, 214, 200, 0.15);
   --control-active-border: rgba(73, 214, 200, 0.4);

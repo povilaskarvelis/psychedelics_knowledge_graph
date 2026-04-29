@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toolbar palette preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --fg: #e8eefc;
+        --muted: #9aa4bf;
+        --accent-2: #49d6c8;
+        --card: rgba(16, 22, 38, 0.85);
+        --stroke: rgba(255, 255, 255, 0.08);
+        --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", sans-serif;
+        color: var(--fg);
+        background: var(--bg);
+        min-height: 100vh;
+      }
+      .bg {
+        position: fixed; inset: 0; z-index: -2;
+        background:
+          radial-gradient(circle at 15% 20%, rgba(73, 214, 200, 0.25), transparent 40%),
+          radial-gradient(circle at 85% 15%, rgba(241, 183, 75, 0.25), transparent 35%),
+          radial-gradient(circle at 60% 85%, rgba(239, 108, 154, 0.25), transparent 45%),
+          linear-gradient(160deg, #0b0f1a 0%, #111b30 50%, #0f1729 100%);
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 48px 6vw 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.6rem;
+        margin: 0;
+      }
+      .legend {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+      .label {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: var(--fg);
+        margin: 0 0 10px 4px;
+        opacity: 0.85;
+      }
+      .label small {
+        font-family: "IBM Plex Sans", sans-serif;
+        font-weight: 400;
+        color: var(--muted);
+        margin-left: 8px;
+      }
+
+      /* Mock graph area to make context realistic. */
+      .graph-mock {
+        height: 220px;
+        margin-top: 3px;
+        border-radius: 14px;
+        background:
+          radial-gradient(circle at 30% 60%, rgba(73,214,200,0.28), transparent 55%),
+          radial-gradient(circle at 75% 35%, rgba(241,183,75,0.22), transparent 55%),
+          rgba(0,0,0,0.18);
+      }
+
+      /* Shared toolbar shape. */
+      .graph-toolbar {
+        position: relative;
+        width: 100%;
+        padding: 8px clamp(16px, 5vw, 40px) 10px clamp(24px, 5.5vw, 72px);
+        border-radius: 16px;
+      }
+      .graph-header-controls {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 12px clamp(22px, 3.5vw, 40px);
+      }
+
+      /* ----------- shared control geometry (matches app) ----------- */
+      .year-range-inline {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 0; height: auto; border: none; background: transparent;
+      }
+      .year-field {
+        display: inline-flex; align-items: stretch; position: relative;
+        border-radius: 10px; min-height: 32px;
+      }
+      .year-range-inline span {
+        color: rgba(232,238,252,0.88);
+        font-size: 0.86rem; font-weight: 700;
+        letter-spacing: 0.02em; min-width: 12px; text-align: center;
+      }
+      .year-range-inline input[type="number"] {
+        appearance: textfield; -moz-appearance: textfield;
+        width: 82px; min-width: 0; height: 32px;
+        padding: 3px 18px 3px 9px; border-radius: 0;
+        font-size: 0.84rem; text-align: center;
+        border: none; background: transparent; color: var(--fg);
+      }
+      .mode-toggle {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 4px; height: 40px; border-radius: 999px;
+      }
+      .mode-toggle button {
+        font: inherit; cursor: pointer;
+        padding: 6px 12px; font-size: 0.82rem;
+        border-radius: 999px;
+        color: var(--fg);
+      }
+      .mode-toggle button.active {
+        background: rgba(73,214,200,0.15);
+        border: 1px solid rgba(73,214,200,0.4);
+        color: #eafffb;
+      }
+      .access-toggle {
+        display: inline-flex; align-items: center; gap: 9px;
+        height: 36px; padding: 7px 12px; border-radius: 999px;
+        color: var(--fg); font-size: 0.825rem; white-space: nowrap;
+        cursor: pointer;
+      }
+      .access-toggle input[type="checkbox"] {
+        accent-color: var(--accent-2); width: 14px; height: 14px; margin: 0;
+      }
+
+      /* =========================================================
+         OPTION A — Subtle elevation
+         panel  < toolbar (a hair lighter)  < controls (lightest)
+         ========================================================= */
+      .opt-a .graph-toolbar {
+        background: rgba(28, 36, 56, 0.55);
+        border: 1px solid rgba(255,255,255,0.04);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      }
+      .opt-a .year-field,
+      .opt-a .mode-toggle,
+      .opt-a .access-toggle,
+      .opt-a .mode-toggle button:not(.active) {
+        background: rgba(46, 56, 80, 0.7);
+        border: 1px solid rgba(255,255,255,0.10);
+      }
+      .opt-a .mode-toggle button:not(.active) { border-color: transparent; background: transparent; }
+
+      /* =========================================================
+         OPTION B — Glass strip
+         toolbar = soft white tint, controls = glass chips
+         ========================================================= */
+      .opt-b .graph-toolbar {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+        backdrop-filter: blur(10px);
+      }
+      .opt-b .year-field,
+      .opt-b .mode-toggle,
+      .opt-b .access-toggle {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255,255,255,0.14);
+        backdrop-filter: blur(8px);
+      }
+      .opt-b .mode-toggle button:not(.active) { background: transparent; border-color: transparent; }
+
+      /* =========================================================
+         OPTION C — Sunken instrument well
+         toolbar darker than panel, controls pop lighter on top
+         ========================================================= */
+      .opt-c .graph-toolbar {
+        background: rgba(7, 11, 22, 0.78);
+        border: 1px solid rgba(0,0,0,0.4);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.04),
+          inset 0 -1px 0 rgba(255,255,255,0.03);
+      }
+      .opt-c .year-field,
+      .opt-c .mode-toggle,
+      .opt-c .access-toggle {
+        background: rgba(40, 50, 72, 0.92);
+        border: 1px solid rgba(255,255,255,0.12);
+      }
+      .opt-c .mode-toggle button:not(.active) { background: transparent; border-color: transparent; }
+    </style>
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+    <main>
+      <header>
+        <h1>Toolbar palette preview</h1>
+        <p class="legend">
+          Same controls, three palettes. The dark navy card behind each toolbar mimics the real
+          <code>.panel</code>; the gradient bar below each toolbar stands in for the graph canvas.
+        </p>
+      </header>
+
+      <!-- A -->
+      <div class="panel opt-a">
+        <p class="label">Option A — Subtle elevation <small>panel &lt; toolbar &lt; controls</small></p>
+        <div class="graph-toolbar">
+          <div class="graph-header-controls">
+            <div class="year-range-inline">
+              <div class="year-field"><input type="number" placeholder="From" value="1960" /></div>
+              <span>—</span>
+              <div class="year-field"><input type="number" placeholder="To" value="2026" /></div>
+            </div>
+            <div class="mode-toggle">
+              <button class="active">Indications</button>
+              <button>Targets</button>
+            </div>
+            <label class="access-toggle">
+              <input type="checkbox" checked />
+              <span>Full text only</span>
+            </label>
+          </div>
+        </div>
+        <div class="graph-mock"></div>
+      </div>
+
+      <!-- B -->
+      <div class="panel opt-b">
+        <p class="label">Option B — Glass strip <small>airy white-tint</small></p>
+        <div class="graph-toolbar">
+          <div class="graph-header-controls">
+            <div class="year-range-inline">
+              <div class="year-field"><input type="number" placeholder="From" value="1960" /></div>
+              <span>—</span>
+              <div class="year-field"><input type="number" placeholder="To" value="2026" /></div>
+            </div>
+            <div class="mode-toggle">
+              <button class="active">Indications</button>
+              <button>Targets</button>
+            </div>
+            <label class="access-toggle">
+              <input type="checkbox" checked />
+              <span>Full text only</span>
+            </label>
+          </div>
+        </div>
+        <div class="graph-mock"></div>
+      </div>
+
+      <!-- C -->
+      <div class="panel opt-c">
+        <p class="label">Option C — Sunken instrument well <small>toolbar darker, controls pop forward</small></p>
+        <div class="graph-toolbar">
+          <div class="graph-header-controls">
+            <div class="year-range-inline">
+              <div class="year-field"><input type="number" placeholder="From" value="1960" /></div>
+              <span>—</span>
+              <div class="year-field"><input type="number" placeholder="To" value="2026" /></div>
+            </div>
+            <div class="mode-toggle">
+              <button class="active">Indications</button>
+              <button>Targets</button>
+            </div>
+            <label class="access-toggle">
+              <input type="checkbox" checked />
+              <span>Full text only</span>
+            </label>
+          </div>
+        </div>
+        <div class="graph-mock"></div>
+      </div>
+    </main>
+  </body>
+</html>
