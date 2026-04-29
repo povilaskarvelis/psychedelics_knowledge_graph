@@ -919,15 +919,24 @@ input[type="number"] {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 320px;
-  max-height: 640px;
+  max-height: min(78vh, 960px);
 }
 
 .study-list {
   display: grid;
   gap: 12px;
-  max-height: 440px;
+  max-height: min(65vh, 900px);
   overflow: auto;
   padding-right: 6px;
+}
+
+/* Sentinel nodes for progressive list loading (IntersectionObserver). */
+.cards-load-sentinel,
+.bibliography-load-sentinel {
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
 }
 
 .study-item {

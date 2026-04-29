@@ -27,8 +27,11 @@ const stats = {
 
 const evidenceRank = { low: 1, medium: 2, high: 3 };
 const MAX_GRAPH_EDGES = 500;
-const MAX_CARDS_RENDER = 250;
-const MAX_BIBLIOGRAPHY_RENDER = 300;
+/** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
+const LIST_CHUNK_SIZE = 120;
+
+let cardsLoadObserver = null;
+let bibliographyLoadObserver = null;
 const GRAPH_COLOR_STOPS = [
   { r: 73, g: 214, b: 200 },
   { r: 119, g: 217, b: 141 },
@@ -626,79 +629,65 @@ function selectionIsValid(data) {
   return false;
 }
 
-function renderCards(data) {
-  const searchValue = normalizeValue(searchInput?.value);
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
-  const cardData = !searchValue
-    ? data
-    : data.filter((claim) => {
-        const haystack = [
-          claim.compound,
-          claim[rightKey],
-          claim.assay_type,
-          claim.study_title,
-          claim.affinity_type,
-          claim.outcome_type,
-          claim.result_direction,
-          claim.paper_type,
-          claimAuthors(claim),
-          claim.study_doi,
-          claim.openalex_id,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(searchValue);
-      });
+function disconnectCardsLoadObserver() {
+  if (cardsLoadObserver) {
+    cardsLoadObserver.disconnect();
+    cardsLoadObserver = null;
+  }
+}
 
-  cardsEl.innerHTML = "";
+function disconnectBibliographyLoadObserver() {
+  if (bibliographyLoadObserver) {
+    bibliographyLoadObserver.disconnect();
+    bibliographyLoadObserver = null;
+  }
+}
 
-  const rows = cardData.slice(0, MAX_CARDS_RENDER);
-  rows.forEach((claim) => {
-    const card = document.createElement("div");
-    card.className = "card";
+function createClaimCardElement(claim) {
+  const card = document.createElement("div");
+  card.className = "card";
 
-    const badges = claimBadgeHtml(claim);
+  const badges = claimBadgeHtml(claim);
 
-    const doiHref = doiUrl(claim.study_doi);
-    const sourceLine = doiHref
+  const doiHref = doiUrl(claim.study_doi);
+  const sourceLine = doiHref
+    ? claimFieldLine(
+        "DOI",
+        `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          claim.study_doi
+        )}</a>`
+      )
+    : claim.openalex_id
+      ? claimFieldLine("OpenAlex", escapeHtml(String(claim.openalex_id)))
+      : "";
+
+  const relation = mode === "mechanistic" ? `${claim.compound} → ${claim.target}` : `${claim.compound} → ${claim.disorder}`;
+  const authors = claimAuthors(claim);
+
+  const affinityValueInner = [
+    claim.affinity_value != null && String(claim.affinity_value).trim() !== ""
+      ? escapeHtml(String(claim.affinity_value))
+      : "",
+    claim.affinity_unit ? escapeHtml(String(claim.affinity_unit)) : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const outcomeLine =
+    mode === "disorders"
       ? claimFieldLine(
-          "DOI",
-          `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-            claim.study_doi
-          )}</a>`
+          "Outcome",
+          `${escapeHtml(claim.outcome_type || "reported")}${
+            claim.outcome_measure ? ` • ${escapeHtml(claim.outcome_measure)}` : ""
+          }`
         )
-      : claim.openalex_id
-        ? claimFieldLine("OpenAlex", escapeHtml(String(claim.openalex_id)))
-        : "";
+      : "";
+  const directionLine =
+    mode === "disorders"
+      ? claimFieldLine("Direction", escapeHtml(resultDirectionLabel(claim.result_direction)))
+      : "";
 
-    const relation = mode === "mechanistic" ? `${claim.compound} → ${claim.target}` : `${claim.compound} → ${claim.disorder}`;
-    const authors = claimAuthors(claim);
-
-    const affinityValueInner = [
-      claim.affinity_value != null && String(claim.affinity_value).trim() !== ""
-        ? escapeHtml(String(claim.affinity_value))
-        : "",
-      claim.affinity_unit ? escapeHtml(String(claim.affinity_unit)) : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-    const outcomeLine =
-      mode === "disorders"
-        ? claimFieldLine(
-            "Outcome",
-            `${escapeHtml(claim.outcome_type || "reported")}${
-              claim.outcome_measure ? ` • ${escapeHtml(claim.outcome_measure)}` : ""
-            }`
-          )
-        : "";
-    const directionLine =
-      mode === "disorders"
-        ? claimFieldLine("Direction", escapeHtml(resultDirectionLabel(claim.result_direction)))
-        : "";
-
-    card.innerHTML = `
+  card.innerHTML = `
       <div class="card-header">
         <h3>${relation}</h3>
         <div class="badge-row">${badges}</div>
@@ -726,15 +715,79 @@ function renderCards(data) {
       </div>
     `;
 
-    cardsEl.appendChild(card);
-  });
+  return card;
+}
 
-  if (cardData.length > rows.length) {
-    const note = document.createElement("div");
-    note.className = "detail-empty";
-    note.textContent = `Showing ${rows.length} of ${cardData.length} claim cards. Filter to narrow further.`;
-    cardsEl.appendChild(note);
+function renderCards(data) {
+  const searchValue = normalizeValue(searchInput?.value);
+  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const cardData = !searchValue
+    ? data
+    : data.filter((claim) => {
+        const haystack = [
+          claim.compound,
+          claim[rightKey],
+          claim.assay_type,
+          claim.study_title,
+          claim.affinity_type,
+          claim.outcome_type,
+          claim.result_direction,
+          claim.paper_type,
+          claimAuthors(claim),
+          claim.study_doi,
+          claim.openalex_id,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(searchValue);
+      });
+
+  disconnectCardsLoadObserver();
+  cardsEl.innerHTML = "";
+
+  if (!cardData.length) {
+    return;
   }
+
+  let rendered = 0;
+
+  function appendCardsChunk() {
+    const end = Math.min(rendered + LIST_CHUNK_SIZE, cardData.length);
+    for (let i = rendered; i < end; i += 1) {
+      cardsEl.appendChild(createClaimCardElement(cardData[i]));
+    }
+    rendered = end;
+  }
+
+  function removeCardsSentinel() {
+    cardsEl.querySelector(".cards-load-sentinel")?.remove();
+  }
+
+  function attachCardsSentinelIfNeeded() {
+    disconnectCardsLoadObserver();
+    removeCardsSentinel();
+    if (rendered >= cardData.length) return;
+
+    const sentinel = document.createElement("div");
+    sentinel.className = "cards-load-sentinel";
+    sentinel.setAttribute("aria-hidden", "true");
+    cardsEl.appendChild(sentinel);
+
+    cardsLoadObserver = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        disconnectCardsLoadObserver();
+        appendCardsChunk();
+        attachCardsSentinelIfNeeded();
+      },
+      { root: cardsEl, rootMargin: "360px", threshold: 0 }
+    );
+    cardsLoadObserver.observe(sentinel);
+  }
+
+  appendCardsChunk();
+  attachCardsSentinelIfNeeded();
 }
 
 function renderBibliography(data) {
@@ -810,21 +863,23 @@ function renderBibliography(data) {
       });
 
   if (!filteredRows.length) {
+    disconnectBibliographyLoadObserver();
     studyListEl.innerHTML = '<div class="detail-empty">No studies in the current view.</div>';
     return;
   }
 
-  const visibleRows = filteredRows.slice(0, MAX_BIBLIOGRAPHY_RENDER);
-  studyListEl.innerHTML = visibleRows
-    .map((entry) => {
-      const doiLink = entry.doi
-        ? `<a href="https://doi.org/${encodeURI(entry.doi)}" target="_blank" rel="noopener noreferrer">${entry.doi}</a>`
-        : "";
-      const openAlexLink = entry.openalexId
-        ? `<a href="${openAlexUrl(entry.openalexId)}" target="_blank" rel="noopener noreferrer">${entry.openalexId}</a>`
-        : "";
+  disconnectBibliographyLoadObserver();
+  studyListEl.innerHTML = "";
 
-      return `
+  function studyArticleHtml(entry) {
+    const doiLink = entry.doi
+      ? `<a href="https://doi.org/${encodeURI(entry.doi)}" target="_blank" rel="noopener noreferrer">${entry.doi}</a>`
+      : "";
+    const openAlexLink = entry.openalexId
+      ? `<a href="${openAlexUrl(entry.openalexId)}" target="_blank" rel="noopener noreferrer">${entry.openalexId}</a>`
+      : "";
+
+    return `
         <article class="study-item">
           <h3>${entry.title}${entry.year ? ` (${entry.year})` : ""}</h3>
           <div class="meta">
@@ -839,15 +894,46 @@ function renderBibliography(data) {
           </div>
         </article>
       `;
-    })
-    .join("");
-
-  if (filteredRows.length > visibleRows.length) {
-    const note = document.createElement("div");
-    note.className = "detail-empty";
-    note.textContent = `Showing ${visibleRows.length} of ${filteredRows.length} studies. Filter to narrow further.`;
-    studyListEl.appendChild(note);
   }
+
+  let bibliographyRendered = 0;
+
+  function appendBibliographyChunk() {
+    const end = Math.min(bibliographyRendered + LIST_CHUNK_SIZE, filteredRows.length);
+    const slice = filteredRows.slice(bibliographyRendered, end);
+    bibliographyRendered = end;
+    const html = slice.map((entry) => studyArticleHtml(entry)).join("");
+    studyListEl.insertAdjacentHTML("beforeend", html);
+  }
+
+  function removeBibliographySentinel() {
+    studyListEl.querySelector(".bibliography-load-sentinel")?.remove();
+  }
+
+  function attachBibliographySentinelIfNeeded() {
+    disconnectBibliographyLoadObserver();
+    removeBibliographySentinel();
+    if (bibliographyRendered >= filteredRows.length) return;
+
+    const sentinel = document.createElement("div");
+    sentinel.className = "bibliography-load-sentinel";
+    sentinel.setAttribute("aria-hidden", "true");
+    studyListEl.appendChild(sentinel);
+
+    bibliographyLoadObserver = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        disconnectBibliographyLoadObserver();
+        appendBibliographyChunk();
+        attachBibliographySentinelIfNeeded();
+      },
+      { root: studyListEl, rootMargin: "360px", threshold: 0 }
+    );
+    bibliographyLoadObserver.observe(sentinel);
+  }
+
+  appendBibliographyChunk();
+  attachBibliographySentinelIfNeeded();
 }
 
 function focusBibliography() {
@@ -950,13 +1036,6 @@ function yearStats(items) {
   };
 }
 
-function bucketStepForYears(minYear, maxYear) {
-  const span = maxYear - minYear + 1;
-  if (span > 28) return 5;
-  if (span > 16) return 2;
-  return 1;
-}
-
 function buildYearBuckets(items) {
   const entries = uniqueStudyEntries(items).filter((entry) => entry.year !== null);
   if (!entries.length) return [];
@@ -964,7 +1043,7 @@ function buildYearBuckets(items) {
   const years = entries.map((entry) => entry.year);
   const minYear = Math.min(...years);
   const maxYear = Math.max(...years);
-  const step = bucketStepForYears(minYear, maxYear);
+  const step = 1;
   const startYear = Math.floor(minYear / step) * step;
   const buckets = [];
 
@@ -1125,7 +1204,7 @@ function renderTrendStats(items, extraStats = []) {
 function renderAnnualPublicationChart(items) {
   const buckets = buildYearBuckets(items);
   if (!buckets.length) {
-    return trendCardHtml("Publications by year", "", '<div class="trend-empty">No publication years available.</div>');
+    return trendCardHtml("Publications per year", "", '<div class="trend-empty">No publication years available.</div>');
   }
 
   const width = 280;
@@ -1150,10 +1229,10 @@ function renderAnnualPublicationChart(items) {
   const lastLabel = buckets[buckets.length - 1].label;
 
   return trendCardHtml(
-    "Publications by year",
+    "Publications per year",
     "",
     `
-      <svg class="trend-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publications by publication year">
+      <svg class="trend-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publications per year">
         <line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${width - margin.right}" y2="${margin.top + plotHeight}" class="trend-axis-line" />
         <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotHeight}" class="trend-axis-line faint" />
         ${bars}
