@@ -51,6 +51,41 @@ DATASET_CONFIG = {
 }
 
 VIEW_NAMES = ("all_evidence", "primary_only")
+PAPER_METADATA_FIELDS = (
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "mesh_terms",
+    "keywords",
+    "funders",
+    "grant_ids",
+    "related_dois",
+    "publication_relations",
+    "is_retracted",
+    "has_correction",
+    "language",
+    "semantic_scholar_id",
+)
+EXTRACTED_VARIABLE_FIELDS = (
+    "sample_size_total",
+    "sample_size_by_arm",
+    "comparator",
+    "intervention_or_exposure",
+    "dose",
+    "route",
+    "session_count_or_duration",
+    "primary_outcome",
+    "outcome_measure",
+    "timepoint",
+    "effect_size",
+    "p_value",
+    "confidence_interval",
+    "adverse_events",
+    "funding",
+    "conflicts_of_interest",
+    "risk_of_bias_summary",
+)
 
 
 def normalize(value) -> str:
@@ -170,17 +205,38 @@ def as_float(value) -> float | str:
     return float(text)
 
 
+def extracted_variables(row: dict) -> dict:
+    out = {}
+    for field in EXTRACTED_VARIABLE_FIELDS:
+        value = row.get(field, "")
+        if normalize(value):
+            out[field] = normalize(value)
+    return out
+
+
+def paper_metadata(row: dict) -> dict:
+    out = {
+        "doi": normalize(row.get("study_doi", "")),
+        "openalex_id": normalize(row.get("openalex_id", "")),
+        "title": normalize(row.get("study_title", "")),
+        "journal": normalize(row.get("study_journal", "")),
+        "publication_type": normalize(row.get("publication_type", "")),
+        "trial_registry_ids": normalize(row.get("trial_registry_ids", "")),
+        "authors": normalize(row.get("authors", "")),
+        "year": as_int(row.get("study_year", "")),
+    }
+    for field in PAPER_METADATA_FIELDS:
+        value = normalize(row.get(field, ""))
+        if value:
+            out[field] = value
+    return out
+
+
 def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str) -> dict:
     return {
         "external_id": external_id("mechanistic", row, id_fields),
         "template": template,
-        "paper": {
-            "doi": normalize(row.get("study_doi", "")),
-            "openalex_id": normalize(row.get("openalex_id", "")),
-            "title": normalize(row.get("study_title", "")),
-            "authors": normalize(row.get("authors", "")),
-            "year": as_int(row.get("study_year", "")),
-        },
+        "paper": paper_metadata(row),
         "resources": {
             "compound": normalize(row.get("compound", "")),
             "target": normalize(row.get("target", "")),
@@ -195,13 +251,16 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "evidence_level": normalize(row.get("evidence_level", "")),
             "source": normalize(row.get("source", "")),
         },
+        "extracted_variables": extracted_variables(row),
         "provenance": {
             "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
+            "source_family": normalize(row.get("source_family", "")),
             "access_level": normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
             "evidence_locator": normalize(row.get("evidence_locator", "")),
             "study_design": normalize(row.get("study_design", "")),
+            "evidence_strength": normalize(row.get("evidence_strength", "")),
             "notes": normalize(row.get("notes", "")),
         },
     }
@@ -211,13 +270,7 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
     return {
         "external_id": external_id("disorder", row, id_fields),
         "template": template,
-        "paper": {
-            "doi": normalize(row.get("study_doi", "")),
-            "openalex_id": normalize(row.get("openalex_id", "")),
-            "title": normalize(row.get("study_title", "")),
-            "authors": normalize(row.get("authors", "")),
-            "year": as_int(row.get("study_year", "")),
-        },
+        "paper": paper_metadata(row),
         "resources": {
             "compound": normalize(row.get("compound", "")),
             "disorder": normalize(row.get("disorder", "")),
@@ -231,13 +284,16 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "evidence_level": normalize(row.get("evidence_level", "")),
             "source": normalize(row.get("source", "")),
         },
+        "extracted_variables": extracted_variables(row),
         "provenance": {
             "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
+            "source_family": normalize(row.get("source_family", "")),
             "access_level": normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
             "evidence_locator": normalize(row.get("evidence_locator", "")),
             "study_design": normalize(row.get("study_design", "")),
+            "evidence_strength": normalize(row.get("evidence_strength", "")),
             "notes": normalize(row.get("notes", "")),
         },
     }

@@ -13,8 +13,12 @@ download. The current strategy is a high-recall cascade:
 
 Abstract screening deliberately does not assign source family, paper type, study
 design, evidence strength, claim-extraction hints, or download priority. Those
-labels require more context and are handled during full-text adjudication, or
+labels require more context and are handled during full-text evidence assessment, or
 during the abstract-only evidence fallback when full text remains unavailable.
+Operationally, treat this later stage as **full-text evidence assessment and
+data extraction**. Reserve `adjudication` for final conflict resolution between
+rules, model output, and curator review; some script names still use the older
+term for compatibility.
 
 The stage is non-destructive: it writes reports and queues, but does not edit
 the paper library or claim stubs.
@@ -29,6 +33,10 @@ Recommended full run for one dataset:
 
 Use `--dataset mechanistic` for the mechanistic library. Run datasets separately
 when monitoring long local-model runs.
+
+During multi-day local-model runs, periodically materialize the checkpoint into
+the normal report and DOI queues without calling Ollama:
+`python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --doi-file data/raw/doi_queue.disorder.deterministic_prescreen_retained.txt --materialize-checkpoint-only --only-with-abstract`
 
 Outputs:
 - `data/processed/deterministic_prescreen_report_<dataset>.json`
@@ -53,11 +61,11 @@ Old heuristic triage fields are blank unless you explicitly opt in with
 model prompt.
 
 For relevant/uncertain papers with no available full text after acquisition
-attempts, use the full-text adjudication script in abstract-only mode:
+attempts, use the full-text evidence-assessment script in abstract-only mode:
 `python pipeline/fulltext/run_local_llm_evidence_adjudication.py --input data/processed/llm_abstract_screening_report_disorder.json --evidence-mode abstract_only --only-without-fulltext --only-with-abstract --model qwen3:14b --continue-on-error --timeout-sec 0`
 
 This fallback consumes verified contexts from the abstract-screening report,
-uses the same evidence-adjudication schema, and marks outputs with
+uses the same evidence-assessment schema, and marks outputs with
 `evidence_mode=abstract_only`.
 
 Deterministic pre-screen behavior:
@@ -119,12 +127,12 @@ stub creation/promotion so graph nodes stay canonical
 (`End-of-life anxiety` -> `distress associated with life-threatening disease`).
 Canonical alias rules live in `schema/disorder_canonicalization.json`.
 
-Download PDFs only for triaged-relevant papers:
+Legacy triage PDF queue:
 `python pipeline/ingest/sync_paper_library.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt`
 
 ## Abstract-first autofill (claim fields)
 Use paper title/abstract metadata to populate missing stub fields for all
-triaged stubs before PDF extraction.
+screened stubs before PDF extraction.
 
 Dry run:
 `python pipeline/review/autofill_stubs_from_abstracts.py --dataset disorder --mark-ready`
@@ -135,7 +143,9 @@ Apply updates:
 What it fills (when possible):
 - provenance for abstract-first workflow (`access_level=abstract_only`,
   `evidence_location=abstract`, `evidence_locator=Abstract`)
-- missing metadata (`study_title`, `authors`, `study_year`)
+- missing metadata (`study_title`, `authors`, `study_year`, journal/type/date,
+  ISSNs, publisher, trial registry IDs, MeSH/keywords, funders/grants,
+  publication relations, language, Semantic Scholar ID)
 - disorder claim hints (e.g., `outcome_type`, `study_design`, `system`,
   `evidence_level`)
 - clean disorder rows can be marked `ready_for_promotion` from abstracts alone

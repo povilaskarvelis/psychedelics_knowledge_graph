@@ -56,6 +56,7 @@ def fake_args(**overrides) -> argparse.Namespace:
         "context_confidence": 0.75,
         "checkpoint_jsonl": "",
         "resume_from_checkpoint": False,
+        "materialize_checkpoint_only": False,
         "no_checkpoint": False,
         "quiet_progress": False,
         "show_checkpoint_progress": False,
@@ -313,6 +314,9 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
                 "study_title": "Example",
                 "study_year": "2025",
                 "authors": "A. Author",
+                "publication_date": "2025-01-02",
+                "journal_issn": "1234-5678",
+                "funders": "Test Funder",
             },
             "adjudication": {"relevance": "relevant"},
             "verification": {
@@ -333,6 +337,9 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
 
         self.assertEqual(len(relevant_rows), 1)
         self.assertEqual(relevant_rows[0]["compound"], "Psilocybin")
+        self.assertEqual(relevant_rows[0]["publication_date"], "2025-01-02")
+        self.assertEqual(relevant_rows[0]["journal_issn"], "1234-5678")
+        self.assertEqual(relevant_rows[0]["funders"], "Test Funder")
         self.assertEqual(len(download_rows), 2)
         self.assertEqual(download_rows[1]["compound"], "")
 

@@ -5,6 +5,10 @@ This is a non-destructive semantic layer. It reads sampled triage rows, supplies
 the local model with claim metadata plus bounded full-text evidence chunks, asks
 for strict JSON, and verifies that the returned quote appears in the supplied
 evidence context.
+
+By default (non-dry), each finished row appends JSON to *.checkpoint.jsonl next
+to --out-json; use --resume-from-checkpoint to skip keys already checkpointed,
+mirroring screening durability.
 """
 
 from __future__ import annotations
@@ -13,8 +17,10 @@ import argparse
 import csv
 import datetime as dt
 import json
+import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -24,11 +30,11 @@ from typing import Iterable, List
 
 try:
     from pipeline.fulltext.build_provenance_repair_report import best_extraction
-    from pipeline.fulltext.convert_pdfs import compact_text, load_json_object, normalize
+    from pipeline.fulltext.convert_pdfs import compact_text, load_json_object, normalize, normalize_doi
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.build_provenance_repair_report import best_extraction
-    from pipeline.fulltext.convert_pdfs import compact_text, load_json_object, normalize
+    from pipeline.fulltext.convert_pdfs import compact_text, load_json_object, normalize, normalize_doi
 
 ROOT = Path(__file__).resolve().parents[2]
 FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
@@ -112,6 +118,10 @@ ADJUDICATION_SCHEMA = {
                 "p_value": {"type": "string"},
                 "confidence_interval": {"type": "string"},
                 "adverse_events": {"type": "string"},
+                "trial_registry_ids": {"type": "string"},
+                "funding": {"type": "string"},
+                "conflicts_of_interest": {"type": "string"},
+                "risk_of_bias_notes": {"type": "string"},
             },
             "required": [
                 "sample_size_total",
@@ -128,6 +138,10 @@ ADJUDICATION_SCHEMA = {
                 "p_value",
                 "confidence_interval",
                 "adverse_events",
+                "trial_registry_ids",
+                "funding",
+                "conflicts_of_interest",
+                "risk_of_bias_notes",
             ],
         },
     },
@@ -256,6 +270,7 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
         "status",
         "evidence_mode",
         "quote_verified",
+        "ollama_wall_sec",
         "dataset",
         "sample_group",
         "row_index",
@@ -277,6 +292,9 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
         "llm_sample_size_total",
         "llm_effect_size",
         "llm_p_value",
+        "llm_trial_registry_ids",
+        "llm_funding",
+        "llm_conflicts_of_interest",
         "semantic_auto_eligible",
         "error",
     ]
@@ -285,6 +303,108 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
         writer.writeheader()
         for row in rows:
             writer.writerow({field: row.get(field, "") for field in fieldnames})
+
+
+def default_checkpoint_jsonl_path(out_json: Path) -> Path:
+    return out_json.parent / f"{out_json.stem}.checkpoint.jsonl"
+
+
+def truncate_checkpoint(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("", encoding="utf-8")
+
+
+def append_checkpoint_result(path: Path, result: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(result, ensure_ascii=False) + "\n")
+        handle.flush()
+        try:
+            os.fsync(handle.fileno())
+        except OSError:
+            pass
+
+
+def input_row_dict_for_checkpoint_key(record: dict) -> dict | None:
+    """Best-effort input row for stable resume keys; prefers input_row."""
+    ir = record.get("input_row")
+    if isinstance(ir, dict):
+        return ir
+    flat = record.get("flat")
+    if isinstance(flat, dict):
+        return {
+            "dataset": flat.get("dataset", ""),
+            "study_doi": flat.get("study_doi", ""),
+            "compound": "",
+            "entity": "",
+            "row_index": flat.get("row_index", ""),
+            "sample_group": flat.get("sample_group", ""),
+        }
+    return None
+
+
+def checkpoint_row_key(row: dict) -> str:
+    """Stable key across multiple claim rows sharing the same DOI."""
+    dataset = normalize_for_match(row.get("dataset", ""))
+    doi = normalize_doi(row.get("study_doi", ""))
+    compound = normalize_for_match(row.get("compound", ""))
+    entity = normalize_for_match(row.get("entity", ""))
+    row_idx = normalize(row.get("row_index", ""))
+    sample_group = normalize_for_match(row.get("sample_group", ""))
+    return f"{dataset}|{doi}|{compound}|{entity}|{row_idx}|{sample_group}"
+
+
+def load_checkpoint_results(path: Path) -> dict[str, dict]:
+    """Last line per checkpoint_row_key wins (same semantics as screening JSONL)."""
+    if not path.exists():
+        return {}
+    out: dict[str, dict] = {}
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            if not isinstance(rec, dict):
+                continue
+            keyed = input_row_dict_for_checkpoint_key(rec)
+            if keyed is None:
+                continue
+            key = checkpoint_row_key(keyed)
+            if key:
+                out[key] = rec
+    return out
+
+
+def checkpoint_removes_for_dois(checkpoint_map: dict[str, dict], doi_set: set[str]) -> int:
+    """Drop checkpoint rows whose normalized DOI is in doi_set."""
+    removed = 0
+    for key in list(checkpoint_map.keys()):
+        keyed = input_row_dict_for_checkpoint_key(checkpoint_map[key])
+        if keyed is None:
+            continue
+        if normalize_doi(keyed.get("study_doi", "")).lower() in doi_set:
+            del checkpoint_map[key]
+            removed += 1
+    return removed
+
+
+def load_reprocess_doi_set(path: Path) -> set[str]:
+    if not path.is_file():
+        raise SystemExit(f"--reprocess-dois-file not found: {path}")
+    out: set[str] = set()
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        doi = normalize_doi(line.split(",", 1)[0]).lower()
+        if doi:
+            out.add(doi)
+    return out
+
+
+def checkpoint_writes_enabled(args: argparse.Namespace) -> bool:
+    return not bool(getattr(args, "no_checkpoint", False)) and not bool(getattr(args, "dry_run", False))
 
 
 def local_name(tag: str) -> str:
@@ -531,6 +651,7 @@ def build_prompt(row: dict, chunks: List[dict], evidence_mode: str = "full_text"
             if abstract_only
             else "Use the most specific best_evidence_location supported by the supplied chunks.",
             "Extract quantitative variables only when explicitly present in the supplied chunks; otherwise use not_reported.",
+            "Extract trial registry identifiers such as NCT IDs, funding, conflicts of interest, and explicit risk-of-bias limitations when present; otherwise use not_reported.",
             "supporting_quote must be an exact verbatim quote from one supplied chunk. If no exact quote supports the decision, set supporting_quote to not_found and needs_human_check to true.",
             "Do not infer from outside knowledge.",
         ],
@@ -667,12 +788,19 @@ def flatten_result(
     min_confidence: float,
     evidence_mode: str,
     error: str = "",
+    ollama_wall_sec: float | str | None = None,
 ) -> dict:
     variables = adjudication.get("extracted_variables", {}) if isinstance(adjudication, dict) else {}
+    wall: float | str = ""
+    if isinstance(ollama_wall_sec, (int, float)):
+        wall = round(float(ollama_wall_sec), 3)
+    elif ollama_wall_sec is not None and ollama_wall_sec != "":
+        wall = ollama_wall_sec
     return {
         "status": status,
         "evidence_mode": evidence_mode,
         "quote_verified": quote_verified,
+        "ollama_wall_sec": wall,
         "dataset": row.get("dataset", ""),
         "sample_group": row.get("sample_group", ""),
         "row_index": row.get("row_index", ""),
@@ -694,6 +822,9 @@ def flatten_result(
         "llm_sample_size_total": variables.get("sample_size_total", ""),
         "llm_effect_size": variables.get("effect_size", ""),
         "llm_p_value": variables.get("p_value", ""),
+        "llm_trial_registry_ids": variables.get("trial_registry_ids", ""),
+        "llm_funding": variables.get("funding", ""),
+        "llm_conflicts_of_interest": variables.get("conflicts_of_interest", ""),
         "semantic_auto_eligible": semantic_auto_eligible(adjudication, quote_verified, min_confidence=min_confidence),
         "error": error,
     }
@@ -815,7 +946,41 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="Build evidence contexts without calling Ollama")
     parser.add_argument("--skip-model-check", action="store_true")
     parser.add_argument("--continue-on-error", action="store_true")
+    parser.add_argument(
+        "--checkpoint-jsonl",
+        default="",
+        help=(
+            "Append one full JSON result per completed row next to defaults; "
+            "default is <out-json stem>.checkpoint.jsonl beside --out-json"
+        ),
+    )
+    parser.add_argument(
+        "--resume-from-checkpoint",
+        action="store_true",
+        help="Skip row keys already present in the checkpoint JSONL (last line wins for each key)",
+    )
+    parser.add_argument("--no-checkpoint", action="store_true", help="Disable per-row checkpoint JSONL durability")
+    parser.add_argument(
+        "--reprocess-dois-file",
+        default="",
+        help=(
+            "With --resume-from-checkpoint: newline-separated DOIs (CSV first column OK); matching checkpoint entries are dropped "
+            "so those rows rerun"
+        ),
+    )
+    parser.add_argument(
+        "--reprocess-all-checkpoint-rows",
+        action="store_true",
+        help="With --resume-from-checkpoint: ignore all checkpoint skips and rerun adjudication for every filtered row",
+    )
+    parser.add_argument(
+        "--show-checkpoint-progress",
+        action="store_true",
+        help="Echo checkpoint skips verbosely (default still prints one line per skipped row)",
+    )
     args = parser.parse_args()
+    if args.resume_from_checkpoint and args.no_checkpoint:
+        raise SystemExit("--resume-from-checkpoint and --no-checkpoint cannot be used together")
     if args.evidence_mode == "abstract_only":
         if args.out_json == str(DEFAULT_OUT_JSON):
             args.out_json = str(DEFAULT_ABSTRACT_ONLY_OUT_JSON)
@@ -827,6 +992,13 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     input_path = Path(args.input).resolve()
+    out_json = Path(args.out_json).resolve()
+    out_csv = Path(args.out_csv).resolve()
+    ckpt_path = (
+        Path(args.checkpoint_jsonl).resolve()
+        if normalize(args.checkpoint_jsonl)
+        else default_checkpoint_jsonl_path(out_json)
+    )
     rows = selected_rows(
         filter_rows(load_sample_rows(input_path), args),
         limit=max(0, args.limit),
@@ -840,14 +1012,68 @@ def main() -> int:
                 f"Install it with: ollama pull {args.model}"
             )
 
+    checkpoint_map: dict[str, dict] = {}
+    checkpoint_rows_reused = 0
+    if args.resume_from_checkpoint:
+        checkpoint_map = load_checkpoint_results(ckpt_path)
+        n_loaded = len(checkpoint_map)
+        print(f"Checkpoint resume: {n_loaded} row key(s) loaded from {ckpt_path}", flush=True)
+        if args.reprocess_all_checkpoint_rows:
+            checkpoint_map.clear()
+            print(
+                f"Reprocess all checkpoint rows: cleared {n_loaded} resume skip(s); LLM will run for each filtered row.",
+                flush=True,
+            )
+        elif normalize(args.reprocess_dois_file):
+            rpath = Path(args.reprocess_dois_file).resolve()
+            rset = load_reprocess_doi_set(rpath)
+            removed = checkpoint_removes_for_dois(checkpoint_map, rset)
+            print(
+                f"Reprocess DOI list {rpath}: {len(rset)} listed, {removed} checkpoint row(s) removed for rerun.",
+                flush=True,
+            )
+    elif checkpoint_writes_enabled(args):
+        truncate_checkpoint(ckpt_path)
+        print(f"Checkpoint file (fresh truncate): {ckpt_path}", flush=True)
+
     results = []
     flat_rows = []
     status = "ok"
     for index, row in enumerate(rows, start=1):
-        print(f"[{index}/{len(rows)}] {row.get('dataset')} row {row.get('row_index')} {row.get('study_doi')}", flush=True)
+        line_header = f"[{index}/{len(rows)}] {row.get('dataset')} row {row.get('row_index')} {row.get('study_doi')}"
+        ck = checkpoint_row_key(row)
+        if ck and ck in checkpoint_map and args.resume_from_checkpoint:
+            result = checkpoint_map[ck]
+            checkpoint_rows_reused += 1
+            print(f"{line_header} (checkpoint)", flush=True)
+            flat_cp = result["flat"] if isinstance(result.get("flat"), dict) else {}
+            ver_cp = result.get("verification") if isinstance(result.get("verification"), dict) else {}
+            wall = flat_cp.get("ollama_wall_sec", "")
+            wall_s = f"{float(wall):.1f}s (saved)" if isinstance(wall, (int, float)) else "—"
+            if args.show_checkpoint_progress:
+                print(
+                    f"     -> checkpoint | status={flat_cp.get('status')} | mode={flat_cp.get('evidence_mode')} | "
+                    f"quote_ok={flat_cp.get('quote_verified')} | chunks={ver_cp.get('chunk_count', '')} | wall={wall_s}",
+                    flush=True,
+                )
+            else:
+                print(
+                    f"     -> checkpoint | status={flat_cp.get('status')} | mode={flat_cp.get('evidence_mode')} | wall={wall_s}",
+                    flush=True,
+                )
+            results.append(result)
+            flat_rows.append(result["flat"])
+            continue
+
+        print(line_header, flush=True)
+        t_row = time.perf_counter()
         try:
             result = adjudicate_row(row, args)
+            elapsed = time.perf_counter() - t_row
+            result["ollama_wall_sec"] = round(elapsed, 3)
+            result["flat"]["ollama_wall_sec"] = result["ollama_wall_sec"]
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, Exception) as err:
+            elapsed = time.perf_counter() - t_row
             status = "failed"
             adjudication = {}
             result = {
@@ -856,6 +1082,7 @@ def main() -> int:
                 "adjudication": adjudication,
                 "verification": {"quote_verified": False, "chunk_count": 0, "context_char_count": 0},
                 "error": f"{type(err).__name__}: {err}",
+                "ollama_wall_sec": round(elapsed, 3),
                 "flat": flatten_result(
                     row,
                     adjudication,
@@ -864,24 +1091,53 @@ def main() -> int:
                     min_confidence=args.auto_confidence,
                     evidence_mode=normalize(args.evidence_mode) or "full_text",
                     error=f"{type(err).__name__}: {err}",
+                    ollama_wall_sec=elapsed,
                 ),
             }
             if not args.continue_on_error:
                 results.append(result)
                 flat_rows.append(result["flat"])
+                if checkpoint_writes_enabled(args):
+                    append_checkpoint_result(ckpt_path, result)
+                flat = result["flat"]
+                print(
+                    f"     -> {flat.get('status')} | mode={flat.get('evidence_mode')} | "
+                    f"quote_ok={flat.get('quote_verified')} | chunks=0 | {elapsed:.1f}s",
+                    flush=True,
+                )
                 break
         results.append(result)
         flat_rows.append(result["flat"])
+        if checkpoint_writes_enabled(args):
+            append_checkpoint_result(ckpt_path, result)
+        flat = result["flat"]
+        ver = result.get("verification") if isinstance(result.get("verification"), dict) else {}
+        chunk_n = ver.get("chunk_count", "")
+        print(
+            f"     -> {flat.get('status')} | mode={flat.get('evidence_mode')} | "
+            f"quote_ok={flat.get('quote_verified')} | chunks={chunk_n} | {elapsed:.1f}s",
+            flush=True,
+        )
 
     summary = {
         "rows_requested": len(rows),
         "rows_completed": len([row for row in flat_rows if row.get("status") == "ok"]),
         "rows_failed": len([row for row in flat_rows if row.get("status") != "ok"]),
+        "checkpoint_rows_reused": checkpoint_rows_reused,
         "quote_verified": len([row for row in flat_rows if row.get("quote_verified") is True]),
         "semantic_auto_eligible": len([row for row in flat_rows if row.get("semantic_auto_eligible") is True]),
         "by_status": dict(Counter(row.get("status", "") for row in flat_rows)),
         "by_llm_source_family": dict(Counter(row.get("llm_source_family", "") for row in flat_rows)),
     }
+    timing_vals = [
+        float(row["ollama_wall_sec"])
+        for row in flat_rows
+        if isinstance(row.get("ollama_wall_sec"), (int, float))
+    ]
+    if timing_vals:
+        summary["ollama_wall_sec_mean"] = round(sum(timing_vals) / len(timing_vals), 3)
+        summary["ollama_wall_sec_min"] = round(min(timing_vals), 3)
+        summary["ollama_wall_sec_max"] = round(max(timing_vals), 3)
     payload = {
         "generated_at_utc": now_utc(),
         "status": status,
@@ -898,23 +1154,33 @@ def main() -> int:
             "max_chunks": args.max_chunks,
             "max_context_chars": args.max_context_chars,
             "auto_confidence": args.auto_confidence,
+            "checkpoint_jsonl": str(ckpt_path),
+            "resume_from_checkpoint": bool(args.resume_from_checkpoint),
+            "no_checkpoint": bool(args.no_checkpoint),
         },
         "summary": summary,
         "rows": results,
     }
 
-    out_json = Path(args.out_json).resolve()
-    out_csv = Path(args.out_csv).resolve()
     write_json(out_json, payload)
     write_csv(out_csv, flat_rows)
 
     print(f"Status: {status}")
     print(f"Rows completed: {summary['rows_completed']}")
     print(f"Rows failed: {summary['rows_failed']}")
+    if checkpoint_rows_reused:
+        print(f"Checkpoint rows reused: {checkpoint_rows_reused}")
     print(f"Quote verified: {summary['quote_verified']}")
     print(f"Semantic auto-eligible: {summary['semantic_auto_eligible']}")
+    if timing_vals:
+        print(
+            "Ollama wall time sec (mean / min / max): "
+            f"{summary['ollama_wall_sec_mean']} / {summary['ollama_wall_sec_min']} / {summary['ollama_wall_sec_max']}",
+        )
     print(f"JSON: {out_json}")
     print(f"CSV: {out_csv}")
+    if checkpoint_writes_enabled(args) or ckpt_path.exists():
+        print(f"Checkpoint JSONL: {ckpt_path}")
     return 0 if status == "ok" else 1
 
 

@@ -3,12 +3,13 @@
 This stage has four steps:
 1. Discover literature from web APIs and write DOI queue files.
 2. Sync the local paper library for metadata/abstracts.
-3. Triage the paper library and write triage-relevant DOI-context queues.
-4. Download legal OA PDFs only for triage-relevant rows.
+3. Run deterministic + LLM abstract screening and write relevant/uncertain
+   DOI-context queues.
+4. Download legal OA PDFs only for screened relevant/uncertain rows.
 
-Claim stubs should normally be generated after triage from
-`data/raw/doi_queue.<dataset>.triage_relevant.txt`, not directly from the full
-discovered queue.
+Claim stubs should normally be generated from
+`data/raw/doi_queue.<dataset>.llm_relevant.txt`, not directly from the full
+discovered queue. The old triage-relevant queue is retained for legacy audits.
 
 ## Discovery (web search)
 Default provider is `semantic_scholar` (relevance-focused). Additional modes:
@@ -138,6 +139,14 @@ They are intentionally plans, not DOI queues. Their outputs should become
 source-specific evidence rows, because registry records and assay databases are
 not the same kind of object as papers.
 
+For registry enrichment tied to papers already found by literature search, use
+the standalone post-screening stage instead:
+
+`python pipeline/enrich/enrich_trial_registries.py --dataset disorder`
+
+This reads screened disorder candidates with captured `trial_registry_ids` and
+writes separate registry cache/report files without modifying the paper library.
+
 The known relevant study set lives in `data/raw/benchmark_manifest.json`.
 The filename is retained for compatibility, but the file should be described as
 a known-study set or search completeness set in project methodology. It records
@@ -260,7 +269,13 @@ Queue templates:
   - `data/raw/doi_queue.disorder.discovered.txt`
 
 Both use the same line format:
-- `doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors`
+- `doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors,...optional_paper_metadata`
+- Optional paper metadata columns are accepted after authors in this order:
+  `study_journal`, `publication_type`, `trial_registry_ids`,
+  `publication_date`, `journal_issn`, `journal_eissn`, `publisher`,
+  `mesh_terms`, `keywords`, `funders`, `grant_ids`, `related_dois`,
+  `publication_relations`, `is_retracted`, `has_correction`, `language`,
+  `semantic_scholar_id`.
 - Lines starting with `#` are ignored.
 
 Stubs are deduplicated by `DOI + compound + target_or_disorder`, not by DOI
@@ -274,14 +289,16 @@ Mechanistic stubs:
 Disorder stubs:
 `python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.template.txt --replace`
 
-Recommended stubs from triage-relevant queues:
-`python pipeline/ingest/seed_from_dois.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt --replace`
+Recommended stubs from LLM relevant queues:
+`python pipeline/ingest/seed_from_dois.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.llm_relevant.txt --replace`
 
-`python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.triage_relevant.txt --replace`
+`python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.llm_relevant.txt --replace`
 
 Avoid generating production stubs directly from
 `data/raw/doi_queue.<dataset>.discovered.txt`; that queue has not been screened
-and can include context noise that triage is designed to remove.
+and can include context noise that abstract screening is designed to remove.
+Use `pipeline/review/triage_paper_library.py` only for legacy audits or
+targeted comparisons.
 
 ## Outputs
 - `data/processed/mechanistic_claim_stubs.json`
@@ -292,11 +309,13 @@ and can include context noise that triage is designed to remove.
 ## Paper library sync (abstracts + OA + PDFs)
 Run after discovery so the queue contains candidate DOIs.
 
-Default provider order is `pubmed,pmc,unpaywall,crossref,openalex`: PubMed/PMC
-first for biomedical abstracts and PMCID/full-text signals, Unpaywall next for
-legal OA/PDF resolution, then Crossref/OpenAlex as broader metadata fallbacks.
-If `unpaywall.email` is missing from local config, Unpaywall is skipped with a
-warning.
+Default provider order is
+`pubmed,pmc,unpaywall,crossref,openalex,semantic_scholar`: PubMed/PMC first for
+biomedical abstracts, publication dates, publication types, journals, ISSNs,
+MeSH/keywords, trial identifiers, and PMCID/full-text signals; Unpaywall next
+for legal OA/PDF resolution and venue metadata; then Crossref, OpenAlex, and
+Semantic Scholar as broader metadata fallbacks. If `unpaywall.email` is missing
+from local config, Unpaywall is skipped with a warning.
 
 Mechanistic:
 `python pipeline/ingest/sync_paper_library.py --dataset mechanistic`
@@ -309,10 +328,11 @@ Metadata-only dry run (no downloads):
 
 Recommended sequence to avoid downloading irrelevant PDFs:
 1. run sync with `--skip-download` (metadata/abstracts only)
-2. run triage:
-   `python pipeline/review/triage_paper_library.py --dataset <dataset>`
-3. sync again using triage queue:
-   `python pipeline/ingest/sync_paper_library.py --dataset <dataset> --doi-file data/raw/doi_queue.<dataset>.triage_relevant.txt`
+2. run deterministic pre-screen and LLM abstract screening:
+   `python pipeline/review/run_local_llm_abstract_screening.py --dataset <dataset> --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --only-undownloaded`
+   `python pipeline/review/run_local_llm_abstract_screening.py --dataset <dataset> --doi-file data/raw/doi_queue.<dataset>.deterministic_prescreen_retained.txt --model qwen3:14b --only-with-abstract --continue-on-error --timeout-sec 0 --resume-from-checkpoint --num-ctx 4096`
+3. sync again using the LLM full-text candidate queue:
+   `python pipeline/ingest/sync_paper_library.py --dataset <dataset> --doi-file data/raw/doi_queue.<dataset>.llm_fulltext_candidates.txt`
 
 Run extensive discovery + sync for both datasets in one command:
 `python pipeline/ingest/run_extensive_search.py --dataset all --provider hybrid --max-results-per-seed 100 --max-results 600`
@@ -322,11 +342,15 @@ High-recall extensive run with auto-seed expansion:
 
 Use `--verbose` to print raw child script logs.
 
-`run_extensive_search.py` defaults to triage-first download:
+`run_extensive_search.py` still supports the legacy triage-first orchestration:
 1. discovery
 2. metadata sync (`--skip-download`)
 3. triage (`triage_paper_library.py`)
 4. triage-queue download sync
+
+For the LLM-screening workflow, run discovery/sync/screen/download as separate
+commands so checkpoint materialization and long-running model jobs remain
+observable.
 
 Retry failed/no-URL PDF rows from existing paper DB:
 `python pipeline/ingest/retry_pdf_downloads.py --dataset mechanistic`
@@ -349,7 +373,9 @@ Outputs:
 - `data/processed/paper_inventory_<dataset>.json`
 - `data/processed/paper_inventory_<dataset>.csv`
 - `data/processed/paper_inventory_<dataset>.md`
-- `data/raw/doi_queue.<dataset>.triage_relevant.txt` (from triage step)
+- `data/raw/doi_queue.<dataset>.llm_fulltext_candidates.txt` (from LLM abstract screening)
+- `data/raw/doi_queue.<dataset>.llm_relevant.txt` (context-verified LLM relevant rows)
+- `data/raw/doi_queue.<dataset>.triage_relevant.txt` (legacy triage step)
 - `data/raw/doi_queue.<dataset>.retry_pdf.txt` (from retry helper)
 - `data/processed/manual_pdf_import_report_<dataset>.json`
 

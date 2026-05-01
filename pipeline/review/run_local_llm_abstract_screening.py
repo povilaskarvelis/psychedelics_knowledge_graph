@@ -62,6 +62,25 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen3:14b"
 DATASETS = ("disorder", "mechanistic")
+PAPER_METADATA_FIELDS = [
+    "study_journal",
+    "publication_type",
+    "trial_registry_ids",
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "mesh_terms",
+    "keywords",
+    "funders",
+    "grant_ids",
+    "related_dois",
+    "publication_relations",
+    "is_retracted",
+    "has_correction",
+    "language",
+    "semantic_scholar_id",
+]
 
 RELEVANCE_VALUES = ["relevant", "irrelevant", "uncertain"]
 SUPPORT_VALUES = ["supported", "not_supported", "uncertain"]
@@ -313,6 +332,24 @@ def dataset_scope(dataset: str) -> str:
     )
 
 
+def paper_metadata_from_row(row: dict) -> dict:
+    return {field: normalize(row.get(field, "")) for field in PAPER_METADATA_FIELDS}
+
+
+def screening_input_row(row_index: int, row: dict) -> dict:
+    return {
+        "row_index": row_index,
+        "study_doi": normalize_doi(row.get("study_doi", "")),
+        "study_title": normalize(row.get("study_title", "")),
+        "study_year": normalize(row.get("study_year", "")),
+        "authors": normalize(row.get("authors", "")),
+        **paper_metadata_from_row(row),
+        "library_status": normalize(row.get("library_status", "")),
+        "pdf_download_status": normalize(row.get("pdf_download_status", "")),
+        "abstract": normalize(row.get("abstract", "")),
+    }
+
+
 def build_prompt(dataset: str, row: dict, candidate_contexts: List[dict]) -> list[dict]:
     metadata = {
         "dataset": dataset,
@@ -320,6 +357,7 @@ def build_prompt(dataset: str, row: dict, candidate_contexts: List[dict]) -> lis
         "study_title": normalize(row.get("study_title", "")),
         "study_year": normalize(row.get("study_year", "")),
         "authors": normalize(row.get("authors", "")),
+        **paper_metadata_from_row(row),
         "abstract": normalize(row.get("abstract", "")),
         "pmid": normalize(row.get("pmid", "")),
         "pmcid": normalize(row.get("pmcid", "")),
@@ -709,6 +747,7 @@ def flatten_result(
         "study_doi": normalize_doi(row.get("study_doi", "")),
         "study_title": normalize(row.get("study_title", "")),
         "study_year": normalize(row.get("study_year", "")),
+        **paper_metadata_from_row(row),
         "library_status": normalize(row.get("library_status", "")),
         "pdf_download_status": normalize(row.get("pdf_download_status", "")),
         "has_abstract": bool(normalize(row.get("abstract", ""))),
@@ -835,16 +874,7 @@ def screen_row(dataset: str, row_index: int, row: dict, heuristic: dict, args: a
         fast_quote_verified=fast_quote_verified,
     )
     return {
-        "input_row": {
-            "row_index": row_index,
-            "study_doi": normalize_doi(row.get("study_doi", "")),
-            "study_title": normalize(row.get("study_title", "")),
-            "study_year": normalize(row.get("study_year", "")),
-            "authors": normalize(row.get("authors", "")),
-            "library_status": normalize(row.get("library_status", "")),
-            "pdf_download_status": normalize(row.get("pdf_download_status", "")),
-            "abstract": normalize(row.get("abstract", "")),
-        },
+        "input_row": screening_input_row(row_index, row),
         "candidate_contexts": candidate_contexts,
         "deterministic_prescreen": deterministic_prescreen or {},
         "fast_screening": fast_screening or {},
@@ -915,16 +945,7 @@ def revalidate_checkpoint_result(
     )
 
     updated = dict(result)
-    updated["input_row"] = {
-        "row_index": row_index,
-        "study_doi": normalize_doi(row.get("study_doi", "")),
-        "study_title": normalize(row.get("study_title", "")),
-        "study_year": normalize(row.get("study_year", "")),
-        "authors": normalize(row.get("authors", "")),
-        "library_status": normalize(row.get("library_status", "")),
-        "pdf_download_status": normalize(row.get("pdf_download_status", "")),
-        "abstract": normalize(row.get("abstract", "")),
-    }
+    updated["input_row"] = screening_input_row(row_index, row)
     updated["candidate_contexts"] = result.get("candidate_contexts", compact_candidate_contexts(row, max_contexts=max(1, args.max_contexts)))
     updated["deterministic_prescreen"] = result.get("deterministic_prescreen", {})
     updated["fast_screening"] = result.get("fast_screening", {})
@@ -980,6 +1001,7 @@ def queue_rows_from_results(results: List[dict], relevance_filter: set[str], req
                         "study_title": normalize(input_row.get("study_title", "")),
                         "study_year": normalize(input_row.get("study_year", "")),
                         "authors": normalize(input_row.get("authors", "")),
+                        **paper_metadata_from_row(input_row),
                     }
                 )
             continue
@@ -995,6 +1017,7 @@ def queue_rows_from_results(results: List[dict], relevance_filter: set[str], req
                 "study_title": normalize(input_row.get("study_title", "")),
                 "study_year": normalize(input_row.get("study_year", "")),
                 "authors": normalize(input_row.get("authors", "")),
+                **paper_metadata_from_row(input_row),
             }
         )
     return rows
@@ -1088,7 +1111,12 @@ def write_doi_queue(path: Path, rows: List[dict], description: str) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
         handle.write(f"# {description} generated at {now_utc()}\n")
-        handle.write("# doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors\n")
+        handle.write(
+            "# doi,compound,target_or_disorder,optional_study_title,optional_study_year,"
+            "optional_authors,"
+            + ",".join(f"optional_{field}" for field in PAPER_METADATA_FIELDS)
+            + "\n"
+        )
         writer = csv.writer(handle)
         for row in rows:
             doi = normalize_doi(row.get("study_doi", ""))
@@ -1102,6 +1130,7 @@ def write_doi_queue(path: Path, rows: List[dict], description: str) -> int:
                     normalize(row.get("study_title", "")),
                     normalize(row.get("study_year", "")),
                     normalize(row.get("authors", "")),
+                    *[normalize(row.get(field, "")) for field in PAPER_METADATA_FIELDS],
                 ]
             )
     return len(rows)
@@ -1142,6 +1171,7 @@ def prescreen_queue_row(row: dict) -> dict:
         "study_title": normalize(row.get("study_title", "")),
         "study_year": normalize(row.get("study_year", "")),
         "authors": normalize(row.get("authors", "")),
+        **paper_metadata_from_row(row),
     }
 
 
@@ -1250,6 +1280,139 @@ def run_deterministic_prescreen_only_dataset(
     return payload
 
 
+def run_checkpoint_materialization_dataset(
+    dataset: str,
+    args: argparse.Namespace,
+    paper_db_json: Path,
+    triage_report: Path | None,
+    paths: dict[str, Path],
+    papers_all: List[dict],
+    papers_filtered: List[tuple[int, dict]],
+    selected: List[tuple[int, dict]],
+    triage_by_doi: dict[str, dict],
+    doi_filter: set[str] | None,
+    ckpt_path: Path,
+) -> dict:
+    checkpoint_by_doi = load_checkpoint_results(ckpt_path)
+    results = []
+    flat_rows = []
+    missing_checkpoint = []
+    incompatible_checkpoint = []
+
+    for row_index, row in selected:
+        doi = normalize_doi(row.get("study_doi", ""))
+        doi_key = doi.lower()
+        checkpoint_result = checkpoint_by_doi.get(doi_key) if doi_key else None
+        if not checkpoint_result:
+            missing_checkpoint.append(doi)
+            continue
+        if not checkpoint_result_is_compatible(checkpoint_result):
+            incompatible_checkpoint.append(doi)
+            continue
+        heuristic = triage_by_doi.get(doi_key, {}) if doi_key else {}
+        result = revalidate_checkpoint_result(
+            dataset=dataset,
+            row_index=row_index,
+            row=row,
+            heuristic=heuristic,
+            result=checkpoint_result,
+            args=args,
+        )
+        results.append(result)
+        flat_rows.append(result["flat"])
+
+    download_rows = queue_rows_from_results(results, relevance_filter={"relevant", "uncertain"}, require_verified_context=False)
+    relevant_rows = queue_rows_from_results(results, relevance_filter={"relevant"}, require_verified_context=True)
+    uncertain_rows = queue_rows_from_results(results, relevance_filter={"uncertain"}, require_verified_context=False)
+    download_written = write_doi_queue(paths["download_queue"], download_rows, f"LLM full-text candidate queue for {dataset}")
+    relevant_written = write_doi_queue(paths["relevant_queue"], relevant_rows, f"LLM verified relevant context queue for {dataset}")
+    uncertain_written = write_doi_queue(paths["uncertain_queue"], uncertain_rows, f"LLM uncertain full-text candidate queue for {dataset}")
+
+    status = "ok" if not missing_checkpoint and not incompatible_checkpoint else "completed_with_missing_checkpoint_rows"
+    summary = {
+        "papers_total": len(papers_all),
+        "rows_after_filters": len(papers_filtered),
+        "rows_requested": len(selected),
+        "rows_completed": len([row for row in flat_rows if row.get("status") == "ok"]),
+        "rows_failed": len([row for row in flat_rows if row.get("status") != "ok"]),
+        "checkpoint_rows_loaded": len(checkpoint_by_doi),
+        "checkpoint_rows_materialized": len(results),
+        "checkpoint_rows_missing_for_selection": len(missing_checkpoint),
+        "checkpoint_rows_incompatible": len(incompatible_checkpoint),
+        "quote_verified": len([row for row in flat_rows if row.get("quote_verified") is True]),
+        "semantic_auto_eligible": len([row for row in flat_rows if row.get("semantic_auto_eligible") is True]),
+        "download_queue_eligible": len([row for row in flat_rows if row.get("download_queue_eligible") is True]),
+        "download_queue_rows_written": download_written,
+        "relevant_context_queue_rows_written": relevant_written,
+        "uncertain_queue_rows_written": uncertain_written,
+        "deterministic_prescreen_excluded": len(
+            [row for row in flat_rows if row.get("screening_path") == "deterministic_excluded"]
+        ),
+        "fast_screen_excluded": len([row for row in flat_rows if row.get("screening_path") == "fast_excluded"]),
+        "fast_screen_escalated": len([row for row in flat_rows if row.get("screening_path") == "fast_escalated"]),
+        "by_status": dict(Counter(row.get("status", "") for row in flat_rows)),
+        "by_llm_relevance": dict(Counter(row.get("llm_relevance", "") for row in flat_rows)),
+        "by_screening_path": dict(Counter(row.get("screening_path", "") for row in flat_rows)),
+        "heuristic_llm_relevance_disagreements": len(
+            [row for row in flat_rows if row.get("heuristic_llm_relevance_disagreement") is True]
+        ),
+    }
+    payload = {
+        "generated_at_utc": now_utc(),
+        "status": status,
+        "dataset": dataset,
+        "mode": "materialize_checkpoint_only",
+        "inputs": {
+            "paper_db_json": str(paper_db_json),
+            "triage_report_json": str(triage_report) if triage_report else None,
+            "use_heuristic_audit": bool(args.use_heuristic_audit or args.triage_report_json),
+            "model": args.model,
+            "deterministic_prescreen": bool(args.deterministic_prescreen),
+            "fast_screen_model": normalize(args.fast_screen_model) or None,
+            "limit": args.limit,
+            "offset": args.offset,
+            "doi_file": normalize(args.doi_file) or None,
+            "doi_filter_count": len(doi_filter) if doi_filter is not None else None,
+            "only_with_abstract": args.only_with_abstract,
+            "only_undownloaded": args.only_undownloaded,
+            "only_heuristic_possible": args.only_heuristic_possible,
+            "auto_confidence": args.auto_confidence,
+            "context_confidence": args.context_confidence,
+            "fast_screen_confidence": args.fast_screen_confidence,
+        },
+        "outputs": {
+            "report_json": str(paths["out_json"]),
+            "report_csv": str(paths["out_csv"]),
+            "checkpoint_jsonl": str(ckpt_path),
+            "download_queue": str(paths["download_queue"]),
+            "relevant_queue": str(paths["relevant_queue"]),
+            "uncertain_queue": str(paths["uncertain_queue"]),
+        },
+        "summary": summary,
+        "missing_checkpoint_dois": missing_checkpoint[:1000],
+        "incompatible_checkpoint_dois": incompatible_checkpoint[:1000],
+        "rows": results,
+    }
+    write_json(paths["out_json"], payload)
+    write_csv(paths["out_csv"], flat_rows)
+
+    print(f"Dataset: {dataset}")
+    print("Mode: materialize checkpoint only")
+    print(f"Status: {status}")
+    print(f"Checkpoint rows loaded: {len(checkpoint_by_doi)}")
+    print(f"Rows materialized: {len(results)}")
+    print(f"Rows missing from checkpoint for this selection: {len(missing_checkpoint)}")
+    print(f"Checkpoint rows incompatible: {len(incompatible_checkpoint)}")
+    print(f"LLM relevance: {summary['by_llm_relevance']}")
+    print(f"Download queue rows: {download_written}")
+    print(f"Relevant context queue rows: {relevant_written}")
+    print(f"Uncertain queue rows: {uncertain_written}")
+    print(f"Report JSON: {paths['out_json']}")
+    print(f"Report CSV: {paths['out_csv']}")
+    print(f"Checkpoint JSONL: {ckpt_path}")
+    return payload
+
+
 def dataset_paths(dataset: str, args: argparse.Namespace) -> dict[str, Path]:
     if args.dataset != "all":
         return {
@@ -1293,6 +1456,8 @@ def run_dataset(dataset: str, args: argparse.Namespace) -> dict:
     paths = dataset_paths(dataset, args)
     if args.resume_from_checkpoint and args.no_checkpoint:
         raise SystemExit("--resume-from-checkpoint and --no-checkpoint cannot be used together")
+    if args.materialize_checkpoint_only and args.no_checkpoint:
+        raise SystemExit("--materialize-checkpoint-only requires checkpointing to be enabled")
     if (normalize(args.reprocess_dois_file) or args.reprocess_all_checkpoint_dois) and not args.resume_from_checkpoint:
         raise SystemExit("--reprocess-dois-file / --reprocess-all-checkpoint-dois require --resume-from-checkpoint")
     if normalize(args.reprocess_dois_file) and args.reprocess_all_checkpoint_dois:
@@ -1326,6 +1491,20 @@ def run_dataset(dataset: str, args: argparse.Namespace) -> dict:
             selected=selected,
             triage_by_doi=triage_by_doi,
             doi_filter=doi_filter,
+        )
+    if args.materialize_checkpoint_only:
+        return run_checkpoint_materialization_dataset(
+            dataset=dataset,
+            args=args,
+            paper_db_json=paper_db_json,
+            triage_report=triage_report,
+            paths=paths,
+            papers_all=papers_all,
+            papers_filtered=papers_filtered,
+            selected=selected,
+            triage_by_doi=triage_by_doi,
+            doi_filter=doi_filter,
+            ckpt_path=ckpt_path,
         )
 
     checkpoint_by_doi: dict[str, dict] = {}
@@ -1418,16 +1597,7 @@ def run_dataset(dataset: str, args: argparse.Namespace) -> dict:
                 error=f"{type(err).__name__}: {err}",
             )
             result = {
-                "input_row": {
-                    "row_index": row_index,
-                    "study_doi": doi,
-                    "study_title": normalize(row.get("study_title", "")),
-                    "study_year": normalize(row.get("study_year", "")),
-                    "authors": normalize(row.get("authors", "")),
-                    "library_status": normalize(row.get("library_status", "")),
-                    "pdf_download_status": normalize(row.get("pdf_download_status", "")),
-                    "abstract": normalize(row.get("abstract", "")),
-                },
+                "input_row": screening_input_row(row_index, row),
                 "candidate_contexts": compact_candidate_contexts(row, max_contexts=max(1, args.max_contexts)),
                 "adjudication": adjudication,
                 "verification": {
@@ -1634,6 +1804,14 @@ def parse_args() -> argparse.Namespace:
         help="Skip DOIs already present in the checkpoint JSONL; append new rows to the same file",
     )
     parser.add_argument(
+        "--materialize-checkpoint-only",
+        action="store_true",
+        help=(
+            "Read the checkpoint JSONL, revalidate completed rows, and write the normal JSON/CSV/DOI queues "
+            "without calling Ollama. Useful while a long local-LLM run is still in progress."
+        ),
+    )
+    parser.add_argument(
         "--reprocess-dois-file",
         default="",
         help="With --resume-from-checkpoint: path to newline-separated DOIs to remove from the skip set so the LLM runs again (checkpoint JSONL is unchanged until new rows append)",
@@ -1682,7 +1860,7 @@ def main() -> int:
         args.deterministic_prescreen = True
         args.no_checkpoint = True
 
-    if not args.dry_run and not args.skip_model_check and not args.deterministic_prescreen_only:
+    if not args.dry_run and not args.skip_model_check and not args.deterministic_prescreen_only and not args.materialize_checkpoint_only:
         if not model_is_installed(args.model, args.ollama_url, timeout_sec=10):
             raise SystemExit(
                 f"Ollama model `{args.model}` is not installed or Ollama is unavailable. "

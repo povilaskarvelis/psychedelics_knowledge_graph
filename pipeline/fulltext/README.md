@@ -242,7 +242,7 @@ The CSV has blank quality-check columns such as `correct_classification`,
 `correct_primary_vs_non_primary`, and `review_notes`. Use this to estimate rule
 accuracy and decide which deterministic rules can be safely tightened next.
 
-## Local LLM Evidence Adjudication
+## Local LLM Full-Text Evidence Assessment
 
 Run a local Ollama model over the QA sample to get semantic source-type,
 claim-support, locator, and variable-extraction proposals:
@@ -272,6 +272,11 @@ Outputs:
 - `data/processed/fulltext/local_llm_evidence_adjudication.json`
 - `data/processed/fulltext/local_llm_evidence_adjudication.csv`
 
+The script name still says `evidence_adjudication` for compatibility. In
+methodology text, call this stage **full-text eligibility/evidence assessment
+and data extraction**. Reserve `adjudication` for final conflict resolution
+between model proposals, deterministic rules, and curator decisions.
+
 This stage is non-destructive. It supplies bounded GROBID evidence chunks to
 the model, asks for JSON matching a fixed schema, and records whether the
 model's `supporting_quote` is actually present in the supplied chunks. Treat
@@ -283,7 +288,7 @@ and the model does not request a human check.
 ### Abstract-Only Evidence Fallback
 
 For relevant/uncertain papers whose full text cannot be downloaded or converted,
-run the same adjudication schema in abstract-only mode. This is separate from
+run the same evidence-assessment schema in abstract-only mode. This is separate from
 abstract screening: screening only decides relevance, while this fallback
 extracts source/provenance and study variables that are explicitly stated in the
 abstract.
@@ -305,7 +310,7 @@ Outputs default to:
 - `data/processed/fulltext/local_llm_abstract_only_adjudication.csv`
 
 When the input is an abstract-screening report, verified compound/entity
-contexts are expanded into claim-level adjudication rows. Rows are marked with
+contexts are expanded into claim-level assessment rows. Rows are marked with
 `evidence_mode=abstract_only`; the prompt requires `best_evidence_location` to
 be `abstract` or `none` and tells the model to use `not_reported` for details
 not explicitly present in the abstract.

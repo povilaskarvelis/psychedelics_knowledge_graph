@@ -32,16 +32,19 @@ At the conceptual level:
 - search is broad enough to support retrieval across OpenAlex, Semantic Scholar,
   PubMed/PMC, Crossref, and OA metadata sources
 - retrieval can be checked against a known relevant study set before downstream work
-- metadata sync happens before triage; PDF download happens after triage
+- metadata sync happens before abstract screening; PDF download happens after
+  abstract screening
 - retrieval provenance is retained in discovery reports and ledgers
 
 Technical note: search and sync live in `pipeline/ingest/` and write to
 `data/processed/paper_library_*.json` plus local PDFs under `data/raw/papers/`.
 
-### Sorting Papers
+### Screening Papers
 
-Retrieved papers are classified by relevance and paper type. Triage works at
-the `(DOI, compound, target/disorder)` context level so one paper can support
+Retrieved papers now move through abstract screening before PDF acquisition.
+The old rule-based triage remains available for legacy audits, but it is not
+the default gate for the live graph. Abstract screening works at the
+`(DOI, compound, target/disorder)` context level so one paper can support
 multiple graph edges without accidental DOI-only collapse.
 
 Current paper types include:
@@ -52,25 +55,34 @@ Current paper types include:
 - conference or poster abstract
 - other
 
-Only primary results papers are admitted to the main curated claim set. Weaker
-material is blocked or retained separately in exploratory files so it stays
-visible without inflating the core graph.
+Only primary results papers are admitted to the main curated claim set. Reviews,
+protocols, conference abstracts, commentary, case reports, and corrections are
+retained as evidence/source records where possible so they can be browsed or
+included in secondary-source views without inflating the core primary-evidence
+graph.
 
-Technical note: the current implementation is mostly deterministic. It uses
-normalized titles, abstracts, metadata, protected known-study/curated contexts,
-and synthesized context rescue to assign relevance, `paper_type`,
-`source_type`, and evidence quality labels.
+Technical note: the current default path is non-destructive. It uses a
+deterministic no-signal pre-screen, then local LLM abstract screening for
+relevance and quote-supported contexts only. Full-text eligibility assessment,
+source-family labeling, evidence-strength labeling, and data extraction happen
+later from PDFs or abstract-only fallback evidence.
 
 ### Claim Extraction
 
 The pipeline seeds one claim stub per DOI-context and fills structured fields
-from abstracts first, then PDFs when full-text evidence is needed.
+from abstracts first, then PDFs when full-text evidence is needed. The full-text
+LLM step is best described as full-text evidence assessment plus data
+extraction; use `adjudication` only for the final conflict-resolution decision
+when model/rule/curator outputs disagree.
 
 - mechanistic claims capture compound-target assay evidence
 - disorder claims capture compound-disorder outcome evidence
 - disorder claims include a lightweight `result_direction` label:
   `positive`, `null`, `negative`, `mixed`, `unclear`
 - each row keeps a provenance locator back to text, table, figure, or abstract
+- bibliographic and synthesis fields include journal, publication type, trial
+  registry IDs, sample size, comparator/intervention details, outcomes, effect
+  sizes, adverse events, funding, conflicts of interest, and risk-of-bias notes
 - PDF-heavy extraction scripts auto-run inside the `psychkg-pdf` conda
   environment when it exists
 
@@ -95,7 +107,7 @@ type and result direction directly in the interface.
 ## Repository Layout
 
 - `pipeline/ingest/`: discovery, paper sync, DOI seeding
-- `pipeline/review/`: triage and autofill
+- `pipeline/review/`: abstract screening, legacy triage audit, and autofill
 - `pipeline/extract/`: promotion into curated claims
 - `pipeline/validate/`: validation, cleanup, and audit helpers
 - `pipeline/publish/`: export
@@ -117,9 +129,10 @@ Minimal current flow for one dataset after credentials are configured:
 ```bash
 python pipeline/ingest/run_extensive_search.py --dataset disorder --provider hybrid --discover-only
 python pipeline/ingest/sync_paper_library.py --dataset disorder --skip-download
-python pipeline/review/triage_paper_library.py --dataset disorder
-python pipeline/ingest/sync_paper_library.py --dataset disorder --doi-file data/raw/doi_queue.disorder.triage_relevant.txt
-python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.triage_relevant.txt --replace
+python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --only-undownloaded
+python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --doi-file data/raw/doi_queue.disorder.deterministic_prescreen_retained.txt --model qwen3:14b --only-with-abstract --continue-on-error --timeout-sec 0 --resume-from-checkpoint --num-ctx 4096
+python pipeline/ingest/sync_paper_library.py --dataset disorder --doi-file data/raw/doi_queue.disorder.llm_fulltext_candidates.txt
+python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.llm_relevant.txt --replace
 python pipeline/review/autofill_stubs_from_abstracts.py --dataset disorder --mark-ready --apply
 python pipeline/review/autofill_disorder_from_pdfs.py --dataset disorder --mark-ready --apply
 python pipeline/review/curation_queue.py --dataset disorder

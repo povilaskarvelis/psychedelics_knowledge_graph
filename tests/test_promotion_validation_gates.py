@@ -1,4 +1,5 @@
 import unittest
+import json
 
 from pipeline.extract.promote_ready_stubs import (
     DATASET_CONFIG,
@@ -45,6 +46,25 @@ class PromotionIdentityTest(unittest.TestCase):
 
 
 class PromotionEvidenceGateTest(unittest.TestCase):
+    def test_schema_accepts_llm_full_text_evidence_taxonomy(self) -> None:
+        for dataset in ("mechanistic", "disorder"):
+            with DATASET_CONFIG[dataset]["schema"].open("r", encoding="utf-8") as handle:
+                schema = json.load(handle)
+            properties = schema["items"]["properties"]
+
+            self.assertIn("secondary_evidence", properties["source_type"]["enum"])
+            self.assertIn("case_report", properties["source_type"]["enum"])
+            self.assertIn("systematic_review", properties["paper_type"]["enum"])
+            self.assertIn("source_family", properties)
+            self.assertIn("evidence_strength", properties)
+            self.assertIn("study_journal", properties)
+            self.assertIn("trial_registry_ids", properties)
+            self.assertIn("publication_date", properties)
+            self.assertIn("journal_issn", properties)
+            self.assertIn("mesh_terms", properties)
+            self.assertIn("funders", properties)
+            self.assertIn("semantic_scholar_id", properties)
+
     def test_secondary_summary_metadata_title_is_blocked(self) -> None:
         row = {
             "source_type": "primary_study",

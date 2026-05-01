@@ -808,12 +808,17 @@ function renderBibliography(data) {
       title: claim.study_title || "Untitled study",
       year: Number(claim.study_year) || 0,
       claims: 0,
+      journal: "",
       compounds: new Set(),
       rights: new Set(),
       authors: new Set(),
     };
 
     existing.claims += 1;
+    const journalPiece = String(
+      claim.study_journal ?? claim.journal ?? ""
+    ).trim();
+    if (journalPiece && !existing.journal) existing.journal = journalPiece;
     if (claim.compound) existing.compounds.add(claim.compound);
     if (claim[rightKey]) existing.rights.add(claim[rightKey]);
     const authors = claimAuthors(claim);
@@ -855,6 +860,7 @@ function renderBibliography(data) {
             entry.authorsText,
             entry.compoundsText,
             entry.rightsText,
+            entry.journal,
             entry.doi,
             entry.openalexId,
           ].join(" ")
@@ -883,7 +889,7 @@ function renderBibliography(data) {
         <article class="study-item">
           <h3>${entry.title}${entry.year ? ` (${entry.year})` : ""}</h3>
           <div class="meta">
-            <div><strong>Claims:</strong> ${entry.claims}</div>
+            <div><strong>Journal:</strong> ${entry.journal ? escapeHtml(entry.journal) : "not available"}</div>
             <div><strong>Compounds:</strong> ${entry.compoundsText || "Unknown"}</div>
             <div><strong>${rightLabel}:</strong> ${entry.rightsText || "Unknown"}</div>
             <div><strong>Authors:</strong> ${entry.authorsText || "not available"}</div>
@@ -2032,6 +2038,7 @@ function mechanisticFromPayload(payload) {
     openalex_id: item?.paper?.openalex_id || "",
     study_title: item?.paper?.title || "",
     study_year: item?.paper?.year ?? "",
+    study_journal: String(item?.paper?.journal ?? item?.paper?.study_journal ?? "").trim(),
     authors:
       item?.paper?.authors ??
       item?.paper?.author_list ??
@@ -2064,6 +2071,7 @@ function disorderFromPayload(payload) {
     openalex_id: item?.paper?.openalex_id || "",
     study_title: item?.paper?.title || "",
     study_year: item?.paper?.year ?? "",
+    study_journal: String(item?.paper?.journal ?? item?.paper?.study_journal ?? "").trim(),
     authors:
       item?.paper?.authors ??
       item?.paper?.author_list ??

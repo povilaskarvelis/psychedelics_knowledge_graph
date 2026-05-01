@@ -23,6 +23,25 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pdf_runtime import ensure_pdf_runtime
 
 ROOT = Path(__file__).resolve().parents[2]
+PAPER_METADATA_FIELDS = [
+    "study_journal",
+    "publication_type",
+    "trial_registry_ids",
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "mesh_terms",
+    "keywords",
+    "funders",
+    "grant_ids",
+    "related_dois",
+    "publication_relations",
+    "is_retracted",
+    "has_correction",
+    "language",
+    "semantic_scholar_id",
+]
 
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
 logging.getLogger("pypdf").setLevel(logging.ERROR)
@@ -39,6 +58,15 @@ DATASET_CONFIG = {
 STREAM_RE = re.compile(rb"stream\r?\n(.*?)\r?\nendstream", re.S)
 LITERAL_STRING_RE = re.compile(rb"\((?:\\.|[^\\)])*\)")
 HEX_STRING_RE = re.compile(rb"<([0-9A-Fa-f\s]+)>")
+TRIAL_REGISTRY_PATTERNS = [
+    re.compile(r"\bNCT\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bISRCTN\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bACTRN\d{14}\b", re.IGNORECASE),
+    re.compile(r"\bDRKS\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bIRCT[0-9A-Z]{6,}\b", re.IGNORECASE),
+    re.compile(r"\bRBR-[A-Z0-9]{3,}\b", re.IGNORECASE),
+    re.compile(r"\b(?:EudraCT|EU\s*CT|EUCTR)\s*(?:number|no\.?|#|:)?\s*(\d{4}-\d{6}-\d{2})\b", re.IGNORECASE),
+]
 
 TYPE_VAL_UNIT_RE = re.compile(
     r"\b(?P<atype>Ki|Kd|IC50|EC50|EC90)\b"
@@ -141,6 +169,19 @@ def normalize_text(raw: str) -> str:
     lowered = normalize(raw).lower()
     lowered = re.sub(r"[^a-z0-9\s\-\+\.]+", " ", lowered)
     return re.sub(r"\s+", " ", lowered).strip()
+
+
+def extract_trial_registry_ids(*values: object) -> str:
+    ids: List[str] = []
+    for value in values:
+        text = normalize(value)
+        for pattern in TRIAL_REGISTRY_PATTERNS:
+            for match in pattern.finditer(text):
+                identifier = match.group(1) if match.lastindex else match.group(0)
+                identifier = re.sub(r"\s+", "", identifier).upper()
+                if identifier not in ids:
+                    ids.append(identifier)
+    return " | ".join(ids)
 
 
 def detect_paper_type(text_norm: str, title_norm: str = "") -> str:
@@ -1271,6 +1312,22 @@ def main() -> int:
         title = normalize(paper.get("study_title", ""))
         all_text = " ".join(segments[:5000])
         text_norm = normalize_text(f"{title} {all_text}")
+
+        for key_stub, key_paper in (
+            ("study_title", "study_title"),
+            ("authors", "authors"),
+            ("study_year", "study_year"),
+            *[(field, field) for field in PAPER_METADATA_FIELDS],
+        ):
+            if not normalize(new_row.get(key_stub, "")) and normalize(paper.get(key_paper, "")):
+                new_row[key_stub] = paper.get(key_paper, "")
+                changed_fields.append(key_stub)
+
+        registry_ids = extract_trial_registry_ids(title, all_text, new_row.get("trial_registry_ids", ""))
+        if registry_ids and normalize(new_row.get("trial_registry_ids", "")) != registry_ids:
+            new_row["trial_registry_ids"] = registry_ids
+            changed_fields.append("trial_registry_ids")
+
         inferred_paper_type = detect_paper_type(text_norm, title_norm=normalize_text(title))
         if normalize(new_row.get("paper_type", "")) != inferred_paper_type:
             new_row["paper_type"] = inferred_paper_type

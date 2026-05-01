@@ -4,12 +4,36 @@ This policy governs how claims are labeled and trusted.
 
 ## Required provenance fields
 Every claim must include:
-- `paper_type`: `primary_results`, `review`, `protocol`, `conference_or_poster_abstract`, or `other`
-- `source_type`: `primary_study`, `review`, `meta_analysis`, `registry`, or `other`
+- `paper_type`: normalized article/result category, including
+  `primary_results`, `systematic_review`, `meta_analysis`, `review`,
+  `protocol`, `conference_or_poster_abstract`, `case_report`, `commentary`,
+  `correction`, `erratum`, `other`, or `uncertain`
+- `source_type`: normalized source class, including `primary_study`,
+  `secondary_evidence`, `review`, `meta_analysis`, `commentary`,
+  `study_protocol`, `correction`, `conference_abstract`, `case_report`,
+  `registry`, `other`, or `uncertain`
+- `source_family`: broader family such as `original_empirical`,
+  `evidence_synthesis`, `opinion_or_commentary`, `protocol`, `correction`,
+  `conference_abstract`, or `uncertain`
 - `access_level`: `full_text_seen`, `abstract_only`, or `secondary_summary`
 - `evidence_location`: `table`, `figure`, `text`, `abstract`, `supplement`, `mixed`, or `unknown`
 - `evidence_locator`: concrete location such as `Table 1`, `Figure 2`, `Results`, `Abstract`
 - `study_design`: normalized design label
+
+Every paper record should preserve useful bibliographic/extraction fields when
+available:
+- `study_journal`, `publication_type`, `publication_date`, `journal_issn`,
+  `journal_eissn`, `publisher`, `trial_registry_ids`
+- `mesh_terms`, `keywords`, `funders`, `grant_ids`, `related_dois`,
+  `publication_relations`, `is_retracted`, `has_correction`, `language`,
+  `semantic_scholar_id`
+- `sample_size_total`, `sample_size_by_arm`, `population`
+- `intervention_or_exposure`, `comparator`, `dose`, `route`,
+  `session_count_or_duration`
+- `primary_outcome`, `outcome_measure`, `timepoint`, `effect_size`, `p_value`,
+  `confidence_interval`
+- `adverse_events`, `funding`, `conflicts_of_interest`,
+  `risk_of_bias_summary`
 
 ## Internal evidence tier heuristic
 
@@ -18,6 +42,10 @@ GRADE or Cochrane certainty rating and should not be foregrounded as a visible
 claim-card badge. The UI should prefer factual provenance labels such as
 `rct`, `open label`, `preclinical`, `full text`, `abstract`, and claim
 direction.
+
+`evidence_strength` is an LLM/rule proposal field for later synthesis. It
+should be treated as provisional unless it is backed by an explicit risk-of-bias
+or certainty assessment workflow.
 
 ### Mechanistic claims
 - `high`: direct assay evidence from primary study with explicit assay values and target
@@ -31,13 +59,31 @@ direction.
 
 ## Minimal claim direction
 - Disorder claims also include `result_direction`: `positive`, `null`, `negative`, `mixed`, or `unclear`
-- `protocol`, `review`, and `conference_or_poster_abstract` papers are not countable primary-evidence claims
-- Rows auto-demoted from the main curated set are kept in exploratory files under `data/curated/` rather than deleted
+- `protocol`, `review`, `systematic_review`, `meta_analysis`,
+  `conference_or_poster_abstract`, `commentary`, `correction`, and `erratum`
+  papers are not countable primary-evidence claims
+- Case reports are original empirical evidence, but they should normally be
+  low-strength and should not be pooled with trials without an explicit view
+  choice
+- Rows auto-demoted from the main curated set are kept in exploratory files
+  under `data/curated/` rather than deleted
 
 ## Access-level semantics
 - `full_text_seen`: curator verified claim from full paper content
 - `abstract_only`: curator verified claim from abstract only
 - `secondary_summary`: claim taken from a review, summary table, or secondary source
+
+## Screening and assessment terminology
+- **Discovery/search**: database/API retrieval and DOI queue generation.
+- **Deduplication**: DOI/title-level merging before screening.
+- **Abstract screening**: title/abstract relevance screening before PDF
+  acquisition.
+- **Full-text eligibility assessment**: full-text decision about whether the
+  paper is in scope and what source family it belongs to.
+- **Data extraction**: structured extraction of study design, sample, measures,
+  outcomes, effect sizes, adverse events, funding/COI, and risk-of-bias notes.
+- **Adjudication**: final conflict resolution when deterministic rules, LLM
+  proposals, and/or curator decisions disagree.
 
 ## Upgrade path
 1. Convert `secondary_summary` to `full_text_seen` with explicit locator.

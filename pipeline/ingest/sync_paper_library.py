@@ -23,12 +23,42 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_METADATA_PROVIDER_ORDER = ["pubmed", "pmc", "unpaywall", "crossref", "openalex", "semantic_scholar"]
+PAPER_METADATA_SCHEMA_VERSION = "paper_metadata_v2"
+PAPER_METADATA_FIELDS = [
+    "study_journal",
+    "publication_type",
+    "trial_registry_ids",
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "mesh_terms",
+    "keywords",
+    "funders",
+    "grant_ids",
+    "related_dois",
+    "publication_relations",
+    "is_retracted",
+    "has_correction",
+    "language",
+    "semantic_scholar_id",
+]
 PLACEHOLDER_EMAILS = {
     "test@example.com",
     "you@example.com",
     "your_real_email@domain.org",
     "your_email@example.com",
 }
+TRIAL_REGISTRY_PATTERNS = [
+    re.compile(r"\bNCT\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bISRCTN\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bACTRN\d{14}\b", re.IGNORECASE),
+    re.compile(r"\bDRKS\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bIRCT[0-9A-Z]{6,}\b", re.IGNORECASE),
+    re.compile(r"\bRBR-[A-Z0-9]{3,}\b", re.IGNORECASE),
+    re.compile(r"\b(?:EudraCT|EU\s*CT|EUCTR)\s*(?:number|no\.?|#|:)?\s*(\d{4}-\d{6}-\d{2})\b", re.IGNORECASE),
+]
+DOI_FIND_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b", re.IGNORECASE)
 
 
 def now_utc() -> str:
@@ -234,6 +264,10 @@ def parse_doi_queue(path: Path) -> List[dict]:
                     "study_title": parts[3] if len(parts) > 3 else "",
                     "study_year": parts[4] if len(parts) > 4 else "",
                     "authors": parts[5] if len(parts) > 5 else "",
+                    **{
+                        field: parts[6 + field_idx] if len(parts) > 6 + field_idx else ""
+                        for field_idx, field in enumerate(PAPER_METADATA_FIELDS)
+                    },
                 }
             )
     return rows
@@ -259,6 +293,7 @@ def dedupe_queue_rows(rows: List[dict]) -> List[dict]:
                 "study_title": normalize(row.get("study_title", "")),
                 "study_year": normalize(row.get("study_year", "")),
                 "authors": normalize(row.get("authors", "")),
+                **{field: normalize(row.get(field, "")) for field in PAPER_METADATA_FIELDS},
                 "contexts": [context],
             }
             continue
@@ -268,6 +303,9 @@ def dedupe_queue_rows(rows: List[dict]) -> List[dict]:
             existing["study_year"] = context["study_year"]
         if not normalize(existing.get("authors", "")) and normalize(row.get("authors", "")):
             existing["authors"] = normalize(row.get("authors", ""))
+        for metadata_field in PAPER_METADATA_FIELDS:
+            if not normalize(existing.get(metadata_field, "")) and normalize(row.get(metadata_field, "")):
+                existing[metadata_field] = normalize(row.get(metadata_field, ""))
         if context not in existing["contexts"]:
             existing["contexts"].append(context)
     return sorted(merged.values(), key=lambda r: normalize(r.get("study_doi", "")))
@@ -282,6 +320,7 @@ def paper_from_existing_row(row: dict) -> dict:
         "study_title": normalize(row.get("study_title", "")),
         "study_year": normalize(row.get("study_year", "")),
         "authors": normalize(row.get("authors", "")),
+        **{field: normalize(row.get(field, "")) for field in PAPER_METADATA_FIELDS},
         "contexts": contexts,
     }
 
@@ -380,6 +419,390 @@ def first_list_value(value: object) -> str:
     return strip_markup(value)
 
 
+def join_list_values(value: object) -> str:
+    values: List[str] = []
+    raw_values = value if isinstance(value, list) else [value]
+    for item in raw_values:
+        text = strip_markup(item)
+        if text and text not in values:
+            values.append(text)
+    return " | ".join(values)
+
+
+def join_unique(values: Iterable[object]) -> str:
+    out: List[str] = []
+    for value in values:
+        text = strip_markup(value)
+        if text and text not in out:
+            out.append(text)
+    return " | ".join(out)
+
+
+def extract_trial_registry_ids(*values: object) -> str:
+    ids: List[str] = []
+
+    def scan(value: object) -> None:
+        if value is None:
+            return
+        if isinstance(value, dict):
+            for nested in value.values():
+                scan(nested)
+            return
+        if isinstance(value, (list, tuple, set)):
+            for nested in value:
+                scan(nested)
+            return
+        text = strip_markup(value)
+        for pattern in TRIAL_REGISTRY_PATTERNS:
+            for match in pattern.finditer(text):
+                identifier = match.group(1) if match.lastindex else match.group(0)
+                identifier = re.sub(r"\s+", "", identifier).upper()
+                if identifier and identifier not in ids:
+                    ids.append(identifier)
+
+    for value in values:
+        scan(value)
+    return " | ".join(ids)
+
+
+def extract_dois(*values: object) -> str:
+    out: List[str] = []
+
+    def scan(value: object) -> None:
+        if value is None:
+            return
+        if isinstance(value, dict):
+            for nested in value.values():
+                scan(nested)
+            return
+        if isinstance(value, (list, tuple, set)):
+            for nested in value:
+                scan(nested)
+            return
+        for match in DOI_FIND_RE.findall(strip_markup(value)):
+            doi = normalize_doi(match).rstrip(".,;)")
+            if doi and doi not in out:
+                out.append(doi)
+
+    for value in values:
+        scan(value)
+    return " | ".join(out)
+
+
+def normalize_date_parts(year: object, month: object = "", day: object = "") -> str:
+    year_text = normalize(year)
+    if not re.fullmatch(r"\d{4}", year_text):
+        return ""
+
+    month_map = {
+        "jan": "01",
+        "feb": "02",
+        "mar": "03",
+        "apr": "04",
+        "may": "05",
+        "jun": "06",
+        "jul": "07",
+        "aug": "08",
+        "sep": "09",
+        "oct": "10",
+        "nov": "11",
+        "dec": "12",
+    }
+    month_text = normalize(month)
+    if month_text:
+        month_norm = month_map.get(month_text[:3].lower(), month_text)
+        if month_norm.isdigit() and 1 <= int(month_norm) <= 12:
+            month_text = f"{int(month_norm):02d}"
+        else:
+            month_text = ""
+    day_text = normalize(day)
+    if day_text and day_text.isdigit() and 1 <= int(day_text) <= 31:
+        day_text = f"{int(day_text):02d}"
+    else:
+        day_text = ""
+    if month_text and day_text:
+        return f"{year_text}-{month_text}-{day_text}"
+    if month_text:
+        return f"{year_text}-{month_text}"
+    return year_text
+
+
+def date_from_crossref_date(*values: object) -> str:
+    for value in values:
+        if not isinstance(value, dict):
+            continue
+        date_parts = value.get("date-parts")
+        if not isinstance(date_parts, list) or not date_parts:
+            continue
+        first = date_parts[0]
+        if isinstance(first, list) and first:
+            return normalize_date_parts(
+                first[0],
+                first[1] if len(first) > 1 else "",
+                first[2] if len(first) > 2 else "",
+            )
+    return ""
+
+
+def bool_text(value: object) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    text = normalize(value).lower()
+    if text in {"true", "yes", "1"}:
+        return "true"
+    if text in {"false", "no", "0"}:
+        return "false"
+    return ""
+
+
+def publication_date_from_pubmed_date_element(element: Optional[ET.Element]) -> str:
+    if element is None:
+        return ""
+    date = normalize_date_parts(
+        element.findtext("Year"),
+        element.findtext("Month"),
+        element.findtext("Day"),
+    )
+    if date:
+        return date
+    medline_date = normalize(element.findtext("MedlineDate"))
+    match = re.search(r"\b((?:18|19|20|21)\d{2})(?:\s+([A-Za-z]{3,9}))?(?:\s+(\d{1,2}))?\b", medline_date)
+    if match:
+        return normalize_date_parts(match.group(1), match.group(2) or "", match.group(3) or "")
+    return ""
+
+
+def publication_date_from_pubmed_article(article: ET.Element) -> str:
+    for element in article.findall(".//Article/ArticleDate"):
+        date = publication_date_from_pubmed_date_element(element)
+        if date:
+            return date
+    for path in (
+        ".//Article/Journal/JournalIssue/PubDate",
+        ".//PubmedData/History/PubMedPubDate",
+    ):
+        for element in article.findall(path):
+            date = publication_date_from_pubmed_date_element(element)
+            if date:
+                return date
+    return ""
+
+
+def issns_from_pubmed_article(article: ET.Element) -> Tuple[str, str]:
+    print_issn = ""
+    electronic_issn = ""
+    fallback_issns: List[str] = []
+    for item in article.findall(".//Article/Journal/ISSN"):
+        issn = normalize("".join(item.itertext()))
+        if not issn:
+            continue
+        issn_type = normalize(item.attrib.get("IssnType", "")).lower()
+        if issn_type == "electronic" and not electronic_issn:
+            electronic_issn = issn
+        elif issn_type == "print" and not print_issn:
+            print_issn = issn
+        elif issn not in fallback_issns:
+            fallback_issns.append(issn)
+    linking = normalize(article.findtext(".//MedlineJournalInfo/ISSNLinking"))
+    if not print_issn:
+        print_issn = linking or (fallback_issns[0] if fallback_issns else "")
+    if not electronic_issn:
+        electronic_issn = next((value for value in fallback_issns if value != print_issn), "")
+    return print_issn, electronic_issn
+
+
+def journal_from_openalex_work(work: dict) -> str:
+    source = source_from_openalex_work(work)
+    return normalize(source.get("display_name", "")) if source else ""
+
+
+def source_from_openalex_work(work: dict) -> dict:
+    def source_from_location(location: object) -> dict:
+        if not isinstance(location, dict):
+            return {}
+        source = location.get("source", {})
+        return source if isinstance(source, dict) else {}
+
+    primary = source_from_location(work.get("primary_location", {}))
+    if normalize(primary.get("display_name", "")):
+        return primary
+    for location in work.get("locations", []) if isinstance(work.get("locations", []), list) else []:
+        source = source_from_location(location)
+        if normalize(source.get("display_name", "")):
+            return source
+    return {}
+
+
+def issns_from_openalex_work(work: dict) -> Tuple[str, str]:
+    source = source_from_openalex_work(work)
+    if not source:
+        return "", ""
+    issn_l = normalize(source.get("issn_l", ""))
+    issns = source.get("issn", [])
+    values = [normalize(value) for value in issns] if isinstance(issns, list) else [normalize(issns)]
+    values = [value for value in values if value]
+    journal_issn = issn_l or (values[0] if values else "")
+    eissn = next((value for value in values if value != journal_issn), "")
+    return journal_issn, eissn
+
+
+def publisher_from_openalex_work(work: dict) -> str:
+    source = source_from_openalex_work(work)
+    if not source:
+        return ""
+    return (
+        normalize(source.get("host_organization_name", ""))
+        or normalize(source.get("publisher", ""))
+        or normalize(source.get("host_organization", ""))
+    )
+
+
+def mesh_terms_from_openalex_work(work: dict) -> str:
+    values: List[str] = []
+    mesh = work.get("mesh", []) if isinstance(work, dict) else []
+    for item in mesh if isinstance(mesh, list) else []:
+        if not isinstance(item, dict):
+            continue
+        descriptor = normalize(item.get("descriptor_name", ""))
+        qualifier = normalize(item.get("qualifier_name", ""))
+        value = f"{descriptor} / {qualifier}" if descriptor and qualifier else descriptor or qualifier
+        if value and value not in values:
+            values.append(value)
+    return " | ".join(values)
+
+
+def keywords_from_openalex_work(work: dict, max_values: int = 20) -> str:
+    values: List[str] = []
+    keywords = work.get("keywords", []) if isinstance(work, dict) else []
+    for item in keywords if isinstance(keywords, list) else []:
+        if isinstance(item, dict):
+            value = normalize(item.get("keyword", "")) or normalize(item.get("display_name", ""))
+        else:
+            value = normalize(item)
+        if value and value not in values:
+            values.append(value)
+        if len(values) >= max_values:
+            return " | ".join(values)
+    concepts = work.get("concepts", []) if isinstance(work, dict) else []
+    for item in concepts if isinstance(concepts, list) else []:
+        if not isinstance(item, dict):
+            continue
+        value = normalize(item.get("display_name", ""))
+        if value and value not in values:
+            values.append(value)
+        if len(values) >= max_values:
+            break
+    return " | ".join(values)
+
+
+def funding_from_openalex_work(work: dict) -> Tuple[str, str]:
+    funders: List[str] = []
+    grant_ids: List[str] = []
+    grants = work.get("grants", []) if isinstance(work, dict) else []
+    for item in grants if isinstance(grants, list) else []:
+        if not isinstance(item, dict):
+            continue
+        funder = normalize(item.get("funder_display_name", "")) or normalize(item.get("funder", ""))
+        award_id = normalize(item.get("award_id", ""))
+        if funder and funder not in funders:
+            funders.append(funder)
+        if award_id and award_id not in grant_ids:
+            grant_ids.append(award_id)
+    return " | ".join(funders), " | ".join(grant_ids)
+
+
+def publication_types_from_pubmed_article(article: ET.Element) -> str:
+    values: List[str] = []
+    for item in article.findall(".//PublicationTypeList/PublicationType"):
+        text = strip_markup(" ".join(item.itertext()))
+        if text and text not in values:
+            values.append(text)
+    return " | ".join(values)
+
+
+def mesh_terms_from_pubmed_article(article: ET.Element) -> str:
+    values: List[str] = []
+    for heading in article.findall(".//MeshHeadingList/MeshHeading"):
+        descriptor = strip_markup(" ".join(heading.find("DescriptorName").itertext())) if heading.find("DescriptorName") is not None else ""
+        qualifiers = [
+            strip_markup(" ".join(item.itertext()))
+            for item in heading.findall("QualifierName")
+            if strip_markup(" ".join(item.itertext()))
+        ]
+        if descriptor and qualifiers:
+            for qualifier in qualifiers:
+                value = f"{descriptor} / {qualifier}"
+                if value not in values:
+                    values.append(value)
+        elif descriptor and descriptor not in values:
+            values.append(descriptor)
+    return " | ".join(values)
+
+
+def keywords_from_pubmed_article(article: ET.Element) -> str:
+    values: List[str] = []
+    for item in article.findall(".//KeywordList/Keyword"):
+        text = strip_markup(" ".join(item.itertext()))
+        if text and text not in values:
+            values.append(text)
+    return " | ".join(values)
+
+
+def funding_from_pubmed_article(article: ET.Element) -> Tuple[str, str]:
+    funders: List[str] = []
+    grant_ids: List[str] = []
+    for grant in article.findall(".//GrantList/Grant"):
+        agency = normalize(grant.findtext("Agency"))
+        acronym = normalize(grant.findtext("Acronym"))
+        funder = agency or acronym
+        grant_id = normalize(grant.findtext("GrantID"))
+        if funder and funder not in funders:
+            funders.append(funder)
+        if grant_id and grant_id not in grant_ids:
+            grant_ids.append(grant_id)
+    return " | ".join(funders), " | ".join(grant_ids)
+
+
+def language_from_pubmed_article(article: ET.Element) -> str:
+    return join_unique(" ".join(item.itertext()) for item in article.findall(".//Article/Language"))
+
+
+def pubmed_publication_flags(article: ET.Element) -> Tuple[str, str]:
+    publication_types = publication_types_from_pubmed_article(article).lower()
+    relation_types = " | ".join(
+        normalize(item.attrib.get("RefType", ""))
+        for item in article.findall(".//CommentsCorrectionsList/CommentsCorrections")
+    ).lower()
+    text = f"{publication_types} | {relation_types}"
+    is_retracted = "true" if "retract" in text else ""
+    has_correction = "true" if any(token in text for token in ("correction", "erratum", "corrected")) else ""
+    return is_retracted, has_correction
+
+
+def publication_relations_from_pubmed_article(article: ET.Element) -> Tuple[str, str]:
+    relation_values: List[str] = []
+    relation_texts: List[str] = []
+    for item in article.findall(".//CommentsCorrectionsList/CommentsCorrections"):
+        ref_type = normalize(item.attrib.get("RefType", ""))
+        pmid = normalize(item.findtext("PMID"))
+        ref_source = normalize(item.findtext("RefSource"))
+        note = normalize(item.findtext("Note"))
+        relation_bits = []
+        if ref_type:
+            relation_bits.append(ref_type)
+        if pmid:
+            relation_bits.append(f"PMID:{pmid}")
+        if ref_source:
+            relation_bits.append(ref_source)
+        if note:
+            relation_bits.append(note)
+        relation = " ".join(relation_bits)
+        if relation and relation not in relation_values:
+            relation_values.append(relation)
+        relation_texts.extend([ref_source, note])
+    return extract_dois(relation_texts), " | ".join(relation_values)
+
+
 def year_from_crossref_date(*values: object) -> str:
     for value in values:
         if not isinstance(value, dict):
@@ -430,8 +853,9 @@ def lookup_openalex_work(client: RateLimitedHttpClient, doi: str, email: str, ap
         "filter": f"doi:https://doi.org/{doi}",
         "per-page": 1,
         "select": (
-            "doi,ids,display_name,publication_year,authorships,"
-            "abstract_inverted_index,open_access,best_oa_location,primary_location,locations"
+            "doi,ids,display_name,publication_year,publication_date,type,authorships,"
+            "abstract_inverted_index,open_access,best_oa_location,primary_location,locations,"
+            "language,biblio,grants,mesh,concepts"
         ),
     }
     if api_key:
@@ -447,16 +871,41 @@ def lookup_openalex_work(client: RateLimitedHttpClient, doi: str, email: str, ap
 
 def metadata_from_openalex_work(work: dict, paper: dict) -> dict:
     ids = work.get("ids", {}) if isinstance(work, dict) else {}
+    title = normalize(work.get("display_name", "")) or normalize(paper.get("study_title", ""))
+    abstract = decode_openalex_abstract(work.get("abstract_inverted_index", {}))
+    journal_issn, journal_eissn = issns_from_openalex_work(work)
+    funders, grant_ids = funding_from_openalex_work(work)
     return {
         "metadata_provider": "openalex",
         "metadata_provider_chain": "openalex",
         "openalex_id": normalize(ids.get("openalex", "")) if isinstance(ids, dict) else "",
         "pmid": normalize(ids.get("pmid", "")).removeprefix("https://pubmed.ncbi.nlm.nih.gov/") if isinstance(ids, dict) else "",
         "pmcid": normalize(ids.get("pmcid", "")) if isinstance(ids, dict) else "",
-        "study_title": normalize(work.get("display_name", "")) or normalize(paper.get("study_title", "")),
+        "study_title": title,
         "study_year": normalize(work.get("publication_year", "")) or normalize(paper.get("study_year", "")),
         "authors": authors_from_openalex(work.get("authorships", []) or []) or normalize(paper.get("authors", "")),
-        "abstract": decode_openalex_abstract(work.get("abstract_inverted_index", {})),
+        "study_journal": journal_from_openalex_work(work) or normalize(paper.get("study_journal", "")),
+        "publication_type": normalize(work.get("type", "")) or normalize(paper.get("publication_type", "")),
+        "trial_registry_ids": extract_trial_registry_ids(
+            title,
+            abstract,
+            paper.get("trial_registry_ids", ""),
+        ),
+        "publication_date": normalize(work.get("publication_date", "")) or normalize(paper.get("publication_date", "")),
+        "journal_issn": journal_issn or normalize(paper.get("journal_issn", "")),
+        "journal_eissn": journal_eissn or normalize(paper.get("journal_eissn", "")),
+        "publisher": publisher_from_openalex_work(work) or normalize(paper.get("publisher", "")),
+        "mesh_terms": mesh_terms_from_openalex_work(work) or normalize(paper.get("mesh_terms", "")),
+        "keywords": keywords_from_openalex_work(work) or normalize(paper.get("keywords", "")),
+        "funders": funders or normalize(paper.get("funders", "")),
+        "grant_ids": grant_ids or normalize(paper.get("grant_ids", "")),
+        "related_dois": normalize(paper.get("related_dois", "")),
+        "publication_relations": normalize(paper.get("publication_relations", "")),
+        "is_retracted": normalize(paper.get("is_retracted", "")),
+        "has_correction": normalize(paper.get("has_correction", "")),
+        "language": normalize(work.get("language", "")) or normalize(paper.get("language", "")),
+        "semantic_scholar_id": normalize(paper.get("semantic_scholar_id", "")),
+        "abstract": abstract,
         **extract_oa_fields(work),
     }
 
@@ -511,16 +960,45 @@ def authors_from_pubmed_article(article: ET.Element, max_names: int = 10) -> str
 
 def metadata_from_pubmed_article(article: ET.Element, paper: dict) -> dict:
     abstract_parts = article.findall(".//Article/Abstract/AbstractText")
+    title = strip_markup("".join(article.find(".//ArticleTitle").itertext())) if article.find(".//ArticleTitle") is not None else normalize(paper.get("study_title", ""))
+    abstract = join_text_parts(abstract_parts)
+    journal = normalize(article.findtext(".//Article/Journal/Title")) or normalize(article.findtext(".//Article/Journal/ISOAbbreviation"))
+    journal_issn, journal_eissn = issns_from_pubmed_article(article)
+    funders, grant_ids = funding_from_pubmed_article(article)
+    related_dois, publication_relations = publication_relations_from_pubmed_article(article)
+    is_retracted, has_correction = pubmed_publication_flags(article)
     return {
         "metadata_provider": "pubmed",
         "metadata_provider_chain": "pubmed",
         "openalex_id": "",
         "pmid": normalize(article.findtext(".//MedlineCitation/PMID")),
         "pmcid": pubmed_article_id(article, "pmc"),
-        "study_title": strip_markup("".join(article.find(".//ArticleTitle").itertext())) if article.find(".//ArticleTitle") is not None else normalize(paper.get("study_title", "")),
+        "study_title": title,
         "study_year": year_from_pubmed_article(article) or normalize(paper.get("study_year", "")),
         "authors": authors_from_pubmed_article(article) or normalize(paper.get("authors", "")),
-        "abstract": join_text_parts(abstract_parts),
+        "study_journal": journal or normalize(paper.get("study_journal", "")),
+        "publication_type": publication_types_from_pubmed_article(article) or normalize(paper.get("publication_type", "")),
+        "trial_registry_ids": extract_trial_registry_ids(
+            title,
+            abstract,
+            " ".join(article.itertext()),
+            paper.get("trial_registry_ids", ""),
+        ),
+        "publication_date": publication_date_from_pubmed_article(article) or normalize(paper.get("publication_date", "")),
+        "journal_issn": journal_issn or normalize(paper.get("journal_issn", "")),
+        "journal_eissn": journal_eissn or normalize(paper.get("journal_eissn", "")),
+        "publisher": normalize(paper.get("publisher", "")),
+        "mesh_terms": mesh_terms_from_pubmed_article(article) or normalize(paper.get("mesh_terms", "")),
+        "keywords": keywords_from_pubmed_article(article) or normalize(paper.get("keywords", "")),
+        "funders": funders or normalize(paper.get("funders", "")),
+        "grant_ids": grant_ids or normalize(paper.get("grant_ids", "")),
+        "related_dois": related_dois or normalize(paper.get("related_dois", "")),
+        "publication_relations": publication_relations or normalize(paper.get("publication_relations", "")),
+        "is_retracted": is_retracted or normalize(paper.get("is_retracted", "")),
+        "has_correction": has_correction or normalize(paper.get("has_correction", "")),
+        "language": language_from_pubmed_article(article) or normalize(paper.get("language", "")),
+        "semantic_scholar_id": normalize(paper.get("semantic_scholar_id", "")),
+        "abstract": abstract,
         "is_oa": "",
         "oa_status": "",
         "oa_url": "",
@@ -708,6 +1186,14 @@ def lookup_pmc_metadata(
         "study_title": title or normalize(paper.get("study_title", "")),
         "study_year": normalize(paper.get("study_year", "")),
         "authors": normalize(paper.get("authors", "")),
+        "study_journal": normalize(paper.get("study_journal", "")),
+        "publication_type": normalize(paper.get("publication_type", "")),
+        "trial_registry_ids": extract_trial_registry_ids(
+            title,
+            abstract_parts,
+            paper.get("trial_registry_ids", ""),
+        ),
+        **{field: normalize(paper.get(field, "")) for field in PAPER_METADATA_FIELDS if field not in {"study_journal", "publication_type", "trial_registry_ids"}},
         "abstract": " ".join(abstract_parts).strip(),
         "is_oa": normalize(oa_info.get("is_oa", "")),
         "oa_status": normalize(oa_info.get("oa_status", "")),
@@ -722,6 +1208,90 @@ def lookup_pmc_metadata(
     }
 
 
+def issns_from_crossref_item(item: dict) -> Tuple[str, str]:
+    print_issn = ""
+    electronic_issn = ""
+    for entry in item.get("issn-type", []) if isinstance(item.get("issn-type", []), list) else []:
+        if not isinstance(entry, dict):
+            continue
+        value = normalize(entry.get("value", ""))
+        kind = normalize(entry.get("type", "")).lower()
+        if kind == "electronic" and value and not electronic_issn:
+            electronic_issn = value
+        elif kind == "print" and value and not print_issn:
+            print_issn = value
+    issns = item.get("ISSN", [])
+    values = [normalize(value) for value in issns] if isinstance(issns, list) else [normalize(issns)]
+    values = [value for value in values if value]
+    if not print_issn:
+        print_issn = next((value for value in values if value != electronic_issn), values[0] if values else "")
+    if not electronic_issn:
+        electronic_issn = next((value for value in values if value != print_issn), "")
+    return print_issn, electronic_issn
+
+
+def funding_from_crossref_item(item: dict) -> Tuple[str, str]:
+    funders: List[str] = []
+    grant_ids: List[str] = []
+    for funder_row in item.get("funder", []) if isinstance(item.get("funder", []), list) else []:
+        if not isinstance(funder_row, dict):
+            continue
+        funder = normalize(funder_row.get("name", ""))
+        if funder and funder not in funders:
+            funders.append(funder)
+        awards = funder_row.get("award", [])
+        for award in awards if isinstance(awards, list) else [awards]:
+            text = normalize(award)
+            if text and text not in grant_ids:
+                grant_ids.append(text)
+    return " | ".join(funders), " | ".join(grant_ids)
+
+
+def relations_from_crossref_item(item: dict) -> Tuple[str, str]:
+    related_dois: List[str] = []
+    relation_values: List[str] = []
+    relation = item.get("relation", {})
+    if not isinstance(relation, dict):
+        return "", ""
+    for relation_type, entries in relation.items():
+        raw_entries = entries if isinstance(entries, list) else [entries]
+        for entry in raw_entries:
+            if not isinstance(entry, dict):
+                continue
+            identifier = normalize(entry.get("id", ""))
+            id_type = normalize(entry.get("id-type", ""))
+            asserted_by = normalize(entry.get("asserted-by", ""))
+            parts = [normalize(relation_type)]
+            if id_type and identifier:
+                parts.append(f"{id_type}:{identifier}")
+            elif identifier:
+                parts.append(identifier)
+            if asserted_by:
+                parts.append(f"asserted-by:{asserted_by}")
+            value = " ".join(parts)
+            if value and value not in relation_values:
+                relation_values.append(value)
+            if id_type.lower() == "doi":
+                doi = normalize_doi(identifier)
+                if doi and doi not in related_dois:
+                    related_dois.append(doi)
+            else:
+                for doi in extract_dois(identifier).split(" | "):
+                    if doi and doi not in related_dois:
+                        related_dois.append(doi)
+    return " | ".join(related_dois), " | ".join(relation_values)
+
+
+def crossref_publication_flags(item: dict) -> Tuple[str, str]:
+    relation = item.get("relation", {})
+    relation_text = " ".join(relation.keys()).lower() if isinstance(relation, dict) else ""
+    item_type = normalize(item.get("type", "")).lower()
+    text = f"{item_type} {relation_text}"
+    is_retracted = "true" if "retract" in text else ""
+    has_correction = "true" if any(token in text for token in ("correction", "erratum", "corrected")) else ""
+    return is_retracted, has_correction
+
+
 def lookup_crossref_metadata(
     client: RateLimitedHttpClient,
     doi: str,
@@ -733,13 +1303,25 @@ def lookup_crossref_metadata(
     item = payload.get("message", {}) if isinstance(payload, dict) else {}
     if not isinstance(item, dict) or normalize_doi(item.get("DOI", "")).lower() != normalize_doi(doi).lower():
         return None
+    title = first_list_value(item.get("title", "")) or normalize(paper.get("study_title", ""))
+    abstract = strip_markup(item.get("abstract", ""))
+    publication_date = date_from_crossref_date(
+        item.get("published", {}),
+        item.get("published-online", {}),
+        item.get("published-print", {}),
+        item.get("issued", {}),
+    )
+    journal_issn, journal_eissn = issns_from_crossref_item(item)
+    funders, grant_ids = funding_from_crossref_item(item)
+    related_dois, publication_relations = relations_from_crossref_item(item)
+    is_retracted, has_correction = crossref_publication_flags(item)
     return {
         "metadata_provider": "crossref",
         "metadata_provider_chain": "crossref",
         "openalex_id": "",
         "pmid": "",
         "pmcid": "",
-        "study_title": first_list_value(item.get("title", "")) or normalize(paper.get("study_title", "")),
+        "study_title": title,
         "study_year": year_from_crossref_date(
             item.get("published", {}),
             item.get("published-online", {}),
@@ -748,7 +1330,29 @@ def lookup_crossref_metadata(
         )
         or normalize(paper.get("study_year", "")),
         "authors": authors_from_crossref(item.get("author", []) or []) or normalize(paper.get("authors", "")),
-        "abstract": strip_markup(item.get("abstract", "")),
+        "study_journal": first_list_value(item.get("container-title", "")) or first_list_value(item.get("short-container-title", "")) or normalize(paper.get("study_journal", "")),
+        "publication_type": normalize(item.get("type", "")) or normalize(paper.get("publication_type", "")),
+        "trial_registry_ids": extract_trial_registry_ids(
+            title,
+            abstract,
+            item.get("clinical-trial-number", ""),
+            paper.get("trial_registry_ids", ""),
+        ),
+        "publication_date": publication_date or normalize(paper.get("publication_date", "")),
+        "journal_issn": journal_issn or normalize(paper.get("journal_issn", "")),
+        "journal_eissn": journal_eissn or normalize(paper.get("journal_eissn", "")),
+        "publisher": normalize(item.get("publisher", "")) or normalize(paper.get("publisher", "")),
+        "mesh_terms": normalize(paper.get("mesh_terms", "")),
+        "keywords": join_list_values(item.get("subject", [])) or normalize(paper.get("keywords", "")),
+        "funders": funders or normalize(paper.get("funders", "")),
+        "grant_ids": grant_ids or normalize(paper.get("grant_ids", "")),
+        "related_dois": related_dois or normalize(paper.get("related_dois", "")),
+        "publication_relations": publication_relations or normalize(paper.get("publication_relations", "")),
+        "is_retracted": is_retracted or normalize(paper.get("is_retracted", "")),
+        "has_correction": has_correction or normalize(paper.get("has_correction", "")),
+        "language": normalize(item.get("language", "")) or normalize(paper.get("language", "")),
+        "semantic_scholar_id": normalize(paper.get("semantic_scholar_id", "")),
+        "abstract": abstract,
         "is_oa": "",
         "oa_status": "",
         "oa_url": "",
@@ -781,6 +1385,32 @@ def lookup_unpaywall_metadata(
     return metadata_from_unpaywall_payload(payload, paper)
 
 
+def issns_from_semantic_scholar_payload(payload: dict) -> Tuple[str, str]:
+    venue = payload.get("publicationVenue", {}) if isinstance(payload.get("publicationVenue", {}), dict) else {}
+    issns = venue.get("issn", "")
+    values = [normalize(value) for value in issns] if isinstance(issns, list) else re.split(r"[,;]\s*", normalize(issns))
+    values = [value for value in values if value]
+    return (values[0] if values else "", values[1] if len(values) > 1 else "")
+
+
+def keywords_from_semantic_scholar_payload(payload: dict) -> str:
+    values: List[str] = []
+    fields = payload.get("fieldsOfStudy", [])
+    for value in fields if isinstance(fields, list) else [fields]:
+        text = normalize(value)
+        if text and text not in values:
+            values.append(text)
+    s2_fields = payload.get("s2FieldsOfStudy", [])
+    for item in s2_fields if isinstance(s2_fields, list) else []:
+        if not isinstance(item, dict):
+            continue
+        for key in ("category", "source"):
+            text = normalize(item.get(key, ""))
+            if text and text not in values:
+                values.append(text)
+    return " | ".join(values)
+
+
 def lookup_semantic_scholar_metadata(
     client: RateLimitedHttpClient,
     doi: str,
@@ -790,7 +1420,13 @@ def lookup_semantic_scholar_metadata(
     headers = {"x-api-key": api_key} if api_key else {}
     payload = client.get_json(
         f"https://api.semanticscholar.org/graph/v1/paper/{quote(f'DOI:{doi}', safe='')}",
-        params={"fields": "title,year,abstract,authors,externalIds,openAccessPdf,isOpenAccess,url"},
+        params={
+            "fields": (
+                "paperId,title,year,publicationDate,abstract,authors,externalIds,"
+                "openAccessPdf,isOpenAccess,url,venue,publicationVenue,publicationTypes,"
+                "journal,fieldsOfStudy,s2FieldsOfStudy"
+            )
+        },
         headers=headers,
     )
     if not isinstance(payload, dict) or payload.get("error"):
@@ -799,6 +1435,11 @@ def lookup_semantic_scholar_metadata(
     open_access_pdf = payload.get("openAccessPdf", {}) if isinstance(payload.get("openAccessPdf", {}), dict) else {}
     pdf_url = normalize(open_access_pdf.get("url", ""))
     is_oa = payload.get("isOpenAccess", "")
+    title = normalize(payload.get("title", "")) or normalize(paper.get("study_title", ""))
+    abstract = normalize(payload.get("abstract", ""))
+    journal = payload.get("journal", {}) if isinstance(payload.get("journal", {}), dict) else {}
+    publication_venue = payload.get("publicationVenue", {}) if isinstance(payload.get("publicationVenue", {}), dict) else {}
+    journal_issn, journal_eissn = issns_from_semantic_scholar_payload(payload)
     return {
         "metadata_provider": "semantic_scholar",
         "metadata_provider_chain": "semantic_scholar",
@@ -806,10 +1447,33 @@ def lookup_semantic_scholar_metadata(
         "openalex_id": "",
         "pmid": normalize(external_ids.get("PubMed", "")),
         "pmcid": normalize(external_ids.get("PubMedCentral", "")),
-        "study_title": normalize(payload.get("title", "")) or normalize(paper.get("study_title", "")),
+        "study_title": title,
         "study_year": normalize(payload.get("year", "")) or normalize(paper.get("study_year", "")),
         "authors": authors_from_semantic_scholar(payload.get("authors", []) or []) or normalize(paper.get("authors", "")),
-        "abstract": normalize(payload.get("abstract", "")),
+        "study_journal": normalize(journal.get("name", ""))
+        or normalize(publication_venue.get("name", ""))
+        or normalize(payload.get("venue", ""))
+        or normalize(paper.get("study_journal", "")),
+        "publication_type": join_list_values(payload.get("publicationTypes", [])) or normalize(paper.get("publication_type", "")),
+        "trial_registry_ids": extract_trial_registry_ids(
+            title,
+            abstract,
+            paper.get("trial_registry_ids", ""),
+        ),
+        "publication_date": normalize(payload.get("publicationDate", "")) or normalize(paper.get("publication_date", "")),
+        "journal_issn": journal_issn or normalize(paper.get("journal_issn", "")),
+        "journal_eissn": journal_eissn or normalize(paper.get("journal_eissn", "")),
+        "publisher": normalize(paper.get("publisher", "")),
+        "mesh_terms": normalize(paper.get("mesh_terms", "")),
+        "keywords": keywords_from_semantic_scholar_payload(payload) or normalize(paper.get("keywords", "")),
+        "funders": normalize(paper.get("funders", "")),
+        "grant_ids": normalize(paper.get("grant_ids", "")),
+        "related_dois": normalize(paper.get("related_dois", "")),
+        "publication_relations": normalize(paper.get("publication_relations", "")),
+        "is_retracted": normalize(paper.get("is_retracted", "")),
+        "has_correction": normalize(paper.get("has_correction", "")),
+        "language": normalize(paper.get("language", "")),
+        "abstract": abstract,
         "is_oa": "true" if is_oa is True else "false" if is_oa is False else "",
         "oa_status": "",
         "oa_url": normalize(payload.get("url", "")),
@@ -899,6 +1563,19 @@ def add_unpaywall_location_candidates(location: object, pdf_candidates: List[str
         add_unique(url_candidates, candidate)
 
 
+def issns_from_unpaywall_payload(payload: dict) -> Tuple[str, str]:
+    issn_l = normalize(payload.get("journal_issn_l", ""))
+    raw_issns = payload.get("journal_issns", "")
+    if isinstance(raw_issns, list):
+        values = [normalize(value) for value in raw_issns]
+    else:
+        values = re.split(r"[,;]\s*", normalize(raw_issns))
+    values = [value for value in values if value]
+    journal_issn = issn_l or (values[0] if values else "")
+    journal_eissn = next((value for value in values if value != journal_issn), "")
+    return journal_issn, journal_eissn
+
+
 def metadata_from_unpaywall_payload(payload: dict, paper: dict) -> dict:
     best_loc = payload.get("best_oa_location", {}) if isinstance(payload.get("best_oa_location", {}), dict) else {}
     first_loc = payload.get("first_oa_location", {}) if isinstance(payload.get("first_oa_location", {}), dict) else {}
@@ -916,6 +1593,8 @@ def metadata_from_unpaywall_payload(payload: dict, paper: dict) -> dict:
     best_url = normalize(best_loc.get("url", "")) if isinstance(best_loc, dict) else ""
     pdf_candidates = rank_pdf_candidates(pdf_candidates)
     best_pdf_url = pdf_candidates[0] if pdf_candidates else ""
+    title = normalize(payload.get("title", "")) or normalize(paper.get("study_title", ""))
+    journal_issn, journal_eissn = issns_from_unpaywall_payload(payload)
 
     return {
         "metadata_provider": "unpaywall",
@@ -923,9 +1602,29 @@ def metadata_from_unpaywall_payload(payload: dict, paper: dict) -> dict:
         "openalex_id": "",
         "pmid": "",
         "pmcid": "",
-        "study_title": normalize(payload.get("title", "")) or normalize(paper.get("study_title", "")),
+        "study_title": title,
         "study_year": normalize(payload.get("year", "")) or normalize(paper.get("study_year", "")),
         "authors": authors_from_unpaywall(payload.get("z_authors", []) or []) or normalize(paper.get("authors", "")),
+        "study_journal": normalize(payload.get("journal_name", "")) or normalize(paper.get("study_journal", "")),
+        "publication_type": normalize(payload.get("genre", "")) or normalize(paper.get("publication_type", "")),
+        "trial_registry_ids": extract_trial_registry_ids(
+            title,
+            paper.get("trial_registry_ids", ""),
+        ),
+        "publication_date": normalize(payload.get("published_date", "")) or normalize(paper.get("publication_date", "")),
+        "journal_issn": journal_issn or normalize(paper.get("journal_issn", "")),
+        "journal_eissn": journal_eissn or normalize(paper.get("journal_eissn", "")),
+        "publisher": normalize(payload.get("publisher", "")) or normalize(paper.get("publisher", "")),
+        "mesh_terms": normalize(paper.get("mesh_terms", "")),
+        "keywords": normalize(paper.get("keywords", "")),
+        "funders": normalize(paper.get("funders", "")),
+        "grant_ids": normalize(paper.get("grant_ids", "")),
+        "related_dois": normalize(paper.get("related_dois", "")),
+        "publication_relations": normalize(paper.get("publication_relations", "")),
+        "is_retracted": normalize(paper.get("is_retracted", "")),
+        "has_correction": normalize(paper.get("has_correction", "")),
+        "language": normalize(paper.get("language", "")),
+        "semantic_scholar_id": normalize(paper.get("semantic_scholar_id", "")),
         "abstract": "",
         "is_oa": "true" if is_oa else "false",
         "oa_status": oa_status,
@@ -1081,11 +1780,18 @@ def reusable_existing_row(row: dict) -> bool:
 def row_needs_metadata_refresh(row: dict) -> bool:
     if not row:
         return True
+    if normalize(row.get("paper_metadata_schema_version", "")) != PAPER_METADATA_SCHEMA_VERSION:
+        return True
     if normalize(row.get("metadata_lookup_error", "")):
         return True
-    if not normalize(row.get("study_title", "")):
-        return True
-    if not normalize(row.get("abstract", "")):
+    for field in ("study_title", "abstract", "study_journal", "publication_type", "publication_date"):
+        if not normalize(row.get(field, "")):
+            return True
+    if extract_trial_registry_ids(
+        row.get("study_title", ""),
+        row.get("abstract", ""),
+        row.get("trial_registry_ids", ""),
+    ) != normalize(row.get("trial_registry_ids", "")):
         return True
     return False
 
@@ -1097,6 +1803,11 @@ def row_from_existing(existing: dict, paper: dict, pdf_dir: Path) -> dict:
     row["study_title"] = normalize(row.get("study_title", "")) or normalize(paper.get("study_title", ""))
     row["study_year"] = normalize(row.get("study_year", "")) or normalize(paper.get("study_year", ""))
     row["authors"] = normalize(row.get("authors", "")) or normalize(paper.get("authors", ""))
+    for field in PAPER_METADATA_FIELDS:
+        row[field] = normalize(row.get(field, "")) or normalize(paper.get(field, ""))
+    if not normalize(row.get("publication_date", "")):
+        row["publication_date"] = normalize(row.get("study_year", ""))
+    row["paper_metadata_schema_version"] = normalize(row.get("paper_metadata_schema_version", "")) or PAPER_METADATA_SCHEMA_VERSION
     row["contexts"] = paper.get("contexts", row.get("contexts", []))
 
     pdf_path = pdf_dir / pdf_filename_for_doi(doi)
@@ -1155,6 +1866,23 @@ def metadata_has_useful_fields(metadata: dict) -> bool:
             "study_title",
             "abstract",
             "authors",
+            "study_journal",
+            "publication_type",
+            "trial_registry_ids",
+            "publication_date",
+            "journal_issn",
+            "journal_eissn",
+            "publisher",
+            "mesh_terms",
+            "keywords",
+            "funders",
+            "grant_ids",
+            "related_dois",
+            "publication_relations",
+            "is_retracted",
+            "has_correction",
+            "language",
+            "semantic_scholar_id",
             "openalex_id",
             "pmid",
             "pmcid",
@@ -1171,6 +1899,18 @@ def should_try_more_metadata(metadata: dict) -> bool:
         return True
     if not normalize(metadata.get("abstract", "")):
         return True
+    if not normalize(metadata.get("study_journal", "")):
+        return True
+    if not normalize(metadata.get("publication_type", "")):
+        return True
+    if not normalize(metadata.get("publication_date", "")):
+        return True
+    if normalize(metadata.get("study_journal", "")) and not (
+        normalize(metadata.get("journal_issn", ""))
+        or normalize(metadata.get("journal_eissn", ""))
+        or normalize(metadata.get("publisher", ""))
+    ):
+        return True
     return metadata_needs_oa_resolution(metadata)
 
 
@@ -1178,8 +1918,22 @@ def provider_can_help(provider: str, metadata: dict) -> bool:
     if not metadata:
         return True
     needs_abstract = not normalize(metadata.get("abstract", ""))
+    needs_journal = not normalize(metadata.get("study_journal", ""))
+    needs_publication_type = not normalize(metadata.get("publication_type", ""))
+    needs_publication_date = not normalize(metadata.get("publication_date", ""))
+    needs_venue_details = normalize(metadata.get("study_journal", "")) and not (
+        normalize(metadata.get("journal_issn", ""))
+        or normalize(metadata.get("journal_eissn", ""))
+        or normalize(metadata.get("publisher", ""))
+    )
     needs_oa = metadata_needs_oa_resolution(metadata)
     if needs_abstract and provider in {"openalex", "pubmed", "pmc", "crossref", "semantic_scholar"}:
+        return True
+    if (needs_journal or needs_publication_type) and provider in {"openalex", "pubmed", "crossref", "semantic_scholar", "unpaywall"}:
+        return True
+    if needs_publication_date and provider in {"openalex", "pubmed", "crossref", "semantic_scholar", "unpaywall"}:
+        return True
+    if needs_venue_details and provider in {"openalex", "pubmed", "crossref", "semantic_scholar", "unpaywall"}:
         return True
     if needs_oa and provider in {"pmc", "unpaywall", "openalex"}:
         return True
@@ -1187,6 +1941,8 @@ def provider_can_help(provider: str, metadata: dict) -> bool:
         normalize(metadata.get("study_title", ""))
         and normalize(metadata.get("study_year", ""))
         and normalize(metadata.get("authors", ""))
+        and normalize(metadata.get("study_journal", ""))
+        and normalize(metadata.get("publication_type", ""))
     ):
         return True
     return False
@@ -1424,6 +2180,24 @@ def compact_inventory_row(row: dict) -> dict:
         "study_title": normalize(row.get("study_title", "")),
         "study_year": normalize(row.get("study_year", "")),
         "authors": normalize(row.get("authors", "")),
+        "study_journal": normalize(row.get("study_journal", "")),
+        "publication_type": normalize(row.get("publication_type", "")),
+        "trial_registry_ids": normalize(row.get("trial_registry_ids", "")),
+        "publication_date": normalize(row.get("publication_date", "")),
+        "journal_issn": normalize(row.get("journal_issn", "")),
+        "journal_eissn": normalize(row.get("journal_eissn", "")),
+        "publisher": normalize(row.get("publisher", "")),
+        "mesh_terms": normalize(row.get("mesh_terms", "")),
+        "keywords": normalize(row.get("keywords", "")),
+        "funders": normalize(row.get("funders", "")),
+        "grant_ids": normalize(row.get("grant_ids", "")),
+        "related_dois": normalize(row.get("related_dois", "")),
+        "publication_relations": normalize(row.get("publication_relations", "")),
+        "is_retracted": normalize(row.get("is_retracted", "")),
+        "has_correction": normalize(row.get("has_correction", "")),
+        "language": normalize(row.get("language", "")),
+        "semantic_scholar_id": normalize(row.get("semantic_scholar_id", "")),
+        "paper_metadata_schema_version": normalize(row.get("paper_metadata_schema_version", "")),
         "metadata_provider": normalize(row.get("metadata_provider", "")),
         "metadata_provider_chain": normalize(row.get("metadata_provider_chain", "")),
         "metadata_lookup_error": normalize(row.get("metadata_lookup_error", "")),
@@ -1897,6 +2671,16 @@ def main() -> int:
         study_year = normalize(metadata.get("study_year", "")) or normalize(paper.get("study_year", ""))
         authors = normalize(metadata.get("authors", "")) or normalize(paper.get("authors", ""))
         abstract = normalize(metadata.get("abstract", ""))
+        paper_metadata_values = {
+            field: normalize(metadata.get(field, "")) or normalize(paper.get(field, ""))
+            for field in PAPER_METADATA_FIELDS
+        }
+        paper_metadata_values["trial_registry_ids"] = (
+            normalize(metadata.get("trial_registry_ids", ""))
+            or extract_trial_registry_ids(study_title, abstract, paper.get("trial_registry_ids", ""))
+        )
+        if not paper_metadata_values["publication_date"]:
+            paper_metadata_values["publication_date"] = study_year
         oa = {
             "is_oa": normalize(metadata.get("is_oa", "")) or normalize(metadata.get("open_access_is_oa", "")) or normalize(metadata.get("unpaywall_is_oa", "")),
             "oa_status": normalize(metadata.get("oa_status", "")) or normalize(metadata.get("open_access_status", "")) or normalize(metadata.get("unpaywall_oa_status", "")),
@@ -2003,6 +2787,8 @@ def main() -> int:
             "study_title": study_title,
             "study_year": study_year,
             "authors": authors,
+            **paper_metadata_values,
+            "paper_metadata_schema_version": PAPER_METADATA_SCHEMA_VERSION,
             "abstract": abstract,
             "metadata_provider": normalize(metadata.get("metadata_provider", "")),
             "metadata_provider_chain": normalize(metadata.get("metadata_provider_chain", "")),

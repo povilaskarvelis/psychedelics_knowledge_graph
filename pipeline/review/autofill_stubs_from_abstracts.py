@@ -13,6 +13,25 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
+PAPER_METADATA_FIELDS = [
+    "study_journal",
+    "publication_type",
+    "trial_registry_ids",
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "mesh_terms",
+    "keywords",
+    "funders",
+    "grant_ids",
+    "related_dois",
+    "publication_relations",
+    "is_retracted",
+    "has_correction",
+    "language",
+    "semantic_scholar_id",
+]
 
 DATASET_CONFIG = {
     "mechanistic": {
@@ -131,6 +150,15 @@ NON_COUNTABLE_ARTICLE_KEYWORDS = {
 }
 
 HEALTHY_VOLUNTEER_RE = re.compile(r"\bhealthy (?:volunteers?|participants?|adults?|subjects?|controls?)\b")
+TRIAL_REGISTRY_PATTERNS = [
+    re.compile(r"\bNCT\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bISRCTN\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bACTRN\d{14}\b", re.IGNORECASE),
+    re.compile(r"\bDRKS\d{8}\b", re.IGNORECASE),
+    re.compile(r"\bIRCT[0-9A-Z]{6,}\b", re.IGNORECASE),
+    re.compile(r"\bRBR-[A-Z0-9]{3,}\b", re.IGNORECASE),
+    re.compile(r"\b(?:EudraCT|EU\s*CT|EUCTR)\s*(?:number|no\.?|#|:)?\s*(\d{4}-\d{6}-\d{2})\b", re.IGNORECASE),
+]
 
 
 def now_utc() -> str:
@@ -165,6 +193,19 @@ def normalize_text(raw: str) -> str:
     lowered = normalize(raw).lower()
     lowered = re.sub(r"[^a-z0-9]+", " ", lowered)
     return re.sub(r"\s+", " ", lowered).strip()
+
+
+def extract_trial_registry_ids(*values: object) -> str:
+    ids: List[str] = []
+    for value in values:
+        text = normalize(value)
+        for pattern in TRIAL_REGISTRY_PATTERNS:
+            for match in pattern.finditer(text):
+                identifier = match.group(1) if match.lastindex else match.group(0)
+                identifier = re.sub(r"\s+", "", identifier).upper()
+                if identifier not in ids:
+                    ids.append(identifier)
+    return " | ".join(ids)
 
 
 def disorder_context_terms(disorder: str) -> Set[str]:
@@ -660,10 +701,16 @@ def main() -> int:
             ("study_title", "study_title"),
             ("authors", "authors"),
             ("study_year", "study_year"),
+            *[(field, field) for field in PAPER_METADATA_FIELDS],
         ):
             if not normalize(new_row.get(key_stub, "")) and normalize(paper.get(key_paper, "")):
                 new_row[key_stub] = paper.get(key_paper, "")
                 changed_fields.append(key_stub)
+
+        registry_ids = extract_trial_registry_ids(title, abstract, new_row.get("trial_registry_ids", ""))
+        if registry_ids and normalize(new_row.get("trial_registry_ids", "")) != registry_ids:
+            new_row["trial_registry_ids"] = registry_ids
+            changed_fields.append("trial_registry_ids")
 
         # Abstract-first provenance.
         if abstract:

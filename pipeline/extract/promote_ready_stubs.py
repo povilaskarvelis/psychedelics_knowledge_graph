@@ -14,6 +14,25 @@ from typing import Dict, List, Set, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
 DISORDER_CANON_PATH = ROOT / "schema" / "disorder_canonicalization.json"
+PAPER_METADATA_FIELDS = [
+    "study_journal",
+    "publication_type",
+    "trial_registry_ids",
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "mesh_terms",
+    "keywords",
+    "funders",
+    "grant_ids",
+    "related_dois",
+    "publication_relations",
+    "is_retracted",
+    "has_correction",
+    "language",
+    "semantic_scholar_id",
+]
 
 DATASET_CONFIG = {
     "mechanistic": {
@@ -48,14 +67,34 @@ DATASET_CONFIG = {
             "study_title",
             "authors",
             "study_year",
+            *PAPER_METADATA_FIELDS,
             "paper_type",
             "evidence_level",
             "source",
             "source_type",
+            "source_family",
+            "evidence_strength",
             "access_level",
             "evidence_location",
             "evidence_locator",
             "study_design",
+            "sample_size_total",
+            "sample_size_by_arm",
+            "comparator",
+            "intervention_or_exposure",
+            "dose",
+            "route",
+            "session_count_or_duration",
+            "primary_outcome",
+            "outcome_measure",
+            "timepoint",
+            "effect_size",
+            "p_value",
+            "confidence_interval",
+            "adverse_events",
+            "funding",
+            "conflicts_of_interest",
+            "risk_of_bias_summary",
             "notes",
         ],
     },
@@ -88,14 +127,33 @@ DATASET_CONFIG = {
             "study_title",
             "authors",
             "study_year",
+            *PAPER_METADATA_FIELDS,
             "paper_type",
             "evidence_level",
             "source",
             "source_type",
+            "source_family",
+            "evidence_strength",
             "access_level",
             "evidence_location",
             "evidence_locator",
             "study_design",
+            "sample_size_total",
+            "sample_size_by_arm",
+            "comparator",
+            "intervention_or_exposure",
+            "dose",
+            "route",
+            "session_count_or_duration",
+            "primary_outcome",
+            "timepoint",
+            "effect_size",
+            "p_value",
+            "confidence_interval",
+            "adverse_events",
+            "funding",
+            "conflicts_of_interest",
+            "risk_of_bias_summary",
             "notes",
         ],
     },
@@ -115,13 +173,35 @@ PROMOTION_DIFF_FIELDS = [
     "result_direction",
     "population",
     "system",
+    "study_title",
+    "authors",
+    "study_year",
+    *PAPER_METADATA_FIELDS,
     "paper_type",
     "source_type",
+    "source_family",
     "access_level",
     "evidence_location",
     "evidence_locator",
     "study_design",
     "evidence_level",
+    "evidence_strength",
+    "sample_size_total",
+    "sample_size_by_arm",
+    "comparator",
+    "intervention_or_exposure",
+    "dose",
+    "route",
+    "session_count_or_duration",
+    "primary_outcome",
+    "timepoint",
+    "effect_size",
+    "p_value",
+    "confidence_interval",
+    "adverse_events",
+    "funding",
+    "conflicts_of_interest",
+    "risk_of_bias_summary",
     "notes",
 ]
 PROMOTION_BLOCKED_TITLE_PATTERNS = [
@@ -545,6 +625,20 @@ def main() -> int:
     parser.add_argument("--ready-status", default="ready_for_promotion")
     parser.add_argument("--apply", action="store_true", help="Write changes to curated/stub files")
     parser.add_argument(
+        "--prune-by-triage-report",
+        action="store_true",
+        help=(
+            "Legacy audit mode: prune existing curated DOI-contexts using the "
+            "rule-based triage report before promotion. Off by default so the "
+            "LLM screening pipeline cannot silently remove live graph rows."
+        ),
+    )
+    parser.add_argument(
+        "--triage-report-json",
+        default="",
+        help="Optional triage report for --prune-by-triage-report; supplying a path enables pruning.",
+    )
+    parser.add_argument(
         "--upsert-duplicates",
         action="store_true",
         help="When signature already exists in curated rows, update curated row from ready stub instead of skipping",
@@ -556,7 +650,10 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    cfg = DATASET_CONFIG[args.dataset]
+    cfg = dict(DATASET_CONFIG[args.dataset])
+    if args.triage_report_json:
+        cfg["triage_report_json"] = Path(args.triage_report_json).resolve()
+        args.prune_by_triage_report = True
     report_path = (
         Path(args.report).resolve()
         if args.report
@@ -590,7 +687,11 @@ def main() -> int:
             deduped_curated.append(row)
         curated = deduped_curated
 
-    disallowed_reasons = load_triage_disallowed_context_signatures(args.dataset, cfg)
+    disallowed_reasons = (
+        load_triage_disallowed_context_signatures(args.dataset, cfg)
+        if args.prune_by_triage_report
+        else {}
+    )
     triage_pruned_from_irrelevant = 0
     triage_pruned_from_unmatched_context = 0
     if disallowed_reasons:
@@ -633,6 +734,8 @@ def main() -> int:
         "dataset": args.dataset,
         "ready_status": args.ready_status,
         "apply": args.apply,
+        "triage_pruning_enabled": bool(args.prune_by_triage_report),
+        "triage_report_json": str(cfg.get("triage_report_json", "")) if args.prune_by_triage_report else "",
         "counts": {
             "stubs_total": len(stubs),
             "ready_rows": len(ready_rows),

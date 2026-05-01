@@ -13,6 +13,25 @@ from typing import Dict, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
 DISORDER_CANON_PATH = ROOT / "schema" / "disorder_canonicalization.json"
+PAPER_METADATA_FIELDS = [
+    "study_journal",
+    "publication_type",
+    "trial_registry_ids",
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "mesh_terms",
+    "keywords",
+    "funders",
+    "grant_ids",
+    "related_dois",
+    "publication_relations",
+    "is_retracted",
+    "has_correction",
+    "language",
+    "semantic_scholar_id",
+]
 
 
 def normalize_text(raw: str) -> str:
@@ -86,6 +105,10 @@ def parse_doi_queue(path: Path) -> List[Dict[str, str]]:
                 "study_title": parts[3] if len(parts) > 3 else "",
                 "study_year": parts[4] if len(parts) > 4 else "",
                 "authors": parts[5] if len(parts) > 5 else "",
+                **{
+                    field: parts[6 + field_idx] if len(parts) > 6 + field_idx else ""
+                    for field_idx, field in enumerate(PAPER_METADATA_FIELDS)
+                },
             }
             rows.append(row)
     return rows
@@ -106,6 +129,7 @@ def mechanistic_stub(item: Dict[str, str], timestamp: str) -> Dict[str, object]:
         "study_title": item["study_title"],
         "authors": item.get("authors", ""),
         "study_year": item["study_year"],
+        **{field: item.get(field, "") for field in PAPER_METADATA_FIELDS},
         "paper_type": "other",
         "evidence_level": "low",
         "source": "doi",
@@ -139,6 +163,7 @@ def disorder_stub(item: Dict[str, str], timestamp: str) -> Dict[str, object]:
         "study_title": item["study_title"],
         "authors": item.get("authors", ""),
         "study_year": item["study_year"],
+        **{field: item.get(field, "") for field in PAPER_METADATA_FIELDS},
         "paper_type": "other",
         "evidence_level": "low",
         "source": "doi",

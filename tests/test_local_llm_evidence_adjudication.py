@@ -1,14 +1,20 @@
 import argparse
 import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from pipeline.fulltext.run_local_llm_evidence_adjudication import (
     ADJUDICATION_SCHEMA,
     abstract_screening_rows_to_adjudication_rows,
     adjudicate_row,
     build_prompt,
+    checkpoint_removes_for_dois,
+    checkpoint_row_key,
     chunks_from_abstract_row,
     chunks_from_tei,
+    default_checkpoint_jsonl_path,
+    load_checkpoint_results,
     quote_found_in_context,
     select_evidence_chunks,
     selected_rows,
@@ -294,6 +300,54 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
                 }
             )
         )
+
+    def test_checkpoint_row_key_splits_same_doi_claims(self) -> None:
+        a = {
+            "dataset": "mechanistic",
+            "study_doi": "https://doi.org/10.1000/SHARED",
+            "compound": "Psilocybin",
+            "entity": "5-HT2A",
+            "row_index": 10,
+            "sample_group": "targeted_rule_qa",
+        }
+        b = {**a, "entity": "5-HT2B", "row_index": 10}
+        self.assertNotEqual(checkpoint_row_key(a), checkpoint_row_key(b))
+
+    def test_default_checkpoint_jsonl_path_stem(self) -> None:
+        ck = default_checkpoint_jsonl_path(Path("/tmp/out/foo.json"))
+        self.assertEqual(ck, Path("/tmp/out/foo.checkpoint.jsonl"))
+
+    def test_load_checkpoint_results_last_line_wins(self) -> None:
+        base = {
+            "dataset": "mechanistic",
+            "study_doi": "10.1000/example",
+            "compound": "ketamine",
+            "entity": "NMDA receptor",
+            "row_index": 7,
+            "sample_group": "auto_triage_audit",
+        }
+        key = checkpoint_row_key(base)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "run.checkpoint.jsonl"
+            path.write_text(
+                json.dumps({"input_row": base, "flat": {"status": "ok", "row_index": 7}}) + "\n"
+                + json.dumps({"input_row": base, "flat": {"status": "failed", "row_index": 7}}) + "\n",
+                encoding="utf-8",
+            )
+            mp = load_checkpoint_results(path)
+            self.assertEqual(list(mp.keys()), [key])
+            self.assertEqual(mp[key]["flat"]["status"], "failed")
+
+    def test_checkpoint_removes_for_dois_targets_all_rows(self) -> None:
+        doi = "10.1000/multi"
+        rows = [
+            {"dataset": "mechanistic", "study_doi": doi, "compound": "a", "entity": "x", "row_index": 1},
+            {"dataset": "mechanistic", "study_doi": doi, "compound": "b", "entity": "y", "row_index": 2},
+        ]
+        mp = {checkpoint_row_key(r): {"input_row": r} for r in rows}
+        removed = checkpoint_removes_for_dois(mp, {doi.lower()})
+        self.assertEqual(removed, 2)
+        self.assertEqual(len(mp), 0)
 
 
 if __name__ == "__main__":

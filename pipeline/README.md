@@ -1,9 +1,10 @@
 # Pipeline
 
-Deterministic ETL for building a provenance-aware psychedelics evidence graph.
-The current workflow is optimized for high-recall literature discovery, explicit
-screening provenance, conservative claim extraction, and schema-validated graph
-outputs.
+Provenance-aware ETL for building a psychedelics evidence graph. The current
+workflow combines deterministic retrieval/validation with LLM-assisted abstract
+screening and full-text evidence assessment. It is optimized for high-recall
+literature discovery, explicit screening provenance, conservative extraction,
+and schema-validated graph outputs.
 
 ## Stages
 1. **Discover**: search multiple literature sources and write DOI queues.
@@ -12,10 +13,9 @@ outputs.
 3. **Semantic abstract screening**: run a deterministic no-signal pre-screen,
    then use a local LLM only to classify abstract-level relevance and
    quote-supported compound/entity contexts for retained rows.
-4. **Acquire PDFs**: download legal OA PDFs only for screened-relevant papers.
-5. **Convert full text**: optionally convert local PDFs into reusable structured
-   full-text artifacts, then repair stale locators through an accepted-review
-   gate.
+4. **Acquire PDFs**: download legal OA PDFs for relevant and uncertain papers.
+5. **Full-text evidence assessment**: convert local PDFs, assess full-text
+   eligibility/source family, and extract structured study/result variables.
 6. **Seed stubs**: create one claim stub per DOI + compound + target/disorder
    context.
 7. **Autofill claims**: fill fields from abstracts first, then PDFs.
@@ -140,8 +140,8 @@ Run semantic screening before PDF acquisition. The current strategy is a
 high-recall cascade: deterministic pre-screening removes obvious no-signal rows,
 then `qwen3:14b` reviews retained abstracts for relevance only. Source family,
 paper type, study design, evidence strength, and claim details are deferred to
-full-text adjudication or, when full text is unavailable, an explicit
-abstract-only evidence fallback.
+   full-text evidence assessment or, when full text is unavailable, an explicit
+   abstract-only evidence fallback.
 
 First run the deterministic pre-screen over the synced library:
 
@@ -185,6 +185,18 @@ python pipeline/review/run_local_llm_abstract_screening.py \
   --num-ctx 4096
 ```
 
+While a long local-model run is in progress, materialize whatever has already
+landed in the checkpoint into the normal JSON/CSV/DOI queue outputs without
+calling the model again:
+
+```bash
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset mechanistic \
+  --doi-file data/raw/doi_queue.mechanistic.deterministic_prescreen_retained.txt \
+  --materialize-checkpoint-only \
+  --only-with-abstract
+```
+
 Primary outputs:
 - `data/processed/deterministic_prescreen_report_<dataset>.json`
 - `data/raw/doi_queue.<dataset>.deterministic_prescreen_retained.txt`
@@ -198,8 +210,21 @@ CSV report before treating the LLM queue as the default PDF-download gate. Rows
 skipped by the deterministic pre-screen are marked
 `screening_path=deterministic_excluded`.
 
+After disorder metadata sync and abstract screening have produced relevant or
+uncertain rows, registry enrichment can run independently of the live metadata
+sync:
+
+```bash
+python pipeline/enrich/enrich_trial_registries.py --dataset disorder
+```
+
+Add `--require-primary-source` after full-text assessment when you want the
+registry pass limited to rows already labeled as original empirical/primary
+evidence.
+
 For relevant/uncertain papers that cannot be downloaded or converted to full
-text, run abstract-only adjudication after acquisition attempts:
+text, run abstract-only full-text-assessment fallback after acquisition
+attempts:
 
 ```bash
 python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
@@ -267,7 +292,7 @@ python pipeline/ingest/seed_from_dois.py \
 ```
 
 ### 7. Abstract-First Autofill
-Run abstract/metadata extraction for all triaged stubs.
+Run abstract/metadata extraction for all screened stubs.
 
 ```bash
 python pipeline/review/autofill_stubs_from_abstracts.py --dataset mechanistic --mark-ready --apply
@@ -350,9 +375,16 @@ python pipeline/publish/export_graph_payload.py
 ## Evidence Rules
 - Provenance fields are mandatory: `source_type`, `access_level`,
   `evidence_location`, `evidence_locator`, and `study_design`.
+- Bibliographic/study fields such as journal, publication type/date, ISSNs,
+  publisher, trial registry IDs, MeSH/keywords, funders/grants, publication
+  relations, sample size, comparator/intervention, outcomes, effect sizes,
+  funding, conflicts of interest, and risk-of-bias notes should be preserved
+  whenever available.
 - Main curated rows should be primary evidence. Reviews, protocols, conference
   abstracts, and weak/secondary evidence should remain blocked or be routed to
   exploratory outputs.
 - Disorder labels are canonicalized with `schema/disorder_canonicalization.json`.
-- Promotion prunes stale curated DOI-contexts that no longer appear in the
-  latest triage matched contexts.
+- Promotion does not consult old heuristic triage reports unless
+  `--prune-by-triage-report` or `--triage-report-json` is supplied explicitly.
+  This keeps the live heuristic-era graph from being silently pruned while the
+  slower LLM-based pipeline is rerun.

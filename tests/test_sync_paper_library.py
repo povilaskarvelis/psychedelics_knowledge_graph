@@ -3,9 +3,11 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 
 from pipeline.ingest.sync_paper_library import (
+    PAPER_METADATA_SCHEMA_VERSION,
     download_pdf_candidates,
     fetch_metadata_with_fallbacks,
     include_existing_metadata_refresh_rows,
+    lookup_crossref_metadata,
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
@@ -77,6 +79,10 @@ class SyncPaperLibraryTest(unittest.TestCase):
                 "study_doi": "10.1000/complete",
                 "study_title": "Complete",
                 "abstract": "Already complete.",
+                "study_journal": "Journal",
+                "publication_type": "Journal Article",
+                "publication_date": "2024",
+                "paper_metadata_schema_version": PAPER_METADATA_SCHEMA_VERSION,
             },
         ]
 
@@ -93,16 +99,35 @@ class SyncPaperLibraryTest(unittest.TestCase):
   <PubmedArticle>
     <MedlineCitation>
       <PMID>12345</PMID>
-      <Article>
-        <Journal><JournalIssue><PubDate><Year>2024</Year></PubDate></JournalIssue></Journal>
+        <Article>
+        <Journal>
+          <Title>Journal of Testing</Title>
+          <ISSN IssnType="Print">1234-5678</ISSN>
+          <ISSN IssnType="Electronic">8765-4321</ISSN>
+          <JournalIssue><PubDate><Year>2024</Year></PubDate></JournalIssue>
+        </Journal>
+        <ArticleDate><Year>2024</Year><Month>03</Month><Day>04</Day></ArticleDate>
         <ArticleTitle>PubMed title</ArticleTitle>
-        <Abstract><AbstractText>PubMed abstract.</AbstractText></Abstract>
+        <Abstract><AbstractText>PubMed abstract. Trial NCT01234567.</AbstractText></Abstract>
+        <Language>eng</Language>
+        <PublicationTypeList><PublicationType>Randomized Controlled Trial</PublicationType></PublicationTypeList>
+        <GrantList><Grant><GrantID>R01-TEST</GrantID><Agency>NIMH</Agency></Grant></GrantList>
+        <KeywordList><Keyword>psilocybin</Keyword><Keyword>depression</Keyword></KeywordList>
+        <MeshHeadingList>
+          <MeshHeading>
+            <DescriptorName>Psilocybin</DescriptorName>
+            <QualifierName>therapeutic use</QualifierName>
+          </MeshHeading>
+        </MeshHeadingList>
       </Article>
     </MedlineCitation>
     <PubmedData>
       <ArticleIdList>
         <ArticleId IdType="doi">10.1000/example</ArticleId>
       </ArticleIdList>
+      <CommentsCorrectionsList>
+        <CommentsCorrections RefType="ErratumIn"><PMID>999</PMID><RefSource>J Test. 2025</RefSource></CommentsCorrections>
+      </CommentsCorrectionsList>
     </PubmedData>
   </PubmedArticle>
 </PubmedArticleSet>
@@ -170,7 +195,19 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(queried, ["pubmed", "pmc", "unpaywall"])
         self.assertEqual(metadata["metadata_provider"], "pubmed")
         self.assertEqual(metadata["metadata_provider_chain"], "pubmed|unpaywall")
-        self.assertEqual(metadata["abstract"], "PubMed abstract.")
+        self.assertEqual(metadata["abstract"], "PubMed abstract. Trial NCT01234567.")
+        self.assertEqual(metadata["study_journal"], "Journal of Testing")
+        self.assertEqual(metadata["publication_type"], "Randomized Controlled Trial")
+        self.assertEqual(metadata["trial_registry_ids"], "NCT01234567")
+        self.assertEqual(metadata["publication_date"], "2024-03-04")
+        self.assertEqual(metadata["journal_issn"], "1234-5678")
+        self.assertEqual(metadata["journal_eissn"], "8765-4321")
+        self.assertEqual(metadata["mesh_terms"], "Psilocybin / therapeutic use")
+        self.assertEqual(metadata["keywords"], "psilocybin | depression")
+        self.assertEqual(metadata["funders"], "NIMH")
+        self.assertEqual(metadata["grant_ids"], "R01-TEST")
+        self.assertEqual(metadata["has_correction"], "true")
+        self.assertEqual(metadata["language"], "eng")
         self.assertEqual(metadata["best_pdf_url"], "https://repository.example/paper.pdf")
         self.assertEqual(metadata["unpaywall_checked"], "true")
 
@@ -186,9 +223,15 @@ class SyncPaperLibraryTest(unittest.TestCase):
                             "paperId": "abc123",
                             "title": "Semantic Scholar title",
                             "year": 2024,
+                            "publicationDate": "2024-05-06",
                             "abstract": "Semantic Scholar abstract.",
                             "authors": [{"name": "Doe J"}],
                             "externalIds": {"DOI": doi, "PubMed": "12345"},
+                            "journal": {"name": "Semantic Medicine"},
+                            "publicationVenue": {"name": "Semantic Medicine", "issn": "1111-2222;3333-4444"},
+                            "publicationTypes": ["JournalArticle"],
+                            "fieldsOfStudy": ["Medicine"],
+                            "s2FieldsOfStudy": [{"category": "Psychology", "source": "external"}],
                             "isOpenAccess": True,
                             "openAccessPdf": {"url": "https://example.org/paper.pdf"},
                         },
@@ -215,6 +258,13 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(metadata["metadata_provider"], "semantic_scholar")
         self.assertEqual(metadata["abstract"], "Semantic Scholar abstract.")
         self.assertEqual(metadata["authors"], "Doe J")
+        self.assertEqual(metadata["study_journal"], "Semantic Medicine")
+        self.assertEqual(metadata["publication_type"], "JournalArticle")
+        self.assertEqual(metadata["publication_date"], "2024-05-06")
+        self.assertEqual(metadata["journal_issn"], "1111-2222")
+        self.assertEqual(metadata["journal_eissn"], "3333-4444")
+        self.assertEqual(metadata["keywords"], "Medicine | Psychology | external")
+        self.assertEqual(metadata["semantic_scholar_id"], "abc123")
         self.assertEqual(metadata["best_pdf_url"], "https://example.org/paper.pdf")
 
     def test_unpaywall_pmc_landing_adds_europepmc_candidate(self) -> None:
@@ -223,6 +273,12 @@ class SyncPaperLibraryTest(unittest.TestCase):
                 "doi": "10.1000/example",
                 "title": "Example",
                 "year": 2024,
+                "published_date": "2024-07-08",
+                "journal_name": "Unpaywall Journal",
+                "journal_issn_l": "2222-3333",
+                "journal_issns": "2222-3333,4444-5555",
+                "publisher": "Unpaywall Publisher",
+                "genre": "journal-article",
                 "is_oa": True,
                 "oa_status": "bronze",
                 "best_oa_location": {
@@ -246,6 +302,68 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(candidates[0], "https://europepmc.org/api/getPdf?pmcid=PMC6865516")
         self.assertIn("https://publisher.example/paper.pdf", candidates)
         self.assertEqual(metadata["best_pdf_url"], "https://europepmc.org/api/getPdf?pmcid=PMC6865516")
+        self.assertEqual(metadata["study_journal"], "Unpaywall Journal")
+        self.assertEqual(metadata["publication_type"], "journal-article")
+        self.assertEqual(metadata["publication_date"], "2024-07-08")
+        self.assertEqual(metadata["journal_issn"], "2222-3333")
+        self.assertEqual(metadata["journal_eissn"], "4444-5555")
+        self.assertEqual(metadata["publisher"], "Unpaywall Publisher")
+
+    def test_crossref_metadata_captures_publication_and_relation_details(self) -> None:
+        doi = "10.1000/crossref-example"
+        client = FakeClient(
+            json_responses=[
+                (
+                    lambda url, params: url.endswith("10.1000%2Fcrossref-example"),
+                    {
+                        "message": {
+                            "DOI": doi,
+                            "title": ["Crossref title"],
+                            "abstract": "<jats:p>Crossref abstract. ISRCTN12345678.</jats:p>",
+                            "issued": {"date-parts": [[2023, 11, 9]]},
+                            "container-title": ["Crossref Journal"],
+                            "type": "journal-article",
+                            "ISSN": ["1357-2468", "2468-1357"],
+                            "issn-type": [
+                                {"type": "print", "value": "1357-2468"},
+                                {"type": "electronic", "value": "2468-1357"},
+                            ],
+                            "publisher": "Crossref Publisher",
+                            "subject": ["Psychiatry", "Neuroscience"],
+                            "funder": [{"name": "Trial Funder", "award": ["ABC-123"]}],
+                            "clinical-trial-number": [{"clinical-trial-number": "EudraCT number 2020-001234-56"}],
+                            "relation": {
+                                "is-correction-of": [
+                                    {"id-type": "doi", "id": "10.1000/original", "asserted-by": "publisher"}
+                                ]
+                            },
+                            "language": "en",
+                        }
+                    },
+                )
+            ]
+        )
+
+        metadata = lookup_crossref_metadata(
+            client=client,
+            doi=doi,
+            email="curator@example.org",
+            paper={"study_doi": doi},
+        )
+
+        self.assertIsNotNone(metadata)
+        self.assertEqual(metadata["publication_date"], "2023-11-09")
+        self.assertEqual(metadata["journal_issn"], "1357-2468")
+        self.assertEqual(metadata["journal_eissn"], "2468-1357")
+        self.assertEqual(metadata["publisher"], "Crossref Publisher")
+        self.assertEqual(metadata["keywords"], "Psychiatry | Neuroscience")
+        self.assertEqual(metadata["funders"], "Trial Funder")
+        self.assertEqual(metadata["grant_ids"], "ABC-123")
+        self.assertEqual(metadata["related_dois"], "10.1000/original")
+        self.assertIn("is-correction-of doi:10.1000/original", metadata["publication_relations"])
+        self.assertEqual(metadata["has_correction"], "true")
+        self.assertEqual(metadata["language"], "en")
+        self.assertEqual(metadata["trial_registry_ids"], "ISRCTN12345678 | 2020-001234-56")
 
     def test_download_pdf_candidates_tries_next_candidate(self) -> None:
         client = FakeClient(

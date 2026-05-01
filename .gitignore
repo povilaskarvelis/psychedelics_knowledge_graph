@@ -1,6 +1,10 @@
 # macOS
 .DS_Store
 
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+
 # Local environment / secrets
 .env
 .env.*
@@ -27,11 +31,16 @@ data/processed/fulltext/evidence_triage_qa_sample*.json
 data/processed/fulltext/evidence_triage_qa_sample*.csv
 data/processed/fulltext/local_llm_evidence_adjudication*.json
 data/processed/fulltext/local_llm_evidence_adjudication*.csv
+data/processed/fulltext/*.checkpoint.jsonl
 data/processed/fulltext/grobid.safe.yaml
 data/processed/fulltext/grobid_batches/
 data/processed/fulltext/grobid_batch_reports/
 data/processed/llm_abstract_screening_report_*.json
 data/processed/llm_abstract_screening_report_*.csv
+data/processed/llm_abstract_screening_report_*.checkpoint.jsonl
 data/raw/doi_queue.*.llm_fulltext_candidates.txt
 data/raw/doi_queue.*.llm_relevant.txt
 data/raw/doi_queue.*.llm_uncertain.txt
+
+# Temporary: paper library sync checkpoint (regenerable; may contain presigned URLs)
+data/processed/paper_library_*.checkpoint.json
