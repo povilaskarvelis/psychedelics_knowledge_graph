@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run local Ollama-based evidence adjudication over a QA sample.
+"""Run local Ollama-based full-text evidence assessment over a QA sample.
 
 This is a non-destructive semantic layer. It reads sampled triage rows, supplies
 the local model with claim metadata plus bounded full-text evidence chunks, asks
@@ -41,11 +41,17 @@ FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 DEFAULT_INPUT = FULLTEXT_DIR / "evidence_triage_qa_sample.json"
 DEFAULT_OUT_JSON = FULLTEXT_DIR / "local_llm_evidence_adjudication.json"
 DEFAULT_OUT_CSV = FULLTEXT_DIR / "local_llm_evidence_adjudication.csv"
+DEFAULT_ASSESSMENT_OUT_JSON = FULLTEXT_DIR / "local_llm_evidence_assessment.json"
+DEFAULT_ASSESSMENT_OUT_CSV = FULLTEXT_DIR / "local_llm_evidence_assessment.csv"
 DEFAULT_ABSTRACT_ONLY_OUT_JSON = FULLTEXT_DIR / "local_llm_abstract_only_adjudication.json"
 DEFAULT_ABSTRACT_ONLY_OUT_CSV = FULLTEXT_DIR / "local_llm_abstract_only_adjudication.csv"
+DEFAULT_ABSTRACT_ONLY_ASSESSMENT_OUT_JSON = FULLTEXT_DIR / "local_llm_abstract_only_assessment.json"
+DEFAULT_ABSTRACT_ONLY_ASSESSMENT_OUT_CSV = FULLTEXT_DIR / "local_llm_abstract_only_assessment.csv"
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen3:14b"
 EVIDENCE_MODES = ("full_text", "abstract_only", "auto")
+ASSESSMENT_STAGE = "full_text_evidence_assessment"
+ASSESSMENT_SCHEMA_VERSION = "full_text_evidence_assessment_v1"
 
 SOURCE_TYPES = [
     "primary_study",
@@ -80,8 +86,111 @@ PAPER_TYPES = [
 ]
 EVIDENCE_STRENGTHS = ["high", "medium", "low", "very_low", "not_applicable", "uncertain"]
 SUPPORT_VALUES = ["supported", "not_supported", "insufficient_evidence", "not_applicable"]
+IN_SCOPE_VALUES = ["yes", "no", "uncertain"]
+BEST_EVIDENCE_LOCATIONS = ["abstract", "methods", "results", "discussion", "table", "figure", "supplement", "full_text", "none"]
+DATA_EXTRACTION_FIELDS = [
+    "sample_size_total",
+    "sample_size_by_arm",
+    "population_or_condition",
+    "participant_age",
+    "participant_sex_gender",
+    "study_setting",
+    "country_or_region",
+    "comparator",
+    "intervention_or_exposure",
+    "dose",
+    "route",
+    "session_count_or_duration",
+    "trial_phase",
+    "randomization",
+    "blinding",
+    "follow_up_duration",
+    "primary_outcome",
+    "outcome_measure",
+    "timepoint",
+    "effect_size",
+    "effect_direction",
+    "p_value",
+    "confidence_interval",
+    "adverse_events",
+    "serious_adverse_events",
+    "trial_registry_ids",
+    "funding",
+    "conflicts_of_interest",
+    "risk_of_bias_notes",
+]
 
-ADJUDICATION_SCHEMA = {
+DATA_EXTRACTION_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {field: {"type": "string"} for field in DATA_EXTRACTION_FIELDS},
+    "required": DATA_EXTRACTION_FIELDS,
+}
+
+SOURCE_CLASSIFICATION_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "source_family": {"type": "string", "enum": SOURCE_FAMILIES},
+        "source_type": {"type": "string", "enum": SOURCE_TYPES},
+        "paper_type": {"type": "string", "enum": PAPER_TYPES},
+        "study_design": {"type": "string"},
+        "evidence_strength": {"type": "string", "enum": EVIDENCE_STRENGTHS},
+    },
+    "required": [
+        "source_family",
+        "source_type",
+        "paper_type",
+        "study_design",
+        "evidence_strength",
+    ],
+}
+
+ELIGIBILITY_ASSESSMENT_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "is_in_scope": {"type": "string", "enum": IN_SCOPE_VALUES},
+        "supports_current_claim": {"type": "string", "enum": SUPPORT_VALUES},
+        "best_evidence_location": {"type": "string", "enum": BEST_EVIDENCE_LOCATIONS},
+        "best_evidence_locator": {"type": "string"},
+        "supporting_quote": {"type": "string"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "needs_human_check": {"type": "boolean"},
+        "reasoning_summary": {"type": "string"},
+    },
+    "required": [
+        "is_in_scope",
+        "supports_current_claim",
+        "best_evidence_location",
+        "best_evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_check",
+        "reasoning_summary",
+    ],
+}
+
+ASSESSMENT_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "assessment_stage": {"type": "string", "enum": [ASSESSMENT_STAGE]},
+        "schema_version": {"type": "string", "enum": [ASSESSMENT_SCHEMA_VERSION]},
+        "eligibility_assessment": ELIGIBILITY_ASSESSMENT_SCHEMA,
+        "source_classification": SOURCE_CLASSIFICATION_SCHEMA,
+        "data_extraction": DATA_EXTRACTION_SCHEMA,
+    },
+    "required": [
+        "assessment_stage",
+        "schema_version",
+        "eligibility_assessment",
+        "source_classification",
+        "data_extraction",
+    ],
+}
+
+LEGACY_ADJUDICATION_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
     "properties": {
@@ -91,59 +200,13 @@ ADJUDICATION_SCHEMA = {
         "study_design": {"type": "string"},
         "evidence_strength": {"type": "string", "enum": EVIDENCE_STRENGTHS},
         "supports_current_claim": {"type": "string", "enum": SUPPORT_VALUES},
-        "best_evidence_location": {
-            "type": "string",
-            "enum": ["abstract", "methods", "results", "discussion", "table", "figure", "supplement", "full_text", "none"],
-        },
+        "best_evidence_location": {"type": "string", "enum": BEST_EVIDENCE_LOCATIONS},
         "best_evidence_locator": {"type": "string"},
         "supporting_quote": {"type": "string"},
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "needs_human_check": {"type": "boolean"},
         "reasoning_summary": {"type": "string"},
-        "extracted_variables": {
-            "type": "object",
-            "additionalProperties": False,
-            "properties": {
-                "sample_size_total": {"type": "string"},
-                "sample_size_by_arm": {"type": "string"},
-                "comparator": {"type": "string"},
-                "intervention_or_exposure": {"type": "string"},
-                "dose": {"type": "string"},
-                "route": {"type": "string"},
-                "session_count_or_duration": {"type": "string"},
-                "primary_outcome": {"type": "string"},
-                "outcome_measure": {"type": "string"},
-                "timepoint": {"type": "string"},
-                "effect_size": {"type": "string"},
-                "p_value": {"type": "string"},
-                "confidence_interval": {"type": "string"},
-                "adverse_events": {"type": "string"},
-                "trial_registry_ids": {"type": "string"},
-                "funding": {"type": "string"},
-                "conflicts_of_interest": {"type": "string"},
-                "risk_of_bias_notes": {"type": "string"},
-            },
-            "required": [
-                "sample_size_total",
-                "sample_size_by_arm",
-                "comparator",
-                "intervention_or_exposure",
-                "dose",
-                "route",
-                "session_count_or_duration",
-                "primary_outcome",
-                "outcome_measure",
-                "timepoint",
-                "effect_size",
-                "p_value",
-                "confidence_interval",
-                "adverse_events",
-                "trial_registry_ids",
-                "funding",
-                "conflicts_of_interest",
-                "risk_of_bias_notes",
-            ],
-        },
+        "extracted_variables": DATA_EXTRACTION_SCHEMA,
     },
     "required": [
         "source_family",
@@ -162,6 +225,11 @@ ADJUDICATION_SCHEMA = {
     ],
 }
 
+# Backward-compatible export for older callers. New model calls use
+# ASSESSMENT_SCHEMA and return an "assessment" object plus a legacy
+# "adjudication" mirror.
+ADJUDICATION_SCHEMA = LEGACY_ADJUDICATION_SCHEMA
+
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -176,12 +244,12 @@ def load_sample_rows(path: Path) -> List[dict]:
     if isinstance(data, dict) and isinstance(data.get("rows"), list):
         rows = [row for row in data["rows"] if isinstance(row, dict)]
         if rows and any(is_abstract_screening_result(row) for row in rows):
-            return abstract_screening_rows_to_adjudication_rows(rows)
+            return abstract_screening_rows_to_assessment_rows(rows)
         return rows
     if isinstance(data, list):
         rows = [row for row in data if isinstance(row, dict)]
         if rows and any(is_abstract_screening_result(row) for row in rows):
-            return abstract_screening_rows_to_adjudication_rows(rows)
+            return abstract_screening_rows_to_assessment_rows(rows)
         return rows
     raise ValueError(f"Expected JSON array or object with rows at {path}")
 
@@ -196,12 +264,12 @@ def is_abstract_screening_result(row: dict) -> bool:
     )
 
 
-def abstract_screening_rows_to_adjudication_rows(results: List[dict]) -> List[dict]:
-    """Expand abstract-screening results into evidence-adjudication rows.
+def abstract_screening_rows_to_assessment_rows(results: List[dict]) -> List[dict]:
+    """Expand abstract-screening results into evidence-assessment rows.
 
     Verified compound/entity contexts become claim-level rows. Relevant or
     uncertain papers without verified contexts still get one DOI-level row so
-    abstract-only source/provenance details can be proposed without inventing a
+    abstract-only source/provenance details can be assessed without inventing a
     compound/entity claim.
     """
     rows: List[dict] = []
@@ -259,6 +327,11 @@ def abstract_screening_rows_to_adjudication_rows(results: List[dict]) -> List[di
     return rows
 
 
+def abstract_screening_rows_to_adjudication_rows(results: List[dict]) -> List[dict]:
+    """Backward-compatible alias for older evidence-adjudication callers."""
+    return abstract_screening_rows_to_assessment_rows(results)
+
+
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -268,6 +341,8 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "status",
+        "assessment_stage",
+        "assessment_schema_version",
         "evidence_mode",
         "quote_verified",
         "ollama_wall_sec",
@@ -282,6 +357,7 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
         "llm_paper_type",
         "llm_study_design",
         "llm_evidence_strength",
+        "llm_is_in_scope",
         "llm_supports_current_claim",
         "llm_confidence",
         "llm_needs_human_check",
@@ -289,12 +365,7 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
         "llm_best_evidence_locator",
         "llm_supporting_quote",
         "llm_reasoning_summary",
-        "llm_sample_size_total",
-        "llm_effect_size",
-        "llm_p_value",
-        "llm_trial_registry_ids",
-        "llm_funding",
-        "llm_conflicts_of_interest",
+        *[f"llm_{field}" for field in DATA_EXTRACTION_FIELDS],
         "semantic_auto_eligible",
         "error",
     ]
@@ -625,17 +696,28 @@ def build_prompt(row: dict, chunks: List[dict], evidence_mode: str = "full_text"
     abstract_only = evidence_mode == "abstract_only"
     user_payload = {
         "task": (
-            "Classify the evidence source and extract key study variables using only the supplied abstract."
+            "Assess paper eligibility, classify the evidence source, and extract key study variables using only the supplied abstract."
             if abstract_only
-            else "Classify the evidence source and extract key study variables using only the supplied evidence chunks."
+            else "Assess paper eligibility, classify the evidence source, and extract key study variables using only the supplied evidence chunks."
         ),
+        "assessment_stage": ASSESSMENT_STAGE,
+        "schema_version": ASSESSMENT_SCHEMA_VERSION,
         "claim_or_row": claim_fields,
         "evidence_chunks": chunks,
+        "required_output_sections": [
+            "eligibility_assessment",
+            "source_classification",
+            "data_extraction",
+        ],
+        "data_extraction_fields": DATA_EXTRACTION_FIELDS,
         "instructions": [
-            "Classify the paper into a source_family, source_type, paper_type, study_design, and evidence_strength.",
+            "Set assessment_stage and schema_version exactly to the provided values.",
+            "Use eligibility_assessment for in-scope/relevance and claim support decisions.",
+            "Use source_classification for source_family, source_type, paper_type, study_design, and evidence_strength.",
+            "Use data_extraction for explicit study variables; use not_reported when a variable is absent from the supplied evidence.",
             "This is an abstract-only fallback for a paper without available full text; all extracted details are provisional and limited to the supplied abstract."
             if abstract_only
-            else "This is a full-text adjudication pass using bounded full-text evidence chunks.",
+            else "This is a full-text evidence assessment pass using bounded full-text evidence chunks.",
             "source_family=original_empirical means original data, including clinical trials, observational studies, case reports, case series, preclinical animal studies, in vitro assays, and binding/uptake experiments.",
             "source_family=evidence_synthesis means systematic review, meta-analysis, or narrative review.",
             "source_family=opinion_or_commentary means editorial, letter, perspective, critique, or viewpoint.",
@@ -643,21 +725,23 @@ def build_prompt(row: dict, chunks: List[dict], evidence_mode: str = "full_text"
             "source_family=correction means a correction-like publishing artifact, with source_type=correction and paper_type=correction.",
             "Correction labels describe publication status, not scientific content: do not use them for ordinary research articles, reviews, surveys, or analyses that discuss correcting, updating, or improving evidence or practice.",
             "Case reports and case series are original_empirical but usually low evidence_strength.",
+            "For is_in_scope, judge whether the paper belongs in this knowledge-graph scope based only on supplied evidence.",
             "For supports_current_claim, judge whether the supplied chunks support the row's compound plus entity relationship.",
             "If compound or entity is blank, set supports_current_claim to not_applicable and extract only paper-level details that are explicit in the abstract."
             if abstract_only
             else "If compound or entity is blank, set supports_current_claim to not_applicable.",
-            "For abstract-only adjudication, best_evidence_location must be abstract or none; never imply that methods/results/table/figure/full_text were inspected."
+            "For abstract-only evidence assessment, best_evidence_location must be abstract or none; never imply that methods/results/table/figure/full_text were inspected."
             if abstract_only
             else "Use the most specific best_evidence_location supported by the supplied chunks.",
             "Extract quantitative variables only when explicitly present in the supplied chunks; otherwise use not_reported.",
+            "Capture sample size, population, study setting, comparator/intervention details, trial design details, outcome/timepoint, effect direction and statistics, and adverse-event details when present.",
             "Extract trial registry identifiers such as NCT IDs, funding, conflicts of interest, and explicit risk-of-bias limitations when present; otherwise use not_reported.",
             "supporting_quote must be an exact verbatim quote from one supplied chunk. If no exact quote supports the decision, set supporting_quote to not_found and needs_human_check to true.",
             "Do not infer from outside knowledge.",
         ],
     }
     system = (
-        "You are a careful scientific evidence adjudicator for a psychedelics knowledge graph. "
+        "You are a careful scientific evidence assessor for a psychedelics knowledge graph. "
         "Use only the provided chunks. Prefer uncertainty over overclaiming. "
         + ("Keep abstract-only outputs explicitly limited and provisional. " if abstract_only else "")
         + "Return only JSON matching the requested schema."
@@ -719,10 +803,165 @@ def call_ollama(
     return parsed
 
 
-def labels_are_consistent(adjudication: dict) -> bool:
-    source_family = adjudication.get("source_family")
-    source_type = adjudication.get("source_type")
-    paper_type = adjudication.get("paper_type")
+def enum_value(value: object, allowed: list[str], default: str) -> str:
+    text = normalize(value)
+    return text if text in allowed else default
+
+
+def bounded_confidence(value: object) -> float:
+    try:
+        confidence = float(value)
+    except (TypeError, ValueError):
+        return 0.0
+    return min(1.0, max(0.0, confidence))
+
+
+def bool_value(value: object, default: bool = True) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = normalize(value).lower()
+    if text in {"true", "yes", "1"}:
+        return True
+    if text in {"false", "no", "0"}:
+        return False
+    return default
+
+
+def default_extracted_variables() -> dict:
+    return {key: "not_reported" for key in DATA_EXTRACTION_FIELDS}
+
+
+def default_source_classification() -> dict:
+    return {
+        "source_family": "uncertain",
+        "source_type": "uncertain",
+        "paper_type": "uncertain",
+        "study_design": "not_reported",
+        "evidence_strength": "uncertain",
+    }
+
+
+def default_eligibility_assessment(evidence_mode: str = "full_text") -> dict:
+    abstract_only = evidence_mode == "abstract_only"
+    return {
+        "is_in_scope": "uncertain",
+        "supports_current_claim": "insufficient_evidence",
+        "best_evidence_location": "abstract" if abstract_only else "none",
+        "best_evidence_locator": "abstract" if abstract_only else "not_reported",
+        "supporting_quote": "not_found",
+        "confidence": 0.0,
+        "needs_human_check": True,
+        "reasoning_summary": "not_reported",
+    }
+
+
+def default_assessment(evidence_mode: str = "full_text") -> dict:
+    return {
+        "assessment_stage": ASSESSMENT_STAGE,
+        "schema_version": ASSESSMENT_SCHEMA_VERSION,
+        "eligibility_assessment": default_eligibility_assessment(evidence_mode=evidence_mode),
+        "source_classification": default_source_classification(),
+        "data_extraction": default_extracted_variables(),
+    }
+
+
+def infer_scope_from_support(supports_current_claim: str) -> str:
+    if supports_current_claim == "supported":
+        return "yes"
+    if supports_current_claim == "not_supported":
+        return "no"
+    return "uncertain"
+
+
+def normalize_source_classification(payload: dict) -> dict:
+    source = payload.get("source_classification", payload)
+    if not isinstance(source, dict):
+        source = {}
+    return {
+        "source_family": enum_value(source.get("source_family"), SOURCE_FAMILIES, "uncertain"),
+        "source_type": enum_value(source.get("source_type"), SOURCE_TYPES, "uncertain"),
+        "paper_type": enum_value(source.get("paper_type"), PAPER_TYPES, "uncertain"),
+        "study_design": normalize(source.get("study_design", "")) or "not_reported",
+        "evidence_strength": enum_value(source.get("evidence_strength"), EVIDENCE_STRENGTHS, "uncertain"),
+    }
+
+
+def normalize_eligibility_assessment(payload: dict, evidence_mode: str = "full_text") -> dict:
+    eligibility = payload.get("eligibility_assessment", payload)
+    if not isinstance(eligibility, dict):
+        eligibility = {}
+    defaults = default_eligibility_assessment(evidence_mode=evidence_mode)
+    supports_current_claim = enum_value(
+        eligibility.get("supports_current_claim"),
+        SUPPORT_VALUES,
+        defaults["supports_current_claim"],
+    )
+    return {
+        "is_in_scope": enum_value(
+            eligibility.get("is_in_scope"),
+            IN_SCOPE_VALUES,
+            infer_scope_from_support(supports_current_claim),
+        ),
+        "supports_current_claim": supports_current_claim,
+        "best_evidence_location": enum_value(
+            eligibility.get("best_evidence_location"),
+            BEST_EVIDENCE_LOCATIONS,
+            defaults["best_evidence_location"],
+        ),
+        "best_evidence_locator": normalize(eligibility.get("best_evidence_locator", "")) or defaults["best_evidence_locator"],
+        "supporting_quote": normalize(eligibility.get("supporting_quote", "")) or defaults["supporting_quote"],
+        "confidence": bounded_confidence(eligibility.get("confidence", defaults["confidence"])),
+        "needs_human_check": bool_value(eligibility.get("needs_human_check", defaults["needs_human_check"])),
+        "reasoning_summary": normalize(eligibility.get("reasoning_summary", "")) or defaults["reasoning_summary"],
+    }
+
+
+def normalize_data_extraction(payload: dict) -> dict:
+    variables = payload.get("data_extraction")
+    if not isinstance(variables, dict):
+        variables = payload.get("extracted_variables", {})
+    if not isinstance(variables, dict):
+        variables = {}
+    defaults = default_extracted_variables()
+    return {field: normalize(variables.get(field, "")) or defaults[field] for field in DATA_EXTRACTION_FIELDS}
+
+
+def normalize_assessment_payload(payload: dict, evidence_mode: str = "full_text") -> dict:
+    if not isinstance(payload, dict):
+        payload = {}
+    assessment = default_assessment(evidence_mode=evidence_mode)
+    assessment["eligibility_assessment"] = normalize_eligibility_assessment(payload, evidence_mode=evidence_mode)
+    assessment["source_classification"] = normalize_source_classification(payload)
+    assessment["data_extraction"] = normalize_data_extraction(payload)
+    return assessment
+
+
+def assessment_to_legacy_adjudication(assessment: dict) -> dict:
+    assessment = normalize_assessment_payload(assessment)
+    eligibility = assessment["eligibility_assessment"]
+    source = assessment["source_classification"]
+    return {
+        "source_family": source["source_family"],
+        "source_type": source["source_type"],
+        "paper_type": source["paper_type"],
+        "study_design": source["study_design"],
+        "evidence_strength": source["evidence_strength"],
+        "supports_current_claim": eligibility["supports_current_claim"],
+        "best_evidence_location": eligibility["best_evidence_location"],
+        "best_evidence_locator": eligibility["best_evidence_locator"],
+        "supporting_quote": eligibility["supporting_quote"],
+        "confidence": eligibility["confidence"],
+        "needs_human_check": eligibility["needs_human_check"],
+        "reasoning_summary": eligibility["reasoning_summary"],
+        "extracted_variables": dict(assessment["data_extraction"]),
+    }
+
+
+def labels_are_consistent(adjudication_or_assessment: dict) -> bool:
+    source = normalize_source_classification(adjudication_or_assessment)
+    source_family = source.get("source_family")
+    source_type = source.get("source_type")
+    paper_type = source.get("paper_type")
     if source_family == "original_empirical":
         return source_type == "primary_study" and paper_type not in {
             "systematic_review",
@@ -745,44 +984,33 @@ def labels_are_consistent(adjudication: dict) -> bool:
     return False
 
 
-def semantic_auto_eligible(adjudication: dict, quote_verified: bool, min_confidence: float) -> bool:
-    try:
-        confidence = float(adjudication.get("confidence", 0) or 0)
-    except (TypeError, ValueError):
-        confidence = 0.0
+def semantic_auto_eligible(adjudication_or_assessment: dict, quote_verified: bool, min_confidence: float) -> bool:
+    eligibility = normalize_eligibility_assessment(adjudication_or_assessment)
+    confidence = bounded_confidence(eligibility.get("confidence", 0))
     return (
         quote_verified
         and confidence >= min_confidence
-        and adjudication.get("needs_human_check") is False
-        and labels_are_consistent(adjudication)
+        and eligibility.get("needs_human_check") is False
+        and labels_are_consistent(adjudication_or_assessment)
     )
 
 
-def default_extracted_variables() -> dict:
-    return {key: "not_reported" for key in ADJUDICATION_SCHEMA["properties"]["extracted_variables"]["required"]}
+def dry_run_assessment(evidence_mode: str) -> dict:
+    assessment = default_assessment(evidence_mode=evidence_mode)
+    assessment["source_classification"]["study_design"] = "not_run"
+    assessment["eligibility_assessment"]["best_evidence_locator"] = "abstract" if evidence_mode == "abstract_only" else "not_run"
+    assessment["eligibility_assessment"]["reasoning_summary"] = "dry run; model was not called"
+    return assessment
 
 
 def dry_run_adjudication(evidence_mode: str) -> dict:
-    return {
-        "source_family": "uncertain",
-        "source_type": "uncertain",
-        "paper_type": "uncertain",
-        "study_design": "not_run",
-        "evidence_strength": "uncertain",
-        "supports_current_claim": "insufficient_evidence",
-        "best_evidence_location": "abstract" if evidence_mode == "abstract_only" else "none",
-        "best_evidence_locator": "abstract" if evidence_mode == "abstract_only" else "not_run",
-        "supporting_quote": "not_found",
-        "confidence": 0,
-        "needs_human_check": True,
-        "reasoning_summary": "dry run; model was not called",
-        "extracted_variables": default_extracted_variables(),
-    }
+    """Backward-compatible legacy mirror for dry-run callers."""
+    return assessment_to_legacy_adjudication(dry_run_assessment(evidence_mode))
 
 
 def flatten_result(
     row: dict,
-    adjudication: dict,
+    adjudication_or_assessment: dict,
     status: str,
     quote_verified: bool,
     min_confidence: float,
@@ -790,14 +1018,19 @@ def flatten_result(
     error: str = "",
     ollama_wall_sec: float | str | None = None,
 ) -> dict:
-    variables = adjudication.get("extracted_variables", {}) if isinstance(adjudication, dict) else {}
     wall: float | str = ""
     if isinstance(ollama_wall_sec, (int, float)):
         wall = round(float(ollama_wall_sec), 3)
     elif ollama_wall_sec is not None and ollama_wall_sec != "":
         wall = ollama_wall_sec
-    return {
+    assessment = normalize_assessment_payload(adjudication_or_assessment, evidence_mode=evidence_mode)
+    eligibility = assessment["eligibility_assessment"]
+    source = assessment["source_classification"]
+    variables = assessment["data_extraction"]
+    flat = {
         "status": status,
+        "assessment_stage": assessment["assessment_stage"],
+        "assessment_schema_version": assessment["schema_version"],
         "evidence_mode": evidence_mode,
         "quote_verified": quote_verified,
         "ollama_wall_sec": wall,
@@ -807,27 +1040,29 @@ def flatten_result(
         "study_doi": row.get("study_doi", ""),
         "study_title": row.get("study_title", ""),
         "classification": row.get("classification", ""),
-        "llm_source_family": adjudication.get("source_family", ""),
-        "llm_source_type": adjudication.get("source_type", ""),
-        "llm_paper_type": adjudication.get("paper_type", ""),
-        "llm_study_design": adjudication.get("study_design", ""),
-        "llm_evidence_strength": adjudication.get("evidence_strength", ""),
-        "llm_supports_current_claim": adjudication.get("supports_current_claim", ""),
-        "llm_confidence": adjudication.get("confidence", ""),
-        "llm_needs_human_check": adjudication.get("needs_human_check", ""),
-        "llm_best_evidence_location": adjudication.get("best_evidence_location", ""),
-        "llm_best_evidence_locator": adjudication.get("best_evidence_locator", ""),
-        "llm_supporting_quote": adjudication.get("supporting_quote", ""),
-        "llm_reasoning_summary": adjudication.get("reasoning_summary", ""),
-        "llm_sample_size_total": variables.get("sample_size_total", ""),
-        "llm_effect_size": variables.get("effect_size", ""),
-        "llm_p_value": variables.get("p_value", ""),
-        "llm_trial_registry_ids": variables.get("trial_registry_ids", ""),
-        "llm_funding": variables.get("funding", ""),
-        "llm_conflicts_of_interest": variables.get("conflicts_of_interest", ""),
-        "semantic_auto_eligible": semantic_auto_eligible(adjudication, quote_verified, min_confidence=min_confidence),
+        "llm_source_family": source.get("source_family", ""),
+        "llm_source_type": source.get("source_type", ""),
+        "llm_paper_type": source.get("paper_type", ""),
+        "llm_study_design": source.get("study_design", ""),
+        "llm_evidence_strength": source.get("evidence_strength", ""),
+        "llm_is_in_scope": eligibility.get("is_in_scope", ""),
+        "llm_supports_current_claim": eligibility.get("supports_current_claim", ""),
+        "llm_confidence": eligibility.get("confidence", ""),
+        "llm_needs_human_check": eligibility.get("needs_human_check", ""),
+        "llm_best_evidence_location": eligibility.get("best_evidence_location", ""),
+        "llm_best_evidence_locator": eligibility.get("best_evidence_locator", ""),
+        "llm_supporting_quote": eligibility.get("supporting_quote", ""),
+        "llm_reasoning_summary": eligibility.get("reasoning_summary", ""),
+        "semantic_auto_eligible": semantic_auto_eligible(
+            assessment,
+            quote_verified,
+            min_confidence=min_confidence,
+        ),
         "error": error,
     }
+    for field in DATA_EXTRACTION_FIELDS:
+        flat[f"llm_{field}"] = variables.get(field, "")
+    return flat
 
 
 def evidence_chunks_for_row(row: dict, args: argparse.Namespace) -> tuple[str, List[dict]]:
@@ -850,53 +1085,108 @@ def evidence_chunks_for_row(row: dict, args: argparse.Namespace) -> tuple[str, L
         if chunks:
             return "abstract_only", chunks
         if requested_mode == "abstract_only":
-            raise ValueError("no abstract available for abstract-only adjudication")
+            raise ValueError("no abstract available for abstract-only evidence assessment")
     if artifact_path is None:
         raise FileNotFoundError("artifact_path is empty")
     raise FileNotFoundError(f"artifact not found: {artifact_path}")
 
 
-def adjudicate_row(row: dict, args: argparse.Namespace) -> dict:
+def assess_row(row: dict, args: argparse.Namespace) -> dict:
     evidence_mode, chunks = evidence_chunks_for_row(row, args)
     messages = build_prompt(row, chunks, evidence_mode=evidence_mode)
     context = evidence_context(chunks)
     if args.dry_run:
-        adjudication = dry_run_adjudication(evidence_mode)
+        assessment = dry_run_assessment(evidence_mode)
     else:
-        adjudication = call_ollama(
+        assessment = call_ollama(
             model=args.model,
             messages=messages,
-            schema=ADJUDICATION_SCHEMA,
+            schema=ASSESSMENT_SCHEMA,
             ollama_url=args.ollama_url,
             timeout_sec=ollama_request_timeout(args.timeout_sec),
             temperature=max(0.0, args.temperature),
             num_ctx=max(2048, args.num_ctx),
         )
-    quote_verified = quote_found_in_context(adjudication.get("supporting_quote", ""), context)
+    assessment = normalize_assessment_payload(assessment, evidence_mode=evidence_mode)
+    adjudication = assessment_to_legacy_adjudication(assessment)
+    quote_verified = quote_found_in_context(assessment["eligibility_assessment"].get("supporting_quote", ""), context)
     return {
         "input_row": row,
         "evidence_mode": evidence_mode,
         "evidence_chunks": chunks,
+        "assessment": assessment,
         "adjudication": adjudication,
         "verification": {
             "quote_verified": quote_verified,
             "chunk_count": len(chunks),
             "context_char_count": len(context),
             "semantic_auto_eligible": semantic_auto_eligible(
-                adjudication,
+                assessment,
                 quote_verified,
                 min_confidence=args.auto_confidence,
             ),
         },
         "flat": flatten_result(
             row,
-            adjudication,
+            assessment,
             status="ok",
             quote_verified=quote_verified,
             min_confidence=args.auto_confidence,
             evidence_mode=evidence_mode,
         ),
     }
+
+
+def adjudicate_row(row: dict, args: argparse.Namespace) -> dict:
+    """Backward-compatible alias for the renamed evidence assessment step."""
+    return assess_row(row, args)
+
+
+def normalize_existing_result_for_current_schema(
+    result: dict,
+    min_confidence: float,
+    fallback_evidence_mode: str = "full_text",
+) -> dict:
+    """Upgrade checkpointed legacy rows to the current assessment shape."""
+    if not isinstance(result, dict):
+        return result
+    flat = result.get("flat") if isinstance(result.get("flat"), dict) else {}
+    verification = result.get("verification") if isinstance(result.get("verification"), dict) else {}
+    evidence_mode = normalize(result.get("evidence_mode", "")) or normalize(flat.get("evidence_mode", "")) or fallback_evidence_mode
+    row = input_row_dict_for_checkpoint_key(result) or {}
+    payload = result.get("assessment") if isinstance(result.get("assessment"), dict) else result.get("adjudication", {})
+    assessment = normalize_assessment_payload(payload, evidence_mode=evidence_mode)
+    adjudication = assessment_to_legacy_adjudication(assessment)
+    quote_verified = bool_value(
+        verification.get("quote_verified", flat.get("quote_verified", False)),
+        default=False,
+    )
+    status = normalize(flat.get("status", "")) or ("failed" if result.get("error") else "ok")
+    error = normalize(result.get("error", "")) or normalize(flat.get("error", ""))
+    wall = result.get("ollama_wall_sec", flat.get("ollama_wall_sec", ""))
+    result["evidence_mode"] = evidence_mode
+    result["assessment"] = assessment
+    result["adjudication"] = adjudication
+    result["verification"] = {
+        **verification,
+        "quote_verified": quote_verified,
+        "semantic_auto_eligible": semantic_auto_eligible(
+            assessment,
+            quote_verified,
+            min_confidence=min_confidence,
+        ),
+    }
+    result["flat"] = flatten_result(
+        row,
+        assessment,
+        status=status,
+        quote_verified=quote_verified,
+        min_confidence=min_confidence,
+        evidence_mode=evidence_mode,
+        error=error,
+        ollama_wall_sec=wall,
+    )
+    return result
 
 
 def selected_rows(rows: List[dict], limit: int, offset: int) -> List[dict]:
@@ -916,11 +1206,32 @@ def filter_rows(rows: List[dict], args: argparse.Namespace) -> List[dict]:
     return out
 
 
+def invoked_as_assessment_entrypoint() -> bool:
+    return Path(sys.argv[0]).name == "run_local_llm_evidence_assessment.py"
+
+
+def default_output_paths() -> tuple[Path, Path, Path, Path]:
+    if invoked_as_assessment_entrypoint():
+        return (
+            DEFAULT_ASSESSMENT_OUT_JSON,
+            DEFAULT_ASSESSMENT_OUT_CSV,
+            DEFAULT_ABSTRACT_ONLY_ASSESSMENT_OUT_JSON,
+            DEFAULT_ABSTRACT_ONLY_ASSESSMENT_OUT_CSV,
+        )
+    return (
+        DEFAULT_OUT_JSON,
+        DEFAULT_OUT_CSV,
+        DEFAULT_ABSTRACT_ONLY_OUT_JSON,
+        DEFAULT_ABSTRACT_ONLY_OUT_CSV,
+    )
+
+
 def parse_args() -> argparse.Namespace:
+    default_out_json, default_out_csv, default_abstract_json, default_abstract_csv = default_output_paths()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", default=str(DEFAULT_INPUT), help="QA sample JSON path")
-    parser.add_argument("--out-json", default=str(DEFAULT_OUT_JSON))
-    parser.add_argument("--out-csv", default=str(DEFAULT_OUT_CSV))
+    parser.add_argument("--out-json", default=str(default_out_json))
+    parser.add_argument("--out-csv", default=str(default_out_csv))
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--ollama-url", default=DEFAULT_OLLAMA_URL)
     parser.add_argument(
@@ -971,7 +1282,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--reprocess-all-checkpoint-rows",
         action="store_true",
-        help="With --resume-from-checkpoint: ignore all checkpoint skips and rerun adjudication for every filtered row",
+        help="With --resume-from-checkpoint: ignore all checkpoint skips and rerun evidence assessment for every filtered row",
     )
     parser.add_argument(
         "--show-checkpoint-progress",
@@ -982,10 +1293,10 @@ def parse_args() -> argparse.Namespace:
     if args.resume_from_checkpoint and args.no_checkpoint:
         raise SystemExit("--resume-from-checkpoint and --no-checkpoint cannot be used together")
     if args.evidence_mode == "abstract_only":
-        if args.out_json == str(DEFAULT_OUT_JSON):
-            args.out_json = str(DEFAULT_ABSTRACT_ONLY_OUT_JSON)
-        if args.out_csv == str(DEFAULT_OUT_CSV):
-            args.out_csv = str(DEFAULT_ABSTRACT_ONLY_OUT_CSV)
+        if args.out_json == str(default_out_json):
+            args.out_json = str(default_abstract_json)
+        if args.out_csv == str(default_out_csv):
+            args.out_csv = str(default_abstract_csv)
     return args
 
 
@@ -1043,7 +1354,11 @@ def main() -> int:
         line_header = f"[{index}/{len(rows)}] {row.get('dataset')} row {row.get('row_index')} {row.get('study_doi')}"
         ck = checkpoint_row_key(row)
         if ck and ck in checkpoint_map and args.resume_from_checkpoint:
-            result = checkpoint_map[ck]
+            result = normalize_existing_result_for_current_schema(
+                checkpoint_map[ck],
+                min_confidence=args.auto_confidence,
+                fallback_evidence_mode=normalize(args.evidence_mode) or "full_text",
+            )
             checkpoint_rows_reused += 1
             print(f"{line_header} (checkpoint)", flush=True)
             flat_cp = result["flat"] if isinstance(result.get("flat"), dict) else {}
@@ -1068,24 +1383,26 @@ def main() -> int:
         print(line_header, flush=True)
         t_row = time.perf_counter()
         try:
-            result = adjudicate_row(row, args)
+            result = assess_row(row, args)
             elapsed = time.perf_counter() - t_row
             result["ollama_wall_sec"] = round(elapsed, 3)
             result["flat"]["ollama_wall_sec"] = result["ollama_wall_sec"]
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, Exception) as err:
             elapsed = time.perf_counter() - t_row
             status = "failed"
-            adjudication = {}
+            assessment = default_assessment(evidence_mode=normalize(args.evidence_mode) or "full_text")
+            adjudication = assessment_to_legacy_adjudication(assessment)
             result = {
                 "input_row": row,
                 "evidence_chunks": [],
+                "assessment": assessment,
                 "adjudication": adjudication,
                 "verification": {"quote_verified": False, "chunk_count": 0, "context_char_count": 0},
                 "error": f"{type(err).__name__}: {err}",
                 "ollama_wall_sec": round(elapsed, 3),
                 "flat": flatten_result(
                     row,
-                    adjudication,
+                    assessment,
                     status="failed",
                     quote_verified=False,
                     min_confidence=args.auto_confidence,
@@ -1140,6 +1457,8 @@ def main() -> int:
         summary["ollama_wall_sec_max"] = round(max(timing_vals), 3)
     payload = {
         "generated_at_utc": now_utc(),
+        "stage": ASSESSMENT_STAGE,
+        "schema_version": ASSESSMENT_SCHEMA_VERSION,
         "status": status,
         "inputs": {
             "input": str(input_path),

@@ -248,7 +248,7 @@ Run a local Ollama model over the QA sample to get semantic source-type,
 claim-support, locator, and variable-extraction proposals:
 
 ```bash
-python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+python pipeline/fulltext/run_local_llm_evidence_assessment.py \
   --model qwen3:14b \
   --limit 10
 ```
@@ -262,25 +262,30 @@ ollama pull qwen3:14b
 For a quick smoke test with an already installed smaller model:
 
 ```bash
-python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+python pipeline/fulltext/run_local_llm_evidence_assessment.py \
   --model llama3.1:8b \
   --limit 1
 ```
 
 Outputs:
 
-- `data/processed/fulltext/local_llm_evidence_adjudication.json`
-- `data/processed/fulltext/local_llm_evidence_adjudication.csv`
+- `data/processed/fulltext/local_llm_evidence_assessment.json`
+- `data/processed/fulltext/local_llm_evidence_assessment.csv`
 
-The script name still says `evidence_adjudication` for compatibility. In
+The preferred script name is now `evidence_assessment`. The older
+`run_local_llm_evidence_adjudication.py` entry point and legacy output names
+remain available for compatibility with existing checkpoints and scripts. In
 methodology text, call this stage **full-text eligibility/evidence assessment
 and data extraction**. Reserve `adjudication` for final conflict resolution
 between model proposals, deterministic rules, and curator decisions.
 
 This stage is non-destructive. It supplies bounded GROBID evidence chunks to
-the model, asks for JSON matching a fixed schema, and records whether the
-model's `supporting_quote` is actually present in the supplied chunks. Treat
-LLM results as proposals until quote verification and QA metrics are acceptable.
+the model, asks for JSON matching a fixed sectioned schema, and records whether
+the model's `supporting_quote` is actually present in the supplied chunks. Each
+row has `assessment.eligibility_assessment`,
+`assessment.source_classification`, and `assessment.data_extraction`; a legacy
+top-level `adjudication` mirror is also written during the migration. Treat LLM
+results as proposals until quote verification and QA metrics are acceptable.
 Rows are only marked `semantic_auto_eligible` when the quote verifies, model
 confidence exceeds the configured threshold, labels are internally consistent,
 and the model does not request a human check.
@@ -294,7 +299,7 @@ extracts source/provenance and study variables that are explicitly stated in the
 abstract.
 
 ```bash
-python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+python pipeline/fulltext/run_local_llm_evidence_assessment.py \
   --input data/processed/llm_abstract_screening_report_disorder.json \
   --evidence-mode abstract_only \
   --only-without-fulltext \
@@ -306,8 +311,8 @@ python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
 
 Outputs default to:
 
-- `data/processed/fulltext/local_llm_abstract_only_adjudication.json`
-- `data/processed/fulltext/local_llm_abstract_only_adjudication.csv`
+- `data/processed/fulltext/local_llm_abstract_only_assessment.json`
+- `data/processed/fulltext/local_llm_abstract_only_assessment.csv`
 
 When the input is an abstract-screening report, verified compound/entity
 contexts are expanded into claim-level assessment rows. Rows are marked with

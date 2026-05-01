@@ -6,7 +6,11 @@ from pathlib import Path
 
 from pipeline.fulltext.run_local_llm_evidence_adjudication import (
     ADJUDICATION_SCHEMA,
+    ASSESSMENT_SCHEMA,
+    ASSESSMENT_SCHEMA_VERSION,
+    ASSESSMENT_STAGE,
     abstract_screening_rows_to_adjudication_rows,
+    assess_row,
     adjudicate_row,
     build_prompt,
     checkpoint_removes_for_dois,
@@ -20,6 +24,7 @@ from pipeline.fulltext.run_local_llm_evidence_adjudication import (
     selected_rows,
     semantic_auto_eligible,
     labels_are_consistent,
+    normalize_existing_result_for_current_schema,
     ollama_request_timeout,
 )
 
@@ -157,6 +162,21 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
         paper_type_values = ADJUDICATION_SCHEMA["properties"]["paper_type"]["enum"]
         self.assertIn("correction", paper_type_values)
 
+    def test_assessment_schema_separates_eligibility_classification_and_extraction(self) -> None:
+        self.assertIn("eligibility_assessment", ASSESSMENT_SCHEMA["required"])
+        self.assertIn("source_classification", ASSESSMENT_SCHEMA["required"])
+        self.assertIn("data_extraction", ASSESSMENT_SCHEMA["required"])
+        self.assertEqual(ASSESSMENT_SCHEMA["properties"]["assessment_stage"]["enum"], [ASSESSMENT_STAGE])
+        self.assertEqual(ASSESSMENT_SCHEMA["properties"]["schema_version"]["enum"], [ASSESSMENT_SCHEMA_VERSION])
+        self.assertIn(
+            "is_in_scope",
+            ASSESSMENT_SCHEMA["properties"]["eligibility_assessment"]["required"],
+        )
+        self.assertIn(
+            "population_or_condition",
+            ASSESSMENT_SCHEMA["properties"]["data_extraction"]["required"],
+        )
+
     def test_abstract_screening_report_expands_verified_contexts(self) -> None:
         rows = abstract_screening_rows_to_adjudication_rows(
             [
@@ -206,8 +226,31 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
 
         self.assertEqual(result["evidence_mode"], "abstract_only")
         self.assertEqual(result["evidence_chunks"][0]["id"], "A001")
+        self.assertEqual(result["assessment"]["eligibility_assessment"]["best_evidence_location"], "abstract")
         self.assertEqual(result["adjudication"]["best_evidence_location"], "abstract")
+        self.assertEqual(result["flat"]["assessment_stage"], ASSESSMENT_STAGE)
         self.assertEqual(result["flat"]["evidence_mode"], "abstract_only")
+
+    def test_assess_row_returns_assessment_and_legacy_adjudication(self) -> None:
+        result = assess_row(
+            {
+                "dataset": "disorder",
+                "study_doi": "10.example/test",
+                "study_title": "Psilocybin therapy for depression",
+                "abstract": "Psilocybin improved depression scores.",
+                "compound": "Psilocybin",
+                "entity": "Depression",
+            },
+            fake_args(),
+        )
+
+        self.assertIn("assessment", result)
+        self.assertIn("adjudication", result)
+        self.assertEqual(result["assessment"]["schema_version"], ASSESSMENT_SCHEMA_VERSION)
+        self.assertEqual(
+            result["adjudication"]["extracted_variables"]["population_or_condition"],
+            "not_reported",
+        )
 
     def test_select_evidence_chunks_prefers_relevant_text(self) -> None:
         artifact = {
@@ -262,6 +305,21 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
         }
 
         self.assertFalse(semantic_auto_eligible(adjudication, quote_verified=True, min_confidence=0.85))
+
+    def test_semantic_auto_eligible_accepts_assessment_payload(self) -> None:
+        assessment = {
+            "eligibility_assessment": {
+                "confidence": 0.9,
+                "needs_human_check": False,
+            },
+            "source_classification": {
+                "source_family": "original_empirical",
+                "source_type": "primary_study",
+                "paper_type": "primary_results",
+            },
+        }
+
+        self.assertTrue(semantic_auto_eligible(assessment, quote_verified=True, min_confidence=0.85))
 
     def test_labels_are_consistent_for_source_families(self) -> None:
         self.assertTrue(
@@ -337,6 +395,44 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
             mp = load_checkpoint_results(path)
             self.assertEqual(list(mp.keys()), [key])
             self.assertEqual(mp[key]["flat"]["status"], "failed")
+
+    def test_legacy_checkpoint_result_is_upgraded_to_assessment_shape(self) -> None:
+        base = {
+            "dataset": "mechanistic",
+            "study_doi": "10.1000/example",
+            "compound": "ketamine",
+            "entity": "NMDA receptor",
+            "row_index": 7,
+            "sample_group": "auto_triage_audit",
+        }
+        result = {
+            "input_row": base,
+            "adjudication": {
+                "confidence": 0.9,
+                "needs_human_check": False,
+                "source_family": "original_empirical",
+                "source_type": "primary_study",
+                "paper_type": "primary_results",
+                "study_design": "randomized trial",
+                "evidence_strength": "medium",
+                "supports_current_claim": "supported",
+                "best_evidence_location": "results",
+                "best_evidence_locator": "C001",
+                "supporting_quote": "Ketamine blocked NMDA receptors.",
+                "reasoning_summary": "legacy checkpoint",
+                "extracted_variables": {"sample_size_total": "24"},
+            },
+            "verification": {"quote_verified": True},
+            "flat": {"status": "ok", "evidence_mode": "full_text"},
+        }
+
+        upgraded = normalize_existing_result_for_current_schema(result, min_confidence=0.85)
+
+        self.assertEqual(upgraded["assessment"]["schema_version"], ASSESSMENT_SCHEMA_VERSION)
+        self.assertEqual(upgraded["assessment"]["data_extraction"]["sample_size_total"], "24")
+        self.assertEqual(upgraded["assessment"]["data_extraction"]["population_or_condition"], "not_reported")
+        self.assertEqual(upgraded["flat"]["assessment_stage"], ASSESSMENT_STAGE)
+        self.assertTrue(upgraded["flat"]["semantic_auto_eligible"])
 
     def test_checkpoint_removes_for_dois_targets_all_rows(self) -> None:
         doi = "10.1000/multi"

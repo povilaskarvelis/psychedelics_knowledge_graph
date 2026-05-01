@@ -62,7 +62,7 @@ model prompt.
 
 For relevant/uncertain papers with no available full text after acquisition
 attempts, use the full-text evidence-assessment script in abstract-only mode:
-`python pipeline/fulltext/run_local_llm_evidence_adjudication.py --input data/processed/llm_abstract_screening_report_disorder.json --evidence-mode abstract_only --only-without-fulltext --only-with-abstract --model qwen3:14b --continue-on-error --timeout-sec 0`
+`python pipeline/fulltext/run_local_llm_evidence_assessment.py --input data/processed/llm_abstract_screening_report_disorder.json --evidence-mode abstract_only --only-without-fulltext --only-with-abstract --model qwen3:14b --continue-on-error --timeout-sec 0`
 
 This fallback consumes verified contexts from the abstract-screening report,
 uses the same evidence-assessment schema, and marks outputs with

@@ -227,7 +227,7 @@ text, run abstract-only full-text-assessment fallback after acquisition
 attempts:
 
 ```bash
-python pipeline/fulltext/run_local_llm_evidence_adjudication.py \
+python pipeline/fulltext/run_local_llm_evidence_assessment.py \
   --input data/processed/llm_abstract_screening_report_disorder.json \
   --evidence-mode abstract_only \
   --only-without-fulltext \
