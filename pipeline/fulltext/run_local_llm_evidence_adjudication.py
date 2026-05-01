@@ -91,6 +91,12 @@ BEST_EVIDENCE_LOCATIONS = ["abstract", "methods", "results", "discussion", "tabl
 DATA_EXTRACTION_FIELDS = [
     "sample_size_total",
     "sample_size_by_arm",
+    "included_study_count",
+    "included_participant_count",
+    "search_databases",
+    "synthesis_method",
+    "heterogeneity",
+    "publication_bias_assessment",
     "population_or_condition",
     "participant_age",
     "participant_sex_gender",
@@ -119,6 +125,16 @@ DATA_EXTRACTION_FIELDS = [
     "conflicts_of_interest",
     "risk_of_bias_notes",
 ]
+PRIMARY_SOURCE_TYPES = {"primary_study"}
+PRIMARY_SOURCE_FAMILIES = {"original_empirical"}
+PRIMARY_PAPER_TYPES = {"primary_results", "case_report"}
+SECONDARY_LITERATURE_SOURCE_FAMILIES = {"evidence_synthesis"}
+SECONDARY_LITERATURE_SOURCE_TYPES = {"secondary_evidence", "review", "meta_analysis"}
+SECONDARY_LITERATURE_PAPER_TYPES = {"systematic_review", "meta_analysis", "review"}
+NON_PRIMARY_CONTEXT_SOURCE_FAMILIES = {"opinion_or_commentary", "protocol", "correction", "conference_abstract"}
+NON_PRIMARY_CONTEXT_SOURCE_TYPES = {"commentary", "study_protocol", "correction", "conference_abstract"}
+NON_PRIMARY_CONTEXT_PAPER_TYPES = {"commentary", "protocol", "correction", "conference_abstract"}
+EVIDENCE_ROUTES = ("primary_evidence", "secondary_literature", "non_primary_context", "human_review")
 
 DATA_EXTRACTION_SCHEMA = {
     "type": "object",
@@ -344,6 +360,12 @@ def write_csv(path: Path, rows: Iterable[dict]) -> None:
         "assessment_stage",
         "assessment_schema_version",
         "evidence_mode",
+        "evidence_route",
+        "primary_graph_eligible",
+        "secondary_graph_eligible",
+        "retain_in_database",
+        "retain_in_secondary_view",
+        "routing_reason",
         "quote_verified",
         "ollama_wall_sec",
         "dataset",
@@ -725,6 +747,9 @@ def build_prompt(row: dict, chunks: List[dict], evidence_mode: str = "full_text"
             "source_family=correction means a correction-like publishing artifact, with source_type=correction and paper_type=correction.",
             "Correction labels describe publication status, not scientific content: do not use them for ordinary research articles, reviews, surveys, or analyses that discuss correcting, updating, or improving evidence or practice.",
             "Case reports and case series are original_empirical but usually low evidence_strength.",
+            "Systematic reviews, meta-analyses, and narrative reviews are secondary literature: set source_family=evidence_synthesis, source_type=secondary_evidence, and paper_type to systematic_review, meta_analysis, or review as appropriate.",
+            "Do not force secondary literature into primary_study or primary_results; it will be retained for a secondary-source graph view rather than treated as failed primary evidence.",
+            "Protocols, commentaries, conference abstracts, corrections, and errata are non-primary context records; label them explicitly and do not extract primary-effect details unless the detail is directly stated.",
             "For is_in_scope, judge whether the paper belongs in this knowledge-graph scope based only on supplied evidence.",
             "For supports_current_claim, judge whether the supplied chunks support the row's compound plus entity relationship.",
             "If compound or entity is blank, set supports_current_claim to not_applicable and extract only paper-level details that are explicit in the abstract."
@@ -735,6 +760,7 @@ def build_prompt(row: dict, chunks: List[dict], evidence_mode: str = "full_text"
             else "Use the most specific best_evidence_location supported by the supplied chunks.",
             "Extract quantitative variables only when explicitly present in the supplied chunks; otherwise use not_reported.",
             "Capture sample size, population, study setting, comparator/intervention details, trial design details, outcome/timepoint, effect direction and statistics, and adverse-event details when present.",
+            "For reviews and meta-analyses, also capture included study count, included participant count, databases searched, synthesis method, heterogeneity, and publication-bias assessment when present.",
             "Extract trial registry identifiers such as NCT IDs, funding, conflicts of interest, and explicit risk-of-bias limitations when present; otherwise use not_reported.",
             "supporting_quote must be an exact verbatim quote from one supplied chunk. If no exact quote supports the decision, set supporting_quote to not_found and needs_human_check to true.",
             "Do not infer from outside knowledge.",
@@ -984,6 +1010,32 @@ def labels_are_consistent(adjudication_or_assessment: dict) -> bool:
     return False
 
 
+def is_primary_evidence_source(adjudication_or_assessment: dict) -> bool:
+    source = normalize_source_classification(adjudication_or_assessment)
+    return (
+        source.get("source_family") in PRIMARY_SOURCE_FAMILIES
+        or source.get("source_type") in PRIMARY_SOURCE_TYPES
+    ) and source.get("paper_type") in PRIMARY_PAPER_TYPES
+
+
+def is_secondary_literature_source(adjudication_or_assessment: dict) -> bool:
+    source = normalize_source_classification(adjudication_or_assessment)
+    return (
+        source.get("source_family") in SECONDARY_LITERATURE_SOURCE_FAMILIES
+        or source.get("source_type") in SECONDARY_LITERATURE_SOURCE_TYPES
+        or source.get("paper_type") in SECONDARY_LITERATURE_PAPER_TYPES
+    )
+
+
+def is_non_primary_context_source(adjudication_or_assessment: dict) -> bool:
+    source = normalize_source_classification(adjudication_or_assessment)
+    return (
+        source.get("source_family") in NON_PRIMARY_CONTEXT_SOURCE_FAMILIES
+        or source.get("source_type") in NON_PRIMARY_CONTEXT_SOURCE_TYPES
+        or source.get("paper_type") in NON_PRIMARY_CONTEXT_PAPER_TYPES
+    )
+
+
 def semantic_auto_eligible(adjudication_or_assessment: dict, quote_verified: bool, min_confidence: float) -> bool:
     eligibility = normalize_eligibility_assessment(adjudication_or_assessment)
     confidence = bounded_confidence(eligibility.get("confidence", 0))
@@ -993,6 +1045,45 @@ def semantic_auto_eligible(adjudication_or_assessment: dict, quote_verified: boo
         and eligibility.get("needs_human_check") is False
         and labels_are_consistent(adjudication_or_assessment)
     )
+
+
+def routing_for_assessment(assessment: dict, quote_verified: bool, min_confidence: float) -> dict:
+    semantic_ok = semantic_auto_eligible(assessment, quote_verified, min_confidence=min_confidence)
+    if is_primary_evidence_source(assessment):
+        return {
+            "evidence_route": "primary_evidence",
+            "primary_graph_eligible": semantic_ok,
+            "secondary_graph_eligible": False,
+            "retain_in_database": True,
+            "retain_in_secondary_view": False,
+            "routing_reason": "original empirical paper eligible for the primary graph when semantic QA passes",
+        }
+    if is_secondary_literature_source(assessment):
+        return {
+            "evidence_route": "secondary_literature",
+            "primary_graph_eligible": False,
+            "secondary_graph_eligible": semantic_ok,
+            "retain_in_database": True,
+            "retain_in_secondary_view": True,
+            "routing_reason": "review/meta-analysis retained for the secondary-source graph view",
+        }
+    if is_non_primary_context_source(assessment):
+        return {
+            "evidence_route": "non_primary_context",
+            "primary_graph_eligible": False,
+            "secondary_graph_eligible": False,
+            "retain_in_database": True,
+            "retain_in_secondary_view": False,
+            "routing_reason": "non-primary publication type retained as context but excluded from default evidence views",
+        }
+    return {
+        "evidence_route": "human_review",
+        "primary_graph_eligible": False,
+        "secondary_graph_eligible": False,
+        "retain_in_database": True,
+        "retain_in_secondary_view": False,
+        "routing_reason": "uncertain source classification requires curator review",
+    }
 
 
 def dry_run_assessment(evidence_mode: str) -> dict:
@@ -1027,11 +1118,13 @@ def flatten_result(
     eligibility = assessment["eligibility_assessment"]
     source = assessment["source_classification"]
     variables = assessment["data_extraction"]
+    routing = routing_for_assessment(assessment, quote_verified=quote_verified, min_confidence=min_confidence)
     flat = {
         "status": status,
         "assessment_stage": assessment["assessment_stage"],
         "assessment_schema_version": assessment["schema_version"],
         "evidence_mode": evidence_mode,
+        **routing,
         "quote_verified": quote_verified,
         "ollama_wall_sec": wall,
         "dataset": row.get("dataset", ""),
@@ -1110,12 +1203,14 @@ def assess_row(row: dict, args: argparse.Namespace) -> dict:
     assessment = normalize_assessment_payload(assessment, evidence_mode=evidence_mode)
     adjudication = assessment_to_legacy_adjudication(assessment)
     quote_verified = quote_found_in_context(assessment["eligibility_assessment"].get("supporting_quote", ""), context)
+    routing = routing_for_assessment(assessment, quote_verified=quote_verified, min_confidence=args.auto_confidence)
     return {
         "input_row": row,
         "evidence_mode": evidence_mode,
         "evidence_chunks": chunks,
         "assessment": assessment,
         "adjudication": adjudication,
+        "routing": routing,
         "verification": {
             "quote_verified": quote_verified,
             "chunk_count": len(chunks),
@@ -1167,6 +1262,7 @@ def normalize_existing_result_for_current_schema(
     result["evidence_mode"] = evidence_mode
     result["assessment"] = assessment
     result["adjudication"] = adjudication
+    result["routing"] = routing_for_assessment(assessment, quote_verified=quote_verified, min_confidence=min_confidence)
     result["verification"] = {
         **verification,
         "quote_verified": quote_verified,
@@ -1392,11 +1488,17 @@ def main() -> int:
             status = "failed"
             assessment = default_assessment(evidence_mode=normalize(args.evidence_mode) or "full_text")
             adjudication = assessment_to_legacy_adjudication(assessment)
+            routing = routing_for_assessment(
+                assessment,
+                quote_verified=False,
+                min_confidence=args.auto_confidence,
+            )
             result = {
                 "input_row": row,
                 "evidence_chunks": [],
                 "assessment": assessment,
                 "adjudication": adjudication,
+                "routing": routing,
                 "verification": {"quote_verified": False, "chunk_count": 0, "context_char_count": 0},
                 "error": f"{type(err).__name__}: {err}",
                 "ollama_wall_sec": round(elapsed, 3),

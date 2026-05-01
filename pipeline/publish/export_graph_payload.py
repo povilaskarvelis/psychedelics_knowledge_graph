@@ -16,10 +16,13 @@ ROOT = Path(__file__).resolve().parents[2]
 DATASET_CONFIG = {
     "mechanistic": {
         "curated_json": ROOT / "data" / "curated" / "claims.json",
+        "exploratory_json": ROOT / "data" / "curated" / "exploratory_claims.json",
         "schema": ROOT / "schema" / "claims.schema.json",
         "template": "Psychedelics: Mechanistic Targets",
         "all_evidence_file": "graph_payload_mechanistic.json",
         "primary_only_file": "graph_payload_mechanistic_primary_only.json",
+        "secondary_sources_file": "graph_payload_mechanistic_secondary_sources.json",
+        "primary_with_secondary_file": "graph_payload_mechanistic_primary_with_secondary.json",
         "id_fields": [
             "compound",
             "target",
@@ -34,10 +37,13 @@ DATASET_CONFIG = {
     },
     "disorder": {
         "curated_json": ROOT / "data" / "curated" / "disorder_claims.json",
+        "exploratory_json": ROOT / "data" / "curated" / "exploratory_disorder_claims.json",
         "schema": ROOT / "schema" / "disorder_claims.schema.json",
         "template": "Psychedelics: Disorder Outcomes",
         "all_evidence_file": "graph_payload_disorder.json",
         "primary_only_file": "graph_payload_disorder_primary_only.json",
+        "secondary_sources_file": "graph_payload_disorder_secondary_sources.json",
+        "primary_with_secondary_file": "graph_payload_disorder_primary_with_secondary.json",
         "id_fields": [
             "compound",
             "disorder",
@@ -50,7 +56,12 @@ DATASET_CONFIG = {
     },
 }
 
-VIEW_NAMES = ("all_evidence", "primary_only")
+VIEW_NAMES = ("all_evidence", "primary_only", "secondary_sources", "primary_with_secondary")
+PRIMARY_SOURCE_TYPES = {"primary_study"}
+PRIMARY_PAPER_TYPES = {"primary_results"}
+SECONDARY_SOURCE_FAMILIES = {"evidence_synthesis"}
+SECONDARY_SOURCE_TYPES = {"secondary_evidence", "review", "meta_analysis"}
+SECONDARY_PAPER_TYPES = {"systematic_review", "meta_analysis", "review"}
 PAPER_METADATA_FIELDS = (
     "publication_date",
     "journal_issn",
@@ -70,20 +81,39 @@ PAPER_METADATA_FIELDS = (
 EXTRACTED_VARIABLE_FIELDS = (
     "sample_size_total",
     "sample_size_by_arm",
+    "included_study_count",
+    "included_participant_count",
+    "search_databases",
+    "synthesis_method",
+    "heterogeneity",
+    "publication_bias_assessment",
+    "population_or_condition",
+    "participant_age",
+    "participant_sex_gender",
+    "study_setting",
+    "country_or_region",
     "comparator",
     "intervention_or_exposure",
     "dose",
     "route",
     "session_count_or_duration",
+    "trial_phase",
+    "randomization",
+    "blinding",
+    "follow_up_duration",
     "primary_outcome",
     "outcome_measure",
     "timepoint",
     "effect_size",
+    "effect_direction",
     "p_value",
     "confidence_interval",
     "adverse_events",
+    "serious_adverse_events",
+    "trial_registry_ids",
     "funding",
     "conflicts_of_interest",
+    "risk_of_bias_notes",
     "risk_of_bias_summary",
 )
 
@@ -99,6 +129,8 @@ def now_utc() -> str:
 
 
 def load_json_array(path: Path) -> List[dict]:
+    if not path.exists():
+        return []
     with path.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
     if not isinstance(data, list):
@@ -176,7 +208,8 @@ def validate_row(
             try:
                 float(value)
             except Exception:
-                errors.append(f"row {row_idx}: invalid number `{field}` value `{value}`")
+                if not is_secondary_literature_row(cleaned):
+                    errors.append(f"row {row_idx}: invalid number `{field}` value `{value}`")
 
     return errors
 
@@ -202,7 +235,10 @@ def as_float(value) -> float | str:
     text = normalize(value)
     if text == "":
         return ""
-    return float(text)
+    try:
+        return float(text)
+    except ValueError:
+        return text
 
 
 def extracted_variables(row: dict) -> dict:
@@ -211,6 +247,42 @@ def extracted_variables(row: dict) -> dict:
         value = row.get(field, "")
         if normalize(value):
             out[field] = normalize(value)
+    return out
+
+
+def is_primary_graph_row(row: dict) -> bool:
+    return (
+        normalize(row.get("source_type", "")) in PRIMARY_SOURCE_TYPES
+        and normalize(row.get("paper_type", "")) in PRIMARY_PAPER_TYPES
+        and normalize(row.get("access_level", "")) != "secondary_summary"
+    )
+
+
+def is_secondary_literature_row(row: dict) -> bool:
+    return (
+        normalize(row.get("source_family", "")) in SECONDARY_SOURCE_FAMILIES
+        or normalize(row.get("source_type", "")) in SECONDARY_SOURCE_TYPES
+        or normalize(row.get("paper_type", "")) in SECONDARY_PAPER_TYPES
+    )
+
+
+def evidence_role_for_row(row: dict) -> str:
+    if is_primary_graph_row(row):
+        return "primary_evidence"
+    if is_secondary_literature_row(row):
+        return "secondary_literature"
+    return "non_primary_context"
+
+
+def dedupe_rows(rows: List[dict], id_fields: List[str]) -> List[dict]:
+    seen: Set[str] = set()
+    out: List[dict] = []
+    for row in rows:
+        key = canonical_string(row, id_fields)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(row)
     return out
 
 
@@ -256,6 +328,7 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
             "source_family": normalize(row.get("source_family", "")),
+            "evidence_role": evidence_role_for_row(row),
             "access_level": normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
             "evidence_locator": normalize(row.get("evidence_locator", "")),
@@ -289,6 +362,7 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
             "source_family": normalize(row.get("source_family", "")),
+            "evidence_role": evidence_role_for_row(row),
             "access_level": normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
             "evidence_locator": normalize(row.get("evidence_locator", "")),
@@ -325,17 +399,17 @@ def sort_rows(dataset: str, rows: List[dict]) -> List[dict]:
     )
 
 
-def rows_for_view(rows: List[dict], view: str) -> List[dict]:
+def rows_for_view(rows: List[dict], view: str, secondary_rows: List[dict] | None = None, id_fields: List[str] | None = None) -> List[dict]:
+    secondary = list(secondary_rows or [])
     if view == "all_evidence":
         return list(rows)
     if view == "primary_only":
-        return [
-            row
-            for row in rows
-            if normalize(row.get("source_type", "")) == "primary_study"
-            and normalize(row.get("paper_type", "")) == "primary_results"
-            and normalize(row.get("access_level", "")) != "secondary_summary"
-        ]
+        return [row for row in rows if is_primary_graph_row(row)]
+    if view == "secondary_sources":
+        return secondary
+    if view == "primary_with_secondary":
+        combined = [row for row in rows if is_primary_graph_row(row)] + secondary
+        return dedupe_rows(combined, id_fields or []) if id_fields else combined
     raise ValueError(f"Unsupported view: {view}")
 
 
@@ -344,6 +418,10 @@ def payload_file_for_view(cfg: dict, view: str) -> str:
         return cfg["all_evidence_file"]
     if view == "primary_only":
         return cfg["primary_only_file"]
+    if view == "secondary_sources":
+        return cfg["secondary_sources_file"]
+    if view == "primary_with_secondary":
+        return cfg["primary_with_secondary_file"]
     raise ValueError(f"Unsupported view: {view}")
 
 
@@ -366,15 +444,28 @@ def payload_sha256(payload: dict) -> str:
 def export_dataset(dataset: str, out_dir: Path) -> Tuple[dict, Dict[str, List[str]]]:
     cfg = DATASET_CONFIG[dataset]
     rows = load_json_array(cfg["curated_json"])
+    exploratory_rows = load_json_array(cfg["exploratory_json"])
     schema = load_schema(cfg["schema"])
     required, enums, types, one_of_groups, allowed_keys = parse_schema(schema)
 
     sorted_rows = sort_rows(dataset, rows)
+    secondary_rows = sort_rows(
+        dataset,
+        dedupe_rows(
+            [row for row in [*rows, *exploratory_rows] if is_secondary_literature_row(row)],
+            cfg["id_fields"],
+        ),
+    )
     view_exports: dict = {}
     errors_by_view: Dict[str, List[str]] = {}
 
     for view in VIEW_NAMES:
-        selected_rows = rows_for_view(sorted_rows, view=view)
+        selected_rows = rows_for_view(
+            sorted_rows,
+            view=view,
+            secondary_rows=secondary_rows,
+            id_fields=cfg["id_fields"],
+        )
         errors: List[str] = []
         for idx, row in enumerate(selected_rows, start=1):
             errors.extend(
@@ -396,6 +487,12 @@ def export_dataset(dataset: str, out_dir: Path) -> Tuple[dict, Dict[str, List[st
             "evidence_view": view,
             "template": cfg["template"],
             "input_file": str(cfg["curated_json"]),
+            "secondary_source_file": str(cfg["exploratory_json"]),
+            "view_policy": {
+                "primary_evidence": view in {"all_evidence", "primary_only", "primary_with_secondary"},
+                "secondary_literature": view in {"all_evidence", "secondary_sources", "primary_with_secondary"},
+                "other_non_primary_context": view == "all_evidence",
+            },
             "row_count": len(contributions),
             "contributions": contributions,
         }

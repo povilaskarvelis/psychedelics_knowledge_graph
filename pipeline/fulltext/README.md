@@ -290,6 +290,13 @@ Rows are only marked `semantic_auto_eligible` when the quote verifies, model
 confidence exceeds the configured threshold, labels are internally consistent,
 and the model does not request a human check.
 
+The assessment also writes explicit routing fields. Primary empirical papers
+route to `primary_evidence`; reviews, systematic reviews, and meta-analyses
+route to `secondary_literature`; protocols, commentaries, conference abstracts,
+and corrections route to `non_primary_context`. Secondary literature is retained
+for the secondary-source graph view rather than handled as failed primary
+evidence.
+
 ### Abstract-Only Evidence Fallback
 
 For relevant/uncertain papers whose full text cannot be downloaded or converted,

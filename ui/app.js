@@ -6,6 +6,7 @@ const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
 const bibliographySearchInput = document.getElementById("bibliographySearchInput");
 const fullTextOnlyToggle = document.getElementById("fullTextOnlyToggle");
+const includeSecondaryToggle = document.getElementById("includeSecondaryToggle");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
 const detailBody = document.getElementById("detailBody");
@@ -91,7 +92,7 @@ function unique(values) {
 
 function activeClaimsForMode() {
   const baseClaims = mode === "mechanistic" ? claims : disorderClaims;
-  return primaryEvidenceClaims(baseClaims);
+  return graphViewClaims(baseClaims);
 }
 
 function primaryEvidenceClaims(baseClaims) {
@@ -101,6 +102,55 @@ function primaryEvidenceClaims(baseClaims) {
       normalizeValue(claim.source_type) === "primary_study" &&
       normalizeValue(claim.access_level) !== "secondary_summary",
   );
+}
+
+function secondaryLiteratureClaims(baseClaims) {
+  return baseClaims.filter((claim) => {
+    const sourceFamily = normalizeValue(claim.source_family);
+    const sourceType = normalizeValue(claim.source_type);
+    const paperType = normalizeValue(claim.paper_type);
+    return (
+      sourceFamily === "evidence_synthesis" ||
+      ["secondary_evidence", "review", "meta_analysis"].includes(sourceType) ||
+      ["systematic_review", "meta_analysis", "review"].includes(paperType)
+    );
+  });
+}
+
+function claimIdentity(claim, index) {
+  const rightKey = claim.target !== undefined ? "target" : "disorder";
+  const parts = [
+    claim.compound || "",
+    claim[rightKey] || "",
+    claim.study_doi || "",
+    claim.openalex_id || "",
+    claim.assay_type || "",
+    claim.affinity_type || "",
+    claim.affinity_value || "",
+    claim.outcome_type || "",
+    claim.outcome_measure || "",
+    claim.evidence_locator || "",
+  ];
+  const key = parts.join("|");
+  return key.replace(/\|/g, "") ? key : `claim-${index}`;
+}
+
+function dedupeClaims(items) {
+  const seen = new Set();
+  const out = [];
+  items.forEach((claim, index) => {
+    const key = claimIdentity(claim, index);
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(claim);
+  });
+  return out;
+}
+
+function graphViewClaims(baseClaims) {
+  const primary = primaryEvidenceClaims(baseClaims);
+  if (!includeSecondaryToggle?.checked) return primary;
+  return dedupeClaims([...primary, ...secondaryLiteratureClaims(baseClaims)]);
 }
 
 function parseYearValue(raw) {
@@ -562,8 +612,8 @@ function claimAuthors(claim) {
 }
 
 function updateStats() {
-  const disorderPrimary = primaryEvidenceClaims(disorderClaims);
-  const mechanisticPrimary = primaryEvidenceClaims(claims);
+  const disorderPrimary = graphViewClaims(disorderClaims);
+  const mechanisticPrimary = graphViewClaims(claims);
   const totalClaims = [...disorderPrimary, ...mechanisticPrimary];
 
   stats.compounds.textContent = formatCompactNumber(
@@ -733,6 +783,8 @@ function renderCards(data) {
           claim.outcome_type,
           claim.result_direction,
           claim.paper_type,
+          claim.source_family,
+          claim.source_type,
           claimAuthors(claim),
           claim.study_doi,
           claim.openalex_id,
@@ -2049,6 +2101,7 @@ function mechanisticFromPayload(payload) {
     source: item?.properties?.source || "",
     paper_type: item?.provenance?.paper_type || "",
     source_type: item?.provenance?.source_type || "",
+    source_family: item?.provenance?.source_family || "",
     access_level: item?.provenance?.access_level || "",
     evidence_location: item?.provenance?.evidence_location || "",
     evidence_locator: item?.provenance?.evidence_locator || "",
@@ -2082,6 +2135,7 @@ function disorderFromPayload(payload) {
     source: item?.properties?.source || "",
     paper_type: item?.provenance?.paper_type || "",
     source_type: item?.provenance?.source_type || "",
+    source_family: item?.provenance?.source_family || "",
     access_level: item?.provenance?.access_level || "",
     evidence_location: item?.provenance?.evidence_location || "",
     evidence_locator: item?.provenance?.evidence_locator || "",
@@ -2112,44 +2166,50 @@ async function init() {
 
   try {
     const { data } = await fetchJsonFromCandidates([
-      "../data/curated/claims.json",
-      "/data/curated/claims.json",
-      "data/curated/claims.json",
+      "../data/processed/graph_payload_mechanistic_primary_with_secondary.json",
+      "/data/processed/graph_payload_mechanistic_primary_with_secondary.json",
+      "data/processed/graph_payload_mechanistic_primary_with_secondary.json",
+      "../data/processed/graph_payload_mechanistic.json",
+      "/data/processed/graph_payload_mechanistic.json",
+      "data/processed/graph_payload_mechanistic.json",
     ]);
-    claims = Array.isArray(data) ? data : [];
-  } catch (primaryErr) {
-    loadErrors.push(`mechanistic curated: ${primaryErr.message}`);
+    claims = mechanisticFromPayload(data);
+  } catch (payloadErr) {
+    loadErrors.push(`mechanistic payload: ${payloadErr.message}`);
     try {
       const { data } = await fetchJsonFromCandidates([
-        "../data/processed/graph_payload_mechanistic.json",
-        "/data/processed/graph_payload_mechanistic.json",
-        "data/processed/graph_payload_mechanistic.json",
+        "../data/curated/claims.json",
+        "/data/curated/claims.json",
+        "data/curated/claims.json",
       ]);
-      claims = mechanisticFromPayload(data);
-    } catch (fallbackErr) {
-      loadErrors.push(`mechanistic payload fallback: ${fallbackErr.message}`);
+      claims = Array.isArray(data) ? data : [];
+    } catch (curatedErr) {
+      loadErrors.push(`mechanistic curated fallback: ${curatedErr.message}`);
       claims = [];
     }
   }
 
   try {
     const { data } = await fetchJsonFromCandidates([
-      "../data/curated/disorder_claims.json",
-      "/data/curated/disorder_claims.json",
-      "data/curated/disorder_claims.json",
+      "../data/processed/graph_payload_disorder_primary_with_secondary.json",
+      "/data/processed/graph_payload_disorder_primary_with_secondary.json",
+      "data/processed/graph_payload_disorder_primary_with_secondary.json",
+      "../data/processed/graph_payload_disorder.json",
+      "/data/processed/graph_payload_disorder.json",
+      "data/processed/graph_payload_disorder.json",
     ]);
-    disorderClaims = Array.isArray(data) ? data : [];
-  } catch (primaryErr) {
-    loadErrors.push(`disorder curated: ${primaryErr.message}`);
+    disorderClaims = disorderFromPayload(data);
+  } catch (payloadErr) {
+    loadErrors.push(`disorder payload: ${payloadErr.message}`);
     try {
       const { data } = await fetchJsonFromCandidates([
-        "../data/processed/graph_payload_disorder.json",
-        "/data/processed/graph_payload_disorder.json",
-        "data/processed/graph_payload_disorder.json",
+        "../data/curated/disorder_claims.json",
+        "/data/curated/disorder_claims.json",
+        "data/curated/disorder_claims.json",
       ]);
-      disorderClaims = disorderFromPayload(data);
-    } catch (fallbackErr) {
-      loadErrors.push(`disorder payload fallback: ${fallbackErr.message}`);
+      disorderClaims = Array.isArray(data) ? data : [];
+    } catch (curatedErr) {
+      loadErrors.push(`disorder curated fallback: ${curatedErr.message}`);
       disorderClaims = [];
     }
   }
@@ -2199,6 +2259,9 @@ if (bibliographySearchInput) {
 }
 if (fullTextOnlyToggle) {
   fullTextOnlyToggle.addEventListener("change", scheduleRender);
+}
+if (includeSecondaryToggle) {
+  includeSecondaryToggle.addEventListener("change", scheduleRender);
 }
 if (studiesStatCard) {
   studiesStatCard.addEventListener("click", focusBibliography);

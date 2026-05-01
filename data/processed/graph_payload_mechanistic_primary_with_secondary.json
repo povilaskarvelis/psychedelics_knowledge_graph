@@ -1,16 +1,16 @@
 {
   "contract_version": "1.0",
   "dataset": "mechanistic",
-  "evidence_view": "all_evidence",
+  "evidence_view": "primary_with_secondary",
   "template": "Psychedelics: Mechanistic Targets",
   "input_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/claims.json",
   "secondary_source_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/exploratory_claims.json",
   "view_policy": {
     "primary_evidence": true,
     "secondary_literature": true,
-    "other_non_primary_context": true
+    "other_non_primary_context": false
   },
-  "row_count": 220,
+  "row_count": 227,
   "contributions": [
     {
       "external_id": "mech-f4c6718f4404e989",
@@ -1076,47 +1076,6 @@
         "study_design": "preclinical_study",
         "evidence_strength": "",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
-      }
-    },
-    {
-      "external_id": "mech-55c1ef16da9234b4",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.3389/fphys.2021.782588",
-        "openalex_id": "",
-        "title": "Erratum: Regulation of the Muscarinic M3 Receptor by Myocardin-Related Transcription Factors",
-        "journal": "",
-        "publication_type": "",
-        "trial_registry_ids": "",
-        "authors": "Frontiers Production Office",
-        "year": 2021
-      },
-      "resources": {
-        "compound": "DOI",
-        "target": "M3 muscarinic receptor (CHRM3)"
-      },
-      "properties": {
-        "assay_type": "radioligand binding",
-        "affinity_type": "Other",
-        "affinity_value": 100.0,
-        "affinity_unit": "nM",
-        "species": "",
-        "system": "in_vivo",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "extracted_variables": {},
-      "provenance": {
-        "paper_type": "erratum",
-        "source_type": "correction",
-        "source_family": "",
-        "evidence_role": "non_primary_context",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: [This corrects the article DOI: 10.3389/fphys.2021.710968.].",
-        "study_design": "correction",
-        "evidence_strength": "",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; Automated evidence triage on 2026-04-24 classified this source as correction (confidence 0.99)"
       }
     },
     {
@@ -2470,47 +2429,6 @@
         "study_design": "preclinical_study",
         "evidence_strength": "",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
-      }
-    },
-    {
-      "external_id": "mech-b2397986db353950",
-      "template": "Psychedelics: Mechanistic Targets",
-      "paper": {
-        "doi": "10.1111/pcn.12902",
-        "openalex_id": "",
-        "title": "Rapid‐acting antidepressant ketamine, its metabolites and other candidates: A historical overview and future perspective",
-        "journal": "",
-        "publication_type": "",
-        "trial_registry_ids": "",
-        "authors": "Kenji Hashimoto",
-        "year": 2019
-      },
-      "resources": {
-        "compound": "Ketamine",
-        "target": "NMDA receptor"
-      },
-      "properties": {
-        "assay_type": "functional assay",
-        "affinity_type": "Ki",
-        "affinity_value": 0.06,
-        "affinity_unit": "uM",
-        "species": "",
-        "system": "in_vivo",
-        "evidence_level": "medium",
-        "source": "doi"
-      },
-      "extracted_variables": {},
-      "provenance": {
-        "paper_type": "commentary",
-        "source_type": "commentary",
-        "source_family": "",
-        "evidence_role": "non_primary_context",
-        "access_level": "full_text_seen",
-        "evidence_location": "text",
-        "evidence_locator": "Abstract snippet: Major depressive disorder (MDD) is one of the most disabling psychiatric disorders. Approximately one-third of the patients with MDD are treatment resistant to the curren",
-        "study_design": "commentary",
-        "evidence_strength": "",
-        "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields; Automated evidence triage on 2026-04-24 classified this source as commentary (confidence 0.86)"
       }
     },
     {
@@ -9030,6 +8948,375 @@
         "study_design": "preclinical_study",
         "evidence_strength": "",
         "notes": "Auto-generated stub from DOI queue; Abstract-first autofill from paper metadata; Full-text PDF autofill for mechanistic affinity fields"
+      }
+    },
+    {
+      "external_id": "mech-a3a5b65c4a561b90",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1124/pr.115.011478",
+        "openalex_id": "",
+        "title": "Psychedelics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "David E. Nichols",
+        "year": 2016
+      },
+      "resources": {
+        "compound": "DMT",
+        "target": "5-HT1A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 130.0,
+        "affinity_unit": "nM",
+        "species": "rat (hippocampus)",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "other",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "text",
+        "evidence_locator": "Unspecified",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "Review reports Deliganis et al. (1991) Ki=130 nM; guanyl nucleotides reduce Ki to 464 nM"
+      }
+    },
+    {
+      "external_id": "mech-7615fda947a71e0a",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1152/ajpcell.00397.2022",
+        "openalex_id": "",
+        "title": "G protein-coupled receptors as targets for transformative neuropsychiatric therapeutics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "Gavin P. Schmitz; Bryan L. Roth",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "LSD",
+        "target": "5-HT1A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 2.29,
+        "affinity_unit": "nM",
+        "species": "human (cloned cells)",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "primary_results",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "Values compiled from PDSP Ki database in review table"
+      }
+    },
+    {
+      "external_id": "mech-4eaa30641efe3781",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1152/ajpcell.00397.2022",
+        "openalex_id": "",
+        "title": "G protein-coupled receptors as targets for transformative neuropsychiatric therapeutics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "Gavin P. Schmitz; Bryan L. Roth",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "LSD",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 3.29,
+        "affinity_unit": "nM",
+        "species": "human (cloned cells)",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "primary_results",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "Values compiled from PDSP Ki database in review table"
+      }
+    },
+    {
+      "external_id": "mech-345b3264341ff7a4",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1124/pr.115.011478",
+        "openalex_id": "",
+        "title": "Psychedelics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "David E. Nichols",
+        "year": 2016
+      },
+      "resources": {
+        "compound": "Mescaline",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 550.0,
+        "affinity_unit": "nM",
+        "species": "human (cloned receptors)",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "other",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table 1",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "Table 1 reports mescaline Ki 550 nM for 5-HT2A"
+      }
+    },
+    {
+      "external_id": "mech-f9639e8a8a582f6d",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1124/pr.115.011478",
+        "openalex_id": "",
+        "title": "Psychedelics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "David E. Nichols",
+        "year": 2016
+      },
+      "resources": {
+        "compound": "Mescaline",
+        "target": "5-HT2C"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 300.0,
+        "affinity_unit": "nM",
+        "species": "human (cloned receptors)",
+        "system": "in_vitro",
+        "evidence_level": "high",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "other",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table 1",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "Table 1 reports mescaline Ki 300 nM for 5-HT2C"
+      }
+    },
+    {
+      "external_id": "mech-1f6e4053cf5d4173",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1152/ajpcell.00397.2022",
+        "openalex_id": "",
+        "title": "G protein-coupled receptors as targets for transformative neuropsychiatric therapeutics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "Gavin P. Schmitz; Bryan L. Roth",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "Psilocin",
+        "target": "5-HT1A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 49.0,
+        "affinity_unit": "nM",
+        "species": "human (cloned cells)",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "primary_results",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "Values compiled from PDSP Ki database in review table"
+      }
+    },
+    {
+      "external_id": "mech-368d8d9499ec1dbc",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1152/ajpcell.00397.2022",
+        "openalex_id": "",
+        "title": "G protein-coupled receptors as targets for transformative neuropsychiatric therapeutics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "Gavin P. Schmitz; Bryan L. Roth",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "Psilocin",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 12.0,
+        "affinity_unit": "nM",
+        "species": "rat cortex",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "other",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "5-HT2A data reported from rat cortex in review table"
+      }
+    },
+    {
+      "external_id": "mech-9834d4bbb57ada79",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1152/ajpcell.00397.2022",
+        "openalex_id": "",
+        "title": "G protein-coupled receptors as targets for transformative neuropsychiatric therapeutics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "Gavin P. Schmitz; Bryan L. Roth",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "Psilocybin",
+        "target": "5-HT1A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 10000.0,
+        "affinity_unit": "nM",
+        "species": "human (cloned cells)",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "other",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "Reported as >10,000 nM in review table"
+      }
+    },
+    {
+      "external_id": "mech-fc2bb4db79a581c9",
+      "template": "Psychedelics: Mechanistic Targets",
+      "paper": {
+        "doi": "10.1152/ajpcell.00397.2022",
+        "openalex_id": "",
+        "title": "G protein-coupled receptors as targets for transformative neuropsychiatric therapeutics",
+        "journal": "",
+        "publication_type": "",
+        "trial_registry_ids": "",
+        "authors": "Gavin P. Schmitz; Bryan L. Roth",
+        "year": 2023
+      },
+      "resources": {
+        "compound": "Psilocybin",
+        "target": "5-HT2A"
+      },
+      "properties": {
+        "assay_type": "radioligand binding",
+        "affinity_type": "Ki",
+        "affinity_value": 13.0,
+        "affinity_unit": "nM",
+        "species": "rat cortex",
+        "system": "in_vitro",
+        "evidence_level": "medium",
+        "source": "doi"
+      },
+      "extracted_variables": {},
+      "provenance": {
+        "paper_type": "other",
+        "source_type": "review",
+        "source_family": "",
+        "evidence_role": "secondary_literature",
+        "access_level": "secondary_summary",
+        "evidence_location": "table",
+        "evidence_locator": "Table (unspecified)",
+        "study_design": "in_vitro_binding_assay",
+        "evidence_strength": "",
+        "notes": "5-HT2A data reported from rat cortex in review table"
       }
     }
   ]

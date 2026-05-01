@@ -11,4 +11,5 @@ Run
 Ideas
 - Graph view: compounds and targets/indications with edges for claims
 - Claim cards: show study, assay/outcome, provenance, and factual chips such as `rct`, `full text`, and `positive`
-- Filters: compound, target/indication, year, primary results, and full text
+- Filters: compound, target/indication, year, full text, and optional secondary
+  sources for reviews/systematic reviews/meta-analyses

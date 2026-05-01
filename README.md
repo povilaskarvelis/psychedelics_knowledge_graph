@@ -55,11 +55,11 @@ Current paper types include:
 - conference or poster abstract
 - other
 
-Only primary results papers are admitted to the main curated claim set. Reviews,
-protocols, conference abstracts, commentary, case reports, and corrections are
-retained as evidence/source records where possible so they can be browsed or
-included in secondary-source views without inflating the core primary-evidence
-graph.
+Only primary results papers are admitted to the default primary-evidence graph.
+Reviews, systematic reviews, and meta-analyses are retained as secondary
+literature and can be included with the secondary-source view/checkmark.
+Protocols, conference abstracts, commentary, and corrections are retained as
+non-primary context where possible without inflating primary-evidence counts.
 
 Technical note: the current default path is non-destructive. It uses a
 deterministic no-signal pre-screen, then local LLM abstract screening for
@@ -100,6 +100,8 @@ Main outputs:
 - curated claim files in `data/curated/`
 - exploratory claim files for weak or demoted evidence
 - graph export payloads in `data/processed/graph_payload_*.json`
+- the GUI defaults to primary evidence and has a `Secondary sources` checkbox
+  for reviews, systematic reviews, and meta-analyses
 
 The GUI defaults to a stricter primary-results-only view and surfaces paper
 type and result direction directly in the interface.

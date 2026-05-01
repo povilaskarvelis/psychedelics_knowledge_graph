@@ -26,6 +26,7 @@ from pipeline.fulltext.run_local_llm_evidence_adjudication import (
     labels_are_consistent,
     normalize_existing_result_for_current_schema,
     ollama_request_timeout,
+    routing_for_assessment,
 )
 
 
@@ -176,6 +177,10 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
             "population_or_condition",
             ASSESSMENT_SCHEMA["properties"]["data_extraction"]["required"],
         )
+        self.assertIn(
+            "included_study_count",
+            ASSESSMENT_SCHEMA["properties"]["data_extraction"]["required"],
+        )
 
     def test_abstract_screening_report_expands_verified_contexts(self) -> None:
         rows = abstract_screening_rows_to_adjudication_rows(
@@ -229,6 +234,7 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
         self.assertEqual(result["assessment"]["eligibility_assessment"]["best_evidence_location"], "abstract")
         self.assertEqual(result["adjudication"]["best_evidence_location"], "abstract")
         self.assertEqual(result["flat"]["assessment_stage"], ASSESSMENT_STAGE)
+        self.assertEqual(result["flat"]["evidence_route"], "human_review")
         self.assertEqual(result["flat"]["evidence_mode"], "abstract_only")
 
     def test_assess_row_returns_assessment_and_legacy_adjudication(self) -> None:
@@ -251,6 +257,51 @@ class LocalLlmEvidenceAdjudicationTest(unittest.TestCase):
             result["adjudication"]["extracted_variables"]["population_or_condition"],
             "not_reported",
         )
+
+    def test_secondary_literature_routes_to_secondary_view_not_primary_graph(self) -> None:
+        assessment = {
+            "eligibility_assessment": {
+                "confidence": 0.95,
+                "needs_human_check": False,
+                "supporting_quote": "This systematic review included randomized studies.",
+            },
+            "source_classification": {
+                "source_family": "evidence_synthesis",
+                "source_type": "secondary_evidence",
+                "paper_type": "systematic_review",
+                "study_design": "systematic review",
+                "evidence_strength": "medium",
+            },
+        }
+
+        routing = routing_for_assessment(assessment, quote_verified=True, min_confidence=0.85)
+
+        self.assertEqual(routing["evidence_route"], "secondary_literature")
+        self.assertFalse(routing["primary_graph_eligible"])
+        self.assertTrue(routing["secondary_graph_eligible"])
+        self.assertTrue(routing["retain_in_secondary_view"])
+
+    def test_commentary_routes_to_context_not_secondary_view(self) -> None:
+        assessment = {
+            "eligibility_assessment": {
+                "confidence": 0.95,
+                "needs_human_check": False,
+            },
+            "source_classification": {
+                "source_family": "opinion_or_commentary",
+                "source_type": "commentary",
+                "paper_type": "commentary",
+                "study_design": "commentary",
+                "evidence_strength": "not_applicable",
+            },
+        }
+
+        routing = routing_for_assessment(assessment, quote_verified=True, min_confidence=0.85)
+
+        self.assertEqual(routing["evidence_route"], "non_primary_context")
+        self.assertFalse(routing["primary_graph_eligible"])
+        self.assertFalse(routing["secondary_graph_eligible"])
+        self.assertFalse(routing["retain_in_secondary_view"])
 
     def test_select_evidence_chunks_prefers_relevant_text(self) -> None:
         artifact = {

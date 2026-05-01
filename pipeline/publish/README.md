@@ -15,15 +15,19 @@ Custom output directory:
 ## Outputs
 - `data/processed/graph_payload_mechanistic.json` (all evidence)
 - `data/processed/graph_payload_mechanistic_primary_only.json`
+- `data/processed/graph_payload_mechanistic_secondary_sources.json`
+- `data/processed/graph_payload_mechanistic_primary_with_secondary.json`
 - `data/processed/graph_payload_disorder.json` (all evidence)
 - `data/processed/graph_payload_disorder_primary_only.json`
+- `data/processed/graph_payload_disorder_secondary_sources.json`
+- `data/processed/graph_payload_disorder_primary_with_secondary.json`
 - `data/processed/graph_payload_manifest.json`
 
 ## Contract
 Each payload contains:
 - `contract_version`
 - `dataset`
-- `evidence_view` (`all_evidence` or `primary_only`)
+- `evidence_view` (`all_evidence`, `primary_only`, `secondary_sources`, or `primary_with_secondary`)
 - `template`
 - `row_count`
 - `contributions[]` with deterministic `external_id`
@@ -31,5 +35,9 @@ Each payload contains:
 
 ## Notes
 - Export validates rows against dataset schema and records errors in the manifest.
-- Manifest includes SHA-256 digests and row counts for both evidence views.
+- `secondary_sources` includes reviews, systematic reviews, and meta-analyses
+  from both curated rows and exploratory/demoted rows. Protocols,
+  commentaries, conference abstracts, and corrections remain non-primary
+  context and are not included in that view by default.
+- Manifest includes SHA-256 digests and row counts for all evidence views.
 - Payload files avoid volatile timestamps so hashes are stable when data is unchanged.

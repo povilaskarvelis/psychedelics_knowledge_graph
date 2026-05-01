@@ -62,6 +62,13 @@ or certainty assessment workflow.
 - `protocol`, `review`, `systematic_review`, `meta_analysis`,
   `conference_or_poster_abstract`, `commentary`, `correction`, and `erratum`
   papers are not countable primary-evidence claims
+- `review`, `systematic_review`, and `meta_analysis` rows are retained as
+  secondary literature and can be included through the secondary-source graph
+  view/checkmark. They should not be treated as failed primary evidence.
+- Protocols, conference abstracts, commentary, corrections, and errata are
+  retained as non-primary context when encountered, but are excluded from the
+  default primary and secondary-source graph views unless a curator explicitly
+  promotes a special-purpose view.
 - Case reports are original empirical evidence, but they should normally be
   low-strength and should not be pooled with trials without an explicit view
   choice
