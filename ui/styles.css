@@ -257,6 +257,21 @@ button.primary:hover {
   border-radius: 999px;
 }
 
+.mode-toggle button.ghost:not(.active) {
+  background: transparent;
+  border-color: transparent;
+  color: rgba(232, 238, 252, 0.42);
+  box-shadow: none;
+}
+
+.mode-toggle button.ghost:not(.active):hover {
+  color: rgba(232, 238, 252, 0.62);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
 .mode-toggle button.active {
   background: var(--control-active-fill);
   border: 1px solid var(--control-active-border);
@@ -277,8 +292,9 @@ button.primary:hover {
   align-items: center;
   gap: 9px;
   height: 36px;
-  padding: 7px 12px;
-  border-radius: 999px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
   border: 1px solid var(--control-border);
   background: var(--control-surface);
   color: var(--fg);
@@ -287,9 +303,19 @@ button.primary:hover {
   cursor: pointer;
 }
 
-.access-toggle:hover {
+.access-toggle:has(input:checked):hover {
   background: var(--control-surface-hover);
   border-color: var(--control-border-hover);
+}
+
+.access-toggle:has(input:not(:checked)) {
+  color: rgba(232, 238, 252, 0.52);
+  background: rgba(6, 9, 16, 0.52);
+}
+
+.access-toggle:has(input:not(:checked)):hover {
+  color: rgba(232, 238, 252, 0.68);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .access-toggle input[type="checkbox"] {

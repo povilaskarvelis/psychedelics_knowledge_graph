@@ -134,6 +134,19 @@
         border-radius: 999px;
         color: var(--fg);
       }
+      .mode-toggle button:not(.active) {
+        background: transparent;
+        border-color: transparent;
+        color: rgba(232, 238, 252, 0.42);
+        box-shadow: none;
+      }
+      .mode-toggle button:not(.active):hover {
+        color: rgba(232, 238, 252, 0.62);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: transparent;
+        box-shadow: none;
+        transform: none;
+      }
       .mode-toggle button.active {
         background: rgba(73,214,200,0.15);
         border: 1px solid rgba(73,214,200,0.4);
@@ -141,12 +154,20 @@
       }
       .access-toggle {
         display: inline-flex; align-items: center; gap: 9px;
-        height: 36px; padding: 7px 12px; border-radius: 999px;
+        height: 32px; min-height: 32px; padding: 0 12px; border-radius: 10px;
         color: var(--fg); font-size: 0.825rem; white-space: nowrap;
         cursor: pointer;
       }
       .access-toggle input[type="checkbox"] {
         accent-color: var(--accent-2); width: 14px; height: 14px; margin: 0;
+      }
+      .access-toggle:has(input:not(:checked)) {
+        color: rgba(232, 238, 252, 0.52);
+        background: rgba(6, 9, 16, 0.52);
+      }
+      .access-toggle:has(input:not(:checked)):hover {
+        color: rgba(232, 238, 252, 0.68);
+        background: rgba(255, 255, 255, 0.035);
       }
 
       /* =========================================================
