@@ -197,6 +197,47 @@ python pipeline/review/run_local_llm_abstract_screening.py \
   --only-with-abstract
 ```
 
+After a metadata sync improves journal, publication type, trial IDs, or other
+bibliographic fields, refresh the completed screening report and downstream DOI
+queues without rerunning or revalidating the LLM decisions:
+
+```bash
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset mechanistic \
+  --refresh-report-metadata-only
+```
+
+If a later metadata sync reveals a small set of newly screenable rows, run them
+as a separate catch-up batch so the main report is not overwritten:
+
+```bash
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset mechanistic \
+  --doi-file data/raw/doi_queue.mechanistic.llm_screening_catchup.txt \
+  --model qwen3:14b \
+  --only-with-abstract \
+  --continue-on-error \
+  --timeout-sec 0 \
+  --resume-from-checkpoint \
+  --checkpoint-jsonl data/processed/llm_abstract_screening_report_mechanistic.checkpoint.jsonl \
+  --out-json data/processed/llm_abstract_screening_report_mechanistic.catchup.json \
+  --out-csv data/processed/llm_abstract_screening_report_mechanistic.catchup.csv \
+  --download-queue-out data/raw/doi_queue.mechanistic.llm_fulltext_candidates.catchup.txt \
+  --relevant-queue-out data/raw/doi_queue.mechanistic.llm_relevant.catchup.txt \
+  --uncertain-queue-out data/raw/doi_queue.mechanistic.llm_uncertain.catchup.txt \
+  --num-ctx 4096
+```
+
+Then merge the catch-up report back into the main report and rewrite the normal
+queues:
+
+```bash
+python pipeline/review/run_local_llm_abstract_screening.py \
+  --dataset mechanistic \
+  --refresh-report-metadata-only \
+  --merge-report-json data/processed/llm_abstract_screening_report_mechanistic.catchup.json
+```
+
 Primary outputs:
 - `data/processed/deterministic_prescreen_report_<dataset>.json`
 - `data/raw/doi_queue.<dataset>.deterministic_prescreen_retained.txt`

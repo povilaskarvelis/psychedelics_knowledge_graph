@@ -20,17 +20,22 @@ from pipeline.review.run_local_llm_abstract_screening import (
     fast_screen_excludes,
     fast_screen_irrelevant_adjudication,
     filter_indexed_rows,
+    flatten_result,
     load_checkpoint_results,
+    load_report_results,
     load_reprocess_doi_set,
+    merge_report_rows,
     print_screening_row_followup,
     queue_rows_from_results,
     read_doi_file,
+    refresh_result_metadata,
     revalidate_checkpoint_result,
     screen_row,
     semantic_auto_eligible,
     truncate_checkpoint,
     validation_flags,
     verified_supported_contexts,
+    write_csv,
 )
 
 
@@ -57,6 +62,9 @@ def fake_args(**overrides) -> argparse.Namespace:
         "checkpoint_jsonl": "",
         "resume_from_checkpoint": False,
         "materialize_checkpoint_only": False,
+        "refresh_report_metadata_only": False,
+        "report_fallback_json": "",
+        "merge_report_json": [],
         "no_checkpoint": False,
         "quiet_progress": False,
         "show_checkpoint_progress": False,
@@ -343,6 +351,59 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertEqual(len(download_rows), 2)
         self.assertEqual(download_rows[1]["compound"], "")
 
+    def test_flatten_result_carries_authors_and_metadata(self) -> None:
+        flat = flatten_result(
+            dataset="mechanistic",
+            row_index=1,
+            row={
+                "study_doi": "10.example/test",
+                "study_title": "Example",
+                "study_year": "2025",
+                "authors": "A. Author",
+                "study_journal": "Journal",
+                "publication_type": "Review",
+                "publication_date": "2025-01-02",
+                "abstract": "Psilocybin binds 5-HT2A.",
+            },
+            adjudication={"relevance": "relevant", "confidence": 0.9, "needs_targeted_qa": False},
+            status="ok",
+            quote_verified=True,
+            verified_contexts=[{"compound": "Psilocybin", "entity": "5-HT2A"}],
+            heuristic={},
+            args=fake_args(),
+        )
+
+        self.assertEqual(flat["authors"], "A. Author")
+        self.assertEqual(flat["study_journal"], "Journal")
+        self.assertEqual(flat["publication_type"], "Review")
+        self.assertEqual(flat["publication_date"], "2025-01-02")
+
+    def test_write_csv_includes_authors_and_metadata_columns(self) -> None:
+        out = Path(tempfile.gettempdir()) / "psychkg_abstract_screening_metadata.csv"
+        try:
+            write_csv(
+                out,
+                [
+                    {
+                        "status": "ok",
+                        "dataset": "mechanistic",
+                        "row_index": 1,
+                        "study_doi": "10.example/test",
+                        "study_title": "Example",
+                        "study_year": "2025",
+                        "authors": "A. Author",
+                        "study_journal": "Journal",
+                        "publication_type": "Review",
+                    }
+                ],
+            )
+            header = out.read_text(encoding="utf-8").splitlines()[0].split(",")
+            self.assertIn("authors", header)
+            self.assertIn("study_journal", header)
+            self.assertIn("publication_type", header)
+        finally:
+            out.unlink(missing_ok=True)
+
     def test_print_screening_row_followup_smoke(self) -> None:
         flat = {
             "status": "ok",
@@ -424,6 +485,88 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
 
         self.assertTrue(checkpoint_result_is_compatible(compatible))
         self.assertFalse(checkpoint_result_is_compatible(incompatible))
+
+    def test_load_report_results_maps_existing_report_rows_by_doi(self) -> None:
+        out = Path(tempfile.gettempdir()) / "psychkg_fake_screening_report.json"
+        try:
+            out.write_text(
+                json.dumps(
+                    {
+                        "rows": [
+                            {"input_row": {"study_doi": "10.1/A"}, "flat": {"status": "ok"}},
+                            {"flat": {"study_doi": "10.1/B", "status": "ok"}},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            loaded = load_report_results(out)
+
+            self.assertEqual(set(loaded), {"10.1/a", "10.1/b"})
+        finally:
+            out.unlink(missing_ok=True)
+
+    def test_merge_report_rows_adds_and_replaces_by_doi(self) -> None:
+        merge = Path(tempfile.gettempdir()) / "psychkg_fake_screening_merge.json"
+        try:
+            merge.write_text(
+                json.dumps(
+                    {
+                        "rows": [
+                            {"input_row": {"study_doi": "10.1/B"}, "flat": {"study_doi": "10.1/B", "x": 2}},
+                            {"input_row": {"study_doi": "10.1/C"}, "flat": {"study_doi": "10.1/C", "x": 3}},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            rows, summary = merge_report_rows(
+                [{"input_row": {"study_doi": "10.1/A"}}, {"input_row": {"study_doi": "10.1/B"}, "flat": {"x": 1}}],
+                [merge],
+            )
+
+            self.assertEqual([row["input_row"]["study_doi"] for row in rows], ["10.1/A", "10.1/B", "10.1/C"])
+            self.assertEqual(rows[1]["flat"]["x"], 2)
+            self.assertEqual(summary["merge_report_rows_added"], 1)
+            self.assertEqual(summary["merge_report_rows_replaced"], 1)
+        finally:
+            merge.unlink(missing_ok=True)
+
+    def test_refresh_result_metadata_preserves_existing_screening_decision(self) -> None:
+        result = {
+            "input_row": {"study_doi": "10.example/test", "study_title": "Old title"},
+            "flat": {
+                "status": "ok",
+                "study_doi": "10.example/test",
+                "llm_relevance": "relevant",
+                "download_queue_eligible": False,
+            },
+            "adjudication": {"relevance": "relevant"},
+        }
+
+        refreshed = refresh_result_metadata(
+            result,
+            dataset="mechanistic",
+            row_index=9,
+            paper_row={
+                "study_doi": "10.example/test",
+                "study_title": "New title",
+                "study_year": "2025",
+                "authors": "A. Author",
+                "study_journal": "Journal",
+                "publication_type": "Review",
+                "abstract": "Updated abstract",
+            },
+        )
+
+        self.assertEqual(refreshed["flat"]["llm_relevance"], "relevant")
+        self.assertFalse(refreshed["flat"]["download_queue_eligible"])
+        self.assertEqual(refreshed["flat"]["study_title"], "New title")
+        self.assertEqual(refreshed["flat"]["authors"], "A. Author")
+        self.assertEqual(refreshed["flat"]["study_journal"], "Journal")
+        self.assertEqual(refreshed["input_row"]["publication_type"], "Review")
 
     def test_screen_row_dry_run_does_not_call_model(self) -> None:
         row = {

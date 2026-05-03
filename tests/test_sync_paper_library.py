@@ -6,8 +6,10 @@ from pipeline.ingest.sync_paper_library import (
     PAPER_METADATA_SCHEMA_VERSION,
     download_pdf_candidates,
     fetch_metadata_with_fallbacks,
+    funding_from_openalex_work,
     include_existing_metadata_refresh_rows,
     lookup_crossref_metadata,
+    lookup_openalex_work,
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
@@ -266,6 +268,44 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(metadata["keywords"], "Medicine | Psychology | external")
         self.assertEqual(metadata["semantic_scholar_id"], "abc123")
         self.assertEqual(metadata["best_pdf_url"], "https://example.org/paper.pdf")
+
+    def test_openalex_lookup_uses_current_select_fields(self) -> None:
+        doi = "10.1000/example"
+        client = FakeClient(
+            json_responses=[
+                (
+                    lambda url, params: url == "https://api.openalex.org/works",
+                    {"results": [{"doi": "https://doi.org/10.1000/example"}]},
+                )
+            ]
+        )
+
+        work = lookup_openalex_work(client, doi=doi, email="curator@example.org", api_key="")
+
+        self.assertEqual(work["doi"], "https://doi.org/10.1000/example")
+        select = client.calls[0]["params"]["select"]
+        self.assertIn("awards", select)
+        self.assertIn("funders", select)
+        self.assertNotIn("grants", select)
+
+    def test_openalex_funding_reads_awards_and_funders(self) -> None:
+        funders, grant_ids = funding_from_openalex_work(
+            {
+                "awards": [
+                    {
+                        "funder_display_name": "Gordon and Betty Moore Foundation",
+                        "funder_award_id": "GBMF3834",
+                    }
+                ],
+                "funders": [
+                    {"display_name": "Gordon and Betty Moore Foundation"},
+                    {"display_name": "Alfred P. Sloan Foundation"},
+                ],
+            }
+        )
+
+        self.assertEqual(funders, "Gordon and Betty Moore Foundation | Alfred P. Sloan Foundation")
+        self.assertEqual(grant_ids, "GBMF3834")
 
     def test_unpaywall_pmc_landing_adds_europepmc_candidate(self) -> None:
         metadata = metadata_from_unpaywall_payload(

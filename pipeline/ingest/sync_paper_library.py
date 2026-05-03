@@ -708,6 +708,23 @@ def funding_from_openalex_work(work: dict) -> Tuple[str, str]:
             funders.append(funder)
         if award_id and award_id not in grant_ids:
             grant_ids.append(award_id)
+    awards = work.get("awards", []) if isinstance(work, dict) else []
+    for item in awards if isinstance(awards, list) else []:
+        if not isinstance(item, dict):
+            continue
+        funder = normalize(item.get("funder_display_name", "")) or normalize(item.get("display_name", ""))
+        award_id = normalize(item.get("funder_award_id", "")) or normalize(item.get("award_id", ""))
+        if funder and funder not in funders:
+            funders.append(funder)
+        if award_id and award_id not in grant_ids:
+            grant_ids.append(award_id)
+    openalex_funders = work.get("funders", []) if isinstance(work, dict) else []
+    for item in openalex_funders if isinstance(openalex_funders, list) else []:
+        if not isinstance(item, dict):
+            continue
+        funder = normalize(item.get("display_name", "")) or normalize(item.get("name", ""))
+        if funder and funder not in funders:
+            funders.append(funder)
     return " | ".join(funders), " | ".join(grant_ids)
 
 
@@ -855,7 +872,7 @@ def lookup_openalex_work(client: RateLimitedHttpClient, doi: str, email: str, ap
         "select": (
             "doi,ids,display_name,publication_year,publication_date,type,authorships,"
             "abstract_inverted_index,open_access,best_oa_location,primary_location,locations,"
-            "language,biblio,grants,mesh,concepts"
+            "language,biblio,awards,funders,mesh,concepts,keywords,is_retracted"
         ),
     }
     if api_key:
