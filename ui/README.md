@@ -7,6 +7,8 @@ Run
   `python3 -m http.server`
 - Open:
   `http://localhost:8000/ui/`
+- Methods page:
+  `http://localhost:8000/ui/about.html`
 
 Ideas
 - Graph view: compounds and targets/indications with edges for claims

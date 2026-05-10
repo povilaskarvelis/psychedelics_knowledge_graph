@@ -66,6 +66,19 @@ body {
   font-size: 1.05rem;
 }
 
+.hero-inner p a {
+  color: var(--accent-2);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(73, 214, 200, 0.55);
+}
+
+.hero-inner p a:hover,
+.hero-inner p a:focus-visible {
+  color: #a9f7ef;
+  border-bottom-color: rgba(169, 247, 239, 0.9);
+}
+
 .pill {
   display: inline-flex;
   align-items: center;
@@ -429,6 +442,203 @@ button.primary:hover {
 .panel p {
   margin: 0;
   color: var(--muted);
+}
+
+.about-page {
+  background: var(--bg);
+}
+
+.about-hero {
+  padding: 52px 8vw 24px;
+}
+
+.about-hero-copy {
+  max-width: 880px;
+}
+
+.about-hero-copy h1 {
+  margin: 20px 0 16px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.45rem, 5vw, 4.8rem);
+  line-height: 1.02;
+}
+
+.about-hero-copy p {
+  max-width: 760px;
+  color: var(--muted);
+  font-size: clamp(1.02rem, 1.4vw, 1.18rem);
+  line-height: 1.65;
+}
+
+.about-content {
+  width: min(1120px, calc(100% - 16vw));
+  margin: 0 auto;
+  display: grid;
+  gap: 26px;
+  padding: 12px 0 40px;
+}
+
+.about-section {
+  padding: 30px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.about-section h2 {
+  margin: 0 0 14px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.55rem, 2vw, 2.1rem);
+  line-height: 1.15;
+}
+
+.about-section h3 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  line-height: 1.28;
+}
+
+.about-section p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.68;
+}
+
+.about-section p + p {
+  margin-top: 14px;
+}
+
+.section-kicker {
+  margin-bottom: 9px;
+  color: var(--accent-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.about-intro,
+.split-section,
+.feedback-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.about-callout {
+  padding: 18px;
+  border-radius: 8px;
+  background: rgba(8, 12, 22, 0.58);
+  border: 1px solid rgba(73, 214, 200, 0.2);
+  display: grid;
+  gap: 8px;
+}
+
+.about-callout strong {
+  color: var(--fg);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+}
+
+.method-priority {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.55fr);
+  gap: 30px;
+  align-items: start;
+}
+
+.method-note {
+  padding: 17px;
+  border-radius: 8px;
+  background: rgba(8, 12, 22, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 10px;
+}
+
+.method-note h3 {
+  margin: 0;
+  color: var(--fg);
+}
+
+.method-note ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.method-note li + li {
+  margin-top: 7px;
+}
+
+.screening-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.screening-grid article {
+  padding: 17px;
+  border-radius: 8px;
+  background: rgba(12, 18, 32, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 10px;
+}
+
+.method-caption {
+  margin-top: 14px;
+  max-width: 820px;
+  font-size: 0.93rem;
+}
+
+.link-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.link-stack a,
+.text-button,
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(73, 214, 200, 0.28);
+  background: rgba(73, 214, 200, 0.1);
+  color: #a9f7ef;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.link-stack a:hover,
+.link-stack a:focus-visible,
+.text-button:hover,
+.text-button:focus-visible,
+.text-link:hover,
+.text-link:focus-visible {
+  color: #eafffb;
+  background: rgba(73, 214, 200, 0.16);
+  border-color: rgba(73, 214, 200, 0.46);
+  transform: translateY(-1px);
+}
+
+.feedback-section {
+  align-items: center;
+}
+
+.feedback-section .text-button {
+  justify-self: start;
 }
 
 .graph-grid {
@@ -1183,11 +1393,26 @@ input[type="number"] {
   .cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .about-intro,
+  .split-section,
+  .feedback-section,
+  .method-priority {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
   .hero {
     padding: 48px 6vw 24px;
+  }
+
+  .about-hero {
+    padding: 42px 6vw 18px;
+  }
+
+  .about-content {
+    width: min(100% - 12vw, 1120px);
   }
 
   .hero-actions {
@@ -1196,6 +1421,10 @@ input[type="number"] {
   }
 
   .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .screening-grid {
     grid-template-columns: 1fr;
   }
 
