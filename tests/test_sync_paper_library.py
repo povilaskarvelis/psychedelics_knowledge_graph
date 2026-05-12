@@ -20,6 +20,7 @@ from pipeline.ingest.sync_paper_library import (
 
 class FakeClient:
     def __init__(self, json_responses=None, bytes_responses=None):
+        self.max_retries = 0
         self.json_responses = json_responses or []
         self.bytes_responses = bytes_responses or []
         self.calls = []
@@ -37,6 +38,26 @@ class FakeClient:
             if matcher(url):
                 return payload
         raise AssertionError(f"Unexpected bytes URL: {url}")
+
+
+class SequencedPdfClient:
+    def __init__(self, responses, max_retries=1):
+        self.responses = {url: list(items) for url, items in responses.items()}
+        self.max_retries = max_retries
+        self.calls = []
+
+    def get_bytes_once(self, url, headers=None):
+        self.calls.append(url)
+        items = self.responses.get(url, [])
+        if not items:
+            raise TimeoutError("timed out")
+        item = items.pop(0)
+        if isinstance(item, BaseException):
+            raise item
+        return item
+
+    def get_bytes(self, url, headers=None):
+        return self.get_bytes_once(url, headers=headers)
 
 
 class SyncPaperLibraryTest(unittest.TestCase):
@@ -426,6 +447,37 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(size, len(b"%PDF-1.7\nbody"))
         self.assertEqual(selected, "https://repository.example/paper.pdf")
         self.assertIn("https://publisher.example/paper.pdf", attempts)
+
+    def test_download_pdf_candidates_rotates_before_retrying_candidate(self) -> None:
+        client = SequencedPdfClient(
+            {
+                "https://first.example/paper.pdf": [TimeoutError("timed out"), b"%PDF-1.7\nbody"],
+                "https://second.example/paper.pdf": [TimeoutError("timed out")],
+            },
+            max_retries=1,
+        )
+
+        with TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir) / "paper.pdf"
+            status, error, size, selected, attempts = download_pdf_candidates(
+                client=client,
+                pdf_urls=["https://first.example/paper.pdf", "https://second.example/paper.pdf"],
+                target_path=target,
+            )
+
+        self.assertEqual(status, "downloaded")
+        self.assertEqual(error, "")
+        self.assertEqual(size, len(b"%PDF-1.7\nbody"))
+        self.assertEqual(selected, "https://first.example/paper.pdf")
+        self.assertEqual(
+            client.calls,
+            [
+                "https://first.example/paper.pdf",
+                "https://second.example/paper.pdf",
+                "https://first.example/paper.pdf",
+            ],
+        )
+        self.assertIn("https://second.example/paper.pdf", attempts)
 
     def test_pdf_candidates_derive_europepmc_from_any_pmc_url(self) -> None:
         candidates = metadata_pdf_candidates(

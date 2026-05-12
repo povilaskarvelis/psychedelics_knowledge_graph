@@ -234,6 +234,10 @@ class RateLimitedHttpClient:
                 backoff *= 1.7
         raise RuntimeError("Unreachable retry state")
 
+    def get_bytes_once(self, url: str, headers: Optional[Dict[str, str]] = None) -> bytes:
+        self._wait_for_slot()
+        return self._request_bytes(url=url, headers=headers)
+
     def get_json(self, url: str, params: Optional[Dict[str, object]] = None, headers: Optional[Dict[str, str]] = None) -> dict:
         query = urlencode({k: v for k, v in (params or {}).items() if v is not None}, doseq=True)
         full_url = f"{url}?{query}" if query else url
@@ -2252,18 +2256,21 @@ def download_pdf(
     client: RateLimitedHttpClient,
     pdf_url: str,
     target_path: Path,
+    *,
+    retry: bool = True,
 ) -> Tuple[str, str, int]:
     if target_path.exists() and target_path.stat().st_size > 0:
         if file_is_valid_pdf(target_path):
             return "already_present", "", int(target_path.stat().st_size)
         return "invalid_pdf_existing", "local_file_is_not_pdf", int(target_path.stat().st_size)
 
-    body = client.get_bytes(
-        url=pdf_url,
-        headers={
-            "Accept": "application/pdf,*/*;q=0.9",
-        },
-    )
+    headers = {
+        "Accept": "application/pdf,*/*;q=0.9",
+    }
+    if retry or not hasattr(client, "get_bytes_once"):
+        body = client.get_bytes(url=pdf_url, headers=headers)
+    else:
+        body = client.get_bytes_once(url=pdf_url, headers=headers)
     if not body:
         return "download_failed", "empty_response", 0
     if not looks_like_pdf_bytes(body):
@@ -2306,16 +2313,25 @@ def download_pdf_candidates(
         return "invalid_pdf_existing", "local_file_is_not_pdf", int(target_path.stat().st_size), "", join_candidates(candidates)
 
     errors: List[str] = []
-    for pdf_url in candidates:
-        try:
-            status, error, size = download_pdf(client=client, pdf_url=pdf_url, target_path=target_path)
-        except Exception as err:
-            status = "download_failed"
-            error = f"{type(err).__name__}: {err}"
-            size = 0
-        if status in {"downloaded", "already_present"}:
-            return status, "", size, pdf_url, join_candidates(candidates)
-        errors.append(f"{pdf_url} -> {status}: {error}")
+    # Rotate candidates before retrying a bad endpoint. A slow/stale first URL
+    # should not block us from trying another legal OA PDF candidate for the DOI.
+    max_rounds = max(1, int(getattr(client, "max_retries", 0)) + 1)
+    for round_idx in range(max_rounds):
+        for pdf_url in candidates:
+            try:
+                status, error, size = download_pdf(
+                    client=client,
+                    pdf_url=pdf_url,
+                    target_path=target_path,
+                    retry=False,
+                )
+            except Exception as err:
+                status = "download_failed"
+                error = f"{type(err).__name__}: {err}"
+                size = 0
+            if status in {"downloaded", "already_present"}:
+                return status, "", size, pdf_url, join_candidates(candidates)
+            errors.append(f"round {round_idx + 1}: {pdf_url} -> {status}: {error}")
 
     if not candidates:
         return "no_pdf_url", "no_pdf_url", 0, "", ""
