@@ -35,6 +35,13 @@ data/processed/fulltext/*.checkpoint.jsonl
 data/processed/fulltext/grobid.safe.yaml
 data/processed/fulltext/grobid_batches/
 data/processed/fulltext/grobid_batch_reports/
+data/kg/
+
+# Generated paper library snapshots can exceed GitHub's file size limits.
+data/processed/paper_library_disorder.json
+data/processed/paper_library_disorder.csv
+data/processed/paper_library_mechanistic.json
+data/processed/paper_inventory_disorder.json
 data/processed/llm_abstract_screening_report_*.json
 data/processed/llm_abstract_screening_report_*.csv
 data/processed/llm_abstract_screening_report_*.checkpoint.jsonl

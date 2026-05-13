@@ -117,6 +117,36 @@ Outputs:
 These artifacts are intentionally separate from curated claims. No claim rows
 are modified by this stage.
 
+## LLM Evidence Packets
+
+After PDF conversion, build frontier-LLM-ready JSONL packets from the preserved
+GROBID TEI plus paper-library metadata:
+
+```bash
+python pipeline/fulltext/build_llm_evidence_packets.py --dataset all
+```
+
+Outputs:
+
+- `data/processed/fulltext/llm_packets_disorder.jsonl`
+- `data/processed/fulltext/llm_packets_mechanistic.jsonl`
+- `data/processed/fulltext/llm_packets_disorder_report.json`
+- `data/processed/fulltext/llm_packets_mechanistic_report.json`
+- `data/processed/fulltext/llm_packets_run_report.json`
+
+Each packet includes DOI-level metadata, candidate compound/entity contexts,
+source-type hints from publication metadata, full reconstructed TEI sections,
+tables, figures, references, and stable `llm_chunks` with section/document
+offsets. The packet builder uses raw full TEI, not the truncated artifact
+section snippets, so it is the preferred input layer for API-based evidence
+assessment and data extraction.
+
+For a quick preview:
+
+```bash
+python pipeline/fulltext/build_llm_evidence_packets.py --dataset disorder --limit 5
+```
+
 ## Provenance Repair Report
 
 After conversion, build a review report for stale full-text locators:

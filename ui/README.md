@@ -8,7 +8,7 @@ Run
 - Open:
   `http://localhost:8000/ui/`
 - Methods page:
-  `http://localhost:8000/ui/about.html`
+  `http://localhost:8000/ui/methods.html`
 
 Ideas
 - Graph view: compounds and targets/indications with edges for claims

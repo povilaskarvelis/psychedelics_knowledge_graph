@@ -20,6 +20,36 @@ result as a graph plus export files.
 The current focus is psychedelics. The workflow can be adapted to other
 scientific domains by changing the vocabularies, schemas, and search seeds.
 
+## Knowledge Graph Architecture
+
+The project is intended to build a real, provenance-aware knowledge graph, not
+only a visual network diagram. The visual graph is a digestible view over a
+larger graph-shaped data model.
+
+The KG has several layers:
+
+- `Paper` records capture literature metadata, discovery provenance, screening
+  status, PDF/full-text availability, publication type, and study context.
+- `Claim` records capture extracted scientific assertions from papers, with
+  evidence locators, source family, paper type, study design, result direction,
+  assay/outcome fields, confidence, and validation status.
+- Canonical entity nodes represent compounds, clinical indications, mechanistic
+  targets, papers, and evidence records using stable identifiers.
+- Semantic edges aggregate evidence into relationships such as
+  `compound -> indication` and `compound -> target`.
+- View payloads turn the canonical KG into readable interfaces, including the
+  main graph, the Methods literature landscape, paper flow, and gap views.
+
+This separation matters. The canonical KG can grow as more papers and claims are
+screened, extracted, corrected, or updated. The UI does not need to display
+every node and edge directly; it can summarize important KG components without
+losing the underlying provenance.
+
+During the transition to the full pipeline, exploratory KG views can be built
+from paper libraries, screening outputs, converted full texts, and existing
+curated claims. Once full-text LLM extraction is complete, the same projection
+can be rebuilt with up-to-date paper records and extracted claims.
+
 ## Workflow
 
 ### Literature Search
@@ -101,6 +131,8 @@ Main outputs:
 - curated claim files in `data/curated/`
 - exploratory claim files for weak or demoted evidence
 - graph export payloads in `data/processed/graph_payload_*.json`
+- canonical KG projection files in `data/kg/` when
+  `python pipeline/kg/build_kg.py` is run locally
 - the GUI defaults to primary evidence and has a `Secondary sources` checkbox
   for reviews, systematic reviews, and meta-analyses
 
