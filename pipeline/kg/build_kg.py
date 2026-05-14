@@ -95,6 +95,39 @@ PAPER_METADATA_FIELDS = (
     "library_status",
 )
 
+RETRIEVAL_METADATA_FIELDS = {
+    "open_access_status",
+    "open_access_url",
+    "best_pdf_url",
+    "pdf_url_candidates",
+    "pdf_download_selected_url",
+    "pdf_download_status",
+    "pdf_local_path",
+    "pdf_size_bytes",
+    "pdf_sha256",
+    "library_status",
+    "action_reason",
+}
+RETRIEVAL_SIGNAL_FIELDS = RETRIEVAL_METADATA_FIELDS - {"action_reason", "library_status"}
+
+PIPELINE_IDENTITY_FIELDS = (
+    "study_doi",
+    "study_title",
+    "study_year",
+)
+
+PIPELINE_SCREENING_FIELDS = (
+    "source_type_suggested",
+    "paper_type_suggested",
+    "relevance_suggested",
+    "relevance_score",
+    "screening_status",
+    "matched_context_count",
+    "synthesized_context_count",
+    "protected_context_count",
+    "needs_metadata_or_manual_screen",
+)
+
 MECHANISTIC_PROPERTY_FIELDS = (
     "assay_type",
     "affinity_type",
@@ -144,6 +177,7 @@ PRISMA_RETRIEVAL_REASON_LABELS = {
     "download_failed": "PDF download failed",
     "skipped": "Download not attempted",
     "missing_local_pdf": "Local PDF file missing",
+    "pdf_validation_failed": "PDF validation failed",
     "invalid_pdf_existing": "Invalid local PDF",
     "invalid_pdf_content": "Invalid downloaded PDF",
     "not_downloaded": "Not downloaded",
@@ -328,18 +362,76 @@ def local_pdf_exists(row: dict) -> bool:
 
 
 def pdf_status(row: dict) -> str:
-    if local_pdf_exists(row):
-        return "downloaded"
     status = normalize(row.get("pdf_download_status", ""))
+    if status in {"invalid_pdf_existing", "invalid_pdf_content"}:
+        return status
+    if status in {"downloaded", "already_present", "manual_import"} and local_pdf_exists(row):
+        return "downloaded"
     if status in {"downloaded", "already_present", "manual_import"}:
         return "missing_local_pdf"
     if status:
         return status
+    if local_pdf_exists(row):
+        return "downloaded"
     if normalize(row.get("pdf_local_path", "")):
         return "missing_local_pdf"
     if normalize(row.get("best_pdf_url", "")):
         return "pdf_url_known"
     return "not_downloaded"
+
+
+def source_stage(source_file: Path) -> str:
+    name = source_file.name
+    if name.startswith("paper_library_"):
+        return "paper_library"
+    if name.startswith("triage_report_"):
+        return "triage_report"
+    if "claim" in name:
+        return "claims"
+    return source_file.stem
+
+
+def retrieval_source_rank(stage: str) -> int:
+    return {
+        "paper_library": 3,
+        "triage_report": 1,
+        "claims": 0,
+    }.get(stage, 0)
+
+
+def screening_source_rank(stage: str) -> int:
+    return {
+        "triage_report": 3,
+        "paper_library": 1,
+        "claims": 0,
+    }.get(stage, 0)
+
+
+def retrieval_snapshot(row: dict) -> dict:
+    status = pdf_status(row)
+    snapshot = {"pdf_status": status}
+    has_valid_local_pdf = local_pdf_exists(row)
+    for field in RETRIEVAL_METADATA_FIELDS:
+        value = row.get(field, "")
+        if not normalize(value):
+            continue
+        if field in {"pdf_local_path", "pdf_size_bytes", "pdf_sha256"} and not (
+            has_valid_local_pdf or status == "missing_local_pdf"
+        ):
+            continue
+        snapshot[field] = json_value(value)
+    return snapshot
+
+
+def has_retrieval_signal(row: dict) -> bool:
+    return any(normalize(row.get(field, "")) for field in RETRIEVAL_SIGNAL_FIELDS)
+
+
+def prisma_retrieval_reason(props: dict) -> str:
+    status = normalize(props.get("pdf_status", ""))
+    if status in {"invalid_pdf_existing", "invalid_pdf_content"}:
+        return "pdf_validation_failed"
+    return status or "unknown"
 
 
 class EntityIndex:
@@ -423,6 +515,9 @@ class KgBuilder:
         self.edge_to_evidence: dict[str, set[str]] = defaultdict(set)
         self.doi_to_paper_id: dict[str, str] = {}
         self.entity_to_node_id: dict[str, str] = {}
+        self.pipeline_rows: dict[str, dict[str, dict]] = defaultdict(dict)
+        self.metadata_conflicts: Counter = Counter()
+        self.metadata_conflict_examples: dict[str, list[dict]] = defaultdict(list)
         self.input_files: list[str] = []
         self.warnings: list[str] = []
 
@@ -488,6 +583,119 @@ class KgBuilder:
             },
         }
 
+    def record_metadata_conflict(
+        self,
+        *,
+        dataset: str,
+        paper_id: str,
+        field: str,
+        existing: str,
+        incoming: str,
+        existing_source: str,
+        incoming_source: str,
+    ) -> None:
+        if not existing or not incoming or existing == incoming:
+            return
+        key = f"{dataset}:{field}:{existing}->{incoming}"
+        self.metadata_conflicts[key] += 1
+        examples = self.metadata_conflict_examples[key]
+        if len(examples) < 8:
+            examples.append(
+                {
+                    "dataset": dataset,
+                    "paper_id": paper_id,
+                    "field": field,
+                    "existing": existing,
+                    "incoming": incoming,
+                    "existing_source": existing_source,
+                    "incoming_source": incoming_source,
+                }
+            )
+
+    def merge_retrieval_metadata(
+        self,
+        props: dict,
+        row: dict,
+        dataset: str,
+        paper_id: str,
+        source_file: Path,
+    ) -> None:
+        stage = source_stage(source_file)
+        incoming_rank = retrieval_source_rank(stage)
+        if incoming_rank <= 0:
+            return
+        if not has_retrieval_signal(row):
+            return
+
+        incoming = retrieval_snapshot(row)
+        incoming_status = normalize(incoming.get("pdf_status", ""))
+        existing_status = normalize(props.get("pdf_status", ""))
+        existing_source = normalize(props.get("_kg_retrieval_source", ""))
+        if existing_status and incoming_status and existing_status != incoming_status:
+            self.record_metadata_conflict(
+                dataset=dataset,
+                paper_id=paper_id,
+                field="pdf_status",
+                existing=existing_status,
+                incoming=incoming_status,
+                existing_source=existing_source or "unknown",
+                incoming_source=stage,
+            )
+
+        existing_rank = int(props.get("_kg_retrieval_source_rank", 0) or 0)
+        chosen_status = strongest_pdf_status(existing_status, incoming_status)
+        should_update = incoming_rank > existing_rank or (
+            incoming_rank == existing_rank and chosen_status == incoming_status and incoming_status != existing_status
+        )
+        if not should_update:
+            if incoming_rank == existing_rank and incoming_status == existing_status:
+                for field, value in incoming.items():
+                    if normalize(value) and not normalize(props.get(field, "")):
+                        props[field] = value
+            return
+
+        for field in RETRIEVAL_METADATA_FIELDS:
+            props.pop(field, None)
+        props.update(incoming)
+        props["_kg_retrieval_source"] = stage
+        props["_kg_retrieval_source_rank"] = incoming_rank
+
+    def merge_screening_metadata(
+        self,
+        props: dict,
+        row: dict,
+        dataset: str,
+        paper_id: str,
+        source_file: Path,
+    ) -> None:
+        stage = source_stage(source_file)
+        incoming_rank = screening_source_rank(stage)
+        if incoming_rank <= 0:
+            return
+        existing_rank = int(props.get("_kg_screening_source_rank", 0) or 0)
+        if incoming_rank < existing_rank:
+            return
+
+        for field in PIPELINE_SCREENING_FIELDS:
+            value = row.get(field, "")
+            if normalize(value) == "":
+                continue
+            existing_value = normalize(props.get(field, ""))
+            incoming_value = normalize(value)
+            if existing_value and existing_value != incoming_value and incoming_rank >= existing_rank:
+                self.record_metadata_conflict(
+                    dataset=dataset,
+                    paper_id=paper_id,
+                    field=field,
+                    existing=existing_value,
+                    incoming=incoming_value,
+                    existing_source=normalize(props.get("_kg_screening_source", "")) or "unknown",
+                    incoming_source=stage,
+                )
+            props[field] = json_value(value)
+        props["_kg_screening_source"] = stage
+        props["_kg_screening_source_rank"] = incoming_rank
+
     def merge_paper(self, row: dict, dataset: str, source_file: Path) -> str:
         paper_id = paper_id_for(row)
         props = self.papers.setdefault(
@@ -506,6 +714,8 @@ class KgBuilder:
         props["source_files"] = merge_unique(props.get("source_files", []), [str(source_file)])
 
         for field in PAPER_METADATA_FIELDS:
+            if field in RETRIEVAL_METADATA_FIELDS:
+                continue
             value = row.get(field, "")
             if normalize(value) and not normalize(props.get(field, "")):
                 props[field] = json_value(value)
@@ -521,7 +731,7 @@ class KgBuilder:
             props["abstract_present"] = True
             props["abstract_char_count"] = len(abstract)
             props["abstract_snippet"] = abstract[:500]
-        props["pdf_status"] = strongest_pdf_status(normalize(props.get("pdf_status", "")), pdf_status(row))
+        self.merge_retrieval_metadata(props, row, dataset, paper_id, source_file)
 
         doi = normalize_doi(props.get("study_doi", "") or row.get("study_doi", ""))
         if doi:
@@ -530,6 +740,30 @@ class KgBuilder:
             if doi in self.fulltext_by_doi:
                 props.update(self.fulltext_by_doi[doi])
         return paper_id
+
+    def merge_pipeline_row(self, row: dict, dataset: str, paper_id: str, source_file: Path) -> None:
+        props = self.pipeline_rows[dataset].setdefault(
+            paper_id,
+            {
+                "paper_id": paper_id,
+                "dataset": dataset,
+                "source_files": [],
+                "llm_extraction_status": "not_started",
+            },
+        )
+        props["source_files"] = merge_unique(props.get("source_files", []), [str(source_file)])
+
+        for field in PIPELINE_IDENTITY_FIELDS:
+            value = row.get(field, "")
+            if normalize(value) != "" and not normalize(props.get(field, "")):
+                props[field] = json_value(value)
+
+        self.merge_screening_metadata(props, row, dataset, paper_id, source_file)
+        self.merge_retrieval_metadata(props, row, dataset, paper_id, source_file)
+        doi = normalize_doi(props.get("study_doi", "") or row.get("study_doi", ""))
+        if doi and doi in self.fulltext_by_doi:
+            props.update(self.fulltext_by_doi[doi])
+        props.setdefault("fulltext_status", "not_converted")
 
     def load_fulltext_status(self) -> None:
         for dataset, cfg in DATASETS.items():
@@ -562,7 +796,8 @@ class KgBuilder:
             path = cfg["paper_library"]
             self.input_files.append(str(path))
             for row in read_json_array(path):
-                self.merge_paper(row, dataset, path)
+                paper_id = self.merge_paper(row, dataset, path)
+                self.merge_pipeline_row(row, dataset, paper_id, path)
 
     def load_triage_reports(self) -> None:
         for dataset, cfg in DATASETS.items():
@@ -574,9 +809,9 @@ class KgBuilder:
                 if not isinstance(row, dict):
                     continue
                 paper_id = self.merge_paper(row, dataset, path)
+                self.merge_pipeline_row(row, dataset, paper_id, path)
                 paper_props = self.papers[paper_id]["properties"]
                 for field in (
-                    "library_status",
                     "source_type_suggested",
                     "paper_type_suggested",
                     "relevance_suggested",
@@ -797,6 +1032,9 @@ class KgBuilder:
     def finalize_paper_nodes(self) -> None:
         for paper_id, node in self.papers.items():
             props = node["properties"]
+            for key in list(props):
+                if key.startswith("_kg_"):
+                    props.pop(key, None)
             props.setdefault("fulltext_status", "not_converted")
             props.setdefault("abstract_present", False)
             props.setdefault("candidate_context_count", 0)
@@ -815,6 +1053,9 @@ class KgBuilder:
             elif record.get("record_type") == "claim":
                 props["claim_evidence_count"] = int(props.get("claim_evidence_count", 0) or 0) + 1
                 props["llm_extraction_status"] = "claim_available"
+                dataset = normalize(record.get("dataset", ""))
+                if dataset and paper_id in self.pipeline_rows.get(dataset, {}):
+                    self.pipeline_rows[dataset][paper_id]["llm_extraction_status"] = "claim_available"
 
     def finalize_entity_index(self) -> None:
         self.nodes.update(self.entity_index.nodes)
@@ -1084,11 +1325,14 @@ class KgBuilder:
     def pipeline_status_view(self) -> dict:
         counters: dict[str, Counter] = defaultdict(Counter)
         prisma_rows: dict[str, list[dict]] = defaultdict(list)
-        for node in self.nodes.values():
-            if node.get("type") != "Paper":
-                continue
-            props = node.get("properties", {})
-            for dataset in props.get("datasets", []):
+        for dataset, rows_by_paper in sorted(self.pipeline_rows.items()):
+            for row_props in rows_by_paper.values():
+                if not paper_has_screening_record(row_props):
+                    continue
+                props = pipeline_row_with_paper_artifacts(
+                    row_props,
+                    self.nodes.get(row_props.get("paper_id", ""), {}).get("properties", {}),
+                )
                 counters[f"{dataset}:relevance"][normalize(props.get("relevance_suggested", "")) or "unknown"] += 1
                 counters[f"{dataset}:screening"][normalize(props.get("screening_status", "")) or "unknown"] += 1
                 counters[f"{dataset}:pdf"][normalize(props.get("pdf_status", "")) or "unknown"] += 1
@@ -1100,10 +1344,30 @@ class KgBuilder:
             "view": "pipeline_status",
             "generated_at": now_utc(),
             "counts": {key: dict(counter) for key, counter in sorted(counters.items())},
+            "metadata_quality": self.metadata_quality_summary(),
             "prisma_flow": {
                 dataset: prisma_flow_for_dataset(dataset, rows)
                 for dataset, rows in sorted(prisma_rows.items())
             },
+        }
+
+    def metadata_quality_summary(self) -> dict:
+        conflicts = []
+        for key, count in self.metadata_conflicts.most_common():
+            conflicts.append(
+                {
+                    "key": key,
+                    "count": count,
+                    "examples": self.metadata_conflict_examples.get(key, []),
+                }
+            )
+        return {
+            "reconciliation_rules": {
+                "screening": "Dataset-specific triage rows are authoritative for screening/relevance fields.",
+                "retrieval": "Paper-library rows are authoritative for retrieval/access fields; triage retrieval fields are fallback only.",
+                "paper_artifacts": "Valid downloaded PDFs and converted full-text artifacts may be reused across dataset views; negative failure labels are reused only for unattempted rows.",
+            },
+            "conflicts": conflicts,
         }
 
     def literature_gap_matrix(self, aggregates: list[dict]) -> dict:
@@ -1179,9 +1443,25 @@ def strongest_pdf_status(left: str, right: str) -> str:
         "not_downloaded": 1,
         "needs_download": 1,
         "failed": 1,
+        "missing_local_pdf": 1,
         "pdf_url_known": 2,
-        "already_present": 3,
-        "downloaded": 4,
+        "not_open_access": 2,
+        "no_pdf_url": 2,
+        "download_failed": 4,
+        "invalid_pdf_existing": 5,
+        "invalid_pdf_content": 5,
+        "already_present": 5,
+        "downloaded": 6,
+    }
+    return right if rank.get(right, 1) > rank.get(left, 1) else left
+
+
+def strongest_fulltext_status(left: str, right: str) -> str:
+    rank = {
+        "": 0,
+        "not_converted": 1,
+        "artifact_present": 2,
+        "converted": 3,
     }
     return right if rank.get(right, 1) > rank.get(left, 1) else left
 
@@ -1206,6 +1486,38 @@ def paper_is_relevant_for_view(props: dict) -> bool:
         or normalize(props.get("screening_status", "")) in INCLUDED_SCREENING
         or int(props.get("claim_evidence_count", 0) or 0) > 0
     )
+
+
+def paper_has_screening_record(props: dict) -> bool:
+    return bool(normalize(props.get("relevance_suggested", "")) or normalize(props.get("screening_status", "")))
+
+
+def pipeline_row_with_paper_artifacts(row_props: dict, paper_props: dict) -> dict:
+    props = dict(row_props)
+    row_pdf_status = normalize(props.get("pdf_status", ""))
+    paper_pdf_status = normalize(paper_props.get("pdf_status", ""))
+    if paper_pdf_status == "downloaded":
+        props["pdf_status"] = "downloaded"
+    elif row_pdf_status in {"", "not_downloaded", "skipped"} and paper_pdf_status in {
+        "download_failed",
+        "no_pdf_url",
+        "not_open_access",
+        "invalid_pdf_existing",
+        "invalid_pdf_content",
+    }:
+        props["pdf_status"] = paper_pdf_status
+    if normalize(paper_props.get("fulltext_status", "")) == "converted":
+        props["fulltext_status"] = "converted"
+    for field in (
+        "fulltext_artifact_path",
+        "fulltext_backend",
+        "fulltext_char_count",
+        "fulltext_section_count",
+    ):
+        paper_value = paper_props.get(field, "")
+        if normalize(paper_value) and not normalize(props.get(field, "")):
+            props[field] = paper_value
+    return props
 
 
 def count_value(counter: Counter, value: object) -> None:
@@ -1266,7 +1578,7 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
 
     screening_reasons = Counter(normalize(props.get("screening_status", "")) or "unknown" for props in not_likely_rows)
     retrieval_reasons = Counter(
-        normalize(props.get("pdf_status", "")) or "unknown"
+        prisma_retrieval_reason(props)
         for props in likely_rows
         if normalize(props.get("pdf_status", "")) != "downloaded"
     )
@@ -1326,6 +1638,7 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
                         "download_failed",
                         "skipped",
                         "missing_local_pdf",
+                        "pdf_validation_failed",
                         "invalid_pdf_existing",
                         "invalid_pdf_content",
                         "not_downloaded",

@@ -1,14 +1,20 @@
 import unittest
 from collections import Counter
+from pathlib import Path
 
 from pipeline.kg.build_kg import (
     EntityIndex,
+    KgBuilder,
     evidence_role,
+    labeled_reason_counts,
     normalize_doi,
     paper_id_for,
+    pipeline_row_with_paper_artifacts,
     pdf_status,
     prisma_flow_for_dataset,
+    prisma_retrieval_reason,
     slug,
+    strongest_pdf_status,
     top_counts,
     year_range,
 )
@@ -26,6 +32,87 @@ class KgBuilderHelpersTest(unittest.TestCase):
     def test_pdf_status_does_not_treat_stale_paths_as_downloaded(self) -> None:
         row = {"pdf_local_path": "/definitely/not/a/real/local.pdf", "pdf_download_status": ""}
         self.assertEqual(pdf_status(row), "missing_local_pdf")
+
+    def test_pdf_status_does_not_infer_final_status_from_attempt_log(self) -> None:
+        row = {"pdf_download_status": "", "action_reason": "https://example.test/file -> invalid_pdf_content: response_not_pdf"}
+        self.assertEqual(pdf_status(row), "not_downloaded")
+
+    def test_prisma_retrieval_reason_groups_pdf_validation_failures(self) -> None:
+        self.assertEqual(prisma_retrieval_reason({"pdf_status": "invalid_pdf_existing"}), "pdf_validation_failed")
+        self.assertEqual(prisma_retrieval_reason({"pdf_status": "invalid_pdf_content"}), "pdf_validation_failed")
+
+    def test_pipeline_row_reuses_paper_level_retrieval_artifacts(self) -> None:
+        props = pipeline_row_with_paper_artifacts(
+            {"pdf_status": "skipped", "fulltext_status": "not_converted", "relevance_suggested": "likely_relevant"},
+            {"pdf_status": "downloaded", "fulltext_status": "converted", "llm_extraction_status": "claim_available"},
+        )
+        self.assertEqual(props["pdf_status"], "downloaded")
+        self.assertEqual(props["fulltext_status"], "converted")
+        self.assertNotEqual(props.get("llm_extraction_status"), "claim_available")
+
+    def test_pipeline_row_does_not_reuse_paper_level_failure_labels(self) -> None:
+        props = pipeline_row_with_paper_artifacts(
+            {"pdf_status": "download_failed", "fulltext_status": "not_converted"},
+            {"pdf_status": "invalid_pdf_existing", "fulltext_status": "not_converted"},
+        )
+
+        self.assertEqual(props["pdf_status"], "download_failed")
+
+    def test_pipeline_row_reuses_paper_level_failure_for_unattempted_rows(self) -> None:
+        props = pipeline_row_with_paper_artifacts(
+            {"pdf_status": "skipped", "fulltext_status": "not_converted"},
+            {"pdf_status": "download_failed", "fulltext_status": "not_converted"},
+        )
+
+        self.assertEqual(props["pdf_status"], "download_failed")
+
+    def test_pipeline_reconciliation_prefers_library_retrieval_and_triage_screening(self) -> None:
+        builder = KgBuilder()
+        paper_id = "paper:10.123/example"
+        builder.merge_pipeline_row(
+            {
+                "study_doi": "10.123/example",
+                "pdf_download_status": "not_open_access",
+                "pdf_local_path": "/stale/path.pdf",
+                "relevance_suggested": "possible_relevant",
+            },
+            "mechanistic",
+            paper_id,
+            Path("paper_library_mechanistic.json"),
+        )
+        builder.merge_pipeline_row(
+            {
+                "study_doi": "10.123/example",
+                "pdf_local_path": "/other/stale/path.pdf",
+                "relevance_suggested": "likely_relevant",
+                "screening_status": "included_context_match",
+            },
+            "mechanistic",
+            paper_id,
+            Path("triage_report_mechanistic.json"),
+        )
+
+        props = builder.pipeline_rows["mechanistic"][paper_id]
+        self.assertEqual(props["pdf_status"], "not_open_access")
+        self.assertEqual(props["relevance_suggested"], "likely_relevant")
+        self.assertEqual(props["screening_status"], "included_context_match")
+
+    def test_labeled_reason_counts_keeps_all_nonzero_reasons(self) -> None:
+        reasons = labeled_reason_counts(
+            Counter({"known": 2, "new_reason": 3, "zero_reason": 0}),
+            {"known": "Known reason"},
+            ("known",),
+        )
+
+        self.assertEqual([reason["key"] for reason in reasons], ["known", "new_reason"])
+        self.assertEqual(reasons[1]["label"], "New reason")
+
+    def test_download_failure_outranks_stale_local_pdf_path(self) -> None:
+        self.assertEqual(strongest_pdf_status("download_failed", "missing_local_pdf"), "download_failed")
+
+    def test_explicit_access_status_outranks_stale_local_pdf_path(self) -> None:
+        self.assertEqual(strongest_pdf_status("not_open_access", "missing_local_pdf"), "not_open_access")
+        self.assertEqual(strongest_pdf_status("missing_local_pdf", "not_open_access"), "not_open_access")
 
     def test_entity_index_resolves_alias_to_canonical_node(self) -> None:
         index = EntityIndex()
