@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260514-methods-seeds" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
@@ -32,112 +32,622 @@
         </a>
         <h1>Methods</h1>
         <p>
-          This page focuses on the decisions that shape the evidence base:
-          search seeds, abstract screening, full-text access, extraction,
-          validation, and provenance.
+          How the Psychedelics Knowledge Graph is assembled: what literature is
+          searched, how papers are screened, how evidence is extracted, and how
+          graph edges stay traceable.
         </p>
       </div>
     </header>
 
     <main class="about-content">
-      <section class="about-section about-intro" aria-labelledby="scope">
-        <div>
-          <h2 id="scope">Scope</h2>
-          <p>
-            The graph connects psychedelic compounds with clinical indications
-            and mechanistic targets. Each edge is backed by paper-level claims
-            with source metadata, access level, evidence type, and a locator
-            when available.
-          </p>
-        </div>
-        <div class="about-callout">
-          <strong>Default graph view</strong>
-          <p>
-            The interface defaults to primary evidence. Reviews, systematic
-            reviews, and meta-analyses are retained as secondary literature and
-            can be included explicitly.
-          </p>
-        </div>
-      </section>
-
-      <section class="about-section" aria-labelledby="kg-architecture">
-        <div class="section-kicker">Knowledge Graph</div>
-        <h2 id="kg-architecture">Canonical Graph, Digestible Views</h2>
-        <p>
-          The project is designed as a provenance-aware knowledge graph, not
-          only a network visualization. Papers, extracted claims, compounds,
-          indications, targets, and evidence records are modeled as structured
-          graph components with stable identifiers and source provenance.
-        </p>
-        <p>
-          The visible graph is a summarized view over that larger KG. It shows
-          the relationships that are easiest to read, such as
-          compound-indication and compound-target links, while the underlying
-          KG retains the papers, claims, source types, study designs, result
-          directions, evidence locators, and update status behind each edge.
-        </p>
-        <div class="screening-grid">
-          <article>
-            <h3>Canonical KG</h3>
+      <section class="about-section methods-summary" aria-labelledby="methods-overview">
+        <div class="section-kicker">Overview</div>
+        <div class="methods-section-header">
+          <div>
+            <h2 id="methods-overview">What This Graph Is</h2>
             <p>
-              Stores paper records, claim records, canonical entities,
-              evidence records, provenance, and aggregate semantic edges.
+              This project is a living literature map for psychedelic
+              compounds. It turns paper metadata and extracted evidence into a
+              provenance-aware knowledge graph that can be inspected, rebuilt,
+              and corrected as the literature changes.
+            </p>
+            <p>
+              The public interface shows the current graph build: one generated
+              version of the evidence graph, not a final review article. It
+              summarizes two evidence lanes, keeps the search and screening
+              record visible, and links graph edges back to the papers and
+              evidence records that support them.
+            </p>
+            <p>
+              The sections below follow that path in order: scope, seed words,
+              screening and extraction, paper flow, graph outputs, and limits.
+            </p>
+          </div>
+        </div>
+        <div class="method-stage-grid" aria-label="Method summary">
+          <article>
+            <span class="method-index">01</span>
+            <h3>Searchable Evidence</h3>
+            <p>
+              Literature discovery starts from selected compound-indication and
+              compound-target seed pairs rather than every possible vocabulary
+              combination.
             </p>
           </article>
           <article>
-            <h3>Visual Views</h3>
+            <span class="method-index">02</span>
+            <h3>Traceable Decisions</h3>
             <p>
-              Render selected KG layers in a readable form, so the interface can
-              stay clear without pretending the full graph is only what is on
-              screen.
+              Search results, screening decisions, retrieval status,
+              extraction status, and exclusions are kept as auditable records.
             </p>
+          </article>
+          <article>
+            <span class="method-index">03</span>
+            <h3>Structured Graph Data</h3>
+            <p>
+              Papers, claims, entities, provenance, and evidence-quality fields
+              are stored as structured objects for the interface and other
+              tools.
+            </p>
+          </article>
+          <article>
+            <span class="method-index">04</span>
+            <h3>Updateable Workflow</h3>
+            <p>
+              Discovery, screening, extraction, validation, and graph generation
+              can be rerun when new studies or corrections appear.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section" aria-labelledby="evidence-scope">
+        <div class="section-kicker">Scope</div>
+        <h2 id="evidence-scope">What the Evidence Base Covers</h2>
+        <p>
+          The project follows two evidence lanes. One tracks clinical
+          relationships between psychedelic compounds and indications. The
+          other tracks mechanistic relationships between compounds and targets.
+          Both lanes have explicit vocabularies and search seeds, so the scope
+          of the graph can be inspected and improved. In the current graph
+          build, the discovery search used selected starter pairs from those
+          vocabularies; it was not an exhaustive search over every compound,
+          indication, and target combination.
+        </p>
+        <div class="method-info-grid" aria-label="Evidence scope">
+          <article>
+            <h3>Clinical Indications</h3>
+            <p>
+              Human outcome evidence for disorders, symptoms, and clinical
+              indications, with result direction recorded when claims are
+              extracted.
+            </p>
+          </article>
+          <article>
+            <h3>Mechanistic Targets</h3>
+            <p>
+              Receptor, transporter, assay, and mechanistic evidence that links
+              compounds to biological targets.
+            </p>
+          </article>
+          <article>
+            <h3>Source Types</h3>
+            <p>
+              Primary studies drive the default graph. Reviews, protocols,
+              conference abstracts, commentary, and corrections are kept as
+              separate context.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section" aria-labelledby="method-snapshot">
+        <div class="section-kicker">At A Glance</div>
+        <h2 id="method-snapshot">How the Current Graph Build Was Made</h2>
+        <p>
+          Here, graph build means the public graph generated from the current
+          source files. The exact seed queries, search reports, screening
+          decisions, claim files, validation reports, and build manifest are
+          kept with the source data so the path from literature search to
+          visible graph edge can be audited.
+        </p>
+        <div class="method-info-grid" aria-label="Method snapshot">
+          <article>
+            <h3>Search Sources</h3>
+            <p>
+              Discovery uses OpenAlex, Semantic Scholar, PubMed/PMC, Crossref,
+              and open-access metadata sources. Starter seeds, generated
+              provider-specific query variants, and provider counts are recorded
+              in the discovery reports and ledgers.
+            </p>
+          </article>
+          <article>
+            <h3>Screening Role</h3>
+            <p>
+              Abstract screening decides whether a paper-context is relevant
+              enough to pursue. It does not assign study design, evidence
+              strength, or final graph inclusion.
+            </p>
+          </article>
+          <article>
+            <h3>Evidence Role</h3>
+            <p>
+              Full-text or clearly labeled abstract-only assessment supplies the
+              source type, study variables, result direction, evidence locator,
+              and reviewable claim proposal.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section method-seeds-section" aria-labelledby="search-seed-words">
+        <div class="section-kicker">Search Seeds</div>
+        <h2 id="search-seed-words">Search Vocabulary Used For Discovery</h2>
+        <p>
+          The search vocabulary has several layers, but only some layers were
+          used in the current checked-in discovery run. That run starts from 24
+          default mechanistic seed pairs and 41 default clinical seed pairs,
+          then generates provider-specific variants with aliases, fielded
+          database syntax, and evidence terms. Those expanded report rows
+          contain 46 distinct mechanistic query strings and 119 distinct
+          clinical query strings.
+        </p>
+        <p>
+          The default starter list is not the whole planned vocabulary. The
+          canonical validation and expansion vocabulary is broader: 40
+          compounds, 46 mechanistic targets, and 31 clinical indications.
+          Broader generated-seed and balanced-coverage modes can use those
+          allowlists, but those modes were not enabled for the current
+          checked-in reports. The exact settings for a run are stored with each
+          discovery report, and the long provider-expanded query strings are
+          stored in the reports rather than repeated in full here.
+        </p>
+        <div class="method-info-grid" aria-label="Search vocabulary summary">
+          <article>
+            <h3>Starter Seed Pairs</h3>
+            <p>
+              Human-written compound-entity search phrases used as the default
+              run inputs: 24 mechanistic and 41 clinical.
+            </p>
+          </article>
+          <article>
+            <h3>Provider Variants</h3>
+            <p>
+              Database-specific query strings add aliases, title/abstract
+              fields, clinical-trial terms, and assay terms.
+            </p>
+          </article>
+          <article>
+            <h3>Canonical Vocabulary</h3>
+            <p>
+              The broader allowlists define what compounds, targets, and
+              indications can be validated or used for expanded runs.
+            </p>
+          </article>
+        </div>
+        <div class="method-search-note">
+          <h3>How the current search used those terms</h3>
+          <p>
+            The current checked-in search did not submit every candidate
+            compound name by itself, and it did not search every possible
+            compound-by-indication or compound-by-target combination. It
+            searched the default compound-entity seed pairs listed below. For
+            each pair, provider-specific variants added aliases and evidence
+            terms, for example compound aliases AND indication aliases AND
+            trial terms for clinical searches, or compound aliases AND target
+            aliases AND binding/assay terms for mechanistic searches.
+          </p>
+          <p>
+            The broader allowlists are therefore the validation and expansion
+            vocabulary, not proof that every possible pair was searched in this
+            graph build. In practical terms, coverage is broad around the
+            selected starter pairs and across multiple literature providers,
+            but it is not broad across the full canonical vocabulary. The
+            pipeline has modes for broader generated-seed and balanced-coverage
+            searches, but those modes were off in the current discovery
+            reports.
+          </p>
+        </div>
+        <div class="method-seed-details-grid">
+          <details class="method-seed-details">
+            <summary>Default mechanistic starter pairs <span>24</span></summary>
+            <ol class="method-seed-list">
+              <li>LSD 5-HT2A receptor binding affinity Ki radioligand</li>
+              <li>LSD 5-HT2C receptor binding affinity</li>
+              <li>psilocin 5-HT2A receptor binding affinity</li>
+              <li>psilocin 5-HT1A receptor binding affinity</li>
+              <li>psilocybin psilocin 5-HT2A agonist receptor</li>
+              <li>DMT 5-HT2A receptor binding affinity</li>
+              <li>DMT sigma-1 receptor binding affinity</li>
+              <li>psychedelic TAAR1 trace amine receptor 1 binding</li>
+              <li>5-MeO-DMT 5-HT1A receptor binding affinity</li>
+              <li>mescaline 5-HT2A receptor binding affinity</li>
+              <li>MDMA SERT DAT NET transporter affinity</li>
+              <li>MDMA dopamine transporter DAT affinity</li>
+              <li>MDMA norepinephrine transporter NET affinity</li>
+              <li>MDMA SERT amphetamine serotonin transporter CaMKII</li>
+              <li>MDMA enantiomers MPTP-lesioned primate SERT in vitro</li>
+              <li>ibogaine noribogaine kappa opioid receptor binding</li>
+              <li>ibogaine NMDA receptor binding affinity</li>
+              <li>ketamine NMDA receptor affinity binding Ki</li>
+              <li>esketamine NMDA receptor affinity binding</li>
+              <li>arketamine NMDA receptor affinity binding</li>
+              <li>salvinorin A kappa opioid receptor affinity</li>
+              <li>2C-B 5-HT2A receptor binding affinity</li>
+              <li>DOI 5-HT2A receptor binding affinity</li>
+              <li>psychedelic mGluR2 GRM2 receptor interaction</li>
+            </ol>
+          </details>
+          <details class="method-seed-details">
+            <summary>Default clinical starter pairs <span>41</span></summary>
+            <ol class="method-seed-list">
+              <li>psilocybin treatment-resistant depression randomized trial</li>
+              <li>psilocybin major depressive disorder randomized trial</li>
+              <li>ayahuasca major depressive disorder trial</li>
+              <li>ayahuasca social anxiety disorder randomized trial</li>
+              <li>ayahuasca obsessive-compulsive disorder trial</li>
+              <li>ayahuasca generalized anxiety disorder trial</li>
+              <li>ketamine treatment-resistant depression trial</li>
+              <li>ketamine bipolar depression randomized trial</li>
+              <li>esketamine treatment-resistant depression phase 3</li>
+              <li>ketamine suicidal ideation randomized trial</li>
+              <li>MDMA post-traumatic stress disorder randomized trial</li>
+              <li>LSD anxiety life-threatening disease trial</li>
+              <li>LSD major depressive disorder randomized trial</li>
+              <li>LSD generalized anxiety disorder randomized trial</li>
+              <li>LSD alcohol use disorder trial</li>
+              <li>psilocybin cancer anxiety depression trial</li>
+              <li>psilocybin generalized anxiety disorder trial</li>
+              <li>psilocybin bipolar depression trial</li>
+              <li>mescaline major depressive disorder clinical trial</li>
+              <li>5-MeO-DMT major depressive disorder clinical trial</li>
+              <li>MDMA autism spectrum disorder social anxiety trial</li>
+              <li>psilocybin obsessive-compulsive disorder trial</li>
+              <li>psilocybin anorexia nervosa trial</li>
+              <li>psilocybin eating disorders trial</li>
+              <li>psilocybin bulimia nervosa trial</li>
+              <li>psilocybin binge eating disorder trial</li>
+              <li>psilocybin alcohol use disorder randomized trial</li>
+              <li>psilocybin tobacco use disorder trial</li>
+              <li>ibogaine opioid use disorder trial</li>
+              <li>ketamine alcohol use disorder trial</li>
+              <li>psilocybin cocaine use disorder trial</li>
+              <li>psilocybin methamphetamine use disorder trial</li>
+              <li>psilocybin substance use disorder trial</li>
+              <li>psilocybin end-of-life anxiety trial</li>
+              <li>LSD cluster headache trial</li>
+              <li>psilocybin cluster headache trial</li>
+              <li>psychedelic headache disorders migraine trial</li>
+              <li>psilocybin migraine headache trial</li>
+              <li>ketamine chronic pain trial</li>
+              <li>ketamine fibromyalgia randomized trial</li>
+              <li>psilocybin fibromyalgia clinical trial</li>
+            </ol>
+          </details>
+          <details class="method-seed-details">
+            <summary>Canonical compound allowlist <span>40</span></summary>
+            <ul class="method-seed-list">
+              <li>LSD</li>
+              <li>Psilocybin</li>
+              <li>Psilocin</li>
+              <li>Mescaline</li>
+              <li>DMT</li>
+              <li>5-MeO-DMT</li>
+              <li>Bufotenin</li>
+              <li>Ayahuasca</li>
+              <li>Ibogaine</li>
+              <li>Noribogaine</li>
+              <li>MDMA</li>
+              <li>MDA</li>
+              <li>Ketamine</li>
+              <li>S-ketamine</li>
+              <li>R-ketamine</li>
+              <li>DOI</li>
+              <li>DOB</li>
+              <li>DOM</li>
+              <li>DOET</li>
+              <li>2C-B</li>
+              <li>2C-E</li>
+              <li>2C-I</li>
+              <li>2C-T-2</li>
+              <li>2C-T-7</li>
+              <li>5-MeO-DiPT</li>
+              <li>DiPT</li>
+              <li>DPT</li>
+              <li>LSA</li>
+              <li>AL-LAD</li>
+              <li>ETH-LAD</li>
+              <li>PRO-LAD</li>
+              <li>1P-LSD</li>
+              <li>Salvinorin A</li>
+              <li>Lisuride</li>
+              <li>Bromo-DragonFLY</li>
+              <li>25I-NBOMe</li>
+              <li>25B-NBOMe</li>
+              <li>25C-NBOMe</li>
+              <li>TMA</li>
+              <li>TMA-2</li>
+            </ul>
+          </details>
+          <details class="method-seed-details">
+            <summary>Canonical clinical indications <span>31</span></summary>
+            <ul class="method-seed-list">
+              <li>Treatment-resistant depression</li>
+              <li>Major depressive disorder</li>
+              <li>Bipolar depression</li>
+              <li>Persistent depressive disorder</li>
+              <li>Post-traumatic stress disorder</li>
+              <li>Complex post-traumatic stress disorder</li>
+              <li>Alcohol use disorder</li>
+              <li>Tobacco use disorder</li>
+              <li>Nicotine dependence</li>
+              <li>Opioid use disorder</li>
+              <li>Cannabis use disorder</li>
+              <li>Cocaine use disorder</li>
+              <li>Methamphetamine use disorder</li>
+              <li>Stimulant use disorder</li>
+              <li>Substance use disorder</li>
+              <li>Generalized anxiety disorder</li>
+              <li>Social anxiety disorder</li>
+              <li>Distress associated with life-threatening disease</li>
+              <li>Obsessive-compulsive disorder</li>
+              <li>Eating disorders</li>
+              <li>Anorexia nervosa</li>
+              <li>Bulimia nervosa</li>
+              <li>Binge-eating disorder</li>
+              <li>Autism spectrum disorder</li>
+              <li>Demoralization</li>
+              <li>Suicidal ideation</li>
+              <li>Cluster headache</li>
+              <li>Headache disorders</li>
+              <li>Migraine</li>
+              <li>Chronic pain</li>
+              <li>Fibromyalgia</li>
+            </ul>
+          </details>
+          <details class="method-seed-details">
+            <summary>Canonical mechanistic targets <span>46</span></summary>
+            <ul class="method-seed-list">
+              <li>5-HT2A</li>
+              <li>5-HT2B</li>
+              <li>5-HT2C</li>
+              <li>5-HT1A</li>
+              <li>5-HT1B</li>
+              <li>5-HT1D</li>
+              <li>5-HT1E</li>
+              <li>5-HT1F</li>
+              <li>5-HT5A</li>
+              <li>5-HT6</li>
+              <li>5-HT7</li>
+              <li>mGluR2 (GRM2)</li>
+              <li>TAAR1</li>
+              <li>SERT (SLC6A4)</li>
+              <li>NET (SLC6A2)</li>
+              <li>DAT (SLC6A3)</li>
+              <li>VMAT2 (SLC18A2)</li>
+              <li>D1 receptor (DRD1)</li>
+              <li>D2 receptor (DRD2)</li>
+              <li>D3 receptor (DRD3)</li>
+              <li>D4 receptor (DRD4)</li>
+              <li>D5 receptor (DRD5)</li>
+              <li>Alpha1A adrenergic receptor (ADRA1A)</li>
+              <li>Alpha1B adrenergic receptor (ADRA1B)</li>
+              <li>Alpha2A adrenergic receptor (ADRA2A)</li>
+              <li>Alpha2B adrenergic receptor (ADRA2B)</li>
+              <li>Alpha2C adrenergic receptor (ADRA2C)</li>
+              <li>Beta1 adrenergic receptor (ADRB1)</li>
+              <li>Beta2 adrenergic receptor (ADRB2)</li>
+              <li>M1 muscarinic receptor (CHRM1)</li>
+              <li>M2 muscarinic receptor (CHRM2)</li>
+              <li>M3 muscarinic receptor (CHRM3)</li>
+              <li>M4 muscarinic receptor (CHRM4)</li>
+              <li>M5 muscarinic receptor (CHRM5)</li>
+              <li>H1 receptor (HRH1)</li>
+              <li>H2 receptor (HRH2)</li>
+              <li>Sigma-1 receptor (SIGMAR1)</li>
+              <li>Sigma-2 receptor (TMEM97)</li>
+              <li>kappa opioid receptor (OPRK1)</li>
+              <li>mu opioid receptor (OPRM1)</li>
+              <li>delta opioid receptor (OPRD1)</li>
+              <li>NMDA receptor</li>
+              <li>AMPA receptor</li>
+              <li>TrkB (NTRK2)</li>
+              <li>CB1 receptor (CNR1)</li>
+              <li>CB2 receptor (CNR2)</li>
+            </ul>
+          </details>
+        </div>
+      </section>
+
+      <section class="about-section method-workflow-section" aria-labelledby="evidence-workflow">
+        <div class="section-kicker">Pipeline</div>
+        <h2 id="evidence-workflow">From Search to Evidence Records</h2>
+        <p>
+          The pipeline is designed to keep every major decision visible:
+          what was searched, what was screened out, what could be retrieved,
+          what could be converted, and what was finally extracted as graph
+          evidence.
+        </p>
+        <p>
+          A record is a candidate bibliographic item; a paper is the
+          deduplicated work in the library; a paper-context is a paper paired
+          with a compound and indication or target; and a claim is the
+          structured evidence record that can support a graph edge.
+        </p>
+        <div class="method-workflow-list">
+          <article id="search-strategy">
+            <span>01</span>
+            <div>
+              <h3>Literature Discovery</h3>
+              <p>
+                Searches start from selected compound-entity seed pairs, not
+                from every vocabulary term alone. The current graph build used
+                the default starter pairs; each pair was expanded into
+                provider-specific query variants using aliases and evidence
+                terms. Records are gathered from OpenAlex, Semantic Scholar,
+                PubMed/PMC, Crossref, and open-access metadata sources.
+              </p>
+              <p>
+                Deduplication happens as records enter the paper library: a
+                candidate is added only when DOI and title matching indicate
+                that it is not already present. Known relevant studies are used
+                as recall checks, so missed expected papers can lead to better
+                seeds or a documented scope decision.
+              </p>
+            </div>
+          </article>
+          <article id="screening">
+            <span>02</span>
+            <div>
+              <h3>Screening and Eligibility</h3>
+              <p>
+                Abstract screening is the first relevance gate. A conservative
+                pre-screen removes obvious no-signal records, then LLM-assisted
+                screening reviews abstracts at the paper-context level, such as
+                a DOI paired with a compound and indication or target.
+              </p>
+              <p>
+                At this stage the model is used only for relevance and
+                quote-supported context checks. Source type, study design,
+                evidence strength, extracted outcomes, and graph inclusion are
+                handled later through evidence assessment, curation, and
+                validation.
+              </p>
+              <p>
+                Uncertain records are retained for later assessment. Full-text
+                eligibility is a separate step after retrieval, because some
+                papers that look relevant from the abstract can become out of
+                scope once the full report is inspected.
+              </p>
+            </div>
+          </article>
+          <article id="full-text-extraction">
+            <span>03</span>
+            <div>
+              <h3>Retrieval and Conversion</h3>
+              <p>
+                Records that pass screening are queued for legal open-access
+                full-text retrieval. The pipeline tracks whether a PDF was
+                downloaded, unavailable, inaccessible, invalid, or converted
+                into reusable text.
+              </p>
+              <p>
+                Papers with no retrievable full text can remain in an
+                abstract-only path. That path is labeled explicitly, so later
+                claims do not look as if full text was inspected.
+              </p>
+            </div>
+          </article>
+          <article id="data-extraction">
+            <span>04</span>
+            <div>
+              <h3>Evidence Extraction</h3>
+              <p>
+                Extraction captures the fields needed for the graph: source
+                type, study design, access level, evidence location, result
+                direction, outcome details, assay values, funding, conflicts of
+                interest, and risk-of-bias notes where available.
+              </p>
+              <p>
+                LLM outputs are treated as reviewable proposals tied to source
+                records and locators. Accepted evidence is promoted only after
+                schema and evidence-policy checks. Risk-of-bias notes are
+                descriptive fields extracted from the source when available, not
+                formal GRADE or Cochrane risk-of-bias ratings.
+              </p>
+            </div>
           </article>
         </div>
       </section>
 
       <section class="about-section methods-analytics" aria-labelledby="evidence-base-snapshot">
-        <div class="section-kicker">Evidence Base</div>
+        <div class="section-kicker">Evidence Flow</div>
         <div class="methods-section-header">
           <div>
-            <h2 id="evidence-base-snapshot">Paper Flow</h2>
-          </div>
-        </div>
-        <div class="flow-explainer" aria-label="Paper flow counting rules">
-          <p>
-            This chart uses PRISMA-style evidence-flow language adapted for
-            the KG pipeline: candidate records are identified from
-            seed-expanded literature discovery, screened at the abstract level,
-            retrieved as full-text reports where possible, converted, and then
-            assessed for inclusion. Reports that cannot be retrieved for
-            full-text extraction are tracked as a separate abstract-only
-            evidence path rather than treated as discarded literature. The
-            formal flow chart follows the
-            <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA 2020 flow-diagram</a>
-            convention of showing identified, excluded, retrieved, assessed,
-            and included records with reasons.
-          </p>
-          <div class="flow-definition-grid">
-            <div><strong>Records identified</strong><span>Seed-derived DOI-level paper records sent to abstract screening within each evidence lane.</span></div>
-            <div><strong>Records retained</strong><span>Records kept after abstract screening as likely or possibly relevant.</span></div>
-            <div><strong>Likely relevant</strong><span>The stricter retained subset marked likely relevant by the screening model.</span></div>
-            <div><strong>Reports retrieved</strong><span>Full-text reports or PDFs successfully retrieved for follow-up.</span></div>
-            <div><strong>Abstract-only path</strong><span>Likely relevant papers without retrievable full text, retained for metadata and abstract-based evidence.</span></div>
-            <div><strong>Full texts converted</strong><span>Retrieved reports converted into reusable full-text artifacts.</span></div>
-            <div><strong>Evidence extracted</strong><span>Records already represented as structured graph evidence.</span></div>
+            <h2 id="evidence-base-snapshot">PRISMA Flow Diagram</h2>
+            <p>
+              Evidence synthesis needs a visible record of what entered the
+              review and what happened next. This
+              <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
+              flow follows candidate papers from discovery through screening,
+              retrieval, conversion, and inclusion. Side boxes show the current
+              reasons papers leave or pause the full-text path. Because
+              deduplication happens automatically during library insertion,
+              there is no separate deduplication step in this diagram.
+            </p>
           </div>
         </div>
         <div id="methodsPipeline" class="methods-loading">Loading paper flow.</div>
       </section>
 
+      <section class="about-section method-layer-section" aria-labelledby="kg-architecture">
+        <div>
+          <div class="section-kicker">Knowledge Graph</div>
+          <h2 id="kg-architecture">How the Evidence Becomes a Graph</h2>
+          <p>
+            The graph connects psychedelic compounds to clinical indications
+            and mechanistic targets. Each visible edge is meant to point back
+            to papers, evidence records, access status, study context, and text
+            locations when available.
+          </p>
+          <p>
+            The public view is deliberately selective. It shows the
+            relationships that are easiest to read, while the underlying files
+            keep the paper and claim details needed for checks and future
+            updates.
+          </p>
+        </div>
+        <div class="method-layer-stack" aria-label="Graph layers">
+          <article>
+            <h3>Paper Layer</h3>
+            <p>
+              Paper records store discovery metadata, bibliographic details,
+              screening decisions, retrieval status, and conversion status.
+            </p>
+          </article>
+          <article>
+            <h3>Claim Layer</h3>
+            <p>
+              Claim records store extracted evidence, result direction, study
+              design, access level, and the source location that supports the
+              claim.
+            </p>
+          </article>
+          <article>
+            <h3>Canonical Entity Layer</h3>
+            <p>
+              Compounds, indications, targets, papers, and evidence records are
+              normalized into stable graph objects where possible.
+            </p>
+          </article>
+          <article>
+            <h3>Semantic Edge Layer</h3>
+            <p>
+              Evidence is aggregated into relationships such as compound to
+              indication and compound to target.
+            </p>
+          </article>
+          <article>
+            <h3>View Layer</h3>
+            <p>
+              View files turn the underlying graph into readable interfaces:
+              the main graph, literature landscape, paper flow, and gap view.
+            </p>
+          </article>
+        </div>
+      </section>
+
       <section class="about-section methods-analytics" aria-labelledby="literature-landscape">
-        <div class="section-kicker">Exploratory KG</div>
+        <div class="section-kicker">Visual Outputs</div>
         <div class="methods-section-header">
           <div>
             <h2 id="literature-landscape">Literature Landscape</h2>
             <p>
-              High-volume compound links summarized by the contents of the
-              literature: paper types, source families, years, designs,
-              outcomes, assays, and representative papers.
+              This is a preview of the paper layer. It shows where the
+              literature is concentrated before every claim has been extracted,
+              using paper types, source families, years, designs, outcomes,
+              assays, and representative papers.
             </p>
           </div>
           <div class="method-segmented" role="tablist" aria-label="Landscape relation type">
@@ -153,13 +663,14 @@
       </section>
 
       <section class="about-section methods-analytics" aria-labelledby="literature-gaps">
-        <div class="section-kicker">Prioritization</div>
+        <div class="section-kicker">Visual Outputs</div>
         <div class="methods-section-header">
           <div>
             <h2 id="literature-gaps">Gap View</h2>
             <p>
-              Areas where the literature signal is comparatively large, but the
-              verified claim layer remains sparse.
+              This view asks a practical question: where is the literature
+              signal larger than the current claim layer? Those areas are good
+              candidates for extraction, normalization, or curation.
             </p>
           </div>
           <div class="method-segmented" role="tablist" aria-label="Gap relation type">
@@ -174,133 +685,50 @@
         <div id="methodsGaps" class="methods-loading">Loading gap view.</div>
       </section>
 
-      <section class="about-section method-priority" aria-labelledby="search-strategy">
+      <section class="about-section method-quality-section" aria-labelledby="quality-control">
         <div>
-          <div class="section-kicker">Literature Search</div>
-          <h2 id="search-strategy">Seed Strategy</h2>
-          <p>
-            Search starts from curated seed lists, not a single generic query.
-            Seeds combine psychedelic compound names and aliases with clinical
-            indications, mechanistic targets, and study-design terms. This is
-            one of the most important parts of the pipeline: missing aliases or
-            missing compound-target and compound-indication pairs become blind
-            spots in the graph.
-          </p>
-          <p>
-            Searches run across OpenAlex, Semantic Scholar, PubMed/PMC,
-            Crossref, and open-access metadata sources. A known relevant study
-            set is used as a search-completeness check, so missed expected
-            studies can trigger better synonyms, additional seeds, citation
-            chasing, or a documented scope decision.
-          </p>
-        </div>
-        <div class="method-note">
-          <h3>Search inputs</h3>
-          <ul>
-            <li>Compound names, aliases, and drug-class terms</li>
-            <li>Clinical indication and mechanistic target vocabularies</li>
-            <li>Provider-specific query variants</li>
-            <li>Known relevant studies for recall checks</li>
-          </ul>
-          <a
-            class="text-link"
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_seed_strategy.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Seed strategy appendix</a>
-        </div>
-      </section>
-
-      <section class="about-section" aria-labelledby="screening">
-        <div class="section-kicker">Screening</div>
-        <h2 id="screening">Abstract Screening</h2>
-        <div class="screening-grid">
-          <article>
-            <h3>Deterministic Pre-Screen</h3>
-            <p>
-              The first gate removes only obvious no-signal records: papers
-              with enough abstract text but no in-scope compound, intervention,
-              target, indication, or candidate context. Ambiguous records are
-              kept.
-            </p>
-          </article>
-          <article>
-            <h3>LLM Screening</h3>
-            <p>
-              Retained abstracts are reviewed by a local LLM for relevance and
-              quote-supported contexts. Screening happens at the
-              DOI-compound-entity level, so one paper can support multiple
-              graph edges without being collapsed into a single yes/no paper
-              decision.
-            </p>
-          </article>
-        </div>
-        <p class="method-caption">
-          Abstract screening produces relevant, uncertain, and full-text
-          candidate queues. It does not extract final claims or assign source
-          family; those are later evidence-assessment tasks.
-        </p>
-      </section>
-
-      <section class="about-section method-priority" aria-labelledby="full-text-extraction">
-        <div>
-          <div class="section-kicker">Extraction</div>
-          <h2 id="full-text-extraction">Full Text And Data Extraction</h2>
-          <p>
-            Records that pass screening, plus uncertain records that need more
-            context, are used for legal open-access PDF retrieval. Full text is
-            converted into reusable artifacts and then used for LLM-assisted
-            evidence assessment and data extraction.
-          </p>
-          <p>
-            Extraction captures the information needed for the graph: source
-            family, paper type, study design, access level, evidence location,
-            evidence locator, disorder outcome direction, clinical outcome
-            details, and mechanistic assay values where available. If full text
-            is not available, an abstract-only fallback can be used and is
-            labeled as such.
-          </p>
-        </div>
-        <div class="method-note">
-          <h3>Published text boundary</h3>
-          <p>
-            The public graph stores identifiers, structured claims, metadata,
-            and provenance. Closed-access PDFs or long full-text passages are
-            not redistributed.
-          </p>
-        </div>
-      </section>
-
-      <section class="about-section" aria-labelledby="provenance">
-        <div class="section-kicker">Validation</div>
-        <h2 id="provenance">Curation And Publication</h2>
-        <p>
-          Extracted rows are promoted only after schema and evidence-policy
-          checks. The default graph view includes primary evidence. Reviews,
-          systematic reviews, and meta-analyses are retained separately as
-          secondary literature rather than counted as primary evidence.
-        </p>
-        <p>
-          Every published claim should keep enough provenance to audit it:
-          paper/source type, access level, study design, evidence location,
-          evidence locator, and result direction for disorder claims. These
-          labels are descriptive. They are not a formal GRADE or Cochrane
-          certainty assessment.
-        </p>
-      </section>
-
-      <section class="about-section split-section" aria-labelledby="quality-control">
-        <div>
-          <div class="section-kicker">Limits</div>
-          <h2 id="quality-control">Current Limits</h2>
+          <div class="section-kicker">Quality Controls</div>
+          <h2 id="quality-control">Limits, Updates, And Reuse</h2>
           <p>
             Coverage depends on the seed vocabulary, source indexing, DOI
-            metadata, and access to full text. LLM outputs are useful for
-            scaling screening and extraction, but they remain auditable
-            proposals rather than unreviewable ground truth.
+            metadata, and access to full text. LLMs help scale screening and
+            extraction, but their outputs stay tied to reviewable records.
+            Evidence labels and risk-of-bias notes are descriptive unless a
+            formal certainty or risk-of-bias workflow is added.
           </p>
         </div>
-        <div class="link-stack" aria-label="Method documents">
+        <div class="method-quality-grid">
+          <article id="validation">
+            <h3>Validation</h3>
+            <p>
+              Curated rows are checked against schemas and evidence-policy
+              rules before they are promoted into public graph files.
+            </p>
+          </article>
+          <article id="limits">
+            <h3>Known Limits</h3>
+            <p>
+              Search terms, provider indexing, missing abstracts, access
+              restrictions, and PDF conversion quality all shape coverage.
+            </p>
+          </article>
+          <article id="updates">
+            <h3>Living Evidence</h3>
+            <p>
+              New searches can be scheduled, queued records can be screened,
+              and graph files can be rebuilt when accepted evidence changes.
+            </p>
+          </article>
+          <article id="reuse">
+            <h3>Data Boundary</h3>
+            <p>
+              The public graph publishes identifiers, metadata, structured
+              claims, provenance, and project-written summaries. Source texts
+              remain governed by article licenses and copyright.
+            </p>
+          </article>
+        </div>
+        <div class="method-link-grid" aria-label="Method documents">
           <a
             href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md"
             target="_blank"
@@ -310,70 +738,29 @@
             href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md"
             target="_blank"
             rel="noopener noreferrer"
-          >Search completeness practice</a>
+          >Search completeness</a>
           <a
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_seed_strategy.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Search seed strategy</a>
+            href="#search-seed-words"
+          >Search seed words</a>
           <a
             href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/evidence_policy.md"
             target="_blank"
             rel="noopener noreferrer"
-          >Evidence and provenance policy</a>
+          >Evidence policy</a>
         </div>
-      </section>
-
-      <section class="about-section split-section" aria-labelledby="updates">
-        <div>
-          <div class="section-kicker">Living Evidence</div>
-          <h2 id="updates">Update Model</h2>
-          <p>
-            New literature searches can be run on a schedule, queued records
-            can be screened, and validated graph payloads can be regenerated
-            when accepted evidence changes. The first public release prioritizes
-            auditable provenance over automatic publication.
-          </p>
-        </div>
-        <div class="about-callout">
-          <strong>Planned update pattern</strong>
-          <p>
-            Weekly discovery with a rolling lookback is the likely default.
-            LLM screening and extraction can remain batch-reviewed until the
-            calibration data are strong enough for more automation.
-          </p>
-        </div>
-      </section>
-
-      <section class="about-section" aria-labelledby="reuse">
-        <div class="section-kicker">Reuse And Access</div>
-        <h2 id="reuse">Data Boundaries</h2>
-        <p>
-          The public graph is intended to expose identifiers, metadata,
-          structured factual claims, provenance fields, and project-authored
-          summaries. It should not publish closed-access PDFs, closed-access
-          full text, or long copyrighted passages. Open-access source material
-          should still be handled according to the license attached to each
-          article or provider record.
-        </p>
-      </section>
-
-      <section class="about-section feedback-section" aria-labelledby="feedback">
-        <div>
-          <div class="section-kicker">Community Feedback</div>
-          <h2 id="feedback">Feedback</h2>
+        <div class="method-feedback" id="feedback">
           <p>
             Corrections are part of the method. Missing papers, wrong edges,
-            extraction errors, ambiguous evidence labels, and scope suggestions
-            are all useful signals for improving the pipeline.
+            extraction errors, unclear labels, and scope suggestions all help
+            improve the graph.
           </p>
+          <a
+            class="text-button"
+            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/issues/new/choose"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Open a GitHub issue</a>
         </div>
-        <a
-          class="text-button"
-          href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/issues/new/choose"
-          target="_blank"
-          rel="noopener noreferrer"
-        >Open a GitHub issue</a>
       </section>
     </main>
 
@@ -385,6 +772,6 @@
         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">source repository</a>.
       </div>
     </footer>
-    <script src="methods.js?v=20260512-prisma-clean"></script>
+    <script src="methods.js?v=20260514-methods-restructure"></script>
   </body>
 </html>

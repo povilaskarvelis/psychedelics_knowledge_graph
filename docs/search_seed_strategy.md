@@ -2,7 +2,9 @@
 
 This document records the seed vocabulary used for literature discovery. It is
 intended as a methods appendix for readers who want to audit what the search
-could and could not retrieve.
+could and could not retrieve. The current checked-in discovery reports are
+starter-pair searches, not exhaustive searches over every possible
+compound-indication or compound-target combination.
 
 The current implementation uses three layers:
 
@@ -11,6 +13,12 @@ The current implementation uses three layers:
    optional generated seed expansion.
 3. Alias and query-template rules used for provider-specific query variants and
    broader coverage runs.
+
+Only the first layer, plus provider-specific query variants for those default
+pairs, was used in the current checked-in reports. The canonical allowlists and
+generated-seed modes define what broader searches can use, but their presence in
+the repository does not mean every listed term was submitted to the literature
+APIs in the current run.
 
 Exact seeds used in a discovery run are recorded in the discovery report under
 `per_seed`, with seed counts and provider query counts under `counts`. The
@@ -28,6 +36,16 @@ validation allowlists are in `pipeline/config.example.yaml`.
 |---|---:|---:|---:|---:|---:|
 | Mechanistic | 24 | 0 | 24 | 0 | 0 |
 | Disorder | 41 | 0 | 41 | 0 | 0 |
+
+These counts mean the current reports did not use the all-pair generated search
+space. To search all canonical compound-disorder or compound-target pairs, the
+pipeline must be run with generated seeds enabled, for example
+`--expand-seeds-from-config --auto-max-pairs 0 --auto-max-seeds 0`. With the
+current canonical allowlists, focused all-pair generation would create 1,240
+clinical compound-disorder seeds and 1,840 mechanistic compound-target seeds;
+broad template mode would create 3,720 and 5,520 seeds, respectively. If the
+default `--auto-max-pairs 400` cap is left in place, only the first 400
+compound-entity pairs are searched.
 
 ## Default Mechanistic Seeds
 

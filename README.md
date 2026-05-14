@@ -13,18 +13,30 @@ structured claims about psychedelics, mechanisms, and mental health outcomes.
 
 ## Overview
 
-This repository builds a local literature corpus, screens papers by relevance
-and evidence type, extracts structured claims, validates them, and publishes the
-result as a graph plus export files.
+This repository explores how evidence synthesis can work in the age of
+agentic science. Expert review papers remain essential for interpretation,
+argument, and judgment. Fast-moving fields also need living evidence
+infrastructure: versioned, inspectable evidence bases that can be updated as
+new literature appears.
 
-The current focus is psychedelics. The workflow can be adapted to other
-scientific domains by changing the vocabularies, schemas, and search seeds.
+The goal is an evidence base that is useful in two directions. Humans need an
+interactive way to navigate the evidence landscape. Agents need structured
+paper, claim, entity, and provenance records they can query, extend, and build
+upon. The pipeline is documented, transparent, and open-source, with community
+feedback treated as part of the maintenance model.
+
+Psychedelics research is the case study. The project builds a knowledge graph
+of the literature across clinical indications and mechanistic targets, while
+preserving paper-level provenance, screening decisions, evidence records, and
+claim-level structure. This helps reduce evidence fragmentation, surface null,
+mixed, uncertain, and positive findings, support gap mapping, and make the
+evidence base reproducible for both human review and agentic workflows.
 
 ## Knowledge Graph Architecture
 
-The project is intended to build a real, provenance-aware knowledge graph, not
-only a visual network diagram. The visual graph is a digestible view over a
-larger graph-shaped data model.
+The project is intended to build a provenance-aware knowledge graph with a
+digestible public visualization layer. The visual graph is a readable view over
+a larger graph-shaped data model.
 
 The KG has several layers:
 
@@ -41,9 +53,8 @@ The KG has several layers:
   main graph, the Methods literature landscape, paper flow, and gap views.
 
 This separation matters. The canonical KG can grow as more papers and claims are
-screened, extracted, corrected, or updated. The UI does not need to display
-every node and edge directly; it can summarize important KG components without
-losing the underlying provenance.
+screened, extracted, corrected, or updated. The UI can summarize important KG
+components while preserving the underlying provenance.
 
 During the transition to the full pipeline, exploratory KG views can be built
 from paper libraries, screening outputs, converted full texts, and existing
@@ -60,8 +71,9 @@ PDFs when available.
 
 At the conceptual level:
 
-- search is broad enough to support retrieval across OpenAlex, Semantic Scholar,
-  PubMed/PMC, Crossref, and OA metadata sources
+- search is broad across provider sources, but the current checked-in discovery
+  reports use selected starter seed pairs rather than an exhaustive search over
+  every compound-indication or compound-target combination
 - retrieval can be checked against a known relevant study set before downstream work
 - metadata sync happens before abstract screening; PDF download happens after
   abstract screening
@@ -76,7 +88,7 @@ Retrieved papers now move through abstract screening before PDF acquisition.
 The old rule-based triage remains available for legacy audits, but it is not
 the default gate for the live graph. Abstract screening works at the
 `(DOI, compound, target/disorder)` context level so one paper can support
-multiple graph edges without accidental DOI-only collapse.
+multiple graph edges while preserving DOI-context distinctions.
 
 Current paper types include:
 
@@ -90,7 +102,7 @@ Only primary results papers are admitted to the default primary-evidence graph.
 Reviews, systematic reviews, and meta-analyses are retained as secondary
 literature and can be included with the secondary-source view/checkmark.
 Protocols, conference abstracts, commentary, and corrections are retained as
-non-primary context where possible without inflating primary-evidence counts.
+non-primary context where possible, with primary-evidence counts kept separate.
 
 Technical note: the current default path is non-destructive. It uses a
 deterministic no-signal pre-screen, then local LLM abstract screening for

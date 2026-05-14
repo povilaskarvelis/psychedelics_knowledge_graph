@@ -190,12 +190,6 @@ function renderPrismaPanel(datasets, status) {
   if (!Object.keys(flows).length) return "";
   return `
     <section class="prisma-panel" aria-label="PRISMA-style paper flow">
-      <div class="prisma-panel-header">
-        <div>
-          <h3>PRISMA Flow Diagram</h3>
-          <p>Sequential review-flow view that separates full-text extraction from abstract-only evidence retention.</p>
-        </div>
-      </div>
       <div class="prisma-grid">
         ${datasets.map((dataset) => renderPrismaDiagram(dataset, flows[dataset])).join("")}
       </div>
