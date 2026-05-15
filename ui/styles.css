@@ -594,15 +594,6 @@ button.primary:hover {
   border-bottom-color: rgba(216, 255, 250, 0.88);
 }
 
-.section-kicker {
-  margin-bottom: 9px;
-  color: var(--method-gold);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .methods-summary {
   display: grid;
   gap: 18px;

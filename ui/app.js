@@ -1376,7 +1376,7 @@ function renderCompositionChart(items, field, title, options = {}) {
 
 function renderDetailClaimCards(items) {
   if (!items.length) {
-    return trendCardHtml("Claim cards", "", '<div class="trend-empty">No claim cards in this selection.</div>');
+    return trendCardHtml("Claims", "", '<div class="trend-empty">No claims in this selection.</div>');
   }
 
   const sortedClaims = [...items].sort((a, b) => {
@@ -1423,7 +1423,7 @@ function renderDetailClaimCards(items) {
     </div>
   `;
 
-  return trendCardHtml("Claim cards", "", body);
+  return trendCardHtml("Claims", "", body);
 }
 
 function renderEdgeDetail(compound, target, edgeClaims) {
