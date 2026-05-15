@@ -347,7 +347,8 @@ button.primary:hover {
 }
 
 .access-toggle input[type="checkbox"] {
-  accent-color: var(--accent-2);
+  accent-color: var(--control-active-border);
+  color-scheme: dark;
   width: 14px;
   height: 14px;
   margin: 0;
