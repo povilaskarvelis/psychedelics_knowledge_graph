@@ -1,9 +1,7 @@
-# Comprehensive Search Protocol V2
+# Comprehensive Search Protocol
 
-This protocol defines the reportable baseline search for the v2 psychedelic
-knowledge graph. Earlier searches are treated as scoping and QA material. They
-can help reveal missed terms, but the final methods should describe this
-baseline search once it is accepted.
+This protocol defines the literature search for the psychedelic knowledge
+graph.
 
 ## Goal
 
@@ -13,23 +11,23 @@ Find literature and source-database records that may support either:
 - psychedelic compound -> indication evidence
 
 The search is deliberately broad. Relevance is decided later by screening and
-v2 extraction, not by assuming that every retrieved DOI belongs in the KG.
+extraction, not by assuming that every retrieved DOI belongs in the KG.
 
 ## Source Of Truth
 
-The baseline search is generated from the current registries in
+The search is generated from the current registries in
 `pipeline/config.example.yaml`:
 
 - `validation.allowed_compounds`
 - `validation.allowed_targets`
 - `validation.allowed_disorders`
 
-If the scope changes, update those registries first and regenerate the baseline
-search files. Do not hand-edit generated seed files.
+If the scope changes, update those registries first and regenerate the search
+files. Do not hand-edit generated seed files.
 
 ## Generated Files
 
-The exact baseline seeds and manifests are:
+The exact search files and manifests are:
 
 - `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_openalex_seeds.csv`
 - `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_pubmed_seeds.csv`
@@ -49,44 +47,59 @@ python pipeline/ingest/build_boolean_search_modules.py --dataset all
 python pipeline/ingest/build_comprehensive_search_plan.py --dataset all --profile baseline
 ```
 
-## Seed Families
+## Query Construction
 
-The baseline plan uses layered seed families:
+Each query module is generated from three concept blocks:
 
-- `sentinel_default`: previous hand-written seed pairs retained as sentinel
-  queries and compatibility checks.
-- `class_level`: broad psychedelic-class queries without a preassigned
-  compound or entity.
-- `compound_broad`: compound-level searches that can recover papers where the
-  target or indication is not in the title or abstract.
-- `entity_broad`: target- or indication-level searches tied to psychedelic
-  class terms.
-- `pair_core`: all compound-target or compound-indication pairs from the
-  registries, with core evidence templates.
+```text
+(compound or drug-class synonyms)
+AND (target-family or indication-family synonyms)
+AND (evidence-context terms)
+```
 
-Current baseline counts:
+Terms inside each block are joined with OR. PubMed queries use
+`[Title/Abstract]` fields; clinical-indication PubMed queries also apply
+`NOT (animals[MeSH Terms] NOT humans[MeSH Terms])`. Mechanistic target
+searches do not use that exclusion; animal, in vitro, and assay records are
+retained for mechanistic evidence. OpenAlex modules submit the generated query
+text through the OpenAlex works API. No publication-date or language
+restriction is applied during discovery.
 
-| Dataset | Total seeds | Sentinel | Class | Compound broad | Entity broad | Pair core |
-|---|---:|---:|---:|---:|---:|---:|
-| Mechanistic | 5,806 | 24 | 4 | 120 | 138 | 5,520 |
-| Indication | 3,974 | 41 | 3 | 120 | 93 | 3,717 |
+Clinical indication evidence terms include clinical trial,
+randomized/randomised, placebo, open-label/open label, phase 2, phase 3,
+treatment, therapy, efficacy, safety, tolerability, outcome, and follow-up.
+Mechanistic evidence terms include binding, affinity, Ki, Kd, IC50, EC50,
+radioligand, functional assay, agonist, antagonist, partial agonist, and
+signaling.
 
-An `expanded` profile exists for later targeted follow-up. It adds additional
-pair-level evidence templates and should be used only after the baseline search
-is inspected, because it greatly increases search volume.
+## Search Module Families
+
+| Dataset | Module type | Modules | Cap per source/module |
+|---|---|---|---:|
+| Indication | Primary broad | clinical class core; depression spectrum; trauma/PTSD; substance use and addiction; anxiety, distress, and palliative care; pain and headache; OCD, eating disorders, and autism | 500 |
+| Indication | Dense topic | psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety | 1,000 |
+| Mechanistic | Primary broad | serotonin receptors; monoamine transporters; glutamate/NMDA; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF pathways | 500 |
+| Mechanistic | Dense topic | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | 1,000 |
+
+## Pairwise Search Scope
+
+The search plan also includes generated pairwise search files. These files
+search the compound-target and compound-indication registry space directly
+alongside the query modules.
+
+| Dataset | Focused direct pairs | Pair-core search seeds |
+|---|---:|---:|
+| Mechanistic | 1,840 | 5,520 |
+| Indication | 1,240 | 3,717 |
 
 ## Literature Databases
 
-The baseline literature run should use the comprehensive provider profile:
+The literature discovery run uses OpenAlex and PubMed query modules.
+PubMed/PMC, Crossref, Semantic Scholar, and open-access
+metadata sources are used after DOI discovery to add bibliographic details,
+check open-access status, and identify available full text.
 
-- Semantic Scholar
-- OpenAlex
-- PubMed
-- PMC
-- Crossref
-- Unpaywall enrichment for open-access PDF metadata
-
-The primary reportable searches should start with the Boolean module files:
+The searches start with the query-module files:
 
 ```bash
 python pipeline/ingest/discover_literature.py \
@@ -109,27 +122,25 @@ python pipeline/ingest/discover_literature.py \
   --max-results 0
 ```
 
-The pair-grid files remain the audit/gap-check layer. Use them after the
-Boolean modules to find rare corners of the compound-target and
-compound-indication space. The new-DOI gate remains enabled in the wrapper by
-default, so rediscovered DOI records are reported but not re-added as new
-papers.
+The pair-grid files run direct searches for rare corners of the
+compound-target and compound-indication space. Records already present in the
+paper library are reported but not re-added as new papers.
 
-For the full baseline, Boolean modules should run deeper than pair-grid audit
+For the full search, query modules should run deeper than pairwise search
 seeds:
 
 | Search layer | Recommended cap |
 |---|---:|
-| Boolean primary modules | 500 |
-| Boolean dense-topic modules | 1,000 |
-| Pair-grid audit, mechanistic | 20-50 |
-| Pair-grid audit, indication | 10-20 |
+| Primary query modules | 500 |
+| Dense-topic query modules | 1,000 |
+| Pairwise searches, mechanistic | 20-50 |
+| Pairwise searches, indication | 10-20 |
 
-The generated Boolean CSV files include `recommended_max_results_per_seed` so
+The generated query CSV files include `recommended_max_results_per_seed` so
 dense topics can be run deeper than broad primary modules if we split execution
 by module type.
 
-The Boolean module builder also writes module-type-specific seed files, for
+The query-module builder also writes module-type-specific seed files, for
 example:
 
 - `mechanistic_boolean_openalex_primary_boolean_seeds.csv` at cap 500
@@ -137,69 +148,17 @@ example:
 - `disorder_boolean_pubmed_primary_boolean_seeds.csv` at cap 500
 - `disorder_boolean_pubmed_dense_topic_seeds.csv` at cap 1,000
 
-## Calibration Before Full Execution
+## Search Execution Outputs
 
-The generated seed files are the comprehensive search instrument, not a
-requirement to run every seed at maximum depth immediately. Before executing
-the full baseline, build and run a small stratified calibration batch:
-
-```bash
-python pipeline/ingest/build_search_calibration_batches.py --dataset all
-```
-
-Fast OpenAlex calibration:
-
-```bash
-python pipeline/ingest/discover_literature.py \
-  --dataset mechanistic \
-  --provider openalex \
-  --seed-file data/raw/search_strategies/comprehensive_baseline_v1/calibration/mechanistic_calibration_seeds.csv \
-  --query-variant-mode conservative \
-  --max-results-per-seed 10 \
-  --max-results 0 \
-  --disable-ledger \
-  --disable-protected-retention \
-  --skip-unpaywall-enrichment \
-  --queue-out data/raw/search_strategies/comprehensive_baseline_v1/calibration/openalex/mechanistic_discovered.txt \
-  --report-out data/raw/search_strategies/comprehensive_baseline_v1/calibration/openalex/mechanistic_discovery_report.json
-```
-
-Run the same command for disorder, then pass the calibration queues through
-`add_new_dois.py` with calibration-specific output paths and summarize:
-
-```bash
-python pipeline/ingest/summarize_search_calibration.py --dataset all
-```
-
-The current OpenAlex calibration found:
-
-| Dataset | Sample seeds | Raw rows | Merged DOI rows | New DOIs after global gate |
-|---|---:|---:|---:|---:|
-| Mechanistic | 46 | 299 | 200 | 36 |
-| Indication | 45 | 444 | 259 | 47 |
-
-This shows two important things. First, the existing DOI universe already
-captures many records found by the new strategy. Second, broad indication and
-rare compound-indication pair searches can retrieve substantial noise, so the
-full baseline should be run in batches and inspected by seed family.
-
-Calibration output lives under:
-
-`data/raw/search_strategies/comprehensive_baseline_v1/calibration/openalex/`
-
-The first Boolean-module cap-100 smoke calibration found:
-
-| Provider | Dataset | Module seeds | Raw rows | Merged DOI rows | New DOIs after global gate |
-|---|---|---:|---:|---:|---:|
-| OpenAlex | Mechanistic | 10 | 1,000 | 736 | 246 |
-| OpenAlex | Indication | 12 | 1,200 | 785 | 186 |
-| PubMed | Mechanistic | 10 | 995 | 723 | 159 |
-| PubMed | Indication | 12 | 1,164 | 738 | 116 |
-
-This was only a smoke calibration. The reportable Boolean run should use higher
-caps as described above. Boolean calibration output lives under:
-
-`data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/`
+Search execution outputs are stored under
+`data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/`.
+The search run is timestamped May 15, 2026. Run summaries and
+PRISMA-style flow outputs report records identified,
+duplicate DOI records, invalid DOI records, screening outcomes, full-text
+access status, and extraction status. These counts describe the flow of
+records through the workflow; they do not define graph inclusion. A DOI becomes
+graph evidence only after screening, full-text or abstract-only labeling,
+structured extraction, and validation.
 
 ## Source-Specific Supplements
 
@@ -215,77 +174,35 @@ not treated as ordinary DOI search seeds.
 
 ## Quality Checks
 
-Use earlier searches, legacy curated DOI sets, and the known-study manifest as
-QA checks, not as proof that a paper is relevant. A missed old DOI can mean:
+Quality checks focus on reproducibility and downstream eligibility:
 
-- the baseline search strategy needs another synonym or source,
-- the old DOI is outside the intended v2 scope,
-- the DOI was found through a supplement such as citation chasing or a registry,
-- the old heuristic claim was not actually relevant.
+- generated search files are derived from the versioned registries,
+- discovered records are normalized by DOI before insertion,
+- duplicate DOI records are logged instead of re-added,
+- relevance is decided by deterministic pre-screening, LLM abstract screening,
+  full-text access status, structured extraction, and validation.
 
-The v2 extraction step remains responsible for final relevance and claim
-extraction.
+## Search Design Notes
 
-## Search Design Caveat
+This strategy follows core high-recall literature discovery principles:
+explicit scope, documented sources, reproducible query generation, DOI
+deduplication, and supplement layers. The search design separates three roles:
 
-This strategy follows core high-recall literature discovery principles: explicit
-scope, documented sources, reproducible query generation, DOI deduplication,
-known-study checks, and citation/supplement layers. It is not yet a perfect
-database-specific systematic-search strategy. A fully reportable final protocol
-should also harden the broad seed families into source-specific Boolean blocks
-with controlled vocabulary where available, especially PubMed MeSH terms and
-Title/Abstract synonym blocks.
-
-The all-pairs grid is useful for machine-assisted coverage auditing because it
-tests every compound-target or compound-indication combination in the registry.
-It should be treated as a gap-finding layer. The final execution plan should
-combine:
-
-- broad source-specific Boolean searches for recall,
-- compound/entity/pair seeds for coverage auditing and gap filling,
-- citation chasing from known relevant studies,
-- source-specific supplements such as ChEMBL, BindingDB, and trial registries,
-- family-level calibration reports before full-scale execution.
-
-## V2 Search Strategy Direction
-
-The current generated seed grid is a coverage scaffold. It uses free-text query
-templates such as `{compound} {indication} clinical trial` and
-`{compound} {target} binding affinity Ki`. That makes the pair universe
-auditable, but it is too loose to serve as the final primary search strategy by
-itself.
-
-The improved strategy should separate three roles:
-
-1. **Primary systematic searches**: source-specific Boolean blocks that combine
+1. **Query-family searches**: source-specific query blocks that combine
    compound/class synonyms, target/indication synonyms, and evidence terms.
-   These are the main reportable searches.
-2. **Pair-grid audit searches**: all compound-target and compound-indication
-   pairs, run to check coverage gaps. These should be interpreted as audit/gap
-   signals, not as the whole search method.
+2. **Pairwise searches**: all compound-target and compound-indication pairs,
+   run directly so rare combinations are represented in the search.
 3. **Source-specific supplements**: ChEMBL, BindingDB, ClinicalTrials.gov, and
    citation chasing, because those sources are not ordinary ranked DOI search
    results.
 
-For OpenAlex, noisy calibration runs should prefer a stricter title/abstract
-surface instead of broad title/abstract/full-text search:
-
-```bash
-python pipeline/ingest/discover_literature.py \
-  --dataset disorder \
-  --provider openalex \
-  --seed-file data/raw/search_strategies/comprehensive_baseline_v1/disorder_seeds.csv \
-  --openalex-search-field title_and_abstract \
-  --max-results-per-seed 20 \
-  --max-results 0
-```
-
-The broad OpenAlex `default` search remains useful as a recall-oriented
-supplement, but it should not be the only basis for pair-level precision.
+The all-pairs grid is useful because it tests every compound-target or
+compound-indication combination in the registry. Retrieved records still
+require screening and extraction before they can support graph evidence.
 
 ## Updates
 
-After the baseline is accepted, later literature updates should be documented as
-date-bounded update searches using the same protocol version. If we discover a
-major missing entity family, update the registries, regenerate the baseline
-search files, and record that as a protocol revision.
+Later literature updates should be documented as date-bounded update searches
+using the same protocol version. If a major missing entity family is added,
+update the registries, regenerate the search files, and record that as a
+protocol revision.

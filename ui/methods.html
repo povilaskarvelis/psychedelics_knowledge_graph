@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260514-methods-seeds" />
+    <link rel="stylesheet" href="styles.css?v=20260515-search-details" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
@@ -52,14 +52,13 @@
               and corrected as the literature changes.
             </p>
             <p>
-              The public interface shows the current graph build: one generated
-              version of the evidence graph, not a final review article. It
+              The public interface shows a generated evidence graph. It
               summarizes two evidence lanes, keeps the search and screening
               record visible, and links graph edges back to the papers and
               evidence records that support them.
             </p>
             <p>
-              The sections below follow that path in order: scope, seed words,
+              The sections below follow that path in order: search strategy,
               screening and extraction, paper flow, graph outputs, and limits.
             </p>
           </div>
@@ -69,16 +68,16 @@
             <span class="method-index">01</span>
             <h3>Searchable Evidence</h3>
             <p>
-              Literature discovery starts from selected compound-indication and
-              compound-target seed pairs rather than every possible vocabulary
-              combination.
+              Literature discovery uses structured OpenAlex and PubMed
+              searches for broad recall, plus direct compound-target and
+              compound-indication searches for rare combinations.
             </p>
           </article>
           <article>
             <span class="method-index">02</span>
             <h3>Traceable Decisions</h3>
             <p>
-              Search results, screening decisions, retrieval status,
+              Search results, screening decisions, full-text access status,
               extraction status, and exclusions are kept as auditable records.
             </p>
           </article>
@@ -86,9 +85,9 @@
             <span class="method-index">03</span>
             <h3>Structured Graph Data</h3>
             <p>
-              Papers, claims, entities, provenance, and evidence-quality fields
-              are stored as structured objects for the interface and other
-              tools.
+              Papers, evidence records, entities, provenance, and
+              evidence-quality fields are stored as structured objects for the
+              interface and other tools.
             </p>
           </article>
           <article>
@@ -102,459 +101,300 @@
         </div>
       </section>
 
-      <section class="about-section" aria-labelledby="evidence-scope">
-        <div class="section-kicker">Scope</div>
-        <h2 id="evidence-scope">What the Evidence Base Covers</h2>
-        <p>
-          The project follows two evidence lanes. One tracks clinical
-          relationships between psychedelic compounds and indications. The
-          other tracks mechanistic relationships between compounds and targets.
-          Both lanes have explicit vocabularies and search seeds, so the scope
-          of the graph can be inspected and improved. In the current graph
-          build, the discovery search used selected starter pairs from those
-          vocabularies; it was not an exhaustive search over every compound,
-          indication, and target combination.
-        </p>
-        <div class="method-info-grid" aria-label="Evidence scope">
-          <article>
-            <h3>Clinical Indications</h3>
-            <p>
-              Human outcome evidence for disorders, symptoms, and clinical
-              indications, with result direction recorded when claims are
-              extracted.
-            </p>
-          </article>
-          <article>
-            <h3>Mechanistic Targets</h3>
-            <p>
-              Receptor, transporter, assay, and mechanistic evidence that links
-              compounds to biological targets.
-            </p>
-          </article>
-          <article>
-            <h3>Source Types</h3>
-            <p>
-              Primary studies drive the default graph. Reviews, protocols,
-              conference abstracts, commentary, and corrections are kept as
-              separate context.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="about-section" aria-labelledby="method-snapshot">
-        <div class="section-kicker">At A Glance</div>
-        <h2 id="method-snapshot">How the Current Graph Build Was Made</h2>
-        <p>
-          Here, graph build means the public graph generated from the current
-          source files. The exact seed queries, search reports, screening
-          decisions, claim files, validation reports, and build manifest are
-          kept with the source data so the path from literature search to
-          visible graph edge can be audited.
-        </p>
-        <div class="method-info-grid" aria-label="Method snapshot">
-          <article>
-            <h3>Search Sources</h3>
-            <p>
-              Discovery uses OpenAlex, Semantic Scholar, PubMed/PMC, Crossref,
-              and open-access metadata sources. Starter seeds, generated
-              provider-specific query variants, and provider counts are recorded
-              in the discovery reports and ledgers.
-            </p>
-          </article>
-          <article>
-            <h3>Screening Role</h3>
-            <p>
-              Abstract screening decides whether a paper-context is relevant
-              enough to pursue. It does not assign study design, evidence
-              strength, or final graph inclusion.
-            </p>
-          </article>
-          <article>
-            <h3>Evidence Role</h3>
-            <p>
-              Full-text or clearly labeled abstract-only assessment supplies the
-              source type, study variables, result direction, evidence locator,
-              and reviewable claim proposal.
-            </p>
-          </article>
-        </div>
-      </section>
-
       <section class="about-section method-seeds-section" aria-labelledby="search-seed-words">
-        <div class="section-kicker">Search Seeds</div>
-        <h2 id="search-seed-words">Search Vocabulary Used For Discovery</h2>
+        <div class="section-kicker">Search Strategy</div>
+        <h2 id="search-seed-words">Literature Search Strategy</h2>
         <p>
-          The search vocabulary has several layers, but only some layers were
-          used in the current checked-in discovery run. That run starts from 24
-          default mechanistic seed pairs and 41 default clinical seed pairs,
-          then generates provider-specific variants with aliases, fielded
-          database syntax, and evidence terms. Those expanded report rows
-          contain 46 distinct mechanistic query strings and 119 distinct
-          clinical query strings.
+          The search was designed around two relationship types:
+          psychedelic compounds and mechanistic targets, and psychedelic
+          compounds and clinical indications. The strategy uses grouped
+          database searches for broad topic areas and direct pairwise searches
+          for every compound-target and compound-indication combination in the
+          vocabulary. Searches were run in OpenAlex and PubMed.
         </p>
         <p>
-          The default starter list is not the whole planned vocabulary. The
-          canonical validation and expansion vocabulary is broader: 40
-          compounds, 46 mechanistic targets, and 31 clinical indications.
-          Broader generated-seed and balanced-coverage modes can use those
-          allowlists, but those modes were not enabled for the current
-          checked-in reports. The exact settings for a run are stored with each
-          discovery report, and the long provider-expanded query strings are
-          stored in the reports rather than repeated in full here.
+          The dropdowns below show the actual term combinations used for the
+          grouped database searches. The same search logic was used in
+          OpenAlex and PubMed, with searches focused on titles and abstracts.
+          Within each search, terms inside a block were joined with OR, and the
+          compound, target or indication, and evidence blocks were joined with
+          AND.
+          Focused searches intentionally overlap with the broader searches;
+          they use narrower compound-topic combinations for well-studied areas
+          so those papers are not captured only through a broad query.
         </p>
-        <div class="method-info-grid" aria-label="Search vocabulary summary">
-          <article>
-            <h3>Starter Seed Pairs</h3>
-            <p>
-              Human-written compound-entity search phrases used as the default
-              run inputs: 24 mechanistic and 41 clinical.
-            </p>
-          </article>
-          <article>
-            <h3>Provider Variants</h3>
-            <p>
-              Database-specific query strings add aliases, title/abstract
-              fields, clinical-trial terms, and assay terms.
-            </p>
-          </article>
-          <article>
-            <h3>Canonical Vocabulary</h3>
-            <p>
-              The broader allowlists define what compounds, targets, and
-              indications can be validated or used for expanded runs.
-            </p>
-          </article>
-        </div>
-        <div class="method-search-note">
-          <h3>How the current search used those terms</h3>
-          <p>
-            The current checked-in search did not submit every candidate
-            compound name by itself, and it did not search every possible
-            compound-by-indication or compound-by-target combination. It
-            searched the default compound-entity seed pairs listed below. For
-            each pair, provider-specific variants added aliases and evidence
-            terms, for example compound aliases AND indication aliases AND
-            trial terms for clinical searches, or compound aliases AND target
-            aliases AND binding/assay terms for mechanistic searches.
-          </p>
-          <p>
-            The broader allowlists are therefore the validation and expansion
-            vocabulary, not proof that every possible pair was searched in this
-            graph build. In practical terms, coverage is broad around the
-            selected starter pairs and across multiple literature providers,
-            but it is not broad across the full canonical vocabulary. The
-            pipeline has modes for broader generated-seed and balanced-coverage
-            searches, but those modes were off in the current discovery
-            reports.
-          </p>
-        </div>
-        <div class="method-seed-details-grid">
-          <details class="method-seed-details">
-            <summary>Default mechanistic starter pairs <span>24</span></summary>
-            <ol class="method-seed-list">
-              <li>LSD 5-HT2A receptor binding affinity Ki radioligand</li>
-              <li>LSD 5-HT2C receptor binding affinity</li>
-              <li>psilocin 5-HT2A receptor binding affinity</li>
-              <li>psilocin 5-HT1A receptor binding affinity</li>
-              <li>psilocybin psilocin 5-HT2A agonist receptor</li>
-              <li>DMT 5-HT2A receptor binding affinity</li>
-              <li>DMT sigma-1 receptor binding affinity</li>
-              <li>psychedelic TAAR1 trace amine receptor 1 binding</li>
-              <li>5-MeO-DMT 5-HT1A receptor binding affinity</li>
-              <li>mescaline 5-HT2A receptor binding affinity</li>
-              <li>MDMA SERT DAT NET transporter affinity</li>
-              <li>MDMA dopamine transporter DAT affinity</li>
-              <li>MDMA norepinephrine transporter NET affinity</li>
-              <li>MDMA SERT amphetamine serotonin transporter CaMKII</li>
-              <li>MDMA enantiomers MPTP-lesioned primate SERT in vitro</li>
-              <li>ibogaine noribogaine kappa opioid receptor binding</li>
-              <li>ibogaine NMDA receptor binding affinity</li>
-              <li>ketamine NMDA receptor affinity binding Ki</li>
-              <li>esketamine NMDA receptor affinity binding</li>
-              <li>arketamine NMDA receptor affinity binding</li>
-              <li>salvinorin A kappa opioid receptor affinity</li>
-              <li>2C-B 5-HT2A receptor binding affinity</li>
-              <li>DOI 5-HT2A receptor binding affinity</li>
-              <li>psychedelic mGluR2 GRM2 receptor interaction</li>
+        <div class="method-query-details-grid">
+          <details class="method-query-details">
+            <summary>Broad clinical searches <span>7 term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Clinical class core</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psychedelic; psychedelics; psychedelic-assisted therapy; hallucinogen; psychoplastogen; psilocybin; psilocin; LSD; lysergic acid diethylamide; MDMA; 3,4-methylenedioxymethamphetamine; ketamine; esketamine; ayahuasca; DMT; 5-MeO-DMT; mescaline; ibogaine</dd></div>
+                  <div><dt>Indication block</dt><dd>depression; anxiety; post-traumatic stress disorder; PTSD; substance use disorder; addiction; obsessive-compulsive disorder; OCD; eating disorder; cluster headache; migraine; chronic pain</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Depression spectrum</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psychedelic; psychedelics; psychedelic-assisted therapy; hallucinogen; psychoplastogen; psilocybin; psilocin; LSD; lysergic acid diethylamide; MDMA; 3,4-methylenedioxymethamphetamine; ketamine; esketamine; ayahuasca; DMT; 5-MeO-DMT; mescaline; ibogaine</dd></div>
+                  <div><dt>Indication block</dt><dd>depression; major depressive disorder; MDD; treatment-resistant depression; TRD; bipolar depression; persistent depressive disorder; dysthymia</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>PTSD and trauma</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>MDMA; 3,4-methylenedioxymethamphetamine; psilocybin; ketamine; psychedelic-assisted therapy</dd></div>
+                  <div><dt>Indication block</dt><dd>PTSD; post-traumatic stress disorder; posttraumatic stress disorder; trauma</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; placebo; therapy; psychotherapy; safety; follow-up; outcome</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Substance use and addiction</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psilocybin; LSD; ketamine; ibogaine; noribogaine; ayahuasca; psychedelic</dd></div>
+                  <div><dt>Indication block</dt><dd>substance use disorder; addiction; dependence; alcohol use disorder; tobacco use disorder; smoking cessation; opioid use disorder; cocaine use disorder; methamphetamine use disorder</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; treatment; abstinence; cessation; craving; relapse; safety; outcome</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Anxiety, distress, and palliative care</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psilocybin; LSD; MDMA; ketamine; ayahuasca; psychedelic-assisted therapy</dd></div>
+                  <div><dt>Indication block</dt><dd>anxiety; generalized anxiety disorder; social anxiety disorder; cancer anxiety; cancer depression; life-threatening disease; end-of-life; existential distress; demoralization; palliative</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Pain, headache, and migraine</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>LSD; psilocybin; ketamine; psychedelic</dd></div>
+                  <div><dt>Indication block</dt><dd>cluster headache; migraine; headache; chronic pain; fibromyalgia</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; treatment; pain; attack frequency; analgesia; efficacy; safety; outcome</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>OCD, eating disorders, and autism</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psilocybin; LSD; MDMA; ketamine; ayahuasca; psychedelic</dd></div>
+                  <div><dt>Indication block</dt><dd>obsessive-compulsive disorder; OCD; eating disorder; anorexia nervosa; bulimia nervosa; binge-eating disorder; autism spectrum disorder; autism</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
             </ol>
           </details>
-          <details class="method-seed-details">
-            <summary>Default clinical starter pairs <span>41</span></summary>
-            <ol class="method-seed-list">
-              <li>psilocybin treatment-resistant depression randomized trial</li>
-              <li>psilocybin major depressive disorder randomized trial</li>
-              <li>ayahuasca major depressive disorder trial</li>
-              <li>ayahuasca social anxiety disorder randomized trial</li>
-              <li>ayahuasca obsessive-compulsive disorder trial</li>
-              <li>ayahuasca generalized anxiety disorder trial</li>
-              <li>ketamine treatment-resistant depression trial</li>
-              <li>ketamine bipolar depression randomized trial</li>
-              <li>esketamine treatment-resistant depression phase 3</li>
-              <li>ketamine suicidal ideation randomized trial</li>
-              <li>MDMA post-traumatic stress disorder randomized trial</li>
-              <li>LSD anxiety life-threatening disease trial</li>
-              <li>LSD major depressive disorder randomized trial</li>
-              <li>LSD generalized anxiety disorder randomized trial</li>
-              <li>LSD alcohol use disorder trial</li>
-              <li>psilocybin cancer anxiety depression trial</li>
-              <li>psilocybin generalized anxiety disorder trial</li>
-              <li>psilocybin bipolar depression trial</li>
-              <li>mescaline major depressive disorder clinical trial</li>
-              <li>5-MeO-DMT major depressive disorder clinical trial</li>
-              <li>MDMA autism spectrum disorder social anxiety trial</li>
-              <li>psilocybin obsessive-compulsive disorder trial</li>
-              <li>psilocybin anorexia nervosa trial</li>
-              <li>psilocybin eating disorders trial</li>
-              <li>psilocybin bulimia nervosa trial</li>
-              <li>psilocybin binge eating disorder trial</li>
-              <li>psilocybin alcohol use disorder randomized trial</li>
-              <li>psilocybin tobacco use disorder trial</li>
-              <li>ibogaine opioid use disorder trial</li>
-              <li>ketamine alcohol use disorder trial</li>
-              <li>psilocybin cocaine use disorder trial</li>
-              <li>psilocybin methamphetamine use disorder trial</li>
-              <li>psilocybin substance use disorder trial</li>
-              <li>psilocybin end-of-life anxiety trial</li>
-              <li>LSD cluster headache trial</li>
-              <li>psilocybin cluster headache trial</li>
-              <li>psychedelic headache disorders migraine trial</li>
-              <li>psilocybin migraine headache trial</li>
-              <li>ketamine chronic pain trial</li>
-              <li>ketamine fibromyalgia randomized trial</li>
-              <li>psilocybin fibromyalgia clinical trial</li>
+          <details class="method-query-details">
+            <summary>Focused clinical searches <span>5 term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Psilocybin and depression</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psilocybin; psilocin</dd></div>
+                  <div><dt>Indication block</dt><dd>depression; major depressive disorder; MDD; treatment-resistant depression; TRD</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>MDMA and PTSD</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>MDMA; 3,4-methylenedioxymethamphetamine</dd></div>
+                  <div><dt>Indication block</dt><dd>PTSD; post-traumatic stress disorder; posttraumatic stress disorder</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; placebo; psychotherapy; assisted therapy; safety; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Ketamine, depression, and suicidality</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>ketamine; esketamine; arketamine; S-ketamine; R-ketamine</dd></div>
+                  <div><dt>Indication block</dt><dd>depression; treatment-resistant depression; TRD; suicidal ideation; suicidality; bipolar depression</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Ibogaine and opioid/substance use disorder</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>ibogaine; noribogaine</dd></div>
+                  <div><dt>Indication block</dt><dd>opioid use disorder; opioid dependence; substance use disorder; addiction</dd></div>
+                  <div><dt>Evidence block</dt><dd>treatment; detoxification; withdrawal; craving; abstinence; safety; clinical</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>LSD, alcohol use disorder, and anxiety</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>LSD; lysergic acid diethylamide</dd></div>
+                  <div><dt>Indication block</dt><dd>alcohol use disorder; alcohol dependence; anxiety; life-threatening disease</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
             </ol>
           </details>
-          <details class="method-seed-details">
-            <summary>Canonical compound allowlist <span>40</span></summary>
-            <ul class="method-seed-list">
-              <li>LSD</li>
-              <li>Psilocybin</li>
-              <li>Psilocin</li>
-              <li>Mescaline</li>
-              <li>DMT</li>
-              <li>5-MeO-DMT</li>
-              <li>Bufotenin</li>
-              <li>Ayahuasca</li>
-              <li>Ibogaine</li>
-              <li>Noribogaine</li>
-              <li>MDMA</li>
-              <li>MDA</li>
-              <li>Ketamine</li>
-              <li>S-ketamine</li>
-              <li>R-ketamine</li>
-              <li>DOI</li>
-              <li>DOB</li>
-              <li>DOM</li>
-              <li>DOET</li>
-              <li>2C-B</li>
-              <li>2C-E</li>
-              <li>2C-I</li>
-              <li>2C-T-2</li>
-              <li>2C-T-7</li>
-              <li>5-MeO-DiPT</li>
-              <li>DiPT</li>
-              <li>DPT</li>
-              <li>LSA</li>
-              <li>AL-LAD</li>
-              <li>ETH-LAD</li>
-              <li>PRO-LAD</li>
-              <li>1P-LSD</li>
-              <li>Salvinorin A</li>
-              <li>Lisuride</li>
-              <li>Bromo-DragonFLY</li>
-              <li>25I-NBOMe</li>
-              <li>25B-NBOMe</li>
-              <li>25C-NBOMe</li>
-              <li>TMA</li>
-              <li>TMA-2</li>
-            </ul>
+          <details class="method-query-details">
+            <summary>Broad mechanistic searches <span>5 term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Serotonin receptors</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psychedelic; psychedelics; serotonergic psychedelic; hallucinogen; psychoplastogen; LSD; lysergic acid diethylamide; psilocybin; psilocin; DMT; 5-MeO-DMT; mescaline; DOI; 2C-B; NBOMe</dd></div>
+                  <div><dt>Target block</dt><dd>5-HT2A; HTR2A; serotonin 2A receptor; 5-HT2B; HTR2B; 5-HT2C; HTR2C; 5-HT1A; HTR1A; serotonin receptor</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Monoamine transporters</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>MDMA; MDA; ibogaine; noribogaine; amphetamine; psychedelic</dd></div>
+                  <div><dt>Target block</dt><dd>SERT; SLC6A4; serotonin transporter; DAT; SLC6A3; dopamine transporter; NET; SLC6A2; norepinephrine transporter; VMAT2</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; uptake; release; transporter; IC50; EC50; Ki</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Glutamate, NMDA, AMPA, and mGluR2</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>ketamine; esketamine; arketamine; R-ketamine; S-ketamine; psychedelic</dd></div>
+                  <div><dt>Target block</dt><dd>NMDA receptor; NMDAR; AMPA receptor; mGluR2; GRM2; glutamate receptor</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; antagonist; agonist; signaling; functional assay; neuroplasticity</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Opioid, sigma, and TAAR targets</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>salvinorin A; ibogaine; noribogaine; DMT; 5-MeO-DMT; psychedelic</dd></div>
+                  <div><dt>Target block</dt><dd>kappa opioid receptor; KOR; OPRK1; mu opioid receptor; sigma-1 receptor; SIGMAR1; TAAR1; trace amine-associated receptor 1</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Plasticity, TrkB, and BDNF</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psychedelic; psychoplastogen; psilocybin; LSD; DMT; ketamine</dd></div>
+                  <div><dt>Target block</dt><dd>TrkB; NTRK2; BDNF; neuroplasticity; dendritic spine; cortical plasticity</dd></div>
+                  <div><dt>Evidence block</dt><dd>signaling; binding; phosphorylation; plasticity; neuritogenesis; dendritic; synaptic</dd></div>
+                </dl>
+              </li>
+            </ol>
           </details>
-          <details class="method-seed-details">
-            <summary>Canonical clinical indications <span>31</span></summary>
-            <ul class="method-seed-list">
-              <li>Treatment-resistant depression</li>
-              <li>Major depressive disorder</li>
-              <li>Bipolar depression</li>
-              <li>Persistent depressive disorder</li>
-              <li>Post-traumatic stress disorder</li>
-              <li>Complex post-traumatic stress disorder</li>
-              <li>Alcohol use disorder</li>
-              <li>Tobacco use disorder</li>
-              <li>Nicotine dependence</li>
-              <li>Opioid use disorder</li>
-              <li>Cannabis use disorder</li>
-              <li>Cocaine use disorder</li>
-              <li>Methamphetamine use disorder</li>
-              <li>Stimulant use disorder</li>
-              <li>Substance use disorder</li>
-              <li>Generalized anxiety disorder</li>
-              <li>Social anxiety disorder</li>
-              <li>Distress associated with life-threatening disease</li>
-              <li>Obsessive-compulsive disorder</li>
-              <li>Eating disorders</li>
-              <li>Anorexia nervosa</li>
-              <li>Bulimia nervosa</li>
-              <li>Binge-eating disorder</li>
-              <li>Autism spectrum disorder</li>
-              <li>Demoralization</li>
-              <li>Suicidal ideation</li>
-              <li>Cluster headache</li>
-              <li>Headache disorders</li>
-              <li>Migraine</li>
-              <li>Chronic pain</li>
-              <li>Fibromyalgia</li>
-            </ul>
+          <details class="method-query-details">
+            <summary>Focused mechanistic searches <span>5 term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>LSD and 5-HT2A</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>LSD; lysergic acid diethylamide</dd></div>
+                  <div><dt>Target block</dt><dd>5-HT2A; HTR2A; serotonin 2A receptor</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling; beta arrestin; G protein</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Psilocin/psilocybin and 5-HT2A</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>psilocin; psilocybin</dd></div>
+                  <div><dt>Target block</dt><dd>5-HT2A; HTR2A; serotonin 2A receptor</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>MDMA transporters</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>MDMA; 3,4-methylenedioxymethamphetamine; MDA</dd></div>
+                  <div><dt>Target block</dt><dd>SERT; DAT; NET; SLC6A4; SLC6A3; SLC6A2; serotonin transporter; dopamine transporter; norepinephrine transporter</dd></div>
+                  <div><dt>Evidence block</dt><dd>transporter; uptake; release; binding; affinity; IC50; EC50</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Ketamine and NMDA</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>ketamine; esketamine; arketamine; S-ketamine; R-ketamine</dd></div>
+                  <div><dt>Target block</dt><dd>NMDA receptor; NMDAR; glutamate receptor</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; antagonist; channel blocker; functional assay</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Salvinorin A and kappa opioid receptor</h3>
+                <dl>
+                  <div><dt>Compound block</dt><dd>salvinorin A</dd></div>
+                  <div><dt>Target block</dt><dd>kappa opioid receptor; KOR; OPRK1</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
+                </dl>
+              </li>
+            </ol>
           </details>
-          <details class="method-seed-details">
-            <summary>Canonical mechanistic targets <span>46</span></summary>
-            <ul class="method-seed-list">
-              <li>5-HT2A</li>
-              <li>5-HT2B</li>
-              <li>5-HT2C</li>
-              <li>5-HT1A</li>
-              <li>5-HT1B</li>
-              <li>5-HT1D</li>
-              <li>5-HT1E</li>
-              <li>5-HT1F</li>
-              <li>5-HT5A</li>
-              <li>5-HT6</li>
-              <li>5-HT7</li>
-              <li>mGluR2 (GRM2)</li>
-              <li>TAAR1</li>
-              <li>SERT (SLC6A4)</li>
-              <li>NET (SLC6A2)</li>
-              <li>DAT (SLC6A3)</li>
-              <li>VMAT2 (SLC18A2)</li>
-              <li>D1 receptor (DRD1)</li>
-              <li>D2 receptor (DRD2)</li>
-              <li>D3 receptor (DRD3)</li>
-              <li>D4 receptor (DRD4)</li>
-              <li>D5 receptor (DRD5)</li>
-              <li>Alpha1A adrenergic receptor (ADRA1A)</li>
-              <li>Alpha1B adrenergic receptor (ADRA1B)</li>
-              <li>Alpha2A adrenergic receptor (ADRA2A)</li>
-              <li>Alpha2B adrenergic receptor (ADRA2B)</li>
-              <li>Alpha2C adrenergic receptor (ADRA2C)</li>
-              <li>Beta1 adrenergic receptor (ADRB1)</li>
-              <li>Beta2 adrenergic receptor (ADRB2)</li>
-              <li>M1 muscarinic receptor (CHRM1)</li>
-              <li>M2 muscarinic receptor (CHRM2)</li>
-              <li>M3 muscarinic receptor (CHRM3)</li>
-              <li>M4 muscarinic receptor (CHRM4)</li>
-              <li>M5 muscarinic receptor (CHRM5)</li>
-              <li>H1 receptor (HRH1)</li>
-              <li>H2 receptor (HRH2)</li>
-              <li>Sigma-1 receptor (SIGMAR1)</li>
-              <li>Sigma-2 receptor (TMEM97)</li>
-              <li>kappa opioid receptor (OPRK1)</li>
-              <li>mu opioid receptor (OPRM1)</li>
-              <li>delta opioid receptor (OPRD1)</li>
-              <li>NMDA receptor</li>
-              <li>AMPA receptor</li>
-              <li>TrkB (NTRK2)</li>
-              <li>CB1 receptor (CNR1)</li>
-              <li>CB2 receptor (CNR2)</li>
-            </ul>
+          <details class="method-query-details">
+            <summary>Direct pairwise searches <span>9,237 generated search strings</span></summary>
+            <div class="method-query-note">
+              <p>
+                The direct searches apply fixed query forms to every
+                compound-target pair and every compound-indication pair in the
+                vocabulary.
+              </p>
+              <dl>
+                <div><dt>Compound vocabulary</dt><dd>LSD; psilocybin; psilocin; mescaline; DMT; 5-MeO-DMT; bufotenin; ayahuasca; ibogaine; noribogaine; MDMA; MDA; ketamine; esketamine; arketamine; DOI; DOB; DOM; DOET; 2C-B; 2C-E; 2C-I; 2C-T-2; 2C-T-7; 5-MeO-DiPT; DiPT; DPT; LSA; AL-LAD; ETH-LAD; PRO-LAD; 1P-LSD; salvinorin A; lisuride; Bromo-DragonFLY; 25I-NBOMe; 25B-NBOMe; 25C-NBOMe; TMA; TMA-2</dd></div>
+                <div><dt>Target vocabulary</dt><dd>5-HT2A; 5-HT2B; 5-HT2C; 5-HT1A; 5-HT1B; 5-HT1D; 5-HT1E; 5-HT1F; 5-HT5A; 5-HT6; 5-HT7; mGluR2 (GRM2); TAAR1; SERT (SLC6A4); NET (SLC6A2); DAT (SLC6A3); VMAT2 (SLC18A2); D1 receptor (DRD1); D2 receptor (DRD2); D3 receptor (DRD3); D4 receptor (DRD4); D5 receptor (DRD5); Alpha1A adrenergic receptor (ADRA1A); Alpha1B adrenergic receptor (ADRA1B); Alpha2A adrenergic receptor (ADRA2A); Alpha2B adrenergic receptor (ADRA2B); Alpha2C adrenergic receptor (ADRA2C); Beta1 adrenergic receptor (ADRB1); Beta2 adrenergic receptor (ADRB2); M1 muscarinic receptor (CHRM1); M2 muscarinic receptor (CHRM2); M3 muscarinic receptor (CHRM3); M4 muscarinic receptor (CHRM4); M5 muscarinic receptor (CHRM5); H1 receptor (HRH1); H2 receptor (HRH2); Sigma-1 receptor (SIGMAR1); Sigma-2 receptor (TMEM97); kappa opioid receptor (OPRK1); mu opioid receptor (OPRM1); delta opioid receptor (OPRD1); NMDA receptor; AMPA receptor; TrkB (NTRK2); CB1 receptor (CNR1); CB2 receptor (CNR2)</dd></div>
+                <div><dt>Indication vocabulary</dt><dd>Treatment-resistant depression; major depressive disorder; bipolar depression; persistent depressive disorder; post-traumatic stress disorder; complex post-traumatic stress disorder; alcohol use disorder; tobacco use disorder; nicotine dependence; opioid use disorder; cannabis use disorder; cocaine use disorder; methamphetamine use disorder; stimulant use disorder; substance use disorder; generalized anxiety disorder; social anxiety disorder; distress associated with life-threatening disease; obsessive-compulsive disorder; eating disorders; anorexia nervosa; bulimia nervosa; binge-eating disorder; autism spectrum disorder; demoralization; suicidal ideation; cluster headache; headache disorders; migraine; chronic pain; fibromyalgia</dd></div>
+              </dl>
+              <ul>
+                <li><strong>Mechanistic:</strong> 1,840 compound-target pairs searched with binding-affinity, receptor-pharmacology, and functional-assay query forms, producing 5,520 generated search strings.</li>
+                <li><strong>Clinical:</strong> 1,240 compound-indication pairs searched with randomized-placebo, treatment-outcome, and clinical-trial query forms, producing 3,717 generated search strings.</li>
+              </ul>
+              <dl>
+                <div><dt>Mechanistic query forms</dt><dd>{compound} {target} binding affinity Ki; {compound} {target} receptor pharmacology assay; {compound} {target} functional assay agonist antagonist</dd></div>
+                <div><dt>Clinical query forms</dt><dd>{compound} {indication} randomized placebo; {compound} {indication} treatment outcome; {compound} {indication} clinical trial</dd></div>
+              </dl>
+            </div>
           </details>
         </div>
       </section>
 
       <section class="about-section method-workflow-section" aria-labelledby="evidence-workflow">
-        <div class="section-kicker">Pipeline</div>
-        <h2 id="evidence-workflow">From Search to Evidence Records</h2>
+        <div class="section-kicker">Workflow</div>
+        <h2 id="evidence-workflow">From Search to Extracted Evidence</h2>
         <p>
-          The pipeline is designed to keep every major decision visible:
-          what was searched, what was screened out, what could be retrieved,
-          what could be converted, and what was finally extracted as graph
-          evidence.
-        </p>
-        <p>
-          A record is a candidate bibliographic item; a paper is the
-          deduplicated work in the library; a paper-context is a paper paired
-          with a compound and indication or target; and a claim is the
-          structured evidence record that can support a graph edge.
+          Search results become graph evidence only after DOI matching,
+          abstract screening, full-text checks, and structured extraction.
         </p>
         <div class="method-workflow-list">
-          <article id="search-strategy">
+          <article>
             <span>01</span>
             <div>
               <h3>Literature Discovery</h3>
               <p>
-                Searches start from selected compound-entity seed pairs, not
-                from every vocabulary term alone. The current graph build used
-                the default starter pairs; each pair was expanded into
-                provider-specific query variants using aliases and evidence
-                terms. Records are gathered from OpenAlex, Semantic Scholar,
-                PubMed/PMC, Crossref, and open-access metadata sources.
-              </p>
-              <p>
-                Deduplication happens as records enter the paper library: a
-                candidate is added only when DOI and title matching indicate
-                that it is not already present. Known relevant studies are used
-                as recall checks, so missed expected papers can lead to better
-                seeds or a documented scope decision.
+                OpenAlex and PubMed results are matched by DOI before they enter
+                the paper library, so papers already present are not added
+                again.
               </p>
             </div>
           </article>
-          <article id="screening">
+          <article>
             <span>02</span>
             <div>
-              <h3>Screening and Eligibility</h3>
+              <h3>Abstract Screening</h3>
               <p>
-                Abstract screening is the first relevance gate. A conservative
-                pre-screen removes obvious no-signal records, then LLM-assisted
-                screening reviews abstracts at the paper-context level, such as
-                a DOI paired with a compound and indication or target.
-              </p>
-              <p>
-                At this stage the model is used only for relevance and
-                quote-supported context checks. Source type, study design,
-                evidence strength, extracted outcomes, and graph inclusion are
-                handled later through evidence assessment, curation, and
-                validation.
-              </p>
-              <p>
-                Uncertain records are retained for later assessment. Full-text
-                eligibility is a separate step after retrieval, because some
-                papers that look relevant from the abstract can become out of
-                scope once the full report is inspected.
+                A deterministic pre-screen removes records with no psychedelic
+                signal. Retained abstracts are screened for relevance with a
+                local Qwen3 14B LLM; relevant and uncertain papers continue.
               </p>
             </div>
           </article>
-          <article id="full-text-extraction">
+          <article>
             <span>03</span>
             <div>
-              <h3>Retrieval and Conversion</h3>
+              <h3>Full-Text Access</h3>
               <p>
-                Records that pass screening are queued for legal open-access
-                full-text retrieval. The pipeline tracks whether a PDF was
-                downloaded, unavailable, inaccessible, invalid, or converted
-                into reusable text.
-              </p>
-              <p>
-                Papers with no retrievable full text can remain in an
-                abstract-only path. That path is labeled explicitly, so later
-                claims do not look as if full text was inspected.
+                Papers that pass screening are checked for legally available
+                full text and converted when possible. Abstract-only papers
+                remain labeled as abstract-only.
               </p>
             </div>
           </article>
-          <article id="data-extraction">
+          <article>
             <span>04</span>
             <div>
               <h3>Evidence Extraction</h3>
               <p>
-                Extraction captures the fields needed for the graph: source
-                type, study design, access level, evidence location, result
-                direction, outcome details, assay values, funding, conflicts of
-                interest, and risk-of-bias notes where available.
-              </p>
-              <p>
-                LLM outputs are treated as reviewable proposals tied to source
-                records and locators. Accepted evidence is promoted only after
-                schema and evidence-policy checks. Risk-of-bias notes are
-                descriptive fields extracted from the source when available, not
-                formal GRADE or Cochrane risk-of-bias ratings.
+                Relevant papers are extracted into structured fields for the
+                graph: compound, target or indication, study type, result
+                direction, source location, and key study details.
               </p>
             </div>
           </article>
@@ -571,71 +411,14 @@
               review and what happened next. This
               <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
               flow follows candidate papers from discovery through screening,
-              retrieval, conversion, and inclusion. Side boxes show the current
-              reasons papers leave or pause the full-text path. Because
-              deduplication happens automatically during library insertion,
-              there is no separate deduplication step in this diagram.
+              full-text access, conversion, and inclusion. Side boxes show the
+              current reasons papers leave or pause the full-text path. Because
+              duplicate records are identified before papers are added, there
+              is no separate duplicate-removal step in this diagram.
             </p>
           </div>
         </div>
         <div id="methodsPipeline" class="methods-loading">Loading paper flow.</div>
-      </section>
-
-      <section class="about-section method-layer-section" aria-labelledby="kg-architecture">
-        <div>
-          <div class="section-kicker">Knowledge Graph</div>
-          <h2 id="kg-architecture">How the Evidence Becomes a Graph</h2>
-          <p>
-            The graph connects psychedelic compounds to clinical indications
-            and mechanistic targets. Each visible edge is meant to point back
-            to papers, evidence records, access status, study context, and text
-            locations when available.
-          </p>
-          <p>
-            The public view is deliberately selective. It shows the
-            relationships that are easiest to read, while the underlying files
-            keep the paper and claim details needed for checks and future
-            updates.
-          </p>
-        </div>
-        <div class="method-layer-stack" aria-label="Graph layers">
-          <article>
-            <h3>Paper Layer</h3>
-            <p>
-              Paper records store discovery metadata, bibliographic details,
-              screening decisions, retrieval status, and conversion status.
-            </p>
-          </article>
-          <article>
-            <h3>Claim Layer</h3>
-            <p>
-              Claim records store extracted evidence, result direction, study
-              design, access level, and the source location that supports the
-              claim.
-            </p>
-          </article>
-          <article>
-            <h3>Canonical Entity Layer</h3>
-            <p>
-              Compounds, indications, targets, papers, and evidence records are
-              normalized into stable graph objects where possible.
-            </p>
-          </article>
-          <article>
-            <h3>Semantic Edge Layer</h3>
-            <p>
-              Evidence is aggregated into relationships such as compound to
-              indication and compound to target.
-            </p>
-          </article>
-          <article>
-            <h3>View Layer</h3>
-            <p>
-              View files turn the underlying graph into readable interfaces:
-              the main graph, literature landscape, paper flow, and gap view.
-            </p>
-          </article>
-        </div>
       </section>
 
       <section class="about-section methods-analytics" aria-labelledby="literature-landscape">
@@ -645,9 +428,9 @@
             <h2 id="literature-landscape">Literature Landscape</h2>
             <p>
               This is a preview of the paper layer. It shows where the
-              literature is concentrated before every claim has been extracted,
-              using paper types, source families, years, designs, outcomes,
-              assays, and representative papers.
+              literature is concentrated before every evidence record has been
+              extracted, using paper types, source families, years, designs,
+              outcomes, assays, and representative papers.
             </p>
           </div>
           <div class="method-segmented" role="tablist" aria-label="Landscape relation type">
@@ -669,8 +452,8 @@
             <h2 id="literature-gaps">Gap View</h2>
             <p>
               This view asks a practical question: where is the literature
-              signal larger than the current claim layer? Those areas are good
-              candidates for extraction, normalization, or curation.
+              signal larger than the current extracted evidence? Those areas
+              are good candidates for extraction, normalization, or review.
             </p>
           </div>
           <div class="method-segmented" role="tablist" aria-label="Gap relation type">
@@ -690,7 +473,7 @@
           <div class="section-kicker">Quality Controls</div>
           <h2 id="quality-control">Limits, Updates, And Reuse</h2>
           <p>
-            Coverage depends on the seed vocabulary, source indexing, DOI
+            Coverage depends on the search vocabulary, source indexing, DOI
             metadata, and access to full text. LLMs help scale screening and
             extraction, but their outputs stay tied to reviewable records.
             Evidence labels and risk-of-bias notes are descriptive unless a
@@ -701,8 +484,9 @@
           <article id="validation">
             <h3>Validation</h3>
             <p>
-              Curated rows are checked against schemas and evidence-policy
-              rules before they are promoted into public graph files.
+              Evidence records are checked against the expected data format and
+              evidence-policy rules before they are included in the public
+              graph.
             </p>
           </article>
           <article id="limits">
@@ -715,16 +499,16 @@
           <article id="updates">
             <h3>Living Evidence</h3>
             <p>
-              New searches can be scheduled, queued records can be screened,
-              and graph files can be rebuilt when accepted evidence changes.
+              New searches can be scheduled, new records can be screened, and
+              the public graph can be rebuilt when accepted evidence changes.
             </p>
           </article>
           <article id="reuse">
             <h3>Data Boundary</h3>
             <p>
               The public graph publishes identifiers, metadata, structured
-              claims, provenance, and project-written summaries. Source texts
-              remain governed by article licenses and copyright.
+              evidence, provenance, and project-written summaries. Source
+              texts remain governed by article licenses and copyright.
             </p>
           </article>
         </div>
@@ -733,7 +517,7 @@
             href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md"
             target="_blank"
             rel="noopener noreferrer"
-          >Pipeline guide</a>
+          >Workflow guide</a>
           <a
             href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md"
             target="_blank"
@@ -741,7 +525,7 @@
           >Search completeness</a>
           <a
             href="#search-seed-words"
-          >Search seed words</a>
+          >Search strategy</a>
           <a
             href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/evidence_policy.md"
             target="_blank"

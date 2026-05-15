@@ -1,132 +1,87 @@
-# Search Seed Strategy
+# Search Strategy
 
-This document records the seed vocabulary used for literature discovery. It is
-intended as a methods appendix for readers who want to audit what the search
-could and could not retrieve. The current checked-in discovery reports are
-starter-pair searches, not exhaustive searches over every possible
-compound-indication or compound-target combination.
+This document records the literature-search vocabulary and source-specific
+query structure. It is intended as a methods appendix for readers who want to
+audit what the search could and could not retrieve.
 
-For the v2 baseline search, use `docs/comprehensive_search_protocol_v2.md` and
-the generated seed manifests under
-`data/raw/search_strategies/comprehensive_baseline_v1/`. The older 24/41 seed
-reports below should be interpreted as scoping runs and search-development
-evidence, not as the final comprehensive strategy.
+The search is documented in `docs/comprehensive_search_protocol_v2.md` and
+generated under `data/raw/search_strategies/comprehensive_baseline_v1/`. The
+search run is timestamped May 15, 2026.
 
-The current implementation uses three layers:
+## Main Search Layer
 
-1. Default hand-written seeds for each dataset.
-2. Canonical compound, target, and disorder allowlists used for validation and
-   optional generated seed expansion.
-3. Alias and query-template rules used for provider-specific query variants and
-   broader coverage runs.
+The search uses provider-specific query modules in OpenAlex and PubMed. Each
+module is built from three concept blocks:
 
-Only the first layer, plus provider-specific query variants for those default
-pairs, was used in the current checked-in reports. The canonical allowlists and
-generated-seed modes define what broader searches can use, but their presence in
-the repository does not mean every listed term was submitted to the literature
-APIs in the current run.
+```text
+(compound or drug-class synonyms)
+AND (target-family or indication-family synonyms)
+AND (evidence-context terms)
+```
 
-Exact seeds used in a discovery run are recorded in the discovery report under
-`per_seed`, with seed counts and provider query counts under `counts`. The
-current checked-in reports are:
+Terms inside each concept block are joined with OR. PubMed queries use
+`[Title/Abstract]` fields; clinical-indication PubMed queries also apply
+`NOT (animals[MeSH Terms] NOT humans[MeSH Terms])`. Mechanistic target
+searches do not use that exclusion; animal, in vitro, and assay records are
+retained for mechanistic evidence. OpenAlex modules submit the generated query
+text through the works search API. No publication-date or language restriction
+is applied at discovery.
 
-- `data/processed/discovery_report_mechanistic.json`
-- `data/processed/discovery_report_disorder.json`
+Exact generated artifacts:
 
-The code source of truth is `pipeline/ingest/discover_literature.py`. The
-validation allowlists are in `pipeline/config.example.yaml`.
+- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_openalex_seeds.csv`
+- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_pubmed_seeds.csv`
+- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_openalex_seeds.csv`
+- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_pubmed_seeds.csv`
+- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/boolean_search_modules_manifest.json`
 
-## Current Discovery Report Seed Counts
+The code sources of truth are
+`pipeline/ingest/build_boolean_search_modules.py`,
+`pipeline/ingest/discover_literature.py`, and
+`pipeline/ingest/add_new_dois.py`. The validation allowlists are in
+`pipeline/config.example.yaml`.
 
-| Dataset | Seed count | Manual | Default | Auto-expanded | Balanced |
+## Search Modules
+
+Module counts below are conceptual modules; each module is run once in
+OpenAlex syntax and once in PubMed syntax.
+
+| Dataset | Query modules | Primary broad modules | Dense topic modules | Primary cap | Dense cap |
 |---|---:|---:|---:|---:|---:|
-| Mechanistic | 24 | 0 | 24 | 0 | 0 |
-| Disorder | 41 | 0 | 41 | 0 | 0 |
+| Mechanistic | 10 | 5 | 5 | 500 | 1,000 |
+| Disorder | 12 | 7 | 5 | 500 | 1,000 |
 
-These counts mean the current reports did not use the all-pair generated search
-space. To search all canonical compound-disorder or compound-target pairs, the
-pipeline must be run with generated seeds enabled, for example
-`--expand-seeds-from-config --auto-max-pairs 0 --auto-max-seeds 0`. With the
-current canonical allowlists, focused all-pair generation would create 1,240
-clinical compound-disorder seeds and 1,840 mechanistic compound-target seeds;
-broad template mode would create 3,720 and 5,520 seeds, respectively. If the
-default `--auto-max-pairs 400` cap is left in place, only the first 400
-compound-entity pairs are searched.
+Clinical indication modules:
 
-## Default Mechanistic Seeds
-
-| Query | Compound | Target |
+| Type | Modules | Query block pattern |
 |---|---|---|
-| LSD 5-HT2A receptor binding affinity Ki radioligand | LSD | 5-HT2A |
-| LSD 5-HT2C receptor binding affinity | LSD | 5-HT2C |
-| psilocin 5-HT2A receptor binding affinity | Psilocin | 5-HT2A |
-| psilocin 5-HT1A receptor binding affinity | Psilocin | 5-HT1A |
-| psilocybin psilocin 5-HT2A agonist receptor | Psilocybin | 5-HT2A |
-| DMT 5-HT2A receptor binding affinity | DMT | 5-HT2A |
-| DMT sigma-1 receptor binding affinity | DMT | Sigma-1 receptor (SIGMAR1) |
-| psychedelic TAAR1 trace amine receptor 1 binding | DMT | TAAR1 |
-| 5-MeO-DMT 5-HT1A receptor binding affinity | 5-MeO-DMT | 5-HT1A |
-| mescaline 5-HT2A receptor binding affinity | Mescaline | 5-HT2A |
-| MDMA SERT DAT NET transporter affinity | MDMA | SERT (SLC6A4) |
-| MDMA dopamine transporter DAT affinity | MDMA | DAT (SLC6A3) |
-| MDMA norepinephrine transporter NET affinity | MDMA | NET (SLC6A2) |
-| MDMA SERT amphetamine serotonin transporter CaMKII | MDMA | SERT (SLC6A4) |
-| MDMA enantiomers MPTP-lesioned primate SERT in vitro | MDMA | SERT (SLC6A4) |
-| ibogaine noribogaine kappa opioid receptor binding | Ibogaine | kappa opioid receptor (OPRK1) |
-| ibogaine NMDA receptor binding affinity | Ibogaine | NMDA receptor |
-| ketamine NMDA receptor affinity binding Ki | Ketamine | NMDA receptor |
-| esketamine NMDA receptor affinity binding | S-ketamine | NMDA receptor |
-| arketamine NMDA receptor affinity binding | R-ketamine | NMDA receptor |
-| salvinorin A kappa opioid receptor affinity | Salvinorin A | kappa opioid receptor (OPRK1) |
-| 2C-B 5-HT2A receptor binding affinity | 2C-B | 5-HT2A |
-| DOI 5-HT2A receptor binding affinity | DOI | 5-HT2A |
-| psychedelic mGluR2 GRM2 receptor interaction | LSD | mGluR2 (GRM2) |
+| Primary broad | clinical class core; depression spectrum; trauma/PTSD; substance use and addiction; anxiety, distress, and palliative care; pain and headache; OCD, eating disorders, and autism | therapeutic psychedelic terms AND indication-family terms AND clinical evidence terms |
+| Dense topic | psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety | narrower compound terms AND narrower indication terms AND clinical evidence terms |
 
-## Default Disorder Seeds
+Mechanistic target modules:
 
-| Query | Compound | Disorder |
+| Type | Modules | Query block pattern |
 |---|---|---|
-| psilocybin treatment-resistant depression randomized trial | Psilocybin | Treatment-resistant depression |
-| psilocybin major depressive disorder randomized trial | Psilocybin | Major depressive disorder |
-| ayahuasca major depressive disorder trial | Ayahuasca | Major depressive disorder |
-| ayahuasca social anxiety disorder randomized trial | Ayahuasca | Social anxiety disorder |
-| ayahuasca obsessive-compulsive disorder trial | Ayahuasca | Obsessive-compulsive disorder |
-| ayahuasca generalized anxiety disorder trial | Ayahuasca | Generalized anxiety disorder |
-| ketamine treatment-resistant depression trial | Ketamine | Treatment-resistant depression |
-| ketamine bipolar depression randomized trial | Ketamine | Bipolar depression |
-| esketamine treatment-resistant depression phase 3 | S-ketamine | Treatment-resistant depression |
-| ketamine suicidal ideation randomized trial | Ketamine | Suicidal ideation |
-| MDMA post-traumatic stress disorder randomized trial | MDMA | Post-traumatic stress disorder |
-| LSD anxiety life-threatening disease trial | LSD | distress associated with life-threatening disease |
-| LSD major depressive disorder randomized trial | LSD | Major depressive disorder |
-| LSD generalized anxiety disorder randomized trial | LSD | Generalized anxiety disorder |
-| LSD alcohol use disorder trial | LSD | Alcohol use disorder |
-| psilocybin cancer anxiety depression trial | Psilocybin | distress associated with life-threatening disease |
-| psilocybin generalized anxiety disorder trial | Psilocybin | Generalized anxiety disorder |
-| psilocybin bipolar depression trial | Psilocybin | Bipolar depression |
-| mescaline major depressive disorder clinical trial | Mescaline | Major depressive disorder |
-| 5-MeO-DMT major depressive disorder clinical trial | 5-MeO-DMT | Major depressive disorder |
-| MDMA autism spectrum disorder social anxiety trial | MDMA | Autism spectrum disorder |
-| psilocybin obsessive-compulsive disorder trial | Psilocybin | Obsessive-compulsive disorder |
-| psilocybin anorexia nervosa trial | Psilocybin | Anorexia nervosa |
-| psilocybin eating disorders trial | Psilocybin | Eating disorders |
-| psilocybin bulimia nervosa trial | Psilocybin | Bulimia nervosa |
-| psilocybin binge eating disorder trial | Psilocybin | Binge-eating disorder |
-| psilocybin alcohol use disorder randomized trial | Psilocybin | Alcohol use disorder |
-| psilocybin tobacco use disorder trial | Psilocybin | Tobacco use disorder |
-| ibogaine opioid use disorder trial | Ibogaine | Opioid use disorder |
-| ketamine alcohol use disorder trial | Ketamine | Alcohol use disorder |
-| psilocybin cocaine use disorder trial | Psilocybin | Cocaine use disorder |
-| psilocybin methamphetamine use disorder trial | Psilocybin | Methamphetamine use disorder |
-| psilocybin substance use disorder trial | Psilocybin | Substance use disorder |
-| psilocybin end-of-life anxiety trial | Psilocybin | distress associated with life-threatening disease |
-| LSD cluster headache trial | LSD | Cluster headache |
-| psilocybin cluster headache trial | Psilocybin | Cluster headache |
-| psychedelic headache disorders migraine trial | Any in-scope compound | Headache disorders |
-| psilocybin migraine headache trial | Psilocybin | Migraine |
-| ketamine chronic pain trial | Ketamine | Chronic pain |
-| ketamine fibromyalgia randomized trial | Ketamine | Fibromyalgia |
-| psilocybin fibromyalgia clinical trial | Psilocybin | Fibromyalgia |
+| Primary broad | serotonin receptors; monoamine transporters; glutamate/NMDA; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF pathways | psychedelic compound/class terms AND target-family terms AND assay/signaling evidence terms |
+| Dense topic | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | narrower compound terms AND narrower target terms AND assay/signaling evidence terms |
+
+Clinical evidence terms include clinical trial, randomized/randomised, placebo,
+open-label/open label, phase 2, phase 3, treatment, therapy, efficacy, safety,
+tolerability, outcome, and follow-up. Mechanistic evidence terms include
+binding, affinity, Ki, Kd, IC50, EC50, radioligand, functional assay, agonist,
+antagonist, partial agonist, and signaling.
+
+## Pairwise Search Layer
+
+The canonical registries also generate direct searches for compound-target and
+compound-indication combinations. These searches use the same scope vocabulary
+as the main query modules and include rare combinations that may not be well
+represented by family-level queries.
+
+With the current canonical allowlists, focused all-pair generation creates
+1,840 mechanistic compound-target pairs and 1,240 clinical
+compound-indication pairs. Broad template mode expands those to 5,520
+mechanistic pair-core search seeds and 3,717 clinical pair-core search seeds.
 
 ## Canonical Compound Allowlist
 
@@ -233,76 +188,19 @@ Headache disorders; Migraine; Chronic pain; Fibromyalgia.
 - Chronic pain: chronic pain
 - Fibromyalgia: fibromyalgia
 
-## Generated Seed Templates
+## Reproducibility Notes
 
-Focused and broad auto-seed modes generate seed strings from the canonical
-allowlists. These modes are used for higher-recall runs and should be reported
-with their caps.
+The search is reproducible from the generated CSV and manifest files. For
+publication-quality reporting, preserve:
 
-### Mechanistic
+- protocol ID and generated search-file hashes,
+- database searched and date searched,
+- exact source-specific query strings,
+- field restrictions and clinical animal/human filters,
+- per-module retrieval caps,
+- DOI-normalization and deduplication rules,
+- record-flow outputs for PRISMA-style reporting.
 
-- Focused: `{compound} {entity} receptor binding affinity Ki`
-- Broad:
-  - `{compound} {entity} receptor binding affinity Ki`
-  - `{compound} {entity} radioligand binding affinity`
-  - `{compound} {entity} pharmacology assay affinity`
-
-### Disorder
-
-- Focused: `{compound} {entity} randomized clinical trial`
-- Broad:
-  - `{compound} {entity} randomized clinical trial`
-  - `{compound} {entity} phase 2 phase 3 trial`
-  - `{compound} {entity} therapeutic outcome study`
-
-## Balanced Coverage Templates
-
-Balanced seed profiles add bounded compound-only and entity-only searches to
-avoid losing allowlist items that are not represented in the default hand-written
-seeds.
-
-### Mechanistic
-
-- Compound coverage:
-  - `{compound} pharmacology binding affinity receptor transporter`
-  - `{compound} mechanism target receptor transporter`
-- Entity coverage:
-  - `{entity} psychedelic pharmacology binding affinity`
-  - `{entity} receptor transporter psychedelic assay`
-- Evidence-focused follow-up:
-  - `{compound} {entity} binding affinity Ki`
-  - `{compound} {entity} radioligand binding`
-  - `{compound} {entity} functional assay agonist antagonist`
-  - `{compound} {entity} signaling beta arrestin calcium cAMP`
-  - `{compound} {entity} transporter uptake release`
-
-### Disorder
-
-- Compound coverage:
-  - `{compound} clinical trial treatment safety`
-  - `{compound} therapeutic outcome psychedelic`
-- Entity coverage:
-  - `{entity} psychedelic clinical trial treatment`
-  - `{entity} psychedelic therapy outcome safety`
-- Evidence-focused follow-up:
-  - `{compound} {entity} randomized clinical trial`
-  - `{compound} {entity} open label trial`
-  - `{compound} {entity} safety tolerability`
-  - `{compound} {entity} follow-up outcome`
-  - `{compound} {entity} remission response adverse events`
-
-## Interpretation
-
-The seed list is not evidence. It is a search instrument. The key audit
-questions are:
-
-- Are important compound aliases missing?
-- Are important indication or target terms missing?
-- Are seed caps excluding large parts of the planned search space?
-- Do known relevant studies appear in discovery outputs?
-- Are missed known studies fixed by better seeds, citation chasing, source
-  coverage, or documented as outside scope?
-
-For publication-quality reporting, each major run should preserve the run date,
-providers, query variant mode, auto-seed caps, generated seed counts, exact
-`per_seed` entries, and search-completeness results.
+Search results are not graph evidence. Retrieved records enter the screening,
+retrieval, extraction, and validation pipeline before they can support a graph
+edge.

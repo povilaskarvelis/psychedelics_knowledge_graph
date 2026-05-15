@@ -71,12 +71,16 @@ PDFs when available.
 
 At the conceptual level:
 
-- search is broad across provider sources, but the current checked-in discovery
-  reports use selected starter seed pairs rather than an exhaustive search over
-  every compound-indication or compound-target combination
-- retrieval can be checked against a known relevant study set before downstream work
-- metadata sync happens before abstract screening; PDF download happens after
-  abstract screening
+- the literature search uses source-specific query modules in OpenAlex and
+  PubMed, combining psychedelic compound/class synonyms with target or
+  indication vocabularies and evidence terms
+- dense high-yield modules are run deeper than broad primary modules, while
+  direct compound-target and compound-indication searches include rare
+  combinations
+- search results are matched by DOI before papers are added; duplicate records
+  are logged, while new papers move forward for review
+- bibliographic details are added before abstract screening; full text is
+  checked after abstract screening
 - retrieval provenance is retained in discovery reports and ledgers
 
 Technical note: search and sync live in `pipeline/ingest/` and write to
