@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-15T06:52:01.524608+00:00",
+  "dataset": "mechanistic",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/entity_broad/chunk_001/mechanistic_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/entity_broad/chunk_001/mechanistic_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/entity_broad/chunk_001/mechanistic_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/entity_broad/chunk_001/mechanistic_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/entity_broad/chunk_001/mechanistic_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/entity_broad/chunk_001/mechanistic_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 34110,
+    "input_rows_valid_doi": 552,
+    "new_dois": 78,
+    "rediscovered_existing_dois": 474,
+    "missing_or_invalid_dois": 0,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 22573,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 12703,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.11588/heidok.00038014",
+      "compound": "",
+      "entity": "DAT (SLC6A3)",
+      "title": "Behavioral and Molecular Mechanisms of Cocaine Addiction Vulnerability: Functional Evidence from Rodent Models"
+    },
+    {
+      "doi": "10.3390/biology15100745",
+      "compound": "",
+      "entity": "SERT (SLC6A4)",
+      "title": "Depression in Autism Spectrum Disorder: Neurobiological Convergence and Emerging Therapeutic Strategies"
+    },
+    {
+      "doi": "10.3390/ph19030511",
+      "compound": "",
+      "entity": "TrkB (NTRK2)",
+      "title": "Genetic Polymorphisms Associated with Lithium Response in Bipolar Disorder: An Integrative Review and In Silico Protein–Protein Interaction Analysis"
+    },
+    {
+      "doi": "10.64898/2026.03.19.712961",
+      "compound": "",
+      "entity": "TrkB (NTRK2)",
+      "title": "Integrated 5-HT <sub>2A</sub> –TrkB and G protein signaling in serotonergic psychedelic responses"
+    },
+    {
+      "doi": "10.3389/fncel.2026.1774384",
+      "compound": "",
+      "entity": "D1 receptor (DRD1)",
+      "title": "Mu-opioid and nociceptin receptors show divergent, cell-type-specific actions in the mesocorticolimbic reward system in opioid use disorder"
+    },
+    {
+      "doi": "10.3390/ph19050662",
+      "compound": "",
+      "entity": "SERT (SLC6A4)",
+      "title": "The Monoamine–Glutamate Continuum of Depression: A Neurobiological Framework for Precision Psychiatry"
+    },
+    {
+      "doi": "10.1038/s41386-026-02372-8",
+      "compound": "",
+      "entity": "kappa opioid receptor (OPRK1)",
+      "title": "Triazole 187 is a biased KOR agonist that suppresses itch without sedation and induces anxiolytic-like behaviors in mice"
+    },
+    {
+      "doi": "10.1111/bph.70284",
+      "compound": "",
+      "entity": "DAT (SLC6A3)",
+      "title": "Evaluation of preclinical antipsychotic models used to support first‐in‐human clinical trials"
+    },
+    {
+      "doi": "10.1002/2211-5463.70135",
+      "compound": "",
+      "entity": "TrkB (NTRK2)",
+      "title": "Molecular determinants of signal transduction in tropomyosin receptor kinases"
+    },
+    {
+      "doi": "10.3390/jpm15120616",
+      "compound": "",
+      "entity": "SERT (SLC6A4)",
+      "title": "Personalizing Antidepressant Therapy: Integrating Pharmacogenomics, Therapeutic Drug Monitoring, and Digital Tools for Improved Depression Outcomes"
+    },
+    {
+      "doi": "10.1101/2025.02.03.636248",
+      "compound": "",
+      "entity": "TrkB (NTRK2)",
+      "title": "Psilocybin as a Treatment for Repetitive Mild Head Injury: Evidence from Neuroradiology and Molecular Biology"
+    },
+    {
+      "doi": "10.1038/s41586-025-08880-9",
+      "compound": "",
+      "entity": "TrkB (NTRK2)",
+      "title": "Psychedelic control of neuroimmune interactions governing fear"
+    },
+    {
+      "doi": "10.1007/s00210-025-03851-3",
+      "compound": "",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "Targeting the sigma-1 receptor with pridopidine induces functional neurorestoration in spinal cord ischemia-reperfusion injury"
+    },
+    {
+      "doi": "10.1016/j.bcp.2025.117632",
+      "compound": "",
+      "entity": "SERT (SLC6A4)",
+      "title": "Time-specific perturbation of the serotonergic system differentially modulates the transcriptional landscape of hippocampal subregions in female rats"
+    },
+    {
+      "doi": "10.1016/j.toxrep.2025.101936",
+      "compound": "",
+      "entity": "5-HT5A",
+      "title": "Valerenic acid ameliorates amphetamine-related neurotoxicity by improving hypothalamus tyrosine hydroxylase and histamine-N-methyl transferase enzymes"
+    },
+    {
+      "doi": "10.3390/molecules29081739",
+      "compound": "",
+      "entity": "5-HT6",
+      "title": "Discovery of a Novel Chemo-Type for TAAR1 Agonism via Molecular Modeling"
+    },
+    {
+      "doi": "10.1038/s41592-024-02188-8",
+      "compound": "",
+      "entity": "5-HT2C",
+      "title": "Improved green and red GRAB sensors for monitoring spatiotemporal serotonin release in vivo"
+    },
+    {
+      "doi": "10.1556/2054.2024.00343",
+      "compound": "",
+      "entity": "SERT (SLC6A4)",
+      "title": "Ketamine and epigenetic processes in depression, intersection between serotonergic and glutamatergic pathways"
+    },
+    {
+      "doi": "10.17760/d20652996",
+      "compound": "",
+      "entity": "5-HT1F",
+      "title": "Molecular pharmacology of novel 2-aminotetralins targeting alpha2-adrenergic G-protein-coupled Receptors"
+    },
+    {
+      "doi": "10.1016/j.bbadis.2024.167193",
+      "compound": "",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "The IRE1α-XBP1 arm of the unfolded protein response is a host factor activated in SARS-CoV-2 infection"
+    },
+    {
+      "doi": "10.2217/epi-2023-0064",
+      "compound": "",
+      "entity": "mu opioid receptor (OPRM1)",
+      "title": "An Epigenetic Synopsis of Parental Substance Use"
+    },
+    {
+      "doi": "10.1186/s12888-023-05094-z",
+      "compound": "",
+      "entity": "D2 receptor (DRD2)",
+      "title": "Circadian, Reward, and Emotion Systems in Teens prospective longitudinal study: protocol overview of an integrative reward-circadian rhythm model of first onset of bipolar spectrum disorder in adolescence"
+    },
+    {
+      "doi": "10.1021/acschemneuro.3c00206",
+      "compound": "",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "Development of a Novel σ<sub>1</sub> Receptor Biosensor Based on Its Heterodimerization with Binding Immunoglobulin Protein in Living Cells"
+    },
+    {
+      "doi": "10.3389/fncel.2023.1289966",
+      "compound": "",
+      "entity": "TrkB (NTRK2)",
+      "title": "Genetic knockout of NTRK2 by CRISPR/Cas9 decreases neurogenesis and favors glial progenitors during differentiation of neural progenitor stem cells"
+    },
+    {
+      "doi": "10.3389/fnmol.2023.1225373",
+      "compound": "",
+      "entity": "TrkB (NTRK2)",
+      "title": "Neurotrophin signalling in the human nervous system"
+    }
+  ]
+}

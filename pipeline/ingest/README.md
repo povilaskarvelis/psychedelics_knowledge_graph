@@ -38,6 +38,57 @@ Extensive retrieval (hundreds of papers):
 High-recall seed expansion from allowlists in `pipeline/config.example.yaml`:
 `python pipeline/ingest/discover_literature.py --dataset mechanistic --provider hybrid --expand-seeds-from-config --auto-template-mode broad --auto-max-pairs 1200 --auto-max-seeds 3000 --max-results-per-seed 120 --max-results 5000`
 
+V2 comprehensive baseline search:
+
+`python pipeline/ingest/build_boolean_search_modules.py --dataset all`
+
+`python pipeline/ingest/build_comprehensive_search_plan.py --dataset all --profile baseline`
+
+These write exact seed files under
+`data/raw/search_strategies/comprehensive_baseline_v1/`. The Boolean module
+files are the primary systematic-search layer; the generated pair-grid files
+are the audit/gap-check layer.
+
+Run Boolean module discovery examples:
+
+`python pipeline/ingest/discover_literature.py --dataset mechanistic --provider openalex --seed-file data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_openalex_seeds.csv --max-results-per-seed 500 --max-results 0 --disable-ledger --disable-protected-retention --skip-unpaywall-enrichment`
+
+`python pipeline/ingest/discover_literature.py --dataset disorder --provider pubmed --seed-file data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_pubmed_seeds.csv --max-results-per-seed 500 --max-results 0`
+
+Recommended baseline caps:
+- Boolean primary modules: `500`
+- Boolean dense-topic modules: `1000`
+- Mechanistic pair-grid audit: `20-50`
+- Indication pair-grid audit: `10-20`
+
+The Boolean module builder writes combined files plus module-type-specific files
+such as `*_primary_boolean_seeds.csv` and `*_dense_topic_seeds.csv`, so primary
+and dense-topic modules can be run with different caps.
+
+Summarize Boolean module runs after discovery and the new-DOI gate:
+
+`python pipeline/ingest/summarize_boolean_module_runs.py`
+
+Calibration before a full baseline run:
+
+`python pipeline/ingest/build_search_calibration_batches.py --dataset all`
+
+Fast OpenAlex calibration for one dataset:
+
+`python pipeline/ingest/discover_literature.py --dataset mechanistic --provider openalex --seed-file data/raw/search_strategies/comprehensive_baseline_v1/calibration/mechanistic_calibration_seeds.csv --query-variant-mode conservative --max-results-per-seed 10 --max-results 0 --disable-ledger --disable-protected-retention --skip-unpaywall-enrichment --queue-out data/raw/search_strategies/comprehensive_baseline_v1/calibration/openalex/mechanistic_discovered.txt --report-out data/raw/search_strategies/comprehensive_baseline_v1/calibration/openalex/mechanistic_discovery_report.json`
+
+For noisy OpenAlex pair searches, prefer title/abstract matching over broad
+title/abstract/full-text search:
+
+`python pipeline/ingest/discover_literature.py --dataset disorder --provider openalex --seed-file data/raw/search_strategies/comprehensive_baseline_v1/disorder_seeds.csv --openalex-search-field title_and_abstract --max-results-per-seed 20 --max-results 0`
+
+Summarize calibration outputs after running discovery and the new-DOI gate:
+
+`python pipeline/ingest/summarize_search_calibration.py --dataset all`
+
+The calibration files are intentionally separate from the live discovery queues
+so exploratory runs do not overwrite corpus state.
+
 Notes for auto-seed controls:
 - `--expand-seeds-from-config`: add generated seeds on top of defaults/manual seeds
 - `--auto-seeds-only`: skip defaults and use only generated seeds
@@ -82,6 +133,9 @@ Example hardened discovery smoke run:
 
 Custom seeds:
 `python pipeline/ingest/discover_literature.py --dataset disorder --seed \"MDMA PTSD randomized trial|MDMA|Post-traumatic stress disorder\"`
+
+Custom seed file:
+`python pipeline/ingest/discover_literature.py --dataset disorder --seed-file data/raw/search_strategies/comprehensive_baseline_v1/disorder_seeds.csv --provider comprehensive`
 
 ### Rate limits
 - Semantic Scholar is stricter, so default is conservative (`0.33 req/s`).

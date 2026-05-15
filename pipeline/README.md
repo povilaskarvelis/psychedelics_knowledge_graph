@@ -183,6 +183,11 @@ python pipeline/review/run_local_llm_abstract_screening.py \
   --only-undownloaded
 ```
 
+For a batch-specific DOI queue, add `--doi-file` and
+`--prescreen-output-label <label>` so the retained/excluded queues and
+deterministic reports are written as label-suffixed artifacts instead of
+overwriting the global prescreen outputs.
+
 Then run LLM screening only on the retained DOI queue:
 
 ```bash

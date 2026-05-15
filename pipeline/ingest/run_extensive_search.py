@@ -433,6 +433,21 @@ def main() -> int:
         help="Generate provider-specific query variants during discovery",
     )
     parser.add_argument(
+        "--seed-file",
+        default="",
+        help="CSV or text seed file to pass to discovery. Use only with one dataset.",
+    )
+    parser.add_argument(
+        "--mechanistic-seed-file",
+        default="",
+        help="Mechanistic CSV or text seed file to pass to discovery.",
+    )
+    parser.add_argument(
+        "--disorder-seed-file",
+        default="",
+        help="Disorder CSV or text seed file to pass to discovery.",
+    )
+    parser.add_argument(
         "--citation-chase",
         choices=["off", "known-study-set", "benchmark", "query-results"],
         default="off",
@@ -463,6 +478,12 @@ def main() -> int:
     parser.add_argument("--semantic-scholar-api-key", default="")
     parser.add_argument("--semantic-scholar-rps", type=float, default=None)
     parser.add_argument("--openalex-rps", type=float, default=None)
+    parser.add_argument(
+        "--openalex-search-field",
+        choices=["default", "title", "abstract", "title_and_abstract", "fulltext"],
+        default="default",
+        help="OpenAlex text search surface to pass to discovery.",
+    )
     parser.add_argument("--pubmed-rps", type=float, default=None)
     parser.add_argument("--pmc-rps", type=float, default=None)
     parser.add_argument("--crossref-rps", type=float, default=None)
@@ -547,6 +568,8 @@ def main() -> int:
         datasets = parse_datasets(args.dataset)
     except ValueError as err:
         raise SystemExit(str(err))
+    if args.seed_file and len(datasets) > 1:
+        raise SystemExit("Use --mechanistic-seed-file and --disorder-seed-file when running multiple datasets")
 
     python_exe = sys.executable
     benchmark_manifest = Path(args.benchmark_manifest).resolve()
@@ -596,12 +619,17 @@ def main() -> int:
         doi_file_for_metadata = discovered_queue_path
         new_doi_info: Dict[str, str] = {}
         if not args.sync_only:
+            seed_file = args.mechanistic_seed_file if dataset == "mechanistic" else args.disorder_seed_file
+            if not seed_file:
+                seed_file = args.seed_file
             discovery_details = [
                 f"provider={args.provider}",
                 f"max-results-per-seed={args.max_results_per_seed}",
                 f"max-results={args.max_results}",
                 f"outputs: data/raw/doi_queue.{dataset}.discovered.txt, data/processed/discovery_report_{dataset}.json, data/processed/discovery_ledger_{dataset}.json",
             ]
+            if seed_file:
+                discovery_details.append(f"seed-file={as_rel_path(str(Path(seed_file).resolve()))}")
             if args.expand_seeds_from_config or args.auto_seeds_only:
                 discovery_details.extend(
                     [
@@ -651,6 +679,8 @@ def main() -> int:
                 discover_cmd.append("--disable-protected-retention")
             if args.disable_ledger:
                 discover_cmd.append("--disable-ledger")
+            if seed_file:
+                discover_cmd.extend(["--seed-file", str(Path(seed_file).resolve())])
             if args.expand_seeds_from_config:
                 discover_cmd.append("--expand-seeds-from-config")
             if args.auto_seeds_only:
@@ -687,6 +717,8 @@ def main() -> int:
                 discover_cmd.extend(["--semantic-scholar-rps", str(args.semantic_scholar_rps)])
             if args.openalex_rps is not None:
                 discover_cmd.extend(["--openalex-rps", str(args.openalex_rps)])
+            if args.openalex_search_field != "default":
+                discover_cmd.extend(["--openalex-search-field", args.openalex_search_field])
             if args.pubmed_rps is not None:
                 discover_cmd.extend(["--pubmed-rps", str(args.pubmed_rps)])
             if args.pmc_rps is not None:

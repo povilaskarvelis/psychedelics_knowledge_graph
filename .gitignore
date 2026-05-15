@@ -38,10 +38,11 @@ data/processed/fulltext/grobid_batch_reports/
 data/kg/
 
 # Generated paper library snapshots can exceed GitHub's file size limits.
-data/processed/paper_library_disorder.json
-data/processed/paper_library_disorder.csv
-data/processed/paper_library_mechanistic.json
-data/processed/paper_inventory_disorder.json
+data/processed/paper_library_*.json
+data/processed/paper_library_*.csv
+data/processed/paper_inventory_*.json
+data/processed/paper_inventory_*.csv
+data/processed/paper_inventory_*.md
 data/processed/llm_abstract_screening_report_*.json
 data/processed/llm_abstract_screening_report_*.csv
 data/processed/llm_abstract_screening_report_*.checkpoint.jsonl
@@ -51,15 +52,20 @@ data/processed/context_promotion_plan.json
 data/processed/context_promotion_worklist.csv
 data/processed/context_edge_rollup.json
 data/processed/context_queues/
+data/processed/prescreen_upgrade_audit/
 data/processed/add_new_dois_report_*.json
 data/processed/rediscovered_dois_*.csv
 data/processed/missing_or_invalid_dois_*.csv
 data/processed/input_duplicate_dois_*.csv
+data/raw/prescreen_upgrade_audit/
 data/raw/doi_queue.*.new.txt
 data/raw/doi_queue.*.llm_fulltext_candidates.txt
 data/raw/doi_queue.*.llm_relevant.txt
 data/raw/doi_queue.*.llm_uncertain.txt
 data/raw/doi_queue.*.context_*.txt
+
+# Raw provider discovery payloads are regenerable and can grow quickly.
+data/raw/search_strategies/**/*_discovery_report.json
 
 # Temporary: paper library sync checkpoint (regenerable; may contain presigned URLs)
 data/processed/paper_library_*.checkpoint.json

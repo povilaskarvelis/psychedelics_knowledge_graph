@@ -26,6 +26,13 @@ the paper library or claim stubs.
 Recommended small validation run:
 `python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --deterministic-prescreen --deterministic-prescreen-only --limit 25 --only-with-abstract`
 
+For batch-specific screening, add `--prescreen-output-label <label>` so the
+deterministic pre-screen writes label-suffixed reports and queues instead of
+overwriting the global `deterministic_prescreen_report_<dataset>.*` files. For
+example:
+
+`python pipeline/review/run_local_llm_abstract_screening.py --dataset mechanistic --doi-file data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/combined/mechanistic_new_dois.txt --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --prescreen-output-label boolean_full_v1`
+
 Recommended full run for one dataset:
 
 1. `python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --only-undownloaded`
@@ -71,10 +78,18 @@ uses the same evidence-assessment schema, and marks outputs with
 Deterministic pre-screen behavior:
 - Enabled with `--deterministic-prescreen`.
 - Marks skipped rows with `screening_path=deterministic_excluded`.
-- Skips only rows with enough abstract text, no in-scope compound/intervention
-  term, and no text-supported candidate context term.
-- Escalates ambiguous cases, already downloaded papers, and rows mentioning
-  psychedelics/ketamine/entactogens or candidate compound/entity terms.
+- Skips rows whose title/abstract has no in-scope compound/intervention term.
+- In-scope compound/intervention detection combines the hardcoded synonym map,
+  broad class terms, and `validation.allowed_compounds` from
+  `pipeline/config.example.yaml`, so the pre-screen protects the broader
+  configured compound universe.
+- Ambiguous bare acronyms such as `DMT`, `MDA`, `DOI`, `DOET`, and `TMA`, plus
+  bare `dissociative`, require additional chemical/class language in the title
+  or abstract before they block deterministic exclusion.
+- Escalates rows whose title/abstract mentions psychedelics, ketamine,
+  entactogens, or another configured in-scope compound.
+- Discovery/provenance contexts are not used as safety hints for deterministic
+  exclusion.
 - If `--use-heuristic-audit` is enabled, old heuristic retention also blocks
   deterministic exclusion, but this is opt-in legacy behavior.
 - This gate was calibrated against the existing `qwen3:14b` disorder checkpoint

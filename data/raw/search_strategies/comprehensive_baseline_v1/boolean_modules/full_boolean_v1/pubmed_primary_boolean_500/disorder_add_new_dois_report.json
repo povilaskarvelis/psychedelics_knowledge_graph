@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-15T06:40:34.190317+00:00",
+  "dataset": "disorder",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/disorder_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/disorder_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/disorder_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/disorder_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/disorder_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/disorder_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 34110,
+    "input_rows_valid_doi": 2267,
+    "new_dois": 605,
+    "rediscovered_existing_dois": 1662,
+    "missing_or_invalid_dois": 5,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 22573,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 12703,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.1038/s41583-025-00999-y",
+      "compound": "",
+      "entity": "",
+      "title": "'Magic' mechanisms underlie psilocybin's effects in chronic pain."
+    },
+    {
+      "doi": "10.1111/head.70016",
+      "compound": "",
+      "entity": "",
+      "title": "2025 guideline update to acute treatment of migraine for adults in the emergency department: The American Headache Society evidence assessment of parenteral pharmacotherapies."
+    },
+    {
+      "doi": "10.1177/10966218251392787",
+      "compound": "",
+      "entity": "",
+      "title": "A Blueprint for Implementing Ketamine-Assisted Psychotherapy in Palliative Care: Design, Process, and Treatment Patterns of a Real-World Clinical Program."
+    },
+    {
+      "doi": "10.7759/cureus.107120",
+      "compound": "",
+      "entity": "",
+      "title": "A Developmental Taxonomy of Autism and the Precision Timing of the Cheung Glutamatergic Regimen."
+    },
+    {
+      "doi": "10.3389/fpubh.2026.1810904",
+      "compound": "",
+      "entity": "",
+      "title": "A phase 1 study of a second experience with Group Retreat Psilocybin Therapy for partial responders after a first experience."
+    },
+    {
+      "doi": "10.1038/s41386-026-02428-9",
+      "compound": "",
+      "entity": "",
+      "title": "Acute dose-dependent effects of 4-bromo-2,5-dimethoxyphenethylamine (2C-B) compared with 3,4-methylenedioxymethamphetamine (MDMA) and psilocybin in a double-blind, placebo-controlled study in healthy participants."
+    },
+    {
+      "doi": "10.7759/cureus.106480",
+      "compound": "",
+      "entity": "",
+      "title": "Anesthetic Strategy for 30 Radiotherapy Sessions in a Child With Autism Spectrum Disorder (ASD) and Severe Behavioral Dysregulation: A Case Report."
+    },
+    {
+      "doi": "10.1007/7854_2024_534",
+      "compound": "",
+      "entity": "",
+      "title": "Anxiety and Affective Symptoms Related to the Use of Classic Psychedelics: A Systematic Review."
+    },
+    {
+      "doi": "10.1007/s00520-026-10693-z",
+      "compound": "",
+      "entity": "",
+      "title": "Anything that helps: cancer patient and carer perspectives on psychedelic-assisted therapy."
+    },
+    {
+      "doi": "10.1177/02698811261449385",
+      "compound": "",
+      "entity": "",
+      "title": "Associations between psychedelic use and migraine history in Swedish twins."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2661580",
+      "compound": "",
+      "entity": "",
+      "title": "Ayahuasca Therapy: Possible Reduction of Suicidal Ideation in Treatment-Resistant Depression - A Systematic Review."
+    },
+    {
+      "doi": "10.1097/jom.0000000000003665",
+      "compound": "",
+      "entity": "",
+      "title": "Barriers and Access to Care for Firefighters with Post-Traumatic Stress Disorder Seeking Ketamine Assisted Therapy: a qualitative study."
+    },
+    {
+      "doi": "10.1111/ajad.70131",
+      "compound": "",
+      "entity": "",
+      "title": "Brief report: Ketamine-assisted \"bridge therapy\" for opioid tapering in complex cases."
+    },
+    {
+      "doi": "10.3389/fpsyg.2026.1617428",
+      "compound": "",
+      "entity": "",
+      "title": "Case Report: Amplified psychoanalysis? Psychoanalysis, OCD and MDMA in a clinical case study."
+    },
+    {
+      "doi": "10.3389/fpsyt.2026.1819962",
+      "compound": "",
+      "entity": "",
+      "title": "Case Report: Repeated low doses of psilocybin reduce perceived symptom severity but fail to restore cognitive flexibility in a case of severe obsessive-compulsive disorder: an observational case study of identical twins."
+    },
+    {
+      "doi": "10.1038/s41398-026-04042-1",
+      "compound": "",
+      "entity": "",
+      "title": "Characterising the clinical associations of hallucinogen persisting perception disorder: a retrospective cohort study."
+    },
+    {
+      "doi": "10.1007/978-981-95-6872-7_9",
+      "compound": "",
+      "entity": "",
+      "title": "Chronic Pain and Major Depression: Shared Psychological and Neurobiological Mechanism."
+    },
+    {
+      "doi": "10.1007/7854_2026_614",
+      "compound": "",
+      "entity": "",
+      "title": "Classifying Psychedelic-Related Complications."
+    },
+    {
+      "doi": "10.4103/indianjpsychiatry_821_25",
+      "compound": "",
+      "entity": "",
+      "title": "Comments on \"Ketamine's double-edged sword: Therapeutic benefits and adverse events in adolescent treatment-resistant obsessive compulsive disorder (OCD)-A case series\"."
+    },
+    {
+      "doi": "10.1007/s00204-025-04208-8",
+      "compound": "",
+      "entity": "",
+      "title": "Dimethyltryptamine and harmine, components of ayahuasca, prevented cocaine-induced apoptosis in SH-SY5Y human neuroblastoma cells."
+    },
+    {
+      "doi": "10.1017/s1478951526101771",
+      "compound": "",
+      "entity": "",
+      "title": "End of life distress as an economic issue: The case for psychedelic-assisted therapy - ERRATUM."
+    },
+    {
+      "doi": "10.1017/s1478951526101722",
+      "compound": "",
+      "entity": "",
+      "title": "End of life distress as an economic issue: The case for psychedelic-assisted therapy."
+    },
+    {
+      "doi": "10.1080/02791072.2024.2424283",
+      "compound": "",
+      "entity": "",
+      "title": "Esketamine-Induced Dissociation: A Case Report."
+    },
+    {
+      "doi": "10.1111/scd.70171",
+      "compound": "",
+      "entity": "",
+      "title": "Evaluation of Conscious Intramuscular Sedation in Children With Autism Spectrum Disorder Undergoing Outpatient Dental Treatment: A Retrospective Observational Cross-Sectional Study."
+    },
+    {
+      "doi": "10.3389/fpsyt.2026.1722573",
+      "compound": "",
+      "entity": "",
+      "title": "Evidence in practice: implementing KAT in indigenous health services."
+    }
+  ]
+}

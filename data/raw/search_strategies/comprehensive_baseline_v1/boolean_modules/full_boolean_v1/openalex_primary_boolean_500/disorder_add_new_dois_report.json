@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-15T06:38:35.304100+00:00",
+  "dataset": "disorder",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/openalex_primary_boolean_500/disorder_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/openalex_primary_boolean_500/disorder_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/openalex_primary_boolean_500/disorder_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/openalex_primary_boolean_500/disorder_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/openalex_primary_boolean_500/disorder_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/openalex_primary_boolean_500/disorder_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 34110,
+    "input_rows_valid_doi": 2451,
+    "new_dois": 813,
+    "rediscovered_existing_dois": 1638,
+    "missing_or_invalid_dois": 0,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 22573,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 12703,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.1001/jamanetworkopen.2026.11029",
+      "compound": "",
+      "entity": "",
+      "title": "Psilocybin in the Treatment of Cocaine Use Disorder"
+    },
+    {
+      "doi": "10.1016/j.cbpra.2025.01.002",
+      "compound": "",
+      "entity": "",
+      "title": "A Case Example of a Female Veteran Completing Brief Cognitive Behavioral Conjoint Therapy Augmented With 3,4-methylenedioxymethamphetamine (MDMA)"
+    },
+    {
+      "doi": "10.1016/j.cbpra.2025.02.001",
+      "compound": "",
+      "entity": "",
+      "title": "A Case Study of the METEMP Protocol: Massed Exposure Therapy Enhanced With 3,4-Methylenedioxymethamphetamine (MDMA) for Posttraumatic Stress Disorder"
+    },
+    {
+      "doi": "10.1016/j.cbpra.2025.05.001",
+      "compound": "",
+      "entity": "",
+      "title": "A New Generation of Psychedelic-Assisted Psychotherapy: The Example of Combining MDMA With Trauma-Focused Cognitive-Behavioral Therapy for Posttraumatic Stress Disorder"
+    },
+    {
+      "doi": "10.1016/j.psychres.2025.116689",
+      "compound": "",
+      "entity": "",
+      "title": "A retrospective analysis of ketamine intravenous therapy for post-traumatic stress disorder in real-world care settings"
+    },
+    {
+      "doi": "10.5281/zenodo.18006065",
+      "compound": "",
+      "entity": "",
+      "title": "An Oral Ketamine-Like Approach to Treatment-Resistant Obsessive-Compulsive Disorder – A Review of Mechanism, Clinical Experience, and Future Directions"
+    },
+    {
+      "doi": "10.20944/preprints202512.1958.v1",
+      "compound": "",
+      "entity": "",
+      "title": "An Oral Ketamine-Like Approach to Treatment-Resistant Obsessive-Compulsive Disorder—A Review of Mechanism, Clinical Experience, and Future Directions"
+    },
+    {
+      "doi": "10.1016/j.jad.2025.04.041",
+      "compound": "",
+      "entity": "",
+      "title": "Combined ketamine and psychotherapy provide no additional benefit beyond ketamine alone in treating depression or PTSD: Evidence from a help-seeking sample"
+    },
+    {
+      "doi": "10.1213/ane.0000000000007419",
+      "compound": "",
+      "entity": "",
+      "title": "Effect of Low-Dose Ketamine Infusion in the Intensive Care Unit on Postoperative Opioid Consumption and Traumatic Memories After Hospital Discharge: A Randomized Controlled Trial"
+    },
+    {
+      "doi": "10.1177/02698811241308613",
+      "compound": "",
+      "entity": "",
+      "title": "Impact of psychedelics on craving in addiction: A systematic review"
+    },
+    {
+      "doi": "10.1001/jamapsychiatry.2025.0442",
+      "compound": "",
+      "entity": "",
+      "title": "Issues in Clinical Trial Design—Lessons From the FDA’s Rejection of MDMA"
+    },
+    {
+      "doi": "10.4103/indianjpsychiatry_1144_24",
+      "compound": "",
+      "entity": "",
+      "title": "Ketamine’s double-edged sword: Therapeutic benefits and adverse events in adolescent treatment-resistant OCD - A case series"
+    },
+    {
+      "doi": "10.1016/j.cbpra.2025.01.001",
+      "compound": "",
+      "entity": "",
+      "title": "MDMA-Assisted Acceptance and Commitment Therapy for Posttraumatic Stress Disorder: Rationale for a New Approach"
+    },
+    {
+      "doi": "10.1016/j.cbpra.2025.03.001",
+      "compound": "",
+      "entity": "",
+      "title": "MDMA-Assisted Group Therapy for PTSD: Development of a Novel Protocol"
+    },
+    {
+      "doi": "10.1021/acschemneuro.5c00335",
+      "compound": "",
+      "entity": "",
+      "title": "Neurochemical, Neurocircuitry, and Psychopathological Mechanisms of PTSD: Emerging Pharmacotherapies and Clinical Perspectives"
+    },
+    {
+      "doi": "10.1101/2025.04.04.25324315",
+      "compound": "",
+      "entity": "",
+      "title": "Psychedelics as pharmacotherapeutics for substance use disorders: a scoping review on clinical trials and perspectives on underlying neurobiology"
+    },
+    {
+      "doi": "10.1016/j.glmedi.2025.100213",
+      "compound": "",
+      "entity": "",
+      "title": "Reconsidering Ibogaine for the treatment of severe mental illness and substance use disorders"
+    },
+    {
+      "doi": "10.1016/j.ejtd.2025.100572",
+      "compound": "",
+      "entity": "",
+      "title": "Self-reported improvements in comorbid post-traumatic stress disorder symptoms, depression, anxiety, and sleep among real-world patients receiving medical ketamine: Exploring the role of adjunct therapies"
+    },
+    {
+      "doi": "10.1016/j.neubiorev.2025.106204",
+      "compound": "",
+      "entity": "",
+      "title": "The effect of psychedelic microdosing on animal behavior: A review with recommendations for the field"
+    },
+    {
+      "doi": "10.1016/j.jpsychires.2025.03.022",
+      "compound": "",
+      "entity": "",
+      "title": "The effects of psychedelic-assisted therapy on illness and death anxiety: A systematic review and meta-analysis"
+    },
+    {
+      "doi": "10.1192/bjp.2024.277",
+      "compound": "",
+      "entity": "",
+      "title": "Transdiagnostic use of 3,4-methylenedioxymethamphetamine-assisted therapy to treat obsessive–compulsive disorder"
+    },
+    {
+      "doi": "10.1016/j.cbpra.2025.02.002",
+      "compound": "",
+      "entity": "",
+      "title": "Utilizing in Vivo and Imaginal Exposure in the Context of MDMA-Assisted Therapy for Social Anxiety Disorder: A Case Report"
+    },
+    {
+      "doi": "10.1111/anoc.12242",
+      "compound": "",
+      "entity": "",
+      "title": "Ayahuasca rituals for the treatment of substance use disorders: Three narratives of former patients of a neo‐shamanic center from Uruguay"
+    },
+    {
+      "doi": "10.1097/wnf.0000000000000591",
+      "compound": "",
+      "entity": "",
+      "title": "Effect of Ketamine Treatment on Social Withdrawal in Autism and Autism-Like Conditions"
+    },
+    {
+      "doi": "10.1016/j.jad.2024.01.202",
+      "compound": "",
+      "entity": "",
+      "title": "Effects of ketamine and esketamine on preventing postpartum depression after cesarean delivery: A meta-analysis"
+    }
+  ]
+}

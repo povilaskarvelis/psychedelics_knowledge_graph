@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-15T06:49:59.637991+00:00",
+  "dataset": "mechanistic",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/compound_broad/chunk_001/mechanistic_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/compound_broad/chunk_001/mechanistic_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/compound_broad/chunk_001/mechanistic_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/compound_broad/chunk_001/mechanistic_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/compound_broad/chunk_001/mechanistic_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/compound_broad/chunk_001/mechanistic_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 34110,
+    "input_rows_valid_doi": 1678,
+    "new_dois": 916,
+    "rediscovered_existing_dois": 762,
+    "missing_or_invalid_dois": 0,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 22573,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 12703,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.1038/s41598-025-06453-4",
+      "compound": "Bromo-DragonFLY",
+      "entity": "",
+      "title": "ADME of Bromo-DragonFLY as an example of a new psychoactive substance (NPS) – application of in Silico methods for prediction: absorption, distribution, metabolism and excretion"
+    },
+    {
+      "doi": "10.1111/cns.70362",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "Animal Models of Traumatic Brain Injury and Their Relevance in Clinical Settings"
+    },
+    {
+      "doi": "10.3390/jcm14020550",
+      "compound": "LSA",
+      "entity": "",
+      "title": "Artificial Intelligence and Neuroscience: Transformative Synergies in Brain Research and Clinical Applications"
+    },
+    {
+      "doi": "10.69622/27890283.v1",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "Biomarkers for understanding the pathophysiology and risk assessment in subclinical and manifest coronary artery disease"
+    },
+    {
+      "doi": "10.47852/bonviewmedin52025024",
+      "compound": "DOET",
+      "entity": "",
+      "title": "Biomedicine and Nutritional Epidemiology: AI-Assisted Personalized Nutrition in the Prevention and Management of Psychiatric Disorders"
+    },
+    {
+      "doi": "10.1101/2025.01.08.631940",
+      "compound": "Psilocybin",
+      "entity": "",
+      "title": "Cell-type specific transcriptional modulation by psilocybin induces sustained plasticity in mouse medial prefrontal cortex"
+    },
+    {
+      "doi": "10.1186/s10020-024-00986-6",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "Chronic inflammation in post-acute sequelae of COVID-19 modulates gut microbiome: a review of literature on COVID-19 sequelae and gut dysbiosis"
+    },
+    {
+      "doi": "10.1007/s40262-024-01450-8#citeas",
+      "compound": "5-MeO-DiPT",
+      "entity": "",
+      "title": "Clinical pharmacokinetics of N,N-dimethyltryptamine (DMT): a systematic review and post-hoc analysis"
+    },
+    {
+      "doi": "10.1523/jneurosci.0344-25.2025",
+      "compound": "25C-NBOMe",
+      "entity": "",
+      "title": "DMT-Induced Shifts in Criticality Correlate with Self-Dissolution"
+    },
+    {
+      "doi": "10.1016/j.neuron.2024.12.001",
+      "compound": "25B-NBOMe",
+      "entity": "",
+      "title": "DNA damage and its links to neuronal aging and degeneration"
+    },
+    {
+      "doi": "10.1186/s12929-025-01119-9",
+      "compound": "DOET",
+      "entity": "",
+      "title": "EGF receptor in organ development, tissue homeostasis and regeneration"
+    },
+    {
+      "doi": "10.70269/10.70269/7295667717",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "EGZERSİZ GENETİĞİ: PERFORMANS VE SAĞLIKTA MOLEKÜLER KODLAR"
+    },
+    {
+      "doi": "10.1136/bmjopen-2024-097693",
+      "compound": "DPT",
+      "entity": "",
+      "title": "Effectiveness of remote graded motor imagery therapy for patients with central sensitisation low back pain: study protocol for a randomised controlled trial"
+    },
+    {
+      "doi": "10.3390/ijms26125634",
+      "compound": "1P-LSD",
+      "entity": "",
+      "title": "Epigenetic Alterations in Glioblastoma Multiforme as Novel Therapeutic Targets: A Scoping Review"
+    },
+    {
+      "doi": "10.1038/s41467-025-56766-1",
+      "compound": "1P-LSD",
+      "entity": "",
+      "title": "Eukaryotic Elongation Factor 2 Kinase EFK-1/eEF2K promotes starvation resistance by preventing oxidative damage in C. elegans"
+    },
+    {
+      "doi": "10.1007/s10787-024-01631-8",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "Herbal remedies for oral and dental health: a comprehensive review of their multifaceted mechanisms including antimicrobial, anti-inflammatory, and antioxidant pathways"
+    },
+    {
+      "doi": "10.1007/s00210-025-04183-y",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "Integrative sleep management: from molecular pathways to conventional and herbal treatments"
+    },
+    {
+      "doi": "10.70269/10.70269/8128186431",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "KUPROPTOZDAN KUPROPLAZİYE: KANSER HÜCRELERİNDE BAKIRIN BİYOLOJİK PARADOKSU"
+    },
+    {
+      "doi": "10.1186/s43094-025-00878-4",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "Lupeol: an updated review utilizing AI-assisted predictive tools for enhanced therapeutic insights into lupeol’s potential for alopecia management"
+    },
+    {
+      "doi": "10.70269/10.70269/7432136216",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "MOLECULAR MECHANISMS OF NEWLY SYNTHESIZED MOLECULES IN CANCER TREATMENT"
+    },
+    {
+      "doi": "10.70269/10.70269/2216394264",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "OBEZİTE PATOGENEZİNDE ADİPOSİT APOPTOZUNUN ROLÜ"
+    },
+    {
+      "doi": "10.70269/10.70269/6799231131",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "PROGRAMMING CELL DEATH AND CANCER TREATMENT WITH GENE TRANSFECTION"
+    },
+    {
+      "doi": "10.3389/fpsyt.2025.1600449",
+      "compound": "1P-LSD",
+      "entity": "",
+      "title": "The effect of implicit learning on functional connectivity in schizophrenia"
+    },
+    {
+      "doi": "10.1101/2025.07.21.665870",
+      "compound": "DiPT",
+      "entity": "",
+      "title": "The effect of psychedelics on associative learning: a systematic review"
+    },
+    {
+      "doi": "10.70269/2om4lan5new9",
+      "compound": "ETH-LAD",
+      "entity": "",
+      "title": "Tıbbi Biyoloji Alanında Özgün Bilimsel Konular"
+    }
+  ]
+}

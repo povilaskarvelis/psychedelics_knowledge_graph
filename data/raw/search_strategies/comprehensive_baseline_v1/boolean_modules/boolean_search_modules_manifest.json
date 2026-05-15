@@ -1,0 +1,143 @@
+{
+  "version": "0.1",
+  "protocol_id": "comprehensive_baseline_v1",
+  "generated_at_utc": "2026-05-15T06:19:55.461403+00:00",
+  "description": "Provider-specific Boolean module searches. These are the primary systematic-search layer; pair-grid seeds remain a separate audit layer.",
+  "datasets": {
+    "mechanistic": {
+      "module_count": 10,
+      "module_ids": [
+        "serotonin_receptors",
+        "monoamine_transporters",
+        "glutamate_nmda",
+        "opioid_sigma_taar",
+        "plasticity_trkb_bdnf",
+        "lsd_5ht2a",
+        "psilocin_5ht2a",
+        "mdma_transporters",
+        "ketamine_nmda",
+        "salvinorin_kor"
+      ],
+      "outputs": {
+        "openalex": {
+          "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_openalex_seeds.csv",
+          "seed_count": 10,
+          "module_type_counts": {
+            "dense_topic": 5,
+            "primary_boolean": 5
+          },
+          "recommended_max_results_per_seed": {
+            "primary_boolean": 500,
+            "dense_topic": 1000
+          },
+          "module_type_outputs": {
+            "primary_boolean": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_openalex_primary_boolean_seeds.csv",
+              "seed_count": 5,
+              "recommended_max_results_per_seed": 500
+            },
+            "dense_topic": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_openalex_dense_topic_seeds.csv",
+              "seed_count": 5,
+              "recommended_max_results_per_seed": 1000
+            }
+          }
+        },
+        "pubmed": {
+          "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_pubmed_seeds.csv",
+          "seed_count": 10,
+          "module_type_counts": {
+            "dense_topic": 5,
+            "primary_boolean": 5
+          },
+          "recommended_max_results_per_seed": {
+            "primary_boolean": 500,
+            "dense_topic": 1000
+          },
+          "module_type_outputs": {
+            "primary_boolean": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_pubmed_primary_boolean_seeds.csv",
+              "seed_count": 5,
+              "recommended_max_results_per_seed": 500
+            },
+            "dense_topic": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_pubmed_dense_topic_seeds.csv",
+              "seed_count": 5,
+              "recommended_max_results_per_seed": 1000
+            }
+          }
+        }
+      }
+    },
+    "disorder": {
+      "module_count": 12,
+      "module_ids": [
+        "clinical_class_core",
+        "depression_spectrum",
+        "trauma_ptsd",
+        "substance_use_addiction",
+        "anxiety_distress_palliative",
+        "pain_headache",
+        "ocd_eating_autism",
+        "psilocybin_depression",
+        "mdma_ptsd",
+        "ketamine_depression_suicidality",
+        "ibogaine_opioid_sud",
+        "lsd_alcohol_anxiety"
+      ],
+      "outputs": {
+        "openalex": {
+          "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_openalex_seeds.csv",
+          "seed_count": 12,
+          "module_type_counts": {
+            "dense_topic": 5,
+            "primary_boolean": 7
+          },
+          "recommended_max_results_per_seed": {
+            "primary_boolean": 500,
+            "dense_topic": 1000
+          },
+          "module_type_outputs": {
+            "primary_boolean": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_openalex_primary_boolean_seeds.csv",
+              "seed_count": 7,
+              "recommended_max_results_per_seed": 500
+            },
+            "dense_topic": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_openalex_dense_topic_seeds.csv",
+              "seed_count": 5,
+              "recommended_max_results_per_seed": 1000
+            }
+          }
+        },
+        "pubmed": {
+          "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_pubmed_seeds.csv",
+          "seed_count": 12,
+          "module_type_counts": {
+            "dense_topic": 5,
+            "primary_boolean": 7
+          },
+          "recommended_max_results_per_seed": {
+            "primary_boolean": 500,
+            "dense_topic": 1000
+          },
+          "module_type_outputs": {
+            "primary_boolean": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_pubmed_primary_boolean_seeds.csv",
+              "seed_count": 7,
+              "recommended_max_results_per_seed": 500
+            },
+            "dense_topic": {
+              "seed_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_pubmed_dense_topic_seeds.csv",
+              "seed_count": 5,
+              "recommended_max_results_per_seed": 1000
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "manifest_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/boolean_search_modules_manifest.json"
+  }
+}

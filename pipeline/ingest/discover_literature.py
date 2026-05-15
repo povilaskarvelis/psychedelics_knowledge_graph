@@ -696,6 +696,45 @@ def parse_manual_seeds(seed_values: List[str], query_values: List[str]) -> List[
     return dedupe_seeds(seeds)
 
 
+def read_seed_file(path: Path) -> tuple[List[str], List[str]]:
+    """Read manual discovery seeds from CSV or newline text.
+
+    CSV files should contain a `query` column and optional `compound` and
+    `entity` columns. Plain-text files may contain either `query|compound|entity`
+    rows or query-only rows.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Seed file not found: {path}")
+
+    seed_values: List[str] = []
+    query_values: List[str] = []
+    if path.suffix.lower() == ".csv":
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            fieldnames = {name or "" for name in (reader.fieldnames or [])}
+            if "query" not in fieldnames:
+                raise ValueError(f"CSV seed file requires a `query` column: {path}")
+            for row in reader:
+                query = normalize(row.get("query", ""))
+                if not query or query.startswith("#"):
+                    continue
+                compound = normalize(row.get("compound", ""))
+                entity = normalize(row.get("entity", "") or row.get("target", "") or row.get("disorder", ""))
+                seed_values.append("|".join([query, compound, entity]))
+        return seed_values, query_values
+
+    with path.open("r", encoding="utf-8") as handle:
+        for raw in handle:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "|" in line:
+                seed_values.append(line)
+            else:
+                query_values.append(line)
+    return seed_values, query_values
+
+
 def generate_auto_seeds(
     dataset: str,
     allowlists: Dict[str, List[str]],
@@ -1040,6 +1079,12 @@ def pmcid_from_articleids(articleids: Iterable[dict]) -> str:
     return ""
 
 
+def batches(values: List[str], size: int) -> Iterable[List[str]]:
+    step = max(1, size)
+    for start in range(0, len(values), step):
+        yield values[start : start + step]
+
+
 def search_semantic_scholar(
     client: RateLimitedHttpClient,
     api_key: str,
@@ -1191,8 +1236,15 @@ def search_openalex(
     seed: Seed,
     max_results: int,
     require_doi: bool,
+    search_field: str = "default",
 ) -> List[dict]:
     endpoint = "https://api.openalex.org/works"
+    search_filters = {
+        "title": "title.search",
+        "abstract": "abstract.search",
+        "title_and_abstract": "title_and_abstract.search",
+        "fulltext": "fulltext.search",
+    }
 
     rows: List[dict] = []
     page = 1
@@ -1200,11 +1252,17 @@ def search_openalex(
 
     while len(rows) < max_results:
         params = {
-            "search": seed.query,
             "per-page": per_page,
             "page": page,
             "select": "doi,display_name,publication_year,authorships,ids",
         }
+        if search_field == "default":
+            params["search"] = seed.query
+        else:
+            filter_name = search_filters.get(search_field)
+            if not filter_name:
+                raise ValueError(f"Unsupported OpenAlex search field: {search_field}")
+            params["filter"] = f"{filter_name}:{seed.query}"
         if api_key:
             params["api_key"] = api_key
         if email:
@@ -1275,17 +1333,21 @@ def search_pubmed(
     if not ids:
         return []
 
-    summary_payload = client.get_json(
-        f"{base}/esummary.fcgi",
-        params={
-            **common_params,
-            "db": "pubmed",
-            "id": ",".join(ids),
-            "retmode": "json",
-        },
-        headers={},
-    )
-    result = summary_payload.get("result", {}) if isinstance(summary_payload, dict) else {}
+    result: Dict[str, dict] = {}
+    for batch in batches(ids, 200):
+        summary_payload = client.get_json(
+            f"{base}/esummary.fcgi",
+            params={
+                **common_params,
+                "db": "pubmed",
+                "id": ",".join(batch),
+                "retmode": "json",
+            },
+            headers={},
+        )
+        batch_result = summary_payload.get("result", {}) if isinstance(summary_payload, dict) else {}
+        if isinstance(batch_result, dict):
+            result.update({key: value for key, value in batch_result.items() if isinstance(value, dict)})
 
     rows: List[dict] = []
     for pmid in ids:
@@ -1344,17 +1406,21 @@ def search_pmc(
     if not ids:
         return []
 
-    summary_payload = client.get_json(
-        f"{base}/esummary.fcgi",
-        params={
-            **common_params,
-            "db": "pmc",
-            "id": ",".join(ids),
-            "retmode": "json",
-        },
-        headers={},
-    )
-    result = summary_payload.get("result", {}) if isinstance(summary_payload, dict) else {}
+    result: Dict[str, dict] = {}
+    for batch in batches(ids, 200):
+        summary_payload = client.get_json(
+            f"{base}/esummary.fcgi",
+            params={
+                **common_params,
+                "db": "pmc",
+                "id": ",".join(batch),
+                "retmode": "json",
+            },
+            headers={},
+        )
+        batch_result = summary_payload.get("result", {}) if isinstance(summary_payload, dict) else {}
+        if isinstance(batch_result, dict):
+            result.update({key: value for key, value in batch_result.items() if isinstance(value, dict)})
 
     pmcids = [f"PMC{value}" if not value.upper().startswith("PMC") else value for value in ids]
     idconv_by_pmcid: Dict[str, dict] = {}
@@ -2027,6 +2093,12 @@ def main() -> int:
         ),
     )
     parser.add_argument("--seed", action="append", default=[], help="Seed as query|compound|entity")
+    parser.add_argument(
+        "--seed-file",
+        action="append",
+        default=[],
+        help="CSV or text file of seeds. CSV requires query and optional compound/entity columns.",
+    )
     parser.add_argument("--query", action="append", default=[], help="Query only (compound/entity left blank)")
     parser.add_argument(
         "--expand-seeds-from-config",
@@ -2141,6 +2213,15 @@ def main() -> int:
     parser.add_argument("--openalex-email", default="")
     parser.add_argument("--openalex-api-key", default="")
     parser.add_argument("--openalex-rps", type=float, default=None)
+    parser.add_argument(
+        "--openalex-search-field",
+        choices=["default", "title", "abstract", "title_and_abstract", "fulltext"],
+        default="default",
+        help=(
+            "OpenAlex text search surface. default uses the broad works search; "
+            "title_and_abstract is stricter and usually better for noisy pair queries."
+        ),
+    )
     parser.add_argument("--ncbi-email", default="")
     parser.add_argument("--ncbi-api-key", default="")
     parser.add_argument("--pubmed-rps", type=float, default=None)
@@ -2253,10 +2334,18 @@ def main() -> int:
     max_retries = args.max_retries if args.max_retries is not None else read_int(s2_cfg.get("max_retries"), 4)
 
     allowlists = parse_allowlists(config_path)
+    seed_file_values: List[str] = []
+    query_file_values: List[str] = []
+    seed_file_paths = [str(Path(value).resolve()) for value in args.seed_file]
+    for seed_file in seed_file_paths:
+        file_seed_values, file_query_values = read_seed_file(Path(seed_file))
+        seed_file_values.extend(file_seed_values)
+        query_file_values.extend(file_query_values)
+
     seeds, seed_source_counts = build_seed_list(
         dataset=args.dataset,
-        seed_values=args.seed,
-        query_values=args.query,
+        seed_values=args.seed + seed_file_values,
+        query_values=args.query + query_file_values,
         allowlists=allowlists,
         expand_from_config=args.expand_seeds_from_config,
         auto_seeds_only=args.auto_seeds_only,
@@ -2366,6 +2455,7 @@ def main() -> int:
                             seed=provider_seed,
                             max_results=args.max_results_per_seed,
                             require_doi=require_doi,
+                            search_field=args.openalex_search_field,
                         )
                     )
                 except Exception as err:
@@ -2591,6 +2681,7 @@ def main() -> int:
         "report_out": str(report_out),
         "known_study_manifest": str(benchmark_manifest),
         "benchmark_manifest": str(benchmark_manifest),
+        "seed_files": seed_file_paths,
         "settings": {
             "max_results_per_seed": args.max_results_per_seed,
             "max_results": args.max_results,
@@ -2612,6 +2703,7 @@ def main() -> int:
             "citation_chase_max_results_per_doi": args.citation_chase_max_results_per_doi,
             "citation_chase_max_pages_per_direction": args.citation_chase_max_pages_per_direction,
             "disable_protected_retention": args.disable_protected_retention,
+            "openalex_search_field": args.openalex_search_field,
         },
         "counts": {
             "seed_count": len(seeds),
@@ -2643,6 +2735,7 @@ def main() -> int:
             "semantic_scholar_rps": s2_rps,
             "openalex_rps": oa_rps,
             "openalex_api_key_configured": bool(oa_api_key),
+            "openalex_search_field": args.openalex_search_field,
             "pubmed_rps": pubmed_rps,
             "pmc_rps": pmc_rps,
             "crossref_rps": crossref_rps,
@@ -2674,6 +2767,7 @@ def main() -> int:
             "unpaywall_email_configured": bool(usable_email(unpaywall_email)),
             "known_study_manifest": str(benchmark_manifest),
             "benchmark_manifest": str(benchmark_manifest),
+            "seed_files": seed_file_paths,
             "ledger_out": "" if args.disable_ledger else str(ledger_out),
             "protected_retention_enabled": not args.disable_protected_retention,
         },

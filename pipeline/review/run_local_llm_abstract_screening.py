@@ -38,6 +38,7 @@ try:
         load_json_array,
         normalize,
         normalize_doi,
+        parse_allowlists,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -56,9 +57,11 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         load_json_array,
         normalize,
         normalize_doi,
+        parse_allowlists,
     )
 
 ROOT = Path(__file__).resolve().parents[2]
+PIPELINE_CONFIG_PATH = ROOT / "pipeline" / "config.example.yaml"
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen3:14b"
 DATASETS = ("disorder", "mechanistic")
@@ -134,6 +137,32 @@ AMBIGUOUS_PSYCHIATRIC_TREATMENT_TERMS = {
     "novel agents",
     "psychiatric drugs",
     "psychotropic drugs",
+}
+AMBIGUOUS_INTERVENTION_ACRONYMS = {"dmt", "doet", "doi", "mda", "tma"}
+AMBIGUOUS_INTERVENTION_CLASS_TERMS = {"dissociative", "dissociatives"}
+AMBIGUOUS_ACRONYM_SUPPORT_TERMS = {
+    "entheogen",
+    "entheogens",
+    "hallucinogen",
+    "hallucinogens",
+    "phenethylamine",
+    "phenethylamines",
+    "psychedelic",
+    "psychedelics",
+    "psychoactive substance",
+    "psychoactive substances",
+    "serotonergic psychedelic",
+    "serotonergic psychedelics",
+    "tryptamine",
+    "tryptamines",
+}
+AMBIGUOUS_CLASS_SUPPORT_TERMS = AMBIGUOUS_ACRONYM_SUPPORT_TERMS | {
+    "anesthetic",
+    "anesthetics",
+    "anaesthetic",
+    "anaesthetics",
+    "drug",
+    "drugs",
 }
 
 ABSTRACT_SCREENING_SCHEMA = {
@@ -448,6 +477,21 @@ def synonym_map_terms(*mappings: dict) -> set[str]:
     return {term for term in terms if len(term) >= 3}
 
 
+def configured_allowed_compound_terms(config_path: Path = PIPELINE_CONFIG_PATH) -> set[str]:
+    terms: set[str] = set()
+    for compound in parse_allowlists(config_path).get("allowed_compounds", []):
+        compound_norm = normalize(compound)
+        if not compound_norm:
+            continue
+        terms.add(compound_norm)
+        if "-" in compound_norm:
+            terms.add(compound_norm.replace("-", " "))
+    return {term for term in terms if len(term) >= 3}
+
+
+CONFIG_ALLOWED_COMPOUND_TERMS = configured_allowed_compound_terms()
+
+
 def term_found_in_context(term: str, context: str) -> bool:
     term = normalize(term)
     if len(term) < 3:
@@ -483,8 +527,36 @@ def candidate_term_found_in_context(candidate_contexts: List[dict] | None, conte
 
 
 def in_scope_intervention_term_found(context: str) -> bool:
-    terms = synonym_map_terms(COMPOUND_SYNONYMS) | IN_SCOPE_INTERVENTION_CLASS_TERMS
-    return any_term_found_in_context(terms, context)
+    return bool(matched_in_scope_intervention_terms(context))
+
+
+def ambiguous_intervention_acronym_supported(context: str) -> bool:
+    return any_term_found_in_context(AMBIGUOUS_ACRONYM_SUPPORT_TERMS, context)
+
+
+def ambiguous_intervention_class_supported(context: str) -> bool:
+    return any_term_found_in_context(AMBIGUOUS_CLASS_SUPPORT_TERMS, context)
+
+
+def matched_in_scope_intervention_terms(context: str) -> List[str]:
+    terms = synonym_map_terms(COMPOUND_SYNONYMS) | CONFIG_ALLOWED_COMPOUND_TERMS | IN_SCOPE_INTERVENTION_CLASS_TERMS
+    out: List[str] = []
+    seen: set[str] = set()
+    acronym_supported = ambiguous_intervention_acronym_supported(context)
+    for term in sorted(terms, key=lambda value: (len(value), value.lower())):
+        if not term_found_in_context(term, context):
+            continue
+        term_lower = term.lower()
+        if term_lower in AMBIGUOUS_INTERVENTION_ACRONYMS and not acronym_supported:
+            continue
+        if term_lower in AMBIGUOUS_INTERVENTION_CLASS_TERMS and not ambiguous_intervention_class_supported(context):
+            continue
+        key = term_lower
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(term)
+    return out
 
 
 def heuristic_blocks_deterministic_exclusion(heuristic: dict) -> bool:
@@ -506,17 +578,13 @@ def deterministic_prescreen_decision(
     candidate_contexts: List[dict],
 ) -> dict:
     context = abstract_context(row)
-    abstract = normalize(row.get("abstract", ""))
-    if len(abstract) < 80:
-        return {"action": "escalate", "reason": "abstract too short for deterministic exclusion"}
-    if normalize(row.get("pdf_local_path", "")) or normalize(row.get("pdf_download_status", "")) == "downloaded":
-        return {"action": "escalate", "reason": "paper already has downloaded full text"}
-    if heuristic_blocks_deterministic_exclusion(heuristic):
-        return {"action": "escalate", "reason": "heuristic triage retained this paper"}
-    if candidate_term_found_in_context(candidate_contexts, context):
-        return {"action": "escalate", "reason": "candidate compound/entity term appears in title or abstract"}
-    if in_scope_intervention_term_found(context):
-        return {"action": "escalate", "reason": "in-scope compound/intervention term appears in title or abstract"}
+    matched_intervention_terms = matched_in_scope_intervention_terms(context)
+    if matched_intervention_terms:
+        return {
+            "action": "escalate",
+            "reason": "in-scope compound/intervention term appears in title or abstract",
+            "matched_terms": matched_intervention_terms[:20],
+        }
     if any_term_found_in_context(AMBIGUOUS_PSYCHIATRIC_TREATMENT_TERMS, context):
         return {"action": "escalate", "reason": "broad psychiatric treatment language needs LLM review"}
 
@@ -532,7 +600,7 @@ def deterministic_prescreen_decision(
         "supporting_quote": deterministic_supporting_quote(row),
         "reason": (
             "No in-scope psychedelic/ketamine/entactogen/dissociative compound or intervention term appears "
-            f"in the title/abstract; {entity_reason}; no candidate context term was text-supported."
+            f"in the title/abstract; {entity_reason}."
         ),
     }
 
@@ -1202,6 +1270,14 @@ def refresh_result_metadata(result: dict, dataset: str, row_index: int | None, p
     return updated
 
 
+def safe_output_label(label: str) -> str:
+    text = normalize(label)
+    if not text:
+        return ""
+    text = re.sub(r"[^A-Za-z0-9_.-]+", "_", text)
+    return text.strip("._-")
+
+
 def load_reprocess_doi_set(path: Path) -> set[str]:
     """One DOI per line (comments with # and blank lines ignored). Values normalized to lower DOI."""
     if not path.is_file():
@@ -1662,6 +1738,14 @@ def run_report_metadata_refresh_dataset(
 
 
 def dataset_paths(dataset: str, args: argparse.Namespace) -> dict[str, Path]:
+    label = safe_output_label(getattr(args, "prescreen_output_label", ""))
+    prescreen_report_stem = f"deterministic_prescreen_report_{dataset}"
+    prescreen_retained_name = f"doi_queue.{dataset}.deterministic_prescreen_retained"
+    prescreen_excluded_name = f"doi_queue.{dataset}.deterministic_prescreen_excluded"
+    if label:
+        prescreen_report_stem = f"{prescreen_report_stem}.{label}"
+        prescreen_retained_name = f"{prescreen_retained_name}.{label}"
+        prescreen_excluded_name = f"{prescreen_excluded_name}.{label}"
     if args.dataset != "all":
         return {
             "out_json": Path(args.out_json).resolve() if args.out_json else ROOT / "data" / "processed" / f"llm_abstract_screening_report_{dataset}.json",
@@ -1675,10 +1759,18 @@ def dataset_paths(dataset: str, args: argparse.Namespace) -> dict[str, Path]:
             "uncertain_queue": Path(args.uncertain_queue_out).resolve()
             if args.uncertain_queue_out
             else ROOT / "data" / "raw" / f"doi_queue.{dataset}.llm_uncertain.txt",
-            "prescreen_json": ROOT / "data" / "processed" / f"deterministic_prescreen_report_{dataset}.json",
-            "prescreen_csv": ROOT / "data" / "processed" / f"deterministic_prescreen_report_{dataset}.csv",
-            "prescreen_retained_queue": ROOT / "data" / "raw" / f"doi_queue.{dataset}.deterministic_prescreen_retained.txt",
-            "prescreen_excluded_queue": ROOT / "data" / "raw" / f"doi_queue.{dataset}.deterministic_prescreen_excluded.txt",
+            "prescreen_json": Path(args.prescreen_json_out).resolve()
+            if args.prescreen_json_out
+            else ROOT / "data" / "processed" / f"{prescreen_report_stem}.json",
+            "prescreen_csv": Path(args.prescreen_csv_out).resolve()
+            if args.prescreen_csv_out
+            else ROOT / "data" / "processed" / f"{prescreen_report_stem}.csv",
+            "prescreen_retained_queue": Path(args.prescreen_retained_queue_out).resolve()
+            if args.prescreen_retained_queue_out
+            else ROOT / "data" / "raw" / f"{prescreen_retained_name}.txt",
+            "prescreen_excluded_queue": Path(args.prescreen_excluded_queue_out).resolve()
+            if args.prescreen_excluded_queue_out
+            else ROOT / "data" / "raw" / f"{prescreen_excluded_name}.txt",
         }
     return {
         "out_json": ROOT / "data" / "processed" / f"llm_abstract_screening_report_{dataset}.json",
@@ -1686,10 +1778,10 @@ def dataset_paths(dataset: str, args: argparse.Namespace) -> dict[str, Path]:
         "download_queue": ROOT / "data" / "raw" / f"doi_queue.{dataset}.llm_fulltext_candidates.txt",
         "relevant_queue": ROOT / "data" / "raw" / f"doi_queue.{dataset}.llm_relevant.txt",
         "uncertain_queue": ROOT / "data" / "raw" / f"doi_queue.{dataset}.llm_uncertain.txt",
-        "prescreen_json": ROOT / "data" / "processed" / f"deterministic_prescreen_report_{dataset}.json",
-        "prescreen_csv": ROOT / "data" / "processed" / f"deterministic_prescreen_report_{dataset}.csv",
-        "prescreen_retained_queue": ROOT / "data" / "raw" / f"doi_queue.{dataset}.deterministic_prescreen_retained.txt",
-        "prescreen_excluded_queue": ROOT / "data" / "raw" / f"doi_queue.{dataset}.deterministic_prescreen_excluded.txt",
+        "prescreen_json": ROOT / "data" / "processed" / f"{prescreen_report_stem}.json",
+        "prescreen_csv": ROOT / "data" / "processed" / f"{prescreen_report_stem}.csv",
+        "prescreen_retained_queue": ROOT / "data" / "raw" / f"{prescreen_retained_name}.txt",
+        "prescreen_excluded_queue": ROOT / "data" / "raw" / f"{prescreen_excluded_name}.txt",
     }
 
 
@@ -2000,6 +2092,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--download-queue-out", default="", help="DOI-level full-text candidate queue; only valid for one dataset")
     parser.add_argument("--relevant-queue-out", default="", help="Verified relevant context queue; only valid for one dataset")
     parser.add_argument("--uncertain-queue-out", default="", help="Uncertain candidate queue; only valid for one dataset")
+    parser.add_argument(
+        "--prescreen-output-label",
+        default="",
+        help=(
+            "Optional label for deterministic prescreen outputs. For example, "
+            "`boolean_full_v1` writes deterministic_prescreen_report_<dataset>.boolean_full_v1.* "
+            "and label-suffixed retained/excluded queues instead of the global prescreen files."
+        ),
+    )
+    parser.add_argument("--prescreen-json-out", default="", help="Deterministic prescreen JSON report path; only valid for one dataset")
+    parser.add_argument("--prescreen-csv-out", default="", help="Deterministic prescreen CSV report path; only valid for one dataset")
+    parser.add_argument(
+        "--prescreen-retained-queue-out",
+        default="",
+        help="Deterministic prescreen retained DOI queue path; only valid for one dataset",
+    )
+    parser.add_argument(
+        "--prescreen-excluded-queue-out",
+        default="",
+        help="Deterministic prescreen excluded DOI queue path; only valid for one dataset",
+    )
     parser.add_argument("--doi-file", default="", help="Optional DOI queue limiting which paper-library rows are screened")
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument(
@@ -2020,8 +2133,8 @@ def parse_args() -> argparse.Namespace:
         "--deterministic-prescreen",
         action="store_true",
         help=(
-            "Skip LLM calls for obvious no-signal rows with enough abstract text, no in-scope intervention term, "
-            "and no text-supported candidate context term. If heuristic audit is enabled, heuristic retention also blocks exclusion."
+            "Skip LLM calls for obvious no-signal rows with enough abstract text and no in-scope intervention term "
+            "in the title/abstract. If heuristic audit is enabled, heuristic retention also blocks exclusion."
         ),
     )
     parser.add_argument(
@@ -2135,6 +2248,10 @@ def main() -> int:
             args.download_queue_out,
             args.relevant_queue_out,
             args.uncertain_queue_out,
+            args.prescreen_json_out,
+            args.prescreen_csv_out,
+            args.prescreen_retained_queue_out,
+            args.prescreen_excluded_queue_out,
             args.doi_file,
             args.report_fallback_json,
             *args.merge_report_json,

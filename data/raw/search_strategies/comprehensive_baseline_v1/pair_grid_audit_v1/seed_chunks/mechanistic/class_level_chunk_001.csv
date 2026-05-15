@@ -1,0 +1,5 @@
+seed_id,dataset,family,query,compound,entity,entity_type,template
+mechanistic_00025,mechanistic,class_level,psychedelic receptor binding affinity pharmacology,,,target,psychedelic receptor binding affinity pharmacology
+mechanistic_00026,mechanistic,class_level,serotonergic psychedelic 5-HT receptor binding,,,target,serotonergic psychedelic 5-HT receptor binding
+mechanistic_00027,mechanistic,class_level,hallucinogen receptor affinity assay,,,target,hallucinogen receptor affinity assay
+mechanistic_00028,mechanistic,class_level,psychoplastogen receptor target mechanism,,,target,psychoplastogen receptor target mechanism

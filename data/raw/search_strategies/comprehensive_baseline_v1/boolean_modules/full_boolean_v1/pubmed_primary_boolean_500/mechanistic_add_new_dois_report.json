@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-15T06:36:55.538902+00:00",
+  "dataset": "mechanistic",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/mechanistic_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/mechanistic_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/mechanistic_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/mechanistic_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/mechanistic_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/pubmed_primary_boolean_500/mechanistic_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 34110,
+    "input_rows_valid_doi": 2126,
+    "new_dois": 920,
+    "rediscovered_existing_dois": 1206,
+    "missing_or_invalid_dois": 1,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 22573,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 12703,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.1177/10915818261419429",
+      "compound": "",
+      "entity": "",
+      "title": "5-Methoxy-N,N-Dimethyltryptamine: Functional Safety Pharmacology and Video-EEG Assessment of a Short-Acting Serotonergic Psychedelic in Beagle Canines."
+    },
+    {
+      "doi": "10.1097/md.0000000000048570",
+      "compound": "",
+      "entity": "",
+      "title": "A comprehensive review of the clinical progress of esketamine: From anesthesia to antidepressant therapy."
+    },
+    {
+      "doi": "10.1007/s10974-025-09720-z",
+      "compound": "",
+      "entity": "",
+      "title": "A single S-ketamine injection enhances mTOR signaling in rat skeletal muscle."
+    },
+    {
+      "doi": "10.1021/jacs.5c06325",
+      "compound": "",
+      "entity": "",
+      "title": "Deciphering Ibogaine's Matrix Pharmacology: Multiple Transporter Modulation at Serotonin Synapses."
+    },
+    {
+      "doi": "10.1177/0271678x261431447",
+      "compound": "",
+      "entity": "",
+      "title": "Detecting neuroplastic effects induced by ketamine in healthy human subjects: A multimodal approach."
+    },
+    {
+      "doi": "10.1021/acsptsci.5c00301",
+      "compound": "",
+      "entity": "",
+      "title": "Development of Bioisosteres of Iboga Alkaloids: A Step-Economical Synthesis to Enhance the Antinociceptive and Anxiolytic Activity with Neuroprotective Effects."
+    },
+    {
+      "doi": "10.3390/biom16040484",
+      "compound": "",
+      "entity": "",
+      "title": "Distinct Molecular Responses to Ketamine and Imipramine in Cortical and Striatal Regions Following Acute Swim Stress."
+    },
+    {
+      "doi": "10.12809/eaap25103",
+      "compound": "",
+      "entity": "",
+      "title": "Drug repurposing in the management of major depressive disorder: a perspective."
+    },
+    {
+      "doi": "10.25259/sni_1280_2025",
+      "compound": "",
+      "entity": "",
+      "title": "Effect of erythropoietin on serum brain-derived neurotrophic factor after experimental traumatic brain injury in Wistar rats: A randomized controlled laboratory study."
+    },
+    {
+      "doi": "10.64898/2026.01.02.697407",
+      "compound": "",
+      "entity": "",
+      "title": "Fast-acting antidepressants trigger presynaptic BDNF release and structural plasticity at mouse mossy fiber-CA3 synapses."
+    },
+    {
+      "doi": "10.1152/jn.00516.2025",
+      "compound": "",
+      "entity": "",
+      "title": "From monoamine deficits to multiscale plasticity: twenty-five years of ketamine and the neurophysiology of depression."
+    },
+    {
+      "doi": "10.1186/s12868-026-01005-6",
+      "compound": "",
+      "entity": "",
+      "title": "Ibogaine induces juvenile-like plasticity and modulates functional and structural regulators of plasticity in the adult mouse visual cortex."
+    },
+    {
+      "doi": "10.1038/s41398-026-03979-7",
+      "compound": "",
+      "entity": "",
+      "title": "Impact of subanesthetic ketamine delivered via AmyloLipid nanovesicle (ALN)-based intranasal system on biobehavioral responses in an animal model of PTSD."
+    },
+    {
+      "doi": "10.1093/ijnp/pyag020",
+      "compound": "",
+      "entity": "",
+      "title": "Increase of the AMPA-evoked response of pyramidal neurons in the rat medial prefrontal cortex following acute administration of ketamine and S-ketamine, but not R-ketamine."
+    },
+    {
+      "doi": "10.64898/2026.03.19.712961",
+      "compound": "",
+      "entity": "",
+      "title": "Integrated 5-HT (2A) -TrkB and G protein signaling in serotonergic psychedelic responses."
+    },
+    {
+      "doi": "10.3389/fmicb.2026.1765079",
+      "compound": "",
+      "entity": "",
+      "title": "Inulin ameliorates chronic ketamine-induced anxiety-like behaviors and impairments in spatial learning and memory: involvement of gut microbiota, microbial metabolite short-chain fatty acids, and the BDNF-TrkB-ERK1/2-CREB pathway."
+    },
+    {
+      "doi": "10.1038/s41386-026-02390-6",
+      "compound": "",
+      "entity": "",
+      "title": "It's not all DAT: harnessing the potential of organic cation transporter 3 inhibition to selectively attenuate amphetamine reinforcement and dopamine release."
+    },
+    {
+      "doi": "10.3390/ijms27062815",
+      "compound": "",
+      "entity": "",
+      "title": "Kappa-Opioid Receptor Antagonism Prolongs the Antidepressant Effects of Ketamine in Adult Mice with Depression-like Behavior Induced by Adolescent Chronic Unpredictable Stress."
+    },
+    {
+      "doi": "10.1159/000551413",
+      "compound": "",
+      "entity": "",
+      "title": "Ketamine as a Rapid-Acting Antidepressant: A Scoping Review of Mechanisms and Efficacy in Treatment-Resistant Depression."
+    },
+    {
+      "doi": "10.1016/j.ajp.2026.104994",
+      "compound": "",
+      "entity": "",
+      "title": "Ketamine infusion combined with accelerated sequential theta burst stimulation in multi-therapy-resistant bipolar depression: A case report."
+    },
+    {
+      "doi": "10.1002/jnr.70102",
+      "compound": "",
+      "entity": "",
+      "title": "Modulation of Magnetic Resonance Spectroscopy Levels of Glutamate and GABA by Ketamine in Treatment-Resistant Depression."
+    },
+    {
+      "doi": "10.1016/j.pnpbp.2026.111742",
+      "compound": "",
+      "entity": "",
+      "title": "NMDA receptor subtype differential affinity as a key enabler for precision neuropsychiatry."
+    },
+    {
+      "doi": "10.64898/2026.01.15.699507",
+      "compound": "",
+      "entity": "",
+      "title": "Negative allosteric modulation of α5-GABA(A) receptors engages dynamic cortical glutamatergic and GABAergic mechanisms underlying adaptive behavior in mice."
+    },
+    {
+      "doi": "10.1016/j.csbj.2025.12.023",
+      "compound": "",
+      "entity": "",
+      "title": "Network pharmacology of cellular targets in major depressive disorder and differential mechanisms of fluoxetine, ketamine and esketamine."
+    },
+    {
+      "doi": "10.1016/j.psychres.2026.117120",
+      "compound": "",
+      "entity": "",
+      "title": "Neurotransmitter dysregulation in depression, anxiety, and suicidality: From synaptic dysfunction to cellular pathogenesis."
+    }
+  ]
+}

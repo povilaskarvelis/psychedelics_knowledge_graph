@@ -1,0 +1,4 @@
+# new DOI queue (mechanistic) generated at 2026-05-15T06:47:42.570207+00:00
+# doi,compound,target,optional_study_title,optional_study_year,optional_authors
+10.1002/cmdc.202100395,LSD,5-HT2A,25CN‐NBOH: A Selective Agonist for in vitro and in vivo Investigations of the Serotonin 2A Receptor,2021,Emil Märcher-Rørsted; Anders A. Jensen; Jesper L. Kristensen
+10.1002/trc2.70251,DMT,Sigma-1 receptor (SIGMAR1),Alzheimer's disease drug development pipeline: 2017,2017,Jeffrey L. Cummings; Garam Lee; Travis Mortsdorf; Aaron Ritter; Kate Zhong

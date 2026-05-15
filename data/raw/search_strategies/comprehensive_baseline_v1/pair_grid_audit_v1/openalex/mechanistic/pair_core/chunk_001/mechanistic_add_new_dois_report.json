@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-15T07:02:14.541440+00:00",
+  "dataset": "mechanistic",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_audit_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 34110,
+    "input_rows_valid_doi": 747,
+    "new_dois": 279,
+    "rediscovered_existing_dois": 468,
+    "missing_or_invalid_dois": 0,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 22573,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 12703,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.11588/heidok.00038014",
+      "compound": "LSD",
+      "entity": "DAT (SLC6A3)",
+      "title": "Behavioral and Molecular Mechanisms of Cocaine Addiction Vulnerability: Functional Evidence from Rodent Models"
+    },
+    {
+      "doi": "10.1038/s41467-026-71574-x",
+      "compound": "Psilocybin",
+      "entity": "D1 receptor (DRD1)",
+      "title": "CB1 receptor signaling at the cingulate-striatal circuit is anxiogenic"
+    },
+    {
+      "doi": "10.20944/preprints202602.1080.v1",
+      "compound": "LSD",
+      "entity": "CB1 receptor (CNR1)",
+      "title": "Endocannabinoid Enhancement via MAGL Inhibition in CDKL5 Deficiency: Selective Cellular Benefits and Constrained Functional Impact in &lt;em&gt;Cdkl5&lt;/em&gt; KO Mice"
+    },
+    {
+      "doi": "10.5282/edoc.36718",
+      "compound": "LSD",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "Epilepsie-assoziierte Veränderungen der Sigma-1-Expression in chronischen Mausmodellen der Temporallappenepilepsie"
+    },
+    {
+      "doi": "10.21203/rs.3.rs-8913130/v1",
+      "compound": "LSD",
+      "entity": "TrkB (NTRK2)",
+      "title": "H3K9me3 inhibition reverses Alzheimer′s progression by restoring synaptic and immune proteostasis across the brain–retina axis"
+    },
+    {
+      "doi": "10.64898/2026.03.19.712961",
+      "compound": "LSD",
+      "entity": "TrkB (NTRK2)",
+      "title": "Integrated 5-HT <sub>2A</sub> –TrkB and G protein signaling in serotonergic psychedelic responses"
+    },
+    {
+      "doi": "10.1038/s41386-025-02219-8",
+      "compound": "LSD",
+      "entity": "TrkB (NTRK2)",
+      "title": "Chronic treatment with fluoxetine regulates mitochondrial features and plasticity-associated transcriptomic pathways in parvalbumin-positive interneurons of prefrontal cortex"
+    },
+    {
+      "doi": "10.1038/s41467-025-63314-4",
+      "compound": "LSD",
+      "entity": "D1 receptor (DRD1)",
+      "title": "Dopaminergic signaling regulates microglial surveillance and adolescent plasticity in the mouse frontal cortex"
+    },
+    {
+      "doi": "10.3389/fmars.2025.1578762",
+      "compound": "LSD",
+      "entity": "DAT (SLC6A3)",
+      "title": "Effect of environmentally relevant concentrations of estrogens on the aggressive response of male zebrafish"
+    },
+    {
+      "doi": "10.1111/bph.70284",
+      "compound": "LSD",
+      "entity": "DAT (SLC6A3)",
+      "title": "Evaluation of preclinical antipsychotic models used to support first‐in‐human clinical trials"
+    },
+    {
+      "doi": "10.12688/f1000research.160416.2",
+      "compound": "Psilocybin",
+      "entity": "5-HT6",
+      "title": "Ginkgo Biloba as a niche theme cognitive enhancer agent, 1420 dokumen of Scopus database. A bibliometric study from 1988 to 2024"
+    },
+    {
+      "doi": "10.1038/s41467-025-67026-7",
+      "compound": "LSD",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "Lithium exposure causes ferroptosis to induce unexplained miscarriage through non-canonical MBOAT1 pathway"
+    },
+    {
+      "doi": "10.1186/s10020-025-01232-3",
+      "compound": "LSD",
+      "entity": "D1 receptor (DRD1)",
+      "title": "Modulating autism spectrum disorder pathophysiology using a trace amine-focused approach: targeting the gut"
+    },
+    {
+      "doi": "10.1002/2211-5463.70135",
+      "compound": "LSD",
+      "entity": "TrkB (NTRK2)",
+      "title": "Molecular determinants of signal transduction in tropomyosin receptor kinases"
+    },
+    {
+      "doi": "10.1038/s41598-025-87212-3",
+      "compound": "LSD",
+      "entity": "M1 muscarinic receptor (CHRM1)",
+      "title": "Muscarinic acetylcholine receptor 3 localized to primary endothelial cilia regulates blood pressure and cognition"
+    },
+    {
+      "doi": "10.1101/2025.02.03.636248",
+      "compound": "LSD",
+      "entity": "TrkB (NTRK2)",
+      "title": "Psilocybin as a Treatment for Repetitive Mild Head Injury: Evidence from Neuroradiology and Molecular Biology"
+    },
+    {
+      "doi": "10.18332/pht/209920",
+      "compound": "LSD",
+      "entity": "SERT (SLC6A4)",
+      "title": "Seizures associated with kratom (Mitragyna speciosa) use: A systematic review of published case reports"
+    },
+    {
+      "doi": "10.1016/j.neuroscience.2025.08.046",
+      "compound": "LSD",
+      "entity": "CB1 receptor (CNR1)",
+      "title": "Stress reactivity is modulated by cannabinoid type-1 receptors in norepinephrine and epinephrine neurons in a context-dependent manner"
+    },
+    {
+      "doi": "10.17169/refubium-49285",
+      "compound": "LSD",
+      "entity": "5-HT1E",
+      "title": "The Regulatory Roles of DNAJC12 and RAP1GAP2 in Serotonin Synthesis and Release"
+    },
+    {
+      "doi": "10.1152/physrev.00038.2024",
+      "compound": "LSD",
+      "entity": "TrkB (NTRK2)",
+      "title": "The physiopathology of brain-derived neurotrophic factor"
+    },
+    {
+      "doi": "10.33545/26647591.2025.v7.i2b.150",
+      "compound": "LSD",
+      "entity": "D1 receptor (DRD1)",
+      "title": "The role of dopamine and norepinephrine in CNS stimulant activity: A neuropharmacological review"
+    },
+    {
+      "doi": "10.1101/2025.05.02.651918",
+      "compound": "LSD",
+      "entity": "DAT (SLC6A3)",
+      "title": "Transient Suppression of Dopamine Transporter Palmitoylation by Methamphetamine: Implications for Transport Regulation"
+    },
+    {
+      "doi": "10.54033/cadpedv22n12-345",
+      "compound": "Psilocybin",
+      "entity": "5-HT1D",
+      "title": "Use of psilocybin for chronic pain: a scoping review with current evidence and prospection of literature and technology for future applications"
+    },
+    {
+      "doi": "10.1038/s41467-024-49442-3",
+      "compound": "LSD",
+      "entity": "D1 receptor (DRD1)",
+      "title": "A chemogenetic approach for dopamine imaging with tunable sensitivity"
+    },
+    {
+      "doi": "10.1016/j.celrep.2024.114509",
+      "compound": "LSD",
+      "entity": "M5 muscarinic receptor (CHRM5)",
+      "title": "An atlas of GPCRs in dopamine neurons: Identification of the free fatty acid receptor 4 as a regulator of food and water intake"
+    }
+  ]
+}

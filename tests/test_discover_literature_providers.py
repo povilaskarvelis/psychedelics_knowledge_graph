@@ -10,6 +10,7 @@ from pipeline.ingest.discover_literature import (
     load_config,
     parse_seed,
     query_variants_for_backend,
+    read_seed_file,
     search_crossref,
     search_openalex,
     search_pubmed,
@@ -26,6 +27,8 @@ class FakeClient:
         self.calls.append({"url": url, "params": params or {}, "headers": headers or {}})
         for matcher, payload in self.responses:
             if matcher(url, params or {}):
+                if callable(payload):
+                    return payload(url, params or {})
                 return payload
         raise AssertionError(f"Unexpected URL: {url} params={params}")
 
@@ -73,6 +76,44 @@ class DiscoveryProviderParsingTest(unittest.TestCase):
         self.assertEqual(rows[0]["pmcid"], "PMC999")
         self.assertEqual(rows[0]["year"], "2023")
         self.assertEqual(rows[0]["provider"], "pubmed")
+
+    def test_pubmed_summary_fetches_large_idlists_in_batches(self) -> None:
+        ids = [str(value) for value in range(1, 402)]
+        result = {
+            pmid: {
+                "title": f"Paper {pmid}",
+                "pubdate": "2024",
+                "authors": [],
+                "articleids": [{"idtype": "doi", "value": f"10.1000/{pmid}"}],
+            }
+            for pmid in ids
+        }
+        client = FakeClient(
+            [
+                (
+                    lambda url, params: url.endswith("/esearch.fcgi") and params.get("db") == "pubmed",
+                    {"esearchresult": {"idlist": ids}},
+                ),
+                (
+                    lambda url, params: url.endswith("/esummary.fcgi") and params.get("db") == "pubmed",
+                    {"result": result},
+                ),
+            ]
+        )
+
+        rows = search_pubmed(
+            client=client,
+            email="curator@example.org",
+            api_key="",
+            seed=Seed("psilocybin depression", "Psilocybin", "Major depressive disorder"),
+            max_results=500,
+            require_doi=True,
+        )
+
+        summary_calls = [call for call in client.calls if call["url"].endswith("/esummary.fcgi")]
+        self.assertEqual(len(rows), 401)
+        self.assertEqual(len(summary_calls), 3)
+        self.assertTrue(all(len(call["params"]["id"].split(",")) <= 200 for call in summary_calls))
 
     def test_crossref_rows_parse_title_author_and_year(self) -> None:
         client = FakeClient(
@@ -132,6 +173,33 @@ class DiscoveryProviderParsingTest(unittest.TestCase):
 
         self.assertEqual(client.calls[0]["params"]["api_key"], "oa_test_key")
         self.assertEqual(client.calls[0]["params"]["mailto"], "curator@example.org")
+        self.assertEqual(client.calls[0]["params"]["search"], "MDMA PTSD")
+
+    def test_openalex_search_can_target_title_and_abstract(self) -> None:
+        client = FakeClient(
+            [
+                (
+                    lambda url, params: url == "https://api.openalex.org/works",
+                    {"results": []},
+                )
+            ]
+        )
+
+        search_openalex(
+            client=client,
+            email="curator@example.org",
+            api_key="",
+            seed=Seed("MDMA PTSD", "MDMA", "Post-traumatic stress disorder"),
+            max_results=5,
+            require_doi=True,
+            search_field="title_and_abstract",
+        )
+
+        self.assertNotIn("search", client.calls[0]["params"])
+        self.assertEqual(
+            client.calls[0]["params"]["filter"],
+            "title_and_abstract.search:MDMA PTSD",
+        )
 
     def test_load_config_merges_ignored_local_config(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -167,6 +235,31 @@ semantic_scholar:
         self.assertEqual(config["openalex"]["rate_limit_per_sec"], 3.0)
         self.assertEqual(config["semantic_scholar"]["max_retries"], 4)
         self.assertEqual(config["semantic_scholar"]["api_key"], "s2-key")
+
+    def test_read_seed_file_supports_csv_and_text_rows(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            csv_path = root / "seeds.csv"
+            csv_path.write_text(
+                "query,compound,entity,family\n"
+                "LSD 5-HT2A binding,LSD,5-HT2A,pair_core\n",
+                encoding="utf-8",
+            )
+            txt_path = root / "seeds.txt"
+            txt_path.write_text(
+                "# comment\n"
+                "MDMA PTSD trial|MDMA|Post-traumatic stress disorder\n"
+                "psychedelic clinical trial\n",
+                encoding="utf-8",
+            )
+
+            csv_seeds, csv_queries = read_seed_file(csv_path)
+            txt_seeds, txt_queries = read_seed_file(txt_path)
+
+        self.assertEqual(csv_seeds, ["LSD 5-HT2A binding|LSD|5-HT2A"])
+        self.assertEqual(csv_queries, [])
+        self.assertEqual(txt_seeds, ["MDMA PTSD trial|MDMA|Post-traumatic stress disorder"])
+        self.assertEqual(txt_queries, ["psychedelic clinical trial"])
 
     def test_unpaywall_enrichment_requires_real_email(self) -> None:
         rows = [{"doi": "10.2000/example"}]

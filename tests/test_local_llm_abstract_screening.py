@@ -12,6 +12,8 @@ from pipeline.review.run_local_llm_abstract_screening import (
     build_fast_screening_prompt,
     build_prompt,
     checkpoint_result_is_compatible,
+    configured_allowed_compound_terms,
+    dataset_paths,
     default_checkpoint_jsonl_path,
     deterministic_irrelevant_adjudication,
     deterministic_prescreen_decision,
@@ -24,6 +26,7 @@ from pipeline.review.run_local_llm_abstract_screening import (
     load_checkpoint_results,
     load_report_results,
     load_reprocess_doi_set,
+    matched_in_scope_intervention_terms,
     merge_report_rows,
     print_screening_row_followup,
     queue_rows_from_results,
@@ -50,6 +53,8 @@ def fake_args(**overrides) -> argparse.Namespace:
         "num_ctx": 2048,
         "deterministic_prescreen": False,
         "deterministic_prescreen_only": False,
+        "out_json": "",
+        "out_csv": "",
         "doi_file": "",
         "use_heuristic_audit": False,
         "fast_screen_timeout_sec": 1,
@@ -73,6 +78,14 @@ def fake_args(**overrides) -> argparse.Namespace:
         "only_with_abstract": False,
         "only_undownloaded": False,
         "only_heuristic_possible": False,
+        "download_queue_out": "",
+        "relevant_queue_out": "",
+        "uncertain_queue_out": "",
+        "prescreen_output_label": "",
+        "prescreen_json_out": "",
+        "prescreen_csv_out": "",
+        "prescreen_retained_queue_out": "",
+        "prescreen_excluded_queue_out": "",
     }
     defaults.update(overrides)
     return argparse.Namespace(**defaults)
@@ -203,7 +216,7 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertEqual(adjudication["relevance"], "irrelevant")
         self.assertNotIn("should_download_fulltext", adjudication)
 
-    def test_deterministic_prescreen_escalates_intervention_and_heuristic_signals(self) -> None:
+    def test_deterministic_prescreen_escalates_intervention_signals(self) -> None:
         psychedelic_row = {
             "study_title": "Psilocybin therapy for depression",
             "abstract": "Psilocybin therapy reduced depression symptoms in adults with major depression.",
@@ -245,8 +258,169 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
                 heuristic={"relevance_suggested": "possible_relevant"},
                 candidate_contexts=[],
             )["action"],
-            "escalate",
+            "exclude_obvious_irrelevant",
         )
+
+    def test_deterministic_prescreen_uses_config_allowed_compounds(self) -> None:
+        self.assertIn("Mescaline", configured_allowed_compound_terms())
+        row = {
+            "study_title": "Mescaline treatment and perception",
+            "abstract": "This paper discusses mescaline administration and long-term changes in perception among adult participants.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("disorder", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "escalate")
+        self.assertEqual(decision["reason"], "in-scope compound/intervention term appears in title or abstract")
+
+    def test_deterministic_prescreen_ignores_ambiguous_bare_acronyms(self) -> None:
+        disease_modifying_row = {
+            "study_title": "Disease-Modifying Treatments and Ambulatory Function in Multiple Sclerosis",
+            "abstract": "This cohort study compared DMT exposure and disease progression in patients with multiple sclerosis.",
+            "contexts": [],
+        }
+        thrombotic_microangiopathy_row = {
+            "study_title": "Outcomes in pediatric patients with HSCT-TMA",
+            "abstract": "This retrospective study evaluated thrombotic microangiopathy outcomes after transplant.",
+            "contexts": [],
+        }
+        dutch_doet_row = {
+            "study_title": "Preventie van kindermishandeling: Wie doet wat?",
+            "abstract": "Dit boek geeft inzicht in preventie en zorg.",
+            "contexts": [],
+        }
+        dissociative_symptom_row = {
+            "study_title": "Early EMDR therapy for dissociative symptoms after trauma",
+            "abstract": "This trial measured dissociative symptoms and post-traumatic stress.",
+            "contexts": [],
+        }
+        minimal_disease_activity_row = {
+            "study_title": "Minimal Disease Activity and drug resistance in arthritis",
+            "abstract": "MDA was measured as an outcome in patients receiving standard anti-inflammatory drugs.",
+            "contexts": [],
+        }
+
+        self.assertEqual(
+            deterministic_prescreen_decision(
+                "disorder",
+                disease_modifying_row,
+                heuristic={},
+                candidate_contexts=[],
+            )["action"],
+            "exclude_obvious_irrelevant",
+        )
+        self.assertEqual(
+            deterministic_prescreen_decision(
+                "disorder",
+                dutch_doet_row,
+                heuristic={},
+                candidate_contexts=[],
+            )["action"],
+            "exclude_obvious_irrelevant",
+        )
+        self.assertEqual(
+            deterministic_prescreen_decision(
+                "disorder",
+                dissociative_symptom_row,
+                heuristic={},
+                candidate_contexts=[],
+            )["action"],
+            "exclude_obvious_irrelevant",
+        )
+        self.assertEqual(
+            deterministic_prescreen_decision(
+                "disorder",
+                minimal_disease_activity_row,
+                heuristic={},
+                candidate_contexts=[],
+            )["action"],
+            "exclude_obvious_irrelevant",
+        )
+        self.assertEqual(
+            deterministic_prescreen_decision(
+                "disorder",
+                thrombotic_microangiopathy_row,
+                heuristic={},
+                candidate_contexts=[],
+            )["action"],
+            "exclude_obvious_irrelevant",
+        )
+
+    def test_ambiguous_acronym_is_retained_with_chemical_support(self) -> None:
+        row = {
+            "study_title": "N,N-Dimethyltryptamine and cortical dynamics",
+            "abstract": "This study tested DMT, a psychedelic tryptamine, in a controlled human experiment.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "escalate")
+        matched = {term.lower() for term in matched_in_scope_intervention_terms(row["study_title"] + "\n" + row["abstract"])}
+        self.assertIn("dmt", matched)
+
+    def test_dissociative_class_is_retained_with_drug_support(self) -> None:
+        row = {
+            "study_title": "Dissociative anesthetics and synaptic plasticity",
+            "abstract": "This review discusses dissociative drugs and glutamate signaling.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "escalate")
+        self.assertIn("dissociative", matched_in_scope_intervention_terms(row["study_title"] + "\n" + row["abstract"]))
+
+    def test_deterministic_prescreen_does_not_use_candidate_contexts_as_safety_hints(self) -> None:
+        row = {
+            "study_title": "Exercise intervention for depression",
+            "abstract": "This randomized trial tested an exercise program for depression symptoms in adults receiving standard outpatient mental health care.",
+            "contexts": [{"compound": "Psilocybin", "entity": "Depression"}],
+        }
+
+        decision = deterministic_prescreen_decision(
+            "disorder",
+            row,
+            heuristic={},
+            candidate_contexts=[{"compound": "Psilocybin", "entity": "Depression"}],
+        )
+
+        self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
+        self.assertNotIn("candidate", decision["reason"].lower())
+
+    def test_prescreen_output_label_writes_batch_specific_paths(self) -> None:
+        paths = dataset_paths("mechanistic", fake_args(dataset="mechanistic", prescreen_output_label="boolean full/v1"))
+
+        self.assertEqual(paths["prescreen_json"].name, "deterministic_prescreen_report_mechanistic.boolean_full_v1.json")
+        self.assertEqual(paths["prescreen_csv"].name, "deterministic_prescreen_report_mechanistic.boolean_full_v1.csv")
+        self.assertEqual(
+            paths["prescreen_retained_queue"].name,
+            "doi_queue.mechanistic.deterministic_prescreen_retained.boolean_full_v1.txt",
+        )
+        self.assertEqual(
+            paths["prescreen_excluded_queue"].name,
+            "doi_queue.mechanistic.deterministic_prescreen_excluded.boolean_full_v1.txt",
+        )
+
+    def test_prescreen_explicit_paths_override_label_defaults(self) -> None:
+        out_dir = Path(tempfile.gettempdir())
+        paths = dataset_paths(
+            "disorder",
+            fake_args(
+                dataset="disorder",
+                prescreen_output_label="ignored",
+                prescreen_json_out=str(out_dir / "prescreen.json"),
+                prescreen_csv_out=str(out_dir / "prescreen.csv"),
+                prescreen_retained_queue_out=str(out_dir / "retained.txt"),
+                prescreen_excluded_queue_out=str(out_dir / "excluded.txt"),
+            ),
+        )
+
+        self.assertEqual(paths["prescreen_json"], (out_dir / "prescreen.json").resolve())
+        self.assertEqual(paths["prescreen_csv"], (out_dir / "prescreen.csv").resolve())
+        self.assertEqual(paths["prescreen_retained_queue"], (out_dir / "retained.txt").resolve())
+        self.assertEqual(paths["prescreen_excluded_queue"], (out_dir / "excluded.txt").resolve())
 
     def test_verified_supported_contexts_requires_quote_and_confidence(self) -> None:
         adjudication = {

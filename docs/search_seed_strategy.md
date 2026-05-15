@@ -6,6 +6,12 @@ could and could not retrieve. The current checked-in discovery reports are
 starter-pair searches, not exhaustive searches over every possible
 compound-indication or compound-target combination.
 
+For the v2 baseline search, use `docs/comprehensive_search_protocol_v2.md` and
+the generated seed manifests under
+`data/raw/search_strategies/comprehensive_baseline_v1/`. The older 24/41 seed
+reports below should be interpreted as scoping runs and search-development
+evidence, not as the final comprehensive strategy.
+
 The current implementation uses three layers:
 
 1. Default hand-written seeds for each dataset.

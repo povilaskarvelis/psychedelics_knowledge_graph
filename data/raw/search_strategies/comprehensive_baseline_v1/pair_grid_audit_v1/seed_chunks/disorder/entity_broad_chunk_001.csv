@@ -1,0 +1,94 @@
+seed_id,dataset,family,query,compound,entity,entity_type,template
+disorder_00165,disorder,entity_broad,psychedelic Treatment-resistant depression clinical trial treatment,,Treatment-resistant depression,indication,psychedelic {entity} clinical trial treatment
+disorder_00166,disorder,entity_broad,psilocybin LSD MDMA ketamine Treatment-resistant depression therapy,,Treatment-resistant depression,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00167,disorder,entity_broad,Treatment-resistant depression psychedelic-assisted therapy outcome safety,,Treatment-resistant depression,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00168,disorder,entity_broad,psychedelic Major depressive disorder clinical trial treatment,,Major depressive disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00169,disorder,entity_broad,psilocybin LSD MDMA ketamine Major depressive disorder therapy,,Major depressive disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00170,disorder,entity_broad,Major depressive disorder psychedelic-assisted therapy outcome safety,,Major depressive disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00171,disorder,entity_broad,psychedelic Bipolar depression clinical trial treatment,,Bipolar depression,indication,psychedelic {entity} clinical trial treatment
+disorder_00172,disorder,entity_broad,psilocybin LSD MDMA ketamine Bipolar depression therapy,,Bipolar depression,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00173,disorder,entity_broad,Bipolar depression psychedelic-assisted therapy outcome safety,,Bipolar depression,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00174,disorder,entity_broad,psychedelic Persistent depressive disorder clinical trial treatment,,Persistent depressive disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00175,disorder,entity_broad,psilocybin LSD MDMA ketamine Persistent depressive disorder therapy,,Persistent depressive disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00176,disorder,entity_broad,Persistent depressive disorder psychedelic-assisted therapy outcome safety,,Persistent depressive disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00177,disorder,entity_broad,psychedelic Post-traumatic stress disorder clinical trial treatment,,Post-traumatic stress disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00178,disorder,entity_broad,psilocybin LSD MDMA ketamine Post-traumatic stress disorder therapy,,Post-traumatic stress disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00179,disorder,entity_broad,Post-traumatic stress disorder psychedelic-assisted therapy outcome safety,,Post-traumatic stress disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00180,disorder,entity_broad,psychedelic Complex post-traumatic stress disorder clinical trial treatment,,Complex post-traumatic stress disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00181,disorder,entity_broad,psilocybin LSD MDMA ketamine Complex post-traumatic stress disorder therapy,,Complex post-traumatic stress disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00182,disorder,entity_broad,Complex post-traumatic stress disorder psychedelic-assisted therapy outcome safety,,Complex post-traumatic stress disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00183,disorder,entity_broad,psychedelic Alcohol use disorder clinical trial treatment,,Alcohol use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00184,disorder,entity_broad,psilocybin LSD MDMA ketamine Alcohol use disorder therapy,,Alcohol use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00185,disorder,entity_broad,Alcohol use disorder psychedelic-assisted therapy outcome safety,,Alcohol use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00186,disorder,entity_broad,psychedelic Tobacco use disorder clinical trial treatment,,Tobacco use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00187,disorder,entity_broad,psilocybin LSD MDMA ketamine Tobacco use disorder therapy,,Tobacco use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00188,disorder,entity_broad,Tobacco use disorder psychedelic-assisted therapy outcome safety,,Tobacco use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00189,disorder,entity_broad,psychedelic Nicotine dependence clinical trial treatment,,Nicotine dependence,indication,psychedelic {entity} clinical trial treatment
+disorder_00190,disorder,entity_broad,psilocybin LSD MDMA ketamine Nicotine dependence therapy,,Nicotine dependence,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00191,disorder,entity_broad,Nicotine dependence psychedelic-assisted therapy outcome safety,,Nicotine dependence,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00192,disorder,entity_broad,psychedelic Opioid use disorder clinical trial treatment,,Opioid use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00193,disorder,entity_broad,psilocybin LSD MDMA ketamine Opioid use disorder therapy,,Opioid use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00194,disorder,entity_broad,Opioid use disorder psychedelic-assisted therapy outcome safety,,Opioid use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00195,disorder,entity_broad,psychedelic Cannabis use disorder clinical trial treatment,,Cannabis use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00196,disorder,entity_broad,psilocybin LSD MDMA ketamine Cannabis use disorder therapy,,Cannabis use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00197,disorder,entity_broad,Cannabis use disorder psychedelic-assisted therapy outcome safety,,Cannabis use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00198,disorder,entity_broad,psychedelic Cocaine use disorder clinical trial treatment,,Cocaine use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00199,disorder,entity_broad,psilocybin LSD MDMA ketamine Cocaine use disorder therapy,,Cocaine use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00200,disorder,entity_broad,Cocaine use disorder psychedelic-assisted therapy outcome safety,,Cocaine use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00201,disorder,entity_broad,psychedelic Methamphetamine use disorder clinical trial treatment,,Methamphetamine use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00202,disorder,entity_broad,psilocybin LSD MDMA ketamine Methamphetamine use disorder therapy,,Methamphetamine use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00203,disorder,entity_broad,Methamphetamine use disorder psychedelic-assisted therapy outcome safety,,Methamphetamine use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00204,disorder,entity_broad,psychedelic Stimulant use disorder clinical trial treatment,,Stimulant use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00205,disorder,entity_broad,psilocybin LSD MDMA ketamine Stimulant use disorder therapy,,Stimulant use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00206,disorder,entity_broad,Stimulant use disorder psychedelic-assisted therapy outcome safety,,Stimulant use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00207,disorder,entity_broad,psychedelic Substance use disorder clinical trial treatment,,Substance use disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00208,disorder,entity_broad,psilocybin LSD MDMA ketamine Substance use disorder therapy,,Substance use disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00209,disorder,entity_broad,Substance use disorder psychedelic-assisted therapy outcome safety,,Substance use disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00210,disorder,entity_broad,psychedelic Generalized anxiety disorder clinical trial treatment,,Generalized anxiety disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00211,disorder,entity_broad,psilocybin LSD MDMA ketamine Generalized anxiety disorder therapy,,Generalized anxiety disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00212,disorder,entity_broad,Generalized anxiety disorder psychedelic-assisted therapy outcome safety,,Generalized anxiety disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00213,disorder,entity_broad,psychedelic Social anxiety disorder clinical trial treatment,,Social anxiety disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00214,disorder,entity_broad,psilocybin LSD MDMA ketamine Social anxiety disorder therapy,,Social anxiety disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00215,disorder,entity_broad,Social anxiety disorder psychedelic-assisted therapy outcome safety,,Social anxiety disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00216,disorder,entity_broad,psychedelic Distress associated with life-threatening disease clinical trial treatment,,Distress associated with life-threatening disease,indication,psychedelic {entity} clinical trial treatment
+disorder_00217,disorder,entity_broad,psilocybin LSD MDMA ketamine Distress associated with life-threatening disease therapy,,Distress associated with life-threatening disease,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00218,disorder,entity_broad,Distress associated with life-threatening disease psychedelic-assisted therapy outcome safety,,Distress associated with life-threatening disease,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00219,disorder,entity_broad,psychedelic Obsessive-compulsive disorder clinical trial treatment,,Obsessive-compulsive disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00220,disorder,entity_broad,psilocybin LSD MDMA ketamine Obsessive-compulsive disorder therapy,,Obsessive-compulsive disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00221,disorder,entity_broad,Obsessive-compulsive disorder psychedelic-assisted therapy outcome safety,,Obsessive-compulsive disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00222,disorder,entity_broad,psychedelic Eating disorders clinical trial treatment,,Eating disorders,indication,psychedelic {entity} clinical trial treatment
+disorder_00223,disorder,entity_broad,psilocybin LSD MDMA ketamine Eating disorders therapy,,Eating disorders,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00224,disorder,entity_broad,Eating disorders psychedelic-assisted therapy outcome safety,,Eating disorders,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00225,disorder,entity_broad,psychedelic Anorexia nervosa clinical trial treatment,,Anorexia nervosa,indication,psychedelic {entity} clinical trial treatment
+disorder_00226,disorder,entity_broad,psilocybin LSD MDMA ketamine Anorexia nervosa therapy,,Anorexia nervosa,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00227,disorder,entity_broad,Anorexia nervosa psychedelic-assisted therapy outcome safety,,Anorexia nervosa,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00228,disorder,entity_broad,psychedelic Bulimia nervosa clinical trial treatment,,Bulimia nervosa,indication,psychedelic {entity} clinical trial treatment
+disorder_00229,disorder,entity_broad,psilocybin LSD MDMA ketamine Bulimia nervosa therapy,,Bulimia nervosa,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00230,disorder,entity_broad,Bulimia nervosa psychedelic-assisted therapy outcome safety,,Bulimia nervosa,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00231,disorder,entity_broad,psychedelic Binge-eating disorder clinical trial treatment,,Binge-eating disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00232,disorder,entity_broad,psilocybin LSD MDMA ketamine Binge-eating disorder therapy,,Binge-eating disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00233,disorder,entity_broad,Binge-eating disorder psychedelic-assisted therapy outcome safety,,Binge-eating disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00234,disorder,entity_broad,psychedelic Autism spectrum disorder clinical trial treatment,,Autism spectrum disorder,indication,psychedelic {entity} clinical trial treatment
+disorder_00235,disorder,entity_broad,psilocybin LSD MDMA ketamine Autism spectrum disorder therapy,,Autism spectrum disorder,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00236,disorder,entity_broad,Autism spectrum disorder psychedelic-assisted therapy outcome safety,,Autism spectrum disorder,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00237,disorder,entity_broad,psychedelic Demoralization clinical trial treatment,,Demoralization,indication,psychedelic {entity} clinical trial treatment
+disorder_00238,disorder,entity_broad,psilocybin LSD MDMA ketamine Demoralization therapy,,Demoralization,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00239,disorder,entity_broad,Demoralization psychedelic-assisted therapy outcome safety,,Demoralization,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00240,disorder,entity_broad,psychedelic Suicidal ideation clinical trial treatment,,Suicidal ideation,indication,psychedelic {entity} clinical trial treatment
+disorder_00241,disorder,entity_broad,psilocybin LSD MDMA ketamine Suicidal ideation therapy,,Suicidal ideation,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00242,disorder,entity_broad,Suicidal ideation psychedelic-assisted therapy outcome safety,,Suicidal ideation,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00243,disorder,entity_broad,psychedelic Cluster headache clinical trial treatment,,Cluster headache,indication,psychedelic {entity} clinical trial treatment
+disorder_00244,disorder,entity_broad,psilocybin LSD MDMA ketamine Cluster headache therapy,,Cluster headache,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00245,disorder,entity_broad,Cluster headache psychedelic-assisted therapy outcome safety,,Cluster headache,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00246,disorder,entity_broad,psychedelic Headache disorders clinical trial treatment,,Headache disorders,indication,psychedelic {entity} clinical trial treatment
+disorder_00247,disorder,entity_broad,psilocybin LSD MDMA ketamine Headache disorders therapy,,Headache disorders,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00248,disorder,entity_broad,Headache disorders psychedelic-assisted therapy outcome safety,,Headache disorders,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00249,disorder,entity_broad,psychedelic Migraine clinical trial treatment,,Migraine,indication,psychedelic {entity} clinical trial treatment
+disorder_00250,disorder,entity_broad,psilocybin LSD MDMA ketamine Migraine therapy,,Migraine,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00251,disorder,entity_broad,Migraine psychedelic-assisted therapy outcome safety,,Migraine,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00252,disorder,entity_broad,psychedelic Chronic pain clinical trial treatment,,Chronic pain,indication,psychedelic {entity} clinical trial treatment
+disorder_00253,disorder,entity_broad,psilocybin LSD MDMA ketamine Chronic pain therapy,,Chronic pain,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00254,disorder,entity_broad,Chronic pain psychedelic-assisted therapy outcome safety,,Chronic pain,indication,{entity} psychedelic-assisted therapy outcome safety
+disorder_00255,disorder,entity_broad,psychedelic Fibromyalgia clinical trial treatment,,Fibromyalgia,indication,psychedelic {entity} clinical trial treatment
+disorder_00256,disorder,entity_broad,psilocybin LSD MDMA ketamine Fibromyalgia therapy,,Fibromyalgia,indication,psilocybin LSD MDMA ketamine {entity} therapy
+disorder_00257,disorder,entity_broad,Fibromyalgia psychedelic-assisted therapy outcome safety,,Fibromyalgia,indication,{entity} psychedelic-assisted therapy outcome safety
