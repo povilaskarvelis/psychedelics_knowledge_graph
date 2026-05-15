@@ -1,0 +1,512 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-14T23:23:53.512448+00:00",
+  "input_artifacts": [
+    "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_provenance_audit.json",
+    "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/candidate_paper_corpus.json"
+  ],
+  "summary": {
+    "context_count": 43449,
+    "edge_count": 4861,
+    "public_kg_ready_contexts": 2199,
+    "contexts_requiring_work": 41250,
+    "promotion_stage_counts": {
+      "abstract_screening_needed": 22619,
+      "curation_review": 3017,
+      "exploratory_claim_review": 54,
+      "full_text_extraction_ready": 6001,
+      "noise_review": 3599,
+      "screened_needs_pdf_or_abstract_extraction": 5960,
+      "verified_evidence": 2199
+    },
+    "recommended_action_counts": {
+      "curate_existing_claim_stub": 3017,
+      "extract_structured_claim_from_full_text": 6001,
+      "obtain_full_text_or_extract_abstract_only_claim": 5960,
+      "retain_in_curated_kg": 2199,
+      "review_exploratory_claim_before_public_kg": 54,
+      "review_possible_acronym_or_entity_collision": 3599,
+      "screen_candidate_context": 22619
+    },
+    "queue_family_counts": {
+      "curation": 3071,
+      "evidence_extraction": 11961,
+      "noise_review": 3599,
+      "screening": 22619,
+      "verified": 2199
+    },
+    "dataset_counts": {
+      "disorder": 29853,
+      "mechanistic": 13596
+    },
+    "edge_status_counts": {
+      "candidate_edge": 231,
+      "curation_ready_edge_candidate": 160,
+      "needs_noise_review": 331,
+      "screened_edge_candidate": 3941,
+      "verified_edge": 198
+    },
+    "queue_samples": {
+      "curation": [
+        {
+          "priority_score": 122,
+          "promotion_stage": "curation_review",
+          "dataset": "mechanistic",
+          "doi": "10.1021/jm049438q",
+          "compound": "Salvinorin A",
+          "entity": "kappa opioid receptor (OPRK1)",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 122,
+          "promotion_stage": "curation_review",
+          "dataset": "mechanistic",
+          "doi": "10.1126/science.1166127",
+          "compound": "DMT",
+          "entity": "Sigma-1 receptor (SIGMAR1)",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 122,
+          "promotion_stage": "curation_review",
+          "dataset": "disorder",
+          "doi": "10.1177/0269881112464827",
+          "compound": "MDMA",
+          "entity": "Post-traumatic stress disorder",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 122,
+          "promotion_stage": "curation_review",
+          "dataset": "disorder",
+          "doi": "10.1177/02698811261424214",
+          "compound": "Psilocybin",
+          "entity": "Obsessive-compulsive disorder",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 118,
+          "promotion_stage": "curation_review",
+          "dataset": "disorder",
+          "doi": "10.1002/advs.202413786",
+          "compound": "LSD",
+          "entity": "Autism spectrum disorder",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 118,
+          "promotion_stage": "curation_review",
+          "dataset": "disorder",
+          "doi": "10.1002/advs.202413786",
+          "compound": "LSD",
+          "entity": "Major depressive disorder",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 118,
+          "promotion_stage": "curation_review",
+          "dataset": "disorder",
+          "doi": "10.1002/advs.202413786",
+          "compound": "Psilocybin",
+          "entity": "Autism spectrum disorder",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 118,
+          "promotion_stage": "curation_review",
+          "dataset": "disorder",
+          "doi": "10.1002/advs.202413786",
+          "compound": "Psilocybin",
+          "entity": "Major depressive disorder",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 118,
+          "promotion_stage": "curation_review",
+          "dataset": "disorder",
+          "doi": "10.1002/advs.202500805",
+          "compound": "Ketamine",
+          "entity": "Post-traumatic stress disorder",
+          "recommended_action": "curate_existing_claim_stub"
+        },
+        {
+          "priority_score": 118,
+          "promotion_stage": "curation_review",
+          "dataset": "mechanistic",
+          "doi": "10.1002/advs.202516024",
+          "compound": "S-ketamine",
+          "entity": "NMDA receptor",
+          "recommended_action": "curate_existing_claim_stub"
+        }
+      ],
+      "evidence_extraction": [
+        {
+          "priority_score": 120,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "mechanistic",
+          "doi": "10.1073/pnas.182234399",
+          "compound": "Salvinorin A",
+          "entity": "kappa opioid receptor (OPRK1)",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 120,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "mechanistic",
+          "doi": "10.1371/journal.pone.0009019",
+          "compound": "LSD",
+          "entity": "5-HT2A",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1007/s00213-022-06187-5",
+          "compound": "Psilocybin",
+          "entity": "Major depressive disorder",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1007/s13311-020-00962-y",
+          "compound": "Psilocybin",
+          "entity": "Migraine",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1016/j.bpsgos.2024.100316",
+          "compound": "Ketamine",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1021/acsmedchemlett.0c00048",
+          "compound": "Psilocybin",
+          "entity": "Major depressive disorder",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1021/acsmedchemlett.4c00521",
+          "compound": "Psilocin",
+          "entity": "chronic pain",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1038/s41386-023-01629-w",
+          "compound": "Ketamine",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1038/s41557-024-01714-7",
+          "compound": "Ibogaine",
+          "entity": "Post-traumatic stress disorder",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        },
+        {
+          "priority_score": 111,
+          "promotion_stage": "full_text_extraction_ready",
+          "dataset": "disorder",
+          "doi": "10.1038/s41598-022-08085-4",
+          "compound": "Psilocybin",
+          "entity": "Opioid use disorder",
+          "recommended_action": "extract_structured_claim_from_full_text"
+        }
+      ],
+      "noise_review": [
+        {
+          "priority_score": 135,
+          "promotion_stage": "noise_review",
+          "dataset": "mechanistic",
+          "doi": "10.1073/pnas.0708862105",
+          "compound": "DOI",
+          "entity": "5-HT2A",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 126,
+          "promotion_stage": "noise_review",
+          "dataset": "disorder",
+          "doi": "10.1523/eneuro.0047-25.2025",
+          "compound": "DOI",
+          "entity": "substance use disorder",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 124,
+          "promotion_stage": "noise_review",
+          "dataset": "mechanistic",
+          "doi": "10.1007/s00213-010-2115-1",
+          "compound": "DOM",
+          "entity": "5-HT2A",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 124,
+          "promotion_stage": "noise_review",
+          "dataset": "mechanistic",
+          "doi": "10.1248/bpb.23.1521",
+          "compound": "DOI",
+          "entity": "5-HT2A",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 123,
+          "promotion_stage": "noise_review",
+          "dataset": "disorder",
+          "doi": "10.1002/cam4.70586",
+          "compound": "DMT",
+          "entity": "Major depressive disorder",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 123,
+          "promotion_stage": "noise_review",
+          "dataset": "disorder",
+          "doi": "10.1002/prp2.70238",
+          "compound": "DMT",
+          "entity": "Major depressive disorder",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 123,
+          "promotion_stage": "noise_review",
+          "dataset": "disorder",
+          "doi": "10.1007/s43440-023-00550-9",
+          "compound": "DMT",
+          "entity": "Major depressive disorder",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 123,
+          "promotion_stage": "noise_review",
+          "dataset": "mechanistic",
+          "doi": "10.1007/s43440-024-00679-1",
+          "compound": "DOI",
+          "entity": "5-HT2A",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 123,
+          "promotion_stage": "noise_review",
+          "dataset": "mechanistic",
+          "doi": "10.1007/s43440-024-00679-1",
+          "compound": "DOI",
+          "entity": "5-HT5A",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        },
+        {
+          "priority_score": 123,
+          "promotion_stage": "noise_review",
+          "dataset": "mechanistic",
+          "doi": "10.1016/j.neuropharm.2019.107838",
+          "compound": "DOI",
+          "entity": "5-HT2A",
+          "recommended_action": "review_possible_acronym_or_entity_collision"
+        }
+      ],
+      "screening": [
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jama.2023.14530",
+          "compound": "Psilocybin",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2020.4693",
+          "compound": "Ketamine",
+          "entity": "Alcohol use disorder",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2022.44514",
+          "compound": "S-ketamine",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2023.2278",
+          "compound": "Ibogaine",
+          "entity": "Opioid use disorder",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2023.28817",
+          "compound": "Ketamine",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2023.47886",
+          "compound": "Ketamine",
+          "entity": "Alcohol use disorder",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2023.9321",
+          "compound": "S-ketamine",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2024.0953",
+          "compound": "Psilocybin",
+          "entity": "Generalized anxiety disorder",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "mechanistic",
+          "doi": "10.1001/jamanetworkopen.2024.0953",
+          "compound": "S-ketamine",
+          "entity": "NMDA receptor",
+          "recommended_action": "screen_candidate_context"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "abstract_screening_needed",
+          "dataset": "disorder",
+          "doi": "10.1001/jamanetworkopen.2024.49026",
+          "compound": "Psilocybin",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "screen_candidate_context"
+        }
+      ],
+      "verified": [
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1001/jama.2023.14530",
+          "compound": "Psilocybin",
+          "entity": "Major depressive disorder",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1007/s00213-017-4771-x",
+          "compound": "Psilocybin",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1016/j.eclinm.2022.101809",
+          "compound": "Psilocybin",
+          "entity": "Major depressive disorder",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1017/s0033291718001356",
+          "compound": "Ayahuasca",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1038/s41591-021-01336-3",
+          "compound": "MDMA",
+          "entity": "Post-traumatic stress disorder",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1038/s41591-023-02455-9",
+          "compound": "Psilocybin",
+          "entity": "Anorexia nervosa",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1038/s41591-023-02565-4",
+          "compound": "MDMA",
+          "entity": "Post-traumatic stress disorder",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "mechanistic",
+          "doi": "10.1038/s41593-023-01316-5",
+          "compound": "LSD",
+          "entity": "TrkB",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1038/s41598-020-75706-1",
+          "compound": "MDMA",
+          "entity": "Distress associated with life-threatening disease",
+          "recommended_action": "retain_in_curated_kg"
+        },
+        {
+          "priority_score": 60,
+          "promotion_stage": "verified_evidence",
+          "dataset": "disorder",
+          "doi": "10.1056/nejmoa2206443",
+          "compound": "Psilocybin",
+          "entity": "Treatment-resistant depression",
+          "recommended_action": "retain_in_curated_kg"
+        }
+      ]
+    }
+  }
+}

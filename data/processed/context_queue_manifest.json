@@ -1,0 +1,637 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-14T23:27:50.909227+00:00",
+  "input_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_promotion_plan.json",
+  "dataset_filter": "all",
+  "include_verified": false,
+  "limit_per_stage": 0,
+  "queue_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_queues",
+  "doi_queue_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw",
+  "summary": {
+    "stage_counts": {
+      "noise_review": 3599,
+      "curation_review": 3017,
+      "exploratory_claim_review": 54,
+      "full_text_extraction_ready": 6001,
+      "screened_needs_pdf_or_abstract_extraction": 5960,
+      "abstract_screening_needed": 22619
+    },
+    "dataset_counts": {
+      "disorder": 27838,
+      "mechanistic": 13412
+    },
+    "stage_dataset_counts": {
+      "noise_review": {
+        "disorder": 1421,
+        "mechanistic": 2178
+      },
+      "curation_review": {
+        "disorder": 1815,
+        "mechanistic": 1202
+      },
+      "exploratory_claim_review": {
+        "disorder": 45,
+        "mechanistic": 9
+      },
+      "full_text_extraction_ready": {
+        "disorder": 4262,
+        "mechanistic": 1739
+      },
+      "screened_needs_pdf_or_abstract_extraction": {
+        "disorder": 3525,
+        "mechanistic": 2435
+      },
+      "abstract_screening_needed": {
+        "disorder": 16770,
+        "mechanistic": 5849
+      }
+    },
+    "exported_contexts": 41250,
+    "queue_file_count": 6,
+    "doi_queue_file_count": 12
+  },
+  "action_hints": {
+    "noise_review": "Review possible acronym/entity collisions before using these contexts as evidence.",
+    "curation_review": "Open existing claim stubs, fix blockers, then mark ready_for_promotion.",
+    "exploratory_claim_review": "Review exploratory evidence before promoting to the public KG.",
+    "full_text_extraction_ready": "Run full-text extraction or LLM evidence assessment against local PDFs.",
+    "screened_needs_pdf_or_abstract_extraction": "Acquire full text when possible; otherwise create explicit abstract-only evidence.",
+    "abstract_screening_needed": "Run abstract/title screening before attempting evidence extraction."
+  },
+  "queue_files": {
+    "noise_review": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_queues/noise_review.csv",
+    "curation_review": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_queues/curation_review.csv",
+    "exploratory_claim_review": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_queues/exploratory_claim_review.csv",
+    "full_text_extraction_ready": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_queues/full_text_extraction_ready.csv",
+    "screened_needs_pdf_or_abstract_extraction": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_queues/screened_needs_pdf_or_abstract_extraction.csv",
+    "abstract_screening_needed": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/context_queues/abstract_screening_needed.csv"
+  },
+  "doi_queue_files": {
+    "noise_review": {
+      "disorder": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.context_noise_review.txt",
+        "context_rows": 1421,
+        "unique_doi_context_rows": 1421
+      },
+      "mechanistic": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.context_noise_review.txt",
+        "context_rows": 2178,
+        "unique_doi_context_rows": 2178
+      }
+    },
+    "curation_review": {
+      "disorder": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.context_curation_review.txt",
+        "context_rows": 1815,
+        "unique_doi_context_rows": 1815
+      },
+      "mechanistic": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.context_curation_review.txt",
+        "context_rows": 1202,
+        "unique_doi_context_rows": 1202
+      }
+    },
+    "exploratory_claim_review": {
+      "disorder": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.context_exploratory_claim_review.txt",
+        "context_rows": 45,
+        "unique_doi_context_rows": 45
+      },
+      "mechanistic": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.context_exploratory_claim_review.txt",
+        "context_rows": 9,
+        "unique_doi_context_rows": 9
+      }
+    },
+    "full_text_extraction_ready": {
+      "disorder": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.context_full_text_extraction_ready.txt",
+        "context_rows": 4262,
+        "unique_doi_context_rows": 4262
+      },
+      "mechanistic": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.context_full_text_extraction_ready.txt",
+        "context_rows": 1739,
+        "unique_doi_context_rows": 1739
+      }
+    },
+    "screened_needs_pdf_or_abstract_extraction": {
+      "disorder": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.context_screened_needs_pdf_or_abstract_extraction.txt",
+        "context_rows": 3525,
+        "unique_doi_context_rows": 3525
+      },
+      "mechanistic": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.context_screened_needs_pdf_or_abstract_extraction.txt",
+        "context_rows": 2435,
+        "unique_doi_context_rows": 2435
+      }
+    },
+    "abstract_screening_needed": {
+      "disorder": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.context_abstract_screening_needed.txt",
+        "context_rows": 16770,
+        "unique_doi_context_rows": 16770
+      },
+      "mechanistic": {
+        "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.context_abstract_screening_needed.txt",
+        "context_rows": 5849,
+        "unique_doi_context_rows": 5849
+      }
+    }
+  },
+  "top_examples": {
+    "noise_review": [
+      {
+        "priority_score": 135,
+        "dataset": "mechanistic",
+        "doi": "10.1073/pnas.0708862105",
+        "compound": "DOI",
+        "entity": "5-HT2A",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 126,
+        "dataset": "disorder",
+        "doi": "10.1523/eneuro.0047-25.2025",
+        "compound": "DOI",
+        "entity": "substance use disorder",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 124,
+        "dataset": "mechanistic",
+        "doi": "10.1007/s00213-010-2115-1",
+        "compound": "DOM",
+        "entity": "5-HT2A",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 124,
+        "dataset": "mechanistic",
+        "doi": "10.1248/bpb.23.1521",
+        "compound": "DOI",
+        "entity": "5-HT2A",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 123,
+        "dataset": "disorder",
+        "doi": "10.1002/cam4.70586",
+        "compound": "DMT",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 123,
+        "dataset": "disorder",
+        "doi": "10.1002/prp2.70238",
+        "compound": "DMT",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 123,
+        "dataset": "disorder",
+        "doi": "10.1007/s43440-023-00550-9",
+        "compound": "DMT",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 123,
+        "dataset": "disorder",
+        "doi": "10.1017/neu.2025.13",
+        "compound": "DMT",
+        "entity": "Substance use disorder",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 123,
+        "dataset": "disorder",
+        "doi": "10.1038/s41398-026-03852-7",
+        "compound": "DMT",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      },
+      {
+        "priority_score": 123,
+        "dataset": "disorder",
+        "doi": "10.1101/2023.01.09.523291",
+        "compound": "DOI",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_possible_acronym_or_entity_collision"
+      }
+    ],
+    "curation_review": [
+      {
+        "priority_score": 122,
+        "dataset": "disorder",
+        "doi": "10.1177/0269881112464827",
+        "compound": "MDMA",
+        "entity": "Post-traumatic stress disorder",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 122,
+        "dataset": "disorder",
+        "doi": "10.1177/02698811261424214",
+        "compound": "Psilocybin",
+        "entity": "Obsessive-compulsive disorder",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 122,
+        "dataset": "mechanistic",
+        "doi": "10.1021/jm049438q",
+        "compound": "Salvinorin A",
+        "entity": "kappa opioid receptor (OPRK1)",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 122,
+        "dataset": "mechanistic",
+        "doi": "10.1126/science.1166127",
+        "compound": "DMT",
+        "entity": "Sigma-1 receptor (SIGMAR1)",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 118,
+        "dataset": "disorder",
+        "doi": "10.1002/advs.202413786",
+        "compound": "LSD",
+        "entity": "Autism spectrum disorder",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 118,
+        "dataset": "disorder",
+        "doi": "10.1002/advs.202413786",
+        "compound": "LSD",
+        "entity": "Major depressive disorder",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 118,
+        "dataset": "disorder",
+        "doi": "10.1002/advs.202413786",
+        "compound": "Psilocybin",
+        "entity": "Autism spectrum disorder",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 118,
+        "dataset": "disorder",
+        "doi": "10.1002/advs.202413786",
+        "compound": "Psilocybin",
+        "entity": "Major depressive disorder",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 118,
+        "dataset": "disorder",
+        "doi": "10.1002/advs.202500805",
+        "compound": "Ketamine",
+        "entity": "Post-traumatic stress disorder",
+        "recommended_action": "curate_existing_claim_stub"
+      },
+      {
+        "priority_score": 118,
+        "dataset": "disorder",
+        "doi": "10.1002/bmc.70171",
+        "compound": "Ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "curate_existing_claim_stub"
+      }
+    ],
+    "exploratory_claim_review": [
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1016/j.bbi.2023.09.004",
+        "compound": "Psilocybin",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1016/j.jatmed.2024.07.001",
+        "compound": "Ketamine",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1016/j.jatmed.2024.07.001",
+        "compound": "S-ketamine",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1016/j.nsa.2025.105516",
+        "compound": "Ayahuasca",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1017/cts.2019.99",
+        "compound": "Ketamine",
+        "entity": "Chronic pain",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1017/neu.2025.13",
+        "compound": "Ayahuasca",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1017/neu.2025.13",
+        "compound": "LSD",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1017/neu.2025.13",
+        "compound": "Psilocybin",
+        "entity": "Major depressive disorder",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1177/02698811221123046",
+        "compound": "Ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      },
+      {
+        "priority_score": 114,
+        "dataset": "disorder",
+        "doi": "10.1186/s40337-025-01409-5",
+        "compound": "MDMA",
+        "entity": "Eating disorders",
+        "recommended_action": "review_exploratory_claim_before_public_kg"
+      }
+    ],
+    "full_text_extraction_ready": [
+      {
+        "priority_score": 120,
+        "dataset": "mechanistic",
+        "doi": "10.1073/pnas.182234399",
+        "compound": "Salvinorin A",
+        "entity": "kappa opioid receptor (OPRK1)",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 120,
+        "dataset": "mechanistic",
+        "doi": "10.1371/journal.pone.0009019",
+        "compound": "LSD",
+        "entity": "5-HT2A",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1007/s00213-022-06187-5",
+        "compound": "Psilocybin",
+        "entity": "Major depressive disorder",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1007/s13311-020-00962-y",
+        "compound": "Psilocybin",
+        "entity": "Migraine",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1016/j.bpsgos.2024.100316",
+        "compound": "Ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1021/acsmedchemlett.0c00048",
+        "compound": "Psilocybin",
+        "entity": "Major depressive disorder",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1021/acsmedchemlett.4c00521",
+        "compound": "Psilocin",
+        "entity": "chronic pain",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1038/s41386-023-01629-w",
+        "compound": "Ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1038/s41557-024-01714-7",
+        "compound": "Ibogaine",
+        "entity": "Post-traumatic stress disorder",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      },
+      {
+        "priority_score": 111,
+        "dataset": "disorder",
+        "doi": "10.1038/s41598-022-08085-4",
+        "compound": "Psilocybin",
+        "entity": "Opioid use disorder",
+        "recommended_action": "extract_structured_claim_from_full_text"
+      }
+    ],
+    "screened_needs_pdf_or_abstract_extraction": [
+      {
+        "priority_score": 102,
+        "dataset": "disorder",
+        "doi": "10.1001/jamapsychiatry.2026.0132",
+        "compound": "Psilocybin",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 102,
+        "dataset": "disorder",
+        "doi": "10.1097/jcp.0000000000001428",
+        "compound": "Ayahuasca",
+        "entity": "Social anxiety disorder",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 102,
+        "dataset": "disorder",
+        "doi": "10.2174/1874473708666150107121331",
+        "compound": "Psilocybin",
+        "entity": "Tobacco Use Disorder",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 102,
+        "dataset": "mechanistic",
+        "doi": "10.1016/j.cell.2016.12.033",
+        "compound": "LSD",
+        "entity": "5-HT2B",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 102,
+        "dataset": "mechanistic",
+        "doi": "10.1038/s41586-024-07403-2",
+        "compound": "5-MeO-DMT",
+        "entity": "5-HT1A",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 94,
+        "dataset": "disorder",
+        "doi": "10.1097/nmd.0000000000000113",
+        "compound": "LSD",
+        "entity": "Distress associated with life-threatening disease",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 93,
+        "dataset": "disorder",
+        "doi": "10.1007/s00213-014-3664-5",
+        "compound": "Ketamine",
+        "entity": "Bipolar depression",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 93,
+        "dataset": "disorder",
+        "doi": "10.1007/s00213-014-3664-5",
+        "compound": "Ketamine",
+        "entity": "Major depressive disorder",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 93,
+        "dataset": "disorder",
+        "doi": "10.1007/s00213-025-06946-0",
+        "compound": "Ayahuasca",
+        "entity": "Cocaine use disorder",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      },
+      {
+        "priority_score": 93,
+        "dataset": "disorder",
+        "doi": "10.1016/j.drugalcdep.2020.107845",
+        "compound": "Ketamine",
+        "entity": "Opioid use disorder",
+        "recommended_action": "obtain_full_text_or_extract_abstract_only_claim"
+      }
+    ],
+    "abstract_screening_needed": [
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jama.2023.14530",
+        "compound": "Psilocybin",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2020.4693",
+        "compound": "Ketamine",
+        "entity": "Alcohol use disorder",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2022.44514",
+        "compound": "S-ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2023.2278",
+        "compound": "Ibogaine",
+        "entity": "Opioid use disorder",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2023.28817",
+        "compound": "Ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2023.47886",
+        "compound": "Ketamine",
+        "entity": "Alcohol use disorder",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2023.9321",
+        "compound": "S-ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2024.0953",
+        "compound": "Psilocybin",
+        "entity": "Generalized anxiety disorder",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2024.49026",
+        "compound": "Psilocybin",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "screen_candidate_context"
+      },
+      {
+        "priority_score": 60,
+        "dataset": "disorder",
+        "doi": "10.1001/jamanetworkopen.2024.59331",
+        "compound": "Ketamine",
+        "entity": "Treatment-resistant depression",
+        "recommended_action": "screen_candidate_context"
+      }
+    ]
+  }
+}

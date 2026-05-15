@@ -8,19 +8,23 @@ and schema-validated graph outputs.
 
 ## Stages
 1. **Discover**: search multiple literature sources and write DOI queues.
-2. **Sync metadata**: build the paper library from PubMed, PMC, Unpaywall,
+2. **Add new DOIs**: compare discovered DOI rows against the existing paper
+   corpus and send only genuinely new papers downstream.
+3. **Sync metadata**: build the paper library from PubMed, PMC, Unpaywall,
    Crossref, and OpenAlex metadata.
-3. **Semantic abstract screening**: run a deterministic no-signal pre-screen,
+4. **Semantic abstract screening**: run a deterministic no-signal pre-screen,
    then use a local LLM only to classify abstract-level relevance and
    quote-supported compound/entity contexts for retained rows.
-4. **Acquire PDFs**: download legal OA PDFs for relevant and uncertain papers.
-5. **Full-text evidence assessment**: convert local PDFs, assess full-text
+5. **Acquire PDFs**: download legal OA PDFs for relevant and uncertain papers.
+6. **Full-text evidence assessment**: convert local PDFs, assess full-text
    eligibility/source family, and extract structured study/result variables.
-6. **Seed stubs**: create one claim stub per DOI + compound + target/disorder
+7. **Seed stubs**: create one claim stub per DOI + compound + target/disorder
    context.
-7. **Autofill claims**: fill fields from abstracts first, then PDFs.
-8. **Promote**: move schema-clean rows into curated claim datasets.
-9. **Validate and publish**: run validation and export graph payloads.
+8. **Autofill claims**: fill fields from abstracts first, then PDFs.
+9. **Plan promotion**: classify every DOI-context pair into screening,
+   extraction, curation, noise-review, or verified queues.
+10. **Promote**: move schema-clean rows into curated claim datasets.
+11. **Validate and publish**: run validation and export graph payloads.
 
 Detailed stage docs:
 - Ingest/discovery/PDF acquisition: `pipeline/ingest/README.md`
@@ -38,6 +42,22 @@ python pipeline/fulltext/run_fulltext_provenance.py --dataset all --limit 50
 
 This converts missing full-text artifacts, rebuilds provenance repair reports,
 and exports curator review CSVs. It does not apply curated-claim edits.
+
+Build the living-KG provenance and promotion control layer with:
+
+```bash
+python pipeline/ingest/add_new_dois.py --dataset mechanistic --input data/raw/doi_queue.mechanistic.discovered.txt
+python pipeline/ingest/add_new_dois.py --dataset disorder --input data/raw/doi_queue.disorder.discovered.txt
+python pipeline/validate/build_context_provenance_audit.py
+python pipeline/validate/build_context_promotion_plan.py
+python pipeline/validate/export_context_promotion_queues.py
+```
+
+The promotion plan produces a context worklist and an edge rollup so broad
+search results can be reused transparently without treating every discovered
+context as a verified public KG edge. The queue exporter then writes
+stage-specific CSVs and DOI queues for screening, full-text extraction,
+curation, and noise review.
 
 ## Local Config
 Keep credentials in the ignored overlay file:
@@ -62,7 +82,9 @@ Scripts that use `pipeline/config.example.yaml` automatically overlay
 
 ### 1. Discovery
 Run broad discovery, then a higher-recall expansion pass. Keep one dataset per
-terminal when monitoring long runs.
+terminal when monitoring long runs. The wrapper now runs the DOI add gate after
+discovery, writes `data/raw/doi_queue.<dataset>.new.txt`, and uses that queue
+for metadata sync by default.
 
 ```bash
 python pipeline/ingest/run_extensive_search.py \

@@ -45,9 +45,21 @@ data/processed/paper_inventory_disorder.json
 data/processed/llm_abstract_screening_report_*.json
 data/processed/llm_abstract_screening_report_*.csv
 data/processed/llm_abstract_screening_report_*.checkpoint.jsonl
+data/processed/candidate_paper_corpus.json
+data/processed/context_provenance_audit.json
+data/processed/context_promotion_plan.json
+data/processed/context_promotion_worklist.csv
+data/processed/context_edge_rollup.json
+data/processed/context_queues/
+data/processed/add_new_dois_report_*.json
+data/processed/rediscovered_dois_*.csv
+data/processed/missing_or_invalid_dois_*.csv
+data/processed/input_duplicate_dois_*.csv
+data/raw/doi_queue.*.new.txt
 data/raw/doi_queue.*.llm_fulltext_candidates.txt
 data/raw/doi_queue.*.llm_relevant.txt
 data/raw/doi_queue.*.llm_uncertain.txt
+data/raw/doi_queue.*.context_*.txt
 
 # Temporary: paper library sync checkpoint (regenerable; may contain presigned URLs)
 data/processed/paper_library_*.checkpoint.json

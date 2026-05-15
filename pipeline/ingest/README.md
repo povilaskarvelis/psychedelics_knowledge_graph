@@ -1,11 +1,12 @@
 # Ingest: Web Discovery + DOI Queue to Claim Stubs
 
-This stage has four steps:
+This stage has five steps:
 1. Discover literature from web APIs and write DOI queue files.
-2. Sync the local paper library for metadata/abstracts.
-3. Run deterministic + LLM abstract screening and write relevant/uncertain
+2. Add only genuinely new DOI rows to the next queue.
+3. Sync the local paper library for metadata/abstracts.
+4. Run deterministic + LLM abstract screening and write relevant/uncertain
    DOI-context queues.
-4. Download legal OA PDFs only for screened relevant/uncertain rows.
+5. Download legal OA PDFs only for screened relevant/uncertain rows.
 
 Claim stubs should normally be generated from
 `data/raw/doi_queue.<dataset>.llm_relevant.txt`, not directly from the full
@@ -174,6 +175,30 @@ queue without rerunning APIs, export it from the ledger:
 This rewrites `data/raw/doi_queue.<dataset>.discovered.txt` from latest-run
 ledger entries and writes `data/processed/discovery_queue_export_<dataset>.json`
 as provenance.
+
+Before metadata sync, remove papers already known to the corpus. The
+`run_extensive_search.py` wrapper does this automatically after discovery; run
+the command directly when you are checking an existing DOI queue:
+
+`python pipeline/ingest/add_new_dois.py --dataset mechanistic --input data/raw/doi_queue.mechanistic.discovered.txt`
+
+`python pipeline/ingest/add_new_dois.py --dataset disorder --input data/raw/doi_queue.disorder.discovered.txt`
+
+This writes:
+- `data/raw/doi_queue.<dataset>.new.txt`
+- `data/processed/add_new_dois_report_<dataset>.json`
+- `data/processed/rediscovered_dois_<dataset>.csv`
+- `data/processed/missing_or_invalid_dois_<dataset>.csv`
+- `data/processed/input_duplicate_dois_<dataset>.csv`
+
+The gate is DOI-level. If a DOI is already known anywhere in the paper corpus,
+it is not added as a new paper. Rediscoveries are logged for provenance, but
+they do not continue through metadata/PDF processing as new papers.
+
+By default, the gate does not treat the discovery ledger itself as the existing
+paper corpus, because the ledger is updated during the current discovery run.
+Use `--include-discovery-ledger` only when you explicitly want to block DOI rows
+that have merely been discovered before.
 
 ### Step A: broad/faster discovery pass
 Run one dataset at a time first for easy monitoring:

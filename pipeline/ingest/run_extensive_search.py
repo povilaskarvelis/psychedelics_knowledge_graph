@@ -74,6 +74,9 @@ def print_header(
     benchmark_manifest: Path,
     disable_protected_retention: bool,
     disable_ledger: bool,
+    new_doi_gate_enabled: bool,
+    new_doi_existing_scope: str,
+    include_discovery_ledger_in_new_doi_gate: bool,
 ) -> None:
     print("=== Extensive Literature Run ===")
     print(f"Datasets: {', '.join(datasets)}")
@@ -143,6 +146,15 @@ def print_header(
     print(f"Known relevant study set: {as_rel_path(str(benchmark_manifest))}")
     print(f"Protected retention: {'disabled' if disable_protected_retention else 'enabled'}")
     print(f"Discovery ledger: {'disabled' if disable_ledger else 'enabled'}")
+    print(
+        "New DOI gate: "
+        + (
+            f"enabled (scope={new_doi_existing_scope}, "
+            f"include-ledger={'yes' if include_discovery_ledger_in_new_doi_gate else 'no'})"
+            if new_doi_gate_enabled
+            else "disabled"
+        )
+    )
     print("")
 
 
@@ -224,6 +236,36 @@ def print_discovery_summary(dataset: str, info: Dict[str, str]) -> None:
     if ledger:
         print(f"  Ledger: {ledger}")
     print("")
+
+
+def print_add_new_dois_summary(dataset: str, info: Dict[str, str]) -> None:
+    existing = info.get("existing doi universe", "?")
+    valid = info.get("input valid doi rows", "?")
+    new = info.get("new dois", "?")
+    rediscovered = info.get("rediscovered existing dois", "?")
+    invalid = info.get("missing/invalid dois", "?")
+    duplicates = info.get("duplicate dois within input", "?")
+    queue = as_rel_path(info.get("new doi queue", ""))
+    report = as_rel_path(info.get("report", ""))
+    print(f"[{dataset}] New DOI gate complete")
+    print(f"  Existing DOI universe: {existing}")
+    print(f"  Input valid DOI rows: {valid}")
+    print(f"  New DOIs: {new}")
+    print(f"  Rediscovered existing DOIs: {rediscovered}")
+    print(f"  Missing/invalid DOI rows: {invalid}")
+    print(f"  Duplicate DOI rows within input: {duplicates}")
+    if queue:
+        print(f"  New DOI queue: {queue}")
+    if report:
+        print(f"  Report: {report}")
+    print("")
+
+
+def int_info_value(info: Dict[str, str], key: str, default: int = 0) -> int:
+    try:
+        return int(info.get(key, "").replace(",", ""))
+    except Exception:
+        return default
 
 
 def print_sync_summary(dataset: str, info: Dict[str, str], phase: str = "paper sync") -> None:
@@ -313,6 +355,7 @@ def print_final_summary(datasets: List[str]) -> None:
     for dataset in datasets:
         print(f"[{dataset}]")
         print(f"  Queue: data/raw/doi_queue.{dataset}.discovered.txt")
+        print(f"  New DOI queue: data/raw/doi_queue.{dataset}.new.txt")
         print(f"  Triage queue: data/raw/doi_queue.{dataset}.triage_relevant.txt")
         print(f"  Ledger: data/processed/discovery_ledger_{dataset}.json")
         print(f"  PDFs: data/raw/papers/{dataset}/pdfs/")
@@ -469,6 +512,25 @@ def main() -> int:
         action="store_true",
         help="Do not write cumulative discovery ledgers",
     )
+    parser.add_argument(
+        "--disable-new-doi-gate",
+        action="store_true",
+        help="Do not run add_new_dois.py before metadata sync; downstream sync uses the full discovered queue",
+    )
+    parser.add_argument(
+        "--new-doi-existing-scope",
+        choices=["global", "dataset"],
+        default="global",
+        help="Existing DOI universe for the new-DOI gate",
+    )
+    parser.add_argument(
+        "--include-discovery-ledger-in-new-doi-gate",
+        action="store_true",
+        help=(
+            "Treat discovery-ledger DOIs as already existing. Off by default because "
+            "the ledger may include the current discovery run."
+        ),
+    )
     parser.add_argument("--verbose", action="store_true", help="Print raw command output for debugging")
     args = parser.parse_args()
 
@@ -522,10 +584,17 @@ def main() -> int:
         benchmark_manifest=benchmark_manifest,
         disable_protected_retention=args.disable_protected_retention,
         disable_ledger=args.disable_ledger,
+        new_doi_gate_enabled=not args.disable_new_doi_gate,
+        new_doi_existing_scope=args.new_doi_existing_scope,
+        include_discovery_ledger_in_new_doi_gate=args.include_discovery_ledger_in_new_doi_gate,
     )
 
     for dataset in datasets:
         print(f"--- Dataset: {dataset} ---")
+        discovered_queue_path = ROOT / "data" / "raw" / f"doi_queue.{dataset}.discovered.txt"
+        new_doi_queue_path = ROOT / "data" / "raw" / f"doi_queue.{dataset}.new.txt"
+        doi_file_for_metadata = discovered_queue_path
+        new_doi_info: Dict[str, str] = {}
         if not args.sync_only:
             discovery_details = [
                 f"provider={args.provider}",
@@ -652,13 +721,70 @@ def main() -> int:
                     phase="discovery",
                 )
 
+        if not args.disable_new_doi_gate:
+            gate_step_label = "Step 1" if args.sync_only else "Step 2"
+            print_step_intro(
+                dataset=dataset,
+                step_number=gate_step_label,
+                title="add only new DOI rows",
+                details=[
+                    f"input: data/raw/doi_queue.{dataset}.discovered.txt",
+                    f"output queue: data/raw/doi_queue.{dataset}.new.txt",
+                    f"existing-scope={args.new_doi_existing_scope}",
+                    (
+                        "discovery-ledger included in existing universe"
+                        if args.include_discovery_ledger_in_new_doi_gate
+                        else "discovery-ledger excluded so current-run discoveries are not self-blocked"
+                    ),
+                ],
+            )
+            add_new_cmd = [
+                python_exe,
+                str(ROOT / "pipeline" / "ingest" / "add_new_dois.py"),
+                "--dataset",
+                dataset,
+                "--input",
+                str(discovered_queue_path),
+                "--existing-scope",
+                args.new_doi_existing_scope,
+            ]
+            if args.include_discovery_ledger_in_new_doi_gate:
+                add_new_cmd.append("--include-discovery-ledger")
+            new_doi_info = run_step(
+                add_new_cmd,
+                label=f"{dataset} / add-new-dois",
+                verbose=args.verbose,
+            )
+            print_add_new_dois_summary(dataset=dataset, info=new_doi_info)
+            doi_file_for_metadata = new_doi_queue_path
+        else:
+            print(f"[{dataset}] New DOI gate disabled; metadata sync will use the full discovered queue.")
+            print("")
+
         if not args.discover_only:
-            step_label = "Step 1" if args.sync_only else "Step 2"
+            if (
+                not args.disable_new_doi_gate
+                and int_info_value(new_doi_info, "new dois") == 0
+                and not args.refresh_missing_metadata
+            ):
+                print(
+                    f"[{dataset}] No new DOIs found; skipping metadata sync, triage, and download for this dataset."
+                )
+                print("  Use --disable-new-doi-gate to intentionally reprocess the full discovered queue.")
+                print("  Use --refresh-missing-metadata when the goal is to refresh existing paper metadata.")
+                print("")
+                continue
+
+            if args.disable_new_doi_gate:
+                step_label = "Step 1" if args.sync_only else "Step 2"
+            else:
+                step_label = "Step 2" if args.sync_only else "Step 3"
             print_step_intro(
                 dataset=dataset,
                 step_number=step_label,
                 title="sync paper library (metadata first)",
                 details=[
+                    f"doi-file={as_rel_path(str(doi_file_for_metadata))}",
                     "download-pdfs=no (metadata pass before triage)",
                     f"replace-library={'yes' if args.replace_library else 'no'}",
                     f"outputs: data/processed/paper_inventory_{dataset}.json, data/processed/paper_inventory_{dataset}.md",
@@ -674,6 +800,8 @@ def main() -> int:
                 str(Path(args.config).resolve()),
                 "--known-study-manifest",
                 str(benchmark_manifest),
+                "--doi-file",
+                str(doi_file_for_metadata),
             ]
             if args.openalex_email:
                 sync_cmd.extend(["--openalex-email", args.openalex_email])
@@ -712,7 +840,10 @@ def main() -> int:
             )
             print_sync_summary(dataset=dataset, info=sync_info, phase="Metadata sync")
 
-            triage_step_label = "Step 2" if args.sync_only else "Step 3"
+            if args.disable_new_doi_gate:
+                triage_step_label = "Step 2" if args.sync_only else "Step 3"
+            else:
+                triage_step_label = "Step 3" if args.sync_only else "Step 4"
             print_step_intro(
                 dataset=dataset,
                 step_number=triage_step_label,
@@ -751,7 +882,10 @@ def main() -> int:
                 )
 
             if not args.skip_download:
-                download_step_label = "Step 3" if args.sync_only else "Step 4"
+                if args.disable_new_doi_gate:
+                    download_step_label = "Step 3" if args.sync_only else "Step 4"
+                else:
+                    download_step_label = "Step 4" if args.sync_only else "Step 5"
                 print_step_intro(
                     dataset=dataset,
                     step_number=download_step_label,
