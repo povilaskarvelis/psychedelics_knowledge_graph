@@ -2246,39 +2246,31 @@ input[type="number"] {
 }
 
 .study-item {
-  border-radius: 8px;
-  border: 1px solid rgba(196, 206, 199, 0.17);
-  background: var(--card-flat);
   box-shadow: none;
-  padding: 14px;
-  display: grid;
-  gap: 8px;
+  padding: 0;
 }
 
-.study-item h3 {
+.study-citation {
   margin: 0;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 1.03rem;
+  color: var(--fg);
+  font-size: 0.95rem;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
 }
 
-.study-item .meta {
-  display: grid;
-  gap: 4px;
+.study-citation span {
+  color: var(--fg);
+}
+
+.study-citation em {
   color: var(--muted);
-  font-size: 0.86rem;
+  font-style: italic;
 }
 
-.study-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-  align-items: center;
-  color: var(--muted);
-  font-size: 0.84rem;
-}
-
-.study-links a {
+.study-citation a {
   color: #a9f7ef;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(169, 247, 239, 0.42);
 }
 
 .bibliography-panel.focused {

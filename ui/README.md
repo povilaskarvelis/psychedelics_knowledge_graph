@@ -13,5 +13,7 @@ Run
 Ideas
 - Graph view: compounds and targets/indications with edges for claims
 - Claim cards: show study, assay/outcome, provenance, and factual chips such as `rct`, `full text`, and `positive`
+- Bibliography: render citation-style entries from `bibliography_payload_*`
+  when available, falling back to claim-derived papers
 - Filters: compound, target/indication, year, full text, and optional secondary
   sources for reviews/systematic reviews/meta-analyses

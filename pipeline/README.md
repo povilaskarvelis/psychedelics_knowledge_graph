@@ -439,6 +439,7 @@ python pipeline/publish/export_graph_payload.py
 - `data/processed/promotion_report_<dataset>.json`
 - `data/processed/validation_report.json`
 - `data/processed/graph_payload_*.json`
+- `data/processed/bibliography_payload_*.json`
 
 ## Evidence Rules
 - Provenance fields are mandatory: `source_type`, `access_level`,

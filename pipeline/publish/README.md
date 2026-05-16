@@ -6,6 +6,9 @@ This step exports curated claims into deterministic graph payload JSON.
 Export both datasets:
 `python pipeline/publish/export_graph_payload.py`
 
+Export the interim bibliography payloads from abstract-screened relevant papers:
+`python pipeline/publish/export_bibliography_payload.py`
+
 Mechanistic only:
 `python pipeline/publish/export_graph_payload.py --dataset mechanistic`
 
@@ -22,6 +25,9 @@ Custom output directory:
 - `data/processed/graph_payload_disorder_secondary_sources.json`
 - `data/processed/graph_payload_disorder_primary_with_secondary.json`
 - `data/processed/graph_payload_manifest.json`
+- `data/processed/bibliography_payload_mechanistic.json`
+- `data/processed/bibliography_payload_disorder.json`
+- `data/processed/bibliography_payload_manifest.json`
 
 ## Contract
 Each payload contains:
@@ -40,4 +46,7 @@ Each payload contains:
   commentaries, conference abstracts, and corrections remain non-primary
   context and are not included in that view by default.
 - Manifest includes SHA-256 digests and row counts for all evidence views.
-- Payload files avoid volatile timestamps so hashes are stable when data is unchanged.
+- Graph payload files avoid volatile timestamps so hashes are stable when data is unchanged.
+- Bibliography payloads currently use `source: abstract_screening_relevant`
+  so the UI can test citation formatting before the final bibliography source
+  exists.

@@ -147,6 +147,8 @@ Main outputs:
 - curated claim files in `data/curated/`
 - exploratory claim files for weak or demoted evidence
 - graph export payloads in `data/processed/graph_payload_*.json`
+- interim bibliography payloads in
+  `data/processed/bibliography_payload_*.json`
 - canonical KG projection files in `data/kg/` when
   `python pipeline/kg/build_kg.py` is run locally
 - the GUI defaults to primary evidence and has a `Secondary sources` checkbox
@@ -190,6 +192,7 @@ python pipeline/review/curation_queue.py --dataset disorder
 python pipeline/extract/promote_ready_stubs.py --dataset disorder --apply
 python pipeline/validate/validate_claims.py
 python pipeline/publish/export_graph_payload.py
+python pipeline/publish/export_bibliography_payload.py
 ```
 
 For the operational walkthrough, search completeness checks, provider settings,

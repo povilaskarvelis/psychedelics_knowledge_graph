@@ -69,6 +69,10 @@ const SYSTEM_COLORS = {
 
 let claims = [];
 let disorderClaims = [];
+let bibliographyByMode = {
+  mechanistic: [],
+  disorders: [],
+};
 let selected = null;
 let isolateSelection = false;
 let mode = "disorders";
@@ -84,6 +88,14 @@ const defaultDetail = {
 
 function normalizeValue(value) {
   return (value || "").toString().trim().toLowerCase();
+}
+
+function cleanDisplayText(value) {
+  return (value ?? "")
+    .toString()
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function unique(values) {
@@ -611,6 +623,39 @@ function claimAuthors(claim) {
   return "";
 }
 
+function normalizeDoi(value) {
+  return (value || "")
+    .toString()
+    .trim()
+    .replace(/^doi:\s*/i, "")
+    .replace(/^https?:\/\/doi\.org\//i, "");
+}
+
+function splitAuthorNames(value) {
+  const text = cleanDisplayText(normalizeAuthors(value));
+  if (!text) return [];
+  if (text.includes(";")) {
+    return text
+      .split(";")
+      .map((part) => cleanDisplayText(part))
+      .filter(Boolean);
+  }
+  return [text];
+}
+
+function citationAuthors(value) {
+  const authors = splitAuthorNames(value);
+  if (!authors.length) return "";
+  if (authors.length <= 3) return authors.join(", ");
+  return `${authors.slice(0, 3).join(", ")}, et al.`;
+}
+
+function sentencePart(value) {
+  const text = cleanDisplayText(value);
+  if (!text) return "";
+  return /[.!?]$/.test(text) ? text : `${text}.`;
+}
+
 function updateStats() {
   const disorderPrimary = graphViewClaims(disorderClaims);
   const mechanisticPrimary = graphViewClaims(claims);
@@ -713,6 +758,11 @@ function createClaimCardElement(claim) {
 
   const relation = mode === "mechanistic" ? `${claim.compound} → ${claim.target}` : `${claim.compound} → ${claim.disorder}`;
   const authors = claimAuthors(claim);
+  const journal = cleanDisplayText(claim.study_journal || claim.journal);
+  const publicationDetails = [claim.publication_type, claim.publication_date]
+    .map(cleanDisplayText)
+    .filter(Boolean)
+    .join(" · ");
 
   const affinityValueInner = [
     claim.affinity_value != null && String(claim.affinity_value).trim() !== ""
@@ -754,12 +804,19 @@ function createClaimCardElement(claim) {
         ${claimFieldLine(mode === "mechanistic" ? "Species" : "Population", escapeHtml((mode === "mechanistic" ? claim.species : claim.population) || "unknown"))}
         ${claimFieldLine(
           "Study",
-          `${escapeHtml(claim.study_title || "")}${
+          `${escapeHtml(cleanDisplayText(claim.study_title) || "")}${
             claim.study_year != null && String(claim.study_year) !== ""
               ? ` (${escapeHtml(String(claim.study_year))})`
               : ""
           }`
         )}
+        ${claimFieldLine("Journal", escapeHtml(journal || "not available"))}
+        ${publicationDetails ? claimFieldLine("Publication", escapeHtml(publicationDetails)) : ""}
+        ${
+          claim.trial_registry_ids
+            ? claimFieldLine("Trial registry", escapeHtml(cleanDisplayText(claim.trial_registry_ids)))
+            : ""
+        }
         ${claimFieldLine("Authors", escapeHtml(authors || "not available"))}
         ${sourceLine ? sourceLine : ""}
       </div>
@@ -842,87 +899,239 @@ function renderCards(data) {
   attachCardsSentinelIfNeeded();
 }
 
+function bibliographyEntryId(entry, index = 0) {
+  if (entry.id) return entry.id;
+  if (entry.doi) return `doi:${normalizeValue(entry.doi)}`;
+  if (entry.openalexId) return `openalex:${normalizeValue(entry.openalexId)}`;
+  const titleKey = normalizeValue(entry.title);
+  if (titleKey || entry.year) return `title:${titleKey}|${entry.year || ""}`;
+  return `bibliography-entry-${index}`;
+}
+
+function normalizeBibliographyPaper(item, index = 0) {
+  const year = parseYearValue(item?.year ?? item?.study_year ?? item?.publication_date);
+  const entry = {
+    id: cleanDisplayText(item?.id),
+    doi: normalizeDoi(item?.doi ?? item?.study_doi),
+    openalexId: cleanDisplayText(item?.openalex_id ?? item?.openalexId),
+    title: cleanDisplayText(item?.title ?? item?.study_title) || "Untitled study",
+    authors: cleanDisplayText(item?.authors ?? item?.author_list ?? item?.author ?? item?.first_author),
+    year: year ?? "",
+    journal: cleanDisplayText(item?.journal ?? item?.study_journal),
+    publicationDate: cleanDisplayText(item?.publication_date ?? item?.publicationDate),
+    publicationType: cleanDisplayText(item?.publication_type ?? item?.publicationType),
+    publisher: cleanDisplayText(item?.publisher),
+    trialRegistryIds: cleanDisplayText(item?.trial_registry_ids ?? item?.trialRegistryIds),
+    keywords: cleanDisplayText(item?.keywords),
+    meshTerms: cleanDisplayText(item?.mesh_terms ?? item?.meshTerms),
+    contexts: Array.isArray(item?.contexts)
+      ? item.contexts
+          .map((context) => ({
+            compound: cleanDisplayText(context?.compound),
+            entity: cleanDisplayText(context?.entity ?? context?.target ?? context?.disorder),
+          }))
+          .filter((context) => context.compound || context.entity)
+      : [],
+  };
+  entry.id = bibliographyEntryId(entry, index);
+  return entry;
+}
+
+function bibliographyFromPayload(payload) {
+  const papers = Array.isArray(payload?.papers) ? payload.papers : [];
+  return papers.map((paper, index) => normalizeBibliographyPaper(paper, index));
+}
+
+function bibliographyLookup(modeKey) {
+  const rows = bibliographyByMode[modeKey] || [];
+  const byDoi = new Map();
+  const byOpenAlex = new Map();
+  rows.forEach((entry) => {
+    const doiKey = normalizeValue(normalizeDoi(entry.doi));
+    if (doiKey && !byDoi.has(doiKey)) byDoi.set(doiKey, entry);
+    const openAlexKey = normalizeValue(entry.openalexId);
+    if (openAlexKey && !byOpenAlex.has(openAlexKey)) byOpenAlex.set(openAlexKey, entry);
+  });
+  return { byDoi, byOpenAlex };
+}
+
+function enrichClaimsWithBibliographyMetadata(items, modeKey) {
+  const lookup = bibliographyLookup(modeKey);
+  return items.map((claim) => {
+    const doiKey = normalizeValue(normalizeDoi(claim.study_doi));
+    const openAlexKey = normalizeValue(claim.openalex_id);
+    const entry = (doiKey && lookup.byDoi.get(doiKey)) || (openAlexKey && lookup.byOpenAlex.get(openAlexKey));
+    if (!entry) return claim;
+    return {
+      ...claim,
+      study_journal: claim.study_journal || entry.journal,
+      publication_type: claim.publication_type || entry.publicationType,
+      publication_date: claim.publication_date || entry.publicationDate,
+      publisher: claim.publisher || entry.publisher,
+      trial_registry_ids: claim.trial_registry_ids || entry.trialRegistryIds,
+      authors: claimAuthors(claim) ? claim.authors : entry.authors,
+    };
+  });
+}
+
+function addBibliographyContext(entry, compound, entity) {
+  const compoundText = cleanDisplayText(compound);
+  const entityText = cleanDisplayText(entity);
+  if (!compoundText && !entityText) return;
+  const key = `${normalizeValue(compoundText)}|${normalizeValue(entityText)}`;
+  const exists = entry.contexts.some(
+    (context) => `${normalizeValue(context.compound)}|${normalizeValue(context.entity)}` === key
+  );
+  if (!exists) entry.contexts.push({ compound: compoundText, entity: entityText });
+}
+
+function bibliographyRowsFromClaims(data) {
+  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const studies = new Map();
+
+  data.forEach((claim, index) => {
+    const baseEntry = normalizeBibliographyPaper(
+      {
+        id: studyKey(claim, index),
+        doi: claim.study_doi,
+        openalex_id: claim.openalex_id,
+        title: claim.study_title,
+        authors: claimAuthors(claim),
+        year: claim.study_year,
+        journal: claim.study_journal ?? claim.journal,
+        publication_type: claim.publication_type,
+        publication_date: claim.publication_date,
+        publisher: claim.publisher,
+        trial_registry_ids: claim.trial_registry_ids,
+      },
+      index
+    );
+    addBibliographyContext(baseEntry, claim.compound, claim[rightKey]);
+    const id = bibliographyEntryId(baseEntry, index);
+    const existing = studies.get(id);
+    if (!existing) {
+      studies.set(id, baseEntry);
+      return;
+    }
+
+    ["doi", "openalexId", "title", "authors", "year", "journal", "publicationDate", "publicationType", "publisher", "trialRegistryIds"].forEach(
+      (field) => {
+        if (!existing[field] && baseEntry[field]) existing[field] = baseEntry[field];
+      }
+    );
+    baseEntry.contexts.forEach((context) => addBibliographyContext(existing, context.compound, context.entity));
+  });
+
+  return Array.from(studies.values()).sort((a, b) => {
+    const yearDiff = (Number(b.year) || 0) - (Number(a.year) || 0);
+    if (yearDiff !== 0) return yearDiff;
+    return (a.title || "").localeCompare(b.title || "");
+  });
+}
+
+function currentBibliographyYearRange() {
+  if (!yearMinFilter || !yearMaxFilter) return { constrained: false, min: null, max: null };
+  const bounds = yearBoundsFromClaims(activeClaimsForMode());
+  if (!bounds) return { constrained: false, min: null, max: null };
+  const minYear = parseYearValue(yearMinFilter.value) ?? bounds.min;
+  const maxYear = parseYearValue(yearMaxFilter.value) ?? bounds.max;
+  return {
+    constrained: minYear > bounds.min || maxYear < bounds.max,
+    min: Math.min(minYear, maxYear),
+    max: Math.max(minYear, maxYear),
+  };
+}
+
+function bibliographyPaperMatchesSelection(entry) {
+  if (!selected || !isolateSelection) return true;
+  const contexts = entry.contexts || [];
+  if (!contexts.length) return false;
+
+  if (selected.type === "edge") {
+    return contexts.some(
+      (context) =>
+        normalizeValue(context.compound) === normalizeValue(selected.compound) &&
+        normalizeValue(context.entity) === normalizeValue(selected.target)
+    );
+  }
+  if (selected.type === "compound") {
+    return contexts.some((context) => normalizeValue(context.compound) === normalizeValue(selected.name));
+  }
+  if (selected.type === "target") {
+    return contexts.some((context) => normalizeValue(context.entity) === normalizeValue(selected.name));
+  }
+  return true;
+}
+
+function bibliographyRowsForCurrentView(data) {
+  const payloadRows = bibliographyByMode[mode] || [];
+  const rows = payloadRows.length ? payloadRows : bibliographyRowsFromClaims(data);
+  const yearRange = payloadRows.length ? currentBibliographyYearRange() : { constrained: false };
+  return rows.filter((entry) => {
+    if (yearRange.constrained) {
+      const year = parseYearValue(entry.year || entry.publicationDate);
+      if (year === null) return false;
+      if (year < yearRange.min || year > yearRange.max) return false;
+    }
+    return bibliographyPaperMatchesSelection(entry);
+  });
+}
+
+function bibliographyHaystack(entry) {
+  const contextText = (entry.contexts || [])
+    .map((context) => `${context.compound} ${context.entity}`)
+    .join(" ");
+  return normalizeValue(
+    [
+      entry.title,
+      entry.authors,
+      entry.journal,
+      entry.year,
+      entry.publicationDate,
+      entry.publicationType,
+      entry.publisher,
+      entry.trialRegistryIds,
+      entry.keywords,
+      entry.meshTerms,
+      entry.doi,
+      entry.openalexId,
+      contextText,
+    ].join(" ")
+  );
+}
+
+function bibliographyCitationHtml(entry) {
+  const authors = citationAuthors(entry.authors);
+  const year = parseYearValue(entry.year || entry.publicationDate) ?? "n.d.";
+  const title = sentencePart(entry.title || "Untitled study");
+  const journal = sentencePart(entry.journal);
+  const doiHref = doiUrl(entry.doi);
+  const openAlexHref = !doiHref && entry.openalexId ? openAlexUrl(entry.openalexId) : "";
+  const yearHtml = `<span>(${escapeHtml(String(year))}).</span>`;
+  const titleHtml = `<span>${escapeHtml(title)}</span>`;
+
+  return `
+    <p class="study-citation">
+      ${authors ? `<span>${escapeHtml(authors)}</span>${yearHtml}${titleHtml}` : `${titleHtml}${yearHtml}`}
+      ${journal ? `<em>${escapeHtml(journal)}</em>` : ""}
+      ${doiHref ? `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(doiHref)}</a>` : ""}
+      ${openAlexHref ? `<a href="${openAlexHref}" target="_blank" rel="noopener noreferrer">OpenAlex</a>` : ""}
+    </p>
+  `;
+}
+
 function renderBibliography(data) {
   if (!studyListEl) return;
 
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
-  const rightLabel = mode === "mechanistic" ? "Targets" : "Indications";
-  const studies = new Map();
-
-  data.forEach((claim) => {
-    const id = studyId(claim);
-    if (!id || id === "unknown") return;
-
-    const existing = studies.get(id) || {
-      id,
-      doi: claim.study_doi || "",
-      openalexId: claim.openalex_id || "",
-      title: claim.study_title || "Untitled study",
-      year: Number(claim.study_year) || 0,
-      claims: 0,
-      journal: "",
-      compounds: new Set(),
-      rights: new Set(),
-      authors: new Set(),
-    };
-
-    existing.claims += 1;
-    const journalPiece = String(
-      claim.study_journal ?? claim.journal ?? ""
-    ).trim();
-    if (journalPiece && !existing.journal) existing.journal = journalPiece;
-    if (claim.compound) existing.compounds.add(claim.compound);
-    if (claim[rightKey]) existing.rights.add(claim[rightKey]);
-    const authors = claimAuthors(claim);
-    if (authors) {
-      authors
-        .split(",")
-        .map((part) => part.trim())
-        .filter(Boolean)
-        .forEach((name) => existing.authors.add(name));
-    }
-    if (!existing.title && claim.study_title) existing.title = claim.study_title;
-    if (!existing.year && Number(claim.study_year)) existing.year = Number(claim.study_year);
-
-    studies.set(id, existing);
-  });
-
-  const rows = Array.from(studies.values())
-    .map((entry) => ({
-      ...entry,
-      compoundsText: Array.from(entry.compounds).sort().join(", "),
-      rightsText: Array.from(entry.rights).sort().join(", "),
-      authorsText: Array.from(entry.authors).sort().join(", "),
-    }))
-    .sort((a, b) => {
-      const byYear = b.year - a.year;
-      if (byYear !== 0) return byYear;
-      const byClaims = b.claims - a.claims;
-      if (byClaims !== 0) return byClaims;
-      return a.title.localeCompare(b.title);
-    });
-
+  const rows = bibliographyRowsForCurrentView(data);
   const bibliographyQuery = normalizeValue(bibliographySearchInput?.value);
   const filteredRows = !bibliographyQuery
     ? rows
-    : rows.filter((entry) => {
-        const haystack = normalizeValue(
-          [
-            entry.title,
-            entry.authorsText,
-            entry.compoundsText,
-            entry.rightsText,
-            entry.journal,
-            entry.doi,
-            entry.openalexId,
-          ].join(" ")
-        );
-        return haystack.includes(bibliographyQuery);
-      });
+    : rows.filter((entry) => bibliographyHaystack(entry).includes(bibliographyQuery));
 
   if (!filteredRows.length) {
     disconnectBibliographyLoadObserver();
-    studyListEl.innerHTML = '<div class="detail-empty">No studies in the current view.</div>';
+    studyListEl.innerHTML = '<div class="detail-empty">No bibliography entries in the current view.</div>';
     return;
   }
 
@@ -930,26 +1139,9 @@ function renderBibliography(data) {
   studyListEl.innerHTML = "";
 
   function studyArticleHtml(entry) {
-    const doiLink = entry.doi
-      ? `<a href="https://doi.org/${encodeURI(entry.doi)}" target="_blank" rel="noopener noreferrer">${entry.doi}</a>`
-      : "";
-    const openAlexLink = entry.openalexId
-      ? `<a href="${openAlexUrl(entry.openalexId)}" target="_blank" rel="noopener noreferrer">${entry.openalexId}</a>`
-      : "";
-
     return `
         <article class="study-item">
-          <h3>${entry.title}${entry.year ? ` (${entry.year})` : ""}</h3>
-          <div class="meta">
-            <div><strong>Journal:</strong> ${entry.journal ? escapeHtml(entry.journal) : "not available"}</div>
-            <div><strong>Compounds:</strong> ${entry.compoundsText || "Unknown"}</div>
-            <div><strong>${rightLabel}:</strong> ${entry.rightsText || "Unknown"}</div>
-            <div><strong>Authors:</strong> ${entry.authorsText || "not available"}</div>
-          </div>
-          <div class="study-links">
-            ${doiLink ? `<span><strong>DOI:</strong> ${doiLink}</span>` : ""}
-            ${openAlexLink ? `<span><strong>OpenAlex:</strong> ${openAlexLink}</span>` : ""}
-          </div>
+          ${bibliographyCitationHtml(entry)}
         </article>
       `;
   }
@@ -1405,6 +1597,10 @@ function renderDetailClaimCards(items) {
             mode === "mechanistic"
               ? `System: ${claim.system || "unknown"} · Species: ${claim.species || "unknown"}`
               : `Direction: ${resultDirectionLabel(claim.result_direction)} · Population: ${claim.population || "unknown"}`;
+          const journalLine = [claim.study_journal, claim.publication_type]
+            .map(cleanDisplayText)
+            .filter(Boolean)
+            .join(" · ");
 
           return `
             <article class="detail-claim-card">
@@ -1412,7 +1608,8 @@ function renderDetailClaimCards(items) {
               <div class="detail-claim-meta">
                 <div>${escapeHtml(mainLine)}</div>
                 <div>${escapeHtml(contextLine)}</div>
-                <div>${escapeHtml(claim.study_title || "Unknown study")}${claim.study_year ? ` (${escapeHtml(claim.study_year)})` : ""}</div>
+                <div>${escapeHtml(cleanDisplayText(claim.study_title) || "Unknown study")}${claim.study_year ? ` (${escapeHtml(claim.study_year)})` : ""}</div>
+                ${journalLine ? `<div>${escapeHtml(journalLine)}</div>` : ""}
                 ${source ? `<div>${source}</div>` : ""}
               </div>
               <div class="badge-row">${claimBadgeHtml(claim)}</div>
@@ -2091,6 +2288,10 @@ function mechanisticFromPayload(payload) {
     study_title: item?.paper?.title || "",
     study_year: item?.paper?.year ?? "",
     study_journal: String(item?.paper?.journal ?? item?.paper?.study_journal ?? "").trim(),
+    publication_type: item?.paper?.publication_type || "",
+    publication_date: item?.paper?.publication_date || "",
+    publisher: item?.paper?.publisher || "",
+    trial_registry_ids: item?.paper?.trial_registry_ids || "",
     authors:
       item?.paper?.authors ??
       item?.paper?.author_list ??
@@ -2125,6 +2326,10 @@ function disorderFromPayload(payload) {
     study_title: item?.paper?.title || "",
     study_year: item?.paper?.year ?? "",
     study_journal: String(item?.paper?.journal ?? item?.paper?.study_journal ?? "").trim(),
+    publication_type: item?.paper?.publication_type || "",
+    publication_date: item?.paper?.publication_date || "",
+    publisher: item?.paper?.publisher || "",
+    trial_registry_ids: item?.paper?.trial_registry_ids || "",
     authors:
       item?.paper?.authors ??
       item?.paper?.author_list ??
@@ -2159,6 +2364,38 @@ function renderLoadError(messages) {
   if (studyListEl) {
     studyListEl.innerHTML = `<div class="detail-empty">No studies loaded.</div>`;
   }
+}
+
+async function loadBibliographyPayloads() {
+  const payloads = [
+    {
+      key: "mechanistic",
+      candidates: [
+        "../data/processed/bibliography_payload_mechanistic.json",
+        "/data/processed/bibliography_payload_mechanistic.json",
+        "data/processed/bibliography_payload_mechanistic.json",
+      ],
+    },
+    {
+      key: "disorders",
+      candidates: [
+        "../data/processed/bibliography_payload_disorder.json",
+        "/data/processed/bibliography_payload_disorder.json",
+        "data/processed/bibliography_payload_disorder.json",
+      ],
+    },
+  ];
+
+  await Promise.all(
+    payloads.map(async ({ key, candidates }) => {
+      try {
+        const { data } = await fetchJsonFromCandidates(candidates);
+        bibliographyByMode[key] = bibliographyFromPayload(data);
+      } catch (_error) {
+        bibliographyByMode[key] = [];
+      }
+    })
+  );
 }
 
 async function init() {
@@ -2219,6 +2456,9 @@ async function init() {
     return;
   }
 
+  await loadBibliographyPayloads();
+  claims = enrichClaimsWithBibliographyMetadata(claims, "mechanistic");
+  disorderClaims = enrichClaimsWithBibliographyMetadata(disorderClaims, "disorders");
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
