@@ -2,22 +2,23 @@
 
 Provenance-aware ETL for building a psychedelics evidence graph. The current
 workflow combines deterministic retrieval/validation with LLM-assisted abstract
-screening and full-text evidence assessment. It is optimized for high-recall
-literature discovery, explicit screening provenance, conservative extraction,
-and schema-validated graph outputs.
+screening, full-text evidence assessment, and structured extraction. It is
+optimized for high-recall literature discovery, explicit screening provenance,
+conservative extraction, and schema-validated graph outputs.
 
 ## Stages
 1. **Discover**: search multiple literature sources and write DOI queues.
 2. **Add new DOIs**: compare discovered DOI rows against the existing paper
    corpus and send only genuinely new papers downstream.
 3. **Sync metadata**: build the paper library from PubMed, PMC, Unpaywall,
-   Crossref, and OpenAlex metadata.
+   Crossref, OpenAlex, and Semantic Scholar metadata.
 4. **Semantic abstract screening**: run a deterministic no-signal pre-screen,
    then use a local LLM only to classify abstract-level relevance and
    quote-supported compound/entity contexts for retained rows.
 5. **Acquire PDFs**: download legal OA PDFs for relevant and uncertain papers.
-6. **Full-text evidence assessment**: convert local PDFs, assess full-text
-   eligibility/source family, and extract structured study/result variables.
+6. **Full-text evidence assessment**: convert local PDFs, use LLM-assisted
+   assessment to classify eligibility/source family, and extract structured
+   study/result variables.
 7. **Seed stubs**: create one claim stub per DOI + compound + target/disorder
    context.
 8. **Autofill claims**: fill fields from abstracts first, then PDFs.
@@ -162,8 +163,8 @@ Run semantic screening before PDF acquisition. The current strategy is a
 high-recall cascade: deterministic pre-screening removes obvious no-signal rows,
 then `qwen3:14b` reviews retained abstracts for relevance only. Source family,
 paper type, study design, evidence strength, and claim details are deferred to
-   full-text evidence assessment or, when full text is unavailable, an explicit
-   abstract-only evidence fallback.
+full-text evidence assessment or, when full text is unavailable, an explicit
+abstract-only evidence fallback.
 
 First run the deterministic pre-screen over the synced library:
 
@@ -452,6 +453,11 @@ python pipeline/publish/export_graph_payload.py
 - Main curated rows should be primary evidence. Reviews, protocols, conference
   abstracts, and weak/secondary evidence should remain blocked or be routed to
   exploratory outputs.
+- `evidence_level` remains required for schema compatibility and coarse
+  internal sorting, but graph inclusion and promotion should not treat
+  high/medium/low as evidence-certainty tiers.
+- Primary and secondary graph views are controlled by source/provenance fields
+  such as `source_type`, `paper_type`, `source_family`, and `access_level`.
 - Disorder labels are canonicalized with `schema/disorder_canonicalization.json`.
 - Promotion does not consult old heuristic triage reports unless
   `--prune-by-triage-report` or `--triage-report-json` is supplied explicitly.

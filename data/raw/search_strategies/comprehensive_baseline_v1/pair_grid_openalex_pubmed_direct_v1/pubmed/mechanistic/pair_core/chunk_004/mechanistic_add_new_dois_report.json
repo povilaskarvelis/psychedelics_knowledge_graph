@@ -1,0 +1,133 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-17T08:30:08.692531+00:00",
+  "dataset": "mechanistic",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_004/mechanistic_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_004/mechanistic_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_004/mechanistic_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_004/mechanistic_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_004/mechanistic_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_004/mechanistic_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 39989,
+    "input_rows_valid_doi": 38,
+    "new_dois": 14,
+    "rediscovered_existing_dois": 24,
+    "missing_or_invalid_dois": 0,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 24990,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 16339,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.1097/fbp.0000000000000841",
+      "compound": "5-MeO-DiPT",
+      "entity": "5-HT2A",
+      "title": "Effects of three tryptamines: alpha-methyltryptamine, 5-methoxy-alpha-methyltryptamine, and 5-methoxy- N , N -diisopropyltryptamine on acute toxicity, locomotor activity, and hallucinogenic behavior in mice."
+    },
+    {
+      "doi": "10.1016/j.neuint.2021.105185",
+      "compound": "DPT",
+      "entity": "5-HT7",
+      "title": "5-HT(7) receptors in Alzheimer's disease."
+    },
+    {
+      "doi": "10.1007/s11419-018-0433-x",
+      "compound": "5-MeO-DiPT",
+      "entity": "SERT (SLC6A4)",
+      "title": "Effects of exposure to 5-MeO-DIPT during adolescence on brain neurotransmission and neurotoxicity in adult rats."
+    },
+    {
+      "doi": "10.1155/2019/1368371",
+      "compound": "DPT",
+      "entity": "NET (SLC6A2)",
+      "title": "Network Pharmacology Analysis of Damnacanthus indicus C.F.Gaertn in Gene-Phenotype."
+    },
+    {
+      "doi": "10.1007/s12035-016-0074-1",
+      "compound": "DPT",
+      "entity": "NMDA receptor",
+      "title": "Alleviation of N-Methyl-D-Aspartate Receptor-Dependent Long-Term Depression via Regulation of the Glycogen Synthase Kinase-3β Pathway in the Amygdala of a Valproic Acid-Induced Animal Model of Autism."
+    },
+    {
+      "doi": "10.3389/fncel.2014.00367",
+      "compound": "DPT",
+      "entity": "NMDA receptor",
+      "title": "Elevated activation of CaMKIIα in the CPEB3-knockout hippocampus impairs a specific form of NMDAR-dependent synaptic depotentiation."
+    },
+    {
+      "doi": "10.1016/j.neuroscience.2013.11.022",
+      "compound": "LSA",
+      "entity": "NMDA receptor",
+      "title": "Involvement of dorsal hippocampus glutamatergic and nitrergic neurotransmission in autonomic responses evoked by acute restraint stress in rats."
+    },
+    {
+      "doi": "10.1007/s00213-010-2136-9",
+      "compound": "DPT",
+      "entity": "5-HT2A",
+      "title": "Effects of serotonin (5-HT)1A and 5-HT2A receptor agonists on schedule-controlled responding in rats: drug combination studies."
+    },
+    {
+      "doi": "10.1016/j.bbr.2010.07.010",
+      "compound": "LSA",
+      "entity": "5-HT1A",
+      "title": "On a possible dual role for the lateral septal area 5-HT(1A) receptor system in the regulation of water intake and urinary excretion."
+    },
+    {
+      "doi": "10.1016/j.bbr.2010.02.008",
+      "compound": "LSA",
+      "entity": "5-HT1A",
+      "title": "Role of serotonergic 5-HT1A and oxytocinergic receptors of the lateral septal area in sodium intake regulation."
+    },
+    {
+      "doi": "10.1159/000312684",
+      "compound": "DPT",
+      "entity": "5-HT1A",
+      "title": "Thermodynamics of peptide and non-peptide interactions with the human 5HT1a receptor."
+    },
+    {
+      "doi": "10.1016/j.toxlet.2007.02.007",
+      "compound": "5-MeO-DiPT",
+      "entity": "SERT (SLC6A4)",
+      "title": "5-Methoxy-N,N-diisopropyltryptamine (Foxy), a selective and high affinity inhibitor of serotonin transporter."
+    },
+    {
+      "doi": "10.1016/j.pbb.2005.12.015",
+      "compound": "5-MeO-DiPT",
+      "entity": "5-HT2A",
+      "title": "Hallucinogen-like actions of 5-methoxy-N,N-diisopropyltryptamine in mice and rats."
+    },
+    {
+      "doi": "10.1017/s0952523800007136",
+      "compound": "LSA",
+      "entity": "NMDA receptor",
+      "title": "Localization of AMPA-selective glutamate receptor subunits in the adult cat visual cortex."
+    }
+  ]
+}

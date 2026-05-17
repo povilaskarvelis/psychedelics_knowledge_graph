@@ -19,10 +19,49 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260515-search-details" />
+    <link rel="stylesheet" href="styles.css?v=20260517-pipeline-icons-no-numbers" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
+    <svg class="method-workflow-symbols" aria-hidden="true" focusable="false">
+      <symbol id="method-icon-scope" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="16" />
+        <circle cx="32" cy="32" r="5" />
+        <path d="M32 8v9M32 47v9M8 32h9M47 32h9" />
+        <path d="M45 19l-7 7M26 38l-7 7M19 19l7 7M38 38l7 7" />
+      </symbol>
+      <symbol id="method-icon-discover" viewBox="0 0 64 64">
+        <path d="M18 10h20l8 8v21H18z" />
+        <path d="M38 10v9h8M24 25h16M24 32h12" />
+        <circle cx="40" cy="40" r="9" />
+        <path d="M47 47l7 7" />
+      </symbol>
+      <symbol id="method-icon-screen" viewBox="0 0 64 64">
+        <path d="M13 12h38L36 31v15l-8 5V31z" />
+        <path d="M42 43h13M49 36l7 7-7 7" />
+        <path d="M16 51h17" />
+      </symbol>
+      <symbol id="method-icon-extract" viewBox="0 0 64 64">
+        <rect x="12" y="13" width="40" height="32" rx="4" />
+        <path d="M12 24h40M25 13v32M38 13v32" />
+        <circle cx="20" cy="54" r="4" />
+        <circle cx="32" cy="54" r="4" />
+        <circle cx="44" cy="54" r="4" />
+        <path d="M20 45v5M32 45v5M44 45v5M24 54h4M36 54h4" />
+      </symbol>
+      <symbol id="method-icon-validate" viewBox="0 0 64 64">
+        <path d="M32 8l20 8v13c0 13-8 23-20 27-12-4-20-14-20-27V16z" />
+        <path d="M22 33l7 7 15-17" />
+        <path d="M22 50h20" />
+      </symbol>
+      <symbol id="method-icon-update" viewBox="0 0 64 64">
+        <path d="M49 25a18 18 0 0 0-31-8l-5 5" />
+        <path d="M13 11v11h11" />
+        <path d="M15 39a18 18 0 0 0 31 8l5-5" />
+        <path d="M51 53V42H40" />
+        <circle cx="32" cy="32" r="5" />
+      </symbol>
+    </svg>
 
     <header class="about-hero">
       <div class="about-hero-copy">
@@ -40,62 +79,140 @@
     </header>
 
     <main class="about-content">
-      <section class="about-section methods-summary" aria-labelledby="methods-overview">
-        <div class="methods-section-header">
-          <div>
-            <h2 id="methods-overview">Overview</h2>
-            <p>
-              This project is a living literature map for psychedelic
-              compounds. It turns paper metadata and extracted evidence into a
-              provenance-aware knowledge graph that can be inspected, rebuilt,
-              and corrected as the literature changes.
-            </p>
-            <p>
-              The public interface shows a generated evidence graph. It
-              summarizes two evidence lanes, keeps the search and screening
-              record visible, and links graph edges back to the papers and
-              evidence records that support them.
-            </p>
-            <p>
-              The sections below follow that path in order: search strategy,
-              screening and extraction, paper flow, graph outputs, and limits.
-            </p>
-          </div>
-        </div>
-        <div class="method-stage-grid" aria-label="Method summary">
+      <section class="about-section methods-motivation" aria-labelledby="why-this-project">
+        <h2 id="why-this-project">Why This Project</h2>
+        <p>
+          What should evidence synthesis look like in the age of agentic
+          science? Traditional reviews remain essential, but static papers are
+          slow to produce, hard to keep current, and difficult for computational
+          systems to build on directly. Agentic tools make a different model
+          possible: living evidence bases that can be updated as new studies
+          appear, while preserving the long-standing scientific ideal of careful,
+          transparent review.
+        </p>
+        <p>
+          For that model to be useful, the evidence base has to serve people and
+          machines at the same time. Researchers, clinicians, and curious readers
+          should be able to navigate the literature through clear interfaces;
+          agents and analytic tools should be able to query structured,
+          provenance-rich data and extend it responsibly.
+        </p>
+        <p>
+          The Psychedelics Knowledge Graph is an experiment in that kind of
+          evidence infrastructure: open, documented, inspectable, and designed
+          to improve through community feedback as the field changes.
+        </p>
+      </section>
+
+      <section class="about-section method-workflow-section" aria-labelledby="pipeline-overview">
+        <h2 id="pipeline-overview">Pipeline Overview</h2>
+        <p>
+          The pipeline follows a familiar evidence-synthesis flow: define the
+          scope, search the literature, screen candidate records, retrieve full
+          texts where possible, and extract evidence. The added step is to turn
+          the extracted evidence into structured, provenance-rich records that
+          can power a graph, dashboard views, gap analyses, and future agentic
+          workflows. Each step leaves an auditable artifact so the evidence base
+          can be inspected, corrected, and rebuilt as the literature changes.
+        </p>
+        <div class="method-workflow-list">
           <article>
-            <span class="method-index">01</span>
-            <h3>Searchable Evidence</h3>
-            <p>
-              Literature discovery uses structured OpenAlex and PubMed
-              searches for broad recall, plus direct compound-target and
-              compound-indication searches for rare combinations.
-            </p>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-scope"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Define the Evidence Scope</h3>
+              <p>
+                The project starts with explicit vocabularies for psychedelic
+                compounds, mechanistic targets, and clinical indications. Those
+                vocabularies define the two evidence lanes used throughout the
+                site: compound-target and compound-indication relationships.
+              </p>
+            </div>
           </article>
           <article>
-            <span class="method-index">02</span>
-            <h3>Traceable Decisions</h3>
-            <p>
-              Search results, screening decisions, full-text access status,
-              extraction status, and exclusions are kept as auditable records.
-            </p>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-discover"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Discover Candidate Papers</h3>
+              <p>
+                PubMed and OpenAlex searches combine broad topic queries with
+                direct compound-target and compound-indication searches. Results
+                are matched by DOI, enriched with metadata from sources such as
+                Crossref, Unpaywall, PubMed/PMC, OpenAlex, and Semantic Scholar,
+                and merged into a paper library without duplicating records
+                already present.
+              </p>
+            </div>
           </article>
           <article>
-            <span class="method-index">03</span>
-            <h3>Structured Graph Data</h3>
-            <p>
-              Papers, evidence records, entities, provenance, and
-              evidence-quality fields are stored as structured objects for the
-              interface and other tools.
-            </p>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-screen"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Screen and Retrieve</h3>
+              <p>
+                Candidate records pass through deterministic and LLM-assisted
+                abstract screening. Relevant and uncertain papers continue to
+                full-text retrieval when legally available; papers without
+                usable full text remain labeled as abstract-only.
+              </p>
+            </div>
           </article>
           <article>
-            <span class="method-index">04</span>
-            <h3>Updateable Workflow</h3>
-            <p>
-              Discovery, screening, extraction, validation, and graph generation
-              can be rerun when new studies or corrections appear.
-            </p>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-extract"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Extract Structured Evidence</h3>
+              <p>
+                Eligible papers are converted into structured evidence records
+                with LLM-assisted extraction: compound, target or indication,
+                study type, assay or outcome, result direction, evidence
+                locator, access status, and source provenance.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-validate"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Validate and Publish</h3>
+              <p>
+                Extracted records are checked against the schema and evidence
+                policy before they enter the public graph. Uncertain or
+                inconsistent records stay in review queues rather than being
+                silently promoted. The same records also feed the PRISMA-style
+                flow diagram, literature landscape, and gap view.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-update"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Update and Review</h3>
+              <p>
+                Search, screening, extraction, validation, and graph generation
+                can be rerun when new papers or corrections appear. Community
+                feedback is routed into the same maintenance process.
+              </p>
+            </div>
           </article>
         </div>
       </section>
@@ -108,7 +225,8 @@
           compounds and clinical indications. The strategy uses grouped
           database searches for broad topic areas and direct pairwise searches
           for every compound-target and compound-indication combination in the
-          vocabulary. Searches were run in OpenAlex and PubMed.
+          vocabulary. Searches were run in PubMed for curated biomedical
+          indexing and OpenAlex for broader scholarly coverage.
         </p>
         <p>
           The dropdowns below show the actual term combinations used for the
@@ -341,60 +459,6 @@
               </dl>
             </div>
           </details>
-        </div>
-      </section>
-
-      <section class="about-section method-workflow-section" aria-labelledby="evidence-workflow">
-        <h2 id="evidence-workflow">From Search to Extracted Evidence</h2>
-        <p>
-          Search results become graph evidence only after DOI matching,
-          abstract screening, full-text checks, and structured extraction.
-        </p>
-        <div class="method-workflow-list">
-          <article>
-            <span>01</span>
-            <div>
-              <h3>Literature Discovery</h3>
-              <p>
-                OpenAlex and PubMed results are matched by DOI before they enter
-                the paper library, so papers already present are not added
-                again.
-              </p>
-            </div>
-          </article>
-          <article>
-            <span>02</span>
-            <div>
-              <h3>Abstract Screening</h3>
-              <p>
-                A deterministic pre-screen removes records with no psychedelic
-                signal. Retained abstracts are screened for relevance with a
-                local Qwen3 14B LLM; relevant and uncertain papers continue.
-              </p>
-            </div>
-          </article>
-          <article>
-            <span>03</span>
-            <div>
-              <h3>Full-Text Access</h3>
-              <p>
-                Papers that pass screening are checked for legally available
-                full text and converted when possible. Abstract-only papers
-                remain labeled as abstract-only.
-              </p>
-            </div>
-          </article>
-          <article>
-            <span>04</span>
-            <div>
-              <h3>Evidence Extraction</h3>
-              <p>
-                Relevant papers are extracted into structured fields for the
-                graph: compound, target or indication, study type, result
-                direction, source location, and key study details.
-              </p>
-            </div>
-          </article>
         </div>
       </section>
 

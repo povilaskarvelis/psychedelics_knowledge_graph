@@ -79,8 +79,9 @@ At the conceptual level:
   combinations
 - search results are matched by DOI before papers are added; duplicate records
   are logged, while new papers move forward for review
-- bibliographic details are added before abstract screening; full text is
-  checked after abstract screening
+- bibliographic details are added before abstract screening from metadata
+  providers such as PubMed/PMC, Unpaywall, Crossref, OpenAlex, and Semantic
+  Scholar; full text is checked after abstract screening
 - retrieval provenance is retained in discovery reports and ledgers
 
 Technical note: search and sync live in `pipeline/ingest/` and write to
@@ -94,12 +95,14 @@ the default gate for the live graph. Abstract screening works at the
 `(DOI, compound, target/disorder)` context level so one paper can support
 multiple graph edges while preserving DOI-context distinctions.
 
-Current paper types include:
+Current source and paper-type labels separate primary empirical evidence,
+secondary literature, and non-primary context. Common paper types include:
 
 - primary results
-- review or meta-analysis
+- systematic review, review, or meta-analysis
 - protocol
 - conference or poster abstract
+- case report, commentary, or correction
 - other
 
 Only primary results papers are admitted to the default primary-evidence graph.

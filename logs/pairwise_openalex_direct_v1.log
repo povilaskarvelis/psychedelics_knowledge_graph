@@ -1,0 +1,124 @@
+[mechanistic] Prepared 6 chunks from 5520 seeds
+[mechanistic / pair_core / chunk 001 discovery] Running...
+  /opt/homebrew/Caskroom/miniconda/base/bin/python /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/pipeline/ingest/discover_literature.py --dataset mechanistic --provider openalex --seed-file /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_direct_v1/seed_chunks/mechanistic/pair_core_chunk_001.csv --max-results-per-seed 30 --max-results 0 --disable-ledger --disable-protected-retention --skip-unpaywall-enrichment --queue-out /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_direct_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_discovered.txt --report-out /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_direct_v1/openalex/mechanistic/pair_core/chunk_001/mechanistic_discovery_report.json --openalex-search-field title_and_abstract --max-retries 4 --max-retry-after-sec 120 --http-hard-timeout-sec 300 --progress --openalex-rps 0.8
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 1/1000 (0.0%) query=LSD 5-HT2A binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 1/1000 (0.1%) rows_retrieved=30 cumulative_raw_rows=30
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 2/1000 (0.1%) query=LSD 5-HT2A receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 2/1000 (0.2%) rows_retrieved=30 cumulative_raw_rows=60
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 3/1000 (0.2%) query=LSD 5-HT2A functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 3/1000 (0.3%) rows_retrieved=30 cumulative_raw_rows=90
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 4/1000 (0.3%) query=LSD 5-HT2B binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 4/1000 (0.4%) rows_retrieved=30 cumulative_raw_rows=120
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 5/1000 (0.4%) query=LSD 5-HT2B receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 5/1000 (0.5%) rows_retrieved=30 cumulative_raw_rows=150
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 6/1000 (0.5%) query=LSD 5-HT2B functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 6/1000 (0.6%) rows_retrieved=30 cumulative_raw_rows=180
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 7/1000 (0.6%) query=LSD 5-HT2C binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 7/1000 (0.7%) rows_retrieved=30 cumulative_raw_rows=210
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 8/1000 (0.7%) query=LSD 5-HT2C receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 8/1000 (0.8%) rows_retrieved=30 cumulative_raw_rows=240
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 9/1000 (0.8%) query=LSD 5-HT2C functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 9/1000 (0.9%) rows_retrieved=30 cumulative_raw_rows=270
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 10/1000 (0.9%) query=LSD 5-HT1A binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 10/1000 (1.0%) rows_retrieved=30 cumulative_raw_rows=300
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 11/1000 (1.0%) query=LSD 5-HT1A receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 11/1000 (1.1%) rows_retrieved=30 cumulative_raw_rows=330
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 12/1000 (1.1%) query=LSD 5-HT1A functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 12/1000 (1.2%) rows_retrieved=30 cumulative_raw_rows=360
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 13/1000 (1.2%) query=LSD 5-HT1B binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 13/1000 (1.3%) rows_retrieved=30 cumulative_raw_rows=390
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 14/1000 (1.3%) query=LSD 5-HT1B receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 14/1000 (1.4%) rows_retrieved=30 cumulative_raw_rows=420
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 15/1000 (1.4%) query=LSD 5-HT1B functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 15/1000 (1.5%) rows_retrieved=30 cumulative_raw_rows=450
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 16/1000 (1.5%) query=LSD 5-HT1D binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 16/1000 (1.6%) rows_retrieved=30 cumulative_raw_rows=480
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 17/1000 (1.6%) query=LSD 5-HT1D receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 17/1000 (1.7%) rows_retrieved=30 cumulative_raw_rows=510
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 18/1000 (1.7%) query=LSD 5-HT1D functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 18/1000 (1.8%) rows_retrieved=30 cumulative_raw_rows=540
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 19/1000 (1.8%) query=LSD 5-HT1E binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 19/1000 (1.9%) rows_retrieved=12 cumulative_raw_rows=552
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 20/1000 (1.9%) query=LSD 5-HT1E receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 20/1000 (2.0%) rows_retrieved=30 cumulative_raw_rows=582
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 21/1000 (2.0%) query=LSD 5-HT1E functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 21/1000 (2.1%) rows_retrieved=26 cumulative_raw_rows=608
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 22/1000 (2.1%) query=LSD 5-HT1F binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 22/1000 (2.2%) rows_retrieved=7 cumulative_raw_rows=615
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 23/1000 (2.2%) query=LSD 5-HT1F receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 23/1000 (2.3%) rows_retrieved=25 cumulative_raw_rows=640
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 24/1000 (2.3%) query=LSD 5-HT1F functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 24/1000 (2.4%) rows_retrieved=20 cumulative_raw_rows=660
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 25/1000 (2.4%) query=LSD 5-HT5A binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 25/1000 (2.5%) rows_retrieved=23 cumulative_raw_rows=683
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 26/1000 (2.5%) query=LSD 5-HT5A receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 26/1000 (2.6%) rows_retrieved=30 cumulative_raw_rows=713
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 27/1000 (2.6%) query=LSD 5-HT5A functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 27/1000 (2.7%) rows_retrieved=30 cumulative_raw_rows=743
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 28/1000 (2.7%) query=LSD 5-HT6 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 28/1000 (2.8%) rows_retrieved=30 cumulative_raw_rows=773
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 29/1000 (2.8%) query=LSD 5-HT6 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 29/1000 (2.9%) rows_retrieved=30 cumulative_raw_rows=803
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 30/1000 (2.9%) query=LSD 5-HT6 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 30/1000 (3.0%) rows_retrieved=30 cumulative_raw_rows=833
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 31/1000 (3.0%) query=LSD 5-HT7 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 31/1000 (3.1%) rows_retrieved=30 cumulative_raw_rows=863
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 32/1000 (3.1%) query=LSD 5-HT7 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 32/1000 (3.2%) rows_retrieved=30 cumulative_raw_rows=893
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 33/1000 (3.2%) query=LSD 5-HT7 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 33/1000 (3.3%) rows_retrieved=30 cumulative_raw_rows=923
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 34/1000 (3.3%) query=LSD mGluR2 GRM2 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 34/1000 (3.4%) rows_retrieved=1 cumulative_raw_rows=924
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 35/1000 (3.4%) query=LSD mGluR2 GRM2 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 35/1000 (3.5%) rows_retrieved=19 cumulative_raw_rows=943
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 36/1000 (3.5%) query=LSD mGluR2 GRM2 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 36/1000 (3.6%) rows_retrieved=15 cumulative_raw_rows=958
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 37/1000 (3.6%) query=LSD TAAR1 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 37/1000 (3.7%) rows_retrieved=29 cumulative_raw_rows=987
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 38/1000 (3.7%) query=LSD TAAR1 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 38/1000 (3.8%) rows_retrieved=30 cumulative_raw_rows=1017
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 39/1000 (3.8%) query=LSD TAAR1 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 39/1000 (3.9%) rows_retrieved=30 cumulative_raw_rows=1047
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 40/1000 (3.9%) query=LSD SERT SLC6A4 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 40/1000 (4.0%) rows_retrieved=3 cumulative_raw_rows=1050
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 41/1000 (4.0%) query=LSD SERT SLC6A4 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 41/1000 (4.1%) rows_retrieved=25 cumulative_raw_rows=1075
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 42/1000 (4.1%) query=LSD SERT SLC6A4 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 42/1000 (4.2%) rows_retrieved=16 cumulative_raw_rows=1091
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 43/1000 (4.2%) query=LSD NET SLC6A2 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 43/1000 (4.3%) rows_retrieved=4 cumulative_raw_rows=1095
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 44/1000 (4.3%) query=LSD NET SLC6A2 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 44/1000 (4.4%) rows_retrieved=8 cumulative_raw_rows=1103
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 45/1000 (4.4%) query=LSD NET SLC6A2 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 45/1000 (4.5%) rows_retrieved=4 cumulative_raw_rows=1107
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 46/1000 (4.5%) query=LSD DAT SLC6A3 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 46/1000 (4.6%) rows_retrieved=7 cumulative_raw_rows=1114
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 47/1000 (4.6%) query=LSD DAT SLC6A3 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 47/1000 (4.7%) rows_retrieved=22 cumulative_raw_rows=1136
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 48/1000 (4.7%) query=LSD DAT SLC6A3 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 48/1000 (4.8%) rows_retrieved=12 cumulative_raw_rows=1148
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 49/1000 (4.8%) query=LSD VMAT2 SLC18A2 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 49/1000 (4.9%) rows_retrieved=2 cumulative_raw_rows=1150
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 50/1000 (4.9%) query=LSD VMAT2 SLC18A2 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 50/1000 (5.0%) rows_retrieved=3 cumulative_raw_rows=1153
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 51/1000 (5.0%) query=LSD VMAT2 SLC18A2 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 51/1000 (5.1%) rows_retrieved=1 cumulative_raw_rows=1154
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 52/1000 (5.1%) query=LSD D1 receptor DRD1 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 52/1000 (5.2%) rows_retrieved=12 cumulative_raw_rows=1166
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 53/1000 (5.2%) query=LSD D1 receptor DRD1 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 53/1000 (5.3%) rows_retrieved=30 cumulative_raw_rows=1196
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 54/1000 (5.3%) query=LSD D1 receptor DRD1 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 54/1000 (5.4%) rows_retrieved=30 cumulative_raw_rows=1226
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 55/1000 (5.4%) query=LSD D2 receptor DRD2 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 55/1000 (5.5%) rows_retrieved=23 cumulative_raw_rows=1249
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 56/1000 (5.5%) query=LSD D2 receptor DRD2 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 56/1000 (5.6%) rows_retrieved=30 cumulative_raw_rows=1279
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 57/1000 (5.6%) query=LSD D2 receptor DRD2 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 57/1000 (5.7%) rows_retrieved=30 cumulative_raw_rows=1309
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 58/1000 (5.7%) query=LSD D3 receptor DRD3 binding affinity Ki
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 58/1000 (5.8%) rows_retrieved=8 cumulative_raw_rows=1317
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 59/1000 (5.8%) query=LSD D3 receptor DRD3 receptor pharmacology assay
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 59/1000 (5.9%) rows_retrieved=24 cumulative_raw_rows=1341
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 60/1000 (5.9%) query=LSD D3 receptor DRD3 functional assay agonist antagonist
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 60/1000 (6.0%) rows_retrieved=17 cumulative_raw_rows=1358
+[mechanistic / pair_core / chunk 001 discovery] discovery seed 61/1000 (6.0%) query=LSD D4 receptor DRD4 binding affinity Ki

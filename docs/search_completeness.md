@@ -19,6 +19,9 @@ it as the known relevant study set or search completeness set.
   reference/citation expansion.
 - Protected retention: known relevant DOI-contexts are kept from silently
   falling out of capped queues.
+- Boundary check: completeness status is a search-quality signal, not a graph
+  inclusion rule. Graph inclusion still depends on screening, source/provenance
+  labels, extraction, validation, and curation.
 
 ## How To Add Studies
 

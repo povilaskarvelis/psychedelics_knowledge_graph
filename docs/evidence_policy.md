@@ -3,22 +3,26 @@
 This policy governs how claims are labeled and trusted.
 
 ## Required provenance fields
-Every claim must include:
+Every claim must include the core schema provenance fields:
 - `paper_type`: normalized article/result category, including
   `primary_results`, `systematic_review`, `meta_analysis`, `review`,
-  `protocol`, `conference_or_poster_abstract`, `case_report`, `commentary`,
-  `correction`, `erratum`, `other`, or `uncertain`
+  `protocol`, `conference_abstract`, `conference_or_poster_abstract`,
+  `case_report`, `commentary`, `correction`, `erratum`, `other`, or
+  `uncertain`
 - `source_type`: normalized source class, including `primary_study`,
   `secondary_evidence`, `review`, `meta_analysis`, `commentary`,
   `study_protocol`, `correction`, `conference_abstract`, `case_report`,
   `registry`, `other`, or `uncertain`
-- `source_family`: broader family such as `original_empirical`,
-  `evidence_synthesis`, `opinion_or_commentary`, `protocol`, `correction`,
-  `conference_abstract`, or `uncertain`
 - `access_level`: `full_text_seen`, `abstract_only`, or `secondary_summary`
 - `evidence_location`: `table`, `figure`, `text`, `abstract`, `supplement`, `mixed`, or `unknown`
 - `evidence_locator`: concrete location such as `Table 1`, `Figure 2`, `Results`, `Abstract`
 - `study_design`: normalized design label
+
+Claims should also preserve `source_family` when available. This broader family
+label includes `original_empirical`, `evidence_synthesis`,
+`opinion_or_commentary`, `protocol`, `correction`, `conference_abstract`, or
+`uncertain`, and is used alongside `source_type` and `paper_type` for secondary
+literature and non-primary context views.
 
 Every paper record should preserve useful bibliographic/extraction fields when
 available:
@@ -35,33 +39,50 @@ available:
 - `adverse_events`, `funding`, `conflicts_of_interest`,
   `risk_of_bias_summary`
 
-## Internal evidence tier heuristic
+## Operational evidence labels
 
-`evidence_level` is an internal sorting and audit heuristic. It is not a formal
-GRADE or Cochrane certainty rating and should not be foregrounded as a visible
-claim-card badge. The UI should prefer factual provenance labels such as
-`rct`, `open label`, `preclinical`, `full text`, `abstract`, and claim
-direction.
+`evidence_level` is a required legacy/internal field retained for schema
+compatibility, older payloads, and coarse audit sorting. It is not a public
+evidence-certainty rating, not a GRADE or Cochrane assessment, and not the rule
+that decides whether a row enters the graph. Primary graph inclusion is governed
+by provenance and validation fields such as `source_type`, `paper_type`,
+`access_level`, `evidence_location`, `evidence_locator`, `study_design`, schema
+validation, and curator review queues.
 
-`evidence_strength` is an LLM/rule proposal field for later synthesis. It
-should be treated as provisional unless it is backed by an explicit risk-of-bias
-or certainty assessment workflow.
+`evidence_strength` is an LLM/rule proposal field used by full-text evidence
+assessment and triage. It should be treated as provisional unless it is backed
+by an explicit risk-of-bias or certainty-assessment workflow.
 
-### Mechanistic claims
-- `high`: direct assay evidence from primary study with explicit assay values and target
-- `medium`: assay values sourced via review/meta-analysis or partial reporting without direct extraction context
-- `low`: indirect mechanistic inference or unsupported secondary mention
+The UI and methods text should prefer factual provenance labels such as
+`randomized controlled trial`, `open label`, `case report`, `preclinical`,
+`full text`, `abstract only`, `primary evidence`, `secondary literature`, and
+claim direction. Reviews, systematic reviews, and meta-analyses remain
+secondary literature even if a legacy row or triage proposal has a high
+`evidence_level` or `evidence_strength`.
 
-### Disorder claims
-- `high`: randomized controlled trial (including confirmatory phase studies)
+### Legacy fallback values
+
+The following values explain how old rows and compatibility scripts may populate
+`evidence_level`. They should not be used as visible certainty badges or graph
+promotion rules.
+
+Mechanistic claims:
+- `high`: direct assay evidence from a primary study with explicit assay values and target
+- `medium`: partial direct reporting or values sourced through secondary extraction context
+- `low`: indirect mechanistic inference, unsupported secondary mention, or conservative default
+
+Disorder claims:
+- `high`: randomized controlled trial or confirmatory phase study
 - `medium`: open-label trial, pilot interventional study, or non-randomized prospective trial
-- `low`: observational, retrospective, case report, or preclinical-only evidence
+- `low`: observational study, retrospective study, case report, preclinical-only evidence, or conservative default
 
 ## Minimal claim direction
 - Disorder claims also include `result_direction`: `positive`, `null`, `negative`, `mixed`, or `unclear`
 - `protocol`, `review`, `systematic_review`, `meta_analysis`,
-  `conference_or_poster_abstract`, `commentary`, `correction`, and `erratum`
-  papers are not countable primary-evidence claims
+  `conference_abstract`, `conference_or_poster_abstract`, `commentary`,
+  `correction`, and `erratum` papers are not countable primary-evidence claims
+- `evidence_level` and `evidence_strength` do not override source/provenance
+  gates for graph inclusion
 - `review`, `systematic_review`, and `meta_analysis` rows are retained as
   secondary literature and can be included through the secondary-source graph
   view/checkmark. They should not be treated as failed primary evidence.

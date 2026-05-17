@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-17T07:47:12.658446+00:00",
+  "dataset": "mechanistic",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_003/mechanistic_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_003/mechanistic_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_003/mechanistic_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_003/mechanistic_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_003/mechanistic_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_003/mechanistic_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 39989,
+    "input_rows_valid_doi": 542,
+    "new_dois": 232,
+    "rediscovered_existing_dois": 310,
+    "missing_or_invalid_dois": 0,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 24990,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 16339,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.1111/dom.70136",
+      "compound": "DOM",
+      "entity": "TAAR1",
+      "title": "An open-label study on ulotaront's effects on insulin-glucose regulation in schizophrenia patients with metabolic syndrome and prediabetes: Part I."
+    },
+    {
+      "doi": "10.1016/j.pnpbp.2026.111727",
+      "compound": "R-ketamine",
+      "entity": "NMDA receptor",
+      "title": "Comparative network pharmacology analysis of ketamine and xanomeline in major depressive disorder: Shared and distinct molecular mechanisms."
+    },
+    {
+      "doi": "10.1038/s41380-025-03399-x",
+      "compound": "DOI",
+      "entity": "AMPA receptor",
+      "title": "Downregulation of integrin α3 in ADHD mirrored in mutant mouse model by dopamine-dependent hippocampal AMPAR expression."
+    },
+    {
+      "doi": "10.1093/braincomms/fcaf499",
+      "compound": "DOI",
+      "entity": "AMPA receptor",
+      "title": "Neurological diversity and generalizability: building on AMPA receptor imaging advances in long COVID."
+    },
+    {
+      "doi": "10.1016/j.neuropharm.2025.110758",
+      "compound": "2C-I",
+      "entity": "SERT (SLC6A4)",
+      "title": "Repeated administration of the synthetic cannabinoid AKB48 induces serotonergic neuroadaptation in male and female mice: behavioural and immunohistochemical evidence."
+    },
+    {
+      "doi": "10.1128/asmcr.00022-25",
+      "compound": "DOI",
+      "entity": "NMDA receptor",
+      "title": "Anti-N-methyl-D-aspartate receptor encephalitis: a common autoimmune disease?"
+    },
+    {
+      "doi": "10.3389/fpubh.2025.1737084",
+      "compound": "DOI",
+      "entity": "D2 receptor (DRD2)",
+      "title": "Correction: Targeting pro-dopaminergic agonism to attenuate depression in patients displaying genetic/epigenetic predisposition to hypodopaminergia."
+    },
+    {
+      "doi": "10.1111/bph.17315",
+      "compound": "DOI",
+      "entity": "5-HT2B",
+      "title": "Deficiency of 5-HT(2B) receptors alleviates atherosclerosis by regulating macrophage phenotype through inhibiting interferon signalling."
+    },
+    {
+      "doi": "10.1016/j.isci.2025.112152",
+      "compound": "DOI",
+      "entity": "AMPA receptor",
+      "title": "Erratum: Sustained postsynaptic kainate receptor activation downregulates AMPA receptor surface expression and induces hippocampal LTD."
+    },
+    {
+      "doi": "10.1111/bph.16368",
+      "compound": "DOI",
+      "entity": "5-HT2A",
+      "title": "Ligand bias and inverse agonism on 5-HT(2A) receptor-mediated modulation of G protein activity in post-mortem human brain."
+    },
+    {
+      "doi": "10.1016/j.oraloncology.2025.107206",
+      "compound": "DOI",
+      "entity": "NET (SLC6A2)",
+      "title": "Nomogram vs. Depth of invasion for predicting occult lymph node metastasis in cT1-2N0 buccal squamous cell carcinoma."
+    },
+    {
+      "doi": "10.1021/acsenvironau.4c00114",
+      "compound": "DOM",
+      "entity": "NET (SLC6A2)",
+      "title": "Tracking Changes in Organic-Copper Speciation during Wastewater Treatment Using LC-ICPMS-ESIMS."
+    },
+    {
+      "doi": "10.1007/s00213-024-06635-4",
+      "compound": "DOM",
+      "entity": "5-HT2A",
+      "title": "5-hydroxytryptamine 2C/1A receptors modulate the biphasic dose response of the head twitch response and locomotor activity induced by DOM in mice."
+    },
+    {
+      "doi": "10.1093/brain/awae236",
+      "compound": "DOI",
+      "entity": "NMDA receptor",
+      "title": "Autoimmune 'secondary synaptopathies': do NMDAR antibodies cause a primary extra-synaptopathy?"
+    },
+    {
+      "doi": "10.3389/fncir.2024.1533008",
+      "compound": "DOI",
+      "entity": "AMPA receptor",
+      "title": "Corrigendum: α-amino-3-hydroxy-5-methyl-4-isoxazole propionic acid (AMPA) receptor density underlies intraregional and interregional functional centrality."
+    },
+    {
+      "doi": "10.1289/ehp13838",
+      "compound": "DOI",
+      "entity": "NET (SLC6A2)",
+      "title": "Development and Validation of a Novel Placental DNA Methylation Biomarker of Maternal Smoking during Pregnancy in the ECHO Program."
+    },
+    {
+      "doi": "10.3389/fendo.2024.1369692",
+      "compound": "DOI",
+      "entity": "NET (SLC6A2)",
+      "title": "Erratum: Predicting the survival probability of functional neuroendocrine tumors treated with peptide receptor radionuclide therapy: Serbian experience."
+    },
+    {
+      "doi": "10.1007/s10495-024-02004-w",
+      "compound": "DOM",
+      "entity": "NMDA receptor",
+      "title": "Kynurenic acid protects against ischemia/reperfusion injury by modulating apoptosis in cardiomyocytes."
+    },
+    {
+      "doi": "10.1007/s11064-023-04055-y",
+      "compound": "DOM",
+      "entity": "mGluR2 (GRM2)",
+      "title": "Modulation of DOM-Induced Head-Twitch Response by mGluR2 Agonist/Inverse Agonist is Associated with 5-HT(2A)R-Mediated G(s) Signaling Pathway."
+    },
+    {
+      "doi": "10.1093/sxmrev/qeae048",
+      "compound": "DOI",
+      "entity": "SERT (SLC6A4)",
+      "title": "Possible pathophysiologic roles of neurotransmitter systems in men with lifelong premature ejaculation: a scoping review."
+    },
+    {
+      "doi": "10.5334/tohm.792",
+      "compound": "DOI",
+      "entity": "kappa opioid receptor (OPRK1)",
+      "title": "Correction: Association of Rare Genetic Variants in Opioid Receptors with Tourette Syndrome."
+    },
+    {
+      "doi": "10.3389/fneur.2023.1289550",
+      "compound": "DOI",
+      "entity": "DAT (SLC6A3)",
+      "title": "Corrigendum: Characteristics and influencing factors of (11)C-CFT PET imaging in patients with early and late onset Parkinson's disease."
+    },
+    {
+      "doi": "10.3390/ijms24031981",
+      "compound": "DOI",
+      "entity": "NMDA receptor",
+      "title": "Design and Synthesis of New Quinazolin-4-one Derivatives with Negative mGlu(7) Receptor Modulation Activity and Antipsychotic-Like Properties."
+    },
+    {
+      "doi": "10.1007/s11356-022-23404-y",
+      "compound": "DOM",
+      "entity": "NET (SLC6A2)",
+      "title": "Does a decade of soil organic fertilization promote copper and zinc bioavailability to an epi-endogeic earthworm?"
+    },
+    {
+      "doi": "10.3389/fnmol.2023.1281653",
+      "compound": "DOI",
+      "entity": "AMPA receptor",
+      "title": "Erratum: AMPA and GABAA receptor nanodomains assemble in the absence of synaptic neurotransmitter release."
+    }
+  ]
+}

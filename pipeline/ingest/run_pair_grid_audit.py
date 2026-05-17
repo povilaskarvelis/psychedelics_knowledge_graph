@@ -148,14 +148,18 @@ def build_chunks(seed_root: Path, run_root: Path, dataset: str, families: list[s
     return chunks
 
 
-def discovery_cmd(chunk: dict, out_dir: Path, cap: int, args: argparse.Namespace) -> list[str]:
+def providers_for_arg(provider: str) -> list[str]:
+    return ["openalex", "pubmed"] if provider == "both" else [provider]
+
+
+def discovery_cmd(chunk: dict, out_dir: Path, cap: int, args: argparse.Namespace, provider: str) -> list[str]:
     cmd = [
         sys.executable,
         str(ROOT / "pipeline" / "ingest" / "discover_literature.py"),
         "--dataset",
         chunk["dataset"],
         "--provider",
-        args.provider,
+        provider,
         "--seed-file",
         str(chunk["seed_csv"]),
         "--max-results-per-seed",
@@ -169,17 +173,23 @@ def discovery_cmd(chunk: dict, out_dir: Path, cap: int, args: argparse.Namespace
         str(out_dir / f"{chunk['dataset']}_discovered.txt"),
         "--report-out",
         str(out_dir / f"{chunk['dataset']}_discovery_report.json"),
-        "--openalex-search-field",
-        args.openalex_search_field,
         "--max-retries",
         str(args.max_retries),
         "--max-retry-after-sec",
         str(args.max_retry_after_sec),
         "--http-hard-timeout-sec",
         str(args.http_hard_timeout_sec),
+        "--query-variant-mode",
+        args.query_variant_mode,
     ]
+    if provider == "openalex":
+        cmd.extend(["--openalex-search-field", args.openalex_search_field])
     if args.progress:
         cmd.append("--progress")
+    if provider == "openalex" and args.openalex_rps is not None:
+        cmd.extend(["--openalex-rps", str(args.openalex_rps)])
+    if provider == "pubmed" and args.pubmed_rps is not None:
+        cmd.extend(["--pubmed-rps", str(args.pubmed_rps)])
     return cmd
 
 
@@ -255,6 +265,7 @@ def summarize_chunk(chunk: dict, out_dir: Path, cap: int) -> dict:
     provider_errors = len(discovery.get("provider_errors", []))
     seed_count = int(discovery_counts.get("seed_count") or chunk["seed_count"] or 0)
     return {
+        "provider": chunk["provider"],
         "dataset": chunk["dataset"],
         "family": chunk["family"],
         "chunk_number": chunk["chunk_number"],
@@ -272,9 +283,9 @@ def summarize_chunk(chunk: dict, out_dir: Path, cap: int) -> dict:
 
 
 def family_rollup(chunks: list[dict]) -> list[dict]:
-    grouped: dict[tuple[str, str], Counter] = {}
+    grouped: dict[tuple[str, str, str], Counter] = {}
     for chunk in chunks:
-        key = (chunk["dataset"], chunk["family"])
+        key = (chunk["provider"], chunk["dataset"], chunk["family"])
         grouped.setdefault(key, Counter())
         grouped[key].update(
             {
@@ -290,11 +301,12 @@ def family_rollup(chunks: list[dict]) -> list[dict]:
         )
     return [
         {
+            "provider": provider,
             "dataset": dataset,
             "family": family,
             **dict(counts),
         }
-        for (dataset, family), counts in sorted(grouped.items())
+        for (provider, dataset, family), counts in sorted(grouped.items())
     ]
 
 
@@ -308,7 +320,8 @@ def write_summary(run_root: Path, summary: dict) -> None:
         f"- Generated: {summary['generated_at_utc']}",
         f"- Protocol: `{PROTOCOL_ID}`",
         f"- Provider: `{summary['provider']}`",
-        f"- OpenAlex search field: `{summary['openalex_search_field']}`",
+        f"- Providers run: `{', '.join(summary.get('providers', [summary['provider']]))}`",
+        f"- Query variant mode: `{summary['query_variant_mode']}`",
         f"- Status: `{summary.get('status', 'completed')}`",
         "",
         "## Final Queues",
@@ -323,11 +336,11 @@ def write_summary(run_root: Path, summary: dict) -> None:
             f"{item['pair_grid_incremental_new_beyond_boolean']} |"
         )
     lines.extend(["", "## Family Rollup", ""])
-    lines.append("| Dataset | Family | Chunks | Seeds | Raw rows | Merged rows | Provider errors | New vs existing corpus | Rediscovered | Invalid |")
-    lines.append("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    lines.append("| Provider | Dataset | Family | Chunks | Seeds | Raw rows | Merged rows | Provider errors | New vs existing corpus | Rediscovered | Invalid |")
+    lines.append("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
     for item in summary["family_rollup"]:
         lines.append(
-            f"| {item['dataset']} | {item['family']} | {item['chunks']} | {item['seeds']} | "
+            f"| {item['provider']} | {item['dataset']} | {item['family']} | {item['chunks']} | {item['seeds']} | "
             f"{item['raw_rows']} | {item['merged_rows']} | {item.get('provider_errors', 0)} | "
             f"{item['new_dois_vs_existing_corpus']} | {item['rediscovered_existing_dois']} | "
             f"{item['missing_or_invalid_dois']} |"
@@ -367,7 +380,9 @@ def write_partial_summary(
         "generated_at_utc": now_utc(),
         "status": status,
         "provider": args.provider,
-        "openalex_search_field": args.openalex_search_field,
+        "providers": providers_for_arg(args.provider),
+        "openalex_search_field": args.openalex_search_field if "openalex" in providers_for_arg(args.provider) else None,
+        "query_variant_mode": args.query_variant_mode,
         "caps": {"mechanistic": args.mechanistic_cap, "disorder": args.disorder_cap},
         "chunk_size": args.chunk_size,
         "seed_root": str(seed_root),
@@ -381,13 +396,14 @@ def write_partial_summary(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run OpenAlex pair-grid/audit seed layer")
+    parser = argparse.ArgumentParser(description="Run pair-grid/audit seed layer")
     parser.add_argument("--seed-root", default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID))
     parser.add_argument("--run-root", default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "pair_grid_audit_v1"))
     parser.add_argument("--dataset", default="all", help="mechanistic, disorder, comma-separated list, or all")
     parser.add_argument("--families", default=",".join(DEFAULT_FAMILIES), help="Seed families to run, comma-separated or all")
-    parser.add_argument("--provider", choices=["openalex"], default="openalex")
+    parser.add_argument("--provider", choices=["openalex", "pubmed", "both"], default="openalex")
     parser.add_argument("--openalex-search-field", choices=["default", "title", "abstract", "title_and_abstract", "fulltext"], default="title_and_abstract")
+    parser.add_argument("--query-variant-mode", choices=["off", "conservative", "expanded"], default="off")
     parser.add_argument("--mechanistic-cap", type=int, default=30)
     parser.add_argument("--disorder-cap", type=int, default=20)
     parser.add_argument("--chunk-size", type=int, default=500)
@@ -396,6 +412,8 @@ def main() -> int:
     parser.add_argument("--max-retries", type=int, default=2)
     parser.add_argument("--max-retry-after-sec", type=int, default=30)
     parser.add_argument("--http-hard-timeout-sec", type=int, default=180)
+    parser.add_argument("--openalex-rps", type=float, default=None)
+    parser.add_argument("--pubmed-rps", type=float, default=None)
     parser.add_argument("--skip-existing", action="store_true")
     parser.add_argument(
         "--max-provider-error-rate",
@@ -417,69 +435,76 @@ def main() -> int:
     run_root = Path(args.run_root).resolve()
     boolean_run_root = Path(args.boolean_run_root).resolve()
     run_root.mkdir(parents=True, exist_ok=True)
+    providers = providers_for_arg(args.provider)
 
     chunk_summaries = []
     discovered_by_dataset: dict[str, list[Path]] = {dataset: [] for dataset in datasets}
-    for dataset in datasets:
-        cap = args.mechanistic_cap if dataset == "mechanistic" else args.disorder_cap
-        chunks = build_chunks(seed_root, run_root, dataset, families, args.chunk_size)
-        print(f"[{dataset}] Prepared {len(chunks)} chunks from {sum(chunk['seed_count'] for chunk in chunks)} seeds", flush=True)
-        for chunk in chunks:
-            out_dir = (
-                run_root
-                / args.provider
-                / dataset
-                / chunk["family"]
-                / f"chunk_{chunk['chunk_number']:03d}"
+    for provider in providers:
+        for dataset in datasets:
+            cap = args.mechanistic_cap if dataset == "mechanistic" else args.disorder_cap
+            chunks = build_chunks(seed_root, run_root, dataset, families, args.chunk_size)
+            print(
+                f"[{provider} / {dataset}] Prepared {len(chunks)} chunks "
+                f"from {sum(chunk['seed_count'] for chunk in chunks)} seeds",
+                flush=True,
             )
-            out_dir.mkdir(parents=True, exist_ok=True)
-            discovery_report = out_dir / f"{dataset}_discovery_report.json"
-            gate_report = out_dir / f"{dataset}_add_new_dois_report.json"
-            label = f"{dataset} / {chunk['family']} / chunk {chunk['chunk_number']:03d}"
+            for chunk in chunks:
+                chunk = {**chunk, "provider": provider}
+                out_dir = (
+                    run_root
+                    / provider
+                    / dataset
+                    / chunk["family"]
+                    / f"chunk_{chunk['chunk_number']:03d}"
+                )
+                out_dir.mkdir(parents=True, exist_ok=True)
+                discovery_report = out_dir / f"{dataset}_discovery_report.json"
+                gate_report = out_dir / f"{dataset}_add_new_dois_report.json"
+                label = f"{provider} / {dataset} / {chunk['family']} / chunk {chunk['chunk_number']:03d}"
 
-            reuse_existing_discovery = (
-                args.skip_existing
-                and discovery_report.exists()
-                and not existing_report_exceeds_error_threshold(discovery_report, args.max_provider_error_rate)
-            )
-            if args.skip_existing and discovery_report.exists() and not reuse_existing_discovery:
-                print(f"[{label}] Existing discovery has high provider-error rate; rerunning {discovery_report}", flush=True)
+                reuse_existing_discovery = (
+                    args.skip_existing
+                    and discovery_report.exists()
+                    and not existing_report_exceeds_error_threshold(discovery_report, args.max_provider_error_rate)
+                )
+                if args.skip_existing and discovery_report.exists() and not reuse_existing_discovery:
+                    print(f"[{label}] Existing discovery has high provider-error rate; rerunning {discovery_report}", flush=True)
 
-            if reuse_existing_discovery:
-                print(f"[{label}] Discovery exists; reusing {discovery_report}", flush=True)
-            else:
-                run_step(discovery_cmd(chunk, out_dir, cap, args), label=f"{label} discovery", dry_run=args.dry_run)
+                if reuse_existing_discovery:
+                    print(f"[{label}] Discovery exists; reusing {discovery_report}", flush=True)
+                else:
+                    run_step(discovery_cmd(chunk, out_dir, cap, args, provider), label=f"{label} discovery", dry_run=args.dry_run)
 
-            if not args.dry_run:
-                discovered_by_dataset[dataset].append(out_dir / f"{dataset}_discovered.txt")
+                if not args.dry_run:
+                    discovered_by_dataset[dataset].append(out_dir / f"{dataset}_discovered.txt")
 
-            if args.skip_existing and gate_report.exists():
-                print(f"[{label}] DOI gate exists; reusing {gate_report}", flush=True)
-            else:
-                run_step(add_new_cmd(dataset, out_dir, args), label=f"{label} DOI gate", dry_run=args.dry_run)
+                if args.skip_existing and gate_report.exists():
+                    print(f"[{label}] DOI gate exists; reusing {gate_report}", flush=True)
+                else:
+                    run_step(add_new_cmd(dataset, out_dir, args), label=f"{label} DOI gate", dry_run=args.dry_run)
 
-            if not args.dry_run:
-                chunk_summary = summarize_chunk(chunk, out_dir, cap)
-                chunk_summaries.append(chunk_summary)
-                if chunk_summary["provider_error_rate"] > args.max_provider_error_rate:
-                    status = (
-                        f"stopped_provider_error_rate_{chunk_summary['provider_error_rate']}"
-                    )
-                    print(
-                        f"[{label}] Stopping: provider error rate "
-                        f"{chunk_summary['provider_error_rate']:.1%} exceeds "
-                        f"{args.max_provider_error_rate:.1%}",
-                        flush=True,
-                    )
-                    write_partial_summary(
-                        run_root,
-                        args,
-                        seed_root,
-                        boolean_run_root,
-                        chunk_summaries,
-                        status=status,
-                    )
-                    return 2
+                if not args.dry_run:
+                    chunk_summary = summarize_chunk(chunk, out_dir, cap)
+                    chunk_summaries.append(chunk_summary)
+                    if chunk_summary["provider_error_rate"] > args.max_provider_error_rate:
+                        status = (
+                            f"stopped_provider_error_rate_{chunk_summary['provider_error_rate']}"
+                        )
+                        print(
+                            f"[{label}] Stopping: provider error rate "
+                            f"{chunk_summary['provider_error_rate']:.1%} exceeds "
+                            f"{args.max_provider_error_rate:.1%}",
+                            flush=True,
+                        )
+                        write_partial_summary(
+                            run_root,
+                            args,
+                            seed_root,
+                            boolean_run_root,
+                            chunk_summaries,
+                            status=status,
+                        )
+                        return 2
 
     if args.dry_run:
         return 0
@@ -565,7 +590,9 @@ def main() -> int:
         "generated_at_utc": now_utc(),
         "status": "completed",
         "provider": args.provider,
-        "openalex_search_field": args.openalex_search_field,
+        "providers": providers,
+        "openalex_search_field": args.openalex_search_field if "openalex" in providers else None,
+        "query_variant_mode": args.query_variant_mode,
         "caps": {"mechanistic": args.mechanistic_cap, "disorder": args.disorder_cap},
         "chunk_size": args.chunk_size,
         "seed_root": str(seed_root),

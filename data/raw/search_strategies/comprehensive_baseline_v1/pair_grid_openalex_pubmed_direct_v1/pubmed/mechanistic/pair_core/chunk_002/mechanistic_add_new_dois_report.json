@@ -1,0 +1,199 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-17T07:01:07.938652+00:00",
+  "dataset": "mechanistic",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_002/mechanistic_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_002/mechanistic_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_002/mechanistic_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_002/mechanistic_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_002/mechanistic_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/pubmed/mechanistic/pair_core/chunk_002/mechanistic_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 39989,
+    "input_rows_valid_doi": 944,
+    "new_dois": 374,
+    "rediscovered_existing_dois": 570,
+    "missing_or_invalid_dois": 1,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 24990,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 16339,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": [
+    {
+      "doi": "10.1016/j.bbr.2026.116229",
+      "compound": "Ketamine",
+      "entity": "5-HT1A",
+      "title": "5-HT1A receptor agonist properties of DNA methyltransferase inhibitor decitabine in mice exposed to the forced swim test."
+    },
+    {
+      "doi": "10.1016/j.anai.2025.09.014",
+      "compound": "Ketamine",
+      "entity": "kappa opioid receptor (OPRK1)",
+      "title": "Basic mechanisms of itch and advances in clinical management."
+    },
+    {
+      "doi": "10.1111/jnc.70337",
+      "compound": "Ketamine",
+      "entity": "5-HT7",
+      "title": "Discovery and Characterization of Novel Spirotriazoloquinazolines as Potential Neuroprotectors: Synthesis, Computational Screening, and Preliminary In Vivo Evaluation."
+    },
+    {
+      "doi": "10.1016/j.jep.2025.120858",
+      "compound": "MDA",
+      "entity": "5-HT2A",
+      "title": "In vivo anti-inflammatory, analgesic activities and phytochemical profile of Hu Lisan ethanol extract."
+    },
+    {
+      "doi": "10.1093/brain/awaf391",
+      "compound": "MDMA",
+      "entity": "5-HT2A",
+      "title": "Memory deficits of MDMA users are linked to cortical thinning related to 5-HT receptor densities."
+    },
+    {
+      "doi": "10.1007/s11064-026-04717-7",
+      "compound": "MDA",
+      "entity": "NMDA receptor",
+      "title": "Morin Improves Cognitive Deficits in an in Vivo Model of Vascular Dementia by Modulating the N-methyl-D-aspartate Receptor Signaling Pathways."
+    },
+    {
+      "doi": "10.3390/ijms27073274",
+      "compound": "MDA",
+      "entity": "TrkB (NTRK2)",
+      "title": "Petasites japonicus Leaves Alleviate Depression in Dextran Sulfate Sodium-Induced Colitis Mice Through the BDNF/TrkB Pathway and Modulation of Inflammation."
+    },
+    {
+      "doi": "10.1016/j.brainresbull.2026.111841",
+      "compound": "MDA",
+      "entity": "5-HT1A",
+      "title": "Probiotics reverse prenatal stress-induced anxiety and memory impairment in rats through gut-hippocampus axis regulation."
+    },
+    {
+      "doi": "10.1176/appi.ajp.20250903",
+      "compound": "S-ketamine",
+      "entity": "kappa opioid receptor (OPRK1)",
+      "title": "Regional Blood Flow Signatures of Opioidergic Modulation of Ketamine in Major Depressive Disorder: A Randomized Crossover Study."
+    },
+    {
+      "doi": "10.1007/s10565-026-10149-4",
+      "compound": "Ketamine",
+      "entity": "D1 receptor (DRD1)",
+      "title": "Repeated 7-day exposure to ketamine induces anxiety-like behaviors and neuronal apoptosis in mice via DRD1-medicated inhibition of Akt/Gsk-3β phosphorylation."
+    },
+    {
+      "doi": "10.1016/j.jstrokecerebrovasdis.2026.108613",
+      "compound": "MDA",
+      "entity": "5-HT7",
+      "title": "Ropivacaine attenuates cerebral ischemia-reperfusion injury in young male mice by reducing endothelial oxidative stress through activation of the Htr7/cAMP-PKA signaling."
+    },
+    {
+      "doi": "10.1080/15548627.2026.2629294",
+      "compound": "MDA",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "SIRT3-mediated mitophagy by deacetylating ATP5F1A involved in the protective effects of SIGMAR1/Sigma-1 receptor against ferroptosis and microvascular hyperpermeability in lipopolysaccharide-induced acute lung injury."
+    },
+    {
+      "doi": "10.1038/s41380-025-03248-x",
+      "compound": "Ketamine",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "Sustained antidepressant actions of ketamine involve TAMM41-mediated transfer of astrocytic sigma-1 receptor to neuron."
+    },
+    {
+      "doi": "10.1016/j.case.2026.01.003",
+      "compound": "MDMA",
+      "entity": "5-HT2B",
+      "title": "TUSI Valve: Echocardiographic and Pathologic Correlates of a Novel Drug-Induced Valvular Disease-a Case Series."
+    },
+    {
+      "doi": "10.3390/ijms27093896",
+      "compound": "MDA",
+      "entity": "TrkB (NTRK2)",
+      "title": "The Protective Effects of N-Acetylserotonin Against Cisplatin-Induced Renal Injury: A Biochemical and Histopathological Study."
+    },
+    {
+      "doi": "10.1016/j.bbr.2025.115901",
+      "compound": "MDA",
+      "entity": "5-HT7",
+      "title": "The serotonergic 5-HT7 receptor: A therapeutic target for mitigating acute stress-induced cognitive, neuroinflammatory, and oxidative damage in the hippocampus."
+    },
+    {
+      "doi": "10.2174/0113862073377826250728055125",
+      "compound": "MDA",
+      "entity": "Sigma-1 receptor (SIGMAR1)",
+      "title": "Acupoint Catgut Embedding Alleviates Neuropathic Pain by Regulating Sigma-1 Receptor Expression."
+    },
+    {
+      "doi": "10.3390/ijms262411849",
+      "compound": "MDA",
+      "entity": "H1 receptor (HRH1)",
+      "title": "Azelastine Inhibits Triple-Negative Breast Cancer Cell Viability via an ARF1-Dependent Mechanism."
+    },
+    {
+      "doi": "10.1038/s41386-025-02210-3",
+      "compound": "Ketamine",
+      "entity": "NET (SLC6A2)",
+      "title": "Clozapine induces perineuronal net remodeling in a developmental mouse model exhibiting schizophrenia-relevant phenotypes."
+    },
+    {
+      "doi": "10.1007/s12031-025-02403-x",
+      "compound": "Ketamine",
+      "entity": "5-HT2A",
+      "title": "Effects of Risperidone and Aripiprazole Antipsychotic Drugs on Behavioral Changes and the Expression Levels of DRD2, HTR2A, AKT1, and CACNA1C Genes in the Hippocampus of a Ketamine-induced Schizophrenia-like Rat Model."
+    },
+    {
+      "doi": "10.1016/j.bbr.2025.115458",
+      "compound": "MDA",
+      "entity": "5-HT1A",
+      "title": "Exploring the ameliorative effects of omega-3 fatty acid supplementation on maternal behavioral abnormalities induced by prenatal chronic restraint stress."
+    },
+    {
+      "doi": "10.1007/s11064-025-04562-0",
+      "compound": "MDA",
+      "entity": "5-HT2A",
+      "title": "Hesperidin Attenuates Chronic Stress-Induced Depression via 5-HT2A-Linked Modulation of Neurochemical, Oxidative, and Inflammatory Pathways: Experimental and In Silico Evidence."
+    },
+    {
+      "doi": "10.1021/acschemneuro.5c00057",
+      "compound": "MDA",
+      "entity": "SERT (SLC6A4)",
+      "title": "Interplay of Endoplasmic Reticulum Stress, Inflammation, Apoptosis, and Oxidative Stress in Corticosteroid-Induced Anxiety and Depression: Exploring Therapeutic Potential of Hydrogen Sulfide and Sertraline."
+    },
+    {
+      "doi": "10.1007/s12035-025-04789-6",
+      "compound": "Ketamine",
+      "entity": "D1 receptor (DRD1)",
+      "title": "Ketamine Alters Specific Gene Expression Profiles by Transcriptome-Wide Responses in a Ketamine-Induced Schizophrenia-Like Mouse Model."
+    },
+    {
+      "doi": "10.1002/jdn.10407",
+      "compound": "MDA",
+      "entity": "NMDA receptor",
+      "title": "Lutein Exerts Antioxidant and Neuroprotective Role on Schizophrenia-Like Behaviours in Mice."
+    }
+  ]
+}

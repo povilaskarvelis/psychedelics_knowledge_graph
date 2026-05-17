@@ -10,8 +10,9 @@ search run is timestamped May 15, 2026.
 
 ## Main Search Layer
 
-The search uses provider-specific query modules in OpenAlex and PubMed. Each
-module is built from three concept blocks:
+The search uses provider-specific query modules in PubMed for curated
+biomedical indexing and OpenAlex for broader scholarly coverage. Each module is
+built from three concept blocks:
 
 ```text
 (compound or drug-class synonyms)

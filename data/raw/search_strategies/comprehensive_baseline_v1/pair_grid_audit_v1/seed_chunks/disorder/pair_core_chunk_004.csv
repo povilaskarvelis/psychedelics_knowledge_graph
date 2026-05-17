@@ -1,0 +1,718 @@
+seed_id,dataset,family,query,compound,entity,entity_type,template
+disorder_03258,disorder,pair_core,Salvinorin A Opioid use disorder clinical trial,Salvinorin A,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03259,disorder,pair_core,Salvinorin A Opioid use disorder randomized placebo,Salvinorin A,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03260,disorder,pair_core,Salvinorin A Opioid use disorder treatment outcome,Salvinorin A,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03261,disorder,pair_core,Salvinorin A Cannabis use disorder clinical trial,Salvinorin A,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03262,disorder,pair_core,Salvinorin A Cannabis use disorder randomized placebo,Salvinorin A,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03263,disorder,pair_core,Salvinorin A Cannabis use disorder treatment outcome,Salvinorin A,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03264,disorder,pair_core,Salvinorin A Cocaine use disorder clinical trial,Salvinorin A,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03265,disorder,pair_core,Salvinorin A Cocaine use disorder randomized placebo,Salvinorin A,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03266,disorder,pair_core,Salvinorin A Cocaine use disorder treatment outcome,Salvinorin A,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03267,disorder,pair_core,Salvinorin A Methamphetamine use disorder clinical trial,Salvinorin A,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03268,disorder,pair_core,Salvinorin A Methamphetamine use disorder randomized placebo,Salvinorin A,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03269,disorder,pair_core,Salvinorin A Methamphetamine use disorder treatment outcome,Salvinorin A,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03270,disorder,pair_core,Salvinorin A Stimulant use disorder clinical trial,Salvinorin A,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03271,disorder,pair_core,Salvinorin A Stimulant use disorder randomized placebo,Salvinorin A,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03272,disorder,pair_core,Salvinorin A Stimulant use disorder treatment outcome,Salvinorin A,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03273,disorder,pair_core,Salvinorin A Substance use disorder clinical trial,Salvinorin A,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03274,disorder,pair_core,Salvinorin A Substance use disorder randomized placebo,Salvinorin A,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03275,disorder,pair_core,Salvinorin A Substance use disorder treatment outcome,Salvinorin A,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03276,disorder,pair_core,Salvinorin A Generalized anxiety disorder clinical trial,Salvinorin A,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03277,disorder,pair_core,Salvinorin A Generalized anxiety disorder randomized placebo,Salvinorin A,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03278,disorder,pair_core,Salvinorin A Generalized anxiety disorder treatment outcome,Salvinorin A,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03279,disorder,pair_core,Salvinorin A Social anxiety disorder clinical trial,Salvinorin A,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03280,disorder,pair_core,Salvinorin A Social anxiety disorder randomized placebo,Salvinorin A,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03281,disorder,pair_core,Salvinorin A Social anxiety disorder treatment outcome,Salvinorin A,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03282,disorder,pair_core,Salvinorin A Distress associated with life-threatening disease clinical trial,Salvinorin A,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03283,disorder,pair_core,Salvinorin A Distress associated with life-threatening disease randomized placebo,Salvinorin A,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03284,disorder,pair_core,Salvinorin A Distress associated with life-threatening disease treatment outcome,Salvinorin A,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03285,disorder,pair_core,Salvinorin A Obsessive-compulsive disorder clinical trial,Salvinorin A,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03286,disorder,pair_core,Salvinorin A Obsessive-compulsive disorder randomized placebo,Salvinorin A,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03287,disorder,pair_core,Salvinorin A Obsessive-compulsive disorder treatment outcome,Salvinorin A,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03288,disorder,pair_core,Salvinorin A Eating disorders clinical trial,Salvinorin A,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03289,disorder,pair_core,Salvinorin A Eating disorders randomized placebo,Salvinorin A,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03290,disorder,pair_core,Salvinorin A Eating disorders treatment outcome,Salvinorin A,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03291,disorder,pair_core,Salvinorin A Anorexia nervosa clinical trial,Salvinorin A,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03292,disorder,pair_core,Salvinorin A Anorexia nervosa randomized placebo,Salvinorin A,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03293,disorder,pair_core,Salvinorin A Anorexia nervosa treatment outcome,Salvinorin A,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03294,disorder,pair_core,Salvinorin A Bulimia nervosa clinical trial,Salvinorin A,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03295,disorder,pair_core,Salvinorin A Bulimia nervosa randomized placebo,Salvinorin A,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03296,disorder,pair_core,Salvinorin A Bulimia nervosa treatment outcome,Salvinorin A,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03297,disorder,pair_core,Salvinorin A Binge-eating disorder clinical trial,Salvinorin A,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03298,disorder,pair_core,Salvinorin A Binge-eating disorder randomized placebo,Salvinorin A,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03299,disorder,pair_core,Salvinorin A Binge-eating disorder treatment outcome,Salvinorin A,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03300,disorder,pair_core,Salvinorin A Autism spectrum disorder clinical trial,Salvinorin A,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03301,disorder,pair_core,Salvinorin A Autism spectrum disorder randomized placebo,Salvinorin A,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03302,disorder,pair_core,Salvinorin A Autism spectrum disorder treatment outcome,Salvinorin A,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03303,disorder,pair_core,Salvinorin A Demoralization clinical trial,Salvinorin A,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03304,disorder,pair_core,Salvinorin A Demoralization randomized placebo,Salvinorin A,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03305,disorder,pair_core,Salvinorin A Demoralization treatment outcome,Salvinorin A,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03306,disorder,pair_core,Salvinorin A Suicidal ideation clinical trial,Salvinorin A,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03307,disorder,pair_core,Salvinorin A Suicidal ideation randomized placebo,Salvinorin A,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03308,disorder,pair_core,Salvinorin A Suicidal ideation treatment outcome,Salvinorin A,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03309,disorder,pair_core,Salvinorin A Cluster headache clinical trial,Salvinorin A,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03310,disorder,pair_core,Salvinorin A Cluster headache randomized placebo,Salvinorin A,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03311,disorder,pair_core,Salvinorin A Cluster headache treatment outcome,Salvinorin A,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03312,disorder,pair_core,Salvinorin A Headache disorders clinical trial,Salvinorin A,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03313,disorder,pair_core,Salvinorin A Headache disorders randomized placebo,Salvinorin A,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03314,disorder,pair_core,Salvinorin A Headache disorders treatment outcome,Salvinorin A,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03315,disorder,pair_core,Salvinorin A Migraine clinical trial,Salvinorin A,Migraine,indication,{compound} {entity} clinical trial
+disorder_03316,disorder,pair_core,Salvinorin A Migraine randomized placebo,Salvinorin A,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03317,disorder,pair_core,Salvinorin A Migraine treatment outcome,Salvinorin A,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03318,disorder,pair_core,Salvinorin A Chronic pain clinical trial,Salvinorin A,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03319,disorder,pair_core,Salvinorin A Chronic pain randomized placebo,Salvinorin A,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03320,disorder,pair_core,Salvinorin A Chronic pain treatment outcome,Salvinorin A,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03321,disorder,pair_core,Salvinorin A Fibromyalgia clinical trial,Salvinorin A,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03322,disorder,pair_core,Salvinorin A Fibromyalgia randomized placebo,Salvinorin A,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03323,disorder,pair_core,Salvinorin A Fibromyalgia treatment outcome,Salvinorin A,Fibromyalgia,indication,{compound} {entity} treatment outcome
+disorder_03324,disorder,pair_core,Lisuride Treatment-resistant depression clinical trial,Lisuride,Treatment-resistant depression,indication,{compound} {entity} clinical trial
+disorder_03325,disorder,pair_core,Lisuride Treatment-resistant depression randomized placebo,Lisuride,Treatment-resistant depression,indication,{compound} {entity} randomized placebo
+disorder_03326,disorder,pair_core,Lisuride Treatment-resistant depression treatment outcome,Lisuride,Treatment-resistant depression,indication,{compound} {entity} treatment outcome
+disorder_03327,disorder,pair_core,Lisuride Major depressive disorder clinical trial,Lisuride,Major depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03328,disorder,pair_core,Lisuride Major depressive disorder randomized placebo,Lisuride,Major depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03329,disorder,pair_core,Lisuride Major depressive disorder treatment outcome,Lisuride,Major depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03330,disorder,pair_core,Lisuride Bipolar depression clinical trial,Lisuride,Bipolar depression,indication,{compound} {entity} clinical trial
+disorder_03331,disorder,pair_core,Lisuride Bipolar depression randomized placebo,Lisuride,Bipolar depression,indication,{compound} {entity} randomized placebo
+disorder_03332,disorder,pair_core,Lisuride Bipolar depression treatment outcome,Lisuride,Bipolar depression,indication,{compound} {entity} treatment outcome
+disorder_03333,disorder,pair_core,Lisuride Persistent depressive disorder clinical trial,Lisuride,Persistent depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03334,disorder,pair_core,Lisuride Persistent depressive disorder randomized placebo,Lisuride,Persistent depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03335,disorder,pair_core,Lisuride Persistent depressive disorder treatment outcome,Lisuride,Persistent depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03336,disorder,pair_core,Lisuride Post-traumatic stress disorder clinical trial,Lisuride,Post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03337,disorder,pair_core,Lisuride Post-traumatic stress disorder randomized placebo,Lisuride,Post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03338,disorder,pair_core,Lisuride Post-traumatic stress disorder treatment outcome,Lisuride,Post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03339,disorder,pair_core,Lisuride Complex post-traumatic stress disorder clinical trial,Lisuride,Complex post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03340,disorder,pair_core,Lisuride Complex post-traumatic stress disorder randomized placebo,Lisuride,Complex post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03341,disorder,pair_core,Lisuride Complex post-traumatic stress disorder treatment outcome,Lisuride,Complex post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03342,disorder,pair_core,Lisuride Alcohol use disorder clinical trial,Lisuride,Alcohol use disorder,indication,{compound} {entity} clinical trial
+disorder_03343,disorder,pair_core,Lisuride Alcohol use disorder randomized placebo,Lisuride,Alcohol use disorder,indication,{compound} {entity} randomized placebo
+disorder_03344,disorder,pair_core,Lisuride Alcohol use disorder treatment outcome,Lisuride,Alcohol use disorder,indication,{compound} {entity} treatment outcome
+disorder_03345,disorder,pair_core,Lisuride Tobacco use disorder clinical trial,Lisuride,Tobacco use disorder,indication,{compound} {entity} clinical trial
+disorder_03346,disorder,pair_core,Lisuride Tobacco use disorder randomized placebo,Lisuride,Tobacco use disorder,indication,{compound} {entity} randomized placebo
+disorder_03347,disorder,pair_core,Lisuride Tobacco use disorder treatment outcome,Lisuride,Tobacco use disorder,indication,{compound} {entity} treatment outcome
+disorder_03348,disorder,pair_core,Lisuride Nicotine dependence clinical trial,Lisuride,Nicotine dependence,indication,{compound} {entity} clinical trial
+disorder_03349,disorder,pair_core,Lisuride Nicotine dependence randomized placebo,Lisuride,Nicotine dependence,indication,{compound} {entity} randomized placebo
+disorder_03350,disorder,pair_core,Lisuride Nicotine dependence treatment outcome,Lisuride,Nicotine dependence,indication,{compound} {entity} treatment outcome
+disorder_03351,disorder,pair_core,Lisuride Opioid use disorder clinical trial,Lisuride,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03352,disorder,pair_core,Lisuride Opioid use disorder randomized placebo,Lisuride,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03353,disorder,pair_core,Lisuride Opioid use disorder treatment outcome,Lisuride,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03354,disorder,pair_core,Lisuride Cannabis use disorder clinical trial,Lisuride,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03355,disorder,pair_core,Lisuride Cannabis use disorder randomized placebo,Lisuride,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03356,disorder,pair_core,Lisuride Cannabis use disorder treatment outcome,Lisuride,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03357,disorder,pair_core,Lisuride Cocaine use disorder clinical trial,Lisuride,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03358,disorder,pair_core,Lisuride Cocaine use disorder randomized placebo,Lisuride,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03359,disorder,pair_core,Lisuride Cocaine use disorder treatment outcome,Lisuride,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03360,disorder,pair_core,Lisuride Methamphetamine use disorder clinical trial,Lisuride,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03361,disorder,pair_core,Lisuride Methamphetamine use disorder randomized placebo,Lisuride,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03362,disorder,pair_core,Lisuride Methamphetamine use disorder treatment outcome,Lisuride,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03363,disorder,pair_core,Lisuride Stimulant use disorder clinical trial,Lisuride,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03364,disorder,pair_core,Lisuride Stimulant use disorder randomized placebo,Lisuride,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03365,disorder,pair_core,Lisuride Stimulant use disorder treatment outcome,Lisuride,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03366,disorder,pair_core,Lisuride Substance use disorder clinical trial,Lisuride,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03367,disorder,pair_core,Lisuride Substance use disorder randomized placebo,Lisuride,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03368,disorder,pair_core,Lisuride Substance use disorder treatment outcome,Lisuride,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03369,disorder,pair_core,Lisuride Generalized anxiety disorder clinical trial,Lisuride,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03370,disorder,pair_core,Lisuride Generalized anxiety disorder randomized placebo,Lisuride,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03371,disorder,pair_core,Lisuride Generalized anxiety disorder treatment outcome,Lisuride,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03372,disorder,pair_core,Lisuride Social anxiety disorder clinical trial,Lisuride,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03373,disorder,pair_core,Lisuride Social anxiety disorder randomized placebo,Lisuride,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03374,disorder,pair_core,Lisuride Social anxiety disorder treatment outcome,Lisuride,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03375,disorder,pair_core,Lisuride Distress associated with life-threatening disease clinical trial,Lisuride,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03376,disorder,pair_core,Lisuride Distress associated with life-threatening disease randomized placebo,Lisuride,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03377,disorder,pair_core,Lisuride Distress associated with life-threatening disease treatment outcome,Lisuride,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03378,disorder,pair_core,Lisuride Obsessive-compulsive disorder clinical trial,Lisuride,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03379,disorder,pair_core,Lisuride Obsessive-compulsive disorder randomized placebo,Lisuride,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03380,disorder,pair_core,Lisuride Obsessive-compulsive disorder treatment outcome,Lisuride,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03381,disorder,pair_core,Lisuride Eating disorders clinical trial,Lisuride,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03382,disorder,pair_core,Lisuride Eating disorders randomized placebo,Lisuride,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03383,disorder,pair_core,Lisuride Eating disorders treatment outcome,Lisuride,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03384,disorder,pair_core,Lisuride Anorexia nervosa clinical trial,Lisuride,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03385,disorder,pair_core,Lisuride Anorexia nervosa randomized placebo,Lisuride,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03386,disorder,pair_core,Lisuride Anorexia nervosa treatment outcome,Lisuride,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03387,disorder,pair_core,Lisuride Bulimia nervosa clinical trial,Lisuride,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03388,disorder,pair_core,Lisuride Bulimia nervosa randomized placebo,Lisuride,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03389,disorder,pair_core,Lisuride Bulimia nervosa treatment outcome,Lisuride,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03390,disorder,pair_core,Lisuride Binge-eating disorder clinical trial,Lisuride,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03391,disorder,pair_core,Lisuride Binge-eating disorder randomized placebo,Lisuride,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03392,disorder,pair_core,Lisuride Binge-eating disorder treatment outcome,Lisuride,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03393,disorder,pair_core,Lisuride Autism spectrum disorder clinical trial,Lisuride,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03394,disorder,pair_core,Lisuride Autism spectrum disorder randomized placebo,Lisuride,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03395,disorder,pair_core,Lisuride Autism spectrum disorder treatment outcome,Lisuride,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03396,disorder,pair_core,Lisuride Demoralization clinical trial,Lisuride,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03397,disorder,pair_core,Lisuride Demoralization randomized placebo,Lisuride,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03398,disorder,pair_core,Lisuride Demoralization treatment outcome,Lisuride,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03399,disorder,pair_core,Lisuride Suicidal ideation clinical trial,Lisuride,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03400,disorder,pair_core,Lisuride Suicidal ideation randomized placebo,Lisuride,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03401,disorder,pair_core,Lisuride Suicidal ideation treatment outcome,Lisuride,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03402,disorder,pair_core,Lisuride Cluster headache clinical trial,Lisuride,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03403,disorder,pair_core,Lisuride Cluster headache randomized placebo,Lisuride,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03404,disorder,pair_core,Lisuride Cluster headache treatment outcome,Lisuride,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03405,disorder,pair_core,Lisuride Headache disorders clinical trial,Lisuride,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03406,disorder,pair_core,Lisuride Headache disorders randomized placebo,Lisuride,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03407,disorder,pair_core,Lisuride Headache disorders treatment outcome,Lisuride,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03408,disorder,pair_core,Lisuride Migraine clinical trial,Lisuride,Migraine,indication,{compound} {entity} clinical trial
+disorder_03409,disorder,pair_core,Lisuride Migraine randomized placebo,Lisuride,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03410,disorder,pair_core,Lisuride Migraine treatment outcome,Lisuride,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03411,disorder,pair_core,Lisuride Chronic pain clinical trial,Lisuride,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03412,disorder,pair_core,Lisuride Chronic pain randomized placebo,Lisuride,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03413,disorder,pair_core,Lisuride Chronic pain treatment outcome,Lisuride,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03414,disorder,pair_core,Lisuride Fibromyalgia clinical trial,Lisuride,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03415,disorder,pair_core,Lisuride Fibromyalgia randomized placebo,Lisuride,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03416,disorder,pair_core,Lisuride Fibromyalgia treatment outcome,Lisuride,Fibromyalgia,indication,{compound} {entity} treatment outcome
+disorder_03417,disorder,pair_core,Bromo-DragonFLY Treatment-resistant depression clinical trial,Bromo-DragonFLY,Treatment-resistant depression,indication,{compound} {entity} clinical trial
+disorder_03418,disorder,pair_core,Bromo-DragonFLY Treatment-resistant depression randomized placebo,Bromo-DragonFLY,Treatment-resistant depression,indication,{compound} {entity} randomized placebo
+disorder_03419,disorder,pair_core,Bromo-DragonFLY Treatment-resistant depression treatment outcome,Bromo-DragonFLY,Treatment-resistant depression,indication,{compound} {entity} treatment outcome
+disorder_03420,disorder,pair_core,Bromo-DragonFLY Major depressive disorder clinical trial,Bromo-DragonFLY,Major depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03421,disorder,pair_core,Bromo-DragonFLY Major depressive disorder randomized placebo,Bromo-DragonFLY,Major depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03422,disorder,pair_core,Bromo-DragonFLY Major depressive disorder treatment outcome,Bromo-DragonFLY,Major depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03423,disorder,pair_core,Bromo-DragonFLY Bipolar depression clinical trial,Bromo-DragonFLY,Bipolar depression,indication,{compound} {entity} clinical trial
+disorder_03424,disorder,pair_core,Bromo-DragonFLY Bipolar depression randomized placebo,Bromo-DragonFLY,Bipolar depression,indication,{compound} {entity} randomized placebo
+disorder_03425,disorder,pair_core,Bromo-DragonFLY Bipolar depression treatment outcome,Bromo-DragonFLY,Bipolar depression,indication,{compound} {entity} treatment outcome
+disorder_03426,disorder,pair_core,Bromo-DragonFLY Persistent depressive disorder clinical trial,Bromo-DragonFLY,Persistent depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03427,disorder,pair_core,Bromo-DragonFLY Persistent depressive disorder randomized placebo,Bromo-DragonFLY,Persistent depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03428,disorder,pair_core,Bromo-DragonFLY Persistent depressive disorder treatment outcome,Bromo-DragonFLY,Persistent depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03429,disorder,pair_core,Bromo-DragonFLY Post-traumatic stress disorder clinical trial,Bromo-DragonFLY,Post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03430,disorder,pair_core,Bromo-DragonFLY Post-traumatic stress disorder randomized placebo,Bromo-DragonFLY,Post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03431,disorder,pair_core,Bromo-DragonFLY Post-traumatic stress disorder treatment outcome,Bromo-DragonFLY,Post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03432,disorder,pair_core,Bromo-DragonFLY Complex post-traumatic stress disorder clinical trial,Bromo-DragonFLY,Complex post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03433,disorder,pair_core,Bromo-DragonFLY Complex post-traumatic stress disorder randomized placebo,Bromo-DragonFLY,Complex post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03434,disorder,pair_core,Bromo-DragonFLY Complex post-traumatic stress disorder treatment outcome,Bromo-DragonFLY,Complex post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03435,disorder,pair_core,Bromo-DragonFLY Alcohol use disorder clinical trial,Bromo-DragonFLY,Alcohol use disorder,indication,{compound} {entity} clinical trial
+disorder_03436,disorder,pair_core,Bromo-DragonFLY Alcohol use disorder randomized placebo,Bromo-DragonFLY,Alcohol use disorder,indication,{compound} {entity} randomized placebo
+disorder_03437,disorder,pair_core,Bromo-DragonFLY Alcohol use disorder treatment outcome,Bromo-DragonFLY,Alcohol use disorder,indication,{compound} {entity} treatment outcome
+disorder_03438,disorder,pair_core,Bromo-DragonFLY Tobacco use disorder clinical trial,Bromo-DragonFLY,Tobacco use disorder,indication,{compound} {entity} clinical trial
+disorder_03439,disorder,pair_core,Bromo-DragonFLY Tobacco use disorder randomized placebo,Bromo-DragonFLY,Tobacco use disorder,indication,{compound} {entity} randomized placebo
+disorder_03440,disorder,pair_core,Bromo-DragonFLY Tobacco use disorder treatment outcome,Bromo-DragonFLY,Tobacco use disorder,indication,{compound} {entity} treatment outcome
+disorder_03441,disorder,pair_core,Bromo-DragonFLY Nicotine dependence clinical trial,Bromo-DragonFLY,Nicotine dependence,indication,{compound} {entity} clinical trial
+disorder_03442,disorder,pair_core,Bromo-DragonFLY Nicotine dependence randomized placebo,Bromo-DragonFLY,Nicotine dependence,indication,{compound} {entity} randomized placebo
+disorder_03443,disorder,pair_core,Bromo-DragonFLY Nicotine dependence treatment outcome,Bromo-DragonFLY,Nicotine dependence,indication,{compound} {entity} treatment outcome
+disorder_03444,disorder,pair_core,Bromo-DragonFLY Opioid use disorder clinical trial,Bromo-DragonFLY,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03445,disorder,pair_core,Bromo-DragonFLY Opioid use disorder randomized placebo,Bromo-DragonFLY,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03446,disorder,pair_core,Bromo-DragonFLY Opioid use disorder treatment outcome,Bromo-DragonFLY,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03447,disorder,pair_core,Bromo-DragonFLY Cannabis use disorder clinical trial,Bromo-DragonFLY,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03448,disorder,pair_core,Bromo-DragonFLY Cannabis use disorder randomized placebo,Bromo-DragonFLY,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03449,disorder,pair_core,Bromo-DragonFLY Cannabis use disorder treatment outcome,Bromo-DragonFLY,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03450,disorder,pair_core,Bromo-DragonFLY Cocaine use disorder clinical trial,Bromo-DragonFLY,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03451,disorder,pair_core,Bromo-DragonFLY Cocaine use disorder randomized placebo,Bromo-DragonFLY,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03452,disorder,pair_core,Bromo-DragonFLY Cocaine use disorder treatment outcome,Bromo-DragonFLY,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03453,disorder,pair_core,Bromo-DragonFLY Methamphetamine use disorder clinical trial,Bromo-DragonFLY,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03454,disorder,pair_core,Bromo-DragonFLY Methamphetamine use disorder randomized placebo,Bromo-DragonFLY,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03455,disorder,pair_core,Bromo-DragonFLY Methamphetamine use disorder treatment outcome,Bromo-DragonFLY,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03456,disorder,pair_core,Bromo-DragonFLY Stimulant use disorder clinical trial,Bromo-DragonFLY,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03457,disorder,pair_core,Bromo-DragonFLY Stimulant use disorder randomized placebo,Bromo-DragonFLY,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03458,disorder,pair_core,Bromo-DragonFLY Stimulant use disorder treatment outcome,Bromo-DragonFLY,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03459,disorder,pair_core,Bromo-DragonFLY Substance use disorder clinical trial,Bromo-DragonFLY,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03460,disorder,pair_core,Bromo-DragonFLY Substance use disorder randomized placebo,Bromo-DragonFLY,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03461,disorder,pair_core,Bromo-DragonFLY Substance use disorder treatment outcome,Bromo-DragonFLY,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03462,disorder,pair_core,Bromo-DragonFLY Generalized anxiety disorder clinical trial,Bromo-DragonFLY,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03463,disorder,pair_core,Bromo-DragonFLY Generalized anxiety disorder randomized placebo,Bromo-DragonFLY,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03464,disorder,pair_core,Bromo-DragonFLY Generalized anxiety disorder treatment outcome,Bromo-DragonFLY,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03465,disorder,pair_core,Bromo-DragonFLY Social anxiety disorder clinical trial,Bromo-DragonFLY,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03466,disorder,pair_core,Bromo-DragonFLY Social anxiety disorder randomized placebo,Bromo-DragonFLY,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03467,disorder,pair_core,Bromo-DragonFLY Social anxiety disorder treatment outcome,Bromo-DragonFLY,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03468,disorder,pair_core,Bromo-DragonFLY Distress associated with life-threatening disease clinical trial,Bromo-DragonFLY,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03469,disorder,pair_core,Bromo-DragonFLY Distress associated with life-threatening disease randomized placebo,Bromo-DragonFLY,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03470,disorder,pair_core,Bromo-DragonFLY Distress associated with life-threatening disease treatment outcome,Bromo-DragonFLY,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03471,disorder,pair_core,Bromo-DragonFLY Obsessive-compulsive disorder clinical trial,Bromo-DragonFLY,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03472,disorder,pair_core,Bromo-DragonFLY Obsessive-compulsive disorder randomized placebo,Bromo-DragonFLY,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03473,disorder,pair_core,Bromo-DragonFLY Obsessive-compulsive disorder treatment outcome,Bromo-DragonFLY,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03474,disorder,pair_core,Bromo-DragonFLY Eating disorders clinical trial,Bromo-DragonFLY,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03475,disorder,pair_core,Bromo-DragonFLY Eating disorders randomized placebo,Bromo-DragonFLY,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03476,disorder,pair_core,Bromo-DragonFLY Eating disorders treatment outcome,Bromo-DragonFLY,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03477,disorder,pair_core,Bromo-DragonFLY Anorexia nervosa clinical trial,Bromo-DragonFLY,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03478,disorder,pair_core,Bromo-DragonFLY Anorexia nervosa randomized placebo,Bromo-DragonFLY,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03479,disorder,pair_core,Bromo-DragonFLY Anorexia nervosa treatment outcome,Bromo-DragonFLY,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03480,disorder,pair_core,Bromo-DragonFLY Bulimia nervosa clinical trial,Bromo-DragonFLY,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03481,disorder,pair_core,Bromo-DragonFLY Bulimia nervosa randomized placebo,Bromo-DragonFLY,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03482,disorder,pair_core,Bromo-DragonFLY Bulimia nervosa treatment outcome,Bromo-DragonFLY,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03483,disorder,pair_core,Bromo-DragonFLY Binge-eating disorder clinical trial,Bromo-DragonFLY,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03484,disorder,pair_core,Bromo-DragonFLY Binge-eating disorder randomized placebo,Bromo-DragonFLY,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03485,disorder,pair_core,Bromo-DragonFLY Binge-eating disorder treatment outcome,Bromo-DragonFLY,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03486,disorder,pair_core,Bromo-DragonFLY Autism spectrum disorder clinical trial,Bromo-DragonFLY,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03487,disorder,pair_core,Bromo-DragonFLY Autism spectrum disorder randomized placebo,Bromo-DragonFLY,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03488,disorder,pair_core,Bromo-DragonFLY Autism spectrum disorder treatment outcome,Bromo-DragonFLY,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03489,disorder,pair_core,Bromo-DragonFLY Demoralization clinical trial,Bromo-DragonFLY,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03490,disorder,pair_core,Bromo-DragonFLY Demoralization randomized placebo,Bromo-DragonFLY,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03491,disorder,pair_core,Bromo-DragonFLY Demoralization treatment outcome,Bromo-DragonFLY,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03492,disorder,pair_core,Bromo-DragonFLY Suicidal ideation clinical trial,Bromo-DragonFLY,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03493,disorder,pair_core,Bromo-DragonFLY Suicidal ideation randomized placebo,Bromo-DragonFLY,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03494,disorder,pair_core,Bromo-DragonFLY Suicidal ideation treatment outcome,Bromo-DragonFLY,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03495,disorder,pair_core,Bromo-DragonFLY Cluster headache clinical trial,Bromo-DragonFLY,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03496,disorder,pair_core,Bromo-DragonFLY Cluster headache randomized placebo,Bromo-DragonFLY,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03497,disorder,pair_core,Bromo-DragonFLY Cluster headache treatment outcome,Bromo-DragonFLY,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03498,disorder,pair_core,Bromo-DragonFLY Headache disorders clinical trial,Bromo-DragonFLY,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03499,disorder,pair_core,Bromo-DragonFLY Headache disorders randomized placebo,Bromo-DragonFLY,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03500,disorder,pair_core,Bromo-DragonFLY Headache disorders treatment outcome,Bromo-DragonFLY,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03501,disorder,pair_core,Bromo-DragonFLY Migraine clinical trial,Bromo-DragonFLY,Migraine,indication,{compound} {entity} clinical trial
+disorder_03502,disorder,pair_core,Bromo-DragonFLY Migraine randomized placebo,Bromo-DragonFLY,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03503,disorder,pair_core,Bromo-DragonFLY Migraine treatment outcome,Bromo-DragonFLY,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03504,disorder,pair_core,Bromo-DragonFLY Chronic pain clinical trial,Bromo-DragonFLY,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03505,disorder,pair_core,Bromo-DragonFLY Chronic pain randomized placebo,Bromo-DragonFLY,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03506,disorder,pair_core,Bromo-DragonFLY Chronic pain treatment outcome,Bromo-DragonFLY,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03507,disorder,pair_core,Bromo-DragonFLY Fibromyalgia clinical trial,Bromo-DragonFLY,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03508,disorder,pair_core,Bromo-DragonFLY Fibromyalgia randomized placebo,Bromo-DragonFLY,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03509,disorder,pair_core,Bromo-DragonFLY Fibromyalgia treatment outcome,Bromo-DragonFLY,Fibromyalgia,indication,{compound} {entity} treatment outcome
+disorder_03510,disorder,pair_core,25I-NBOMe Treatment-resistant depression clinical trial,25I-NBOMe,Treatment-resistant depression,indication,{compound} {entity} clinical trial
+disorder_03511,disorder,pair_core,25I-NBOMe Treatment-resistant depression randomized placebo,25I-NBOMe,Treatment-resistant depression,indication,{compound} {entity} randomized placebo
+disorder_03512,disorder,pair_core,25I-NBOMe Treatment-resistant depression treatment outcome,25I-NBOMe,Treatment-resistant depression,indication,{compound} {entity} treatment outcome
+disorder_03513,disorder,pair_core,25I-NBOMe Major depressive disorder clinical trial,25I-NBOMe,Major depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03514,disorder,pair_core,25I-NBOMe Major depressive disorder randomized placebo,25I-NBOMe,Major depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03515,disorder,pair_core,25I-NBOMe Major depressive disorder treatment outcome,25I-NBOMe,Major depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03516,disorder,pair_core,25I-NBOMe Bipolar depression clinical trial,25I-NBOMe,Bipolar depression,indication,{compound} {entity} clinical trial
+disorder_03517,disorder,pair_core,25I-NBOMe Bipolar depression randomized placebo,25I-NBOMe,Bipolar depression,indication,{compound} {entity} randomized placebo
+disorder_03518,disorder,pair_core,25I-NBOMe Bipolar depression treatment outcome,25I-NBOMe,Bipolar depression,indication,{compound} {entity} treatment outcome
+disorder_03519,disorder,pair_core,25I-NBOMe Persistent depressive disorder clinical trial,25I-NBOMe,Persistent depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03520,disorder,pair_core,25I-NBOMe Persistent depressive disorder randomized placebo,25I-NBOMe,Persistent depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03521,disorder,pair_core,25I-NBOMe Persistent depressive disorder treatment outcome,25I-NBOMe,Persistent depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03522,disorder,pair_core,25I-NBOMe Post-traumatic stress disorder clinical trial,25I-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03523,disorder,pair_core,25I-NBOMe Post-traumatic stress disorder randomized placebo,25I-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03524,disorder,pair_core,25I-NBOMe Post-traumatic stress disorder treatment outcome,25I-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03525,disorder,pair_core,25I-NBOMe Complex post-traumatic stress disorder clinical trial,25I-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03526,disorder,pair_core,25I-NBOMe Complex post-traumatic stress disorder randomized placebo,25I-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03527,disorder,pair_core,25I-NBOMe Complex post-traumatic stress disorder treatment outcome,25I-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03528,disorder,pair_core,25I-NBOMe Alcohol use disorder clinical trial,25I-NBOMe,Alcohol use disorder,indication,{compound} {entity} clinical trial
+disorder_03529,disorder,pair_core,25I-NBOMe Alcohol use disorder randomized placebo,25I-NBOMe,Alcohol use disorder,indication,{compound} {entity} randomized placebo
+disorder_03530,disorder,pair_core,25I-NBOMe Alcohol use disorder treatment outcome,25I-NBOMe,Alcohol use disorder,indication,{compound} {entity} treatment outcome
+disorder_03531,disorder,pair_core,25I-NBOMe Tobacco use disorder clinical trial,25I-NBOMe,Tobacco use disorder,indication,{compound} {entity} clinical trial
+disorder_03532,disorder,pair_core,25I-NBOMe Tobacco use disorder randomized placebo,25I-NBOMe,Tobacco use disorder,indication,{compound} {entity} randomized placebo
+disorder_03533,disorder,pair_core,25I-NBOMe Tobacco use disorder treatment outcome,25I-NBOMe,Tobacco use disorder,indication,{compound} {entity} treatment outcome
+disorder_03534,disorder,pair_core,25I-NBOMe Nicotine dependence clinical trial,25I-NBOMe,Nicotine dependence,indication,{compound} {entity} clinical trial
+disorder_03535,disorder,pair_core,25I-NBOMe Nicotine dependence randomized placebo,25I-NBOMe,Nicotine dependence,indication,{compound} {entity} randomized placebo
+disorder_03536,disorder,pair_core,25I-NBOMe Nicotine dependence treatment outcome,25I-NBOMe,Nicotine dependence,indication,{compound} {entity} treatment outcome
+disorder_03537,disorder,pair_core,25I-NBOMe Opioid use disorder clinical trial,25I-NBOMe,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03538,disorder,pair_core,25I-NBOMe Opioid use disorder randomized placebo,25I-NBOMe,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03539,disorder,pair_core,25I-NBOMe Opioid use disorder treatment outcome,25I-NBOMe,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03540,disorder,pair_core,25I-NBOMe Cannabis use disorder clinical trial,25I-NBOMe,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03541,disorder,pair_core,25I-NBOMe Cannabis use disorder randomized placebo,25I-NBOMe,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03542,disorder,pair_core,25I-NBOMe Cannabis use disorder treatment outcome,25I-NBOMe,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03543,disorder,pair_core,25I-NBOMe Cocaine use disorder clinical trial,25I-NBOMe,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03544,disorder,pair_core,25I-NBOMe Cocaine use disorder randomized placebo,25I-NBOMe,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03545,disorder,pair_core,25I-NBOMe Cocaine use disorder treatment outcome,25I-NBOMe,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03546,disorder,pair_core,25I-NBOMe Methamphetamine use disorder clinical trial,25I-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03547,disorder,pair_core,25I-NBOMe Methamphetamine use disorder randomized placebo,25I-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03548,disorder,pair_core,25I-NBOMe Methamphetamine use disorder treatment outcome,25I-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03549,disorder,pair_core,25I-NBOMe Stimulant use disorder clinical trial,25I-NBOMe,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03550,disorder,pair_core,25I-NBOMe Stimulant use disorder randomized placebo,25I-NBOMe,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03551,disorder,pair_core,25I-NBOMe Stimulant use disorder treatment outcome,25I-NBOMe,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03552,disorder,pair_core,25I-NBOMe Substance use disorder clinical trial,25I-NBOMe,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03553,disorder,pair_core,25I-NBOMe Substance use disorder randomized placebo,25I-NBOMe,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03554,disorder,pair_core,25I-NBOMe Substance use disorder treatment outcome,25I-NBOMe,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03555,disorder,pair_core,25I-NBOMe Generalized anxiety disorder clinical trial,25I-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03556,disorder,pair_core,25I-NBOMe Generalized anxiety disorder randomized placebo,25I-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03557,disorder,pair_core,25I-NBOMe Generalized anxiety disorder treatment outcome,25I-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03558,disorder,pair_core,25I-NBOMe Social anxiety disorder clinical trial,25I-NBOMe,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03559,disorder,pair_core,25I-NBOMe Social anxiety disorder randomized placebo,25I-NBOMe,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03560,disorder,pair_core,25I-NBOMe Social anxiety disorder treatment outcome,25I-NBOMe,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03561,disorder,pair_core,25I-NBOMe Distress associated with life-threatening disease clinical trial,25I-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03562,disorder,pair_core,25I-NBOMe Distress associated with life-threatening disease randomized placebo,25I-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03563,disorder,pair_core,25I-NBOMe Distress associated with life-threatening disease treatment outcome,25I-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03564,disorder,pair_core,25I-NBOMe Obsessive-compulsive disorder clinical trial,25I-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03565,disorder,pair_core,25I-NBOMe Obsessive-compulsive disorder randomized placebo,25I-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03566,disorder,pair_core,25I-NBOMe Obsessive-compulsive disorder treatment outcome,25I-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03567,disorder,pair_core,25I-NBOMe Eating disorders clinical trial,25I-NBOMe,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03568,disorder,pair_core,25I-NBOMe Eating disorders randomized placebo,25I-NBOMe,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03569,disorder,pair_core,25I-NBOMe Eating disorders treatment outcome,25I-NBOMe,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03570,disorder,pair_core,25I-NBOMe Anorexia nervosa clinical trial,25I-NBOMe,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03571,disorder,pair_core,25I-NBOMe Anorexia nervosa randomized placebo,25I-NBOMe,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03572,disorder,pair_core,25I-NBOMe Anorexia nervosa treatment outcome,25I-NBOMe,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03573,disorder,pair_core,25I-NBOMe Bulimia nervosa clinical trial,25I-NBOMe,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03574,disorder,pair_core,25I-NBOMe Bulimia nervosa randomized placebo,25I-NBOMe,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03575,disorder,pair_core,25I-NBOMe Bulimia nervosa treatment outcome,25I-NBOMe,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03576,disorder,pair_core,25I-NBOMe Binge-eating disorder clinical trial,25I-NBOMe,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03577,disorder,pair_core,25I-NBOMe Binge-eating disorder randomized placebo,25I-NBOMe,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03578,disorder,pair_core,25I-NBOMe Binge-eating disorder treatment outcome,25I-NBOMe,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03579,disorder,pair_core,25I-NBOMe Autism spectrum disorder clinical trial,25I-NBOMe,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03580,disorder,pair_core,25I-NBOMe Autism spectrum disorder randomized placebo,25I-NBOMe,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03581,disorder,pair_core,25I-NBOMe Autism spectrum disorder treatment outcome,25I-NBOMe,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03582,disorder,pair_core,25I-NBOMe Demoralization clinical trial,25I-NBOMe,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03583,disorder,pair_core,25I-NBOMe Demoralization randomized placebo,25I-NBOMe,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03584,disorder,pair_core,25I-NBOMe Demoralization treatment outcome,25I-NBOMe,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03585,disorder,pair_core,25I-NBOMe Suicidal ideation clinical trial,25I-NBOMe,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03586,disorder,pair_core,25I-NBOMe Suicidal ideation randomized placebo,25I-NBOMe,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03587,disorder,pair_core,25I-NBOMe Suicidal ideation treatment outcome,25I-NBOMe,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03588,disorder,pair_core,25I-NBOMe Cluster headache clinical trial,25I-NBOMe,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03589,disorder,pair_core,25I-NBOMe Cluster headache randomized placebo,25I-NBOMe,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03590,disorder,pair_core,25I-NBOMe Cluster headache treatment outcome,25I-NBOMe,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03591,disorder,pair_core,25I-NBOMe Headache disorders clinical trial,25I-NBOMe,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03592,disorder,pair_core,25I-NBOMe Headache disorders randomized placebo,25I-NBOMe,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03593,disorder,pair_core,25I-NBOMe Headache disorders treatment outcome,25I-NBOMe,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03594,disorder,pair_core,25I-NBOMe Migraine clinical trial,25I-NBOMe,Migraine,indication,{compound} {entity} clinical trial
+disorder_03595,disorder,pair_core,25I-NBOMe Migraine randomized placebo,25I-NBOMe,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03596,disorder,pair_core,25I-NBOMe Migraine treatment outcome,25I-NBOMe,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03597,disorder,pair_core,25I-NBOMe Chronic pain clinical trial,25I-NBOMe,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03598,disorder,pair_core,25I-NBOMe Chronic pain randomized placebo,25I-NBOMe,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03599,disorder,pair_core,25I-NBOMe Chronic pain treatment outcome,25I-NBOMe,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03600,disorder,pair_core,25I-NBOMe Fibromyalgia clinical trial,25I-NBOMe,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03601,disorder,pair_core,25I-NBOMe Fibromyalgia randomized placebo,25I-NBOMe,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03602,disorder,pair_core,25I-NBOMe Fibromyalgia treatment outcome,25I-NBOMe,Fibromyalgia,indication,{compound} {entity} treatment outcome
+disorder_03603,disorder,pair_core,25B-NBOMe Treatment-resistant depression clinical trial,25B-NBOMe,Treatment-resistant depression,indication,{compound} {entity} clinical trial
+disorder_03604,disorder,pair_core,25B-NBOMe Treatment-resistant depression randomized placebo,25B-NBOMe,Treatment-resistant depression,indication,{compound} {entity} randomized placebo
+disorder_03605,disorder,pair_core,25B-NBOMe Treatment-resistant depression treatment outcome,25B-NBOMe,Treatment-resistant depression,indication,{compound} {entity} treatment outcome
+disorder_03606,disorder,pair_core,25B-NBOMe Major depressive disorder clinical trial,25B-NBOMe,Major depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03607,disorder,pair_core,25B-NBOMe Major depressive disorder randomized placebo,25B-NBOMe,Major depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03608,disorder,pair_core,25B-NBOMe Major depressive disorder treatment outcome,25B-NBOMe,Major depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03609,disorder,pair_core,25B-NBOMe Bipolar depression clinical trial,25B-NBOMe,Bipolar depression,indication,{compound} {entity} clinical trial
+disorder_03610,disorder,pair_core,25B-NBOMe Bipolar depression randomized placebo,25B-NBOMe,Bipolar depression,indication,{compound} {entity} randomized placebo
+disorder_03611,disorder,pair_core,25B-NBOMe Bipolar depression treatment outcome,25B-NBOMe,Bipolar depression,indication,{compound} {entity} treatment outcome
+disorder_03612,disorder,pair_core,25B-NBOMe Persistent depressive disorder clinical trial,25B-NBOMe,Persistent depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03613,disorder,pair_core,25B-NBOMe Persistent depressive disorder randomized placebo,25B-NBOMe,Persistent depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03614,disorder,pair_core,25B-NBOMe Persistent depressive disorder treatment outcome,25B-NBOMe,Persistent depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03615,disorder,pair_core,25B-NBOMe Post-traumatic stress disorder clinical trial,25B-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03616,disorder,pair_core,25B-NBOMe Post-traumatic stress disorder randomized placebo,25B-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03617,disorder,pair_core,25B-NBOMe Post-traumatic stress disorder treatment outcome,25B-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03618,disorder,pair_core,25B-NBOMe Complex post-traumatic stress disorder clinical trial,25B-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03619,disorder,pair_core,25B-NBOMe Complex post-traumatic stress disorder randomized placebo,25B-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03620,disorder,pair_core,25B-NBOMe Complex post-traumatic stress disorder treatment outcome,25B-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03621,disorder,pair_core,25B-NBOMe Alcohol use disorder clinical trial,25B-NBOMe,Alcohol use disorder,indication,{compound} {entity} clinical trial
+disorder_03622,disorder,pair_core,25B-NBOMe Alcohol use disorder randomized placebo,25B-NBOMe,Alcohol use disorder,indication,{compound} {entity} randomized placebo
+disorder_03623,disorder,pair_core,25B-NBOMe Alcohol use disorder treatment outcome,25B-NBOMe,Alcohol use disorder,indication,{compound} {entity} treatment outcome
+disorder_03624,disorder,pair_core,25B-NBOMe Tobacco use disorder clinical trial,25B-NBOMe,Tobacco use disorder,indication,{compound} {entity} clinical trial
+disorder_03625,disorder,pair_core,25B-NBOMe Tobacco use disorder randomized placebo,25B-NBOMe,Tobacco use disorder,indication,{compound} {entity} randomized placebo
+disorder_03626,disorder,pair_core,25B-NBOMe Tobacco use disorder treatment outcome,25B-NBOMe,Tobacco use disorder,indication,{compound} {entity} treatment outcome
+disorder_03627,disorder,pair_core,25B-NBOMe Nicotine dependence clinical trial,25B-NBOMe,Nicotine dependence,indication,{compound} {entity} clinical trial
+disorder_03628,disorder,pair_core,25B-NBOMe Nicotine dependence randomized placebo,25B-NBOMe,Nicotine dependence,indication,{compound} {entity} randomized placebo
+disorder_03629,disorder,pair_core,25B-NBOMe Nicotine dependence treatment outcome,25B-NBOMe,Nicotine dependence,indication,{compound} {entity} treatment outcome
+disorder_03630,disorder,pair_core,25B-NBOMe Opioid use disorder clinical trial,25B-NBOMe,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03631,disorder,pair_core,25B-NBOMe Opioid use disorder randomized placebo,25B-NBOMe,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03632,disorder,pair_core,25B-NBOMe Opioid use disorder treatment outcome,25B-NBOMe,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03633,disorder,pair_core,25B-NBOMe Cannabis use disorder clinical trial,25B-NBOMe,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03634,disorder,pair_core,25B-NBOMe Cannabis use disorder randomized placebo,25B-NBOMe,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03635,disorder,pair_core,25B-NBOMe Cannabis use disorder treatment outcome,25B-NBOMe,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03636,disorder,pair_core,25B-NBOMe Cocaine use disorder clinical trial,25B-NBOMe,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03637,disorder,pair_core,25B-NBOMe Cocaine use disorder randomized placebo,25B-NBOMe,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03638,disorder,pair_core,25B-NBOMe Cocaine use disorder treatment outcome,25B-NBOMe,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03639,disorder,pair_core,25B-NBOMe Methamphetamine use disorder clinical trial,25B-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03640,disorder,pair_core,25B-NBOMe Methamphetamine use disorder randomized placebo,25B-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03641,disorder,pair_core,25B-NBOMe Methamphetamine use disorder treatment outcome,25B-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03642,disorder,pair_core,25B-NBOMe Stimulant use disorder clinical trial,25B-NBOMe,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03643,disorder,pair_core,25B-NBOMe Stimulant use disorder randomized placebo,25B-NBOMe,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03644,disorder,pair_core,25B-NBOMe Stimulant use disorder treatment outcome,25B-NBOMe,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03645,disorder,pair_core,25B-NBOMe Substance use disorder clinical trial,25B-NBOMe,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03646,disorder,pair_core,25B-NBOMe Substance use disorder randomized placebo,25B-NBOMe,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03647,disorder,pair_core,25B-NBOMe Substance use disorder treatment outcome,25B-NBOMe,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03648,disorder,pair_core,25B-NBOMe Generalized anxiety disorder clinical trial,25B-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03649,disorder,pair_core,25B-NBOMe Generalized anxiety disorder randomized placebo,25B-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03650,disorder,pair_core,25B-NBOMe Generalized anxiety disorder treatment outcome,25B-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03651,disorder,pair_core,25B-NBOMe Social anxiety disorder clinical trial,25B-NBOMe,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03652,disorder,pair_core,25B-NBOMe Social anxiety disorder randomized placebo,25B-NBOMe,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03653,disorder,pair_core,25B-NBOMe Social anxiety disorder treatment outcome,25B-NBOMe,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03654,disorder,pair_core,25B-NBOMe Distress associated with life-threatening disease clinical trial,25B-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03655,disorder,pair_core,25B-NBOMe Distress associated with life-threatening disease randomized placebo,25B-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03656,disorder,pair_core,25B-NBOMe Distress associated with life-threatening disease treatment outcome,25B-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03657,disorder,pair_core,25B-NBOMe Obsessive-compulsive disorder clinical trial,25B-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03658,disorder,pair_core,25B-NBOMe Obsessive-compulsive disorder randomized placebo,25B-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03659,disorder,pair_core,25B-NBOMe Obsessive-compulsive disorder treatment outcome,25B-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03660,disorder,pair_core,25B-NBOMe Eating disorders clinical trial,25B-NBOMe,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03661,disorder,pair_core,25B-NBOMe Eating disorders randomized placebo,25B-NBOMe,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03662,disorder,pair_core,25B-NBOMe Eating disorders treatment outcome,25B-NBOMe,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03663,disorder,pair_core,25B-NBOMe Anorexia nervosa clinical trial,25B-NBOMe,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03664,disorder,pair_core,25B-NBOMe Anorexia nervosa randomized placebo,25B-NBOMe,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03665,disorder,pair_core,25B-NBOMe Anorexia nervosa treatment outcome,25B-NBOMe,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03666,disorder,pair_core,25B-NBOMe Bulimia nervosa clinical trial,25B-NBOMe,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03667,disorder,pair_core,25B-NBOMe Bulimia nervosa randomized placebo,25B-NBOMe,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03668,disorder,pair_core,25B-NBOMe Bulimia nervosa treatment outcome,25B-NBOMe,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03669,disorder,pair_core,25B-NBOMe Binge-eating disorder clinical trial,25B-NBOMe,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03670,disorder,pair_core,25B-NBOMe Binge-eating disorder randomized placebo,25B-NBOMe,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03671,disorder,pair_core,25B-NBOMe Binge-eating disorder treatment outcome,25B-NBOMe,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03672,disorder,pair_core,25B-NBOMe Autism spectrum disorder clinical trial,25B-NBOMe,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03673,disorder,pair_core,25B-NBOMe Autism spectrum disorder randomized placebo,25B-NBOMe,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03674,disorder,pair_core,25B-NBOMe Autism spectrum disorder treatment outcome,25B-NBOMe,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03675,disorder,pair_core,25B-NBOMe Demoralization clinical trial,25B-NBOMe,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03676,disorder,pair_core,25B-NBOMe Demoralization randomized placebo,25B-NBOMe,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03677,disorder,pair_core,25B-NBOMe Demoralization treatment outcome,25B-NBOMe,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03678,disorder,pair_core,25B-NBOMe Suicidal ideation clinical trial,25B-NBOMe,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03679,disorder,pair_core,25B-NBOMe Suicidal ideation randomized placebo,25B-NBOMe,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03680,disorder,pair_core,25B-NBOMe Suicidal ideation treatment outcome,25B-NBOMe,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03681,disorder,pair_core,25B-NBOMe Cluster headache clinical trial,25B-NBOMe,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03682,disorder,pair_core,25B-NBOMe Cluster headache randomized placebo,25B-NBOMe,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03683,disorder,pair_core,25B-NBOMe Cluster headache treatment outcome,25B-NBOMe,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03684,disorder,pair_core,25B-NBOMe Headache disorders clinical trial,25B-NBOMe,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03685,disorder,pair_core,25B-NBOMe Headache disorders randomized placebo,25B-NBOMe,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03686,disorder,pair_core,25B-NBOMe Headache disorders treatment outcome,25B-NBOMe,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03687,disorder,pair_core,25B-NBOMe Migraine clinical trial,25B-NBOMe,Migraine,indication,{compound} {entity} clinical trial
+disorder_03688,disorder,pair_core,25B-NBOMe Migraine randomized placebo,25B-NBOMe,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03689,disorder,pair_core,25B-NBOMe Migraine treatment outcome,25B-NBOMe,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03690,disorder,pair_core,25B-NBOMe Chronic pain clinical trial,25B-NBOMe,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03691,disorder,pair_core,25B-NBOMe Chronic pain randomized placebo,25B-NBOMe,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03692,disorder,pair_core,25B-NBOMe Chronic pain treatment outcome,25B-NBOMe,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03693,disorder,pair_core,25B-NBOMe Fibromyalgia clinical trial,25B-NBOMe,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03694,disorder,pair_core,25B-NBOMe Fibromyalgia randomized placebo,25B-NBOMe,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03695,disorder,pair_core,25B-NBOMe Fibromyalgia treatment outcome,25B-NBOMe,Fibromyalgia,indication,{compound} {entity} treatment outcome
+disorder_03696,disorder,pair_core,25C-NBOMe Treatment-resistant depression clinical trial,25C-NBOMe,Treatment-resistant depression,indication,{compound} {entity} clinical trial
+disorder_03697,disorder,pair_core,25C-NBOMe Treatment-resistant depression randomized placebo,25C-NBOMe,Treatment-resistant depression,indication,{compound} {entity} randomized placebo
+disorder_03698,disorder,pair_core,25C-NBOMe Treatment-resistant depression treatment outcome,25C-NBOMe,Treatment-resistant depression,indication,{compound} {entity} treatment outcome
+disorder_03699,disorder,pair_core,25C-NBOMe Major depressive disorder clinical trial,25C-NBOMe,Major depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03700,disorder,pair_core,25C-NBOMe Major depressive disorder randomized placebo,25C-NBOMe,Major depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03701,disorder,pair_core,25C-NBOMe Major depressive disorder treatment outcome,25C-NBOMe,Major depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03702,disorder,pair_core,25C-NBOMe Bipolar depression clinical trial,25C-NBOMe,Bipolar depression,indication,{compound} {entity} clinical trial
+disorder_03703,disorder,pair_core,25C-NBOMe Bipolar depression randomized placebo,25C-NBOMe,Bipolar depression,indication,{compound} {entity} randomized placebo
+disorder_03704,disorder,pair_core,25C-NBOMe Bipolar depression treatment outcome,25C-NBOMe,Bipolar depression,indication,{compound} {entity} treatment outcome
+disorder_03705,disorder,pair_core,25C-NBOMe Persistent depressive disorder clinical trial,25C-NBOMe,Persistent depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03706,disorder,pair_core,25C-NBOMe Persistent depressive disorder randomized placebo,25C-NBOMe,Persistent depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03707,disorder,pair_core,25C-NBOMe Persistent depressive disorder treatment outcome,25C-NBOMe,Persistent depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03708,disorder,pair_core,25C-NBOMe Post-traumatic stress disorder clinical trial,25C-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03709,disorder,pair_core,25C-NBOMe Post-traumatic stress disorder randomized placebo,25C-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03710,disorder,pair_core,25C-NBOMe Post-traumatic stress disorder treatment outcome,25C-NBOMe,Post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03711,disorder,pair_core,25C-NBOMe Complex post-traumatic stress disorder clinical trial,25C-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03712,disorder,pair_core,25C-NBOMe Complex post-traumatic stress disorder randomized placebo,25C-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03713,disorder,pair_core,25C-NBOMe Complex post-traumatic stress disorder treatment outcome,25C-NBOMe,Complex post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03714,disorder,pair_core,25C-NBOMe Alcohol use disorder clinical trial,25C-NBOMe,Alcohol use disorder,indication,{compound} {entity} clinical trial
+disorder_03715,disorder,pair_core,25C-NBOMe Alcohol use disorder randomized placebo,25C-NBOMe,Alcohol use disorder,indication,{compound} {entity} randomized placebo
+disorder_03716,disorder,pair_core,25C-NBOMe Alcohol use disorder treatment outcome,25C-NBOMe,Alcohol use disorder,indication,{compound} {entity} treatment outcome
+disorder_03717,disorder,pair_core,25C-NBOMe Tobacco use disorder clinical trial,25C-NBOMe,Tobacco use disorder,indication,{compound} {entity} clinical trial
+disorder_03718,disorder,pair_core,25C-NBOMe Tobacco use disorder randomized placebo,25C-NBOMe,Tobacco use disorder,indication,{compound} {entity} randomized placebo
+disorder_03719,disorder,pair_core,25C-NBOMe Tobacco use disorder treatment outcome,25C-NBOMe,Tobacco use disorder,indication,{compound} {entity} treatment outcome
+disorder_03720,disorder,pair_core,25C-NBOMe Nicotine dependence clinical trial,25C-NBOMe,Nicotine dependence,indication,{compound} {entity} clinical trial
+disorder_03721,disorder,pair_core,25C-NBOMe Nicotine dependence randomized placebo,25C-NBOMe,Nicotine dependence,indication,{compound} {entity} randomized placebo
+disorder_03722,disorder,pair_core,25C-NBOMe Nicotine dependence treatment outcome,25C-NBOMe,Nicotine dependence,indication,{compound} {entity} treatment outcome
+disorder_03723,disorder,pair_core,25C-NBOMe Opioid use disorder clinical trial,25C-NBOMe,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03724,disorder,pair_core,25C-NBOMe Opioid use disorder randomized placebo,25C-NBOMe,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03725,disorder,pair_core,25C-NBOMe Opioid use disorder treatment outcome,25C-NBOMe,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03726,disorder,pair_core,25C-NBOMe Cannabis use disorder clinical trial,25C-NBOMe,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03727,disorder,pair_core,25C-NBOMe Cannabis use disorder randomized placebo,25C-NBOMe,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03728,disorder,pair_core,25C-NBOMe Cannabis use disorder treatment outcome,25C-NBOMe,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03729,disorder,pair_core,25C-NBOMe Cocaine use disorder clinical trial,25C-NBOMe,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03730,disorder,pair_core,25C-NBOMe Cocaine use disorder randomized placebo,25C-NBOMe,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03731,disorder,pair_core,25C-NBOMe Cocaine use disorder treatment outcome,25C-NBOMe,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03732,disorder,pair_core,25C-NBOMe Methamphetamine use disorder clinical trial,25C-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03733,disorder,pair_core,25C-NBOMe Methamphetamine use disorder randomized placebo,25C-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03734,disorder,pair_core,25C-NBOMe Methamphetamine use disorder treatment outcome,25C-NBOMe,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03735,disorder,pair_core,25C-NBOMe Stimulant use disorder clinical trial,25C-NBOMe,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03736,disorder,pair_core,25C-NBOMe Stimulant use disorder randomized placebo,25C-NBOMe,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03737,disorder,pair_core,25C-NBOMe Stimulant use disorder treatment outcome,25C-NBOMe,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03738,disorder,pair_core,25C-NBOMe Substance use disorder clinical trial,25C-NBOMe,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03739,disorder,pair_core,25C-NBOMe Substance use disorder randomized placebo,25C-NBOMe,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03740,disorder,pair_core,25C-NBOMe Substance use disorder treatment outcome,25C-NBOMe,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03741,disorder,pair_core,25C-NBOMe Generalized anxiety disorder clinical trial,25C-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03742,disorder,pair_core,25C-NBOMe Generalized anxiety disorder randomized placebo,25C-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03743,disorder,pair_core,25C-NBOMe Generalized anxiety disorder treatment outcome,25C-NBOMe,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03744,disorder,pair_core,25C-NBOMe Social anxiety disorder clinical trial,25C-NBOMe,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03745,disorder,pair_core,25C-NBOMe Social anxiety disorder randomized placebo,25C-NBOMe,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03746,disorder,pair_core,25C-NBOMe Social anxiety disorder treatment outcome,25C-NBOMe,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03747,disorder,pair_core,25C-NBOMe Distress associated with life-threatening disease clinical trial,25C-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03748,disorder,pair_core,25C-NBOMe Distress associated with life-threatening disease randomized placebo,25C-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03749,disorder,pair_core,25C-NBOMe Distress associated with life-threatening disease treatment outcome,25C-NBOMe,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03750,disorder,pair_core,25C-NBOMe Obsessive-compulsive disorder clinical trial,25C-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03751,disorder,pair_core,25C-NBOMe Obsessive-compulsive disorder randomized placebo,25C-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03752,disorder,pair_core,25C-NBOMe Obsessive-compulsive disorder treatment outcome,25C-NBOMe,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03753,disorder,pair_core,25C-NBOMe Eating disorders clinical trial,25C-NBOMe,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03754,disorder,pair_core,25C-NBOMe Eating disorders randomized placebo,25C-NBOMe,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03755,disorder,pair_core,25C-NBOMe Eating disorders treatment outcome,25C-NBOMe,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03756,disorder,pair_core,25C-NBOMe Anorexia nervosa clinical trial,25C-NBOMe,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03757,disorder,pair_core,25C-NBOMe Anorexia nervosa randomized placebo,25C-NBOMe,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03758,disorder,pair_core,25C-NBOMe Anorexia nervosa treatment outcome,25C-NBOMe,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03759,disorder,pair_core,25C-NBOMe Bulimia nervosa clinical trial,25C-NBOMe,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03760,disorder,pair_core,25C-NBOMe Bulimia nervosa randomized placebo,25C-NBOMe,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03761,disorder,pair_core,25C-NBOMe Bulimia nervosa treatment outcome,25C-NBOMe,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03762,disorder,pair_core,25C-NBOMe Binge-eating disorder clinical trial,25C-NBOMe,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03763,disorder,pair_core,25C-NBOMe Binge-eating disorder randomized placebo,25C-NBOMe,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03764,disorder,pair_core,25C-NBOMe Binge-eating disorder treatment outcome,25C-NBOMe,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03765,disorder,pair_core,25C-NBOMe Autism spectrum disorder clinical trial,25C-NBOMe,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03766,disorder,pair_core,25C-NBOMe Autism spectrum disorder randomized placebo,25C-NBOMe,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03767,disorder,pair_core,25C-NBOMe Autism spectrum disorder treatment outcome,25C-NBOMe,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03768,disorder,pair_core,25C-NBOMe Demoralization clinical trial,25C-NBOMe,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03769,disorder,pair_core,25C-NBOMe Demoralization randomized placebo,25C-NBOMe,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03770,disorder,pair_core,25C-NBOMe Demoralization treatment outcome,25C-NBOMe,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03771,disorder,pair_core,25C-NBOMe Suicidal ideation clinical trial,25C-NBOMe,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03772,disorder,pair_core,25C-NBOMe Suicidal ideation randomized placebo,25C-NBOMe,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03773,disorder,pair_core,25C-NBOMe Suicidal ideation treatment outcome,25C-NBOMe,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03774,disorder,pair_core,25C-NBOMe Cluster headache clinical trial,25C-NBOMe,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03775,disorder,pair_core,25C-NBOMe Cluster headache randomized placebo,25C-NBOMe,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03776,disorder,pair_core,25C-NBOMe Cluster headache treatment outcome,25C-NBOMe,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03777,disorder,pair_core,25C-NBOMe Headache disorders clinical trial,25C-NBOMe,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03778,disorder,pair_core,25C-NBOMe Headache disorders randomized placebo,25C-NBOMe,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03779,disorder,pair_core,25C-NBOMe Headache disorders treatment outcome,25C-NBOMe,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03780,disorder,pair_core,25C-NBOMe Migraine clinical trial,25C-NBOMe,Migraine,indication,{compound} {entity} clinical trial
+disorder_03781,disorder,pair_core,25C-NBOMe Migraine randomized placebo,25C-NBOMe,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03782,disorder,pair_core,25C-NBOMe Migraine treatment outcome,25C-NBOMe,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03783,disorder,pair_core,25C-NBOMe Chronic pain clinical trial,25C-NBOMe,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03784,disorder,pair_core,25C-NBOMe Chronic pain randomized placebo,25C-NBOMe,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03785,disorder,pair_core,25C-NBOMe Chronic pain treatment outcome,25C-NBOMe,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03786,disorder,pair_core,25C-NBOMe Fibromyalgia clinical trial,25C-NBOMe,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03787,disorder,pair_core,25C-NBOMe Fibromyalgia randomized placebo,25C-NBOMe,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03788,disorder,pair_core,25C-NBOMe Fibromyalgia treatment outcome,25C-NBOMe,Fibromyalgia,indication,{compound} {entity} treatment outcome
+disorder_03789,disorder,pair_core,TMA Treatment-resistant depression clinical trial,TMA,Treatment-resistant depression,indication,{compound} {entity} clinical trial
+disorder_03790,disorder,pair_core,TMA Treatment-resistant depression randomized placebo,TMA,Treatment-resistant depression,indication,{compound} {entity} randomized placebo
+disorder_03791,disorder,pair_core,TMA Treatment-resistant depression treatment outcome,TMA,Treatment-resistant depression,indication,{compound} {entity} treatment outcome
+disorder_03792,disorder,pair_core,TMA Major depressive disorder clinical trial,TMA,Major depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03793,disorder,pair_core,TMA Major depressive disorder randomized placebo,TMA,Major depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03794,disorder,pair_core,TMA Major depressive disorder treatment outcome,TMA,Major depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03795,disorder,pair_core,TMA Bipolar depression clinical trial,TMA,Bipolar depression,indication,{compound} {entity} clinical trial
+disorder_03796,disorder,pair_core,TMA Bipolar depression randomized placebo,TMA,Bipolar depression,indication,{compound} {entity} randomized placebo
+disorder_03797,disorder,pair_core,TMA Bipolar depression treatment outcome,TMA,Bipolar depression,indication,{compound} {entity} treatment outcome
+disorder_03798,disorder,pair_core,TMA Persistent depressive disorder clinical trial,TMA,Persistent depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03799,disorder,pair_core,TMA Persistent depressive disorder randomized placebo,TMA,Persistent depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03800,disorder,pair_core,TMA Persistent depressive disorder treatment outcome,TMA,Persistent depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03801,disorder,pair_core,TMA Post-traumatic stress disorder clinical trial,TMA,Post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03802,disorder,pair_core,TMA Post-traumatic stress disorder randomized placebo,TMA,Post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03803,disorder,pair_core,TMA Post-traumatic stress disorder treatment outcome,TMA,Post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03804,disorder,pair_core,TMA Complex post-traumatic stress disorder clinical trial,TMA,Complex post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03805,disorder,pair_core,TMA Complex post-traumatic stress disorder randomized placebo,TMA,Complex post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03806,disorder,pair_core,TMA Complex post-traumatic stress disorder treatment outcome,TMA,Complex post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03807,disorder,pair_core,TMA Alcohol use disorder clinical trial,TMA,Alcohol use disorder,indication,{compound} {entity} clinical trial
+disorder_03808,disorder,pair_core,TMA Alcohol use disorder randomized placebo,TMA,Alcohol use disorder,indication,{compound} {entity} randomized placebo
+disorder_03809,disorder,pair_core,TMA Alcohol use disorder treatment outcome,TMA,Alcohol use disorder,indication,{compound} {entity} treatment outcome
+disorder_03810,disorder,pair_core,TMA Tobacco use disorder clinical trial,TMA,Tobacco use disorder,indication,{compound} {entity} clinical trial
+disorder_03811,disorder,pair_core,TMA Tobacco use disorder randomized placebo,TMA,Tobacco use disorder,indication,{compound} {entity} randomized placebo
+disorder_03812,disorder,pair_core,TMA Tobacco use disorder treatment outcome,TMA,Tobacco use disorder,indication,{compound} {entity} treatment outcome
+disorder_03813,disorder,pair_core,TMA Nicotine dependence clinical trial,TMA,Nicotine dependence,indication,{compound} {entity} clinical trial
+disorder_03814,disorder,pair_core,TMA Nicotine dependence randomized placebo,TMA,Nicotine dependence,indication,{compound} {entity} randomized placebo
+disorder_03815,disorder,pair_core,TMA Nicotine dependence treatment outcome,TMA,Nicotine dependence,indication,{compound} {entity} treatment outcome
+disorder_03816,disorder,pair_core,TMA Opioid use disorder clinical trial,TMA,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03817,disorder,pair_core,TMA Opioid use disorder randomized placebo,TMA,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03818,disorder,pair_core,TMA Opioid use disorder treatment outcome,TMA,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03819,disorder,pair_core,TMA Cannabis use disorder clinical trial,TMA,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03820,disorder,pair_core,TMA Cannabis use disorder randomized placebo,TMA,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03821,disorder,pair_core,TMA Cannabis use disorder treatment outcome,TMA,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03822,disorder,pair_core,TMA Cocaine use disorder clinical trial,TMA,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03823,disorder,pair_core,TMA Cocaine use disorder randomized placebo,TMA,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03824,disorder,pair_core,TMA Cocaine use disorder treatment outcome,TMA,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03825,disorder,pair_core,TMA Methamphetamine use disorder clinical trial,TMA,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03826,disorder,pair_core,TMA Methamphetamine use disorder randomized placebo,TMA,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03827,disorder,pair_core,TMA Methamphetamine use disorder treatment outcome,TMA,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03828,disorder,pair_core,TMA Stimulant use disorder clinical trial,TMA,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03829,disorder,pair_core,TMA Stimulant use disorder randomized placebo,TMA,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03830,disorder,pair_core,TMA Stimulant use disorder treatment outcome,TMA,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03831,disorder,pair_core,TMA Substance use disorder clinical trial,TMA,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03832,disorder,pair_core,TMA Substance use disorder randomized placebo,TMA,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03833,disorder,pair_core,TMA Substance use disorder treatment outcome,TMA,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03834,disorder,pair_core,TMA Generalized anxiety disorder clinical trial,TMA,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03835,disorder,pair_core,TMA Generalized anxiety disorder randomized placebo,TMA,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03836,disorder,pair_core,TMA Generalized anxiety disorder treatment outcome,TMA,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03837,disorder,pair_core,TMA Social anxiety disorder clinical trial,TMA,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03838,disorder,pair_core,TMA Social anxiety disorder randomized placebo,TMA,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03839,disorder,pair_core,TMA Social anxiety disorder treatment outcome,TMA,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03840,disorder,pair_core,TMA Distress associated with life-threatening disease clinical trial,TMA,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03841,disorder,pair_core,TMA Distress associated with life-threatening disease randomized placebo,TMA,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03842,disorder,pair_core,TMA Distress associated with life-threatening disease treatment outcome,TMA,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03843,disorder,pair_core,TMA Obsessive-compulsive disorder clinical trial,TMA,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03844,disorder,pair_core,TMA Obsessive-compulsive disorder randomized placebo,TMA,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03845,disorder,pair_core,TMA Obsessive-compulsive disorder treatment outcome,TMA,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03846,disorder,pair_core,TMA Eating disorders clinical trial,TMA,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03847,disorder,pair_core,TMA Eating disorders randomized placebo,TMA,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03848,disorder,pair_core,TMA Eating disorders treatment outcome,TMA,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03849,disorder,pair_core,TMA Anorexia nervosa clinical trial,TMA,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03850,disorder,pair_core,TMA Anorexia nervosa randomized placebo,TMA,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03851,disorder,pair_core,TMA Anorexia nervosa treatment outcome,TMA,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03852,disorder,pair_core,TMA Bulimia nervosa clinical trial,TMA,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03853,disorder,pair_core,TMA Bulimia nervosa randomized placebo,TMA,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03854,disorder,pair_core,TMA Bulimia nervosa treatment outcome,TMA,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03855,disorder,pair_core,TMA Binge-eating disorder clinical trial,TMA,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03856,disorder,pair_core,TMA Binge-eating disorder randomized placebo,TMA,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03857,disorder,pair_core,TMA Binge-eating disorder treatment outcome,TMA,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03858,disorder,pair_core,TMA Autism spectrum disorder clinical trial,TMA,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03859,disorder,pair_core,TMA Autism spectrum disorder randomized placebo,TMA,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03860,disorder,pair_core,TMA Autism spectrum disorder treatment outcome,TMA,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03861,disorder,pair_core,TMA Demoralization clinical trial,TMA,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03862,disorder,pair_core,TMA Demoralization randomized placebo,TMA,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03863,disorder,pair_core,TMA Demoralization treatment outcome,TMA,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03864,disorder,pair_core,TMA Suicidal ideation clinical trial,TMA,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03865,disorder,pair_core,TMA Suicidal ideation randomized placebo,TMA,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03866,disorder,pair_core,TMA Suicidal ideation treatment outcome,TMA,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03867,disorder,pair_core,TMA Cluster headache clinical trial,TMA,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03868,disorder,pair_core,TMA Cluster headache randomized placebo,TMA,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03869,disorder,pair_core,TMA Cluster headache treatment outcome,TMA,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03870,disorder,pair_core,TMA Headache disorders clinical trial,TMA,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03871,disorder,pair_core,TMA Headache disorders randomized placebo,TMA,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03872,disorder,pair_core,TMA Headache disorders treatment outcome,TMA,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03873,disorder,pair_core,TMA Migraine clinical trial,TMA,Migraine,indication,{compound} {entity} clinical trial
+disorder_03874,disorder,pair_core,TMA Migraine randomized placebo,TMA,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03875,disorder,pair_core,TMA Migraine treatment outcome,TMA,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03876,disorder,pair_core,TMA Chronic pain clinical trial,TMA,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03877,disorder,pair_core,TMA Chronic pain randomized placebo,TMA,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03878,disorder,pair_core,TMA Chronic pain treatment outcome,TMA,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03879,disorder,pair_core,TMA Fibromyalgia clinical trial,TMA,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03880,disorder,pair_core,TMA Fibromyalgia randomized placebo,TMA,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03881,disorder,pair_core,TMA Fibromyalgia treatment outcome,TMA,Fibromyalgia,indication,{compound} {entity} treatment outcome
+disorder_03882,disorder,pair_core,TMA-2 Treatment-resistant depression clinical trial,TMA-2,Treatment-resistant depression,indication,{compound} {entity} clinical trial
+disorder_03883,disorder,pair_core,TMA-2 Treatment-resistant depression randomized placebo,TMA-2,Treatment-resistant depression,indication,{compound} {entity} randomized placebo
+disorder_03884,disorder,pair_core,TMA-2 Treatment-resistant depression treatment outcome,TMA-2,Treatment-resistant depression,indication,{compound} {entity} treatment outcome
+disorder_03885,disorder,pair_core,TMA-2 Major depressive disorder clinical trial,TMA-2,Major depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03886,disorder,pair_core,TMA-2 Major depressive disorder randomized placebo,TMA-2,Major depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03887,disorder,pair_core,TMA-2 Major depressive disorder treatment outcome,TMA-2,Major depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03888,disorder,pair_core,TMA-2 Bipolar depression clinical trial,TMA-2,Bipolar depression,indication,{compound} {entity} clinical trial
+disorder_03889,disorder,pair_core,TMA-2 Bipolar depression randomized placebo,TMA-2,Bipolar depression,indication,{compound} {entity} randomized placebo
+disorder_03890,disorder,pair_core,TMA-2 Bipolar depression treatment outcome,TMA-2,Bipolar depression,indication,{compound} {entity} treatment outcome
+disorder_03891,disorder,pair_core,TMA-2 Persistent depressive disorder clinical trial,TMA-2,Persistent depressive disorder,indication,{compound} {entity} clinical trial
+disorder_03892,disorder,pair_core,TMA-2 Persistent depressive disorder randomized placebo,TMA-2,Persistent depressive disorder,indication,{compound} {entity} randomized placebo
+disorder_03893,disorder,pair_core,TMA-2 Persistent depressive disorder treatment outcome,TMA-2,Persistent depressive disorder,indication,{compound} {entity} treatment outcome
+disorder_03894,disorder,pair_core,TMA-2 Post-traumatic stress disorder clinical trial,TMA-2,Post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03895,disorder,pair_core,TMA-2 Post-traumatic stress disorder randomized placebo,TMA-2,Post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03896,disorder,pair_core,TMA-2 Post-traumatic stress disorder treatment outcome,TMA-2,Post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03897,disorder,pair_core,TMA-2 Complex post-traumatic stress disorder clinical trial,TMA-2,Complex post-traumatic stress disorder,indication,{compound} {entity} clinical trial
+disorder_03898,disorder,pair_core,TMA-2 Complex post-traumatic stress disorder randomized placebo,TMA-2,Complex post-traumatic stress disorder,indication,{compound} {entity} randomized placebo
+disorder_03899,disorder,pair_core,TMA-2 Complex post-traumatic stress disorder treatment outcome,TMA-2,Complex post-traumatic stress disorder,indication,{compound} {entity} treatment outcome
+disorder_03900,disorder,pair_core,TMA-2 Alcohol use disorder clinical trial,TMA-2,Alcohol use disorder,indication,{compound} {entity} clinical trial
+disorder_03901,disorder,pair_core,TMA-2 Alcohol use disorder randomized placebo,TMA-2,Alcohol use disorder,indication,{compound} {entity} randomized placebo
+disorder_03902,disorder,pair_core,TMA-2 Alcohol use disorder treatment outcome,TMA-2,Alcohol use disorder,indication,{compound} {entity} treatment outcome
+disorder_03903,disorder,pair_core,TMA-2 Tobacco use disorder clinical trial,TMA-2,Tobacco use disorder,indication,{compound} {entity} clinical trial
+disorder_03904,disorder,pair_core,TMA-2 Tobacco use disorder randomized placebo,TMA-2,Tobacco use disorder,indication,{compound} {entity} randomized placebo
+disorder_03905,disorder,pair_core,TMA-2 Tobacco use disorder treatment outcome,TMA-2,Tobacco use disorder,indication,{compound} {entity} treatment outcome
+disorder_03906,disorder,pair_core,TMA-2 Nicotine dependence clinical trial,TMA-2,Nicotine dependence,indication,{compound} {entity} clinical trial
+disorder_03907,disorder,pair_core,TMA-2 Nicotine dependence randomized placebo,TMA-2,Nicotine dependence,indication,{compound} {entity} randomized placebo
+disorder_03908,disorder,pair_core,TMA-2 Nicotine dependence treatment outcome,TMA-2,Nicotine dependence,indication,{compound} {entity} treatment outcome
+disorder_03909,disorder,pair_core,TMA-2 Opioid use disorder clinical trial,TMA-2,Opioid use disorder,indication,{compound} {entity} clinical trial
+disorder_03910,disorder,pair_core,TMA-2 Opioid use disorder randomized placebo,TMA-2,Opioid use disorder,indication,{compound} {entity} randomized placebo
+disorder_03911,disorder,pair_core,TMA-2 Opioid use disorder treatment outcome,TMA-2,Opioid use disorder,indication,{compound} {entity} treatment outcome
+disorder_03912,disorder,pair_core,TMA-2 Cannabis use disorder clinical trial,TMA-2,Cannabis use disorder,indication,{compound} {entity} clinical trial
+disorder_03913,disorder,pair_core,TMA-2 Cannabis use disorder randomized placebo,TMA-2,Cannabis use disorder,indication,{compound} {entity} randomized placebo
+disorder_03914,disorder,pair_core,TMA-2 Cannabis use disorder treatment outcome,TMA-2,Cannabis use disorder,indication,{compound} {entity} treatment outcome
+disorder_03915,disorder,pair_core,TMA-2 Cocaine use disorder clinical trial,TMA-2,Cocaine use disorder,indication,{compound} {entity} clinical trial
+disorder_03916,disorder,pair_core,TMA-2 Cocaine use disorder randomized placebo,TMA-2,Cocaine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03917,disorder,pair_core,TMA-2 Cocaine use disorder treatment outcome,TMA-2,Cocaine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03918,disorder,pair_core,TMA-2 Methamphetamine use disorder clinical trial,TMA-2,Methamphetamine use disorder,indication,{compound} {entity} clinical trial
+disorder_03919,disorder,pair_core,TMA-2 Methamphetamine use disorder randomized placebo,TMA-2,Methamphetamine use disorder,indication,{compound} {entity} randomized placebo
+disorder_03920,disorder,pair_core,TMA-2 Methamphetamine use disorder treatment outcome,TMA-2,Methamphetamine use disorder,indication,{compound} {entity} treatment outcome
+disorder_03921,disorder,pair_core,TMA-2 Stimulant use disorder clinical trial,TMA-2,Stimulant use disorder,indication,{compound} {entity} clinical trial
+disorder_03922,disorder,pair_core,TMA-2 Stimulant use disorder randomized placebo,TMA-2,Stimulant use disorder,indication,{compound} {entity} randomized placebo
+disorder_03923,disorder,pair_core,TMA-2 Stimulant use disorder treatment outcome,TMA-2,Stimulant use disorder,indication,{compound} {entity} treatment outcome
+disorder_03924,disorder,pair_core,TMA-2 Substance use disorder clinical trial,TMA-2,Substance use disorder,indication,{compound} {entity} clinical trial
+disorder_03925,disorder,pair_core,TMA-2 Substance use disorder randomized placebo,TMA-2,Substance use disorder,indication,{compound} {entity} randomized placebo
+disorder_03926,disorder,pair_core,TMA-2 Substance use disorder treatment outcome,TMA-2,Substance use disorder,indication,{compound} {entity} treatment outcome
+disorder_03927,disorder,pair_core,TMA-2 Generalized anxiety disorder clinical trial,TMA-2,Generalized anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03928,disorder,pair_core,TMA-2 Generalized anxiety disorder randomized placebo,TMA-2,Generalized anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03929,disorder,pair_core,TMA-2 Generalized anxiety disorder treatment outcome,TMA-2,Generalized anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03930,disorder,pair_core,TMA-2 Social anxiety disorder clinical trial,TMA-2,Social anxiety disorder,indication,{compound} {entity} clinical trial
+disorder_03931,disorder,pair_core,TMA-2 Social anxiety disorder randomized placebo,TMA-2,Social anxiety disorder,indication,{compound} {entity} randomized placebo
+disorder_03932,disorder,pair_core,TMA-2 Social anxiety disorder treatment outcome,TMA-2,Social anxiety disorder,indication,{compound} {entity} treatment outcome
+disorder_03933,disorder,pair_core,TMA-2 Distress associated with life-threatening disease clinical trial,TMA-2,Distress associated with life-threatening disease,indication,{compound} {entity} clinical trial
+disorder_03934,disorder,pair_core,TMA-2 Distress associated with life-threatening disease randomized placebo,TMA-2,Distress associated with life-threatening disease,indication,{compound} {entity} randomized placebo
+disorder_03935,disorder,pair_core,TMA-2 Distress associated with life-threatening disease treatment outcome,TMA-2,Distress associated with life-threatening disease,indication,{compound} {entity} treatment outcome
+disorder_03936,disorder,pair_core,TMA-2 Obsessive-compulsive disorder clinical trial,TMA-2,Obsessive-compulsive disorder,indication,{compound} {entity} clinical trial
+disorder_03937,disorder,pair_core,TMA-2 Obsessive-compulsive disorder randomized placebo,TMA-2,Obsessive-compulsive disorder,indication,{compound} {entity} randomized placebo
+disorder_03938,disorder,pair_core,TMA-2 Obsessive-compulsive disorder treatment outcome,TMA-2,Obsessive-compulsive disorder,indication,{compound} {entity} treatment outcome
+disorder_03939,disorder,pair_core,TMA-2 Eating disorders clinical trial,TMA-2,Eating disorders,indication,{compound} {entity} clinical trial
+disorder_03940,disorder,pair_core,TMA-2 Eating disorders randomized placebo,TMA-2,Eating disorders,indication,{compound} {entity} randomized placebo
+disorder_03941,disorder,pair_core,TMA-2 Eating disorders treatment outcome,TMA-2,Eating disorders,indication,{compound} {entity} treatment outcome
+disorder_03942,disorder,pair_core,TMA-2 Anorexia nervosa clinical trial,TMA-2,Anorexia nervosa,indication,{compound} {entity} clinical trial
+disorder_03943,disorder,pair_core,TMA-2 Anorexia nervosa randomized placebo,TMA-2,Anorexia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03944,disorder,pair_core,TMA-2 Anorexia nervosa treatment outcome,TMA-2,Anorexia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03945,disorder,pair_core,TMA-2 Bulimia nervosa clinical trial,TMA-2,Bulimia nervosa,indication,{compound} {entity} clinical trial
+disorder_03946,disorder,pair_core,TMA-2 Bulimia nervosa randomized placebo,TMA-2,Bulimia nervosa,indication,{compound} {entity} randomized placebo
+disorder_03947,disorder,pair_core,TMA-2 Bulimia nervosa treatment outcome,TMA-2,Bulimia nervosa,indication,{compound} {entity} treatment outcome
+disorder_03948,disorder,pair_core,TMA-2 Binge-eating disorder clinical trial,TMA-2,Binge-eating disorder,indication,{compound} {entity} clinical trial
+disorder_03949,disorder,pair_core,TMA-2 Binge-eating disorder randomized placebo,TMA-2,Binge-eating disorder,indication,{compound} {entity} randomized placebo
+disorder_03950,disorder,pair_core,TMA-2 Binge-eating disorder treatment outcome,TMA-2,Binge-eating disorder,indication,{compound} {entity} treatment outcome
+disorder_03951,disorder,pair_core,TMA-2 Autism spectrum disorder clinical trial,TMA-2,Autism spectrum disorder,indication,{compound} {entity} clinical trial
+disorder_03952,disorder,pair_core,TMA-2 Autism spectrum disorder randomized placebo,TMA-2,Autism spectrum disorder,indication,{compound} {entity} randomized placebo
+disorder_03953,disorder,pair_core,TMA-2 Autism spectrum disorder treatment outcome,TMA-2,Autism spectrum disorder,indication,{compound} {entity} treatment outcome
+disorder_03954,disorder,pair_core,TMA-2 Demoralization clinical trial,TMA-2,Demoralization,indication,{compound} {entity} clinical trial
+disorder_03955,disorder,pair_core,TMA-2 Demoralization randomized placebo,TMA-2,Demoralization,indication,{compound} {entity} randomized placebo
+disorder_03956,disorder,pair_core,TMA-2 Demoralization treatment outcome,TMA-2,Demoralization,indication,{compound} {entity} treatment outcome
+disorder_03957,disorder,pair_core,TMA-2 Suicidal ideation clinical trial,TMA-2,Suicidal ideation,indication,{compound} {entity} clinical trial
+disorder_03958,disorder,pair_core,TMA-2 Suicidal ideation randomized placebo,TMA-2,Suicidal ideation,indication,{compound} {entity} randomized placebo
+disorder_03959,disorder,pair_core,TMA-2 Suicidal ideation treatment outcome,TMA-2,Suicidal ideation,indication,{compound} {entity} treatment outcome
+disorder_03960,disorder,pair_core,TMA-2 Cluster headache clinical trial,TMA-2,Cluster headache,indication,{compound} {entity} clinical trial
+disorder_03961,disorder,pair_core,TMA-2 Cluster headache randomized placebo,TMA-2,Cluster headache,indication,{compound} {entity} randomized placebo
+disorder_03962,disorder,pair_core,TMA-2 Cluster headache treatment outcome,TMA-2,Cluster headache,indication,{compound} {entity} treatment outcome
+disorder_03963,disorder,pair_core,TMA-2 Headache disorders clinical trial,TMA-2,Headache disorders,indication,{compound} {entity} clinical trial
+disorder_03964,disorder,pair_core,TMA-2 Headache disorders randomized placebo,TMA-2,Headache disorders,indication,{compound} {entity} randomized placebo
+disorder_03965,disorder,pair_core,TMA-2 Headache disorders treatment outcome,TMA-2,Headache disorders,indication,{compound} {entity} treatment outcome
+disorder_03966,disorder,pair_core,TMA-2 Migraine clinical trial,TMA-2,Migraine,indication,{compound} {entity} clinical trial
+disorder_03967,disorder,pair_core,TMA-2 Migraine randomized placebo,TMA-2,Migraine,indication,{compound} {entity} randomized placebo
+disorder_03968,disorder,pair_core,TMA-2 Migraine treatment outcome,TMA-2,Migraine,indication,{compound} {entity} treatment outcome
+disorder_03969,disorder,pair_core,TMA-2 Chronic pain clinical trial,TMA-2,Chronic pain,indication,{compound} {entity} clinical trial
+disorder_03970,disorder,pair_core,TMA-2 Chronic pain randomized placebo,TMA-2,Chronic pain,indication,{compound} {entity} randomized placebo
+disorder_03971,disorder,pair_core,TMA-2 Chronic pain treatment outcome,TMA-2,Chronic pain,indication,{compound} {entity} treatment outcome
+disorder_03972,disorder,pair_core,TMA-2 Fibromyalgia clinical trial,TMA-2,Fibromyalgia,indication,{compound} {entity} clinical trial
+disorder_03973,disorder,pair_core,TMA-2 Fibromyalgia randomized placebo,TMA-2,Fibromyalgia,indication,{compound} {entity} randomized placebo
+disorder_03974,disorder,pair_core,TMA-2 Fibromyalgia treatment outcome,TMA-2,Fibromyalgia,indication,{compound} {entity} treatment outcome

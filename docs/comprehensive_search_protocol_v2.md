@@ -49,6 +49,9 @@ python pipeline/ingest/build_comprehensive_search_plan.py --dataset all --profil
 
 ## Query Construction
 
+Searches are run in PubMed for curated biomedical indexing and OpenAlex for
+broader scholarly coverage.
+
 Each query module is generated from three concept blocks:
 
 ```text

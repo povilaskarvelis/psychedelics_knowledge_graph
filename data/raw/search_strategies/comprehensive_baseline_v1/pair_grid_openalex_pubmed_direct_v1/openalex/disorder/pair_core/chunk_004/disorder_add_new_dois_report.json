@@ -1,0 +1,48 @@
+{
+  "version": "0.1",
+  "generated_at_utc": "2026-05-17T05:25:25.401638+00:00",
+  "dataset": "disorder",
+  "existing_scope": "global",
+  "include_discovery_ledger": false,
+  "input": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/openalex/disorder/pair_core/chunk_004/disorder_discovered.txt",
+  "input_artifacts": [
+    "data/curated/claims.json",
+    "data/curated/disorder_claims.json",
+    "data/curated/exploratory_claims.json",
+    "data/curated/exploratory_disorder_claims.json",
+    "data/processed/candidate_paper_corpus.json",
+    "data/processed/disorder_claim_stubs.json",
+    "data/processed/mechanistic_claim_stubs.json",
+    "data/processed/paper_library_disorder.json",
+    "data/processed/paper_library_mechanistic.json",
+    "data/raw/benchmark_manifest.json"
+  ],
+  "outputs": {
+    "new_doi_queue": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/openalex/disorder/pair_core/chunk_004/disorder_new_dois.txt",
+    "rediscovered_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/openalex/disorder/pair_core/chunk_004/disorder_rediscovered_dois.csv",
+    "missing_or_invalid_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/openalex/disorder/pair_core/chunk_004/disorder_missing_or_invalid_dois.csv",
+    "input_duplicate_dois_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/openalex/disorder/pair_core/chunk_004/disorder_input_duplicate_dois.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/search_strategies/comprehensive_baseline_v1/pair_grid_openalex_pubmed_direct_v1/openalex/disorder/pair_core/chunk_004/disorder_add_new_dois_report.json"
+  },
+  "counts": {
+    "existing_doi_universe": 39989,
+    "input_rows_valid_doi": 0,
+    "new_dois": 0,
+    "rediscovered_existing_dois": 0,
+    "missing_or_invalid_dois": 0,
+    "duplicate_dois_within_input": 0
+  },
+  "existing_source_counts": {
+    "benchmark_manifest": 50,
+    "candidate_paper_corpus": 34110,
+    "disorder:curated": 1120,
+    "disorder:exploratory": 400,
+    "disorder:paper_library": 24990,
+    "disorder:stubs": 1202,
+    "mechanistic:curated": 141,
+    "mechanistic:exploratory": 7,
+    "mechanistic:paper_library": 16339,
+    "mechanistic:stubs": 1020
+  },
+  "new_doi_samples": []
+}

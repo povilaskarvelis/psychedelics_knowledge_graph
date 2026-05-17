@@ -1,0 +1,1001 @@
+seed_id,dataset,family,query,compound,entity,entity_type,template
+mechanistic_04287,mechanistic,pair_core,AL-LAD CB2 receptor CNR2 receptor pharmacology assay,AL-LAD,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04288,mechanistic,pair_core,AL-LAD CB2 receptor CNR2 functional assay agonist antagonist,AL-LAD,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04289,mechanistic,pair_core,ETH-LAD 5-HT2A binding affinity Ki,ETH-LAD,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_04290,mechanistic,pair_core,ETH-LAD 5-HT2A receptor pharmacology assay,ETH-LAD,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04291,mechanistic,pair_core,ETH-LAD 5-HT2A functional assay agonist antagonist,ETH-LAD,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04292,mechanistic,pair_core,ETH-LAD 5-HT2B binding affinity Ki,ETH-LAD,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_04293,mechanistic,pair_core,ETH-LAD 5-HT2B receptor pharmacology assay,ETH-LAD,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04294,mechanistic,pair_core,ETH-LAD 5-HT2B functional assay agonist antagonist,ETH-LAD,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04295,mechanistic,pair_core,ETH-LAD 5-HT2C binding affinity Ki,ETH-LAD,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_04296,mechanistic,pair_core,ETH-LAD 5-HT2C receptor pharmacology assay,ETH-LAD,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04297,mechanistic,pair_core,ETH-LAD 5-HT2C functional assay agonist antagonist,ETH-LAD,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04298,mechanistic,pair_core,ETH-LAD 5-HT1A binding affinity Ki,ETH-LAD,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_04299,mechanistic,pair_core,ETH-LAD 5-HT1A receptor pharmacology assay,ETH-LAD,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04300,mechanistic,pair_core,ETH-LAD 5-HT1A functional assay agonist antagonist,ETH-LAD,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04301,mechanistic,pair_core,ETH-LAD 5-HT1B binding affinity Ki,ETH-LAD,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_04302,mechanistic,pair_core,ETH-LAD 5-HT1B receptor pharmacology assay,ETH-LAD,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04303,mechanistic,pair_core,ETH-LAD 5-HT1B functional assay agonist antagonist,ETH-LAD,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04304,mechanistic,pair_core,ETH-LAD 5-HT1D binding affinity Ki,ETH-LAD,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_04305,mechanistic,pair_core,ETH-LAD 5-HT1D receptor pharmacology assay,ETH-LAD,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04306,mechanistic,pair_core,ETH-LAD 5-HT1D functional assay agonist antagonist,ETH-LAD,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04307,mechanistic,pair_core,ETH-LAD 5-HT1E binding affinity Ki,ETH-LAD,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_04308,mechanistic,pair_core,ETH-LAD 5-HT1E receptor pharmacology assay,ETH-LAD,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04309,mechanistic,pair_core,ETH-LAD 5-HT1E functional assay agonist antagonist,ETH-LAD,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04310,mechanistic,pair_core,ETH-LAD 5-HT1F binding affinity Ki,ETH-LAD,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_04311,mechanistic,pair_core,ETH-LAD 5-HT1F receptor pharmacology assay,ETH-LAD,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04312,mechanistic,pair_core,ETH-LAD 5-HT1F functional assay agonist antagonist,ETH-LAD,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04313,mechanistic,pair_core,ETH-LAD 5-HT5A binding affinity Ki,ETH-LAD,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_04314,mechanistic,pair_core,ETH-LAD 5-HT5A receptor pharmacology assay,ETH-LAD,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04315,mechanistic,pair_core,ETH-LAD 5-HT5A functional assay agonist antagonist,ETH-LAD,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04316,mechanistic,pair_core,ETH-LAD 5-HT6 binding affinity Ki,ETH-LAD,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_04317,mechanistic,pair_core,ETH-LAD 5-HT6 receptor pharmacology assay,ETH-LAD,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04318,mechanistic,pair_core,ETH-LAD 5-HT6 functional assay agonist antagonist,ETH-LAD,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04319,mechanistic,pair_core,ETH-LAD 5-HT7 binding affinity Ki,ETH-LAD,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_04320,mechanistic,pair_core,ETH-LAD 5-HT7 receptor pharmacology assay,ETH-LAD,5-HT7,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04321,mechanistic,pair_core,ETH-LAD 5-HT7 functional assay agonist antagonist,ETH-LAD,5-HT7,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04322,mechanistic,pair_core,ETH-LAD mGluR2 GRM2 binding affinity Ki,ETH-LAD,mGluR2 (GRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04323,mechanistic,pair_core,ETH-LAD mGluR2 GRM2 receptor pharmacology assay,ETH-LAD,mGluR2 (GRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04324,mechanistic,pair_core,ETH-LAD mGluR2 GRM2 functional assay agonist antagonist,ETH-LAD,mGluR2 (GRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04325,mechanistic,pair_core,ETH-LAD TAAR1 binding affinity Ki,ETH-LAD,TAAR1,target,{compound} {entity} binding affinity Ki
+mechanistic_04326,mechanistic,pair_core,ETH-LAD TAAR1 receptor pharmacology assay,ETH-LAD,TAAR1,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04327,mechanistic,pair_core,ETH-LAD TAAR1 functional assay agonist antagonist,ETH-LAD,TAAR1,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04328,mechanistic,pair_core,ETH-LAD SERT SLC6A4 binding affinity Ki,ETH-LAD,SERT (SLC6A4),target,{compound} {entity} binding affinity Ki
+mechanistic_04329,mechanistic,pair_core,ETH-LAD SERT SLC6A4 receptor pharmacology assay,ETH-LAD,SERT (SLC6A4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04330,mechanistic,pair_core,ETH-LAD SERT SLC6A4 functional assay agonist antagonist,ETH-LAD,SERT (SLC6A4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04331,mechanistic,pair_core,ETH-LAD NET SLC6A2 binding affinity Ki,ETH-LAD,NET (SLC6A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04332,mechanistic,pair_core,ETH-LAD NET SLC6A2 receptor pharmacology assay,ETH-LAD,NET (SLC6A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04333,mechanistic,pair_core,ETH-LAD NET SLC6A2 functional assay agonist antagonist,ETH-LAD,NET (SLC6A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04334,mechanistic,pair_core,ETH-LAD DAT SLC6A3 binding affinity Ki,ETH-LAD,DAT (SLC6A3),target,{compound} {entity} binding affinity Ki
+mechanistic_04335,mechanistic,pair_core,ETH-LAD DAT SLC6A3 receptor pharmacology assay,ETH-LAD,DAT (SLC6A3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04336,mechanistic,pair_core,ETH-LAD DAT SLC6A3 functional assay agonist antagonist,ETH-LAD,DAT (SLC6A3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04337,mechanistic,pair_core,ETH-LAD VMAT2 SLC18A2 binding affinity Ki,ETH-LAD,VMAT2 (SLC18A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04338,mechanistic,pair_core,ETH-LAD VMAT2 SLC18A2 receptor pharmacology assay,ETH-LAD,VMAT2 (SLC18A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04339,mechanistic,pair_core,ETH-LAD VMAT2 SLC18A2 functional assay agonist antagonist,ETH-LAD,VMAT2 (SLC18A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04340,mechanistic,pair_core,ETH-LAD D1 receptor DRD1 binding affinity Ki,ETH-LAD,D1 receptor (DRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04341,mechanistic,pair_core,ETH-LAD D1 receptor DRD1 receptor pharmacology assay,ETH-LAD,D1 receptor (DRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04342,mechanistic,pair_core,ETH-LAD D1 receptor DRD1 functional assay agonist antagonist,ETH-LAD,D1 receptor (DRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04343,mechanistic,pair_core,ETH-LAD D2 receptor DRD2 binding affinity Ki,ETH-LAD,D2 receptor (DRD2),target,{compound} {entity} binding affinity Ki
+mechanistic_04344,mechanistic,pair_core,ETH-LAD D2 receptor DRD2 receptor pharmacology assay,ETH-LAD,D2 receptor (DRD2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04345,mechanistic,pair_core,ETH-LAD D2 receptor DRD2 functional assay agonist antagonist,ETH-LAD,D2 receptor (DRD2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04346,mechanistic,pair_core,ETH-LAD D3 receptor DRD3 binding affinity Ki,ETH-LAD,D3 receptor (DRD3),target,{compound} {entity} binding affinity Ki
+mechanistic_04347,mechanistic,pair_core,ETH-LAD D3 receptor DRD3 receptor pharmacology assay,ETH-LAD,D3 receptor (DRD3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04348,mechanistic,pair_core,ETH-LAD D3 receptor DRD3 functional assay agonist antagonist,ETH-LAD,D3 receptor (DRD3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04349,mechanistic,pair_core,ETH-LAD D4 receptor DRD4 binding affinity Ki,ETH-LAD,D4 receptor (DRD4),target,{compound} {entity} binding affinity Ki
+mechanistic_04350,mechanistic,pair_core,ETH-LAD D4 receptor DRD4 receptor pharmacology assay,ETH-LAD,D4 receptor (DRD4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04351,mechanistic,pair_core,ETH-LAD D4 receptor DRD4 functional assay agonist antagonist,ETH-LAD,D4 receptor (DRD4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04352,mechanistic,pair_core,ETH-LAD D5 receptor DRD5 binding affinity Ki,ETH-LAD,D5 receptor (DRD5),target,{compound} {entity} binding affinity Ki
+mechanistic_04353,mechanistic,pair_core,ETH-LAD D5 receptor DRD5 receptor pharmacology assay,ETH-LAD,D5 receptor (DRD5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04354,mechanistic,pair_core,ETH-LAD D5 receptor DRD5 functional assay agonist antagonist,ETH-LAD,D5 receptor (DRD5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04355,mechanistic,pair_core,ETH-LAD Alpha1A adrenergic receptor ADRA1A binding affinity Ki,ETH-LAD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} binding affinity Ki
+mechanistic_04356,mechanistic,pair_core,ETH-LAD Alpha1A adrenergic receptor ADRA1A receptor pharmacology assay,ETH-LAD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04357,mechanistic,pair_core,ETH-LAD Alpha1A adrenergic receptor ADRA1A functional assay agonist antagonist,ETH-LAD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04358,mechanistic,pair_core,ETH-LAD Alpha1B adrenergic receptor ADRA1B binding affinity Ki,ETH-LAD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} binding affinity Ki
+mechanistic_04359,mechanistic,pair_core,ETH-LAD Alpha1B adrenergic receptor ADRA1B receptor pharmacology assay,ETH-LAD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04360,mechanistic,pair_core,ETH-LAD Alpha1B adrenergic receptor ADRA1B functional assay agonist antagonist,ETH-LAD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04361,mechanistic,pair_core,ETH-LAD Alpha2A adrenergic receptor ADRA2A binding affinity Ki,ETH-LAD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} binding affinity Ki
+mechanistic_04362,mechanistic,pair_core,ETH-LAD Alpha2A adrenergic receptor ADRA2A receptor pharmacology assay,ETH-LAD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04363,mechanistic,pair_core,ETH-LAD Alpha2A adrenergic receptor ADRA2A functional assay agonist antagonist,ETH-LAD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04364,mechanistic,pair_core,ETH-LAD Alpha2B adrenergic receptor ADRA2B binding affinity Ki,ETH-LAD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} binding affinity Ki
+mechanistic_04365,mechanistic,pair_core,ETH-LAD Alpha2B adrenergic receptor ADRA2B receptor pharmacology assay,ETH-LAD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04366,mechanistic,pair_core,ETH-LAD Alpha2B adrenergic receptor ADRA2B functional assay agonist antagonist,ETH-LAD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04367,mechanistic,pair_core,ETH-LAD Alpha2C adrenergic receptor ADRA2C binding affinity Ki,ETH-LAD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} binding affinity Ki
+mechanistic_04368,mechanistic,pair_core,ETH-LAD Alpha2C adrenergic receptor ADRA2C receptor pharmacology assay,ETH-LAD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04369,mechanistic,pair_core,ETH-LAD Alpha2C adrenergic receptor ADRA2C functional assay agonist antagonist,ETH-LAD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04370,mechanistic,pair_core,ETH-LAD Beta1 adrenergic receptor ADRB1 binding affinity Ki,ETH-LAD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} binding affinity Ki
+mechanistic_04371,mechanistic,pair_core,ETH-LAD Beta1 adrenergic receptor ADRB1 receptor pharmacology assay,ETH-LAD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04372,mechanistic,pair_core,ETH-LAD Beta1 adrenergic receptor ADRB1 functional assay agonist antagonist,ETH-LAD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04373,mechanistic,pair_core,ETH-LAD Beta2 adrenergic receptor ADRB2 binding affinity Ki,ETH-LAD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} binding affinity Ki
+mechanistic_04374,mechanistic,pair_core,ETH-LAD Beta2 adrenergic receptor ADRB2 receptor pharmacology assay,ETH-LAD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04375,mechanistic,pair_core,ETH-LAD Beta2 adrenergic receptor ADRB2 functional assay agonist antagonist,ETH-LAD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04376,mechanistic,pair_core,ETH-LAD M1 muscarinic receptor CHRM1 binding affinity Ki,ETH-LAD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04377,mechanistic,pair_core,ETH-LAD M1 muscarinic receptor CHRM1 receptor pharmacology assay,ETH-LAD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04378,mechanistic,pair_core,ETH-LAD M1 muscarinic receptor CHRM1 functional assay agonist antagonist,ETH-LAD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04379,mechanistic,pair_core,ETH-LAD M2 muscarinic receptor CHRM2 binding affinity Ki,ETH-LAD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04380,mechanistic,pair_core,ETH-LAD M2 muscarinic receptor CHRM2 receptor pharmacology assay,ETH-LAD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04381,mechanistic,pair_core,ETH-LAD M2 muscarinic receptor CHRM2 functional assay agonist antagonist,ETH-LAD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04382,mechanistic,pair_core,ETH-LAD M3 muscarinic receptor CHRM3 binding affinity Ki,ETH-LAD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} binding affinity Ki
+mechanistic_04383,mechanistic,pair_core,ETH-LAD M3 muscarinic receptor CHRM3 receptor pharmacology assay,ETH-LAD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04384,mechanistic,pair_core,ETH-LAD M3 muscarinic receptor CHRM3 functional assay agonist antagonist,ETH-LAD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04385,mechanistic,pair_core,ETH-LAD M4 muscarinic receptor CHRM4 binding affinity Ki,ETH-LAD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} binding affinity Ki
+mechanistic_04386,mechanistic,pair_core,ETH-LAD M4 muscarinic receptor CHRM4 receptor pharmacology assay,ETH-LAD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04387,mechanistic,pair_core,ETH-LAD M4 muscarinic receptor CHRM4 functional assay agonist antagonist,ETH-LAD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04388,mechanistic,pair_core,ETH-LAD M5 muscarinic receptor CHRM5 binding affinity Ki,ETH-LAD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} binding affinity Ki
+mechanistic_04389,mechanistic,pair_core,ETH-LAD M5 muscarinic receptor CHRM5 receptor pharmacology assay,ETH-LAD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04390,mechanistic,pair_core,ETH-LAD M5 muscarinic receptor CHRM5 functional assay agonist antagonist,ETH-LAD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04391,mechanistic,pair_core,ETH-LAD H1 receptor HRH1 binding affinity Ki,ETH-LAD,H1 receptor (HRH1),target,{compound} {entity} binding affinity Ki
+mechanistic_04392,mechanistic,pair_core,ETH-LAD H1 receptor HRH1 receptor pharmacology assay,ETH-LAD,H1 receptor (HRH1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04393,mechanistic,pair_core,ETH-LAD H1 receptor HRH1 functional assay agonist antagonist,ETH-LAD,H1 receptor (HRH1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04394,mechanistic,pair_core,ETH-LAD H2 receptor HRH2 binding affinity Ki,ETH-LAD,H2 receptor (HRH2),target,{compound} {entity} binding affinity Ki
+mechanistic_04395,mechanistic,pair_core,ETH-LAD H2 receptor HRH2 receptor pharmacology assay,ETH-LAD,H2 receptor (HRH2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04396,mechanistic,pair_core,ETH-LAD H2 receptor HRH2 functional assay agonist antagonist,ETH-LAD,H2 receptor (HRH2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04397,mechanistic,pair_core,ETH-LAD Sigma-1 receptor SIGMAR1 binding affinity Ki,ETH-LAD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04398,mechanistic,pair_core,ETH-LAD Sigma-1 receptor SIGMAR1 receptor pharmacology assay,ETH-LAD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04399,mechanistic,pair_core,ETH-LAD Sigma-1 receptor SIGMAR1 functional assay agonist antagonist,ETH-LAD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04400,mechanistic,pair_core,ETH-LAD Sigma-2 receptor TMEM97 binding affinity Ki,ETH-LAD,Sigma-2 receptor (TMEM97),target,{compound} {entity} binding affinity Ki
+mechanistic_04401,mechanistic,pair_core,ETH-LAD Sigma-2 receptor TMEM97 receptor pharmacology assay,ETH-LAD,Sigma-2 receptor (TMEM97),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04402,mechanistic,pair_core,ETH-LAD Sigma-2 receptor TMEM97 functional assay agonist antagonist,ETH-LAD,Sigma-2 receptor (TMEM97),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04403,mechanistic,pair_core,ETH-LAD kappa opioid receptor OPRK1 binding affinity Ki,ETH-LAD,kappa opioid receptor (OPRK1),target,{compound} {entity} binding affinity Ki
+mechanistic_04404,mechanistic,pair_core,ETH-LAD kappa opioid receptor OPRK1 receptor pharmacology assay,ETH-LAD,kappa opioid receptor (OPRK1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04405,mechanistic,pair_core,ETH-LAD kappa opioid receptor OPRK1 functional assay agonist antagonist,ETH-LAD,kappa opioid receptor (OPRK1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04406,mechanistic,pair_core,ETH-LAD mu opioid receptor OPRM1 binding affinity Ki,ETH-LAD,mu opioid receptor (OPRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04407,mechanistic,pair_core,ETH-LAD mu opioid receptor OPRM1 receptor pharmacology assay,ETH-LAD,mu opioid receptor (OPRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04408,mechanistic,pair_core,ETH-LAD mu opioid receptor OPRM1 functional assay agonist antagonist,ETH-LAD,mu opioid receptor (OPRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04409,mechanistic,pair_core,ETH-LAD delta opioid receptor OPRD1 binding affinity Ki,ETH-LAD,delta opioid receptor (OPRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04410,mechanistic,pair_core,ETH-LAD delta opioid receptor OPRD1 receptor pharmacology assay,ETH-LAD,delta opioid receptor (OPRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04411,mechanistic,pair_core,ETH-LAD delta opioid receptor OPRD1 functional assay agonist antagonist,ETH-LAD,delta opioid receptor (OPRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04412,mechanistic,pair_core,ETH-LAD NMDA receptor binding affinity Ki,ETH-LAD,NMDA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04413,mechanistic,pair_core,ETH-LAD NMDA receptor pharmacology assay,ETH-LAD,NMDA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04414,mechanistic,pair_core,ETH-LAD NMDA receptor functional assay agonist antagonist,ETH-LAD,NMDA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04415,mechanistic,pair_core,ETH-LAD AMPA receptor binding affinity Ki,ETH-LAD,AMPA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04416,mechanistic,pair_core,ETH-LAD AMPA receptor pharmacology assay,ETH-LAD,AMPA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04417,mechanistic,pair_core,ETH-LAD AMPA receptor functional assay agonist antagonist,ETH-LAD,AMPA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04418,mechanistic,pair_core,ETH-LAD TrkB NTRK2 binding affinity Ki,ETH-LAD,TrkB (NTRK2),target,{compound} {entity} binding affinity Ki
+mechanistic_04419,mechanistic,pair_core,ETH-LAD TrkB NTRK2 receptor pharmacology assay,ETH-LAD,TrkB (NTRK2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04420,mechanistic,pair_core,ETH-LAD TrkB NTRK2 functional assay agonist antagonist,ETH-LAD,TrkB (NTRK2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04421,mechanistic,pair_core,ETH-LAD CB1 receptor CNR1 binding affinity Ki,ETH-LAD,CB1 receptor (CNR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04422,mechanistic,pair_core,ETH-LAD CB1 receptor CNR1 receptor pharmacology assay,ETH-LAD,CB1 receptor (CNR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04423,mechanistic,pair_core,ETH-LAD CB1 receptor CNR1 functional assay agonist antagonist,ETH-LAD,CB1 receptor (CNR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04424,mechanistic,pair_core,ETH-LAD CB2 receptor CNR2 binding affinity Ki,ETH-LAD,CB2 receptor (CNR2),target,{compound} {entity} binding affinity Ki
+mechanistic_04425,mechanistic,pair_core,ETH-LAD CB2 receptor CNR2 receptor pharmacology assay,ETH-LAD,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04426,mechanistic,pair_core,ETH-LAD CB2 receptor CNR2 functional assay agonist antagonist,ETH-LAD,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04427,mechanistic,pair_core,PRO-LAD 5-HT2A binding affinity Ki,PRO-LAD,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_04428,mechanistic,pair_core,PRO-LAD 5-HT2A receptor pharmacology assay,PRO-LAD,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04429,mechanistic,pair_core,PRO-LAD 5-HT2A functional assay agonist antagonist,PRO-LAD,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04430,mechanistic,pair_core,PRO-LAD 5-HT2B binding affinity Ki,PRO-LAD,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_04431,mechanistic,pair_core,PRO-LAD 5-HT2B receptor pharmacology assay,PRO-LAD,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04432,mechanistic,pair_core,PRO-LAD 5-HT2B functional assay agonist antagonist,PRO-LAD,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04433,mechanistic,pair_core,PRO-LAD 5-HT2C binding affinity Ki,PRO-LAD,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_04434,mechanistic,pair_core,PRO-LAD 5-HT2C receptor pharmacology assay,PRO-LAD,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04435,mechanistic,pair_core,PRO-LAD 5-HT2C functional assay agonist antagonist,PRO-LAD,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04436,mechanistic,pair_core,PRO-LAD 5-HT1A binding affinity Ki,PRO-LAD,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_04437,mechanistic,pair_core,PRO-LAD 5-HT1A receptor pharmacology assay,PRO-LAD,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04438,mechanistic,pair_core,PRO-LAD 5-HT1A functional assay agonist antagonist,PRO-LAD,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04439,mechanistic,pair_core,PRO-LAD 5-HT1B binding affinity Ki,PRO-LAD,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_04440,mechanistic,pair_core,PRO-LAD 5-HT1B receptor pharmacology assay,PRO-LAD,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04441,mechanistic,pair_core,PRO-LAD 5-HT1B functional assay agonist antagonist,PRO-LAD,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04442,mechanistic,pair_core,PRO-LAD 5-HT1D binding affinity Ki,PRO-LAD,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_04443,mechanistic,pair_core,PRO-LAD 5-HT1D receptor pharmacology assay,PRO-LAD,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04444,mechanistic,pair_core,PRO-LAD 5-HT1D functional assay agonist antagonist,PRO-LAD,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04445,mechanistic,pair_core,PRO-LAD 5-HT1E binding affinity Ki,PRO-LAD,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_04446,mechanistic,pair_core,PRO-LAD 5-HT1E receptor pharmacology assay,PRO-LAD,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04447,mechanistic,pair_core,PRO-LAD 5-HT1E functional assay agonist antagonist,PRO-LAD,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04448,mechanistic,pair_core,PRO-LAD 5-HT1F binding affinity Ki,PRO-LAD,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_04449,mechanistic,pair_core,PRO-LAD 5-HT1F receptor pharmacology assay,PRO-LAD,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04450,mechanistic,pair_core,PRO-LAD 5-HT1F functional assay agonist antagonist,PRO-LAD,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04451,mechanistic,pair_core,PRO-LAD 5-HT5A binding affinity Ki,PRO-LAD,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_04452,mechanistic,pair_core,PRO-LAD 5-HT5A receptor pharmacology assay,PRO-LAD,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04453,mechanistic,pair_core,PRO-LAD 5-HT5A functional assay agonist antagonist,PRO-LAD,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04454,mechanistic,pair_core,PRO-LAD 5-HT6 binding affinity Ki,PRO-LAD,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_04455,mechanistic,pair_core,PRO-LAD 5-HT6 receptor pharmacology assay,PRO-LAD,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04456,mechanistic,pair_core,PRO-LAD 5-HT6 functional assay agonist antagonist,PRO-LAD,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04457,mechanistic,pair_core,PRO-LAD 5-HT7 binding affinity Ki,PRO-LAD,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_04458,mechanistic,pair_core,PRO-LAD 5-HT7 receptor pharmacology assay,PRO-LAD,5-HT7,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04459,mechanistic,pair_core,PRO-LAD 5-HT7 functional assay agonist antagonist,PRO-LAD,5-HT7,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04460,mechanistic,pair_core,PRO-LAD mGluR2 GRM2 binding affinity Ki,PRO-LAD,mGluR2 (GRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04461,mechanistic,pair_core,PRO-LAD mGluR2 GRM2 receptor pharmacology assay,PRO-LAD,mGluR2 (GRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04462,mechanistic,pair_core,PRO-LAD mGluR2 GRM2 functional assay agonist antagonist,PRO-LAD,mGluR2 (GRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04463,mechanistic,pair_core,PRO-LAD TAAR1 binding affinity Ki,PRO-LAD,TAAR1,target,{compound} {entity} binding affinity Ki
+mechanistic_04464,mechanistic,pair_core,PRO-LAD TAAR1 receptor pharmacology assay,PRO-LAD,TAAR1,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04465,mechanistic,pair_core,PRO-LAD TAAR1 functional assay agonist antagonist,PRO-LAD,TAAR1,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04466,mechanistic,pair_core,PRO-LAD SERT SLC6A4 binding affinity Ki,PRO-LAD,SERT (SLC6A4),target,{compound} {entity} binding affinity Ki
+mechanistic_04467,mechanistic,pair_core,PRO-LAD SERT SLC6A4 receptor pharmacology assay,PRO-LAD,SERT (SLC6A4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04468,mechanistic,pair_core,PRO-LAD SERT SLC6A4 functional assay agonist antagonist,PRO-LAD,SERT (SLC6A4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04469,mechanistic,pair_core,PRO-LAD NET SLC6A2 binding affinity Ki,PRO-LAD,NET (SLC6A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04470,mechanistic,pair_core,PRO-LAD NET SLC6A2 receptor pharmacology assay,PRO-LAD,NET (SLC6A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04471,mechanistic,pair_core,PRO-LAD NET SLC6A2 functional assay agonist antagonist,PRO-LAD,NET (SLC6A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04472,mechanistic,pair_core,PRO-LAD DAT SLC6A3 binding affinity Ki,PRO-LAD,DAT (SLC6A3),target,{compound} {entity} binding affinity Ki
+mechanistic_04473,mechanistic,pair_core,PRO-LAD DAT SLC6A3 receptor pharmacology assay,PRO-LAD,DAT (SLC6A3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04474,mechanistic,pair_core,PRO-LAD DAT SLC6A3 functional assay agonist antagonist,PRO-LAD,DAT (SLC6A3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04475,mechanistic,pair_core,PRO-LAD VMAT2 SLC18A2 binding affinity Ki,PRO-LAD,VMAT2 (SLC18A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04476,mechanistic,pair_core,PRO-LAD VMAT2 SLC18A2 receptor pharmacology assay,PRO-LAD,VMAT2 (SLC18A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04477,mechanistic,pair_core,PRO-LAD VMAT2 SLC18A2 functional assay agonist antagonist,PRO-LAD,VMAT2 (SLC18A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04478,mechanistic,pair_core,PRO-LAD D1 receptor DRD1 binding affinity Ki,PRO-LAD,D1 receptor (DRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04479,mechanistic,pair_core,PRO-LAD D1 receptor DRD1 receptor pharmacology assay,PRO-LAD,D1 receptor (DRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04480,mechanistic,pair_core,PRO-LAD D1 receptor DRD1 functional assay agonist antagonist,PRO-LAD,D1 receptor (DRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04481,mechanistic,pair_core,PRO-LAD D2 receptor DRD2 binding affinity Ki,PRO-LAD,D2 receptor (DRD2),target,{compound} {entity} binding affinity Ki
+mechanistic_04482,mechanistic,pair_core,PRO-LAD D2 receptor DRD2 receptor pharmacology assay,PRO-LAD,D2 receptor (DRD2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04483,mechanistic,pair_core,PRO-LAD D2 receptor DRD2 functional assay agonist antagonist,PRO-LAD,D2 receptor (DRD2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04484,mechanistic,pair_core,PRO-LAD D3 receptor DRD3 binding affinity Ki,PRO-LAD,D3 receptor (DRD3),target,{compound} {entity} binding affinity Ki
+mechanistic_04485,mechanistic,pair_core,PRO-LAD D3 receptor DRD3 receptor pharmacology assay,PRO-LAD,D3 receptor (DRD3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04486,mechanistic,pair_core,PRO-LAD D3 receptor DRD3 functional assay agonist antagonist,PRO-LAD,D3 receptor (DRD3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04487,mechanistic,pair_core,PRO-LAD D4 receptor DRD4 binding affinity Ki,PRO-LAD,D4 receptor (DRD4),target,{compound} {entity} binding affinity Ki
+mechanistic_04488,mechanistic,pair_core,PRO-LAD D4 receptor DRD4 receptor pharmacology assay,PRO-LAD,D4 receptor (DRD4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04489,mechanistic,pair_core,PRO-LAD D4 receptor DRD4 functional assay agonist antagonist,PRO-LAD,D4 receptor (DRD4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04490,mechanistic,pair_core,PRO-LAD D5 receptor DRD5 binding affinity Ki,PRO-LAD,D5 receptor (DRD5),target,{compound} {entity} binding affinity Ki
+mechanistic_04491,mechanistic,pair_core,PRO-LAD D5 receptor DRD5 receptor pharmacology assay,PRO-LAD,D5 receptor (DRD5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04492,mechanistic,pair_core,PRO-LAD D5 receptor DRD5 functional assay agonist antagonist,PRO-LAD,D5 receptor (DRD5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04493,mechanistic,pair_core,PRO-LAD Alpha1A adrenergic receptor ADRA1A binding affinity Ki,PRO-LAD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} binding affinity Ki
+mechanistic_04494,mechanistic,pair_core,PRO-LAD Alpha1A adrenergic receptor ADRA1A receptor pharmacology assay,PRO-LAD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04495,mechanistic,pair_core,PRO-LAD Alpha1A adrenergic receptor ADRA1A functional assay agonist antagonist,PRO-LAD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04496,mechanistic,pair_core,PRO-LAD Alpha1B adrenergic receptor ADRA1B binding affinity Ki,PRO-LAD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} binding affinity Ki
+mechanistic_04497,mechanistic,pair_core,PRO-LAD Alpha1B adrenergic receptor ADRA1B receptor pharmacology assay,PRO-LAD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04498,mechanistic,pair_core,PRO-LAD Alpha1B adrenergic receptor ADRA1B functional assay agonist antagonist,PRO-LAD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04499,mechanistic,pair_core,PRO-LAD Alpha2A adrenergic receptor ADRA2A binding affinity Ki,PRO-LAD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} binding affinity Ki
+mechanistic_04500,mechanistic,pair_core,PRO-LAD Alpha2A adrenergic receptor ADRA2A receptor pharmacology assay,PRO-LAD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04501,mechanistic,pair_core,PRO-LAD Alpha2A adrenergic receptor ADRA2A functional assay agonist antagonist,PRO-LAD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04502,mechanistic,pair_core,PRO-LAD Alpha2B adrenergic receptor ADRA2B binding affinity Ki,PRO-LAD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} binding affinity Ki
+mechanistic_04503,mechanistic,pair_core,PRO-LAD Alpha2B adrenergic receptor ADRA2B receptor pharmacology assay,PRO-LAD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04504,mechanistic,pair_core,PRO-LAD Alpha2B adrenergic receptor ADRA2B functional assay agonist antagonist,PRO-LAD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04505,mechanistic,pair_core,PRO-LAD Alpha2C adrenergic receptor ADRA2C binding affinity Ki,PRO-LAD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} binding affinity Ki
+mechanistic_04506,mechanistic,pair_core,PRO-LAD Alpha2C adrenergic receptor ADRA2C receptor pharmacology assay,PRO-LAD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04507,mechanistic,pair_core,PRO-LAD Alpha2C adrenergic receptor ADRA2C functional assay agonist antagonist,PRO-LAD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04508,mechanistic,pair_core,PRO-LAD Beta1 adrenergic receptor ADRB1 binding affinity Ki,PRO-LAD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} binding affinity Ki
+mechanistic_04509,mechanistic,pair_core,PRO-LAD Beta1 adrenergic receptor ADRB1 receptor pharmacology assay,PRO-LAD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04510,mechanistic,pair_core,PRO-LAD Beta1 adrenergic receptor ADRB1 functional assay agonist antagonist,PRO-LAD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04511,mechanistic,pair_core,PRO-LAD Beta2 adrenergic receptor ADRB2 binding affinity Ki,PRO-LAD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} binding affinity Ki
+mechanistic_04512,mechanistic,pair_core,PRO-LAD Beta2 adrenergic receptor ADRB2 receptor pharmacology assay,PRO-LAD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04513,mechanistic,pair_core,PRO-LAD Beta2 adrenergic receptor ADRB2 functional assay agonist antagonist,PRO-LAD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04514,mechanistic,pair_core,PRO-LAD M1 muscarinic receptor CHRM1 binding affinity Ki,PRO-LAD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04515,mechanistic,pair_core,PRO-LAD M1 muscarinic receptor CHRM1 receptor pharmacology assay,PRO-LAD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04516,mechanistic,pair_core,PRO-LAD M1 muscarinic receptor CHRM1 functional assay agonist antagonist,PRO-LAD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04517,mechanistic,pair_core,PRO-LAD M2 muscarinic receptor CHRM2 binding affinity Ki,PRO-LAD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04518,mechanistic,pair_core,PRO-LAD M2 muscarinic receptor CHRM2 receptor pharmacology assay,PRO-LAD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04519,mechanistic,pair_core,PRO-LAD M2 muscarinic receptor CHRM2 functional assay agonist antagonist,PRO-LAD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04520,mechanistic,pair_core,PRO-LAD M3 muscarinic receptor CHRM3 binding affinity Ki,PRO-LAD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} binding affinity Ki
+mechanistic_04521,mechanistic,pair_core,PRO-LAD M3 muscarinic receptor CHRM3 receptor pharmacology assay,PRO-LAD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04522,mechanistic,pair_core,PRO-LAD M3 muscarinic receptor CHRM3 functional assay agonist antagonist,PRO-LAD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04523,mechanistic,pair_core,PRO-LAD M4 muscarinic receptor CHRM4 binding affinity Ki,PRO-LAD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} binding affinity Ki
+mechanistic_04524,mechanistic,pair_core,PRO-LAD M4 muscarinic receptor CHRM4 receptor pharmacology assay,PRO-LAD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04525,mechanistic,pair_core,PRO-LAD M4 muscarinic receptor CHRM4 functional assay agonist antagonist,PRO-LAD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04526,mechanistic,pair_core,PRO-LAD M5 muscarinic receptor CHRM5 binding affinity Ki,PRO-LAD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} binding affinity Ki
+mechanistic_04527,mechanistic,pair_core,PRO-LAD M5 muscarinic receptor CHRM5 receptor pharmacology assay,PRO-LAD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04528,mechanistic,pair_core,PRO-LAD M5 muscarinic receptor CHRM5 functional assay agonist antagonist,PRO-LAD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04529,mechanistic,pair_core,PRO-LAD H1 receptor HRH1 binding affinity Ki,PRO-LAD,H1 receptor (HRH1),target,{compound} {entity} binding affinity Ki
+mechanistic_04530,mechanistic,pair_core,PRO-LAD H1 receptor HRH1 receptor pharmacology assay,PRO-LAD,H1 receptor (HRH1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04531,mechanistic,pair_core,PRO-LAD H1 receptor HRH1 functional assay agonist antagonist,PRO-LAD,H1 receptor (HRH1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04532,mechanistic,pair_core,PRO-LAD H2 receptor HRH2 binding affinity Ki,PRO-LAD,H2 receptor (HRH2),target,{compound} {entity} binding affinity Ki
+mechanistic_04533,mechanistic,pair_core,PRO-LAD H2 receptor HRH2 receptor pharmacology assay,PRO-LAD,H2 receptor (HRH2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04534,mechanistic,pair_core,PRO-LAD H2 receptor HRH2 functional assay agonist antagonist,PRO-LAD,H2 receptor (HRH2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04535,mechanistic,pair_core,PRO-LAD Sigma-1 receptor SIGMAR1 binding affinity Ki,PRO-LAD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04536,mechanistic,pair_core,PRO-LAD Sigma-1 receptor SIGMAR1 receptor pharmacology assay,PRO-LAD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04537,mechanistic,pair_core,PRO-LAD Sigma-1 receptor SIGMAR1 functional assay agonist antagonist,PRO-LAD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04538,mechanistic,pair_core,PRO-LAD Sigma-2 receptor TMEM97 binding affinity Ki,PRO-LAD,Sigma-2 receptor (TMEM97),target,{compound} {entity} binding affinity Ki
+mechanistic_04539,mechanistic,pair_core,PRO-LAD Sigma-2 receptor TMEM97 receptor pharmacology assay,PRO-LAD,Sigma-2 receptor (TMEM97),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04540,mechanistic,pair_core,PRO-LAD Sigma-2 receptor TMEM97 functional assay agonist antagonist,PRO-LAD,Sigma-2 receptor (TMEM97),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04541,mechanistic,pair_core,PRO-LAD kappa opioid receptor OPRK1 binding affinity Ki,PRO-LAD,kappa opioid receptor (OPRK1),target,{compound} {entity} binding affinity Ki
+mechanistic_04542,mechanistic,pair_core,PRO-LAD kappa opioid receptor OPRK1 receptor pharmacology assay,PRO-LAD,kappa opioid receptor (OPRK1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04543,mechanistic,pair_core,PRO-LAD kappa opioid receptor OPRK1 functional assay agonist antagonist,PRO-LAD,kappa opioid receptor (OPRK1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04544,mechanistic,pair_core,PRO-LAD mu opioid receptor OPRM1 binding affinity Ki,PRO-LAD,mu opioid receptor (OPRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04545,mechanistic,pair_core,PRO-LAD mu opioid receptor OPRM1 receptor pharmacology assay,PRO-LAD,mu opioid receptor (OPRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04546,mechanistic,pair_core,PRO-LAD mu opioid receptor OPRM1 functional assay agonist antagonist,PRO-LAD,mu opioid receptor (OPRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04547,mechanistic,pair_core,PRO-LAD delta opioid receptor OPRD1 binding affinity Ki,PRO-LAD,delta opioid receptor (OPRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04548,mechanistic,pair_core,PRO-LAD delta opioid receptor OPRD1 receptor pharmacology assay,PRO-LAD,delta opioid receptor (OPRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04549,mechanistic,pair_core,PRO-LAD delta opioid receptor OPRD1 functional assay agonist antagonist,PRO-LAD,delta opioid receptor (OPRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04550,mechanistic,pair_core,PRO-LAD NMDA receptor binding affinity Ki,PRO-LAD,NMDA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04551,mechanistic,pair_core,PRO-LAD NMDA receptor pharmacology assay,PRO-LAD,NMDA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04552,mechanistic,pair_core,PRO-LAD NMDA receptor functional assay agonist antagonist,PRO-LAD,NMDA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04553,mechanistic,pair_core,PRO-LAD AMPA receptor binding affinity Ki,PRO-LAD,AMPA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04554,mechanistic,pair_core,PRO-LAD AMPA receptor pharmacology assay,PRO-LAD,AMPA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04555,mechanistic,pair_core,PRO-LAD AMPA receptor functional assay agonist antagonist,PRO-LAD,AMPA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04556,mechanistic,pair_core,PRO-LAD TrkB NTRK2 binding affinity Ki,PRO-LAD,TrkB (NTRK2),target,{compound} {entity} binding affinity Ki
+mechanistic_04557,mechanistic,pair_core,PRO-LAD TrkB NTRK2 receptor pharmacology assay,PRO-LAD,TrkB (NTRK2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04558,mechanistic,pair_core,PRO-LAD TrkB NTRK2 functional assay agonist antagonist,PRO-LAD,TrkB (NTRK2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04559,mechanistic,pair_core,PRO-LAD CB1 receptor CNR1 binding affinity Ki,PRO-LAD,CB1 receptor (CNR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04560,mechanistic,pair_core,PRO-LAD CB1 receptor CNR1 receptor pharmacology assay,PRO-LAD,CB1 receptor (CNR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04561,mechanistic,pair_core,PRO-LAD CB1 receptor CNR1 functional assay agonist antagonist,PRO-LAD,CB1 receptor (CNR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04562,mechanistic,pair_core,PRO-LAD CB2 receptor CNR2 binding affinity Ki,PRO-LAD,CB2 receptor (CNR2),target,{compound} {entity} binding affinity Ki
+mechanistic_04563,mechanistic,pair_core,PRO-LAD CB2 receptor CNR2 receptor pharmacology assay,PRO-LAD,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04564,mechanistic,pair_core,PRO-LAD CB2 receptor CNR2 functional assay agonist antagonist,PRO-LAD,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04565,mechanistic,pair_core,1P-LSD 5-HT2A binding affinity Ki,1P-LSD,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_04566,mechanistic,pair_core,1P-LSD 5-HT2A receptor pharmacology assay,1P-LSD,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04567,mechanistic,pair_core,1P-LSD 5-HT2A functional assay agonist antagonist,1P-LSD,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04568,mechanistic,pair_core,1P-LSD 5-HT2B binding affinity Ki,1P-LSD,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_04569,mechanistic,pair_core,1P-LSD 5-HT2B receptor pharmacology assay,1P-LSD,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04570,mechanistic,pair_core,1P-LSD 5-HT2B functional assay agonist antagonist,1P-LSD,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04571,mechanistic,pair_core,1P-LSD 5-HT2C binding affinity Ki,1P-LSD,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_04572,mechanistic,pair_core,1P-LSD 5-HT2C receptor pharmacology assay,1P-LSD,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04573,mechanistic,pair_core,1P-LSD 5-HT2C functional assay agonist antagonist,1P-LSD,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04574,mechanistic,pair_core,1P-LSD 5-HT1A binding affinity Ki,1P-LSD,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_04575,mechanistic,pair_core,1P-LSD 5-HT1A receptor pharmacology assay,1P-LSD,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04576,mechanistic,pair_core,1P-LSD 5-HT1A functional assay agonist antagonist,1P-LSD,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04577,mechanistic,pair_core,1P-LSD 5-HT1B binding affinity Ki,1P-LSD,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_04578,mechanistic,pair_core,1P-LSD 5-HT1B receptor pharmacology assay,1P-LSD,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04579,mechanistic,pair_core,1P-LSD 5-HT1B functional assay agonist antagonist,1P-LSD,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04580,mechanistic,pair_core,1P-LSD 5-HT1D binding affinity Ki,1P-LSD,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_04581,mechanistic,pair_core,1P-LSD 5-HT1D receptor pharmacology assay,1P-LSD,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04582,mechanistic,pair_core,1P-LSD 5-HT1D functional assay agonist antagonist,1P-LSD,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04583,mechanistic,pair_core,1P-LSD 5-HT1E binding affinity Ki,1P-LSD,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_04584,mechanistic,pair_core,1P-LSD 5-HT1E receptor pharmacology assay,1P-LSD,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04585,mechanistic,pair_core,1P-LSD 5-HT1E functional assay agonist antagonist,1P-LSD,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04586,mechanistic,pair_core,1P-LSD 5-HT1F binding affinity Ki,1P-LSD,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_04587,mechanistic,pair_core,1P-LSD 5-HT1F receptor pharmacology assay,1P-LSD,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04588,mechanistic,pair_core,1P-LSD 5-HT1F functional assay agonist antagonist,1P-LSD,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04589,mechanistic,pair_core,1P-LSD 5-HT5A binding affinity Ki,1P-LSD,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_04590,mechanistic,pair_core,1P-LSD 5-HT5A receptor pharmacology assay,1P-LSD,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04591,mechanistic,pair_core,1P-LSD 5-HT5A functional assay agonist antagonist,1P-LSD,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04592,mechanistic,pair_core,1P-LSD 5-HT6 binding affinity Ki,1P-LSD,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_04593,mechanistic,pair_core,1P-LSD 5-HT6 receptor pharmacology assay,1P-LSD,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04594,mechanistic,pair_core,1P-LSD 5-HT6 functional assay agonist antagonist,1P-LSD,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04595,mechanistic,pair_core,1P-LSD 5-HT7 binding affinity Ki,1P-LSD,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_04596,mechanistic,pair_core,1P-LSD 5-HT7 receptor pharmacology assay,1P-LSD,5-HT7,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04597,mechanistic,pair_core,1P-LSD 5-HT7 functional assay agonist antagonist,1P-LSD,5-HT7,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04598,mechanistic,pair_core,1P-LSD mGluR2 GRM2 binding affinity Ki,1P-LSD,mGluR2 (GRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04599,mechanistic,pair_core,1P-LSD mGluR2 GRM2 receptor pharmacology assay,1P-LSD,mGluR2 (GRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04600,mechanistic,pair_core,1P-LSD mGluR2 GRM2 functional assay agonist antagonist,1P-LSD,mGluR2 (GRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04601,mechanistic,pair_core,1P-LSD TAAR1 binding affinity Ki,1P-LSD,TAAR1,target,{compound} {entity} binding affinity Ki
+mechanistic_04602,mechanistic,pair_core,1P-LSD TAAR1 receptor pharmacology assay,1P-LSD,TAAR1,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04603,mechanistic,pair_core,1P-LSD TAAR1 functional assay agonist antagonist,1P-LSD,TAAR1,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04604,mechanistic,pair_core,1P-LSD SERT SLC6A4 binding affinity Ki,1P-LSD,SERT (SLC6A4),target,{compound} {entity} binding affinity Ki
+mechanistic_04605,mechanistic,pair_core,1P-LSD SERT SLC6A4 receptor pharmacology assay,1P-LSD,SERT (SLC6A4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04606,mechanistic,pair_core,1P-LSD SERT SLC6A4 functional assay agonist antagonist,1P-LSD,SERT (SLC6A4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04607,mechanistic,pair_core,1P-LSD NET SLC6A2 binding affinity Ki,1P-LSD,NET (SLC6A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04608,mechanistic,pair_core,1P-LSD NET SLC6A2 receptor pharmacology assay,1P-LSD,NET (SLC6A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04609,mechanistic,pair_core,1P-LSD NET SLC6A2 functional assay agonist antagonist,1P-LSD,NET (SLC6A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04610,mechanistic,pair_core,1P-LSD DAT SLC6A3 binding affinity Ki,1P-LSD,DAT (SLC6A3),target,{compound} {entity} binding affinity Ki
+mechanistic_04611,mechanistic,pair_core,1P-LSD DAT SLC6A3 receptor pharmacology assay,1P-LSD,DAT (SLC6A3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04612,mechanistic,pair_core,1P-LSD DAT SLC6A3 functional assay agonist antagonist,1P-LSD,DAT (SLC6A3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04613,mechanistic,pair_core,1P-LSD VMAT2 SLC18A2 binding affinity Ki,1P-LSD,VMAT2 (SLC18A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04614,mechanistic,pair_core,1P-LSD VMAT2 SLC18A2 receptor pharmacology assay,1P-LSD,VMAT2 (SLC18A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04615,mechanistic,pair_core,1P-LSD VMAT2 SLC18A2 functional assay agonist antagonist,1P-LSD,VMAT2 (SLC18A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04616,mechanistic,pair_core,1P-LSD D1 receptor DRD1 binding affinity Ki,1P-LSD,D1 receptor (DRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04617,mechanistic,pair_core,1P-LSD D1 receptor DRD1 receptor pharmacology assay,1P-LSD,D1 receptor (DRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04618,mechanistic,pair_core,1P-LSD D1 receptor DRD1 functional assay agonist antagonist,1P-LSD,D1 receptor (DRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04619,mechanistic,pair_core,1P-LSD D2 receptor DRD2 binding affinity Ki,1P-LSD,D2 receptor (DRD2),target,{compound} {entity} binding affinity Ki
+mechanistic_04620,mechanistic,pair_core,1P-LSD D2 receptor DRD2 receptor pharmacology assay,1P-LSD,D2 receptor (DRD2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04621,mechanistic,pair_core,1P-LSD D2 receptor DRD2 functional assay agonist antagonist,1P-LSD,D2 receptor (DRD2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04622,mechanistic,pair_core,1P-LSD D3 receptor DRD3 binding affinity Ki,1P-LSD,D3 receptor (DRD3),target,{compound} {entity} binding affinity Ki
+mechanistic_04623,mechanistic,pair_core,1P-LSD D3 receptor DRD3 receptor pharmacology assay,1P-LSD,D3 receptor (DRD3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04624,mechanistic,pair_core,1P-LSD D3 receptor DRD3 functional assay agonist antagonist,1P-LSD,D3 receptor (DRD3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04625,mechanistic,pair_core,1P-LSD D4 receptor DRD4 binding affinity Ki,1P-LSD,D4 receptor (DRD4),target,{compound} {entity} binding affinity Ki
+mechanistic_04626,mechanistic,pair_core,1P-LSD D4 receptor DRD4 receptor pharmacology assay,1P-LSD,D4 receptor (DRD4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04627,mechanistic,pair_core,1P-LSD D4 receptor DRD4 functional assay agonist antagonist,1P-LSD,D4 receptor (DRD4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04628,mechanistic,pair_core,1P-LSD D5 receptor DRD5 binding affinity Ki,1P-LSD,D5 receptor (DRD5),target,{compound} {entity} binding affinity Ki
+mechanistic_04629,mechanistic,pair_core,1P-LSD D5 receptor DRD5 receptor pharmacology assay,1P-LSD,D5 receptor (DRD5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04630,mechanistic,pair_core,1P-LSD D5 receptor DRD5 functional assay agonist antagonist,1P-LSD,D5 receptor (DRD5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04631,mechanistic,pair_core,1P-LSD Alpha1A adrenergic receptor ADRA1A binding affinity Ki,1P-LSD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} binding affinity Ki
+mechanistic_04632,mechanistic,pair_core,1P-LSD Alpha1A adrenergic receptor ADRA1A receptor pharmacology assay,1P-LSD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04633,mechanistic,pair_core,1P-LSD Alpha1A adrenergic receptor ADRA1A functional assay agonist antagonist,1P-LSD,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04634,mechanistic,pair_core,1P-LSD Alpha1B adrenergic receptor ADRA1B binding affinity Ki,1P-LSD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} binding affinity Ki
+mechanistic_04635,mechanistic,pair_core,1P-LSD Alpha1B adrenergic receptor ADRA1B receptor pharmacology assay,1P-LSD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04636,mechanistic,pair_core,1P-LSD Alpha1B adrenergic receptor ADRA1B functional assay agonist antagonist,1P-LSD,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04637,mechanistic,pair_core,1P-LSD Alpha2A adrenergic receptor ADRA2A binding affinity Ki,1P-LSD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} binding affinity Ki
+mechanistic_04638,mechanistic,pair_core,1P-LSD Alpha2A adrenergic receptor ADRA2A receptor pharmacology assay,1P-LSD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04639,mechanistic,pair_core,1P-LSD Alpha2A adrenergic receptor ADRA2A functional assay agonist antagonist,1P-LSD,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04640,mechanistic,pair_core,1P-LSD Alpha2B adrenergic receptor ADRA2B binding affinity Ki,1P-LSD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} binding affinity Ki
+mechanistic_04641,mechanistic,pair_core,1P-LSD Alpha2B adrenergic receptor ADRA2B receptor pharmacology assay,1P-LSD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04642,mechanistic,pair_core,1P-LSD Alpha2B adrenergic receptor ADRA2B functional assay agonist antagonist,1P-LSD,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04643,mechanistic,pair_core,1P-LSD Alpha2C adrenergic receptor ADRA2C binding affinity Ki,1P-LSD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} binding affinity Ki
+mechanistic_04644,mechanistic,pair_core,1P-LSD Alpha2C adrenergic receptor ADRA2C receptor pharmacology assay,1P-LSD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04645,mechanistic,pair_core,1P-LSD Alpha2C adrenergic receptor ADRA2C functional assay agonist antagonist,1P-LSD,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04646,mechanistic,pair_core,1P-LSD Beta1 adrenergic receptor ADRB1 binding affinity Ki,1P-LSD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} binding affinity Ki
+mechanistic_04647,mechanistic,pair_core,1P-LSD Beta1 adrenergic receptor ADRB1 receptor pharmacology assay,1P-LSD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04648,mechanistic,pair_core,1P-LSD Beta1 adrenergic receptor ADRB1 functional assay agonist antagonist,1P-LSD,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04649,mechanistic,pair_core,1P-LSD Beta2 adrenergic receptor ADRB2 binding affinity Ki,1P-LSD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} binding affinity Ki
+mechanistic_04650,mechanistic,pair_core,1P-LSD Beta2 adrenergic receptor ADRB2 receptor pharmacology assay,1P-LSD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04651,mechanistic,pair_core,1P-LSD Beta2 adrenergic receptor ADRB2 functional assay agonist antagonist,1P-LSD,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04652,mechanistic,pair_core,1P-LSD M1 muscarinic receptor CHRM1 binding affinity Ki,1P-LSD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04653,mechanistic,pair_core,1P-LSD M1 muscarinic receptor CHRM1 receptor pharmacology assay,1P-LSD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04654,mechanistic,pair_core,1P-LSD M1 muscarinic receptor CHRM1 functional assay agonist antagonist,1P-LSD,M1 muscarinic receptor (CHRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04655,mechanistic,pair_core,1P-LSD M2 muscarinic receptor CHRM2 binding affinity Ki,1P-LSD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04656,mechanistic,pair_core,1P-LSD M2 muscarinic receptor CHRM2 receptor pharmacology assay,1P-LSD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04657,mechanistic,pair_core,1P-LSD M2 muscarinic receptor CHRM2 functional assay agonist antagonist,1P-LSD,M2 muscarinic receptor (CHRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04658,mechanistic,pair_core,1P-LSD M3 muscarinic receptor CHRM3 binding affinity Ki,1P-LSD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} binding affinity Ki
+mechanistic_04659,mechanistic,pair_core,1P-LSD M3 muscarinic receptor CHRM3 receptor pharmacology assay,1P-LSD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04660,mechanistic,pair_core,1P-LSD M3 muscarinic receptor CHRM3 functional assay agonist antagonist,1P-LSD,M3 muscarinic receptor (CHRM3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04661,mechanistic,pair_core,1P-LSD M4 muscarinic receptor CHRM4 binding affinity Ki,1P-LSD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} binding affinity Ki
+mechanistic_04662,mechanistic,pair_core,1P-LSD M4 muscarinic receptor CHRM4 receptor pharmacology assay,1P-LSD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04663,mechanistic,pair_core,1P-LSD M4 muscarinic receptor CHRM4 functional assay agonist antagonist,1P-LSD,M4 muscarinic receptor (CHRM4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04664,mechanistic,pair_core,1P-LSD M5 muscarinic receptor CHRM5 binding affinity Ki,1P-LSD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} binding affinity Ki
+mechanistic_04665,mechanistic,pair_core,1P-LSD M5 muscarinic receptor CHRM5 receptor pharmacology assay,1P-LSD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04666,mechanistic,pair_core,1P-LSD M5 muscarinic receptor CHRM5 functional assay agonist antagonist,1P-LSD,M5 muscarinic receptor (CHRM5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04667,mechanistic,pair_core,1P-LSD H1 receptor HRH1 binding affinity Ki,1P-LSD,H1 receptor (HRH1),target,{compound} {entity} binding affinity Ki
+mechanistic_04668,mechanistic,pair_core,1P-LSD H1 receptor HRH1 receptor pharmacology assay,1P-LSD,H1 receptor (HRH1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04669,mechanistic,pair_core,1P-LSD H1 receptor HRH1 functional assay agonist antagonist,1P-LSD,H1 receptor (HRH1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04670,mechanistic,pair_core,1P-LSD H2 receptor HRH2 binding affinity Ki,1P-LSD,H2 receptor (HRH2),target,{compound} {entity} binding affinity Ki
+mechanistic_04671,mechanistic,pair_core,1P-LSD H2 receptor HRH2 receptor pharmacology assay,1P-LSD,H2 receptor (HRH2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04672,mechanistic,pair_core,1P-LSD H2 receptor HRH2 functional assay agonist antagonist,1P-LSD,H2 receptor (HRH2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04673,mechanistic,pair_core,1P-LSD Sigma-1 receptor SIGMAR1 binding affinity Ki,1P-LSD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04674,mechanistic,pair_core,1P-LSD Sigma-1 receptor SIGMAR1 receptor pharmacology assay,1P-LSD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04675,mechanistic,pair_core,1P-LSD Sigma-1 receptor SIGMAR1 functional assay agonist antagonist,1P-LSD,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04676,mechanistic,pair_core,1P-LSD Sigma-2 receptor TMEM97 binding affinity Ki,1P-LSD,Sigma-2 receptor (TMEM97),target,{compound} {entity} binding affinity Ki
+mechanistic_04677,mechanistic,pair_core,1P-LSD Sigma-2 receptor TMEM97 receptor pharmacology assay,1P-LSD,Sigma-2 receptor (TMEM97),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04678,mechanistic,pair_core,1P-LSD Sigma-2 receptor TMEM97 functional assay agonist antagonist,1P-LSD,Sigma-2 receptor (TMEM97),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04679,mechanistic,pair_core,1P-LSD kappa opioid receptor OPRK1 binding affinity Ki,1P-LSD,kappa opioid receptor (OPRK1),target,{compound} {entity} binding affinity Ki
+mechanistic_04680,mechanistic,pair_core,1P-LSD kappa opioid receptor OPRK1 receptor pharmacology assay,1P-LSD,kappa opioid receptor (OPRK1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04681,mechanistic,pair_core,1P-LSD kappa opioid receptor OPRK1 functional assay agonist antagonist,1P-LSD,kappa opioid receptor (OPRK1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04682,mechanistic,pair_core,1P-LSD mu opioid receptor OPRM1 binding affinity Ki,1P-LSD,mu opioid receptor (OPRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04683,mechanistic,pair_core,1P-LSD mu opioid receptor OPRM1 receptor pharmacology assay,1P-LSD,mu opioid receptor (OPRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04684,mechanistic,pair_core,1P-LSD mu opioid receptor OPRM1 functional assay agonist antagonist,1P-LSD,mu opioid receptor (OPRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04685,mechanistic,pair_core,1P-LSD delta opioid receptor OPRD1 binding affinity Ki,1P-LSD,delta opioid receptor (OPRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04686,mechanistic,pair_core,1P-LSD delta opioid receptor OPRD1 receptor pharmacology assay,1P-LSD,delta opioid receptor (OPRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04687,mechanistic,pair_core,1P-LSD delta opioid receptor OPRD1 functional assay agonist antagonist,1P-LSD,delta opioid receptor (OPRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04688,mechanistic,pair_core,1P-LSD NMDA receptor binding affinity Ki,1P-LSD,NMDA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04689,mechanistic,pair_core,1P-LSD NMDA receptor pharmacology assay,1P-LSD,NMDA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04690,mechanistic,pair_core,1P-LSD NMDA receptor functional assay agonist antagonist,1P-LSD,NMDA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04691,mechanistic,pair_core,1P-LSD AMPA receptor binding affinity Ki,1P-LSD,AMPA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04692,mechanistic,pair_core,1P-LSD AMPA receptor pharmacology assay,1P-LSD,AMPA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04693,mechanistic,pair_core,1P-LSD AMPA receptor functional assay agonist antagonist,1P-LSD,AMPA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04694,mechanistic,pair_core,1P-LSD TrkB NTRK2 binding affinity Ki,1P-LSD,TrkB (NTRK2),target,{compound} {entity} binding affinity Ki
+mechanistic_04695,mechanistic,pair_core,1P-LSD TrkB NTRK2 receptor pharmacology assay,1P-LSD,TrkB (NTRK2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04696,mechanistic,pair_core,1P-LSD TrkB NTRK2 functional assay agonist antagonist,1P-LSD,TrkB (NTRK2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04697,mechanistic,pair_core,1P-LSD CB1 receptor CNR1 binding affinity Ki,1P-LSD,CB1 receptor (CNR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04698,mechanistic,pair_core,1P-LSD CB1 receptor CNR1 receptor pharmacology assay,1P-LSD,CB1 receptor (CNR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04699,mechanistic,pair_core,1P-LSD CB1 receptor CNR1 functional assay agonist antagonist,1P-LSD,CB1 receptor (CNR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04700,mechanistic,pair_core,1P-LSD CB2 receptor CNR2 binding affinity Ki,1P-LSD,CB2 receptor (CNR2),target,{compound} {entity} binding affinity Ki
+mechanistic_04701,mechanistic,pair_core,1P-LSD CB2 receptor CNR2 receptor pharmacology assay,1P-LSD,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04702,mechanistic,pair_core,1P-LSD CB2 receptor CNR2 functional assay agonist antagonist,1P-LSD,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04703,mechanistic,pair_core,Salvinorin A 5-HT2A binding affinity Ki,Salvinorin A,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_04704,mechanistic,pair_core,Salvinorin A 5-HT2A receptor pharmacology assay,Salvinorin A,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04705,mechanistic,pair_core,Salvinorin A 5-HT2A functional assay agonist antagonist,Salvinorin A,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04706,mechanistic,pair_core,Salvinorin A 5-HT2B binding affinity Ki,Salvinorin A,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_04707,mechanistic,pair_core,Salvinorin A 5-HT2B receptor pharmacology assay,Salvinorin A,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04708,mechanistic,pair_core,Salvinorin A 5-HT2B functional assay agonist antagonist,Salvinorin A,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04709,mechanistic,pair_core,Salvinorin A 5-HT2C binding affinity Ki,Salvinorin A,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_04710,mechanistic,pair_core,Salvinorin A 5-HT2C receptor pharmacology assay,Salvinorin A,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04711,mechanistic,pair_core,Salvinorin A 5-HT2C functional assay agonist antagonist,Salvinorin A,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04712,mechanistic,pair_core,Salvinorin A 5-HT1A binding affinity Ki,Salvinorin A,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_04713,mechanistic,pair_core,Salvinorin A 5-HT1A receptor pharmacology assay,Salvinorin A,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04714,mechanistic,pair_core,Salvinorin A 5-HT1A functional assay agonist antagonist,Salvinorin A,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04715,mechanistic,pair_core,Salvinorin A 5-HT1B binding affinity Ki,Salvinorin A,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_04716,mechanistic,pair_core,Salvinorin A 5-HT1B receptor pharmacology assay,Salvinorin A,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04717,mechanistic,pair_core,Salvinorin A 5-HT1B functional assay agonist antagonist,Salvinorin A,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04718,mechanistic,pair_core,Salvinorin A 5-HT1D binding affinity Ki,Salvinorin A,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_04719,mechanistic,pair_core,Salvinorin A 5-HT1D receptor pharmacology assay,Salvinorin A,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04720,mechanistic,pair_core,Salvinorin A 5-HT1D functional assay agonist antagonist,Salvinorin A,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04721,mechanistic,pair_core,Salvinorin A 5-HT1E binding affinity Ki,Salvinorin A,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_04722,mechanistic,pair_core,Salvinorin A 5-HT1E receptor pharmacology assay,Salvinorin A,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04723,mechanistic,pair_core,Salvinorin A 5-HT1E functional assay agonist antagonist,Salvinorin A,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04724,mechanistic,pair_core,Salvinorin A 5-HT1F binding affinity Ki,Salvinorin A,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_04725,mechanistic,pair_core,Salvinorin A 5-HT1F receptor pharmacology assay,Salvinorin A,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04726,mechanistic,pair_core,Salvinorin A 5-HT1F functional assay agonist antagonist,Salvinorin A,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04727,mechanistic,pair_core,Salvinorin A 5-HT5A binding affinity Ki,Salvinorin A,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_04728,mechanistic,pair_core,Salvinorin A 5-HT5A receptor pharmacology assay,Salvinorin A,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04729,mechanistic,pair_core,Salvinorin A 5-HT5A functional assay agonist antagonist,Salvinorin A,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04730,mechanistic,pair_core,Salvinorin A 5-HT6 binding affinity Ki,Salvinorin A,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_04731,mechanistic,pair_core,Salvinorin A 5-HT6 receptor pharmacology assay,Salvinorin A,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04732,mechanistic,pair_core,Salvinorin A 5-HT6 functional assay agonist antagonist,Salvinorin A,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04733,mechanistic,pair_core,Salvinorin A 5-HT7 binding affinity Ki,Salvinorin A,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_04734,mechanistic,pair_core,Salvinorin A 5-HT7 receptor pharmacology assay,Salvinorin A,5-HT7,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04735,mechanistic,pair_core,Salvinorin A 5-HT7 functional assay agonist antagonist,Salvinorin A,5-HT7,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04736,mechanistic,pair_core,Salvinorin A mGluR2 GRM2 binding affinity Ki,Salvinorin A,mGluR2 (GRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04737,mechanistic,pair_core,Salvinorin A mGluR2 GRM2 receptor pharmacology assay,Salvinorin A,mGluR2 (GRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04738,mechanistic,pair_core,Salvinorin A mGluR2 GRM2 functional assay agonist antagonist,Salvinorin A,mGluR2 (GRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04739,mechanistic,pair_core,Salvinorin A TAAR1 binding affinity Ki,Salvinorin A,TAAR1,target,{compound} {entity} binding affinity Ki
+mechanistic_04740,mechanistic,pair_core,Salvinorin A TAAR1 receptor pharmacology assay,Salvinorin A,TAAR1,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04741,mechanistic,pair_core,Salvinorin A TAAR1 functional assay agonist antagonist,Salvinorin A,TAAR1,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04742,mechanistic,pair_core,Salvinorin A SERT SLC6A4 binding affinity Ki,Salvinorin A,SERT (SLC6A4),target,{compound} {entity} binding affinity Ki
+mechanistic_04743,mechanistic,pair_core,Salvinorin A SERT SLC6A4 receptor pharmacology assay,Salvinorin A,SERT (SLC6A4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04744,mechanistic,pair_core,Salvinorin A SERT SLC6A4 functional assay agonist antagonist,Salvinorin A,SERT (SLC6A4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04745,mechanistic,pair_core,Salvinorin A NET SLC6A2 binding affinity Ki,Salvinorin A,NET (SLC6A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04746,mechanistic,pair_core,Salvinorin A NET SLC6A2 receptor pharmacology assay,Salvinorin A,NET (SLC6A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04747,mechanistic,pair_core,Salvinorin A NET SLC6A2 functional assay agonist antagonist,Salvinorin A,NET (SLC6A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04748,mechanistic,pair_core,Salvinorin A DAT SLC6A3 binding affinity Ki,Salvinorin A,DAT (SLC6A3),target,{compound} {entity} binding affinity Ki
+mechanistic_04749,mechanistic,pair_core,Salvinorin A DAT SLC6A3 receptor pharmacology assay,Salvinorin A,DAT (SLC6A3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04750,mechanistic,pair_core,Salvinorin A DAT SLC6A3 functional assay agonist antagonist,Salvinorin A,DAT (SLC6A3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04751,mechanistic,pair_core,Salvinorin A VMAT2 SLC18A2 binding affinity Ki,Salvinorin A,VMAT2 (SLC18A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04752,mechanistic,pair_core,Salvinorin A VMAT2 SLC18A2 receptor pharmacology assay,Salvinorin A,VMAT2 (SLC18A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04753,mechanistic,pair_core,Salvinorin A VMAT2 SLC18A2 functional assay agonist antagonist,Salvinorin A,VMAT2 (SLC18A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04754,mechanistic,pair_core,Salvinorin A D1 receptor DRD1 binding affinity Ki,Salvinorin A,D1 receptor (DRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04755,mechanistic,pair_core,Salvinorin A D1 receptor DRD1 receptor pharmacology assay,Salvinorin A,D1 receptor (DRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04756,mechanistic,pair_core,Salvinorin A D1 receptor DRD1 functional assay agonist antagonist,Salvinorin A,D1 receptor (DRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04757,mechanistic,pair_core,Salvinorin A D2 receptor DRD2 binding affinity Ki,Salvinorin A,D2 receptor (DRD2),target,{compound} {entity} binding affinity Ki
+mechanistic_04758,mechanistic,pair_core,Salvinorin A D2 receptor DRD2 receptor pharmacology assay,Salvinorin A,D2 receptor (DRD2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04759,mechanistic,pair_core,Salvinorin A D2 receptor DRD2 functional assay agonist antagonist,Salvinorin A,D2 receptor (DRD2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04760,mechanistic,pair_core,Salvinorin A D3 receptor DRD3 binding affinity Ki,Salvinorin A,D3 receptor (DRD3),target,{compound} {entity} binding affinity Ki
+mechanistic_04761,mechanistic,pair_core,Salvinorin A D3 receptor DRD3 receptor pharmacology assay,Salvinorin A,D3 receptor (DRD3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04762,mechanistic,pair_core,Salvinorin A D3 receptor DRD3 functional assay agonist antagonist,Salvinorin A,D3 receptor (DRD3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04763,mechanistic,pair_core,Salvinorin A D4 receptor DRD4 binding affinity Ki,Salvinorin A,D4 receptor (DRD4),target,{compound} {entity} binding affinity Ki
+mechanistic_04764,mechanistic,pair_core,Salvinorin A D4 receptor DRD4 receptor pharmacology assay,Salvinorin A,D4 receptor (DRD4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04765,mechanistic,pair_core,Salvinorin A D4 receptor DRD4 functional assay agonist antagonist,Salvinorin A,D4 receptor (DRD4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04766,mechanistic,pair_core,Salvinorin A D5 receptor DRD5 binding affinity Ki,Salvinorin A,D5 receptor (DRD5),target,{compound} {entity} binding affinity Ki
+mechanistic_04767,mechanistic,pair_core,Salvinorin A D5 receptor DRD5 receptor pharmacology assay,Salvinorin A,D5 receptor (DRD5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04768,mechanistic,pair_core,Salvinorin A D5 receptor DRD5 functional assay agonist antagonist,Salvinorin A,D5 receptor (DRD5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04769,mechanistic,pair_core,Salvinorin A Alpha1A adrenergic receptor ADRA1A binding affinity Ki,Salvinorin A,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} binding affinity Ki
+mechanistic_04770,mechanistic,pair_core,Salvinorin A Alpha1A adrenergic receptor ADRA1A receptor pharmacology assay,Salvinorin A,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04771,mechanistic,pair_core,Salvinorin A Alpha1A adrenergic receptor ADRA1A functional assay agonist antagonist,Salvinorin A,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04772,mechanistic,pair_core,Salvinorin A Alpha1B adrenergic receptor ADRA1B binding affinity Ki,Salvinorin A,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} binding affinity Ki
+mechanistic_04773,mechanistic,pair_core,Salvinorin A Alpha1B adrenergic receptor ADRA1B receptor pharmacology assay,Salvinorin A,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04774,mechanistic,pair_core,Salvinorin A Alpha1B adrenergic receptor ADRA1B functional assay agonist antagonist,Salvinorin A,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04775,mechanistic,pair_core,Salvinorin A Alpha2A adrenergic receptor ADRA2A binding affinity Ki,Salvinorin A,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} binding affinity Ki
+mechanistic_04776,mechanistic,pair_core,Salvinorin A Alpha2A adrenergic receptor ADRA2A receptor pharmacology assay,Salvinorin A,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04777,mechanistic,pair_core,Salvinorin A Alpha2A adrenergic receptor ADRA2A functional assay agonist antagonist,Salvinorin A,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04778,mechanistic,pair_core,Salvinorin A Alpha2B adrenergic receptor ADRA2B binding affinity Ki,Salvinorin A,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} binding affinity Ki
+mechanistic_04779,mechanistic,pair_core,Salvinorin A Alpha2B adrenergic receptor ADRA2B receptor pharmacology assay,Salvinorin A,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04780,mechanistic,pair_core,Salvinorin A Alpha2B adrenergic receptor ADRA2B functional assay agonist antagonist,Salvinorin A,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04781,mechanistic,pair_core,Salvinorin A Alpha2C adrenergic receptor ADRA2C binding affinity Ki,Salvinorin A,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} binding affinity Ki
+mechanistic_04782,mechanistic,pair_core,Salvinorin A Alpha2C adrenergic receptor ADRA2C receptor pharmacology assay,Salvinorin A,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04783,mechanistic,pair_core,Salvinorin A Alpha2C adrenergic receptor ADRA2C functional assay agonist antagonist,Salvinorin A,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04784,mechanistic,pair_core,Salvinorin A Beta1 adrenergic receptor ADRB1 binding affinity Ki,Salvinorin A,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} binding affinity Ki
+mechanistic_04785,mechanistic,pair_core,Salvinorin A Beta1 adrenergic receptor ADRB1 receptor pharmacology assay,Salvinorin A,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04786,mechanistic,pair_core,Salvinorin A Beta1 adrenergic receptor ADRB1 functional assay agonist antagonist,Salvinorin A,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04787,mechanistic,pair_core,Salvinorin A Beta2 adrenergic receptor ADRB2 binding affinity Ki,Salvinorin A,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} binding affinity Ki
+mechanistic_04788,mechanistic,pair_core,Salvinorin A Beta2 adrenergic receptor ADRB2 receptor pharmacology assay,Salvinorin A,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04789,mechanistic,pair_core,Salvinorin A Beta2 adrenergic receptor ADRB2 functional assay agonist antagonist,Salvinorin A,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04790,mechanistic,pair_core,Salvinorin A M1 muscarinic receptor CHRM1 binding affinity Ki,Salvinorin A,M1 muscarinic receptor (CHRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04791,mechanistic,pair_core,Salvinorin A M1 muscarinic receptor CHRM1 receptor pharmacology assay,Salvinorin A,M1 muscarinic receptor (CHRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04792,mechanistic,pair_core,Salvinorin A M1 muscarinic receptor CHRM1 functional assay agonist antagonist,Salvinorin A,M1 muscarinic receptor (CHRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04793,mechanistic,pair_core,Salvinorin A M2 muscarinic receptor CHRM2 binding affinity Ki,Salvinorin A,M2 muscarinic receptor (CHRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04794,mechanistic,pair_core,Salvinorin A M2 muscarinic receptor CHRM2 receptor pharmacology assay,Salvinorin A,M2 muscarinic receptor (CHRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04795,mechanistic,pair_core,Salvinorin A M2 muscarinic receptor CHRM2 functional assay agonist antagonist,Salvinorin A,M2 muscarinic receptor (CHRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04796,mechanistic,pair_core,Salvinorin A M3 muscarinic receptor CHRM3 binding affinity Ki,Salvinorin A,M3 muscarinic receptor (CHRM3),target,{compound} {entity} binding affinity Ki
+mechanistic_04797,mechanistic,pair_core,Salvinorin A M3 muscarinic receptor CHRM3 receptor pharmacology assay,Salvinorin A,M3 muscarinic receptor (CHRM3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04798,mechanistic,pair_core,Salvinorin A M3 muscarinic receptor CHRM3 functional assay agonist antagonist,Salvinorin A,M3 muscarinic receptor (CHRM3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04799,mechanistic,pair_core,Salvinorin A M4 muscarinic receptor CHRM4 binding affinity Ki,Salvinorin A,M4 muscarinic receptor (CHRM4),target,{compound} {entity} binding affinity Ki
+mechanistic_04800,mechanistic,pair_core,Salvinorin A M4 muscarinic receptor CHRM4 receptor pharmacology assay,Salvinorin A,M4 muscarinic receptor (CHRM4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04801,mechanistic,pair_core,Salvinorin A M4 muscarinic receptor CHRM4 functional assay agonist antagonist,Salvinorin A,M4 muscarinic receptor (CHRM4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04802,mechanistic,pair_core,Salvinorin A M5 muscarinic receptor CHRM5 binding affinity Ki,Salvinorin A,M5 muscarinic receptor (CHRM5),target,{compound} {entity} binding affinity Ki
+mechanistic_04803,mechanistic,pair_core,Salvinorin A M5 muscarinic receptor CHRM5 receptor pharmacology assay,Salvinorin A,M5 muscarinic receptor (CHRM5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04804,mechanistic,pair_core,Salvinorin A M5 muscarinic receptor CHRM5 functional assay agonist antagonist,Salvinorin A,M5 muscarinic receptor (CHRM5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04805,mechanistic,pair_core,Salvinorin A H1 receptor HRH1 binding affinity Ki,Salvinorin A,H1 receptor (HRH1),target,{compound} {entity} binding affinity Ki
+mechanistic_04806,mechanistic,pair_core,Salvinorin A H1 receptor HRH1 receptor pharmacology assay,Salvinorin A,H1 receptor (HRH1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04807,mechanistic,pair_core,Salvinorin A H1 receptor HRH1 functional assay agonist antagonist,Salvinorin A,H1 receptor (HRH1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04808,mechanistic,pair_core,Salvinorin A H2 receptor HRH2 binding affinity Ki,Salvinorin A,H2 receptor (HRH2),target,{compound} {entity} binding affinity Ki
+mechanistic_04809,mechanistic,pair_core,Salvinorin A H2 receptor HRH2 receptor pharmacology assay,Salvinorin A,H2 receptor (HRH2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04810,mechanistic,pair_core,Salvinorin A H2 receptor HRH2 functional assay agonist antagonist,Salvinorin A,H2 receptor (HRH2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04811,mechanistic,pair_core,Salvinorin A Sigma-1 receptor SIGMAR1 binding affinity Ki,Salvinorin A,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04812,mechanistic,pair_core,Salvinorin A Sigma-1 receptor SIGMAR1 receptor pharmacology assay,Salvinorin A,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04813,mechanistic,pair_core,Salvinorin A Sigma-1 receptor SIGMAR1 functional assay agonist antagonist,Salvinorin A,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04814,mechanistic,pair_core,Salvinorin A Sigma-2 receptor TMEM97 binding affinity Ki,Salvinorin A,Sigma-2 receptor (TMEM97),target,{compound} {entity} binding affinity Ki
+mechanistic_04815,mechanistic,pair_core,Salvinorin A Sigma-2 receptor TMEM97 receptor pharmacology assay,Salvinorin A,Sigma-2 receptor (TMEM97),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04816,mechanistic,pair_core,Salvinorin A Sigma-2 receptor TMEM97 functional assay agonist antagonist,Salvinorin A,Sigma-2 receptor (TMEM97),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04817,mechanistic,pair_core,Salvinorin A kappa opioid receptor OPRK1 binding affinity Ki,Salvinorin A,kappa opioid receptor (OPRK1),target,{compound} {entity} binding affinity Ki
+mechanistic_04818,mechanistic,pair_core,Salvinorin A kappa opioid receptor OPRK1 receptor pharmacology assay,Salvinorin A,kappa opioid receptor (OPRK1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04819,mechanistic,pair_core,Salvinorin A kappa opioid receptor OPRK1 functional assay agonist antagonist,Salvinorin A,kappa opioid receptor (OPRK1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04820,mechanistic,pair_core,Salvinorin A mu opioid receptor OPRM1 binding affinity Ki,Salvinorin A,mu opioid receptor (OPRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04821,mechanistic,pair_core,Salvinorin A mu opioid receptor OPRM1 receptor pharmacology assay,Salvinorin A,mu opioid receptor (OPRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04822,mechanistic,pair_core,Salvinorin A mu opioid receptor OPRM1 functional assay agonist antagonist,Salvinorin A,mu opioid receptor (OPRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04823,mechanistic,pair_core,Salvinorin A delta opioid receptor OPRD1 binding affinity Ki,Salvinorin A,delta opioid receptor (OPRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04824,mechanistic,pair_core,Salvinorin A delta opioid receptor OPRD1 receptor pharmacology assay,Salvinorin A,delta opioid receptor (OPRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04825,mechanistic,pair_core,Salvinorin A delta opioid receptor OPRD1 functional assay agonist antagonist,Salvinorin A,delta opioid receptor (OPRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04826,mechanistic,pair_core,Salvinorin A NMDA receptor binding affinity Ki,Salvinorin A,NMDA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04827,mechanistic,pair_core,Salvinorin A NMDA receptor pharmacology assay,Salvinorin A,NMDA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04828,mechanistic,pair_core,Salvinorin A NMDA receptor functional assay agonist antagonist,Salvinorin A,NMDA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04829,mechanistic,pair_core,Salvinorin A AMPA receptor binding affinity Ki,Salvinorin A,AMPA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04830,mechanistic,pair_core,Salvinorin A AMPA receptor pharmacology assay,Salvinorin A,AMPA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04831,mechanistic,pair_core,Salvinorin A AMPA receptor functional assay agonist antagonist,Salvinorin A,AMPA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04832,mechanistic,pair_core,Salvinorin A TrkB NTRK2 binding affinity Ki,Salvinorin A,TrkB (NTRK2),target,{compound} {entity} binding affinity Ki
+mechanistic_04833,mechanistic,pair_core,Salvinorin A TrkB NTRK2 receptor pharmacology assay,Salvinorin A,TrkB (NTRK2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04834,mechanistic,pair_core,Salvinorin A TrkB NTRK2 functional assay agonist antagonist,Salvinorin A,TrkB (NTRK2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04835,mechanistic,pair_core,Salvinorin A CB1 receptor CNR1 binding affinity Ki,Salvinorin A,CB1 receptor (CNR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04836,mechanistic,pair_core,Salvinorin A CB1 receptor CNR1 receptor pharmacology assay,Salvinorin A,CB1 receptor (CNR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04837,mechanistic,pair_core,Salvinorin A CB1 receptor CNR1 functional assay agonist antagonist,Salvinorin A,CB1 receptor (CNR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04838,mechanistic,pair_core,Salvinorin A CB2 receptor CNR2 binding affinity Ki,Salvinorin A,CB2 receptor (CNR2),target,{compound} {entity} binding affinity Ki
+mechanistic_04839,mechanistic,pair_core,Salvinorin A CB2 receptor CNR2 receptor pharmacology assay,Salvinorin A,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04840,mechanistic,pair_core,Salvinorin A CB2 receptor CNR2 functional assay agonist antagonist,Salvinorin A,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04841,mechanistic,pair_core,Lisuride 5-HT2A binding affinity Ki,Lisuride,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_04842,mechanistic,pair_core,Lisuride 5-HT2A receptor pharmacology assay,Lisuride,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04843,mechanistic,pair_core,Lisuride 5-HT2A functional assay agonist antagonist,Lisuride,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04844,mechanistic,pair_core,Lisuride 5-HT2B binding affinity Ki,Lisuride,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_04845,mechanistic,pair_core,Lisuride 5-HT2B receptor pharmacology assay,Lisuride,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04846,mechanistic,pair_core,Lisuride 5-HT2B functional assay agonist antagonist,Lisuride,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04847,mechanistic,pair_core,Lisuride 5-HT2C binding affinity Ki,Lisuride,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_04848,mechanistic,pair_core,Lisuride 5-HT2C receptor pharmacology assay,Lisuride,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04849,mechanistic,pair_core,Lisuride 5-HT2C functional assay agonist antagonist,Lisuride,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04850,mechanistic,pair_core,Lisuride 5-HT1A binding affinity Ki,Lisuride,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_04851,mechanistic,pair_core,Lisuride 5-HT1A receptor pharmacology assay,Lisuride,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04852,mechanistic,pair_core,Lisuride 5-HT1A functional assay agonist antagonist,Lisuride,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04853,mechanistic,pair_core,Lisuride 5-HT1B binding affinity Ki,Lisuride,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_04854,mechanistic,pair_core,Lisuride 5-HT1B receptor pharmacology assay,Lisuride,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04855,mechanistic,pair_core,Lisuride 5-HT1B functional assay agonist antagonist,Lisuride,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04856,mechanistic,pair_core,Lisuride 5-HT1D binding affinity Ki,Lisuride,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_04857,mechanistic,pair_core,Lisuride 5-HT1D receptor pharmacology assay,Lisuride,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04858,mechanistic,pair_core,Lisuride 5-HT1D functional assay agonist antagonist,Lisuride,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04859,mechanistic,pair_core,Lisuride 5-HT1E binding affinity Ki,Lisuride,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_04860,mechanistic,pair_core,Lisuride 5-HT1E receptor pharmacology assay,Lisuride,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04861,mechanistic,pair_core,Lisuride 5-HT1E functional assay agonist antagonist,Lisuride,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04862,mechanistic,pair_core,Lisuride 5-HT1F binding affinity Ki,Lisuride,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_04863,mechanistic,pair_core,Lisuride 5-HT1F receptor pharmacology assay,Lisuride,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04864,mechanistic,pair_core,Lisuride 5-HT1F functional assay agonist antagonist,Lisuride,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04865,mechanistic,pair_core,Lisuride 5-HT5A binding affinity Ki,Lisuride,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_04866,mechanistic,pair_core,Lisuride 5-HT5A receptor pharmacology assay,Lisuride,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04867,mechanistic,pair_core,Lisuride 5-HT5A functional assay agonist antagonist,Lisuride,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04868,mechanistic,pair_core,Lisuride 5-HT6 binding affinity Ki,Lisuride,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_04869,mechanistic,pair_core,Lisuride 5-HT6 receptor pharmacology assay,Lisuride,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04870,mechanistic,pair_core,Lisuride 5-HT6 functional assay agonist antagonist,Lisuride,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04871,mechanistic,pair_core,Lisuride 5-HT7 binding affinity Ki,Lisuride,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_04872,mechanistic,pair_core,Lisuride 5-HT7 receptor pharmacology assay,Lisuride,5-HT7,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04873,mechanistic,pair_core,Lisuride 5-HT7 functional assay agonist antagonist,Lisuride,5-HT7,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04874,mechanistic,pair_core,Lisuride mGluR2 GRM2 binding affinity Ki,Lisuride,mGluR2 (GRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04875,mechanistic,pair_core,Lisuride mGluR2 GRM2 receptor pharmacology assay,Lisuride,mGluR2 (GRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04876,mechanistic,pair_core,Lisuride mGluR2 GRM2 functional assay agonist antagonist,Lisuride,mGluR2 (GRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04877,mechanistic,pair_core,Lisuride TAAR1 binding affinity Ki,Lisuride,TAAR1,target,{compound} {entity} binding affinity Ki
+mechanistic_04878,mechanistic,pair_core,Lisuride TAAR1 receptor pharmacology assay,Lisuride,TAAR1,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04879,mechanistic,pair_core,Lisuride TAAR1 functional assay agonist antagonist,Lisuride,TAAR1,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04880,mechanistic,pair_core,Lisuride SERT SLC6A4 binding affinity Ki,Lisuride,SERT (SLC6A4),target,{compound} {entity} binding affinity Ki
+mechanistic_04881,mechanistic,pair_core,Lisuride SERT SLC6A4 receptor pharmacology assay,Lisuride,SERT (SLC6A4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04882,mechanistic,pair_core,Lisuride SERT SLC6A4 functional assay agonist antagonist,Lisuride,SERT (SLC6A4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04883,mechanistic,pair_core,Lisuride NET SLC6A2 binding affinity Ki,Lisuride,NET (SLC6A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04884,mechanistic,pair_core,Lisuride NET SLC6A2 receptor pharmacology assay,Lisuride,NET (SLC6A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04885,mechanistic,pair_core,Lisuride NET SLC6A2 functional assay agonist antagonist,Lisuride,NET (SLC6A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04886,mechanistic,pair_core,Lisuride DAT SLC6A3 binding affinity Ki,Lisuride,DAT (SLC6A3),target,{compound} {entity} binding affinity Ki
+mechanistic_04887,mechanistic,pair_core,Lisuride DAT SLC6A3 receptor pharmacology assay,Lisuride,DAT (SLC6A3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04888,mechanistic,pair_core,Lisuride DAT SLC6A3 functional assay agonist antagonist,Lisuride,DAT (SLC6A3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04889,mechanistic,pair_core,Lisuride VMAT2 SLC18A2 binding affinity Ki,Lisuride,VMAT2 (SLC18A2),target,{compound} {entity} binding affinity Ki
+mechanistic_04890,mechanistic,pair_core,Lisuride VMAT2 SLC18A2 receptor pharmacology assay,Lisuride,VMAT2 (SLC18A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04891,mechanistic,pair_core,Lisuride VMAT2 SLC18A2 functional assay agonist antagonist,Lisuride,VMAT2 (SLC18A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04892,mechanistic,pair_core,Lisuride D1 receptor DRD1 binding affinity Ki,Lisuride,D1 receptor (DRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04893,mechanistic,pair_core,Lisuride D1 receptor DRD1 receptor pharmacology assay,Lisuride,D1 receptor (DRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04894,mechanistic,pair_core,Lisuride D1 receptor DRD1 functional assay agonist antagonist,Lisuride,D1 receptor (DRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04895,mechanistic,pair_core,Lisuride D2 receptor DRD2 binding affinity Ki,Lisuride,D2 receptor (DRD2),target,{compound} {entity} binding affinity Ki
+mechanistic_04896,mechanistic,pair_core,Lisuride D2 receptor DRD2 receptor pharmacology assay,Lisuride,D2 receptor (DRD2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04897,mechanistic,pair_core,Lisuride D2 receptor DRD2 functional assay agonist antagonist,Lisuride,D2 receptor (DRD2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04898,mechanistic,pair_core,Lisuride D3 receptor DRD3 binding affinity Ki,Lisuride,D3 receptor (DRD3),target,{compound} {entity} binding affinity Ki
+mechanistic_04899,mechanistic,pair_core,Lisuride D3 receptor DRD3 receptor pharmacology assay,Lisuride,D3 receptor (DRD3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04900,mechanistic,pair_core,Lisuride D3 receptor DRD3 functional assay agonist antagonist,Lisuride,D3 receptor (DRD3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04901,mechanistic,pair_core,Lisuride D4 receptor DRD4 binding affinity Ki,Lisuride,D4 receptor (DRD4),target,{compound} {entity} binding affinity Ki
+mechanistic_04902,mechanistic,pair_core,Lisuride D4 receptor DRD4 receptor pharmacology assay,Lisuride,D4 receptor (DRD4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04903,mechanistic,pair_core,Lisuride D4 receptor DRD4 functional assay agonist antagonist,Lisuride,D4 receptor (DRD4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04904,mechanistic,pair_core,Lisuride D5 receptor DRD5 binding affinity Ki,Lisuride,D5 receptor (DRD5),target,{compound} {entity} binding affinity Ki
+mechanistic_04905,mechanistic,pair_core,Lisuride D5 receptor DRD5 receptor pharmacology assay,Lisuride,D5 receptor (DRD5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04906,mechanistic,pair_core,Lisuride D5 receptor DRD5 functional assay agonist antagonist,Lisuride,D5 receptor (DRD5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04907,mechanistic,pair_core,Lisuride Alpha1A adrenergic receptor ADRA1A binding affinity Ki,Lisuride,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} binding affinity Ki
+mechanistic_04908,mechanistic,pair_core,Lisuride Alpha1A adrenergic receptor ADRA1A receptor pharmacology assay,Lisuride,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04909,mechanistic,pair_core,Lisuride Alpha1A adrenergic receptor ADRA1A functional assay agonist antagonist,Lisuride,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04910,mechanistic,pair_core,Lisuride Alpha1B adrenergic receptor ADRA1B binding affinity Ki,Lisuride,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} binding affinity Ki
+mechanistic_04911,mechanistic,pair_core,Lisuride Alpha1B adrenergic receptor ADRA1B receptor pharmacology assay,Lisuride,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04912,mechanistic,pair_core,Lisuride Alpha1B adrenergic receptor ADRA1B functional assay agonist antagonist,Lisuride,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04913,mechanistic,pair_core,Lisuride Alpha2A adrenergic receptor ADRA2A binding affinity Ki,Lisuride,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} binding affinity Ki
+mechanistic_04914,mechanistic,pair_core,Lisuride Alpha2A adrenergic receptor ADRA2A receptor pharmacology assay,Lisuride,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04915,mechanistic,pair_core,Lisuride Alpha2A adrenergic receptor ADRA2A functional assay agonist antagonist,Lisuride,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04916,mechanistic,pair_core,Lisuride Alpha2B adrenergic receptor ADRA2B binding affinity Ki,Lisuride,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} binding affinity Ki
+mechanistic_04917,mechanistic,pair_core,Lisuride Alpha2B adrenergic receptor ADRA2B receptor pharmacology assay,Lisuride,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04918,mechanistic,pair_core,Lisuride Alpha2B adrenergic receptor ADRA2B functional assay agonist antagonist,Lisuride,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04919,mechanistic,pair_core,Lisuride Alpha2C adrenergic receptor ADRA2C binding affinity Ki,Lisuride,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} binding affinity Ki
+mechanistic_04920,mechanistic,pair_core,Lisuride Alpha2C adrenergic receptor ADRA2C receptor pharmacology assay,Lisuride,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04921,mechanistic,pair_core,Lisuride Alpha2C adrenergic receptor ADRA2C functional assay agonist antagonist,Lisuride,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04922,mechanistic,pair_core,Lisuride Beta1 adrenergic receptor ADRB1 binding affinity Ki,Lisuride,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} binding affinity Ki
+mechanistic_04923,mechanistic,pair_core,Lisuride Beta1 adrenergic receptor ADRB1 receptor pharmacology assay,Lisuride,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04924,mechanistic,pair_core,Lisuride Beta1 adrenergic receptor ADRB1 functional assay agonist antagonist,Lisuride,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04925,mechanistic,pair_core,Lisuride Beta2 adrenergic receptor ADRB2 binding affinity Ki,Lisuride,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} binding affinity Ki
+mechanistic_04926,mechanistic,pair_core,Lisuride Beta2 adrenergic receptor ADRB2 receptor pharmacology assay,Lisuride,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04927,mechanistic,pair_core,Lisuride Beta2 adrenergic receptor ADRB2 functional assay agonist antagonist,Lisuride,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04928,mechanistic,pair_core,Lisuride M1 muscarinic receptor CHRM1 binding affinity Ki,Lisuride,M1 muscarinic receptor (CHRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04929,mechanistic,pair_core,Lisuride M1 muscarinic receptor CHRM1 receptor pharmacology assay,Lisuride,M1 muscarinic receptor (CHRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04930,mechanistic,pair_core,Lisuride M1 muscarinic receptor CHRM1 functional assay agonist antagonist,Lisuride,M1 muscarinic receptor (CHRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04931,mechanistic,pair_core,Lisuride M2 muscarinic receptor CHRM2 binding affinity Ki,Lisuride,M2 muscarinic receptor (CHRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_04932,mechanistic,pair_core,Lisuride M2 muscarinic receptor CHRM2 receptor pharmacology assay,Lisuride,M2 muscarinic receptor (CHRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04933,mechanistic,pair_core,Lisuride M2 muscarinic receptor CHRM2 functional assay agonist antagonist,Lisuride,M2 muscarinic receptor (CHRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04934,mechanistic,pair_core,Lisuride M3 muscarinic receptor CHRM3 binding affinity Ki,Lisuride,M3 muscarinic receptor (CHRM3),target,{compound} {entity} binding affinity Ki
+mechanistic_04935,mechanistic,pair_core,Lisuride M3 muscarinic receptor CHRM3 receptor pharmacology assay,Lisuride,M3 muscarinic receptor (CHRM3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04936,mechanistic,pair_core,Lisuride M3 muscarinic receptor CHRM3 functional assay agonist antagonist,Lisuride,M3 muscarinic receptor (CHRM3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04937,mechanistic,pair_core,Lisuride M4 muscarinic receptor CHRM4 binding affinity Ki,Lisuride,M4 muscarinic receptor (CHRM4),target,{compound} {entity} binding affinity Ki
+mechanistic_04938,mechanistic,pair_core,Lisuride M4 muscarinic receptor CHRM4 receptor pharmacology assay,Lisuride,M4 muscarinic receptor (CHRM4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04939,mechanistic,pair_core,Lisuride M4 muscarinic receptor CHRM4 functional assay agonist antagonist,Lisuride,M4 muscarinic receptor (CHRM4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04940,mechanistic,pair_core,Lisuride M5 muscarinic receptor CHRM5 binding affinity Ki,Lisuride,M5 muscarinic receptor (CHRM5),target,{compound} {entity} binding affinity Ki
+mechanistic_04941,mechanistic,pair_core,Lisuride M5 muscarinic receptor CHRM5 receptor pharmacology assay,Lisuride,M5 muscarinic receptor (CHRM5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04942,mechanistic,pair_core,Lisuride M5 muscarinic receptor CHRM5 functional assay agonist antagonist,Lisuride,M5 muscarinic receptor (CHRM5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04943,mechanistic,pair_core,Lisuride H1 receptor HRH1 binding affinity Ki,Lisuride,H1 receptor (HRH1),target,{compound} {entity} binding affinity Ki
+mechanistic_04944,mechanistic,pair_core,Lisuride H1 receptor HRH1 receptor pharmacology assay,Lisuride,H1 receptor (HRH1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04945,mechanistic,pair_core,Lisuride H1 receptor HRH1 functional assay agonist antagonist,Lisuride,H1 receptor (HRH1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04946,mechanistic,pair_core,Lisuride H2 receptor HRH2 binding affinity Ki,Lisuride,H2 receptor (HRH2),target,{compound} {entity} binding affinity Ki
+mechanistic_04947,mechanistic,pair_core,Lisuride H2 receptor HRH2 receptor pharmacology assay,Lisuride,H2 receptor (HRH2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04948,mechanistic,pair_core,Lisuride H2 receptor HRH2 functional assay agonist antagonist,Lisuride,H2 receptor (HRH2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04949,mechanistic,pair_core,Lisuride Sigma-1 receptor SIGMAR1 binding affinity Ki,Lisuride,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04950,mechanistic,pair_core,Lisuride Sigma-1 receptor SIGMAR1 receptor pharmacology assay,Lisuride,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04951,mechanistic,pair_core,Lisuride Sigma-1 receptor SIGMAR1 functional assay agonist antagonist,Lisuride,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04952,mechanistic,pair_core,Lisuride Sigma-2 receptor TMEM97 binding affinity Ki,Lisuride,Sigma-2 receptor (TMEM97),target,{compound} {entity} binding affinity Ki
+mechanistic_04953,mechanistic,pair_core,Lisuride Sigma-2 receptor TMEM97 receptor pharmacology assay,Lisuride,Sigma-2 receptor (TMEM97),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04954,mechanistic,pair_core,Lisuride Sigma-2 receptor TMEM97 functional assay agonist antagonist,Lisuride,Sigma-2 receptor (TMEM97),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04955,mechanistic,pair_core,Lisuride kappa opioid receptor OPRK1 binding affinity Ki,Lisuride,kappa opioid receptor (OPRK1),target,{compound} {entity} binding affinity Ki
+mechanistic_04956,mechanistic,pair_core,Lisuride kappa opioid receptor OPRK1 receptor pharmacology assay,Lisuride,kappa opioid receptor (OPRK1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04957,mechanistic,pair_core,Lisuride kappa opioid receptor OPRK1 functional assay agonist antagonist,Lisuride,kappa opioid receptor (OPRK1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04958,mechanistic,pair_core,Lisuride mu opioid receptor OPRM1 binding affinity Ki,Lisuride,mu opioid receptor (OPRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_04959,mechanistic,pair_core,Lisuride mu opioid receptor OPRM1 receptor pharmacology assay,Lisuride,mu opioid receptor (OPRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04960,mechanistic,pair_core,Lisuride mu opioid receptor OPRM1 functional assay agonist antagonist,Lisuride,mu opioid receptor (OPRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04961,mechanistic,pair_core,Lisuride delta opioid receptor OPRD1 binding affinity Ki,Lisuride,delta opioid receptor (OPRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_04962,mechanistic,pair_core,Lisuride delta opioid receptor OPRD1 receptor pharmacology assay,Lisuride,delta opioid receptor (OPRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04963,mechanistic,pair_core,Lisuride delta opioid receptor OPRD1 functional assay agonist antagonist,Lisuride,delta opioid receptor (OPRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04964,mechanistic,pair_core,Lisuride NMDA receptor binding affinity Ki,Lisuride,NMDA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04965,mechanistic,pair_core,Lisuride NMDA receptor pharmacology assay,Lisuride,NMDA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04966,mechanistic,pair_core,Lisuride NMDA receptor functional assay agonist antagonist,Lisuride,NMDA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04967,mechanistic,pair_core,Lisuride AMPA receptor binding affinity Ki,Lisuride,AMPA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_04968,mechanistic,pair_core,Lisuride AMPA receptor pharmacology assay,Lisuride,AMPA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04969,mechanistic,pair_core,Lisuride AMPA receptor functional assay agonist antagonist,Lisuride,AMPA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04970,mechanistic,pair_core,Lisuride TrkB NTRK2 binding affinity Ki,Lisuride,TrkB (NTRK2),target,{compound} {entity} binding affinity Ki
+mechanistic_04971,mechanistic,pair_core,Lisuride TrkB NTRK2 receptor pharmacology assay,Lisuride,TrkB (NTRK2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04972,mechanistic,pair_core,Lisuride TrkB NTRK2 functional assay agonist antagonist,Lisuride,TrkB (NTRK2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04973,mechanistic,pair_core,Lisuride CB1 receptor CNR1 binding affinity Ki,Lisuride,CB1 receptor (CNR1),target,{compound} {entity} binding affinity Ki
+mechanistic_04974,mechanistic,pair_core,Lisuride CB1 receptor CNR1 receptor pharmacology assay,Lisuride,CB1 receptor (CNR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04975,mechanistic,pair_core,Lisuride CB1 receptor CNR1 functional assay agonist antagonist,Lisuride,CB1 receptor (CNR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04976,mechanistic,pair_core,Lisuride CB2 receptor CNR2 binding affinity Ki,Lisuride,CB2 receptor (CNR2),target,{compound} {entity} binding affinity Ki
+mechanistic_04977,mechanistic,pair_core,Lisuride CB2 receptor CNR2 receptor pharmacology assay,Lisuride,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_04978,mechanistic,pair_core,Lisuride CB2 receptor CNR2 functional assay agonist antagonist,Lisuride,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04979,mechanistic,pair_core,Bromo-DragonFLY 5-HT2A binding affinity Ki,Bromo-DragonFLY,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_04980,mechanistic,pair_core,Bromo-DragonFLY 5-HT2A receptor pharmacology assay,Bromo-DragonFLY,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04981,mechanistic,pair_core,Bromo-DragonFLY 5-HT2A functional assay agonist antagonist,Bromo-DragonFLY,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04982,mechanistic,pair_core,Bromo-DragonFLY 5-HT2B binding affinity Ki,Bromo-DragonFLY,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_04983,mechanistic,pair_core,Bromo-DragonFLY 5-HT2B receptor pharmacology assay,Bromo-DragonFLY,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04984,mechanistic,pair_core,Bromo-DragonFLY 5-HT2B functional assay agonist antagonist,Bromo-DragonFLY,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04985,mechanistic,pair_core,Bromo-DragonFLY 5-HT2C binding affinity Ki,Bromo-DragonFLY,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_04986,mechanistic,pair_core,Bromo-DragonFLY 5-HT2C receptor pharmacology assay,Bromo-DragonFLY,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04987,mechanistic,pair_core,Bromo-DragonFLY 5-HT2C functional assay agonist antagonist,Bromo-DragonFLY,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04988,mechanistic,pair_core,Bromo-DragonFLY 5-HT1A binding affinity Ki,Bromo-DragonFLY,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_04989,mechanistic,pair_core,Bromo-DragonFLY 5-HT1A receptor pharmacology assay,Bromo-DragonFLY,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04990,mechanistic,pair_core,Bromo-DragonFLY 5-HT1A functional assay agonist antagonist,Bromo-DragonFLY,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04991,mechanistic,pair_core,Bromo-DragonFLY 5-HT1B binding affinity Ki,Bromo-DragonFLY,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_04992,mechanistic,pair_core,Bromo-DragonFLY 5-HT1B receptor pharmacology assay,Bromo-DragonFLY,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04993,mechanistic,pair_core,Bromo-DragonFLY 5-HT1B functional assay agonist antagonist,Bromo-DragonFLY,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04994,mechanistic,pair_core,Bromo-DragonFLY 5-HT1D binding affinity Ki,Bromo-DragonFLY,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_04995,mechanistic,pair_core,Bromo-DragonFLY 5-HT1D receptor pharmacology assay,Bromo-DragonFLY,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04996,mechanistic,pair_core,Bromo-DragonFLY 5-HT1D functional assay agonist antagonist,Bromo-DragonFLY,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_04997,mechanistic,pair_core,Bromo-DragonFLY 5-HT1E binding affinity Ki,Bromo-DragonFLY,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_04998,mechanistic,pair_core,Bromo-DragonFLY 5-HT1E receptor pharmacology assay,Bromo-DragonFLY,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_04999,mechanistic,pair_core,Bromo-DragonFLY 5-HT1E functional assay agonist antagonist,Bromo-DragonFLY,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05000,mechanistic,pair_core,Bromo-DragonFLY 5-HT1F binding affinity Ki,Bromo-DragonFLY,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_05001,mechanistic,pair_core,Bromo-DragonFLY 5-HT1F receptor pharmacology assay,Bromo-DragonFLY,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05002,mechanistic,pair_core,Bromo-DragonFLY 5-HT1F functional assay agonist antagonist,Bromo-DragonFLY,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05003,mechanistic,pair_core,Bromo-DragonFLY 5-HT5A binding affinity Ki,Bromo-DragonFLY,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_05004,mechanistic,pair_core,Bromo-DragonFLY 5-HT5A receptor pharmacology assay,Bromo-DragonFLY,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05005,mechanistic,pair_core,Bromo-DragonFLY 5-HT5A functional assay agonist antagonist,Bromo-DragonFLY,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05006,mechanistic,pair_core,Bromo-DragonFLY 5-HT6 binding affinity Ki,Bromo-DragonFLY,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_05007,mechanistic,pair_core,Bromo-DragonFLY 5-HT6 receptor pharmacology assay,Bromo-DragonFLY,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05008,mechanistic,pair_core,Bromo-DragonFLY 5-HT6 functional assay agonist antagonist,Bromo-DragonFLY,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05009,mechanistic,pair_core,Bromo-DragonFLY 5-HT7 binding affinity Ki,Bromo-DragonFLY,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_05010,mechanistic,pair_core,Bromo-DragonFLY 5-HT7 receptor pharmacology assay,Bromo-DragonFLY,5-HT7,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05011,mechanistic,pair_core,Bromo-DragonFLY 5-HT7 functional assay agonist antagonist,Bromo-DragonFLY,5-HT7,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05012,mechanistic,pair_core,Bromo-DragonFLY mGluR2 GRM2 binding affinity Ki,Bromo-DragonFLY,mGluR2 (GRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_05013,mechanistic,pair_core,Bromo-DragonFLY mGluR2 GRM2 receptor pharmacology assay,Bromo-DragonFLY,mGluR2 (GRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05014,mechanistic,pair_core,Bromo-DragonFLY mGluR2 GRM2 functional assay agonist antagonist,Bromo-DragonFLY,mGluR2 (GRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05015,mechanistic,pair_core,Bromo-DragonFLY TAAR1 binding affinity Ki,Bromo-DragonFLY,TAAR1,target,{compound} {entity} binding affinity Ki
+mechanistic_05016,mechanistic,pair_core,Bromo-DragonFLY TAAR1 receptor pharmacology assay,Bromo-DragonFLY,TAAR1,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05017,mechanistic,pair_core,Bromo-DragonFLY TAAR1 functional assay agonist antagonist,Bromo-DragonFLY,TAAR1,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05018,mechanistic,pair_core,Bromo-DragonFLY SERT SLC6A4 binding affinity Ki,Bromo-DragonFLY,SERT (SLC6A4),target,{compound} {entity} binding affinity Ki
+mechanistic_05019,mechanistic,pair_core,Bromo-DragonFLY SERT SLC6A4 receptor pharmacology assay,Bromo-DragonFLY,SERT (SLC6A4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05020,mechanistic,pair_core,Bromo-DragonFLY SERT SLC6A4 functional assay agonist antagonist,Bromo-DragonFLY,SERT (SLC6A4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05021,mechanistic,pair_core,Bromo-DragonFLY NET SLC6A2 binding affinity Ki,Bromo-DragonFLY,NET (SLC6A2),target,{compound} {entity} binding affinity Ki
+mechanistic_05022,mechanistic,pair_core,Bromo-DragonFLY NET SLC6A2 receptor pharmacology assay,Bromo-DragonFLY,NET (SLC6A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05023,mechanistic,pair_core,Bromo-DragonFLY NET SLC6A2 functional assay agonist antagonist,Bromo-DragonFLY,NET (SLC6A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05024,mechanistic,pair_core,Bromo-DragonFLY DAT SLC6A3 binding affinity Ki,Bromo-DragonFLY,DAT (SLC6A3),target,{compound} {entity} binding affinity Ki
+mechanistic_05025,mechanistic,pair_core,Bromo-DragonFLY DAT SLC6A3 receptor pharmacology assay,Bromo-DragonFLY,DAT (SLC6A3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05026,mechanistic,pair_core,Bromo-DragonFLY DAT SLC6A3 functional assay agonist antagonist,Bromo-DragonFLY,DAT (SLC6A3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05027,mechanistic,pair_core,Bromo-DragonFLY VMAT2 SLC18A2 binding affinity Ki,Bromo-DragonFLY,VMAT2 (SLC18A2),target,{compound} {entity} binding affinity Ki
+mechanistic_05028,mechanistic,pair_core,Bromo-DragonFLY VMAT2 SLC18A2 receptor pharmacology assay,Bromo-DragonFLY,VMAT2 (SLC18A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05029,mechanistic,pair_core,Bromo-DragonFLY VMAT2 SLC18A2 functional assay agonist antagonist,Bromo-DragonFLY,VMAT2 (SLC18A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05030,mechanistic,pair_core,Bromo-DragonFLY D1 receptor DRD1 binding affinity Ki,Bromo-DragonFLY,D1 receptor (DRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_05031,mechanistic,pair_core,Bromo-DragonFLY D1 receptor DRD1 receptor pharmacology assay,Bromo-DragonFLY,D1 receptor (DRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05032,mechanistic,pair_core,Bromo-DragonFLY D1 receptor DRD1 functional assay agonist antagonist,Bromo-DragonFLY,D1 receptor (DRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05033,mechanistic,pair_core,Bromo-DragonFLY D2 receptor DRD2 binding affinity Ki,Bromo-DragonFLY,D2 receptor (DRD2),target,{compound} {entity} binding affinity Ki
+mechanistic_05034,mechanistic,pair_core,Bromo-DragonFLY D2 receptor DRD2 receptor pharmacology assay,Bromo-DragonFLY,D2 receptor (DRD2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05035,mechanistic,pair_core,Bromo-DragonFLY D2 receptor DRD2 functional assay agonist antagonist,Bromo-DragonFLY,D2 receptor (DRD2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05036,mechanistic,pair_core,Bromo-DragonFLY D3 receptor DRD3 binding affinity Ki,Bromo-DragonFLY,D3 receptor (DRD3),target,{compound} {entity} binding affinity Ki
+mechanistic_05037,mechanistic,pair_core,Bromo-DragonFLY D3 receptor DRD3 receptor pharmacology assay,Bromo-DragonFLY,D3 receptor (DRD3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05038,mechanistic,pair_core,Bromo-DragonFLY D3 receptor DRD3 functional assay agonist antagonist,Bromo-DragonFLY,D3 receptor (DRD3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05039,mechanistic,pair_core,Bromo-DragonFLY D4 receptor DRD4 binding affinity Ki,Bromo-DragonFLY,D4 receptor (DRD4),target,{compound} {entity} binding affinity Ki
+mechanistic_05040,mechanistic,pair_core,Bromo-DragonFLY D4 receptor DRD4 receptor pharmacology assay,Bromo-DragonFLY,D4 receptor (DRD4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05041,mechanistic,pair_core,Bromo-DragonFLY D4 receptor DRD4 functional assay agonist antagonist,Bromo-DragonFLY,D4 receptor (DRD4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05042,mechanistic,pair_core,Bromo-DragonFLY D5 receptor DRD5 binding affinity Ki,Bromo-DragonFLY,D5 receptor (DRD5),target,{compound} {entity} binding affinity Ki
+mechanistic_05043,mechanistic,pair_core,Bromo-DragonFLY D5 receptor DRD5 receptor pharmacology assay,Bromo-DragonFLY,D5 receptor (DRD5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05044,mechanistic,pair_core,Bromo-DragonFLY D5 receptor DRD5 functional assay agonist antagonist,Bromo-DragonFLY,D5 receptor (DRD5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05045,mechanistic,pair_core,Bromo-DragonFLY Alpha1A adrenergic receptor ADRA1A binding affinity Ki,Bromo-DragonFLY,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} binding affinity Ki
+mechanistic_05046,mechanistic,pair_core,Bromo-DragonFLY Alpha1A adrenergic receptor ADRA1A receptor pharmacology assay,Bromo-DragonFLY,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05047,mechanistic,pair_core,Bromo-DragonFLY Alpha1A adrenergic receptor ADRA1A functional assay agonist antagonist,Bromo-DragonFLY,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05048,mechanistic,pair_core,Bromo-DragonFLY Alpha1B adrenergic receptor ADRA1B binding affinity Ki,Bromo-DragonFLY,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} binding affinity Ki
+mechanistic_05049,mechanistic,pair_core,Bromo-DragonFLY Alpha1B adrenergic receptor ADRA1B receptor pharmacology assay,Bromo-DragonFLY,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05050,mechanistic,pair_core,Bromo-DragonFLY Alpha1B adrenergic receptor ADRA1B functional assay agonist antagonist,Bromo-DragonFLY,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05051,mechanistic,pair_core,Bromo-DragonFLY Alpha2A adrenergic receptor ADRA2A binding affinity Ki,Bromo-DragonFLY,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} binding affinity Ki
+mechanistic_05052,mechanistic,pair_core,Bromo-DragonFLY Alpha2A adrenergic receptor ADRA2A receptor pharmacology assay,Bromo-DragonFLY,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05053,mechanistic,pair_core,Bromo-DragonFLY Alpha2A adrenergic receptor ADRA2A functional assay agonist antagonist,Bromo-DragonFLY,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05054,mechanistic,pair_core,Bromo-DragonFLY Alpha2B adrenergic receptor ADRA2B binding affinity Ki,Bromo-DragonFLY,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} binding affinity Ki
+mechanistic_05055,mechanistic,pair_core,Bromo-DragonFLY Alpha2B adrenergic receptor ADRA2B receptor pharmacology assay,Bromo-DragonFLY,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05056,mechanistic,pair_core,Bromo-DragonFLY Alpha2B adrenergic receptor ADRA2B functional assay agonist antagonist,Bromo-DragonFLY,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05057,mechanistic,pair_core,Bromo-DragonFLY Alpha2C adrenergic receptor ADRA2C binding affinity Ki,Bromo-DragonFLY,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} binding affinity Ki
+mechanistic_05058,mechanistic,pair_core,Bromo-DragonFLY Alpha2C adrenergic receptor ADRA2C receptor pharmacology assay,Bromo-DragonFLY,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05059,mechanistic,pair_core,Bromo-DragonFLY Alpha2C adrenergic receptor ADRA2C functional assay agonist antagonist,Bromo-DragonFLY,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05060,mechanistic,pair_core,Bromo-DragonFLY Beta1 adrenergic receptor ADRB1 binding affinity Ki,Bromo-DragonFLY,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} binding affinity Ki
+mechanistic_05061,mechanistic,pair_core,Bromo-DragonFLY Beta1 adrenergic receptor ADRB1 receptor pharmacology assay,Bromo-DragonFLY,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05062,mechanistic,pair_core,Bromo-DragonFLY Beta1 adrenergic receptor ADRB1 functional assay agonist antagonist,Bromo-DragonFLY,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05063,mechanistic,pair_core,Bromo-DragonFLY Beta2 adrenergic receptor ADRB2 binding affinity Ki,Bromo-DragonFLY,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} binding affinity Ki
+mechanistic_05064,mechanistic,pair_core,Bromo-DragonFLY Beta2 adrenergic receptor ADRB2 receptor pharmacology assay,Bromo-DragonFLY,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05065,mechanistic,pair_core,Bromo-DragonFLY Beta2 adrenergic receptor ADRB2 functional assay agonist antagonist,Bromo-DragonFLY,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05066,mechanistic,pair_core,Bromo-DragonFLY M1 muscarinic receptor CHRM1 binding affinity Ki,Bromo-DragonFLY,M1 muscarinic receptor (CHRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_05067,mechanistic,pair_core,Bromo-DragonFLY M1 muscarinic receptor CHRM1 receptor pharmacology assay,Bromo-DragonFLY,M1 muscarinic receptor (CHRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05068,mechanistic,pair_core,Bromo-DragonFLY M1 muscarinic receptor CHRM1 functional assay agonist antagonist,Bromo-DragonFLY,M1 muscarinic receptor (CHRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05069,mechanistic,pair_core,Bromo-DragonFLY M2 muscarinic receptor CHRM2 binding affinity Ki,Bromo-DragonFLY,M2 muscarinic receptor (CHRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_05070,mechanistic,pair_core,Bromo-DragonFLY M2 muscarinic receptor CHRM2 receptor pharmacology assay,Bromo-DragonFLY,M2 muscarinic receptor (CHRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05071,mechanistic,pair_core,Bromo-DragonFLY M2 muscarinic receptor CHRM2 functional assay agonist antagonist,Bromo-DragonFLY,M2 muscarinic receptor (CHRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05072,mechanistic,pair_core,Bromo-DragonFLY M3 muscarinic receptor CHRM3 binding affinity Ki,Bromo-DragonFLY,M3 muscarinic receptor (CHRM3),target,{compound} {entity} binding affinity Ki
+mechanistic_05073,mechanistic,pair_core,Bromo-DragonFLY M3 muscarinic receptor CHRM3 receptor pharmacology assay,Bromo-DragonFLY,M3 muscarinic receptor (CHRM3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05074,mechanistic,pair_core,Bromo-DragonFLY M3 muscarinic receptor CHRM3 functional assay agonist antagonist,Bromo-DragonFLY,M3 muscarinic receptor (CHRM3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05075,mechanistic,pair_core,Bromo-DragonFLY M4 muscarinic receptor CHRM4 binding affinity Ki,Bromo-DragonFLY,M4 muscarinic receptor (CHRM4),target,{compound} {entity} binding affinity Ki
+mechanistic_05076,mechanistic,pair_core,Bromo-DragonFLY M4 muscarinic receptor CHRM4 receptor pharmacology assay,Bromo-DragonFLY,M4 muscarinic receptor (CHRM4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05077,mechanistic,pair_core,Bromo-DragonFLY M4 muscarinic receptor CHRM4 functional assay agonist antagonist,Bromo-DragonFLY,M4 muscarinic receptor (CHRM4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05078,mechanistic,pair_core,Bromo-DragonFLY M5 muscarinic receptor CHRM5 binding affinity Ki,Bromo-DragonFLY,M5 muscarinic receptor (CHRM5),target,{compound} {entity} binding affinity Ki
+mechanistic_05079,mechanistic,pair_core,Bromo-DragonFLY M5 muscarinic receptor CHRM5 receptor pharmacology assay,Bromo-DragonFLY,M5 muscarinic receptor (CHRM5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05080,mechanistic,pair_core,Bromo-DragonFLY M5 muscarinic receptor CHRM5 functional assay agonist antagonist,Bromo-DragonFLY,M5 muscarinic receptor (CHRM5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05081,mechanistic,pair_core,Bromo-DragonFLY H1 receptor HRH1 binding affinity Ki,Bromo-DragonFLY,H1 receptor (HRH1),target,{compound} {entity} binding affinity Ki
+mechanistic_05082,mechanistic,pair_core,Bromo-DragonFLY H1 receptor HRH1 receptor pharmacology assay,Bromo-DragonFLY,H1 receptor (HRH1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05083,mechanistic,pair_core,Bromo-DragonFLY H1 receptor HRH1 functional assay agonist antagonist,Bromo-DragonFLY,H1 receptor (HRH1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05084,mechanistic,pair_core,Bromo-DragonFLY H2 receptor HRH2 binding affinity Ki,Bromo-DragonFLY,H2 receptor (HRH2),target,{compound} {entity} binding affinity Ki
+mechanistic_05085,mechanistic,pair_core,Bromo-DragonFLY H2 receptor HRH2 receptor pharmacology assay,Bromo-DragonFLY,H2 receptor (HRH2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05086,mechanistic,pair_core,Bromo-DragonFLY H2 receptor HRH2 functional assay agonist antagonist,Bromo-DragonFLY,H2 receptor (HRH2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05087,mechanistic,pair_core,Bromo-DragonFLY Sigma-1 receptor SIGMAR1 binding affinity Ki,Bromo-DragonFLY,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} binding affinity Ki
+mechanistic_05088,mechanistic,pair_core,Bromo-DragonFLY Sigma-1 receptor SIGMAR1 receptor pharmacology assay,Bromo-DragonFLY,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05089,mechanistic,pair_core,Bromo-DragonFLY Sigma-1 receptor SIGMAR1 functional assay agonist antagonist,Bromo-DragonFLY,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05090,mechanistic,pair_core,Bromo-DragonFLY Sigma-2 receptor TMEM97 binding affinity Ki,Bromo-DragonFLY,Sigma-2 receptor (TMEM97),target,{compound} {entity} binding affinity Ki
+mechanistic_05091,mechanistic,pair_core,Bromo-DragonFLY Sigma-2 receptor TMEM97 receptor pharmacology assay,Bromo-DragonFLY,Sigma-2 receptor (TMEM97),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05092,mechanistic,pair_core,Bromo-DragonFLY Sigma-2 receptor TMEM97 functional assay agonist antagonist,Bromo-DragonFLY,Sigma-2 receptor (TMEM97),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05093,mechanistic,pair_core,Bromo-DragonFLY kappa opioid receptor OPRK1 binding affinity Ki,Bromo-DragonFLY,kappa opioid receptor (OPRK1),target,{compound} {entity} binding affinity Ki
+mechanistic_05094,mechanistic,pair_core,Bromo-DragonFLY kappa opioid receptor OPRK1 receptor pharmacology assay,Bromo-DragonFLY,kappa opioid receptor (OPRK1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05095,mechanistic,pair_core,Bromo-DragonFLY kappa opioid receptor OPRK1 functional assay agonist antagonist,Bromo-DragonFLY,kappa opioid receptor (OPRK1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05096,mechanistic,pair_core,Bromo-DragonFLY mu opioid receptor OPRM1 binding affinity Ki,Bromo-DragonFLY,mu opioid receptor (OPRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_05097,mechanistic,pair_core,Bromo-DragonFLY mu opioid receptor OPRM1 receptor pharmacology assay,Bromo-DragonFLY,mu opioid receptor (OPRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05098,mechanistic,pair_core,Bromo-DragonFLY mu opioid receptor OPRM1 functional assay agonist antagonist,Bromo-DragonFLY,mu opioid receptor (OPRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05099,mechanistic,pair_core,Bromo-DragonFLY delta opioid receptor OPRD1 binding affinity Ki,Bromo-DragonFLY,delta opioid receptor (OPRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_05100,mechanistic,pair_core,Bromo-DragonFLY delta opioid receptor OPRD1 receptor pharmacology assay,Bromo-DragonFLY,delta opioid receptor (OPRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05101,mechanistic,pair_core,Bromo-DragonFLY delta opioid receptor OPRD1 functional assay agonist antagonist,Bromo-DragonFLY,delta opioid receptor (OPRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05102,mechanistic,pair_core,Bromo-DragonFLY NMDA receptor binding affinity Ki,Bromo-DragonFLY,NMDA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_05103,mechanistic,pair_core,Bromo-DragonFLY NMDA receptor pharmacology assay,Bromo-DragonFLY,NMDA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05104,mechanistic,pair_core,Bromo-DragonFLY NMDA receptor functional assay agonist antagonist,Bromo-DragonFLY,NMDA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05105,mechanistic,pair_core,Bromo-DragonFLY AMPA receptor binding affinity Ki,Bromo-DragonFLY,AMPA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_05106,mechanistic,pair_core,Bromo-DragonFLY AMPA receptor pharmacology assay,Bromo-DragonFLY,AMPA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05107,mechanistic,pair_core,Bromo-DragonFLY AMPA receptor functional assay agonist antagonist,Bromo-DragonFLY,AMPA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05108,mechanistic,pair_core,Bromo-DragonFLY TrkB NTRK2 binding affinity Ki,Bromo-DragonFLY,TrkB (NTRK2),target,{compound} {entity} binding affinity Ki
+mechanistic_05109,mechanistic,pair_core,Bromo-DragonFLY TrkB NTRK2 receptor pharmacology assay,Bromo-DragonFLY,TrkB (NTRK2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05110,mechanistic,pair_core,Bromo-DragonFLY TrkB NTRK2 functional assay agonist antagonist,Bromo-DragonFLY,TrkB (NTRK2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05111,mechanistic,pair_core,Bromo-DragonFLY CB1 receptor CNR1 binding affinity Ki,Bromo-DragonFLY,CB1 receptor (CNR1),target,{compound} {entity} binding affinity Ki
+mechanistic_05112,mechanistic,pair_core,Bromo-DragonFLY CB1 receptor CNR1 receptor pharmacology assay,Bromo-DragonFLY,CB1 receptor (CNR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05113,mechanistic,pair_core,Bromo-DragonFLY CB1 receptor CNR1 functional assay agonist antagonist,Bromo-DragonFLY,CB1 receptor (CNR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05114,mechanistic,pair_core,Bromo-DragonFLY CB2 receptor CNR2 binding affinity Ki,Bromo-DragonFLY,CB2 receptor (CNR2),target,{compound} {entity} binding affinity Ki
+mechanistic_05115,mechanistic,pair_core,Bromo-DragonFLY CB2 receptor CNR2 receptor pharmacology assay,Bromo-DragonFLY,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05116,mechanistic,pair_core,Bromo-DragonFLY CB2 receptor CNR2 functional assay agonist antagonist,Bromo-DragonFLY,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05117,mechanistic,pair_core,25I-NBOMe 5-HT2A binding affinity Ki,25I-NBOMe,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_05118,mechanistic,pair_core,25I-NBOMe 5-HT2A receptor pharmacology assay,25I-NBOMe,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05119,mechanistic,pair_core,25I-NBOMe 5-HT2A functional assay agonist antagonist,25I-NBOMe,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05120,mechanistic,pair_core,25I-NBOMe 5-HT2B binding affinity Ki,25I-NBOMe,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_05121,mechanistic,pair_core,25I-NBOMe 5-HT2B receptor pharmacology assay,25I-NBOMe,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05122,mechanistic,pair_core,25I-NBOMe 5-HT2B functional assay agonist antagonist,25I-NBOMe,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05123,mechanistic,pair_core,25I-NBOMe 5-HT2C binding affinity Ki,25I-NBOMe,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_05124,mechanistic,pair_core,25I-NBOMe 5-HT2C receptor pharmacology assay,25I-NBOMe,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05125,mechanistic,pair_core,25I-NBOMe 5-HT2C functional assay agonist antagonist,25I-NBOMe,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05126,mechanistic,pair_core,25I-NBOMe 5-HT1A binding affinity Ki,25I-NBOMe,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_05127,mechanistic,pair_core,25I-NBOMe 5-HT1A receptor pharmacology assay,25I-NBOMe,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05128,mechanistic,pair_core,25I-NBOMe 5-HT1A functional assay agonist antagonist,25I-NBOMe,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05129,mechanistic,pair_core,25I-NBOMe 5-HT1B binding affinity Ki,25I-NBOMe,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_05130,mechanistic,pair_core,25I-NBOMe 5-HT1B receptor pharmacology assay,25I-NBOMe,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05131,mechanistic,pair_core,25I-NBOMe 5-HT1B functional assay agonist antagonist,25I-NBOMe,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05132,mechanistic,pair_core,25I-NBOMe 5-HT1D binding affinity Ki,25I-NBOMe,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_05133,mechanistic,pair_core,25I-NBOMe 5-HT1D receptor pharmacology assay,25I-NBOMe,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05134,mechanistic,pair_core,25I-NBOMe 5-HT1D functional assay agonist antagonist,25I-NBOMe,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05135,mechanistic,pair_core,25I-NBOMe 5-HT1E binding affinity Ki,25I-NBOMe,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_05136,mechanistic,pair_core,25I-NBOMe 5-HT1E receptor pharmacology assay,25I-NBOMe,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05137,mechanistic,pair_core,25I-NBOMe 5-HT1E functional assay agonist antagonist,25I-NBOMe,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05138,mechanistic,pair_core,25I-NBOMe 5-HT1F binding affinity Ki,25I-NBOMe,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_05139,mechanistic,pair_core,25I-NBOMe 5-HT1F receptor pharmacology assay,25I-NBOMe,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05140,mechanistic,pair_core,25I-NBOMe 5-HT1F functional assay agonist antagonist,25I-NBOMe,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05141,mechanistic,pair_core,25I-NBOMe 5-HT5A binding affinity Ki,25I-NBOMe,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_05142,mechanistic,pair_core,25I-NBOMe 5-HT5A receptor pharmacology assay,25I-NBOMe,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05143,mechanistic,pair_core,25I-NBOMe 5-HT5A functional assay agonist antagonist,25I-NBOMe,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05144,mechanistic,pair_core,25I-NBOMe 5-HT6 binding affinity Ki,25I-NBOMe,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_05145,mechanistic,pair_core,25I-NBOMe 5-HT6 receptor pharmacology assay,25I-NBOMe,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05146,mechanistic,pair_core,25I-NBOMe 5-HT6 functional assay agonist antagonist,25I-NBOMe,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05147,mechanistic,pair_core,25I-NBOMe 5-HT7 binding affinity Ki,25I-NBOMe,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_05148,mechanistic,pair_core,25I-NBOMe 5-HT7 receptor pharmacology assay,25I-NBOMe,5-HT7,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05149,mechanistic,pair_core,25I-NBOMe 5-HT7 functional assay agonist antagonist,25I-NBOMe,5-HT7,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05150,mechanistic,pair_core,25I-NBOMe mGluR2 GRM2 binding affinity Ki,25I-NBOMe,mGluR2 (GRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_05151,mechanistic,pair_core,25I-NBOMe mGluR2 GRM2 receptor pharmacology assay,25I-NBOMe,mGluR2 (GRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05152,mechanistic,pair_core,25I-NBOMe mGluR2 GRM2 functional assay agonist antagonist,25I-NBOMe,mGluR2 (GRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05153,mechanistic,pair_core,25I-NBOMe TAAR1 binding affinity Ki,25I-NBOMe,TAAR1,target,{compound} {entity} binding affinity Ki
+mechanistic_05154,mechanistic,pair_core,25I-NBOMe TAAR1 receptor pharmacology assay,25I-NBOMe,TAAR1,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05155,mechanistic,pair_core,25I-NBOMe TAAR1 functional assay agonist antagonist,25I-NBOMe,TAAR1,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05156,mechanistic,pair_core,25I-NBOMe SERT SLC6A4 binding affinity Ki,25I-NBOMe,SERT (SLC6A4),target,{compound} {entity} binding affinity Ki
+mechanistic_05157,mechanistic,pair_core,25I-NBOMe SERT SLC6A4 receptor pharmacology assay,25I-NBOMe,SERT (SLC6A4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05158,mechanistic,pair_core,25I-NBOMe SERT SLC6A4 functional assay agonist antagonist,25I-NBOMe,SERT (SLC6A4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05159,mechanistic,pair_core,25I-NBOMe NET SLC6A2 binding affinity Ki,25I-NBOMe,NET (SLC6A2),target,{compound} {entity} binding affinity Ki
+mechanistic_05160,mechanistic,pair_core,25I-NBOMe NET SLC6A2 receptor pharmacology assay,25I-NBOMe,NET (SLC6A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05161,mechanistic,pair_core,25I-NBOMe NET SLC6A2 functional assay agonist antagonist,25I-NBOMe,NET (SLC6A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05162,mechanistic,pair_core,25I-NBOMe DAT SLC6A3 binding affinity Ki,25I-NBOMe,DAT (SLC6A3),target,{compound} {entity} binding affinity Ki
+mechanistic_05163,mechanistic,pair_core,25I-NBOMe DAT SLC6A3 receptor pharmacology assay,25I-NBOMe,DAT (SLC6A3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05164,mechanistic,pair_core,25I-NBOMe DAT SLC6A3 functional assay agonist antagonist,25I-NBOMe,DAT (SLC6A3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05165,mechanistic,pair_core,25I-NBOMe VMAT2 SLC18A2 binding affinity Ki,25I-NBOMe,VMAT2 (SLC18A2),target,{compound} {entity} binding affinity Ki
+mechanistic_05166,mechanistic,pair_core,25I-NBOMe VMAT2 SLC18A2 receptor pharmacology assay,25I-NBOMe,VMAT2 (SLC18A2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05167,mechanistic,pair_core,25I-NBOMe VMAT2 SLC18A2 functional assay agonist antagonist,25I-NBOMe,VMAT2 (SLC18A2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05168,mechanistic,pair_core,25I-NBOMe D1 receptor DRD1 binding affinity Ki,25I-NBOMe,D1 receptor (DRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_05169,mechanistic,pair_core,25I-NBOMe D1 receptor DRD1 receptor pharmacology assay,25I-NBOMe,D1 receptor (DRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05170,mechanistic,pair_core,25I-NBOMe D1 receptor DRD1 functional assay agonist antagonist,25I-NBOMe,D1 receptor (DRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05171,mechanistic,pair_core,25I-NBOMe D2 receptor DRD2 binding affinity Ki,25I-NBOMe,D2 receptor (DRD2),target,{compound} {entity} binding affinity Ki
+mechanistic_05172,mechanistic,pair_core,25I-NBOMe D2 receptor DRD2 receptor pharmacology assay,25I-NBOMe,D2 receptor (DRD2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05173,mechanistic,pair_core,25I-NBOMe D2 receptor DRD2 functional assay agonist antagonist,25I-NBOMe,D2 receptor (DRD2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05174,mechanistic,pair_core,25I-NBOMe D3 receptor DRD3 binding affinity Ki,25I-NBOMe,D3 receptor (DRD3),target,{compound} {entity} binding affinity Ki
+mechanistic_05175,mechanistic,pair_core,25I-NBOMe D3 receptor DRD3 receptor pharmacology assay,25I-NBOMe,D3 receptor (DRD3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05176,mechanistic,pair_core,25I-NBOMe D3 receptor DRD3 functional assay agonist antagonist,25I-NBOMe,D3 receptor (DRD3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05177,mechanistic,pair_core,25I-NBOMe D4 receptor DRD4 binding affinity Ki,25I-NBOMe,D4 receptor (DRD4),target,{compound} {entity} binding affinity Ki
+mechanistic_05178,mechanistic,pair_core,25I-NBOMe D4 receptor DRD4 receptor pharmacology assay,25I-NBOMe,D4 receptor (DRD4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05179,mechanistic,pair_core,25I-NBOMe D4 receptor DRD4 functional assay agonist antagonist,25I-NBOMe,D4 receptor (DRD4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05180,mechanistic,pair_core,25I-NBOMe D5 receptor DRD5 binding affinity Ki,25I-NBOMe,D5 receptor (DRD5),target,{compound} {entity} binding affinity Ki
+mechanistic_05181,mechanistic,pair_core,25I-NBOMe D5 receptor DRD5 receptor pharmacology assay,25I-NBOMe,D5 receptor (DRD5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05182,mechanistic,pair_core,25I-NBOMe D5 receptor DRD5 functional assay agonist antagonist,25I-NBOMe,D5 receptor (DRD5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05183,mechanistic,pair_core,25I-NBOMe Alpha1A adrenergic receptor ADRA1A binding affinity Ki,25I-NBOMe,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} binding affinity Ki
+mechanistic_05184,mechanistic,pair_core,25I-NBOMe Alpha1A adrenergic receptor ADRA1A receptor pharmacology assay,25I-NBOMe,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05185,mechanistic,pair_core,25I-NBOMe Alpha1A adrenergic receptor ADRA1A functional assay agonist antagonist,25I-NBOMe,Alpha1A adrenergic receptor (ADRA1A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05186,mechanistic,pair_core,25I-NBOMe Alpha1B adrenergic receptor ADRA1B binding affinity Ki,25I-NBOMe,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} binding affinity Ki
+mechanistic_05187,mechanistic,pair_core,25I-NBOMe Alpha1B adrenergic receptor ADRA1B receptor pharmacology assay,25I-NBOMe,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05188,mechanistic,pair_core,25I-NBOMe Alpha1B adrenergic receptor ADRA1B functional assay agonist antagonist,25I-NBOMe,Alpha1B adrenergic receptor (ADRA1B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05189,mechanistic,pair_core,25I-NBOMe Alpha2A adrenergic receptor ADRA2A binding affinity Ki,25I-NBOMe,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} binding affinity Ki
+mechanistic_05190,mechanistic,pair_core,25I-NBOMe Alpha2A adrenergic receptor ADRA2A receptor pharmacology assay,25I-NBOMe,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05191,mechanistic,pair_core,25I-NBOMe Alpha2A adrenergic receptor ADRA2A functional assay agonist antagonist,25I-NBOMe,Alpha2A adrenergic receptor (ADRA2A),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05192,mechanistic,pair_core,25I-NBOMe Alpha2B adrenergic receptor ADRA2B binding affinity Ki,25I-NBOMe,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} binding affinity Ki
+mechanistic_05193,mechanistic,pair_core,25I-NBOMe Alpha2B adrenergic receptor ADRA2B receptor pharmacology assay,25I-NBOMe,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05194,mechanistic,pair_core,25I-NBOMe Alpha2B adrenergic receptor ADRA2B functional assay agonist antagonist,25I-NBOMe,Alpha2B adrenergic receptor (ADRA2B),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05195,mechanistic,pair_core,25I-NBOMe Alpha2C adrenergic receptor ADRA2C binding affinity Ki,25I-NBOMe,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} binding affinity Ki
+mechanistic_05196,mechanistic,pair_core,25I-NBOMe Alpha2C adrenergic receptor ADRA2C receptor pharmacology assay,25I-NBOMe,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05197,mechanistic,pair_core,25I-NBOMe Alpha2C adrenergic receptor ADRA2C functional assay agonist antagonist,25I-NBOMe,Alpha2C adrenergic receptor (ADRA2C),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05198,mechanistic,pair_core,25I-NBOMe Beta1 adrenergic receptor ADRB1 binding affinity Ki,25I-NBOMe,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} binding affinity Ki
+mechanistic_05199,mechanistic,pair_core,25I-NBOMe Beta1 adrenergic receptor ADRB1 receptor pharmacology assay,25I-NBOMe,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05200,mechanistic,pair_core,25I-NBOMe Beta1 adrenergic receptor ADRB1 functional assay agonist antagonist,25I-NBOMe,Beta1 adrenergic receptor (ADRB1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05201,mechanistic,pair_core,25I-NBOMe Beta2 adrenergic receptor ADRB2 binding affinity Ki,25I-NBOMe,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} binding affinity Ki
+mechanistic_05202,mechanistic,pair_core,25I-NBOMe Beta2 adrenergic receptor ADRB2 receptor pharmacology assay,25I-NBOMe,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05203,mechanistic,pair_core,25I-NBOMe Beta2 adrenergic receptor ADRB2 functional assay agonist antagonist,25I-NBOMe,Beta2 adrenergic receptor (ADRB2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05204,mechanistic,pair_core,25I-NBOMe M1 muscarinic receptor CHRM1 binding affinity Ki,25I-NBOMe,M1 muscarinic receptor (CHRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_05205,mechanistic,pair_core,25I-NBOMe M1 muscarinic receptor CHRM1 receptor pharmacology assay,25I-NBOMe,M1 muscarinic receptor (CHRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05206,mechanistic,pair_core,25I-NBOMe M1 muscarinic receptor CHRM1 functional assay agonist antagonist,25I-NBOMe,M1 muscarinic receptor (CHRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05207,mechanistic,pair_core,25I-NBOMe M2 muscarinic receptor CHRM2 binding affinity Ki,25I-NBOMe,M2 muscarinic receptor (CHRM2),target,{compound} {entity} binding affinity Ki
+mechanistic_05208,mechanistic,pair_core,25I-NBOMe M2 muscarinic receptor CHRM2 receptor pharmacology assay,25I-NBOMe,M2 muscarinic receptor (CHRM2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05209,mechanistic,pair_core,25I-NBOMe M2 muscarinic receptor CHRM2 functional assay agonist antagonist,25I-NBOMe,M2 muscarinic receptor (CHRM2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05210,mechanistic,pair_core,25I-NBOMe M3 muscarinic receptor CHRM3 binding affinity Ki,25I-NBOMe,M3 muscarinic receptor (CHRM3),target,{compound} {entity} binding affinity Ki
+mechanistic_05211,mechanistic,pair_core,25I-NBOMe M3 muscarinic receptor CHRM3 receptor pharmacology assay,25I-NBOMe,M3 muscarinic receptor (CHRM3),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05212,mechanistic,pair_core,25I-NBOMe M3 muscarinic receptor CHRM3 functional assay agonist antagonist,25I-NBOMe,M3 muscarinic receptor (CHRM3),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05213,mechanistic,pair_core,25I-NBOMe M4 muscarinic receptor CHRM4 binding affinity Ki,25I-NBOMe,M4 muscarinic receptor (CHRM4),target,{compound} {entity} binding affinity Ki
+mechanistic_05214,mechanistic,pair_core,25I-NBOMe M4 muscarinic receptor CHRM4 receptor pharmacology assay,25I-NBOMe,M4 muscarinic receptor (CHRM4),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05215,mechanistic,pair_core,25I-NBOMe M4 muscarinic receptor CHRM4 functional assay agonist antagonist,25I-NBOMe,M4 muscarinic receptor (CHRM4),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05216,mechanistic,pair_core,25I-NBOMe M5 muscarinic receptor CHRM5 binding affinity Ki,25I-NBOMe,M5 muscarinic receptor (CHRM5),target,{compound} {entity} binding affinity Ki
+mechanistic_05217,mechanistic,pair_core,25I-NBOMe M5 muscarinic receptor CHRM5 receptor pharmacology assay,25I-NBOMe,M5 muscarinic receptor (CHRM5),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05218,mechanistic,pair_core,25I-NBOMe M5 muscarinic receptor CHRM5 functional assay agonist antagonist,25I-NBOMe,M5 muscarinic receptor (CHRM5),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05219,mechanistic,pair_core,25I-NBOMe H1 receptor HRH1 binding affinity Ki,25I-NBOMe,H1 receptor (HRH1),target,{compound} {entity} binding affinity Ki
+mechanistic_05220,mechanistic,pair_core,25I-NBOMe H1 receptor HRH1 receptor pharmacology assay,25I-NBOMe,H1 receptor (HRH1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05221,mechanistic,pair_core,25I-NBOMe H1 receptor HRH1 functional assay agonist antagonist,25I-NBOMe,H1 receptor (HRH1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05222,mechanistic,pair_core,25I-NBOMe H2 receptor HRH2 binding affinity Ki,25I-NBOMe,H2 receptor (HRH2),target,{compound} {entity} binding affinity Ki
+mechanistic_05223,mechanistic,pair_core,25I-NBOMe H2 receptor HRH2 receptor pharmacology assay,25I-NBOMe,H2 receptor (HRH2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05224,mechanistic,pair_core,25I-NBOMe H2 receptor HRH2 functional assay agonist antagonist,25I-NBOMe,H2 receptor (HRH2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05225,mechanistic,pair_core,25I-NBOMe Sigma-1 receptor SIGMAR1 binding affinity Ki,25I-NBOMe,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} binding affinity Ki
+mechanistic_05226,mechanistic,pair_core,25I-NBOMe Sigma-1 receptor SIGMAR1 receptor pharmacology assay,25I-NBOMe,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05227,mechanistic,pair_core,25I-NBOMe Sigma-1 receptor SIGMAR1 functional assay agonist antagonist,25I-NBOMe,Sigma-1 receptor (SIGMAR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05228,mechanistic,pair_core,25I-NBOMe Sigma-2 receptor TMEM97 binding affinity Ki,25I-NBOMe,Sigma-2 receptor (TMEM97),target,{compound} {entity} binding affinity Ki
+mechanistic_05229,mechanistic,pair_core,25I-NBOMe Sigma-2 receptor TMEM97 receptor pharmacology assay,25I-NBOMe,Sigma-2 receptor (TMEM97),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05230,mechanistic,pair_core,25I-NBOMe Sigma-2 receptor TMEM97 functional assay agonist antagonist,25I-NBOMe,Sigma-2 receptor (TMEM97),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05231,mechanistic,pair_core,25I-NBOMe kappa opioid receptor OPRK1 binding affinity Ki,25I-NBOMe,kappa opioid receptor (OPRK1),target,{compound} {entity} binding affinity Ki
+mechanistic_05232,mechanistic,pair_core,25I-NBOMe kappa opioid receptor OPRK1 receptor pharmacology assay,25I-NBOMe,kappa opioid receptor (OPRK1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05233,mechanistic,pair_core,25I-NBOMe kappa opioid receptor OPRK1 functional assay agonist antagonist,25I-NBOMe,kappa opioid receptor (OPRK1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05234,mechanistic,pair_core,25I-NBOMe mu opioid receptor OPRM1 binding affinity Ki,25I-NBOMe,mu opioid receptor (OPRM1),target,{compound} {entity} binding affinity Ki
+mechanistic_05235,mechanistic,pair_core,25I-NBOMe mu opioid receptor OPRM1 receptor pharmacology assay,25I-NBOMe,mu opioid receptor (OPRM1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05236,mechanistic,pair_core,25I-NBOMe mu opioid receptor OPRM1 functional assay agonist antagonist,25I-NBOMe,mu opioid receptor (OPRM1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05237,mechanistic,pair_core,25I-NBOMe delta opioid receptor OPRD1 binding affinity Ki,25I-NBOMe,delta opioid receptor (OPRD1),target,{compound} {entity} binding affinity Ki
+mechanistic_05238,mechanistic,pair_core,25I-NBOMe delta opioid receptor OPRD1 receptor pharmacology assay,25I-NBOMe,delta opioid receptor (OPRD1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05239,mechanistic,pair_core,25I-NBOMe delta opioid receptor OPRD1 functional assay agonist antagonist,25I-NBOMe,delta opioid receptor (OPRD1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05240,mechanistic,pair_core,25I-NBOMe NMDA receptor binding affinity Ki,25I-NBOMe,NMDA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_05241,mechanistic,pair_core,25I-NBOMe NMDA receptor pharmacology assay,25I-NBOMe,NMDA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05242,mechanistic,pair_core,25I-NBOMe NMDA receptor functional assay agonist antagonist,25I-NBOMe,NMDA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05243,mechanistic,pair_core,25I-NBOMe AMPA receptor binding affinity Ki,25I-NBOMe,AMPA receptor,target,{compound} {entity} binding affinity Ki
+mechanistic_05244,mechanistic,pair_core,25I-NBOMe AMPA receptor pharmacology assay,25I-NBOMe,AMPA receptor,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05245,mechanistic,pair_core,25I-NBOMe AMPA receptor functional assay agonist antagonist,25I-NBOMe,AMPA receptor,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05246,mechanistic,pair_core,25I-NBOMe TrkB NTRK2 binding affinity Ki,25I-NBOMe,TrkB (NTRK2),target,{compound} {entity} binding affinity Ki
+mechanistic_05247,mechanistic,pair_core,25I-NBOMe TrkB NTRK2 receptor pharmacology assay,25I-NBOMe,TrkB (NTRK2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05248,mechanistic,pair_core,25I-NBOMe TrkB NTRK2 functional assay agonist antagonist,25I-NBOMe,TrkB (NTRK2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05249,mechanistic,pair_core,25I-NBOMe CB1 receptor CNR1 binding affinity Ki,25I-NBOMe,CB1 receptor (CNR1),target,{compound} {entity} binding affinity Ki
+mechanistic_05250,mechanistic,pair_core,25I-NBOMe CB1 receptor CNR1 receptor pharmacology assay,25I-NBOMe,CB1 receptor (CNR1),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05251,mechanistic,pair_core,25I-NBOMe CB1 receptor CNR1 functional assay agonist antagonist,25I-NBOMe,CB1 receptor (CNR1),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05252,mechanistic,pair_core,25I-NBOMe CB2 receptor CNR2 binding affinity Ki,25I-NBOMe,CB2 receptor (CNR2),target,{compound} {entity} binding affinity Ki
+mechanistic_05253,mechanistic,pair_core,25I-NBOMe CB2 receptor CNR2 receptor pharmacology assay,25I-NBOMe,CB2 receptor (CNR2),target,{compound} {entity} receptor pharmacology assay
+mechanistic_05254,mechanistic,pair_core,25I-NBOMe CB2 receptor CNR2 functional assay agonist antagonist,25I-NBOMe,CB2 receptor (CNR2),target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05255,mechanistic,pair_core,25B-NBOMe 5-HT2A binding affinity Ki,25B-NBOMe,5-HT2A,target,{compound} {entity} binding affinity Ki
+mechanistic_05256,mechanistic,pair_core,25B-NBOMe 5-HT2A receptor pharmacology assay,25B-NBOMe,5-HT2A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05257,mechanistic,pair_core,25B-NBOMe 5-HT2A functional assay agonist antagonist,25B-NBOMe,5-HT2A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05258,mechanistic,pair_core,25B-NBOMe 5-HT2B binding affinity Ki,25B-NBOMe,5-HT2B,target,{compound} {entity} binding affinity Ki
+mechanistic_05259,mechanistic,pair_core,25B-NBOMe 5-HT2B receptor pharmacology assay,25B-NBOMe,5-HT2B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05260,mechanistic,pair_core,25B-NBOMe 5-HT2B functional assay agonist antagonist,25B-NBOMe,5-HT2B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05261,mechanistic,pair_core,25B-NBOMe 5-HT2C binding affinity Ki,25B-NBOMe,5-HT2C,target,{compound} {entity} binding affinity Ki
+mechanistic_05262,mechanistic,pair_core,25B-NBOMe 5-HT2C receptor pharmacology assay,25B-NBOMe,5-HT2C,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05263,mechanistic,pair_core,25B-NBOMe 5-HT2C functional assay agonist antagonist,25B-NBOMe,5-HT2C,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05264,mechanistic,pair_core,25B-NBOMe 5-HT1A binding affinity Ki,25B-NBOMe,5-HT1A,target,{compound} {entity} binding affinity Ki
+mechanistic_05265,mechanistic,pair_core,25B-NBOMe 5-HT1A receptor pharmacology assay,25B-NBOMe,5-HT1A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05266,mechanistic,pair_core,25B-NBOMe 5-HT1A functional assay agonist antagonist,25B-NBOMe,5-HT1A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05267,mechanistic,pair_core,25B-NBOMe 5-HT1B binding affinity Ki,25B-NBOMe,5-HT1B,target,{compound} {entity} binding affinity Ki
+mechanistic_05268,mechanistic,pair_core,25B-NBOMe 5-HT1B receptor pharmacology assay,25B-NBOMe,5-HT1B,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05269,mechanistic,pair_core,25B-NBOMe 5-HT1B functional assay agonist antagonist,25B-NBOMe,5-HT1B,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05270,mechanistic,pair_core,25B-NBOMe 5-HT1D binding affinity Ki,25B-NBOMe,5-HT1D,target,{compound} {entity} binding affinity Ki
+mechanistic_05271,mechanistic,pair_core,25B-NBOMe 5-HT1D receptor pharmacology assay,25B-NBOMe,5-HT1D,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05272,mechanistic,pair_core,25B-NBOMe 5-HT1D functional assay agonist antagonist,25B-NBOMe,5-HT1D,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05273,mechanistic,pair_core,25B-NBOMe 5-HT1E binding affinity Ki,25B-NBOMe,5-HT1E,target,{compound} {entity} binding affinity Ki
+mechanistic_05274,mechanistic,pair_core,25B-NBOMe 5-HT1E receptor pharmacology assay,25B-NBOMe,5-HT1E,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05275,mechanistic,pair_core,25B-NBOMe 5-HT1E functional assay agonist antagonist,25B-NBOMe,5-HT1E,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05276,mechanistic,pair_core,25B-NBOMe 5-HT1F binding affinity Ki,25B-NBOMe,5-HT1F,target,{compound} {entity} binding affinity Ki
+mechanistic_05277,mechanistic,pair_core,25B-NBOMe 5-HT1F receptor pharmacology assay,25B-NBOMe,5-HT1F,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05278,mechanistic,pair_core,25B-NBOMe 5-HT1F functional assay agonist antagonist,25B-NBOMe,5-HT1F,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05279,mechanistic,pair_core,25B-NBOMe 5-HT5A binding affinity Ki,25B-NBOMe,5-HT5A,target,{compound} {entity} binding affinity Ki
+mechanistic_05280,mechanistic,pair_core,25B-NBOMe 5-HT5A receptor pharmacology assay,25B-NBOMe,5-HT5A,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05281,mechanistic,pair_core,25B-NBOMe 5-HT5A functional assay agonist antagonist,25B-NBOMe,5-HT5A,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05282,mechanistic,pair_core,25B-NBOMe 5-HT6 binding affinity Ki,25B-NBOMe,5-HT6,target,{compound} {entity} binding affinity Ki
+mechanistic_05283,mechanistic,pair_core,25B-NBOMe 5-HT6 receptor pharmacology assay,25B-NBOMe,5-HT6,target,{compound} {entity} receptor pharmacology assay
+mechanistic_05284,mechanistic,pair_core,25B-NBOMe 5-HT6 functional assay agonist antagonist,25B-NBOMe,5-HT6,target,{compound} {entity} functional assay agonist antagonist
+mechanistic_05285,mechanistic,pair_core,25B-NBOMe 5-HT7 binding affinity Ki,25B-NBOMe,5-HT7,target,{compound} {entity} binding affinity Ki
+mechanistic_05286,mechanistic,pair_core,25B-NBOMe 5-HT7 receptor pharmacology assay,25B-NBOMe,5-HT7,target,{compound} {entity} receptor pharmacology assay

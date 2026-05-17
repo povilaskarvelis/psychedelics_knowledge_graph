@@ -1,6 +1,6 @@
 :root {
-  --bg: #080a0b;
-  --bg-2: #101315;
+  --bg: #0a0d0e;
+  --bg-2: #121719;
   --fg: #edf0ef;
   --muted: #aeb5b4;
   --accent: #f1b74b;
@@ -43,7 +43,7 @@ body {
   inset: 0;
   background:
     linear-gradient(90deg, rgba(73, 214, 200, 0.026), transparent 36%, rgba(144, 186, 255, 0.018) 72%, transparent),
-    linear-gradient(180deg, #070909 0%, #101315 58%, #080a0b 100%);
+    linear-gradient(180deg, #090c0d 0%, #121719 58%, #0a0d0e 100%);
   z-index: -2;
 }
 
@@ -466,8 +466,8 @@ button.primary:hover {
   --accent: #f1b74b;
   --accent-2: #49d6c8;
   --accent-3: #ef6c9a;
-  --method-bg: #080a0b;
-  --method-bg-2: #101315;
+  --method-bg: #0a0d0e;
+  --method-bg-2: #121719;
   --method-surface: rgba(15, 18, 20, 0.76);
   --method-surface-soft: rgba(19, 23, 25, 0.62);
   --method-surface-raised: rgba(24, 29, 31, 0.84);
@@ -479,13 +479,21 @@ button.primary:hover {
   --method-blue: #90baff;
   --method-green: #a7be73;
   --method-ink: #0b0f1a;
+  --method-copy-width: 900px;
   background: var(--method-bg);
 }
 
 .methods-page .bg {
   background:
     linear-gradient(90deg, rgba(73, 214, 200, 0.026), transparent 36%, rgba(144, 186, 255, 0.018) 72%, transparent),
-    linear-gradient(180deg, #070909 0%, #101315 58%, #080a0b 100%);
+    linear-gradient(180deg, #090c0d 0%, #121719 58%, #0a0d0e 100%);
+}
+
+.method-workflow-symbols {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .about-hero {
@@ -598,6 +606,10 @@ button.primary:hover {
 .methods-summary {
   display: grid;
   gap: 18px;
+}
+
+.methods-motivation p {
+  max-width: var(--method-copy-width);
 }
 
 .method-stage-grid {
@@ -846,15 +858,79 @@ button.primary:hover {
   border-bottom: 1px solid var(--method-line-soft);
 }
 
-.method-workflow-list article > span {
-  color: var(--method-teal);
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+.method-workflow-marker {
+  display: grid;
+  align-content: start;
+  justify-items: start;
 }
 
-.method-workflow-list article > div {
+.method-workflow-illustration {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  color: var(--method-teal);
+  border: 1px solid rgba(110, 227, 215, 0.34);
+  border-radius: 8px;
+  background: rgba(110, 227, 215, 0.07);
+}
+
+.method-workflow-illustration svg {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.method-workflow-list article:nth-child(2) .method-workflow-illustration {
+  color: var(--method-gold);
+}
+
+.method-workflow-list article:nth-child(2) .method-workflow-illustration {
+  border-color: rgba(241, 191, 98, 0.34);
+  background: rgba(241, 191, 98, 0.075);
+}
+
+.method-workflow-list article:nth-child(3) .method-workflow-illustration {
+  color: var(--method-blue);
+}
+
+.method-workflow-list article:nth-child(3) .method-workflow-illustration {
+  border-color: rgba(144, 186, 255, 0.34);
+  background: rgba(144, 186, 255, 0.075);
+}
+
+.method-workflow-list article:nth-child(4) .method-workflow-illustration {
+  color: var(--method-rose);
+}
+
+.method-workflow-list article:nth-child(4) .method-workflow-illustration {
+  border-color: rgba(240, 128, 163, 0.34);
+  background: rgba(240, 128, 163, 0.075);
+}
+
+.method-workflow-list article:nth-child(5) .method-workflow-illustration {
+  color: var(--method-green);
+}
+
+.method-workflow-list article:nth-child(5) .method-workflow-illustration {
+  border-color: rgba(167, 190, 115, 0.34);
+  background: rgba(167, 190, 115, 0.075);
+}
+
+.method-workflow-list article:nth-child(6) .method-workflow-illustration {
+  color: #d5b7ff;
+}
+
+.method-workflow-list article:nth-child(6) .method-workflow-illustration {
+  border-color: rgba(213, 183, 255, 0.34);
+  background: rgba(213, 183, 255, 0.075);
+}
+
+.method-workflow-list article > div:last-child {
   display: grid;
   gap: 8px;
 }
@@ -895,7 +971,7 @@ button.primary:hover {
 }
 
 .method-feedback p {
-  max-width: 760px;
+  max-width: var(--method-copy-width);
 }
 
 .method-link-grid a,
@@ -949,7 +1025,7 @@ button.primary:hover {
 }
 
 .methods-section-header p {
-  max-width: 760px;
+  max-width: var(--method-copy-width);
 }
 
 .method-segmented {
@@ -1041,8 +1117,8 @@ button.primary:hover {
 }
 
 .prisma-panel {
-  --prisma-fg: #f4f1e8;
-  --prisma-muted: #c7beb0;
+  --prisma-fg: #edf0ef;
+  --prisma-muted: #aeb5b4;
   --prisma-main-base: rgba(18, 35, 31, 0.92);
   --prisma-side-base: rgba(43, 31, 28, 0.92);
   --prisma-abstract-base: rgba(27, 33, 43, 0.92);
@@ -2542,6 +2618,20 @@ input[type="number"] {
     grid-template-columns: 1fr;
     gap: 8px;
     padding: 18px 0;
+  }
+
+  .method-workflow-marker {
+    justify-self: start;
+  }
+
+  .method-workflow-illustration {
+    width: 48px;
+    height: 48px;
+  }
+
+  .method-workflow-illustration svg {
+    width: 33px;
+    height: 33px;
   }
 
   .method-feedback {

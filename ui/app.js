@@ -645,7 +645,7 @@ function splitAuthorNames(value) {
 
 function citationAuthors(value) {
   const authors = splitAuthorNames(value);
-  if (!authors.length) return "";
+  if (!authors.length) return "Unknown authors";
   if (authors.length <= 3) return authors.join(", ");
   return `${authors.slice(0, 3).join(", ")}, et al.`;
 }
@@ -1112,7 +1112,9 @@ function bibliographyCitationHtml(entry) {
 
   return `
     <p class="study-citation">
-      ${authors ? `<span>${escapeHtml(authors)}</span>${yearHtml}${titleHtml}` : `${titleHtml}${yearHtml}`}
+      <span>${escapeHtml(authors)}</span>
+      ${yearHtml}
+      ${titleHtml}
       ${journal ? `<em>${escapeHtml(journal)}</em>` : ""}
       ${doiHref ? `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(doiHref)}</a>` : ""}
       ${openAlexHref ? `<a href="${openAlexHref}" target="_blank" rel="noopener noreferrer">OpenAlex</a>` : ""}

@@ -21,6 +21,10 @@ This schema defines the structured claims we curate and publish as graph payload
 - `study_design`
 - `study_doi` OR `openalex_id`
 
+Note: `evidence_level` is still required for compatibility with existing rows
+and graph payloads, but it is an internal coarse label rather than a public
+certainty rating or graph-inclusion rule.
+
 ## Optional fields
 - `species`
 - `system`

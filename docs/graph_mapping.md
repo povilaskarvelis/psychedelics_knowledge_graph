@@ -19,7 +19,14 @@ mechanistic or disorder evidence. We then aggregate edges in the UI.
 - `affinity_unit`
 - `species`
 - `system`
-- `evidence_level`
+- `source_type`
+- `source_family`
+- `paper_type`
+- `access_level`
+- `evidence_location`
+- `evidence_locator`
+- `study_design`
+- `evidence_level` (legacy/internal compatibility field, not a certainty rating)
 - `study_year`
 - `source`
 - `doi` or `openalex_id`
@@ -34,5 +41,8 @@ contributions using the relevant template. If a paper reports multiple targets
 or outcomes, create one contribution per claim.
 
 ## Provenance
-- Use DOI/openalex_id in the `source` field.
-- Add the paper title and year to help reviewers validate quickly.
+- Use DOI/openalex_id in the `source` field and retain paper title, journal,
+  year, and provider metadata where available.
+- Primary and secondary graph views are controlled by source/provenance fields
+  such as `source_type`, `paper_type`, `source_family`, and `access_level`, not
+  by the legacy `evidence_level` high/medium/low values.
