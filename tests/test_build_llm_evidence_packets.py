@@ -51,6 +51,31 @@ TEI = """
 </TEI>
 """
 
+LEAN_TEI = """
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <front>
+      <abstract><p>LSD binding and functional activity were measured in vitro.</p></abstract>
+    </front>
+    <body>
+      <div><head>Introduction</head><p>Background about psychedelic pharmacology.</p></div>
+      <div><head>Methods</head><p>Radioligand assays used cloned serotonin receptors.</p></div>
+      <div><head>Pharmacological Characterization</head><p>LSD bound 5-HT2A with high affinity.</p></div>
+      <div><head>Results</head><p>Functional activity was observed at 5-HT2A receptors.</p></div>
+      <div><head>Discussion</head><p>The broader interpretation is discussed here.</p></div>
+      <figure type="table"><head>Table 1</head><figDesc>Binding affinity results.</figDesc><table><row><cell>Ki</cell></row></table></figure>
+      <figure><head>Figure 1</head><figDesc>Binding assay response curve.</figDesc></figure>
+      <figure><head>Figure 2</head><figDesc>Conceptual overview.</figDesc></figure>
+    </body>
+    <back>
+      <listBibl>
+        <biblStruct><analytic><title>Background review</title></analytic></biblStruct>
+      </listBibl>
+    </back>
+  </text>
+</TEI>
+"""
+
 
 class BuildLlmEvidencePacketsTest(unittest.TestCase):
     def test_sections_from_tei_full_reconstructs_complete_nested_sections(self) -> None:
@@ -172,6 +197,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
                 max_chunks_per_paper=0,
                 max_references=10,
                 include_section_text=True,
+                include_candidate_contexts=True,
             )
 
             lines = out_jsonl.read_text(encoding="utf-8").splitlines()
@@ -181,6 +207,118 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         self.assertEqual(len(lines), 1)
         self.assertEqual(json.loads(lines[0])["study_doi"], "10.1000/test")
         self.assertEqual(saved_report["counts"]["packets_written"], 1)
+
+    def test_build_packet_can_omit_candidate_context_hints(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/test",
+            "study_title": "Example review",
+            "best_backend": "grobid",
+            "best_char_count": len(TEI),
+            "best_section_count": 3,
+            "extractions": [
+                {
+                    "backend": "grobid",
+                    "status": "ok",
+                    "text": TEI,
+                    "metadata": {"format": "tei_xml"},
+                }
+            ],
+        }
+        row = {
+            "study_doi": "10.1000/test",
+            "study_title": "Example review",
+            "publication_type": "Journal Article",
+            "contexts": [{"compound": "Legacy", "entity": "Context"}],
+        }
+
+        packet = build_packet(
+            "mechanistic",
+            Path("/tmp/artifact.json"),
+            artifact,
+            row,
+            max_chunk_chars=80,
+            overlap_chars=10,
+            max_chunks_per_paper=0,
+            max_references=10,
+            include_section_text=True,
+            include_candidate_contexts=False,
+        )
+
+        self.assertEqual(packet["candidate_contexts"], [])
+
+    def test_lean_primary_profile_keeps_methods_results_tables_and_mechanistic_other_sections(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/lean",
+            "study_title": "Mechanistic example",
+            "best_backend": "grobid",
+            "best_char_count": len(LEAN_TEI),
+            "best_section_count": 5,
+            "extractions": [{"backend": "grobid", "status": "ok", "text": LEAN_TEI, "metadata": {"format": "tei_xml"}}],
+        }
+        row = {"study_doi": "10.1000/lean", "study_title": "Mechanistic example", "publication_type": "Journal Article"}
+
+        packet = build_packet(
+            "mechanistic",
+            Path("/tmp/lean.json"),
+            artifact,
+            row,
+            max_chunk_chars=500,
+            overlap_chars=0,
+            max_chunks_per_paper=0,
+            max_references=50,
+            packet_profile="lean_primary",
+        )
+
+        headings = [section["heading"] for section in packet["sections"]]
+        self.assertIn("Abstract", headings)
+        self.assertIn("Methods", headings)
+        self.assertIn("Pharmacological Characterization", headings)
+        self.assertIn("Results", headings)
+        self.assertNotIn("Introduction", headings)
+        self.assertNotIn("Discussion", headings)
+        self.assertEqual(len(packet["tables"]), 1)
+        self.assertEqual(len(packet["figures"]), 1)
+        self.assertEqual(packet["references"], [])
+        summary = packet["document_summary"]
+        self.assertEqual(summary["packet_profile"], "lean_primary")
+        self.assertGreater(summary["source_section_count"], summary["section_count"])
+        self.assertGreater(summary["chunk_token_reduction_estimate"], 0)
+
+    def test_lean_primary_profile_keeps_only_abstract_for_secondary_literature(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/review",
+            "study_title": "Review example",
+            "best_backend": "grobid",
+            "best_char_count": len(LEAN_TEI),
+            "best_section_count": 5,
+            "extractions": [{"backend": "grobid", "status": "ok", "text": LEAN_TEI, "metadata": {"format": "tei_xml"}}],
+        }
+        row = {
+            "study_doi": "10.1000/review",
+            "study_title": "Review example",
+            "publication_type": "Journal Article | Systematic Review",
+        }
+
+        packet = build_packet(
+            "disorder",
+            Path("/tmp/review.json"),
+            artifact,
+            row,
+            max_chunk_chars=500,
+            overlap_chars=0,
+            max_chunks_per_paper=0,
+            max_references=50,
+            packet_profile="lean_primary",
+        )
+
+        self.assertEqual([section["heading"] for section in packet["sections"]], ["Abstract"])
+        self.assertEqual(packet["tables"], [])
+        self.assertEqual(packet["figures"], [])
+        self.assertEqual(packet["references"], [])
+        self.assertEqual(
+            packet["document_summary"]["profile_summary"]["section_selection"],
+            "secondary_or_context_abstract_only",
+        )
 
 
 if __name__ == "__main__":

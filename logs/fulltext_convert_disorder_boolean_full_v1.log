@@ -1,0 +1,5 @@
+Re-running PDF extraction inside conda env `psychkg-pdf`...
+Dataset: disorder
+Processed PDFs: 359
+Successful artifacts: 168
+Report: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/fulltext_report_disorder.boolean_full_v1.json

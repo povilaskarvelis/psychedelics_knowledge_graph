@@ -1,0 +1,34 @@
+{
+  "generated_at_utc": "2026-05-19T15:29:12.078394+00:00",
+  "schema_version": "llm_evidence_packet_v1",
+  "dataset": "disorder",
+  "inputs": {
+    "paper_library": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_disorder.json",
+    "artifact_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/disorder",
+    "doi_filter_count": 3279,
+    "limit": 0,
+    "max_chunk_chars": 6000,
+    "overlap_chars": 300,
+    "max_chunks_per_paper": 0,
+    "max_references": 0,
+    "include_section_text": false,
+    "include_candidate_contexts": false
+  },
+  "outputs": {
+    "jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_fulltext_packets.jsonl",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_fulltext_packets_report.json"
+  },
+  "counts": {
+    "artifact_files_selected": 3279,
+    "packets_written": 3279,
+    "missing_paper_library_rows": 0,
+    "missing_successful_extraction": 0,
+    "missing_sections": 0,
+    "total_chunks": 55222,
+    "total_tables": 4851,
+    "total_figures": 10392,
+    "total_references": 0
+  },
+  "missing_paper_library_dois": [],
+  "skipped": []
+}

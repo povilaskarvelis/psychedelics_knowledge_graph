@@ -1,7 +1,7 @@
-# Review: Screening and Stub Curation
+# Review
 
-Use this step to screen synced literature candidates, inspect pending stubs,
-identify blocking fields, and batch update `stub_status` before promotion.
+This stage screens synced literature candidates before PDF retrieval. It also
+contains older stub-curation helpers for maintaining the first-generation graph.
 
 ## Local LLM abstract screening
 Use this as the semantic screening layer after metadata sync and before PDF
@@ -20,18 +20,18 @@ data extraction**. Reserve `adjudication` for final conflict resolution between
 rules, model output, and curator review; some script names still use the older
 term for compatibility.
 
-The stage is non-destructive: it writes reports and queues, but does not edit
-the paper library or claim stubs.
+The abstract-screening stage is non-destructive: it writes reports and queues,
+but does not edit the paper library or claim stubs.
 
 Recommended small validation run:
 `python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --deterministic-prescreen --deterministic-prescreen-only --limit 25 --only-with-abstract`
 
-For batch-specific screening, add `--prescreen-output-label <label>` so the
+For batch-specific screening, add `--prescreen-output-label <run_label>` so the
 deterministic pre-screen writes label-suffixed reports and queues instead of
-overwriting the global `deterministic_prescreen_report_<dataset>.*` files. For
-example:
+overwriting the global `deterministic_prescreen_report_<dataset>.*` files. The
+label should describe the run, not the method. For example:
 
-`python pipeline/review/run_local_llm_abstract_screening.py --dataset mechanistic --doi-file data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/combined/mechanistic_new_dois.txt --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --prescreen-output-label boolean_full_v1`
+`python pipeline/review/run_local_llm_abstract_screening.py --dataset mechanistic --doi-file data/raw/search_strategies/search_2026_05/grouped_module_run/combined/mechanistic_new_dois.txt --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --prescreen-output-label grouped_search_2026_05`
 
 Recommended full run for one dataset:
 
@@ -59,7 +59,8 @@ Outputs:
 Queue meaning:
 - `llm_fulltext_candidates` is the high-recall DOI-level queue for PDF download.
 - `llm_relevant` contains only verified compound/entity contexts with exact
-  title/abstract quote support, so it is safer for context-level stub seeding.
+  title/abstract quote support. The extraction-prep stage should still decide
+  the DOI-level extraction cohort.
 - `llm_uncertain` keeps plausible papers that need full text before excluding.
 
 The report replaces the old rule-based triage as the default screening output.
@@ -91,7 +92,7 @@ Deterministic pre-screen behavior:
 - Discovery/provenance contexts are not used as safety hints for deterministic
   exclusion.
 - If `--use-heuristic-audit` is enabled, old heuristic retention also blocks
-  deterministic exclusion, but this is opt-in legacy behavior.
+  deterministic exclusion, but this is an opt-in older behavior.
 - This gate was calibrated against the existing `qwen3:14b` disorder checkpoint
   before use; any future tightening should be re-audited against checkpointed
   LLM decisions.
@@ -100,12 +101,12 @@ Do not use `--fast-screen-model qwen3:4b` as a universal pre-screen for now. In
 testing, structured `qwen3:4b` calls were too slow to justify an extra model call
 before `qwen3:14b`. The deterministic pre-screen is the preferred speedup.
 
-## Optional legacy paper triage (relevance + source type)
+## Optional rule-based paper triage (older path)
 Use rule-based triage to pre-label papers as likely relevant/irrelevant and
 suggest `source_type` (e.g., `review`, `meta_analysis`, `primary_study`).
 
-This older rule-based triage is no longer part of the default workflow. Use it
-only for legacy audits or targeted comparisons. PDF acquisition should use the
+This rule-based triage is no longer part of the default workflow. Use it only
+for older graph maintenance or targeted comparisons. PDF acquisition should use the
 `llm_fulltext_candidates` queue.
 
 Dry run report from paper library:
@@ -142,10 +143,10 @@ stub creation/promotion so graph nodes stay canonical
 (`End-of-life anxiety` -> `distress associated with life-threatening disease`).
 Canonical alias rules live in `schema/disorder_canonicalization.json`.
 
-Legacy triage PDF queue:
+Older triage PDF queue:
 `python pipeline/ingest/sync_paper_library.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt`
 
-## Abstract-first autofill (claim fields)
+## Older abstract-first autofill (claim fields)
 Use paper title/abstract metadata to populate missing stub fields for all
 screened stubs before PDF extraction.
 
@@ -167,7 +168,7 @@ What it fills (when possible):
 - mechanistic rows usually remain blocked until quantitative affinity fields
   are extracted from full text
 
-## Mechanistic full-PDF autofill (affinity fields)
+## Older mechanistic full-PDF autofill (affinity fields)
 Use local mechanistic PDFs to extract affinity evidence and fill schema-critical
 fields (`affinity_value`, `affinity_unit`, and often `affinity_type`).
 
@@ -234,7 +235,7 @@ Notes:
   mechanistic extractor focuses on local text/table readers.
 - Tighten/loosen extraction confidence with `--min-score` (default `6`).
 
-## Disorder full-PDF autofill (outcome + provenance fields)
+## Older disorder full-PDF autofill (outcome + provenance fields)
 Use local disorder PDFs to upgrade abstract-only rows to full-text evidence and
 populate missing outcome/provenance fields. This is an upgrade/rescue pass after
 abstract extraction, not the only source of disorder claims.
@@ -269,7 +270,7 @@ Optional cleanup for already-downloaded irrelevant PDFs:
 - Apply (moves files to archive by default):
   `python pipeline/review/cleanup_irrelevant_pdfs.py --dataset mechanistic --apply`
 
-## Dry run queue report
+## Older stub queue report
 Mechanistic:
 `python pipeline/review/curation_queue.py --dataset mechanistic`
 

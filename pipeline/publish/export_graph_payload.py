@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export curated claim datasets into deterministic graph payloads."""
+"""Export graph-claim datasets into deterministic main-page graph payloads."""
 
 from __future__ import annotations
 
@@ -12,11 +12,48 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_CLAIM_SOURCE = "gemini_extraction"
+LEGACY_MECHANISTIC_SCHEMA = ROOT / "schema" / "legacy_mechanistic_affinity_claims.schema.json"
+LEGACY_DISORDER_SCHEMA = ROOT / "schema" / "legacy_disorder_claims.schema.json"
+
+CLAIM_SOURCES = {
+    "gemini_extraction": {
+        "label": "Gemini extraction-v1 projected claims",
+        "mechanistic": {
+            "claims_json": ROOT / "data" / "processed" / "extraction" / "mechanistic_claims.json",
+            "secondary_json": ROOT / "data" / "processed" / "extraction" / "mechanistic_secondary_claims.json",
+        },
+        "disorder": {
+            "claims_json": ROOT / "data" / "processed" / "extraction" / "disorder_claims.json",
+            "secondary_json": ROOT / "data" / "processed" / "extraction" / "disorder_secondary_claims.json",
+        },
+    },
+    "gemini_normalized": {
+        "label": "Gemini extraction-v1 normalized graph claims",
+        "mechanistic": {
+            "claims_json": ROOT / "data" / "processed" / "extraction" / "mechanistic_graph_claims.json",
+            "secondary_json": ROOT / "data" / "processed" / "extraction" / "mechanistic_secondary_graph_claims.json",
+        },
+        "disorder": {
+            "claims_json": ROOT / "data" / "processed" / "extraction" / "disorder_graph_claims.json",
+            "secondary_json": ROOT / "data" / "processed" / "extraction" / "disorder_secondary_graph_claims.json",
+        },
+    },
+    "legacy_curated": {
+        "label": "Legacy heuristic curated claims",
+        "mechanistic": {
+            "claims_json": ROOT / "data" / "curated" / "claims.json",
+            "secondary_json": ROOT / "data" / "curated" / "exploratory_claims.json",
+        },
+        "disorder": {
+            "claims_json": ROOT / "data" / "curated" / "disorder_claims.json",
+            "secondary_json": ROOT / "data" / "curated" / "exploratory_disorder_claims.json",
+        },
+    },
+}
 
 DATASET_CONFIG = {
     "mechanistic": {
-        "curated_json": ROOT / "data" / "curated" / "claims.json",
-        "exploratory_json": ROOT / "data" / "curated" / "exploratory_claims.json",
         "schema": ROOT / "schema" / "claims.schema.json",
         "template": "Psychedelics: Mechanistic Targets",
         "all_evidence_file": "graph_payload_mechanistic.json",
@@ -24,20 +61,24 @@ DATASET_CONFIG = {
         "secondary_sources_file": "graph_payload_mechanistic_secondary_sources.json",
         "primary_with_secondary_file": "graph_payload_mechanistic_primary_with_secondary.json",
         "id_fields": [
+            "claim_type",
             "compound",
             "target",
             "study_doi",
             "openalex_id",
+            "mechanism_type",
             "assay_type",
+            "assay_family",
+            "action_type",
             "affinity_type",
             "affinity_value",
             "affinity_unit",
+            "model_or_system",
             "evidence_locator",
+            "supporting_quote",
         ],
     },
     "disorder": {
-        "curated_json": ROOT / "data" / "curated" / "disorder_claims.json",
-        "exploratory_json": ROOT / "data" / "curated" / "exploratory_disorder_claims.json",
         "schema": ROOT / "schema" / "disorder_claims.schema.json",
         "template": "Psychedelics: Disorder Outcomes",
         "all_evidence_file": "graph_payload_disorder.json",
@@ -45,13 +86,17 @@ DATASET_CONFIG = {
         "secondary_sources_file": "graph_payload_disorder_secondary_sources.json",
         "primary_with_secondary_file": "graph_payload_disorder_primary_with_secondary.json",
         "id_fields": [
+            "claim_type",
             "compound",
             "disorder",
             "study_doi",
             "openalex_id",
             "outcome_type",
             "outcome_measure",
+            "result_direction",
+            "timepoint",
             "evidence_locator",
+            "supporting_quote",
         ],
     },
 }
@@ -79,6 +124,37 @@ PAPER_METADATA_FIELDS = (
     "semantic_scholar_id",
 )
 EXTRACTED_VARIABLE_FIELDS = (
+    "claim_type",
+    "raw_entity_label",
+    "entity_role",
+    "clinical_context_condition",
+    "graph_entity_label",
+    "graph_entity_type",
+    "graph_include_candidate",
+    "graph_exclusion_reason",
+    "mechanism_type",
+    "assay_family",
+    "action_type",
+    "model_or_system",
+    "support",
+    "confidence",
+    "needs_human_review",
+    "supporting_quote",
+    "paper_assessment_route",
+    "normalization_status",
+    "normalization_notes",
+    "canonical_compound",
+    "canonical_entity",
+    "compound_original",
+    "target_original",
+    "disorder_original",
+    "graph_entity_original",
+    "compound_match_type",
+    "entity_match_type",
+    "compound_registry_status",
+    "entity_registry_status",
+    "compound_ids",
+    "entity_ids",
     "sample_size_total",
     "sample_size_by_arm",
     "included_study_count",
@@ -103,6 +179,7 @@ EXTRACTED_VARIABLE_FIELDS = (
     "follow_up_duration",
     "primary_outcome",
     "outcome_measure",
+    "outcome_measure_normalized",
     "timepoint",
     "effect_size",
     "effect_direction",
@@ -136,6 +213,25 @@ def load_json_array(path: Path) -> List[dict]:
     if not isinstance(data, list):
         raise ValueError(f"Expected JSON array at {path}")
     return data
+
+
+def claim_source_paths(dataset: str, claim_source: str) -> dict:
+    source = CLAIM_SOURCES[claim_source]
+    paths = source[dataset]
+    return {
+        "claim_source": claim_source,
+        "claim_source_label": source["label"],
+        "claims_json": paths["claims_json"],
+        "secondary_json": paths["secondary_json"],
+    }
+
+
+def schema_path_for_claim_source(dataset: str, claim_source: str, cfg: dict) -> Path:
+    if dataset == "mechanistic" and claim_source == "legacy_curated":
+        return LEGACY_MECHANISTIC_SCHEMA
+    if dataset == "disorder" and claim_source == "legacy_curated":
+        return LEGACY_DISORDER_SCHEMA
+    return cfg["schema"]
 
 
 def load_schema(path: Path) -> dict:
@@ -251,6 +347,11 @@ def extracted_variables(row: dict) -> dict:
 
 
 def is_primary_graph_row(row: dict) -> bool:
+    if (
+        normalize(row.get("paper_assessment_route", "")) == "primary_evidence"
+        and normalize(row.get("access_level", "")) != "secondary_summary"
+    ):
+        return True
     return (
         normalize(row.get("source_type", "")) in PRIMARY_SOURCE_TYPES
         and normalize(row.get("paper_type", "")) in PRIMARY_PAPER_TYPES
@@ -314,13 +415,29 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "target": normalize(row.get("target", "")),
         },
         "properties": {
+            "claim_type": normalize(row.get("claim_type", "")),
+            "raw_entity_label": normalize(row.get("raw_entity_label", "")),
+            "entity_role": normalize(row.get("entity_role", "")),
+            "clinical_context_condition": normalize(row.get("clinical_context_condition", "")),
+            "graph_entity_label": normalize(row.get("graph_entity_label", "")),
+            "graph_entity_type": normalize(row.get("graph_entity_type", "")),
+            "graph_include_candidate": row.get("graph_include_candidate") is True,
+            "graph_exclusion_reason": normalize(row.get("graph_exclusion_reason", "")),
+            "mechanism_type": normalize(row.get("mechanism_type", "")),
             "assay_type": normalize(row.get("assay_type", "")),
+            "assay_family": normalize(row.get("assay_family", "")),
+            "action_type": normalize(row.get("action_type", "")),
             "affinity_type": normalize(row.get("affinity_type", "")),
             "affinity_value": as_float(row.get("affinity_value", "")),
             "affinity_unit": normalize(row.get("affinity_unit", "")),
+            "result_direction": normalize(row.get("result_direction", "")),
             "species": normalize(row.get("species", "")),
+            "model_or_system": normalize(row.get("model_or_system", "")),
             "system": normalize(row.get("system", "")),
             "evidence_level": normalize(row.get("evidence_level", "")),
+            "support": normalize(row.get("support", "")),
+            "confidence": as_float(row.get("confidence", "")),
+            "needs_human_review": row.get("needs_human_review") is True,
             "source": normalize(row.get("source", "")),
         },
         "extracted_variables": extracted_variables(row),
@@ -328,8 +445,10 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
             "source_family": normalize(row.get("source_family", "")),
+            "paper_assessment_route": normalize(row.get("paper_assessment_route", "")),
             "evidence_role": evidence_role_for_row(row),
             "access_level": normalize(row.get("access_level", "")),
+            "source_access_level": normalize(row.get("source_access_level", "")) or normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
             "evidence_locator": normalize(row.get("evidence_locator", "")),
             "study_design": normalize(row.get("study_design", "")),
@@ -349,12 +468,25 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "disorder": normalize(row.get("disorder", "")),
         },
         "properties": {
+            "claim_type": normalize(row.get("claim_type", "")),
+            "raw_entity_label": normalize(row.get("raw_entity_label", "")),
+            "entity_role": normalize(row.get("entity_role", "")),
+            "clinical_context_condition": normalize(row.get("clinical_context_condition", "")),
+            "graph_entity_label": normalize(row.get("graph_entity_label", "")),
+            "graph_entity_type": normalize(row.get("graph_entity_type", "")),
+            "graph_include_candidate": row.get("graph_include_candidate") is True,
+            "graph_exclusion_reason": normalize(row.get("graph_exclusion_reason", "")),
             "outcome_type": normalize(row.get("outcome_type", "")),
+            "outcome_domain": normalize(row.get("outcome_domain", "")),
             "result_direction": normalize(row.get("result_direction", "")),
             "outcome_measure": normalize(row.get("outcome_measure", "")),
+            "outcome_measure_normalized": normalize(row.get("outcome_measure_normalized", "")),
             "population": normalize(row.get("population", "")),
             "system": normalize(row.get("system", "")),
             "evidence_level": normalize(row.get("evidence_level", "")),
+            "support": normalize(row.get("support", "")),
+            "confidence": as_float(row.get("confidence", "")),
+            "needs_human_review": row.get("needs_human_review") is True,
             "source": normalize(row.get("source", "")),
         },
         "extracted_variables": extracted_variables(row),
@@ -362,8 +494,10 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "paper_type": normalize(row.get("paper_type", "")),
             "source_type": normalize(row.get("source_type", "")),
             "source_family": normalize(row.get("source_family", "")),
+            "paper_assessment_route": normalize(row.get("paper_assessment_route", "")),
             "evidence_role": evidence_role_for_row(row),
             "access_level": normalize(row.get("access_level", "")),
+            "source_access_level": normalize(row.get("source_access_level", "")) or normalize(row.get("access_level", "")),
             "evidence_location": normalize(row.get("evidence_location", "")),
             "evidence_locator": normalize(row.get("evidence_locator", "")),
             "study_design": normalize(row.get("study_design", "")),
@@ -408,8 +542,12 @@ def rows_for_view(rows: List[dict], view: str, secondary_rows: List[dict] | None
     if view == "secondary_sources":
         return secondary
     if view == "primary_with_secondary":
-        combined = [row for row in rows if is_primary_graph_row(row)] + secondary
-        return dedupe_rows(combined, id_fields or []) if id_fields else combined
+        primary_rows = [row for row in rows if is_primary_graph_row(row)]
+        if not id_fields:
+            return primary_rows + secondary
+        primary_keys = {canonical_string(row, id_fields) for row in primary_rows}
+        secondary_unique = [row for row in secondary if canonical_string(row, id_fields) not in primary_keys]
+        return primary_rows + secondary_unique
     raise ValueError(f"Unsupported view: {view}")
 
 
@@ -441,11 +579,12 @@ def payload_sha256(payload: dict) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def export_dataset(dataset: str, out_dir: Path) -> Tuple[dict, Dict[str, List[str]]]:
+def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAIM_SOURCE) -> Tuple[dict, Dict[str, List[str]]]:
     cfg = DATASET_CONFIG[dataset]
-    rows = load_json_array(cfg["curated_json"])
-    exploratory_rows = load_json_array(cfg["exploratory_json"])
-    schema = load_schema(cfg["schema"])
+    source_paths = claim_source_paths(dataset, claim_source)
+    rows = load_json_array(source_paths["claims_json"])
+    exploratory_rows = load_json_array(source_paths["secondary_json"])
+    schema = load_schema(schema_path_for_claim_source(dataset, claim_source, cfg))
     required, enums, types, one_of_groups, allowed_keys = parse_schema(schema)
 
     sorted_rows = sort_rows(dataset, rows)
@@ -486,8 +625,10 @@ def export_dataset(dataset: str, out_dir: Path) -> Tuple[dict, Dict[str, List[st
             "dataset": dataset,
             "evidence_view": view,
             "template": cfg["template"],
-            "input_file": str(cfg["curated_json"]),
-            "secondary_source_file": str(cfg["exploratory_json"]),
+            "claim_source": source_paths["claim_source"],
+            "claim_source_label": source_paths["claim_source_label"],
+            "input_file": str(source_paths["claims_json"]),
+            "secondary_source_file": str(source_paths["secondary_json"]),
             "view_policy": {
                 "primary_evidence": view in {"all_evidence", "primary_only", "primary_with_secondary"},
                 "secondary_literature": view in {"all_evidence", "secondary_sources", "primary_with_secondary"},
@@ -525,6 +666,12 @@ def main() -> int:
         default="graph_payload_manifest.json",
         help="Manifest filename written to --out-dir",
     )
+    parser.add_argument(
+        "--claim-source",
+        choices=sorted(CLAIM_SOURCES),
+        default=DEFAULT_CLAIM_SOURCE,
+        help="Claim source for main graph payloads. Default uses projected Gemini extraction claims.",
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir).resolve()
@@ -533,13 +680,15 @@ def main() -> int:
     manifest = {
         "generated_at": now_utc(),
         "contract_version": "1.0",
+        "claim_source": args.claim_source,
+        "claim_source_label": CLAIM_SOURCES[args.claim_source]["label"],
         "datasets": {},
         "status": "ok",
         "errors": [],
     }
 
     for dataset in datasets:
-        views, errors_by_view = export_dataset(dataset, out_dir)
+        views, errors_by_view = export_dataset(dataset, out_dir, claim_source=args.claim_source)
         manifest["datasets"][dataset] = {
             "output_file": views["all_evidence"]["output_file"],
             "row_count": views["all_evidence"]["row_count"],

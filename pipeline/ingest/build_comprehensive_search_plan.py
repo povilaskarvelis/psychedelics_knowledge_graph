@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile reproducible baseline search seeds from project registries."""
+"""Compile reproducible direct-search seed files from project registries."""
 
 from __future__ import annotations
 
@@ -28,7 +28,8 @@ from pipeline.ingest.discover_literature import (  # noqa: E402
 )
 
 VERSION = "0.1"
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 
 COMPOUND_BROAD_TEMPLATES = {
     "mechanistic": [
@@ -165,6 +166,7 @@ def build_search_plan(
     max_compounds: int,
     max_entities: int,
     max_pairs: int,
+    run_id: str = DEFAULT_RUN_ID,
 ) -> dict:
     compounds = limited(dedupe_values(allowlists.get("allowed_compounds", [])), max_compounds)
     entities = limited(allowed_entities_for_dataset(dataset, allowlists), max_entities)
@@ -242,7 +244,8 @@ def build_search_plan(
     family_counts = Counter(row["family"] for row in rows)
     return {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": run_id,
+        "protocol_id": run_id,
         "generated_at_utc": now_utc(),
         "dataset": dataset,
         "profile": profile,
@@ -268,8 +271,7 @@ def build_search_plan(
             "run_new_doi_gate": True,
         },
         "notes": [
-            "This is the baseline search instrument, not a claim that every retrieved paper is relevant.",
-            "Previous searches should be used as QA/scoping material; the baseline search should be the reportable method once finalized.",
+            "This is a search instrument, not a claim that every retrieved paper is relevant.",
             "Update the compound, target, or indication registries first, then regenerate this plan instead of hand-editing seed outputs.",
         ],
         "seeds": rows,
@@ -299,22 +301,27 @@ def write_json(path: Path, payload: object) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build comprehensive baseline search seed files")
+    parser = argparse.ArgumentParser(description="Build direct pair-search seed files")
     parser.add_argument("--dataset", choices=["mechanistic", "disorder", "all"], default="all")
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
-    parser.add_argument("--profile", choices=["baseline", "expanded"], default="baseline")
+    parser.add_argument("--profile", choices=["standard", "expanded", "baseline"], default="standard")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when --out-dir is not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for generated search files")
     parser.add_argument("--max-compounds", type=int, default=0, help="Compound cap for dry runs (0 = all)")
     parser.add_argument("--max-entities", type=int, default=0, help="Target/indication cap for dry runs (0 = all)")
     parser.add_argument("--max-pairs", type=int, default=0, help="Pair cap for dry runs (0 = all)")
     parser.add_argument("--exclude-default-seeds", action="store_true")
     parser.add_argument(
         "--out-dir",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID),
+        default="",
+        help="Output directory for direct pair-search seed files. Defaults to <search-root>/<run-id>/direct_pairs.",
     )
     args = parser.parse_args()
 
     config_path = Path(args.config).resolve()
-    out_dir = Path(args.out_dir).resolve()
+    search_root = Path(args.search_root).resolve()
+    out_dir = Path(args.out_dir).resolve() if args.out_dir else search_root / args.run_id / "direct_pairs"
+    profile = "standard" if args.profile == "baseline" else args.profile
     allowlists = parse_allowlists(config_path)
     datasets = ["mechanistic", "disorder"] if args.dataset == "all" else [args.dataset]
     generated = []
@@ -323,11 +330,12 @@ def main() -> int:
         plan = build_search_plan(
             dataset=dataset,
             allowlists=allowlists,
-            profile=args.profile,
+            profile=profile,
             include_default_seeds=not args.exclude_default_seeds,
             max_compounds=max(0, args.max_compounds),
             max_entities=max(0, args.max_entities),
             max_pairs=max(0, args.max_pairs),
+            run_id=args.run_id,
         )
         seed_csv = out_dir / f"{dataset}_seeds.csv"
         seed_txt = out_dir / f"{dataset}_seeds.txt"
@@ -342,11 +350,8 @@ def main() -> int:
             "manifest_json": str(manifest),
         }
         manifest_payload["run_command"] = (
-            "python pipeline/ingest/run_extensive_search.py "
-            f"--dataset {dataset} --provider comprehensive "
-            f"--seed-file {seed_csv} --query-variant-mode expanded "
-            "--max-results-per-seed 100 --max-results 0 "
-            "--citation-chase known-study-set --citation-chase-directions both"
+            "python pipeline/ingest/run_pair_grid_audit.py "
+            f"--dataset {dataset} --seed-root {out_dir} --provider both"
         )
         write_json(manifest, manifest_payload)
         generated.append(manifest_payload)
@@ -359,7 +364,8 @@ def main() -> int:
 
     summary = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": args.run_id,
+        "protocol_id": args.run_id,
         "generated_at_utc": now_utc(),
         "profile": args.profile,
         "config": str(config_path),

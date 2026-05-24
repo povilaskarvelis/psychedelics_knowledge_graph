@@ -1,0 +1,49 @@
+{
+  "generated_at_utc": "2026-05-23T00:35:26.919000+00:00",
+  "schema_version": "extraction_v1_gemini_report",
+  "status": "issues_found",
+  "inputs": {
+    "input_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.200.jsonl",
+    "prompt": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_prompt.md",
+    "schema": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/schema/extraction_v1.schema.json",
+    "model": "gemini-2.5-flash",
+    "start_index": 1,
+    "limit": 50,
+    "resume": false,
+    "skipped_completed_records": 0,
+    "processed_records": 50
+  },
+  "outputs": {
+    "out_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_outputs.strict50_from_200.jsonl",
+    "raw_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_gemini_raw.strict50_from_200.jsonl",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_gemini_report.strict50_from_200.json"
+  },
+  "summary": {
+    "status_counts": {
+      "ok": 48,
+      "schema_error": 2
+    },
+    "route_counts": {
+      "primary_evidence": 24,
+      "human_review": 4,
+      "secondary_literature": 20,
+      "context_only": 2
+    },
+    "json_repair_counts": {
+      "model_repair": 16,
+      "not_needed": 34
+    },
+    "usage": {
+      "candidates_token_count": 84158,
+      "prompt_token_count": 1017721,
+      "thoughts_token_count": 203600,
+      "total_token_count": 1305479,
+      "repair_candidates_token_count": 27884,
+      "repair_prompt_token_count": 67112,
+      "repair_thoughts_token_count": 43546,
+      "repair_total_token_count": 138542,
+      "repair_cached_content_token_count": 22018,
+      "cached_content_token_count": 5097
+    }
+  }
+}

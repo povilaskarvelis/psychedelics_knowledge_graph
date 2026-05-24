@@ -1,0 +1,440 @@
+{
+  "generated_at_utc": "2026-05-23T14:22:21.914891+00:00",
+  "schema_version": "extraction_v1_projection_report",
+  "status": "ok",
+  "inputs": {
+    "input_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_outputs.lean_e2e.200bcd.reviewed.jsonl",
+    "pilot_input_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.lean_e2e.200bcd.jsonl",
+    "include_irrelevant_controls": false
+  },
+  "outputs": {
+    "mechanistic": {
+      "json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_200bcd_reviewed_mechanistic_claims.json",
+      "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_200bcd_reviewed_mechanistic_claims.csv",
+      "rows": 248
+    },
+    "disorder": {
+      "json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_200bcd_reviewed_disorder_claims.json",
+      "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_200bcd_reviewed_disorder_claims.csv",
+      "rows": 163
+    }
+  },
+  "summary": {
+    "input_results": 200,
+    "valid_input_results": 200,
+    "input_schema_errors": 0,
+    "projected_rows": 411,
+    "projected_by_dataset": {
+      "mechanistic": 248,
+      "disorder": 163
+    },
+    "skipped": 99,
+    "skipped_reasons": {
+      "route secondary_literature is not projected": 59,
+      "route context_only is not projected": 30,
+      "route human_review is not projected": 4,
+      "route exclude is not projected": 6
+    },
+    "schema_errors": 0
+  },
+  "skipped": [
+    {
+      "row_index": 3,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 4,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 6,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 7,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 12,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 15,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 18,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 19,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 20,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 21,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 23,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 24,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 25,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 26,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 27,
+      "reason": "route human_review is not projected"
+    },
+    {
+      "row_index": 28,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 29,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 30,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 35,
+      "reason": "route human_review is not projected"
+    },
+    {
+      "row_index": 43,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 44,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 45,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 46,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 47,
+      "reason": "route human_review is not projected"
+    },
+    {
+      "row_index": 48,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 49,
+      "reason": "route exclude is not projected"
+    },
+    {
+      "row_index": 50,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 52,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 53,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 54,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 55,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 57,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 58,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 62,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 64,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 65,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 67,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 68,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 70,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 71,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 72,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 73,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 74,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 75,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 76,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 77,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 78,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 79,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 82,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 84,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 93,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 94,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 96,
+      "reason": "route exclude is not projected"
+    },
+    {
+      "row_index": 97,
+      "reason": "route exclude is not projected"
+    },
+    {
+      "row_index": 98,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 99,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 100,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 108,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 111,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 113,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 114,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 116,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 117,
+      "reason": "route human_review is not projected"
+    },
+    {
+      "row_index": 123,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 125,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 126,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 127,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 128,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 132,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 135,
+      "reason": "route exclude is not projected"
+    },
+    {
+      "row_index": 137,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 138,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 139,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 140,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 142,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 143,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 144,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 145,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 146,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 147,
+      "reason": "route exclude is not projected"
+    },
+    {
+      "row_index": 148,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 149,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 150,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 155,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 156,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 157,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 166,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 170,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 171,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 177,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 179,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 180,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 182,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 183,
+      "reason": "route exclude is not projected"
+    },
+    {
+      "row_index": 184,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 189,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 190,
+      "reason": "route secondary_literature is not projected"
+    },
+    {
+      "row_index": 192,
+      "reason": "route context_only is not projected"
+    },
+    {
+      "row_index": 197,
+      "reason": "route secondary_literature is not projected"
+    }
+  ],
+  "input_schema_errors": [],
+  "schema_errors": []
+}

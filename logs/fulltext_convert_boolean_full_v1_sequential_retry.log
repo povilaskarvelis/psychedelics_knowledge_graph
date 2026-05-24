@@ -1,0 +1,22 @@
+[Mon May 18 20:23:03 -03 2026] sequential GROBID retry start
+[Mon May 18 20:23:03 -03 2026] mechanistic retry start
+Re-running PDF extraction inside conda env `psychkg-pdf`...
+Dataset: mechanistic
+Processed PDFs: 205
+Successful artifacts: 205
+Report: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/fulltext_report_mechanistic.boolean_full_v1.json
+[Mon May 18 20:30:15 -03 2026] mechanistic retry done
+[Mon May 18 20:30:15 -03 2026] restarting GROBID before disorder
+psychkg-grobid
+716b15eaadd6145533e4ab99fe6f32ee94d1296ff80b18548f5be258b1cd8498
+GROBID is alive at http://localhost:8070/api/isalive
+Config: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/grobid.safe.yaml
+Container: psychkg-grobid
+[Mon May 18 20:30:28 -03 2026] disorder retry start
+Re-running PDF extraction inside conda env `psychkg-pdf`...
+Dataset: disorder
+Processed PDFs: 191
+Successful artifacts: 191
+Report: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/fulltext_report_disorder.boolean_full_v1.json
+[Mon May 18 20:36:25 -03 2026] disorder retry done
+[Mon May 18 20:36:25 -03 2026] sequential GROBID retry done

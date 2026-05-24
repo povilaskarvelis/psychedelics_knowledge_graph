@@ -9,6 +9,8 @@ Run
   `http://localhost:8000/ui/`
 - Methods page:
   `http://localhost:8000/ui/methods.html`
+- Developer pipeline workbench:
+  `http://localhost:8000/ui/developer.html`
 
 Ideas
 - Graph view: compounds and targets/indications with edges for claims

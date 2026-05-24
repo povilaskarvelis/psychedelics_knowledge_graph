@@ -1,10 +1,23 @@
 # Publish Prep: Graph Payload Export
 
-This step exports curated claims into deterministic graph payload JSON.
+This step exports graph claims into deterministic main-page graph payload JSON.
+By default it uses projected Gemini extraction claims under
+`data/processed/extraction/`. Legacy heuristic curated claims remain available
+as an explicit comparison source.
+
+The default Gemini mechanistic payload uses the broad inspection schema at
+`schema/claims.schema.json`, so target claims can appear without numeric
+affinity values. The old curated schemas are preserved as
+`schema/legacy_mechanistic_affinity_claims.schema.json` and
+`schema/legacy_disorder_claims.schema.json`; those legacy schemas are used when
+exporting `--claim-source legacy_curated`.
 
 ## Run
 Export both datasets:
 `python pipeline/publish/export_graph_payload.py`
+
+Export from the legacy heuristic curated files for comparison:
+`python pipeline/publish/export_graph_payload.py --claim-source legacy_curated`
 
 Export the interim bibliography payloads from abstract-screened relevant papers:
 `python pipeline/publish/export_bibliography_payload.py`

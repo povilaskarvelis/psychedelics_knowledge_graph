@@ -97,6 +97,33 @@ class KgBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(props["relevance_suggested"], "likely_relevant")
         self.assertEqual(props["screening_status"], "included_context_match")
 
+    def test_pipeline_status_uses_dataset_row_abstract_for_unscreened_records(self) -> None:
+        builder = KgBuilder()
+        paper_id = "paper:10.123/example"
+        builder.nodes[paper_id] = {
+            "id": paper_id,
+            "type": "Paper",
+            "label": "Cross-dataset paper",
+            "properties": {
+                "study_doi": "10.123/example",
+                "abstract_present": True,
+                "pdf_status": "skipped",
+                "fulltext_status": "not_converted",
+            },
+        }
+        builder.pipeline_rows["disorder"][paper_id] = {
+            "paper_id": paper_id,
+            "dataset": "disorder",
+            "abstract_present": False,
+            "pdf_status": "skipped",
+            "fulltext_status": "not_converted",
+            "llm_extraction_status": "not_started",
+        }
+
+        flow = builder.pipeline_status_view()["prisma_flow"]["disorder"]
+
+        self.assertEqual(flow["side_boxes"]["removed_before_screening"]["reasons"][0]["key"], "not_screened_no_abstract")
+
     def test_labeled_reason_counts_keeps_all_nonzero_reasons(self) -> None:
         reasons = labeled_reason_counts(
             Counter({"known": 2, "new_reason": 3, "zero_reason": 0}),
@@ -175,10 +202,10 @@ class KgBuilderHelpersTest(unittest.TestCase):
         )
 
         self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
-        self.assertEqual(flow["steps"]["reports_sought"]["count"], 2)
+        self.assertEqual(flow["steps"]["reports_sought"]["count"], 3)
         self.assertEqual(flow["steps"]["reports_retrieved"]["count"], 1)
         self.assertEqual(flow["steps"]["included"]["count"], 1)
-        self.assertEqual(flow["side_boxes"]["records_excluded"]["count"], 2)
+        self.assertEqual(flow["side_boxes"]["records_excluded"]["count"], 1)
         self.assertEqual(flow["side_boxes"]["reports_not_retrieved"]["reasons"][0]["key"], "not_open_access")
 
 

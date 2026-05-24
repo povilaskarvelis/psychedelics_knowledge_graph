@@ -1,0 +1,60 @@
+{
+  "generated_at_utc": "2026-05-22T23:58:24.518178+00:00",
+  "schema_version": "extraction_claim_normalization_report",
+  "status": "ok",
+  "registry": {
+    "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/entity_registry.json",
+    "disorder_aliases_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/schema/disorder_canonicalization.json",
+    "entry_counts": {
+      "compounds": 23,
+      "targets": 19,
+      "disorders": 26
+    }
+  },
+  "summary": {
+    "mechanistic": {
+      "input_rows": 8,
+      "graph_rows": 0,
+      "status_counts": {
+        "not_graph_candidate": 8
+      },
+      "top_normalized_entities": [
+        [
+          "NET (SLC6A2)",
+          3
+        ]
+      ]
+    },
+    "disorder": {
+      "input_rows": 9,
+      "graph_rows": 0,
+      "status_counts": {
+        "not_graph_candidate": 7,
+        "entity_unmapped": 2
+      },
+      "top_normalized_entities": []
+    }
+  },
+  "inputs": {
+    "mechanistic_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_mechanistic_claims.json",
+    "disorder_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_disorder_claims.json"
+  },
+  "outputs": {
+    "mechanistic": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_mechanistic_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_mechanistic_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_mechanistic_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_mechanistic_normalization_audit.csv",
+      "graph_rows": 0,
+      "audit_rows": 8
+    },
+    "disorder": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_disorder_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_disorder_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_disorder_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/targeted_endpoint_schema_strict_disorder_normalization_audit.csv",
+      "graph_rows": 0,
+      "audit_rows": 9
+    }
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build small, reproducible calibration seed batches from a baseline plan."""
+"""Build small, reproducible calibration seed batches from a search plan."""
 
 from __future__ import annotations
 
@@ -14,7 +14,8 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
 
 
@@ -198,11 +199,14 @@ def build_batches(
     entity_units: int,
     pair_units: int,
     pair_expanded_units: int,
+    run_id: str = DEFAULT_RUN_ID,
 ) -> dict:
     manifest = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": run_id,
+        "protocol_id": run_id,
         "generated_at_utc": now_utc(),
+        "seed_dir": str(protocol_dir),
         "protocol_dir": str(protocol_dir),
         "random_seed": random_seed,
         "selection_settings": {
@@ -267,13 +271,18 @@ def parse_datasets(raw: str) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build calibration seed batches from a comprehensive search plan")
     parser.add_argument("--dataset", default="all", help="mechanistic, disorder, comma-separated list, or all")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when --seed-dir/--out-dir are not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for search artifacts")
     parser.add_argument(
-        "--protocol-dir",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID),
+        "--seed-dir",
+        default="",
+        help="Directory containing direct pair-search seed files. Defaults to <search-root>/<run-id>/direct_pairs.",
     )
+    parser.add_argument("--protocol-dir", dest="seed_dir", default="", help=argparse.SUPPRESS)
     parser.add_argument(
         "--out-dir",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "calibration"),
+        default="",
+        help="Output directory for calibration seed batches. Defaults to <search-root>/<run-id>/calibration.",
     )
     parser.add_argument("--random-seed", type=int, default=20260515)
     parser.add_argument("--sentinel-count", type=int, default=6)
@@ -288,9 +297,12 @@ def main() -> int:
     except ValueError as err:
         raise SystemExit(str(err))
 
+    search_root = Path(args.search_root).resolve()
+    protocol_dir = Path(args.seed_dir).resolve() if args.seed_dir else search_root / args.run_id / "direct_pairs"
+    out_dir = Path(args.out_dir).resolve() if args.out_dir else search_root / args.run_id / "calibration"
     manifest = build_batches(
-        protocol_dir=Path(args.protocol_dir).resolve(),
-        out_dir=Path(args.out_dir).resolve(),
+        protocol_dir=protocol_dir,
+        out_dir=out_dir,
         datasets=datasets,
         random_seed=args.random_seed,
         sentinel_count=max(0, args.sentinel_count),
@@ -298,6 +310,7 @@ def main() -> int:
         entity_units=max(0, args.entity_units),
         pair_units=max(0, args.pair_units),
         pair_expanded_units=max(0, args.pair_expanded_units),
+        run_id=args.run_id,
     )
 
     print(f"Manifest: {manifest['manifest_json']}")

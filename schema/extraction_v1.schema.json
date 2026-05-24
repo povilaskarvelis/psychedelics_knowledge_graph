@@ -1,0 +1,810 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Extraction V1 Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dataset",
+    "study_doi",
+    "access_level",
+    "paper_assessment",
+    "claims",
+    "coverage_mentions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["extraction_v1"]
+    },
+    "dataset": {
+      "type": "string",
+      "enum": ["mechanistic", "disorder"]
+    },
+    "study_doi": {
+      "type": "string"
+    },
+    "openalex_id": {
+      "type": "string"
+    },
+    "input_record_id": {
+      "type": "string"
+    },
+    "input_packet_id": {
+      "type": "string"
+    },
+    "access_level": {
+      "type": "string",
+      "enum": ["full_text_seen", "abstract_only"]
+    },
+    "paper_assessment": {
+      "$ref": "#/definitions/paper_assessment"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/claim"
+      }
+    },
+    "coverage_mentions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_mention"
+      }
+    }
+  },
+  "definitions": {
+    "paper_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relevance",
+        "route",
+        "source_family",
+        "source_type",
+        "paper_type",
+        "study_design",
+        "system",
+        "has_original_results",
+        "has_extractable_claims",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_review",
+        "reasoning_summary"
+      ],
+      "properties": {
+        "relevance": {
+          "type": "string",
+          "enum": ["relevant", "not_relevant", "uncertain"]
+        },
+        "route": {
+          "type": "string",
+          "enum": [
+            "primary_evidence",
+            "secondary_literature",
+            "context_only",
+            "exclude",
+            "human_review"
+          ]
+        },
+        "source_family": {
+          "type": "string",
+          "enum": [
+            "original_empirical",
+            "evidence_synthesis",
+            "opinion_or_commentary",
+            "protocol",
+            "correction",
+            "conference_abstract",
+            "uncertain"
+          ]
+        },
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "primary_study",
+            "secondary_evidence",
+            "systematic_review",
+            "review",
+            "meta_analysis",
+            "scoping_review",
+            "commentary",
+            "guideline",
+            "editorial",
+            "consensus",
+            "study_protocol",
+            "correction",
+            "conference_abstract",
+            "case_report",
+            "registry",
+            "other",
+            "uncertain"
+          ]
+        },
+        "paper_type": {
+          "type": "string",
+          "enum": [
+            "primary_results",
+            "systematic_review",
+            "meta_analysis",
+            "scoping_review",
+            "review",
+            "preprint",
+            "protocol",
+            "conference_abstract",
+            "conference_or_poster_abstract",
+            "case_report",
+            "commentary",
+            "guideline",
+            "editorial",
+            "consensus",
+            "correction",
+            "erratum",
+            "other",
+            "uncertain"
+          ]
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "system": {
+          "type": "string",
+          "enum": [
+            "clinical",
+            "preclinical",
+            "observational",
+            "in_vitro",
+            "in_vivo",
+            "ex_vivo",
+            "mixed",
+            "unknown",
+            "not_applicable"
+          ]
+        },
+        "has_original_results": {
+          "type": "boolean"
+        },
+        "has_extractable_claims": {
+          "type": "boolean"
+        },
+        "exclusion_reason": {
+          "type": "string"
+        },
+        "metadata_discrepancy_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "country_or_region": {
+          "type": "string"
+        },
+        "trial_registry_ids": {
+          "type": "string"
+        },
+        "funding": {
+          "type": "string"
+        },
+        "conflicts_of_interest": {
+          "type": "string"
+        },
+        "risk_of_bias_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_type",
+        "compound",
+        "target",
+        "disorder",
+        "raw_entity_label",
+        "entity_role",
+        "clinical_context_condition",
+        "graph_entity_label",
+        "graph_entity_type",
+        "graph_include_candidate",
+        "graph_exclusion_reason",
+        "support",
+        "study_design",
+        "system",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "claim_type": {
+          "type": "string",
+          "enum": [
+            "compound_target",
+            "compound_disorder"
+          ]
+        },
+        "compound": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "disorder": {
+          "type": "string"
+        },
+        "raw_entity_label": {
+          "type": "string"
+        },
+        "entity_role": {
+          "type": "string",
+          "enum": [
+            "therapeutic_indication",
+            "symptom_or_problem",
+            "outcome_measure",
+            "physiological_measure",
+            "safety_or_adverse_event",
+            "biomarker",
+            "functional_outcome",
+            "patient_reported_outcome",
+            "population_or_context",
+            "molecular_target",
+            "gene_or_variant",
+            "pathway_or_process",
+            "brain_region_or_circuit",
+            "assay_readout",
+            "compound_or_class",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "clinical_context_condition": {
+          "type": "string"
+        },
+        "graph_entity_label": {
+          "type": "string"
+        },
+        "graph_entity_type": {
+          "type": "string",
+          "enum": ["indication", "target", "none", "uncertain"]
+        },
+        "graph_include_candidate": {
+          "type": "boolean"
+        },
+        "graph_exclusion_reason": {
+          "type": "string"
+        },
+        "support": {
+          "type": "string",
+          "enum": ["supported", "uncertain", "not_supported"]
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "system": {
+          "type": "string",
+          "enum": [
+            "clinical",
+            "preclinical",
+            "observational",
+            "in_vitro",
+            "in_vivo",
+            "ex_vivo",
+            "mixed",
+            "unknown",
+            "not_applicable"
+          ]
+        },
+        "assay_type": {
+          "type": "string"
+        },
+        "assay_family": {
+          "type": "string"
+        },
+        "affinity_type": {
+          "type": "string",
+          "enum": ["Ki", "Kd", "IC50", "EC50", "EC90", "Other", "not_reported", "not_applicable"]
+        },
+        "affinity_value": {
+          "type": ["number", "string"]
+        },
+        "affinity_unit": {
+          "type": "string"
+        },
+        "action_type": {
+          "type": "string"
+        },
+        "species": {
+          "type": "string"
+        },
+        "model_or_system": {
+          "type": "string"
+        },
+        "outcome_type": {
+          "type": "string"
+        },
+        "outcome_domain": {
+          "type": "string"
+        },
+        "outcome_measure": {
+          "type": "string"
+        },
+        "result_direction": {
+          "type": "string",
+          "enum": ["positive", "null", "negative", "mixed", "unclear", "not_applicable"]
+        },
+        "sample_size_total": {
+          "type": "string"
+        },
+        "population": {
+          "type": "string"
+        },
+        "intervention_or_exposure": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "dose": {
+          "type": "string"
+        },
+        "route": {
+          "type": "string"
+        },
+        "session_count_or_duration": {
+          "type": "string"
+        },
+        "timepoint": {
+          "type": "string"
+        },
+        "adverse_events": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "entity_role": {
+                "enum": [
+                  "physiological_measure",
+                  "safety_or_adverse_event",
+                  "biomarker",
+                  "functional_outcome",
+                  "patient_reported_outcome",
+                  "population_or_context",
+                  "gene_or_variant",
+                  "pathway_or_process",
+                  "brain_region_or_circuit",
+                  "assay_readout",
+                  "compound_or_class"
+                ]
+              }
+            },
+            "required": ["entity_role"]
+          },
+          "then": {
+            "properties": {
+              "graph_include_candidate": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "claim_type": {
+                "const": "compound_target"
+              }
+            },
+            "required": ["claim_type"]
+          },
+          "then": {
+            "required": [
+              "assay_type",
+              "affinity_type",
+              "result_direction"
+            ],
+            "properties": {
+              "target": {
+                "type": "string",
+                "minLength": 1
+              },
+              "disorder": {
+                "const": "not_applicable"
+              },
+              "result_direction": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "claim_type": {
+                "const": "compound_disorder"
+              }
+            },
+            "required": ["claim_type"]
+          },
+          "then": {
+            "required": [
+              "outcome_domain",
+              "outcome_type",
+              "outcome_measure",
+              "result_direction"
+            ],
+            "properties": {
+              "target": {
+                "const": "not_applicable"
+              },
+              "disorder": {
+                "type": "string",
+                "minLength": 1
+              },
+              "result_direction": {
+                "enum": ["positive", "null", "negative", "mixed", "unclear"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "coverage_mention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage_type",
+        "relationship_domain",
+        "compound",
+        "entity_type",
+        "entity",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "coverage_type": {
+          "type": "string",
+          "enum": [
+            "reviews",
+            "summarizes",
+            "meta_analyzes",
+            "discusses",
+            "protocol_for",
+            "commentary_on",
+            "guideline_for",
+            "mentions"
+          ]
+        },
+        "relationship_domain": {
+          "type": "string",
+          "enum": [
+            "compound_target",
+            "compound_disorder",
+            "compound_only",
+            "target_only",
+            "disorder_only",
+            "general_topic",
+            "not_applicable"
+          ]
+        },
+        "compound": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": ["target", "disorder", "compound", "general_topic", "not_applicable"]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "relationship_domain": {
+                "const": "compound_target"
+              }
+            },
+            "required": ["relationship_domain"]
+          },
+          "then": {
+            "properties": {
+              "entity_type": {
+                "const": "target"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relationship_domain": {
+                "const": "compound_disorder"
+              }
+            },
+            "required": ["relationship_domain"]
+          },
+          "then": {
+            "properties": {
+              "entity_type": {
+                "const": "disorder"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "table",
+        "figure",
+        "text",
+        "abstract",
+        "supplement",
+        "mixed",
+        "unknown",
+        "none"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "relevance": {
+                "const": "not_relevant"
+              }
+            },
+            "required": ["relevance"]
+          }
+        },
+        "required": ["paper_assessment"]
+      },
+      "then": {
+        "properties": {
+          "paper_assessment": {
+            "required": ["exclusion_reason"],
+            "properties": {
+              "route": {
+                "const": "exclude"
+              },
+              "has_extractable_claims": {
+                "const": false
+              },
+              "exclusion_reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "claims": {
+            "maxItems": 0
+          },
+          "coverage_mentions": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "route": {
+                "const": "primary_evidence"
+              }
+            },
+            "required": ["route"]
+          }
+        },
+        "required": ["paper_assessment"]
+      },
+      "then": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "has_original_results": {
+                "const": true
+              },
+              "has_extractable_claims": {
+                "const": true
+              }
+            }
+          },
+          "claims": {
+            "minItems": 1
+          },
+          "coverage_mentions": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "route": {
+                "const": "secondary_literature"
+              }
+            },
+            "required": ["route"]
+          }
+        },
+        "required": ["paper_assessment"]
+      },
+      "then": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "source_family": {
+                "const": "evidence_synthesis"
+              },
+              "source_type": {
+                "enum": ["secondary_evidence", "systematic_review", "review", "meta_analysis", "scoping_review"]
+              },
+              "paper_type": {
+                "enum": ["systematic_review", "meta_analysis", "scoping_review", "review"]
+              },
+              "has_original_results": {
+                "const": false
+              },
+              "has_extractable_claims": {
+                "const": false
+              }
+            }
+          },
+          "claims": {
+            "maxItems": 0
+          },
+          "coverage_mentions": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "route": {
+                "const": "context_only"
+              }
+            },
+            "required": ["route"]
+          }
+        },
+        "required": ["paper_assessment"]
+      },
+      "then": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "has_extractable_claims": {
+                "const": false
+              }
+            }
+          },
+          "claims": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "access_level": {
+            "const": "abstract_only"
+          }
+        },
+        "required": ["access_level"]
+      },
+      "then": {
+        "properties": {
+          "paper_assessment": {
+            "properties": {
+              "evidence_location": {
+                "enum": ["abstract", "unknown", "none"]
+              }
+            }
+          },
+          "claims": {
+            "items": {
+              "properties": {
+                "evidence_location": {
+                  "enum": ["abstract", "unknown", "none"]
+                }
+              }
+            }
+          },
+          "coverage_mentions": {
+            "items": {
+              "properties": {
+                "evidence_location": {
+                  "enum": ["abstract", "unknown", "none"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

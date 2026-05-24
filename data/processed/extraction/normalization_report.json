@@ -1,0 +1,423 @@
+{
+  "generated_at_utc": "2026-05-24T13:46:17.864244+00:00",
+  "schema_version": "extraction_claim_normalization_report",
+  "status": "ok",
+  "registry": {
+    "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/entity_registry.json",
+    "disorder_aliases_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/schema/disorder_canonicalization.json",
+    "entry_counts": {
+      "compounds": 23,
+      "targets": 20,
+      "disorders": 29
+    }
+  },
+  "summary": {
+    "mechanistic": {
+      "input_rows": 983,
+      "graph_rows": 282,
+      "status_counts": {
+        "normalized": 282,
+        "entity_unmapped": 174,
+        "compound_unmapped": 381,
+        "compound_reference_not_graphable": 88,
+        "not_graph_candidate": 49,
+        "compound_combo_not_graphable": 2,
+        "compound_class_not_graphable": 7
+      },
+      "top_normalized_entities": [
+        [
+          "5-HT2A",
+          134
+        ],
+        [
+          "NMDA receptor",
+          128
+        ],
+        [
+          "SERT (SLC6A4)",
+          86
+        ],
+        [
+          "DAT (SLC6A3)",
+          48
+        ],
+        [
+          "5-HT1A",
+          47
+        ],
+        [
+          "NET (SLC6A2)",
+          34
+        ],
+        [
+          "5-HT2C",
+          27
+        ],
+        [
+          "kappa opioid receptor (OPRK1)",
+          20
+        ],
+        [
+          "mu opioid receptor (OPRM1)",
+          16
+        ],
+        [
+          "AMPA receptor",
+          11
+        ],
+        [
+          "Dopamine D2 receptor (DRD2)",
+          10
+        ],
+        [
+          "TAAR1",
+          6
+        ],
+        [
+          "5-HT2B",
+          5
+        ],
+        [
+          "Sigma-1 receptor (SIGMAR1)",
+          3
+        ],
+        [
+          "5-HT7",
+          3
+        ],
+        [
+          "TrkB (NTRK2)",
+          2
+        ],
+        [
+          "5-HT5A",
+          1
+        ],
+        [
+          "Sigma-2 receptor (TMEM97)",
+          1
+        ],
+        [
+          "mGluR2 (GRM2)",
+          1
+        ]
+      ]
+    },
+    "disorder": {
+      "input_rows": 630,
+      "graph_rows": 140,
+      "status_counts": {
+        "normalized": 140,
+        "entity_unmapped": 82,
+        "not_graph_candidate": 360,
+        "compound_class_not_graphable": 34,
+        "compound_unmapped": 13,
+        "compound_combo_not_graphable": 1
+      },
+      "top_normalized_entities": [
+        [
+          "Depression",
+          50
+        ],
+        [
+          "Treatment-resistant depression",
+          50
+        ],
+        [
+          "Anxiety",
+          22
+        ],
+        [
+          "Alcohol use disorder",
+          22
+        ],
+        [
+          "Major depressive disorder",
+          20
+        ],
+        [
+          "Suicidal ideation",
+          18
+        ],
+        [
+          "Cocaine use disorder",
+          9
+        ],
+        [
+          "Post-traumatic stress disorder",
+          7
+        ],
+        [
+          "Opioid use disorder",
+          7
+        ],
+        [
+          "Bipolar depression",
+          6
+        ],
+        [
+          "Neuropathic pain",
+          6
+        ],
+        [
+          "Obsessive-compulsive disorder",
+          5
+        ],
+        [
+          "Chronic pain",
+          4
+        ],
+        [
+          "Cannabis use disorder",
+          3
+        ],
+        [
+          "Complex post-traumatic stress disorder",
+          3
+        ],
+        [
+          "Distress associated with life-threatening disease",
+          2
+        ],
+        [
+          "Substance use disorder",
+          2
+        ],
+        [
+          "Demoralization",
+          1
+        ],
+        [
+          "Autism spectrum disorder",
+          1
+        ],
+        [
+          "Persistent depressive disorder",
+          1
+        ]
+      ]
+    }
+  },
+  "inputs": {
+    "mechanistic_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_claims.json",
+    "disorder_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_claims.json",
+    "mechanistic_secondary_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_secondary_claims.json",
+    "disorder_secondary_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_secondary_claims.json"
+  },
+  "outputs": {
+    "mechanistic": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_normalization_audit.csv",
+      "graph_rows": 282,
+      "audit_rows": 983,
+      "secondary_graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_secondary_graph_claims.json",
+      "secondary_graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_secondary_graph_claims.csv",
+      "secondary_audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_secondary_normalization_audit.json",
+      "secondary_audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_secondary_normalization_audit.csv",
+      "secondary_graph_rows": 303,
+      "secondary_audit_rows": 957
+    },
+    "disorder": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_normalization_audit.csv",
+      "graph_rows": 140,
+      "audit_rows": 630,
+      "secondary_graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_secondary_graph_claims.json",
+      "secondary_graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_secondary_graph_claims.csv",
+      "secondary_audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_secondary_normalization_audit.json",
+      "secondary_audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_secondary_normalization_audit.csv",
+      "secondary_graph_rows": 260,
+      "secondary_audit_rows": 733
+    }
+  },
+  "secondary_summary": {
+    "mechanistic": {
+      "input_rows": 957,
+      "graph_rows": 303,
+      "status_counts": {
+        "compound_class_not_graphable": 86,
+        "normalized": 303,
+        "compound_unmapped": 236,
+        "entity_unmapped": 308,
+        "compound_reference_not_graphable": 13,
+        "compound_combo_not_graphable": 11
+      },
+      "top_normalized_entities": [
+        [
+          "5-HT2A",
+          147
+        ],
+        [
+          "NMDA receptor",
+          96
+        ],
+        [
+          "5-HT1A",
+          32
+        ],
+        [
+          "SERT (SLC6A4)",
+          21
+        ],
+        [
+          "5-HT2C",
+          20
+        ],
+        [
+          "Sigma-1 receptor (SIGMAR1)",
+          20
+        ],
+        [
+          "AMPA receptor",
+          15
+        ],
+        [
+          "TrkB (NTRK2)",
+          14
+        ],
+        [
+          "Dopamine D2 receptor (DRD2)",
+          13
+        ],
+        [
+          "mu opioid receptor (OPRM1)",
+          11
+        ],
+        [
+          "DAT (SLC6A3)",
+          9
+        ],
+        [
+          "NET (SLC6A2)",
+          8
+        ],
+        [
+          "5-HT2B",
+          8
+        ],
+        [
+          "kappa opioid receptor (OPRK1)",
+          8
+        ],
+        [
+          "TAAR1",
+          7
+        ],
+        [
+          "Sigma-2 receptor (TMEM97)",
+          3
+        ],
+        [
+          "5-HT7",
+          3
+        ],
+        [
+          "mGluR2 (GRM2)",
+          3
+        ],
+        [
+          "5-HT5A",
+          1
+        ]
+      ]
+    },
+    "disorder": {
+      "input_rows": 733,
+      "graph_rows": 260,
+      "status_counts": {
+        "normalized": 260,
+        "entity_unmapped": 246,
+        "compound_class_not_graphable": 153,
+        "compound_combo_not_graphable": 22,
+        "compound_unmapped": 51,
+        "compound_reference_not_graphable": 1
+      },
+      "top_normalized_entities": [
+        [
+          "Treatment-resistant depression",
+          55
+        ],
+        [
+          "Depression",
+          54
+        ],
+        [
+          "Post-traumatic stress disorder",
+          40
+        ],
+        [
+          "Anxiety",
+          39
+        ],
+        [
+          "Major depressive disorder",
+          28
+        ],
+        [
+          "Alcohol use disorder",
+          20
+        ],
+        [
+          "Obsessive-compulsive disorder",
+          13
+        ],
+        [
+          "Suicidal ideation",
+          11
+        ],
+        [
+          "Chronic pain",
+          10
+        ],
+        [
+          "Bipolar depression",
+          10
+        ],
+        [
+          "Substance use disorder",
+          8
+        ],
+        [
+          "Distress associated with life-threatening disease",
+          5
+        ],
+        [
+          "Cluster headache",
+          4
+        ],
+        [
+          "Anorexia nervosa",
+          4
+        ],
+        [
+          "Eating disorders",
+          3
+        ],
+        [
+          "Tobacco use disorder",
+          3
+        ],
+        [
+          "Opioid use disorder",
+          2
+        ],
+        [
+          "Cocaine use disorder",
+          2
+        ],
+        [
+          "Neuropathic pain",
+          1
+        ],
+        [
+          "Social anxiety disorder",
+          1
+        ]
+      ]
+    }
+  }
+}

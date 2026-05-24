@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the full Boolean-module discovery layer with batch-safe outputs."""
+"""Run the grouped search-module discovery layer with batch-safe outputs."""
 
 from __future__ import annotations
 
@@ -14,7 +14,8 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
 DATASETS = ["mechanistic", "disorder"]
 PROVIDERS = ["openalex", "pubmed"]
@@ -248,26 +249,27 @@ def summarize_batch(batch: dict, out_dir: Path, discovery_info: dict[str, str], 
     }
 
 
-def write_summary(run_root: Path, manifest_path: Path, batches: list[dict], combined: dict) -> None:
+def write_summary(run_root: Path, manifest_path: Path, batches: list[dict], combined: dict, run_id: str) -> None:
     summary = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": run_id,
+        "protocol_id": run_id,
         "generated_at_utc": now_utc(),
         "manifest": str(manifest_path),
         "run_root": str(run_root),
-        "batches": batches,
+        "search_modules": batches,
         "combined": combined,
     }
-    json_path = run_root / "boolean_full_run_summary.json"
+    json_path = run_root / "grouped_search_run_summary.json"
     json_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     lines = [
-        "# Boolean Full Run Summary",
+        "# Grouped Search Run Summary",
         "",
         f"- Generated: {summary['generated_at_utc']}",
-        f"- Protocol: `{PROTOCOL_ID}`",
+        f"- Run: `{run_id}`",
         "",
-        "## Batches",
+        "## Search Modules",
         "",
         "| Dataset | Provider | Module type | Seeds | Cap | Raw rows | Merged rows | New DOIs | Rediscovered | Invalid |",
         "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
@@ -286,16 +288,26 @@ def write_summary(run_root: Path, manifest_path: Path, batches: list[dict], comb
             f"| {dataset} | {item['combined_discovered_dois']} | {item['new_dois']} | "
             f"{item['rediscovered_existing_dois']} | {item['missing_or_invalid_dois']} |"
         )
-    md_path = run_root / "boolean_full_run_summary.md"
+    md_path = run_root / "grouped_search_run_summary.md"
     md_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"Summary JSON: {json_path}")
     print(f"Summary Markdown: {md_path}")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run Boolean module discovery with safe per-batch outputs")
-    parser.add_argument("--manifest", default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "boolean_modules" / "boolean_search_modules_manifest.json"))
-    parser.add_argument("--run-root", default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "boolean_modules" / "full_boolean_v1"))
+    parser = argparse.ArgumentParser(description="Run grouped search-module discovery with safe per-batch outputs")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when --manifest/--run-root are not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for search artifacts")
+    parser.add_argument(
+        "--manifest",
+        default="",
+        help="Grouped search-module manifest. Defaults to <search-root>/<run-id>/grouped_modules/grouped_search_modules_manifest.json.",
+    )
+    parser.add_argument(
+        "--run-root",
+        default="",
+        help="Output directory for grouped search results. Defaults to <search-root>/<run-id>/grouped_module_run.",
+    )
     parser.add_argument("--dataset", default="all", help="mechanistic, disorder, comma-separated list, or all")
     parser.add_argument("--provider", default="all", help="openalex, pubmed, comma-separated list, or all")
     parser.add_argument("--module-type", default="all", help="primary_boolean, dense_topic, comma-separated list, or all")
@@ -308,9 +320,14 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    manifest_path = Path(args.manifest).resolve()
+    search_root = Path(args.search_root).resolve()
+    manifest_path = (
+        Path(args.manifest).resolve()
+        if args.manifest
+        else search_root / args.run_id / "grouped_modules" / "grouped_search_modules_manifest.json"
+    )
     manifest = read_json(manifest_path)
-    run_root = Path(args.run_root).resolve()
+    run_root = Path(args.run_root).resolve() if args.run_root else search_root / args.run_id / "grouped_module_run"
     run_root.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -390,7 +407,7 @@ def main() -> int:
             "report_json": str(combined_dir / f"{dataset}_add_new_dois_report.json"),
         }
 
-    write_summary(run_root, manifest_path, batch_summaries, combined)
+    write_summary(run_root, manifest_path, batch_summaries, combined, run_id=args.run_id)
     return 0
 
 

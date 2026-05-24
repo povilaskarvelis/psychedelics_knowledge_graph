@@ -114,6 +114,13 @@ IN_SCOPE_INTERVENTION_CLASS_TERMS = {
     "entactogens",
     "entheogen",
     "entheogens",
+    "hallucinogenic",
+    "hallucinogenic drug",
+    "hallucinogenic drug state",
+    "hallucinogenic drug states",
+    "hallucinogenic drugs",
+    "hallucinogenic substance",
+    "hallucinogenic substances",
     "hallucinogen",
     "hallucinogens",
     "ketamine-assisted",
@@ -123,8 +130,12 @@ IN_SCOPE_INTERVENTION_CLASS_TERMS = {
     "psychoplastogen",
     "psychoplastogens",
     "psychedelic",
+    "psychedelic assisted psychotherapy",
+    "psychedelic assisted therapy",
     "psychedelic-assisted",
+    "psychedelic-assisted psychotherapy",
     "psychedelics",
+    "psychedeilc assisted therapy",
     "serotonergic hallucinogen",
     "serotonergic hallucinogens",
     "serotonergic psychedelic",
@@ -164,6 +175,46 @@ AMBIGUOUS_CLASS_SUPPORT_TERMS = AMBIGUOUS_ACRONYM_SUPPORT_TERMS | {
     "drug",
     "drugs",
 }
+PSYCHEDELIC_CLASS_CHEMISTRY_RE = re.compile(
+    r"\b(?:phenethylamines?|phenylisopropylamines?|phenylalkylamines?|indolylalkylamines?|"
+    r"alpha[-\s]?methyltryptamine)\b",
+    re.IGNORECASE,
+)
+PSYCHEDELIC_CLASS_QUALIFIER_RE = re.compile(
+    r"\b(?:hallucinogenic?|psychedelic|serotonergic)\b",
+    re.IGNORECASE,
+)
+PSYCHEDELIC_CLASS_TARGET_RE = re.compile(
+    r"\b(?:5[-\s]?HT\s*2[AC]?|5[-\s]?hydroxytryptamine\s*(?:\(?5[-\s]?HT\)?)?\s*2[AC]?|"
+    r"serotonin\s+5[-\s]?HT\s*2[AC]?|5[-\s]?HT2A|5[-\s]?HT2C)\b",
+    re.IGNORECASE,
+)
+PSYCHEDELIC_CLASS_ASSAY_RE = re.compile(
+    r"\b(?:binding|affinity|selectivity|agonis[mt]|antagonis[mt]|functional|efficacy|"
+    r"structure[-\s]?activity|radioligand)\b",
+    re.IGNORECASE,
+)
+FIVE_MEO_DMT_VARIANT_RE = re.compile(
+    r"\b(?:5[-\s]?MeO[-\s]?DMT|MeODMT|5[-\s]?MeOMT|"
+    r"5[-\s]?methoxy[-\s]?(?:N,?\s*N[-\s]?)?dimethyl[-\s]?tryptamine)\b",
+    re.IGNORECASE,
+)
+DOI_FULL_NAME_RE = re.compile(
+    r"\b(?:1[-\s]?\(?2,5[-\s]?dimethoxy[-\s]?4[-\s]?iodophenyl\)?[-\s]?2[-\s]?aminopropane|"
+    r"2,5[-\s]?dimethoxy[-\s]?4[-\s]?iodo(?:phenyl|amphetamine))\b",
+    re.IGNORECASE,
+)
+DOI_IDENTIFIER_RE = re.compile(
+    r"\b(?:article\s+DOI|corrects?\s+the\s+article\s+DOI|retracts?\s+the\s+article\s+DOI|"
+    r"DOI\s*:|dx\.doi\.org|OSF\s+Registries,\s*DOI|depth[-\s]?of[-\s]?interaction\s*\(?DOI\)?)\b",
+    re.IGNORECASE,
+)
+DOI_COMPOUND_CONTEXT_RE = re.compile(
+    r"\b(?:5[-\s]?HT\s*2[AC]?|5[-\s]?hydroxytryptamine|serotonin|receptor|agonis[mt]|"
+    r"antagonis[mt]|head[-\s]?twitch|head[-\s]?shake|wet[-\s]?dog|ketanserin|"
+    r"phospholipase|inositol|arachidonic|cortical\s+5[-\s]?HT|behavioral\s+response)\b",
+    re.IGNORECASE,
+)
 
 ABSTRACT_SCREENING_SCHEMA = {
     "type": "object",
@@ -538,6 +589,46 @@ def ambiguous_intervention_class_supported(context: str) -> bool:
     return any_term_found_in_context(AMBIGUOUS_CLASS_SUPPORT_TERMS, context)
 
 
+def class_chemistry_intervention_supported(context: str) -> bool:
+    normalized_context = normalize(context)
+    if not PSYCHEDELIC_CLASS_CHEMISTRY_RE.search(normalized_context):
+        return False
+    if PSYCHEDELIC_CLASS_QUALIFIER_RE.search(normalized_context):
+        return True
+    return bool(
+        PSYCHEDELIC_CLASS_TARGET_RE.search(normalized_context)
+        and PSYCHEDELIC_CLASS_ASSAY_RE.search(normalized_context)
+    )
+
+
+def doi_compound_context_supported(context: str) -> bool:
+    normalized_context = normalize(context)
+    if not normalized_context:
+        return False
+    if DOI_FULL_NAME_RE.search(normalized_context):
+        return True
+    for match in re.finditer(r"\bDOI\b", normalized_context):
+        start = max(0, match.start() - 120)
+        end = min(len(normalized_context), match.end() + 120)
+        window = normalized_context[start:end]
+        if DOI_IDENTIFIER_RE.search(window):
+            continue
+        if DOI_COMPOUND_CONTEXT_RE.search(window):
+            return True
+    return False
+
+
+def matched_targeted_intervention_terms(context: str) -> List[str]:
+    out: List[str] = []
+    if doi_compound_context_supported(context):
+        out.append("DOI")
+    if FIVE_MEO_DMT_VARIANT_RE.search(normalize(context)):
+        out.append("5-MeO-DMT")
+    if class_chemistry_intervention_supported(context):
+        out.append("psychedelic class chemistry")
+    return out
+
+
 def matched_in_scope_intervention_terms(context: str) -> List[str]:
     terms = synonym_map_terms(COMPOUND_SYNONYMS) | CONFIG_ALLOWED_COMPOUND_TERMS | IN_SCOPE_INTERVENTION_CLASS_TERMS
     out: List[str] = []
@@ -552,6 +643,12 @@ def matched_in_scope_intervention_terms(context: str) -> List[str]:
         if term_lower in AMBIGUOUS_INTERVENTION_CLASS_TERMS and not ambiguous_intervention_class_supported(context):
             continue
         key = term_lower
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(term)
+    for term in matched_targeted_intervention_terms(context):
+        key = term.lower()
         if key in seen:
             continue
         seen.add(key)

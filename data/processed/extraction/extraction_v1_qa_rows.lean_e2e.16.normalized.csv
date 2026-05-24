@@ -1,0 +1,17 @@
+row_index,status,dataset,study_doi,input_record_id,input_packet_id,relevance,route,claim_count,coverage_mention_count,context_status,schema_error_count,quote_check_count,quote_failure_count
+1,ok,disorder,10.1556/2054.2021.00179,pilot-00037dac0d7c7eac,disorder:10.1556/2054.2021.00179,relevant,primary_evidence,4,0,found,0,5,0
+2,ok,disorder,10.3389/fphar.2021.739012,pilot-0009d548736c869c,disorder:10.3389/fphar.2021.739012,relevant,primary_evidence,3,0,found,0,4,0
+3,ok,mechanistic,10.1002/phar.2707,pilot-007823959dd5d06c,mechanistic:10.1002/phar.2707,relevant,secondary_literature,0,3,found,0,4,0
+4,ok,mechanistic,10.1111/papr.13203,pilot-0019f662940b3b65,mechanistic:10.1111/papr.13203,relevant,secondary_literature,0,3,found,0,4,0
+5,ok,disorder,10.1016/s2215-0366(19)30292-5,pilot-0086d18dc47990ce,disorder:10.1016/s2215-0366(19)30292-5,relevant,context_only,0,5,found,0,6,0
+6,ok,disorder,10.2147/ndt.s157475,pilot-0066ecd69e904031,disorder:10.2147/ndt.s157475,relevant,secondary_literature,0,2,found,0,3,0
+7,ok,mechanistic,10.1126/sciadv.abl6989,pilot-01bc1b649ebb7550,mechanistic:10.1126/sciadv.abl6989,relevant,context_only,0,3,found,0,4,0
+8,ok,mechanistic,10.3389/fnhum.2015.00346,pilot-015fe5e510944757,mechanistic:10.3389/fnhum.2015.00346,relevant,context_only,0,5,found,0,6,0
+9,ok,disorder,10.1080/13651501.2025.2576205,pilot-0021ab042bbf635a,,relevant,secondary_literature,0,1,found,0,2,0
+10,ok,disorder,10.1111/pme.12705,pilot-0007f418f2f4e4ea,not_reported,relevant,primary_evidence,3,0,found,0,4,0
+11,ok,mechanistic,10.1007/s00213-003-1530-y,pilot-000cc74fd70ba613,pilot-000cc74fd70ba613,relevant,primary_evidence,1,0,found,0,2,0
+12,ok,mechanistic,10.1016/j.jphs.2017.11.001,pilot-000026afa04c1020,not_reported,relevant,primary_evidence,1,0,found,0,2,0
+13,ok,disorder,10.1016/j.jpsychires.2021.06.039,pilot-0273e5f6723d8fcf,pilot-0273e5f6723d8fcf,relevant,context_only,0,1,found,0,2,0
+14,ok,disorder,10.1353/book.3470,pilot-01006a09f968bb50,pilot-01006a09f968bb50,relevant,human_review,0,0,found,0,1,0
+15,ok,mechanistic,10.1007/7854_2016_29,pilot-0179402e6e25f128,,relevant,secondary_literature,0,6,found,0,7,0
+16,ok,mechanistic,10.1016/s0028-3908(02)00119-3,pilot-01007a54228034fe,pilot-01007a54228034fe,not_relevant,exclude,0,0,found,0,1,0

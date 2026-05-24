@@ -14,7 +14,8 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
 
 
@@ -193,10 +194,10 @@ def write_markdown(path: Path, summary: dict) -> None:
         "# Search Calibration Summary",
         "",
         f"- Generated: {summary['generated_at_utc']}",
-        f"- Protocol: `{summary['protocol_id']}`",
+        f"- Run: `{summary['run_id']}`",
         f"- Calibration directory: `{summary['calibration_dir']}`",
         "",
-        "This is a calibration run, not the final baseline search. It estimates yield and noise from a small, reproducible seed slice.",
+        "This is a calibration run, not the final search. It estimates yield and noise from a small, reproducible seed slice.",
         "",
     ]
     for dataset, item in summary["datasets"].items():
@@ -248,13 +249,18 @@ def write_markdown(path: Path, summary: dict) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Summarize search calibration discovery outputs")
     parser.add_argument("--dataset", default="all", help="mechanistic, disorder, comma-separated list, or all")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when --seed-dir/--calibration-dir are not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for search artifacts")
     parser.add_argument(
-        "--protocol-dir",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID),
+        "--seed-dir",
+        default="",
+        help="Directory containing direct pair-search seed files. Defaults to <search-root>/<run-id>/direct_pairs.",
     )
+    parser.add_argument("--protocol-dir", dest="seed_dir", default="", help=argparse.SUPPRESS)
     parser.add_argument(
         "--calibration-dir",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "calibration" / "openalex"),
+        default="",
+        help="Directory containing calibration discovery outputs. Defaults to <search-root>/<run-id>/calibration/openalex.",
     )
     parser.add_argument("--summary-json", default="")
     parser.add_argument("--summary-md", default="")
@@ -268,12 +274,19 @@ def main() -> int:
     if invalid:
         raise SystemExit(f"Invalid dataset(s): {', '.join(invalid)}")
 
-    protocol_dir = Path(args.protocol_dir).resolve()
-    calibration_dir = Path(args.calibration_dir).resolve()
+    search_root = Path(args.search_root).resolve()
+    protocol_dir = Path(args.seed_dir).resolve() if args.seed_dir else search_root / args.run_id / "direct_pairs"
+    calibration_dir = (
+        Path(args.calibration_dir).resolve()
+        if args.calibration_dir
+        else search_root / args.run_id / "calibration" / "openalex"
+    )
     summary = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": args.run_id,
+        "protocol_id": args.run_id,
         "generated_at_utc": now_utc(),
+        "seed_dir": str(protocol_dir),
         "protocol_dir": str(protocol_dir),
         "calibration_dir": str(calibration_dir),
         "datasets": {

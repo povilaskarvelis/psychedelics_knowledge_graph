@@ -1,0 +1,82 @@
+PROGRESS: sync 25/1551 (1.6%) in_db=4 needs_download=5 needs_manual=16 downloaded_now=0 already_present=4 failures=5 reused=25
+PROGRESS: sync 50/1551 (3.2%) in_db=9 needs_download=9 needs_manual=32 downloaded_now=3 already_present=6 failures=9 reused=50
+PROGRESS: sync 75/1551 (4.8%) in_db=10 needs_download=11 needs_manual=54 downloaded_now=4 already_present=6 failures=10 reused=74
+PROGRESS: sync 100/1551 (6.4%) in_db=12 needs_download=13 needs_manual=75 downloaded_now=6 already_present=6 failures=12 reused=99
+PROGRESS: sync 125/1551 (8.1%) in_db=18 needs_download=15 needs_manual=92 downloaded_now=12 already_present=6 failures=14 reused=124
+PROGRESS: sync 150/1551 (9.7%) in_db=24 needs_download=18 needs_manual=108 downloaded_now=18 already_present=6 failures=17 reused=149
+PROGRESS: sync 175/1551 (11.3%) in_db=31 needs_download=18 needs_manual=126 downloaded_now=25 already_present=6 failures=17 reused=174
+PROGRESS: sync 200/1551 (12.9%) in_db=35 needs_download=19 needs_manual=146 downloaded_now=29 already_present=6 failures=18 reused=199
+PROGRESS: sync 225/1551 (14.5%) in_db=40 needs_download=23 needs_manual=162 downloaded_now=34 already_present=6 failures=20 reused=222
+PROGRESS: sync 250/1551 (16.1%) in_db=40 needs_download=25 needs_manual=185 downloaded_now=34 already_present=6 failures=22 reused=247
+PROGRESS: sync 275/1551 (17.7%) in_db=40 needs_download=26 needs_manual=209 downloaded_now=34 already_present=6 failures=22 reused=271
+PROGRESS: sync 300/1551 (19.3%) in_db=40 needs_download=27 needs_manual=233 downloaded_now=34 already_present=6 failures=22 reused=295
+PROGRESS: sync 325/1551 (21.0%) in_db=40 needs_download=31 needs_manual=254 downloaded_now=34 already_present=6 failures=26 reused=320
+PROGRESS: sync 350/1551 (22.6%) in_db=41 needs_download=34 needs_manual=275 downloaded_now=35 already_present=6 failures=28 reused=344
+PROGRESS: sync 375/1551 (24.2%) in_db=41 needs_download=39 needs_manual=295 downloaded_now=35 already_present=6 failures=29 reused=365
+PROGRESS: sync 400/1551 (25.8%) in_db=44 needs_download=47 needs_manual=309 downloaded_now=38 already_present=6 failures=35 reused=388
+PROGRESS: sync 425/1551 (27.4%) in_db=47 needs_download=59 needs_manual=319 downloaded_now=41 already_present=6 failures=41 reused=407
+PROGRESS: sync 450/1551 (29.0%) in_db=49 needs_download=63 needs_manual=338 downloaded_now=43 already_present=6 failures=44 reused=431
+PROGRESS: sync 475/1551 (30.6%) in_db=55 needs_download=71 needs_manual=349 downloaded_now=49 already_present=6 failures=48 reused=452
+PROGRESS: sync 500/1551 (32.2%) in_db=56 needs_download=81 needs_manual=363 downloaded_now=50 already_present=6 failures=53 reused=472
+PROGRESS: sync 525/1551 (33.8%) in_db=56 needs_download=86 needs_manual=383 downloaded_now=50 already_present=6 failures=53 reused=492
+PROGRESS: sync 550/1551 (35.5%) in_db=59 needs_download=92 needs_manual=399 downloaded_now=53 already_present=6 failures=55 reused=513
+PROGRESS: sync 575/1551 (37.1%) in_db=59 needs_download=96 needs_manual=420 downloaded_now=53 already_present=6 failures=55 reused=534
+PROGRESS: sync 600/1551 (38.7%) in_db=59 needs_download=102 needs_manual=439 downloaded_now=53 already_present=6 failures=59 reused=557
+PROGRESS: sync 625/1551 (40.3%) in_db=62 needs_download=105 needs_manual=458 downloaded_now=56 already_present=6 failures=61 reused=581
+PROGRESS: sync 650/1551 (41.9%) in_db=63 needs_download=110 needs_manual=477 downloaded_now=57 already_present=6 failures=63 reused=603
+PROGRESS: sync 675/1551 (43.5%) in_db=64 needs_download=113 needs_manual=498 downloaded_now=58 already_present=6 failures=64 reused=626
+PROGRESS: sync 700/1551 (45.1%) in_db=66 needs_download=118 needs_manual=516 downloaded_now=60 already_present=6 failures=67 reused=649
+PROGRESS: sync 725/1551 (46.7%) in_db=70 needs_download=122 needs_manual=533 downloaded_now=64 already_present=6 failures=70 reused=673
+PROGRESS: sync 750/1551 (48.4%) in_db=70 needs_download=126 needs_manual=554 downloaded_now=64 already_present=6 failures=72 reused=696
+PROGRESS: sync 775/1551 (50.0%) in_db=70 needs_download=127 needs_manual=578 downloaded_now=64 already_present=6 failures=72 reused=719
+PROGRESS: sync 800/1551 (51.6%) in_db=70 needs_download=127 needs_manual=603 downloaded_now=64 already_present=6 failures=72 reused=744
+PROGRESS: sync 825/1551 (53.2%) in_db=70 needs_download=136 needs_manual=619 downloaded_now=64 already_present=6 failures=80 reused=768
+PROGRESS: sync 850/1551 (54.8%) in_db=71 needs_download=151 needs_manual=628 downloaded_now=65 already_present=6 failures=92 reused=790
+PROGRESS: sync 875/1551 (56.4%) in_db=74 needs_download=161 needs_manual=640 downloaded_now=68 already_present=6 failures=101 reused=814
+PROGRESS: sync 900/1551 (58.0%) in_db=77 needs_download=171 needs_manual=652 downloaded_now=71 already_present=6 failures=108 reused=836
+PROGRESS: sync 925/1551 (59.6%) in_db=88 needs_download=180 needs_manual=657 downloaded_now=82 already_present=6 failures=117 reused=861
+PROGRESS: sync 950/1551 (61.3%) in_db=111 needs_download=180 needs_manual=659 downloaded_now=105 already_present=6 failures=117 reused=886
+PROGRESS: sync 975/1551 (62.9%) in_db=123 needs_download=193 needs_manual=659 downloaded_now=117 already_present=6 failures=130 reused=911
+PROGRESS: sync 1000/1551 (64.5%) in_db=134 needs_download=198 needs_manual=668 downloaded_now=128 already_present=6 failures=135 reused=936
+PROGRESS: sync 1025/1551 (66.1%) in_db=142 needs_download=208 needs_manual=675 downloaded_now=136 already_present=6 failures=144 reused=960
+PROGRESS: sync 1050/1551 (67.7%) in_db=143 needs_download=220 needs_manual=687 downloaded_now=137 already_present=6 failures=155 reused=984
+PROGRESS: sync 1075/1551 (69.3%) in_db=157 needs_download=229 needs_manual=689 downloaded_now=151 already_present=6 failures=163 reused=1008
+PROGRESS: sync 1100/1551 (70.9%) in_db=159 needs_download=235 needs_manual=706 downloaded_now=153 already_present=6 failures=169 reused=1033
+PROGRESS: sync 1125/1551 (72.5%) in_db=159 needs_download=237 needs_manual=729 downloaded_now=153 already_present=6 failures=171 reused=1058
+PROGRESS: sync 1150/1551 (74.1%) in_db=162 needs_download=248 needs_manual=740 downloaded_now=156 already_present=6 failures=181 reused=1082
+PROGRESS: sync 1175/1551 (75.8%) in_db=167 needs_download=268 needs_manual=740 downloaded_now=161 already_present=6 failures=200 reused=1106
+PROGRESS: sync 1200/1551 (77.4%) in_db=170 needs_download=281 needs_manual=749 downloaded_now=164 already_present=6 failures=211 reused=1129
+PROGRESS: sync 1225/1551 (79.0%) in_db=175 needs_download=289 needs_manual=761 downloaded_now=169 already_present=6 failures=219 reused=1154
+PROGRESS: sync 1250/1551 (80.6%) in_db=179 needs_download=296 needs_manual=775 downloaded_now=173 already_present=6 failures=226 reused=1179
+PROGRESS: sync 1275/1551 (82.2%) in_db=180 needs_download=302 needs_manual=793 downloaded_now=174 already_present=6 failures=232 reused=1204
+PROGRESS: sync 1300/1551 (83.8%) in_db=185 needs_download=305 needs_manual=810 downloaded_now=179 already_present=6 failures=234 reused=1228
+PROGRESS: sync 1325/1551 (85.4%) in_db=203 needs_download=307 needs_manual=815 downloaded_now=197 already_present=6 failures=234 reused=1251
+PROGRESS: sync 1350/1551 (87.0%) in_db=213 needs_download=311 needs_manual=826 downloaded_now=207 already_present=6 failures=236 reused=1274
+PROGRESS: sync 1375/1551 (88.7%) in_db=228 needs_download=319 needs_manual=828 downloaded_now=222 already_present=6 failures=243 reused=1298
+PROGRESS: sync 1400/1551 (90.3%) in_db=244 needs_download=324 needs_manual=832 downloaded_now=238 already_present=6 failures=248 reused=1323
+PROGRESS: sync 1425/1551 (91.9%) in_db=251 needs_download=331 needs_manual=843 downloaded_now=245 already_present=6 failures=252 reused=1344
+PROGRESS: sync 1450/1551 (93.5%) in_db=268 needs_download=337 needs_manual=845 downloaded_now=262 already_present=6 failures=258 reused=1369
+PROGRESS: sync 1475/1551 (95.1%) in_db=292 needs_download=338 needs_manual=845 downloaded_now=286 already_present=6 failures=259 reused=1394
+PROGRESS: sync 1500/1551 (96.7%) in_db=315 needs_download=340 needs_manual=845 downloaded_now=309 already_present=6 failures=261 reused=1419
+PROGRESS: sync 1525/1551 (98.3%) in_db=336 needs_download=343 needs_manual=846 downloaded_now=330 already_present=6 failures=263 reused=1443
+PROGRESS: sync 1550/1551 (99.9%) in_db=350 needs_download=352 needs_manual=848 downloaded_now=344 already_present=6 failures=268 reused=1464
+PROGRESS: sync 1551/1551 (100.0%) in_db=351 needs_download=352 needs_manual=848 downloaded_now=345 already_present=6 failures=268 reused=1465
+Dataset: mechanistic
+DOI queue rows read: 3080
+Unique papers: 1551
+In database: 2126
+Needs download: 8956
+Needs manual access: 7759
+Downloaded now: 345
+Already present: 6
+Reused existing/checkpoint: 1465
+Refreshed missing metadata: 0
+Metadata provider successes: {'pubmed': 76, 'pmc': 4, 'unpaywall': 84, 'crossref': 10, 'openalex': 4, 'semantic_scholar': 1}
+Metadata provider errors: {'pubmed': 1, 'pmc': 1, 'unpaywall': 0, 'crossref': 0, 'openalex': 0, 'semantic_scholar': 1}
+Unpaywall enabled: True
+Download failures: 268
+Paper DB JSON: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_mechanistic.json
+Checkpoint JSON: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_mechanistic.checkpoint.json
+Inventory report JSON: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_inventory_mechanistic.json
+Inventory CSV: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_inventory_mechanistic.csv
+Inventory Markdown: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_inventory_mechanistic.md

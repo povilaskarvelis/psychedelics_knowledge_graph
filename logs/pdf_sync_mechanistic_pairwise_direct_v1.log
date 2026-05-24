@@ -1,0 +1,36 @@
+PROGRESS: sync 25/420 (6.0%) in_db=1 needs_download=5 needs_manual=19 downloaded_now=1 already_present=0 failures=3 reused=23
+PROGRESS: sync 50/420 (11.9%) in_db=5 needs_download=8 needs_manual=37 downloaded_now=5 already_present=0 failures=6 reused=48
+PROGRESS: sync 75/420 (17.9%) in_db=11 needs_download=8 needs_manual=56 downloaded_now=11 already_present=0 failures=6 reused=73
+PROGRESS: sync 100/420 (23.8%) in_db=11 needs_download=10 needs_manual=79 downloaded_now=11 already_present=0 failures=6 reused=96
+PROGRESS: sync 125/420 (29.8%) in_db=11 needs_download=11 needs_manual=103 downloaded_now=11 already_present=0 failures=6 reused=120
+PROGRESS: sync 150/420 (35.7%) in_db=11 needs_download=19 needs_manual=120 downloaded_now=11 already_present=0 failures=10 reused=141
+PROGRESS: sync 175/420 (41.7%) in_db=12 needs_download=24 needs_manual=139 downloaded_now=12 already_present=0 failures=13 reused=164
+PROGRESS: sync 200/420 (47.6%) in_db=12 needs_download=30 needs_manual=158 downloaded_now=12 already_present=0 failures=15 reused=185
+PROGRESS: sync 225/420 (53.6%) in_db=12 needs_download=34 needs_manual=179 downloaded_now=12 already_present=0 failures=15 reused=206
+PROGRESS: sync 250/420 (59.5%) in_db=12 needs_download=40 needs_manual=198 downloaded_now=12 already_present=0 failures=17 reused=227
+PROGRESS: sync 275/420 (65.5%) in_db=17 needs_download=55 needs_manual=203 downloaded_now=17 already_present=0 failures=24 reused=244
+PROGRESS: sync 300/420 (71.4%) in_db=21 needs_download=62 needs_manual=217 downloaded_now=21 already_present=0 failures=30 reused=268
+PROGRESS: sync 325/420 (77.4%) in_db=26 needs_download=67 needs_manual=232 downloaded_now=26 already_present=0 failures=34 reused=292
+PROGRESS: sync 350/420 (83.3%) in_db=28 needs_download=76 needs_manual=246 downloaded_now=28 already_present=0 failures=42 reused=316
+PROGRESS: sync 375/420 (89.3%) in_db=30 needs_download=80 needs_manual=265 downloaded_now=30 already_present=0 failures=44 reused=339
+PROGRESS: sync 400/420 (95.2%) in_db=41 needs_download=84 needs_manual=275 downloaded_now=41 already_present=0 failures=48 reused=363
+PROGRESS: sync 420/420 (100.0%) in_db=58 needs_download=86 needs_manual=276 downloaded_now=58 already_present=0 failures=49 reused=382
+Dataset: mechanistic
+DOI queue rows read: 727
+Unique papers: 420
+In database: 2184
+Needs download: 8899
+Needs manual access: 7758
+Downloaded now: 58
+Already present: 0
+Reused existing/checkpoint: 382
+Refreshed missing metadata: 0
+Metadata provider successes: {'pubmed': 38, 'pmc': 0, 'unpaywall': 37, 'crossref': 0, 'openalex': 1, 'semantic_scholar': 0}
+Metadata provider errors: {'pubmed': 0, 'pmc': 0, 'unpaywall': 0, 'crossref': 0, 'openalex': 0, 'semantic_scholar': 0}
+Unpaywall enabled: True
+Download failures: 49
+Paper DB JSON: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_mechanistic.json
+Checkpoint JSON: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_mechanistic.checkpoint.json
+Inventory report JSON: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_inventory_mechanistic.json
+Inventory CSV: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_inventory_mechanistic.csv
+Inventory Markdown: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_inventory_mechanistic.md

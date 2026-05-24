@@ -12,7 +12,8 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
 
 COMPOUND_PATTERNS = [
@@ -188,6 +189,13 @@ def read_query_module_map(path: Path) -> dict[str, str]:
     return out
 
 
+def provider_seed_path(run_root: Path, dataset: str, provider: str) -> Path:
+    grouped_path = run_root / f"{dataset}_grouped_{provider}_seeds.csv"
+    if grouped_path.exists():
+        return grouped_path
+    return run_root / f"{dataset}_boolean_{provider}_seeds.csv"
+
+
 def read_rows(path: Path) -> dict[str, dict]:
     report = read_json(path)
     rows: dict[str, dict] = {}
@@ -206,9 +214,16 @@ def read_rows(path: Path) -> dict[str, dict]:
     return rows
 
 
-def read_module_new_dois(run_root: Path, run_dir: str, dataset: str, provider: str, new_dois: set[str]) -> dict[str, set[str]]:
+def read_module_new_dois(
+    run_root: Path,
+    seed_dir: Path,
+    run_dir: str,
+    dataset: str,
+    provider: str,
+    new_dois: set[str],
+) -> dict[str, set[str]]:
     rows_report = read_json(run_root / run_dir / f"{dataset}_discovery_report.json")
-    query_to_module = read_query_module_map(run_root / f"{dataset}_boolean_{provider}_seeds.csv")
+    query_to_module = read_query_module_map(provider_seed_path(seed_dir, dataset, provider))
     out: dict[str, set[str]] = {}
     for row in rows_report.get("rows", []):
         doi = normalize_doi(row.get("doi"))
@@ -284,7 +299,14 @@ def sample_rows(dataset: str, rows: dict[str, dict], dois: set[str], mode: str, 
     return selected
 
 
-def analyze_dataset(run_root: Path, dataset: str, openalex_dir: str, pubmed_dir: str) -> dict:
+def analyze_dataset(
+    run_root: Path,
+    dataset: str,
+    openalex_dir: str,
+    pubmed_dir: str,
+    seed_dir: Path | None = None,
+) -> dict:
+    seed_dir = seed_dir or run_root
     provider_dirs = {"openalex": run_root / openalex_dir, "pubmed": run_root / pubmed_dir}
     rows = {
         provider: read_rows(provider_dir / f"{dataset}_discovery_report.json")
@@ -301,8 +323,8 @@ def analyze_dataset(run_root: Path, dataset: str, openalex_dir: str, pubmed_dir:
     openalex_only_new = new_dois["openalex"] - new_dois["pubmed"]
     pubmed_only_new = new_dois["pubmed"] - new_dois["openalex"]
     module_new = {
-        "openalex": read_module_new_dois(run_root, openalex_dir, dataset, "openalex", new_dois["openalex"]),
-        "pubmed": read_module_new_dois(run_root, pubmed_dir, dataset, "pubmed", new_dois["pubmed"]),
+        "openalex": read_module_new_dois(run_root, seed_dir, openalex_dir, dataset, "openalex", new_dois["openalex"]),
+        "pubmed": read_module_new_dois(run_root, seed_dir, pubmed_dir, dataset, "pubmed", new_dois["pubmed"]),
     }
 
     provider_metrics = {}
@@ -378,7 +400,7 @@ def write_markdown(path: Path, summary: dict) -> None:
         "# Provider Overlap And Title-Signal Audit",
         "",
         f"- Generated: {summary['generated_at_utc']}",
-        f"- Protocol: `{summary['protocol_id']}`",
+        f"- Run: `{summary['run_id']}`",
         f"- OpenAlex run: `{summary['openalex_dir']}`",
         f"- PubMed run: `{summary['pubmed_dir']}`",
         "",
@@ -438,9 +460,17 @@ def write_markdown(path: Path, summary: dict) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Compare OpenAlex and PubMed discovery outputs")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when --run-root is not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for search artifacts")
     parser.add_argument(
         "--run-root",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "boolean_modules"),
+        default="",
+        help="Directory containing grouped search seeds and provider run outputs. Defaults to <search-root>/<run-id>/grouped_module_run.",
+    )
+    parser.add_argument(
+        "--seed-dir",
+        default="",
+        help="Directory containing grouped search-module seed files. Defaults to <search-root>/<run-id>/grouped_modules.",
     )
     parser.add_argument("--openalex-dir", default="openalex_100")
     parser.add_argument("--pubmed-dir", default="pubmed_100")
@@ -448,16 +478,20 @@ def main() -> int:
     parser.add_argument("--summary-md", default="")
     args = parser.parse_args()
 
-    run_root = Path(args.run_root).resolve()
+    search_root = Path(args.search_root).resolve()
+    run_root = Path(args.run_root).resolve() if args.run_root else search_root / args.run_id / "grouped_module_run"
+    seed_dir = Path(args.seed_dir).resolve() if args.seed_dir else search_root / args.run_id / "grouped_modules"
     summary = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": args.run_id,
+        "protocol_id": args.run_id,
         "generated_at_utc": now_utc(),
         "run_root": str(run_root),
+        "seed_dir": str(seed_dir),
         "openalex_dir": args.openalex_dir,
         "pubmed_dir": args.pubmed_dir,
         "datasets": {
-            dataset: analyze_dataset(run_root, dataset, args.openalex_dir, args.pubmed_dir)
+            dataset: analyze_dataset(run_root, dataset, args.openalex_dir, args.pubmed_dir, seed_dir=seed_dir)
             for dataset in ["mechanistic", "disorder"]
         },
     }

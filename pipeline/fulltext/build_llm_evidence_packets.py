@@ -50,6 +50,105 @@ FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 PACKET_SCHEMA_VERSION = "llm_evidence_packet_v1"
 RECONSTRUCTED_TEXT_SEPARATOR = "\n\n"
 XML_ID_ATTR = "{http://www.w3.org/XML/1998/namespace}id"
+PACKET_PROFILES = ("full", "lean_primary")
+
+LEAN_EXCLUDED_SECTION_TYPES = {
+    "introduction",
+    "discussion",
+    "conclusion",
+    "limitations",
+    "funding",
+    "conflicts",
+    "ethics",
+    "data_availability",
+    "supplement",
+}
+
+LEAN_COMMON_MARKERS = (
+    "method",
+    "material",
+    "participant",
+    "patient",
+    "subject",
+    "animal",
+    "sample",
+    "procedure",
+    "protocol",
+    "intervention",
+    "exposure",
+    "dose",
+    "dosage",
+    "administration",
+    "treatment",
+    "randomi",
+    "blinding",
+    "measure",
+    "assessment",
+    "statistical",
+    "analysis",
+    "result",
+    "finding",
+    "outcome",
+    "efficacy",
+    "safety",
+    "adverse",
+    "response",
+    "remission",
+    "follow-up",
+    "table",
+)
+
+LEAN_MECHANISTIC_MARKERS = (
+    "assay",
+    "binding",
+    "affinity",
+    "receptor",
+    "transporter",
+    "enzyme",
+    "protein",
+    "pharmacolog",
+    "radioligand",
+    "autoradiograph",
+    "functional",
+    "activity",
+    "agonist",
+    "antagonist",
+    "inhib",
+    "uptake",
+    "release",
+    "calcium",
+    "camp",
+    "inositol",
+    "electrophysiolog",
+    "western blot",
+    "pcr",
+)
+
+LEAN_DISORDER_MARKERS = (
+    "clinical",
+    "symptom",
+    "depression",
+    "anxiety",
+    "ptsd",
+    "pain",
+    "craving",
+    "withdrawal",
+    "relapse",
+    "reinstatement",
+    "abstinence",
+    "functioning",
+    "quality of life",
+    "scale",
+    "score",
+)
+
+SECONDARY_SOURCE_FAMILIES = {
+    "evidence_synthesis",
+    "opinion_or_commentary",
+    "protocol",
+    "correction",
+    "conference_abstract",
+}
 
 PAPER_METADATA_FIELDS = [
     "study_doi",
@@ -445,6 +544,132 @@ def build_llm_chunks(
     return chunks
 
 
+def text_matches_any_marker(text: str, markers: tuple[str, ...]) -> bool:
+    norm = normalize(text).lower()
+    return any(marker in norm for marker in markers)
+
+
+def section_matches_lean_profile(dataset: str, section: dict) -> bool:
+    section_type = normalize(section.get("section_type", ""))
+    if section_type == "abstract":
+        return True
+    if section_type in {"methods", "results"}:
+        return True
+    if section_type in LEAN_EXCLUDED_SECTION_TYPES:
+        return False
+    haystack = " ".join(
+        [
+            normalize(section.get("heading", "")),
+            section_type,
+            normalize(section.get("text", ""))[:2500],
+        ]
+    )
+    dataset_markers = LEAN_MECHANISTIC_MARKERS if dataset == "mechanistic" else LEAN_DISORDER_MARKERS
+    return text_matches_any_marker(haystack, LEAN_COMMON_MARKERS + dataset_markers)
+
+
+def secondary_or_context_hint(hints: dict) -> bool:
+    return normalize(hints.get("source_family_hint", "")) in SECONDARY_SOURCE_FAMILIES
+
+
+def first_non_excluded_sections(sections: list[dict], limit: int = 3) -> list[dict]:
+    out = []
+    for section in sections:
+        section_type = normalize(section.get("section_type", ""))
+        if section_type == "abstract" or section_type in LEAN_EXCLUDED_SECTION_TYPES:
+            continue
+        out.append(section)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def select_sections_for_profile(
+    sections: list[dict],
+    *,
+    dataset: str,
+    profile: str,
+    hints: dict,
+) -> tuple[list[dict], dict]:
+    if profile == "full":
+        return sections, {"section_selection": "full", "fallback_used": False}
+    if profile != "lean_primary":
+        raise ValueError(f"Unsupported packet profile `{profile}`")
+
+    abstracts = [section for section in sections if normalize(section.get("section_type", "")) == "abstract"]
+    if secondary_or_context_hint(hints):
+        selected = abstracts or sections[:1]
+        selected_unique = list({id(section): section for section in selected}.values())
+        return selected_unique, {
+            "section_selection": "secondary_or_context_abstract_only",
+            "fallback_used": not bool(abstracts),
+        }
+
+    selected = [section for section in sections if section_matches_lean_profile(dataset, section)]
+    selected_ids = {id(section) for section in selected}
+    body_selected = any(normalize(section.get("section_type", "")) != "abstract" for section in selected)
+    fallback_used = False
+    if not body_selected:
+        fallback_used = True
+        for section in first_non_excluded_sections(sections):
+            if id(section) not in selected_ids:
+                selected.append(section)
+                selected_ids.add(id(section))
+
+    return selected, {
+        "section_selection": "lean_primary",
+        "fallback_used": fallback_used,
+        "source_section_count": len(sections),
+        "selected_section_count": len(selected),
+        "excluded_section_count": max(0, len(sections) - len(selected)),
+    }
+
+
+def table_or_figure_matches_profile(item: dict, dataset: str) -> bool:
+    haystack = " ".join(
+        [
+            normalize(item.get("caption", "")),
+            normalize(item.get("section_heading", "")),
+            normalize(item.get("text", ""))[:2000],
+        ]
+    )
+    dataset_markers = LEAN_MECHANISTIC_MARKERS if dataset == "mechanistic" else LEAN_DISORDER_MARKERS
+    return text_matches_any_marker(haystack, LEAN_COMMON_MARKERS + dataset_markers)
+
+
+def select_tables_figures_references_for_profile(
+    tables: list[dict],
+    figures: list[dict],
+    references: list[dict],
+    *,
+    dataset: str,
+    profile: str,
+    hints: dict,
+) -> tuple[list[dict], list[dict], list[dict], dict]:
+    if profile == "full":
+        return tables, figures, references, {
+            "table_selection": "full",
+            "figure_selection": "full",
+            "reference_selection": "full",
+        }
+    if profile != "lean_primary":
+        raise ValueError(f"Unsupported packet profile `{profile}`")
+    if secondary_or_context_hint(hints):
+        return [], [], [], {
+            "table_selection": "secondary_or_context_omitted",
+            "figure_selection": "secondary_or_context_omitted",
+            "reference_selection": "omitted",
+        }
+    selected_figures = [figure for figure in figures if table_or_figure_matches_profile(figure, dataset)]
+    return tables, selected_figures, [], {
+        "table_selection": "all_tables",
+        "figure_selection": "lean_marker_filtered",
+        "reference_selection": "omitted",
+        "source_figure_count": len(figures),
+        "selected_figure_count": len(selected_figures),
+    }
+
+
 def source_hints(row: dict) -> dict:
     publication_type = normalize(row.get("publication_type", ""))
     title = normalize(row.get("study_title", ""))
@@ -511,22 +736,48 @@ def build_packet(
     max_chunks_per_paper: int,
     max_references: int,
     include_section_text: bool = True,
+    include_candidate_contexts: bool = True,
+    packet_profile: str = "full",
 ) -> dict:
     extraction = best_extraction(artifact)
     raw_text = normalize(extraction.get("text", ""))
-    sections = sections_from_tei_full(raw_text)
-    tables, figures = extract_tables_and_figures(raw_text)
-    references = extract_references(raw_text, max_references=max_references)
+    source_sections = sections_from_tei_full(raw_text)
+    source_tables, source_figures = extract_tables_and_figures(raw_text)
+    source_references = extract_references(raw_text, max_references=max_references)
+    metadata = paper_metadata(paper_row, artifact)
+    hints = source_hints(metadata)
+    sections, section_profile_summary = select_sections_for_profile(
+        source_sections,
+        dataset=dataset,
+        profile=packet_profile,
+        hints=hints,
+    )
+    tables, figures, references, item_profile_summary = select_tables_figures_references_for_profile(
+        source_tables,
+        source_figures,
+        source_references,
+        dataset=dataset,
+        profile=packet_profile,
+        hints=hints,
+    )
     chunks = build_llm_chunks(
         sections,
         max_chunk_chars=max_chunk_chars,
         overlap_chars=overlap_chars,
         max_chunks_per_paper=max_chunks_per_paper,
     )
-    reconstructed_text = RECONSTRUCTED_TEXT_SEPARATOR.join(section.get("text", "") for section in sections)
+    source_chunks = build_llm_chunks(
+        source_sections,
+        max_chunk_chars=max_chunk_chars,
+        overlap_chars=overlap_chars,
+        max_chunks_per_paper=0,
+    )
+    reconstructed_text = RECONSTRUCTED_TEXT_SEPARATOR.join(section.get("text", "") for section in source_sections)
+    selected_reconstructed_text = RECONSTRUCTED_TEXT_SEPARATOR.join(section.get("text", "") for section in sections)
     sections_out = sections if include_section_text else [{k: v for k, v in section.items() if k != "text"} for section in sections]
-    metadata = paper_metadata(paper_row, artifact)
     doi = normalize_doi(metadata.get("study_doi", "")) or normalize_doi(artifact.get("study_doi", ""))
+    source_chunk_token_estimate = sum(int(chunk.get("token_estimate", 0) or 0) for chunk in source_chunks)
+    chunk_token_estimate = sum(int(chunk.get("token_estimate", 0) or 0) for chunk in chunks)
 
     return {
         "schema_version": PACKET_SCHEMA_VERSION,
@@ -535,8 +786,8 @@ def build_packet(
         "dataset": dataset,
         "study_doi": doi,
         "paper_metadata": metadata,
-        "candidate_contexts": compact_contexts(paper_row),
-        "source_hints": source_hints(metadata),
+        "candidate_contexts": compact_contexts(paper_row) if include_candidate_contexts else [],
+        "source_hints": hints,
         "fulltext_provenance": {
             "artifact_path": str(artifact_path),
             "pdf_local_path": normalize(artifact.get("pdf_local_path", "")) or normalize(metadata.get("pdf_local_path", "")),
@@ -548,13 +799,27 @@ def build_packet(
             "reconstructed_text_sha256": hashlib.sha256(reconstructed_text.encode("utf-8")).hexdigest(),
         },
         "document_summary": {
+            "packet_profile": packet_profile,
+            "profile_summary": {
+                **section_profile_summary,
+                **item_profile_summary,
+            },
+            "source_section_count": len(source_sections),
             "section_count": len(sections),
+            "source_chunk_count": len(source_chunks),
             "chunk_count": len(chunks),
+            "source_table_count": len(source_tables),
             "table_count": len(tables),
+            "source_figure_count": len(source_figures),
             "figure_count": len(figures),
+            "source_reference_count": len(source_references),
             "reference_count": len(references),
+            "source_reconstructed_char_count": len(reconstructed_text),
             "reconstructed_char_count": len(reconstructed_text),
-            "chunk_token_estimate": sum(int(chunk.get("token_estimate", 0) or 0) for chunk in chunks),
+            "selected_reconstructed_char_count": len(selected_reconstructed_text),
+            "source_chunk_token_estimate": source_chunk_token_estimate,
+            "chunk_token_estimate": chunk_token_estimate,
+            "chunk_token_reduction_estimate": max(0, source_chunk_token_estimate - chunk_token_estimate),
         },
         "sections": sections_out,
         "tables": tables,
@@ -597,6 +862,8 @@ def build_dataset_packets(
     max_chunks_per_paper: int,
     max_references: int,
     include_section_text: bool,
+    include_candidate_contexts: bool,
+    packet_profile: str = "full",
 ) -> dict:
     paper_rows = rows_by_doi(load_json_array(paper_library))
     artifact_paths = list(iter_artifact_paths(dataset, artifact_dir=artifact_dir, doi_filter=doi_filter))
@@ -610,9 +877,16 @@ def build_dataset_packets(
         "missing_successful_extraction": 0,
         "missing_sections": 0,
         "total_chunks": 0,
+        "total_source_chunks": 0,
+        "total_chunk_token_estimate": 0,
+        "total_source_chunk_token_estimate": 0,
+        "total_chunk_token_reduction_estimate": 0,
         "total_tables": 0,
+        "total_source_tables": 0,
         "total_figures": 0,
+        "total_source_figures": 0,
         "total_references": 0,
+        "total_source_references": 0,
     }
     missing_library_dois = []
     skipped = []
@@ -643,14 +917,24 @@ def build_dataset_packets(
                 max_chunks_per_paper=max_chunks_per_paper,
                 max_references=max_references,
                 include_section_text=include_section_text,
+                include_candidate_contexts=include_candidate_contexts,
+                packet_profile=packet_profile,
             )
             if not packet["sections"]:
                 counts["missing_sections"] += 1
             counts["packets_written"] += 1
+            summary = packet.get("document_summary", {})
             counts["total_chunks"] += len(packet["llm_chunks"])
+            counts["total_source_chunks"] += int(summary.get("source_chunk_count", 0) or 0)
+            counts["total_chunk_token_estimate"] += int(summary.get("chunk_token_estimate", 0) or 0)
+            counts["total_source_chunk_token_estimate"] += int(summary.get("source_chunk_token_estimate", 0) or 0)
+            counts["total_chunk_token_reduction_estimate"] += int(summary.get("chunk_token_reduction_estimate", 0) or 0)
             counts["total_tables"] += len(packet["tables"])
+            counts["total_source_tables"] += int(summary.get("source_table_count", 0) or 0)
             counts["total_figures"] += len(packet["figures"])
+            counts["total_source_figures"] += int(summary.get("source_figure_count", 0) or 0)
             counts["total_references"] += len(packet["references"])
+            counts["total_source_references"] += int(summary.get("source_reference_count", 0) or 0)
             handle.write(json.dumps(packet, ensure_ascii=False) + "\n")
 
     report = {
@@ -667,6 +951,8 @@ def build_dataset_packets(
             "max_chunks_per_paper": max_chunks_per_paper,
             "max_references": max_references,
             "include_section_text": include_section_text,
+            "include_candidate_contexts": include_candidate_contexts,
+            "packet_profile": packet_profile,
         },
         "outputs": {
             "jsonl": str(out_jsonl),
@@ -699,7 +985,14 @@ def main() -> int:
     parser.add_argument("--chunk-overlap-chars", type=int, default=300)
     parser.add_argument("--max-chunks-per-paper", type=int, default=0, help="0 means all chunks")
     parser.add_argument("--max-references", type=int, default=200, help="Maximum references per packet; negative means all")
+    parser.add_argument(
+        "--packet-profile",
+        choices=PACKET_PROFILES,
+        default="full",
+        help="full preserves all extracted sections; lean_primary keeps title/abstract metadata plus likely methods/results/tables",
+    )
     parser.add_argument("--omit-section-text", action="store_true", help="Keep chunk text but omit full section text from packets")
+    parser.add_argument("--omit-candidate-contexts", action="store_true", help="Do not include paper-library candidate contexts in packets")
     args = parser.parse_args()
 
     selected_datasets = dataset_names(args.dataset)
@@ -727,6 +1020,8 @@ def main() -> int:
             max_chunks_per_paper=max(0, args.max_chunks_per_paper),
             max_references=args.max_references,
             include_section_text=not args.omit_section_text,
+            include_candidate_contexts=not args.omit_candidate_contexts,
+            packet_profile=args.packet_profile,
         )
         reports.append(report)
         counts = report["counts"]
@@ -734,6 +1029,8 @@ def main() -> int:
         print(f"Artifacts selected: {counts['artifact_files_selected']}")
         print(f"Packets written: {counts['packets_written']}")
         print(f"Total chunks: {counts['total_chunks']}")
+        print(f"Packet profile: {report['inputs']['packet_profile']}")
+        print(f"Estimated chunk tokens: {counts['total_chunk_token_estimate']} / {counts['total_source_chunk_token_estimate']}")
         print(f"JSONL: {report['outputs']['jsonl']}")
         print(f"Report: {report['outputs']['report_json']}")
 

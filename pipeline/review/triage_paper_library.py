@@ -152,19 +152,21 @@ PRIMARY_KEYWORDS_MECHANISTIC = {
 }
 
 COMPOUND_SYNONYMS = {
-    "psilocybin": {"psilocybin", "psilocibin", "psilocin", "comp360"},
+    "psilocybin": {"psilocybin", "psilocibin", "psilocibina", "psilocybina", "psilocibine", "psilocin", "comp360"},
     "psilocin": {"psilocin", "4-ho-dmt", "4 hydroxy dmt"},
     "lsd": {"lsd", "lysergic acid diethylamide", "d-lysergic acid diethylamide"},
     "dmt": {"dmt", "n,n-dmt", "n n dmt", "dimethyltryptamine"},
     "5-meo-dmt": {"5-meo-dmt", "5 meo dmt", "5meodmt", "5-methoxy-dmt"},
+    "5-meo-mipt": {"5-meo-mipt", "5 meo mipt", "5-methoxy-n-methyl-n-isopropyltryptamine"},
     "ayahuasca": {"ayahuasca", "hoasca", "yage"},
     "mdma": {"mdma", "3,4-methylenedioxymethamphetamine", "ecstasy"},
     "mda": {"mda", "3,4-methylenedioxyamphetamine"},
     "ketamine": {"ketamine", "esketamine", "arketamine", "s-ketamine", "r-ketamine"},
     "s-ketamine": {"s-ketamine", "esketamine", "ketamine"},
     "r-ketamine": {"r-ketamine", "arketamine", "ketamine"},
-    "ibogaine": {"ibogaine", "18-mc", "18 mc"},
+    "ibogaine": {"ibogaine", "iboga", "tabernanthe iboga", "18-mc", "18 mc"},
     "noribogaine": {"noribogaine", "o-desmethylibogaine"},
+    "mescaline": {"mescaline", "peyote"},
     "salvinorin a": {"salvinorin a", "divinorin a"},
     "lsa": {"lsa", "ergine", "lysergic acid amide"},
     "doi": {"doi", "2,5-dimethoxy-4-iodoamphetamine"},

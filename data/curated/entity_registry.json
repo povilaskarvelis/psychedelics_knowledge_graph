@@ -156,7 +156,7 @@
     },
     {
       "label": "5-HT2A",
-      "aliases": ["HTR2A", "serotonin 2A receptor"],
+      "aliases": ["HTR2A", "5-HT2AR", "5-HT2A receptor", "5-HT2A receptors", "5-HT 2A R", "serotonin 2A receptor", "serotonin 5-HT2A receptor", "serotonin 5-HT2A receptors"],
       "ids": {"gene_symbol": "HTR2A", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
@@ -191,7 +191,7 @@
     },
     {
       "label": "AMPA receptor",
-      "aliases": ["AMPA-type glutamate receptor", "ionotropic AMPA receptor"],
+      "aliases": ["AMPAR", "AMPA receptors", "AMPA-type glutamate receptor", "ionotropic AMPA receptor", "α-amino-3-hydroxy-5-methyl-4-isoxazolepropionic acid (AMPA) receptor"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "complex_target_needs_subunit_mapping"
@@ -204,6 +204,13 @@
       "status": "needs_external_id_lookup"
     },
     {
+      "label": "Dopamine D2 receptor (DRD2)",
+      "aliases": ["Dopamine D2 receptor", "D2 receptor", "DRD2"],
+      "ids": {"gene_symbol": "DRD2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
       "label": "NET (SLC6A2)",
       "aliases": ["NET", "norepinephrine transporter", "SLC6A2"],
       "ids": {"gene_symbol": "SLC6A2", "uniprot_id": "", "chembl_target_id": ""},
@@ -212,7 +219,7 @@
     },
     {
       "label": "NMDA receptor",
-      "aliases": ["N-methyl-D-aspartate receptor"],
+      "aliases": ["NMDAR", "NMDARs", "NMDA receptors", "N-methyl-D-aspartate receptor", "N-methyl-D-aspartate receptors", "N-methyl-D-aspartate (NMDA) receptor", "N-methyl-D-aspartate (NMDA) receptors"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "complex_target_needs_subunit_mapping"
@@ -233,14 +240,14 @@
     },
     {
       "label": "mu opioid receptor (OPRM1)",
-      "aliases": ["MOR", "mu opioid receptor", "OPRM1"],
+      "aliases": ["MOR", "mu opioid receptor", "mu-opioid receptor", "µ-opioid receptor", "μ-opioid receptor", "OPRM1"],
       "ids": {"gene_symbol": "OPRM1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
     },
     {
       "label": "SERT (SLC6A4)",
-      "aliases": ["SERT", "serotonin transporter", "SLC6A4"],
+      "aliases": ["SERT", "serotonin transporter", "serotonin reuptake transporter", "SLC6A4"],
       "ids": {"gene_symbol": "SLC6A4", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
@@ -261,14 +268,14 @@
     },
     {
       "label": "TAAR1",
-      "aliases": ["trace amine-associated receptor 1"],
+      "aliases": ["TAAR1 receptor", "trace amine-associated receptor 1", "trace amine receptor 1", "Trace Amine Receptor 1"],
       "ids": {"gene_symbol": "TAAR1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
     },
     {
       "label": "TrkB (NTRK2)",
-      "aliases": ["TrkB", "BDNF receptor", "NTRK2", "tropomyosin receptor kinase B"],
+      "aliases": ["TrkB", "TrkB receptor", "TrkB receptors", "BDNF receptor", "NTRK2", "tropomyosin receptor kinase B"],
       "ids": {"gene_symbol": "NTRK2", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
@@ -282,24 +289,27 @@
     }
   ],
   "disorders": [
-    {"label": "Alcohol use disorder", "aliases": ["AUD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Alcohol use disorder", "aliases": ["AUD", "alcohol dependence", "alcohol addiction", "alcoholism"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Anorexia nervosa", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Anxiety", "aliases": ["anxiety symptoms", "anxiety disorder", "anxiety disorders"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
     {"label": "Autism spectrum disorder", "aliases": ["ASD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Bipolar depression", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Cannabis use disorder", "aliases": ["CUD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Chronic pain", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Cluster headache", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Complex post-traumatic stress disorder", "aliases": ["complex PTSD", "C-PTSD", "CPTSD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
-    {"label": "Cocaine use disorder", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Cocaine use disorder", "aliases": ["cocaine dependence", "cocaine dependency", "cocaine addiction"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Demoralization", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Depression", "aliases": ["depressive disorder", "depressive disorders", "depressive symptoms"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
     {"label": "Distress associated with life-threatening disease", "aliases": ["cancer-related distress", "life-threatening disease distress"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Eating disorders", "aliases": ["eating disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Generalized anxiety disorder", "aliases": ["GAD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Major depressive disorder", "aliases": ["MDD", "major depression"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Methamphetamine use disorder", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Neuropathic pain", "aliases": ["chronic neuropathic pain"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Nicotine dependence", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Obsessive-compulsive disorder", "aliases": ["OCD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
-    {"label": "Opioid use disorder", "aliases": ["OUD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Opioid use disorder", "aliases": ["OUD", "opioid dependence", "opioid addiction"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Persistent depressive disorder", "aliases": ["dysthymia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Post-traumatic stress disorder", "aliases": ["PTSD", "posttraumatic stress disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Social anxiety disorder", "aliases": ["SAD", "social phobia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},

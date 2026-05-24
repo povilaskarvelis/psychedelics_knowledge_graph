@@ -77,7 +77,12 @@ Disorder claims:
 - `low`: observational study, retrospective study, case report, preclinical-only evidence, or conservative default
 
 ## Minimal claim direction
-- Disorder claims also include `result_direction`: `positive`, `null`, `negative`, `mixed`, or `unclear`
+- Disorder claims also include `result_direction`: `positive`, `null`, `negative`, `mixed`, or `unclear`.
+  This field records the therapeutic or functional interpretation for the
+  disorder/indication, not the raw numeric direction of the outcome measure.
+  For example, reduced symptom scores, reduced relapse/reinstatement/craving,
+  reduced pathological behavior, or improved functioning are `positive` when
+  presented as beneficial.
 - `protocol`, `review`, `systematic_review`, `meta_analysis`,
   `conference_abstract`, `conference_or_poster_abstract`, `commentary`,
   `correction`, and `erratum` papers are not countable primary-evidence claims

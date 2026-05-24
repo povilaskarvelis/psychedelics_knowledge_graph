@@ -1,0 +1,64 @@
+{
+  "generated_at_utc": "2026-05-23T05:28:30.563775+00:00",
+  "schema_version": "extraction_v1_gemini_report",
+  "status": "ok",
+  "inputs": {
+    "input_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.lean_e2e.50b.jsonl",
+    "prompt": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_prompt.md",
+    "prompts": {
+      "shared": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_prompt.md",
+      "mechanistic": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_mechanistic_prompt.md",
+      "disorder": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_disorder_prompt.md"
+    },
+    "schema": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/schema/extraction_v1.schema.json",
+    "schema_mode": "native",
+    "schema_prompt_view": "dataset_specific",
+    "schema_prompt_view_compact_chars": {
+      "mechanistic": 6122,
+      "disorder": 6277,
+      "canonical": 10161
+    },
+    "schema_native_view_compact_chars": {
+      "mechanistic": 5944,
+      "disorder": 6099
+    },
+    "model": "gemini-2.5-flash",
+    "start_index": 1,
+    "limit": 50,
+    "resume": false,
+    "skipped_completed_records": 0,
+    "processed_records": 50
+  },
+  "outputs": {
+    "out_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_outputs.lean_e2e.50b.jsonl",
+    "raw_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_gemini_raw.lean_e2e.50b.jsonl",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_gemini_report.lean_e2e.50b.json"
+  },
+  "summary": {
+    "status_counts": {
+      "ok": 50
+    },
+    "route_counts": {
+      "primary_evidence": 22,
+      "secondary_literature": 12,
+      "context_only": 11,
+      "human_review": 4,
+      "exclude": 1
+    },
+    "json_repair_counts": {
+      "model_repair": 3,
+      "not_needed": 47
+    },
+    "usage": {
+      "candidates_token_count": 83682,
+      "prompt_token_count": 534973,
+      "thoughts_token_count": 128286,
+      "total_token_count": 746941,
+      "repair_candidates_token_count": 5541,
+      "repair_prompt_token_count": 5483,
+      "repair_thoughts_token_count": 1938,
+      "repair_total_token_count": 12962,
+      "cached_content_token_count": 17247
+    }
+  }
+}

@@ -4,14 +4,14 @@ from pipeline.ingest.build_comprehensive_search_plan import build_search_plan
 
 
 class ComprehensiveSearchPlanTest(unittest.TestCase):
-    def test_baseline_plan_covers_compounds_entities_and_pairs(self) -> None:
+    def test_standard_plan_covers_compounds_entities_and_pairs(self) -> None:
         plan = build_search_plan(
             dataset="mechanistic",
             allowlists={
                 "allowed_compounds": ["LSD", "Psilocybin"],
                 "allowed_targets": ["5-HT2A"],
             },
-            profile="baseline",
+            profile="standard",
             include_default_seeds=False,
             max_compounds=0,
             max_entities=0,
@@ -24,6 +24,7 @@ class ComprehensiveSearchPlanTest(unittest.TestCase):
         self.assertEqual(counts["entity_broad"], 3)
         self.assertEqual(counts["pair_core"], 6)
         self.assertNotIn("pair_expanded", counts)
+        self.assertEqual(plan["run_id"], "literature_search")
 
     def test_expanded_plan_adds_pair_evidence_templates(self) -> None:
         plan = build_search_plan(
@@ -51,7 +52,7 @@ class ComprehensiveSearchPlanTest(unittest.TestCase):
                 "allowed_compounds": ["LSD", "Psilocybin"],
                 "allowed_targets": ["5-HT2A", "5-HT2C"],
             },
-            profile="baseline",
+            profile="standard",
             include_default_seeds=False,
             max_compounds=0,
             max_entities=0,

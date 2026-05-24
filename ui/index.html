@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260524-abstract-only-tag" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -91,14 +91,26 @@
                     Targets
                   </button>
                 </div>
+                <div class="mode-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
+                  <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
+                    Primary
+                  </button>
+                  <button class="ghost small" data-evidence-view="secondary" role="tab" aria-selected="false">
+                    Secondary
+                  </button>
+                </div>
+                <div class="mode-toggle claim-layer-toggle" role="tablist" aria-label="Claim layer">
+                  <button class="ghost small active" data-claim-layer="normalized" role="tab" aria-selected="true">
+                    Normalized
+                  </button>
+                  <button class="ghost small" data-claim-layer="extracted" role="tab" aria-selected="false">
+                    Full claims
+                  </button>
+                </div>
                 <div class="filter-toggles" aria-label="Evidence filters">
                   <label class="access-toggle" for="fullTextOnlyToggle">
                     <input id="fullTextOnlyToggle" type="checkbox" checked />
                     <span>Full text only</span>
-                  </label>
-                  <label class="access-toggle" for="includeSecondaryToggle">
-                    <input id="includeSecondaryToggle" type="checkbox" />
-                    <span>Secondary sources</span>
                   </label>
                 </div>
               </div>
@@ -156,6 +168,6 @@
       </div>
     </footer>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=20260524-abstract-only-tag"></script>
   </body>
 </html>

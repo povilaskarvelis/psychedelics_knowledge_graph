@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the generated pair-grid/audit search layer with resumable chunks."""
+"""Run the generated direct-pair search layer with resumable chunks."""
 
 from __future__ import annotations
 
@@ -15,7 +15,8 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
 DATASETS = ["mechanistic", "disorder"]
 DEFAULT_FAMILIES = ["sentinel_default", "class_level", "compound_broad", "entity_broad", "pair_core"]
@@ -311,14 +312,14 @@ def family_rollup(chunks: list[dict]) -> list[dict]:
 
 
 def write_summary(run_root: Path, summary: dict) -> None:
-    json_path = run_root / "pair_grid_audit_summary.json"
+    json_path = run_root / "direct_pair_search_summary.json"
     json_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     lines = [
-        "# Pair-Grid Audit Summary",
+        "# Direct Pair Search Summary",
         "",
         f"- Generated: {summary['generated_at_utc']}",
-        f"- Protocol: `{PROTOCOL_ID}`",
+        f"- Run: `{summary['run_id']}`",
         f"- Provider: `{summary['provider']}`",
         f"- Providers run: `{', '.join(summary.get('providers', [summary['provider']]))}`",
         f"- Query variant mode: `{summary['query_variant_mode']}`",
@@ -326,14 +327,14 @@ def write_summary(run_root: Path, summary: dict) -> None:
         "",
         "## Final Queues",
         "",
-        "| Dataset | Pair-grid discovered DOIs | Pair-grid new vs existing corpus | Boolean new DOIs | Final all-layer new DOIs | Pair-grid incremental new beyond Boolean |",
+        "| Dataset | Direct pair discovered DOIs | Direct pair new vs existing corpus | Grouped-search new DOIs | Final combined new DOIs | Direct pair incremental new beyond grouped search |",
         "| --- | ---: | ---: | ---: | ---: | ---: |",
     ]
     for dataset, item in summary["combined"].items():
         lines.append(
-            f"| {dataset} | {item['pair_grid_discovered_dois']} | {item['pair_grid_new_vs_existing_corpus']} | "
-            f"{item['boolean_new_dois']} | {item['all_layer_new_dois']} | "
-            f"{item['pair_grid_incremental_new_beyond_boolean']} |"
+            f"| {dataset} | {item['direct_pair_discovered_dois']} | {item['direct_pair_new_vs_existing_corpus']} | "
+            f"{item['grouped_search_new_dois']} | {item['combined_new_dois']} | "
+            f"{item['direct_pair_incremental_new_beyond_grouped_search']} |"
         )
     lines.extend(["", "## Family Rollup", ""])
     lines.append("| Provider | Dataset | Family | Chunks | Seeds | Raw rows | Merged rows | Provider errors | New vs existing corpus | Rediscovered | Invalid |")
@@ -347,9 +348,9 @@ def write_summary(run_root: Path, summary: dict) -> None:
         )
     lines.extend(["", "## Outputs", ""])
     for dataset, item in summary["combined"].items():
-        lines.append(f"- `{dataset}` pair-grid new queue: `{item['pair_grid_new_queue']}`")
-        lines.append(f"- `{dataset}` all-layer final new queue: `{item['all_layer_new_queue']}`")
-    md_path = run_root / "pair_grid_audit_summary.md"
+        lines.append(f"- `{dataset}` direct pair new queue: `{item['direct_pair_new_queue']}`")
+        lines.append(f"- `{dataset}` combined new queue: `{item['combined_new_queue']}`")
+    md_path = run_root / "direct_pair_search_summary.md"
     md_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"Summary JSON: {json_path}")
     print(f"Summary Markdown: {md_path}")
@@ -376,7 +377,8 @@ def write_partial_summary(
 ) -> None:
     summary = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": args.run_id,
+        "protocol_id": args.run_id,
         "generated_at_utc": now_utc(),
         "status": status,
         "provider": args.provider,
@@ -387,7 +389,7 @@ def write_partial_summary(
         "chunk_size": args.chunk_size,
         "seed_root": str(seed_root),
         "run_root": str(run_root),
-        "boolean_run_root": str(boolean_run_root),
+        "grouped_run_root": str(boolean_run_root),
         "chunks": chunk_summaries,
         "family_rollup": family_rollup(chunk_summaries),
         "combined": {},
@@ -396,19 +398,30 @@ def write_partial_summary(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run pair-grid/audit seed layer")
-    parser.add_argument("--seed-root", default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID))
-    parser.add_argument("--run-root", default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "pair_grid_audit_v1"))
+    parser = argparse.ArgumentParser(description="Run direct-pair search seed layer")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when path arguments are not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for search artifacts")
+    parser.add_argument("--seed-root", default="", help="Directory containing direct pair-search seeds. Defaults to <search-root>/<run-id>/direct_pairs.")
+    parser.add_argument("--run-root", default="", help="Output directory for direct pair-search results. Defaults to <search-root>/<run-id>/direct_pair_run.")
     parser.add_argument("--dataset", default="all", help="mechanistic, disorder, comma-separated list, or all")
     parser.add_argument("--families", default=",".join(DEFAULT_FAMILIES), help="Seed families to run, comma-separated or all")
-    parser.add_argument("--provider", choices=["openalex", "pubmed", "both"], default="openalex")
+    parser.add_argument("--provider", choices=["openalex", "pubmed", "both"], default="both")
     parser.add_argument("--openalex-search-field", choices=["default", "title", "abstract", "title_and_abstract", "fulltext"], default="title_and_abstract")
     parser.add_argument("--query-variant-mode", choices=["off", "conservative", "expanded"], default="off")
     parser.add_argument("--mechanistic-cap", type=int, default=30)
     parser.add_argument("--disorder-cap", type=int, default=20)
     parser.add_argument("--chunk-size", type=int, default=500)
     parser.add_argument("--existing-scope", choices=["global", "dataset"], default="global")
-    parser.add_argument("--boolean-run-root", default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "boolean_modules" / "full_boolean_v1" / "combined"))
+    parser.add_argument(
+        "--grouped-run-root",
+        default="",
+        help="Combined grouped-search output directory. Defaults to <search-root>/<run-id>/grouped_module_run/combined.",
+    )
+    parser.add_argument(
+        "--boolean-run-root",
+        default="",
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument("--max-retries", type=int, default=2)
     parser.add_argument("--max-retry-after-sec", type=int, default=30)
     parser.add_argument("--http-hard-timeout-sec", type=int, default=180)
@@ -431,9 +444,15 @@ def main() -> int:
     except ValueError as err:
         raise SystemExit(str(err))
 
-    seed_root = Path(args.seed_root).resolve()
-    run_root = Path(args.run_root).resolve()
-    boolean_run_root = Path(args.boolean_run_root).resolve()
+    search_root = Path(args.search_root).resolve()
+    seed_root = Path(args.seed_root).resolve() if args.seed_root else search_root / args.run_id / "direct_pairs"
+    run_root = Path(args.run_root).resolve() if args.run_root else search_root / args.run_id / "direct_pair_run"
+    grouped_run_root_arg = args.grouped_run_root or args.boolean_run_root
+    boolean_run_root = (
+        Path(grouped_run_root_arg).resolve()
+        if grouped_run_root_arg
+        else search_root / args.run_id / "grouped_module_run" / "combined"
+    )
     run_root.mkdir(parents=True, exist_ok=True)
     providers = providers_for_arg(args.provider)
 
@@ -536,7 +555,7 @@ def main() -> int:
                 "--existing-scope",
                 args.existing_scope,
             ],
-            label=f"{dataset} / pair-grid combined DOI gate",
+            label=f"{dataset} / direct pair combined DOI gate",
         )
 
         boolean_discovered = boolean_run_root / f"{dataset}_discovered.txt"
@@ -573,20 +592,21 @@ def main() -> int:
         boolean_new_dois = read_queue_dois(boolean_new)
         all_layer_new = read_queue_dois(all_layer_dir / f"{dataset}_new_dois.txt")
         combined[dataset] = {
-            "pair_grid_discovered_dois": pair_grid_discovered_count,
-            "pair_grid_new_vs_existing_corpus": int(pair_grid_report["counts"]["new_dois"]),
-            "boolean_new_dois": len(boolean_new_dois),
-            "all_layer_new_dois": int(all_layer_report["counts"]["new_dois"]),
-            "pair_grid_incremental_new_beyond_boolean": len(all_layer_new - boolean_new_dois),
-            "pair_grid_new_overlapping_boolean_new": len(pair_grid_new & boolean_new_dois),
-            "pair_grid_new_queue": str(combined_dir / f"{dataset}_new_dois.txt"),
-            "all_layer_new_queue": str(all_layer_dir / f"{dataset}_new_dois.txt"),
-            "all_layer_report_json": str(all_layer_dir / f"{dataset}_add_new_dois_report.json"),
+            "direct_pair_discovered_dois": pair_grid_discovered_count,
+            "direct_pair_new_vs_existing_corpus": int(pair_grid_report["counts"]["new_dois"]),
+            "grouped_search_new_dois": len(boolean_new_dois),
+            "combined_new_dois": int(all_layer_report["counts"]["new_dois"]),
+            "direct_pair_incremental_new_beyond_grouped_search": len(all_layer_new - boolean_new_dois),
+            "direct_pair_new_overlapping_grouped_search_new": len(pair_grid_new & boolean_new_dois),
+            "direct_pair_new_queue": str(combined_dir / f"{dataset}_new_dois.txt"),
+            "combined_new_queue": str(all_layer_dir / f"{dataset}_new_dois.txt"),
+            "combined_report_json": str(all_layer_dir / f"{dataset}_add_new_dois_report.json"),
         }
 
     summary = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": args.run_id,
+        "protocol_id": args.run_id,
         "generated_at_utc": now_utc(),
         "status": "completed",
         "provider": args.provider,
@@ -597,7 +617,7 @@ def main() -> int:
         "chunk_size": args.chunk_size,
         "seed_root": str(seed_root),
         "run_root": str(run_root),
-        "boolean_run_root": str(boolean_run_root),
+        "grouped_run_root": str(boolean_run_root),
         "chunks": chunk_summaries,
         "family_rollup": family_rollup(chunk_summaries),
         "combined": combined,

@@ -16,6 +16,7 @@ from typing import Any, Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 KG_VERSION = "0.1"
+CORPUS_MANIFEST = ROOT / "data" / "processed" / "corpus_manifest.json"
 
 DATASETS = {
     "mechanistic": {
@@ -161,11 +162,23 @@ PROVENANCE_FIELDS = (
 )
 
 RELEVANT_RELEVANCE = {"likely_relevant", "possible_relevant"}
-INCLUDED_SCREENING = {"included_context_match", "included_synthesized_context", "included_protected"}
+INCLUDED_SCREENING = {
+    "included_context_match",
+    "included_synthesized_context",
+    "included_protected",
+    "included_llm_relevant",
+    "included_llm_uncertain",
+    "retained_for_llm_screening",
+}
 
 PRISMA_SCREENING_REASON_LABELS = {
+    "excluded_deterministic_prescreen": "No in-scope title/abstract signal",
+    "excluded_llm_irrelevant": "LLM abstract screen judged irrelevant",
     "excluded_low_signal": "Low-signal abstract screen",
+    "llm_screening_error": "LLM abstract screen failed",
     "needs_context_review": "Possible or contextual signal only",
+    "not_screened": "Not screened yet",
+    "not_screened_no_abstract": "No abstract available for screening",
     "included_synthesized_context": "Synthesized context, not direct match",
     "needs_metadata_or_manual_screen": "Metadata or manual screen needed",
     "unknown": "Screening status not available",
@@ -281,6 +294,11 @@ def read_json_object(path: Path) -> dict:
     return data
 
 
+def resolve_project_path(path: object) -> Path:
+    value = Path(normalize(path))
+    return value if value.is_absolute() else ROOT / value
+
+
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
@@ -317,6 +335,14 @@ def listify(value: object) -> list:
     if isinstance(value, list):
         return value
     return [value]
+
+
+def boolish(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    return normalize(value).lower() in {"1", "true", "yes", "y"}
 
 
 def merge_unique(existing: list, values: Iterable[object]) -> list:
@@ -386,6 +412,10 @@ def source_stage(source_file: Path) -> str:
         return "paper_library"
     if name.startswith("triage_report_"):
         return "triage_report"
+    if name.startswith("llm_abstract_screening_report_"):
+        return "llm_screening_report"
+    if name.startswith("deterministic_prescreen_report_"):
+        return "deterministic_prescreen_report"
     if "claim" in name:
         return "claims"
     return source_file.stem
@@ -401,6 +431,8 @@ def retrieval_source_rank(stage: str) -> int:
 
 def screening_source_rank(stage: str) -> int:
     return {
+        "llm_screening_report": 5,
+        "deterministic_prescreen_report": 4,
         "triage_report": 3,
         "paper_library": 1,
         "claims": 0,
@@ -432,6 +464,131 @@ def prisma_retrieval_reason(props: dict) -> str:
     if status in {"invalid_pdf_existing", "invalid_pdf_content"}:
         return "pdf_validation_failed"
     return status or "unknown"
+
+
+def inferred_prescreen_report_path(llm_report_path: Path, dataset: str) -> Path:
+    prefix = f"llm_abstract_screening_report_{dataset}"
+    stem = llm_report_path.stem
+    suffix = stem[len(prefix) :] if stem.startswith(prefix) else ""
+    return llm_report_path.with_name(f"deterministic_prescreen_report_{dataset}{suffix}.json")
+
+
+def row_flattened(row: dict) -> dict:
+    flat = {}
+    input_row = row.get("input_row")
+    if isinstance(input_row, dict):
+        flat.update(input_row)
+    flat_row = row.get("flat")
+    if isinstance(flat_row, dict):
+        flat.update(flat_row)
+    return flat
+
+
+def llm_relevance(row: dict, flat: dict) -> str:
+    adjudication = row.get("adjudication") if isinstance(row.get("adjudication"), dict) else {}
+    return normalize(flat.get("llm_relevance") or adjudication.get("relevance")).lower()
+
+
+def relevance_to_pipeline(relevance: str) -> tuple[str, str]:
+    if relevance == "relevant":
+        return "likely_relevant", "included_llm_relevant"
+    if relevance == "uncertain":
+        return "possible_relevant", "included_llm_uncertain"
+    if relevance == "irrelevant":
+        return "likely_irrelevant", "excluded_llm_irrelevant"
+    return "unknown", "llm_screening_error"
+
+
+def deterministic_prescreen_pipeline_row(row: dict) -> dict:
+    action = normalize(row.get("deterministic_prescreen_action", ""))
+    retained = boolish(row.get("retained_for_llm"))
+    if action == "exclude_obvious_irrelevant":
+        relevance = "likely_irrelevant"
+        screening_status = "excluded_deterministic_prescreen"
+    elif retained:
+        relevance = "possible_relevant"
+        screening_status = "retained_for_llm_screening"
+    else:
+        relevance = "unknown"
+        screening_status = action or "deterministic_prescreen_unknown"
+    out = {
+        "study_doi": normalize_doi(row.get("study_doi", "")),
+        "study_title": strip_markup(row.get("study_title", "")),
+        "study_year": row.get("study_year", ""),
+        "authors": row.get("authors", ""),
+        "pdf_download_status": row.get("pdf_download_status", ""),
+        "relevance_suggested": relevance,
+        "screening_status": screening_status,
+        "matched_context_count": row.get("candidate_context_count", ""),
+        "deterministic_prescreen_action": action,
+        "deterministic_prescreen_reason": row.get("deterministic_prescreen_reason", ""),
+    }
+    if row.get("has_abstract") is not None:
+        out["abstract_present"] = boolish(row.get("has_abstract"))
+    return out
+
+
+def llm_screening_pipeline_row(dataset: str, row: dict) -> dict:
+    flat = row_flattened(row)
+    relevance = llm_relevance(row, flat)
+    relevance_suggested, screening_status = relevance_to_pipeline(relevance)
+    verification = row.get("verification") if isinstance(row.get("verification"), dict) else {}
+    out = {
+        "study_doi": normalize_doi(flat.get("study_doi", "")),
+        "study_title": strip_markup(flat.get("study_title", "")),
+        "study_year": flat.get("study_year", ""),
+        "authors": flat.get("authors", ""),
+        "study_journal": flat.get("study_journal", ""),
+        "publication_type": flat.get("publication_type", ""),
+        "trial_registry_ids": flat.get("trial_registry_ids", ""),
+        "publication_date": flat.get("publication_date", ""),
+        "journal_issn": flat.get("journal_issn", ""),
+        "journal_eissn": flat.get("journal_eissn", ""),
+        "publisher": flat.get("publisher", ""),
+        "mesh_terms": flat.get("mesh_terms", ""),
+        "keywords": flat.get("keywords", ""),
+        "funders": flat.get("funders", ""),
+        "grant_ids": flat.get("grant_ids", ""),
+        "related_dois": flat.get("related_dois", ""),
+        "publication_relations": flat.get("publication_relations", ""),
+        "is_retracted": flat.get("is_retracted", ""),
+        "has_correction": flat.get("has_correction", ""),
+        "language": flat.get("language", ""),
+        "semantic_scholar_id": flat.get("semantic_scholar_id", ""),
+        "library_status": flat.get("library_status", ""),
+        "pdf_download_status": flat.get("pdf_download_status", ""),
+        "relevance_suggested": relevance_suggested,
+        "screening_status": screening_status,
+        "matched_context_count": flat.get("verified_supported_context_count") or len(llm_supported_contexts(row)),
+        "llm_relevance": relevance,
+        "llm_confidence": flat.get("llm_confidence", ""),
+        "quote_verified": flat.get("quote_verified", "") or verification.get("quote_verified", ""),
+        "llm_needs_targeted_qa": flat.get("llm_needs_targeted_qa", ""),
+        "validation_flags": flat.get("validation_flags", ""),
+    }
+    if normalize(flat.get("has_abstract", "")):
+        out["abstract_present"] = boolish(flat.get("has_abstract", ""))
+    return out
+
+
+def llm_supported_contexts(row: dict) -> list[dict]:
+    verification = row.get("verification") if isinstance(row.get("verification"), dict) else {}
+    verified = verification.get("verified_supported_contexts")
+    if isinstance(verified, list) and verified:
+        return [context for context in verified if isinstance(context, dict)]
+    adjudication = row.get("adjudication") if isinstance(row.get("adjudication"), dict) else {}
+    contexts = adjudication.get("supported_contexts")
+    if not isinstance(contexts, list):
+        return []
+    out = []
+    for context in contexts:
+        if not isinstance(context, dict):
+            continue
+        support = normalize(context.get("support", "")).lower()
+        if support and support != "supported":
+            continue
+        out.append(context)
+    return out
 
 
 class EntityIndex:
@@ -516,6 +673,7 @@ class KgBuilder:
         self.doi_to_paper_id: dict[str, str] = {}
         self.entity_to_node_id: dict[str, str] = {}
         self.pipeline_rows: dict[str, dict[str, dict]] = defaultdict(dict)
+        self.datasets_with_corpus_screening: set[str] = set()
         self.metadata_conflicts: Counter = Counter()
         self.metadata_conflict_examples: dict[str, list[dict]] = defaultdict(list)
         self.input_files: list[str] = []
@@ -528,6 +686,7 @@ class KgBuilder:
 
         self.load_fulltext_status()
         self.load_paper_libraries()
+        self.load_corpus_screening_reports()
         self.load_triage_reports()
         self.load_claims()
         self.finalize_paper_nodes()
@@ -752,6 +911,13 @@ class KgBuilder:
             },
         )
         props["source_files"] = merge_unique(props.get("source_files", []), [str(source_file)])
+        props.setdefault("abstract_present", False)
+        if normalize(row.get("abstract", "")):
+            props["abstract_present"] = True
+        elif "abstract_present" in row:
+            props["abstract_present"] = boolish(row.get("abstract_present")) or boolish(props.get("abstract_present"))
+        elif "has_abstract" in row:
+            props["abstract_present"] = boolish(row.get("has_abstract")) or boolish(props.get("abstract_present"))
 
         for field in PIPELINE_IDENTITY_FIELDS:
             value = row.get(field, "")
@@ -801,6 +967,8 @@ class KgBuilder:
 
     def load_triage_reports(self) -> None:
         for dataset, cfg in DATASETS.items():
+            if dataset in self.datasets_with_corpus_screening:
+                continue
             path = cfg["triage_report"]
             report = read_json_object(path)
             self.input_files.append(str(path))
@@ -826,6 +994,147 @@ class KgBuilder:
                     if normalize(value) != "":
                         paper_props[field] = value
                 self.add_context_records(dataset, object_type, row, paper_id, path)
+
+    def load_corpus_screening_reports(self) -> None:
+        if not CORPUS_MANIFEST.exists():
+            return
+        manifest = read_json_object(CORPUS_MANIFEST)
+        self.input_files.append(str(CORPUS_MANIFEST))
+        datasets = manifest.get("datasets", {})
+        if not isinstance(datasets, dict):
+            self.warnings.append(f"Corpus manifest has no datasets object: {CORPUS_MANIFEST}")
+            return
+        for dataset in DATASETS:
+            dataset_manifest = datasets.get(dataset, {})
+            if not isinstance(dataset_manifest, dict):
+                continue
+            reports = dataset_manifest.get("screening_reports", [])
+            if not isinstance(reports, list):
+                self.warnings.append(f"Corpus manifest screening_reports is not a list for {dataset}")
+                continue
+            loaded_any = False
+            for report_entry in reports:
+                if not isinstance(report_entry, dict) or report_entry.get("include", True) is False:
+                    continue
+                report_value = normalize(report_entry.get("path", ""))
+                if not report_value:
+                    self.warnings.append(f"Corpus manifest screening report entry has no path for {dataset}")
+                    continue
+                report_path = resolve_project_path(report_value)
+                if not report_path.exists():
+                    self.warnings.append(f"Manifest-listed screening report is missing: {report_path}")
+                    continue
+                prescreen_path = inferred_prescreen_report_path(report_path, dataset)
+                if prescreen_path.exists():
+                    self.load_deterministic_prescreen_report(dataset, prescreen_path)
+                self.load_llm_screening_report(dataset, report_path, normalize(report_entry.get("run_id", "")))
+                loaded_any = True
+            if loaded_any:
+                self.datasets_with_corpus_screening.add(dataset)
+
+    def load_deterministic_prescreen_report(self, dataset: str, path: Path) -> None:
+        report = read_json_object(path)
+        self.input_files.append(str(path))
+        for row in report.get("rows", []):
+            if not isinstance(row, dict):
+                continue
+            normalized_row = deterministic_prescreen_pipeline_row(row)
+            if not normalize(normalized_row.get("study_doi", "")):
+                continue
+            paper_id = self.merge_paper(normalized_row, dataset, path)
+            self.merge_pipeline_row(normalized_row, dataset, paper_id, path)
+
+    def load_llm_screening_report(self, dataset: str, path: Path, run_id: str) -> None:
+        report = read_json_object(path)
+        self.input_files.append(str(path))
+        object_type = DATASETS[dataset]["object_type"]
+        for row in report.get("rows", []):
+            if not isinstance(row, dict):
+                continue
+            normalized_row = llm_screening_pipeline_row(dataset, row)
+            if not normalize(normalized_row.get("study_doi", "")):
+                continue
+            paper_id = self.merge_paper(normalized_row, dataset, path)
+            self.merge_pipeline_row(normalized_row, dataset, paper_id, path)
+            self.add_llm_context_records(dataset, object_type, row, normalized_row, paper_id, path, run_id)
+
+    def add_llm_context_records(
+        self,
+        dataset: str,
+        object_type: str,
+        source_row: dict,
+        pipeline_row: dict,
+        paper_id: str,
+        source_file: Path,
+        run_id: str,
+    ) -> None:
+        contexts = llm_supported_contexts(source_row)
+        if not contexts:
+            return
+        seen: set[tuple[str, str, str]] = set()
+        for context in contexts:
+            compound = strip_markup(context.get("compound", ""))
+            obj = strip_markup(context.get("entity", ""))
+            if not compound or not obj:
+                continue
+            subject_id, subject_label = self.entity_index.resolve("Compound", compound)
+            object_id, object_label = self.entity_index.resolve(object_type, obj)
+            basis = "llm_abstract_screening"
+            key = (subject_id, object_id, basis)
+            if key in seen:
+                continue
+            seen.add(key)
+            record_id = f"evidence:ctx:{digest_id(dataset, paper_id, subject_id, object_id, basis, run_id)}"
+            record = {
+                "id": record_id,
+                "record_type": "literature_context",
+                "status": "provisional",
+                "dataset": dataset,
+                "paper_id": paper_id,
+                "paper_doi": normalize_doi(pipeline_row.get("study_doi", "")),
+                "subject_id": subject_id,
+                "subject_type": "Compound",
+                "subject_label": subject_label,
+                "object_id": object_id,
+                "object_type": object_type,
+                "object_label": object_label,
+                "relation": "candidate_disorder_context" if object_type == "Disorder" else "candidate_target_context",
+                "basis": basis,
+                "screening": {
+                    "relevance_suggested": normalize(pipeline_row.get("relevance_suggested", "")),
+                    "screening_status": normalize(pipeline_row.get("screening_status", "")),
+                    "llm_confidence": pipeline_row.get("llm_confidence", ""),
+                    "quote_verified": pipeline_row.get("quote_verified", ""),
+                    "included_from_run": run_id,
+                },
+                "context": {
+                    "compound_match": compound,
+                    "entity_match": obj,
+                    "supporting_quote": strip_markup(context.get("supporting_quote", "")),
+                    "confidence": context.get("confidence", ""),
+                    "reason": strip_markup(context.get("reason", "")),
+                },
+                "source": {
+                    "file": str(source_file),
+                    "stage": "llm_screening_report",
+                    "run_id": run_id,
+                },
+            }
+            self.evidence_records[record_id] = record
+            self.add_evidence_node(record)
+            self.add_edge("paper_has_literature_context", paper_id, record_id, evidence_record_id=record_id)
+            self.add_edge("evidence_about_compound", record_id, subject_id, evidence_record_id=record_id)
+            self.add_edge(f"evidence_about_{object_type.lower()}", record_id, object_id, evidence_record_id=record_id)
+            self.add_edge("mentions_compound", paper_id, subject_id, evidence_record_id=record_id, properties={"dataset": dataset, "basis": basis})
+            self.add_edge(f"mentions_{object_type.lower()}", paper_id, object_id, evidence_record_id=record_id, properties={"dataset": dataset, "basis": basis})
+            semantic_edge_id = self.add_edge(
+                record["relation"],
+                subject_id,
+                object_id,
+                evidence_record_id=record_id,
+                properties={"dataset": dataset, "basis": basis, "paper_id": paper_id},
+            )
+            self.add_to_aggregate(dataset, object_type, subject_id, object_id, record_id, paper_id, "candidate", semantic_edge_id)
 
     def add_context_records(self, dataset: str, object_type: str, row: dict, paper_id: str, source_file: Path) -> None:
         context_rows = row.get("contexts") or row.get("contexts_all") or []
@@ -1327,12 +1636,16 @@ class KgBuilder:
         prisma_rows: dict[str, list[dict]] = defaultdict(list)
         for dataset, rows_by_paper in sorted(self.pipeline_rows.items()):
             for row_props in rows_by_paper.values():
-                if not paper_has_screening_record(row_props):
-                    continue
+                paper_props = self.nodes.get(row_props.get("paper_id", ""), {}).get("properties", {})
                 props = pipeline_row_with_paper_artifacts(
                     row_props,
-                    self.nodes.get(row_props.get("paper_id", ""), {}).get("properties", {}),
+                    paper_props,
                 )
+                if not paper_has_screening_record(props):
+                    props["relevance_suggested"] = "unknown"
+                    props["screening_status"] = (
+                        "not_screened_no_abstract" if not boolish(props.get("abstract_present", False)) else "not_screened"
+                    )
                 counters[f"{dataset}:relevance"][normalize(props.get("relevance_suggested", "")) or "unknown"] += 1
                 counters[f"{dataset}:screening"][normalize(props.get("screening_status", "")) or "unknown"] += 1
                 counters[f"{dataset}:pdf"][normalize(props.get("pdf_status", "")) or "unknown"] += 1
@@ -1550,19 +1863,31 @@ def labeled_reason_counts(counter: Counter, labels: dict[str, str], order: tuple
 
 def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
     rows = list(props_rows)
-    likely_rows = [
+    screened_rows = [
         props
         for props in rows
-        if normalize(props.get("relevance_suggested", "")) == "likely_relevant"
+        if normalize(props.get("screening_status", "")) not in {"not_screened", "not_screened_no_abstract"}
     ]
-    not_likely_rows = [
+    not_screened_rows = [
         props
         for props in rows
-        if normalize(props.get("relevance_suggested", "")) != "likely_relevant"
+        if normalize(props.get("screening_status", "")) in {"not_screened", "not_screened_no_abstract"}
+    ]
+    advanced_rows = [
+        props
+        for props in screened_rows
+        if normalize(props.get("relevance_suggested", "")) in RELEVANT_RELEVANCE
+        or normalize(props.get("screening_status", "")) in INCLUDED_SCREENING
+    ]
+    not_advanced_rows = [
+        props
+        for props in screened_rows
+        if normalize(props.get("relevance_suggested", "")) not in RELEVANT_RELEVANCE
+        and normalize(props.get("screening_status", "")) not in INCLUDED_SCREENING
     ]
     retrieved_rows = [
         props
-        for props in likely_rows
+        for props in advanced_rows
         if normalize(props.get("pdf_status", "")) == "downloaded"
     ]
     converted_rows = [
@@ -1576,10 +1901,11 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
         if normalize(props.get("llm_extraction_status", "")) == "claim_available"
     ]
 
-    screening_reasons = Counter(normalize(props.get("screening_status", "")) or "unknown" for props in not_likely_rows)
+    not_screened_reasons = Counter(normalize(props.get("screening_status", "")) or "unknown" for props in not_screened_rows)
+    screening_reasons = Counter(normalize(props.get("screening_status", "")) or "unknown" for props in not_advanced_rows)
     retrieval_reasons = Counter(
         prisma_retrieval_reason(props)
-        for props in likely_rows
+        for props in advanced_rows
         if normalize(props.get("pdf_status", "")) != "downloaded"
     )
     conversion_reasons = Counter(
@@ -1598,27 +1924,34 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
         "unit": "paper-context records",
         "steps": {
             "records_identified": {"label": "Records identified", "count": len(rows)},
-            "records_screened": {"label": "Records screened", "count": len(rows)},
-            "reports_sought": {"label": "Reports sought for retrieval", "count": len(likely_rows)},
+            "records_screened": {"label": "Records screened", "count": len(screened_rows)},
+            "reports_sought": {"label": "Reports sought for retrieval", "count": len(advanced_rows)},
             "reports_retrieved": {"label": "Reports retrieved", "count": len(retrieved_rows)},
             "reports_assessed": {"label": "Reports assessed for eligibility", "count": len(converted_rows)},
             "included": {"label": "Records included in KG evidence layer", "count": len(extracted_rows)},
         },
         "side_boxes": {
             "removed_before_screening": {
-                "label": "Records removed before screening",
-                "count": 0,
-                "reasons": [],
-                "note": "No separate de-duplication or pre-screen removal step is currently tracked.",
+                "label": "Records not screened",
+                "count": len(not_screened_rows),
+                "reasons": labeled_reason_counts(
+                    not_screened_reasons,
+                    PRISMA_SCREENING_REASON_LABELS,
+                    ("not_screened_no_abstract", "not_screened", "unknown"),
+                ),
+                "note": "No records are pending before screening.",
             },
             "records_excluded": {
                 "label": "Records not advanced to retrieval",
-                "count": len(not_likely_rows),
+                "count": len(not_advanced_rows),
                 "reasons": labeled_reason_counts(
                     screening_reasons,
                     PRISMA_SCREENING_REASON_LABELS,
                     (
+                        "excluded_deterministic_prescreen",
+                        "excluded_llm_irrelevant",
                         "excluded_low_signal",
+                        "llm_screening_error",
                         "needs_context_review",
                         "included_synthesized_context",
                         "needs_metadata_or_manual_screen",
@@ -1628,7 +1961,7 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
             },
             "reports_not_retrieved": {
                 "label": "Not retrieved for full-text extraction",
-                "count": len(likely_rows) - len(retrieved_rows),
+                "count": len(advanced_rows) - len(retrieved_rows),
                 "reasons": labeled_reason_counts(
                     retrieval_reasons,
                     PRISMA_RETRIEVAL_REASON_LABELS,

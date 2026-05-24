@@ -6,6 +6,7 @@
     "type": "object",
     "additionalProperties": false,
     "required": [
+      "claim_type",
       "compound",
       "disorder",
       "outcome_type",
@@ -14,22 +15,58 @@
       "authors",
       "study_year",
       "evidence_level",
+      "support",
+      "confidence",
+      "needs_human_review",
       "source",
       "source_type",
+      "paper_assessment_route",
       "access_level",
       "evidence_location",
       "evidence_locator",
       "study_design"
     ],
     "properties": {
+      "claim_type": {"type": "string", "enum": ["compound_disorder"]},
       "compound": {"type": "string"},
       "disorder": {"type": "string"},
+      "raw_entity_label": {"type": "string"},
+      "entity_role": {
+        "type": "string",
+        "enum": [
+          "therapeutic_indication",
+          "symptom_or_problem",
+          "outcome_measure",
+          "physiological_measure",
+          "safety_or_adverse_event",
+          "biomarker",
+          "functional_outcome",
+          "patient_reported_outcome",
+          "population_or_context",
+          "molecular_target",
+          "gene_or_variant",
+          "pathway_or_process",
+          "brain_region_or_circuit",
+          "assay_readout",
+          "compound_or_class",
+          "not_applicable",
+          "uncertain",
+          ""
+        ]
+      },
+      "clinical_context_condition": {"type": "string"},
+      "graph_entity_label": {"type": "string"},
+      "graph_entity_type": {"type": "string", "enum": ["indication", "target", "none", "uncertain", ""]},
+      "graph_include_candidate": {"type": "boolean"},
+      "graph_exclusion_reason": {"type": "string"},
       "outcome_type": {"type": "string"},
+      "outcome_domain": {"type": "string"},
       "result_direction": {
         "type": "string",
-        "enum": ["positive", "null", "negative", "mixed", "unclear"]
+        "enum": ["positive", "null", "negative", "mixed", "unclear", "not_applicable", ""]
       },
       "outcome_measure": {"type": "string"},
+      "outcome_measure_normalized": {"type": "string"},
       "population": {"type": "string"},
       "sample_size_total": {"type": "string"},
       "sample_size_by_arm": {"type": "string"},
@@ -44,7 +81,7 @@
       "p_value": {"type": "string"},
       "confidence_interval": {"type": "string"},
       "adverse_events": {"type": "string"},
-      "system": {"type": "string", "enum": ["clinical", "preclinical", "observational", "unknown"]},
+      "system": {"type": "string", "enum": ["clinical", "preclinical", "observational", "in_vitro", "in_vivo", "ex_vivo", "mixed", "unknown", "not_applicable", ""]},
       "study_doi": {"type": "string"},
       "openalex_id": {"type": "string"},
       "study_title": {"type": "string"},
@@ -73,7 +110,12 @@
           "primary_results",
           "systematic_review",
           "meta_analysis",
+          "scoping_review",
           "review",
+          "preprint",
+          "guideline",
+          "editorial",
+          "consensus",
           "commentary",
           "protocol",
           "correction",
@@ -102,15 +144,24 @@
         "type": "string",
         "enum": ["high", "medium", "low", "very_low", "not_applicable", "uncertain"]
       },
+      "support": {"type": "string", "enum": ["supported", "uncertain", "not_supported"]},
+      "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+      "needs_human_review": {"type": "boolean"},
+      "supporting_quote": {"type": "string"},
       "source": {"type": "string"},
       "source_type": {
         "type": "string",
         "enum": [
           "primary_study",
           "secondary_evidence",
+          "systematic_review",
           "review",
           "meta_analysis",
+          "scoping_review",
           "commentary",
+          "guideline",
+          "editorial",
+          "consensus",
           "study_protocol",
           "correction",
           "conference_abstract",
@@ -120,9 +171,17 @@
           "uncertain"
         ]
       },
+      "paper_assessment_route": {
+        "type": "string",
+        "enum": ["primary_evidence", "secondary_literature", "context_only", "exclude", "human_review"]
+      },
       "access_level": {
         "type": "string",
         "enum": ["full_text_seen", "abstract_only", "secondary_summary"]
+      },
+      "source_access_level": {
+        "type": "string",
+        "enum": ["full_text_seen", "abstract_only", "secondary_summary", ""]
       },
       "evidence_location": {
         "type": "string",

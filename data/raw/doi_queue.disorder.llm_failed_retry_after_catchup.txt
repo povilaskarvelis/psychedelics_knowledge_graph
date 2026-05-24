@@ -1,5 +1,0 @@
-# Disorder abstract-screening rows still failed after retry/catch-up pass
-# Generated from data/processed/llm_abstract_screening_report_disorder.retry_catchup.json
-10.1080/18387357.2023.2235030
-10.3389/fphar.2018.00897
-10.3928/00485713-20220810-01

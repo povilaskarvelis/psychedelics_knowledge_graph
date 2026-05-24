@@ -1,0 +1,99 @@
+{
+  "generated_at_utc": "2026-05-21T02:26:16.931663+00:00",
+  "schema_version": "extraction_v1_pilot_input",
+  "output_schema_version": "extraction_v1",
+  "status": "ok",
+  "inputs": {
+    "datasets": [
+      "mechanistic",
+      "disorder"
+    ],
+    "manifest": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus_manifest.json",
+    "per_bucket": 2,
+    "limit_total": 0,
+    "include_fulltext_packet_content": false
+  },
+  "outputs": {
+    "jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.preview.jsonl",
+    "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.preview.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_report.preview.json"
+  },
+  "datasets": [
+    {
+      "dataset": "mechanistic",
+      "inputs": {
+        "candidate_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_extraction_candidates.jsonl",
+        "fulltext_packets_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_fulltext_packets.jsonl",
+        "paper_library": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_mechanistic.json",
+        "manifest": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus_manifest.json"
+      },
+      "available_by_bucket": {
+        "full_text_relevant": 1473,
+        "full_text_uncertain": 238,
+        "abstract_relevant": 3068,
+        "abstract_uncertain": 168,
+        "abstract_irrelevant": 1035
+      },
+      "available_records": 5982
+    },
+    {
+      "dataset": "disorder",
+      "inputs": {
+        "candidate_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_extraction_candidates.jsonl",
+        "fulltext_packets_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_fulltext_packets.jsonl",
+        "paper_library": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_disorder.json",
+        "manifest": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus_manifest.json"
+      },
+      "available_by_bucket": {
+        "full_text_relevant": 2978,
+        "full_text_uncertain": 301,
+        "abstract_relevant": 3131,
+        "abstract_uncertain": 186,
+        "abstract_irrelevant": 1446
+      },
+      "available_records": 8042
+    }
+  ],
+  "selection": {
+    "available_by_bucket": {
+      "full_text_relevant": 4451,
+      "full_text_uncertain": 539,
+      "abstract_relevant": 6199,
+      "abstract_uncertain": 354,
+      "abstract_irrelevant": 2481
+    },
+    "available_by_dataset_bucket": {
+      "disorder:abstract_irrelevant": 1446,
+      "disorder:abstract_relevant": 3131,
+      "disorder:abstract_uncertain": 186,
+      "disorder:full_text_relevant": 2978,
+      "disorder:full_text_uncertain": 301,
+      "mechanistic:abstract_irrelevant": 1035,
+      "mechanistic:abstract_relevant": 3068,
+      "mechanistic:abstract_uncertain": 168,
+      "mechanistic:full_text_relevant": 1473,
+      "mechanistic:full_text_uncertain": 238
+    },
+    "selection_strategy": "stable_hash_by_dataset_bucket",
+    "selected_by_bucket": {
+      "full_text_relevant": 4,
+      "full_text_uncertain": 4,
+      "abstract_relevant": 4,
+      "abstract_uncertain": 4,
+      "abstract_irrelevant": 4
+    },
+    "selected_by_dataset_bucket": {
+      "disorder:full_text_relevant": 2,
+      "mechanistic:full_text_relevant": 2,
+      "disorder:full_text_uncertain": 2,
+      "mechanistic:full_text_uncertain": 2,
+      "disorder:abstract_relevant": 2,
+      "mechanistic:abstract_relevant": 2,
+      "disorder:abstract_uncertain": 2,
+      "mechanistic:abstract_uncertain": 2,
+      "disorder:abstract_irrelevant": 2,
+      "mechanistic:abstract_irrelevant": 2
+    },
+    "selected_records": 20
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "outputs": [
+    {
+      "source": "data/processed/extraction/extraction_v1_outputs.lean_e2e.200bcd.reviewed.jsonl",
+      "read": 200,
+      "written": 200,
+      "duplicates": 0
+    },
+    {
+      "source": "data/processed/extraction/extraction_v1_results.batch_300_part1.jsonl",
+      "read": 118,
+      "written": 118,
+      "duplicates": 0
+    },
+    {
+      "source": "data/processed/extraction/extraction_v1_results.batch_300_part2.jsonl",
+      "read": 164,
+      "written": 164,
+      "duplicates": 0
+    },
+    {
+      "source": "data/processed/extraction/extraction_v1_results.batch_seq3_20260524_part1.jsonl",
+      "read": 113,
+      "written": 113,
+      "duplicates": 0
+    },
+    {
+      "source": "data/processed/extraction/extraction_v1_results.batch_seq3_20260524_part2.jsonl",
+      "read": 120,
+      "written": 120,
+      "duplicates": 0
+    },
+    {
+      "source": "data/processed/extraction/extraction_v1_results.batch_seq3_20260524_part3.jsonl",
+      "read": 345,
+      "written": 345,
+      "duplicates": 0
+    }
+  ],
+  "inputs": [
+    {
+      "source": "data/processed/extraction/extraction_v1_pilot_inputs.lean_e2e.200bcd.jsonl",
+      "read": 200,
+      "written": 200,
+      "duplicates": 0
+    },
+    {
+      "source": "data/processed/extraction/extraction_v1_pilot_inputs.batch_300.jsonl",
+      "read": 300,
+      "written": 300,
+      "duplicates": 0
+    },
+    {
+      "source": "data/processed/extraction/extraction_v1_pilot_inputs.batch_seq3_20260524.jsonl",
+      "read": 600,
+      "written": 600,
+      "duplicates": 0
+    }
+  ],
+  "duplicate_outputs_skipped": 0,
+  "duplicate_inputs_skipped": 0,
+  "combined_outputs": 1060,
+  "combined_inputs": 1100,
+  "out_results": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_outputs.active_20260524.jsonl",
+  "out_inputs": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.active_20260524.jsonl"
+}

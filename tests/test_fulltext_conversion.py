@@ -55,8 +55,8 @@ class FulltextConversionTest(unittest.TestCase):
 
         self.assertEqual(best["backend"], "grobid")
 
-    def test_auto_backend_prefers_grobid_with_docling_fallback(self) -> None:
-        self.assertEqual(backend_sequence("auto"), ["grobid", "docling", "pdftotext"])
+    def test_auto_backend_uses_grobid_without_plain_text_fallback(self) -> None:
+        self.assertEqual(backend_sequence("auto"), ["grobid"])
         self.assertEqual(backend_sequence("all"), ["grobid", "docling", "pdftotext"])
 
     def test_grobid_alive_url_uses_same_api_base(self) -> None:

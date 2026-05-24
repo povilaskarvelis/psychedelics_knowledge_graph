@@ -49,7 +49,7 @@ class BuildBooleanSearchModulesTest(unittest.TestCase):
 
         rows = module_rows("disorder", modules, "pubmed")
 
-        self.assertEqual(rows[0]["seed_id"], "disorder_boolean_pubmed_001")
+        self.assertEqual(rows[0]["seed_id"], "disorder_grouped_pubmed_001")
         self.assertEqual(rows[0]["module_id"], "test_module")
         self.assertEqual(rows[0]["compound"], "")
         self.assertEqual(rows[0]["entity"], "")
@@ -62,10 +62,12 @@ class BuildBooleanSearchModulesTest(unittest.TestCase):
 
             output = manifest["datasets"]["mechanistic"]["outputs"]["openalex"]
             self.assertTrue(Path(output["seed_csv"]).exists())
+            self.assertIn("mechanistic_grouped_openalex_seeds.csv", output["seed_csv"])
             self.assertEqual(output["seed_count"], manifest["datasets"]["mechanistic"]["module_count"])
             self.assertEqual(output["recommended_max_results_per_seed"]["dense_topic"], 1000)
             self.assertTrue(Path(output["module_type_outputs"]["primary_boolean"]["seed_csv"]).exists())
             self.assertTrue(Path(output["module_type_outputs"]["dense_topic"]["seed_csv"]).exists())
+            self.assertIn("grouped_search_modules_manifest.json", manifest["outputs"]["manifest_json"])
             self.assertEqual(
                 output["module_type_outputs"]["dense_topic"]["recommended_max_results_per_seed"],
                 1000,

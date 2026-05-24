@@ -1,0 +1,113 @@
+{
+  "generated_at_utc": "2026-05-23T05:35:24.158991+00:00",
+  "schema_version": "extraction_claim_normalization_report",
+  "status": "ok",
+  "registry": {
+    "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/entity_registry.json",
+    "disorder_aliases_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/schema/disorder_canonicalization.json",
+    "entry_counts": {
+      "compounds": 23,
+      "targets": 19,
+      "disorders": 26
+    }
+  },
+  "summary": {
+    "mechanistic": {
+      "input_rows": 62,
+      "graph_rows": 14,
+      "status_counts": {
+        "normalized": 14,
+        "entity_unmapped": 16,
+        "not_graph_candidate": 2,
+        "compound_unmapped": 30
+      },
+      "top_normalized_entities": [
+        [
+          "5-HT2A",
+          11
+        ],
+        [
+          "SERT (SLC6A4)",
+          5
+        ],
+        [
+          "DAT (SLC6A3)",
+          4
+        ],
+        [
+          "NET (SLC6A2)",
+          4
+        ],
+        [
+          "5-HT1A",
+          3
+        ],
+        [
+          "AMPA receptor",
+          3
+        ],
+        [
+          "5-HT2C",
+          2
+        ],
+        [
+          "NMDA receptor",
+          2
+        ],
+        [
+          "TAAR1",
+          1
+        ]
+      ]
+    },
+    "disorder": {
+      "input_rows": 27,
+      "graph_rows": 4,
+      "status_counts": {
+        "entity_unmapped": 5,
+        "not_graph_candidate": 18,
+        "normalized": 4
+      },
+      "top_normalized_entities": [
+        [
+          "Bipolar depression",
+          4
+        ],
+        [
+          "Treatment-resistant depression",
+          3
+        ],
+        [
+          "Major depressive disorder",
+          1
+        ],
+        [
+          "Suicidal ideation",
+          1
+        ]
+      ]
+    }
+  },
+  "inputs": {
+    "mechanistic_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_mechanistic_claims.json",
+    "disorder_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_disorder_claims.json"
+  },
+  "outputs": {
+    "mechanistic": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_mechanistic_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_mechanistic_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_mechanistic_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_mechanistic_normalization_audit.csv",
+      "graph_rows": 14,
+      "audit_rows": 62
+    },
+    "disorder": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_disorder_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_disorder_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_disorder_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_50b_reviewed_disorder_normalization_audit.csv",
+      "graph_rows": 4,
+      "audit_rows": 27
+    }
+  }
+}

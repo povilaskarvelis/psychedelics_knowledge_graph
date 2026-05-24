@@ -1,0 +1,123 @@
+{
+  "generated_at_utc": "2026-05-23T04:49:26.067150+00:00",
+  "schema_version": "extraction_v1_pilot_input",
+  "output_schema_version": "extraction_v1",
+  "status": "ok",
+  "inputs": {
+    "datasets": [
+      "mechanistic",
+      "disorder"
+    ],
+    "manifest": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus_manifest.json",
+    "per_bucket": 2,
+    "limit_total": 0,
+    "include_fulltext_packet_content": true,
+    "include_irrelevant_controls": false,
+    "exclude_jsonl": [
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.200.jsonl"
+    ],
+    "excluded_dataset_dois": 200
+  },
+  "outputs": {
+    "jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.lean_e2e.16.jsonl",
+    "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.lean_e2e.16.csv",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_report.lean_e2e.16.json"
+  },
+  "datasets": [
+    {
+      "dataset": "mechanistic",
+      "inputs": {
+        "candidate_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_extraction_candidates.jsonl",
+        "fulltext_packets_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_fulltext_packets.lean_e2e.jsonl",
+        "paper_library": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_mechanistic.json",
+        "manifest": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus_manifest.json",
+        "include_irrelevant_controls": false
+      },
+      "available_by_bucket": {
+        "full_text_relevant": 1473,
+        "full_text_uncertain": 238,
+        "abstract_relevant": 3068,
+        "abstract_uncertain": 168
+      },
+      "available_by_route_hint": {
+        "unknown": 4020,
+        "likely_primary": 391,
+        "likely_secondary": 485,
+        "likely_context_only": 17,
+        "ambiguous": 34
+      },
+      "available_records": 4947
+    },
+    {
+      "dataset": "disorder",
+      "inputs": {
+        "candidate_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_extraction_candidates.jsonl",
+        "fulltext_packets_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_fulltext_packets.lean_e2e.jsonl",
+        "paper_library": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_disorder.json",
+        "manifest": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus_manifest.json",
+        "include_irrelevant_controls": false
+      },
+      "available_by_bucket": {
+        "full_text_relevant": 2978,
+        "full_text_uncertain": 301,
+        "abstract_relevant": 3131,
+        "abstract_uncertain": 186
+      },
+      "available_by_route_hint": {
+        "likely_primary": 1976,
+        "ambiguous": 150,
+        "unknown": 2915,
+        "likely_secondary": 1381,
+        "likely_context_only": 174
+      },
+      "available_records": 6596
+    }
+  ],
+  "selection": {
+    "available_by_bucket": {
+      "full_text_relevant": 4411,
+      "full_text_uncertain": 499,
+      "abstract_relevant": 6159,
+      "abstract_uncertain": 314
+    },
+    "available_by_dataset_bucket": {
+      "disorder:abstract_relevant": 3111,
+      "disorder:abstract_uncertain": 166,
+      "disorder:full_text_relevant": 2958,
+      "disorder:full_text_uncertain": 281,
+      "mechanistic:abstract_relevant": 3048,
+      "mechanistic:abstract_uncertain": 148,
+      "mechanistic:full_text_relevant": 1453,
+      "mechanistic:full_text_uncertain": 218
+    },
+    "selection_strategy": "stable_hash_by_dataset_bucket",
+    "bucket_order": [
+      "full_text_relevant",
+      "full_text_uncertain",
+      "abstract_relevant",
+      "abstract_uncertain"
+    ],
+    "selected_by_bucket": {
+      "full_text_relevant": 4,
+      "full_text_uncertain": 4,
+      "abstract_relevant": 4,
+      "abstract_uncertain": 4
+    },
+    "selected_by_dataset_bucket": {
+      "disorder:full_text_relevant": 2,
+      "mechanistic:full_text_relevant": 2,
+      "disorder:full_text_uncertain": 2,
+      "mechanistic:full_text_uncertain": 2,
+      "disorder:abstract_relevant": 2,
+      "mechanistic:abstract_relevant": 2,
+      "disorder:abstract_uncertain": 2,
+      "mechanistic:abstract_uncertain": 2
+    },
+    "selected_by_route_hint": {
+      "likely_secondary": 4,
+      "unknown": 10,
+      "likely_primary": 2
+    },
+    "selected_records": 16
+  }
+}

@@ -411,7 +411,7 @@ def convert_with_pdftotext(pdf_path: Path, timeout_sec: int) -> dict:
 
 def backend_sequence(backend: str) -> List[str]:
     if backend == "auto":
-        return ["grobid", "docling", "pdftotext"]
+        return ["grobid"]
     if backend == "all":
         return ["grobid", "docling", "pdftotext"]
     return [backend]

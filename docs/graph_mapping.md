@@ -46,3 +46,24 @@ or outcomes, create one contribution per claim.
 - Primary and secondary graph views are controlled by source/provenance fields
   such as `source_type`, `paper_type`, `source_family`, and `access_level`, not
   by the legacy `evidence_level` high/medium/low values.
+
+## Future Additions: Endpoint Graph Views
+
+The clean default graph should keep primary indication and mechanistic target
+edges separate from raw endpoints. However, extraction already preserves many
+non-graph endpoints that could later become explicit additional graph
+visualizations and exploration modes.
+
+Candidate future graph views:
+
+- Outcome measures: MADRS, PHQ-9, GAD-7, CAPS, SDS, WHO-5, and related scales
+- Functional outcomes: wellbeing, functioning, mindfulness, quality of life
+- Safety/adverse events: suicidality, mania switch, flashbacks, tolerability
+- Biomarkers: BDNF, TNF-alpha, inflammatory markers
+- Symptoms: anxiety symptoms, depressive symptoms, fear of death, sleep disturbance
+
+These should not be promoted directly into the main indication graph. A future
+implementation should treat them as selectable graph views or overlays that can
+be seen and explored directly, likely derived from `raw_entity_label`,
+`entity_role`, `outcome_type`, `outcome_measure`,
+`outcome_measure_normalized`, `adverse_events`, and normalization audit rows.

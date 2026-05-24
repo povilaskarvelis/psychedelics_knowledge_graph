@@ -24,6 +24,12 @@ Note: `evidence_level` is still required for compatibility with existing rows
 and graph payloads, but it is an internal coarse label rather than a public
 certainty rating or graph-inclusion rule.
 
+`result_direction` is the therapeutic or functional interpretation of the
+finding for the disorder/indication. It is not the raw numeric direction of the
+outcome measure. Reduced symptoms, reduced relapse/reinstatement/craving,
+reduced pathological behavior, or improved functioning should be `positive`
+when presented as beneficial.
+
 ## Optional fields
 - `outcome_measure`
 - `population`

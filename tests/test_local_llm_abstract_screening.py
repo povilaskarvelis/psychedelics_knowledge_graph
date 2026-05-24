@@ -274,6 +274,45 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertEqual(decision["action"], "escalate")
         self.assertEqual(decision["reason"], "in-scope compound/intervention term appears in title or abstract")
 
+    def test_deterministic_prescreen_retains_disorder_variant_intervention_terms(self) -> None:
+        rows = [
+            {
+                "study_title": "Efeitos do uso de psilocibina em pacientes adultos com ansiedade e depressão",
+                "abstract": "Tratamento: uso da psilocibina para ansiedade e depressão.",
+                "contexts": [],
+            },
+            {
+                "study_title": "Plant based assisted therapy for substance use disorders",
+                "abstract": "Natural medicines are described including psychoactive derivatives of Tabernanthe iboga and Bufo alvarius.",
+                "contexts": [],
+            },
+            {
+                "study_title": "Dreams, Hallucinogenic Drug States, and Schizophrenia",
+                "abstract": "This review compares dreams, hallucinogenic drug states, and schizophrenia.",
+                "contexts": [],
+            },
+            {
+                "study_title": "The Supreme Court versus Peyote",
+                "abstract": "Peyote is discussed as a culturally relevant therapeutic modality.",
+                "contexts": [],
+            },
+            {
+                "study_title": "Metabolism of the tryptamine 5-MeO-MiPT",
+                "abstract": "5-methoxy-N-methyl-N-isopropyltryptamine was detected after intoxication.",
+                "contexts": [],
+            },
+            {
+                "study_title": "Psychedeilc Assisted Therapy for post-traumatic stress",
+                "abstract": "This article discusses MDMA, psilocybin, and ketamine-assisted approaches.",
+                "contexts": [],
+            },
+        ]
+
+        for row in rows:
+            with self.subTest(row=row["study_title"]):
+                decision = deterministic_prescreen_decision("disorder", row, heuristic={}, candidate_contexts=[])
+                self.assertEqual(decision["action"], "escalate")
+
     def test_deterministic_prescreen_ignores_ambiguous_bare_acronyms(self) -> None:
         disease_modifying_row = {
             "study_title": "Disease-Modifying Treatments and Ambulatory Function in Multiple Sclerosis",
@@ -359,6 +398,61 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertEqual(decision["action"], "escalate")
         matched = {term.lower() for term in matched_in_scope_intervention_terms(row["study_title"] + "\n" + row["abstract"])}
         self.assertIn("dmt", matched)
+
+    def test_deterministic_prescreen_retains_doi_compound_context(self) -> None:
+        row = {
+            "study_title": "Effects of repeated DOI treatment on 5-HT neuronal firing",
+            "abstract": (
+                "The 5-HT2 receptor agonist 1-(2,5-dimethoxy-4-iodophenyl)-2-aminopropane "
+                "(DOI) changed cortical 5-HT release and head-twitch responses."
+            ),
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "escalate")
+        self.assertIn("DOI", matched_in_scope_intervention_terms(row["study_title"] + "\n" + row["abstract"]))
+
+    def test_deterministic_prescreen_ignores_doi_identifier_context(self) -> None:
+        row = {
+            "study_title": "Corrigendum: AMPA receptor density in cortical circuits",
+            "abstract": "This corrects the article DOI: 10.1000/example.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
+
+    def test_deterministic_prescreen_retains_psychedelic_class_chemistry(self) -> None:
+        row = {
+            "study_title": "Binding of indolylalkylamines at 5-HT2 serotonin receptors",
+            "abstract": (
+                "This medicinal chemistry study evaluated alpha-methyltryptamine derivatives "
+                "for 5-HT2A receptor binding affinity and selectivity."
+            ),
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "escalate")
+        self.assertIn(
+            "psychedelic class chemistry",
+            matched_in_scope_intervention_terms(row["study_title"] + "\n" + row["abstract"]),
+        )
+
+    def test_deterministic_prescreen_ignores_dmt_nonpsychedelic_acronym_context(self) -> None:
+        row = {
+            "study_title": "Dimethyltin effects on neuronal ion channels",
+            "abstract": "Dimethyltin (DMT) altered AMPA and NMDA receptor currents in oocytes.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
 
     def test_dissociative_class_is_retained_with_drug_support(self) -> None:
         row = {

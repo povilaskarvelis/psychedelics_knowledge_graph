@@ -74,16 +74,17 @@ a separate explicit step through `apply_provenance_repairs.py --apply`.
 - `grobid`: primary scholarly-article parser backed by a local GROBID service.
 - `docling`: fallback document conversion backend when the `docling` Python
   package is installed, especially for non-article PDFs or GROBID failures.
-- `pdftotext`: lightweight fallback using Poppler when available.
+- `pdftotext`: lightweight plain-text converter using Poppler when explicitly
+  requested for diagnostics or local inspection.
 
-`auto` tries GROBID first, then Docling, then `pdftotext`. Use `all` for a
-comparison run across every configured backend. Managed batching is currently
-only enabled for explicit `--backend grobid` runs.
+`auto` uses GROBID only. Use `all` for a comparison run across every configured
+backend. Managed batching is currently only enabled for explicit
+`--backend grobid` runs.
 
 ## Example
 
 ```bash
-python pipeline/fulltext/convert_pdfs.py --dataset disorder --limit 25
+python pipeline/fulltext/convert_pdfs.py --dataset disorder --backend grobid --limit 25
 ```
 
 Target rows where the curated claim says `full_text_seen` but still points to an
@@ -135,16 +136,22 @@ Outputs:
 - `data/processed/fulltext/llm_packets_run_report.json`
 
 Each packet includes DOI-level metadata, candidate compound/entity contexts,
-source-type hints from publication metadata, full reconstructed TEI sections,
-tables, figures, references, and stable `llm_chunks` with section/document
-offsets. The packet builder uses raw full TEI, not the truncated artifact
-section snippets, so it is the preferred input layer for API-based evidence
-assessment and data extraction.
+source-type hints from publication metadata, selected reconstructed TEI
+sections, tables, figures, references, and stable `llm_chunks` with
+section/document offsets. The packet builder uses raw full TEI, not the
+truncated artifact section snippets, so it is the preferred input layer for
+API-based evidence assessment and data extraction.
+
+Use `--packet-profile full` to preserve all extracted sections. Use
+`--packet-profile lean_primary` for the Gemini extraction workflow; it keeps
+title/abstract metadata, methods/results-like chunks, tables, and
+marker-matched mechanistic/clinical sections while dropping most discussion,
+conclusion, references, and secondary review body text.
 
 For a quick preview:
 
 ```bash
-python pipeline/fulltext/build_llm_evidence_packets.py --dataset disorder --limit 5
+python pipeline/fulltext/build_llm_evidence_packets.py --dataset disorder --limit 5 --packet-profile lean_primary
 ```
 
 ## Provenance Repair Report

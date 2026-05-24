@@ -1,0 +1,9 @@
+# retry queue generated from paper library rows
+# doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors
+10.1021/acsbiomedchemau.5c00011,Ibogaine,Opioid use disorder,Discovery of Iboga-Derived Ligands for the Sigma-2 Receptor,2025,Alexander J. Hughes; Julie A. Talbert; Steven D. Townsend
+10.1155/2009/475108,Psilocybin,Bipolar depression,Serotonin 5- Receptor Function as a Contributing Factor to Both Neuropsychiatric and Cardiovascular Diseases,2009,Charles D. Nichols
+10.17579/abstractbookdualdisorders-p-278,5-MeO-DMT,Nicotine dependence,PSILOCIBINA ¿SOLUCIÓN AL TRASTORNO POR ABUSO DE ALCOHOL?,2024,Poorvanshi Alag; Ediz Eypolu; Propsito De; Un Caso; Garcia Rodriguez; Teresa Burguete-Uriol; Eva Faure; Sira Diaz Moran; Nuria Planet; Manuela Rubio
+10.21203/rs.3.rs-3046708/v1,Ibogaine,Nicotine dependence,Novel Iboga-derivatives Modulate Nociception and Inflammation in Acute Mouse Pain Model,2023,Tuhin Bhattacharya; Abhishek Gupta; Shalini Gupta; Samrat Saha; Shatabdi Ghosh; Zofa Shireen; Surajit Sinha; Sanjit Dey
+10.3238/arztebl.2014.0139,,Headache disorders,Effects and Risks Associated with Novel Psychoactive Substances,2014,Nicolas Hohmann; Gerd Mikus; David Czock
+10.3389/fncel.2021.804592,Bufotenin,,Serotonin Receptor and Transporter Endocytosis Is an Important Factor in the Cellular Basis of Depression and Anxiety,2022,Nikita Deo; Gregory Redpath
+10.3390/psychiatryint5030040,Bufotenin,,Piperazine Abuse and Psychosis: A Systematic Review of the Literature,2024,Alessio Mosca; Stefania Chiappini; Andrea Miuli; Gianluca Mancusi; Clara Cavallotto; John M. Corkery; Livia Miotti; Mauro Pettorruso; Giovanni Martinotti; Fabrizio Schifano

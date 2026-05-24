@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics Disorder Claims",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "compound",
+      "disorder",
+      "outcome_type",
+      "result_direction",
+      "paper_type",
+      "authors",
+      "study_year",
+      "evidence_level",
+      "source",
+      "source_type",
+      "access_level",
+      "evidence_location",
+      "evidence_locator",
+      "study_design"
+    ],
+    "properties": {
+      "compound": {"type": "string"},
+      "disorder": {"type": "string"},
+      "outcome_type": {"type": "string"},
+      "result_direction": {
+        "type": "string",
+        "enum": ["positive", "null", "negative", "mixed", "unclear"]
+      },
+      "outcome_measure": {"type": "string"},
+      "population": {"type": "string"},
+      "sample_size_total": {"type": "string"},
+      "sample_size_by_arm": {"type": "string"},
+      "comparator": {"type": "string"},
+      "intervention_or_exposure": {"type": "string"},
+      "dose": {"type": "string"},
+      "route": {"type": "string"},
+      "session_count_or_duration": {"type": "string"},
+      "primary_outcome": {"type": "string"},
+      "timepoint": {"type": "string"},
+      "effect_size": {"type": "string"},
+      "p_value": {"type": "string"},
+      "confidence_interval": {"type": "string"},
+      "adverse_events": {"type": "string"},
+      "system": {"type": "string", "enum": ["clinical", "preclinical", "observational", "unknown"]},
+      "study_doi": {"type": "string"},
+      "openalex_id": {"type": "string"},
+      "study_title": {"type": "string"},
+      "study_journal": {"type": "string"},
+      "publication_type": {"type": "string"},
+      "trial_registry_ids": {"type": "string"},
+      "publication_date": {"type": "string"},
+      "journal_issn": {"type": "string"},
+      "journal_eissn": {"type": "string"},
+      "publisher": {"type": "string"},
+      "mesh_terms": {"type": "string"},
+      "keywords": {"type": "string"},
+      "funders": {"type": "string"},
+      "grant_ids": {"type": "string"},
+      "related_dois": {"type": "string"},
+      "publication_relations": {"type": "string"},
+      "is_retracted": {"type": "string"},
+      "has_correction": {"type": "string"},
+      "language": {"type": "string"},
+      "semantic_scholar_id": {"type": "string"},
+      "authors": {"type": "string"},
+      "study_year": {"type": "integer"},
+      "paper_type": {
+        "type": "string",
+        "enum": [
+          "primary_results",
+          "systematic_review",
+          "meta_analysis",
+          "review",
+          "commentary",
+          "protocol",
+          "correction",
+          "erratum",
+          "conference_abstract",
+          "conference_or_poster_abstract",
+          "case_report",
+          "other",
+          "uncertain"
+        ]
+      },
+      "evidence_level": {"type": "string", "enum": ["low", "medium", "high"]},
+      "source_family": {
+        "type": "string",
+        "enum": [
+          "original_empirical",
+          "evidence_synthesis",
+          "opinion_or_commentary",
+          "protocol",
+          "correction",
+          "conference_abstract",
+          "uncertain"
+        ]
+      },
+      "evidence_strength": {
+        "type": "string",
+        "enum": ["high", "medium", "low", "very_low", "not_applicable", "uncertain"]
+      },
+      "source": {"type": "string"},
+      "source_type": {
+        "type": "string",
+        "enum": [
+          "primary_study",
+          "secondary_evidence",
+          "review",
+          "meta_analysis",
+          "commentary",
+          "study_protocol",
+          "correction",
+          "conference_abstract",
+          "case_report",
+          "registry",
+          "other",
+          "uncertain"
+        ]
+      },
+      "access_level": {
+        "type": "string",
+        "enum": ["full_text_seen", "abstract_only", "secondary_summary"]
+      },
+      "evidence_location": {
+        "type": "string",
+        "enum": ["table", "figure", "text", "abstract", "supplement", "mixed", "unknown"]
+      },
+      "evidence_locator": {"type": "string"},
+      "study_design": {"type": "string"},
+      "funding": {"type": "string"},
+      "conflicts_of_interest": {"type": "string"},
+      "risk_of_bias_summary": {"type": "string"},
+      "notes": {"type": "string"}
+    },
+    "oneOf": [
+      {"required": ["study_doi"]},
+      {"required": ["openalex_id"]}
+    ]
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "generated_at_utc": "2026-05-19T15:28:38.185844+00:00",
+  "schema_version": "extraction_input",
+  "status": "ok",
+  "inputs": {
+    "manifest": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus_manifest.json",
+    "batches_override": []
+  },
+  "datasets": [
+    {
+      "dataset": "mechanistic",
+      "inputs": {
+        "screening_reports": {
+          "screened_corpus_2026_05": {
+            "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/llm_abstract_screening_report_mechanistic.json",
+            "run_id": "screened_corpus_2026_05",
+            "source": "manifest",
+            "description": "Screened mechanistic corpus included in the current methods graph and extraction corpus.",
+            "rows": 3656,
+            "selected_rows": 2976,
+            "selected_unique_dois": 2976,
+            "by_relevance": {
+              "relevant": 2678,
+              "irrelevant": 667,
+              "uncertain": 298,
+              "": 13
+            }
+          },
+          "grouped_search_2026_05": {
+            "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/llm_abstract_screening_report_mechanistic.boolean_full_v1.json",
+            "run_id": "grouped_search_2026_05",
+            "source": "manifest",
+            "description": "Grouped search-module abstract screening run.",
+            "rows": 1799,
+            "selected_rows": 1551,
+            "selected_unique_dois": 1551,
+            "by_relevance": {
+              "relevant": 1476,
+              "irrelevant": 248,
+              "uncertain": 75
+            }
+          },
+          "direct_pair_search_2026_05": {
+            "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/llm_abstract_screening_report_mechanistic.pairwise_direct_v1.json",
+            "run_id": "direct_pair_search_2026_05",
+            "source": "manifest",
+            "description": "Direct compound-target pair-search abstract screening run.",
+            "rows": 540,
+            "selected_rows": 420,
+            "selected_unique_dois": 420,
+            "by_relevance": {
+              "relevant": 387,
+              "uncertain": 33,
+              "irrelevant": 120
+            }
+          }
+        },
+        "paper_library": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_mechanistic.json",
+        "relevance_values_included": [
+          "relevant",
+          "uncertain"
+        ]
+      },
+      "outputs": {
+        "jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_extraction_candidates.jsonl",
+        "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_extraction_candidates.csv",
+        "doi_queues": {
+          "all_candidates": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.extraction_candidates.txt",
+          "fulltext_ready": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.extraction_fulltext_ready.txt",
+          "abstract_only": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.extraction_abstract_only.txt",
+          "needs_text": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.mechanistic.extraction_needs_text.txt"
+        }
+      },
+      "summary": {
+        "dataset": "mechanistic",
+        "selected_unique_dois": 4947,
+        "by_best_llm_relevance": {
+          "relevant": 4541,
+          "uncertain": 406
+        },
+        "by_readiness_status": {
+          "abstract_only_needs_pdf_access": 3236,
+          "full_text_ready": 1711
+        },
+        "selected_dois_by_run_membership": {
+          "grouped_search_2026_05": 1551,
+          "direct_pair_search_2026_05": 420,
+          "screened_corpus_2026_05": 2976
+        },
+        "dois_seen_in_multiple_runs": 0,
+        "missing_paper_library_rows": 0,
+        "pdf_download_status": {
+          "not_open_access": 2091,
+          "download_failed": 871,
+          "already_present": 1143,
+          "downloaded": 568,
+          "no_pdf_url": 274
+        }
+      },
+      "missing_paper_library_dois": []
+    },
+    {
+      "dataset": "disorder",
+      "inputs": {
+        "screening_reports": {
+          "screened_corpus_2026_05": {
+            "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/llm_abstract_screening_report_disorder.json",
+            "run_id": "screened_corpus_2026_05",
+            "source": "manifest",
+            "description": "Screened indication corpus included in the current methods graph and extraction corpus.",
+            "rows": 6226,
+            "selected_rows": 5115,
+            "selected_unique_dois": 5115,
+            "by_relevance": {
+              "relevant": 4706,
+              "irrelevant": 1109,
+              "uncertain": 409,
+              "": 2
+            }
+          },
+          "grouped_search_2026_05": {
+            "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/llm_abstract_screening_report_disorder.boolean_full_v1.json",
+            "run_id": "grouped_search_2026_05",
+            "source": "manifest",
+            "description": "Grouped search-module abstract screening run.",
+            "rows": 1561,
+            "selected_rows": 1355,
+            "selected_unique_dois": 1355,
+            "by_relevance": {
+              "relevant": 1291,
+              "irrelevant": 206,
+              "uncertain": 64
+            }
+          },
+          "grouped_search_retry_2026_05": {
+            "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/llm_abstract_screening_report_disorder.retry2.json",
+            "run_id": "grouped_search_retry_2026_05",
+            "source": "manifest",
+            "description": "Retry screening rows for the grouped indication search.",
+            "rows": 3,
+            "selected_rows": 1,
+            "selected_unique_dois": 1,
+            "by_relevance": {
+              "uncertain": 1,
+              "": 2
+            }
+          },
+          "direct_pair_search_2026_05": {
+            "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/llm_abstract_screening_report_disorder.pairwise_direct_v1.json",
+            "run_id": "direct_pair_search_2026_05",
+            "source": "manifest",
+            "description": "Direct compound-indication pair-search abstract screening run.",
+            "rows": 257,
+            "selected_rows": 126,
+            "selected_unique_dois": 126,
+            "by_relevance": {
+              "relevant": 112,
+              "irrelevant": 131,
+              "uncertain": 14
+            }
+          }
+        },
+        "paper_library": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_library_disorder.json",
+        "relevance_values_included": [
+          "relevant",
+          "uncertain"
+        ]
+      },
+      "outputs": {
+        "jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_extraction_candidates.jsonl",
+        "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_extraction_candidates.csv",
+        "doi_queues": {
+          "all_candidates": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.extraction_candidates.txt",
+          "fulltext_ready": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.extraction_fulltext_ready.txt",
+          "abstract_only": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.extraction_abstract_only.txt",
+          "needs_text": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/doi_queue.disorder.extraction_needs_text.txt"
+        }
+      },
+      "summary": {
+        "dataset": "disorder",
+        "selected_unique_dois": 6596,
+        "by_best_llm_relevance": {
+          "relevant": 6109,
+          "uncertain": 487
+        },
+        "by_readiness_status": {
+          "abstract_only_needs_pdf_access": 3317,
+          "full_text_ready": 3279
+        },
+        "selected_dois_by_run_membership": {
+          "screened_corpus_2026_05": 5115,
+          "direct_pair_search_2026_05": 126,
+          "grouped_search_2026_05": 1355,
+          "grouped_search_retry_2026_05": 1
+        },
+        "dois_seen_in_multiple_runs": 1,
+        "missing_paper_library_rows": 0,
+        "pdf_download_status": {
+          "not_open_access": 2035,
+          "download_failed": 858,
+          "already_present": 1020,
+          "downloaded": 2259,
+          "no_pdf_url": 424
+        }
+      },
+      "missing_paper_library_dois": []
+    }
+  ]
+}

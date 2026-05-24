@@ -1,0 +1,14 @@
+row_index,status,dataset,study_doi,input_record_id,input_packet_id,relevance,route,claim_count,coverage_mention_count,context_status,schema_error_count,quote_check_count,quote_failure_count
+1,ok,disorder,10.1192/j.eurpsy.2025.1046,pilot-00659cf85d2a1d78,disorder:10.1192/j.eurpsy.2025.1046,relevant,primary_evidence,2,0,found,0,3,0
+2,ok,disorder,10.1556/2054.2021.00179,pilot-00037dac0d7c7eac,disorder:10.1556/2054.2021.00179,relevant,primary_evidence,4,0,found,0,5,0
+3,ok,disorder,10.3389/fphar.2021.659644,pilot-002c5e8fbd304697,disorder:10.3389/fphar.2021.659644,relevant,context_only,0,1,found,0,2,0
+4,ok,disorder,10.3389/fphar.2021.739012,pilot-0009d548736c869c,disorder:10.3389/fphar.2021.739012,relevant,primary_evidence,3,0,found,0,4,0
+5,ok,mechanistic,10.1002/phar.2707,pilot-007823959dd5d06c,mechanistic:10.1002/phar.2707,relevant,secondary_literature,0,7,found,0,8,0
+6,ok,mechanistic,10.1111/papr.13203,pilot-0019f662940b3b65,mechanistic:10.1111/papr.13203,relevant,secondary_literature,0,9,found,0,10,0
+7,ok,mechanistic,10.3389/fnagi.2025.1505908,pilot-01213753d31b9bf3,mechanistic:10.3389/fnagi.2025.1505908,relevant,human_review,0,1,found,0,2,0
+8,ok,disorder,10.1016/j.phrs.2024.107338,pilot-00ac3901bfcfab43,disorder:10.1016/j.phrs.2024.107338,relevant,secondary_literature,0,6,found,0,7,0
+9,ok,disorder,10.1016/s2215-0366(19)30292-5,pilot-0086d18dc47990ce,disorder:10.1016/s2215-0366(19)30292-5,relevant,context_only,0,3,found,0,4,0
+10,ok,disorder,10.1089/psymed.2023.0061,pilot-0423400fb625a0c9,disorder:10.1089/psymed.2023.0061,not_relevant,exclude,0,0,found,0,1,0
+11,quote_error,disorder,10.12927/hcpol.2023.27048,pilot-00ba2c0c8dae1e23,disorder:10.12927/hcpol.2023.27048,relevant,context_only,0,5,found,0,6,4
+12,ok,disorder,10.2147/ndt.s157475,pilot-0066ecd69e904031,disorder:10.2147/ndt.s157475,relevant,secondary_literature,0,9,found,0,10,0
+13,ok,mechanistic,10.1177/2470547018796102,pilot-03b51893d8731b8c,mechanistic:10.1177/2470547018796102,relevant,human_review,0,5,found,0,6,0

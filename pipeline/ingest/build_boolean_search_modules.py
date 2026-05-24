@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build provider-specific Boolean search modules for the v2 baseline search."""
+"""Build provider-specific grouped search modules for literature discovery."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
 
 RECOMMENDED_CAPS = {
@@ -408,7 +409,7 @@ def module_rows(dataset: str, modules: list[dict], provider_profile: str) -> lis
             )
         rows.append(
             {
-                "seed_id": f"{dataset}_boolean_{provider_profile}_{index:03d}",
+                "seed_id": f"{dataset}_grouped_{provider_profile}_{index:03d}",
                 "dataset": dataset,
                 "provider_profile": provider_profile,
                 "module_id": module["module_id"],
@@ -451,18 +452,19 @@ def datasets_from_arg(raw: str) -> list[str]:
     return datasets
 
 
-def build_boolean_modules(out_dir: Path, datasets: list[str]) -> dict:
+def build_boolean_modules(out_dir: Path, datasets: list[str], run_id: str = DEFAULT_RUN_ID) -> dict:
     modules_by_dataset = {
         "mechanistic": MECHANISTIC_MODULES,
         "disorder": DISORDER_MODULES,
     }
     manifest = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": run_id,
+        "protocol_id": run_id,
         "generated_at_utc": now_utc(),
         "description": (
-            "Provider-specific Boolean module searches. These are the primary "
-            "systematic-search layer; pair-grid seeds remain a separate audit layer."
+            "Provider-specific grouped search modules. Direct pair-search seeds "
+            "remain a separate discovery layer."
         ),
         "datasets": {},
     }
@@ -472,12 +474,12 @@ def build_boolean_modules(out_dir: Path, datasets: list[str]) -> dict:
         provider_outputs = {}
         for provider_profile in ["openalex", "pubmed"]:
             rows = module_rows(dataset, modules, provider_profile)
-            csv_path = out_dir / f"{dataset}_boolean_{provider_profile}_seeds.csv"
+            csv_path = out_dir / f"{dataset}_grouped_{provider_profile}_seeds.csv"
             write_csv(csv_path, rows)
             type_outputs = {}
             for module_type, cap in RECOMMENDED_CAPS[provider_profile].items():
                 type_rows = [row for row in rows if row["module_type"] == module_type]
-                type_csv_path = out_dir / f"{dataset}_boolean_{provider_profile}_{module_type}_seeds.csv"
+                type_csv_path = out_dir / f"{dataset}_grouped_{provider_profile}_{module_type}_seeds.csv"
                 write_csv(type_csv_path, type_rows)
                 type_outputs[module_type] = {
                     "seed_csv": str(type_csv_path),
@@ -497,18 +499,21 @@ def build_boolean_modules(out_dir: Path, datasets: list[str]) -> dict:
             "outputs": provider_outputs,
         }
 
-    manifest_path = out_dir / "boolean_search_modules_manifest.json"
+    manifest_path = out_dir / "grouped_search_modules_manifest.json"
     manifest["outputs"] = {"manifest_json": str(manifest_path)}
     write_json(manifest_path, manifest)
     return manifest
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build Boolean search modules for v2 baseline discovery")
+    parser = argparse.ArgumentParser(description="Build grouped search modules for literature discovery")
     parser.add_argument("--dataset", default="all", help="mechanistic, disorder, comma-separated list, or all")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when --out-dir is not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for generated search files")
     parser.add_argument(
         "--out-dir",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "boolean_modules"),
+        default="",
+        help="Output directory for grouped search-module seed files. Defaults to <search-root>/<run-id>/grouped_modules.",
     )
     args = parser.parse_args()
 
@@ -517,7 +522,9 @@ def main() -> int:
     except ValueError as err:
         raise SystemExit(str(err))
 
-    manifest = build_boolean_modules(Path(args.out_dir).resolve(), datasets)
+    search_root = Path(args.search_root).resolve()
+    out_dir = Path(args.out_dir).resolve() if args.out_dir else search_root / args.run_id / "grouped_modules"
+    manifest = build_boolean_modules(out_dir, datasets, run_id=args.run_id)
     print(f"Manifest: {manifest['outputs']['manifest_json']}")
     for dataset, info in manifest["datasets"].items():
         print(f"Dataset: {dataset}")

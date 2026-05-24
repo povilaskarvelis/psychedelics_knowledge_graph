@@ -1,0 +1,59 @@
+{
+  "generated_at_utc": "2026-05-23T07:31:24.458117+00:00",
+  "schema_version": "extraction_v1_gemini_report",
+  "status": "ok",
+  "inputs": {
+    "input_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.lean_e2e.100d.jsonl",
+    "prompt": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_prompt.md",
+    "prompts": {
+      "shared": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_prompt.md",
+      "mechanistic": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_mechanistic_prompt.md",
+      "disorder": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/extraction_v1_disorder_prompt.md"
+    },
+    "schema": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/schema/extraction_v1.schema.json",
+    "schema_mode": "prompt",
+    "schema_prompt_view": "dataset_specific",
+    "schema_prompt_view_compact_chars": {
+      "mechanistic": 6122,
+      "disorder": 6277,
+      "canonical": 10161
+    },
+    "schema_native_view_compact_chars": {
+      "mechanistic": 5944,
+      "disorder": 6099
+    },
+    "model": "gemini-2.5-flash",
+    "start_index": 10,
+    "limit": 1,
+    "max_output_tokens": 32768,
+    "mechanistic_max_output_tokens": 32768,
+    "disorder_max_output_tokens": 32768,
+    "resume": false,
+    "skipped_completed_records": 0,
+    "processed_records": 1
+  },
+  "outputs": {
+    "out_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_outputs.lean_e2e.100d.prompt_salvage.jsonl",
+    "raw_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_gemini_raw.lean_e2e.100d.prompt_salvage.jsonl",
+    "report_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_gemini_report.lean_e2e.100d.prompt_salvage.row10.json"
+  },
+  "summary": {
+    "status_counts": {
+      "ok": 1
+    },
+    "route_counts": {
+      "primary_evidence": 1
+    },
+    "json_repair_counts": {
+      "not_needed": 1
+    },
+    "retry_attempt_count": 0,
+    "retry_error_counts": {},
+    "usage": {
+      "candidates_token_count": 3288,
+      "prompt_token_count": 21781,
+      "thoughts_token_count": 3053,
+      "total_token_count": 28122
+    }
+  }
+}

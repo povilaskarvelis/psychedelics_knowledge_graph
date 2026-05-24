@@ -1,0 +1,126 @@
+{
+  "generated_at_utc": "2026-05-23T06:37:02.404715+00:00",
+  "schema_version": "extraction_claim_normalization_report",
+  "status": "ok",
+  "registry": {
+    "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/entity_registry.json",
+    "disorder_aliases_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/schema/disorder_canonicalization.json",
+    "entry_counts": {
+      "compounds": 23,
+      "targets": 19,
+      "disorders": 26
+    }
+  },
+  "summary": {
+    "mechanistic": {
+      "input_rows": 140,
+      "graph_rows": 34,
+      "status_counts": {
+        "normalized": 34,
+        "entity_unmapped": 23,
+        "compound_unmapped": 78,
+        "not_graph_candidate": 5
+      },
+      "top_normalized_entities": [
+        [
+          "5-HT2A",
+          19
+        ],
+        [
+          "SERT (SLC6A4)",
+          18
+        ],
+        [
+          "DAT (SLC6A3)",
+          17
+        ],
+        [
+          "NET (SLC6A2)",
+          17
+        ],
+        [
+          "NMDA receptor",
+          7
+        ],
+        [
+          "5-HT2C",
+          6
+        ],
+        [
+          "AMPA receptor",
+          3
+        ],
+        [
+          "5-HT1A",
+          2
+        ],
+        [
+          "TAAR1",
+          1
+        ],
+        [
+          "Sigma-1 receptor (SIGMAR1)",
+          1
+        ]
+      ]
+    },
+    "disorder": {
+      "input_rows": 52,
+      "graph_rows": 9,
+      "status_counts": {
+        "entity_unmapped": 9,
+        "not_graph_candidate": 30,
+        "normalized": 9,
+        "compound_unmapped": 4
+      },
+      "top_normalized_entities": [
+        [
+          "Bipolar depression",
+          4
+        ],
+        [
+          "Suicidal ideation",
+          4
+        ],
+        [
+          "Treatment-resistant depression",
+          3
+        ],
+        [
+          "Alcohol use disorder",
+          3
+        ],
+        [
+          "Major depressive disorder",
+          2
+        ],
+        [
+          "Post-traumatic stress disorder",
+          1
+        ]
+      ]
+    }
+  },
+  "inputs": {
+    "mechanistic_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_mechanistic_claims.json",
+    "disorder_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_disorder_claims.json"
+  },
+  "outputs": {
+    "mechanistic": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_mechanistic_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_mechanistic_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_mechanistic_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_mechanistic_normalization_audit.csv",
+      "graph_rows": 34,
+      "audit_rows": 140
+    },
+    "disorder": {
+      "graph_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_disorder_graph_claims.json",
+      "graph_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_disorder_graph_claims.csv",
+      "audit_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_disorder_normalization_audit.json",
+      "audit_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/lean_e2e_100bc_reviewed_clean_disorder_normalization_audit.csv",
+      "graph_rows": 9,
+      "audit_rows": 52
+    }
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarize Boolean-module discovery runs by provider, dataset, and module."""
+"""Summarize grouped search-module discovery runs by provider, dataset, and module."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-PROTOCOL_ID = "comprehensive_baseline_v1"
+DEFAULT_RUN_ID = "literature_search"
+SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
 
 
@@ -78,7 +79,10 @@ def query_module_maps(seed_rows: list[dict]) -> tuple[dict[str, str], dict[str, 
 
 
 def summarize_run(seed_dir: Path, run_dir: Path, dataset: str, provider_profile: str) -> dict:
-    seed_rows = read_seed_rows(seed_dir / f"{dataset}_boolean_{provider_profile}_seeds.csv")
+    seed_path = seed_dir / f"{dataset}_grouped_{provider_profile}_seeds.csv"
+    if not seed_path.exists():
+        seed_path = seed_dir / f"{dataset}_boolean_{provider_profile}_seeds.csv"
+    seed_rows = read_seed_rows(seed_path)
     query_to_module, query_to_type = query_module_maps(seed_rows)
     discovery = read_json(run_dir / f"{dataset}_discovery_report.json")
     add_new = read_json(run_dir / f"{dataset}_add_new_dois_report.json")
@@ -140,10 +144,10 @@ def write_json(path: Path, payload: object) -> None:
 
 def write_markdown(path: Path, summary: dict) -> None:
     lines = [
-        "# Boolean Module Discovery Summary",
+        "# Grouped Search Module Discovery Summary",
         "",
         f"- Generated: {summary['generated_at_utc']}",
-        f"- Protocol: `{summary['protocol_id']}`",
+        f"- Run: `{summary['run_id']}`",
         "",
     ]
     for provider, provider_summary in summary["providers"].items():
@@ -183,22 +187,27 @@ def parse_providers(raw: str) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Summarize Boolean module discovery runs")
+    parser = argparse.ArgumentParser(description="Summarize grouped search-module discovery runs")
+    parser.add_argument("--run-id", default=DEFAULT_RUN_ID, help="Run label used when --seed-dir/--run-root are not supplied")
+    parser.add_argument("--search-root", default=str(SEARCH_STRATEGY_ROOT), help="Root directory for search artifacts")
     parser.add_argument(
         "--seed-dir",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "boolean_modules"),
+        default="",
+        help="Directory containing grouped search-module seed files. Defaults to <search-root>/<run-id>/grouped_modules.",
     )
     parser.add_argument(
         "--run-root",
-        default=str(ROOT / "data" / "raw" / "search_strategies" / PROTOCOL_ID / "boolean_modules"),
+        default="",
+        help="Directory containing grouped search-module discovery outputs. Defaults to <search-root>/<run-id>/grouped_module_run.",
     )
     parser.add_argument("--providers", default="openalex,pubmed")
     parser.add_argument("--summary-json", default="")
     parser.add_argument("--summary-md", default="")
     args = parser.parse_args()
 
-    seed_dir = Path(args.seed_dir).resolve()
-    run_root = Path(args.run_root).resolve()
+    search_root = Path(args.search_root).resolve()
+    seed_dir = Path(args.seed_dir).resolve() if args.seed_dir else search_root / args.run_id / "grouped_modules"
+    run_root = Path(args.run_root).resolve() if args.run_root else search_root / args.run_id / "grouped_module_run"
     try:
         providers = parse_providers(args.providers)
     except ValueError as err:
@@ -210,7 +219,8 @@ def main() -> int:
     }
     summary = {
         "version": VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "run_id": args.run_id,
+        "protocol_id": args.run_id,
         "generated_at_utc": now_utc(),
         "seed_dir": str(seed_dir),
         "providers": {},
@@ -224,8 +234,8 @@ def main() -> int:
             },
         }
 
-    summary_json = Path(args.summary_json).resolve() if args.summary_json else run_root / "boolean_module_run_summary.json"
-    summary_md = Path(args.summary_md).resolve() if args.summary_md else run_root / "boolean_module_run_summary.md"
+    summary_json = Path(args.summary_json).resolve() if args.summary_json else run_root / "grouped_module_run_summary.json"
+    summary_md = Path(args.summary_md).resolve() if args.summary_md else run_root / "grouped_module_run_summary.md"
     write_json(summary_json, summary)
     write_markdown(summary_md, summary)
 

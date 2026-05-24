@@ -1,0 +1,56 @@
+{
+  "schema_version": "corpus_manifest_v1",
+  "description": "Manifest of literature-processing runs included in the current corpus. Add new completed screening reports here to include them in regenerated extraction inputs and methods-page graph outputs.",
+  "datasets": {
+    "mechanistic": {
+      "screening_reports": [
+        {
+          "run_id": "screened_corpus_2026_05",
+          "path": "data/processed/llm_abstract_screening_report_mechanistic.json",
+          "include": true,
+          "description": "Screened mechanistic corpus included in the current methods graph and extraction corpus."
+        },
+        {
+          "run_id": "grouped_search_2026_05",
+          "path": "data/processed/llm_abstract_screening_report_mechanistic.boolean_full_v1.json",
+          "include": true,
+          "description": "Grouped search-module abstract screening run."
+        },
+        {
+          "run_id": "direct_pair_search_2026_05",
+          "path": "data/processed/llm_abstract_screening_report_mechanistic.pairwise_direct_v1.json",
+          "include": true,
+          "description": "Direct compound-target pair-search abstract screening run."
+        }
+      ]
+    },
+    "disorder": {
+      "screening_reports": [
+        {
+          "run_id": "screened_corpus_2026_05",
+          "path": "data/processed/llm_abstract_screening_report_disorder.json",
+          "include": true,
+          "description": "Screened indication corpus included in the current methods graph and extraction corpus."
+        },
+        {
+          "run_id": "grouped_search_2026_05",
+          "path": "data/processed/llm_abstract_screening_report_disorder.boolean_full_v1.json",
+          "include": true,
+          "description": "Grouped search-module abstract screening run."
+        },
+        {
+          "run_id": "grouped_search_retry_2026_05",
+          "path": "data/processed/llm_abstract_screening_report_disorder.retry2.json",
+          "include": true,
+          "description": "Retry screening rows for the grouped indication search."
+        },
+        {
+          "run_id": "direct_pair_search_2026_05",
+          "path": "data/processed/llm_abstract_screening_report_disorder.pairwise_direct_v1.json",
+          "include": true,
+          "description": "Direct compound-indication pair-search abstract screening run."
+        }
+      ]
+    }
+  }
+}
