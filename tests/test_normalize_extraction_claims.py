@@ -201,6 +201,33 @@ class NormalizeExtractionClaimsTest(unittest.TestCase):
                     "graph_include_candidate": True,
                     "entity_role": "molecular_target",
                 },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "MDMA",
+                    "target": "hSERT",
+                    "graph_entity_label": "hSERT",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "molecular_target",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "Psilocybin",
+                    "target": "5-HT2CRs",
+                    "graph_entity_label": "5-HT2CRs",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "molecular_target",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "Ibogaine",
+                    "target": "kappa-opioid receptors",
+                    "graph_entity_label": "kappa-opioid receptors",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "molecular_target",
+                },
             ],
             disorder_rows=[],
             registry_path=DEFAULT_REGISTRY_PATH,
@@ -209,12 +236,174 @@ class NormalizeExtractionClaimsTest(unittest.TestCase):
 
         self.assertEqual(
             [row["normalization_status"] for row in audit_rows["mechanistic"]],
-            ["normalized", "normalized", "normalized"],
+            ["normalized", "normalized", "normalized", "normalized", "normalized", "normalized"],
         )
         self.assertEqual(
             [row["target"] for row in graph_rows["mechanistic"]],
-            ["NMDA receptor", "5-HT2A", "Dopamine D2 receptor (DRD2)"],
+            [
+                "NMDA receptor",
+                "5-HT2A",
+                "Dopamine D2 receptor (DRD2)",
+                "SERT (SLC6A4)",
+                "5-HT2C",
+                "kappa opioid receptor (OPRK1)",
+            ],
         )
+
+    def test_curated_registry_maps_common_compound_aliases(self) -> None:
+        graph_rows, audit_rows, _report = normalize_claims(
+            mechanistic_rows=[],
+            disorder_rows=[
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Esketamine nasal spray",
+                    "disorder": "TRD",
+                    "graph_entity_label": "TRD",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "ecstasy",
+                    "disorder": "PTSD",
+                    "graph_entity_label": "PTSD",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "COMP360 psilocybin",
+                    "disorder": "treatment-resistant major depressive disorder",
+                    "graph_entity_label": "treatment-resistant major depressive disorder",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "MDMA-assisted therapy",
+                    "disorder": "posttraumatic stress disorder",
+                    "graph_entity_label": "posttraumatic stress disorder",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+            ],
+            registry_path=DEFAULT_REGISTRY_PATH,
+            disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
+        )
+
+        self.assertEqual([row["normalization_status"] for row in audit_rows["disorder"]], ["normalized"] * 4)
+        self.assertEqual([row["compound"] for row in graph_rows["disorder"]], ["S-ketamine", "MDMA", "Psilocybin", "MDMA"])
+        self.assertEqual(
+            [row["disorder"] for row in graph_rows["disorder"]],
+            [
+                "Treatment-resistant depression",
+                "Post-traumatic stress disorder",
+                "Treatment-resistant depression",
+                "Post-traumatic stress disorder",
+            ],
+        )
+
+    def test_curated_registry_maps_expanded_compound_target_and_disorder_nodes(self) -> None:
+        graph_rows, audit_rows, _report = normalize_claims(
+            mechanistic_rows=[
+                {
+                    "claim_type": "compound_target",
+                    "compound": "25I-NBOMe",
+                    "target": "BDNF",
+                    "graph_entity_label": "BDNF",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "pathway_or_process",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "GLYX-13",
+                    "target": "mTOR",
+                    "graph_entity_label": "mTOR",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "pathway_or_process",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "(2R,6R)-HNK",
+                    "target": "5-HT1B receptor",
+                    "graph_entity_label": "5-HT1B receptor",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "molecular_target",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "Dextromethorphan",
+                    "target": "GluN2B",
+                    "graph_entity_label": "GluN2B",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "molecular_target",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "Psilocybin",
+                    "target": "neuroplasticity",
+                    "graph_entity_label": "neuroplasticity",
+                    "graph_entity_type": "target",
+                    "graph_include_candidate": True,
+                    "entity_role": "pathway_or_process",
+                },
+            ],
+            disorder_rows=[
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "CBD",
+                    "disorder": "postoperative pain",
+                    "graph_entity_label": "postoperative pain",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Nitrous oxide",
+                    "disorder": "migraine",
+                    "graph_entity_label": "migraine",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "Complex Regional Pain Syndrome",
+                    "graph_entity_label": "Complex Regional Pain Syndrome",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "anhedonia",
+                    "graph_entity_label": "anhedonia",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "symptom_or_problem",
+                },
+            ],
+            registry_path=DEFAULT_REGISTRY_PATH,
+            disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
+        )
+
+        self.assertEqual([row["normalization_status"] for row in audit_rows["mechanistic"]], ["normalized"] * 5)
+        self.assertEqual([row["compound"] for row in graph_rows["mechanistic"]], ["25I-NBOMe", "Rapastinel", "(2R,6R)-hydroxynorketamine", "Dextromethorphan", "Psilocybin"])
+        self.assertEqual([row["target"] for row in graph_rows["mechanistic"]], ["BDNF", "mTOR", "5-HT1B", "GluN2B (GRIN2B)", "Neuroplasticity"])
+        self.assertEqual([row["normalization_status"] for row in audit_rows["disorder"]], ["normalized"] * 4)
+        self.assertEqual([row["compound"] for row in graph_rows["disorder"]], ["Cannabidiol", "Nitrous oxide", "Ketamine", "Ketamine"])
+        self.assertEqual([row["disorder"] for row in graph_rows["disorder"]], ["Pain", "Migraine", "Complex regional pain syndrome", "Anhedonia"])
 
     def test_target_normalization_does_not_fuzzy_match_different_receptor_subtype(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -292,15 +481,59 @@ class NormalizeExtractionClaimsTest(unittest.TestCase):
                     "graph_include_candidate": True,
                     "entity_role": "therapeutic_indication",
                 },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "suicidality",
+                    "graph_entity_label": "suicidality",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "addiction",
+                    "graph_entity_label": "addiction",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "tobacco addiction",
+                    "graph_entity_label": "tobacco addiction",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "resistant depression",
+                    "graph_entity_label": "resistant depression",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
             ],
             registry_path=DEFAULT_REGISTRY_PATH,
             disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
         )
 
-        self.assertEqual([row["normalization_status"] for row in audit_rows["disorder"]], ["normalized", "normalized", "normalized"])
+        self.assertEqual([row["normalization_status"] for row in audit_rows["disorder"]], ["normalized"] * 7)
         self.assertEqual(
             [row["disorder"] for row in graph_rows["disorder"]],
-            ["Cocaine use disorder", "Depression", "Neuropathic pain"],
+            [
+                "Cocaine use disorder",
+                "Depression",
+                "Neuropathic pain",
+                "Suicidal ideation",
+                "Substance use disorder",
+                "Tobacco use disorder",
+                "Treatment-resistant depression",
+            ],
         )
 
     def test_class_level_compound_label_is_not_a_graph_compound(self) -> None:

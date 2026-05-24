@@ -1,7 +1,7 @@
 {
-  "generated_at_utc": "2026-05-24T12:44:07.508062+00:00",
+  "generated_at_utc": "2026-05-24T21:14:15.092480+00:00",
   "schema_version": "extraction_v1_projection_report",
-  "status": "ok",
+  "status": "schema_errors",
   "inputs": {
     "input_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_outputs.active_20260524.jsonl",
     "pilot_input_jsonl": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/extraction_v1_pilot_inputs.active_20260524.jsonl",
@@ -11,48 +11,49 @@
     "mechanistic": {
       "json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_claims.json",
       "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_claims.csv",
-      "rows": 983,
+      "rows": 2652,
       "secondary_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_secondary_claims.json",
       "secondary_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/mechanistic_secondary_claims.csv",
-      "secondary_rows": 957
+      "secondary_rows": 2194
     },
     "disorder": {
       "json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_claims.json",
       "csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_claims.csv",
-      "rows": 630,
+      "rows": 1633,
       "secondary_json": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_secondary_claims.json",
       "secondary_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/disorder_secondary_claims.csv",
-      "secondary_rows": 733
+      "secondary_rows": 2177
     }
   },
   "summary": {
-    "input_results": 1060,
-    "valid_input_results": 1060,
-    "input_schema_errors": 0,
-    "projected_rows": 1613,
+    "input_results": 2541,
+    "valid_input_results": 2538,
+    "input_schema_errors": 3,
+    "projected_rows": 4285,
     "projected_by_dataset": {
-      "mechanistic": 983,
-      "disorder": 630
+      "mechanistic": 2652,
+      "disorder": 1633
     },
-    "secondary_rows": 1690,
+    "secondary_rows": 4371,
     "secondary_by_dataset": {
-      "mechanistic": 957,
-      "disorder": 733
+      "mechanistic": 2194,
+      "disorder": 2177
     },
-    "skipped": 590,
+    "skipped": 1289,
     "skipped_reasons": {
-      "route secondary_literature is not projected": 344,
-      "route context_only is not projected": 197,
-      "route human_review is not projected": 20,
-      "route exclude is not projected": 27,
-      "non-article artifact is not projected": 2
+      "route secondary_literature is not projected": 811,
+      "route context_only is not projected": 393,
+      "route human_review is not projected": 35,
+      "route exclude is not projected": 42,
+      "non-article artifact is not projected": 5,
+      "input extraction_v1 schema validation failed": 3
     },
-    "secondary_skipped": 201,
+    "secondary_skipped": 397,
     "secondary_skipped_reasons": {
-      "coverage relationship_domain compound_only is not projected": 117,
-      "coverage relationship_domain general_topic is not projected": 69,
-      "coverage relationship_domain target_only is not projected": 8,
-      "coverage relationship_domain disorder_only is not projected": 7
+      "coverage relationship_domain compound_only is not projected": 208,
+      "coverage relationship_domain general_topic is not projected": 160,
+      "coverage relationship_domain target_only is not projected": 11,
+      "coverage relationship_domain disorder_only is not projected": 18
     },
     "schema_errors": 0
   },
@@ -3063,8 +3064,1004 @@
       "row_index": 1050,
       "mention_index": 1,
       "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1068,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1104,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1104,
+      "mention_index": 14,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1104,
+      "mention_index": 15,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1104,
+      "mention_index": 16,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1104,
+      "mention_index": 17,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1132,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1132,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1137,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1137,
+      "mention_index": 7,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1137,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1149,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1151,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1156,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1156,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1156,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1156,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 1180,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1180,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain target_only is not projected"
+    },
+    {
+      "row_index": 1198,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1198,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1198,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1205,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1205,
+      "mention_index": 9,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1205,
+      "mention_index": 10,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1275,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1280,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1290,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1291,
+      "mention_index": 10,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1291,
+      "mention_index": 11,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1291,
+      "mention_index": 12,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1291,
+      "mention_index": 13,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1291,
+      "mention_index": 14,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1294,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1296,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1306,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1306,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1327,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1327,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1327,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1329,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1354,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1354,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1354,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1354,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1359,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1359,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1381,
+      "mention_index": 7,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1381,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1381,
+      "mention_index": 9,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1381,
+      "mention_index": 13,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1381,
+      "mention_index": 14,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1381,
+      "mention_index": 16,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1386,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1431,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1441,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1450,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1457,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1529,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1529,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1529,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1532,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1533,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1533,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1533,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1547,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1547,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1547,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain target_only is not projected"
+    },
+    {
+      "row_index": 1556,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1561,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1561,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1561,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1561,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain target_only is not projected"
+    },
+    {
+      "row_index": 1564,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1566,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1566,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1567,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1567,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1567,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1567,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1567,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1625,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1637,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1645,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1652,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1668,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1674,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1680,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1680,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1680,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1680,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1683,
+      "mention_index": 7,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1704,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1725,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1725,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1725,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1738,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1738,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1766,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1769,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1823,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1823,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1882,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1889,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1889,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1891,
+      "mention_index": 19,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1891,
+      "mention_index": 20,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1891,
+      "mention_index": 21,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1891,
+      "mention_index": 22,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1891,
+      "mention_index": 23,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1891,
+      "mention_index": 24,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1891,
+      "mention_index": 25,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1892,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1901,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1901,
+      "mention_index": 9,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1904,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1917,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 1940,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 1975,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 7,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 9,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 13,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 14,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 15,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 16,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 17,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 18,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 19,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 21,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 22,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 23,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 24,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 25,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 26,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 27,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2006,
+      "mention_index": 28,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2023,
+      "mention_index": 11,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2023,
+      "mention_index": 12,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 7,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 9,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 10,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 11,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 12,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2055,
+      "mention_index": 13,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2085,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2106,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2106,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2127,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2127,
+      "mention_index": 7,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2127,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2128,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2128,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2166,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2172,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2175,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 2175,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2177,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2194,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2200,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2201,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2204,
+      "mention_index": 9,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2204,
+      "mention_index": 10,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2204,
+      "mention_index": 11,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2204,
+      "mention_index": 12,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2210,
+      "mention_index": 2,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2215,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2215,
+      "mention_index": 5,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2215,
+      "mention_index": 6,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2215,
+      "mention_index": 7,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2215,
+      "mention_index": 8,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2220,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2233,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain disorder_only is not projected"
+    },
+    {
+      "row_index": 2248,
+      "mention_index": 11,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2251,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2314,
+      "mention_index": 4,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2424,
+      "mention_index": 3,
+      "reason": "coverage relationship_domain compound_only is not projected"
+    },
+    {
+      "row_index": 2425,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2475,
+      "mention_index": 1,
+      "reason": "coverage relationship_domain general_topic is not projected"
+    },
+    {
+      "row_index": 2531,
+      "mention_index": 0,
+      "reason": "coverage relationship_domain compound_only is not projected"
     }
   ],
-  "input_schema_errors": [],
+  "input_schema_errors": [
+    {
+      "row_index": 1061,
+      "path": "coverage_mentions",
+      "message": "[] should be non-empty"
+    },
+    {
+      "row_index": 1337,
+      "path": "coverage_mentions",
+      "message": "[] should be non-empty"
+    },
+    {
+      "row_index": 1460,
+      "path": "coverage_mentions",
+      "message": "[] should be non-empty"
+    }
+  ],
   "schema_errors": []
 }

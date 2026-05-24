@@ -397,10 +397,10 @@ def entity_category_for_dataset(dataset: str) -> str:
 
 def graph_role_allowed(row: dict, dataset: str) -> bool:
     role = normalize(row.get("entity_role", ""))
+    if dataset == "mechanistic":
+        return role in {"molecular_target", "pathway_or_process", "biomarker", "uncertain", "not_applicable", ""}
     if role in NON_GRAPH_ENTITY_ROLES:
         return False
-    if dataset == "mechanistic":
-        return role in {"molecular_target", "uncertain", "not_applicable", ""}
     return role in DISORDER_GRAPH_ROLES
 
 
