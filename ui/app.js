@@ -12,6 +12,7 @@ const detailBody = document.getElementById("detailBody");
 const modeButtons = document.querySelectorAll("[data-mode]");
 const claimLayerButtons = document.querySelectorAll("[data-claim-layer]");
 const evidenceViewButtons = document.querySelectorAll("[data-evidence-view]");
+const entityKindToggle = document.querySelector("[data-entity-kind-toggle]");
 const studiesStatCard = document.getElementById("studiesStatCard");
 const bibliographyPanel = document.getElementById("bibliographyPanel");
 const studyListEl = document.getElementById("studyList");
@@ -67,6 +68,32 @@ const SYSTEM_COLORS = {
   observational: "#ef6c9a",
   unknown: "#9aa4bf",
 };
+const ENTITY_VIEW_OPTIONS = {
+  disorders: [
+    { key: "condition_indication", label: "Conditions", singular: "Condition", lowerPlural: "conditions", lowerSingular: "condition" },
+    { key: "symptom_problem", label: "Symptoms", singular: "Symptom", lowerPlural: "symptoms", lowerSingular: "symptom" },
+    {
+      key: "safety_adverse_event",
+      label: "Safety",
+      singular: "Safety/adverse event",
+      lowerPlural: "safety/adverse events",
+      lowerSingular: "safety/adverse event",
+    },
+    { key: "outcome_scale", label: "Scales", singular: "Outcome scale", lowerPlural: "outcome scales", lowerSingular: "outcome scale" },
+  ],
+  mechanistic: [
+    { key: "target", label: "Targets", singular: "Target", lowerPlural: "targets", lowerSingular: "target" },
+    { key: "pathway_process", label: "Pathways", singular: "Pathway", lowerPlural: "pathways", lowerSingular: "pathway" },
+    {
+      key: "biomarker_readout",
+      label: "Biomarkers",
+      singular: "Biomarker/readout",
+      lowerPlural: "biomarkers/readouts",
+      lowerSingular: "biomarker/readout",
+    },
+    { key: "system_family", label: "Systems", singular: "System/family", lowerPlural: "systems/families", lowerSingular: "system/family" },
+  ],
+};
 
 let claims = [];
 let disorderClaims = [];
@@ -83,8 +110,13 @@ let isolateSelection = false;
 let mode = "disorders";
 let claimLayer = "normalized";
 let evidenceView = "primary";
+let entityView = {
+  disorders: "condition_indication",
+  mechanistic: "target",
+};
 let renderScheduled = false;
 let activeDetailItems = [];
+let detailGraphFilter = null;
 const yearFilterState = {
   mechanistic: { min: "", max: "" },
   disorders: { min: "", max: "" },
@@ -99,6 +131,18 @@ const COMPOUND_CLASS_LABEL_RE =
 const COMPOUND_LIST_LABEL_RE = /\b(?:and|or)\b|[;&]/;
 const REFERENCE_COMPOUND_LABEL_RE =
   /\b(5 ht|5 hydroxytryptamine|8 oh dpat|clozapine|d serine|ifenprodil|ketanserin|m100907|memantine|methysergide|mk 801|pcp|phencyclidine|ritanserin|serotonin|way100635)\b/;
+const SAMPLE_SIZE_BINS = [
+  { label: "1", min: 1, max: 1 },
+  { label: "2-10", min: 2, max: 10 },
+  { label: "11-25", min: 11, max: 25 },
+  { label: "26-50", min: 26, max: 50 },
+  { label: "51-100", min: 51, max: 100 },
+  { label: "101-250", min: 101, max: 250 },
+  { label: "251-500", min: 251, max: 500 },
+  { label: ">500", min: 501, max: Number.POSITIVE_INFINITY },
+];
+const GRAPH_LABEL_MAX_WIDTH_PX = 190;
+const GRAPH_RIGHT_LABEL_GUTTER_PX = 42;
 
 function normalizeValue(value) {
   return (value || "").toString().trim().toLowerCase();
@@ -130,9 +174,129 @@ function compoundGraphLabel(value) {
   return text;
 }
 
+function rightEntityKey() {
+  return mode === "mechanistic" ? "target" : "disorder";
+}
+
+function entityViewOptionsForMode() {
+  return ENTITY_VIEW_OPTIONS[mode] || [];
+}
+
+function currentEntityViewKey() {
+  const options = entityViewOptionsForMode();
+  const selectedKey = entityView[mode];
+  if (options.some((option) => option.key === selectedKey)) return selectedKey;
+  return options[0]?.key || "";
+}
+
+function currentEntityViewOption() {
+  const key = currentEntityViewKey();
+  return entityViewOptionsForMode().find((option) => option.key === key) || null;
+}
+
+function rightEntityLabel(plural = true) {
+  if (claimLayer !== "normalized") {
+    return mode === "mechanistic"
+      ? plural
+        ? "Mechanistic nodes"
+        : "Mechanistic node"
+      : plural
+        ? "Clinical nodes"
+        : "Clinical node";
+  }
+  const option = currentEntityViewOption();
+  if (!option) return mode === "mechanistic" ? (plural ? "Targets" : "Target") : plural ? "Conditions" : "Condition";
+  return plural ? option.label : option.singular;
+}
+
+function lowerRightEntityLabel(plural = true) {
+  if (claimLayer !== "normalized") {
+    return mode === "mechanistic"
+      ? plural
+        ? "mechanistic nodes"
+        : "mechanistic node"
+      : plural
+        ? "clinical nodes"
+        : "clinical node";
+  }
+  const option = currentEntityViewOption();
+  if (!option) return mode === "mechanistic" ? (plural ? "targets" : "target") : plural ? "conditions" : "condition";
+  return plural ? option.lowerPlural : option.lowerSingular;
+}
+
+function entityKindForClaim(claim) {
+  return normalizeValue(claim.kg_entity_kind || claim.entity_kind);
+}
+
+function claimsForEntityView(baseClaims) {
+  if (claimLayer !== "normalized") return baseClaims;
+  const activeKind = currentEntityViewKey();
+  if (!activeKind) return baseClaims;
+  return baseClaims.filter((claim) => entityKindForClaim(claim) === activeKind);
+}
+
 function activeClaimsForMode() {
   const baseClaims = mode === "mechanistic" ? claims : disorderClaims;
-  return graphViewClaims(baseClaims);
+  return graphViewClaims(claimsForEntityView(baseClaims));
+}
+
+function passesAccessAndYearFilters(claim, yearRange) {
+  if (fullTextOnlyToggle?.checked && claimSourceAccessLevel(claim) !== "full_text_seen") {
+    return false;
+  }
+  if (yearRange?.constrained) {
+    const year = parseYearValue(claim.study_year);
+    if (year === null) return false;
+    if (year < yearRange.min || year > yearRange.max) return false;
+  }
+  return true;
+}
+
+function activeOutcomeScaleClaims() {
+  if (mode !== "disorders" || evidenceView !== "primary") return [];
+  const yearRange = activeYearRange(activeClaimsForMode());
+  return graphViewClaims(disorderClaims)
+    .filter((claim) => isOutcomeScaleClaim(claim))
+    .filter((claim) => passesAccessAndYearFilters(claim, yearRange));
+}
+
+function studyJoinKey(claim) {
+  const doi = normalizeDoi(claim.study_doi);
+  if (doi) return `doi:${doi}`;
+  const openalex = normalizeValue(claim.openalex_id);
+  if (openalex) return `openalex:${openalex}`;
+  const title = normalizeValue(claim.study_title);
+  const year = parseYearValue(claim.study_year);
+  if (title || year !== null) return `title:${title}|${year || ""}`;
+  return "";
+}
+
+function evidenceScopeKey(claim) {
+  const study = studyJoinKey(claim);
+  const compound = normalizeValue(claim.compound);
+  if (!study || !compound) return "";
+  return `${study}|compound:${compound}`;
+}
+
+function outcomeScaleClaimsForChart(items) {
+  const scaleItems = items.filter((claim) => isOutcomeScaleClaim(claim));
+  if (scaleItems.length) return scaleItems;
+
+  const activeScaleClaims = activeOutcomeScaleClaims();
+  const scopeKeys = new Set(items.map(evidenceScopeKey).filter(Boolean));
+  if (!scopeKeys.size) return activeScaleClaims;
+  return activeScaleClaims.filter((claim) => scopeKeys.has(evidenceScopeKey(claim)));
+}
+
+function setDetailGraphFilter(items) {
+  detailGraphFilter = {
+    items: new Set(items),
+  };
+  refreshMainViews();
+}
+
+function clearDetailGraphFilter() {
+  detailGraphFilter = null;
 }
 
 function claimSourceAccessLevel(claim) {
@@ -371,6 +535,10 @@ function applyGraphNodeColor(node, color) {
 function estimateLabelWidth(label) {
   const text = (label || "").toString();
   return Math.max(40, Math.ceil(text.length * 6.8));
+}
+
+function estimateGraphLabelWidth(label) {
+  return Math.min(GRAPH_LABEL_MAX_WIDTH_PX, estimateLabelWidth(label));
 }
 
 function truncateLabel(label, maxChars) {
@@ -631,6 +799,7 @@ function clearSelectedStyles() {
 function clearSelection() {
   selected = null;
   isolateSelection = false;
+  detailGraphFilter = null;
   clearSelectedStyles();
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
@@ -761,25 +930,41 @@ function sentencePart(value) {
   return /[.!?]$/.test(text) ? text : `${text}.`;
 }
 
-function updateStats() {
-  const disorderPrimary = graphViewClaims(disorderClaims);
-  const mechanisticPrimary = graphViewClaims(claims);
-  const totalClaims = [...disorderPrimary, ...mechanisticPrimary];
+function normalizedKgClaims() {
+  return [...claimStores.normalized.disorders, ...claimStores.normalized.mechanistic];
+}
 
+function updateStats() {
+  const rightLabelEl = stats.indications?.previousElementSibling;
+  const targetLabelEl = stats.targets?.previousElementSibling;
+  if (rightLabelEl) rightLabelEl.textContent = "Indications";
+  if (targetLabelEl) targetLabelEl.textContent = "Targets";
+
+  const totalClaims = normalizedKgClaims();
   stats.compounds.textContent = formatCompactNumber(
     unique(totalClaims.map((claim) => compoundGraphLabel(claim.compound)).filter(Boolean)).length
   );
   stats.indications.textContent = formatCompactNumber(
-    unique(disorderPrimary.map((claim) => graphLabel(claim.disorder)).filter(Boolean)).length
+    unique(
+      claimStores.normalized.disorders
+        .filter((claim) => entityKindForClaim(claim) === "condition_indication")
+        .map((claim) => graphLabel(claim.disorder))
+        .filter(Boolean)
+    ).length
   );
   stats.targets.textContent = formatCompactNumber(
-    unique(mechanisticPrimary.map((claim) => graphLabel(claim.target)).filter(Boolean)).length
+    unique(
+      claimStores.normalized.mechanistic
+        .filter((claim) => entityKindForClaim(claim) === "target")
+        .map((claim) => graphLabel(claim.target))
+        .filter(Boolean)
+    ).length
   );
   stats.studies.textContent = formatCompactNumber(uniqueStudyCount(totalClaims));
 }
 
 function applyFilters() {
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const activeClaims = activeClaimsForMode();
   const yearRange = activeYearRange(activeClaims);
   const fullTextOnly = Boolean(fullTextOnlyToggle?.checked);
@@ -798,25 +983,29 @@ function applyFilters() {
     return true;
   });
 
-  if (!selected || !isolateSelection) return baseFiltered;
+  const detailFiltered = detailGraphFilter?.items
+    ? baseFiltered.filter((claim) => detailGraphFilter.items.has(claim))
+    : baseFiltered;
+
+  if (!selected || !isolateSelection) return detailFiltered;
 
   if (selected.type === "edge") {
-    return baseFiltered.filter(
+    return detailFiltered.filter(
       (claim) => claim.compound === selected.compound && claim[rightKey] === selected.target
     );
   }
   if (selected.type === "compound") {
-    return baseFiltered.filter((claim) => claim.compound === selected.name);
+    return detailFiltered.filter((claim) => claim.compound === selected.name);
   }
   if (selected.type === "target") {
-    return baseFiltered.filter((claim) => claim[rightKey] === selected.name);
+    return detailFiltered.filter((claim) => claim[rightKey] === selected.name);
   }
-  return baseFiltered;
+  return detailFiltered;
 }
 
 function selectionIsValid(data) {
   if (!selected) return true;
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   if (selected.type === "edge") {
     return data.some((claim) => claim.compound === selected.compound && claim[rightKey] === selected.target);
   }
@@ -932,7 +1121,7 @@ function createClaimCardElement(claim) {
 
 function renderCards(data) {
   const searchValue = normalizeValue(searchInput?.value);
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const cardData = !searchValue
     ? data
     : data.filter((claim) => {
@@ -1116,7 +1305,7 @@ function addBibliographyContext(entry, compound, entity) {
 }
 
 function bibliographyRowsFromClaims(data) {
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const studies = new Map();
 
   data.forEach((claim, index) => {
@@ -1390,13 +1579,13 @@ function claimFieldLineFromValue(label, value) {
 }
 
 function claimRelationText(claim) {
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const compound = meaningfulText(claim.compound) || "Unknown compound";
   const graphEntity =
     meaningfulText(claim[rightKey]) ||
     meaningfulText(claim.raw_entity_label) ||
     meaningfulText(claim.graph_entity_label) ||
-    (mode === "mechanistic" ? "Non-graph target" : "Non-graph endpoint");
+    `Non-graph ${lowerRightEntityLabel(false)}`;
   return `${compound} → ${graphEntity}`;
 }
 
@@ -1463,12 +1652,12 @@ function parseSampleSize(value) {
 function sampleSizeBucket(value) {
   const size = parseSampleSize(value);
   if (size === null) return "";
-  if (size === 1) return "1";
-  if (size <= 10) return "2-10";
-  if (size <= 50) return "11-50";
-  if (size <= 100) return "51-100";
-  if (size <= 500) return "101-500";
-  return ">500";
+  return SAMPLE_SIZE_BINS.find((bin) => size >= bin.min && size <= bin.max)?.label || "";
+}
+
+function sampleSizeBinForSize(size) {
+  if (!Number.isFinite(size) || size < 1) return null;
+  return SAMPLE_SIZE_BINS.find((bin) => size >= bin.min && size <= bin.max) || null;
 }
 
 function splitNormalizedOutcomeMeasures(value) {
@@ -1476,6 +1665,17 @@ function splitNormalizedOutcomeMeasures(value) {
     .split(/\s*;\s*/)
     .map((part) => meaningfulText(part))
     .filter(Boolean);
+}
+
+function isOutcomeScaleClaim(claim) {
+  return entityKindForClaim(claim) === "outcome_scale";
+}
+
+function outcomeScaleLabelsForClaim(claim) {
+  if (isOutcomeScaleClaim(claim)) {
+    return [graphLabel(claim.disorder)].filter(Boolean);
+  }
+  return splitNormalizedOutcomeMeasures(claim.outcome_measure_normalized);
 }
 
 function studyKey(claim, index) {
@@ -1632,8 +1832,38 @@ function summarizeFieldEvidence(items, field, options = {}) {
     });
 }
 
+function summarizeOutcomeScaleEvidence(items) {
+  const map = new Map();
+
+  items.forEach((claim, index) => {
+    const labels = outcomeScaleLabelsForClaim(claim);
+    if (!labels.length) return;
+    const study = studyKey(claim, index);
+    labels.forEach((label) => {
+      const entry = map.get(label) || { label, count: 0, studies: new Set() };
+      entry.count += 1;
+      entry.studies.add(study);
+      map.set(label, entry);
+    });
+  });
+
+  return Array.from(map.values())
+    .map((entry) => ({
+      label: entry.label,
+      count: entry.count,
+      studies: entry.studies.size,
+    }))
+    .sort((a, b) => {
+      const byCount = b.count - a.count;
+      if (byCount !== 0) return byCount;
+      const byStudies = b.studies - a.studies;
+      if (byStudies !== 0) return byStudies;
+      return a.label.localeCompare(b.label);
+    });
+}
+
 function summarizeSampleSizeBuckets(items) {
-  const bucketOrder = ["1", "2-10", "11-50", "51-100", "101-500", ">500"];
+  const bucketOrder = SAMPLE_SIZE_BINS.map((bin) => bin.label);
   const buckets = new Map(bucketOrder.map((label) => [label, new Set()]));
 
   items.forEach((claim, index) => {
@@ -1696,21 +1926,52 @@ function sampleSizeStudyEntries(items) {
     });
 }
 
+function sampleYearBucketStep(minYear, maxYear) {
+  const span = maxYear - minYear + 1;
+  if (span <= 18) return 1;
+  if (span <= 36) return 2;
+  if (span <= 80) return 5;
+  return 10;
+}
+
+function sampleYearBuckets(minYear, maxYear) {
+  const step = sampleYearBucketStep(minYear, maxYear);
+  const startYear = Math.floor(minYear / step) * step;
+  const buckets = [];
+  for (let start = startYear; start <= maxYear; start += step) {
+    const end = Math.min(start + step - 1, maxYear);
+    buckets.push({
+      start,
+      end,
+      label: start === end ? String(start) : `${start}-${end}`,
+    });
+  }
+  return buckets;
+}
+
 function countByField(items, field, options = {}) {
   const counts = new Map();
   const studySeen = new Set();
+  const studiesByValue = new Map();
 
   items.forEach((claim, index) => {
     const value = normalizeValue(claim[field]) || "unknown";
+    const study = studyKey(claim, index);
     if (options.uniqueStudies) {
-      const key = `${studyKey(claim, index)}|${value}`;
+      const key = `${study}|${value}`;
       if (studySeen.has(key)) return;
       studySeen.add(key);
     }
+    if (!studiesByValue.has(value)) studiesByValue.set(value, new Set());
+    studiesByValue.get(value).add(study);
     counts.set(value, (counts.get(value) || 0) + 1);
   });
 
-  return Array.from(counts.entries()).map(([label, count]) => ({ label, count }));
+  return Array.from(counts.entries()).map(([label, count]) => ({
+    label,
+    count,
+    studies: studiesByValue.get(label)?.size || count,
+  }));
 }
 
 function sortCompositionEntries(entries, field) {
@@ -1736,7 +1997,8 @@ function limitCompositionEntries(entries, maxEntries = 5) {
   if (entries.length <= maxEntries) return entries;
   const visible = entries.slice(0, maxEntries - 1);
   const otherCount = entries.slice(maxEntries - 1).reduce((sum, entry) => sum + entry.count, 0);
-  return [...visible, { label: "other", count: otherCount }];
+  const otherStudies = entries.slice(maxEntries - 1).reduce((sum, entry) => sum + (entry.studies || 0), 0);
+  return [...visible, { label: "other", count: otherCount, studies: otherStudies, isAggregate: true }];
 }
 
 function colorForCategory(label, index, field = "") {
@@ -1744,6 +2006,22 @@ function colorForCategory(label, index, field = "") {
   if (field === "result_direction" && DIRECTION_COLORS[normalized]) return DIRECTION_COLORS[normalized];
   if (field === "system" && SYSTEM_COLORS[normalized]) return SYSTEM_COLORS[normalized];
   return CATEGORY_COLORS[index % CATEGORY_COLORS.length];
+}
+
+function compositionFilterAttrs(entry, field) {
+  if (!field || !entry?.label || entry.isAggregate) return "";
+  const label = displayFieldLabel(entry.label);
+  const studies = Number(entry.studies ?? entry.count ?? 0) || 0;
+  const claims = Number(entry.count ?? studies) || 0;
+  return `role="button" tabindex="0" data-filter-field="${escapeHtml(field)}" data-filter-value="${escapeHtml(
+    entry.label
+  )}" data-filter-label="${escapeHtml(label)}" data-study-count="${escapeHtml(String(studies))}" data-claim-count="${escapeHtml(
+    String(claims)
+  )}" aria-label="${escapeHtml(`${label}: ${studies} studies, ${claims} claims`)}"`;
+}
+
+function compositionTargetClass(entry) {
+  return entry?.isAggregate ? "" : " composition-filter-target";
 }
 
 /** Overview trend charts (#rrggbb only): soften fills slightly; alpha near 1 so colors stay saturated. */
@@ -1910,7 +2188,8 @@ function renderHorizontalBarChart(entries, title, subtitle, options = {}) {
 function renderOutcomeMeasureChart(items) {
   if (evidenceView !== "primary") return "";
   if (mode !== "disorders") return "";
-  const entries = summarizeFieldEvidence(items, "outcome_measure_normalized", { splitValues: true }).slice(0, 8);
+  const scaleItems = outcomeScaleClaimsForChart(items);
+  const entries = summarizeOutcomeScaleEvidence(scaleItems);
   if (!entries.length) {
     return trendCardHtml(
       "Outcome scales",
@@ -1949,60 +2228,92 @@ function renderSampleSizePlotBody(items) {
   }
 
   const width = 280;
-  const height = 148;
-  const margin = { top: 4, right: 26, bottom: 8, left: 26 };
+  const height = 156;
+  const margin = { top: 8, right: 8, bottom: 19, left: 48 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   const minYear = Math.min(...entries.map((entry) => entry.year));
   const maxYear = Math.max(...entries.map((entry) => entry.year));
-  const minLog = Math.min(...entries.map((entry) => Math.log10(entry.sampleSize)));
-  const maxLog = Math.max(...entries.map((entry) => Math.log10(entry.sampleSize)));
-  const yearSpan = Math.max(1, maxYear - minYear);
-  const logSpan = Math.max(0.001, maxLog - minLog);
-  const yearCounts = new Map();
-  const yearTotals = new Map();
-  entries.forEach((entry) => {
-    yearTotals.set(entry.year, (yearTotals.get(entry.year) || 0) + 1);
-  });
-  const laneTop = margin.top + 22;
-  const laneBottom = margin.top + plotHeight - 22;
+  const yearBuckets = sampleYearBuckets(minYear, maxYear);
+  const sizeBins = [...SAMPLE_SIZE_BINS].reverse();
+  const gap = 2;
+  const cellWidth = Math.max(4, (plotWidth - gap * (yearBuckets.length - 1)) / yearBuckets.length);
+  const cellHeight = Math.max(7, (plotHeight - gap * (sizeBins.length - 1)) / sizeBins.length);
+  const cells = new Map();
 
-  const circles = entries
-    .map((entry) => {
-      const indexInYear = yearCounts.get(entry.year) || 0;
-      yearCounts.set(entry.year, indexInYear + 1);
-      const x = margin.left + ((entry.year - minYear) / yearSpan) * plotWidth;
-      const totalInYear = yearTotals.get(entry.year) || 1;
-      const y =
-        totalInYear <= 1
-          ? margin.top + plotHeight / 2
-          : laneTop + (indexInYear / (totalInYear - 1)) * (laneBottom - laneTop);
-      const radius = 4 + ((Math.log10(entry.sampleSize) - minLog) / logSpan) * 13;
-      const color = DIRECTION_COLORS[entry.direction] || "#90baff";
-      const aria = `${entry.studyTitle}. ${entry.year}. N ${entry.sampleText}. Open study claims.`;
-      return `
-        <g class="sample-bubble-target" tabindex="0" role="button" focusable="true"
-          aria-label="${escapeHtml(aria)}"
-          data-study-key="${escapeHtml(entry.key)}"
-          data-study-title="${escapeHtml(entry.studyTitle)}"
-          data-study-year="${escapeHtml(String(entry.year))}"
-          data-sample-size="${escapeHtml(entry.sampleText)}"
-          data-direction="${escapeHtml(resultDirectionLabel(entry.direction))}"
-          data-claim-count="${escapeHtml(String(entry.claimCount))}"
-          data-relation="${escapeHtml(entry.relationSummary)}">
-          <circle class="sample-bubble-hit" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${(radius + 7).toFixed(2)}"></circle>
-          <circle class="sample-bubble" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${radius.toFixed(2)}" fill="${chartFillSoft(
-            color,
-            0.7
-          )}" stroke="${chartFillSoft(color, 1)}" stroke-width="1.4"></circle>
-        </g>
-      `;
+  entries.forEach((entry) => {
+    const yearIndex = yearBuckets.findIndex((bucket) => entry.year >= bucket.start && entry.year <= bucket.end);
+    const sizeBin = sampleSizeBinForSize(entry.sampleSize);
+    if (yearIndex < 0 || !sizeBin) return;
+    const key = `${yearIndex}|${sizeBin.label}`;
+    const cell =
+      cells.get(key) ||
+      {
+        yearIndex,
+        yearBucket: yearBuckets[yearIndex],
+        sizeBin,
+        count: 0,
+        claims: 0,
+      };
+    cell.count += 1;
+    cell.claims += entry.claimCount;
+    cells.set(key, cell);
+  });
+
+  const maxCount = Math.max(1, ...Array.from(cells.values()).map((cell) => cell.count));
+  const heatmapCells = yearBuckets
+    .flatMap((yearBucket, yearIndex) =>
+      sizeBins.map((sizeBin, sizeIndex) => {
+        const x = margin.left + yearIndex * (cellWidth + gap);
+        const y = margin.top + sizeIndex * (cellHeight + gap);
+        const cell = cells.get(`${yearIndex}|${sizeBin.label}`);
+        if (!cell) {
+          return `<rect class="sample-heatmap-cell empty" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${cellWidth.toFixed(
+            2
+          )}" height="${cellHeight.toFixed(2)}" rx="2"></rect>`;
+        }
+        const alpha = 0.16 + 0.76 * Math.sqrt(cell.count / maxCount);
+        const maxValue = Number.isFinite(sizeBin.max) ? String(sizeBin.max) : "";
+        const aria = `${yearBucket.label}, sample size ${sizeBin.label}: ${cell.count} studies, ${cell.claims} claims.`;
+        return `
+          <g class="sample-heatmap-target" tabindex="0" role="button" focusable="true"
+            aria-label="${escapeHtml(aria)}"
+            data-year-start="${escapeHtml(String(yearBucket.start))}"
+            data-year-end="${escapeHtml(String(yearBucket.end))}"
+            data-year-label="${escapeHtml(yearBucket.label)}"
+            data-sample-min="${escapeHtml(String(sizeBin.min))}"
+            data-sample-max="${escapeHtml(maxValue)}"
+            data-sample-label="${escapeHtml(sizeBin.label)}"
+            data-study-count="${escapeHtml(String(cell.count))}"
+            data-claim-count="${escapeHtml(String(cell.claims))}">
+            <rect class="sample-heatmap-hit" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${cellWidth.toFixed(
+              2
+            )}" height="${cellHeight.toFixed(2)}" rx="2"></rect>
+            <rect class="sample-heatmap-cell" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${cellWidth.toFixed(
+              2
+            )}" height="${cellHeight.toFixed(2)}" rx="2" fill="${chartFillSoft("#49d6c8", alpha)}"></rect>
+          </g>
+        `;
+      })
+    )
+    .join("");
+  const yLabels = sizeBins
+    .map((bin, index) => {
+      const y = margin.top + index * (cellHeight + gap) + cellHeight / 2 + 3;
+      return `<text x="${margin.left - 7}" y="${y.toFixed(2)}" class="trend-axis-label" text-anchor="end">${escapeHtml(
+        bin.label
+      )}</text>`;
     })
     .join("");
+  const firstYear = yearBuckets[0].label;
+  const lastYear = yearBuckets[yearBuckets.length - 1].label;
 
   return `
-    <svg class="sample-bubble-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Sample sizes">
-      ${circles}
+    <svg class="sample-heatmap-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Sample sizes by publication year">
+      ${yLabels}
+      ${heatmapCells}
+      <text x="${margin.left}" y="${height - 5}" class="trend-axis-label" text-anchor="start">${escapeHtml(firstYear)}</text>
+      <text x="${width - margin.right}" y="${height - 5}" class="trend-axis-label" text-anchor="end">${escapeHtml(lastYear)}</text>
     </svg>
   `;
 }
@@ -2018,7 +2329,10 @@ function renderResultDirectionBody(items) {
   const segments = entries
     .map((entry, index) => {
       const width = total ? (entry.count / total) * 100 : 0;
-      return `<span style="width: ${width.toFixed(2)}%; background: ${chartFillSoft(
+      return `<span class="trend-stack-segment${compositionTargetClass(entry)}" ${compositionFilterAttrs(
+        entry,
+        "result_direction"
+      )} style="width: ${width.toFixed(2)}%; background: ${chartFillSoft(
         colorForCategory(entry.label, index, "result_direction")
       )}" title="${escapeHtml(displayFieldLabel(entry.label))}: ${entry.count}"></span>`;
     })
@@ -2026,7 +2340,7 @@ function renderResultDirectionBody(items) {
   const legend = entries
     .map(
       (entry, index) => `
-        <span class="trend-legend-item">
+        <span class="trend-legend-item${compositionTargetClass(entry)}" ${compositionFilterAttrs(entry, "result_direction")}>
           <i style="background: ${chartFillSoft(colorForCategory(entry.label, index, "result_direction"))}"></i>
           ${escapeHtml(displayFieldLabel(entry.label))} <strong>${formatCompactNumber(entry.count)}</strong>
         </span>
@@ -2035,24 +2349,32 @@ function renderResultDirectionBody(items) {
     .join("");
 
   return `
-    <div class="combined-evidence-composition">
+    <div class="result-direction-composition">
       <div class="trend-stack">${segments}</div>
       <div class="trend-legend">${legend}</div>
     </div>
   `;
 }
 
-function renderDirectionSampleChart(items) {
+function renderSampleSizeHeatmap(items) {
   if (evidenceView !== "primary") return "";
   if (mode !== "disorders") return "";
   return trendCardHtml(
-    "Result direction and sample sizes",
+    "Sample sizes",
     "",
-    `
-      ${renderSampleSizePlotBody(items)}
-      ${renderResultDirectionBody(items)}
-    `,
-    "evidence-card sample-card combined-evidence-card"
+    renderSampleSizePlotBody(items),
+    "evidence-card sample-card"
+  );
+}
+
+function renderResultDirectionChart(items) {
+  if (evidenceView !== "primary") return "";
+  if (mode !== "disorders") return "";
+  return trendCardHtml(
+    "Result direction",
+    "",
+    renderResultDirectionBody(items),
+    "evidence-card result-direction-card"
   );
 }
 
@@ -2060,7 +2382,8 @@ function renderEvidenceDetailGroup(items) {
   if (evidenceView !== "primary") return "";
   if (mode !== "disorders") return "";
   return `
-    ${renderDirectionSampleChart(items)}
+    ${renderSampleSizeHeatmap(items)}
+    ${renderResultDirectionChart(items)}
     ${renderOutcomeMeasureChart(items)}
   `;
 }
@@ -2077,7 +2400,10 @@ function renderCompositionChart(items, field, title, options = {}) {
   const segments = entries
     .map((entry, index) => {
       const width = total ? (entry.count / total) * 100 : 0;
-      return `<span style="width: ${width.toFixed(2)}%; background: ${chartFillSoft(
+      return `<span class="trend-stack-segment${compositionTargetClass(entry)}" ${compositionFilterAttrs(
+        entry,
+        field
+      )} style="width: ${width.toFixed(2)}%; background: ${chartFillSoft(
         colorForCategory(entry.label, index, field)
       )}" title="${escapeHtml(displayFieldLabel(entry.label))}: ${entry.count}"></span>`;
     })
@@ -2085,7 +2411,7 @@ function renderCompositionChart(items, field, title, options = {}) {
   const legend = entries
     .map(
       (entry, index) => `
-        <span class="trend-legend-item">
+        <span class="trend-legend-item${compositionTargetClass(entry)}" ${compositionFilterAttrs(entry, field)}>
           <i style="background: ${chartFillSoft(colorForCategory(entry.label, index, field))}"></i>
           ${escapeHtml(displayFieldLabel(entry.label))} <strong>${formatCompactNumber(entry.count)}</strong>
         </span>
@@ -2109,6 +2435,12 @@ function renderCompositionChart(items, field, title, options = {}) {
   );
 }
 
+function renderExperimentalSystemChart(items) {
+  if (evidenceView !== "primary") return "";
+  if (mode === "disorders") return "";
+  return renderCompositionChart(items, "system", "Experimental system");
+}
+
 function renderDetailClaimCards(items) {
   if (!items.length) {
     return trendCardHtml("Claims", "", '<div class="trend-empty">No claims in this selection.</div>');
@@ -2120,7 +2452,7 @@ function renderDetailClaimCards(items) {
     return (a.study_title || "").localeCompare(b.study_title || "");
   });
 
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const body = `
     <div class="detail-claim-cards">
       ${sortedClaims
@@ -2185,13 +2517,16 @@ function renderDetailClaimCards(items) {
   return trendCardHtml("Claims", "", body);
 }
 
-function sampleBubbleTooltipHtml(target) {
+function sampleHeatmapTooltipHtml(target) {
+  const studyCount = Number(target.dataset.studyCount || 0);
+  const claimCount = Number(target.dataset.claimCount || 0);
   return `
-    <strong class="tooltip-title">${escapeHtml(target.dataset.studyTitle || "Unknown study")}</strong>
-    <span class="tooltip-meta">${escapeHtml(target.dataset.studyYear || "Unknown year")} · N=${escapeHtml(
-      target.dataset.sampleSize || "unknown"
-    )} · ${escapeHtml(target.dataset.direction || "Unknown direction")}</span>
-    <span class="tooltip-meta">${escapeHtml(target.dataset.relation || "")}</span>
+    <strong class="tooltip-title">${escapeHtml(target.dataset.yearLabel || "Unknown years")}</strong>
+    <span class="tooltip-meta">N=${escapeHtml(target.dataset.sampleLabel || "unknown")} · ${formatCompactNumber(
+      studyCount
+    )} stud${studyCount === 1 ? "y" : "ies"} · ${formatCompactNumber(claimCount)} claim${
+      claimCount === 1 ? "" : "s"
+    }</span>
   `;
 }
 
@@ -2223,13 +2558,13 @@ function claimsForStudyKey(studyKeyValue) {
 
 function claimsForFieldValue(field, value) {
   if (!field || !value) return [];
-  return activeDetailItems.filter((claim) => cleanDisplayText(claim[field]) === value);
+  const normalizedValue = normalizeValue(value);
+  return activeDetailItems.filter((claim) => normalizeValue(cleanDisplayText(claim[field])) === normalizedValue);
 }
 
 function fieldValueDetailTitle(field, value) {
   if (field === "compound") return `Compound: ${value}`;
-  if (field === "disorder") return `Indication: ${value}`;
-  if (field === "target") return `Target: ${value}`;
+  if (field === "disorder" || field === "target") return `${rightEntityLabel(false)}: ${value}`;
   return `${displayFieldLabel(field)}: ${value}`;
 }
 
@@ -2243,16 +2578,38 @@ function claimsForPublicationYearRange(startValue, endValue) {
   });
 }
 
+function claimsForSampleHeatmapCell(startValue, endValue, minValue, maxValue) {
+  const start = Number(startValue);
+  const end = Number(endValue || startValue);
+  const min = Number(minValue);
+  const parsedMax = maxValue === "" ? Number.POSITIVE_INFINITY : Number(maxValue);
+  const max = Number.isFinite(parsedMax) ? parsedMax : Number.POSITIVE_INFINITY;
+  if (!Number.isFinite(start) || !Number.isFinite(end) || !Number.isFinite(min)) return [];
+
+  const matchingStudies = new Set();
+  activeDetailItems.forEach((claim, index) => {
+    const year = parseYearValue(claim.study_year);
+    const sampleSize = parseSampleSize(sampleSizeText(claim));
+    if (year === null || sampleSize === null) return;
+    if (year < start || year > end || sampleSize < min || sampleSize > max) return;
+    matchingStudies.add(studyKey(claim, index));
+  });
+  if (!matchingStudies.size) return [];
+  return activeDetailItems.filter((claim, index) => matchingStudies.has(studyKey(claim, index)));
+}
+
 function claimsForOutcomeScale(scaleValue) {
   const scaleKey = normalizeValue(scaleValue);
   if (!scaleKey) return [];
-  return activeDetailItems.filter((claim) =>
-    splitNormalizedOutcomeMeasures(claim.outcome_measure_normalized).some((scale) => normalizeValue(scale) === scaleKey)
+  return outcomeScaleClaimsForChart(activeDetailItems).filter((claim) =>
+    outcomeScaleLabelsForClaim(claim).some((scale) => normalizeValue(scale) === scaleKey)
   );
 }
 
 function restoreCurrentDetailPanel() {
+  clearDetailGraphFilter();
   const filtered = applyFilters();
+  refreshMainViews();
   if (selected) {
     renderSelectedDetailFromData(filtered);
     return;
@@ -2265,8 +2622,9 @@ function renderStudyDetail(studyKeyValue) {
   if (!studyClaims.length) return;
 
   activeDetailItems = studyClaims;
+  setDetailGraphFilter(studyClaims);
   const firstClaim = studyClaims[0];
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const title = cleanDisplayText(firstClaim.study_title) || "Study detail";
   const year = parseYearValue(firstClaim.study_year);
   const doiHref = doiUrl(firstClaim.study_doi);
@@ -2298,7 +2656,7 @@ function renderStudyDetail(studyKeyValue) {
           value: formatCompactNumber(unique(studyClaims.map((claim) => compoundGraphLabel(claim.compound)).filter(Boolean)).length),
         },
         {
-          label: mode === "mechanistic" ? "Targets" : "Indications",
+          label: rightEntityLabel(true),
           value: formatCompactNumber(unique(studyClaims.map((claim) => graphLabel(claim[rightKey])).filter(Boolean)).length),
         },
       ])}
@@ -2316,14 +2674,17 @@ function renderFieldValueDetail(field, value, labelValue = value) {
   const fieldClaims = claimsForFieldValue(field, value);
   if (!fieldClaims.length) return;
 
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
-  const rightLabel = mode === "mechanistic" ? "Targets" : "Indications";
+  const rightKey = rightEntityKey();
+  const rightLabel = rightEntityLabel(true);
   const compoundEntries = summarizeConnectionEvidence(fieldClaims, "compound");
   const rightEntries = summarizeConnectionEvidence(fieldClaims, rightKey);
   const composition =
-    mode === "disorders" ? renderDirectionSampleChart(fieldClaims) : renderCompositionChart(fieldClaims, "system", "Experimental system");
+    mode === "disorders"
+      ? `${renderSampleSizeHeatmap(fieldClaims)}${renderResultDirectionChart(fieldClaims)}`
+      : renderExperimentalSystemChart(fieldClaims);
 
   activeDetailItems = fieldClaims;
+  setDetailGraphFilter(fieldClaims);
   setDetailHeader(fieldValueDetailTitle(field, labelValue));
   detailBody.innerHTML = `
     <div class="trend-dashboard">
@@ -2352,14 +2713,17 @@ function renderPublicationYearDetail(startValue, endValue, labelValue) {
   const yearClaims = claimsForPublicationYearRange(startValue, endValue);
   if (!yearClaims.length) return;
 
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
-  const rightLabel = mode === "mechanistic" ? "Targets" : "Indications";
+  const rightKey = rightEntityKey();
+  const rightLabel = rightEntityLabel(true);
   const compoundEntries = summarizeConnectionEvidence(yearClaims, "compound");
   const rightEntries = summarizeConnectionEvidence(yearClaims, rightKey);
   const composition =
-    mode === "disorders" ? renderDirectionSampleChart(yearClaims) : renderCompositionChart(yearClaims, "system", "Experimental system");
+    mode === "disorders"
+      ? `${renderSampleSizeHeatmap(yearClaims)}${renderResultDirectionChart(yearClaims)}`
+      : renderExperimentalSystemChart(yearClaims);
 
   activeDetailItems = yearClaims;
+  setDetailGraphFilter(yearClaims);
   setDetailHeader(`Publications: ${labelValue}`);
   detailBody.innerHTML = `
     <div class="trend-dashboard">
@@ -2379,28 +2743,70 @@ function renderPublicationYearDetail(startValue, endValue, labelValue) {
   `;
 }
 
+function renderSampleHeatmapDetail(startValue, endValue, minValue, maxValue, labelValue) {
+  const sampleClaims = claimsForSampleHeatmapCell(startValue, endValue, minValue, maxValue);
+  if (!sampleClaims.length) return;
+
+  const rightKey = rightEntityKey();
+  const rightLabel = rightEntityLabel(true);
+  const compoundEntries = summarizeConnectionEvidence(sampleClaims, "compound");
+  const rightEntries = summarizeConnectionEvidence(sampleClaims, rightKey);
+
+  activeDetailItems = sampleClaims;
+  setDetailGraphFilter(sampleClaims);
+  setDetailHeader(`Sample sizes: ${labelValue}`);
+  detailBody.innerHTML = `
+    <div class="trend-dashboard">
+      <div class="study-detail-actions">
+        <button class="ghost small" type="button" data-detail-action="restore">Back</button>
+      </div>
+      ${renderTrendStats(sampleClaims, [
+        { label: "Compounds", value: formatCompactNumber(compoundEntries.length) },
+        { label: rightLabel, value: formatCompactNumber(rightEntries.length) },
+      ])}
+      ${renderSampleSizeHeatmap(sampleClaims)}
+      ${renderResultDirectionChart(sampleClaims)}
+      ${mode === "disorders" ? renderOutcomeMeasureChart(sampleClaims) : ""}
+      ${renderHorizontalBarChart(compoundEntries, "Compounds", "Ranked by unique studies", { filterField: "compound" })}
+      ${renderHorizontalBarChart(rightEntries, rightLabel, "Ranked by unique studies", { filterField: rightKey })}
+      ${renderDetailClaimCards(sampleClaims)}
+    </div>
+  `;
+}
+
 function renderOutcomeScaleDetail(scaleValue) {
   const scaleClaims = claimsForOutcomeScale(scaleValue);
   if (!scaleClaims.length) return;
 
-  const compoundEntries = summarizeConnectionEvidence(scaleClaims, "compound");
-  const indicationEntries = summarizeConnectionEvidence(scaleClaims, "disorder");
+  const scopeKeys = new Set(scaleClaims.map(evidenceScopeKey).filter(Boolean));
+  const sourceItems = activeDetailItems.length ? activeDetailItems : applyFilters();
+  const scopedViewClaims =
+    currentEntityViewKey() === "outcome_scale"
+      ? scaleClaims
+      : sourceItems.filter((claim) => !isOutcomeScaleClaim(claim) && scopeKeys.has(evidenceScopeKey(claim)));
+  const detailClaims = scopedViewClaims.length ? scopedViewClaims : scaleClaims;
+  const rightKey = rightEntityKey();
+  const compoundEntries = summarizeConnectionEvidence(detailClaims, "compound");
+  const rightEntries = summarizeConnectionEvidence(detailClaims, rightKey);
 
-  activeDetailItems = scaleClaims;
+  activeDetailItems = detailClaims;
+  setDetailGraphFilter(detailClaims);
   setDetailHeader(`Outcome scale: ${scaleValue}`);
   detailBody.innerHTML = `
     <div class="trend-dashboard">
       <div class="study-detail-actions">
         <button class="ghost small" type="button" data-detail-action="restore">Back</button>
       </div>
-      ${renderTrendStats(scaleClaims, [
+      ${renderTrendStats(detailClaims, [
         { label: "Compounds", value: formatCompactNumber(compoundEntries.length) },
-        { label: "Indications", value: formatCompactNumber(indicationEntries.length) },
+        { label: rightEntityLabel(true), value: formatCompactNumber(rightEntries.length) },
       ])}
-      ${renderDirectionSampleChart(scaleClaims)}
+      ${renderSampleSizeHeatmap(detailClaims)}
+      ${renderResultDirectionChart(detailClaims)}
+      ${renderOutcomeMeasureChart(detailClaims)}
       ${renderHorizontalBarChart(compoundEntries, "Compounds", "Ranked by unique studies", { filterField: "compound" })}
-      ${renderHorizontalBarChart(indicationEntries, "Indications", "Ranked by unique studies", { filterField: "disorder" })}
-      ${renderDetailClaimCards(scaleClaims)}
+      ${renderHorizontalBarChart(rightEntries, rightEntityLabel(true), "Ranked by unique studies", { filterField: rightKey })}
+      ${renderDetailClaimCards(detailClaims)}
     </div>
   `;
 }
@@ -2410,8 +2816,7 @@ function renderEdgeDetail(compound, target, edgeClaims) {
   activeDetailItems = edgeClaims;
   setDetailHeader(`${compound} → ${target}`);
 
-  const primaryComposition =
-    mode === "disorders" ? "" : renderCompositionChart(edgeClaims, "system", "Experimental system");
+  const primaryComposition = renderExperimentalSystemChart(edgeClaims);
 
   detailBody.innerHTML = `
     <div class="trend-dashboard">
@@ -2425,15 +2830,15 @@ function renderEdgeDetail(compound, target, edgeClaims) {
 }
 
 function renderNodeDetail(type, name, nodeClaims) {
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const connectionKey = type === "compound" ? rightKey : "compound";
   const connections = summarizeConnectionEvidence(nodeClaims, connectionKey);
-  const connectionLabel = type === "compound" ? (mode === "mechanistic" ? "targets" : "indications") : "compounds";
+  const connectionLabel = type === "compound" ? lowerRightEntityLabel(true) : "compounds";
 
   activeDetailItems = nodeClaims;
   setDetailHeader(name);
 
-  const composition = mode === "disorders" ? "" : renderCompositionChart(nodeClaims, "system", "Experimental system");
+  const composition = renderExperimentalSystemChart(nodeClaims);
 
   detailBody.innerHTML = `
     <div class="trend-dashboard">
@@ -2448,20 +2853,20 @@ function renderNodeDetail(type, name, nodeClaims) {
 }
 
 function renderOverviewDetail(data) {
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
-  const rightLabel = mode === "mechanistic" ? "Targets" : "Indications";
+  const rightKey = rightEntityKey();
+  const rightLabel = rightEntityLabel(true);
   const compoundEntries = summarizeConnectionEvidence(data, "compound");
   const rightEntries = summarizeConnectionEvidence(data, rightKey);
 
   activeDetailItems = data;
-  setDetailHeader(mode === "mechanistic" ? "All targets" : "All indications");
+  setDetailHeader(`All ${lowerRightEntityLabel(true)}`);
 
   if (!data.length) {
     detailBody.innerHTML = '<div class="detail-empty">No claims match the current filters.</div>';
     return;
   }
 
-  const composition = mode === "disorders" ? "" : renderCompositionChart(data, "system", "Experimental system");
+  const composition = renderExperimentalSystemChart(data);
 
   detailBody.innerHTML = `
     <div class="trend-dashboard">
@@ -2481,7 +2886,7 @@ function renderOverviewDetail(data) {
 function renderSelectedDetailFromData(data) {
   if (!selected) return;
 
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   if (selected.type === "edge") {
     const edgeClaims = data.filter(
       (claim) => claim.compound === selected.compound && claim[rightKey] === selected.target
@@ -2505,7 +2910,7 @@ function renderSelectedDetailFromData(data) {
 function buildGraph(data) {
   graphEl.innerHTML = "";
 
-  const rightKey = mode === "mechanistic" ? "target" : "disorder";
+  const rightKey = rightEntityKey();
   const compoundCounts = new Map();
   const rightCounts = new Map();
   const compoundConnections = new Map();
@@ -2557,11 +2962,11 @@ function buildGraph(data) {
   const width = graphEl.clientWidth || 800;
   const height = graphEl.clientHeight || 420;
 
-  const longestLeftLabelPx = Math.max(80, ...compounds.map(estimateLabelWidth));
-  const longestRightLabelPx = Math.max(80, ...targets.map(estimateLabelWidth));
+  const longestLeftLabelPx = Math.max(80, ...compounds.map(estimateGraphLabelWidth));
+  const longestRightLabelPx = Math.max(80, ...targets.map(estimateGraphLabelWidth));
   const baseSideMargin = clampNumber(Math.floor(width * 0.18), 110, 220);
   let leftMargin = Math.max(baseSideMargin, longestLeftLabelPx + 28);
-  let rightMargin = Math.max(baseSideMargin, longestRightLabelPx + 28);
+  let rightMargin = Math.max(baseSideMargin, longestRightLabelPx + 28 + GRAPH_RIGHT_LABEL_GUTTER_PX);
   const minCenterWidth = 120;
   const maxMarginBudget = Math.max(220, width - minCenterWidth);
   const combinedMargins = leftMargin + rightMargin;
@@ -2575,8 +2980,11 @@ function buildGraph(data) {
   const compoundX = margin.left;
   const targetX = width - margin.right;
   const labelOffset = 22;
-  const leftLabelMaxWidth = Math.max(20, compoundX - labelOffset - 10);
-  const rightLabelMaxWidth = Math.max(20, width - (targetX + labelOffset) - 10);
+  const leftLabelMaxWidth = Math.min(GRAPH_LABEL_MAX_WIDTH_PX, Math.max(20, compoundX - labelOffset - 10));
+  const rightLabelMaxWidth = Math.min(
+    GRAPH_LABEL_MAX_WIDTH_PX,
+    Math.max(20, width - (targetX + labelOffset) - GRAPH_RIGHT_LABEL_GUTTER_PX - 10)
+  );
 
   const compoundStep = (height - margin.top - margin.bottom) / Math.max(compounds.length, 1);
   const targetStep = (height - margin.top - margin.bottom) / Math.max(targets.length, 1);
@@ -2995,10 +3403,25 @@ function render() {
     selected = null;
     isolateSelection = false;
   }
-  if (selected) {
+  if (detailGraphFilter) {
+    // Keep the current right-panel drilldown visible while refreshing the graph.
+  } else if (selected) {
     renderSelectedDetailFromData(filtered);
   } else {
     renderOverviewDetail(filtered);
+  }
+  updateStats();
+  renderCards(filtered);
+  buildGraph(filtered);
+  renderBibliography(filtered);
+}
+
+function refreshMainViews() {
+  const filtered = applyFilters();
+  if (selected && !selectionIsValid(filtered)) {
+    selected = null;
+    isolateSelection = false;
+    clearSelectedStyles();
   }
   updateStats();
   renderCards(filtered);
@@ -3013,6 +3436,59 @@ function scheduleRender() {
     renderScheduled = false;
     render();
   });
+}
+
+function updateSearchPlaceholder() {
+  if (!searchInput) return;
+  if (mode === "mechanistic") {
+    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, or assays`;
+  } else {
+    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, or outcomes`;
+  }
+}
+
+function updateEntityKindToggle() {
+  if (!entityKindToggle) return;
+  const isAvailable = claimLayer === "normalized";
+  entityKindToggle.hidden = !isAvailable;
+  if (!isAvailable) {
+    entityKindToggle.innerHTML = "";
+    return;
+  }
+
+  const scopedClaims = graphViewClaims(mode === "mechanistic" ? claims : disorderClaims);
+  const counts = new Map();
+  scopedClaims.forEach((claim) => {
+    const kind = entityKindForClaim(claim);
+    if (!kind) return;
+    counts.set(kind, (counts.get(kind) || 0) + 1);
+  });
+
+  let options = entityViewOptionsForMode().filter((option) => (counts.get(option.key) || 0) > 0);
+  if (!options.length) options = entityViewOptionsForMode();
+  const activeKey = options.some((option) => option.key === currentEntityViewKey())
+    ? currentEntityViewKey()
+    : options[0]?.key || "";
+  if (activeKey && entityView[mode] !== activeKey) {
+    entityView = { ...entityView, [mode]: activeKey };
+  }
+
+  entityKindToggle.innerHTML = options
+    .map((option) => {
+      const isActive = option.key === activeKey;
+      return `
+        <button
+          class="ghost small ${isActive ? "active" : ""}"
+          data-entity-view="${escapeHtml(option.key)}"
+          role="tab"
+          aria-selected="${isActive ? "true" : "false"}"
+          type="button"
+        >
+          ${escapeHtml(option.label)}
+        </button>
+      `;
+    })
+    .join("");
 }
 
 function updateModeUI() {
@@ -3031,6 +3507,8 @@ function updateModeUI() {
     btn.classList.toggle("active", isActive);
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
+  updateEntityKindToggle();
+  updateSearchPlaceholder();
   if (fullTextOnlyToggle) fullTextOnlyToggle.disabled = false;
   fullTextOnlyToggle?.closest(".access-toggle")?.classList.remove("disabled");
 }
@@ -3040,6 +3518,7 @@ function switchMode(nextMode) {
   mode = nextMode;
   selected = null;
   isolateSelection = false;
+  detailGraphFilter = null;
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode());
@@ -3054,6 +3533,7 @@ function switchClaimLayer(nextLayer) {
   applyClaimLayerStore();
   selected = null;
   isolateSelection = false;
+  detailGraphFilter = null;
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
@@ -3067,6 +3547,22 @@ function switchEvidenceView(nextView) {
   evidenceView = nextView;
   selected = null;
   isolateSelection = false;
+  detailGraphFilter = null;
+  clearSelectedStyles();
+  updateModeUI();
+  syncYearFilterControls(activeClaimsForMode(), true);
+  setDetailHeader(defaultDetail.title);
+  renderDetailEmpty();
+  scheduleRender();
+}
+
+function switchEntityView(nextView) {
+  const options = entityViewOptionsForMode();
+  if (!options.some((option) => option.key === nextView) || currentEntityViewKey() === nextView) return;
+  entityView = { ...entityView, [mode]: nextView };
+  selected = null;
+  isolateSelection = false;
+  detailGraphFilter = null;
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
@@ -3171,6 +3667,13 @@ function mechanisticFromPayload(payload) {
     confidence: item?.properties?.confidence ?? "",
     needs_human_review: item?.properties?.needs_human_review === true,
     source: item?.properties?.source || "",
+    kg_domain: item?.properties?.kg_domain || item?.extracted_variables?.kg_domain || "",
+    kg_entity_kind:
+      item?.properties?.kg_entity_kind || item?.properties?.entity_kind || item?.extracted_variables?.kg_entity_kind || "",
+    entity_kind: item?.properties?.entity_kind || item?.properties?.kg_entity_kind || item?.extracted_variables?.kg_entity_kind || "",
+    kg_evidence_type: item?.properties?.kg_evidence_type || item?.extracted_variables?.kg_evidence_type || "",
+    kg_relation_type: item?.properties?.kg_relation_type || item?.extracted_variables?.kg_relation_type || "",
+    kg_source_name: item?.properties?.kg_source_name || item?.extracted_variables?.kg_source_name || "",
     paper_type: item?.provenance?.paper_type || "",
     source_type: item?.provenance?.source_type || "",
     source_family: item?.provenance?.source_family || "",
@@ -3238,6 +3741,13 @@ function disorderFromPayload(payload) {
     confidence: item?.properties?.confidence ?? "",
     needs_human_review: item?.properties?.needs_human_review === true,
     source: item?.properties?.source || "",
+    kg_domain: item?.properties?.kg_domain || item?.extracted_variables?.kg_domain || "",
+    kg_entity_kind:
+      item?.properties?.kg_entity_kind || item?.properties?.entity_kind || item?.extracted_variables?.kg_entity_kind || "",
+    entity_kind: item?.properties?.entity_kind || item?.properties?.kg_entity_kind || item?.extracted_variables?.kg_entity_kind || "",
+    kg_evidence_type: item?.properties?.kg_evidence_type || item?.extracted_variables?.kg_evidence_type || "",
+    kg_relation_type: item?.properties?.kg_relation_type || item?.extracted_variables?.kg_relation_type || "",
+    kg_source_name: item?.properties?.kg_source_name || item?.extracted_variables?.kg_source_name || "",
     paper_type: item?.provenance?.paper_type || "",
     source_type: item?.provenance?.source_type || "",
     source_family: item?.provenance?.source_family || "",
@@ -3310,11 +3820,10 @@ async function init() {
 
   try {
     const primary = await loadClaimArray({
-      arrayPath: "data/processed/extraction/mechanistic_graph_claims.json",
+      payloadPaths: ["data/processed/graph_payload_mechanistic.json"],
       payloadMapper: mechanisticFromPayload,
     });
     const secondary = await loadOptionalClaimArray({
-      arrayPath: "data/processed/extraction/mechanistic_secondary_graph_claims.json",
       payloadPaths: ["data/processed/graph_payload_mechanistic_secondary_sources.json"],
       payloadMapper: mechanisticFromPayload,
     });
@@ -3325,11 +3834,10 @@ async function init() {
 
   try {
     const primary = await loadClaimArray({
-      arrayPath: "data/processed/extraction/disorder_graph_claims.json",
+      payloadPaths: ["data/processed/graph_payload_disorder.json"],
       payloadMapper: disorderFromPayload,
     });
     const secondary = await loadOptionalClaimArray({
-      arrayPath: "data/processed/extraction/disorder_secondary_graph_claims.json",
       payloadPaths: ["data/processed/graph_payload_disorder_secondary_sources.json"],
       payloadMapper: disorderFromPayload,
     });
@@ -3446,11 +3954,11 @@ if (studiesStatCard) {
 }
 if (detailBody) {
   detailBody.addEventListener("mouseover", (event) => {
-    const target = event.target.closest?.(".sample-bubble-target");
+    const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;
     if (event.relatedTarget && target.contains(event.relatedTarget)) return;
     target.classList.add("hovered");
-    showTooltip(sampleBubbleTooltipHtml(target), event);
+    showTooltip(sampleHeatmapTooltipHtml(target), event);
   });
   detailBody.addEventListener("mouseover", (event) => {
     const target = event.target.closest?.(".publication-year-target");
@@ -3460,14 +3968,14 @@ if (detailBody) {
     showTooltip(publicationYearTooltipHtml(target), event);
   });
   detailBody.addEventListener("mouseover", (event) => {
-    const target = event.target.closest?.(".interactive-bar");
+    const target = event.target.closest?.(".interactive-bar, .composition-filter-target");
     if (!target || !detailBody.contains(target)) return;
     if (event.relatedTarget && target.contains(event.relatedTarget)) return;
     target.classList.add("hovered");
     showTooltip(horizontalBarTooltipHtml(target), event);
   });
   detailBody.addEventListener("mousemove", (event) => {
-    const target = event.target.closest?.(".sample-bubble-target");
+    const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;
     moveTooltip(event);
   });
@@ -3477,12 +3985,12 @@ if (detailBody) {
     moveTooltip(event);
   });
   detailBody.addEventListener("mousemove", (event) => {
-    const target = event.target.closest?.(".interactive-bar");
+    const target = event.target.closest?.(".interactive-bar, .composition-filter-target");
     if (!target || !detailBody.contains(target)) return;
     moveTooltip(event);
   });
   detailBody.addEventListener("mouseout", (event) => {
-    const target = event.target.closest?.(".sample-bubble-target");
+    const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;
     if (event.relatedTarget && target.contains(event.relatedTarget)) return;
     target.classList.remove("hovered");
@@ -3496,17 +4004,17 @@ if (detailBody) {
     hideTooltip();
   });
   detailBody.addEventListener("mouseout", (event) => {
-    const target = event.target.closest?.(".interactive-bar");
+    const target = event.target.closest?.(".interactive-bar, .composition-filter-target");
     if (!target || !detailBody.contains(target)) return;
     if (event.relatedTarget && target.contains(event.relatedTarget)) return;
     target.classList.remove("hovered");
     hideTooltip();
   });
   detailBody.addEventListener("focusin", (event) => {
-    const target = event.target.closest?.(".sample-bubble-target");
+    const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;
     target.classList.add("hovered");
-    showTooltipForElement(sampleBubbleTooltipHtml(target), target);
+    showTooltipForElement(sampleHeatmapTooltipHtml(target), target);
   });
   detailBody.addEventListener("focusin", (event) => {
     const target = event.target.closest?.(".publication-year-target");
@@ -3515,13 +4023,13 @@ if (detailBody) {
     showTooltipForElement(publicationYearTooltipHtml(target), target);
   });
   detailBody.addEventListener("focusin", (event) => {
-    const target = event.target.closest?.(".interactive-bar");
+    const target = event.target.closest?.(".interactive-bar, .composition-filter-target");
     if (!target || !detailBody.contains(target)) return;
     target.classList.add("hovered");
     showTooltipForElement(horizontalBarTooltipHtml(target), target);
   });
   detailBody.addEventListener("focusout", (event) => {
-    const target = event.target.closest?.(".sample-bubble-target");
+    const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;
     target.classList.remove("hovered");
     hideTooltip();
@@ -3533,7 +4041,7 @@ if (detailBody) {
     hideTooltip();
   });
   detailBody.addEventListener("focusout", (event) => {
-    const target = event.target.closest?.(".interactive-bar");
+    const target = event.target.closest?.(".interactive-bar, .composition-filter-target");
     if (!target || !detailBody.contains(target)) return;
     target.classList.remove("hovered");
     hideTooltip();
@@ -3545,11 +4053,17 @@ if (detailBody) {
       return;
     }
 
-    const target = event.target.closest?.(".sample-bubble-target");
+    const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;
     event.preventDefault();
     hideTooltip();
-    renderStudyDetail(target.dataset.studyKey || "");
+    renderSampleHeatmapDetail(
+      target.dataset.yearStart || "",
+      target.dataset.yearEnd || "",
+      target.dataset.sampleMin || "",
+      target.dataset.sampleMax || "",
+      `${target.dataset.yearLabel || ""}, N=${target.dataset.sampleLabel || ""}`
+    );
   });
   detailBody.addEventListener("click", (event) => {
     const target = event.target.closest?.(".publication-year-target");
@@ -3559,19 +4073,25 @@ if (detailBody) {
     renderPublicationYearDetail(target.dataset.yearStart || "", target.dataset.yearEnd || "", target.dataset.yearLabel || "");
   });
   detailBody.addEventListener("click", (event) => {
-    const target = event.target.closest?.(".interactive-bar");
+    const target = event.target.closest?.(".interactive-bar, .composition-filter-target");
     if (!target || !detailBody.contains(target)) return;
     event.preventDefault();
     hideTooltip();
     renderFieldValueDetail(target.dataset.filterField || "", target.dataset.filterValue || "", target.dataset.filterLabel || "");
   });
   detailBody.addEventListener("keydown", (event) => {
-    const target = event.target.closest?.(".sample-bubble-target");
+    const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
     hideTooltip();
-    renderStudyDetail(target.dataset.studyKey || "");
+    renderSampleHeatmapDetail(
+      target.dataset.yearStart || "",
+      target.dataset.yearEnd || "",
+      target.dataset.sampleMin || "",
+      target.dataset.sampleMax || "",
+      `${target.dataset.yearLabel || ""}, N=${target.dataset.sampleLabel || ""}`
+    );
   });
   detailBody.addEventListener("keydown", (event) => {
     const target = event.target.closest?.(".publication-year-target");
@@ -3582,7 +4102,7 @@ if (detailBody) {
     renderPublicationYearDetail(target.dataset.yearStart || "", target.dataset.yearEnd || "", target.dataset.yearLabel || "");
   });
   detailBody.addEventListener("keydown", (event) => {
-    const target = event.target.closest?.(".interactive-bar");
+    const target = event.target.closest?.(".interactive-bar, .composition-filter-target");
     if (!target || !detailBody.contains(target)) return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
@@ -3616,6 +4136,13 @@ evidenceViewButtons.forEach((button) => {
     switchEvidenceView(button.dataset.evidenceView);
   });
 });
+if (entityKindToggle) {
+  entityKindToggle.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-entity-view]");
+    if (!button || !entityKindToggle.contains(button)) return;
+    switchEntityView(button.dataset.entityView || "");
+  });
+}
 window.addEventListener("resize", scheduleRender);
 
 init();

@@ -1,0 +1,337 @@
+{
+  "kg_table_version": "0.1",
+  "generated_at": "2026-05-25T03:47:11.793786+00:00",
+  "out_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg",
+  "registry_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/entity_registry.json",
+  "source_counts": {
+    "mechanistic_primary": 1043,
+    "mechanistic_secondary": 1061,
+    "clinical_primary": 563,
+    "clinical_primary_endpoints": 542,
+    "clinical_secondary": 1090
+  },
+  "tables": {
+    "papers": {
+      "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/papers.parquet",
+      "rows": 1481,
+      "columns": [
+        "paper_id",
+        "doi",
+        "openalex_id",
+        "title",
+        "authors",
+        "year",
+        "journal",
+        "study_doi",
+        "study_title",
+        "study_year",
+        "study_journal",
+        "publication_type",
+        "publication_date",
+        "publisher",
+        "journal_issn",
+        "journal_eissn",
+        "language",
+        "mesh_terms",
+        "keywords",
+        "funders",
+        "grant_ids",
+        "trial_registry_ids",
+        "study_design",
+        "funding",
+        "conflicts_of_interest",
+        "risk_of_bias_summary",
+        "source_access_level"
+      ]
+    },
+    "entities": {
+      "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/entities.parquet",
+      "rows": 199,
+      "columns": [
+        "entity_id",
+        "entity_type",
+        "domain",
+        "entity_kind",
+        "label",
+        "registry_status",
+        "aliases_json",
+        "ids_json"
+      ]
+    },
+    "claims": {
+      "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/claims.parquet",
+      "rows": 4299,
+      "columns": [
+        "claim_id",
+        "source_name",
+        "domain",
+        "dataset",
+        "evidence_type",
+        "paper_id",
+        "study_doi",
+        "study_year",
+        "compound",
+        "entity_label",
+        "raw_row_json",
+        "claim_type",
+        "raw_entity_label",
+        "entity_role",
+        "clinical_context_condition",
+        "graph_entity_label",
+        "graph_entity_type",
+        "graph_exclusion_reason",
+        "mechanism_type",
+        "assay_type",
+        "assay_family",
+        "action_type",
+        "affinity_type",
+        "affinity_value",
+        "affinity_unit",
+        "species",
+        "model_or_system",
+        "system",
+        "outcome_type",
+        "outcome_domain",
+        "result_direction",
+        "outcome_measure",
+        "outcome_measure_normalized",
+        "population",
+        "sample_size_total",
+        "sample_size_by_arm",
+        "comparator",
+        "intervention_or_exposure",
+        "dose",
+        "route",
+        "session_count_or_duration",
+        "primary_outcome",
+        "timepoint",
+        "effect_size",
+        "p_value",
+        "confidence_interval",
+        "adverse_events",
+        "evidence_level",
+        "support",
+        "confidence",
+        "needs_human_review",
+        "supporting_quote",
+        "evidence_location",
+        "evidence_locator",
+        "paper_assessment_route",
+        "source_type",
+        "source_family",
+        "paper_type",
+        "access_level",
+        "evidence_strength",
+        "notes",
+        "normalization_status",
+        "normalization_notes",
+        "compound_original",
+        "target_original",
+        "disorder_original",
+        "graph_entity_original",
+        "compound_match_type",
+        "entity_match_type",
+        "compound_registry_status",
+        "entity_registry_status",
+        "kg_entity_kind_override",
+        "endpoint_label_source"
+      ]
+    },
+    "evidence_edges": {
+      "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/evidence_edges.parquet",
+      "rows": 4299,
+      "columns": [
+        "evidence_id",
+        "claim_id",
+        "source_name",
+        "domain",
+        "dataset",
+        "entity_kind",
+        "evidence_type",
+        "relation_type",
+        "compound_id",
+        "compound",
+        "entity_id",
+        "entity_label",
+        "paper_id",
+        "study_doi",
+        "study_year",
+        "direction",
+        "support",
+        "confidence",
+        "evidence_level",
+        "source_type",
+        "source_family",
+        "paper_type",
+        "access_level",
+        "sample_size_total",
+        "outcome_measure",
+        "outcome_measure_normalized",
+        "effect_size",
+        "p_value",
+        "confidence_interval",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ]
+    },
+    "normalization_audit": {
+      "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/normalization_audit.parquet",
+      "rows": 8656,
+      "columns": [
+        "source_name",
+        "domain",
+        "dataset",
+        "normalization_status",
+        "normalization_notes",
+        "compound",
+        "canonical_compound",
+        "entity_label",
+        "canonical_entity",
+        "entity_role",
+        "graph_entity_type",
+        "graph_include_candidate",
+        "study_doi",
+        "study_title",
+        "raw_row_json"
+      ]
+    }
+  },
+  "edge_counts_by_domain_kind_evidence": [
+    {
+      "domain": "clinical",
+      "entity_kind": "condition_indication",
+      "evidence_type": "primary_evidence",
+      "count": 321
+    },
+    {
+      "domain": "clinical",
+      "entity_kind": "condition_indication",
+      "evidence_type": "secondary_literature",
+      "count": 700
+    },
+    {
+      "domain": "clinical",
+      "entity_kind": "outcome_scale",
+      "evidence_type": "primary_evidence",
+      "count": 296
+    },
+    {
+      "domain": "clinical",
+      "entity_kind": "safety_adverse_event",
+      "evidence_type": "primary_evidence",
+      "count": 246
+    },
+    {
+      "domain": "clinical",
+      "entity_kind": "symptom_problem",
+      "evidence_type": "primary_evidence",
+      "count": 242
+    },
+    {
+      "domain": "clinical",
+      "entity_kind": "symptom_problem",
+      "evidence_type": "secondary_literature",
+      "count": 390
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "biomarker_readout",
+      "evidence_type": "primary_evidence",
+      "count": 55
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "biomarker_readout",
+      "evidence_type": "secondary_literature",
+      "count": 37
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "pathway_process",
+      "evidence_type": "primary_evidence",
+      "count": 14
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "pathway_process",
+      "evidence_type": "secondary_literature",
+      "count": 22
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "system_family",
+      "evidence_type": "primary_evidence",
+      "count": 35
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "system_family",
+      "evidence_type": "secondary_literature",
+      "count": 78
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "target",
+      "evidence_type": "primary_evidence",
+      "count": 939
+    },
+    {
+      "domain": "mechanistic",
+      "entity_kind": "target",
+      "evidence_type": "secondary_literature",
+      "count": 924
+    }
+  ],
+  "entity_counts_by_type_kind": [
+    {
+      "entity_type": "clinical_entity",
+      "entity_kind": "condition_indication",
+      "count": 29
+    },
+    {
+      "entity_type": "clinical_entity",
+      "entity_kind": "outcome_scale",
+      "count": 22
+    },
+    {
+      "entity_type": "clinical_entity",
+      "entity_kind": "safety_adverse_event",
+      "count": 10
+    },
+    {
+      "entity_type": "clinical_entity",
+      "entity_kind": "symptom_problem",
+      "count": 9
+    },
+    {
+      "entity_type": "compound",
+      "entity_kind": "compound",
+      "count": 58
+    },
+    {
+      "entity_type": "mechanistic_entity",
+      "entity_kind": "biomarker_readout",
+      "count": 6
+    },
+    {
+      "entity_type": "mechanistic_entity",
+      "entity_kind": "pathway_process",
+      "count": 5
+    },
+    {
+      "entity_type": "mechanistic_entity",
+      "entity_kind": "system_family",
+      "count": 11
+    },
+    {
+      "entity_type": "mechanistic_entity",
+      "entity_kind": "target",
+      "count": 49
+    }
+  ],
+  "duckdb": {
+    "status": "ok",
+    "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/kg.duckdb"
+  }
+}

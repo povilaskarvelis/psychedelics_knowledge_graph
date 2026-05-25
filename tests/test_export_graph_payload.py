@@ -1,10 +1,16 @@
 import unittest
+import tempfile
+from pathlib import Path
+
+import pandas as pd
 
 from pipeline.publish.export_graph_payload import (
     DEFAULT_CLAIM_SOURCE,
     claim_source_paths,
     evidence_role_for_row,
+    export_dataset,
     is_secondary_literature_row,
+    load_claim_rows_for_source,
     rows_for_view,
     schema_path_for_claim_source,
 )
@@ -25,6 +31,18 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
         self.assertTrue(str(paths["claims_json"]).endswith("data/processed/extraction/disorder_graph_claims.json"))
         self.assertEqual(paths["claim_source"], "gemini_normalized")
 
+    def test_kg_tables_source_uses_parquet_and_source_names(self) -> None:
+        paths = claim_source_paths("mechanistic", "kg_tables")
+
+        self.assertTrue(str(paths["claims_parquet"]).endswith("data/processed/kg/claims.parquet"))
+        self.assertEqual(paths["primary_source_name"], "mechanistic_primary")
+        self.assertEqual(paths["secondary_source_name"], "mechanistic_secondary")
+        self.assertEqual(paths["claim_source"], "kg_tables")
+
+        disorder_paths = claim_source_paths("disorder", "kg_tables")
+        self.assertEqual(disorder_paths["primary_source_name"], ["clinical_primary", "clinical_primary_endpoints"])
+        self.assertEqual(disorder_paths["secondary_source_name"], "clinical_secondary")
+
     def test_legacy_curated_mechanistic_source_uses_legacy_affinity_schema(self) -> None:
         schema_path = schema_path_for_claim_source(
             "mechanistic",
@@ -43,6 +61,127 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
 
         self.assertTrue(str(schema_path).endswith("schema/legacy_disorder_claims.schema.json"))
 
+    def test_loads_split_rows_from_kg_claim_table(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "claims.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "claim_id": "claim-1",
+                        "source_name": "clinical_primary",
+                        "domain": "clinical",
+                        "evidence_type": "primary_evidence",
+                        "raw_row_json": '{"compound":"Ketamine","disorder":"Depression"}',
+                    },
+                    {
+                        "claim_id": "claim-2",
+                        "source_name": "clinical_secondary",
+                        "domain": "clinical",
+                        "evidence_type": "secondary_literature",
+                        "raw_row_json": '{"compound":"Psilocybin","disorder":"PTSD"}',
+                    },
+                    {
+                        "claim_id": "claim-4",
+                        "source_name": "clinical_primary_endpoints",
+                        "domain": "clinical",
+                        "evidence_type": "primary_evidence",
+                        "raw_row_json": '{"compound":"Psilocybin","disorder":"WEMWBS"}',
+                    },
+                    {
+                        "claim_id": "claim-3",
+                        "source_name": "mechanistic_primary",
+                        "domain": "mechanistic",
+                        "evidence_type": "primary_evidence",
+                        "raw_row_json": '{"compound":"LSD","target":"5-HT2A"}',
+                    },
+                ]
+            ).to_parquet(path, index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "claim_id": "claim-1",
+                        "evidence_id": "evidence-1",
+                        "source_name": "clinical_primary",
+                        "domain": "clinical",
+                        "entity_kind": "condition_indication",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "studied_for_condition",
+                    },
+                    {
+                        "claim_id": "claim-2",
+                        "evidence_id": "evidence-2",
+                        "source_name": "clinical_secondary",
+                        "domain": "clinical",
+                        "entity_kind": "symptom_problem",
+                        "evidence_type": "secondary_literature",
+                        "relation_type": "discusses_relationship",
+                    },
+                    {
+                        "claim_id": "claim-4",
+                        "evidence_id": "evidence-4",
+                        "source_name": "clinical_primary_endpoints",
+                        "domain": "clinical",
+                        "entity_kind": "outcome_scale",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "reports_outcome_scale",
+                    },
+                ]
+            ).to_parquet(Path(tmpdir) / "evidence_edges.parquet", index=False)
+
+            rows, secondary_rows = load_claim_rows_for_source(
+                "disorder",
+                "kg_tables",
+                {
+                    "claims_parquet": path,
+                    "primary_source_name": ["clinical_primary", "clinical_primary_endpoints"],
+                    "secondary_source_name": "clinical_secondary",
+                },
+            )
+
+        self.assertEqual(
+            rows,
+            [
+                {
+                    "compound": "Ketamine",
+                    "disorder": "Depression",
+                    "kg_claim_id": "claim-1",
+                    "kg_evidence_id": "evidence-1",
+                    "kg_source_name": "clinical_primary",
+                    "kg_domain": "clinical",
+                    "kg_entity_kind": "condition_indication",
+                    "kg_evidence_type": "primary_evidence",
+                    "kg_relation_type": "studied_for_condition",
+                },
+                {
+                    "compound": "Psilocybin",
+                    "disorder": "WEMWBS",
+                    "kg_claim_id": "claim-4",
+                    "kg_evidence_id": "evidence-4",
+                    "kg_source_name": "clinical_primary_endpoints",
+                    "kg_domain": "clinical",
+                    "kg_entity_kind": "outcome_scale",
+                    "kg_evidence_type": "primary_evidence",
+                    "kg_relation_type": "reports_outcome_scale",
+                },
+            ],
+        )
+        self.assertEqual(
+            secondary_rows,
+            [
+                {
+                    "compound": "Psilocybin",
+                    "disorder": "PTSD",
+                    "kg_claim_id": "claim-2",
+                    "kg_evidence_id": "evidence-2",
+                    "kg_source_name": "clinical_secondary",
+                    "kg_domain": "clinical",
+                    "kg_entity_kind": "symptom_problem",
+                    "kg_evidence_type": "secondary_literature",
+                    "kg_relation_type": "discusses_relationship",
+                }
+            ],
+        )
+
     def test_secondary_literature_detection_is_focused_on_reviews_and_meta_analyses(self) -> None:
         self.assertTrue(
             is_secondary_literature_row(
@@ -54,6 +193,16 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
             )
         )
         self.assertTrue(is_secondary_literature_row({"paper_type": "meta_analysis"}))
+        self.assertFalse(
+            is_secondary_literature_row(
+                {
+                    "kg_evidence_type": "primary_evidence",
+                    "source_family": "evidence_synthesis",
+                    "source_type": "review",
+                    "paper_type": "review",
+                }
+            )
+        )
         self.assertFalse(is_secondary_literature_row({"source_type": "commentary", "paper_type": "commentary"}))
         self.assertFalse(is_secondary_literature_row({"source_type": "study_protocol", "paper_type": "protocol"}))
 

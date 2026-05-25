@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260524-abstract-only-tag" />
+    <link rel="stylesheet" href="styles.css?v=20260525-composition-filters" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -27,7 +27,7 @@
       <div class="hero-inner">
         <h1>Psychedelics Knowledge Graph</h1>
         <p>
-          A living map of psychedelic research, built for a future where evidence is connected, transparent, and continuously updated.
+          A living map of psychedelic research, built for a future where scientific evidence is connected, transparent, and continuously updated.
           <br />
           <br />
           See <a href="methods.html">Methods</a> page for more details.
@@ -85,12 +85,18 @@
                 </div>
                 <div class="mode-toggle" role="tablist" aria-label="Graph mode">
                   <button class="ghost small active" data-mode="disorders" role="tab" aria-selected="true">
-                    Indications
+                    Clinical
                   </button>
                   <button class="ghost small" data-mode="mechanistic" role="tab" aria-selected="false">
-                    Targets
+                    Mechanistic
                   </button>
                 </div>
+                <div
+                  class="mode-toggle entity-kind-toggle"
+                  data-entity-kind-toggle
+                  role="tablist"
+                  aria-label="Entity view"
+                ></div>
                 <div class="mode-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
                   <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
                     Primary
@@ -137,7 +143,7 @@
             <h2>Claims</h2>
           </div>
           <div class="search">
-            <input id="searchInput" type="search" placeholder="Search compounds, targets, or assays" />
+            <input id="searchInput" type="search" placeholder="Search compounds, conditions, or outcomes" />
           </div>
         </div>
         <div class="cards" id="cards"></div>
@@ -168,6 +174,6 @@
       </div>
     </footer>
 
-    <script src="app.js?v=20260524-abstract-only-tag"></script>
+    <script src="app.js?v=20260525-secondary-no-system"></script>
   </body>
 </html>

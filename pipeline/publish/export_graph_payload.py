@@ -50,6 +50,18 @@ CLAIM_SOURCES = {
             "secondary_json": ROOT / "data" / "curated" / "exploratory_disorder_claims.json",
         },
     },
+    "kg_tables": {
+        "label": "Normalized KG evidence tables",
+        "claims_parquet": ROOT / "data" / "processed" / "kg" / "claims.parquet",
+        "mechanistic": {
+            "primary_source_name": "mechanistic_primary",
+            "secondary_source_name": "mechanistic_secondary",
+        },
+        "disorder": {
+            "primary_source_name": ["clinical_primary", "clinical_primary_endpoints"],
+            "secondary_source_name": "clinical_secondary",
+        },
+    },
 }
 
 DATASET_CONFIG = {
@@ -198,6 +210,11 @@ EXTRACTED_VARIABLE_FIELDS = (
 def normalize(value) -> str:
     if value is None:
         return ""
+    try:
+        if value != value:
+            return ""
+    except Exception:
+        pass
     return str(value).strip()
 
 
@@ -217,6 +234,15 @@ def load_json_array(path: Path) -> List[dict]:
 
 def claim_source_paths(dataset: str, claim_source: str) -> dict:
     source = CLAIM_SOURCES[claim_source]
+    if claim_source == "kg_tables":
+        paths = source[dataset]
+        return {
+            "claim_source": claim_source,
+            "claim_source_label": source["label"],
+            "claims_parquet": source["claims_parquet"],
+            "primary_source_name": paths["primary_source_name"],
+            "secondary_source_name": paths["secondary_source_name"],
+        }
     paths = source[dataset]
     return {
         "claim_source": claim_source,
@@ -237,6 +263,86 @@ def schema_path_for_claim_source(dataset: str, claim_source: str, cfg: dict) -> 
 def load_schema(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def row_from_raw_json(raw: object) -> dict:
+    if isinstance(raw, dict):
+        return raw
+    text = normalize(raw)
+    if not text:
+        return {}
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError("KG claims raw_row_json must contain JSON objects")
+    return data
+
+
+def source_name_values(source_name: object) -> list[str]:
+    if isinstance(source_name, (list, tuple, set)):
+        return [normalize(value) for value in source_name if normalize(value)]
+    return [normalize(source_name)] if normalize(source_name) else []
+
+
+def load_kg_claim_rows(claims_parquet: Path, source_name: object) -> List[dict]:
+    if not claims_parquet.exists():
+        return []
+    try:
+        import pandas as pd
+    except ModuleNotFoundError as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError("pandas/pyarrow are required to load KG Parquet claim tables") from exc
+
+    df = pd.read_parquet(claims_parquet)
+    if df.empty:
+        return []
+    source_names = source_name_values(source_name)
+    selected = df[df["source_name"].isin(source_names)].copy()
+
+    edge_path = claims_parquet.with_name("evidence_edges.parquet")
+    if edge_path.exists() and "claim_id" in selected.columns:
+        edges = pd.read_parquet(edge_path)
+        if not edges.empty and "claim_id" in edges.columns:
+            edge_columns = [
+                column
+                for column in (
+                    "claim_id",
+                    "evidence_id",
+                    "source_name",
+                    "domain",
+                    "entity_kind",
+                    "evidence_type",
+                    "relation_type",
+                )
+                if column in edges.columns
+            ]
+            edges = edges[edge_columns].drop_duplicates("claim_id")
+            selected = selected.merge(edges, on="claim_id", how="left", suffixes=("", "_edge"))
+
+    rows = []
+    for record in selected.to_dict(orient="records"):
+        row = row_from_raw_json(record.get("raw_row_json", ""))
+        for source_key, row_key in (
+            ("claim_id", "kg_claim_id"),
+            ("evidence_id", "kg_evidence_id"),
+            ("source_name", "kg_source_name"),
+            ("domain", "kg_domain"),
+            ("entity_kind", "kg_entity_kind"),
+            ("evidence_type", "kg_evidence_type"),
+            ("relation_type", "kg_relation_type"),
+        ):
+            value = record.get(f"{source_key}_edge", record.get(source_key, ""))
+            if normalize(value):
+                row[row_key] = normalize(value)
+        rows.append(row)
+    return rows
+
+
+def load_claim_rows_for_source(dataset: str, claim_source: str, source_paths: dict) -> tuple[List[dict], List[dict]]:
+    if claim_source == "kg_tables":
+        return (
+            load_kg_claim_rows(source_paths["claims_parquet"], source_paths["primary_source_name"]),
+            load_kg_claim_rows(source_paths["claims_parquet"], source_paths["secondary_source_name"]),
+        )
+    return load_json_array(source_paths["claims_json"]), load_json_array(source_paths["secondary_json"])
 
 
 def parse_schema(schema: dict) -> Tuple[List[str], Dict[str, Set[str]], Dict[str, str], List[Set[str]], Set[str]]:
@@ -347,6 +453,8 @@ def extracted_variables(row: dict) -> dict:
 
 
 def is_primary_graph_row(row: dict) -> bool:
+    if normalize(row.get("kg_evidence_type", "")) == "primary_evidence":
+        return normalize(row.get("access_level", "")) != "secondary_summary"
     if (
         normalize(row.get("paper_assessment_route", "")) == "primary_evidence"
         and normalize(row.get("access_level", "")) != "secondary_summary"
@@ -360,6 +468,11 @@ def is_primary_graph_row(row: dict) -> bool:
 
 
 def is_secondary_literature_row(row: dict) -> bool:
+    kg_evidence_type = normalize(row.get("kg_evidence_type", ""))
+    if kg_evidence_type == "secondary_literature":
+        return True
+    if kg_evidence_type == "primary_evidence":
+        return False
     return (
         normalize(row.get("source_family", "")) in SECONDARY_SOURCE_FAMILIES
         or normalize(row.get("source_type", "")) in SECONDARY_SOURCE_TYPES
@@ -439,6 +552,12 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "confidence": as_float(row.get("confidence", "")),
             "needs_human_review": row.get("needs_human_review") is True,
             "source": normalize(row.get("source", "")),
+            "kg_domain": normalize(row.get("kg_domain", "")),
+            "kg_entity_kind": normalize(row.get("kg_entity_kind", "")),
+            "entity_kind": normalize(row.get("kg_entity_kind", "")),
+            "kg_evidence_type": normalize(row.get("kg_evidence_type", "")),
+            "kg_relation_type": normalize(row.get("kg_relation_type", "")),
+            "kg_source_name": normalize(row.get("kg_source_name", "")),
         },
         "extracted_variables": extracted_variables(row),
         "provenance": {
@@ -454,6 +573,8 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "study_design": normalize(row.get("study_design", "")),
             "evidence_strength": normalize(row.get("evidence_strength", "")),
             "notes": normalize(row.get("notes", "")),
+            "kg_evidence_type": normalize(row.get("kg_evidence_type", "")),
+            "kg_relation_type": normalize(row.get("kg_relation_type", "")),
         },
     }
 
@@ -488,6 +609,12 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "confidence": as_float(row.get("confidence", "")),
             "needs_human_review": row.get("needs_human_review") is True,
             "source": normalize(row.get("source", "")),
+            "kg_domain": normalize(row.get("kg_domain", "")),
+            "kg_entity_kind": normalize(row.get("kg_entity_kind", "")),
+            "entity_kind": normalize(row.get("kg_entity_kind", "")),
+            "kg_evidence_type": normalize(row.get("kg_evidence_type", "")),
+            "kg_relation_type": normalize(row.get("kg_relation_type", "")),
+            "kg_source_name": normalize(row.get("kg_source_name", "")),
         },
         "extracted_variables": extracted_variables(row),
         "provenance": {
@@ -503,6 +630,8 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "study_design": normalize(row.get("study_design", "")),
             "evidence_strength": normalize(row.get("evidence_strength", "")),
             "notes": normalize(row.get("notes", "")),
+            "kg_evidence_type": normalize(row.get("kg_evidence_type", "")),
+            "kg_relation_type": normalize(row.get("kg_relation_type", "")),
         },
     }
 
@@ -582,8 +711,7 @@ def payload_sha256(payload: dict) -> str:
 def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAIM_SOURCE) -> Tuple[dict, Dict[str, List[str]]]:
     cfg = DATASET_CONFIG[dataset]
     source_paths = claim_source_paths(dataset, claim_source)
-    rows = load_json_array(source_paths["claims_json"])
-    exploratory_rows = load_json_array(source_paths["secondary_json"])
+    rows, exploratory_rows = load_claim_rows_for_source(dataset, claim_source, source_paths)
     schema = load_schema(schema_path_for_claim_source(dataset, claim_source, cfg))
     required, enums, types, one_of_groups, allowed_keys = parse_schema(schema)
 
@@ -627,8 +755,8 @@ def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAI
             "template": cfg["template"],
             "claim_source": source_paths["claim_source"],
             "claim_source_label": source_paths["claim_source_label"],
-            "input_file": str(source_paths["claims_json"]),
-            "secondary_source_file": str(source_paths["secondary_json"]),
+            "input_file": str(source_paths.get("claims_json") or source_paths.get("claims_parquet")),
+            "secondary_source_file": str(source_paths.get("secondary_json") or source_paths.get("secondary_source_name", "")),
             "view_policy": {
                 "primary_evidence": view in {"all_evidence", "primary_only", "primary_with_secondary"},
                 "secondary_literature": view in {"all_evidence", "secondary_sources", "primary_with_secondary"},

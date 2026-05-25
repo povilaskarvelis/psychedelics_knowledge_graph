@@ -1,60 +1,60 @@
 {
-  "generated_at": "2026-05-24T22:07:16.516722+00:00",
+  "generated_at": "2026-05-25T03:47:11.906058+00:00",
   "contract_version": "1.0",
-  "claim_source": "gemini_normalized",
-  "claim_source_label": "Gemini extraction-v1 normalized graph claims",
+  "claim_source": "kg_tables",
+  "claim_source_label": "Normalized KG evidence tables",
   "datasets": {
     "mechanistic": {
       "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic.json",
       "row_count": 1043,
-      "sha256": "af465d947cd8ab99ab8fda823414d25966b226efc8f48b5483e0666d90b035a9",
+      "sha256": "9d94b2de27a5d9fb9e0100ce25e2283e155414c3dd203882cce2887bd27154ff",
       "views": {
         "all_evidence": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic.json",
           "row_count": 1043,
-          "sha256": "af465d947cd8ab99ab8fda823414d25966b226efc8f48b5483e0666d90b035a9"
+          "sha256": "9d94b2de27a5d9fb9e0100ce25e2283e155414c3dd203882cce2887bd27154ff"
         },
         "primary_only": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic_primary_only.json",
           "row_count": 1043,
-          "sha256": "8b40c2a102460dc5b235917a95969fca8dba89ae0d3cac9008949880acb75c40"
+          "sha256": "4ba907df5eb4f77e503c9cd834d8113a5e727e40a4a981b418d35f22587f4705"
         },
         "secondary_sources": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic_secondary_sources.json",
-          "row_count": 1075,
-          "sha256": "4554072f950870e6a2a64e32ecc1cecf84b669474c676fda6ff9c4471b04cd50"
+          "row_count": 1054,
+          "sha256": "4bf4f68bcc6e30f92e265fed098ad949c77aff9080508bdfce2a9cc946a229ad"
         },
         "primary_with_secondary": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic_primary_with_secondary.json",
           "row_count": 2097,
-          "sha256": "a5e587d2b22a27327d15f2aa3abcf321be5498ff12dcadc44d76c9932a455a45"
+          "sha256": "b4df4951b8ddde80be68e363007ee86e465ee52db1eefa6b95744fa9e6a9387f"
         }
       }
     },
     "disorder": {
       "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder.json",
-      "row_count": 563,
-      "sha256": "f949e5d4aa178512b43533d785106a7e384a46505e9c44d77a3ffdbde696c411",
+      "row_count": 1105,
+      "sha256": "628af33984f88271e44f41a9d47e447b0d926f4f64a19e1db00534b57c2d0fd3",
       "views": {
         "all_evidence": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder.json",
-          "row_count": 563,
-          "sha256": "f949e5d4aa178512b43533d785106a7e384a46505e9c44d77a3ffdbde696c411"
+          "row_count": 1105,
+          "sha256": "628af33984f88271e44f41a9d47e447b0d926f4f64a19e1db00534b57c2d0fd3"
         },
         "primary_only": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder_primary_only.json",
-          "row_count": 563,
-          "sha256": "b6efbde8339879079c117d5ae386da72c4504ef2c7b007e020d8afa58bd7fcff"
+          "row_count": 1105,
+          "sha256": "789e18571877d756498349963af6b84b83d1d5346e8411c52958b1d8333ad00c"
         },
         "secondary_sources": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder_secondary_sources.json",
-          "row_count": 1099,
-          "sha256": "100f4d2477a967e61e0fc461d918b5d7331a4a0bfa30707b45bba72c11758de4"
+          "row_count": 1089,
+          "sha256": "3a55c3d635de05676c75057b07fa9cb1adb40e7f8eaea3f813f15fe8c7bb85c7"
         },
         "primary_with_secondary": {
           "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder_primary_with_secondary.json",
-          "row_count": 1652,
-          "sha256": "f619a41f5a956ff8454ffee982ef01ff67ab5cdb7845417a40b9d78e35ad3a6c"
+          "row_count": 2194,
+          "sha256": "24d3e36f1e19f9ad09c7c26b17b4630eb8923e39bc2167026e93ba62104a0050"
         }
       }
     }

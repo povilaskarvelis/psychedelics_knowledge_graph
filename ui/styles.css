@@ -313,6 +313,10 @@ button.primary:hover {
   box-shadow: none;
 }
 
+.entity-kind-toggle[hidden] {
+  display: none;
+}
+
 .filter-toggles {
   display: inline-flex;
   align-items: center;
@@ -2075,41 +2079,43 @@ button.primary:hover {
   transform: scaleY(1.06);
 }
 
-.sample-bubble-svg {
+.sample-heatmap-svg {
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
 }
 
-.sample-bubble-target {
+.sample-heatmap-target {
   cursor: pointer;
   outline: none;
 }
 
-.sample-bubble-hit {
+.sample-heatmap-hit {
   fill: transparent;
   pointer-events: all;
 }
 
-.sample-bubble {
+.sample-heatmap-cell {
   pointer-events: none;
   transform-box: fill-box;
   transform-origin: center;
   transition:
     filter 0.15s ease,
     opacity 0.15s ease,
-    stroke-width 0.15s ease,
     transform 0.15s ease;
 }
 
-.sample-bubble-target:hover .sample-bubble,
-.sample-bubble-target.hovered .sample-bubble,
-.sample-bubble-target:focus-visible .sample-bubble {
+.sample-heatmap-cell.empty {
+  fill: rgba(196, 206, 199, 0.045);
+}
+
+.sample-heatmap-target:hover .sample-heatmap-cell,
+.sample-heatmap-target.hovered .sample-heatmap-cell,
+.sample-heatmap-target:focus-visible .sample-heatmap-cell {
   filter: drop-shadow(0 0 8px rgba(169, 247, 239, 0.42));
   opacity: 1;
-  stroke-width: 2.4;
-  transform: scale(1.1);
+  transform: scale(1.04);
 }
 
 .trend-bars {
@@ -2196,6 +2202,30 @@ button.primary:hover {
   min-width: 2px;
 }
 
+.trend-stack-segment {
+  transition:
+    filter 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.composition-filter-target {
+  cursor: pointer;
+  outline: none;
+}
+
+.trend-stack-segment.composition-filter-target {
+  transform-origin: center;
+}
+
+.trend-stack-segment.composition-filter-target:hover,
+.trend-stack-segment.composition-filter-target.hovered,
+.trend-stack-segment.composition-filter-target:focus-visible {
+  filter: brightness(1.16) drop-shadow(0 0 8px rgba(169, 247, 239, 0.34));
+  opacity: 1;
+  transform: scaleY(1.12);
+}
+
 .trend-legend {
   display: flex;
   flex-wrap: wrap;
@@ -2211,6 +2241,20 @@ button.primary:hover {
   line-height: 1.2;
 }
 
+.trend-legend-item.composition-filter-target {
+  border-radius: 999px;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.trend-legend-item.composition-filter-target:hover,
+.trend-legend-item.composition-filter-target.hovered,
+.trend-legend-item.composition-filter-target:focus-visible {
+  color: #d8fffa;
+  background: rgba(238, 240, 235, 0.06);
+}
+
 .trend-legend-item i {
   width: 7px;
   height: 7px;
@@ -2223,11 +2267,11 @@ button.primary:hover {
   font-weight: 600;
 }
 
-.combined-evidence-card {
-  gap: 4px;
+.result-direction-card {
+  gap: 9px;
 }
 
-.combined-evidence-composition {
+.result-direction-composition {
   display: grid;
   gap: 9px;
 }

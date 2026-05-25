@@ -52,6 +52,8 @@ data/processed/context_promotion_plan.json
 data/processed/context_promotion_worklist.csv
 data/processed/context_edge_rollup.json
 data/processed/context_queues/
+data/processed/kg/*.duckdb
+data/processed/kg/*.duckdb.wal
 data/processed/extraction/*_fulltext_packets*.jsonl
 data/processed/extraction/extraction_v1_batch_*.json
 data/processed/extraction/extraction_v1_batch_*.jsonl
