@@ -7,6 +7,7 @@ import argparse
 from collections import Counter
 import csv
 import datetime as dt
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -14,6 +15,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 VERSION = "0.1"
+CORPUS_TABLE_VERSION = "0.1"
+DEFAULT_TABLE_OUT_DIR = ROOT / "data" / "processed" / "corpus"
+CORPUS_METADATA_TABLE = "data/processed/corpus/paper_metadata_enrichment.parquet"
 
 DATASETS = {
     "mechanistic": {
@@ -48,6 +52,7 @@ PAPER_FIELDS = (
     "study_title",
     "study_year",
     "authors",
+    "abstract",
     "study_journal",
     "publication_type",
     "publication_date",
@@ -64,7 +69,19 @@ PAPER_FIELDS = (
     "pdf_download_status",
     "pdf_sha256",
     "open_access_status",
+    "open_access_is_oa",
+    "open_access_url",
+    "best_pdf_url",
+    "pdf_url_candidates",
     "library_status",
+    "metadata_provider",
+    "metadata_provider_chain",
+    "metadata_providers_queried",
+    "metadata_lookup_error",
+    "metadata_missing_reason",
+    "metadata_enrichment_status",
+    "metadata_enrichment_run_id",
+    "metadata_enriched_at_utc",
 )
 
 PROVENANCE_FIELDS = (
@@ -82,6 +99,16 @@ PROVENANCE_FIELDS = (
     "evidence_locator",
     "stub_status",
 )
+
+DISCOVERY_CONTEXT_SOURCES = {
+    "seed_result_context",
+    "queue_discovered_context",
+    "discovery_ledger_context",
+    "search_strategy_discovered_context",
+    "search_strategy_new_doi_context",
+    "domain_reprocessing_ready_context",
+    "domain_reprocessing_needs_metadata_context",
+}
 
 COMPOUND_ALIASES = {
     "dmt": ("n,n-dimethyltryptamine", "dimethyltryptamine", "spl026", "ayahuasca"),
@@ -164,6 +191,38 @@ def unique_append(items: list[dict], item: dict) -> None:
         items.append(item)
 
 
+def json_dumps(value: object) -> str:
+    if value in ("", None, [], {}):
+        return ""
+    return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+
+def join_values(values: object) -> str:
+    if not isinstance(values, list):
+        return normalize(values)
+    return " | ".join(normalize(value) for value in values if normalize(value))
+
+
+def bool_value(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = normalize(value).lower()
+    return text in {"1", "true", "yes", "y"}
+
+
+def stable_id(*parts: object) -> str:
+    payload = "\u241f".join(normalize(part) for part in parts)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def paper_record(papers: dict[str, dict], doi: str) -> dict:
     return papers.setdefault(
         doi,
@@ -181,6 +240,7 @@ def paper_record(papers: dict[str, dict], doi: str) -> dict:
                 "in_discovery_queue": False,
                 "in_discovery_ledger": False,
                 "in_discovery_report": False,
+                "in_metadata_enrichment": False,
                 "in_paper_library": False,
                 "in_triage_report": False,
                 "in_llm_abstract_screening": False,
@@ -349,7 +409,7 @@ def add_context(
     )
 
     flags = record["flags"]
-    if context_source in {"seed_result_context", "queue_discovered_context", "discovery_ledger_context"}:
+    if context_source in DISCOVERY_CONTEXT_SOURCES:
         flags["has_seed_or_discovery_context"] = True
     if context_source == "paper_library_context":
         flags["has_paper_library_context"] = True
@@ -422,11 +482,46 @@ def iter_queue_rows(path: Path) -> list[dict]:
 
 def dataset_from_queue_name(path: Path) -> str:
     name = path.name
-    if ".mechanistic." in name:
+    if ".mechanistic." in name or name.startswith("mechanistic_") or name.startswith("paper_library_mechanistic"):
         return "mechanistic"
-    if ".disorder." in name:
+    if ".disorder." in name or name.startswith("disorder_") or name.startswith("paper_library_disorder"):
         return "disorder"
     return ""
+
+
+def iter_search_strategy_queue_paths(root: Path) -> list[Path]:
+    search_root = root / "data" / "raw" / "search_strategies"
+    if not search_root.exists():
+        return []
+
+    paths: set[Path] = set()
+    for path in search_root.glob("**/combined/*_discovered.txt"):
+        paths.add(path)
+    for path in search_root.glob("**/combined/*_new_dois.txt"):
+        paths.add(path)
+    for path in search_root.glob("**/combined/domain_reprocessing/doi_queue.*.txt"):
+        paths.add(path)
+    return sorted(paths)
+
+
+def iter_search_strategy_paper_library_paths(root: Path) -> list[Path]:
+    search_root = root / "data" / "raw" / "search_strategies"
+    if not search_root.exists():
+        return []
+    return sorted(search_root.glob("**/combined/domain_reprocessing/paper_library_*.json"))
+
+
+def classify_search_strategy_context(path: Path) -> str:
+    name = path.name
+    if name.endswith("_discovered.txt"):
+        return "search_strategy_discovered_context"
+    if name.endswith("_new_dois.txt"):
+        return "search_strategy_new_doi_context"
+    if ".ready_for_screening." in name:
+        return "domain_reprocessing_ready_context"
+    if ".needs_metadata_or_abstract." in name:
+        return "domain_reprocessing_needs_metadata_context"
+    return "search_strategy_queue_context"
 
 
 def add_contexts_from_row_contexts(
@@ -460,6 +555,23 @@ def add_contexts_from_row_contexts(
             selected_for_downstream=selected_for_downstream,
             screening_decision=screening_decision,
         )
+
+
+def metadata_row_datasets(row: dict, selected: list[str]) -> list[str]:
+    datasets: list[str] = []
+    for dataset in join_values(row.get("datasets", [])).split("|"):
+        dataset = normalize(dataset)
+        if dataset in selected and dataset not in datasets:
+            datasets.append(dataset)
+    return datasets
+
+
+def parquet_rows(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    import pandas as pd
+
+    return [row for row in pd.read_parquet(path).to_dict("records") if isinstance(row, dict)]
 
 
 def paper_text_for_context(record: dict, paper: dict | None = None) -> str:
@@ -542,6 +654,7 @@ def finalize_paper(record: dict) -> None:
             "discovery_queue": "in_discovery_queue",
             "discovery_ledger": "in_discovery_ledger",
             "discovery_report": "in_discovery_report",
+            "metadata_enrichment": "in_metadata_enrichment",
             "paper_library": "in_paper_library",
             "triage_report": "in_triage_report",
             "llm_abstract_screening": "in_llm_abstract_screening",
@@ -587,6 +700,107 @@ def build_audit(root: Path = ROOT, datasets: list[str] | None = None) -> dict:
                 row,
                 selected_for_downstream=context_source in {"llm_verified_context", "triage_matched_context"},
             )
+
+    for path in iter_search_strategy_queue_paths(root):
+        dataset = dataset_from_queue_name(path)
+        if dataset not in selected:
+            continue
+        cfg = DATASETS[dataset]
+        artifact = source_artifact(root, path)
+        input_artifacts.append(artifact)
+        context_source = classify_search_strategy_context(path)
+        selected_for_downstream = context_source in {
+            "search_strategy_new_doi_context",
+            "domain_reprocessing_ready_context",
+        }
+        for row in iter_queue_rows(path):
+            doi = normalize_doi(row.get("study_doi"))
+            merge_paper(
+                papers,
+                doi,
+                dataset,
+                "discovery_queue",
+                artifact,
+                row,
+                {"queue_kind": context_source, "search_strategy_layer": True},
+            )
+            add_context(
+                contexts,
+                dataset,
+                doi,
+                row.get("compound", ""),
+                row.get("entity", ""),
+                cfg["entity_type"],
+                context_source,
+                "search_strategy_queue",
+                artifact,
+                row,
+                selected_for_downstream=selected_for_downstream,
+            )
+
+    for path in iter_search_strategy_paper_library_paths(root):
+        dataset = dataset_from_queue_name(path)
+        if dataset not in selected:
+            continue
+        cfg = DATASETS[dataset]
+        artifact = source_artifact(root, path)
+        input_artifacts.append(artifact)
+        for row in json_rows(path):
+            doi = normalize_doi(row.get("study_doi") or row.get("doi"))
+            merge_paper(
+                papers,
+                doi,
+                dataset,
+                "paper_library",
+                artifact,
+                row,
+                {"library_kind": "search_strategy_domain_reprocessing"},
+            )
+            add_contexts_from_row_contexts(
+                contexts,
+                dataset,
+                doi,
+                row.get("contexts", []),
+                cfg["entity_type"],
+                "paper_library",
+                artifact,
+                "paper_library_context",
+            )
+
+    corpus_metadata_path = root / CORPUS_METADATA_TABLE
+    if corpus_metadata_path.exists():
+        artifact = source_artifact(root, corpus_metadata_path)
+        input_artifacts.append(artifact)
+        for row in parquet_rows(corpus_metadata_path):
+            doi = normalize_doi(row.get("study_doi") or row.get("doi"))
+            datasets_for_row = metadata_row_datasets(row, selected)
+            if datasets_for_row:
+                for dataset in datasets_for_row:
+                    merge_paper(
+                        papers,
+                        doi,
+                        dataset,
+                        "metadata_enrichment",
+                        artifact,
+                        row,
+                        {
+                            "metadata_enrichment_run_id": row.get("metadata_enrichment_run_id", ""),
+                            "metadata_enrichment_status": row.get("metadata_enrichment_status", ""),
+                        },
+                    )
+            else:
+                merge_paper(
+                    papers,
+                    doi,
+                    "",
+                    "metadata_enrichment",
+                    artifact,
+                    row,
+                    {
+                        "metadata_enrichment_run_id": row.get("metadata_enrichment_run_id", ""),
+                        "metadata_enrichment_status": row.get("metadata_enrichment_status", ""),
+                    },
+                )
 
     manifest_path = root / "data" / "raw" / "benchmark_manifest.json"
     if manifest_path.exists():
@@ -866,6 +1080,296 @@ def build_summary(papers: list[dict], contexts: list[dict]) -> dict:
     }
 
 
+def current_pipeline_status(paper: dict) -> str:
+    flags = paper.get("flags", {}) if isinstance(paper.get("flags"), dict) else {}
+    if flags.get("in_curated_claims"):
+        return "curated_claim"
+    if flags.get("in_claim_stubs"):
+        return "claim_stub"
+    if flags.get("in_llm_abstract_screening"):
+        return "abstract_screened"
+    if flags.get("in_triage_report"):
+        return "triaged"
+    if flags.get("has_local_pdf"):
+        return "pdf_available"
+    if flags.get("in_metadata_enrichment") or flags.get("in_paper_library"):
+        return "metadata_enriched"
+    if flags.get("in_discovery_queue"):
+        return "discovered"
+    return "candidate"
+
+
+def paper_table_row(paper: dict) -> dict:
+    metadata = paper.get("metadata", {}) if isinstance(paper.get("metadata"), dict) else {}
+    flags = paper.get("flags", {}) if isinstance(paper.get("flags"), dict) else {}
+    row = {
+        "doi": normalize(paper.get("doi", "")),
+        "datasets": join_values(paper.get("datasets", [])),
+        "dataset_count": len(paper.get("datasets", [])) if isinstance(paper.get("datasets"), list) else 0,
+        "study_title": normalize(paper.get("study_title", "")),
+        "study_year": normalize(paper.get("study_year", "")),
+        "authors": normalize(paper.get("authors", "")),
+        "source_types": join_values(paper.get("source_types", [])),
+        "source_count": len(paper.get("sources", [])) if isinstance(paper.get("sources"), list) else 0,
+        "local_pdf_paths": join_values(paper.get("local_pdf_paths", [])),
+        "local_pdf_count": len(paper.get("local_pdf_paths", [])) if isinstance(paper.get("local_pdf_paths"), list) else 0,
+        "current_pipeline_status": current_pipeline_status(paper),
+    }
+    for field in PAPER_FIELDS:
+        row[field] = normalize(metadata.get(field, ""))
+    for flag, value in sorted(flags.items()):
+        row[f"flag_{flag}"] = bool_value(value)
+    return row
+
+
+def context_table_row(context: dict) -> dict:
+    flags = context.get("flags", {}) if isinstance(context.get("flags"), dict) else {}
+    provenance = context.get("provenance", []) if isinstance(context.get("provenance"), list) else []
+    screening_decisions = sorted(
+        {
+            normalize(item.get("screening_decision", ""))
+            for item in provenance
+            if isinstance(item, dict) and normalize(item.get("screening_decision", ""))
+        }
+    )
+    source_artifacts = sorted(
+        {
+            normalize(item.get("source_artifact", ""))
+            for item in provenance
+            if isinstance(item, dict) and normalize(item.get("source_artifact", ""))
+        }
+    )
+    row = {
+        "context_id": normalize(context.get("context_id", "")),
+        "dataset": normalize(context.get("dataset", "")),
+        "doi": normalize(context.get("doi", "")),
+        "compound": normalize(context.get("compound", "")),
+        "entity": normalize(context.get("entity", "")),
+        "entity_type": normalize(context.get("entity_type", "")),
+        "context_sources": join_values(context.get("context_sources", [])),
+        "context_source_count": len(context.get("context_sources", [])) if isinstance(context.get("context_sources"), list) else 0,
+        "verification_layer": normalize(context.get("verification_layer", "")),
+        "revalidation_status": normalize(context.get("revalidation_status", "")),
+        "provenance_count": len(provenance),
+        "selected_for_downstream": any(bool_value(item.get("selected_for_downstream")) for item in provenance if isinstance(item, dict)),
+        "screening_decisions": join_values(screening_decisions),
+        "source_artifacts": join_values(source_artifacts),
+    }
+    for flag, value in sorted(flags.items()):
+        row[f"flag_{flag}"] = bool_value(value)
+    return row
+
+
+SOURCE_EVENT_FIELDS = (
+    "source_event_id",
+    "event_scope",
+    "doi",
+    "dataset",
+    "context_id",
+    "compound",
+    "entity",
+    "entity_type",
+    "source",
+    "source_type",
+    "source_artifact",
+    "context_source",
+    "selected_for_downstream",
+    "screening_decision",
+    "queue_kind",
+    "search_strategy_layer",
+    "run_id",
+    "latest_run_id",
+    "providers",
+    "seen_in_latest_run",
+    "retained_in_latest_queue",
+    "paper_type",
+    "source_family",
+    "access_level",
+    "study_design",
+    "evidence_location",
+    "evidence_locator",
+    "stub_status",
+    "event_metadata_json",
+)
+
+
+def source_event_row(
+    *,
+    event_scope: str,
+    doi: str,
+    dataset: str,
+    payload: dict,
+    context: dict | None = None,
+    ordinal: int = 0,
+) -> dict:
+    context = context or {}
+    source = normalize(payload.get("source", ""))
+    source_type = normalize(payload.get("source_type", "")) or source
+    source_artifact = normalize(payload.get("source_artifact", ""))
+    context_source = normalize(payload.get("context_source", ""))
+    row = {
+        "source_event_id": stable_id(
+            event_scope,
+            doi,
+            dataset,
+            context.get("context_id", ""),
+            source,
+            source_type,
+            source_artifact,
+            context_source,
+            ordinal,
+        ),
+        "event_scope": event_scope,
+        "doi": normalize_doi(doi),
+        "dataset": normalize(dataset),
+        "context_id": normalize(context.get("context_id", "")),
+        "compound": normalize(context.get("compound", "")),
+        "entity": normalize(context.get("entity", "")),
+        "entity_type": normalize(context.get("entity_type", "")),
+        "source": source,
+        "source_type": source_type,
+        "source_artifact": source_artifact,
+        "context_source": context_source,
+        "selected_for_downstream": bool_value(payload.get("selected_for_downstream")),
+        "screening_decision": normalize(payload.get("screening_decision", "")),
+        "queue_kind": normalize(payload.get("queue_kind", "")),
+        "search_strategy_layer": bool_value(payload.get("search_strategy_layer")),
+        "run_id": normalize(payload.get("run_id", "")),
+        "latest_run_id": normalize(payload.get("latest_run_id", "")),
+        "providers": join_values(payload.get("providers", "")),
+        "seen_in_latest_run": bool_value(payload.get("seen_in_latest_run")),
+        "retained_in_latest_queue": bool_value(payload.get("retained_in_latest_queue")),
+        "paper_type": normalize(payload.get("paper_type", "")),
+        "source_family": normalize(payload.get("source_family", "")),
+        "access_level": normalize(payload.get("access_level", "")),
+        "study_design": normalize(payload.get("study_design", "")),
+        "evidence_location": normalize(payload.get("evidence_location", "")),
+        "evidence_locator": normalize(payload.get("evidence_locator", "")),
+        "stub_status": normalize(payload.get("stub_status", "")),
+    }
+    consumed = set(row) | {"selected_for_downstream"}
+    row["event_metadata_json"] = json_dumps({k: v for k, v in payload.items() if k not in consumed})
+    return {field: row.get(field, "") for field in SOURCE_EVENT_FIELDS}
+
+
+def source_table_rows(papers: list[dict], contexts: list[dict]) -> list[dict]:
+    rows: list[dict] = []
+    for paper in papers:
+        doi = normalize_doi(paper.get("doi", ""))
+        for index, source in enumerate(paper.get("sources", []) if isinstance(paper.get("sources"), list) else []):
+            if not isinstance(source, dict):
+                continue
+            rows.append(
+                source_event_row(
+                    event_scope="paper_source",
+                    doi=doi,
+                    dataset=source.get("dataset", ""),
+                    payload=source,
+                    ordinal=index,
+                )
+            )
+    for context in contexts:
+        doi = normalize_doi(context.get("doi", ""))
+        dataset = normalize(context.get("dataset", ""))
+        for index, provenance in enumerate(context.get("provenance", []) if isinstance(context.get("provenance"), list) else []):
+            if not isinstance(provenance, dict):
+                continue
+            rows.append(
+                source_event_row(
+                    event_scope="context_provenance",
+                    doi=doi,
+                    dataset=dataset,
+                    payload=provenance,
+                    context=context,
+                    ordinal=index,
+                )
+            )
+    return rows
+
+
+def dataframe(rows: list[dict], columns: tuple[str, ...] | list[str] | None = None):
+    import pandas as pd
+
+    df = pd.DataFrame(rows)
+    if columns:
+        for column in columns:
+            if column not in df.columns:
+                df[column] = None
+        df = df[list(columns)]
+    return df
+
+
+def write_parquet(df: Any, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(path, engine="pyarrow", index=False)
+
+
+def write_corpus_tables(audit: dict, out_dir: Path = DEFAULT_TABLE_OUT_DIR) -> dict:
+    papers = audit.get("papers", [])
+    contexts = audit.get("contexts", [])
+    paper_rows = [paper_table_row(paper) for paper in papers if isinstance(paper, dict)]
+    context_rows = [context_table_row(context) for context in contexts if isinstance(context, dict)]
+    source_rows = source_table_rows(papers, contexts)
+    tables = {
+        "candidate_papers": dataframe(paper_rows),
+        "candidate_contexts": dataframe(context_rows),
+        "candidate_sources": dataframe(source_rows, list(SOURCE_EVENT_FIELDS)),
+    }
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for table_name in tables:
+        existing = out_dir / f"{table_name}.parquet"
+        if existing.exists():
+            existing.unlink()
+    for table_name, df in tables.items():
+        write_parquet(df, out_dir / f"{table_name}.parquet")
+
+    manifest = {
+        "corpus_table_version": CORPUS_TABLE_VERSION,
+        "generated_at_utc": now_utc(),
+        "out_dir": str(out_dir),
+        "input_artifacts": audit.get("input_artifacts", []),
+        "source_audit_version": audit.get("version", ""),
+        "source_audit_generated_at_utc": audit.get("generated_at_utc", ""),
+        "tables": {
+            table_name: {
+                "path": str(out_dir / f"{table_name}.parquet"),
+                "rows": int(len(df)),
+                "columns": list(df.columns),
+                "sha256": file_sha256(out_dir / f"{table_name}.parquet"),
+            }
+            for table_name, df in tables.items()
+        },
+        "summary": audit.get("summary", {}),
+    }
+    manifest_rows = [
+        {
+            "corpus_table_version": CORPUS_TABLE_VERSION,
+            "generated_at_utc": manifest["generated_at_utc"],
+            "source_audit_version": audit.get("version", ""),
+            "source_audit_generated_at_utc": audit.get("generated_at_utc", ""),
+            "table_name": table_name,
+            "path": str(out_dir / f"{table_name}.parquet"),
+            "rows": int(len(df)),
+            "columns": join_values(list(df.columns)),
+            "sha256": file_sha256(out_dir / f"{table_name}.parquet"),
+            "summary_paper_count": int(audit.get("summary", {}).get("paper_count", 0)),
+            "summary_context_count": int(audit.get("summary", {}).get("context_count", 0)),
+            "summary_needs_revalidation_contexts": int(audit.get("summary", {}).get("needs_revalidation_contexts", 0)),
+            "summary_possible_acronym_collision_contexts": int(audit.get("summary", {}).get("possible_acronym_collision_contexts", 0)),
+        }
+        for table_name, df in tables.items()
+    ]
+    manifest_path = out_dir / "candidate_corpus_manifest.parquet"
+    write_parquet(dataframe(manifest_rows), manifest_path)
+    manifest["manifest_table"] = {
+        "path": str(manifest_path),
+        "rows": len(manifest_rows),
+        "sha256": file_sha256(manifest_path),
+    }
+    return manifest
+
+
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -879,6 +1383,16 @@ def main() -> int:
     parser.add_argument("--paper-out", default="")
     parser.add_argument("--context-out", default="")
     parser.add_argument("--summary-out", default="")
+    parser.add_argument(
+        "--table-out-dir",
+        default="",
+        help="Optional output directory for normalized Parquet corpus tables and manifest.",
+    )
+    parser.add_argument(
+        "--write-json-snapshots",
+        action="store_true",
+        help="Also write large JSON compatibility snapshots. New pipeline runs should omit this.",
+    )
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
@@ -886,52 +1400,62 @@ def main() -> int:
     out_dir = Path(args.out_dir).resolve()
     audit = build_audit(root=root, datasets=selected)
 
-    paper_payload = {
-        "version": audit["version"],
-        "generated_at_utc": audit["generated_at_utc"],
-        "input_artifacts": audit["input_artifacts"],
-        "counts": {
-            "paper_count": audit["summary"]["paper_count"],
-            "paper_source_counts": audit["summary"]["paper_source_counts"],
-        },
-        "records": audit["papers"],
-    }
-    context_payload = {
-        "version": audit["version"],
-        "generated_at_utc": audit["generated_at_utc"],
-        "input_artifacts": audit["input_artifacts"],
-        "counts": {
-            "context_count": audit["summary"]["context_count"],
-            "context_source_counts": audit["summary"]["context_source_counts"],
-            "verification_layer_counts": audit["summary"]["verification_layer_counts"],
-            "revalidation_status_counts": audit["summary"]["revalidation_status_counts"],
-            "possible_acronym_collision_contexts": audit["summary"]["possible_acronym_collision_contexts"],
-            "needs_revalidation_contexts": audit["summary"]["needs_revalidation_contexts"],
-        },
-        "records": audit["contexts"],
-    }
-    summary_payload = {
-        "version": audit["version"],
-        "generated_at_utc": audit["generated_at_utc"],
-        "input_artifacts": audit["input_artifacts"],
-        "summary": audit["summary"],
-    }
-
+    write_snapshots = bool(args.write_json_snapshots or args.paper_out or args.context_out or args.summary_out)
     paper_out = Path(args.paper_out).resolve() if args.paper_out else out_dir / "candidate_paper_corpus.json"
     context_out = Path(args.context_out).resolve() if args.context_out else out_dir / "context_provenance_audit.json"
     summary_out = Path(args.summary_out).resolve() if args.summary_out else out_dir / "context_provenance_summary.json"
 
-    write_json(paper_out, paper_payload)
-    write_json(context_out, context_payload)
-    write_json(summary_out, summary_payload)
+    if write_snapshots:
+        paper_payload = {
+            "version": audit["version"],
+            "generated_at_utc": audit["generated_at_utc"],
+            "input_artifacts": audit["input_artifacts"],
+            "counts": {
+                "paper_count": audit["summary"]["paper_count"],
+                "paper_source_counts": audit["summary"]["paper_source_counts"],
+            },
+            "records": audit["papers"],
+        }
+        context_payload = {
+            "version": audit["version"],
+            "generated_at_utc": audit["generated_at_utc"],
+            "input_artifacts": audit["input_artifacts"],
+            "counts": {
+                "context_count": audit["summary"]["context_count"],
+                "context_source_counts": audit["summary"]["context_source_counts"],
+                "verification_layer_counts": audit["summary"]["verification_layer_counts"],
+                "revalidation_status_counts": audit["summary"]["revalidation_status_counts"],
+                "possible_acronym_collision_contexts": audit["summary"]["possible_acronym_collision_contexts"],
+                "needs_revalidation_contexts": audit["summary"]["needs_revalidation_contexts"],
+            },
+            "records": audit["contexts"],
+        }
+        summary_payload = {
+            "version": audit["version"],
+            "generated_at_utc": audit["generated_at_utc"],
+            "input_artifacts": audit["input_artifacts"],
+            "summary": audit["summary"],
+        }
+        write_json(paper_out, paper_payload)
+        write_json(context_out, context_payload)
+        write_json(summary_out, summary_payload)
+    table_manifest = None
+    if args.table_out_dir:
+        table_manifest = write_corpus_tables(audit, Path(args.table_out_dir).resolve())
 
     print(f"Papers: {audit['summary']['paper_count']}")
     print(f"Contexts: {audit['summary']['context_count']}")
     print(f"Needs revalidation: {audit['summary']['needs_revalidation_contexts']}")
     print(f"Possible acronym collisions: {audit['summary']['possible_acronym_collision_contexts']}")
-    print(f"Paper corpus: {paper_out}")
-    print(f"Context audit: {context_out}")
-    print(f"Summary: {summary_out}")
+    if write_snapshots:
+        print(f"Paper corpus JSON snapshot: {paper_out}")
+        print(f"Context audit JSON snapshot: {context_out}")
+        print(f"Summary JSON snapshot: {summary_out}")
+    if table_manifest:
+        print(f"Corpus tables: {table_manifest['out_dir']}")
+        for table_name, info in table_manifest["tables"].items():
+            print(f"{table_name}: {info['rows']} rows -> {info['path']}")
+        print(f"candidate_corpus_manifest: {table_manifest['manifest_table']['path']}")
     return 0
 
 

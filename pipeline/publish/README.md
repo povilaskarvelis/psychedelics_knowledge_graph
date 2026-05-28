@@ -1,9 +1,9 @@
 # Publish Prep: Graph Payload Export
 
 This step exports graph claims into deterministic main-page graph payload JSON.
-By default it uses projected Gemini extraction claims under
-`data/processed/extraction/`. Legacy heuristic curated claims remain available
-as an explicit comparison source.
+By default it uses the normalized KG evidence tables under
+`data/processed/kg/`. Projected Gemini extraction rows and legacy heuristic
+curated claims remain available as explicit comparison sources.
 
 The default Gemini mechanistic payload uses the broad inspection schema at
 `schema/claims.schema.json`, so target claims can appear without numeric
@@ -15,6 +15,12 @@ exporting `--claim-source legacy_curated`.
 ## Run
 Export both datasets:
 `python pipeline/publish/export_graph_payload.py`
+
+Export directly from projected Gemini extraction files for comparison:
+`python pipeline/publish/export_graph_payload.py --claim-source gemini_extraction`
+
+Export from normalized Gemini graph-claim files for comparison:
+`python pipeline/publish/export_graph_payload.py --claim-source gemini_normalized`
 
 Export from the legacy heuristic curated files for comparison:
 `python pipeline/publish/export_graph_payload.py --claim-source legacy_curated`

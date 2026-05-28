@@ -534,14 +534,15 @@ const DEV_STAGES = [
     summary:
       "Exports deterministic JSON payloads consumed by the public graph UI, with stable IDs, evidence views, and manifest hashes.",
     implementation: [
-      "The default claim source is projected Gemini extraction claims.",
-      "Alternative claim sources can export legacy curated or normalized Gemini rows for comparison.",
+      "The default claim source is the normalized KG evidence-table layer.",
+      "Alternative claim sources can export projected Gemini extraction rows or legacy curated rows for comparison.",
       "Manifest hashes make payload changes easier to audit.",
     ],
-    inputs: ["projected or normalized claim rows", "dataset schemas"],
+    inputs: ["data/processed/kg/*.parquet", "projected or normalized claim rows", "dataset schemas"],
     outputs: ["data/processed/graph_payload_*.json", "data/processed/graph_payload_manifest.json"],
     files: ["pipeline/publish/export_graph_payload.py", "pipeline/publish/export_bibliography_payload.py"],
     commands: [
+      "python pipeline/kg/build_evidence_tables.py",
       "python pipeline/publish/export_graph_payload.py",
       "python pipeline/publish/export_graph_payload.py --claim-source gemini_normalized",
     ],
@@ -562,18 +563,18 @@ const DEV_STAGES = [
     col: 15,
     row: 3,
     summary:
-      "Builds the generated data/kg views used by the methods page: PRISMA-style flow, literature landscape, gap matrix, and QA graph files.",
+      "Builds the generated PRISMA-style paper flow used by the methods page.",
     implementation: [
-      "This stage projects the corpus manifest, paper libraries, screening reports, full-text status, and claim files into visualization data.",
+      "This stage projects the corpus manifest, paper libraries, screening reports, full-text status, and normalized KG claims into visualization data.",
       "It does not replace the main-page graph payload exporter.",
-      "Methods analytics update by regenerating data/kg, not by editing UI files.",
+      "Methods paper-flow analytics update by regenerating data/kg, not by editing UI files.",
     ],
-    inputs: ["corpus manifest", "paper libraries", "abstract-screening reports", "full-text status", "claim files"],
-    outputs: ["data/kg/views/pipeline_status_graph.json", "data/kg/views/semantic_graph.json", "data/kg/aggregates/literature_gap_matrix.json"],
-    files: ["pipeline/kg/build_kg.py", "ui/methods.js"],
-    commands: ["python pipeline/kg/build_kg.py"],
+    inputs: ["corpus manifest", "paper libraries", "abstract-screening reports", "full-text status", "data/processed/kg/claims.parquet"],
+    outputs: ["data/kg/views/pipeline_status_graph.json", "data/kg/manifests/build_manifest.json"],
+    files: ["pipeline/kg/build_methods_flow.py", "ui/methods.js"],
+    commands: ["python pipeline/kg/build_methods_flow.py --refresh-kg-tables"],
     snippet:
-      "corpus + screening + full-text + claims -> data/kg canonical graph, aggregates, and UI views",
+      "corpus + screening + full-text + normalized KG claims -> methods PRISMA flow",
     changeSignals: [
       "If the methods page says data is unavailable, regenerate this stage.",
       "Add new completed screening reports to corpus_manifest.json before rebuilding.",
@@ -592,10 +593,10 @@ const DEV_STAGES = [
       "Static UI pages read generated JSON artifacts for the graph, methods analytics, bibliography, and this developer workbench.",
     implementation: [
       "The public graph reads processed graph payloads and bibliography payloads.",
-      "The methods page reads data/kg views and aggregates.",
+      "The methods page reads the data/kg pipeline-status view for the PRISMA flow.",
       "This developer page reads the same generated reports plus its own authored implementation map.",
     ],
-    inputs: ["data/processed/graph_payload_*.json", "data/kg/views/*.json", "data/processed/extraction/extraction_readiness_report.json"],
+    inputs: ["data/processed/graph_payload_*.json", "data/kg/views/pipeline_status_graph.json", "data/processed/extraction/extraction_readiness_report.json"],
     outputs: ["ui/index.html graph", "ui/methods.html analytics", "ui/developer.html pipeline workbench"],
     files: ["ui/app.js", "ui/methods.js", "ui/developer.js", "ui/styles.css"],
     commands: ["python3 -m http.server"],

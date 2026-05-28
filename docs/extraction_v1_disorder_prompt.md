@@ -4,23 +4,55 @@ Use this addendum only when the input record has `dataset = "disorder"`.
 Extract only `compound_disorder` evidence. Do not extract compound-target
 pharmacology claims for this dataset.
 
-## Disorder Task
+## Clinical Task
 
 Extract a `compound_disorder` claim only when the supplied input directly
 supports an original compound-to-disorder, compound-to-indication, or
-compound-to-therapeutic-outcome relationship.
+compound-to-clinical-outcome relationship.
 
 For disorder claims:
 
 - `claim_type` must be `compound_disorder`.
 - `target` must be `not_applicable`.
-- `disorder` should name the treated or studied therapeutic condition when the
-  evidence supports one.
+- `disorder` names the clinical endpoint being extracted. Use
+  `not_applicable` only for endpoints that are not disorders, symptoms, safety
+  signals, or interpretable clinical problems.
 - Prefer outcome domain, outcome measure, qualitative result direction, sample
   size, population, intervention/exposure, comparator, dose/session details,
   timepoint, and adverse events when explicitly reported.
 - Use `clinical_context_condition` for the broader population or clinical
-  context when it is not itself the treated/studied condition.
+  context when it differs from the extracted endpoint.
+
+## Clinical Endpoint Roles
+
+Classify the endpoint with the most specific supported role:
+
+- `therapeutic_indication`: diagnosed condition or explicit indication studied
+  or treated, such as major depressive disorder, PTSD, alcohol use disorder,
+  social anxiety disorder, migraine, or neuropathic pain. Use
+  `graph_entity_type = "condition_indication"` and
+  `graph_include_candidate = true`.
+- `symptom_or_problem`: measured clinical symptom/problem that is not clearly a
+  diagnosis or indication, such as depressive symptoms, anxiety symptoms,
+  suicidal ideation, craving, sleep disturbance, fear of death, or pain
+  intensity. Use `graph_entity_type = "symptom_problem"` and
+  `graph_include_candidate = true` only when the symptom/problem is a main
+  clinical endpoint.
+- `safety_or_adverse_event`: tolerability, adverse events, physiological safety,
+  vital signs, mania switch, flashbacks/HPPD, nausea, dissociation as an adverse
+  effect, serious adverse events, or respiratory/cardiovascular safety. Use
+  `graph_entity_type = "safety_adverse_event"` and
+  `graph_include_candidate = false`.
+- `outcome_measure`: instrument or scale used to measure an endpoint, such as
+  MADRS, PHQ-9, GAD-7, LSAS, CAPS-5, or C-SSRS. Put scales in
+  `outcome_measure`; do not create a separate claim just because a scale
+  appears.
+
+Do not promote vague labels such as depression, anxiety, pain, social anxiety,
+mental health, wellbeing, therapeutic potential, or patient experience into a
+condition unless the supplied text explicitly frames them as a diagnosis,
+enrolled condition, or treated indication. When they are measured symptoms,
+classify them as `symptom_or_problem`.
 
 ## Result Direction
 
@@ -33,11 +65,11 @@ raw numeric direction of the measured variable:
 - `mixed`: both beneficial and unfavorable findings.
 - `unclear`: evidence does not support a clear interpretation.
 
-## Disorder Graph Candidate
+## Clinical Graph Candidate
 
-Set `graph_include_candidate = true` only for a
-compound-to-therapeutic-indication edge. Use `graph_entity_type =
-"indication"` and the best supported condition/indication label.
+Set `graph_include_candidate = true` only for clean condition/indication or
+symptom/problem endpoints. Use the best supported concise label in
+`graph_entity_label`.
 
 Do not put raw endpoints such as heart rate, blood pressure, adverse events,
 biomarkers, patient satisfaction, opioid consumption, imaging readouts, or

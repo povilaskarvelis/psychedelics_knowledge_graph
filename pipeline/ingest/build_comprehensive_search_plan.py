@@ -57,6 +57,19 @@ ENTITY_BROAD_TEMPLATES = {
     ],
 }
 
+SYSTEMS_ENTITY_BROAD_TEMPLATES = {
+    "brain_region_or_network": [
+        "psychedelic {entity} functional connectivity neuroimaging",
+        "hallucinogen {entity} brain circuit activity",
+        "{entity} psychedelic EEG fMRI PET",
+    ],
+    "cognitive_behavioral_task": [
+        "psychedelic {entity} cognitive behavioral task",
+        "hallucinogen {entity} learning behavior paradigm",
+        "{entity} psychedelic rodent human task performance",
+    ],
+}
+
 PAIR_CORE_TEMPLATES = {
     "mechanistic": [
         "{compound} {entity} binding affinity Ki",
@@ -67,6 +80,19 @@ PAIR_CORE_TEMPLATES = {
         "{compound} {entity} clinical trial",
         "{compound} {entity} randomized placebo",
         "{compound} {entity} treatment outcome",
+    ],
+}
+
+SYSTEMS_PAIR_CORE_TEMPLATES = {
+    "brain_region_or_network": [
+        "{compound} {entity} functional connectivity neuroimaging",
+        "{compound} {entity} fMRI BOLD activation",
+        "{compound} {entity} EEG MEG neural oscillations",
+    ],
+    "cognitive_behavioral_task": [
+        "{compound} {entity} cognitive task",
+        "{compound} {entity} behavioral task",
+        "{compound} {entity} learning conditioning",
     ],
 }
 
@@ -87,6 +113,19 @@ PAIR_EXPANDED_TEMPLATES = {
     ],
 }
 
+SYSTEMS_PAIR_EXPANDED_TEMPLATES = {
+    "brain_region_or_network": [
+        "{compound} {entity} PET receptor occupancy",
+        "{compound} {entity} neuronal activity c-Fos",
+        "{compound} {entity} circuit behavior",
+    ],
+    "cognitive_behavioral_task": [
+        "{compound} {entity} performance paradigm",
+        "{compound} {entity} rodent behavior",
+        "{compound} {entity} neural circuit",
+    ],
+}
+
 CLASS_LEVEL_TEMPLATES = {
     "mechanistic": [
         "psychedelic receptor binding affinity pharmacology",
@@ -100,6 +139,12 @@ CLASS_LEVEL_TEMPLATES = {
         "psilocybin LSD MDMA ketamine clinical trial",
     ],
 }
+
+MECHANISTIC_ENTITY_GROUPS = [
+    ("allowed_targets", "target"),
+    ("allowed_brain_regions_and_networks", "brain_region_or_network"),
+    ("allowed_cognitive_behavioral_tasks", "cognitive_behavioral_task"),
+]
 
 
 def now_utc() -> str:
@@ -120,6 +165,51 @@ def limited_pairs(left: list[str], right: list[str], max_pairs: int) -> Iterable
                 return
             count += 1
             yield left_value, right_value
+
+
+def entity_groups_for_dataset(dataset: str, allowlists: dict[str, list[str]], max_entities: int) -> list[dict]:
+    if dataset == "disorder":
+        return [
+            {
+                "entity_type": "indication",
+                "allowlist_key": "allowed_disorders",
+                "entities": limited(allowed_entities_for_dataset(dataset, allowlists), max_entities),
+            }
+        ]
+
+    groups = []
+    remaining = max(0, max_entities)
+    for allowlist_key, entity_type in MECHANISTIC_ENTITY_GROUPS:
+        values = dedupe_values(allowlists.get(allowlist_key, []))
+        if max_entities > 0:
+            values = values[:remaining]
+            remaining = max(0, remaining - len(values))
+        groups.append(
+            {
+                "entity_type": entity_type,
+                "allowlist_key": allowlist_key,
+                "entities": values,
+            }
+        )
+    return groups
+
+
+def entity_broad_templates(dataset: str, entity_type: str) -> list[str]:
+    if dataset == "mechanistic" and entity_type in SYSTEMS_ENTITY_BROAD_TEMPLATES:
+        return SYSTEMS_ENTITY_BROAD_TEMPLATES[entity_type]
+    return ENTITY_BROAD_TEMPLATES[dataset]
+
+
+def pair_core_templates(dataset: str, entity_type: str) -> list[str]:
+    if dataset == "mechanistic" and entity_type in SYSTEMS_PAIR_CORE_TEMPLATES:
+        return SYSTEMS_PAIR_CORE_TEMPLATES[entity_type]
+    return PAIR_CORE_TEMPLATES[dataset]
+
+
+def pair_expanded_templates(dataset: str, entity_type: str) -> list[str]:
+    if dataset == "mechanistic" and entity_type in SYSTEMS_PAIR_EXPANDED_TEMPLATES:
+        return SYSTEMS_PAIR_EXPANDED_TEMPLATES[entity_type]
+    return PAIR_EXPANDED_TEMPLATES[dataset]
 
 
 def add_seed(
@@ -169,7 +259,7 @@ def build_search_plan(
     run_id: str = DEFAULT_RUN_ID,
 ) -> dict:
     compounds = limited(dedupe_values(allowlists.get("allowed_compounds", [])), max_compounds)
-    entities = limited(allowed_entities_for_dataset(dataset, allowlists), max_entities)
+    entity_groups = entity_groups_for_dataset(dataset, allowlists, max_entities=max_entities)
     entity_type = "target" if dataset == "mechanistic" else "indication"
     rows: list[dict] = []
     seen: set[tuple[str, str, str]] = set()
@@ -205,43 +295,55 @@ def build_search_plan(
                 entity_type,
             )
 
-    for entity in entities:
-        entity_query = query_safe_label(entity)
-        for template in ENTITY_BROAD_TEMPLATES[dataset]:
-            add_seed(
-                rows,
-                seen,
-                dataset,
-                "entity_broad",
-                template.format(entity=entity_query),
-                "",
-                entity,
-                template,
-                entity_type,
-            )
-
-    pair_templates = list(PAIR_CORE_TEMPLATES[dataset])
-    if profile == "expanded":
-        pair_templates.extend(PAIR_EXPANDED_TEMPLATES[dataset])
-
     pair_count = 0
-    for compound, entity in limited_pairs(compounds, entities, max_pairs=max_pairs):
-        pair_count += 1
-        entity_query = query_safe_label(entity)
-        for template in pair_templates:
-            add_seed(
-                rows,
-                seen,
-                dataset,
-                "pair_core" if template in PAIR_CORE_TEMPLATES[dataset] else "pair_expanded",
-                template.format(compound=compound, entity=entity_query),
-                compound,
-                entity,
-                template,
-                entity_type,
-            )
+    entity_type_counts = {}
+    for group in entity_groups:
+        group_entity_type = group["entity_type"]
+        entities = group["entities"]
+        entity_type_counts[group_entity_type] = len(entities)
+
+        for entity in entities:
+            entity_query = query_safe_label(entity)
+            for template in entity_broad_templates(dataset, group_entity_type):
+                add_seed(
+                    rows,
+                    seen,
+                    dataset,
+                    "entity_broad",
+                    template.format(entity=entity_query),
+                    "",
+                    entity,
+                    template,
+                    group_entity_type,
+                )
+
+        core_templates = list(pair_core_templates(dataset, group_entity_type))
+        expanded_templates = pair_expanded_templates(dataset, group_entity_type)
+        pair_templates = list(core_templates)
+        if profile == "expanded":
+            pair_templates.extend(expanded_templates)
+
+        if max_pairs > 0 and pair_count >= max_pairs:
+            continue
+        group_pair_limit = max_pairs - pair_count if max_pairs > 0 else 0
+        for compound, entity in limited_pairs(compounds, entities, max_pairs=group_pair_limit):
+            pair_count += 1
+            entity_query = query_safe_label(entity)
+            for template in pair_templates:
+                add_seed(
+                    rows,
+                    seen,
+                    dataset,
+                    "pair_core" if template in core_templates else "pair_expanded",
+                    template.format(compound=compound, entity=entity_query),
+                    compound,
+                    entity,
+                    template,
+                    group_entity_type,
+                )
 
     family_counts = Counter(row["family"] for row in rows)
+    type_counts = Counter(row["entity_type"] for row in rows)
     return {
         "version": VERSION,
         "run_id": run_id,
@@ -252,13 +354,15 @@ def build_search_plan(
         "include_default_seeds": include_default_seeds,
         "scope": {
             "compound_count": len(compounds),
-            "entity_count": len(entities),
+            "entity_count": sum(entity_type_counts.values()),
             "pair_count": pair_count,
             "entity_type": entity_type,
+            "entity_type_counts": dict(sorted(entity_type_counts.items())),
         },
         "counts": {
             "seed_count": len(rows),
             "seed_family_counts": dict(sorted(family_counts.items())),
+            "seed_entity_type_counts": dict(sorted(type_counts.items())),
         },
         "recommended_discovery_settings": {
             "provider": "comprehensive",
@@ -343,11 +447,26 @@ def main() -> int:
         write_seed_csv(seed_csv, plan["seeds"])
         write_seed_txt(seed_txt, plan["seeds"])
 
+        entity_type_outputs = {}
+        for entity_type, count in sorted(plan["counts"].get("seed_entity_type_counts", {}).items()):
+            type_rows = [row for row in plan["seeds"] if row["entity_type"] == entity_type]
+            type_seed_csv = out_dir / f"{dataset}_{entity_type}_seeds.csv"
+            type_seed_txt = out_dir / f"{dataset}_{entity_type}_seeds.txt"
+            write_seed_csv(type_seed_csv, type_rows)
+            write_seed_txt(type_seed_txt, type_rows)
+            entity_type_outputs[entity_type] = {
+                "seed_csv": str(type_seed_csv),
+                "seed_txt": str(type_seed_txt),
+                "seed_count": count,
+                "seed_family_counts": dict(sorted(Counter(row["family"] for row in type_rows).items())),
+            }
+
         manifest_payload = dict(plan)
         manifest_payload["outputs"] = {
             "seed_csv": str(seed_csv),
             "seed_txt": str(seed_txt),
             "manifest_json": str(manifest),
+            "entity_type_outputs": entity_type_outputs,
         }
         manifest_payload["run_command"] = (
             "python pipeline/ingest/run_pair_grid_audit.py "

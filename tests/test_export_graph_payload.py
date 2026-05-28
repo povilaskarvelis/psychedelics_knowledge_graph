@@ -17,13 +17,14 @@ from pipeline.publish.export_graph_payload import (
 
 
 class ExportGraphPayloadViewsTest(unittest.TestCase):
-    def test_default_claim_source_uses_projected_extraction_claim_files(self) -> None:
-        self.assertEqual(DEFAULT_CLAIM_SOURCE, "gemini_extraction")
+    def test_default_claim_source_uses_normalized_kg_tables(self) -> None:
+        self.assertEqual(DEFAULT_CLAIM_SOURCE, "kg_tables")
 
         paths = claim_source_paths("mechanistic", DEFAULT_CLAIM_SOURCE)
 
-        self.assertTrue(str(paths["claims_json"]).endswith("data/processed/extraction/mechanistic_claims.json"))
-        self.assertEqual(paths["claim_source"], "gemini_extraction")
+        self.assertTrue(str(paths["claims_parquet"]).endswith("data/processed/kg/claims.parquet"))
+        self.assertEqual(paths["primary_source_name"], "mechanistic_primary")
+        self.assertEqual(paths["claim_source"], "kg_tables")
 
     def test_normalized_claim_source_uses_graph_claim_files(self) -> None:
         paths = claim_source_paths("disorder", "gemini_normalized")

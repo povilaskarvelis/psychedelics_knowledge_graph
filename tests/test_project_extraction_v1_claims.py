@@ -187,6 +187,31 @@ class ProjectExtractionV1ClaimsTest(unittest.TestCase):
             normalize_outcome_measure("DASS-21 depression subscale, BSI-18 depression subscale"),
             "DASS-21; BSI-18",
         )
+        self.assertEqual(
+            normalize_outcome_measure("Hospital Anxiety and Depression Scale - Anxiety subscale (HADS-A) scores"),
+            "HADS-A",
+        )
+        self.assertEqual(
+            normalize_outcome_measure("Snaith-Hamilton Pleasure Scale (SHAPS), Clinical Global Impression-Severity (CGI-S)"),
+            "SHAPS; CGI-S",
+        )
+        self.assertEqual(
+            normalize_outcome_measure("Visual Analogue Scale (VAS), Brief Pain Inventory (BPI Short Form)"),
+            "VAS; BPI",
+        )
+        self.assertEqual(
+            normalize_outcome_measure("Yale-Brown Obsessive-Compulsive Scale (Y-BOCS) scores"),
+            "Y-BOCS",
+        )
+
+    def test_does_not_normalize_sparse_outcome_scale_candidates(self) -> None:
+        for raw_measure in [
+            "Satisfaction with Life Scale (SWL)",
+            "Five Facets Mindfulness Questionnaire-15 (FFMQ-15)",
+            "PCL-6 scores",
+            "Concise Health Risk Tracking - Self-Report (CHRT-SR)",
+        ]:
+            self.assertEqual(normalize_outcome_measure(raw_measure), "")
 
     def test_preserves_therapeutic_positive_direction_for_reduced_pathological_behavior(self) -> None:
         result = disorder_result()
@@ -365,7 +390,16 @@ class ProjectExtractionV1ClaimsTest(unittest.TestCase):
 
         self.assertEqual(projected["disorder"], [])
         self.assertEqual(projected["mechanistic"], [])
-        self.assertEqual(skipped, [{"row_index": 1, "reason": "route secondary_literature is not projected"}])
+        self.assertEqual(
+            skipped,
+            [
+                {
+                    "row_index": 1,
+                    "reason": "effective route secondary_literature is not projected as primary",
+                    "raw_route": "secondary_literature",
+                }
+            ],
+        )
 
     def test_secondary_coverage_mentions_project_to_separate_rows(self) -> None:
         review = copy.deepcopy(disorder_result())

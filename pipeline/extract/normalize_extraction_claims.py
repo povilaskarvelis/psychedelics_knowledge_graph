@@ -48,19 +48,27 @@ CLASS_LEVEL_COMPOUND_RE = re.compile(
 REFERENCE_CONTROL_COMPOUND_KEYS = {
     "5 ht",
     "5 hydroxytryptamine",
+    "5 hydroxytryptophan",
     "8 oh dpat",
+    "cp 93129",
     "clozapine",
     "d serine",
+    "glycine",
+    "gr 127935",
     "ifenprodil",
     "ketanserin",
     "m100907",
     "memantine",
     "methysergide",
     "mk 801",
+    "nmda",
     "pcp",
     "phencyclidine",
     "phencyclidine pcp",
+    "pnu 142633",
     "ritanserin",
+    "sb 216641",
+    "sb271046",
     "serotonin",
     "way100635",
 }
@@ -84,8 +92,104 @@ DISORDER_GRAPH_ROLES = {
     "uncertain",
     "",
 }
+SYMPTOM_ROLE_VALUES = {"symptom_or_problem"}
+MECHANISTIC_BASE_GRAPH_ROLES = {"molecular_target", "pathway_or_process", "biomarker", "uncertain", "not_applicable", ""}
+MECHANISTIC_PROMOTABLE_NON_GRAPH_ROLES = {
+    "assay_readout",
+    "physiological_measure",
+    "gene_or_variant",
+    "pathway_or_process",
+    "biomarker",
+}
+MECHANISTIC_GRAPH_ENTITY_TYPE_KEYS = {
+    "target",
+    "mechanistic entity",
+    "pathway",
+    "pathway process",
+    "pathway or process",
+    "biomarker",
+    "biomarker readout",
+    "molecular readout",
+    "system",
+    "system family",
+    "target family",
+    "target family or system",
+}
+MECHANISTIC_GRAPH_KIND_BY_TYPE = {
+    "target": "target",
+    "mechanistic entity": "target",
+    "pathway": "pathway_process",
+    "pathway process": "pathway_process",
+    "pathway or process": "pathway_process",
+    "biomarker": "biomarker_readout",
+    "biomarker readout": "biomarker_readout",
+    "molecular readout": "biomarker_readout",
+    "system": "system_family",
+    "system family": "system_family",
+    "target family": "system_family",
+    "target family or system": "system_family",
+}
+MECHANISTIC_GRAPH_TYPE_BY_KIND = {
+    "target": "target",
+    "system_family": "system_family",
+    "pathway_process": "pathway_process",
+    "biomarker_readout": "molecular_readout",
+}
+DISORDER_GRAPH_KIND_BY_TYPE = {
+    "indication": "condition_indication",
+    "condition indication": "condition_indication",
+    "condition_indication": "condition_indication",
+    "condition": "condition_indication",
+    "symptom problem": "symptom_problem",
+    "symptom_problem": "symptom_problem",
+    "symptom": "symptom_problem",
+    "safety adverse event": "safety_adverse_event",
+    "safety_adverse_event": "safety_adverse_event",
+    "safety": "safety_adverse_event",
+    "outcome scale": "outcome_scale",
+    "outcome_scale": "outcome_scale",
+}
+MECHANISTIC_BIOMARKER_LABELS = {
+    "Arc",
+    "BDNF",
+    "c-Fos",
+    "DOPAC",
+    "Dopamine",
+    "GDNF",
+    "GFAP",
+    "Glutamate",
+    "HSP70",
+    "HVA",
+    "IGF1",
+    "IL-1beta",
+    "IL-6",
+    "IL-8",
+    "Myelin basic protein",
+    "Neurofilament light chain",
+    "NGF",
+    "Norepinephrine",
+    "Prolactin",
+    "PSD-95 (DLG4)",
+    "Serotonin",
+    "TGF-beta",
+    "TNF-alpha",
+}
 
-
+GREEK_FOLD_REPLACEMENTS = {
+    "α": "alpha",
+    "Α": "Alpha",
+    "β": "beta",
+    "Β": "Beta",
+    "γ": "gamma",
+    "Γ": "Gamma",
+    "δ": "delta",
+    "Δ": "Delta",
+    "κ": "kappa",
+    "Κ": "Kappa",
+    "μ": "mu",
+    "µ": "mu",
+    "Μ": "Mu",
+}
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
@@ -112,6 +216,7 @@ def load_json_object(path: Path) -> dict:
 
 def ascii_fold(value: object) -> str:
     text = normalize(value)
+    text = "".join(GREEK_FOLD_REPLACEMENTS.get(char, char) for char in text)
     text = unicodedata.normalize("NFKD", text)
     return text.encode("ascii", "ignore").decode("ascii")
 
@@ -395,10 +500,81 @@ def entity_category_for_dataset(dataset: str) -> str:
     return "targets" if dataset == "mechanistic" else "disorders"
 
 
-def graph_role_allowed(row: dict, dataset: str) -> bool:
+def mechanistic_kind_from_match(entity_match: dict | None) -> str:
+    if not entity_match or not entity_match.get("matched"):
+        return ""
+    status = normalize(entity_match.get("registry_status", "")).casefold()
+    label = normalize(entity_match.get("label", ""))
+    if "family" in status or "system" in status:
+        return "system_family"
+    if "pathway" in status or "process" in status:
+        return "pathway_process"
+    if "marker" in status or "readout" in status or "ligand" in status:
+        return "biomarker_readout"
+    if label in MECHANISTIC_BIOMARKER_LABELS:
+        return "biomarker_readout"
+    return ""
+
+
+def mechanistic_kind_from_graph_type(graph_type: object) -> str:
+    return MECHANISTIC_GRAPH_KIND_BY_TYPE.get(label_key(graph_type), "")
+
+
+def disorder_kind_from_graph_type(graph_type: object) -> str:
+    return DISORDER_GRAPH_KIND_BY_TYPE.get(label_key(graph_type), "")
+
+
+def normalized_graph_type_for_row(dataset: str, graph_type: object, entity_match: dict | None) -> str:
+    if dataset != "mechanistic":
+        return disorder_kind_from_graph_type(graph_type) or expected_graph_type(dataset)
+    requested_kind = mechanistic_kind_from_graph_type(graph_type)
+    matched_kind = mechanistic_kind_from_match(entity_match) or "target"
+    return MECHANISTIC_GRAPH_TYPE_BY_KIND.get(requested_kind or matched_kind, "target")
+
+
+def mechanistic_promotable_non_candidate(row: dict, dataset: str, entity_match: dict | None) -> bool:
+    if dataset != "mechanistic":
+        return False
+    kind = mechanistic_kind_from_match(entity_match)
+    if kind not in {"pathway_process", "biomarker_readout", "system_family"}:
+        return False
+    role = normalize(row.get("entity_role", "")).casefold()
+    return role in MECHANISTIC_PROMOTABLE_NON_GRAPH_ROLES or role in MECHANISTIC_BASE_GRAPH_ROLES
+
+
+def graph_type_allowed(row: dict, dataset: str, entity_match: dict | None) -> bool:
+    graph_type = normalize(row.get("graph_entity_type", ""))
+    if not graph_type:
+        return True
+    if dataset == "mechanistic" and empty_entity(graph_type):
+        return True
+    if dataset != "mechanistic":
+        if empty_entity(graph_type):
+            return True
+        requested_kind = disorder_kind_from_graph_type(graph_type)
+        if requested_kind == "condition_indication":
+            return True
+        if requested_kind == "symptom_problem":
+            return normalize(row.get("entity_role", "")).casefold() in SYMPTOM_ROLE_VALUES
+        return False
+    if graph_type == expected_graph_type(dataset):
+        return True
+    requested_kind = mechanistic_kind_from_graph_type(graph_type)
+    if requested_kind:
+        matched_kind = mechanistic_kind_from_match(entity_match) or "target"
+        return matched_kind == requested_kind
+    if label_key(graph_type) in MECHANISTIC_GRAPH_ENTITY_TYPE_KEYS:
+        return bool(mechanistic_kind_from_match(entity_match)) or label_key(graph_type) == "target"
+    return False
+
+
+def graph_role_allowed(row: dict, dataset: str, entity_match: dict | None = None) -> bool:
     role = normalize(row.get("entity_role", ""))
     if dataset == "mechanistic":
-        return role in {"molecular_target", "pathway_or_process", "biomarker", "uncertain", "not_applicable", ""}
+        role_key = role.casefold()
+        if role_key in MECHANISTIC_BASE_GRAPH_ROLES:
+            return True
+        return role_key in MECHANISTIC_PROMOTABLE_NON_GRAPH_ROLES and bool(mechanistic_kind_from_match(entity_match))
     if role in NON_GRAPH_ENTITY_ROLES:
         return False
     return role in DISORDER_GRAPH_ROLES
@@ -429,6 +605,7 @@ def normalize_claim_row(row: dict, dataset: str, index: dict) -> tuple[dict, dic
             entity_label = fallback_label
             entity_match = fallback_match
     graph_type = normalize(row.get("graph_entity_type", ""))
+    promoted_non_candidate = mechanistic_promotable_non_candidate(row, dataset, entity_match)
     compound_policy_status = ""
     if not compound_match["matched"]:
         if class_level_compound_label(row.get("compound", "")):
@@ -456,15 +633,9 @@ def normalize_claim_row(row: dict, dataset: str, index: dict) -> tuple[dict, dic
     )
 
     notes = []
-    if not bool_value(row.get("graph_include_candidate", False)):
+    if not bool_value(row.get("graph_include_candidate", False)) and not promoted_non_candidate:
         audit["normalization_status"] = "not_graph_candidate"
         notes.append("graph_include_candidate is false")
-    elif graph_type and graph_type != expected_graph_type(dataset):
-        audit["normalization_status"] = "wrong_graph_entity_type"
-        notes.append(f"expected graph_entity_type={expected_graph_type(dataset)}, got {graph_type}")
-    elif not graph_role_allowed(row, dataset):
-        audit["normalization_status"] = "non_graph_entity_role"
-        notes.append(f"entity_role={normalize(row.get('entity_role', ''))} is not graph-normalizable")
     elif compound_policy_status:
         audit["normalization_status"] = compound_policy_status
         if compound_policy_status == "compound_reference_not_graphable":
@@ -479,9 +650,17 @@ def normalize_claim_row(row: dict, dataset: str, index: dict) -> tuple[dict, dic
     elif not entity_match["matched"]:
         audit["normalization_status"] = "entity_unmapped"
         notes.append(f"graph entity `{entity_label}` did not match registry")
+    elif not graph_type_allowed(row, dataset, entity_match):
+        audit["normalization_status"] = "wrong_graph_entity_type"
+        notes.append(f"expected graph_entity_type={expected_graph_type(dataset)}, got {graph_type}")
+    elif not graph_role_allowed(row, dataset, entity_match):
+        audit["normalization_status"] = "non_graph_entity_role"
+        notes.append(f"entity_role={normalize(row.get('entity_role', ''))} is not graph-normalizable")
     else:
         audit["normalization_status"] = "normalized"
         notes.append("compound and graph entity matched local registry")
+        if promoted_non_candidate:
+            notes.append("promoted curated mechanistic pathway/biomarker/system despite graph_include_candidate=false")
 
     audit["normalization_notes"] = "; ".join(notes)
     if audit["normalization_status"] != "normalized":
@@ -500,7 +679,7 @@ def normalize_claim_row(row: dict, dataset: str, index: dict) -> tuple[dict, dic
     graph_row.update(
         {
             "graph_entity_label": entity_match["label"],
-            "graph_entity_type": expected_graph_type(dataset),
+            "graph_entity_type": normalized_graph_type_for_row(dataset, graph_type, entity_match),
             "graph_include_candidate": True,
             "normalization_status": audit["normalization_status"],
             "normalization_notes": audit["normalization_notes"],
@@ -514,6 +693,12 @@ def normalize_claim_row(row: dict, dataset: str, index: dict) -> tuple[dict, dic
             "entity_ids": entity_match["ids"],
         }
     )
+    if dataset == "mechanistic":
+        mechanistic_kind = mechanistic_kind_from_match(entity_match)
+        if mechanistic_kind:
+            graph_row["kg_entity_kind_override"] = mechanistic_kind
+    elif disorder_kind_from_graph_type(graph_type) == "symptom_problem":
+        graph_row["kg_entity_kind_override"] = "symptom_problem"
     return audit, graph_row
 
 

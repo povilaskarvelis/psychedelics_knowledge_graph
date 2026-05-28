@@ -1,13 +1,14 @@
 # Psychedelics Knowledge Graph
 
 A provenance-aware literature pipeline and web interface for exploring
-structured claims about psychedelics, mechanisms, and mental health outcomes.
+structured findings about psychedelics, mechanisms, and mental health outcomes.
 
 [Live GUI](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/ui) |
 [Pipeline Guide](pipeline/README.md) |
 [Search Seed Strategy](docs/search_seed_strategy.md) |
 [Search Completeness](docs/search_completeness.md) |
-[Evidence Policy](docs/evidence_policy.md)
+[Evidence Policy](docs/evidence_policy.md) |
+[Terminology](docs/terminology.md)
 
 ![Interface screenshot](ui/assets/gui-screenshot.png)
 
@@ -15,22 +16,29 @@ structured claims about psychedelics, mechanisms, and mental health outcomes.
 
 This repository explores how evidence synthesis can work in the age of
 agentic science. Expert review papers remain essential for interpretation,
-argument, and judgment. Fast-moving fields also need living evidence
-infrastructure: versioned, inspectable evidence bases that can be updated as
-new literature appears.
+argument, and judgment. The evidence base underneath those reviews can also
+become more structured, inspectable, and reusable: a living substrate that can
+be updated as new literature appears while preserving provenance.
 
 The goal is an evidence base that is useful in two directions. Humans need an
 interactive way to navigate the evidence landscape. Agents need structured
-paper, claim, entity, and provenance records they can query, extend, and build
-upon. The pipeline is documented, transparent, and open-source, with community
-feedback treated as part of the maintenance model.
+paper, evidence, entity, and provenance records they can query, extend, and
+build upon. The pipeline is documented, transparent, and open-source, with
+community feedback treated as part of the maintenance model.
 
 Psychedelics research is the case study. The project builds a knowledge graph
 of the literature across clinical indications and mechanistic targets, while
 preserving paper-level provenance, screening decisions, evidence records, and
-claim-level structure. This helps reduce evidence fragmentation, surface null,
-mixed, uncertain, and positive findings, support gap mapping, and make the
-evidence base reproducible for both human review and agentic workflows.
+finding-level structure. This helps reduce evidence fragmentation, surface null,
+mixed, uncertain, and positive findings, and make the evidence base reproducible
+for both human review and agentic workflows.
+
+The project builds on existing traditions in biomedical knowledge graphs,
+literature mining, systematic mapping, and living evidence synthesis. Its
+contribution is the domain-specific combination: automated literature discovery,
+DOI-context screening, LLM-assisted structured evidence extraction, validation
+gates, normalized graph views, PRISMA-style auditability, and a public
+interactive interface for psychedelic research.
 
 ## Knowledge Graph Architecture
 
@@ -42,7 +50,7 @@ The KG has several layers:
 
 - `Paper` records capture literature metadata, discovery provenance, screening
   status, PDF/full-text availability, publication type, and study context.
-- `Claim` records capture extracted scientific assertions from papers, with
+- `Evidence record` rows capture extracted study findings from papers, with
   evidence locators, source family, paper type, study design, result direction,
   assay/outcome fields, confidence, and validation status.
 - Canonical entity nodes represent compounds, clinical indications, mechanistic
@@ -50,16 +58,14 @@ The KG has several layers:
 - Semantic edges aggregate evidence into relationships such as
   `compound -> indication` and `compound -> target`.
 - View payloads turn the canonical KG into readable interfaces, including the
-  main graph, the Methods literature landscape, paper flow, and gap views.
+  main graph and the Methods paper flow.
 
-This separation matters. The canonical KG can grow as more papers and claims are
-screened, extracted, corrected, or updated. The UI can summarize important KG
-components while preserving the underlying provenance.
+This separation matters. The canonical KG can grow as more papers and evidence
+records are screened, extracted, corrected, or updated. The UI can summarize
+important KG components while preserving the underlying provenance.
 
-During the transition to the full pipeline, exploratory KG views can be built
-from paper libraries, screening outputs, converted full texts, and existing
-curated claims. Once full-text LLM extraction is complete, the same projection
-can be rebuilt with up-to-date paper records and extracted claims.
+The public graph payloads are built from normalized evidence tables, while the
+methods projection focuses on auditability and paper-flow status.
 
 ## Workflow
 
@@ -117,17 +123,17 @@ relevance and quote-supported contexts only. Full-text eligibility assessment,
 source-family labeling, evidence-strength labeling, and data extraction happen
 later from PDFs or abstract-only fallback evidence.
 
-### Claim Extraction
+### Structured Evidence Extraction
 
-The pipeline seeds one claim stub per DOI-context and fills structured fields
-from abstracts first, then PDFs when full-text evidence is needed. The full-text
-LLM step is best described as full-text evidence assessment plus data
+The pipeline seeds one evidence-record stub per DOI-context and fills structured
+fields from abstracts first, then PDFs when full-text evidence is needed. The
+full-text LLM step is best described as full-text evidence assessment plus data
 extraction; use `adjudication` only for the final conflict-resolution decision
 when model/rule/curator outputs disagree.
 
-- mechanistic claims capture compound-target assay evidence
-- disorder claims capture compound-disorder outcome evidence
-- disorder claims include a lightweight `result_direction` label:
+- mechanistic evidence records capture compound-target assay findings
+- disorder evidence records capture compound-disorder outcome findings
+- disorder evidence records include a lightweight `result_direction` label:
   `positive`, `null`, `negative`, `mixed`, `unclear`
 - each row keeps a provenance locator back to text, table, figure, or abstract
 - bibliographic and synthesis fields include journal, publication type, trial
@@ -147,13 +153,13 @@ publication.
 Main outputs:
 
 - browser interface in `ui/`
-- curated claim files in `data/curated/`
-- exploratory claim files for weak or demoted evidence
+- curated evidence-record files in `data/curated/`
+- exploratory evidence-record files for weak or demoted evidence
 - graph export payloads in `data/processed/graph_payload_*.json`
 - interim bibliography payloads in
   `data/processed/bibliography_payload_*.json`
-- canonical KG projection files in `data/kg/` when
-  `python pipeline/kg/build_kg.py` is run locally
+- methods paper-flow files in `data/kg/` when
+  `python pipeline/kg/build_methods_flow.py --refresh-kg-tables` is run locally
 - the GUI defaults to primary evidence and has a `Secondary sources` checkbox
   for reviews, systematic reviews, and meta-analyses
 
@@ -164,12 +170,12 @@ type and result direction directly in the interface.
 
 - `pipeline/ingest/`: discovery, paper sync, DOI seeding
 - `pipeline/review/`: abstract screening, legacy triage audit, and autofill
-- `pipeline/extract/`: promotion into curated claims
+- `pipeline/extract/`: promotion into curated evidence records
 - `pipeline/validate/`: validation, cleanup, and audit helpers
 - `pipeline/publish/`: export
-- `schema/`: claim schemas and normalization rules
+- `schema/`: legacy claim schemas and normalization rules
 - `ui/`: browser interface
-- `data/curated/`: main and exploratory claim sets
+- `data/curated/`: main and exploratory evidence-record sets
 - `data/processed/`: paper libraries, reports, stubs, and export payloads
 
 ## Quick Start
@@ -194,6 +200,7 @@ python pipeline/review/autofill_disorder_from_pdfs.py --dataset disorder --mark-
 python pipeline/review/curation_queue.py --dataset disorder
 python pipeline/extract/promote_ready_stubs.py --dataset disorder --apply
 python pipeline/validate/validate_claims.py
+python pipeline/kg/build_evidence_tables.py
 python pipeline/publish/export_graph_payload.py
 python pipeline/publish/export_bibliography_payload.py
 ```

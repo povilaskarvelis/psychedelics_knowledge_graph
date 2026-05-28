@@ -1,11 +1,13 @@
+import json
+import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
 
-from pipeline.kg.build_kg import (
-    EntityIndex,
-    KgBuilder,
-    evidence_role,
+import pandas as pd
+
+from pipeline.kg.build_methods_flow import (
+    MethodsFlowBuilder,
     labeled_reason_counts,
     normalize_doi,
     paper_id_for,
@@ -15,12 +17,10 @@ from pipeline.kg.build_kg import (
     prisma_retrieval_reason,
     slug,
     strongest_pdf_status,
-    top_counts,
-    year_range,
 )
 
 
-class KgBuilderHelpersTest(unittest.TestCase):
+class MethodsFlowBuilderHelpersTest(unittest.TestCase):
     def test_normalize_doi_removes_common_prefixes(self) -> None:
         self.assertEqual(normalize_doi("https://doi.org/10.1000/ABC"), "10.1000/abc")
         self.assertEqual(normalize_doi("doi:10.1000/Example"), "10.1000/example")
@@ -67,7 +67,7 @@ class KgBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(props["pdf_status"], "download_failed")
 
     def test_pipeline_reconciliation_prefers_library_retrieval_and_triage_screening(self) -> None:
-        builder = KgBuilder()
+        builder = MethodsFlowBuilder()
         paper_id = "paper:10.123/example"
         builder.merge_pipeline_row(
             {
@@ -98,7 +98,7 @@ class KgBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(props["screening_status"], "included_context_match")
 
     def test_pipeline_status_uses_dataset_row_abstract_for_unscreened_records(self) -> None:
-        builder = KgBuilder()
+        builder = MethodsFlowBuilder()
         paper_id = "paper:10.123/example"
         builder.nodes[paper_id] = {
             "id": paper_id,
@@ -141,32 +141,8 @@ class KgBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(strongest_pdf_status("not_open_access", "missing_local_pdf"), "not_open_access")
         self.assertEqual(strongest_pdf_status("missing_local_pdf", "not_open_access"), "not_open_access")
 
-    def test_entity_index_resolves_alias_to_canonical_node(self) -> None:
-        index = EntityIndex()
-        index.add_registry_entity(
-            "Compound",
-            {"label": "Psilocybin", "aliases": ["4-phosphoryloxy-DMT"], "ids": {}, "status": "ok"},
-        )
-
-        node_id, label = index.resolve("Compound", "4-phosphoryloxy dmt")
-
-        self.assertEqual(node_id, "compound:psilocybin")
-        self.assertEqual(label, "Psilocybin")
-
-    def test_evidence_role_splits_primary_secondary_and_context(self) -> None:
-        self.assertEqual(
-            evidence_role({"source_type": "primary_study", "paper_type": "primary_results", "access_level": "full_text_seen"}),
-            "primary_evidence",
-        )
-        self.assertEqual(evidence_role({"paper_type": "systematic_review"}), "secondary_literature")
-        self.assertEqual(evidence_role({"source_type": "commentary", "paper_type": "commentary"}), "non_primary_context")
-
     def test_slug_strips_markup_and_normalizes(self) -> None:
         self.assertEqual(slug("<i>N</i>-Benzyl 5-HT<sub>2A</sub>"), "n_benzyl_5_ht2a")
-
-    def test_content_summary_helpers_are_ui_shaped(self) -> None:
-        self.assertEqual(top_counts(Counter({"primary_results": 3, "review": 1})), [{"value": "primary_results", "count": 3}, {"value": "review", "count": 1}])
-        self.assertEqual(year_range([2020, 2024, 2021]), {"min": 2020, "max": 2024, "count": 3})
 
     def test_prisma_flow_is_sequential_and_reasoned(self) -> None:
         flow = prisma_flow_for_dataset(
@@ -177,12 +153,27 @@ class KgBuilderHelpersTest(unittest.TestCase):
                     "pdf_status": "downloaded",
                     "fulltext_status": "converted",
                     "llm_extraction_status": "claim_available",
+                    "kg_claim_access_levels": {"full_text_seen": 1},
+                },
+                {
+                    "relevance_suggested": "likely_relevant",
+                    "pdf_status": "downloaded",
+                    "fulltext_status": "converted",
+                    "llm_extraction_status": "not_started",
+                    "extraction_records": [{"access_level": "full_text_seen", "route": "exclude"}],
                 },
                 {
                     "relevance_suggested": "likely_relevant",
                     "pdf_status": "not_open_access",
                     "fulltext_status": "not_converted",
                     "llm_extraction_status": "not_started",
+                },
+                {
+                    "relevance_suggested": "likely_relevant",
+                    "pdf_status": "not_open_access",
+                    "fulltext_status": "not_converted",
+                    "llm_extraction_status": "claim_available",
+                    "kg_claim_access_levels": {"abstract_only": 1},
                 },
                 {
                     "relevance_suggested": "possible_relevant",
@@ -201,12 +192,122 @@ class KgBuilderHelpersTest(unittest.TestCase):
             ],
         )
 
-        self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
-        self.assertEqual(flow["steps"]["reports_sought"]["count"], 3)
-        self.assertEqual(flow["steps"]["reports_retrieved"]["count"], 1)
-        self.assertEqual(flow["steps"]["included"]["count"], 1)
+        self.assertEqual(flow["steps"]["records_identified"]["count"], 6)
+        self.assertEqual(flow["steps"]["reports_sought"]["count"], 5)
+        self.assertEqual(flow["steps"]["reports_retrieved"]["count"], 2)
+        self.assertEqual(flow["steps"]["included"]["count"], 2)
+        self.assertEqual(flow["steps"]["fulltext_gemini_assessed"]["count"], 2)
+        self.assertEqual(flow["steps"]["fulltext_included"]["count"], 1)
         self.assertEqual(flow["side_boxes"]["records_excluded"]["count"], 1)
         self.assertEqual(flow["side_boxes"]["reports_not_retrieved"]["reasons"][0]["key"], "not_open_access")
+        non_fulltext_flow = flow["side_boxes"]["reports_not_retrieved"]["non_fulltext_flow"]
+        self.assertEqual(non_fulltext_flow["candidates"]["count"], 3)
+        self.assertEqual(non_fulltext_flow["not_extracted"]["count"], 2)
+        self.assertEqual(non_fulltext_flow["assessed"]["count"], 1)
+        self.assertEqual(non_fulltext_flow["included_abstract_only"]["count"], 1)
+        fulltext_excluded_reasons = {
+            reason["key"]: reason["count"]
+            for reason in flow["side_boxes"]["fulltext_excluded_after_extraction"]["reasons"]
+        }
+        self.assertEqual(fulltext_excluded_reasons["gemini_excluded"], 1)
+
+    def test_kg_claim_table_marks_pipeline_rows_as_claim_available(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            claims_table = Path(tmpdir) / "claims.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "dataset": "mechanistic",
+                        "paper_id": "paper:10.123/example",
+                        "study_doi": "10.123/example",
+                        "access_level": "full_text_seen",
+                    },
+                    {
+                        "dataset": "mechanistic",
+                        "paper_id": "paper:10.123/example",
+                        "study_doi": "10.123/example",
+                        "access_level": "secondary_summary",
+                    },
+                    {
+                        "dataset": "disorder",
+                        "paper_id": "paper:10.999/other",
+                        "study_doi": "10.999/other",
+                        "access_level": "abstract_only",
+                    },
+                ]
+            ).to_parquet(claims_table, index=False)
+
+            builder = MethodsFlowBuilder()
+            paper_id = "paper:10.123/example"
+            builder.nodes[paper_id] = {
+                "id": paper_id,
+                "type": "Paper",
+                "label": "Example",
+                "properties": {},
+            }
+            builder.pipeline_rows["mechanistic"][paper_id] = {
+                "paper_id": paper_id,
+                "dataset": "mechanistic",
+                "study_doi": "10.123/example",
+                "llm_extraction_status": "not_started",
+            }
+
+            builder.load_kg_claim_status(claims_table, Path(tmpdir) / "missing_manifest.json")
+
+            props = builder.pipeline_rows["mechanistic"][paper_id]
+            self.assertEqual(props["llm_extraction_status"], "claim_available")
+            self.assertEqual(props["kg_claim_count"], 2)
+            self.assertEqual(props["kg_claim_access_levels"], {"full_text_seen": 1, "secondary_summary": 1})
+            self.assertEqual(builder.kg_claim_rows_by_dataset["mechanistic"], 2)
+            self.assertEqual(builder.kg_claim_access_rows_by_dataset["mechanistic"]["secondary_summary"], 1)
+            self.assertEqual(builder.kg_claim_papers_by_dataset["mechanistic"], 1)
+            self.assertEqual(builder.kg_claim_matched_pipeline_rows_by_dataset["mechanistic"], 1)
+            self.assertEqual(builder.nodes[paper_id]["properties"]["kg_claim_count"], 2)
+
+    def test_extraction_outputs_mark_gemini_assessed_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            results_path = tmp_path / "results.jsonl"
+            report_path = tmp_path / "projection_report.json"
+            results_path.write_text(
+                json.dumps(
+                    {
+                        "dataset": "mechanistic",
+                        "study_doi": "10.123/example",
+                        "access_level": "full_text_seen",
+                        "paper_assessment": {
+                            "route": "exclude",
+                            "relevance": "not_relevant",
+                            "has_extractable_claims": False,
+                            "exclusion_reason": "Not an in-scope mechanistic target claim.",
+                        },
+                        "claims": [],
+                        "coverage_mentions": [],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            report_path.write_text(
+                json.dumps({"inputs": {"input_jsonl": str(results_path)}}),
+                encoding="utf-8",
+            )
+
+            builder = MethodsFlowBuilder()
+            paper_id = "paper:10.123/example"
+            builder.pipeline_rows["mechanistic"][paper_id] = {
+                "paper_id": paper_id,
+                "dataset": "mechanistic",
+                "study_doi": "10.123/example",
+            }
+
+            builder.load_extraction_outcomes(report_path)
+
+            records = builder.pipeline_rows["mechanistic"][paper_id]["extraction_records"]
+            self.assertEqual(records[0]["route"], "exclude")
+            self.assertEqual(records[0]["access_level"], "full_text_seen")
+            self.assertEqual(builder.extraction_output_routes_by_dataset["mechanistic"]["exclude"], 1)
+            self.assertEqual(builder.extraction_matched_pipeline_rows_by_dataset["mechanistic"], 1)
 
 
 if __name__ == "__main__":

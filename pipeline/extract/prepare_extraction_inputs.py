@@ -35,6 +35,19 @@ DEFAULT_OUTPUT_DIR = PROCESSED_DIR / "extraction"
 DEFAULT_MANIFEST = PROCESSED_DIR / "corpus_manifest.json"
 DEFAULT_RELEVANCE = ["relevant", "uncertain"]
 SCHEMA_VERSION = "extraction_input"
+ROUTING_TAGS = {
+    "clinical_outcome",
+    "molecular_target",
+    "molecular_pathway",
+    "brain_system",
+    "cognitive_behavioral",
+    "safety",
+    "bridge_clinical_mechanism",
+    "uncertain",
+}
+ROUTING_TAG_ALIASES = {
+    "pathway_biomarker": "molecular_pathway",
+}
 
 METADATA_FIELDS = [
     "study_doi",
@@ -122,6 +135,34 @@ def truthy(value: object) -> bool:
     return normalize(value).lower() in {"1", "true", "yes", "y"}
 
 
+def normalize_routing_tags(value: object) -> list[str]:
+    if isinstance(value, str):
+        raw_values = value.replace(",", "|").replace(";", "|").split("|")
+    elif isinstance(value, list):
+        raw_values = value
+    else:
+        raw_values = []
+    out = []
+    seen = set()
+    for raw in raw_values:
+        tag = normalize(raw).lower().replace("-", "_").replace(" ", "_")
+        tag = ROUTING_TAG_ALIASES.get(tag, tag)
+        if tag not in ROUTING_TAGS or tag in seen:
+            continue
+        seen.add(tag)
+        out.append(tag)
+    return out
+
+
+def row_routing_tags(row: dict) -> list[str]:
+    adjudication = row.get("adjudication", {}) if isinstance(row.get("adjudication"), dict) else {}
+    tags = normalize_routing_tags(adjudication.get("routing_tags", []))
+    if tags:
+        return tags
+    flat = row.get("flat", {}) if isinstance(row.get("flat"), dict) else {}
+    return normalize_routing_tags(flat.get("llm_routing_tags", ""))
+
+
 def supported_contexts(row: dict) -> list[dict]:
     verification = row.get("verification", {}) if isinstance(row.get("verification"), dict) else {}
     adjudication = row.get("adjudication", {}) if isinstance(row.get("adjudication"), dict) else {}
@@ -153,6 +194,7 @@ def supported_contexts(row: dict) -> list[dict]:
 def screening_record(dataset: str, run_id: str, row: dict) -> dict:
     relevance = row_relevance(row)
     contexts = supported_contexts(row)
+    routing_tags = row_routing_tags(row)
     return {
         "dataset": dataset,
         "run_id": run_id,
@@ -165,6 +207,7 @@ def screening_record(dataset: str, run_id: str, row: dict) -> dict:
         "llm_needs_targeted_qa": truthy(row_flat_value(row, "llm_needs_targeted_qa")),
         "validation_flags": compact_text(row_flat_value(row, "validation_flags")),
         "supporting_abstract_quote": compact_text(row_flat_value(row, "llm_supporting_abstract_quote")),
+        "routing_tags": routing_tags,
         "supported_context_count": len(contexts),
         "supported_contexts": contexts,
     }
@@ -365,6 +408,7 @@ def build_candidate_record(dataset: str, doi: str, candidate: dict, paper_row: d
     readiness = readiness_status(paper_row, artifact)
     run_ids = sorted({record.get("run_id", "") for record in records if record.get("run_id", "")})
     supported_context_count = sum(int(record.get("supported_context_count", 0) or 0) for record in records)
+    routing_tags = sorted({tag for record in records for tag in normalize_routing_tags(record.get("routing_tags", []))})
     return {
         "schema_version": SCHEMA_VERSION,
         "created_at_utc": now_utc(),
@@ -377,6 +421,7 @@ def build_candidate_record(dataset: str, doi: str, candidate: dict, paper_row: d
             "screening_record_count": len(records),
             "has_quote_verified_screening_support": any(record.get("quote_verified") for record in records),
             "supported_context_count_from_abstract_screening": supported_context_count,
+            "routing_tags": routing_tags,
         },
         "readiness": {
             "status": readiness,
@@ -401,6 +446,7 @@ def csv_row(record: dict) -> dict:
         "dataset": record["dataset"],
         "extraction_scope": record["extraction_scope"],
         "best_llm_relevance": screening["best_llm_relevance"],
+        "routing_tags": "|".join(screening.get("routing_tags", [])),
         "included_from_runs": "|".join(screening["included_from_runs"]),
         "screening_record_count": screening["screening_record_count"],
         "readiness_status": readiness["status"],
@@ -435,6 +481,7 @@ def write_candidates(dataset: str, records: list[dict], output_dir: Path, queue_
         "dataset",
         "extraction_scope",
         "best_llm_relevance",
+        "routing_tags",
         "included_from_runs",
         "screening_record_count",
         "readiness_status",
@@ -508,6 +555,7 @@ def build_dataset(dataset: str, screening_inputs: list[dict], relevance_values: 
     outputs = write_candidates(dataset, records, output_dir=output_dir, queue_dir=queue_dir)
     readiness_counts = Counter(record["readiness"]["status"] for record in records)
     relevance_counts = Counter(record["screening_summary"]["best_llm_relevance"] for record in records)
+    routing_tag_counts = Counter(tag for record in records for tag in record["screening_summary"].get("routing_tags", []))
     run_counts = Counter(run_id for record in records for run_id in record["screening_summary"]["included_from_runs"])
     duplicate_across_runs = sum(1 for record in records if len(record["screening_summary"]["included_from_runs"]) > 1)
     pdf_status_counts = Counter(record["readiness"]["pdf_download_status"] for record in records)
@@ -515,6 +563,7 @@ def build_dataset(dataset: str, screening_inputs: list[dict], relevance_values: 
         "dataset": dataset,
         "selected_unique_dois": len(records),
         "by_best_llm_relevance": dict(relevance_counts),
+        "by_routing_tag": dict(routing_tag_counts),
         "by_readiness_status": dict(readiness_counts),
         "selected_dois_by_run_membership": dict(run_counts),
         "dois_seen_in_multiple_runs": duplicate_across_runs,
@@ -551,6 +600,7 @@ def render_markdown(report: dict) -> str:
                 "",
                 f"- Candidate papers: `{summary['selected_unique_dois']}`",
                 f"- Relevance: `{summary['by_best_llm_relevance']}`",
+                f"- Routing tags: `{summary.get('by_routing_tag', {})}`",
                 f"- Readiness: `{summary['by_readiness_status']}`",
                 f"- Seen in multiple included runs: `{summary['dois_seen_in_multiple_runs']}`",
                 "",

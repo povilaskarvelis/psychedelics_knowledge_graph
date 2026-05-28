@@ -142,9 +142,11 @@ Shared essentials:
   - `graph_exclusion_reason`: why the claim should remain an expanded/raw
     evidence signal when `graph_include_candidate` is false
 - endpoint roles such as physiological measure, safety/adverse event,
-  biomarker, functional outcome, patient-reported outcome,
-  population/context, gene/variant, pathway/process, brain region/circuit,
-  assay readout, or compound/class must use `graph_include_candidate = false`
+  functional outcome, patient-reported outcome, population/context,
+  gene/variant, brain region/circuit, assay readout, or compound/class must
+  use `graph_include_candidate = false`. Mechanistic biomarker/readout and
+  pathway/process endpoints may be graph candidates only when they are clean
+  compound-linked mechanistic findings.
 - support: `supported`, `uncertain`, or `not_supported`
 - study design and system, if claim-specific
 - evidence location, locator, exact quote, confidence, and review flag
@@ -161,24 +163,32 @@ Coverage mention essentials:
 
 Mechanistic essentials:
 
-- target
+- target or other mechanistic graph endpoint
 - assay type or assay family
 - affinity/function type such as Ki, Kd, IC50, EC50, EC90, Other, or
   not_reported, using these canonical spellings exactly
 - value and unit only if clearly reported
 - species, model, tissue, cell system, or route when explicit
 - action type when explicit, such as agonist, antagonist, inhibitor, modulator
-- result direction is always `not_applicable` for compound-target claims
+- result direction is always `not_applicable` for mechanistic claims
 - do not treat genotype, allele, transcriptome, brain region, physiological
-  readout, or broad assay signal as a clean target graph endpoint. Keep the raw
-  phrase in `raw_entity_label`, classify it with `entity_role`, and set
-  `graph_include_candidate = false` unless a direct molecular target edge is
+  readout, or broad assay signal as a clean graph endpoint. Keep the raw phrase
+  in `raw_entity_label`, classify it with `entity_role`, and set
+  `graph_include_candidate = false` unless a direct target, target
+  family/system, pathway/process, or molecular readout relationship is
   supported.
 
-Disorder essentials:
+Clinical/disorder essentials:
 
-- disorder or indication only when it is the treated/studied condition. Do not
-  put raw endpoints such as heart rate, blood pressure, nausea, patient
+- distinguish conditions, symptoms/problems, safety signals, and scales.
+- use `therapeutic_indication` for diagnosed conditions or explicit indications;
+  use `symptom_or_problem` for measured clinical problems that are not clearly
+  diagnoses; use `safety_or_adverse_event` for harms/tolerability/physiology.
+- do not promote vague labels such as depression, anxiety, pain, social anxiety,
+  mental health, wellbeing, or therapeutic potential into conditions unless the
+  supplied text explicitly frames them as diagnoses, enrolled conditions, or
+  treated indications.
+- do not put raw endpoints such as heart rate, blood pressure, nausea, patient
   satisfaction, opioid consumption, biomarkers, personality traits, or
   population/context labels in the `disorder` slot.
 - outcome type/domain
@@ -229,7 +239,15 @@ commentaries, protocols, and guidelines can be useful for corpus accounting and
 future evidence synthesis, but they should not create compound-target or
 compound-disorder graph edges.
 
-Do not extract claims from:
+Planned synthesis extension: meta-analyses should not be treated like generic
+review coverage once we explicitly support evidence-synthesis results. They can
+produce separate synthesis-result records focused on the meta-analytic estimate
+or conclusion, with outcome measure, comparator, direction, effect size,
+confidence interval, p-value, included-study count, and participant count when
+reported. Those records should remain distinct from primary-study claims and
+from narrative review coverage.
+
+For the current v1 schema, do not extract claims from:
 
 - review summaries of individual primary studies
 - meta-analytic aggregate statements
@@ -292,6 +310,39 @@ Rows should be blocked or routed to human review when:
 - source labels are inconsistent, such as review plus primary-study labels
 - numeric values lack a unit or look inferred
 - abstract-only input is used for detailed full-text-only fields
+
+## Projection Safeguards And Manual Corrections
+
+Generated extraction outputs, projected CSV/JSON files, KG tables, and graph
+payloads should not be edited by hand. They are build artifacts and will be
+overwritten.
+
+Prefer deterministic projection or normalization safeguards for repeatable
+error classes:
+
+- review, systematic-review, scoping-review, meta-analysis, guideline, or
+  commentary records leaking into primary evidence
+- duplicated or mismatched full-text artifacts attached to the wrong DOI
+- publisher artifacts such as peer-review reports, author responses, decisions,
+  corrections, errata, or retractions
+- known alias, endpoint-role, or graph-candidate normalization misses
+
+Use curated manual overrides only for paper-specific factual adjudications that
+cannot be safely generalized. Overrides should live in a versioned curated file,
+not in generated outputs, and each override should record:
+
+- DOI and dataset
+- field or routing decision being overridden
+- model/generated value and curated value
+- reason for the override
+- short evidence note or quote
+- curator and date
+- whether the override excludes a record, changes primary/secondary routing, or
+  changes a normalized entity
+
+Projection should surface manual overrides in reports and provenance fields, for
+example with `manual_override_applied`, `override_id`, and `override_reason`, so
+manual curation remains visible in the KG rather than silently changing history.
 
 ## Pilot
 

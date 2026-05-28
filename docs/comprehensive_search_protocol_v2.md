@@ -8,7 +8,9 @@ graph.
 Find literature and source-database records that may support either:
 
 - psychedelic compound -> molecular target evidence
-- psychedelic compound -> indication evidence
+- psychedelic compound -> brain region, circuit, network, or
+  cognitive-behavioral task evidence
+- psychedelic compound -> clinical evidence
 
 The search is deliberately broad. Relevance is decided later by screening and
 extraction, not by assuming that every retrieved DOI belongs in the KG.
@@ -20,7 +22,9 @@ The search is generated from the current registries in
 
 - `validation.allowed_compounds`
 - `validation.allowed_targets`
-- `validation.allowed_disorders`
+- `validation.allowed_brain_regions_and_networks`
+- `validation.allowed_cognitive_behavioral_tasks`
+- `validation.allowed_disorders` for clinical evidence concepts
 
 If the scope changes, update those registries first and regenerate the search
 files. Do not hand-edit generated seed files.
@@ -39,13 +43,24 @@ The exact search files and manifests are:
 - `data/raw/search_strategies/comprehensive_baseline_v1/disorder_seeds.csv`
 - `data/raw/search_strategies/comprehensive_baseline_v1/disorder_search_manifest.json`
 - `data/raw/search_strategies/comprehensive_baseline_v1/search_strategy_summary.json`
+- `data/raw/search_strategies/systems_neuroscience_2026_05/grouped_modules/mechanistic_grouped_openalex_systems_neuroscience_seeds.csv`
+- `data/raw/search_strategies/systems_neuroscience_2026_05/grouped_modules/mechanistic_grouped_pubmed_systems_neuroscience_seeds.csv`
+- `data/raw/search_strategies/systems_neuroscience_2026_05/grouped_modules/grouped_search_modules_manifest.json`
+- `data/raw/search_strategies/systems_neuroscience_2026_05/direct_pairs/mechanistic_search_manifest.json`
+- `data/raw/search_strategies/systems_neuroscience_2026_05/grouped_module_run/grouped_search_run_summary.md`
 
-Regenerate them with:
+Regenerate the generated seed files with:
 
 ```bash
 python pipeline/ingest/build_boolean_search_modules.py --dataset all
 python pipeline/ingest/build_comprehensive_search_plan.py --dataset all --profile baseline
+python pipeline/ingest/build_boolean_search_modules.py --run-id systems_neuroscience_2026_05 --dataset mechanistic
+python pipeline/ingest/build_comprehensive_search_plan.py --run-id systems_neuroscience_2026_05 --dataset mechanistic --profile standard
 ```
+
+The current command-line interface still uses existing dataset flags in
+generated filenames and commands. The methods framing treats the generated
+files as domain-specific search instruments in one discovery pipeline.
 
 ## Query Construction
 
@@ -56,44 +71,74 @@ Each query module is generated from three concept blocks:
 
 ```text
 (compound or drug-class synonyms)
-AND (target-family or indication-family synonyms)
+AND (domain-specific entity, endpoint, or outcome synonyms)
 AND (evidence-context terms)
 ```
 
 Terms inside each block are joined with OR. PubMed queries use
-`[Title/Abstract]` fields; clinical-indication PubMed queries also apply
-`NOT (animals[MeSH Terms] NOT humans[MeSH Terms])`. Mechanistic target
-searches do not use that exclusion; animal, in vitro, and assay records are
-retained for mechanistic evidence. OpenAlex modules submit the generated query
-text through the OpenAlex works API. No publication-date or language
-restriction is applied during discovery.
+`[Title/Abstract]` fields. Clinical population and outcome modules apply
+`NOT (animals[MeSH Terms] NOT humans[MeSH Terms])`; molecular, brain-system,
+cognitive-behavioral, and preclinical/translational modules retain animal, in
+vitro, assay, and neurophysiology records when those records are in scope.
+OpenAlex modules submit the generated query text through the OpenAlex works
+API. No publication-date or language restriction is applied during discovery.
 
-Clinical indication evidence terms include clinical trial,
-randomized/randomised, placebo, open-label/open label, phase 2, phase 3,
-treatment, therapy, efficacy, safety, tolerability, outcome, and follow-up.
-Mechanistic evidence terms include binding, affinity, Ki, Kd, IC50, EC50,
-radioligand, functional assay, agonist, antagonist, partial agonist, and
-signaling.
+Clinical evidence terms include clinical trial, randomized/randomised, placebo,
+open-label/open label, phase 2, phase 3, treatment, therapy, efficacy, safety,
+tolerability, outcome, and follow-up. Molecular target terms include binding,
+affinity, Ki, Kd, IC50, EC50, radioligand, functional assay, agonist,
+antagonist, partial agonist, and signaling. Brain-system and
+cognitive-behavioral terms include fMRI, BOLD, functional connectivity, PET,
+receptor occupancy, EEG, MEG, neural oscillations, electrophysiology, c-Fos,
+brain-region activation, circuit dynamics, and cognitive or behavioral task
+paradigms. Molecular-pathway, clinical-symptom/functioning, safety, and
+clinical endpoint modules add endpoint-specific terms for pathways, gene or
+protein expression, safety outcomes, functioning outcomes, and clinical links to
+brain, molecular, cognitive, behavioral, or neurophysiology endpoints.
 
 ## Search Module Families
 
-| Dataset | Module type | Modules | Cap per source/module |
+| Evidence domain | Module type | Modules | Cap per source/module |
 |---|---|---|---:|
-| Indication | Primary broad | clinical class core; depression spectrum; trauma/PTSD; substance use and addiction; anxiety, distress, and palliative care; pain and headache; OCD, eating disorders, and autism | 500 |
-| Indication | Dense topic | psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety | 1,000 |
-| Mechanistic | Primary broad | serotonin receptors; monoamine transporters; glutamate/NMDA; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF pathways | 500 |
-| Mechanistic | Dense topic | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | 1,000 |
+| Molecular targets | Primary broad | serotonin receptors; monoamine transporters; glutamate/NMDA/AMPA/mGluR2 targets; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF target evidence | 500 |
+| Molecular targets | Dense topic | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | 1,000 |
+| Molecular pathways and cellular readouts | Primary broad | molecular plasticity pathways; gene-expression/transcriptomics; inflammatory and neuroendocrine molecular readouts | 500 |
+| Molecular pathways and cellular readouts | Dense topic | ketamine/psychedelic mTOR-synaptogenesis; immediate early genes | 1,000 |
+| Brain systems, circuits, and neurophysiology | Primary broad | systems neuroimaging/connectivity; brain regions and circuits; PET/receptor occupancy/metabolism; EEG/MEG/neurophysiology | 500 |
+| Brain systems, circuits, and neurophysiology | Dense topic | psilocybin-default mode connectivity; LSD-thalamocortical connectivity; DMT-EEG/fMRI dynamics; ayahuasca-default mode connectivity; psilocybin-PET/5-HT2A occupancy; ketamine-prefrontal/hippocampal circuitry | 1,000 |
+| Cognitive and behavioral function | Primary broad | cognitive-affective tasks; translational behavioral assays | 500 |
+| Cognitive and behavioral function | Dense topic | MDMA-social reward/cognition; psychedelic fear extinction/flexibility | 1,000 |
+| Clinical outcomes, symptoms, functioning, and safety | Primary broad | clinical class core; depression spectrum; PTSD and trauma; substance use and addiction; anxiety, distress, and palliative care; pain, headache, and migraine; OCD, eating disorders, and autism; clinical symptoms/functioning/quality of life; clinical safety/tolerability/adverse events | 500 |
+| Clinical outcomes, symptoms, functioning, and safety | Dense topic | psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety; suicidality/anhedonia/sleep/function; craving/relapse/functioning; cardiovascular/mania/psychosis/HPPD safety | 1,000 |
+| Clinical studies with biological and behavioral endpoints | Primary broad | clinical population modules with brain, molecular, cognitive, and behavioral endpoints; clinical outcome endpoint modules | 500 |
+| Clinical studies with biological and behavioral endpoints | Dense topic | psilocybin depression brain and molecular endpoints; ketamine depression molecular endpoints; psilocybin depression brain/molecular endpoints; MDMA PTSD social-brain endpoints | 1,000 |
+
+Generated files preserve run IDs and source-specific seed files for audit, but
+the modules above are interpreted as one first-build discovery strategy.
 
 ## Pairwise Search Scope
 
 The search plan also includes generated pairwise search files. These files
-search the compound-target and compound-indication registry space directly
-alongside the query modules.
+search selected compound-entity and compound-outcome combinations directly
+alongside the query modules. The direct-pair layer is supplementary to the
+grouped domain searches: it is used most densely where the pair space is
+bounded, and later domain additions use targeted pair checks rather than an
+exhaustive cross-product of every possible compound and concept.
 
-| Dataset | Focused direct pairs | Pair-core search seeds |
+| Direct-pair domain | Focused direct pairs | Pair-core search seeds |
 |---|---:|---:|
-| Mechanistic | 1,840 | 5,520 |
-| Indication | 1,240 | 3,717 |
+| Molecular target pairs included in the target/brain/task layer | 1,840 | 5,520 |
+| Target, brain/network, and task pairs | 5,440 | 16,320 |
+| Clinical evidence pairs | 1,240 | 3,717 |
+
+The expanded direct-pair instrument also contains class-level, compound-broad,
+entity-broad, and sentinel default seeds, giving 16,876 total generated strings
+for molecular target, brain/network, and task entities.
+
+After the additional domain searches, a targeted direct-pair check was run in
+PubMed and OpenAlex for selected compound/entity/outcome combinations. Any
+records identified through that check enter the same candidate corpus and carry
+search-run provenance through downstream metadata enrichment and screening.
 
 ## Literature Databases
 
@@ -126,8 +171,22 @@ python pipeline/ingest/discover_literature.py \
 ```
 
 The pair-grid files run direct searches for rare corners of the
-compound-target and compound-indication space. Records already present in the
-paper library are reported but not re-added as new papers.
+compound-entity and compound-clinical evidence space. Records already present
+in the paper library are reported but not re-added as new papers.
+
+The brain-system grouped modules run through the grouped-module runner
+so the module scope is explicit:
+
+```bash
+python pipeline/ingest/run_boolean_module_searches.py \
+  --run-id systems_neuroscience_2026_05 \
+  --dataset mechanistic \
+  --provider all \
+  --module-type all \
+  --module-scope systems_neuroscience \
+  --openalex-search-field title_and_abstract \
+  --skip-existing
+```
 
 For the full search, query modules should run deeper than pairwise search
 seeds:
@@ -136,8 +195,8 @@ seeds:
 |---|---:|
 | Primary query modules | 500 |
 | Dense-topic query modules | 1,000 |
-| Pairwise searches, mechanistic | 20-50 |
-| Pairwise searches, indication | 10-20 |
+| Pairwise searches, molecular target/brain/task | 20-50 |
+| Pairwise searches, clinical evidence | 10-20 |
 
 The generated query CSV files include `recommended_max_results_per_seed` so
 dense topics can be run deeper than broad primary modules if we split execution
@@ -155,13 +214,14 @@ example:
 
 Search execution outputs are stored under
 `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/full_boolean_v1/`.
-The search run is timestamped May 15, 2026. Run summaries and
-PRISMA-style flow outputs report records identified,
+The brain-system grouped output is stored under
+`data/raw/search_strategies/systems_neuroscience_2026_05/grouped_module_run/`.
+Run summaries and PRISMA-style flow outputs report records identified,
 duplicate DOI records, invalid DOI records, screening outcomes, full-text
-access status, and extraction status. These counts describe the flow of
-records through the workflow; they do not define graph inclusion. A DOI becomes
-graph evidence only after screening, full-text or abstract-only labeling,
-structured extraction, and validation.
+access status, and extraction status. These counts describe the flow of records
+through the workflow; they do not define graph inclusion. A DOI becomes graph
+evidence only after screening, full-text or abstract-only labeling, structured
+extraction, and validation.
 
 ## Source-Specific Supplements
 
@@ -192,16 +252,31 @@ explicit scope, documented sources, reproducible query generation, DOI
 deduplication, and supplement layers. The search design separates three roles:
 
 1. **Query-family searches**: source-specific query blocks that combine
-   compound/class synonyms, target/indication synonyms, and evidence terms.
-2. **Pairwise searches**: all compound-target and compound-indication pairs,
-   run directly so rare combinations are represented in the search.
+   compound/class synonyms, domain-specific entity or outcome synonyms, and
+   evidence terms.
+2. **Pairwise searches**: compound-entity and compound-outcome pairs run
+   directly so rare combinations are represented in the search.
 3. **Source-specific supplements**: ChEMBL, BindingDB, ClinicalTrials.gov, and
    citation chasing, because those sources are not ordinary ranked DOI search
    results.
 
-The all-pairs grid is useful because it tests every compound-target or
-compound-indication combination in the registry. Retrieved records still
-require screening and extraction before they can support graph evidence.
+The all-pairs grid is useful because it tests every compound-entity or
+compound-outcome combination in the registry. Retrieved records still require
+screening and extraction before they can support graph evidence.
+
+## Brain/Circuit/Network And Cognitive-Behavioral Layer
+
+The brain-system and cognitive-behavioral domain is defined in
+`docs/brain_cognition_search_strategy.md`. It uses the same discovery,
+deduplication, screening, extraction, and KG publication pipeline as the rest of
+the search. The domain adds grouped query modules and direct pair-search
+instruments for brain regions, named circuits, functional networks,
+neuroimaging and neurophysiology modalities, and cognitive-behavioral task
+domains.
+
+Brain-system evidence should not collapse into molecular-target evidence.
+Region/network/task entities should carry their own entity kind through
+screening, extraction, normalization, and graph export.
 
 ## Updates
 

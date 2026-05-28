@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CLAIM_SOURCE = "gemini_extraction"
+DEFAULT_CLAIM_SOURCE = "kg_tables"
 LEGACY_MECHANISTIC_SCHEMA = ROOT / "schema" / "legacy_mechanistic_affinity_claims.schema.json"
 LEGACY_DISORDER_SCHEMA = ROOT / "schema" / "legacy_disorder_claims.schema.json"
 
@@ -134,6 +134,12 @@ PAPER_METADATA_FIELDS = (
     "has_correction",
     "language",
     "semantic_scholar_id",
+    "open_access_is_oa",
+    "open_access_status",
+    "open_access_url",
+    "unpaywall_is_oa",
+    "unpaywall_oa_status",
+    "unpaywall_license",
 )
 EXTRACTED_VARIABLE_FIELDS = (
     "claim_type",
@@ -798,7 +804,7 @@ def main() -> int:
         "--claim-source",
         choices=sorted(CLAIM_SOURCES),
         default=DEFAULT_CLAIM_SOURCE,
-        help="Claim source for main graph payloads. Default uses projected Gemini extraction claims.",
+        help="Claim source for main graph payloads. Default uses normalized KG evidence tables.",
     )
     args = parser.parse_args()
 

@@ -66,6 +66,11 @@ METADATA_FIELDS = [
     "abstract",
 ]
 PUBLICATION_SECONDARY_RE = re.compile(r"\b(systematic review|meta-analysis|meta analysis|review|scoping review|umbrella review)\b", re.I)
+META_ANALYSIS_RE = re.compile(
+    r"\b(network\s+meta[- ]analysis|individual\s+patient\s+data\s+meta[- ]analysis|"
+    r"meta[- ]analysis|mega[- ]analysis)\b",
+    re.I,
+)
 PUBLICATION_CONTEXT_RE = re.compile(r"\b(protocol|comment|editorial|letter|guideline|practice guideline|consensus)\b", re.I)
 PUBLICATION_ARTIFACT_RE = re.compile(
     r"\b(peer[- ]?review|editor[- ]?report|decision[- ]?letter|author[- ]?response|correction|erratum|retraction)\b",
@@ -293,6 +298,14 @@ def is_non_article_artifact(metadata: dict) -> bool:
     publication_type = normalize(metadata.get("publication_type", ""))
     title = normalize(metadata.get("study_title", "")) or normalize(metadata.get("title", ""))
     return bool(PUBLICATION_ARTIFACT_RE.search(publication_type)) or bool(TITLE_ARTIFACT_RE.search(title))
+
+
+def is_meta_analysis_metadata(metadata: dict) -> bool:
+    text = " ".join(
+        normalize(metadata.get(field, ""))
+        for field in ["publication_type", "study_title", "mesh_terms", "keywords", "abstract"]
+    )
+    return bool(META_ANALYSIS_RE.search(text.replace("_", " ")))
 
 
 def pilot_record(
@@ -610,6 +623,45 @@ def build_dataset_records(
     return records, summary
 
 
+def filter_excluded_metadata_records(
+    records: list[dict],
+    *,
+    exclude_meta_analyses: bool,
+) -> tuple[list[dict], list[dict], Counter]:
+    kept = []
+    excluded = []
+    reasons = Counter()
+    for row in records:
+        metadata = row.get("paper_metadata", {}) if isinstance(row.get("paper_metadata"), dict) else {}
+        reason = ""
+        if exclude_meta_analyses and is_meta_analysis_metadata(metadata):
+            reason = "meta_analysis_reserved_for_synthesis_extraction"
+        if reason:
+            parked = {
+                "reason": reason,
+                "dataset": row.get("dataset", ""),
+                "bucket": row.get("bucket", ""),
+                "study_doi": row.get("study_doi", ""),
+                "input_tier": row.get("input_tier", ""),
+                "access_level": row.get("access_level", ""),
+                "route_hint": row.get("route_hint", {}),
+                "paper_metadata": metadata,
+                "source": row.get("source", {}),
+                "next_action": "Run later with a dedicated evidence-synthesis/meta-analysis extraction schema.",
+            }
+            excluded.append(parked)
+            reasons[reason] += 1
+            continue
+        kept.append(row)
+    return kept, excluded, reasons
+
+
+def filter_input_tier(records: list[dict], input_tier: str) -> list[dict]:
+    if input_tier == "all":
+        return records
+    return [row for row in records if normalize(row.get("input_tier", "")) == input_tier]
+
+
 def csv_row(row: dict) -> dict:
     metadata = row.get("paper_metadata", {})
     screening = row.get("screening_summary", {})
@@ -670,9 +722,20 @@ def main() -> int:
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     parser.add_argument("--per-bucket", type=int, default=10, help="Records selected per dataset and bucket")
     parser.add_argument("--limit-total", type=int, default=0, help="Optional cap across all selected records; 0 means no cap")
+    parser.add_argument(
+        "--input-tier",
+        choices=["all", "full_text", "abstract"],
+        default="all",
+        help="Restrict selected records by extraction input tier",
+    )
     parser.add_argument("--out-jsonl", default=str(default_out_jsonl()))
     parser.add_argument("--out-csv", default=str(default_out_csv()))
     parser.add_argument("--report-json", default=str(default_report_json()))
+    parser.add_argument(
+        "--excluded-jsonl",
+        default="",
+        help="Where to write records intentionally excluded from this extraction input build",
+    )
     parser.add_argument("--mechanistic-fulltext-packets-jsonl", default="", help="Override mechanistic full-text packet JSONL")
     parser.add_argument("--disorder-fulltext-packets-jsonl", default="", help="Override disorder full-text packet JSONL")
     parser.add_argument(
@@ -690,6 +753,11 @@ def main() -> int:
         "--include-irrelevant-controls",
         action="store_true",
         help="Include old abstract-irrelevant DOI records as calibration controls; disabled by default for extraction runs",
+    )
+    parser.add_argument(
+        "--exclude-meta-analyses",
+        action="store_true",
+        help="Exclude metadata/abstract-detected meta-analyses/mega-analyses from this extraction build and park them for a future synthesis schema",
     )
     args = parser.parse_args()
 
@@ -716,6 +784,15 @@ def main() -> int:
     if excluded:
         all_records = [row for row in all_records if record_dataset_doi(row) not in excluded]
 
+    metadata_excluded_records = []
+    metadata_excluded_reasons = Counter()
+    if args.exclude_meta_analyses:
+        all_records, metadata_excluded_records, metadata_excluded_reasons = filter_excluded_metadata_records(
+            all_records,
+            exclude_meta_analyses=args.exclude_meta_analyses,
+        )
+    all_records = filter_input_tier(all_records, args.input_tier)
+
     bucket_order = ALL_BUCKET_ORDER if args.include_irrelevant_controls else DEFAULT_BUCKET_ORDER
     selected, selection_summary = select_per_bucket(
         all_records,
@@ -726,8 +803,14 @@ def main() -> int:
     out_jsonl = Path(args.out_jsonl).resolve()
     out_csv = Path(args.out_csv).resolve()
     report_json = Path(args.report_json).resolve()
+    excluded_jsonl = (
+        Path(args.excluded_jsonl).resolve()
+        if args.excluded_jsonl
+        else out_jsonl.with_name(f"{out_jsonl.stem}.excluded.jsonl")
+    )
     write_jsonl(out_jsonl, selected)
     write_csv(out_csv, selected)
+    write_jsonl(excluded_jsonl, metadata_excluded_records)
 
     report = {
         "generated_at_utc": now_utc(),
@@ -739,15 +822,22 @@ def main() -> int:
             "manifest": str(manifest_path),
             "per_bucket": args.per_bucket,
             "limit_total": max(0, args.limit_total),
+            "input_tier": args.input_tier,
             "include_fulltext_packet_content": not args.omit_fulltext_packet_content,
             "include_irrelevant_controls": args.include_irrelevant_controls,
             "exclude_jsonl": [str(path) for path in exclude_paths],
             "excluded_dataset_dois": len(excluded),
+            "exclude_meta_analyses": args.exclude_meta_analyses,
+            "metadata_excluded_records": len(metadata_excluded_records),
+            "metadata_excluded_reasons": dict(metadata_excluded_reasons),
+            "metadata_excluded_by_dataset": dict(Counter(row.get("dataset", "") for row in metadata_excluded_records)),
+            "metadata_excluded_by_bucket": dict(Counter(row.get("bucket", "") for row in metadata_excluded_records)),
         },
         "outputs": {
             "jsonl": str(out_jsonl),
             "csv": str(out_csv),
             "report_json": str(report_json),
+            "excluded_jsonl": str(excluded_jsonl),
         },
         "datasets": dataset_summaries,
         "selection": selection_summary,
@@ -759,6 +849,8 @@ def main() -> int:
     print(f"Selected by bucket: {selection_summary['selected_by_bucket']}")
     print(f"JSONL: {out_jsonl}")
     print(f"CSV: {out_csv}")
+    if metadata_excluded_records:
+        print(f"Metadata-excluded records: {len(metadata_excluded_records)} -> {excluded_jsonl}")
     print(f"Report: {report_json}")
     return 0
 

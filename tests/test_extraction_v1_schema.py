@@ -181,6 +181,48 @@ class ExtractionV1SchemaTest(unittest.TestCase):
 
         self.assert_valid(payload)
 
+    def test_disorder_claim_allows_condition_and_symptom_graph_types(self) -> None:
+        condition_payload = base_result()
+        condition_payload["claims"][0]["graph_entity_type"] = "condition_indication"
+        self.assert_valid(condition_payload)
+
+        symptom_payload = base_result()
+        symptom_payload["claims"][0].update(
+            {
+                "disorder": "Suicidal ideation",
+                "raw_entity_label": "suicidal ideation",
+                "entity_role": "symptom_or_problem",
+                "clinical_context_condition": "major depressive disorder",
+                "graph_entity_label": "Suicidal ideation",
+                "graph_entity_type": "symptom_problem",
+                "outcome_domain": "suicidality",
+                "outcome_type": "symptom change",
+                "outcome_measure": "C-SSRS",
+            }
+        )
+        self.assert_valid(symptom_payload)
+
+    def test_safety_and_scale_graph_types_are_not_primary_graph_candidates(self) -> None:
+        payload = base_result()
+        payload["claims"][0].update(
+            {
+                "disorder": "not_applicable",
+                "raw_entity_label": "nausea",
+                "entity_role": "safety_or_adverse_event",
+                "clinical_context_condition": "major depressive disorder",
+                "graph_entity_label": "nausea",
+                "graph_entity_type": "safety_adverse_event",
+                "graph_include_candidate": True,
+                "outcome_domain": "safety",
+                "outcome_type": "adverse event",
+                "outcome_measure": "adverse event report",
+            }
+        )
+
+        messages = self.assert_invalid(payload)
+
+        self.assertTrue(any("False was expected" in message for message in messages))
+
     def test_mechanistic_claim_allows_gene_variant_role_fields(self) -> None:
         payload = base_result()
         payload["dataset"] = "mechanistic"
@@ -230,6 +272,25 @@ class ExtractionV1SchemaTest(unittest.TestCase):
 
         self.assertTrue(any("False was expected" in message for message in messages))
 
+    def test_disorder_biomarker_role_cannot_be_graph_candidate(self) -> None:
+        payload = base_result()
+        payload["claims"][0].update(
+            {
+                "disorder": "not_applicable",
+                "raw_entity_label": "BDNF",
+                "entity_role": "biomarker",
+                "outcome_domain": "biomarker",
+                "outcome_measure": "BDNF",
+                "graph_entity_label": "BDNF",
+                "graph_entity_type": "indication",
+                "graph_include_candidate": True,
+            }
+        )
+
+        messages = self.assert_invalid(payload)
+
+        self.assertTrue(any("False was expected" in message for message in messages))
+
     def test_mechanistic_claim_requires_assay_fields_and_not_applicable_disorder(self) -> None:
         payload = base_result()
         payload["dataset"] = "mechanistic"
@@ -269,6 +330,62 @@ class ExtractionV1SchemaTest(unittest.TestCase):
 
         self.assertTrue(any("'assay_type' is a required property" in message for message in messages))
         self.assertTrue(any("'not_applicable' was expected" in message for message in messages))
+
+    def test_mechanistic_claim_allows_pathway_and_readout_graph_types(self) -> None:
+        payload = base_result()
+        payload["dataset"] = "mechanistic"
+        payload["claims"] = [
+            {
+                "claim_type": "compound_target",
+                "compound": "Ketamine",
+                "target": "mTOR signaling",
+                "disorder": "not_applicable",
+                "raw_entity_label": "mTOR signaling",
+                "entity_role": "pathway_or_process",
+                "clinical_context_condition": "not_applicable",
+                "graph_entity_label": "mTOR signaling",
+                "graph_entity_type": "pathway_process",
+                "graph_include_candidate": True,
+                "graph_exclusion_reason": "not_applicable",
+                "support": "supported",
+                "study_design": "preclinical_study",
+                "system": "preclinical",
+                "assay_type": "protein expression assay",
+                "affinity_type": "not_reported",
+                "result_direction": "not_applicable",
+                "evidence_location": "text",
+                "evidence_locator": "Results",
+                "supporting_quote": "Ketamine activated mTOR signaling.",
+                "confidence": 0.9,
+                "needs_human_review": False,
+            },
+            {
+                "claim_type": "compound_target",
+                "compound": "Ketamine",
+                "target": "BDNF",
+                "disorder": "not_applicable",
+                "raw_entity_label": "BDNF expression",
+                "entity_role": "biomarker",
+                "clinical_context_condition": "not_applicable",
+                "graph_entity_label": "BDNF",
+                "graph_entity_type": "molecular_readout",
+                "graph_include_candidate": True,
+                "graph_exclusion_reason": "not_applicable",
+                "support": "supported",
+                "study_design": "preclinical_study",
+                "system": "preclinical",
+                "assay_type": "gene expression assay",
+                "affinity_type": "not_reported",
+                "result_direction": "not_applicable",
+                "evidence_location": "text",
+                "evidence_locator": "Results",
+                "supporting_quote": "Ketamine increased BDNF expression.",
+                "confidence": 0.9,
+                "needs_human_review": False,
+            },
+        ]
+
+        self.assert_valid(payload)
 
     def test_mechanistic_claim_rejects_noncanonical_affinity_type(self) -> None:
         payload = base_result()

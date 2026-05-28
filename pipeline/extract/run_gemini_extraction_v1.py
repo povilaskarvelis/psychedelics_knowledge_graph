@@ -134,6 +134,15 @@ MECHANISTIC_ENTITY_ROLES = (
     "uncertain",
 )
 
+MECHANISTIC_GRAPH_ENTITY_TYPES = (
+    "target",
+    "system_family",
+    "pathway_process",
+    "molecular_readout",
+    "none",
+    "uncertain",
+)
+
 DISORDER_ENTITY_ROLES = (
     "therapeutic_indication",
     "symptom_or_problem",
@@ -149,6 +158,15 @@ DISORDER_ENTITY_ROLES = (
     "uncertain",
 )
 
+DISORDER_GRAPH_ENTITY_TYPES = (
+    "condition_indication",
+    "symptom_problem",
+    "safety_adverse_event",
+    "outcome_scale",
+    "none",
+    "uncertain",
+)
+
 
 def prompt_claim_schema(schema: dict, dataset: str) -> dict:
     claim = copy.deepcopy(schema["definitions"]["claim"])
@@ -159,7 +177,7 @@ def prompt_claim_schema(schema: dict, dataset: str) -> dict:
         claim["properties"]["disorder"] = {"type": "string", "enum": ["not_applicable"]}
         claim["properties"]["result_direction"]["enum"] = ["not_applicable"]
         claim["properties"]["entity_role"]["enum"] = list(MECHANISTIC_ENTITY_ROLES)
-        claim["properties"]["graph_entity_type"]["enum"] = ["target", "none", "uncertain"]
+        claim["properties"]["graph_entity_type"]["enum"] = list(MECHANISTIC_GRAPH_ENTITY_TYPES)
     elif dataset == "disorder":
         fields = DISORDER_PROMPT_CLAIM_FIELDS
         extra_required = ("outcome_domain", "outcome_type", "outcome_measure", "result_direction")
@@ -167,7 +185,7 @@ def prompt_claim_schema(schema: dict, dataset: str) -> dict:
         claim["properties"]["target"] = {"type": "string", "enum": ["not_applicable"]}
         claim["properties"]["result_direction"]["enum"] = ["positive", "null", "negative", "mixed", "unclear"]
         claim["properties"]["entity_role"]["enum"] = list(DISORDER_ENTITY_ROLES)
-        claim["properties"]["graph_entity_type"]["enum"] = ["indication", "none", "uncertain"]
+        claim["properties"]["graph_entity_type"]["enum"] = list(DISORDER_GRAPH_ENTITY_TYPES)
     else:
         raise ValueError(f"Unsupported extraction dataset `{dataset}`")
 

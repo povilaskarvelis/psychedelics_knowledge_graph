@@ -8,6 +8,8 @@ from pipeline.extract.build_extraction_v1_pilot import (
     build_dataset_records,
     excluded_dataset_dois,
     fulltext_packets_path_for_dataset,
+    filter_input_tier,
+    is_meta_analysis_metadata,
     is_non_article_artifact,
     route_hint_for_metadata,
     sample_sort_key,
@@ -278,6 +280,18 @@ class BuildExtractionV1PilotTest(unittest.TestCase):
         self.assertEqual(selected, [expected])
         self.assertEqual(summary["selection_strategy"], "stable_hash_by_dataset_bucket")
 
+    def test_filter_input_tier_can_select_full_text_only(self) -> None:
+        rows = [
+            {"input_tier": "full_text", "study_doi": "10.1/full"},
+            {"input_tier": "abstract", "study_doi": "10.1/abstract"},
+        ]
+
+        self.assertEqual(filter_input_tier(rows, "all"), rows)
+        self.assertEqual(
+            [row["study_doi"] for row in filter_input_tier(rows, "full_text")],
+            ["10.1/full"],
+        )
+
     def test_excluded_dataset_dois_loads_pilot_jsonl_keys(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "previous.jsonl"
@@ -318,6 +332,15 @@ class BuildExtractionV1PilotTest(unittest.TestCase):
         peer_review = {"publication_type": "peer-review", "study_title": "Decision letter: A trial"}
         self.assertEqual(route_hint_for_metadata(peer_review)["hint"], "likely_context_only")
         self.assertTrue(is_non_article_artifact(peer_review))
+
+    def test_meta_analysis_filter_checks_abstract_text(self) -> None:
+        metadata = {
+            "publication_type": "journal-article",
+            "study_title": "Ketamine for chronic pain",
+            "abstract": "In the present meta analysis twelve publications are evaluated and discussed.",
+        }
+
+        self.assertTrue(is_meta_analysis_metadata(metadata))
 
 
 if __name__ == "__main__":

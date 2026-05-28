@@ -24,7 +24,11 @@ Apply these decisions in order:
    extract the main stable findings.
 5. If relevant secondary/context literature is in scope, classify the paper at
    the paper level, return no claims, and add lightweight `coverage_mentions`
-   only when directly supported.
+   only when directly supported. This includes reviews, systematic reviews,
+   scoping reviews, narrative reviews, and meta-analyses. Even a patient-level
+   pooled meta-analysis or mega-analysis is `secondary_literature` in v1 unless
+   the paper reports a new original experiment, cohort, trial, assay, or dataset
+   collected by the authors.
 6. Use `human_review` when the paper type, relevance, or extractable claim is
    genuinely ambiguous.
 
@@ -84,11 +88,13 @@ For every claim, separate the raw result endpoint from the graph endpoint using
 `graph_exclusion_reason`.
 
 Set `graph_include_candidate = true` only when the endpoint plausibly belongs
-as a main graph edge for the requested dataset. Set it to `false` for raw
-endpoints such as safety/adverse events, physiological measures, biomarkers,
-process measures, assay readouts, population/context labels, and other
-non-canonical graph endpoints. Explain the reason briefly; detailed cleanup is
-handled later by normalization.
+as a main graph edge for the requested dataset. For clinical/disorder claims,
+that usually means a clean condition or indication. For mechanistic claims,
+that can mean a direct target, target family/system, pathway/process, or
+molecular readout. Set it to `false` for raw endpoints such as safety/adverse
+events, physiological measures, assay details, population/context labels, and
+other non-canonical graph endpoints. Explain the reason briefly; detailed
+cleanup is handled later by normalization.
 
 ## Confidence
 

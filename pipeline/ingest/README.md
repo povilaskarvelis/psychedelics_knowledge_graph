@@ -1,7 +1,7 @@
 # Ingest
 
 This stage covers literature discovery, DOI deduplication, paper metadata
-sync, and PDF retrieval. It should produce a transparent paper corpus before
+enrichment, and PDF retrieval. It should produce a transparent paper corpus before
 claim extraction begins.
 
 The ingest layer works at DOI/paper level. It does not decide final graph
@@ -11,11 +11,11 @@ claims.
 
 1. Generate or provide search files.
 2. Run literature discovery against selected providers.
-3. Normalize discovered DOIs and add only papers that are not already in the
-   corpus.
-4. Sync metadata and abstracts.
-5. Run abstract screening in `pipeline/review/`.
-6. Retrieve PDFs for screened relevant or uncertain papers.
+3. Normalize discovered DOIs into the unified corpus tables with provenance.
+4. Enrich metadata and abstracts for corpus rows that do not yet have complete
+   paper metadata.
+5. Run deterministic screening/routing in `pipeline/review/`.
+6. Retrieve PDFs for routed full-text candidates.
 
 ## Search Files
 
@@ -127,7 +127,7 @@ families are too broad before spending full API budget.
 
 ## DOI Add Gate
 
-Before metadata sync, remove papers already known to the corpus:
+Older discovery runs used a dataset-specific DOI add gate before metadata enrichment:
 
 ```bash
 python pipeline/ingest/add_new_dois.py \
@@ -143,19 +143,20 @@ Outputs:
 - `data/processed/missing_or_invalid_dois_<dataset>.csv`
 - `data/processed/input_duplicate_dois_<dataset>.csv`
 
-The gate is DOI-level. If a DOI is already known anywhere in the paper corpus,
-it is not added as a new paper. Rediscoveries are still logged.
+The gate is DOI-level. In the current table-based pipeline, rediscovered DOIs
+remain useful provenance and the canonical "needs metadata" view is derived
+from the unified corpus table instead of from a one-off new-DOI file.
 
-## Metadata Sync
+## Metadata Enrichment
 
-Run metadata first, without downloads:
+Materialize or enrich the paper metadata table:
 
 ```bash
-python pipeline/ingest/sync_paper_library.py \
-  --dataset mechanistic \
-  --doi-file data/raw/doi_queue.mechanistic.new.txt \
-  --skip-download \
-  --checkpoint-every 100 \
+python pipeline/ingest/enrich_paper_metadata.py \
+  --papers-table data/processed/corpus/candidate_papers.parquet \
+  --output-table data/processed/corpus/paper_metadata_enrichment.parquet \
+  --metadata-provider-order openalex \
+  --write-every 100 \
   --progress-every 100
 ```
 
@@ -167,6 +168,31 @@ pubmed, pmc, unpaywall, crossref, openalex, semantic_scholar
 
 This prioritizes biomedical metadata/abstracts first, then open-access and PDF
 resolution, then broad metadata fallbacks.
+
+The metadata-enrichment command writes `paper_metadata_enrichment.parquet`.
+Rebuild the corpus tables afterward so enriched metadata is merged back into
+`candidate_papers.parquet`.
+
+To materialize metadata already present in the candidate paper table without
+querying external providers:
+
+```bash
+python pipeline/ingest/enrich_paper_metadata.py \
+  --papers-table data/processed/corpus/candidate_papers.parquet \
+  --output-table data/processed/corpus/paper_metadata_enrichment.parquet \
+  --metadata-provider-order none
+```
+
+If a first-pass provider leaves lookup errors or missing titles, retry only
+those core gaps instead of all abstract-only gaps:
+
+```bash
+python pipeline/ingest/enrich_paper_metadata.py \
+  --papers-table data/processed/corpus/candidate_papers.parquet \
+  --output-table data/processed/corpus/paper_metadata_enrichment.parquet \
+  --retry-core-metadata \
+  --metadata-provider-order pubmed
+```
 
 ## PDF Retrieval
 
@@ -279,6 +305,11 @@ path now prepares DOI-level extraction inputs in `pipeline/extract/`.
 - `data/processed/paper_inventory_<dataset>.json`
 - `data/processed/paper_inventory_<dataset>.md`
 - `data/raw/papers/<dataset>/pdfs/*.pdf`
+
+Grouped module runs also write a domain-aware rediscovery lane under
+`grouped_module_run/combined/domain_reprocessing/` when rediscovered DOIs need
+screening for newly added routing domains. Those queues let already-known
+bibliographic records re-enter abstract screening without duplicating metadata.
 
 After abstract screening finishes for a run, add the completed screening report
 to `data/processed/corpus_manifest.json` if it should be included in the

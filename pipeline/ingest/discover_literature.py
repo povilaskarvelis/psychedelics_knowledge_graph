@@ -473,7 +473,13 @@ def parse_allowlists(path: Path) -> Dict[str, List[str]]:
     if not path.exists():
         return {}
 
-    keys = {"allowed_compounds", "allowed_targets", "allowed_disorders"}
+    keys = {
+        "allowed_compounds",
+        "allowed_targets",
+        "allowed_brain_regions_and_networks",
+        "allowed_cognitive_behavioral_tasks",
+        "allowed_disorders",
+    }
     allowlists = {key: [] for key in keys}
     current_key = None
 
@@ -745,10 +751,7 @@ def generate_auto_seeds(
     max_seeds: int,
 ) -> List["Seed"]:
     compounds = dedupe_values(allowlists.get("allowed_compounds", []))
-    entity_key = "allowed_targets" if dataset == "mechanistic" else "allowed_disorders"
-    entities = dedupe_values(allowlists.get(entity_key, []))
-    if dataset == "disorder":
-        entities = dedupe_values([canonicalize_disorder_label(value) for value in entities])
+    entities = allowed_entities_for_dataset(dataset, allowlists)
     templates = AUTO_SEED_TEMPLATES[dataset][template_mode]
 
     if max_compounds > 0:
@@ -784,8 +787,16 @@ def generate_auto_seeds(
 
 
 def allowed_entities_for_dataset(dataset: str, allowlists: Dict[str, List[str]]) -> List[str]:
-    entity_key = "allowed_targets" if dataset == "mechanistic" else "allowed_disorders"
-    entities = dedupe_values(allowlists.get(entity_key, []))
+    if dataset == "mechanistic":
+        entities = dedupe_values(
+            [
+                *allowlists.get("allowed_targets", []),
+                *allowlists.get("allowed_brain_regions_and_networks", []),
+                *allowlists.get("allowed_cognitive_behavioral_tasks", []),
+            ]
+        )
+    else:
+        entities = dedupe_values(allowlists.get("allowed_disorders", []))
     if dataset == "disorder":
         entities = dedupe_values([canonicalize_disorder_label(value) for value in entities])
     return entities

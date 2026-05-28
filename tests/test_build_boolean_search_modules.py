@@ -74,6 +74,24 @@ class BuildBooleanSearchModulesTest(unittest.TestCase):
             )
             self.assertTrue(Path(manifest["outputs"]["manifest_json"]).exists())
 
+    def test_boolean_modules_include_supplemental_evidence_domain_scopes(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            manifest = build_boolean_modules(Path(tmpdir), ["mechanistic", "disorder"])
+
+            mechanistic_counts = manifest["datasets"]["mechanistic"]["outputs"]["openalex"]["module_scope_counts"]
+            disorder_counts = manifest["datasets"]["disorder"]["outputs"]["pubmed"]["module_scope_counts"]
+
+            self.assertEqual(mechanistic_counts["molecular_pathway"], 5)
+            self.assertEqual(mechanistic_counts["bridge_clinical_mechanism"], 3)
+            self.assertEqual(disorder_counts["clinical_symptom_function"], 3)
+            self.assertEqual(disorder_counts["clinical_safety"], 2)
+            self.assertEqual(disorder_counts["bridge_clinical_mechanism"], 3)
+            self.assertTrue(
+                Path(
+                    manifest["datasets"]["mechanistic"]["outputs"]["openalex"]["module_scope_outputs"]["molecular_pathway"]["seed_csv"]
+                ).exists()
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,10 @@ __pycache__/
 pipeline/config.local.yaml
 pipeline/config.*.local.yaml
 
+# Local/generated data stores. Existing tracked files remain in Git history, but
+# new local outputs under these storage directories should stay out of commits.
+data/
+
 # Local paper library downloads (large binary assets)
 data/raw/papers/
 
@@ -46,21 +50,25 @@ data/processed/paper_inventory_*.md
 data/processed/llm_abstract_screening_report_*.json
 data/processed/llm_abstract_screening_report_*.csv
 data/processed/llm_abstract_screening_report_*.checkpoint.jsonl
-data/processed/candidate_paper_corpus.json
-data/processed/context_provenance_audit.json
+data/processed/candidate_paper_corpus*.json
+data/processed/context_provenance_audit*.json
 data/processed/context_promotion_plan.json
 data/processed/context_promotion_worklist.csv
 data/processed/context_edge_rollup.json
 data/processed/context_queues/
+data/processed/corpus/
 data/processed/kg/*.duckdb
 data/processed/kg/*.duckdb.wal
 data/processed/extraction/*_fulltext_packets*.jsonl
+data/processed/extraction/backups/
 data/processed/extraction/extraction_v1_batch_*.json
 data/processed/extraction/extraction_v1_batch_*.jsonl
 data/processed/extraction/extraction_v1_raw.batch_*.jsonl
 data/processed/extraction/extraction_v1_results.batch_*.jsonl
 data/processed/extraction/extraction_v1_report.batch_*.json
 data/processed/extraction/extraction_v1_malformed_retry.batch_*.report.json
+data/processed/extraction/extraction_v1_pilot_inputs*.csv
+data/processed/extraction/extraction_v1_pilot_inputs*.jsonl
 data/processed/extraction/extraction_v1_pilot_inputs.active_*.jsonl
 data/processed/extraction/extraction_v1_pilot_inputs.batch_*.csv
 data/processed/extraction/extraction_v1_pilot_inputs.batch_*.jsonl

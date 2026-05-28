@@ -14,6 +14,19 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
+try:
+    from pipeline.ingest.build_domain_reprocessing_queue import (
+        build_domain_reprocessing_queue,
+        module_scopes_to_tags,
+        normalize_tag,
+    )
+except ModuleNotFoundError:  # pragma: no cover - direct script execution path
+    sys.path.insert(0, str(ROOT))
+    from pipeline.ingest.build_domain_reprocessing_queue import (
+        build_domain_reprocessing_queue,
+        module_scopes_to_tags,
+        normalize_tag,
+    )
 DEFAULT_RUN_ID = "literature_search"
 SEARCH_STRATEGY_ROOT = ROOT / "data" / "raw" / "search_strategies"
 VERSION = "0.1"
@@ -123,21 +136,62 @@ def parse_module_types(raw: str) -> list[str]:
     return module_types
 
 
-def iter_manifest_batches(manifest: dict, datasets: Iterable[str], providers: Iterable[str], module_types: Iterable[str]) -> Iterable[dict]:
+def parse_module_scopes(raw: str) -> list[str] | None:
+    if raw.strip().lower() == "all":
+        return None
+    module_scopes = [item.strip().lower() for item in raw.split(",") if item.strip()]
+    if not module_scopes:
+        raise ValueError("At least one module scope is required")
+    return module_scopes
+
+
+def parse_routing_tags(raw: str) -> set[str]:
+    return {normalize_tag(item) for item in raw.split(",") if item.strip()}
+
+
+def iter_manifest_batches(
+    manifest: dict,
+    datasets: Iterable[str],
+    providers: Iterable[str],
+    module_types: Iterable[str],
+    module_scopes: list[str] | None = None,
+) -> Iterable[dict]:
     for dataset in datasets:
         dataset_info = manifest["datasets"][dataset]
         for provider in providers:
             provider_info = dataset_info["outputs"][provider]
-            for module_type in module_types:
-                module_info = provider_info["module_type_outputs"][module_type]
-                yield {
-                    "dataset": dataset,
-                    "provider": provider,
-                    "module_type": module_type,
-                    "seed_csv": Path(module_info["seed_csv"]),
-                    "seed_count": int(module_info["seed_count"]),
-                    "cap": int(module_info["recommended_max_results_per_seed"]),
-                }
+            if module_scopes is None:
+                for module_type in module_types:
+                    module_info = provider_info["module_type_outputs"][module_type]
+                    yield {
+                        "dataset": dataset,
+                        "provider": provider,
+                        "module_type": module_type,
+                        "module_scope": "all",
+                        "seed_csv": Path(module_info["seed_csv"]),
+                        "seed_count": int(module_info["seed_count"]),
+                        "cap": int(module_info["recommended_max_results_per_seed"]),
+                    }
+                continue
+
+            scope_outputs = provider_info.get("module_scope_outputs", {})
+            for module_scope in module_scopes:
+                if module_scope not in scope_outputs:
+                    available = ", ".join(sorted(scope_outputs)) or "none"
+                    raise ValueError(
+                        f"Module scope `{module_scope}` is not available for {dataset}/{provider}; available: {available}"
+                    )
+                for module_type in module_types:
+                    module_info = scope_outputs[module_scope]["module_type_outputs"][module_type]
+                    yield {
+                        "dataset": dataset,
+                        "provider": provider,
+                        "module_type": module_type,
+                        "module_scope": module_scope,
+                        "seed_csv": Path(module_info["seed_csv"]),
+                        "seed_count": int(module_info["seed_count"]),
+                        "cap": int(module_info["recommended_max_results_per_seed"]),
+                    }
 
 
 def discovery_cmd(batch: dict, out_dir: Path, args: argparse.Namespace) -> list[str]:
@@ -271,12 +325,12 @@ def write_summary(run_root: Path, manifest_path: Path, batches: list[dict], comb
         "",
         "## Search Modules",
         "",
-        "| Dataset | Provider | Module type | Seeds | Cap | Raw rows | Merged rows | New DOIs | Rediscovered | Invalid |",
-        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Dataset | Provider | Scope | Module type | Seeds | Cap | Raw rows | Merged rows | New DOIs | Rediscovered | Invalid |",
+        "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for batch in batches:
         lines.append(
-            f"| {batch['dataset']} | {batch['provider']} | {batch['module_type']} | {batch['seed_count']} | "
+            f"| {batch['dataset']} | {batch['provider']} | {batch['module_scope']} | {batch['module_type']} | {batch['seed_count']} | "
             f"{batch['cap']} | {batch['raw_rows']} | {batch['merged_rows']} | {batch['new_dois']} | "
             f"{batch['rediscovered_existing_dois']} | {batch['missing_or_invalid_dois']} |"
         )
@@ -311,8 +365,22 @@ def main() -> int:
     parser.add_argument("--dataset", default="all", help="mechanistic, disorder, comma-separated list, or all")
     parser.add_argument("--provider", default="all", help="openalex, pubmed, comma-separated list, or all")
     parser.add_argument("--module-type", default="all", help="primary_boolean, dense_topic, comma-separated list, or all")
+    parser.add_argument("--module-scope", default="all", help="Module scope such as systems_neuroscience, or all")
     parser.add_argument("--openalex-search-field", choices=["default", "title", "abstract", "title_and_abstract", "fulltext"], default="default")
     parser.add_argument("--existing-scope", choices=["global", "dataset"], default="global")
+    parser.add_argument(
+        "--skip-rediscovered-reprocess-queue",
+        action="store_true",
+        help="Do not build the domain-aware screening queue for rediscovered existing DOIs.",
+    )
+    parser.add_argument(
+        "--rediscovered-routing-tags",
+        default="",
+        help=(
+            "Optional comma-separated routing tags to use for rediscovered DOI reprocessing. "
+            "By default tags are inferred from selected module scopes when possible."
+        ),
+    )
     parser.add_argument("--max-retries", type=int, default=2)
     parser.add_argument("--max-retry-after-sec", type=int, default=30)
     parser.add_argument("--http-hard-timeout-sec", type=int, default=180)
@@ -334,15 +402,23 @@ def main() -> int:
         datasets = parse_datasets(args.dataset)
         providers = parse_providers(args.provider)
         module_types = parse_module_types(args.module_type)
+        module_scopes = parse_module_scopes(args.module_scope)
     except ValueError as err:
         raise SystemExit(str(err))
 
     batch_summaries = []
     discovered_by_dataset: dict[str, list[Path]] = {dataset: [] for dataset in datasets}
-    for batch in iter_manifest_batches(manifest, datasets, providers, module_types):
-        out_dir = run_root / f"{batch['provider']}_{batch['module_type']}_{batch['cap']}"
+    scopes_by_dataset: dict[str, set[str]] = {dataset: set() for dataset in datasets}
+    for batch in iter_manifest_batches(manifest, datasets, providers, module_types, module_scopes):
+        if batch["module_scope"] != "all":
+            scopes_by_dataset[batch["dataset"]].add(batch["module_scope"])
+        scope_part = "" if batch["module_scope"] == "all" else f"_{batch['module_scope']}"
+        out_dir = run_root / f"{batch['provider']}{scope_part}_{batch['module_type']}_{batch['cap']}"
         out_dir.mkdir(parents=True, exist_ok=True)
-        label_base = f"{batch['dataset']} / {batch['provider']} / {batch['module_type']} / cap {batch['cap']}"
+        label_base = (
+            f"{batch['dataset']} / {batch['provider']} / {batch['module_scope']} / "
+            f"{batch['module_type']} / cap {batch['cap']}"
+        )
         discovery_report = out_dir / f"{batch['dataset']}_discovery_report.json"
         add_new_report = out_dir / f"{batch['dataset']}_add_new_dois_report.json"
 
@@ -406,6 +482,22 @@ def main() -> int:
             "new_doi_queue": str(combined_dir / f"{dataset}_new_dois.txt"),
             "report_json": str(combined_dir / f"{dataset}_add_new_dois_report.json"),
         }
+        if not args.skip_rediscovered_reprocess_queue:
+            target_tags = set()
+            scopes = scopes_by_dataset.get(dataset, set())
+            if scopes:
+                target_tags.update(module_scopes_to_tags(scopes))
+            target_tags.update(parse_routing_tags(args.rediscovered_routing_tags))
+            rediscovered_count = int(counts.get("rediscovered_existing_dois") or 0)
+            if target_tags and rediscovered_count:
+                reprocess_report = build_domain_reprocessing_queue(
+                    dataset=dataset,
+                    rediscovered_csvs=[combined_dir / f"{dataset}_rediscovered_dois.csv"],
+                    target_tags=target_tags,
+                    output_dir=combined_dir / "domain_reprocessing",
+                    output_label="rediscovered_domain_reprocess",
+                )
+                combined[dataset]["rediscovered_domain_reprocessing"] = reprocess_report
 
     write_summary(run_root, manifest_path, batch_summaries, combined, run_id=args.run_id)
     return 0

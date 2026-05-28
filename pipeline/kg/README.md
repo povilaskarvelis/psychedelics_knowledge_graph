@@ -1,35 +1,36 @@
-# Knowledge Graph Projection
+# Methods Flow Projection
 
-This stage builds the generated graph files used by the UI methods section,
-including the literature graph and PRISMA-style flow. It does not replace the
-main-page graph payloads or the claim files. It projects the current corpus manifest, paper libraries,
-abstract-screening reports, full-text conversion status, and curated claim
-files into graph-shaped outputs for visualization and QA.
+This stage builds the generated files used by the UI methods section, including
+the PRISMA-style paper flow. It does not replace the main-page graph payloads or
+the claim files. It projects the current corpus manifest, paper libraries,
+abstract-screening reports, full-text conversion status, and the normalized KG
+claim table into a paper-flow view.
 
 The main-page graph is generated separately by
-`pipeline/publish/export_graph_payload.py`. The active main-page payloads now
-use the normalized KG evidence tables via `--claim-source kg_tables`; the older
-projected Gemini claim JSON files remain as source/audit artifacts.
+`pipeline/publish/export_graph_payload.py`. The active main-page payloads use
+the normalized KG evidence tables by default; the older projected Gemini claim
+JSON files remain as source/audit artifacts.
 
 Run:
 
 ```bash
-python pipeline/kg/build_kg.py
+python pipeline/kg/build_methods_flow.py --refresh-kg-tables
 ```
 
 Default outputs are written under `data/kg/`:
 
-- `canonical/nodes.jsonl`: papers, entities, and evidence-record nodes.
-- `canonical/edges.jsonl`: paper/evidence/entity relations.
-- `canonical/evidence_records.jsonl`: rich claim and screening-context records.
-- `indexes/*.json`: DOI, entity, and aggregate-edge lookup helpers.
-- `aggregates/*.jsonl` and `aggregates/literature_gap_matrix.json`: collapsed
-  compound-disorder and compound-target edges for analysis.
-- `views/*.json`: UI-oriented graph payloads.
+- `views/pipeline_status_graph.json`: UI-oriented PRISMA paper-flow payload.
+- `schema/methods_flow.schema.json`: minimal methods-flow payload contract.
 - `manifests/build_manifest.json`: counts, input files, and validation notes.
 
-The canonical graph is generated. Human curation should continue to happen in
-`data/curated/*` or upstream review files.
+The methods-flow payload is generated from pipeline artifacts. Human curation
+should continue to happen in `data/curated/*` or upstream review files.
+
+The final PRISMA inclusion count is derived from the normalized KG claim table.
+The flow also reads the active extraction output named by
+`data/processed/extraction/projection_report.json`, so full-text and abstract
+branches can show Gemini-excluded, human-review, no-promoted-KG, and
+not-yet-extracted counts separately.
 
 ## Normalized evidence tables
 
@@ -82,5 +83,6 @@ view.
 
 For new search runs, add the completed abstract-screening report to
 `data/processed/corpus_manifest.json`, regenerate extraction inputs if needed,
-then rerun `python pipeline/kg/build_kg.py`. The methods graph and PRISMA flow
-will update from the manifest-defined corpus without editing UI data by hand.
+then rerun `python pipeline/kg/build_methods_flow.py --refresh-kg-tables`. The
+methods PRISMA flow will update from the manifest-defined corpus and the current
+normalized KG claim table without editing UI data by hand.

@@ -24,6 +24,8 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_METADATA_PROVIDER_ORDER = ["pubmed", "pmc", "unpaywall", "crossref", "openalex", "semantic_scholar"]
 PAPER_METADATA_SCHEMA_VERSION = "paper_metadata_v2"
+DEFAULT_CORPUS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
+DEFAULT_CORPUS_CONTEXTS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_contexts.parquet"
 PAPER_METADATA_FIELDS = [
     "study_journal",
     "publication_type",
@@ -277,6 +279,129 @@ def parse_doi_queue(path: Path) -> List[dict]:
     return rows
 
 
+def bool_value(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = normalize(value).lower()
+    return text in {"1", "true", "yes", "y"}
+
+
+def split_joined_values(value: object) -> List[str]:
+    text = normalize(value)
+    if not text:
+        return []
+    return [part.strip() for part in text.split("|") if part.strip()]
+
+
+def load_corpus_contexts(path: Path) -> Dict[str, List[dict]]:
+    if not path.exists():
+        return {}
+    try:
+        import pandas as pd
+    except Exception as err:  # pragma: no cover - exercised only without optional deps
+        raise RuntimeError("pandas/pyarrow are required to read corpus Parquet tables") from err
+
+    df = pd.read_parquet(path)
+    contexts_by_doi: Dict[str, List[dict]] = {}
+    for row in df.to_dict("records"):
+        doi = normalize_doi(row.get("doi", ""))
+        if not doi:
+            continue
+        context = {
+            "compound": normalize(row.get("compound", "")),
+            "entity": normalize(row.get("entity", "")),
+        }
+        dataset = normalize(row.get("dataset", ""))
+        entity_type = normalize(row.get("entity_type", ""))
+        if dataset:
+            context["dataset"] = dataset
+        if entity_type:
+            context["entity_type"] = entity_type
+        if context not in contexts_by_doi.setdefault(doi.lower(), []):
+            contexts_by_doi[doi.lower()].append(context)
+    return contexts_by_doi
+
+
+def parse_corpus_table(
+    path: Path,
+    contexts_path: Path | None = None,
+    missing_metadata_only: bool = False,
+) -> List[dict]:
+    try:
+        import pandas as pd
+    except Exception as err:  # pragma: no cover - exercised only without optional deps
+        raise RuntimeError("pandas/pyarrow are required to read corpus Parquet tables") from err
+
+    if not path.exists():
+        raise FileNotFoundError(path)
+    df = pd.read_parquet(path)
+    if "doi" not in df.columns:
+        raise ValueError(f"Corpus table lacks required `doi` column: {path}")
+
+    contexts_by_doi = load_corpus_contexts(contexts_path) if contexts_path else {}
+    rows: List[dict] = []
+    for row in df.to_dict("records"):
+        doi = normalize_doi(row.get("doi", ""))
+        if not doi:
+            continue
+        if missing_metadata_only and bool_value(row.get("flag_in_paper_library", False)):
+            continue
+
+        contexts = contexts_by_doi.get(doi.lower(), [])
+        if not contexts:
+            contexts = [
+                {"compound": "", "entity": "", "dataset": dataset}
+                for dataset in split_joined_values(row.get("datasets", ""))
+            ]
+
+        rows.append(
+            {
+                "study_doi": doi,
+                "compound": "",
+                "entity": "",
+                "study_title": normalize(row.get("study_title", "")),
+                "study_year": normalize(row.get("study_year", "")),
+                "authors": normalize(row.get("authors", "")),
+                "abstract": normalize(row.get("abstract", "")),
+                "contexts": contexts,
+                **{field: normalize(row.get(field, "")) for field in PAPER_METADATA_FIELDS},
+            }
+        )
+    return rows
+
+
+def row_contexts(row: dict) -> List[dict]:
+    raw_contexts = row.get("contexts", [])
+    contexts: List[dict] = []
+    if isinstance(raw_contexts, list):
+        for ctx in raw_contexts:
+            if not isinstance(ctx, dict):
+                continue
+            context = {
+                "compound": normalize(ctx.get("compound", "")),
+                "entity": normalize(ctx.get("entity", "")),
+            }
+            dataset = normalize(ctx.get("dataset", ""))
+            entity_type = normalize(ctx.get("entity_type", ""))
+            if dataset:
+                context["dataset"] = dataset
+            if entity_type:
+                context["entity_type"] = entity_type
+            if context not in contexts:
+                contexts.append(context)
+    if contexts:
+        return contexts
+
+    return [
+        {
+            "compound": normalize(row.get("compound", "")),
+            "entity": normalize(row.get("entity", "")),
+            "study_title": normalize(row.get("study_title", "")),
+            "study_year": normalize(row.get("study_year", "")),
+        }
+    ]
+
+
 def dedupe_queue_rows(rows: List[dict]) -> List[dict]:
     merged: Dict[str, dict] = {}
     for row in rows:
@@ -285,33 +410,32 @@ def dedupe_queue_rows(rows: List[dict]) -> List[dict]:
             continue
         key = doi.lower()
         existing = merged.get(key)
-        context = {
-            "compound": normalize(row.get("compound", "")),
-            "entity": normalize(row.get("entity", "")),
-            "study_title": normalize(row.get("study_title", "")),
-            "study_year": normalize(row.get("study_year", "")),
-        }
+        contexts = row_contexts(row)
         if not existing:
             merged[key] = {
                 "study_doi": doi,
                 "study_title": normalize(row.get("study_title", "")),
                 "study_year": normalize(row.get("study_year", "")),
                 "authors": normalize(row.get("authors", "")),
+                "abstract": normalize(row.get("abstract", "")),
                 **{field: normalize(row.get(field, "")) for field in PAPER_METADATA_FIELDS},
-                "contexts": [context],
+                "contexts": contexts,
             }
             continue
-        if not normalize(existing.get("study_title", "")) and context["study_title"]:
-            existing["study_title"] = context["study_title"]
-        if not normalize(existing.get("study_year", "")) and context["study_year"]:
-            existing["study_year"] = context["study_year"]
+        if not normalize(existing.get("study_title", "")) and normalize(row.get("study_title", "")):
+            existing["study_title"] = normalize(row.get("study_title", ""))
+        if not normalize(existing.get("study_year", "")) and normalize(row.get("study_year", "")):
+            existing["study_year"] = normalize(row.get("study_year", ""))
         if not normalize(existing.get("authors", "")) and normalize(row.get("authors", "")):
             existing["authors"] = normalize(row.get("authors", ""))
+        if not normalize(existing.get("abstract", "")) and normalize(row.get("abstract", "")):
+            existing["abstract"] = normalize(row.get("abstract", ""))
         for metadata_field in PAPER_METADATA_FIELDS:
             if not normalize(existing.get(metadata_field, "")) and normalize(row.get(metadata_field, "")):
                 existing[metadata_field] = normalize(row.get(metadata_field, ""))
-        if context not in existing["contexts"]:
-            existing["contexts"].append(context)
+        for context in contexts:
+            if context not in existing["contexts"]:
+                existing["contexts"].append(context)
     return sorted(merged.values(), key=lambda r: normalize(r.get("study_doi", "")))
 
 
@@ -324,6 +448,7 @@ def paper_from_existing_row(row: dict) -> dict:
         "study_title": normalize(row.get("study_title", "")),
         "study_year": normalize(row.get("study_year", "")),
         "authors": normalize(row.get("authors", "")),
+        "abstract": normalize(row.get("abstract", "")),
         **{field: normalize(row.get(field, "")) for field in PAPER_METADATA_FIELDS},
         "contexts": contexts,
     }
@@ -1817,6 +1942,16 @@ def row_needs_metadata_refresh(row: dict) -> bool:
     return False
 
 
+def row_needs_core_metadata_refresh(row: dict) -> bool:
+    if not row:
+        return True
+    if normalize(row.get("metadata_lookup_error", "")):
+        return True
+    if not normalize(row.get("study_title", "")):
+        return True
+    return False
+
+
 def row_from_existing(existing: dict, paper: dict, pdf_dir: Path) -> dict:
     row = dict(existing)
     doi = normalize_doi(paper.get("study_doi", "")) or normalize_doi(row.get("study_doi", ""))
@@ -1824,6 +1959,7 @@ def row_from_existing(existing: dict, paper: dict, pdf_dir: Path) -> dict:
     row["study_title"] = normalize(row.get("study_title", "")) or normalize(paper.get("study_title", ""))
     row["study_year"] = normalize(row.get("study_year", "")) or normalize(paper.get("study_year", ""))
     row["authors"] = normalize(row.get("authors", "")) or normalize(paper.get("authors", ""))
+    row["abstract"] = normalize(row.get("abstract", "")) or normalize(paper.get("abstract", ""))
     for field in PAPER_METADATA_FIELDS:
         row[field] = normalize(row.get(field, "")) or normalize(paper.get(field, ""))
     if not normalize(row.get("publication_date", "")):
@@ -2370,8 +2506,23 @@ def main() -> int:
             "check OA, download PDFs, and emit inventory report"
         )
     )
-    parser.add_argument("--dataset", choices=["mechanistic", "disorder"], required=True)
+    parser.add_argument("--dataset", choices=["mechanistic", "disorder", "corpus"], required=True)
     parser.add_argument("--doi-file", default="", help="DOI queue file (defaults to discovered queue for dataset)")
+    parser.add_argument(
+        "--corpus-table",
+        default="",
+        help="Candidate corpus Parquet table to use as the DOI source.",
+    )
+    parser.add_argument(
+        "--corpus-contexts-table",
+        default="",
+        help="Candidate corpus contexts Parquet table used to preserve DOI-context provenance.",
+    )
+    parser.add_argument(
+        "--corpus-missing-metadata-only",
+        action="store_true",
+        help="When reading a corpus table, sync only DOIs not already present in any paper library.",
+    )
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
     parser.add_argument("--openalex-email", default="")
     parser.add_argument("--openalex-api-key", default="")
@@ -2418,6 +2569,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--refresh-core-metadata",
+        action="store_true",
+        help=(
+            "Refetch rows with a previous metadata lookup error or missing title, "
+            "without treating abstract-only gaps as refresh targets"
+        ),
+    )
+    parser.add_argument(
         "--checkpoint-every",
         type=int,
         default=100,
@@ -2442,6 +2601,12 @@ def main() -> int:
         type=int,
         default=25,
         help="Print progress every N papers processed (default: 25)",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Process at most N deduplicated papers; useful for provider calibration runs.",
     )
     args = parser.parse_args()
 
@@ -2495,13 +2660,25 @@ def main() -> int:
             flush=True,
         )
 
+    use_corpus_table = bool(args.corpus_table) or (args.dataset == "corpus" and not args.doi_file)
+    corpus_table = Path(args.corpus_table).resolve() if args.corpus_table else DEFAULT_CORPUS_TABLE
+    corpus_contexts_table = (
+        Path(args.corpus_contexts_table).resolve()
+        if args.corpus_contexts_table
+        else DEFAULT_CORPUS_CONTEXTS_TABLE
+    )
     doi_file = (
-        Path(args.doi_file).resolve()
-        if args.doi_file
-        else ROOT / "data" / "raw" / f"doi_queue.{args.dataset}.discovered.txt"
+        corpus_table
+        if use_corpus_table
+        else (
+            Path(args.doi_file).resolve()
+            if args.doi_file
+            else ROOT / "data" / "raw" / f"doi_queue.{args.dataset}.discovered.txt"
+        )
     )
     if not doi_file.exists():
-        raise SystemExit(f"DOI queue file not found: {doi_file}")
+        missing_kind = "Corpus table" if use_corpus_table else "DOI queue file"
+        raise SystemExit(f"{missing_kind} not found: {doi_file}")
 
     paper_db_json = (
         Path(args.paper_db_json).resolve()
@@ -2585,8 +2762,17 @@ def main() -> int:
         ),
     }
 
-    queue_rows = parse_doi_queue(doi_file)
+    if use_corpus_table:
+        queue_rows = parse_corpus_table(
+            doi_file,
+            corpus_contexts_table,
+            missing_metadata_only=args.corpus_missing_metadata_only,
+        )
+    else:
+        queue_rows = parse_doi_queue(doi_file)
     papers = dedupe_queue_rows(queue_rows)
+    if args.limit > 0:
+        papers = papers[: args.limit]
     existing_rows = [] if args.replace else read_existing_json(paper_db_json)
     checkpoint_rows = [] if args.replace else read_existing_json(checkpoint_json)
     reusable_rows = merge_existing_rows(existing_rows, checkpoint_rows)
@@ -2608,6 +2794,13 @@ def main() -> int:
     reused_existing = 0
     refreshed_missing_metadata = 0
     total_papers = len(papers)
+    print(
+        "START: sync "
+        f"dataset={args.dataset} papers={total_papers} "
+        f"source={'corpus_table' if use_corpus_table else 'doi_file'} "
+        f"skip_download={args.skip_download} providers={','.join(metadata_provider_order)}",
+        flush=True,
+    )
 
     for idx, paper in enumerate(papers, start=1):
         doi = normalize_doi(paper.get("study_doi", ""))
@@ -2616,11 +2809,13 @@ def main() -> int:
 
         existing_row = reusable_by_doi.get(doi.lower())
         should_refresh_missing = bool(args.refresh_missing_metadata and row_needs_metadata_refresh(existing_row))
+        should_refresh_core = bool(args.refresh_core_metadata and row_needs_core_metadata_refresh(existing_row))
         should_refresh_oa = bool(not args.skip_download and row_needs_oa_refresh(existing_row, metadata_provider_order))
         can_reuse_existing = bool(
             existing_row
             and not args.refresh_existing
             and not should_refresh_missing
+            and not should_refresh_core
             and not should_refresh_oa
             and reusable_existing_row(existing_row)
         )
@@ -2665,7 +2860,7 @@ def main() -> int:
             metadata = dict(existing_row)
             reused_existing += 1
         else:
-            if should_refresh_missing:
+            if should_refresh_missing or should_refresh_core:
                 refreshed_missing_metadata += 1
 
             metadata, provider_errors, providers_queried = fetch_metadata_with_fallbacks(
@@ -2703,7 +2898,7 @@ def main() -> int:
         study_title = normalize(metadata.get("study_title", "")) or normalize(paper.get("study_title", ""))
         study_year = normalize(metadata.get("study_year", "")) or normalize(paper.get("study_year", ""))
         authors = normalize(metadata.get("authors", "")) or normalize(paper.get("authors", ""))
-        abstract = normalize(metadata.get("abstract", ""))
+        abstract = normalize(metadata.get("abstract", "")) or normalize(paper.get("abstract", ""))
         paper_metadata_values = {
             field: normalize(metadata.get(field, "")) or normalize(paper.get(field, ""))
             for field in PAPER_METADATA_FIELDS
@@ -2943,6 +3138,12 @@ def main() -> int:
             "replace": args.replace,
             "refresh_existing": args.refresh_existing,
             "refresh_missing_metadata": args.refresh_missing_metadata,
+            "refresh_core_metadata": args.refresh_core_metadata,
+            "use_corpus_table": use_corpus_table,
+            "corpus_table": str(corpus_table) if use_corpus_table else "",
+            "corpus_contexts_table": str(corpus_contexts_table) if use_corpus_table and corpus_contexts_table.exists() else "",
+            "corpus_missing_metadata_only": args.corpus_missing_metadata_only,
+            "limit": args.limit,
             "checkpoint_every": args.checkpoint_every,
         },
         "counts": {

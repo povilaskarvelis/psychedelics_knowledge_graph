@@ -83,10 +83,16 @@ python pipeline/extract/build_extraction_v1_pilot.py \
   --dataset all \
   --per-bucket 5 \
   --exclude-jsonl data/processed/extraction/extraction_v1_pilot_inputs.50.jsonl \
+  --exclude-meta-analyses \
   --out-jsonl data/processed/extraction/extraction_v1_pilot_inputs.50b.jsonl \
   --out-csv data/processed/extraction/extraction_v1_pilot_inputs.50b.csv \
   --report-json data/processed/extraction/extraction_v1_pilot_report.50b.json
 ```
+
+Use `--exclude-meta-analyses` for the normal v1 primary/secondary coverage
+extraction stream. It filters metadata-detected meta-analyses and mega-analyses
+before Gemini calls, writes them to a sibling `*.excluded.jsonl` file, and
+reserves them for a later evidence-synthesis extraction schema.
 
 Default outputs:
 
@@ -236,10 +242,40 @@ Default projection outputs:
 - `data/processed/extraction/disorder_claims.csv`
 - `data/processed/extraction/projection_report.json`
 
-These projected extraction claim files are the default claim source for the
-main-page graph payload export. Use `--prefix some_label` for a comparison or
-calibration projection that should not replace the canonical extraction claim
-files.
+These projected extraction claim files feed the normalized KG evidence tables
+and remain available as explicit comparison sources for the main-page graph
+payload export. Use `--prefix some_label` for a comparison or calibration
+projection that should not replace the canonical extraction claim files.
+
+### Promote a DOI-Level Rerun
+
+When a subset of papers is rerun with an improved prompt/schema, promote the
+successful rerun outputs into the active extraction JSONL before projection.
+This prevents duplicate DOI records and gives later projection, normalization,
+KG, and UI payload steps a single source of truth.
+
+Dry run first:
+
+```bash
+python pipeline/extract/promote_extraction_rerun.py \
+  --rerun-output-jsonl data/processed/extraction/extraction_v1_outputs.some_rerun_tag.jsonl \
+  --rerun-pilot-input-jsonl data/processed/extraction/extraction_v1_pilot_inputs.some_rerun_tag.jsonl
+```
+
+Apply after checking the report:
+
+```bash
+python pipeline/extract/promote_extraction_rerun.py \
+  --rerun-output-jsonl data/processed/extraction/extraction_v1_outputs.some_rerun_tag.jsonl \
+  --rerun-pilot-input-jsonl data/processed/extraction/extraction_v1_pilot_inputs.some_rerun_tag.jsonl \
+  --report-json data/processed/extraction/extraction_v1_promote_rerun_report.some_rerun_tag.json \
+  --apply
+```
+
+Successful rerun rows replace active rows by normalized `(dataset, DOI)`.
+Rerun records that failed parsing are absent from the rerun output JSONL, so
+they do not delete the older active row; keep their input rows in the retry
+queue until a successful replacement exists.
 
 The mechanistic projection is intentionally broad for inspection. It includes
 supported, uncertain, not-supported, and review-needed primary-evidence claims

@@ -16,7 +16,7 @@ labels for specific searches, not pipeline stages.
    DOI queues plus provider-specific reports.
 3. **DOI add gate**: normalize DOIs and add only papers that are not already in
    the paper corpus.
-4. **Metadata sync**: collect bibliographic metadata, abstracts, identifiers,
+4. **Metadata enrichment**: collect bibliographic metadata, abstracts, identifiers,
    and open-access/PDF signals.
 5. **Abstract screening**: use deterministic title/abstract pre-screening only
    for obvious no-signal rows, then use a local LLM to classify abstract-level
@@ -77,22 +77,36 @@ python pipeline/ingest/add_new_dois.py \
 ```
 
 This is DOI-level. Rediscovered papers are logged for provenance but are not
-processed downstream as new papers.
-
-### Metadata Sync
-
-Run metadata first without downloading PDFs:
+duplicated as new metadata rows. For newly added evidence domains, build a
+domain-aware reprocessing queue from the rediscovered DOI CSV so already-known
+papers can re-enter screening when they were not previously screened with the
+current routing tags:
 
 ```bash
-python pipeline/ingest/sync_paper_library.py \
+python pipeline/ingest/build_domain_reprocessing_queue.py \
   --dataset mechanistic \
-  --skip-download \
-  --checkpoint-every 100 \
+  --rediscovered-csv data/raw/search_strategies/<run_id>/grouped_module_run/combined/mechanistic_rediscovered_dois.csv \
+  --module-scopes systems_neuroscience \
+  --output-dir data/raw/search_strategies/<run_id>/grouped_module_run/combined/domain_reprocessing
+```
+
+### Metadata Enrichment
+
+Enrich the unified corpus paper table:
+
+```bash
+python pipeline/ingest/enrich_paper_metadata.py \
+  --papers-table data/processed/corpus/candidate_papers.parquet \
+  --output-table data/processed/corpus/paper_metadata_enrichment.parquet \
+  --metadata-provider-order openalex \
+  --write-every 100 \
   --progress-every 100
 ```
 
 Default metadata sources are PubMed, PMC, Unpaywall, Crossref, OpenAlex, and
-Semantic Scholar.
+Semantic Scholar. The command writes a Parquet table, not a JSON bridge file.
+Use `--retry-core-metadata` for a targeted fallback pass over previous lookup
+errors or missing titles without retrying records that only lack abstracts.
 
 ### Abstract Screening
 
@@ -177,8 +191,7 @@ Repeat with `--dataset disorder` and the disorder DOI queue/output paths.
 - `data/raw/doi_queue.<dataset>.new.txt`
 - `data/processed/discovery_report_<dataset>.json`
 - `data/processed/discovery_ledger_<dataset>.json`
-- `data/processed/paper_library_<dataset>.json`
-- `data/processed/paper_inventory_<dataset>.md`
+- `data/processed/corpus/paper_metadata_enrichment.parquet`
 - `data/processed/deterministic_prescreen_report_<dataset>*.json`
 - `data/processed/llm_abstract_screening_report_<dataset>*.json`
 - `data/raw/doi_queue.<dataset>.llm_fulltext_candidates*.txt`
@@ -200,16 +213,29 @@ Use run labels to separate artifacts from different searches or batches:
   reproducible.
 - Do not use run labels as public method names.
 
-## Corpus Manifest
+## Corpus Tables
 
-`data/processed/corpus_manifest.json` is the inclusion list for regenerated
-extraction inputs and methods-page graph outputs. Add completed
-abstract-screening reports there when a new search or update run should become
-part of the current corpus.
+`data/processed/corpus/` contains the current table-based corpus. Downstream
+steps should query these tables instead of large JSON snapshots.
 
 The raw run reports remain append-only provenance. The files under
-`data/processed/extraction/` are current views regenerated from the manifest,
-paper library, and full-text artifacts.
+`data/processed/extraction/` are current views regenerated from corpus tables
+and full-text artifacts.
+
+Current corpus storage direction: use normalized Parquet tables for papers,
+contexts, source/provenance events, and metadata enrichment. Later, load those
+normalized tables into Postgres for website search, API queries, and MCP-facing
+paper/KG access.
+
+Build the current normalized candidate corpus tables:
+
+```bash
+python pipeline/validate/build_context_provenance_audit.py \
+  --table-out-dir data/processed/corpus
+```
+
+This writes `candidate_papers.parquet`, `candidate_contexts.parquet`,
+`candidate_sources.parquet`, and `candidate_corpus_manifest.parquet`.
 
 ## Local Config
 

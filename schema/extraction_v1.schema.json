@@ -289,7 +289,19 @@
         },
         "graph_entity_type": {
           "type": "string",
-          "enum": ["indication", "target", "none", "uncertain"]
+          "enum": [
+            "indication",
+            "condition_indication",
+            "symptom_problem",
+            "safety_adverse_event",
+            "outcome_scale",
+            "target",
+            "system_family",
+            "pathway_process",
+            "molecular_readout",
+            "none",
+            "uncertain"
+          ]
         },
         "graph_include_candidate": {
           "type": "boolean"
@@ -412,12 +424,10 @@
                 "enum": [
                   "physiological_measure",
                   "safety_or_adverse_event",
-                  "biomarker",
                   "functional_outcome",
                   "patient_reported_outcome",
                   "population_or_context",
                   "gene_or_variant",
-                  "pathway_or_process",
                   "brain_region_or_circuit",
                   "assay_readout",
                   "compound_or_class"
@@ -425,6 +435,26 @@
               }
             },
             "required": ["entity_role"]
+          },
+          "then": {
+            "properties": {
+              "graph_include_candidate": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "graph_entity_type": {
+                "enum": [
+                  "safety_adverse_event",
+                  "outcome_scale"
+                ]
+              }
+            },
+            "required": ["graph_entity_type"]
           },
           "then": {
             "properties": {
@@ -763,6 +793,91 @@
           },
           "claims": {
             "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "dataset": {
+            "const": "mechanistic"
+          }
+        },
+        "required": ["dataset"]
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "items": {
+              "properties": {
+                "claim_type": {
+                  "const": "compound_target"
+                },
+                "disorder": {
+                  "const": "not_applicable"
+                },
+                "graph_entity_type": {
+                  "enum": ["target", "system_family", "pathway_process", "molecular_readout", "none", "uncertain"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "dataset": {
+            "const": "disorder"
+          }
+        },
+        "required": ["dataset"]
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "items": {
+              "properties": {
+                "claim_type": {
+                  "const": "compound_disorder"
+                },
+                "target": {
+                  "const": "not_applicable"
+                },
+                "graph_entity_type": {
+                  "enum": [
+                    "indication",
+                    "condition_indication",
+                    "symptom_problem",
+                    "safety_adverse_event",
+                    "outcome_scale",
+                    "none",
+                    "uncertain"
+                  ]
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "entity_role": {
+                        "enum": ["biomarker", "pathway_or_process"]
+                      }
+                    },
+                    "required": ["entity_role"]
+                  },
+                  "then": {
+                    "properties": {
+                      "graph_include_candidate": {
+                        "const": false
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       }

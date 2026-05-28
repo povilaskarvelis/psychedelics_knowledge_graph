@@ -3,8 +3,10 @@ import unittest
 from pathlib import Path
 
 from pipeline.extract.prepare_extraction_inputs import (
+    build_candidate_record,
     manifest_screening_inputs,
     render_markdown,
+    screening_record,
     validate_screening_inputs,
     write_candidates,
 )
@@ -82,6 +84,35 @@ class PrepareExtractionInputsTest(unittest.TestCase):
         self.assertIn("# Extraction Readiness", markdown)
         self.assertNotIn("V2", markdown)
         self.assertNotIn("v2", markdown)
+
+    def test_screening_record_preserves_routing_tags(self) -> None:
+        row = {
+            "flat": {
+                "study_doi": "10.example/test",
+                "llm_relevance": "relevant",
+                "llm_routing_tags": "brain_system|clinical_outcome",
+            },
+            "adjudication": {
+                "routing_tags": ["brain_system", "bridge_clinical_mechanism"],
+                "supported_contexts": [],
+            },
+        }
+
+        record = screening_record("mechanistic", "run_1", row)
+
+        self.assertEqual(record["routing_tags"], ["brain_system", "bridge_clinical_mechanism"])
+
+    def test_candidate_record_aggregates_routing_tags(self) -> None:
+        candidate = {
+            "screening_records": [
+                {"run_id": "a", "llm_relevance": "relevant", "supported_context_count": 0, "routing_tags": ["brain_system"]},
+                {"run_id": "b", "llm_relevance": "uncertain", "supported_context_count": 0, "routing_tags": ["clinical_outcome"]},
+            ]
+        }
+
+        record = build_candidate_record("mechanistic", "10.example/test", candidate, {"abstract": "A"})
+
+        self.assertEqual(record["screening_summary"]["routing_tags"], ["brain_system", "clinical_outcome"])
 
     def test_manifest_screening_inputs_resolves_included_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

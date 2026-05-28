@@ -71,6 +71,25 @@ PAPER_METADATA_FIELDS = [
 ]
 MECHANISTIC_AFFINITY_TYPES = {"Ki", "Kd", "IC50", "EC50", "EC90", "Other"}
 SECONDARY_RELATIONSHIP_DOMAINS = {"compound_target", "compound_disorder"}
+EVIDENCE_SYNTHESIS_PAPER_TYPES = {
+    "meta_analysis",
+    "systematic_review",
+    "scoping_review",
+    "review",
+    "guideline",
+    "consensus",
+    "commentary",
+}
+EVIDENCE_SYNTHESIS_SOURCE_TYPES = {
+    "meta_analysis",
+    "systematic_review",
+    "scoping_review",
+    "review",
+    "secondary_evidence",
+    "guideline",
+    "consensus",
+    "commentary",
+}
 OUTCOME_MEASURE_PATTERNS = [
     ("MADRS-SI", [r"\bmadrs\s*[- ]?\s*si\b"]),
     ("MADRS", [r"\bmadrs\b", r"montgomery\s+asberg", r"montgomery\s+asberg"]),
@@ -79,30 +98,63 @@ OUTCOME_MEASURE_PATTERNS = [
     ("BDI", [r"\bbdi\b", r"beck\s+depression\s+inventory"]),
     ("QIDS", [r"\bqids\b", r"quick\s+inventory\s+of\s+depressive"]),
     ("C-SSRS", [r"\bc\s*[- ]?\s*ssrs\b", r"columbia\s+suicide\s+severity"]),
+    ("BSS", [r"\bbss\b", r"beck\s+scale\s+for\s+suicidal"]),
+    ("SSI", [r"\bssi\b", r"scale\s+for\s+suicidal\s+ideation"]),
     ("PCL-5", [r"\bpcl\s*[- ]?\s*5\b"]),
-    ("PCL-6", [r"\bpcl\s*[- ]?\s*6\b"]),
     ("CAPS-5", [r"\bcaps\s*[- ]?\s*5\b", r"clinician\s+administered\s+ptsd"]),
+    ("IES-R", [r"\bies\s*[- ]?\s*r\b", r"impact\s+of\s+events?\s+scale\s*[- ]?\s*revised"]),
     ("DASS-21", [r"\bdass\s*[- ]?\s*21\b", r"depression\s+anxiety\s+stress\s+scales?\s*[- ]?\s*21"]),
     ("BSI-18", [r"\bbsi\s*[- ]?\s*18\b", r"brief\s+symptom\s+inventory\s*[- ]?\s*18"]),
+    ("HADS-A", [r"\bhads\s*[- ]?\s*a\b", r"hospital\s+anxiety\s+and\s+depression\s+scale\s*[- ]?\s*anxiety"]),
+    ("HADS-D", [r"\bhads\s*[- ]?\s*d\b", r"hospital\s+anxiety\s+and\s+depression\s+scale\s*[- ]?\s*depression"]),
+    ("HADS", [r"\bhads\b", r"hospital\s+anxiety\s+and\s+depression\s+scale"]),
     ("WEMWBS", [r"\bwemwbs\b", r"warwick\s+edinburgh\s+mental\s+well\s+being"]),
     ("DPES", [r"\bdpes\b", r"dispositional\s+positive\s+emotion"]),
-    ("SWLS", [r"\bswls?\b", r"satisfaction\s+with\s+life\s+scale"]),
-    ("FFMQ-15", [r"\bffmq\s*[- ]?\s*15\b", r"five\s+facets?\s+mindfulness\s+questionnaire\s*[- ]?\s*15"]),
+    ("SHAPS", [r"\bshaps\b", r"snaith\s+hamilton\s+pleasure\s+scale"]),
+    ("TEPS", [r"\bteps\b", r"temporal\s+experience\s+of\s+pleasure\s+scale"]),
     ("SDS", [r"\bsds\b", r"sheehan\s+disability\s+scale"]),
     ("GAD-7", [r"\bgad\s*[- ]?\s*7\b", r"generalized\s+anxiety\s+disorder\s*[- ]?\s*7"]),
     ("HAM-A", [r"\bham\s*[- ]?\s*a\b", r"hamilton\s+anxiety"]),
+    ("STAI", [r"\bstai\b", r"state\s+trait\s+anxiety\s+inventory"]),
+    ("LSAS", [r"\blsas\b", r"liebowitz\s+social\s+anxiety\s+scale"]),
     ("ISI", [r"\bisi\b", r"insomnia\s+severity\s+index"]),
+    ("EPDS", [r"\bepds\b", r"edinburgh\s+postnatal\s+depression\s+scale", r"edinburgh\s+postpartum\s+depression\s+scale"]),
     ("AUDIT", [r"\baudit\b", r"alcohol\s+use\s+disorders?\s+identification\s+test"]),
     ("TLFB", [r"\btlfb\b", r"timeline\s+follow\s*back"]),
+    ("VAS", [r"\bvas\b", r"visual\s+analog(?:ue|ical)?\s+scale"]),
+    ("NRS", [r"\bnrs\b", r"numeric(?:al)?\s+rating\s+scale"]),
+    ("BPI", [r"\bbpi\b", r"brief\s+pain\s+inventory"]),
+    ("FLACC", [r"\bflacc\b", r"face\s+legs\s+activity\s+cry\s+(?:and\s+)?consolability"]),
+    ("Y-BOCS", [r"\by\s*[- ]?\s*bocs\b", r"yale\s+brown\s+obsessive\s+compulsive"]),
+    ("CADSS", [r"\bcadss\b", r"clinician\s+administered\s+dissociative\s+states?\s+scale"]),
+    ("CGI-S", [r"\bcgi\s*[- ]?\s*s\b", r"clinical\s+global\s+impression\s*[- ]?\s*severity"]),
+    ("CGI-I", [r"\bcgi\s*[- ]?\s*i\b", r"clinical\s+global\s+impression\s*[- ]?\s*improvement"]),
+    ("CGI", [r"\bcgi\b", r"clinical\s+global\s+impression"]),
+    ("YMRS", [r"\bymrs\b", r"young\s+mania\s+rating\s+scale"]),
     ("PANSS", [r"\bpanss\b", r"positive\s+and\s+negative\s+syndrome\s+scale"]),
     ("BPRS", [r"\bbprs\b", r"brief\s+psychiatric\s+rating\s+scale"]),
-    ("STAI", [r"\bstai\b", r"state\s+trait\s+anxiety\s+inventory"]),
+    ("IDS-SR", [r"\bids\s*[- ]?\s*sr\b", r"inventory\s+(?:of|for)\s+depressive\s+symptomatology\s*[- ]?\s*self\s+report"]),
 ]
 NON_ARTICLE_PUBLICATION_RE = re.compile(
     r"\b(peer[- ]?review|editor[- ]?report|decision[- ]?letter|author[- ]?response|correction|erratum|retraction)\b",
     re.I,
 )
 NON_ARTICLE_TITLE_RE = re.compile(r"^\s*(decision letter|author response|editor(?:'s)? report|correction|erratum|retraction)\b", re.I)
+REVIEW_PUBLICATION_TYPE_RE = re.compile(
+    r"(?:^|\|)\s*(?:review|systematic review|scoping review|meta[- ]analysis)\s*(?:\||$)",
+    re.I,
+)
+PRIMARY_STUDY_SIGNAL_RE = re.compile(
+    r"\b("
+    r"randomi[sz]ed|double[- ]blind|single[- ]blind|placebo[- ]controlled|"
+    r"controlled trial|clinical trial|trial|pilot study|open[- ]label|single[- ]arm|"
+    r"phase\s*[123]|cohort|case[- ]control|cross[- ]sectional|observational|"
+    r"prospective|retrospective|chart review|case series|case report|registry|survey|"
+    r"first[- ]in[- ]human"
+    r")\b",
+    re.I,
+)
+TRIAL_REGISTRY_RE = re.compile(r"\b(?:NCT\d{8}|EUCTR\d|ISRCTN\d+|ACTRN\d+|ChiCTR[-A-Z0-9]+)\b", re.I)
 IN_SCOPE_COMPOUND_RE = re.compile(
     r"(?i)\b("
     r"lsd|lysergic acid diethylamide|psilocybin|psilocin|"
@@ -260,6 +312,10 @@ def normalize_outcome_measure(value: object) -> str:
         if any(re.search(pattern, text) for pattern in patterns):
             if label == "MADRS" and "MADRS-SI" in labels:
                 continue
+            if label == "HADS" and ({"HADS-A", "HADS-D"} & set(labels)):
+                continue
+            if label == "CGI" and ({"CGI-S", "CGI-I"} & set(labels)):
+                continue
             labels.append(label)
 
     seen: set[str] = set()
@@ -325,6 +381,128 @@ def is_non_article_artifact(metadata: dict, assessment: dict | None = None) -> b
         or bool(NON_ARTICLE_PUBLICATION_RE.search(paper_type))
         or bool(NON_ARTICLE_PUBLICATION_RE.search(source_type))
     )
+
+
+def has_review_publication_type(metadata: dict) -> bool:
+    return bool(REVIEW_PUBLICATION_TYPE_RE.search(normalize(metadata.get("publication_type", ""))))
+
+
+def has_primary_title_signal(metadata: dict) -> bool:
+    title = normalize(metadata.get("study_title", "")) or normalize(metadata.get("title", ""))
+    return bool(PRIMARY_STUDY_SIGNAL_RE.search(title.replace("_", " ")))
+
+
+def has_primary_assessment_signal(assessment: dict) -> bool:
+    text = " ".join(
+        [
+            normalize(assessment.get("paper_type", "")),
+            normalize(assessment.get("source_type", "")),
+            normalize(assessment.get("source_family", "")),
+            normalize(assessment.get("study_design", "")),
+            normalize(assessment.get("supporting_quote", "")),
+            normalize(assessment.get("reasoning_summary", "")),
+        ]
+    ).replace("_", " ")
+    trial_registry_ids = normalize(assessment.get("trial_registry_ids", ""))
+    return (
+        bool(PRIMARY_STUDY_SIGNAL_RE.search(text))
+        or bool(TRIAL_REGISTRY_RE.search(trial_registry_ids))
+        or assessment.get("has_original_results") is True
+    )
+
+
+def is_review_metadata_primary_extraction_conflict(assessment: dict, metadata: dict | None = None) -> bool:
+    """Detect review metadata contradicted by a strongly primary extraction."""
+    metadata = metadata or {}
+    if not has_review_publication_type(metadata) or has_primary_title_signal(metadata):
+        return False
+    assessment_is_primary = (
+        normalize(assessment.get("route", "")) == "primary_evidence"
+        or normalize(assessment.get("source_family", "")) == "original_empirical"
+        or normalize(assessment.get("paper_type", "")) == "primary_results"
+        or normalize(assessment.get("source_type", "")) == "primary_study"
+        or assessment.get("has_original_results") is True
+    )
+    return assessment_is_primary and has_primary_assessment_signal(assessment)
+
+
+def pilot_record_fulltext_sha(record: dict) -> str:
+    content = record.get("content", {}) if isinstance(record.get("content"), dict) else {}
+    packet = content.get("packet", {}) if isinstance(content.get("packet"), dict) else {}
+    provenance = packet.get("fulltext_provenance", {}) if isinstance(packet.get("fulltext_provenance"), dict) else {}
+    return normalize(provenance.get("reconstructed_text_sha256", ""))
+
+
+def pilot_record_metadata(record: dict) -> dict:
+    metadata = record.get("paper_metadata", {}) if isinstance(record.get("paper_metadata"), dict) else {}
+    if metadata:
+        return metadata
+    content = record.get("content", {}) if isinstance(record.get("content"), dict) else {}
+    packet = content.get("packet", {}) if isinstance(content.get("packet"), dict) else {}
+    return packet.get("paper_metadata", {}) if isinstance(packet.get("paper_metadata"), dict) else {}
+
+
+def has_duplicate_fulltext_metadata_mismatch(result: dict, metadata: dict, contexts: dict[tuple[str, str], dict]) -> bool:
+    item = find_context_for_result(result, contexts) if contexts else {}
+    record = item.get("pilot_record", {}) if isinstance(item.get("pilot_record"), dict) else {}
+    sha = pilot_record_fulltext_sha(record)
+    if not sha:
+        return False
+    current_doi = normalize_doi(result.get("study_doi", "")) or normalize_doi(metadata.get("study_doi", ""))
+    current_title = (normalize(metadata.get("study_title", "")) or normalize(metadata.get("title", ""))).lower()
+    seen_items = set()
+    for other_item in contexts.values():
+        if id(other_item) in seen_items:
+            continue
+        seen_items.add(id(other_item))
+        other_record = other_item.get("pilot_record", {}) if isinstance(other_item.get("pilot_record"), dict) else {}
+        if other_record is record or pilot_record_fulltext_sha(other_record) != sha:
+            continue
+        other_doi = normalize_doi(other_record.get("study_doi", ""))
+        if not other_doi or other_doi == current_doi:
+            continue
+        other_metadata = pilot_record_metadata(other_record)
+        other_title = (normalize(other_metadata.get("study_title", "")) or normalize(other_metadata.get("title", ""))).lower()
+        if other_title and current_title and other_title == current_title:
+            continue
+        if not has_review_publication_type(other_metadata):
+            return True
+    return False
+
+
+def should_quarantine_review_primary_conflict(
+    result: dict,
+    assessment: dict,
+    metadata: dict,
+    contexts: dict[tuple[str, str], dict],
+) -> bool:
+    return is_review_metadata_primary_extraction_conflict(
+        assessment,
+        metadata,
+    ) and has_duplicate_fulltext_metadata_mismatch(result, metadata, contexts)
+
+
+def is_evidence_synthesis_assessment(assessment: dict, metadata: dict | None = None) -> bool:
+    metadata = metadata or {}
+    paper_type = normalize(assessment.get("paper_type", ""))
+    source_type = normalize(assessment.get("source_type", ""))
+    source_family = normalize(assessment.get("source_family", ""))
+    study_design = normalize(assessment.get("study_design", ""))
+    title = normalize(metadata.get("study_title", "")) or normalize(metadata.get("title", ""))
+    text = " ".join([paper_type, source_type, study_design, title]).replace("_", " ")
+    return (
+        source_family == "evidence_synthesis"
+        or paper_type in EVIDENCE_SYNTHESIS_PAPER_TYPES
+        or source_type in EVIDENCE_SYNTHESIS_SOURCE_TYPES
+        or bool(re.search(r"\b(meta[- ]analysis|systematic review|scoping review|literature review|narrative review)\b", text))
+        or (has_review_publication_type(metadata) and not has_primary_title_signal(metadata))
+    )
+
+
+def effective_assessment_route(assessment: dict, metadata: dict | None = None) -> str:
+    if is_evidence_synthesis_assessment(assessment, metadata):
+        return "secondary_literature"
+    return normalize(assessment.get("route", ""))
 
 
 def is_in_scope_projected_compound(value: object) -> bool:
@@ -511,6 +689,9 @@ def common_secondary_fields(result: dict, mention: dict, metadata: dict) -> dict
     assessment = result.get("paper_assessment", {}) if isinstance(result.get("paper_assessment"), dict) else {}
     row = common_fields(result, mention, metadata)
     coverage_type = normalize(mention.get("coverage_type", ""))
+    origin_note = "Projected from extraction_v1 coverage_mentions"
+    if "misrouted extraction_v1 claim" in normalize(mention.get("notes", "")):
+        origin_note = "Projected from misrouted extraction_v1 synthesis claim"
     row.update(
         {
             "paper_type": secondary_paper_type(assessment),
@@ -523,13 +704,61 @@ def common_secondary_fields(result: dict, mention: dict, metadata: dict) -> dict
             "access_level": "secondary_summary",
             "study_design": reported_text(assessment.get("study_design", "")) or "secondary_literature",
             "notes": (
-                "Projected from extraction_v1 coverage_mentions; "
+                f"{origin_note}; "
                 f"coverage_type={coverage_type}; "
                 "relationship is discussed in secondary literature, not treated as primary evidence"
             ),
         }
     )
     return row
+
+
+def secondary_coverage_type_for_claim(assessment: dict) -> str:
+    if is_evidence_synthesis_assessment(assessment):
+        paper_type = normalize(assessment.get("paper_type", ""))
+        source_type = normalize(assessment.get("source_type", ""))
+        study_design = normalize(assessment.get("study_design", "")).replace("_", " ")
+        if paper_type == "meta_analysis" or source_type == "meta_analysis" or "meta analysis" in study_design:
+            return "meta_analyzes"
+        if paper_type == "systematic_review" or source_type == "systematic_review" or "systematic review" in study_design:
+            return "summarizes"
+    return "discusses"
+
+
+def secondary_mention_from_claim(claim: dict, assessment: dict) -> dict | None:
+    claim_type = normalize(claim.get("claim_type", ""))
+    compound = normalize(claim.get("compound", ""))
+    if claim_type == "compound_target":
+        entity = (
+            normalize(claim.get("target", ""))
+            or normalize(claim.get("graph_entity_label", ""))
+            or normalize(claim.get("raw_entity_label", ""))
+        )
+        entity_type = "target"
+        relationship_domain = "compound_target"
+    elif claim_type == "compound_disorder":
+        entity = (
+            normalize(claim.get("disorder", ""))
+            or normalize(claim.get("graph_entity_label", ""))
+            or normalize(claim.get("raw_entity_label", ""))
+        )
+        entity_type = "disorder"
+        relationship_domain = "compound_disorder"
+    else:
+        return None
+    if not compound or not entity:
+        return None
+    return {
+        "relationship_domain": relationship_domain,
+        "compound": compound,
+        "entity_type": entity_type,
+        "entity": entity,
+        "coverage_type": secondary_coverage_type_for_claim(assessment),
+        "supporting_quote": normalize(claim.get("supporting_quote", "")),
+        "evidence_location": normalize(claim.get("evidence_location", "")),
+        "evidence_locator": normalize(claim.get("evidence_locator", "")),
+        "notes": "Converted from a misrouted extraction_v1 claim on an evidence-synthesis paper.",
+    }
 
 
 def mechanistic_row(result: dict, claim: dict, metadata: dict) -> tuple[dict | None, str]:
@@ -713,8 +942,28 @@ def project_results(
         if is_non_article_artifact(metadata, assessment):
             skipped.append({"row_index": result_index, "reason": "non-article artifact is not projected"})
             continue
-        if normalize(assessment.get("route", "")) != "primary_evidence":
-            skipped.append({"row_index": result_index, "reason": f"route {normalize(assessment.get('route', ''))} is not projected"})
+        if should_quarantine_review_primary_conflict(result, assessment, metadata, contexts):
+            skipped.append(
+                {
+                    "row_index": result_index,
+                    "reason": "review metadata conflicts with primary-study extraction and duplicate full text; quarantined as likely metadata/full-text mismatch",
+                    "study_doi": metadata.get("study_doi", normalize(result.get("study_doi", ""))),
+                    "publication_type": normalize(metadata.get("publication_type", "")),
+                    "study_title": normalize(metadata.get("study_title", "")) or normalize(metadata.get("title", "")),
+                    "raw_route": normalize(assessment.get("route", "")),
+                }
+            )
+            continue
+        route = effective_assessment_route(assessment, metadata)
+        if route != "primary_evidence":
+            raw_route = normalize(assessment.get("route", ""))
+            skipped.append(
+                {
+                    "row_index": result_index,
+                    "reason": f"effective route {route or raw_route} is not projected as primary",
+                    "raw_route": raw_route,
+                }
+            )
             continue
         claims = result.get("claims", []) if isinstance(result.get("claims"), list) else []
         for claim_index, claim in enumerate(claims):
@@ -747,17 +996,38 @@ def project_secondary_coverage(
         if not include_irrelevant_controls and is_prior_irrelevant_control(result, contexts):
             continue
         assessment = result.get("paper_assessment", {}) if isinstance(result.get("paper_assessment"), dict) else {}
-        if normalize(assessment.get("route", "")) != "secondary_literature":
-            continue
         dataset = normalize(result.get("dataset", ""))
         if dataset not in rows_by_dataset:
             skipped.append({"row_index": result_index, "reason": f"unsupported dataset {dataset}"})
             continue
         metadata = metadata_for_result(result, paper_libraries, contexts)
+        if should_quarantine_review_primary_conflict(result, assessment, metadata, contexts):
+            skipped.append(
+                {
+                    "row_index": result_index,
+                    "reason": "review metadata conflicts with primary-study extraction and duplicate full text; quarantined as likely metadata/full-text mismatch",
+                    "study_doi": metadata.get("study_doi", normalize(result.get("study_doi", ""))),
+                    "publication_type": normalize(metadata.get("publication_type", "")),
+                    "study_title": normalize(metadata.get("study_title", "")) or normalize(metadata.get("title", "")),
+                    "raw_route": normalize(assessment.get("route", "")),
+                }
+            )
+            continue
+        if effective_assessment_route(assessment, metadata) != "secondary_literature":
+            continue
         if is_non_article_artifact(metadata, assessment):
             skipped.append({"row_index": result_index, "reason": "non-article artifact is not projected"})
             continue
         mentions = result.get("coverage_mentions", []) if isinstance(result.get("coverage_mentions"), list) else []
+        if not mentions:
+            claims = result.get("claims", []) if isinstance(result.get("claims"), list) else []
+            mentions = [
+                mention
+                for claim in claims
+                if isinstance(claim, dict)
+                for mention in [secondary_mention_from_claim(claim, assessment)]
+                if mention is not None
+            ]
         for mention_index, mention in enumerate(mentions):
             if not isinstance(mention, dict):
                 skipped.append({"row_index": result_index, "mention_index": mention_index, "reason": "coverage mention is not an object"})
@@ -914,6 +1184,12 @@ def main() -> int:
         outputs[dataset]["secondary_rows"] = len(secondary_rows)
         schema_errors.extend(schema_errors_for_rows(dataset, secondary_rows))
 
+    quarantined_records = [
+        {**item, "projection_stream": projection_stream}
+        for projection_stream, items in [("primary", skipped), ("secondary", secondary_skipped)]
+        for item in items
+        if "quarantined" in normalize(item.get("reason", "")).lower()
+    ]
     report = {
         "generated_at_utc": now_utc(),
         "schema_version": "extraction_v1_projection_report",
@@ -937,9 +1213,11 @@ def main() -> int:
             "secondary_skipped": len(secondary_skipped),
             "secondary_skipped_reasons": dict(Counter(item["reason"] for item in secondary_skipped)),
             "schema_errors": len(schema_errors),
+            "quarantined_records": len(quarantined_records),
         },
         "skipped": skipped[:500],
         "secondary_skipped": secondary_skipped[:500],
+        "quarantined_records": quarantined_records,
         "input_schema_errors": input_schema_errors[:500],
         "schema_errors": schema_errors[:500],
     }

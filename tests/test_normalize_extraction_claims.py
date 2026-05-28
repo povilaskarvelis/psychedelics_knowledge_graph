@@ -405,6 +405,52 @@ class NormalizeExtractionClaimsTest(unittest.TestCase):
         self.assertEqual([row["compound"] for row in graph_rows["disorder"]], ["Cannabidiol", "Nitrous oxide", "Ketamine", "Ketamine"])
         self.assertEqual([row["disorder"] for row in graph_rows["disorder"]], ["Pain", "Migraine", "Complex regional pain syndrome", "Anhedonia"])
 
+    def test_mechanistic_graph_type_views_normalize_to_kg_kinds(self) -> None:
+        graph_rows, audit_rows, _report = normalize_claims(
+            mechanistic_rows=[
+                {
+                    "claim_type": "compound_target",
+                    "compound": "Ketamine",
+                    "target": "mTOR",
+                    "graph_entity_label": "mTOR",
+                    "graph_entity_type": "pathway_process",
+                    "graph_include_candidate": True,
+                    "entity_role": "pathway_or_process",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "Ketamine",
+                    "target": "BDNF",
+                    "graph_entity_label": "BDNF",
+                    "graph_entity_type": "molecular_readout",
+                    "graph_include_candidate": True,
+                    "entity_role": "biomarker",
+                },
+                {
+                    "claim_type": "compound_target",
+                    "compound": "LSD",
+                    "target": "5-HT receptor family",
+                    "graph_entity_label": "5-HT receptor family",
+                    "graph_entity_type": "system_family",
+                    "graph_include_candidate": True,
+                    "entity_role": "molecular_target",
+                },
+            ],
+            disorder_rows=[],
+            registry_path=DEFAULT_REGISTRY_PATH,
+            disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
+        )
+
+        self.assertEqual([row["normalization_status"] for row in audit_rows["mechanistic"]], ["normalized"] * 3)
+        self.assertEqual(
+            [row["graph_entity_type"] for row in graph_rows["mechanistic"]],
+            ["pathway_process", "molecular_readout", "system_family"],
+        )
+        self.assertEqual(
+            [row["kg_entity_kind_override"] for row in graph_rows["mechanistic"]],
+            ["pathway_process", "biomarker_readout", "system_family"],
+        )
+
     def test_target_normalization_does_not_fuzzy_match_different_receptor_subtype(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             graph_rows, audit_rows, _report = normalize_claims(
@@ -535,6 +581,147 @@ class NormalizeExtractionClaimsTest(unittest.TestCase):
                 "Treatment-resistant depression",
             ],
         )
+
+    def test_curated_registry_maps_condition_aliases_from_audit(self) -> None:
+        graph_rows, audit_rows, _report = normalize_claims(
+            mechanistic_rows=[],
+            disorder_rows=[
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "social phobia",
+                    "graph_entity_label": "social phobia",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Psilocybin",
+                    "disorder": "Bipolar II depression",
+                    "graph_entity_label": "Bipolar II depression",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "late-life treatment-resistant depression",
+                    "graph_entity_label": "late-life treatment-resistant depression",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "severe depression",
+                    "graph_entity_label": "severe depression",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "acute postoperative pain",
+                    "graph_entity_label": "acute postoperative pain",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "post-tonsillectomy pain",
+                    "graph_entity_label": "post-tonsillectomy pain",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                },
+            ],
+            registry_path=DEFAULT_REGISTRY_PATH,
+            disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
+        )
+
+        self.assertEqual([row["normalization_status"] for row in audit_rows["disorder"]], ["normalized"] * 6)
+        self.assertEqual(
+            [row["disorder"] for row in graph_rows["disorder"]],
+            [
+                "Social anxiety disorder",
+                "Bipolar depression",
+                "Treatment-resistant depression",
+                "Major depressive disorder",
+                "Pain",
+                "Pain",
+            ],
+        )
+
+    def test_bare_social_anxiety_is_not_promoted_to_disorder_alias(self) -> None:
+        graph_rows, audit_rows, _report = normalize_claims(
+            mechanistic_rows=[],
+            disorder_rows=[
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "social anxiety",
+                    "graph_entity_label": "social anxiety",
+                    "graph_entity_type": "indication",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                    "clinical_context_condition": "conditions marked by rigid self-focus",
+                }
+            ],
+            registry_path=DEFAULT_REGISTRY_PATH,
+            disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
+        )
+
+        self.assertEqual(graph_rows["disorder"], [])
+        self.assertEqual(audit_rows["disorder"][0]["normalization_status"], "entity_unmapped")
+
+    def test_disorder_symptom_graph_type_sets_kg_kind_override(self) -> None:
+        graph_rows, audit_rows, _report = normalize_claims(
+            mechanistic_rows=[],
+            disorder_rows=[
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "Anhedonia",
+                    "graph_entity_label": "Anhedonia",
+                    "graph_entity_type": "symptom_problem",
+                    "graph_include_candidate": True,
+                    "entity_role": "symptom_or_problem",
+                }
+            ],
+            registry_path=DEFAULT_REGISTRY_PATH,
+            disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
+        )
+
+        self.assertEqual(audit_rows["disorder"][0]["normalization_status"], "normalized")
+        self.assertEqual(graph_rows["disorder"][0]["graph_entity_type"], "symptom_problem")
+        self.assertEqual(graph_rows["disorder"][0]["kg_entity_kind_override"], "symptom_problem")
+
+    def test_disorder_symptom_graph_type_requires_symptom_role(self) -> None:
+        graph_rows, audit_rows, _report = normalize_claims(
+            mechanistic_rows=[],
+            disorder_rows=[
+                {
+                    "claim_type": "compound_disorder",
+                    "compound": "Ketamine",
+                    "disorder": "Major depressive disorder",
+                    "graph_entity_label": "Major depressive disorder",
+                    "graph_entity_type": "symptom_problem",
+                    "graph_include_candidate": True,
+                    "entity_role": "therapeutic_indication",
+                }
+            ],
+            registry_path=DEFAULT_REGISTRY_PATH,
+            disorder_aliases_path=DEFAULT_DISORDER_ALIASES_PATH,
+        )
+
+        self.assertEqual(graph_rows["disorder"], [])
+        self.assertEqual(audit_rows["disorder"][0]["normalization_status"], "wrong_graph_entity_type")
 
     def test_class_level_compound_label_is_not_a_graph_compound(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

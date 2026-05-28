@@ -4,37 +4,44 @@ This document records the literature-search vocabulary and source-specific
 query structure. It is intended as a methods appendix for readers who want to
 audit what the search could and could not retrieve.
 
-The search is documented in `docs/comprehensive_search_protocol_v2.md` and
-generated under `data/raw/search_strategies/comprehensive_baseline_v1/`. The
-search run is timestamped May 15, 2026.
+The search is documented in `docs/comprehensive_search_protocol_v2.md` and in
+the generated search artifacts under `data/raw/search_strategies/`. The strategy
+is described as one integrated first-build discovery pipeline; generated
+artifacts are preserved for provenance and auditability. Additional
+domain-module details are recorded in `docs/brain_cognition_search_strategy.md`
+and `docs/evidence_domain_search_modules.md`.
 
 ## Main Search Layer
 
 The search uses provider-specific query modules in PubMed for curated
-biomedical indexing and OpenAlex for broader scholarly coverage. Each module is
-built from three concept blocks:
+biomedical indexing and OpenAlex for broader scholarly coverage. Modules are
+organized by evidence domain and built from three concept blocks:
 
 ```text
 (compound or drug-class synonyms)
-AND (target-family or indication-family synonyms)
+AND (domain-specific entity, endpoint, or outcome synonyms)
 AND (evidence-context terms)
 ```
 
 Terms inside each concept block are joined with OR. PubMed queries use
-`[Title/Abstract]` fields; clinical-indication PubMed queries also apply
-`NOT (animals[MeSH Terms] NOT humans[MeSH Terms])`. Mechanistic target
-searches do not use that exclusion; animal, in vitro, and assay records are
-retained for mechanistic evidence. OpenAlex modules submit the generated query
-text through the works search API. No publication-date or language restriction
-is applied at discovery.
+`[Title/Abstract]` fields. Clinical population and outcome modules apply
+`NOT (animals[MeSH Terms] NOT humans[MeSH Terms])`; molecular, brain-system,
+cognitive-behavioral, and preclinical/translational modules retain animal, in
+vitro, assay, and neurophysiology records when those records are in scope.
+OpenAlex modules submit the generated query text through the works search API.
+No publication-date or language restriction is applied at discovery.
 
-Exact generated artifacts:
+Generated artifact families:
 
-- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_openalex_seeds.csv`
-- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/mechanistic_boolean_pubmed_seeds.csv`
-- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_openalex_seeds.csv`
-- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/disorder_boolean_pubmed_seeds.csv`
-- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/boolean_search_modules_manifest.json`
+- `data/raw/search_strategies/comprehensive_baseline_v1/boolean_modules/`
+- `data/raw/search_strategies/comprehensive_baseline_v1/direct_pairs/`
+- `data/raw/search_strategies/systems_neuroscience_2026_05/grouped_modules/`
+- `data/raw/search_strategies/systems_neuroscience_2026_05/direct_pairs/`
+- `data/raw/search_strategies/evidence_domain_modules_2026_05/grouped_modules/`
+
+Some artifact filenames preserve earlier processing names. In the methods
+framing, those files are treated as domain-specific search instruments within
+the same discovery pipeline.
 
 The code sources of truth are
 `pipeline/ingest/build_boolean_search_modules.py`,
@@ -44,45 +51,88 @@ The code sources of truth are
 
 ## Search Modules
 
-Module counts below are conceptual modules; each module is run once in
-OpenAlex syntax and once in PubMed syntax.
+Module counts below are conceptual grouped modules. Each module is generated in
+provider-specific syntax for PubMed and OpenAlex when supported by the run.
 
-| Dataset | Query modules | Primary broad modules | Dense topic modules | Primary cap | Dense cap |
+| Evidence domain | Query modules | Broad modules | Focused modules | Broad cap | Focused cap |
 |---|---:|---:|---:|---:|---:|
-| Mechanistic | 10 | 5 | 5 | 500 | 1,000 |
-| Disorder | 12 | 7 | 5 | 500 | 1,000 |
+| Molecular targets | 10 | 5 | 5 | 500 | 1,000 |
+| Molecular pathways and cellular readouts | 5 | 3 | 2 | 500 | 1,000 |
+| Brain systems, circuits, and neurophysiology | 10 | 4 | 6 | 500 | 1,000 |
+| Cognitive and behavioral function | 4 | 2 | 2 | 500 | 1,000 |
+| Clinical outcomes, symptoms, functioning, and safety | 17 | 9 | 8 | 500 | 1,000 |
+| Clinical studies with biological and behavioral endpoints | 6 | 2 | 4 | 500 | 1,000 |
 
-Clinical indication modules:
-
-| Type | Modules | Query block pattern |
-|---|---|---|
-| Primary broad | clinical class core; depression spectrum; trauma/PTSD; substance use and addiction; anxiety, distress, and palliative care; pain and headache; OCD, eating disorders, and autism | therapeutic psychedelic terms AND indication-family terms AND clinical evidence terms |
-| Dense topic | psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety | narrower compound terms AND narrower indication terms AND clinical evidence terms |
-
-Mechanistic target modules:
+Molecular target modules:
 
 | Type | Modules | Query block pattern |
 |---|---|---|
-| Primary broad | serotonin receptors; monoamine transporters; glutamate/NMDA; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF pathways | psychedelic compound/class terms AND target-family terms AND assay/signaling evidence terms |
-| Dense topic | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | narrower compound terms AND narrower target terms AND assay/signaling evidence terms |
+| Broad | serotonin receptors; monoamine transporters; glutamate/NMDA/AMPA/mGluR2 targets; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF target evidence | compound/class terms AND target-family terms AND assay/signaling evidence terms |
+| Focused | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | narrower compound terms AND narrower target terms AND assay/signaling evidence terms |
+
+Molecular pathway and cellular-readout modules:
+
+| Type | Modules | Query block pattern |
+|---|---|---|
+| Broad | molecular pathway plasticity; gene expression and transcriptomics; inflammatory and neuroendocrine molecular readouts | compound/class terms AND pathway/readout terms AND molecular evidence terms |
+| Focused | ketamine/psychedelic mTOR-synaptogenesis; psychedelic immediate early genes | narrower compound-pathway combinations AND gene/protein expression, signaling, and plasticity evidence terms |
+
+Brain-system and cognitive-behavioral modules:
+
+| Type | Modules | Query block pattern |
+|---|---|---|
+| Broad | systems neuroimaging and connectivity; brain regions and named circuits; PET, receptor occupancy, and metabolism; EEG, MEG, and neurophysiology; cognitive and affective task domains; translational behavioral assays | compound/class terms AND brain/circuit/network/task terms AND imaging, neurophysiology, task, or behavior evidence terms |
+| Focused | psilocybin-default mode connectivity; LSD-thalamocortical connectivity; DMT EEG/fMRI dynamics; ayahuasca-default mode connectivity; psilocybin PET/5-HT2A occupancy; ketamine prefrontal-hippocampal circuitry; MDMA social reward and cognition; psychedelic fear extinction and flexibility | narrower compound-entity combinations AND domain-specific evidence terms |
+
+Clinical evidence modules:
+
+| Type | Modules | Query block pattern |
+|---|---|---|
+| Broad | clinical class core; depression spectrum; PTSD and trauma; substance use and addiction; anxiety, distress, and palliative care; pain, headache, and migraine; OCD, eating disorders, and autism; symptoms, functioning, and quality of life; safety, tolerability, and adverse events | therapeutic psychedelic terms AND condition/outcome/safety terms AND clinical evidence terms |
+| Focused | psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety; suicidality, anhedonia, sleep, and function; craving, relapse, and functioning; cardiovascular, mania, psychosis, and HPPD safety | narrower compound-condition or compound-outcome combinations AND clinical evidence terms |
+
+Clinical biological and behavioral endpoint modules:
+
+| Type | Modules | Query block pattern |
+|---|---|---|
+| Broad | clinical population modules with brain, molecular, cognitive, and behavioral endpoints; clinical outcome endpoint modules | compound/class terms AND clinical population/outcome terms AND biological, cognitive, behavioral, imaging, neurophysiology, or molecular endpoint terms |
+| Focused | psilocybin depression brain and molecular endpoints; ketamine depression molecular endpoints; psilocybin depression brain/molecular endpoints; MDMA PTSD social-brain endpoints | narrower compound-condition combinations AND endpoint terms |
 
 Clinical evidence terms include clinical trial, randomized/randomised, placebo,
 open-label/open label, phase 2, phase 3, treatment, therapy, efficacy, safety,
-tolerability, outcome, and follow-up. Mechanistic evidence terms include
-binding, affinity, Ki, Kd, IC50, EC50, radioligand, functional assay, agonist,
-antagonist, partial agonist, and signaling.
+tolerability, outcome, and follow-up. Molecular target terms include binding,
+affinity, Ki, Kd, IC50, EC50, radioligand, functional assay, agonist,
+antagonist, partial agonist, and signaling. Brain, cognitive, behavioral,
+molecular-pathway, and clinical endpoint modules use endpoint-specific imaging,
+neurophysiology, task, behavior, gene/protein expression, pathway, safety, and
+functioning terms.
 
 ## Pairwise Search Layer
 
-The canonical registries also generate direct searches for compound-target and
-compound-indication combinations. These searches use the same scope vocabulary
-as the main query modules and include rare combinations that may not be well
-represented by family-level queries.
+The canonical registries also support direct searches for compound-entity and
+compound-outcome combinations. These searches are supplementary to the grouped
+domain modules. They are used most densely where the pair space is bounded, such
+as molecular targets and clinical evidence concepts, and as targeted checks for
+later domain additions where sparse records may not be well represented by
+family-level queries.
 
-With the current canonical allowlists, focused all-pair generation creates
-1,840 mechanistic compound-target pairs and 1,240 clinical
-compound-indication pairs. Broad template mode expands those to 5,520
-mechanistic pair-core search seeds and 3,717 clinical pair-core search seeds.
+The generated pairwise materials include:
+
+- 1,840 compound-target pairs searched with binding-affinity,
+  receptor-pharmacology, and functional-assay query forms. These are included
+  in the target/brain/task pair layer.
+- 5,440 compound-entity pairs across molecular targets, brain regions/networks,
+  and cognitive-behavioral tasks, producing 16,320 pair-core search strings and
+  16,876 total generated strings when sentinel, class-level, compound-broad,
+  and entity-broad searches are included.
+- 1,240 compound-clinical evidence pairs searched with randomized-placebo,
+  treatment-outcome, and clinical-trial query forms, producing 3,717 generated
+  search strings.
+
+After the additional domain searches, a targeted direct-pair check was run for
+selected compound/entity/outcome combinations in PubMed and OpenAlex. Records
+found through that check enter the same candidate corpus as the grouped search
+modules and retain their pair-search provenance.
 
 ## Canonical Compound Allowlist
 
@@ -108,7 +158,38 @@ receptor (CHRM5); H1 receptor (HRH1); H2 receptor (HRH2); Sigma-1 receptor
 receptor (OPRM1); delta opioid receptor (OPRD1); NMDA receptor; AMPA receptor;
 TrkB (NTRK2); CB1 receptor (CNR1); CB2 receptor (CNR2).
 
-## Canonical Disorder Allowlist
+## Canonical Brain Region And Network Allowlist
+
+Prefrontal cortex; Medial prefrontal cortex; Orbitofrontal cortex; Anterior
+cingulate cortex; Posterior cingulate cortex; Cingulate cortex; Visual cortex;
+Somatosensory cortex; Insula; Hippocampus; Ventral hippocampus; Dorsal
+hippocampus; Amygdala; Basolateral amygdala; Central amygdala; Striatum;
+Ventral striatum; Dorsal striatum; Nucleus accumbens; Caudate; Putamen;
+Thalamus; Mediodorsal thalamus; Reticular thalamus; Claustrum; Habenula;
+Lateral habenula; Dorsal raphe nucleus; Raphe nucleus; Ventral tegmental area;
+Locus coeruleus; Periaqueductal gray; Default mode network; Salience network;
+Frontoparietal network; Central executive network; Limbic network; Visual
+network; Sensorimotor network; Thalamo-cortical circuit; Cortico-striatal
+circuit; Cortical-subcortical circuit; Fronto-limbic circuit;
+Hippocampal-prefrontal circuit; Amygdala-prefrontal circuit; Mesolimbic reward
+circuit.
+
+## Canonical Cognitive And Behavioral Task Allowlist
+
+Cognitive flexibility; Reversal learning; Probabilistic reversal learning; Set
+shifting; Attentional set shifting; Wisconsin Card Sorting Test; Go/no-go task;
+Stop-signal task; Delay discounting; Fear conditioning; Fear extinction;
+Extinction learning; Threat processing; Startle response; Prepulse inhibition;
+Conditioned freezing; Reward learning; Reinforcement learning; Social reward
+learning; Monetary incentive delay task; Sucrose preference; Conditioned place
+preference; Self-administration; Drug seeking; Relapse behavior; Emotional
+processing; Emotion recognition; Facial emotion recognition; Social cognition;
+Empathy; Theory of mind; Social behavior; Social interaction; Attention;
+Continuous performance task; Working memory; Novel object recognition; Spatial
+memory; Forced swim test; Tail suspension test; Learned helplessness; Chronic
+social defeat; Open field test; Elevated plus maze.
+
+## Canonical Clinical Evidence Concept Allowlist
 
 Treatment-resistant depression; Major depressive disorder; Bipolar depression;
 Persistent depressive disorder; Post-traumatic stress disorder; Complex
@@ -157,7 +238,7 @@ Headache disorders; Migraine; Chronic pain; Fibromyalgia.
 - mGluR2 (GRM2): mGluR2; GRM2; metabotropic glutamate receptor 2
 - TrkB: TrkB; NTRK2; BDNF receptor
 
-### Disorder Aliases
+### Clinical Evidence Concept Aliases
 
 - Treatment-resistant depression: treatment-resistant depression; TRD; resistant depression
 - Major depressive disorder: major depressive disorder; MDD; depression
@@ -199,6 +280,7 @@ publication-quality reporting, preserve:
 - exact source-specific query strings,
 - field restrictions and clinical animal/human filters,
 - per-module retrieval caps,
+- module scope and evidence-domain labels,
 - DOI-normalization and deduplication rules,
 - record-flow outputs for PRISMA-style reporting.
 

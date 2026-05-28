@@ -89,6 +89,9 @@ ENTITY_ROLE_NORMALIZATION = {
     "drug use measure": "outcome_measure",
     "drug_use_measure": "outcome_measure",
     "substance_use_measure": "outcome_measure",
+    "molecular readout": "biomarker",
+    "molecular_readout": "biomarker",
+    "readout": "biomarker",
 }
 
 NON_GRAPH_ENDPOINT_ROLES = {
@@ -103,6 +106,13 @@ NON_GRAPH_ENDPOINT_ROLES = {
     "brain_region_or_circuit",
     "assay_readout",
     "compound_or_class",
+}
+
+MECHANISTIC_GRAPH_ENDPOINT_ROLES_BY_TYPE = {
+    "target": {"molecular_target", "uncertain"},
+    "system_family": {"molecular_target", "uncertain"},
+    "pathway_process": {"pathway_or_process", "uncertain"},
+    "molecular_readout": {"biomarker", "uncertain"},
 }
 
 AFFINITY_TYPE_NORMALIZATION = {
@@ -148,6 +158,19 @@ def normalized_entity_role(value: object) -> str:
     return ENTITY_ROLE_NORMALIZATION.get(role.lower(), "uncertain")
 
 
+def should_remove_graph_candidate(claim: dict) -> bool:
+    if claim.get("graph_include_candidate") is not True:
+        return False
+    role = normalize(claim.get("entity_role", ""))
+    if role not in NON_GRAPH_ENDPOINT_ROLES:
+        return False
+    graph_type = normalize(claim.get("graph_entity_type", ""))
+    if normalize(claim.get("claim_type", "")) != "compound_target":
+        return True
+    allowed_roles = MECHANISTIC_GRAPH_ENDPOINT_ROLES_BY_TYPE.get(graph_type)
+    return not bool(allowed_roles and role in allowed_roles)
+
+
 def result_with_endpoint_role_defaults(result: dict) -> tuple[dict, list[str]]:
     """Backfill extraction-v1 endpoint-role fields added after early pilots."""
     changes: list[str] = []
@@ -189,7 +212,7 @@ def result_with_endpoint_role_defaults(result: dict) -> tuple[dict, list[str]]:
         if "graph_include_candidate" not in claim or not isinstance(claim.get("graph_include_candidate"), bool):
             claim["graph_include_candidate"] = False
             add_change("endpoint_role_fields_defaulted")
-        if claim.get("graph_include_candidate") is True and claim.get("entity_role") in NON_GRAPH_ENDPOINT_ROLES:
+        if should_remove_graph_candidate(claim):
             claim["graph_include_candidate"] = False
             if normalize(claim.get("graph_exclusion_reason", "")).lower() in {"", "not_applicable"}:
                 claim["graph_exclusion_reason"] = f"{claim.get('entity_role')} is not a graph endpoint"
@@ -397,7 +420,7 @@ def normalize_extraction_v1_result(result: dict) -> tuple[dict, list[str]]:
         if "graph_include_candidate" not in claim or not isinstance(claim.get("graph_include_candidate"), bool):
             claim["graph_include_candidate"] = False
             add_change("endpoint_role_fields_defaulted")
-        if claim.get("graph_include_candidate") is True and claim.get("entity_role") in NON_GRAPH_ENDPOINT_ROLES:
+        if should_remove_graph_candidate(claim):
             claim["graph_include_candidate"] = False
             if normalize(claim.get("graph_exclusion_reason", "")).lower() in {"", "not_applicable"}:
                 claim["graph_exclusion_reason"] = f"{claim.get('entity_role')} is not a graph endpoint"

@@ -56,7 +56,20 @@
       },
       "clinical_context_condition": {"type": "string"},
       "graph_entity_label": {"type": "string"},
-      "graph_entity_type": {"type": "string", "enum": ["indication", "target", "none", "uncertain", ""]},
+      "graph_entity_type": {
+        "type": "string",
+        "enum": [
+          "indication",
+          "condition_indication",
+          "symptom_problem",
+          "safety_adverse_event",
+          "outcome_scale",
+          "target",
+          "none",
+          "uncertain",
+          ""
+        ]
+      },
       "graph_include_candidate": {"type": "boolean"},
       "graph_exclusion_reason": {"type": "string"},
       "outcome_type": {"type": "string"},

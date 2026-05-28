@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260517-pipeline-icons-no-numbers" />
+    <link rel="stylesheet" href="styles.css?v=20260526-methods-domain-search" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
@@ -73,7 +73,7 @@
         <p>
           How the Psychedelics Knowledge Graph is assembled: what literature is
           searched, how papers are screened, how evidence is extracted, and how
-          graph edges stay traceable.
+          everything is maintained.
         </p>
       </div>
     </header>
@@ -82,36 +82,46 @@
       <section class="about-section methods-motivation" aria-labelledby="why-this-project">
         <h2 id="why-this-project">Why</h2>
         <p>
-          What should evidence synthesis look like in the age of agentic
-          science? Traditional reviews remain essential, but static papers are
-          slow to produce, hard to keep current, and difficult for computational
-          systems to build on directly. Agentic tools make a different model
-          possible: living evidence bases that can be updated as new studies
-          appear, while preserving the long-standing scientific ideal of careful,
-          transparent review.
+          We are entering the era of agentic science, where AI agents can support
+          many steps of knowledge generation. This creates an opportunity to address
+          long-standing inefficiencies in academic workflows: findings are
+          scattered across papers, evidence is split across disciplinary silos,
+          and reviews require substantial expert labor, become static snapshots
+          once published, and are difficult to query or reuse. As a result, human
+          researchers struggle to see relationships, trends, gaps, and the overall
+          shape of a field, while AI agents cannot easily use the evidence
+          directly.
         </p>
         <p>
-          For that model to be useful, the evidence base has to serve people and
-          machines at the same time. Researchers, clinicians, and curious readers
-          should be able to navigate the literature through clear interfaces;
-          agents and analytic tools should be able to query structured,
-          provenance-rich data and extend it responsibly.
+          Agentic tools make it possible to build a new type of living evidence
+          system, where literature discovery, screening, extraction,
+          visualization, and updating are part of a continuous workflow.
+          Findings can be converted into structured, provenance-rich records
+          that remain linked to their source papers and evidence locators, so
+          the evidence base can be searched, corrected, reused, and extended as
+          the literature changes.
         </p>
         <p>
-          The Psychedelics Knowledge Graph is an experiment in that kind of
-          evidence infrastructure: open, documented, inspectable, and designed
-          to improve through community feedback as the field changes.
+          The Psychedelics Knowledge Graph applies this model to psychedelic
+          research, where a fast-growing literature spans clinical, mechanistic,
+          and translational work that is often read separately. Screened papers
+          are converted into structured evidence records that power an
+          interactive graph and dashboard. Human researchers can move from
+          field-level patterns and gaps to source studies visually, while agents
+          and analytic tools can query the same provenance-rich evidence
+          directly.
         </p>
       </section>
 
       <section class="about-section method-workflow-section" aria-labelledby="pipeline-overview">
         <h2 id="pipeline-overview">Pipeline Overview</h2>
         <p>
-          The pipeline follows a familiar evidence-synthesis flow: define the
-          scope, search the literature, screen candidate records, retrieve full
-          texts where possible, and extract evidence. The added step is to turn
-          the extracted evidence into structured, provenance-rich records that
-          can power a graph, dashboard views, gap analyses, and future agentic
+          The pipeline deliberately follows a familiar evidence-synthesis flow:
+          define the scope, search the literature, screen candidate records,
+          retrieve full texts where possible, and extract evidence. The graph
+          layer is added after that review-like workflow, not instead of it.
+          Extracted findings become structured, provenance-rich evidence records
+          that can power graph views, dashboard views, and future agentic
           workflows. Each step leaves an auditable artifact so the evidence base
           can be inspected, corrected, and rebuilt as the literature changes.
         </p>
@@ -126,9 +136,11 @@
               <h3>Define the Evidence Scope</h3>
               <p>
                 The project starts with explicit vocabularies for psychedelic
-                compounds, mechanistic targets, and clinical indications. Those
-                vocabularies define the two evidence lanes used throughout the
-                site: compound-target and compound-indication relationships.
+                compounds, molecular targets, brain systems and behavioral
+                tasks, and clinical evidence concepts. Those vocabularies define the
+                evidence relationships used throughout the site: compound-target,
+                compound-brain/circuit/network, compound-task, and
+                compound-clinical evidence relationships.
               </p>
             </div>
           </article>
@@ -142,11 +154,12 @@
               <h3>Discover Candidate Papers</h3>
               <p>
                 PubMed and OpenAlex searches combine broad topic queries with
-                direct compound-target and compound-indication searches. Results
-                are matched by DOI, enriched with metadata from sources such as
-                Crossref, Unpaywall, PubMed/PMC, OpenAlex, and Semantic Scholar,
-                and merged into a paper library without duplicating records
-                already present.
+                direct compound-target, compound-brain/circuit/network,
+                compound-task, and compound-clinical evidence search instruments.
+                Results are matched by DOI, enriched with metadata from sources
+                such as Crossref, Unpaywall, PubMed/PMC, OpenAlex, and Semantic
+                Scholar, and merged into a paper library without duplicating
+                records already present.
               </p>
             </div>
           </article>
@@ -176,9 +189,11 @@
               <h3>Extract Structured Evidence</h3>
               <p>
                 Eligible papers are converted into structured evidence records
-                with LLM-assisted extraction: compound, target or indication,
-                study type, assay or outcome, result direction, evidence
-                locator, access status, and source provenance.
+                with LLM-assisted extraction: compound, target, brain
+                system/task, clinical concept, study type, assay or outcome, result
+                direction, evidence locator, access status, and source
+                provenance. Model confidence is treated as extraction metadata,
+                not as certainty that a finding is true.
               </p>
             </div>
           </article>
@@ -195,7 +210,7 @@
                 policy before they enter the public graph. Uncertain or
                 inconsistent records stay in review queues rather than being
                 silently promoted. The same records also feed the PRISMA-style
-                flow diagram, literature landscape, and gap view.
+                flow diagram and public graph payloads.
               </p>
             </div>
           </article>
@@ -220,242 +235,214 @@
       <section class="about-section method-seeds-section" aria-labelledby="search-seed-words">
         <h2 id="search-seed-words">Literature Search Strategy</h2>
         <p>
-          The search was designed around two relationship types:
-          psychedelic compounds and mechanistic targets, and psychedelic
-          compounds and clinical indications. The strategy uses grouped
-          database searches for broad topic areas and direct pairwise searches
-          for every compound-target and compound-indication combination in the
-          vocabulary. Searches were run in PubMed for curated biomedical
-          indexing and OpenAlex for broader scholarly coverage.
+          The search is organized around evidence domains: molecular targets,
+          molecular pathways and cellular readouts, brain systems, cognitive
+          and behavioral functions, clinical outcomes and safety, and
+          clinical studies that measure biological or behavioral endpoints.
         </p>
         <p>
-          The dropdowns below show the actual term combinations used for the
-          grouped database searches. The same search logic was used in
-          OpenAlex and PubMed, with searches focused on titles and abstracts.
-          Within each search, terms inside a block were joined with OR, and the
-          compound, target or indication, and evidence blocks were joined with
-          AND.
-          Focused searches intentionally overlap with the broader searches;
-          they use narrower compound-topic combinations for well-studied areas
-          so those papers are not captured only through a broad query.
+          PubMed was used for curated biomedical indexing, and OpenAlex was
+          used for broader scholarly coverage across journals, books, and
+          preprints. Searches use the same three-block structure: compound
+          terms, domain-specific entity or outcome terms, and evidence-context
+          terms. Terms inside each block are joined with OR; the blocks are
+          joined with AND. Broad modules cover domain families, while focused
+          modules target well-studied compound-topic combinations so that
+          important papers are not captured only through broad queries.
         </p>
         <div class="method-query-details-grid">
           <details class="method-query-details">
-            <summary>Broad clinical searches <span>7 term combinations</span></summary>
+            <summary>Molecular targets <span>10 grouped term combinations</span></summary>
             <ol class="method-query-list">
               <li>
-                <h3>Clinical class core</h3>
+                <h3>Broad target-family modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>psychedelic; psychedelics; psychedelic-assisted therapy; hallucinogen; psychoplastogen; psilocybin; psilocin; LSD; lysergic acid diethylamide; MDMA; 3,4-methylenedioxymethamphetamine; ketamine; esketamine; ayahuasca; DMT; 5-MeO-DMT; mescaline; ibogaine</dd></div>
-                  <div><dt>Indication block</dt><dd>depression; anxiety; post-traumatic stress disorder; PTSD; substance use disorder; addiction; obsessive-compulsive disorder; OCD; eating disorder; cluster headache; migraine; chronic pain</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                  <div><dt>Modules</dt><dd>serotonin receptors; monoamine transporters; glutamate/NMDA/AMPA/mGluR2 targets; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF target evidence</dd></div>
+                  <div><dt>Compound block</dt><dd>classic psychedelic, entactogen, dissociative, psychoplastogen, and compound-specific terms including psilocybin, psilocin, LSD, DMT, 5-MeO-DMT, mescaline, MDMA, ketamine, salvinorin A, ibogaine, and noribogaine</dd></div>
+                  <div><dt>Entity block</dt><dd>5-HT receptor families; SERT, DAT, NET, and VMAT2; NMDA, AMPA, and mGluR2 receptors; kappa and mu opioid receptors; sigma-1 receptor; TAAR1; TrkB, BDNF, and neuroplasticity targets</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
                 </dl>
               </li>
               <li>
-                <h3>Depression spectrum</h3>
+                <h3>Focused compound-target modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>psychedelic; psychedelics; psychedelic-assisted therapy; hallucinogen; psychoplastogen; psilocybin; psilocin; LSD; lysergic acid diethylamide; MDMA; 3,4-methylenedioxymethamphetamine; ketamine; esketamine; ayahuasca; DMT; 5-MeO-DMT; mescaline; ibogaine</dd></div>
-                  <div><dt>Indication block</dt><dd>depression; major depressive disorder; MDD; treatment-resistant depression; TRD; bipolar depression; persistent depressive disorder; dysthymia</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>PTSD and trauma</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>MDMA; 3,4-methylenedioxymethamphetamine; psilocybin; ketamine; psychedelic-assisted therapy</dd></div>
-                  <div><dt>Indication block</dt><dd>PTSD; post-traumatic stress disorder; posttraumatic stress disorder; trauma</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; placebo; therapy; psychotherapy; safety; follow-up; outcome</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Substance use and addiction</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>psilocybin; LSD; ketamine; ibogaine; noribogaine; ayahuasca; psychedelic</dd></div>
-                  <div><dt>Indication block</dt><dd>substance use disorder; addiction; dependence; alcohol use disorder; tobacco use disorder; smoking cessation; opioid use disorder; cocaine use disorder; methamphetamine use disorder</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; treatment; abstinence; cessation; craving; relapse; safety; outcome</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Anxiety, distress, and palliative care</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>psilocybin; LSD; MDMA; ketamine; ayahuasca; psychedelic-assisted therapy</dd></div>
-                  <div><dt>Indication block</dt><dd>anxiety; generalized anxiety disorder; social anxiety disorder; cancer anxiety; cancer depression; life-threatening disease; end-of-life; existential distress; demoralization; palliative</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Pain, headache, and migraine</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>LSD; psilocybin; ketamine; psychedelic</dd></div>
-                  <div><dt>Indication block</dt><dd>cluster headache; migraine; headache; chronic pain; fibromyalgia</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; treatment; pain; attack frequency; analgesia; efficacy; safety; outcome</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>OCD, eating disorders, and autism</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>psilocybin; LSD; MDMA; ketamine; ayahuasca; psychedelic</dd></div>
-                  <div><dt>Indication block</dt><dd>obsessive-compulsive disorder; OCD; eating disorder; anorexia nervosa; bulimia nervosa; binge-eating disorder; autism spectrum disorder; autism</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                  <div><dt>Modules</dt><dd>LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor</dd></div>
+                  <div><dt>Query emphasis</dt><dd>narrower compound and target names paired with binding, receptor pharmacology, transporter, channel-blocker, functional-assay, beta-arrestin, and G-protein terms</dd></div>
                 </dl>
               </li>
             </ol>
           </details>
           <details class="method-query-details">
-            <summary>Focused clinical searches <span>5 term combinations</span></summary>
+            <summary>Molecular pathways and cellular readouts <span>5 grouped term combinations</span></summary>
             <ol class="method-query-list">
               <li>
-                <h3>Psilocybin and depression</h3>
+                <h3>Broad molecular/pathway modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>psilocybin; psilocin</dd></div>
-                  <div><dt>Indication block</dt><dd>depression; major depressive disorder; MDD; treatment-resistant depression; TRD</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                  <div><dt>Modules</dt><dd>molecular pathway plasticity; gene expression and transcriptomics; inflammatory and neuroendocrine molecular readouts</dd></div>
+                  <div><dt>Entity block</dt><dd>BDNF; TrkB; NTRK2; mTOR; ERK; MAPK; CREB; Akt; synaptogenesis; dendritic spine; synaptic plasticity; c-Fos; Arc; immediate early genes; transcriptome; epigenetic terms; cytokines; inflammation; cortisol; HPA axis</dd></div>
+                  <div><dt>Evidence block</dt><dd>signaling; phosphorylation; expression; protein expression; gene expression; transcriptomics; western blot; qPCR; RNA-seq; immunohistochemistry; ELISA; molecular readout; plasticity; synaptic; neuronal</dd></div>
                 </dl>
               </li>
               <li>
-                <h3>MDMA and PTSD</h3>
+                <h3>Focused molecular/pathway modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>MDMA; 3,4-methylenedioxymethamphetamine</dd></div>
-                  <div><dt>Indication block</dt><dd>PTSD; post-traumatic stress disorder; posttraumatic stress disorder</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; placebo; psychotherapy; assisted therapy; safety; follow-up</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Ketamine, depression, and suicidality</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>ketamine; esketamine; arketamine; S-ketamine; R-ketamine</dd></div>
-                  <div><dt>Indication block</dt><dd>depression; treatment-resistant depression; TRD; suicidal ideation; suicidality; bipolar depression</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Ibogaine and opioid/substance use disorder</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>ibogaine; noribogaine</dd></div>
-                  <div><dt>Indication block</dt><dd>opioid use disorder; opioid dependence; substance use disorder; addiction</dd></div>
-                  <div><dt>Evidence block</dt><dd>treatment; detoxification; withdrawal; craving; abstinence; safety; clinical</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>LSD, alcohol use disorder, and anxiety</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>LSD; lysergic acid diethylamide</dd></div>
-                  <div><dt>Indication block</dt><dd>alcohol use disorder; alcohol dependence; anxiety; life-threatening disease</dd></div>
-                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; open label; phase 2; phase 3; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                  <div><dt>Modules</dt><dd>ketamine/psychedelic mTOR-synaptogenesis; psychedelic immediate early genes</dd></div>
+                  <div><dt>Query emphasis</dt><dd>specific compound-pathway combinations involving ketamine, psilocybin, LSD, DMT, MDMA, DOI, mTOR, BDNF, TrkB, ERK, Akt, c-Fos, Fos, Arc, Egr1, and gene-expression assays</dd></div>
                 </dl>
               </li>
             </ol>
           </details>
           <details class="method-query-details">
-            <summary>Broad mechanistic searches <span>5 term combinations</span></summary>
+            <summary>Brain systems, circuits, and neurophysiology <span>10 grouped term combinations</span></summary>
             <ol class="method-query-list">
               <li>
-                <h3>Serotonin receptors</h3>
+                <h3>Broad brain-system modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>psychedelic; psychedelics; serotonergic psychedelic; hallucinogen; psychoplastogen; LSD; lysergic acid diethylamide; psilocybin; psilocin; DMT; 5-MeO-DMT; mescaline; DOI; 2C-B; NBOMe</dd></div>
-                  <div><dt>Target block</dt><dd>5-HT2A; HTR2A; serotonin 2A receptor; 5-HT2B; HTR2B; 5-HT2C; HTR2C; 5-HT1A; HTR1A; serotonin receptor</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
+                  <div><dt>Modules</dt><dd>systems neuroimaging and connectivity; brain regions and named circuits; PET, receptor occupancy, and metabolism; EEG, MEG, and neurophysiology</dd></div>
+                  <div><dt>Entity block</dt><dd>default mode, salience, frontoparietal, central executive, limbic, visual, and sensorimotor networks; prefrontal cortex; anterior and posterior cingulate; hippocampus; amygdala; thalamus; claustrum; striatum; nucleus accumbens; insula; thalamo-cortical, cortico-striatal, fronto-limbic, hippocampal-prefrontal, amygdala-prefrontal, and mesolimbic reward circuits</dd></div>
+                  <div><dt>Evidence block</dt><dd>fMRI; BOLD; resting-state; functional connectivity; effective connectivity; PET; receptor occupancy; FDG; cerebral blood flow; EEG; MEG; neural oscillations; ERP; entropy; electrophysiology; c-Fos; neuronal activity</dd></div>
                 </dl>
               </li>
               <li>
-                <h3>Monoamine transporters</h3>
+                <h3>Focused brain-system modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>MDMA; MDA; ibogaine; noribogaine; amphetamine; psychedelic</dd></div>
-                  <div><dt>Target block</dt><dd>SERT; SLC6A4; serotonin transporter; DAT; SLC6A3; dopamine transporter; NET; SLC6A2; norepinephrine transporter; VMAT2</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; uptake; release; transporter; IC50; EC50; Ki</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Glutamate, NMDA, AMPA, and mGluR2</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>ketamine; esketamine; arketamine; R-ketamine; S-ketamine; psychedelic</dd></div>
-                  <div><dt>Target block</dt><dd>NMDA receptor; NMDAR; AMPA receptor; mGluR2; GRM2; glutamate receptor</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; antagonist; agonist; signaling; functional assay; neuroplasticity</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Opioid, sigma, and TAAR targets</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>salvinorin A; ibogaine; noribogaine; DMT; 5-MeO-DMT; psychedelic</dd></div>
-                  <div><dt>Target block</dt><dd>kappa opioid receptor; KOR; OPRK1; mu opioid receptor; sigma-1 receptor; SIGMAR1; TAAR1; trace amine-associated receptor 1</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Plasticity, TrkB, and BDNF</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>psychedelic; psychoplastogen; psilocybin; LSD; DMT; ketamine</dd></div>
-                  <div><dt>Target block</dt><dd>TrkB; NTRK2; BDNF; neuroplasticity; dendritic spine; cortical plasticity</dd></div>
-                  <div><dt>Evidence block</dt><dd>signaling; binding; phosphorylation; plasticity; neuritogenesis; dendritic; synaptic</dd></div>
+                  <div><dt>Modules</dt><dd>psilocybin-default mode connectivity; LSD-thalamocortical connectivity; DMT EEG/fMRI dynamics; ayahuasca-default mode connectivity; psilocybin PET/5-HT2A occupancy; ketamine prefrontal-hippocampal circuitry</dd></div>
+                  <div><dt>Query emphasis</dt><dd>compound-specific network, circuit, imaging, receptor-occupancy, neural-dynamics, and electrophysiology terms</dd></div>
                 </dl>
               </li>
             </ol>
           </details>
           <details class="method-query-details">
-            <summary>Focused mechanistic searches <span>5 term combinations</span></summary>
+            <summary>Cognitive and behavioral function <span>4 grouped term combinations</span></summary>
             <ol class="method-query-list">
               <li>
-                <h3>LSD and 5-HT2A</h3>
+                <h3>Broad task and translational behavior modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>LSD; lysergic acid diethylamide</dd></div>
-                  <div><dt>Target block</dt><dd>5-HT2A; HTR2A; serotonin 2A receptor</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling; beta arrestin; G protein</dd></div>
+                  <div><dt>Modules</dt><dd>cognitive and affective task domains; translational behavioral assays</dd></div>
+                  <div><dt>Entity block</dt><dd>cognitive flexibility; reversal learning; set shifting; fear conditioning; fear extinction; reward learning; social reward; social cognition; empathy; emotion recognition; attention; impulsivity; prepulse inhibition; working memory; forced swim; tail suspension; sucrose preference; social defeat; elevated plus maze; conditioned place preference; self-administration; relapse; head-twitch response</dd></div>
+                  <div><dt>Evidence block</dt><dd>task; behavior; behavioural; learning; conditioning; performance; paradigm; mouse; rat; rodent; animal model; behavioral assay; in vivo; c-Fos</dd></div>
                 </dl>
               </li>
               <li>
-                <h3>Psilocin/psilocybin and 5-HT2A</h3>
+                <h3>Focused cognitive-behavioral modules</h3>
                 <dl>
-                  <div><dt>Compound block</dt><dd>psilocin; psilocybin</dd></div>
-                  <div><dt>Target block</dt><dd>5-HT2A; HTR2A; serotonin 2A receptor</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>MDMA transporters</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>MDMA; 3,4-methylenedioxymethamphetamine; MDA</dd></div>
-                  <div><dt>Target block</dt><dd>SERT; DAT; NET; SLC6A4; SLC6A3; SLC6A2; serotonin transporter; dopamine transporter; norepinephrine transporter</dd></div>
-                  <div><dt>Evidence block</dt><dd>transporter; uptake; release; binding; affinity; IC50; EC50</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Ketamine and NMDA</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>ketamine; esketamine; arketamine; S-ketamine; R-ketamine</dd></div>
-                  <div><dt>Target block</dt><dd>NMDA receptor; NMDAR; glutamate receptor</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; antagonist; channel blocker; functional assay</dd></div>
-                </dl>
-              </li>
-              <li>
-                <h3>Salvinorin A and kappa opioid receptor</h3>
-                <dl>
-                  <div><dt>Compound block</dt><dd>salvinorin A</dd></div>
-                  <div><dt>Target block</dt><dd>kappa opioid receptor; KOR; OPRK1</dd></div>
-                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
+                  <div><dt>Modules</dt><dd>MDMA social reward and cognition; psychedelic fear extinction and flexibility</dd></div>
+                  <div><dt>Query emphasis</dt><dd>compound-specific social reward, social cognition, empathy, emotion recognition, fear extinction, reversal learning, learning, conditioning, and performance terms</dd></div>
                 </dl>
               </li>
             </ol>
           </details>
           <details class="method-query-details">
-            <summary>Direct pairwise searches <span>9,237 generated search strings</span></summary>
+            <summary>Clinical outcomes, symptoms, functioning, and safety <span>17 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad clinical outcome modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>clinical class core; depression spectrum; PTSD and trauma; substance use and addiction; anxiety, distress, and palliative care; pain, headache, and migraine; OCD, eating disorders, and autism</dd></div>
+                  <div><dt>Clinical block</dt><dd>depression; major depressive disorder; treatment-resistant depression; PTSD; substance use disorder; alcohol, tobacco, opioid, cocaine, methamphetamine, stimulant, and cannabis use disorders; generalized and social anxiety; distress associated with life-threatening disease; OCD; eating disorders; autism spectrum disorder; headache disorders; migraine; chronic pain; fibromyalgia</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused clinical outcome modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety</dd></div>
+                  <div><dt>Query emphasis</dt><dd>narrow compound-condition combinations paired with clinical trial, treatment, psychotherapy, abstinence, detoxification, withdrawal, craving, relapse, safety, and outcome terms</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Symptom and functioning modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>symptoms, functioning, and quality of life; suicidality, anhedonia, sleep, and function; craving, relapse, and functioning</dd></div>
+                  <div><dt>Outcome block</dt><dd>suicidal ideation; suicidality; anhedonia; craving; withdrawal; relapse; sleep; insomnia; pain intensity; quality of life; wellbeing; social, occupational, emotional, and functional impairment terms</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Safety modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>safety, tolerability, and adverse events; cardiovascular, mania, psychosis, and HPPD safety</dd></div>
+                  <div><dt>Outcome block</dt><dd>safety; tolerability; adverse events; serious adverse events; side effects; cardiovascular; blood pressure; heart rate; hypertension; mania; psychosis; dissociation; hallucinogen persisting perception disorder; flashback</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Clinical studies with biological and behavioral endpoints <span>6 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad clinical endpoint modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>clinical population modules with brain, molecular, cognitive, and behavioral endpoints; clinical outcome endpoint modules</dd></div>
+                  <div><dt>Clinical block</dt><dd>depression; major depressive disorder; treatment-resistant depression; PTSD; anxiety; substance use disorder; addiction; alcohol use disorder; opioid use disorder; craving; suicidal ideation; anhedonia; quality of life; patient populations; clinical outcomes</dd></div>
+                  <div><dt>Endpoint block</dt><dd>fMRI; BOLD; functional connectivity; default mode network; amygdala; prefrontal cortex; PET; receptor occupancy; EEG; neural oscillations; cognitive task; cognitive flexibility; emotional processing; BDNF; cortisol; cytokines; molecular readouts</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused clinical endpoint modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>psilocybin depression brain and molecular endpoints; ketamine depression molecular endpoints; psilocybin depression brain/molecular endpoints; MDMA PTSD social-brain endpoints</dd></div>
+                  <div><dt>Query emphasis</dt><dd>compound-condition combinations paired with imaging, connectivity, BDNF, cortisol, inflammation, cytokines, EEG, cognitive function, social cognition, emotion recognition, and brain-region terms</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Supplementary targeted direct-pair searches <span>very many pair combinations</span></summary>
             <div class="method-query-note">
               <p>
-                The direct searches apply fixed query forms to every
-                compound-target pair and every compound-indication pair in the
-                vocabulary.
+                The grouped domain searches are the primary discovery
+                instrument. Direct-pair searches are used as a supplementary
+                layer for selected compound-entity and compound-outcome
+                combinations: larger generated grids were run for bounded target
+                and clinical vocabularies, while later domain additions used
+                targeted pair checks rather than an exhaustive cross-product of
+                every possible compound and concept.
               </p>
+              <div class="method-pair-table-wrap">
+                <table class="method-pair-table">
+                  <thead>
+                    <tr>
+                      <th>Pair layer</th>
+                      <th>Pair space</th>
+                      <th>How it was used</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Molecular target grid</td>
+                      <td>Canonical compounds paired with the molecular target vocabulary</td>
+                      <td>1,840 compound-target pairs were run as 5,520 binding, receptor-pharmacology, and functional-assay searches.</td>
+                    </tr>
+                    <tr>
+                      <td>Clinical evidence grid</td>
+                      <td>Canonical compounds paired with the clinical evidence vocabulary</td>
+                      <td>1,240 compound-clinical evidence pairs were run as 3,717 clinical-trial, randomized/placebo, and treatment-outcome searches.</td>
+                    </tr>
+                    <tr>
+                      <td>Brain, network, and task pair files</td>
+                      <td>Canonical compounds paired with brain-region/network, circuit, and cognitive-behavioral task concepts</td>
+                      <td>Generated as versioned search artifacts for 3,600 newly added brain/network/task pairs, but not run as a complete direct-pair discovery search in this build.</td>
+                    </tr>
+                    <tr>
+                      <td>Additional direct-pair check</td>
+                      <td>Selected sparse molecular, brain/network, cognitive-behavioral, symptom, functioning, and safety combinations</td>
+                      <td>62 selected pair searches were run after the additional domain searches: 41 molecular/brain/cognitive/pathway searches and 21 clinical symptom/function/safety searches.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
               <dl>
                 <div><dt>Compound vocabulary</dt><dd>LSD; psilocybin; psilocin; mescaline; DMT; 5-MeO-DMT; bufotenin; ayahuasca; ibogaine; noribogaine; MDMA; MDA; ketamine; esketamine; arketamine; DOI; DOB; DOM; DOET; 2C-B; 2C-E; 2C-I; 2C-T-2; 2C-T-7; 5-MeO-DiPT; DiPT; DPT; LSA; AL-LAD; ETH-LAD; PRO-LAD; 1P-LSD; salvinorin A; lisuride; Bromo-DragonFLY; 25I-NBOMe; 25B-NBOMe; 25C-NBOMe; TMA; TMA-2</dd></div>
                 <div><dt>Target vocabulary</dt><dd>5-HT2A; 5-HT2B; 5-HT2C; 5-HT1A; 5-HT1B; 5-HT1D; 5-HT1E; 5-HT1F; 5-HT5A; 5-HT6; 5-HT7; mGluR2 (GRM2); TAAR1; SERT (SLC6A4); NET (SLC6A2); DAT (SLC6A3); VMAT2 (SLC18A2); D1 receptor (DRD1); D2 receptor (DRD2); D3 receptor (DRD3); D4 receptor (DRD4); D5 receptor (DRD5); Alpha1A adrenergic receptor (ADRA1A); Alpha1B adrenergic receptor (ADRA1B); Alpha2A adrenergic receptor (ADRA2A); Alpha2B adrenergic receptor (ADRA2B); Alpha2C adrenergic receptor (ADRA2C); Beta1 adrenergic receptor (ADRB1); Beta2 adrenergic receptor (ADRB2); M1 muscarinic receptor (CHRM1); M2 muscarinic receptor (CHRM2); M3 muscarinic receptor (CHRM3); M4 muscarinic receptor (CHRM4); M5 muscarinic receptor (CHRM5); H1 receptor (HRH1); H2 receptor (HRH2); Sigma-1 receptor (SIGMAR1); Sigma-2 receptor (TMEM97); kappa opioid receptor (OPRK1); mu opioid receptor (OPRM1); delta opioid receptor (OPRD1); NMDA receptor; AMPA receptor; TrkB (NTRK2); CB1 receptor (CNR1); CB2 receptor (CNR2)</dd></div>
-                <div><dt>Indication vocabulary</dt><dd>Treatment-resistant depression; major depressive disorder; bipolar depression; persistent depressive disorder; post-traumatic stress disorder; complex post-traumatic stress disorder; alcohol use disorder; tobacco use disorder; nicotine dependence; opioid use disorder; cannabis use disorder; cocaine use disorder; methamphetamine use disorder; stimulant use disorder; substance use disorder; generalized anxiety disorder; social anxiety disorder; distress associated with life-threatening disease; obsessive-compulsive disorder; eating disorders; anorexia nervosa; bulimia nervosa; binge-eating disorder; autism spectrum disorder; demoralization; suicidal ideation; cluster headache; headache disorders; migraine; chronic pain; fibromyalgia</dd></div>
+                <div><dt>Brain region and network vocabulary</dt><dd>Prefrontal cortex; medial prefrontal cortex; orbitofrontal cortex; anterior cingulate cortex; posterior cingulate cortex; cingulate cortex; visual cortex; somatosensory cortex; insula; hippocampus; ventral hippocampus; dorsal hippocampus; amygdala; basolateral amygdala; central amygdala; striatum; ventral striatum; dorsal striatum; nucleus accumbens; caudate; putamen; thalamus; mediodorsal thalamus; reticular thalamus; claustrum; habenula; lateral habenula; dorsal raphe nucleus; raphe nucleus; ventral tegmental area; locus coeruleus; periaqueductal gray; default mode network; salience network; frontoparietal network; central executive network; limbic network; visual network; sensorimotor network; thalamo-cortical circuit; cortico-striatal circuit; cortical-subcortical circuit; fronto-limbic circuit; hippocampal-prefrontal circuit; amygdala-prefrontal circuit; mesolimbic reward circuit</dd></div>
+                <div><dt>Cognitive and behavioral vocabulary</dt><dd>Cognitive flexibility; reversal learning; probabilistic reversal learning; set shifting; attentional set shifting; Wisconsin Card Sorting Test; go/no-go task; stop-signal task; delay discounting; fear conditioning; fear extinction; extinction learning; threat processing; startle response; prepulse inhibition; conditioned freezing; reward learning; reinforcement learning; social reward learning; monetary incentive delay task; sucrose preference; conditioned place preference; self-administration; drug seeking; relapse behavior; emotional processing; emotion recognition; facial emotion recognition; social cognition; empathy; theory of mind; social behavior; social interaction; attention; continuous performance task; working memory; novel object recognition; spatial memory; forced swim test; tail suspension test; learned helplessness; chronic social defeat; open field test; elevated plus maze</dd></div>
+                <div><dt>Clinical vocabulary</dt><dd>Treatment-resistant depression; major depressive disorder; bipolar depression; persistent depressive disorder; post-traumatic stress disorder; complex post-traumatic stress disorder; alcohol use disorder; tobacco use disorder; nicotine dependence; opioid use disorder; cannabis use disorder; cocaine use disorder; methamphetamine use disorder; stimulant use disorder; substance use disorder; generalized anxiety disorder; social anxiety disorder; distress associated with life-threatening disease; obsessive-compulsive disorder; eating disorders; anorexia nervosa; bulimia nervosa; binge-eating disorder; autism spectrum disorder; demoralization; suicidal ideation; cluster headache; headache disorders; migraine; chronic pain; fibromyalgia</dd></div>
               </dl>
-              <ul>
-                <li><strong>Mechanistic:</strong> 1,840 compound-target pairs searched with binding-affinity, receptor-pharmacology, and functional-assay query forms, producing 5,520 generated search strings.</li>
-                <li><strong>Clinical:</strong> 1,240 compound-indication pairs searched with randomized-placebo, treatment-outcome, and clinical-trial query forms, producing 3,717 generated search strings.</li>
-              </ul>
               <dl>
-                <div><dt>Mechanistic query forms</dt><dd>{compound} {target} binding affinity Ki; {compound} {target} receptor pharmacology assay; {compound} {target} functional assay agonist antagonist</dd></div>
-                <div><dt>Clinical query forms</dt><dd>{compound} {indication} randomized placebo; {compound} {indication} treatment outcome; {compound} {indication} clinical trial</dd></div>
+                <div><dt>Molecular target query forms</dt><dd>{compound} {target} binding affinity Ki; {compound} {target} receptor pharmacology assay; {compound} {target} functional assay agonist antagonist</dd></div>
+                <div><dt>Brain/network query forms</dt><dd>{compound} {entity} functional connectivity; {compound} {entity} neuroimaging; {compound} {entity} circuit behavior</dd></div>
+                <div><dt>Cognitive-behavioral query forms</dt><dd>{compound} {entity} cognitive task; {compound} {entity} behavioral task; {compound} {entity} learning conditioning</dd></div>
+                <div><dt>Clinical query forms</dt><dd>{compound} {clinical concept} randomized placebo; {compound} {clinical concept} treatment outcome; {compound} {clinical concept} clinical trial</dd></div>
               </dl>
             </div>
           </details>
@@ -479,51 +466,6 @@
           </div>
         </div>
         <div id="methodsPipeline" class="methods-loading">Loading paper flow.</div>
-      </section>
-
-      <section class="about-section methods-analytics" aria-labelledby="literature-landscape">
-        <div class="methods-section-header">
-          <div>
-            <h2 id="literature-landscape">Literature Landscape</h2>
-            <p>
-              This is a preview of the paper layer. It shows where the
-              literature is concentrated before every evidence record has been
-              extracted, using paper types, source families, years, designs,
-              outcomes, assays, and representative papers.
-            </p>
-          </div>
-          <div class="method-segmented" role="tablist" aria-label="Landscape relation type">
-            <button class="ghost small active" type="button" data-landscape-mode="compound_disorder" role="tab" aria-selected="true">
-              Indications
-            </button>
-            <button class="ghost small" type="button" data-landscape-mode="compound_target" role="tab" aria-selected="false">
-              Targets
-            </button>
-          </div>
-        </div>
-        <div id="methodsLandscape" class="methods-loading">Loading literature landscape.</div>
-      </section>
-
-      <section class="about-section methods-analytics" aria-labelledby="literature-gaps">
-        <div class="methods-section-header">
-          <div>
-            <h2 id="literature-gaps">Gap View</h2>
-            <p>
-              This view asks a practical question: where is the literature
-              signal larger than the current extracted evidence? Those areas
-              are good candidates for extraction, normalization, or review.
-            </p>
-          </div>
-          <div class="method-segmented" role="tablist" aria-label="Gap relation type">
-            <button class="ghost small active" type="button" data-gap-mode="compound_disorder" role="tab" aria-selected="true">
-              Indications
-            </button>
-            <button class="ghost small" type="button" data-gap-mode="compound_target" role="tab" aria-selected="false">
-              Targets
-            </button>
-          </div>
-        </div>
-        <div id="methodsGaps" class="methods-loading">Loading gap view.</div>
       </section>
 
       <section class="about-section method-quality-section" aria-labelledby="quality-control">
@@ -588,6 +530,11 @@
             target="_blank"
             rel="noopener noreferrer"
           >Evidence policy</a>
+          <a
+            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/terminology.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Terminology</a>
         </div>
         <div class="method-feedback" id="feedback">
           <p>
@@ -613,6 +560,6 @@
         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">source repository</a>.
       </div>
     </footer>
-    <script src="methods.js?v=20260514-methods-restructure"></script>
+    <script src="methods.js?v=20260526-methods-domain-search"></script>
   </body>
 </html>

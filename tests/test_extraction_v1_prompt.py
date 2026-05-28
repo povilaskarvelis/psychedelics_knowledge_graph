@@ -21,8 +21,13 @@ def test_extraction_dataset_addenda_are_separate() -> None:
 
     assert "dataset = \"mechanistic\"" in mechanistic
     assert "compound_target" in mechanistic
+    assert "molecular_readout" in mechanistic
+    assert "pathway_process" in mechanistic
     assert "compound_disorder" in disorder
     assert "therapeutic or functional interpretation" in disorder
+    assert "symptom_or_problem" in disorder
+    assert "safety_or_adverse_event" in disorder
+    assert "condition_indication" in disorder
 
 
 def test_extraction_protocol_contains_scope_guard_examples() -> None:

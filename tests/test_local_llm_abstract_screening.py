@@ -19,6 +19,7 @@ from pipeline.review.run_local_llm_abstract_screening import (
     deterministic_prescreen_decision,
     download_queue_eligible,
     enforce_validation_flags,
+    evidence_domain_tags_for_context,
     fast_screen_excludes,
     fast_screen_irrelevant_adjudication,
     filter_indexed_rows,
@@ -27,6 +28,7 @@ from pipeline.review.run_local_llm_abstract_screening import (
     load_report_results,
     load_reprocess_doi_set,
     matched_in_scope_intervention_terms,
+    normalize_routing_tags,
     merge_report_rows,
     print_screening_row_followup,
     queue_rows_from_results,
@@ -95,6 +97,10 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
     def test_schema_requires_quote_and_contexts(self) -> None:
         self.assertIn("supporting_abstract_quote", ABSTRACT_SCREENING_SCHEMA["required"])
         self.assertIn("supported_contexts", ABSTRACT_SCREENING_SCHEMA["required"])
+        self.assertIn("routing_tags", ABSTRACT_SCREENING_SCHEMA["required"])
+        self.assertIn("molecular_pathway", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
+        self.assertIn("brain_system", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
+        self.assertIn("bridge_clinical_mechanism", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
         context_schema = ABSTRACT_SCREENING_SCHEMA["properties"]["supported_contexts"]["items"]
         self.assertIn("compound", context_schema["required"])
         self.assertIn("supporting_quote", context_schema["required"])
@@ -132,6 +138,8 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertNotIn("relevance_suggested", payload["candidate_metadata"])
         self.assertNotIn("likely_irrelevant", messages[1]["content"])
         self.assertIn("do not classify source type", messages[1]["content"])
+        self.assertIn("routing_tags", messages[1]["content"])
+        self.assertIn("brain regions, circuits, networks", messages[1]["content"])
 
     def test_fast_prompt_is_conservative_about_escalation(self) -> None:
         row = {
@@ -151,6 +159,7 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertIn("Return escalate if the paper mentions any psychedelic", messages[1]["content"])
         self.assertIn("candidate_contexts", payload)
         self.assertIn("supplied candidate_contexts compound or entity term", messages[1]["content"])
+        self.assertIn("Clinical-population brain/cognition papers should escalate", messages[1]["content"])
 
     def test_fast_screen_excludes_only_high_confidence_verified_quote(self) -> None:
         context = "Title: Hemodialysis intervention\nAbstract: Exercise improved quality of life."
@@ -260,6 +269,50 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
             )["action"],
             "exclude_obvious_irrelevant",
         )
+
+    def test_deterministic_prescreen_tags_brain_cognition_and_bridge_scope(self) -> None:
+        row = {
+            "study_title": "Psilocybin therapy and default mode network connectivity in depression",
+            "abstract": "Patients with depression received psilocybin and completed fMRI and cognitive flexibility tasks.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "escalate")
+        self.assertIn("brain_system", decision["routing_tags"])
+        self.assertIn("cognitive_behavioral", decision["routing_tags"])
+        self.assertIn("clinical_outcome", decision["routing_tags"])
+        self.assertIn("bridge_clinical_mechanism", decision["routing_tags"])
+
+    def test_evidence_domain_tags_cover_new_systems_scope(self) -> None:
+        context = (
+            "Title: MDMA social reward and amygdala-prefrontal circuit function\n"
+            "Abstract: The study measured BDNF, fMRI connectivity, empathy, safety, and PTSD symptoms."
+        )
+
+        tags = evidence_domain_tags_for_context("mechanistic", context)
+
+        self.assertEqual(
+            tags,
+            [
+                "molecular_pathway",
+                "brain_system",
+                "cognitive_behavioral",
+                "clinical_outcome",
+                "safety",
+                "bridge_clinical_mechanism",
+            ],
+        )
+
+    def test_normalize_routing_tags_filters_unknown_values(self) -> None:
+        self.assertEqual(
+            normalize_routing_tags("brain-system|clinical outcome|not_a_tag|brain_system"),
+            ["brain_system", "clinical_outcome"],
+        )
+
+    def test_normalize_routing_tags_maps_old_pathway_biomarker_alias(self) -> None:
+        self.assertEqual(normalize_routing_tags("pathway-biomarker|molecular_pathway"), ["molecular_pathway"])
 
     def test_deterministic_prescreen_uses_config_allowed_compounds(self) -> None:
         self.assertIn("Mescaline", configured_allowed_compound_terms())
@@ -633,7 +686,12 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
                 "publication_date": "2025-01-02",
                 "abstract": "Psilocybin binds 5-HT2A.",
             },
-            adjudication={"relevance": "relevant", "confidence": 0.9, "needs_targeted_qa": False},
+            adjudication={
+                "relevance": "relevant",
+                "confidence": 0.9,
+                "needs_targeted_qa": False,
+                "routing_tags": ["molecular_target", "brain_system"],
+            },
             status="ok",
             quote_verified=True,
             verified_contexts=[{"compound": "Psilocybin", "entity": "5-HT2A"}],
@@ -645,6 +703,7 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertEqual(flat["study_journal"], "Journal")
         self.assertEqual(flat["publication_type"], "Review")
         self.assertEqual(flat["publication_date"], "2025-01-02")
+        self.assertEqual(flat["llm_routing_tags"], "molecular_target|brain_system")
 
     def test_write_csv_includes_authors_and_metadata_columns(self) -> None:
         out = Path(tempfile.gettempdir()) / "psychkg_abstract_screening_metadata.csv"
@@ -669,6 +728,7 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
             self.assertIn("authors", header)
             self.assertIn("study_journal", header)
             self.assertIn("publication_type", header)
+            self.assertIn("llm_routing_tags", header)
         finally:
             out.unlink(missing_ok=True)
 

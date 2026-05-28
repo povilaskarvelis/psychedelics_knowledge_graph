@@ -30,6 +30,10 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EXTRACTION_DIR = ROOT / "data" / "processed" / "extraction"
 DEFAULT_OUT_DIR = ROOT / "data" / "processed" / "kg"
 DEFAULT_REGISTRY_PATH = ROOT / "data" / "curated" / "entity_registry.json"
+DEFAULT_PAPER_LIBRARY_PATHS = {
+    "disorder": ROOT / "data" / "processed" / "paper_library_disorder.csv",
+    "mechanistic": ROOT / "data" / "processed" / "paper_library_mechanistic.csv",
+}
 KG_TABLE_VERSION = "0.1"
 
 GRAPH_SOURCES = {
@@ -95,6 +99,12 @@ PAPER_FIELDS = (
     "conflicts_of_interest",
     "risk_of_bias_summary",
     "source_access_level",
+    "open_access_is_oa",
+    "open_access_status",
+    "open_access_url",
+    "unpaywall_is_oa",
+    "unpaywall_oa_status",
+    "unpaywall_license",
 )
 
 CLAIM_FIELDS = (
@@ -164,6 +174,32 @@ CLAIM_FIELDS = (
 
 PRIMARY_MARKERS = {"primary_evidence", "primary_study", "primary_results"}
 SECONDARY_MARKERS = {"secondary_literature", "secondary_evidence", "review", "meta_analysis", "systematic_review"}
+MECHANISTIC_ENTITY_KIND_OVERRIDES = {"target", "pathway_process", "biomarker_readout", "system_family"}
+MECHANISTIC_BIOMARKER_LABELS = {
+    "Arc",
+    "BDNF",
+    "c-Fos",
+    "DOPAC",
+    "Dopamine",
+    "GDNF",
+    "GFAP",
+    "Glutamate",
+    "HSP70",
+    "HVA",
+    "IGF1",
+    "IL-1beta",
+    "IL-6",
+    "IL-8",
+    "Myelin basic protein",
+    "Neurofilament light chain",
+    "NGF",
+    "Norepinephrine",
+    "Prolactin",
+    "PSD-95 (DLG4)",
+    "Serotonin",
+    "TGF-beta",
+    "TNF-alpha",
+}
 
 
 def now_utc() -> str:
@@ -272,6 +308,54 @@ def registry_lookup(registry_path: Path) -> dict[tuple[str, str], dict]:
             if not label:
                 continue
             out[(entity_type, label)] = item
+    return out
+
+
+OPEN_ACCESS_FIELDS = (
+    "open_access_is_oa",
+    "open_access_status",
+    "open_access_url",
+    "unpaywall_is_oa",
+    "unpaywall_oa_status",
+    "unpaywall_license",
+)
+
+
+def paper_library_lookup(path: Path) -> dict[tuple[str, str], dict]:
+    if not path.exists():
+        return {}
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
+    out: dict[tuple[str, str], dict] = {}
+    for record in df.to_dict(orient="records"):
+        metadata = {field: normalize(record.get(field, "")) for field in OPEN_ACCESS_FIELDS}
+        if not any(metadata.values()):
+            continue
+        doi = normalize_doi(record.get("study_doi", ""))
+        if doi:
+            out.setdefault(("doi", doi), metadata)
+        openalex_id = normalize(record.get("openalex_id", ""))
+        if openalex_id:
+            out.setdefault(("openalex", openalex_id), metadata)
+    return out
+
+
+def paper_library_lookups(paths: dict[str, Path] | None = None) -> dict[str, dict[tuple[str, str], dict]]:
+    paths = paths or DEFAULT_PAPER_LIBRARY_PATHS
+    return {dataset: paper_library_lookup(path) for dataset, path in paths.items()}
+
+
+def enrich_open_access_metadata(row: dict, lookup: dict[tuple[str, str], dict]) -> dict:
+    doi = normalize_doi(row.get("study_doi", ""))
+    openalex_id = normalize(row.get("openalex_id", ""))
+    metadata = lookup.get(("doi", doi)) if doi else None
+    if not metadata and openalex_id:
+        metadata = lookup.get(("openalex", openalex_id))
+    if not metadata:
+        return row
+    out = dict(row)
+    for field, value in metadata.items():
+        if value and not normalize(out.get(field, "")):
+            out[field] = value
     return out
 
 
@@ -493,6 +577,9 @@ def evidence_type_for(row: dict, default: str) -> str:
 
 
 def mechanistic_entity_kind(row: dict, registry_item: dict | None = None) -> str:
+    override = normalize(row.get("kg_entity_kind_override", "")).casefold()
+    if override in MECHANISTIC_ENTITY_KIND_OVERRIDES:
+        return override
     role = normalize(row.get("entity_role", "")).casefold()
     status = normalize((registry_item or {}).get("status", "")).casefold()
     label = normalize(row.get("target", ""))
@@ -500,13 +587,13 @@ def mechanistic_entity_kind(row: dict, registry_item: dict | None = None) -> str
         return "system_family"
     if "pathway" in status or "process" in status:
         return "pathway_process"
-    if "marker" in status or "ligand" in status:
+    if "marker" in status or "readout" in status or "ligand" in status:
         return "biomarker_readout"
     if role == "pathway_or_process":
         return "pathway_process"
     if role == "biomarker":
         return "biomarker_readout"
-    if label in {"BDNF", "TNF-alpha", "IL-6", "Serotonin", "Dopamine", "Norepinephrine"}:
+    if label in MECHANISTIC_BIOMARKER_LABELS:
         return "biomarker_readout"
     return "target"
 
@@ -704,6 +791,7 @@ def build_tables(
 ) -> dict:
     graph_sources = graph_sources or GRAPH_SOURCES
     registry = registry_lookup(registry_path)
+    access_lookups = paper_library_lookups()
     papers: dict[str, dict] = {}
     entities: dict[str, dict] = {}
     claims: list[dict] = []
@@ -717,8 +805,10 @@ def build_tables(
         domain = cfg["domain"]
         dataset = cfg["dataset"]
         default_evidence_type = cfg["default_evidence_type"]
+        access_lookup = access_lookups.get(dataset, {})
 
         for index, row in enumerate(rows):
+            row = enrich_open_access_metadata(row, access_lookup)
             if should_skip_evidence_row(domain, row):
                 continue
 

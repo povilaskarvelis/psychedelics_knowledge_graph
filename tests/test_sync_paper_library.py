@@ -13,7 +13,9 @@ from pipeline.ingest.sync_paper_library import (
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
+    parse_corpus_table,
     parse_provider_order,
+    row_needs_core_metadata_refresh,
     row_needs_oa_refresh,
 )
 
@@ -84,6 +86,11 @@ class SyncPaperLibraryTest(unittest.TestCase):
         row["pdf_download_status"] = "invalid_pdf_content"
         self.assertTrue(row_needs_oa_refresh(row, ["pubmed", "pmc", "unpaywall", "crossref"]))
 
+    def test_core_metadata_refresh_ignores_abstract_only_gap(self) -> None:
+        self.assertTrue(row_needs_core_metadata_refresh({"metadata_lookup_error": "failed"}))
+        self.assertTrue(row_needs_core_metadata_refresh({"study_title": "", "abstract": "Has abstract"}))
+        self.assertFalse(row_needs_core_metadata_refresh({"study_title": "Known title", "abstract": ""}))
+
     def test_refresh_missing_metadata_includes_existing_rows_absent_from_queue(self) -> None:
         papers = [{"study_doi": "10.1000/in-queue", "study_title": "Queued"}]
         existing_rows = [
@@ -114,6 +121,60 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual([row["study_doi"] for row in out], ["10.1000/in-queue", "10.1000/missing-abstract"])
         self.assertEqual(out[1]["study_title"], "Existing missing abstract")
         self.assertEqual(out[1]["contexts"], [{"compound": "psilocybin", "entity": "5-HT2A"}])
+
+    def test_parse_corpus_table_selects_only_missing_metadata_rows(self) -> None:
+        import pandas as pd
+
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            papers_path = root / "candidate_papers.parquet"
+            contexts_path = root / "candidate_contexts.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/missing",
+                        "datasets": "mechanistic",
+                        "study_title": "Missing metadata paper",
+                        "study_year": "2026",
+                        "authors": "A. Author",
+                        "flag_in_paper_library": False,
+                    },
+                    {
+                        "doi": "10.1000/synced",
+                        "datasets": "disorder",
+                        "study_title": "Already synced",
+                        "flag_in_paper_library": True,
+                    },
+                ]
+            ).to_parquet(papers_path, index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/missing",
+                        "dataset": "mechanistic",
+                        "compound": "Psilocybin",
+                        "entity": "default mode network",
+                        "entity_type": "target",
+                    }
+                ]
+            ).to_parquet(contexts_path, index=False)
+
+            rows = parse_corpus_table(papers_path, contexts_path, missing_metadata_only=True)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["study_doi"], "10.1000/missing")
+        self.assertEqual(rows[0]["study_title"], "Missing metadata paper")
+        self.assertEqual(
+            rows[0]["contexts"],
+            [
+                {
+                    "compound": "Psilocybin",
+                    "entity": "default mode network",
+                    "dataset": "mechanistic",
+                    "entity_type": "target",
+                }
+            ],
+        )
 
     def test_unpaywall_adds_pdf_without_overriding_pubmed_abstract_provider(self) -> None:
         doi = "10.1000/example"

@@ -168,6 +168,21 @@ class RunGeminiExtractionV1Test(unittest.TestCase):
         self.assertEqual(disorder["properties"]["dataset"]["enum"], ["disorder"])
         self.assertEqual(mechanistic_claim["properties"]["claim_type"]["enum"], ["compound_target"])
         self.assertEqual(disorder_claim["properties"]["claim_type"]["enum"], ["compound_disorder"])
+        self.assertEqual(
+            mechanistic_claim["properties"]["graph_entity_type"]["enum"],
+            ["target", "system_family", "pathway_process", "molecular_readout", "none", "uncertain"],
+        )
+        self.assertEqual(
+            disorder_claim["properties"]["graph_entity_type"]["enum"],
+            [
+                "condition_indication",
+                "symptom_problem",
+                "safety_adverse_event",
+                "outcome_scale",
+                "none",
+                "uncertain",
+            ],
+        )
         self.assertIn("affinity_type", mechanistic_claim["properties"])
         self.assertNotIn("outcome_measure", mechanistic_claim["properties"])
         self.assertIn("outcome_measure", disorder_claim["properties"])
@@ -603,6 +618,37 @@ class RunGeminiExtractionV1Test(unittest.TestCase):
         self.assertFalse(normalized["claims"][0]["graph_include_candidate"])
         self.assertIn("assay_readout", normalized["claims"][0]["graph_exclusion_reason"])
         self.assertIn("non_graph_endpoint_candidate_removed", changes)
+
+    def test_normalize_extraction_result_keeps_mechanistic_readout_candidate(self) -> None:
+        payload = {
+            "paper_assessment": {
+                "relevance": "relevant",
+                "route": "primary_evidence",
+                "has_original_results": True,
+                "has_extractable_claims": True,
+                "needs_human_review": False,
+            },
+            "claims": [
+                {
+                    "claim_type": "compound_target",
+                    "compound": "Ketamine",
+                    "target": "BDNF",
+                    "disorder": "not_applicable",
+                    "entity_role": "molecular_readout",
+                    "graph_entity_type": "molecular_readout",
+                    "graph_include_candidate": True,
+                    "graph_exclusion_reason": "not_applicable",
+                    "supporting_quote": "Ketamine increased BDNF expression.",
+                }
+            ],
+            "coverage_mentions": [],
+        }
+
+        normalized, changes = normalize_extraction_v1_result(payload)
+
+        self.assertEqual(normalized["claims"][0]["entity_role"], "biomarker")
+        self.assertTrue(normalized["claims"][0]["graph_include_candidate"])
+        self.assertNotIn("non_graph_endpoint_candidate_removed", changes)
 
 
 if __name__ == "__main__":
