@@ -1,8 +1,0 @@
-# retry queue generated from paper library rows
-# doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors
-10.1016/j.jad.2020.01.120,Ketamine,Chronic pain,Development of the Ketamine Side Effect Tool (KSET),2020,Brooke Short; Vanessa Dong; Verònica Gálvez; Vedran Vulovic; Donel Martin; Adam J Bayes; Carlos A Zarate; James W Murrough; Declan M McLoughlin; Patricio Riva-Posse
-10.1177/02698811241265756,LSD,Demoralization,A framework for assessment of adverse events occurring in psychedelic-assisted therapies,2024,Roman Palitsky; Deanna M Kaplan; John Perna; Zachary Bosshardt; Jessica L Maples-Keller; Holly F Levin-Aspenson; Ali John Zarrabi; Caroline Peacock; Tanja Mletzko; Barbara O Rothbaum
-10.17615/bkw1-d506,Psilocin,Cluster headache,Psychedelics as Transformative Therapeutics,2024,Roth B.L; Gumpper R.H
-10.17615/rd8y-nq91,Noribogaine,Treatment-resistant depression,Mental Health Facilities With Ketamine Infusion Therapy in the United States in 2020: Co-Location of Dual Diagnosis Mental Health and Substance Use Disorder Treatment,2024,Orrin D. Ware
-10.3389/fpsyt.2025.1681795,Psilocin,,High hopes? Precision psychedelic addiction medicine,2026,Rayyan Raja Zafar; Patrick Kleine; Danielle Kurtin; Matthew Wall; David Erritzoe
-10.34172/ddj.2023.437,Ketamine,Suicidal ideation,The Effect of Intravenous Ketamine on Suicidal Ideation in Depressed Patients: A Randomized Clinical Trial,2022,Farah Moayedi; Ali Massoudifar; Sholeh Namazi; Hossein Mirzaei Zadeh; Seyed Hamzeh Seddigh; Saeed Hosseini Teshnizi

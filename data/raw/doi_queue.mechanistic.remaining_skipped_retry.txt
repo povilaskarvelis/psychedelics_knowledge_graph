@@ -1,4 +1,0 @@
-# retry queue generated from paper library rows
-# doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors
-10.1002/dta.1686,LSD,5-HT2A,The new drug phenomenon,2014,Simon D. Brandt; Leslie A. King; Michael Evans‐Brown
-10.1016/j.pbb.2019.04.003,LSD,5-HT2A,The adrenergic receptor antagonist carvedilol interacts with serotonin 2A receptors both in vitro and in vivo,2019,Kevin Sean Murnane; Osman F. Guner; J. Phillip Bowen; Kalyn M. Rambacher; Nader H. Moniri; Tyler J. Murphy; Cedrick Maceo Daphney; Aboagyewaah Oppong-Damoah; Kenner C. Rice

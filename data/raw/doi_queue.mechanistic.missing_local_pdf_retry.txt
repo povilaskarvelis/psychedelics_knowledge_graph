@@ -1,3 +1,0 @@
-# retry queue generated from paper library rows
-# doi,compound,target_or_disorder,optional_study_title,optional_study_year,optional_authors
-10.1097/ALN.0000000000000076,Salvinorin A,kappa opioid receptor (OPRK1),Novel Molecular Targets of Dezocine and Their Clinical Implications,2013,Renyu Liu; Xi-Ping Huang; Alexei Yeliseev; Jin Xi; Bryan L. Roth

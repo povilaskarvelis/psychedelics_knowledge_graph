@@ -1,6 +1,0 @@
-# Disorder queue format:
-# doi,compound,disorder,optional_study_title,optional_study_year
-
-10.1056/NEJMoa2206443,Psilocybin,Treatment-resistant depression,Single-Dose Psilocybin for a Treatment-Resistant Episode of Major Depression,2022
-10.1038/s41591-021-01336-3,MDMA,Post-traumatic stress disorder,MDMA-assisted therapy for severe PTSD,2021
-10.1001/jamapsychiatry.2022.2096,Psilocybin,Alcohol use disorder,Psilocybin-assisted psychotherapy in alcohol use disorder,2022

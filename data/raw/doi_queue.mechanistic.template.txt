@@ -1,6 +1,0 @@
-# Mechanistic queue format:
-# doi,compound,target,optional_study_title,optional_study_year
-
-10.1007/s00213-011-2616-6,5-MeO-DMT,5-HT1A,Behavioral effects of deuterated 5-MeO-DMT in rats,2012
-10.1016/S0014-2999(97)01116-3,S-ketamine,NMDA receptor,Norketamine is a noncompetitive antagonist at the NMDA receptor,1997
-10.1089/psymed.2023.0015,MDMA,SERT,Methylenedioxymethamphetamine (MDMA): History Neurobiology and Therapeutic Potential,2023

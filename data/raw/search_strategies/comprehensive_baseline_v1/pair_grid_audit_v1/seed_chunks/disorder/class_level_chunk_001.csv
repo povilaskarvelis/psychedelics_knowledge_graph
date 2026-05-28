@@ -1,4 +1,0 @@
-seed_id,dataset,family,query,compound,entity,entity_type,template
-disorder_00042,disorder,class_level,psychedelic therapy clinical trial psychiatric disorder,,,indication,psychedelic therapy clinical trial psychiatric disorder
-disorder_00043,disorder,class_level,psychedelic-assisted therapy safety efficacy,,,indication,psychedelic-assisted therapy safety efficacy
-disorder_00044,disorder,class_level,psilocybin LSD MDMA ketamine clinical trial,,,indication,psilocybin LSD MDMA ketamine clinical trial

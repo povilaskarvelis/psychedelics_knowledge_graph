@@ -8,7 +8,8 @@ structured findings about psychedelics, mechanisms, and mental health outcomes.
 [Search Seed Strategy](docs/search_seed_strategy.md) |
 [Search Completeness](docs/search_completeness.md) |
 [Evidence Policy](docs/evidence_policy.md) |
-[Terminology](docs/terminology.md)
+[Terminology](docs/terminology.md) |
+[Deployment](docs/deployment.md)
 
 ![Interface screenshot](ui/assets/gui-screenshot.png)
 

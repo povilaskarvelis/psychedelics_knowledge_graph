@@ -1,0 +1,8 @@
+[build]
+  command = "bash scripts/build_site.sh"
+  publish = "dist"
+
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
