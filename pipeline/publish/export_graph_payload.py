@@ -714,6 +714,11 @@ def payload_sha256(payload: dict) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def compact_json(payload: dict) -> str:
+    """Return deterministic compact JSON suitable for static-site publishing."""
+    return json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n"
+
+
 def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAIM_SOURCE) -> Tuple[dict, Dict[str, List[str]]]:
     cfg = DATASET_CONFIG[dataset]
     source_paths = claim_source_paths(dataset, claim_source)
@@ -774,7 +779,7 @@ def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAI
 
         out_file = out_dir / payload_file_for_view(cfg, view=view)
         out_file.parent.mkdir(parents=True, exist_ok=True)
-        out_file.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        out_file.write_text(compact_json(payload), encoding="utf-8")
 
         view_exports[view] = {
             "payload": payload,

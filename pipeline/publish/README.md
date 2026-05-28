@@ -66,6 +66,8 @@ Each payload contains:
   context and are not included in that view by default.
 - Manifest includes SHA-256 digests and row counts for all evidence views.
 - Graph payload files avoid volatile timestamps so hashes are stable when data is unchanged.
+- Large browser payloads are written as compact JSON so GitHub Pages can serve
+  the current graph without the avoidable overhead from pretty indentation.
 - Bibliography payloads currently use `source: abstract_screening_relevant`
   so the UI can test citation formatting before the final bibliography source
   exists.

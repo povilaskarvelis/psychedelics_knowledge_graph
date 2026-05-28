@@ -29,6 +29,11 @@ def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
+def compact_json(payload: dict) -> str:
+    """Return compact JSON for static-site payloads."""
+    return json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n"
+
+
 TAG_RE = re.compile(r"<[^>]+>")
 SPACE_RE = re.compile(r"\s+")
 
@@ -285,7 +290,7 @@ def export_dataset(dataset: str, out_dir: Path, report_paths: Iterable[Path] | N
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     out_file = out_dir / f"bibliography_payload_{dataset}.json"
-    out_file.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    out_file.write_text(compact_json(payload), encoding="utf-8")
     return {"output_file": str(out_file), "paper_count": len(papers), "source_reports": payload["source_reports"]}
 
 
