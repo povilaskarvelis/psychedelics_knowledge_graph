@@ -15,7 +15,7 @@
   --surface-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
   --glow: 0 0 24px rgba(241, 183, 75, 0.35);
-  --kg-workspace-height: 980px;
+  --kg-workspace-height: 1030px;
   --header-control-height: 40px;
   --control-surface: rgba(7, 9, 10, 0.48);
   --control-surface-hover: rgba(237, 240, 239, 0.055);
@@ -253,11 +253,28 @@ button.primary:hover {
 .graph-header-controls {
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 6px 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   box-sizing: border-box;
+}
+
+.toolbar-main-row,
+.toolbar-filter-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.toolbar-main-row {
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.toolbar-filter-row {
+  justify-content: flex-start;
 }
 
 .panel-header {
@@ -278,7 +295,7 @@ button.primary:hover {
 .mode-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   padding: 3px;
   height: var(--header-control-height);
   box-sizing: border-box;
@@ -313,6 +330,22 @@ button.primary:hover {
   box-shadow: none;
 }
 
+.category-toggle {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.category-toggle::-webkit-scrollbar {
+  display: none;
+}
+
+.category-toggle button {
+  white-space: nowrap;
+}
+
 .entity-kind-toggle[hidden] {
   display: none;
 }
@@ -323,6 +356,10 @@ button.primary:hover {
   gap: 10px;
   flex-wrap: nowrap;
   margin-left: 0;
+}
+
+.evidence-view-toggle {
+  flex: 0 0 auto;
 }
 
 .access-toggle {
@@ -373,6 +410,7 @@ button.primary:hover {
 .year-range-inline {
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
   gap: 4px;
   padding: 0;
   height: auto;

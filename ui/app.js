@@ -96,6 +96,15 @@ const ENTITY_VIEW_OPTIONS = {
     { key: "system_family", label: "Systems", singular: "System/family", lowerPlural: "systems/families", lowerSingular: "system/family" },
   ],
 };
+const ENTITY_CATEGORY_OPTIONS = [
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[0] },
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[1] },
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[2] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[3] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[2] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[1] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[0] },
+];
 
 let claims = [];
 let disorderClaims = [];
@@ -3900,32 +3909,34 @@ function updateEntityKindToggle() {
     return;
   }
 
-  const scopedClaims = graphViewClaims(mode === "mechanistic" ? claims : disorderClaims);
-  const counts = new Map();
-  scopedClaims.forEach((claim) => {
-    const kind = entityKindForClaim(claim);
-    if (!kind) return;
-    counts.set(kind, (counts.get(kind) || 0) + 1);
+  const countsByMode = {
+    disorders: new Map(),
+    mechanistic: new Map(),
+  };
+  [
+    ["disorders", disorderClaims],
+    ["mechanistic", claims],
+  ].forEach(([claimMode, modeClaims]) => {
+    graphViewClaims(modeClaims).forEach((claim) => {
+      const kind = entityKindForClaim(claim);
+      if (!kind) return;
+      const counts = countsByMode[claimMode];
+      counts.set(kind, (counts.get(kind) || 0) + 1);
+    });
   });
 
-  let options = entityViewOptionsForMode().filter((option) => (counts.get(option.key) || 0) > 0);
-  if (!options.length) options = entityViewOptionsForMode();
-  const activeKey = options.some((option) => option.key === currentEntityViewKey())
-    ? currentEntityViewKey()
-    : options[0]?.key || "";
-  if (activeKey && entityView[mode] !== activeKey) {
-    entityView = { ...entityView, [mode]: activeKey };
-  }
-
-  entityKindToggle.innerHTML = options
+  entityKindToggle.innerHTML = ENTITY_CATEGORY_OPTIONS
     .map((option) => {
-      const isActive = option.key === activeKey;
+      const isActive = option.mode === mode && option.key === currentEntityViewKey();
+      const count = countsByMode[option.mode]?.get(option.key) || 0;
       return `
         <button
           class="ghost small ${isActive ? "active" : ""}"
           data-entity-view="${escapeHtml(option.key)}"
+          data-entity-mode="${escapeHtml(option.mode)}"
           role="tab"
           aria-selected="${isActive ? "true" : "false"}"
+          aria-label="${escapeHtml(`${option.label}${count ? `, ${count} findings` : ""}`)}"
           type="button"
         >
           ${escapeHtml(option.label)}
@@ -4000,10 +4011,13 @@ function switchEvidenceView(nextView) {
   scheduleRender();
 }
 
-function switchEntityView(nextView) {
-  const options = entityViewOptionsForMode();
-  if (!options.some((option) => option.key === nextView) || currentEntityViewKey() === nextView) return;
-  entityView = { ...entityView, [mode]: nextView };
+function switchEntityView(nextView, nextMode = mode) {
+  const targetMode = ["disorders", "mechanistic"].includes(nextMode) ? nextMode : mode;
+  const options = ENTITY_VIEW_OPTIONS[targetMode] || [];
+  if (!options.some((option) => option.key === nextView)) return;
+  if (mode === targetMode && currentEntityViewKey() === nextView) return;
+  mode = targetMode;
+  entityView = { ...entityView, [targetMode]: nextView };
   selected = null;
   isolateSelection = false;
   detailGraphFilter = null;
@@ -4617,7 +4631,7 @@ if (entityKindToggle) {
   entityKindToggle.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-entity-view]");
     if (!button || !entityKindToggle.contains(button)) return;
-    switchEntityView(button.dataset.entityView || "");
+    switchEntityView(button.dataset.entityView || "", button.dataset.entityMode || mode);
   });
 }
 window.addEventListener("resize", scheduleRender);
