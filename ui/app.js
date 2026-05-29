@@ -16,6 +16,8 @@ const entityKindToggle = document.querySelector("[data-entity-kind-toggle]");
 const studiesStatCard = document.getElementById("studiesStatCard");
 const bibliographyPanel = document.getElementById("bibliographyPanel");
 const studyListEl = document.getElementById("studyList");
+const dataFetchOptions =
+  ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
 
 if (tooltip && tooltip.parentElement !== document.body) {
   document.body.appendChild(tooltip);
@@ -129,6 +131,8 @@ let renderScheduled = false;
 let activeDetailItems = [];
 let detailGraphFilter = null;
 const expandedChartKeys = new Set();
+let currentDataLoadToken = 0;
+let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let pendingTooltipPoint = null;
 let tooltipSize = { width: 240, height: 40 };
@@ -1707,6 +1711,7 @@ function renderBibliography(data) {
 
 function focusBibliography() {
   if (!bibliographyPanel) return;
+  loadBibliographyPayloadsInBackground();
   bibliographyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   bibliographyPanel.classList.add("focused");
   setTimeout(() => bibliographyPanel.classList.remove("focused"), 700);
@@ -3979,7 +3984,7 @@ function switchMode(nextMode) {
   syncYearFilterControls(activeClaimsForMode());
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  scheduleRender();
+  loadCurrentClaimsAndRender();
 }
 
 function switchClaimLayer(nextLayer) {
@@ -3994,7 +3999,7 @@ function switchClaimLayer(nextLayer) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  scheduleRender();
+  loadCurrentClaimsAndRender();
 }
 
 function switchEvidenceView(nextView) {
@@ -4008,7 +4013,7 @@ function switchEvidenceView(nextView) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  scheduleRender();
+  loadCurrentClaimsAndRender();
 }
 
 function switchEntityView(nextView, nextMode = mode) {
@@ -4026,14 +4031,14 @@ function switchEntityView(nextView, nextMode = mode) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  scheduleRender();
+  loadCurrentClaimsAndRender();
 }
 
 async function fetchJsonFromCandidates(candidates) {
   const errors = [];
   for (const url of candidates) {
     try {
-      const response = await fetch(url, { cache: "no-store" });
+      const response = await fetch(url, dataFetchOptions);
       if (!response.ok) {
         errors.push(`${url} -> HTTP ${response.status}`);
         continue;
@@ -4272,96 +4277,71 @@ async function loadBibliographyPayloads() {
   ];
 
   await Promise.all(
-    payloads.map(async ({ key, candidates }) => {
-      try {
-        const { data } = await fetchJsonFromCandidates(candidates);
-        bibliographyByMode[key] = bibliographyFromPayload(data);
-      } catch (_error) {
-        bibliographyByMode[key] = [];
-      }
-    })
+    payloads
+      .filter(({ key }) => !(bibliographyByMode[key] || []).length)
+      .map(async ({ key, candidates }) => {
+        try {
+          const { data } = await fetchJsonFromCandidates(candidates);
+          bibliographyByMode[key] = bibliographyFromPayload(data);
+        } catch (_error) {
+          bibliographyByMode[key] = [];
+        }
+      })
   );
 }
 
-async function init() {
-  const loadErrors = [];
+const NORMALIZED_CLAIM_SOURCES = {
+  mechanistic: {
+    primary: {
+      paths: ["data/processed/graph_payload_mechanistic.json"],
+      mapper: mechanisticFromPayload,
+    },
+    secondary: {
+      paths: ["data/processed/graph_payload_mechanistic_secondary_sources.json"],
+      mapper: mechanisticFromPayload,
+    },
+  },
+  disorders: {
+    primary: {
+      paths: ["data/processed/graph_payload_disorder.json"],
+      mapper: disorderFromPayload,
+    },
+    secondary: {
+      paths: ["data/processed/graph_payload_disorder_secondary_sources.json"],
+      mapper: disorderFromPayload,
+    },
+  },
+};
 
-  try {
-    const primary = await loadClaimArray({
-      payloadPaths: ["data/processed/graph_payload_mechanistic.json"],
-      payloadMapper: mechanisticFromPayload,
-    });
-    const secondary = await loadOptionalClaimArray({
-      payloadPaths: ["data/processed/graph_payload_mechanistic_secondary_sources.json"],
-      payloadMapper: mechanisticFromPayload,
-    });
-    claimStores.normalized.mechanistic = dedupeClaims([...primary, ...secondary]);
-  } catch (error) {
-    loadErrors.push(`normalized mechanistic findings: ${error.message}`);
+const normalizedSourceLoaded = {
+  mechanistic: { primary: false, secondary: false },
+  disorders: { primary: false, secondary: false },
+};
+
+const normalizedSourceTasks = {
+  mechanistic: { primary: null, secondary: null },
+  disorders: { primary: null, secondary: null },
+};
+
+function claimModeLabel(modeKey = mode) {
+  return modeKey === "mechanistic" ? "mechanistic" : "clinical";
+}
+
+function renderDataLoading(message) {
+  setDetailHeader("Loading Data");
+  detailBody.innerHTML = `<div class="detail-empty">${escapeHtml(message)}</div>`;
+  cardsEl.innerHTML = `<div class="detail-empty">${escapeHtml(message)}</div>`;
+  graphEl.innerHTML = `<div class="graph-empty">${escapeHtml(message)}</div>`;
+  if (studyListEl) {
+    studyListEl.innerHTML = `<div class="detail-empty">Bibliography will load after the graph.</div>`;
   }
+}
 
-  try {
-    const primary = await loadClaimArray({
-      payloadPaths: ["data/processed/graph_payload_disorder.json"],
-      payloadMapper: disorderFromPayload,
-    });
-    const secondary = await loadOptionalClaimArray({
-      payloadPaths: ["data/processed/graph_payload_disorder_secondary_sources.json"],
-      payloadMapper: disorderFromPayload,
-    });
-    claimStores.normalized.disorders = dedupeClaims([...primary, ...secondary]);
-  } catch (error) {
-    loadErrors.push(`normalized disorder findings: ${error.message}`);
-  }
+function bibliographyPayloadsLoaded() {
+  return Object.values(bibliographyByMode).some((rows) => Array.isArray(rows) && rows.length);
+}
 
-  try {
-    const primary = await loadClaimArray({
-      arrayPath: "data/processed/extraction/mechanistic_claims.json",
-      payloadPaths: [
-        "data/processed/graph_payload_mechanistic_primary_with_secondary.json",
-        "data/processed/graph_payload_mechanistic.json",
-      ],
-      payloadMapper: mechanisticFromPayload,
-    });
-    const secondary = await loadOptionalClaimArray({
-      arrayPath: "data/processed/extraction/mechanistic_secondary_claims.json",
-      payloadMapper: mechanisticFromPayload,
-    });
-    claimStores.extracted.mechanistic = dedupeClaims([...primary, ...secondary]);
-  } catch (error) {
-    loadErrors.push(`full mechanistic findings: ${error.message}`);
-  }
-
-  try {
-    const primary = await loadClaimArray({
-      arrayPath: "data/processed/extraction/disorder_claims.json",
-      payloadPaths: [
-        "data/processed/graph_payload_disorder_primary_with_secondary.json",
-        "data/processed/graph_payload_disorder.json",
-      ],
-      payloadMapper: disorderFromPayload,
-    });
-    const secondary = await loadOptionalClaimArray({
-      arrayPath: "data/processed/extraction/disorder_secondary_claims.json",
-      payloadMapper: disorderFromPayload,
-    });
-    claimStores.extracted.disorders = dedupeClaims([...primary, ...secondary]);
-  } catch (error) {
-    loadErrors.push(`full disorder findings: ${error.message}`);
-  }
-
-  applyClaimLayerStore();
-
-  const totalLoadedClaims = Object.values(claimStores).reduce(
-    (sum, store) => sum + store.mechanistic.length + store.disorders.length,
-    0
-  );
-  if (!totalLoadedClaims) {
-    renderLoadError(loadErrors);
-    return;
-  }
-
-  await loadBibliographyPayloads();
+function enrichAllLoadedClaimsWithBibliography() {
   Object.keys(claimStores).forEach((layer) => {
     claimStores[layer].mechanistic = enrichClaimsWithBibliographyMetadata(
       claimStores[layer].mechanistic,
@@ -4369,12 +4349,101 @@ async function init() {
     );
     claimStores[layer].disorders = enrichClaimsWithBibliographyMetadata(claimStores[layer].disorders, "disorders");
   });
+}
+
+async function loadNormalizedClaimSource(modeKey, sourceKey) {
+  const source = NORMALIZED_CLAIM_SOURCES[modeKey]?.[sourceKey];
+  if (!source) return;
+  if (normalizedSourceLoaded[modeKey][sourceKey]) return;
+  if (normalizedSourceTasks[modeKey][sourceKey]) {
+    await normalizedSourceTasks[modeKey][sourceKey];
+    return;
+  }
+
+  normalizedSourceTasks[modeKey][sourceKey] = (async () => {
+    const items = await loadClaimArray({
+      payloadPaths: source.paths,
+      payloadMapper: source.mapper,
+    });
+    const enrichedItems = bibliographyPayloadsLoaded()
+      ? enrichClaimsWithBibliographyMetadata(items, modeKey)
+      : items;
+    claimStores.normalized[modeKey] = dedupeClaims([
+      ...(claimStores.normalized[modeKey] || []),
+      ...enrichedItems,
+    ]);
+    normalizedSourceLoaded[modeKey][sourceKey] = true;
+  })();
+
+  try {
+    await normalizedSourceTasks[modeKey][sourceKey];
+  } finally {
+    normalizedSourceTasks[modeKey][sourceKey] = null;
+  }
+}
+
+async function ensureClaimsForCurrentView() {
+  const sourceKey = evidenceView === "secondary" ? "secondary" : "primary";
+  await loadNormalizedClaimSource(mode, sourceKey);
+}
+
+async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true } = {}) {
+  const token = ++currentDataLoadToken;
+  if (showLoading) {
+    renderDataLoading(`Loading ${evidenceView} ${claimModeLabel()} evidence...`);
+  }
+
+  try {
+    await ensureClaimsForCurrentView();
+  } catch (error) {
+    if (token === currentDataLoadToken) {
+      renderLoadError([`${evidenceView} ${claimModeLabel()} evidence: ${error.message}`]);
+    }
+    return;
+  }
+
+  if (token !== currentDataLoadToken) return;
+
   applyClaimLayerStore();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  setDetailHeader(defaultDetail.title);
-  renderDetailEmpty();
+  if (resetDetail) {
+    setDetailHeader(defaultDetail.title);
+    renderDetailEmpty();
+  }
   scheduleRender();
+}
+
+function loadBibliographyPayloadsInBackground() {
+  if (bibliographyPayloadsPromise) return bibliographyPayloadsPromise;
+  bibliographyPayloadsPromise = loadBibliographyPayloads()
+    .then(() => {
+      enrichAllLoadedClaimsWithBibliography();
+      applyClaimLayerStore();
+      scheduleRender();
+    })
+    .catch(() => {
+      bibliographyPayloadsPromise = null;
+    });
+  return bibliographyPayloadsPromise;
+}
+
+function preloadLikelyNextData() {
+  const alternateMode = mode === "mechanistic" ? "disorders" : "mechanistic";
+  window.setTimeout(() => {
+    loadNormalizedClaimSource(alternateMode, "primary")
+      .then(() => {
+        applyClaimLayerStore();
+        updateModeUI();
+      })
+      .catch(() => {});
+  }, 800);
+  window.setTimeout(loadBibliographyPayloadsInBackground, 1400);
+}
+
+async function init() {
+  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true });
+  preloadLikelyNextData();
 }
 
 if (yearMinFilter) {

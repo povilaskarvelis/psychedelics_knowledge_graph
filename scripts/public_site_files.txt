@@ -9,8 +9,4 @@ data/processed/graph_payload_disorder_secondary_sources.json
 data/processed/graph_payload_manifest.json
 data/processed/graph_payload_mechanistic.json
 data/processed/graph_payload_mechanistic_secondary_sources.json
-data/processed/extraction/disorder_claims.json
-data/processed/extraction/disorder_secondary_claims.json
 data/processed/extraction/extraction_readiness_report.json
-data/processed/extraction/mechanistic_claims.json
-data/processed/extraction/mechanistic_secondary_claims.json

@@ -738,9 +738,11 @@ function edgeVisible(edge, visibleIds) {
 
 async function fetchJsonFromCandidates(candidates) {
   const errors = [];
+  const dataFetchOptions =
+    ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
   for (const url of candidates) {
     try {
-      const response = await fetch(url, { cache: "no-store" });
+      const response = await fetch(url, dataFetchOptions);
       if (!response.ok) {
         errors.push(`${url}: HTTP ${response.status}`);
         continue;
