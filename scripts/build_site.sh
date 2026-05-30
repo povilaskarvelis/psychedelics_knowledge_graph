@@ -42,6 +42,10 @@ while IFS= read -r raw_line || [[ -n "${raw_line}" ]]; do
 done < "${MANIFEST}"
 
 find "${DIST_DIR}" -name ".DS_Store" -delete
+python3 "${ROOT_DIR}/scripts/sanitize_public_json.py" \
+  --manifest "${MANIFEST}" \
+  --base-dir "${DIST_DIR}" \
+  --root "${ROOT_DIR}"
 
 if [[ "${missing}" -ne 0 ]]; then
   echo "Public site build failed because one or more required files were missing." >&2

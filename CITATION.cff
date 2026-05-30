@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use Psychedelics Knowledge Graph or its public data exports, please cite this project."
+title: "Psychedelics Knowledge Graph"
+type: software
+authors:
+  - family-names: "Karvelis"
+    given-names: "Povilas"
+abstract: "A provenance-aware literature pipeline and web interface for exploring structured findings about psychedelics, mechanisms, and mental health outcomes."
+repository-code: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph"
+url: "https://psychedelicskg.com"
+license: "Apache-2.0"
+keywords:
+  - "psychedelics"
+  - "knowledge graph"
+  - "evidence synthesis"
+  - "open science"

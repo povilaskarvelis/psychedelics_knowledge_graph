@@ -4,6 +4,10 @@
 # Python runtime artifacts
 __pycache__/
 *.py[cod]
+.pytest_cache/
+
+# Generated run logs
+logs/
 
 # Local environment / secrets
 .env

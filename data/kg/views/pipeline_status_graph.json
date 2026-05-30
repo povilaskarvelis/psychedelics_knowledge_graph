@@ -89,7 +89,7 @@
       "disorder": 4620,
       "mechanistic": 2295
     },
-    "projection_report": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/projection_report.json"
+    "projection_report": "data/processed/extraction/projection_report.json"
   },
   "generated_at": "2026-05-26T19:01:39.269248+00:00",
   "kg_claim_status": {
@@ -113,7 +113,7 @@
       "disorder": 10188,
       "mechanistic": 4459
     },
-    "claims_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/claims.parquet",
+    "claims_table": "data/processed/kg/claims.parquet",
     "matched_pipeline_rows_by_dataset": {
       "disorder": 3157,
       "mechanistic": 1531

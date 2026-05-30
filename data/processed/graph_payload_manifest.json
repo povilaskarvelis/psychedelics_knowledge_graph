@@ -1,60 +1,60 @@
 {
-  "generated_at": "2026-05-28T02:49:53.023354+00:00",
+  "generated_at": "2026-05-30T01:48:03.012933+00:00",
   "contract_version": "1.0",
   "claim_source": "kg_tables",
   "claim_source_label": "Normalized KG evidence tables",
   "datasets": {
     "mechanistic": {
-      "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic.json",
+      "output_file": "data/processed/graph_payload_mechanistic.json",
       "row_count": 2204,
-      "sha256": "dc3eba8f3cf267ba1c583d798764f75f8d5c01c253fc7a64bb9039a7369ab7cf",
+      "sha256": "00f7684331a1503924b91a773704fb494b095a18ca58f88294cac39efaf392bf",
       "views": {
         "all_evidence": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic.json",
+          "output_file": "data/processed/graph_payload_mechanistic.json",
           "row_count": 2204,
-          "sha256": "dc3eba8f3cf267ba1c583d798764f75f8d5c01c253fc7a64bb9039a7369ab7cf"
+          "sha256": "00f7684331a1503924b91a773704fb494b095a18ca58f88294cac39efaf392bf"
         },
         "primary_only": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic_primary_only.json",
+          "output_file": "data/processed/graph_payload_mechanistic_primary_only.json",
           "row_count": 2204,
-          "sha256": "765262ea6f756c5eb78bdf41998de049acf9473862f4fbab56bcdf6126c8597c"
+          "sha256": "3a5dfb04a9ca3446b3b9b4afd3565c336cf4bc99045a246017c2bc0ed9e99882"
         },
         "secondary_sources": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic_secondary_sources.json",
+          "output_file": "data/processed/graph_payload_mechanistic_secondary_sources.json",
           "row_count": 2251,
-          "sha256": "9c130d484ce85674c23422a1252d46de0140f77539a11dcfc2327d7ec907563c"
+          "sha256": "2c6bfa932ffd510ecd6aba503dee26a68ff2abce7e6eb36153401678f2530131"
         },
         "primary_with_secondary": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_mechanistic_primary_with_secondary.json",
+          "output_file": "data/processed/graph_payload_mechanistic_primary_with_secondary.json",
           "row_count": 4455,
-          "sha256": "35122206049082f5390aa1b5222984c36e5dcd37f271eb64e8676a807ae898d0"
+          "sha256": "d1703f0016daf5fc63583bce3ab5edc047711e4a82b18a3de99445caa5dce99b"
         }
       }
     },
     "disorder": {
-      "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder.json",
+      "output_file": "data/processed/graph_payload_disorder.json",
       "row_count": 5472,
-      "sha256": "84b5dea1c0af51b032cdf65beac6ebbcf12ddace8fac93c8ab8b4260786a6384",
+      "sha256": "441120ad993634f904552e4933799d0481402bbb847457087a36dbd43d9e6c9f",
       "views": {
         "all_evidence": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder.json",
+          "output_file": "data/processed/graph_payload_disorder.json",
           "row_count": 5472,
-          "sha256": "84b5dea1c0af51b032cdf65beac6ebbcf12ddace8fac93c8ab8b4260786a6384"
+          "sha256": "441120ad993634f904552e4933799d0481402bbb847457087a36dbd43d9e6c9f"
         },
         "primary_only": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder_primary_only.json",
+          "output_file": "data/processed/graph_payload_disorder_primary_only.json",
           "row_count": 5472,
-          "sha256": "4414de1beb1b7ff4ba50bbf18ce4f542d3e55798972f1ca1fc7b64aed4457c0c"
+          "sha256": "070858335f93dd238fe9c0fa3ffd8f53c395d681fd1b73f33a31b2894fe4a3b5"
         },
         "secondary_sources": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder_secondary_sources.json",
+          "output_file": "data/processed/graph_payload_disorder_secondary_sources.json",
           "row_count": 4712,
-          "sha256": "bcdcf529da513617d75a6e63af0c232ece920c4057552b508e993ca940008efb"
+          "sha256": "a18f4faf2b84b511e5834f6a09e3b5524c5bc083d8a5655df92dd881768d8300"
         },
         "primary_with_secondary": {
-          "output_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_disorder_primary_with_secondary.json",
+          "output_file": "data/processed/graph_payload_disorder_primary_with_secondary.json",
           "row_count": 10184,
-          "sha256": "f19efc09e261fc2900aaa3b67558f7123017938239ba78845e6c63f0dbb9c9f5"
+          "sha256": "1a23ebdd166afac24bd9dcd8c3aca3a11475c78a80e34dbaf2fad94725ba56db"
         }
       }
     }
