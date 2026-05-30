@@ -4323,17 +4323,13 @@ const normalizedSourceTasks = {
   disorders: { primary: null, secondary: null },
 };
 
-function claimModeLabel(modeKey = mode) {
-  return modeKey === "mechanistic" ? "mechanistic" : "clinical";
-}
-
-function renderDataLoading(message) {
-  setDetailHeader("Loading Data");
-  detailBody.innerHTML = `<div class="detail-empty">${escapeHtml(message)}</div>`;
-  cardsEl.innerHTML = `<div class="detail-empty">${escapeHtml(message)}</div>`;
-  graphEl.innerHTML = `<div class="graph-empty">${escapeHtml(message)}</div>`;
+function renderDataLoading() {
+  setDetailHeader(defaultDetail.title);
+  renderDetailEmpty();
+  cardsEl.innerHTML = "";
+  graphEl.innerHTML = "";
   if (studyListEl) {
-    studyListEl.innerHTML = `<div class="detail-empty">Bibliography will load after the graph.</div>`;
+    studyListEl.innerHTML = "";
   }
 }
 
@@ -4390,14 +4386,14 @@ async function ensureClaimsForCurrentView() {
 async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true } = {}) {
   const token = ++currentDataLoadToken;
   if (showLoading) {
-    renderDataLoading(`Loading ${evidenceView} ${claimModeLabel()} evidence...`);
+    renderDataLoading();
   }
 
   try {
     await ensureClaimsForCurrentView();
   } catch (error) {
     if (token === currentDataLoadToken) {
-      renderLoadError([`${evidenceView} ${claimModeLabel()} evidence: ${error.message}`]);
+      renderLoadError([`Graph data: ${error.message}`]);
     }
     return;
   }
