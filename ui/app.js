@@ -4868,7 +4868,7 @@ function renderLoadError(messages) {
   setDetailHeader("Data Load Error");
   detailBody.innerHTML = `
     <div class="detail-empty">
-      Start a local static server from the project root (for example: <code>python3 -m http.server</code>), then open <code>/ui/</code>.
+      Start a local static server from the project root (for example: <code>python3 -m http.server</code>), then open <code>/</code>.
     </div>
     <div class="detail-list">
       ${messages.map((msg) => `<div class="detail-item"><div class="meta">${msg}</div></div>`).join("")}

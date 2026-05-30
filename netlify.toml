@@ -2,6 +2,21 @@
   command = "bash scripts/build_site.sh"
   publish = "dist"
 
+[[redirects]]
+  from = "/ui/"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/ui"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/ui/index.html"
+  to = "/"
+  status = 301
+
 [[headers]]
   for = "/data/*"
   [headers.values]

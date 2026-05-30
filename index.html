@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Psychedelics Knowledge Graph</title>
+    <base href="./ui/" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8M798XF54S"></script>
     <script>
@@ -13,27 +14,169 @@
 
       gtag("config", "G-8M798XF54S");
     </script>
-    <meta http-equiv="refresh" content="0; url=./ui/" />
-    <script>
-      window.location.replace("./ui/");
-    </script>
-    <style>
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: #0b0f1a;
-        color: #e8eefc;
-        font-family: "IBM Plex Sans", sans-serif;
-      }
-
-      a {
-        color: #75f5e5;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="preload"
+      href="/data/processed/graph_payload_manifest.json"
+      as="fetch"
+      type="application/json"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/data/processed/graph_preview_disorder.json"
+      as="fetch"
+      type="application/json"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260529-no-loader" />
   </head>
   <body>
-    <p>Redirecting to the GUI. <a href="./ui/">Open manually</a>.</p>
+    <div class="bg" aria-hidden="true"></div>
+    <header class="hero">
+      <div class="hero-inner">
+        <h1>Psychedelics Knowledge Graph</h1>
+        <p>
+          A living map of psychedelic research, built for a future where scientific evidence is connected, transparent, and continuously updated.
+          <br />
+          <br />
+          See <a href="methods.html">Methods</a> page for more details.
+
+        </p>
+      </div>
+      <div class="hero-stats" id="stats">
+        <div
+          class="stat stat-clickable"
+          id="studiesStatCard"
+          role="button"
+          tabindex="0"
+          aria-label="Open study bibliography"
+        >
+          <span class="stat-label">Studies</span>
+          <span class="stat-value" data-stat="studies">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Compounds</span>
+          <span class="stat-value" data-stat="compounds">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Indications</span>
+          <span class="stat-value" data-stat="indications">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Targets</span>
+          <span class="stat-value" data-stat="targets">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="panel graph-panel">
+        <div class="graph-grid">
+          <div class="graph-column">
+            <div class="graph-toolbar">
+              <div class="graph-header-controls">
+                <div class="toolbar-main-row">
+                  <div class="year-range-inline" aria-label="Year range">
+                    <div class="year-field">
+                      <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
+                      <div class="year-stepper" aria-hidden="true">
+                        <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
+                        <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
+                      </div>
+                    </div>
+                    <span>—</span>
+                    <div class="year-field">
+                      <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
+                      <div class="year-stepper" aria-hidden="true">
+                        <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
+                        <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="mode-toggle entity-kind-toggle category-toggle"
+                    data-entity-kind-toggle
+                    role="tablist"
+                    aria-label="Graph category"
+                  ></div>
+                  <div class="mode-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
+                    <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
+                      Primary
+                    </button>
+                    <button class="ghost small" data-evidence-view="secondary" role="tab" aria-selected="false">
+                      Secondary
+                    </button>
+                  </div>
+                </div>
+                <div class="toolbar-filter-row">
+                  <div class="filter-toggles" aria-label="Evidence filters">
+                    <label class="access-toggle" for="fullTextOnlyToggle">
+                      <input id="fullTextOnlyToggle" type="checkbox" checked />
+                      <span>Full text only</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="graph" id="graph"></div>
+          </div>
+          <aside class="graph-detail" id="graphDetail">
+            <div class="detail-header">
+              <div>
+                <h3>Graph Detail</h3>
+              </div>
+            </div>
+            <div class="detail-body" id="detailBody">
+              <div class="detail-empty">No selection yet.</div>
+            </div>
+          </aside>
+        </div>
+        <div class="tooltip" id="tooltip" aria-hidden="true"></div>
+      </section>
+
+      <section class="panel cards-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Findings</h2>
+          </div>
+          <div class="search">
+            <input id="searchInput" type="search" placeholder="Search compounds, conditions, or outcomes" />
+          </div>
+        </div>
+        <div class="cards" id="cards"></div>
+      </section>
+
+      <section class="panel bibliography-panel" id="bibliographyPanel">
+        <div class="panel-header">
+          <div>
+            <h2>Bibliography</h2>
+          </div>
+          <div class="search">
+            <input
+              id="bibliographySearchInput"
+              type="search"
+              placeholder="Search title, author, keyword, DOI"
+            />
+          </div>
+        </div>
+        <div class="study-list" id="studyList"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        Developed by
+        <a href="https://povilaskarvelis.github.io/" target="_blank" rel="noopener noreferrer">Povilas Karvelis</a>. The code for literature search and knowledge graph construction is open source and available
+        <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">here</a>.
+      </div>
+    </footer>
+
+    <script src="app.js?v=20260529-no-loader"></script>
   </body>
 </html>
