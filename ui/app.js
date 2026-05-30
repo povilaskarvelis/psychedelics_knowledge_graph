@@ -5044,18 +5044,6 @@ function activeGraphPreviewClaims() {
   return graphViewClaims(claimsForEntityView(baseClaims));
 }
 
-function renderDetailsLoading() {
-  if (detailBody) {
-    detailBody.innerHTML = '<div class="detail-empty">Loading evidence details...</div>';
-  }
-  if (cardsEl) {
-    cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
-  }
-  if (studyListEl) {
-    studyListEl.innerHTML = "";
-  }
-}
-
 async function renderCurrentGraphPreview(loadToken, resetDetail = true) {
   if (normalizedCurrentSourceLoaded()) return false;
   const sourceKey = currentSourceKey();
@@ -5083,7 +5071,17 @@ async function renderCurrentGraphPreview(loadToken, resetDetail = true) {
   buildGraph(filtered);
   if (resetDetail) {
     setDetailHeader(defaultDetail.title);
-    renderDetailsLoading();
+    if (selected) {
+      renderSelectedDetailFromData(filtered);
+    } else {
+      renderOverviewDetail(filtered);
+    }
+    if (cardsEl) {
+      cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
+    }
+    if (studyListEl) {
+      studyListEl.innerHTML = "";
+    }
   }
   return true;
 }

@@ -344,7 +344,7 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
             },
         )
 
-    def test_graph_preview_payload_keeps_only_fast_graph_fields(self) -> None:
+    def test_graph_preview_payload_keeps_only_fast_chart_fields(self) -> None:
         payload = {
             "contract_version": "1.0",
             "dataset": "disorder",
@@ -358,19 +358,33 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
                         "openalex_id": "W123",
                         "title": "Example",
                         "year": 2024,
+                        "journal": "Journal of Careful Tests",
+                        "publication_type": "journal-article",
+                        "open_access_is_oa": True,
+                        "trial_registry_ids": "NCT01234567",
+                        "first_author": {"id": "A1", "name": "Ada Lovelace"},
                         "authors": "Ada Lovelace",
                     },
                     "resources": {"compound": "Psilocybin", "disorder": "Depression"},
                     "properties": {
                         "kg_entity_kind": "condition_indication",
                         "evidence_level": "high",
+                        "system": "clinical",
+                        "population": "patients with depression",
+                        "outcome_type": "symptom_change",
+                        "result_direction": "positive",
+                        "outcome_measure_normalized": "MADRS",
+                        "comparator_normalized": "Placebo / vehicle",
+                        "follow_up_window_normalized": "Short follow-up (1-4 weeks)",
                         "supporting_quote": "Large text should stay out of preview.",
                     },
+                    "extracted_variables": {"sample_size_total": "42"},
                     "provenance": {
                         "paper_assessment_route": "primary_evidence",
                         "paper_type": "primary_results",
                         "source_type": "primary_study",
                         "access_level": "full_text_seen",
+                        "study_design": "randomized controlled trial",
                     },
                 }
             ],
@@ -396,9 +410,25 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
                     "study_doi": "10.1000/example",
                     "openalex_id": "W123",
                     "study_year": 2024,
+                    "study_journal": "Journal of Careful Tests",
+                    "publication_type": "journal-article",
+                    "open_access_is_oa": True,
+                    "trial_registry_ids": "NCT01234567",
+                    "first_author": {"id": "A1", "name": "Ada Lovelace"},
+                    "system": "clinical",
+                    "population": "patients with depression",
+                    "study_design": "randomized controlled trial",
+                    "sample_size_total": "42",
+                    "outcome_type": "symptom_change",
+                    "result_direction": "positive",
+                    "outcome_measure_normalized": "MADRS",
+                    "comparator_normalized": "Placebo / vehicle",
+                    "follow_up_window_normalized": "Short follow-up (1-4 weeks)",
                 }
             ],
         )
+        self.assertNotIn("authors", preview["claims"][0])
+        self.assertNotIn("supporting_quote", preview["claims"][0])
         self.assertEqual(
             evidence_role_for_row(
                 {

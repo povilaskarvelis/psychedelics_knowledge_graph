@@ -929,6 +929,11 @@ def graph_preview_claim(contribution: dict) -> dict:
     paper = contribution.get("paper") if isinstance(contribution.get("paper"), dict) else {}
     resources = contribution.get("resources") if isinstance(contribution.get("resources"), dict) else {}
     properties = contribution.get("properties") if isinstance(contribution.get("properties"), dict) else {}
+    extracted_variables = (
+        contribution.get("extracted_variables")
+        if isinstance(contribution.get("extracted_variables"), dict)
+        else {}
+    )
     provenance = contribution.get("provenance") if isinstance(contribution.get("provenance"), dict) else {}
     study_doi = normalize(paper.get("doi", ""))
     openalex_id = normalize(paper.get("openalex_id", ""))
@@ -950,6 +955,51 @@ def graph_preview_claim(contribution: dict) -> dict:
         "openalex_id": openalex_id,
         "study_title": "" if study_doi or openalex_id else normalize(paper.get("title", "")),
         "study_year": paper.get("year", ""),
+        "study_journal": normalize(paper.get("journal", "")),
+        "publication_type": normalize(paper.get("publication_type", "")),
+        "open_access_is_oa": paper.get("open_access_is_oa", ""),
+        "open_access_status": normalize(paper.get("open_access_status", "")),
+        "unpaywall_is_oa": paper.get("unpaywall_is_oa", ""),
+        "unpaywall_oa_status": normalize(paper.get("unpaywall_oa_status", "")),
+        "trial_registry_ids": normalize(paper.get("trial_registry_ids", "")),
+        "first_author": paper.get("first_author", ""),
+        "last_author": paper.get("last_author", ""),
+        "system": normalize(properties.get("system", "")),
+        "species": normalize(properties.get("species", "")),
+        "model_or_system": normalize(properties.get("model_or_system", "")),
+        "population": normalize(properties.get("population", "")),
+        "study_design": normalize(provenance.get("study_design", "")),
+        "sample_size_total": normalize(extracted_variables.get("sample_size_total") or properties.get("sample_size_total", "")),
+        "sample_size_by_arm": normalize(extracted_variables.get("sample_size_by_arm") or properties.get("sample_size_by_arm", "")),
+        "outcome_type": normalize(properties.get("outcome_type", "")),
+        "result_direction": normalize(properties.get("result_direction", "")),
+        "outcome_measure": normalize(properties.get("outcome_measure", "")),
+        "outcome_measure_normalized": normalize(
+            properties.get("outcome_measure_normalized")
+            or extracted_variables.get("outcome_measure_normalized", "")
+        ),
+        "comparator": normalize(properties.get("comparator") or extracted_variables.get("comparator", "")),
+        "comparator_normalized": normalize(
+            properties.get("comparator_normalized")
+            or extracted_variables.get("comparator_normalized", "")
+        ),
+        "follow_up_duration": normalize(
+            properties.get("follow_up_duration")
+            or extracted_variables.get("follow_up_duration", "")
+        ),
+        "follow_up_window_normalized": normalize(
+            properties.get("follow_up_window_normalized")
+            or extracted_variables.get("follow_up_window_normalized", "")
+        ),
+        "timepoint": normalize(extracted_variables.get("timepoint") or properties.get("timepoint", "")),
+        "mechanism_type": normalize(properties.get("mechanism_type", "")),
+        "assay_type": normalize(properties.get("assay_type", "")),
+        "assay_family": normalize(properties.get("assay_family", "")),
+        "assay_family_normalized": normalize(
+            properties.get("assay_family_normalized")
+            or extracted_variables.get("assay_family_normalized", "")
+        ),
+        "action_type": normalize(properties.get("action_type", "")),
     }
     return {key: value for key, value in claim.items() if value != ""}
 
