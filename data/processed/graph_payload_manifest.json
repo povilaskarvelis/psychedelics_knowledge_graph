@@ -7,58 +7,184 @@
     "mechanistic": {
       "output_file": "data/processed/graph_payload_mechanistic.json",
       "row_count": 2204,
+      "summary_stats": {
+        "row_count": 2204,
+        "study_count": 980,
+        "compound_count": 55,
+        "indication_count": 0,
+        "target_count": 62
+      },
       "sha256": "00f7684331a1503924b91a773704fb494b095a18ca58f88294cac39efaf392bf",
       "views": {
         "all_evidence": {
           "output_file": "data/processed/graph_payload_mechanistic.json",
           "row_count": 2204,
-          "sha256": "00f7684331a1503924b91a773704fb494b095a18ca58f88294cac39efaf392bf"
+          "summary_stats": {
+            "row_count": 2204,
+            "study_count": 980,
+            "compound_count": 55,
+            "indication_count": 0,
+            "target_count": 62
+          },
+          "sha256": "00f7684331a1503924b91a773704fb494b095a18ca58f88294cac39efaf392bf",
+          "preview_file": "data/processed/graph_preview_mechanistic.json",
+          "preview_sha256": "3626f348686494bdd66d7aa845cac7d6fa3b2d80a80de8336c2358988a666f2b"
         },
         "primary_only": {
           "output_file": "data/processed/graph_payload_mechanistic_primary_only.json",
           "row_count": 2204,
-          "sha256": "3a5dfb04a9ca3446b3b9b4afd3565c336cf4bc99045a246017c2bc0ed9e99882"
+          "summary_stats": {
+            "row_count": 2204,
+            "study_count": 980,
+            "compound_count": 55,
+            "indication_count": 0,
+            "target_count": 62
+          },
+          "sha256": "3a5dfb04a9ca3446b3b9b4afd3565c336cf4bc99045a246017c2bc0ed9e99882",
+          "preview_file": "data/processed/graph_preview_mechanistic_primary_only.json",
+          "preview_sha256": "31433888cd318eb1eeee5e614b5ede702541c9767f408b05682ab90033dad728"
         },
         "secondary_sources": {
           "output_file": "data/processed/graph_payload_mechanistic_secondary_sources.json",
           "row_count": 2251,
-          "sha256": "2c6bfa932ffd510ecd6aba503dee26a68ff2abce7e6eb36153401678f2530131"
+          "summary_stats": {
+            "row_count": 2251,
+            "study_count": 551,
+            "compound_count": 44,
+            "indication_count": 0,
+            "target_count": 48
+          },
+          "sha256": "2c6bfa932ffd510ecd6aba503dee26a68ff2abce7e6eb36153401678f2530131",
+          "preview_file": "data/processed/graph_preview_mechanistic_secondary_sources.json",
+          "preview_sha256": "9b838ff512fbea06cec4ed344f2fd7326ac76b4b5af1682ab89e66b32286c54d"
         },
         "primary_with_secondary": {
           "output_file": "data/processed/graph_payload_mechanistic_primary_with_secondary.json",
           "row_count": 4455,
-          "sha256": "d1703f0016daf5fc63583bce3ab5edc047711e4a82b18a3de99445caa5dce99b"
+          "summary_stats": {
+            "row_count": 4455,
+            "study_count": 1531,
+            "compound_count": 57,
+            "indication_count": 0,
+            "target_count": 63
+          },
+          "sha256": "d1703f0016daf5fc63583bce3ab5edc047711e4a82b18a3de99445caa5dce99b",
+          "preview_file": "data/processed/graph_preview_mechanistic_primary_with_secondary.json",
+          "preview_sha256": "9768b8948f284e5ffef61a364fc8091871ef75ac3a2f9ecc6272548720eb9a0b"
         }
       }
     },
     "disorder": {
       "output_file": "data/processed/graph_payload_disorder.json",
       "row_count": 5472,
+      "summary_stats": {
+        "row_count": 5472,
+        "study_count": 1631,
+        "compound_count": 40,
+        "indication_count": 30,
+        "target_count": 0
+      },
       "sha256": "441120ad993634f904552e4933799d0481402bbb847457087a36dbd43d9e6c9f",
       "views": {
         "all_evidence": {
           "output_file": "data/processed/graph_payload_disorder.json",
           "row_count": 5472,
-          "sha256": "441120ad993634f904552e4933799d0481402bbb847457087a36dbd43d9e6c9f"
+          "summary_stats": {
+            "row_count": 5472,
+            "study_count": 1631,
+            "compound_count": 40,
+            "indication_count": 30,
+            "target_count": 0
+          },
+          "sha256": "441120ad993634f904552e4933799d0481402bbb847457087a36dbd43d9e6c9f",
+          "preview_file": "data/processed/graph_preview_disorder.json",
+          "preview_sha256": "ba460a420824414ab296d53ba056fa2893e60a7bedd35a7663cc2ababc6b48db"
         },
         "primary_only": {
           "output_file": "data/processed/graph_payload_disorder_primary_only.json",
           "row_count": 5472,
-          "sha256": "070858335f93dd238fe9c0fa3ffd8f53c395d681fd1b73f33a31b2894fe4a3b5"
+          "summary_stats": {
+            "row_count": 5472,
+            "study_count": 1631,
+            "compound_count": 40,
+            "indication_count": 30,
+            "target_count": 0
+          },
+          "sha256": "070858335f93dd238fe9c0fa3ffd8f53c395d681fd1b73f33a31b2894fe4a3b5",
+          "preview_file": "data/processed/graph_preview_disorder_primary_only.json",
+          "preview_sha256": "5754a3a29f3501c56a16b49b28fdd631d94d899c4623f588d2f9af43b28d6fab"
         },
         "secondary_sources": {
           "output_file": "data/processed/graph_payload_disorder_secondary_sources.json",
           "row_count": 4712,
-          "sha256": "a18f4faf2b84b511e5834f6a09e3b5524c5bc083d8a5655df92dd881768d8300"
+          "summary_stats": {
+            "row_count": 4712,
+            "study_count": 1526,
+            "compound_count": 33,
+            "indication_count": 30,
+            "target_count": 0
+          },
+          "sha256": "a18f4faf2b84b511e5834f6a09e3b5524c5bc083d8a5655df92dd881768d8300",
+          "preview_file": "data/processed/graph_preview_disorder_secondary_sources.json",
+          "preview_sha256": "ad08c068315fb5f6b68cb88b3f02b8ebd5cd22d8ff43eab01ed0f089dd37cf20"
         },
         "primary_with_secondary": {
           "output_file": "data/processed/graph_payload_disorder_primary_with_secondary.json",
           "row_count": 10184,
-          "sha256": "1a23ebdd166afac24bd9dcd8c3aca3a11475c78a80e34dbaf2fad94725ba56db"
+          "summary_stats": {
+            "row_count": 10184,
+            "study_count": 3157,
+            "compound_count": 45,
+            "indication_count": 30,
+            "target_count": 0
+          },
+          "sha256": "1a23ebdd166afac24bd9dcd8c3aca3a11475c78a80e34dbaf2fad94725ba56db",
+          "preview_file": "data/processed/graph_preview_disorder_primary_with_secondary.json",
+          "preview_sha256": "fe95e6e4a8f924c8b6a70f2e0ba988c30e3c0bc0d364a9825498398b7cd88175"
         }
       }
     }
   },
   "status": "ok",
-  "errors": []
+  "errors": [],
+  "summary_stats": {
+    "default_view": "primary_with_secondary",
+    "default": {
+      "row_count": 14639,
+      "study_count": 4446,
+      "compound_count": 63,
+      "indication_count": 30,
+      "target_count": 63
+    },
+    "views": {
+      "all_evidence": {
+        "row_count": 7676,
+        "study_count": 2571,
+        "compound_count": 59,
+        "indication_count": 30,
+        "target_count": 62
+      },
+      "primary_only": {
+        "row_count": 7676,
+        "study_count": 2571,
+        "compound_count": 59,
+        "indication_count": 30,
+        "target_count": 62
+      },
+      "secondary_sources": {
+        "row_count": 6963,
+        "study_count": 1877,
+        "compound_count": 50,
+        "indication_count": 30,
+        "target_count": 48
+      },
+      "primary_with_secondary": {
+        "row_count": 14639,
+        "study_count": 4446,
+        "compound_count": 63,
+        "indication_count": 30,
+        "target_count": 63
+      }
+    }
+  }
 }

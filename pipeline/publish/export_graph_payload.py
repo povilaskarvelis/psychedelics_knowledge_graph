@@ -12,6 +12,17 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
+
+try:
+    from pipeline.extract.clinical_comparator import normalize_clinical_comparator
+    from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
+    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
+except ModuleNotFoundError:  # pragma: no cover - direct script execution path
+    sys.path.insert(0, str(ROOT))
+    from pipeline.extract.clinical_comparator import normalize_clinical_comparator
+    from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
+    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
+
 DEFAULT_CLAIM_SOURCE = "kg_tables"
 LEGACY_MECHANISTIC_SCHEMA = ROOT / "schema" / "legacy_mechanistic_affinity_claims.schema.json"
 LEGACY_DISORDER_SCHEMA = ROOT / "schema" / "legacy_disorder_claims.schema.json"
@@ -53,6 +64,7 @@ CLAIM_SOURCES = {
     "kg_tables": {
         "label": "Normalized KG evidence tables",
         "claims_parquet": ROOT / "data" / "processed" / "kg" / "claims.parquet",
+        "paper_authors_parquet": ROOT / "data" / "processed" / "kg" / "paper_authors.parquet",
         "mechanistic": {
             "primary_source_name": "mechanistic_primary",
             "secondary_source_name": "mechanistic_secondary",
@@ -152,6 +164,7 @@ EXTRACTED_VARIABLE_FIELDS = (
     "graph_exclusion_reason",
     "mechanism_type",
     "assay_family",
+    "assay_family_normalized",
     "action_type",
     "model_or_system",
     "support",
@@ -187,6 +200,8 @@ EXTRACTED_VARIABLE_FIELDS = (
     "study_setting",
     "country_or_region",
     "comparator",
+    "comparator_normalized",
+    "follow_up_window_normalized",
     "intervention_or_exposure",
     "dose",
     "route",
@@ -246,6 +261,7 @@ def claim_source_paths(dataset: str, claim_source: str) -> dict:
             "claim_source": claim_source,
             "claim_source_label": source["label"],
             "claims_parquet": source["claims_parquet"],
+            "paper_authors_parquet": source["paper_authors_parquet"],
             "primary_source_name": paths["primary_source_name"],
             "secondary_source_name": paths["secondary_source_name"],
         }
@@ -327,6 +343,7 @@ def load_kg_claim_rows(claims_parquet: Path, source_name: object) -> List[dict]:
     for record in selected.to_dict(orient="records"):
         row = row_from_raw_json(record.get("raw_row_json", ""))
         for source_key, row_key in (
+            ("paper_id", "kg_paper_id"),
             ("claim_id", "kg_claim_id"),
             ("evidence_id", "kg_evidence_id"),
             ("source_name", "kg_source_name"),
@@ -506,7 +523,74 @@ def dedupe_rows(rows: List[dict], id_fields: List[str]) -> List[dict]:
     return out
 
 
-def paper_metadata(row: dict) -> dict:
+def author_payload(row: dict) -> dict:
+    out = {
+        "id": normalize(row.get("author_id", "")),
+        "name": normalize(row.get("display_name", "")),
+        "openalex_author_id": normalize(row.get("openalex_author_id", "")),
+        "orcid": normalize(row.get("orcid", "")),
+        "identity_confidence": normalize(row.get("identity_confidence", "")),
+        "source": normalize(row.get("source", "")),
+    }
+    return {key: value for key, value in out.items() if value}
+
+
+def load_author_role_lookup(paper_authors_parquet: Path | None) -> dict:
+    if not paper_authors_parquet or not paper_authors_parquet.exists():
+        return {}
+    try:
+        import pandas as pd
+    except ModuleNotFoundError as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError("pandas/pyarrow are required to load KG author tables") from exc
+
+    df = pd.read_parquet(paper_authors_parquet)
+    if df.empty:
+        return {}
+
+    lookup: dict[str, dict[str, dict]] = {}
+    for role, column in (("first_author", "is_first_author"), ("last_author", "is_last_author")):
+        if column not in df.columns:
+            continue
+        selected = df[df[column] == True].copy()  # noqa: E712 - pandas boolean comparison
+        for record in selected.to_dict(orient="records"):
+            payload = author_payload(record)
+            if not payload.get("id") and not payload.get("name"):
+                continue
+            keys = []
+            paper_id = normalize(record.get("paper_id", ""))
+            doi = normalize(record.get("doi", "")).lower()
+            paper_openalex_id = normalize(record.get("paper_openalex_id", "")).lower()
+            if paper_id:
+                keys.append(f"paper:{paper_id}")
+            if doi:
+                keys.append(f"doi:{doi}")
+            if paper_openalex_id:
+                keys.append(f"openalex:{paper_openalex_id}")
+            for key in keys:
+                lookup.setdefault(key, {})[role] = payload
+    return lookup
+
+
+def author_roles_for_row(row: dict, author_lookup: dict | None) -> dict:
+    if not author_lookup:
+        return {}
+    keys = []
+    paper_id = normalize(row.get("kg_paper_id", ""))
+    doi = normalize(row.get("study_doi", "")).lower()
+    openalex_id = normalize(row.get("openalex_id", "")).lower()
+    if paper_id:
+        keys.append(f"paper:{paper_id}")
+    if doi:
+        keys.append(f"doi:{doi}")
+    if openalex_id:
+        keys.append(f"openalex:{openalex_id}")
+    for key in keys:
+        if key in author_lookup:
+            return author_lookup[key]
+    return {}
+
+
+def paper_metadata(row: dict, author_lookup: dict | None = None) -> dict:
     out = {
         "doi": normalize(row.get("study_doi", "")),
         "openalex_id": normalize(row.get("openalex_id", "")),
@@ -521,14 +605,23 @@ def paper_metadata(row: dict) -> dict:
         value = normalize(row.get(field, ""))
         if value:
             out[field] = value
+    author_roles = author_roles_for_row(row, author_lookup)
+    if author_roles.get("first_author"):
+        out["first_author"] = author_roles["first_author"]
+    if author_roles.get("last_author"):
+        out["last_author"] = author_roles["last_author"]
     return out
 
 
-def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str) -> dict:
+def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str, author_lookup: dict | None = None) -> dict:
+    assay_family_normalized = normalize(row.get("assay_family_normalized", "")) or normalize_mechanistic_assay_family(
+        row.get("assay_family", ""),
+        row.get("assay_type", ""),
+    )
     return {
         "external_id": external_id("mechanistic", row, id_fields),
         "template": template,
-        "paper": paper_metadata(row),
+        "paper": paper_metadata(row, author_lookup),
         "resources": {
             "compound": normalize(row.get("compound", "")),
             "target": normalize(row.get("target", "")),
@@ -545,6 +638,7 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "mechanism_type": normalize(row.get("mechanism_type", "")),
             "assay_type": normalize(row.get("assay_type", "")),
             "assay_family": normalize(row.get("assay_family", "")),
+            "assay_family_normalized": assay_family_normalized,
             "action_type": normalize(row.get("action_type", "")),
             "affinity_type": normalize(row.get("affinity_type", "")),
             "affinity_value": as_float(row.get("affinity_value", "")),
@@ -585,11 +679,18 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
     }
 
 
-def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -> dict:
+def make_disorder_contribution(row: dict, id_fields: List[str], template: str, author_lookup: dict | None = None) -> dict:
+    comparator_normalized = normalize(row.get("comparator_normalized", "")) or normalize_clinical_comparator(
+        row.get("comparator", "")
+    )
+    follow_up_window_normalized = normalize(row.get("follow_up_window_normalized", "")) or normalize_clinical_followup_window(
+        row.get("follow_up_duration", ""),
+        row.get("timepoint", ""),
+    )
     return {
         "external_id": external_id("disorder", row, id_fields),
         "template": template,
-        "paper": paper_metadata(row),
+        "paper": paper_metadata(row, author_lookup),
         "resources": {
             "compound": normalize(row.get("compound", "")),
             "disorder": normalize(row.get("disorder", "")),
@@ -609,6 +710,11 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str) -
             "outcome_measure": normalize(row.get("outcome_measure", "")),
             "outcome_measure_normalized": normalize(row.get("outcome_measure_normalized", "")),
             "population": normalize(row.get("population", "")),
+            "comparator": normalize(row.get("comparator", "")),
+            "comparator_normalized": comparator_normalized,
+            "follow_up_duration": normalize(row.get("follow_up_duration", "")),
+            "follow_up_window_normalized": follow_up_window_normalized,
+            "timepoint": normalize(row.get("timepoint", "")),
             "system": normalize(row.get("system", "")),
             "evidence_level": normalize(row.get("evidence_level", "")),
             "support": normalize(row.get("support", "")),
@@ -698,14 +804,18 @@ def payload_file_for_view(cfg: dict, view: str) -> str:
     raise ValueError(f"Unsupported view: {view}")
 
 
-def contributions_for_dataset(dataset: str, rows: List[dict], cfg: dict) -> List[dict]:
+def preview_file_for_view(cfg: dict, view: str) -> str:
+    return payload_file_for_view(cfg, view=view).replace("graph_payload_", "graph_preview_", 1)
+
+
+def contributions_for_dataset(dataset: str, rows: List[dict], cfg: dict, author_lookup: dict | None = None) -> List[dict]:
     contributions: List[dict] = []
     if dataset == "mechanistic":
         for row in rows:
-            contributions.append(make_mechanistic_contribution(row, cfg["id_fields"], cfg["template"]))
+            contributions.append(make_mechanistic_contribution(row, cfg["id_fields"], cfg["template"], author_lookup))
     else:
         for row in rows:
-            contributions.append(make_disorder_contribution(row, cfg["id_fields"], cfg["template"]))
+            contributions.append(make_disorder_contribution(row, cfg["id_fields"], cfg["template"], author_lookup))
     return contributions
 
 
@@ -719,10 +829,153 @@ def compact_json(payload: dict) -> str:
     return json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n"
 
 
+def study_identity_from_paper(paper: dict) -> str:
+    doi = normalize(paper.get("doi", "")).lower()
+    if doi:
+        return f"doi:{doi}"
+    openalex_id = normalize(paper.get("openalex_id", "")).lower()
+    if openalex_id:
+        return f"openalex:{openalex_id}"
+    title = normalize(paper.get("title", "")).lower()
+    year = normalize(paper.get("year", ""))
+    if title or year:
+        return f"title:{title}|{year}"
+    return ""
+
+
+def contribution_entity_kind(contribution: dict) -> str:
+    properties = contribution.get("properties") if isinstance(contribution.get("properties"), dict) else {}
+    return normalize(properties.get("kg_entity_kind") or properties.get("entity_kind")).lower()
+
+
+def payload_summary_stats(payload: dict) -> dict:
+    contributions = payload.get("contributions") or []
+    studies: Set[str] = set()
+    compounds: Set[str] = set()
+    indications: Set[str] = set()
+    targets: Set[str] = set()
+
+    for contribution in contributions:
+        if not isinstance(contribution, dict):
+            continue
+        paper = contribution.get("paper") if isinstance(contribution.get("paper"), dict) else {}
+        resources = contribution.get("resources") if isinstance(contribution.get("resources"), dict) else {}
+        study_key = study_identity_from_paper(paper)
+        if study_key:
+            studies.add(study_key)
+        compound = normalize(resources.get("compound", ""))
+        if compound:
+            compounds.add(compound)
+        entity_kind = contribution_entity_kind(contribution)
+        if entity_kind == "condition_indication":
+            indication = normalize(resources.get("disorder", ""))
+            if indication:
+                indications.add(indication)
+        if entity_kind == "target":
+            target = normalize(resources.get("target", ""))
+            if target:
+                targets.add(target)
+
+    return {
+        "row_count": len(contributions),
+        "study_count": len(studies),
+        "compound_count": len(compounds),
+        "indication_count": len(indications),
+        "target_count": len(targets),
+    }
+
+
+def aggregate_payload_summary_stats(payloads: List[dict]) -> dict:
+    studies: Set[str] = set()
+    compounds: Set[str] = set()
+    indications: Set[str] = set()
+    targets: Set[str] = set()
+    row_count = 0
+
+    for payload in payloads:
+        contributions = payload.get("contributions") or []
+        row_count += len(contributions)
+        for contribution in contributions:
+            if not isinstance(contribution, dict):
+                continue
+            paper = contribution.get("paper") if isinstance(contribution.get("paper"), dict) else {}
+            resources = contribution.get("resources") if isinstance(contribution.get("resources"), dict) else {}
+            study_key = study_identity_from_paper(paper)
+            if study_key:
+                studies.add(study_key)
+            compound = normalize(resources.get("compound", ""))
+            if compound:
+                compounds.add(compound)
+            entity_kind = contribution_entity_kind(contribution)
+            if entity_kind == "condition_indication":
+                indication = normalize(resources.get("disorder", ""))
+                if indication:
+                    indications.add(indication)
+            if entity_kind == "target":
+                target = normalize(resources.get("target", ""))
+                if target:
+                    targets.add(target)
+
+    return {
+        "row_count": row_count,
+        "study_count": len(studies),
+        "compound_count": len(compounds),
+        "indication_count": len(indications),
+        "target_count": len(targets),
+    }
+
+
+def graph_preview_claim(contribution: dict) -> dict:
+    paper = contribution.get("paper") if isinstance(contribution.get("paper"), dict) else {}
+    resources = contribution.get("resources") if isinstance(contribution.get("resources"), dict) else {}
+    properties = contribution.get("properties") if isinstance(contribution.get("properties"), dict) else {}
+    provenance = contribution.get("provenance") if isinstance(contribution.get("provenance"), dict) else {}
+    study_doi = normalize(paper.get("doi", ""))
+    openalex_id = normalize(paper.get("openalex_id", ""))
+    claim = {
+        "compound": normalize(resources.get("compound", "")),
+        "target": normalize(resources.get("target", "")),
+        "disorder": normalize(resources.get("disorder", "")),
+        "kg_entity_kind": normalize(properties.get("kg_entity_kind") or properties.get("entity_kind")),
+        "entity_kind": normalize(properties.get("entity_kind") or properties.get("kg_entity_kind")),
+        "evidence_level": normalize(properties.get("evidence_level", "")) or "low",
+        "kg_evidence_type": normalize(properties.get("kg_evidence_type") or provenance.get("kg_evidence_type")),
+        "paper_assessment_route": normalize(provenance.get("paper_assessment_route", "")),
+        "paper_type": normalize(provenance.get("paper_type", "")),
+        "source_type": normalize(provenance.get("source_type", "")),
+        "source_family": normalize(provenance.get("source_family", "")),
+        "access_level": normalize(provenance.get("access_level", "")),
+        "source_access_level": normalize(provenance.get("source_access_level") or provenance.get("access_level", "")),
+        "study_doi": study_doi,
+        "openalex_id": openalex_id,
+        "study_title": "" if study_doi or openalex_id else normalize(paper.get("title", "")),
+        "study_year": paper.get("year", ""),
+    }
+    return {key: value for key, value in claim.items() if value != ""}
+
+
+def graph_preview_payload(payload: dict) -> dict:
+    contributions = payload.get("contributions") or []
+    return {
+        "contract_version": payload.get("contract_version", "1.0"),
+        "dataset": payload.get("dataset", ""),
+        "evidence_view": payload.get("evidence_view", ""),
+        "claim_source": payload.get("claim_source", ""),
+        "claim_source_label": payload.get("claim_source_label", ""),
+        "row_count": len(contributions),
+        "claims": [graph_preview_claim(contribution) for contribution in contributions if isinstance(contribution, dict)],
+    }
+
+
 def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAIM_SOURCE) -> Tuple[dict, Dict[str, List[str]]]:
     cfg = DATASET_CONFIG[dataset]
     source_paths = claim_source_paths(dataset, claim_source)
     rows, exploratory_rows = load_claim_rows_for_source(dataset, claim_source, source_paths)
+    author_lookup = (
+        load_author_role_lookup(source_paths.get("paper_authors_parquet"))
+        if claim_source == "kg_tables"
+        else {}
+    )
     schema = load_schema(schema_path_for_claim_source(dataset, claim_source, cfg))
     required, enums, types, one_of_groups, allowed_keys = parse_schema(schema)
 
@@ -758,7 +1011,12 @@ def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAI
                 )
             )
 
-        contributions = contributions_for_dataset(dataset=dataset, rows=selected_rows, cfg=cfg)
+        contributions = contributions_for_dataset(
+            dataset=dataset,
+            rows=selected_rows,
+            cfg=cfg,
+            author_lookup=author_lookup,
+        )
         payload = {
             "contract_version": "1.0",
             "dataset": dataset,
@@ -781,11 +1039,18 @@ def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAI
         out_file.parent.mkdir(parents=True, exist_ok=True)
         out_file.write_text(compact_json(payload), encoding="utf-8")
 
+        preview_payload = graph_preview_payload(payload)
+        preview_file = out_dir / preview_file_for_view(cfg, view=view)
+        preview_file.write_text(compact_json(preview_payload), encoding="utf-8")
+
         view_exports[view] = {
             "payload": payload,
             "output_file": str(out_file),
             "row_count": payload["row_count"],
+            "summary_stats": payload_summary_stats(payload),
             "sha256": payload_sha256(payload),
+            "preview_file": str(preview_file),
+            "preview_sha256": payload_sha256(preview_payload),
         }
         errors_by_view[view] = errors
 
@@ -825,18 +1090,25 @@ def main() -> int:
         "status": "ok",
         "errors": [],
     }
+    view_payloads: dict[str, List[dict]] = {view: [] for view in VIEW_NAMES}
 
     for dataset in datasets:
         views, errors_by_view = export_dataset(dataset, out_dir, claim_source=args.claim_source)
+        for view in VIEW_NAMES:
+            view_payloads[view].append(views[view]["payload"])
         manifest["datasets"][dataset] = {
             "output_file": views["all_evidence"]["output_file"],
             "row_count": views["all_evidence"]["row_count"],
+            "summary_stats": views["all_evidence"]["summary_stats"],
             "sha256": views["all_evidence"]["sha256"],
             "views": {
                 view: {
                     "output_file": info["output_file"],
                     "row_count": info["row_count"],
+                    "summary_stats": info["summary_stats"],
                     "sha256": info["sha256"],
+                    "preview_file": info["preview_file"],
+                    "preview_sha256": info["preview_sha256"],
                 }
                 for view, info in views.items()
             },
@@ -854,6 +1126,18 @@ def main() -> int:
                     "views": dataset_errors,
                 }
             )
+
+    combined_view_stats = {
+        view: aggregate_payload_summary_stats(payloads)
+        for view, payloads in view_payloads.items()
+        if payloads
+    }
+    if combined_view_stats:
+        manifest["summary_stats"] = {
+            "default_view": "primary_with_secondary",
+            "default": combined_view_stats.get("primary_with_secondary") or next(iter(combined_view_stats.values())),
+            "views": combined_view_stats,
+        }
 
     manifest_path = out_dir / args.manifest
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

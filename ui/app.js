@@ -30,6 +30,7 @@ const stats = {
   studies: document.querySelector('[data-stat="studies"]'),
 };
 
+const HERO_STAT_KEYS = ["studies", "compounds", "indications", "targets"];
 const evidenceRank = { low: 1, medium: 2, high: 3 };
 const MAX_GRAPH_EDGES = 500;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
@@ -118,6 +119,10 @@ let bibliographyByMode = {
   mechanistic: [],
   disorders: [],
 };
+let graphPreviewByMode = {
+  mechanistic: { primary: [], secondary: [] },
+  disorders: { primary: [], secondary: [] },
+};
 let selected = null;
 let isolateSelection = false;
 let mode = "disorders";
@@ -132,6 +137,8 @@ let activeDetailItems = [];
 let detailGraphFilter = null;
 const expandedChartKeys = new Set();
 let currentDataLoadToken = 0;
+let heroStatsSnapshot = null;
+let graphManifestPromise = null;
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let pendingTooltipPoint = null;
@@ -865,6 +872,324 @@ function populationModelFacetLabel(claim) {
   return "Other/mixed population or model";
 }
 
+const MECHANISTIC_ASSAY_FAMILY_ORDER = [
+  "Binding / affinity",
+  "Functional activity",
+  "Behavioral assay",
+  "Protein expression / proteomics",
+  "Electrophysiology",
+  "Neurochemical levels",
+  "Gene expression",
+  "Imaging / connectivity",
+  "Immunoassay / histology",
+  "Computational / in silico",
+  "Transporter / uptake",
+  "Signaling / phosphorylation",
+  "Enzyme / metabolism",
+  "Other / mixed method",
+];
+
+function mechanisticAssayFamilyFacetLabel(claim) {
+  const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
+  if (normalized) return normalized;
+
+  const text = normalizeValue([claim.assay_family, claim.assay_type].map(meaningfulText).filter(Boolean).join(" "))
+    .replace(/[_/()+-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!text || ["none", "not applicable", "not_applicable", "not reported", "not_reported", "unknown", "uncertain"].includes(text)) {
+    return "";
+  }
+
+  if (/\b(radioligand|binding|affinity|competition|displacement|scatchard|autoradiograph|receptor density)\b/.test(text)) {
+    return "Binding / affinity";
+  }
+  if (
+    /\b(electrophysiolog\w*|patch clamp|voltage clamp|current clamp|field potential|field potentials|f?epsp|ipsc|epsc|tevc|whole cell|extracellular recording|eeg|ecog|synaptic transmission|synaptic plasticity|theta burst)\b/.test(text)
+  ) {
+    return "Electrophysiology";
+  }
+  if (
+    /\b(behavior\w*|behaviour\w*|behavioral pharmacology|drug discrimination|head twitch|htr|locomot|nocicept|antinocicept|forced swim|tail suspension|open field|prepulse)\b/.test(
+      text
+    )
+  ) {
+    return "Behavioral assay";
+  }
+  if (
+    /\b(functional connectivity|neuroimaging|imaging|fmri|phmri|pet|mri|connectivity|calcium imaging|autoradiography|magnetic resonance spectroscopy|spectroscopy|mrs)\b/.test(text)
+  ) {
+    return "Imaging / connectivity";
+  }
+  if (
+    /\b(microdialysis|hplc|uhplc|neurotransmitter|monoamine|dopamine|serotonin|norepinephrine|noradrenaline|glutamate|gaba|release|metabolite|tissue content|neurochemical assay|electrochemical|voltammetry|fscv)\b/.test(
+      text
+    )
+  ) {
+    return "Neurochemical levels";
+  }
+  if (/\b(transport|transporter|uptake|reuptake|efflux|sert|dat|net)\b/.test(text)) return "Transporter / uptake";
+  if (
+    /\b(gene expression|mrna|qpcr|qrt pcr|rt qpcr|rna seq|rnaseq|transcript|microarray|in situ hybridization|genomic|immediate early gene|fos|arc)\b/.test(
+      text
+    )
+  ) {
+    return "Gene expression";
+  }
+  if (
+    /\b(western|immunoblot|protein expression|protein levels?|protein quantification|measurement of protein|proteomics?|mass spectrometry|synaptic expression|brain derived neurotrophic factor|bdnf|psd)\b/.test(
+      text
+    )
+  ) {
+    return "Protein expression / proteomics";
+  }
+  if (
+    /\b(elisa|immunoassay|immunohistochemistry|immunofluorescence|histolog|staining|confocal|light sheet|cytometric bead array|flow cytometry|cytokine production|cytokine assay|milliplex|chemokine)\b/.test(
+      text
+    )
+  ) {
+    return "Immunoassay / histology";
+  }
+  if (/\b(expression assay|expression measurement|expression in|expression analysis|detection of expression|gene expression|mrna|transcript)\b/.test(text)) {
+    return "Gene expression";
+  }
+  if (/\b(phosphorylation|phospho|phosphoinositide|kinase|mtor|erk|akt|camp pathway|signal transduction|pathway activation)\b/.test(text)) {
+    return "Signaling / phosphorylation";
+  }
+  if (
+    /\b(functional|activity|activation|agonis\w*|antagonis\w*|pharmacological antagonism|pharmacological blockade|pharmacological classification|g protein|beta arrestin|arrestin|bret|camp|ip1|inositol|calcium|recruitment|potency|efficacy|modulation)\b/.test(
+      text
+    )
+  ) {
+    return "Functional activity";
+  }
+  if (/\b(computational|in silico|docking|modeling|modelling|prediction|admet|simulation|molecular dynamics)\b/.test(text)) {
+    return "Computational / in silico";
+  }
+  if (/\b(enzyme|enzymatic|metabolic|metabolism|esterase|pka|pk a|chemical assay|pka determination)\b/.test(text)) {
+    return "Enzyme / metabolism";
+  }
+  return "Other / mixed method";
+}
+
+const CLINICAL_COMPARATOR_ORDER = [
+  "Placebo / vehicle",
+  "Active placebo",
+  "Baseline / pre-post",
+  "No comparator / single-arm",
+  "Dose / route comparison",
+  "Active treatment comparator",
+  "Treatment as usual / standard care",
+  "Observational / matched controls",
+  "Comparator not reported",
+  "Not applicable",
+  "Other / mixed comparator",
+];
+
+const CLINICAL_FOLLOW_UP_WINDOW_ORDER = [
+  "Acute / same day",
+  "Early follow-up (1-7 days)",
+  "Short follow-up (1-4 weeks)",
+  "Medium follow-up (1-3 months)",
+  "Long follow-up (4-12 months)",
+  "Extended follow-up (>12 months)",
+  "During treatment",
+  "Treatment endpoint",
+  "Baseline / pre-treatment",
+  "Retrospective / lifetime",
+  "Follow-up not reported",
+  "Not applicable",
+  "Other / mixed follow-up",
+];
+
+const FOLLOW_UP_NUMBER_WORDS = {
+  one: "1",
+  first: "1",
+  two: "2",
+  second: "2",
+  three: "3",
+  third: "3",
+  four: "4",
+  fourth: "4",
+  five: "5",
+  fifth: "5",
+  six: "6",
+  sixth: "6",
+  seven: "7",
+  seventh: "7",
+  eight: "8",
+  ninth: "9",
+  nine: "9",
+  ten: "10",
+  eleven: "11",
+  twelve: "12",
+  twelfth: "12",
+};
+
+function clinicalComparatorFacetLabel(claim) {
+  const normalized = meaningfulText(claim.comparator_normalized || claim.normalized_comparator);
+  if (normalized) return normalized;
+
+  const text = normalizeValue(meaningfulText(claim.comparator))
+    .replace(/[_/()+-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!text || ["not_reported", "not reported", "unknown", "uncertain"].includes(text)) return "Comparator not reported";
+  if (["not_applicable", "not applicable", "n/a", "na"].includes(text)) return "Not applicable";
+  if (/\b(no comparator|no control|no comparative|uncontrolled|single arm|no treatment|no ketamine|no analgesia|none)\b/.test(text)) {
+    return "No comparator / single-arm";
+  }
+  if (
+    /\b(baseline|pre treatment|pre intervention|pre retreat|pre dose|previous treatments?|retrospective pre|pre operation|preoperation|pretreatment|before infusion|preinfusion|before psychedelic|intake|time period before|pre study|study exit|after first pap|post dosing|before the second infusion)\b/.test(
+      text
+    )
+  ) {
+    return "Baseline / pre-post";
+  }
+  if (/\b(midazolam|niacin|diphenhydramine|active placebo|psychoactive placebo|1 mg psilocybin|5 mg psilocybin|low dose)\b/.test(text)) {
+    return "Active placebo";
+  }
+  if (/\b(placebo|saline|normal saline|isotonic saline|0\.9% saline|vehicle|lactose|nitrogen|water)\b/.test(text)) {
+    return "Placebo / vehicle";
+  }
+  if (
+    /\b(\d+(?:\.\d+)?\s*(?:mg|mcg|ug|μg|µg|g|ml)|dose|doses?)\b/.test(text) &&
+    /\b(ket|ketamine|esketamine|psilocybin|comp360|mdma|dmt|lsd|nitrous|cannabidiol)\b/.test(text)
+  ) {
+    return "Dose / route comparison";
+  }
+  if (
+    /\b(iv ketamine|intravenous ketamine|intranasal esketamine|in esketamine|esketamine alone|ketamine alone|ketamine therapy|es ketamine therapy|r s ketamine|oral ketamine|subcutaneous versus intranasal|four infusion|injectable r s ketamine|racemic ketamine|s ketamine|r ketamine|esk in|mdma alone|psilocybin alone|intrathecal psilocin|ketamine only|2r 6r hnk|ibogaine|other routes of administration)\b/.test(
+      text
+    )
+  ) {
+    return "Dose / route comparison";
+  }
+  if (
+    /\b(treatment as usual|treatment-as-usual|standard care|standard of care|usual care|conventional|community of practice|mbsr|routine treatment|rwt|standard postpartum care|linkage alone|outpatient medication management|waitlist)\b/.test(
+      text
+    )
+  ) {
+    return "Treatment as usual / standard care";
+  }
+  if (
+    /\b(healthy comparison|comparison group|matched controls?|control group|controls?|non users?|non mdma users?|non responders?|nonresponders?|younger patients?|unmedicated|anxious mdd|no change|non aia|patients without|patients with no|non early improvers?|no lifetime|subjects who had no|normative sample|reference category|men|women|unipolar depression|low trauma|trauma type absent|without pain|other chronic pain|mild pain|non pain|healthy individuals?|males?|female|socially isolated|with low insomnia|non obese|without comorbid|do not suffer|without diabetes|without hyperlipidemia|did not have|did not receive|responders?|abstinent users?|neuroleptic free|adults without)\b/.test(
+      text
+    )
+  ) {
+    return "Observational / matched controls";
+  }
+  if (
+    /\b(ect|electro convulsive|electroconvulsive|escitalopram|antidepressants?|ssri|oad|quetiapine|lithium|rtms|methadone|ketorolac|fentanyl|sufentanil|remifentanil|acetaminophen|hydromorphone|morphine|opioid|analgesic|propofol|etomidate|bupivacaine|dexamethasone|gabapentin|tramadol|diclofenac|metoclopramide|psychotherapy|therapy alone|thiopental|methohexital|dexmedetomidine|lorazepam|prochlorperazine|aminophylline|lidocaine|anaesthetic|benzodiazepines?|medication management|valproate|lexapro|ketamine|esketamine|mdma|lsd|ayahuasca|dextromethorphan|pethidine|imipramine|duloxetine|sertraline|magnesium sulfate|budesonide|methamphetamine|opiates|psychostimulants|antidepressivos)\b/.test(
+      text
+    )
+  ) {
+    return "Active treatment comparator";
+  }
+  return "Other / mixed comparator";
+}
+
+function followUpTextFromClaim(claim) {
+  return normalizeValue([claim.follow_up_duration, claim.timepoint].map(meaningfulText).filter(Boolean).join(" "))
+    .replace(
+      /\b(one|first|two|second|three|third|four|fourth|five|fifth|six|sixth|seven|seventh|eight|ninth|nine|ten|eleven|twelve|twelfth)\b/g,
+      (match) => FOLLOW_UP_NUMBER_WORDS[match] || match
+    )
+    .replace(/\b(\d+)(?:st|nd|rd|th)\b/g, "$1")
+    .replace(/[_/()+-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function followUpWindowFromDays(days) {
+  if (days <= 1) return "Acute / same day";
+  if (days <= 7) return "Early follow-up (1-7 days)";
+  if (days <= 31) return "Short follow-up (1-4 weeks)";
+  if (days <= 93) return "Medium follow-up (1-3 months)";
+  if (days <= 366) return "Long follow-up (4-12 months)";
+  return "Extended follow-up (>12 months)";
+}
+
+function followUpDurationDays(text) {
+  const durations = [];
+  const patterns = [
+    [/\b(\d+(?:\.\d+)?)\s*(?:minutes?|mins?|min)\b/g, 1 / 1440],
+    [/\b(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|hr|h)\b/g, 1 / 24],
+    [/\b(?:days?|d|pod)\s*(\d+(?:\.\d+)?)\b|\b(\d+(?:\.\d+)?)\s*(?:days?|d)\b/g, 1],
+    [/\b(?:week|weeks|wk|w)\s*(\d+(?:\.\d+)?)\b|\b(\d+(?:\.\d+)?)\s*(?:weeks?|wks?|wk)\b/g, 7],
+    [/\b(?:month|mo)\s*(\d+(?:\.\d+)?)\b|\b(\d+(?:\.\d+)?)\s*(?:months?|mos?|mo)\b/g, 30.44],
+    [/\b(?:year|yr)\s*(\d+(?:\.\d+)?)\b|\b(\d+(?:\.\d+)?)\s*(?:years?|yrs?|yr)\b/g, 365.25],
+  ];
+  patterns.forEach(([pattern, multiplier]) => {
+    let match = pattern.exec(text);
+    while (match) {
+      const value = match.slice(1).find(Boolean);
+      const number = Number(value);
+      if (Number.isFinite(number)) durations.push(number * multiplier);
+      match = pattern.exec(text);
+    }
+  });
+  [
+    [/\bdays?\s+([0-9][0-9.,\sandto-]+)/g, 1],
+    [/\bweeks?\s+([0-9][0-9.,\sandto-]+)/g, 7],
+    [/\bmonths?\s+([0-9][0-9.,\sandto-]+)/g, 30.44],
+    [/\byears?\s+([0-9][0-9.,\sandto-]+)/g, 365.25],
+  ].forEach(([pattern, multiplier]) => {
+    let match = pattern.exec(text);
+    while (match) {
+      const values = match[1].match(/\d+(?:\.\d+)?/g) || [];
+      values.forEach((value) => {
+        const number = Number(value);
+        if (Number.isFinite(number)) durations.push(number * multiplier);
+      });
+      match = pattern.exec(text);
+    }
+  });
+  return durations.length ? Math.max(...durations) : null;
+}
+
+function clinicalFollowUpWindowFacetLabel(claim) {
+  const normalized = meaningfulText(claim.follow_up_window_normalized || claim.normalized_follow_up_window);
+  if (normalized) return normalized;
+
+  const text = followUpTextFromClaim(claim);
+  if (!text || ["not_reported", "not reported", "unknown", "uncertain"].includes(text)) return "Follow-up not reported";
+  if (["not_applicable", "not applicable", "n/a", "na"].includes(text)) return "Not applicable";
+  if (/\b(lifetime|past year|past month|past week|past use|prior use|history of|retrospective|previous year)\b/.test(text)) {
+    return "Retrospective / lifetime";
+  }
+  if (/\b(baseline|pre treatment|pretreatment|pre dose|pre infusion|preinfusion|before treatment|before infusion|from baseline)\b/.test(text)) {
+    return "Baseline / pre-treatment";
+  }
+  if (
+    /\b(during|throughout|within|across)\b.*\b(treatment|infusions?|sessions?|administration|study|course|maintenance|series)\b|\bover (?:the )?(?:treatment )?course\b|\bover the course of\b.*\b(treatment|infusions?|sessions?|study|course)\b|\b(intraoperative|intra operative|within session)\b/.test(
+      text
+    )
+  ) {
+    return "During treatment";
+  }
+  if (
+    /\b(end of treatment|end treatment|treatment endpoint|endpoint|post treatment|after treatment|posttreatment|post therapy|after therapy|study exit|on discharge|after induction|conclusion of|pre to post intervention|after .* treatment|after completed treatment|after completion of|after the treatment series|after induction phase|after (?:the )?\d+(?:st|nd|rd|th)?.*(?:infusions?|treatments?|sessions?)|after the \d+(?:st|nd|rd|th)? (?:infusions?|treatments?|sessions?)|by the \d+(?:st|nd|rd|th)? (?:treatment|session)|treatment \d+|final .*(?:infusion|treatment|session)|following (?:each |\d+ )?infusions?|after repeated infusions?)\b/.test(
+      text
+    )
+  ) {
+    const days = followUpDurationDays(text);
+    return days === null ? "Treatment endpoint" : followUpWindowFromDays(days);
+  }
+  if (
+    /\b(acut\w*|rapid\w*|immediate|same day|postoperative\w*|post operative\w*|postinfusion|post infusion|post administration|post dosing|after dosing|after first infusion|after each infusion)\b/.test(
+      text
+    )
+  ) {
+    const days = followUpDurationDays(text);
+    return days === null ? "Acute / same day" : followUpWindowFromDays(days);
+  }
+  const days = followUpDurationDays(text);
+  if (days !== null) return followUpWindowFromDays(days);
+  if (/\b(short term)\b/.test(text)) return "Short follow-up (1-4 weeks)";
+  return "Other / mixed follow-up";
+}
+
 function accessLevelLabel(accessLevel) {
   const normalized = normalizeValue(accessLevel);
   const labels = {
@@ -1097,6 +1422,63 @@ function claimAuthors(claim) {
   return "";
 }
 
+function authorDisplayName(author) {
+  if (!author || typeof author !== "object") return "";
+  return meaningfulAuthorName(
+    author.name || author.display_name || author.displayName || author.author || author.label || ""
+  );
+}
+
+function authorStableId(author) {
+  if (!author || typeof author !== "object") return "";
+  return cleanDisplayText(
+    author.id || author.author_id || author.authorId || author.openalex_author_id || author.openalexAuthorId || author.orcid || ""
+  );
+}
+
+function meaningfulAuthorName(name) {
+  const text = cleanDisplayText(name);
+  const normalized = normalizeValue(text);
+  if (!normalized || ["unknown", "unknown author", "unknown authors"].includes(normalized)) return "";
+  return text;
+}
+
+function authorRoleIdentity(claim, role) {
+  const value = claim?.[`${role}_author`];
+  if (value && typeof value === "object") {
+    const name = authorDisplayName(value);
+    const id = authorStableId(value);
+    if (name || id) {
+      return {
+        id: id || name,
+        name: name || id,
+      };
+    }
+  }
+
+  const authors = splitAuthorNames(claimAuthors(claim)).map(meaningfulAuthorName).filter(Boolean);
+  const name = role === "last" ? authors[authors.length - 1] || "" : authors[0] || "";
+  return name ? { id: name, name } : { id: "", name: "" };
+}
+
+function firstAuthorName(claim) {
+  return authorRoleIdentity(claim, "first").name;
+}
+
+function lastAuthorName(claim) {
+  return authorRoleIdentity(claim, "last").name;
+}
+
+function firstAuthorFacetValue(claim) {
+  const author = authorRoleIdentity(claim, "first");
+  return author.name ? { value: author.id || author.name, label: author.name } : "";
+}
+
+function lastAuthorFacetValue(claim) {
+  const author = authorRoleIdentity(claim, "last");
+  return author.name ? { value: author.id || author.name, label: author.name } : "";
+}
+
 function normalizeDoi(value) {
   return (value || "")
     .toString()
@@ -1134,38 +1516,78 @@ function normalizedKgClaims() {
   return [...claimStores.normalized.disorders, ...claimStores.normalized.mechanistic];
 }
 
+function loadedHeroStats() {
+  const totalClaims = normalizedKgClaims();
+  return {
+    compounds: unique(totalClaims.map((claim) => compoundGraphLabel(claim.compound)).filter(Boolean)).length,
+    indications: unique(
+      claimStores.normalized.disorders
+        .filter((claim) => entityKindForClaim(claim) === "condition_indication")
+        .map((claim) => graphLabel(claim.disorder))
+        .filter(Boolean)
+    ).length,
+    targets: unique(
+      claimStores.normalized.mechanistic
+        .filter((claim) => entityKindForClaim(claim) === "target")
+        .map((claim) => graphLabel(claim.target))
+        .filter(Boolean)
+    ).length,
+    studies: uniqueStudyCount(totalClaims),
+  };
+}
+
+function statNumber(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0) return null;
+  return Math.trunc(number);
+}
+
+function heroStatsFromGraphManifest(manifest) {
+  const summary =
+    manifest?.summary_stats?.default ||
+    manifest?.summary_stats?.views?.primary_with_secondary ||
+    manifest?.summary_stats;
+  if (!summary || typeof summary !== "object") return null;
+
+  const values = {
+    studies: statNumber(summary.study_count ?? summary.studies),
+    compounds: statNumber(summary.compound_count ?? summary.compounds),
+    indications: statNumber(summary.indication_count ?? summary.indications),
+    targets: statNumber(summary.target_count ?? summary.targets),
+  };
+  return HERO_STAT_KEYS.some((key) => values[key] !== null) ? values : null;
+}
+
+function completeHeroStats(values) {
+  const needsFallback = !values || HERO_STAT_KEYS.some((key) => values[key] === null || values[key] === undefined);
+  const fallback = needsFallback ? loadedHeroStats() : {};
+  return HERO_STAT_KEYS.reduce((acc, key) => {
+    acc[key] = values?.[key] ?? fallback[key] ?? 0;
+    return acc;
+  }, {});
+}
+
+function setHeroStatValues(values) {
+  const completeValues = completeHeroStats(values);
+  HERO_STAT_KEYS.forEach((key) => {
+    if (stats[key]) stats[key].textContent = formatCompactNumber(completeValues[key]);
+  });
+}
+
 function updateStats() {
   const rightLabelEl = stats.indications?.previousElementSibling;
   const targetLabelEl = stats.targets?.previousElementSibling;
   if (rightLabelEl) rightLabelEl.textContent = "Indications";
   if (targetLabelEl) targetLabelEl.textContent = "Targets";
 
-  const totalClaims = normalizedKgClaims();
-  stats.compounds.textContent = formatCompactNumber(
-    unique(totalClaims.map((claim) => compoundGraphLabel(claim.compound)).filter(Boolean)).length
-  );
-  stats.indications.textContent = formatCompactNumber(
-    unique(
-      claimStores.normalized.disorders
-        .filter((claim) => entityKindForClaim(claim) === "condition_indication")
-        .map((claim) => graphLabel(claim.disorder))
-        .filter(Boolean)
-    ).length
-  );
-  stats.targets.textContent = formatCompactNumber(
-    unique(
-      claimStores.normalized.mechanistic
-        .filter((claim) => entityKindForClaim(claim) === "target")
-        .map((claim) => graphLabel(claim.target))
-        .filter(Boolean)
-    ).length
-  );
-  stats.studies.textContent = formatCompactNumber(uniqueStudyCount(totalClaims));
+  setHeroStatValues(heroStatsSnapshot);
 }
 
 function applyFilters() {
-  const rightKey = rightEntityKey();
-  const activeClaims = activeClaimsForMode();
+  return applyFiltersToClaims(activeClaimsForMode());
+}
+
+function applyFiltersToClaims(activeClaims) {
   const yearRange = activeYearRange(activeClaims);
   const fullTextOnly = Boolean(fullTextOnlyToggle?.checked);
 
@@ -1189,6 +1611,7 @@ function applyFilters() {
 
   if (!selected || !isolateSelection) return detailFiltered;
 
+  const rightKey = rightEntityKey();
   if (selected.type === "edge") {
     return detailFiltered.filter(
       (claim) => claim.compound === selected.compound && claim[rightKey] === selected.target
@@ -1934,6 +2357,16 @@ function uniqueStudyCount(items) {
   return uniqueStudyEntries(items).length;
 }
 
+function evidenceCountTooltipHtml(items) {
+  const studyCount = uniqueStudyCount(items);
+  const recordCount = items.length;
+  const labels = recordLabelsForItems(items);
+  const recordLabel = recordCount === 1 ? labels.lowerSingular : labels.lowerPlural;
+  return `<span class="tooltip-meta">${formatCompactNumber(studyCount)} stud${
+    studyCount === 1 ? "y" : "ies"
+  } · ${formatCompactNumber(recordCount)} ${escapeHtml(recordLabel)}</span>`;
+}
+
 function yearStats(items) {
   const years = uniqueStudyEntries(items)
     .map((entry) => entry.year)
@@ -2059,22 +2492,84 @@ function summarizeFacetEvidence(items, valueForClaim) {
   const map = new Map();
 
   items.forEach((claim, index) => {
-    const label = meaningfulText(valueForClaim(claim));
+    const rawValue = valueForClaim(claim);
+    const label =
+      rawValue && typeof rawValue === "object"
+        ? meaningfulText(rawValue.label || rawValue.name || rawValue.displayLabel || rawValue.value)
+        : meaningfulText(rawValue);
     if (!label) return;
+    const value =
+      rawValue && typeof rawValue === "object"
+        ? meaningfulText(rawValue.value || rawValue.id || rawValue.key || label)
+        : label;
     const study = studyKey(claim, index);
-    const entry = map.get(label) || { label, claims: 0, studies: new Set() };
+    const entry = map.get(value) || { label, value, claims: 0, studies: new Set() };
     entry.claims += 1;
     entry.studies.add(study);
-    map.set(label, entry);
+    map.set(value, entry);
   });
 
   return Array.from(map.values())
     .map((entry) => ({
       label: entry.label,
+      value: entry.value,
       claims: entry.claims,
       studies: entry.studies.size,
     }))
     .sort((a, b) => {
+      const byStudies = b.studies - a.studies;
+      if (byStudies !== 0) return byStudies;
+      const byClaims = b.claims - a.claims;
+      if (byClaims !== 0) return byClaims;
+      return a.label.localeCompare(b.label);
+    });
+}
+
+function summarizeAuthorRoleEvidence(items) {
+  const map = new Map();
+
+  items.forEach((claim, index) => {
+    const study = studyKey(claim, index);
+    const claimKey = claim.kg_claim_id || claim.external_id || `${study}|${index}`;
+    [
+      ["first", firstAuthorFacetValue(claim)],
+      ["last", lastAuthorFacetValue(claim)],
+    ].forEach(([role, rawValue]) => {
+      const label = rawValue && typeof rawValue === "object" ? meaningfulText(rawValue.label || rawValue.value) : "";
+      const value = rawValue && typeof rawValue === "object" ? meaningfulText(rawValue.value || rawValue.id || label) : "";
+      if (!label || !value) return;
+      const entry =
+        map.get(value) ||
+        {
+          label,
+          value,
+          studies: new Set(),
+          claims: new Set(),
+          firstStudies: new Set(),
+          lastStudies: new Set(),
+        };
+      entry.label = entry.label || label;
+      entry.studies.add(study);
+      entry.claims.add(claimKey);
+      if (role === "first") entry.firstStudies.add(study);
+      if (role === "last") entry.lastStudies.add(study);
+      map.set(value, entry);
+    });
+  });
+
+  return Array.from(map.values())
+    .map((entry) => ({
+      label: entry.label,
+      value: entry.value,
+      studies: entry.studies.size,
+      claims: entry.claims.size,
+      firstStudies: entry.firstStudies.size,
+      lastStudies: entry.lastStudies.size,
+      roleStudies: entry.firstStudies.size + entry.lastStudies.size,
+    }))
+    .sort((a, b) => {
+      const byRoleStudies = b.roleStudies - a.roleStudies;
+      if (byRoleStudies !== 0) return byRoleStudies;
       const byStudies = b.studies - a.studies;
       if (byStudies !== 0) return byStudies;
       const byClaims = b.claims - a.claims;
@@ -2094,10 +2589,11 @@ function renderFacetChipChart(entries, title, filterField, options = {}) {
     .map((entry) => {
       const claims = Number(entry.claims ?? entry.count ?? 0) || 0;
       const studies = Number(entry.studies ?? claims) || 0;
+      const filterValue = entry.value || entry.label;
       return `
         <button class="scale-chip facet-chip" type="button"
           data-filter-field="${escapeHtml(filterField)}"
-          data-filter-value="${escapeHtml(entry.label)}"
+          data-filter-value="${escapeHtml(filterValue)}"
           data-filter-label="${escapeHtml(entry.label)}"
           data-study-count="${escapeHtml(String(studies))}"
           data-claim-count="${escapeHtml(String(claims))}"
@@ -2129,7 +2625,8 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
       const studies = Number(entry.studies ?? claims) || 0;
       return {
         label: entry.label,
-        displayLabel: entry.label,
+        value: entry.value || entry.label,
+        displayLabel: entry.displayLabel || entry.label,
         count: claims,
         studies,
       };
@@ -2216,8 +2713,50 @@ function renderMetadataFacetCharts(items) {
       extraClass: evidenceView === "secondary" ? "chip-tone-amber" : "chip-tone-gray",
       emptyText: `No ${publicationTitle.toLowerCase()} metadata in this selection.`,
     })}
+    ${renderAuthorRoleChart(items)}
     ${renderJournalChart(items)}
   `;
+}
+
+function renderAuthorRoleChart(items) {
+  const entries = summarizeAuthorRoleEvidence(items);
+  if (!entries.length) {
+    return trendCardHtml("Authors", "", '<div class="trend-empty">No author metadata in this selection.</div>');
+  }
+
+  const maxEntries = 10;
+  const visibleEntries = entries.slice(0, maxEntries);
+  const rows = visibleEntries
+    .map((entry) => {
+      const studiesLabel = `${formatCompactNumber(entry.studies)} stud${entry.studies === 1 ? "y" : "ies"}`;
+      const title = `${entry.label}: ${formatCompactNumber(entry.studies)} studies, ${formatCompactNumber(
+        entry.claims
+      )} findings; first author in ${formatCompactNumber(entry.firstStudies)}, last author in ${formatCompactNumber(
+        entry.lastStudies
+      )}`;
+      return `
+        <div class="author-rank-row interactive-bar" role="button" tabindex="0"
+          data-filter-field="author_role"
+          data-filter-value="${escapeHtml(entry.value)}"
+          data-filter-label="${escapeHtml(entry.label)}"
+          data-study-count="${escapeHtml(String(entry.studies))}"
+          data-claim-count="${escapeHtml(String(entry.claims))}"
+          title="${escapeHtml(title)}">
+          <div class="author-rank-main">
+            <span>${escapeHtml(entry.label)}</span>
+            <strong>${escapeHtml(studiesLabel)}</strong>
+          </div>
+          <div class="author-role-counts">
+            <span>First <b>${formatCompactNumber(entry.firstStudies)}</b></span>
+            <span>Last <b>${formatCompactNumber(entry.lastStudies)}</b></span>
+            <span>Findings <b>${formatCompactNumber(entry.claims)}</b></span>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  return trendCardHtml("Authors", "", `<div class="author-rank-list">${rows}</div>`, "author-role-card");
 }
 
 function renderJournalChart(items) {
@@ -2228,6 +2767,42 @@ function renderJournalChart(items) {
     expandKey: "journals",
     maxEntries: 10,
     extraClass: "bar-tone-gray",
+  });
+}
+
+function renderMechanisticAssayFamilyChart(items) {
+  if (mode !== "mechanistic" || evidenceView !== "primary") return "";
+  const assayEntries = summarizeFacetEvidence(items, mechanisticAssayFamilyFacetLabel);
+  return renderFacetCompositionChart(assayEntries, "Assay families", "assay_family_facet", {
+    hideWhenEmpty: true,
+    order: MECHANISTIC_ASSAY_FAMILY_ORDER,
+    maxEntries: 12,
+    palette: ["#7f9fcf", "#49bfb5", "#c89b45", "#9f86c0", "#b96c8b", "#9ac5ae", "#c7825c", "#7d8492"],
+    emptyText: "No assay-family metadata in this selection.",
+  });
+}
+
+function renderClinicalComparatorChart(items) {
+  if (mode !== "disorders" || evidenceView !== "primary") return "";
+  const comparatorEntries = summarizeFacetEvidence(items, clinicalComparatorFacetLabel);
+  return renderFacetCompositionChart(comparatorEntries, "Comparators", "comparator_facet", {
+    hideWhenEmpty: true,
+    order: CLINICAL_COMPARATOR_ORDER,
+    maxEntries: 10,
+    palette: ["#7f9fcf", "#9f86c0", "#9ac5ae", "#c89b45", "#b96c8b", "#49bfb5", "#c7825c", "#7d8492"],
+    emptyText: "No comparator metadata in this selection.",
+  });
+}
+
+function renderClinicalFollowUpWindowChart(items) {
+  if (mode !== "disorders" || evidenceView !== "primary") return "";
+  const followUpEntries = summarizeFacetEvidence(items, clinicalFollowUpWindowFacetLabel);
+  return renderFacetCompositionChart(followUpEntries, "Follow-up windows", "follow_up_window_facet", {
+    hideWhenEmpty: true,
+    order: CLINICAL_FOLLOW_UP_WINDOW_ORDER,
+    maxEntries: 10,
+    palette: ["#49bfb5", "#7f9fcf", "#9ac5ae", "#c89b45", "#c7825c", "#b96c8b", "#9f86c0", "#7d8492"],
+    emptyText: "No follow-up window metadata in this selection.",
   });
 }
 
@@ -2243,6 +2818,9 @@ function renderEvidenceCompositionFacetCharts(items) {
       maxEntries: 7,
       palette: ["#9ac5ae", "#9f86c0", "#c89b45", "#7f9fcf", "#b96c8b", "#49bfb5", "#7d8492"],
     })}
+    ${renderClinicalComparatorChart(items)}
+    ${renderClinicalFollowUpWindowChart(items)}
+    ${renderMechanisticAssayFamilyChart(items)}
     ${renderFacetCompositionChart(designEntries, "Study designs", "study_design_facet", {
       maxEntries: 7,
       palette: ["#c89b45", "#7f9fcf", "#9f86c0", "#49bfb5", "#b96c8b", "#c7825c", "#7d8492"],
@@ -2430,10 +3008,11 @@ function colorForCategory(label, index, field = "") {
 function compositionFilterAttrs(entry, field) {
   if (!field || !entry?.label || entry.isAggregate) return "";
   const label = entry.displayLabel || displayFieldLabel(entry.label);
+  const filterValue = entry.value || entry.label;
   const studies = Number(entry.studies ?? entry.count ?? 0) || 0;
   const claims = Number(entry.count ?? studies) || 0;
   return `role="button" tabindex="0" data-filter-field="${escapeHtml(field)}" data-filter-value="${escapeHtml(
-    entry.label
+    filterValue
   )}" data-filter-label="${escapeHtml(label)}" data-study-count="${escapeHtml(String(studies))}" data-claim-count="${escapeHtml(
     String(claims)
   )}" aria-label="${escapeHtml(`${label}: ${studies} studies, ${claims} findings`)}"`;
@@ -2599,11 +3178,12 @@ function renderHorizontalBarChart(entries, title, subtitle, options = {}) {
           const width = Math.max(4, (value / maxValue) * 100);
           const claims = Number(entry.claims ?? entry.count ?? value) || 0;
           const studies = Number(entry.studies ?? value) || 0;
+          const filterValue = entry.value || entry.label;
           const isInteractive = Boolean(options.filterField && entry.label);
           const rowClass = ["trend-bar-row", isInteractive ? "interactive-bar" : ""].filter(Boolean).join(" ");
           const interactiveAttrs = isInteractive
             ? `role="button" tabindex="0" data-filter-field="${escapeHtml(options.filterField)}" data-filter-value="${escapeHtml(
-                entry.label
+                filterValue
               )}" data-filter-label="${escapeHtml(entry.label)}" data-study-count="${escapeHtml(
                 String(studies)
               )}" data-claim-count="${escapeHtml(String(claims))}"`
@@ -2969,7 +3549,7 @@ function sampleHeatmapTooltipHtml(target) {
     <strong class="tooltip-title">${escapeHtml(target.dataset.yearLabel || "Unknown years")}</strong>
     <span class="tooltip-meta">N=${escapeHtml(target.dataset.sampleLabel || "unknown")} · ${formatCompactNumber(
       studyCount
-    )} stud${studyCount === 1 ? "y" : "ies"} · ${formatCompactNumber(claimCount)} claim${
+    )} stud${studyCount === 1 ? "y" : "ies"} · ${formatCompactNumber(claimCount)} finding${
       claimCount === 1 ? "" : "s"
     }</span>
   `;
@@ -2995,7 +3575,7 @@ function horizontalBarTooltipHtml(target) {
     <strong class="tooltip-title">${escapeHtml(target.dataset.filterLabel || "Unknown")}</strong>
     <span class="tooltip-meta">${formatCompactNumber(studyCount)} stud${
       studyCount === 1 ? "y" : "ies"
-    } · ${formatCompactNumber(claimCount)} claim${claimCount === 1 ? "" : "s"}</span>
+    } · ${formatCompactNumber(claimCount)} finding${claimCount === 1 ? "" : "s"}</span>
   `;
 }
 
@@ -3006,16 +3586,27 @@ function claimsForStudyKey(studyKeyValue) {
 function claimsForFieldValue(field, value) {
   if (!field || !value) return [];
   const normalizedValue = normalizeValue(value);
+  if (field === "author_role") {
+    return activeDetailItems.filter((claim) =>
+      ["first", "last"].some((role) => normalizeValue(authorRoleIdentity(claim, role).id) === normalizedValue)
+    );
+  }
   return activeDetailItems.filter((claim) => normalizeValue(fieldValueForClaim(claim, field)) === normalizedValue);
 }
 
 function fieldValueDetailTitle(field, value) {
   if (field === "compound") return `Compound: ${value}`;
   if (field === "disorder" || field === "target") return `${rightEntityLabel(false)}: ${value}`;
+  if (field === "author_role") return `Author: ${value}`;
+  if (field === "first_author") return `First author: ${value}`;
+  if (field === "last_author") return `Last author: ${value}`;
   if (field === "study_journal") return `Journal: ${value}`;
   if (field === "open_access_facet") return `Access: ${value}`;
   if (field === "trial_registration_facet") return `Trial registration: ${value}`;
   if (field === "population_model_facet") return `Population / model: ${value}`;
+  if (field === "assay_family_facet") return `Assay family: ${value}`;
+  if (field === "comparator_facet") return `Comparator: ${value}`;
+  if (field === "follow_up_window_facet") return `Follow-up window: ${value}`;
   if (field === "study_design_facet") return `Study design: ${value}`;
   if (field === "publication_type_facet") return `Publication type: ${value}`;
   return `${displayFieldLabel(field)}: ${value}`;
@@ -3025,8 +3616,13 @@ function fieldValueForClaim(claim, field) {
   if (field === "open_access_facet") return openAccessFacetLabel(claim);
   if (field === "trial_registration_facet") return trialRegistrationFacetLabel(claim);
   if (field === "population_model_facet") return populationModelFacetLabel(claim);
+  if (field === "assay_family_facet") return mechanisticAssayFamilyFacetLabel(claim);
+  if (field === "comparator_facet") return clinicalComparatorFacetLabel(claim);
+  if (field === "follow_up_window_facet") return clinicalFollowUpWindowFacetLabel(claim);
   if (field === "study_design_facet") return studyDesignFacetLabel(claim);
   if (field === "publication_type_facet") return publicationTypeFacetLabel(claim);
+  if (field === "first_author") return authorRoleIdentity(claim, "first").id || firstAuthorName(claim);
+  if (field === "last_author") return authorRoleIdentity(claim, "last").id || lastAuthorName(claim);
   return cleanDisplayText(claim[field]);
 }
 
@@ -3658,9 +4254,8 @@ function buildGraph(data) {
       cancelPendingFocusRestore();
       path.classList.add("hovered");
       applyFocusForEdge(key);
-      const edgeRecordLabel = recordLabelsForItems(edge.claims).summary;
       showTooltip(
-        `<strong>${compound} → ${target}</strong><br/>${edgeRecordLabel}: ${edge.count}`,
+        `<strong>${compound} → ${target}</strong><br/>${evidenceCountTooltipHtml(edge.claims)}`,
         event
       );
     });
@@ -3724,9 +4319,8 @@ function buildGraph(data) {
       node.classList.add("hovered");
       label.classList.add("hovered");
       applyFocusForNode("compound", compound);
-      const nodeRecordLabel = recordLabelsForItems(nodeClaims).summary;
       showTooltip(
-        `<strong>${compound}</strong><br/>${nodeRecordLabel}: ${nodeClaims.length}<br/>Connections: ${
+        `<strong>${compound}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Connections: ${
           summarizeConnections(nodeClaims, rightKey).length
         }`,
         event
@@ -3798,9 +4392,8 @@ function buildGraph(data) {
       node.classList.add("hovered");
       label.classList.add("hovered");
       applyFocusForNode("target", target);
-      const nodeRecordLabel = recordLabelsForItems(nodeClaims).summary;
       showTooltip(
-        `<strong>${target}</strong><br/>${nodeRecordLabel}: ${nodeClaims.length}<br/>Compounds: ${
+        `<strong>${target}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
           summarizeConnections(nodeClaims, "compound").length
         }`,
         event
@@ -3896,6 +4489,12 @@ function scheduleRender() {
   });
 }
 
+function waitForPaint() {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
+  });
+}
+
 function updateSearchPlaceholder() {
   if (!searchInput) return;
   if (mode === "mechanistic") {
@@ -3984,7 +4583,7 @@ function switchMode(nextMode) {
   syncYearFilterControls(activeClaimsForMode());
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender();
+  loadCurrentClaimsAndRender({ showGraphPreview: true });
 }
 
 function switchClaimLayer(nextLayer) {
@@ -3999,7 +4598,7 @@ function switchClaimLayer(nextLayer) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender();
+  loadCurrentClaimsAndRender({ showGraphPreview: true });
 }
 
 function switchEvidenceView(nextView) {
@@ -4013,7 +4612,7 @@ function switchEvidenceView(nextView) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender();
+  loadCurrentClaimsAndRender({ showGraphPreview: true });
 }
 
 function switchEntityView(nextView, nextMode = mode) {
@@ -4031,7 +4630,7 @@ function switchEntityView(nextView, nextMode = mode) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender();
+  loadCurrentClaimsAndRender({ showGraphPreview: true });
 }
 
 async function fetchJsonFromCandidates(candidates) {
@@ -4054,6 +4653,21 @@ async function fetchJsonFromCandidates(candidates) {
 
 function dataCandidates(path) {
   return [`../${path}`, `/${path}`, path];
+}
+
+function loadGraphManifestStats() {
+  if (graphManifestPromise) return graphManifestPromise;
+  graphManifestPromise = fetchJsonFromCandidates(dataCandidates("data/processed/graph_payload_manifest.json"))
+    .then(({ data }) => {
+      const snapshot = heroStatsFromGraphManifest(data);
+      if (snapshot) {
+        heroStatsSnapshot = snapshot;
+        updateStats();
+      }
+      return snapshot;
+    })
+    .catch(() => null);
+  return graphManifestPromise;
 }
 
 async function loadClaimArray({ arrayPath, payloadPaths = [], payloadMapper }) {
@@ -4102,6 +4716,7 @@ function mechanisticFromPayload(payload) {
     mechanism_type: item?.properties?.mechanism_type || "",
     assay_type: item?.properties?.assay_type || "",
     assay_family: item?.properties?.assay_family || "",
+    assay_family_normalized: item?.properties?.assay_family_normalized || item?.extracted_variables?.assay_family_normalized || "",
     action_type: item?.properties?.action_type || "",
     affinity_type: item?.properties?.affinity_type || "",
     affinity_value: item?.properties?.affinity_value ?? "",
@@ -4130,6 +4745,8 @@ function mechanisticFromPayload(payload) {
       item?.paper?.author ??
       item?.paper?.first_author ??
       "",
+    first_author: item?.paper?.first_author || null,
+    last_author: item?.paper?.last_author || null,
     evidence_level: item?.properties?.evidence_level || "low",
     support: item?.properties?.support || "",
     confidence: item?.properties?.confidence ?? "",
@@ -4185,6 +4802,12 @@ function disorderFromPayload(payload) {
     intervention_or_exposure:
       item?.extracted_variables?.intervention_or_exposure || item?.properties?.intervention_or_exposure || "",
     comparator: item?.extracted_variables?.comparator || item?.properties?.comparator || "",
+    comparator_normalized:
+      item?.properties?.comparator_normalized || item?.extracted_variables?.comparator_normalized || "",
+    follow_up_duration:
+      item?.properties?.follow_up_duration || item?.extracted_variables?.follow_up_duration || "",
+    follow_up_window_normalized:
+      item?.properties?.follow_up_window_normalized || item?.extracted_variables?.follow_up_window_normalized || "",
     dose: item?.extracted_variables?.dose || item?.properties?.dose || "",
     timepoint: item?.extracted_variables?.timepoint || item?.properties?.timepoint || "",
     adverse_events: item?.extracted_variables?.adverse_events || item?.properties?.adverse_events || "",
@@ -4209,6 +4832,8 @@ function disorderFromPayload(payload) {
       item?.paper?.author ??
       item?.paper?.first_author ??
       "",
+    first_author: item?.paper?.first_author || null,
+    last_author: item?.paper?.last_author || null,
     evidence_level: item?.properties?.evidence_level || "low",
     support: item?.properties?.support || "",
     confidence: item?.properties?.confidence ?? "",
@@ -4313,12 +4938,41 @@ const NORMALIZED_CLAIM_SOURCES = {
   },
 };
 
+const GRAPH_PREVIEW_SOURCES = {
+  mechanistic: {
+    primary: {
+      paths: ["data/processed/graph_preview_mechanistic.json"],
+    },
+    secondary: {
+      paths: ["data/processed/graph_preview_mechanistic_secondary_sources.json"],
+    },
+  },
+  disorders: {
+    primary: {
+      paths: ["data/processed/graph_preview_disorder.json"],
+    },
+    secondary: {
+      paths: ["data/processed/graph_preview_disorder_secondary_sources.json"],
+    },
+  },
+};
+
 const normalizedSourceLoaded = {
   mechanistic: { primary: false, secondary: false },
   disorders: { primary: false, secondary: false },
 };
 
 const normalizedSourceTasks = {
+  mechanistic: { primary: null, secondary: null },
+  disorders: { primary: null, secondary: null },
+};
+
+const graphPreviewLoaded = {
+  mechanistic: { primary: false, secondary: false },
+  disorders: { primary: false, secondary: false },
+};
+
+const graphPreviewTasks = {
   mechanistic: { primary: null, secondary: null },
   disorders: { primary: null, secondary: null },
 };
@@ -4345,6 +4999,93 @@ function enrichAllLoadedClaimsWithBibliography() {
     );
     claimStores[layer].disorders = enrichClaimsWithBibliographyMetadata(claimStores[layer].disorders, "disorders");
   });
+}
+
+function graphPreviewFromPayload(payload) {
+  return Array.isArray(payload?.claims) ? payload.claims : [];
+}
+
+async function loadGraphPreviewSource(modeKey, sourceKey) {
+  const source = GRAPH_PREVIEW_SOURCES[modeKey]?.[sourceKey];
+  if (!source) return;
+  if (graphPreviewLoaded[modeKey][sourceKey]) return;
+  if (graphPreviewTasks[modeKey][sourceKey]) {
+    await graphPreviewTasks[modeKey][sourceKey];
+    return;
+  }
+
+  graphPreviewTasks[modeKey][sourceKey] = (async () => {
+    const items = await loadClaimArray({
+      payloadPaths: source.paths,
+      payloadMapper: graphPreviewFromPayload,
+    });
+    graphPreviewByMode[modeKey][sourceKey] = items;
+    graphPreviewLoaded[modeKey][sourceKey] = true;
+  })();
+
+  try {
+    await graphPreviewTasks[modeKey][sourceKey];
+  } finally {
+    graphPreviewTasks[modeKey][sourceKey] = null;
+  }
+}
+
+function currentSourceKey() {
+  return evidenceView === "secondary" ? "secondary" : "primary";
+}
+
+function normalizedCurrentSourceLoaded() {
+  return Boolean(normalizedSourceLoaded[mode]?.[currentSourceKey()]);
+}
+
+function activeGraphPreviewClaims() {
+  const sourceKey = currentSourceKey();
+  const baseClaims = graphPreviewByMode[mode]?.[sourceKey] || [];
+  return graphViewClaims(claimsForEntityView(baseClaims));
+}
+
+function renderDetailsLoading() {
+  if (detailBody) {
+    detailBody.innerHTML = '<div class="detail-empty">Loading evidence details...</div>';
+  }
+  if (cardsEl) {
+    cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
+  }
+  if (studyListEl) {
+    studyListEl.innerHTML = "";
+  }
+}
+
+async function renderCurrentGraphPreview(loadToken, resetDetail = true) {
+  if (normalizedCurrentSourceLoaded()) return false;
+  const sourceKey = currentSourceKey();
+
+  try {
+    await loadGraphPreviewSource(mode, sourceKey);
+  } catch (_error) {
+    return false;
+  }
+
+  if (loadToken !== currentDataLoadToken) return true;
+
+  const previewClaims = activeGraphPreviewClaims();
+  if (!previewClaims.length) return false;
+
+  updateModeUI();
+  syncYearFilterControls(previewClaims, true);
+  const filtered = applyFiltersToClaims(previewClaims);
+  if (selected && !selectionIsValid(filtered)) {
+    selected = null;
+    isolateSelection = false;
+    clearSelectedStyles();
+  }
+  updateStats();
+  buildGraph(filtered);
+  if (resetDetail) {
+    setDetailHeader(defaultDetail.title);
+    renderDetailsLoading();
+  }
+  return true;
 }
 
 async function loadNormalizedClaimSource(modeKey, sourceKey) {
@@ -4379,15 +5120,24 @@ async function loadNormalizedClaimSource(modeKey, sourceKey) {
 }
 
 async function ensureClaimsForCurrentView() {
-  const sourceKey = evidenceView === "secondary" ? "secondary" : "primary";
-  await loadNormalizedClaimSource(mode, sourceKey);
+  await loadNormalizedClaimSource(mode, currentSourceKey());
 }
 
-async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true } = {}) {
+async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true, showGraphPreview = false } = {}) {
   const token = ++currentDataLoadToken;
-  if (showLoading) {
+  let previewRendered = false;
+  if (showGraphPreview) {
+    previewRendered = await renderCurrentGraphPreview(token, resetDetail);
+  }
+  if (token !== currentDataLoadToken) return;
+
+  if (showLoading && !previewRendered) {
     renderDataLoading();
   }
+  if (previewRendered) {
+    await waitForPaint();
+  }
+  if (token !== currentDataLoadToken) return;
 
   try {
     await ensureClaimsForCurrentView();
@@ -4424,21 +5174,52 @@ function loadBibliographyPayloadsInBackground() {
   return bibliographyPayloadsPromise;
 }
 
-function preloadLikelyNextData() {
-  const alternateMode = mode === "mechanistic" ? "disorders" : "mechanistic";
+function scheduleIdleTask(callback, delay = 0) {
   window.setTimeout(() => {
-    loadNormalizedClaimSource(alternateMode, "primary")
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(callback, { timeout: 3500 });
+      return;
+    }
+    callback();
+  }, delay);
+}
+
+function preloadNormalizedSourceInBackground(modeKey, sourceKey, delay) {
+  scheduleIdleTask(() => {
+    loadNormalizedClaimSource(modeKey, sourceKey)
       .then(() => {
         applyClaimLayerStore();
         updateModeUI();
+        updateStats();
       })
       .catch(() => {});
-  }, 800);
-  window.setTimeout(loadBibliographyPayloadsInBackground, 1400);
+  }, delay);
+}
+
+function preloadLikelyNextData() {
+  const alternateMode = mode === "mechanistic" ? "disorders" : "mechanistic";
+  const saveData = Boolean(window.navigator?.connection?.saveData);
+  const queue = saveData
+    ? [[alternateMode, "primary"]]
+    : [
+        [alternateMode, "primary"],
+        [mode, evidenceView === "primary" ? "secondary" : "primary"],
+        [alternateMode, "secondary"],
+      ];
+  const seen = new Set();
+
+  queue.forEach(([modeKey, sourceKey], index) => {
+    const key = `${modeKey}:${sourceKey}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    preloadNormalizedSourceInBackground(modeKey, sourceKey, 650 + index * 900);
+  });
+  scheduleIdleTask(loadBibliographyPayloadsInBackground, saveData ? 3000 : 4200);
 }
 
 async function init() {
-  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true });
+  await loadGraphManifestStats();
+  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphPreview: true });
   preloadLikelyNextData();
 }
 

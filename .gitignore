@@ -28,6 +28,7 @@ data/processed/*
 !data/processed/graph_payload_manifest.json
 !data/processed/graph_payload_mechanistic.json
 !data/processed/graph_payload_mechanistic_secondary_sources.json
+!data/processed/graph_preview_*.json
 !data/processed/extraction/
 data/processed/extraction/*
 !data/processed/extraction/extraction_readiness_report.json

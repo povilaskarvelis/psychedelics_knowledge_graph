@@ -14,4 +14,12 @@ data/processed/graph_payload_disorder_secondary_sources.json
 data/processed/graph_payload_manifest.json
 data/processed/graph_payload_mechanistic.json
 data/processed/graph_payload_mechanistic_secondary_sources.json
+data/processed/graph_preview_disorder.json
+data/processed/graph_preview_disorder_primary_only.json
+data/processed/graph_preview_disorder_primary_with_secondary.json
+data/processed/graph_preview_disorder_secondary_sources.json
+data/processed/graph_preview_mechanistic.json
+data/processed/graph_preview_mechanistic_primary_only.json
+data/processed/graph_preview_mechanistic_primary_with_secondary.json
+data/processed/graph_preview_mechanistic_secondary_sources.json
 data/processed/extraction/extraction_readiness_report.json

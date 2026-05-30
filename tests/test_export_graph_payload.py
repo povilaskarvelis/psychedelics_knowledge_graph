@@ -9,8 +9,11 @@ from pipeline.publish.export_graph_payload import (
     claim_source_paths,
     evidence_role_for_row,
     export_dataset,
+    aggregate_payload_summary_stats,
+    graph_preview_payload,
     is_secondary_literature_row,
     load_claim_rows_for_source,
+    payload_summary_stats,
     rows_for_view,
     schema_path_for_claim_source,
 )
@@ -271,6 +274,130 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
                 {"source_type": "primary_study", "paper_type": "primary_results", "access_level": "full_text_seen"}
             ),
             "primary_evidence",
+        )
+
+    def test_payload_summary_stats_count_studies_and_public_entities(self) -> None:
+        payload = {
+            "contributions": [
+                {
+                    "paper": {"doi": "10.1000/A"},
+                    "resources": {"compound": "Psilocybin", "disorder": "Depression"},
+                    "properties": {"kg_entity_kind": "condition_indication"},
+                },
+                {
+                    "paper": {"doi": "10.1000/A"},
+                    "resources": {"compound": "Psilocybin", "target": "5-HT2A"},
+                    "properties": {"kg_entity_kind": "target"},
+                },
+                {
+                    "paper": {"openalex_id": "W123"},
+                    "resources": {"compound": "LSD", "target": "5-HT2A"},
+                    "properties": {"entity_kind": "target"},
+                },
+            ]
+        }
+
+        self.assertEqual(
+            payload_summary_stats(payload),
+            {
+                "row_count": 3,
+                "study_count": 2,
+                "compound_count": 2,
+                "indication_count": 1,
+                "target_count": 1,
+            },
+        )
+
+    def test_aggregate_payload_summary_stats_deduplicates_across_datasets(self) -> None:
+        disorder_payload = {
+            "contributions": [
+                {
+                    "paper": {"doi": "10.1000/shared"},
+                    "resources": {"compound": "Psilocybin", "disorder": "Depression"},
+                    "properties": {"kg_entity_kind": "condition_indication"},
+                }
+            ]
+        }
+        mechanistic_payload = {
+            "contributions": [
+                {
+                    "paper": {"doi": "10.1000/shared"},
+                    "resources": {"compound": "Psilocybin", "target": "5-HT2A"},
+                    "properties": {"kg_entity_kind": "target"},
+                },
+                {
+                    "paper": {"doi": "10.1000/mech"},
+                    "resources": {"compound": "LSD", "target": "BDNF"},
+                    "properties": {"kg_entity_kind": "target"},
+                },
+            ]
+        }
+
+        self.assertEqual(
+            aggregate_payload_summary_stats([disorder_payload, mechanistic_payload]),
+            {
+                "row_count": 3,
+                "study_count": 2,
+                "compound_count": 2,
+                "indication_count": 1,
+                "target_count": 2,
+            },
+        )
+
+    def test_graph_preview_payload_keeps_only_fast_graph_fields(self) -> None:
+        payload = {
+            "contract_version": "1.0",
+            "dataset": "disorder",
+            "evidence_view": "all_evidence",
+            "claim_source": "kg_tables",
+            "claim_source_label": "Normalized KG evidence tables",
+            "contributions": [
+                {
+                    "paper": {
+                        "doi": "10.1000/example",
+                        "openalex_id": "W123",
+                        "title": "Example",
+                        "year": 2024,
+                        "authors": "Ada Lovelace",
+                    },
+                    "resources": {"compound": "Psilocybin", "disorder": "Depression"},
+                    "properties": {
+                        "kg_entity_kind": "condition_indication",
+                        "evidence_level": "high",
+                        "supporting_quote": "Large text should stay out of preview.",
+                    },
+                    "provenance": {
+                        "paper_assessment_route": "primary_evidence",
+                        "paper_type": "primary_results",
+                        "source_type": "primary_study",
+                        "access_level": "full_text_seen",
+                    },
+                }
+            ],
+        }
+
+        preview = graph_preview_payload(payload)
+
+        self.assertEqual(preview["row_count"], 1)
+        self.assertEqual(
+            preview["claims"],
+            [
+                {
+                    "compound": "Psilocybin",
+                    "disorder": "Depression",
+                    "kg_entity_kind": "condition_indication",
+                    "entity_kind": "condition_indication",
+                    "evidence_level": "high",
+                    "paper_assessment_route": "primary_evidence",
+                    "paper_type": "primary_results",
+                    "source_type": "primary_study",
+                    "access_level": "full_text_seen",
+                    "source_access_level": "full_text_seen",
+                    "study_doi": "10.1000/example",
+                    "openalex_id": "W123",
+                    "study_year": 2024,
+                }
+            ],
         )
         self.assertEqual(
             evidence_role_for_row(
