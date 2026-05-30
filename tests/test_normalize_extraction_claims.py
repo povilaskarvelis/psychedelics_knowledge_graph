@@ -171,6 +171,76 @@ class NormalizeExtractionClaimsTest(unittest.TestCase):
         self.assertEqual(graph_rows["mechanistic"][0]["target"], "NET (SLC6A2)")
         self.assertEqual(graph_rows["mechanistic"][0]["entity_ids"]["gene_symbol"], "SLC6A2")
 
+    def test_mechanistic_assay_family_is_normalized(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            graph_rows, audit_rows, _report = normalize_claims(
+                mechanistic_rows=[
+                    {
+                        "claim_type": "compound_target",
+                        "compound": "MDMA",
+                        "target": "NET",
+                        "graph_entity_label": "NET",
+                        "graph_entity_type": "target",
+                        "graph_include_candidate": True,
+                        "entity_role": "molecular_target",
+                        "assay_family": "receptor binding/functional assay",
+                        "assay_type": "radioligand displacement",
+                    }
+                ],
+                disorder_rows=[],
+                registry_path=registry(Path(tmpdir) / "registry.json"),
+                disorder_aliases_path=disorder_aliases(Path(tmpdir) / "aliases.json"),
+            )
+
+        self.assertEqual(audit_rows["mechanistic"][0]["assay_family_normalized"], "Binding / affinity")
+        self.assertEqual(graph_rows["mechanistic"][0]["assay_family_normalized"], "Binding / affinity")
+
+    def test_clinical_comparator_is_normalized(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            graph_rows, audit_rows, _report = normalize_claims(
+                mechanistic_rows=[],
+                disorder_rows=[
+                    {
+                        "claim_type": "compound_disorder",
+                        "compound": "Ketamine",
+                        "disorder": "MDD",
+                        "graph_entity_label": "MDD",
+                        "graph_entity_type": "indication",
+                        "graph_include_candidate": True,
+                        "entity_role": "therapeutic_indication",
+                        "comparator": "midazolam (0.045 mg/kg)",
+                    }
+                ],
+                registry_path=registry(Path(tmpdir) / "registry.json"),
+                disorder_aliases_path=disorder_aliases(Path(tmpdir) / "aliases.json"),
+            )
+
+        self.assertEqual(audit_rows["disorder"][0]["comparator_normalized"], "Active placebo")
+        self.assertEqual(graph_rows["disorder"][0]["comparator_normalized"], "Active placebo")
+
+    def test_clinical_follow_up_window_is_normalized(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            graph_rows, audit_rows, _report = normalize_claims(
+                mechanistic_rows=[],
+                disorder_rows=[
+                    {
+                        "claim_type": "compound_disorder",
+                        "compound": "Ketamine",
+                        "disorder": "MDD",
+                        "graph_entity_label": "MDD",
+                        "graph_entity_type": "indication",
+                        "graph_include_candidate": True,
+                        "entity_role": "therapeutic_indication",
+                        "timepoint": "6 weeks after treatment",
+                    }
+                ],
+                registry_path=registry(Path(tmpdir) / "registry.json"),
+                disorder_aliases_path=disorder_aliases(Path(tmpdir) / "aliases.json"),
+            )
+
+        self.assertEqual(audit_rows["disorder"][0]["follow_up_window_normalized"], "Medium follow-up (1-3 months)")
+        self.assertEqual(graph_rows["disorder"][0]["follow_up_window_normalized"], "Medium follow-up (1-3 months)")
+
     def test_curated_registry_maps_common_target_aliases(self) -> None:
         graph_rows, audit_rows, _report = normalize_claims(
             mechanistic_rows=[

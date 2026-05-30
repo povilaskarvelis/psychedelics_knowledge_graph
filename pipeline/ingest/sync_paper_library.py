@@ -533,9 +533,18 @@ def strip_markup(value: object) -> str:
     text = normalize(value)
     if not text:
         return ""
-    text = re.sub(r"<[^>]+>", " ", text)
     text = html.unescape(text)
+    text = re.sub(r"\s*<\s*subtitle\b[^>]*>\s*", ": ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s*</\s*subtitle\s*>\s*", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"<[^>]+>", " ", text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def strip_dangling_title_colon(value: object) -> str:
+    text = strip_markup(value)
+    if text.endswith(":"):
+        return text.rstrip(":").rstrip()
+    return text
 
 
 def first_list_value(value: object) -> str:
@@ -546,6 +555,15 @@ def first_list_value(value: object) -> str:
                 return text
         return ""
     return strip_markup(value)
+
+
+def crossref_title_with_subtitle(item: dict, fallback: object = "") -> str:
+    title = first_list_value(item.get("title", ""))
+    subtitle = first_list_value(item.get("subtitle", ""))
+    if title and subtitle:
+        separator = " " if title.rstrip().endswith((".", "?", "!", ":", ";")) else ": "
+        return f"{title}{separator}{subtitle}".strip()
+    return strip_dangling_title_colon(title) or strip_markup(fallback)
 
 
 def join_list_values(value: object) -> str:
@@ -1449,7 +1467,7 @@ def lookup_crossref_metadata(
     item = payload.get("message", {}) if isinstance(payload, dict) else {}
     if not isinstance(item, dict) or normalize_doi(item.get("DOI", "")).lower() != normalize_doi(doi).lower():
         return None
-    title = first_list_value(item.get("title", "")) or normalize(paper.get("study_title", ""))
+    title = crossref_title_with_subtitle(item, paper.get("study_title", ""))
     abstract = strip_markup(item.get("abstract", ""))
     publication_date = date_from_crossref_date(
         item.get("published", {}),

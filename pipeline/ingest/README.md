@@ -173,6 +173,39 @@ The metadata-enrichment command writes `paper_metadata_enrichment.parquet`.
 Rebuild the corpus tables afterward so enriched metadata is merged back into
 `candidate_papers.parquet`.
 
+To recover or confirm rows that still have no abstract, run a targeted metadata
+enrichment pass instead of refreshing the whole corpus:
+
+```bash
+python pipeline/ingest/enrich_paper_metadata.py \
+  --papers-table data/processed/corpus/candidate_papers.parquet \
+  --output-table data/processed/corpus/paper_metadata_enrichment.parquet \
+  --only-missing-abstract \
+  --retry-missing-metadata \
+  --metadata-provider-order pubmed,openalex,pmc,crossref \
+  --write-every 100 \
+  --progress-every 100
+```
+
+This keeps complete rows unchanged and records provider-checked no-abstract
+cases with `metadata_missing_reason=providers_returned_no_abstract`; rows where
+metadata providers fail completely are marked `metadata_lookup_unresolved`.
+
+To refresh only open-access status and PDF URL fields for a targeted set, use
+the access-link refresh instead of full metadata enrichment:
+
+```bash
+python pipeline/ingest/refresh_open_access_links.py \
+  --only-retained-secondary \
+  --only-missing-pdf-url \
+  --provider-order unpaywall,openalex,pmc
+```
+
+This updates only `open_access_is_oa`, `open_access_status`,
+`open_access_url`, `best_pdf_url`, and `pdf_url_candidates`. Unpaywall is the
+primary source; OpenAlex and PMC are fallback sources for rows that still lack a
+PDF URL.
+
 To materialize metadata already present in the candidate paper table without
 querying external providers:
 

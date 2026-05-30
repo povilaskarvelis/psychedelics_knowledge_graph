@@ -36,6 +36,10 @@ MODULE_SCOPE_ROUTING_TAGS = {
     "clinical_indication": {"clinical_outcome"},
     "clinical_symptom_function": {"clinical_outcome", "cognitive_behavioral", "bridge_clinical_mechanism"},
     "clinical_safety": {"safety", "clinical_outcome"},
+    "subjective_experience": {"subjective_experience"},
+    "pharmacokinetics_exposure": {"pharmacokinetics_exposure"},
+    "intervention_context": {"intervention_context", "clinical_outcome"},
+    "real_world_use_public_health": {"real_world_use_public_health", "safety"},
     "bridge_clinical_mechanism": {
         "bridge_clinical_mechanism",
         "brain_system",

@@ -153,6 +153,11 @@ python pipeline/ingest/sync_paper_library.py \
 
 ### Full-Text Conversion
 
+Local PDFs are converted into structured full-text artifacts before full-text
+LLM extraction. The default backend is GROBID, which parses scholarly articles
+into TEI XML so downstream packets can preserve sections, tables, figures,
+references, and stable evidence locators.
+
 ```bash
 python pipeline/fulltext/convert_pdfs.py \
   --dataset mechanistic \

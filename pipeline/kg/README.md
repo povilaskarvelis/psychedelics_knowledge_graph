@@ -51,6 +51,20 @@ Default outputs are written under `data/processed/kg/`:
 - `kg.duckdb`: optional local DuckDB database materialized when the `duckdb`
   Python package is installed.
 
+Author identity is resolved as a separate KG-side layer after `papers.parquet`
+exists:
+
+```bash
+python pipeline/kg/build_author_tables.py
+```
+
+This writes:
+
+- `authors.parquet`: one row per resolved author identity.
+- `paper_authors.parquet`: ordered paper-author rows with first/last flags.
+- `author_resolution_report.json`: OpenAlex vs fallback resolution counts.
+- `openalex_author_cache.json`: cached OpenAlex authorship lookups for rebuilds.
+
 This table layer is the preferred place to build new graph views. The browser UI
 should continue to load compact JSON payloads generated from these tables rather
 than loading the whole KG directly.

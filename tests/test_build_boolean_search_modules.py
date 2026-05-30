@@ -82,9 +82,13 @@ class BuildBooleanSearchModulesTest(unittest.TestCase):
             disorder_counts = manifest["datasets"]["disorder"]["outputs"]["pubmed"]["module_scope_counts"]
 
             self.assertEqual(mechanistic_counts["molecular_pathway"], 5)
+            self.assertEqual(mechanistic_counts["subjective_experience"], 2)
+            self.assertEqual(mechanistic_counts["pharmacokinetics_exposure"], 2)
             self.assertEqual(mechanistic_counts["bridge_clinical_mechanism"], 3)
             self.assertEqual(disorder_counts["clinical_symptom_function"], 3)
             self.assertEqual(disorder_counts["clinical_safety"], 2)
+            self.assertEqual(disorder_counts["intervention_context"], 2)
+            self.assertEqual(disorder_counts["real_world_use_public_health"], 2)
             self.assertEqual(disorder_counts["bridge_clinical_mechanism"], 3)
             self.assertTrue(
                 Path(

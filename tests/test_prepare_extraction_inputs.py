@@ -51,7 +51,7 @@ class PrepareExtractionInputsTest(unittest.TestCase):
 
             output_paths = [outputs["jsonl"], outputs["csv"], *outputs["doi_queues"].values()]
 
-        self.assertTrue(all("v2" not in path.lower() for path in output_paths))
+        self.assertTrue(all("v2" not in Path(path).name.lower() for path in output_paths))
         self.assertIn("mechanistic_extraction_candidates.jsonl", outputs["jsonl"])
         self.assertIn("doi_queue.mechanistic.extraction_fulltext_ready.txt", outputs["doi_queues"]["fulltext_ready"])
 

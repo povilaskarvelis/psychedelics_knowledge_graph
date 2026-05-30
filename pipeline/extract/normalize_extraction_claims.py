@@ -16,9 +16,15 @@ from pathlib import Path
 from typing import Iterable
 
 try:
+    from pipeline.extract.clinical_comparator import normalize_clinical_comparator
+    from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
+    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
     from pipeline.extract.extraction_v1_utils import normalize, write_json
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from pipeline.extract.clinical_comparator import normalize_clinical_comparator
+    from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
+    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
     from pipeline.extract.extraction_v1_utils import normalize, write_json
 
 
@@ -592,6 +598,17 @@ def normalize_claim_row(row: dict, dataset: str, index: dict) -> tuple[dict, dic
     audit["normalization_entity_category"] = entity_category_for_dataset(dataset)
     audit["normalization_status"] = ""
     audit["normalization_notes"] = ""
+    if dataset == "mechanistic":
+        audit["assay_family_normalized"] = normalize_mechanistic_assay_family(
+            row.get("assay_family", ""),
+            row.get("assay_type", ""),
+        )
+    else:
+        audit["comparator_normalized"] = normalize_clinical_comparator(row.get("comparator", ""))
+        audit["follow_up_window_normalized"] = normalize_clinical_followup_window(
+            row.get("follow_up_duration", ""),
+            row.get("timepoint", ""),
+        )
 
     compound_match = resolve_entity(row.get("compound", ""), "compounds", index)
     entity_labels = graph_label_candidates_for_row(row, dataset)
@@ -673,9 +690,12 @@ def normalize_claim_row(row: dict, dataset: str, index: dict) -> tuple[dict, dic
     if dataset == "mechanistic":
         graph_row["target_original"] = normalize(row.get("target", ""))
         graph_row["target"] = entity_match["label"]
+        graph_row["assay_family_normalized"] = audit["assay_family_normalized"]
     else:
         graph_row["disorder_original"] = normalize(row.get("disorder", ""))
         graph_row["disorder"] = entity_match["label"]
+        graph_row["comparator_normalized"] = audit["comparator_normalized"]
+        graph_row["follow_up_window_normalized"] = audit["follow_up_window_normalized"]
     graph_row.update(
         {
             "graph_entity_label": entity_match["label"],

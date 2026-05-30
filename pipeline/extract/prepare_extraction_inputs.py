@@ -42,6 +42,10 @@ ROUTING_TAGS = {
     "brain_system",
     "cognitive_behavioral",
     "safety",
+    "subjective_experience",
+    "pharmacokinetics_exposure",
+    "intervention_context",
+    "real_world_use_public_health",
     "bridge_clinical_mechanism",
     "uncertain",
 }

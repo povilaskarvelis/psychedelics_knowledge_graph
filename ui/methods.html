@@ -116,14 +116,12 @@
       <section class="about-section method-workflow-section" aria-labelledby="pipeline-overview">
         <h2 id="pipeline-overview">Pipeline Overview</h2>
         <p>
-          The pipeline deliberately follows a familiar evidence-synthesis flow:
-          define the scope, search the literature, screen candidate records,
-          retrieve full texts where possible, and extract evidence. The graph
-          layer is added after that review-like workflow, not instead of it.
-          Extracted findings become structured, provenance-rich evidence records
-          that can power graph views, dashboard views, and future agentic
-          workflows. Each step leaves an auditable artifact so the evidence base
-          can be inspected, corrected, and rebuilt as the literature changes.
+          The workflow is designed to keep literature discovery broad while
+          making graph inclusion conservative. Searches cast a wide net across
+          clinical, biological, brain, behavioral, subjective, treatment-context,
+          and real-world evidence. Each paper is then interpreted according to
+          what it actually contains and how much source text is available, so
+          the graph shows evidence that can be traced back to specific papers.
         </p>
         <div class="method-workflow-list">
           <article>
@@ -136,11 +134,12 @@
               <h3>Define the Evidence Scope</h3>
               <p>
                 The project starts with explicit vocabularies for psychedelic
-                compounds, molecular targets, brain systems and behavioral
-                tasks, and clinical evidence concepts. Those vocabularies define the
-                evidence relationships used throughout the site: compound-target,
-                compound-brain/circuit/network, compound-task, and
-                compound-clinical evidence relationships.
+                compounds and evidence domains: molecular targets, molecular
+                pathways and cellular readouts, brain systems, cognitive and
+                behavioral function, subjective experience, pharmacokinetics and
+                exposure, intervention context, real-world use, clinical
+                outcomes, functioning, and safety. These vocabularies define
+                what the graph can represent and what the search needs to cover.
               </p>
             </div>
           </article>
@@ -153,13 +152,14 @@
             <div>
               <h3>Discover Candidate Papers</h3>
               <p>
-                PubMed and OpenAlex searches combine broad topic queries with
-                direct compound-target, compound-brain/circuit/network,
-                compound-task, and compound-clinical evidence search instruments.
-                Results are matched by DOI, enriched with metadata from sources
-                such as Crossref, Unpaywall, PubMed/PMC, OpenAlex, and Semantic
-                Scholar, and merged into a paper library without duplicating
-                records already present.
+                PubMed and OpenAlex searches combine broad domain queries,
+                focused compound-topic queries, and supplementary direct-pair
+                checks. Results are matched by DOI and merged into a single
+                paper library. Metadata enrichment uses different sources
+                for different needs: PubMed, PMC, OpenAlex, Crossref, and
+                Semantic Scholar for bibliographic records and abstracts;
+                PubMed for publication-type labels; and Unpaywall, OpenAlex,
+                and PMC for open-access full-text or PDF links.
               </p>
             </div>
           </article>
@@ -170,12 +170,15 @@
               </span>
             </div>
             <div>
-              <h3>Screen and Retrieve</h3>
+              <h3>Screen and Route</h3>
               <p>
-                Candidate records pass through deterministic and LLM-assisted
-                abstract screening. Relevant and uncertain papers continue to
-                full-text retrieval when legally available; papers without
-                usable full text remain labeled as abstract-only.
+                Candidate papers are screened for clear psychedelic relevance
+                using their titles and abstracts. Papers that remain in scope
+                are routed by evidence domain, publication type, and available
+                source text. This separates, for example, primary studies from
+                reviews and meta-analyses, and lets the extraction step use
+                different expectations for full-text and abstract-based
+                evidence.
               </p>
             </div>
           </article>
@@ -188,12 +191,16 @@
             <div>
               <h3>Extract Structured Evidence</h3>
               <p>
-                Eligible papers are converted into structured evidence records
-                with LLM-assisted extraction: compound, target, brain
-                system/task, clinical concept, study type, assay or outcome, result
-                direction, evidence locator, access status, and source
-                provenance. Model confidence is treated as extraction metadata,
-                not as certainty that a finding is true.
+                Eligible papers are processed with LLM-based, route-specific
+                extraction instructions. The model identifies candidate
+                structured evidence: compounds, evidence domains, study type,
+                assay or outcome details, result direction, and source
+                locators. When PDFs are available, they are first converted
+                with GROBID into structured TEI full-text artifacts so the
+                extraction step can use article sections, tables, figures, and
+                references as auditable evidence anchors. Abstract-only records
+                are handled more conservatively because they expose less of the
+                underlying evidence.
               </p>
             </div>
           </article>
@@ -206,11 +213,12 @@
             <div>
               <h3>Validate and Publish</h3>
               <p>
-                Extracted records are checked against the schema and evidence
-                policy before they enter the public graph. Uncertain or
-                inconsistent records stay in review queues rather than being
-                silently promoted. The same records also feed the PRISMA-style
-                flow diagram and public graph payloads.
+                Extracted evidence is checked for completeness, consistency,
+                and source support before it appears in the public graph.
+                Accepted records become graph relationships linking psychedelic
+                compounds to targets, pathways, brain systems, tasks, clinical
+                outcomes, safety outcomes, and study contexts. Records that are
+                ambiguous or insufficiently supported are held back for review.
               </p>
             </div>
           </article>
@@ -221,11 +229,13 @@
               </span>
             </div>
             <div>
-              <h3>Update and Review</h3>
+              <h3>Maintain the Living Graph</h3>
               <p>
-                Search, screening, extraction, validation, and graph generation
-                can be rerun when new papers or corrections appear. Community
-                feedback is routed into the same maintenance process.
+                The graph is designed to evolve as the literature grows. New
+                papers, corrected metadata, improved extraction, and community
+                feedback can all update the evidence base. Each public build is
+                versioned, and release notes summarize what changed so
+                readers can understand how the graph evolves over time.
               </p>
             </div>
           </article>
@@ -237,8 +247,10 @@
         <p>
           The search is organized around evidence domains: molecular targets,
           molecular pathways and cellular readouts, brain systems, cognitive
-          and behavioral functions, clinical outcomes and safety, and
-          clinical studies that measure biological or behavioral endpoints.
+          and behavioral functions, subjective experience, pharmacokinetics and
+          exposure, intervention delivery context, real-world use and public
+          health, clinical outcomes and safety, and clinical studies that
+          measure biological or behavioral endpoints.
         </p>
         <p>
           PubMed was used for curated biomedical indexing, and OpenAlex was
@@ -328,6 +340,48 @@
                 <dl>
                   <div><dt>Modules</dt><dd>MDMA social reward and cognition; psychedelic fear extinction and flexibility</dd></div>
                   <div><dt>Query emphasis</dt><dd>compound-specific social reward, social cognition, empathy, emotion recognition, fear extinction, reversal learning, learning, conditioning, and performance terms</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Subjective experience and pharmacokinetics <span>4 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Subjective experience and acute-effect modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>acute subjective effects and phenomenology; subjective-effect measures</dd></div>
+                  <div><dt>Entity block</dt><dd>subjective effects; phenomenology; mystical experience; ego dissolution; altered state; oceanic boundlessness; challenging experience; anxiety; insight; emotional breakthrough; intensity; time perception; visual effects; questionnaire and rating-scale terms</dd></div>
+                  <div><dt>Evidence block</dt><dd>acute effect; subjective rating; questionnaire; scale; psychometric; dose-response; controlled administration; human laboratory; experience report; outcome measure</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Pharmacokinetics and exposure modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>pharmacokinetics and exposure; metabolite and exposure measurement</dd></div>
+                  <div><dt>Entity block</dt><dd>pharmacokinetics; ADME; absorption; distribution; metabolism; elimination; clearance; half-life; bioavailability; plasma concentration; blood concentration; serum concentration; metabolite; psilocin; noribogaine; route of administration; dose; protein binding</dd></div>
+                  <div><dt>Evidence block</dt><dd>LC-MS; mass spectrometry; plasma; serum; blood; urine; sampling; concentration-time curve; Cmax; Tmax; AUC; pharmacokinetic model; analytical measurement</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Intervention context and real-world use <span>4 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Intervention delivery-context modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>psychotherapy, preparation, integration, set and setting, session structure, psychological support, aftercare, blinding, training, and manualized-delivery terms; focused set/setting and therapeutic-support details</dd></div>
+                  <div><dt>Context block</dt><dd>psychotherapy; psychological support; preparation; integration; set and setting; therapeutic alliance; music; guide; facilitator; therapist; session structure; dosing session; aftercare; manual; training; expectancy; blinding</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical; feasibility; acceptability; qualitative; protocol; trial design; outcome; safety; adverse experience; implementation detail; supportive therapy</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Real-world use and public-health modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>epidemiology, surveys, naturalistic use, lifetime or past-year use, drug checking, poison-control and emergency records, toxicity, harm reduction; focused naturalistic, community, retreat, and microdosing use</dd></div>
+                  <div><dt>Context block</dt><dd>naturalistic use; community use; retreat; ceremony; microdosing; epidemiology; prevalence; survey; lifetime use; past-year use; poison control; emergency department; toxicity; adverse experience; harm reduction; drug checking</dd></div>
+                  <div><dt>Evidence block</dt><dd>observational; population; survey; cohort; registry; case series; risk; safety; mental health; wellbeing; adverse event; intoxication; exposure; public health</dd></div>
                 </dl>
               </li>
             </ol>
@@ -442,7 +496,7 @@
                 <div><dt>Molecular target query forms</dt><dd>{compound} {target} binding affinity Ki; {compound} {target} receptor pharmacology assay; {compound} {target} functional assay agonist antagonist</dd></div>
                 <div><dt>Brain/network query forms</dt><dd>{compound} {entity} functional connectivity; {compound} {entity} neuroimaging; {compound} {entity} circuit behavior</dd></div>
                 <div><dt>Cognitive-behavioral query forms</dt><dd>{compound} {entity} cognitive task; {compound} {entity} behavioral task; {compound} {entity} learning conditioning</dd></div>
-                <div><dt>Clinical query forms</dt><dd>{compound} {clinical concept} randomized placebo; {compound} {clinical concept} treatment outcome; {compound} {clinical concept} clinical trial</dd></div>
+                <div><dt>Clinical query forms</dt><dd>{compound} {condition or outcome} randomized placebo; {compound} {condition or outcome} treatment outcome; {compound} {condition or outcome} clinical trial</dd></div>
               </dl>
             </div>
           </details>

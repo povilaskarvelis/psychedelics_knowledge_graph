@@ -100,6 +100,10 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
         self.assertIn("routing_tags", ABSTRACT_SCREENING_SCHEMA["required"])
         self.assertIn("molecular_pathway", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
         self.assertIn("brain_system", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
+        self.assertIn("subjective_experience", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
+        self.assertIn("pharmacokinetics_exposure", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
+        self.assertIn("intervention_context", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
+        self.assertIn("real_world_use_public_health", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
         self.assertIn("bridge_clinical_mechanism", ABSTRACT_SCREENING_SCHEMA["properties"]["routing_tags"]["items"]["enum"])
         context_schema = ABSTRACT_SCREENING_SCHEMA["properties"]["supported_contexts"]["items"]
         self.assertIn("compound", context_schema["required"])
@@ -270,6 +274,27 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
             "exclude_obvious_irrelevant",
         )
 
+    def test_deterministic_prescreen_excludes_ketamine_only_procedural_sedation(self) -> None:
+        rows = [
+            {
+                "study_title": "Ketamine as a dissociative anesthetic for procedural sedation during endoscopy",
+                "abstract": "This study evaluated ketamine dosing for emergency department procedural sedation.",
+                "contexts": [],
+            },
+            {
+                "study_title": "Clinical and pharmacokinetic evaluation of S-ketamine for intravenous general anaesthesia",
+                "abstract": "Racemic ketamine and S-ketamine were evaluated during field castration.",
+                "contexts": [],
+            },
+        ]
+
+        for row in rows:
+            with self.subTest(row=row["study_title"]):
+                decision = deterministic_prescreen_decision("disorder", row, heuristic={}, candidate_contexts=[])
+
+                self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
+                self.assertIn("acute procedural anesthesia or sedation", decision["reason"])
+
     def test_deterministic_prescreen_tags_brain_cognition_and_bridge_scope(self) -> None:
         row = {
             "study_title": "Psilocybin therapy and default mode network connectivity in depression",
@@ -304,6 +329,42 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
                 "bridge_clinical_mechanism",
             ],
         )
+
+    def test_evidence_domain_tags_cover_gap_domain_scope(self) -> None:
+        context = (
+            "Title: Psilocybin pharmacokinetics and mystical experience in a retreat setting\n"
+            "Abstract: Plasma concentration, depression symptoms, preparation, integration, and naturalistic survey outcomes were measured."
+        )
+
+        tags = evidence_domain_tags_for_context("disorder", context)
+
+        self.assertEqual(
+            tags,
+            [
+                "clinical_outcome",
+                "subjective_experience",
+                "pharmacokinetics_exposure",
+                "intervention_context",
+                "real_world_use_public_health",
+                "bridge_clinical_mechanism",
+            ],
+        )
+
+    def test_evidence_domain_tags_cover_expanded_search_terms(self) -> None:
+        context = (
+            "Title: Ayahuasca retreat, subjective effects, and global brain connectivity\n"
+            "Abstract: The cohort survey measured Challenging Experience Questionnaire scores, "
+            "visual analog scale ratings, psilocin glucuronide, AUC, CYP2D6, set setting, "
+            "group therapy, ceremonial use, microdose patterns, and arterial spin labeling."
+        )
+
+        tags = evidence_domain_tags_for_context("mechanistic", context)
+
+        self.assertIn("brain_system", tags)
+        self.assertIn("subjective_experience", tags)
+        self.assertIn("pharmacokinetics_exposure", tags)
+        self.assertIn("intervention_context", tags)
+        self.assertIn("real_world_use_public_health", tags)
 
     def test_normalize_routing_tags_filters_unknown_values(self) -> None:
         self.assertEqual(
@@ -507,6 +568,49 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
 
         self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
 
+    def test_deterministic_prescreen_ignores_nonpsychedelic_lsd_acronym_context(self) -> None:
+        rows = [
+            {
+                "study_title": "Low sodium diet and blood pressure in diabetic patients",
+                "abstract": "This meta-analysis compared low sodium diet (LSD) with high sodium diet.",
+                "contexts": [],
+            },
+            {
+                "study_title": "Soft drink effects on salivary calcium",
+                "abstract": "Data were analyzed with ANOVA and continued with LSD test.",
+                "contexts": [],
+            },
+        ]
+
+        for row in rows:
+            with self.subTest(row=row["study_title"]):
+                decision = deterministic_prescreen_decision("disorder", row, heuristic={}, candidate_contexts=[])
+                self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
+
+    def test_deterministic_prescreen_ignores_nonpsychedelic_mda_acronym_context(self) -> None:
+        rows = [
+            {
+                "study_title": "Oxidative stress markers after cerebral ischemia",
+                "abstract": "The study measured malondialdehyde (MDA), cytokines, and receptor expression.",
+                "contexts": [],
+            },
+            {
+                "study_title": "5-HT2C receptors and maximal dentate activation",
+                "abstract": "Maximal dentate activation (MDA) was measured in anesthetized rats.",
+                "contexts": [],
+            },
+            {
+                "study_title": "Oxidative stress after cerebral injury",
+                "abstract": "SOD, CAT, GSH, and MDA parameters were measured after treatment.",
+                "contexts": [],
+            },
+        ]
+
+        for row in rows:
+            with self.subTest(row=row["study_title"]):
+                decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+                self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
+
     def test_dissociative_class_is_retained_with_drug_support(self) -> None:
         row = {
             "study_title": "Dissociative anesthetics and synaptic plasticity",
@@ -518,6 +622,29 @@ class LocalLlmAbstractScreeningTest(unittest.TestCase):
 
         self.assertEqual(decision["action"], "escalate")
         self.assertIn("dissociative", matched_in_scope_intervention_terms(row["study_title"] + "\n" + row["abstract"]))
+
+    def test_generic_safety_language_does_not_rescue_procedural_ketamine(self) -> None:
+        row = {
+            "study_title": "Safety and effectiveness of ketamine as a sedative agent for pediatric GI endoscopy",
+            "abstract": "This study evaluated ketamine sedation during endoscopy.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("disorder", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "exclude_obvious_irrelevant")
+
+    def test_salvinorin_derivatives_are_retained(self) -> None:
+        row = {
+            "study_title": "Salvinorin-based antagonists and kappa opioid receptor interactions",
+            "abstract": "The study measured affinity and signaling for salvinorin analogues at KOR.",
+            "contexts": [],
+        }
+
+        decision = deterministic_prescreen_decision("mechanistic", row, heuristic={}, candidate_contexts=[])
+
+        self.assertEqual(decision["action"], "escalate")
+        self.assertIn("salvinorin", matched_in_scope_intervention_terms(row["study_title"] + "\n" + row["abstract"]))
 
     def test_deterministic_prescreen_does_not_use_candidate_contexts_as_safety_hints(self) -> None:
         row = {

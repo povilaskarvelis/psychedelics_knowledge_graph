@@ -3,6 +3,65 @@
 This stage screens synced literature candidates before PDF retrieval. It also
 contains older stub-curation helpers for maintaining the first-generation graph.
 
+## Table-native deterministic pre-screen
+
+The current corpus-first path reads the unified Parquet corpus tables and writes
+screening decisions back as Parquet tables. It does not edit candidate papers,
+delete older decisions, or create DOI queues.
+
+Run:
+
+```bash
+python pipeline/review/run_deterministic_prescreen.py \
+  --run-id deterministic_prescreen_2026_05_28
+```
+
+Outputs:
+- `data/processed/corpus/paper_prescreen_decisions.parquet`
+- `data/processed/corpus/paper_prescreen_summary.parquet`
+
+The decision table has one row per DOI and dataset. Missing-abstract records are
+excluded by default, while records with downstream claim or extraction
+provenance are retained with `prescreen_action=retain_existing_downstream`.
+
+For small updates, such as newly added papers or metadata fixes, update only the
+affected DOIs instead of rerunning the whole corpus:
+
+```bash
+python pipeline/review/run_deterministic_prescreen.py \
+  --doi-file /tmp/changed_dois.txt
+```
+
+Scoped updates require an existing decisions table. The script recomputes only
+the requested DOIs, adds new DOI/dataset rows when they are not already present,
+replaces existing rows for changed DOIs, and rebuilds the summary from the
+merged table. If `--run-id` is omitted, the scoped update reuses the existing
+decisions table's run ID.
+
+## Literature Type Routing
+
+After deterministic pre-screening, build paper-level primary/secondary routing:
+
+```bash
+python pipeline/review/run_literature_type_routing.py
+```
+
+This writes `data/processed/corpus/paper_literature_type_routing.parquet`.
+The routing combines refreshed PubMed `publication_type` labels with title and
+abstract keyword rules so obvious meta-analyses, systematic reviews, scoping
+reviews, narrative reviews, guidelines, and consensus statements are routed to
+secondary-literature extraction even when provider labels are generic.
+
+## Domain Routing
+
+Domain routing for extraction should be model-assigned from title/abstract
+metadata. Do not use pre-screen keyword tags as the production domain router;
+they are high-recall discovery/screening signals, not reliable extraction
+routes.
+
+`pipeline/review/run_domain_routing.py` is retained only as a disposable
+baseline for audits while the Gemini domain-routing table is built.
+
 ## Local LLM abstract screening
 Use this as the semantic screening layer after metadata sync and before PDF
 download. The current strategy is a high-recall cascade:

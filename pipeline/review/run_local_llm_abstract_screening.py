@@ -19,6 +19,7 @@ import sys
 import time
 import urllib.error
 from collections import Counter
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, List
 
@@ -40,6 +41,25 @@ try:
         normalize_doi,
         parse_allowlists,
     )
+    from pipeline.ingest.build_boolean_search_modules import (
+        CLINICAL_BRIDGE_TERMS,
+        CLINICAL_FUNCTION_SYMPTOM_TERMS,
+        CLINICAL_SAFETY_TERMS,
+        COGNITIVE_AFFECTIVE_TASK_TERMS,
+        INTERVENTION_CONTEXT_TERMS,
+        MOLECULAR_PATHWAY_TERMS,
+        PET_OCCUPANCY_TERMS,
+        PHARMACOKINETICS_EXPOSURE_TERMS,
+        REAL_WORLD_PUBLIC_HEALTH_TERMS,
+        SUBJECTIVE_EXPERIENCE_MEASURE_TERMS,
+        SUBJECTIVE_EXPERIENCE_TERMS,
+        SYSTEMS_CIRCUIT_TERMS,
+        SYSTEMS_NETWORK_TERMS,
+        SYSTEMS_NEUROIMAGING_TERMS,
+        SYSTEMS_REGION_TERMS,
+        TRANSLATIONAL_BEHAVIOR_TERMS,
+        EEG_MEG_NEUROPHYS_TERMS,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.run_local_llm_evidence_adjudication import (
@@ -58,6 +78,25 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         normalize,
         normalize_doi,
         parse_allowlists,
+    )
+    from pipeline.ingest.build_boolean_search_modules import (
+        CLINICAL_BRIDGE_TERMS,
+        CLINICAL_FUNCTION_SYMPTOM_TERMS,
+        CLINICAL_SAFETY_TERMS,
+        COGNITIVE_AFFECTIVE_TASK_TERMS,
+        INTERVENTION_CONTEXT_TERMS,
+        MOLECULAR_PATHWAY_TERMS,
+        PET_OCCUPANCY_TERMS,
+        PHARMACOKINETICS_EXPOSURE_TERMS,
+        REAL_WORLD_PUBLIC_HEALTH_TERMS,
+        SUBJECTIVE_EXPERIENCE_MEASURE_TERMS,
+        SUBJECTIVE_EXPERIENCE_TERMS,
+        SYSTEMS_CIRCUIT_TERMS,
+        SYSTEMS_NETWORK_TERMS,
+        SYSTEMS_NEUROIMAGING_TERMS,
+        SYSTEMS_REGION_TERMS,
+        TRANSLATIONAL_BEHAVIOR_TERMS,
+        EEG_MEG_NEUROPHYS_TERMS,
     )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -94,6 +133,10 @@ ROUTING_TAGS = [
     "brain_system",
     "cognitive_behavioral",
     "safety",
+    "subjective_experience",
+    "pharmacokinetics_exposure",
+    "intervention_context",
+    "real_world_use_public_health",
     "bridge_clinical_mechanism",
     "uncertain",
 ]
@@ -260,6 +303,9 @@ IN_SCOPE_INTERVENTION_CLASS_TERMS = {
     "serotonergic psychedelic",
     "serotonergic psychedelics",
 }
+IN_SCOPE_INTERVENTION_ADDITIONAL_TERMS = {
+    "salvinorin",
+}
 
 AMBIGUOUS_PSYCHIATRIC_TREATMENT_TERMS = {
     "experimental therapeutics",
@@ -334,6 +380,12 @@ AMBIGUOUS_CLASS_SUPPORT_TERMS = AMBIGUOUS_ACRONYM_SUPPORT_TERMS | {
     "drug",
     "drugs",
 }
+IN_SCOPE_INTERVENTION_CLASS_TERMS = frozenset(IN_SCOPE_INTERVENTION_CLASS_TERMS)
+IN_SCOPE_INTERVENTION_ADDITIONAL_TERMS = frozenset(IN_SCOPE_INTERVENTION_ADDITIONAL_TERMS)
+AMBIGUOUS_INTERVENTION_ACRONYMS = frozenset(AMBIGUOUS_INTERVENTION_ACRONYMS)
+AMBIGUOUS_INTERVENTION_CLASS_TERMS = frozenset(AMBIGUOUS_INTERVENTION_CLASS_TERMS)
+AMBIGUOUS_ACRONYM_SUPPORT_TERMS = frozenset(AMBIGUOUS_ACRONYM_SUPPORT_TERMS)
+AMBIGUOUS_CLASS_SUPPORT_TERMS = frozenset(AMBIGUOUS_CLASS_SUPPORT_TERMS)
 PSYCHEDELIC_CLASS_CHEMISTRY_RE = re.compile(
     r"\b(?:tryptamines?|phenethylamines?|phenylisopropylamines?|phenylalkylamines?|indolylalkylamines?|"
     r"lysergamides?|ergolines?|ergot\s+alkaloids?|NBOMe|NBOH|alpha[-\s]?methyltryptamine)\b",
@@ -355,11 +407,25 @@ PSYCHEDELIC_CLASS_ASSAY_RE = re.compile(
     re.IGNORECASE,
 )
 LSD_NON_PSYCH_ACRONYM_RE = re.compile(
-    r"\b(?:lysosomal\s+storage\s+(?:disorders?|diseases?)|least\s+significant\s+differences?)\b",
+    r"\b(?:lysosomal\s+storage\s+(?:disorders?|diseases?)|least\s+significant\s+differences?|"
+    r"low\s+sodium\s+diet|laparoscopic\s+splenectomy\s+(?:and\s+)?azygoportal\s+disconnection|"
+    r"LSD\s+test)\b",
     re.IGNORECASE,
 )
 LSD_PSYCH_SUPPORT_RE = re.compile(
-    r"\b(?:lysergic|lysergide|psychedelic|hallucinogen|hallucinogenic|microdos(?:e|ing)|5[-\s]?HT\s*2A)\b",
+    r"\b(?:lysergic|lysergide|d[-\s]?LSD|psychedelic|hallucinogen|hallucinogenic|microdos(?:e|ing)|"
+    r"5[-\s]?HT\s*2A)\b",
+    re.IGNORECASE,
+)
+MDA_NON_PSYCH_ACRONYM_RE = re.compile(
+    r"\b(?:malondialdehyde|maximal\s+dentate\s+activation|minimal\s+disease\s+activity|"
+    r"MDA[-\s]?MB|multiple\s+discriminant\s+analysis|oxidative\s+stress|anti[-\s]?oxidative|"
+    r"antioxidant|lipid\s+peroxidation|SOD|CAT|GSH|GPx|GST|TNF[-\s]?α?|IL[-\s]?1β?|IL[-\s]?6)\b",
+    re.IGNORECASE,
+)
+MDA_PSYCH_SUPPORT_RE = re.compile(
+    r"\b(?:methylenedioxy(?:amphetamine|methamphetamine)?|MDMA|ecstasy|entactogen|entactogenic|"
+    r"empathogen|empathogenic|psychedelic|hallucinogen|hallucinogenic|phenethylamine)\b",
     re.IGNORECASE,
 )
 KETAMINE_ONLY_INTERVENTION_TERMS = {
@@ -368,8 +434,21 @@ KETAMINE_ONLY_INTERVENTION_TERMS = {
     "ketamina",
     "ketamine",
     "kétamine",
+    "racemic ketamine",
     "r-ketamine",
     "s-ketamine",
+}
+KETAMINE_ACUTE_CARE_ALLOWED_CLASS_TERMS = {
+    "dissociative",
+    "dissociative anaesthetic",
+    "dissociative anaesthetics",
+    "dissociative anesthetic",
+    "dissociative anesthetics",
+    "dissociative compound",
+    "dissociative compounds",
+    "dissociative drug",
+    "dissociative drugs",
+    "dissociatives",
 }
 KETAMINE_ACUTE_CARE_ANESTHESIA_RE = re.compile(
     r"\b(?:sedation|sedative|procedural\s+sedation|anaesthesia|anesthesia|general\s+anaesthesia|"
@@ -390,6 +469,7 @@ KETAMINE_ACUTE_CARE_TITLE_PROTECTOR_RE = re.compile(
     r"\b(?:pain|painful|analgesi\w*|analgésie|douleurs?|smerte|hyperalgesi\w*|hypersensitivity|"
     r"chronic|neuropath\w*|neuralgia|migraine|headache|"
     r"depression|depressive|depressed|MDD|PTSD|suicid\w*|substance\s+use|addiction|alcohol|"
+    r"obsessive|compulsive|OCD|"
     r"post[-\s]?traumatic\s+stress|depress[aã]o|opioid\w*|bipolar|anxiety|anorexia|autism|sleep|"
     r"delirium|psychiatr\w*|cognit\w*|memory|emotion|mood|"
     r"brain|neuro\w*|neural|cortex|cortical|cerebrocortical|cingulate|retrosplenial|hippocamp\w*|damage|injur\w*|"
@@ -399,14 +479,10 @@ KETAMINE_ACUTE_CARE_TITLE_PROTECTOR_RE = re.compile(
     r"Huntington|nociception|antitussive|methylphenidate|electroencephalogram|EEG|"
     r"pharmacolog\w*|serotonin|5[-\s]?HT|5[-\s]?HT7|affinity|antagonist|binding|assay|"
     r"antidepressant|remission|electroconvulsive|ECT|sub[-\s]?(?:anaesth|anesth)\w*|"
-    r"inflamm\w*|immune|oxidative|cancer|tumou?r|asthma|COPD|dependen\w*|shivering|"
+    r"inflamm\w*|immune|oxidative|cancer|tumou?r|asthma|COPD|dependen\w*|"
     r"abhängig\w*|cochlear|hearing|visceral|metabol\w*|hydroxynorketamine\w*|toxicit\w*|poison|"
-    r"overdose|adverse|safety|oxygenation|recovery|outcomes?|veterans?|quality|intensive\s+care|"
-    r"ICU|critical\w*|narcotic|trauma|review|guideline|protocol|evoked\s+potential|"
-    r"electroencephalographic|clinical\s+uses|comparative\s+evaluation|retrospective|free\s+papers\s+compiled|"
-    r"agitation|psychological|sequelae|chronische|schmerzen|cough|throat|"
-    r"hysteroscopy|cesárea|cesarea|cesarean|perioperativ\w*|pacientes|cr[ií]ticos|revis[aã]o|"
-    r"narrativa|pediatric|paediatric|children|preschool|elderly|special\s+health\s+care)\b",
+    r"overdose|adverse|veterans?|narcotic|trauma|evoked\s+potential|electroencephalographic|"
+    r"psychological|sequelae|chronische|schmerzen|cough|throat)\b",
     re.IGNORECASE,
 )
 FIVE_MEO_DMT_VARIANT_RE = re.compile(
@@ -447,6 +523,7 @@ MOLECULAR_TARGET_SIGNAL_TERMS = {
     "transporter",
 }
 MOLECULAR_PATHWAY_SIGNAL_TERMS = {
+    *MOLECULAR_PATHWAY_TERMS,
     "arc",
     "bdnf",
     "biomarker",
@@ -467,6 +544,12 @@ MOLECULAR_PATHWAY_SIGNAL_TERMS = {
     "trkb",
 }
 BRAIN_SYSTEM_SIGNAL_TERMS = {
+    *SYSTEMS_NEUROIMAGING_TERMS,
+    *SYSTEMS_NETWORK_TERMS,
+    *SYSTEMS_REGION_TERMS,
+    *SYSTEMS_CIRCUIT_TERMS,
+    *PET_OCCUPANCY_TERMS,
+    *EEG_MEG_NEUROPHYS_TERMS,
     "amygdala",
     "anterior cingulate",
     "bold",
@@ -497,6 +580,8 @@ BRAIN_SYSTEM_SIGNAL_TERMS = {
     "thalamus",
 }
 COGNITIVE_BEHAVIORAL_SIGNAL_TERMS = {
+    *COGNITIVE_AFFECTIVE_TASK_TERMS,
+    *TRANSLATIONAL_BEHAVIOR_TERMS,
     "attention",
     "behavior",
     "behaviour",
@@ -522,6 +607,8 @@ COGNITIVE_BEHAVIORAL_SIGNAL_TERMS = {
     "working memory",
 }
 CLINICAL_OUTCOME_SIGNAL_TERMS = {
+    *CLINICAL_BRIDGE_TERMS,
+    *CLINICAL_FUNCTION_SYMPTOM_TERMS,
     "clinical outcome",
     "clinical trial",
     "depression",
@@ -539,6 +626,7 @@ CLINICAL_OUTCOME_SIGNAL_TERMS = {
     "therapeutic",
 }
 CLINICAL_BRIDGE_SIGNAL_TERMS = {
+    *CLINICAL_BRIDGE_TERMS,
     "clinical outcome",
     "depression",
     "functioning",
@@ -552,6 +640,7 @@ CLINICAL_BRIDGE_SIGNAL_TERMS = {
     "therapeutic",
 }
 SAFETY_SIGNAL_TERMS = {
+    *CLINICAL_SAFETY_TERMS,
     "adverse event",
     "adverse events",
     "safety",
@@ -560,6 +649,160 @@ SAFETY_SIGNAL_TERMS = {
     "tolerability",
     "tolerated",
 }
+SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS = {
+    *SUBJECTIVE_EXPERIENCE_TERMS,
+    *SUBJECTIVE_EXPERIENCE_MEASURE_TERMS,
+    "5d-asc",
+    "5d-oav",
+    "11d-asc",
+    "apz",
+    "altered state",
+    "altered states of consciousness",
+    "challenging experience",
+    "connectedness",
+    "drug effects questionnaire",
+    "emotional breakthrough inventory",
+    "ego dissolution",
+    "ego loss",
+    "ego-dissolution inventory",
+    "emotional breakthrough",
+    "hallucinogen rating scale",
+    "meq-30",
+    "mystical experience",
+    "mystical-type experience",
+    "mystical experience questionnaire",
+    "oceanic boundlessness",
+    "peak experience",
+    "persisting effects questionnaire",
+    "phenomenology",
+    "phenomenological",
+    "perceptual effects",
+    "psychological insight questionnaire",
+    "psychedelic experience",
+    "self-dissolution",
+    "self-transcendence",
+    "subjective drug effects",
+    "subjective effects",
+    "visual effects",
+}
+PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS = {
+    *PHARMACOKINETICS_EXPOSURE_TERMS,
+    "adme",
+    "absorption",
+    "auc",
+    "bioavailability",
+    "blood concentration",
+    "blood level",
+    "clearance",
+    "cmax",
+    "concentration-time",
+    "cytochrome p450",
+    "distribution",
+    "dose-response",
+    "elimination",
+    "excretion",
+    "exposure-response",
+    "glucuronidation",
+    "glucuronide",
+    "half-life",
+    "lc-ms",
+    "mao-a",
+    "metabolism",
+    "metabolite",
+    "monoamine oxidase",
+    "pk/pd",
+    "pharmacodynamic",
+    "pharmacodynamics",
+    "pharmacokinetic",
+    "pharmacokinetic-pharmacodynamic",
+    "pharmacokinetics",
+    "plasma concentration",
+    "plasma level",
+    "protein binding",
+    "route of administration",
+    "serum concentration",
+    "serum level",
+    "tmax",
+    "ugt",
+    "urinary excretion",
+}
+INTERVENTION_CONTEXT_SIGNAL_TERMS = {
+    *INTERVENTION_CONTEXT_TERMS,
+    "acceptability",
+    "aftercare",
+    "blinding",
+    "dosing session",
+    "eye shades",
+    "eyeshades",
+    "facilitator",
+    "facilitator training",
+    "inner-directed",
+    "integration",
+    "integration session",
+    "integration therapy",
+    "manualized therapy",
+    "music",
+    "music playlist",
+    "non-directive support",
+    "nondirective support",
+    "preparation",
+    "preparation and integration",
+    "preparation session",
+    "psychological support",
+    "psychotherapy",
+    "set and setting",
+    "supportive therapy",
+    "therapeutic alliance",
+    "therapeutic relationship",
+    "therapist",
+    "therapist training",
+    "treatment manual",
+}
+REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS = {
+    *REAL_WORLD_PUBLIC_HEALTH_TERMS,
+    "adverse experiences",
+    "community",
+    "diversion",
+    "drug checking",
+    "ed visit",
+    "emergency department",
+    "emergency room",
+    "epidemiology",
+    "harm reduction",
+    "hospitalization",
+    "lifetime use",
+    "microdosing",
+    "misuse",
+    "non-medical use",
+    "naturalistic",
+    "nonmedical use",
+    "past-year use",
+    "poison center",
+    "poison control",
+    "population",
+    "prevalence",
+    "public health",
+    "real world",
+    "real-world",
+    "recreational use",
+    "retreat",
+    "self-medication",
+    "survey",
+    "toxicity",
+    "use patterns",
+}
+
+MOLECULAR_TARGET_SIGNAL_TERMS = frozenset(MOLECULAR_TARGET_SIGNAL_TERMS)
+MOLECULAR_PATHWAY_SIGNAL_TERMS = frozenset(MOLECULAR_PATHWAY_SIGNAL_TERMS)
+BRAIN_SYSTEM_SIGNAL_TERMS = frozenset(BRAIN_SYSTEM_SIGNAL_TERMS)
+COGNITIVE_BEHAVIORAL_SIGNAL_TERMS = frozenset(COGNITIVE_BEHAVIORAL_SIGNAL_TERMS)
+CLINICAL_OUTCOME_SIGNAL_TERMS = frozenset(CLINICAL_OUTCOME_SIGNAL_TERMS)
+CLINICAL_BRIDGE_SIGNAL_TERMS = frozenset(CLINICAL_BRIDGE_SIGNAL_TERMS)
+SAFETY_SIGNAL_TERMS = frozenset(SAFETY_SIGNAL_TERMS)
+SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS = frozenset(SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS)
+PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS = frozenset(PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS)
+INTERVENTION_CONTEXT_SIGNAL_TERMS = frozenset(INTERVENTION_CONTEXT_SIGNAL_TERMS)
+REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS = frozenset(REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS)
 
 ABSTRACT_SCREENING_SCHEMA = {
     "type": "object",
@@ -814,7 +1057,7 @@ def build_prompt(dataset: str, row: dict, candidate_contexts: List[dict]) -> lis
             "Prefer high recall: choose uncertain instead of irrelevant when the abstract is thin but the paper plausibly belongs in scope.",
             "Choose relevant only when the title/abstract supports at least one in-scope compound plus target, molecular/pathway, brain system, cognitive/behavioral, safety, symptom, disorder, or clinical outcome context.",
             "Choose irrelevant only when the title/abstract gives enough evidence that the paper is out of scope.",
-            "Set routing_tags to all domains supported by the title/abstract: clinical_outcome, molecular_target, molecular_pathway, brain_system, cognitive_behavioral, safety, bridge_clinical_mechanism, or uncertain.",
+            "Set routing_tags to all domains supported by the title/abstract: clinical_outcome, molecular_target, molecular_pathway, brain_system, cognitive_behavioral, safety, subjective_experience, pharmacokinetics_exposure, intervention_context, real_world_use_public_health, bridge_clinical_mechanism, or uncertain.",
             "Use bridge_clinical_mechanism when a clinical population/outcome is linked in the abstract to a mechanistic endpoint such as imaging, connectivity, molecular readouts, cognition, behavior, or receptor occupancy.",
             "For mechanistic screening, brain regions, circuits, networks, fMRI/PET/EEG/MEG, neurophysiology, cognitive tasks, and behavioral assays count as mechanistic/system-level evidence.",
             "For disorder screening, symptom/function/safety endpoints and clinical-population brain or cognitive endpoints should be retained when tied to an in-scope compound.",
@@ -856,7 +1099,7 @@ def build_fast_screening_prompt(dataset: str, row: dict, candidate_contexts: Lis
             "Return escalate for any paper that might plausibly be in scope, even weakly or indirectly.",
             "Return escalate if the title/abstract mentions any supplied candidate_contexts compound or entity term, even if the relationship is unclear, incidental, background-only, or an exclusion criterion.",
             "Do not exclude papers containing seed-like intervention, disorder, symptom, population, target, molecular pathway, brain, circuit, network, cognition, behavior, safety, or mechanism terms; escalate them to the full model.",
-            "Return escalate if the paper mentions any named psychedelic, ketamine/esketamine/arketamine, MDMA/MDA, ayahuasca, ibogaine, mescaline, DMT/tryptamine, LSD/lysergamide, NBOMe/NBOH, salvinorin, entactogen, empathogen, entheogen, hallucinogen, psychoplastogen, dissociative anesthetic, or assisted-therapy intervention.",
+            "Return escalate if the paper mentions any psychedelic or named psychedelic, ketamine/esketamine/arketamine, MDMA/MDA, ayahuasca, ibogaine, mescaline, DMT/tryptamine, LSD/lysergamide, NBOMe/NBOH, salvinorin, entactogen, empathogen, entheogen, hallucinogen, psychoplastogen, dissociative anesthetic, or assisted-therapy intervention.",
             "Return escalate if the paper mentions a disorder, symptom, patient population, clinical outcome, safety outcome, biological target, receptor, transporter, molecular pathway, brain region, circuit, network, neuroimaging, neurophysiology, cognitive task, behavioral assay, animal model, or mechanistic assay that could fit either KG dataset.",
             "Clinical-population brain/cognition papers should escalate; they are not obvious irrelevant just because they mix clinical and mechanistic endpoints.",
             "Return exclude_obvious_irrelevant only when the title/abstract clearly shows a different topic and there is no plausible psychedelic KG relevance.",
@@ -889,6 +1132,61 @@ def synonym_map_terms(*mappings: dict) -> set[str]:
     return {term for term in terms if len(term) >= 3}
 
 
+@lru_cache(maxsize=1)
+def target_synonym_terms() -> frozenset[str]:
+    return frozenset(synonym_map_terms(TARGET_SYNONYMS))
+
+
+@lru_cache(maxsize=1)
+def disorder_synonym_terms() -> frozenset[str]:
+    return frozenset(synonym_map_terms(DISORDER_SYNONYMS, FILE_DISORDER_SYNONYMS))
+
+
+@lru_cache(maxsize=1)
+def molecular_target_terms() -> frozenset[str]:
+    return frozenset(set(target_synonym_terms()) | MOLECULAR_TARGET_SIGNAL_TERMS)
+
+
+@lru_cache(maxsize=1)
+def clinical_outcome_terms() -> frozenset[str]:
+    return frozenset(set(disorder_synonym_terms()) | CLINICAL_OUTCOME_SIGNAL_TERMS)
+
+
+@lru_cache(maxsize=1)
+def clinical_bridge_terms() -> frozenset[str]:
+    return frozenset(set(disorder_synonym_terms()) | CLINICAL_BRIDGE_SIGNAL_TERMS)
+
+
+@lru_cache(maxsize=1)
+def mechanistic_entity_terms() -> frozenset[str]:
+    return frozenset(
+        set(target_synonym_terms())
+        | MOLECULAR_TARGET_SIGNAL_TERMS
+        | MOLECULAR_PATHWAY_SIGNAL_TERMS
+        | BRAIN_SYSTEM_SIGNAL_TERMS
+        | COGNITIVE_BEHAVIORAL_SIGNAL_TERMS
+        | SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS
+        | PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS
+        | INTERVENTION_CONTEXT_SIGNAL_TERMS
+        | REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS
+    )
+
+
+@lru_cache(maxsize=1)
+def disorder_entity_terms() -> frozenset[str]:
+    return frozenset(
+        set(disorder_synonym_terms())
+        | CLINICAL_OUTCOME_SIGNAL_TERMS
+        | SAFETY_SIGNAL_TERMS
+        | BRAIN_SYSTEM_SIGNAL_TERMS
+        | COGNITIVE_BEHAVIORAL_SIGNAL_TERMS
+        | SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS
+        | PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS
+        | INTERVENTION_CONTEXT_SIGNAL_TERMS
+        | REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS
+    )
+
+
 def configured_allowed_compound_terms(config_path: Path = PIPELINE_CONFIG_PATH) -> set[str]:
     terms: set[str] = set()
     for compound in parse_allowlists(config_path).get("allowed_compounds", []):
@@ -902,9 +1200,21 @@ def configured_allowed_compound_terms(config_path: Path = PIPELINE_CONFIG_PATH) 
 
 
 CONFIG_ALLOWED_COMPOUND_TERMS = configured_allowed_compound_terms()
-IN_SCOPE_INTERVENTION_TERMS = synonym_map_terms(COMPOUND_SYNONYMS) | CONFIG_ALLOWED_COMPOUND_TERMS | IN_SCOPE_INTERVENTION_CLASS_TERMS
+IN_SCOPE_INTERVENTION_TERMS = (
+    synonym_map_terms(COMPOUND_SYNONYMS)
+    | CONFIG_ALLOWED_COMPOUND_TERMS
+    | IN_SCOPE_INTERVENTION_CLASS_TERMS
+    | IN_SCOPE_INTERVENTION_ADDITIONAL_TERMS
+)
 SORTED_IN_SCOPE_INTERVENTION_TERMS = tuple(
     sorted(IN_SCOPE_INTERVENTION_TERMS, key=lambda value: (len(value), value.lower()))
+)
+IN_SCOPE_INTERVENTION_TERM_BY_LOWER = {term.lower(): term for term in SORTED_IN_SCOPE_INTERVENTION_TERMS}
+IN_SCOPE_INTERVENTION_RE = re.compile(
+    r"(?<![A-Za-z0-9])(?:"
+    + "|".join(re.escape(term) for term in sorted(IN_SCOPE_INTERVENTION_TERMS, key=len, reverse=True))
+    + r")(?![A-Za-z0-9])",
+    re.IGNORECASE,
 )
 
 
@@ -923,9 +1233,27 @@ def term_found_in_normalized_context(term: str, normalized_context: str) -> bool
     return re.search(rf"(?<![A-Za-z0-9]){re.escape(term)}(?![A-Za-z0-9])", normalized_context, re.IGNORECASE) is not None
 
 
+TERM_PATTERN_CACHE: dict[frozenset[str], re.Pattern] = {}
+
+
+def term_pattern_for_terms(terms: Iterable[str]) -> re.Pattern | None:
+    key = terms if isinstance(terms, frozenset) else frozenset(normalize(term) for term in terms if len(normalize(term)) >= 3)
+    if not key:
+        return None
+    if key not in TERM_PATTERN_CACHE:
+        TERM_PATTERN_CACHE[key] = re.compile(
+            r"(?<![A-Za-z0-9])(?:"
+            + "|".join(re.escape(term) for term in sorted(key, key=len, reverse=True))
+            + r")(?![A-Za-z0-9])",
+            re.IGNORECASE,
+        )
+    return TERM_PATTERN_CACHE[key]
+
+
 def any_term_found_in_context(terms: Iterable[str], context: str) -> bool:
     normalized_context = normalize(context)
-    return any(term_found_in_normalized_context(term, normalized_context) for term in terms)
+    pattern = term_pattern_for_terms(terms)
+    return bool(pattern and pattern.search(normalized_context))
 
 
 def candidate_term_found_in_context(candidate_contexts: List[dict] | None, context: str) -> bool:
@@ -964,25 +1292,13 @@ def normalize_routing_tags(value: object) -> List[str]:
 
 def entity_terms_for_dataset(dataset: str) -> set[str]:
     if dataset == "disorder":
-        return (
-            synonym_map_terms(DISORDER_SYNONYMS, FILE_DISORDER_SYNONYMS)
-            | CLINICAL_OUTCOME_SIGNAL_TERMS
-            | SAFETY_SIGNAL_TERMS
-            | BRAIN_SYSTEM_SIGNAL_TERMS
-            | COGNITIVE_BEHAVIORAL_SIGNAL_TERMS
-        )
-    return (
-        synonym_map_terms(TARGET_SYNONYMS)
-        | MOLECULAR_TARGET_SIGNAL_TERMS
-        | MOLECULAR_PATHWAY_SIGNAL_TERMS
-        | BRAIN_SYSTEM_SIGNAL_TERMS
-        | COGNITIVE_BEHAVIORAL_SIGNAL_TERMS
-    )
+        return set(disorder_entity_terms())
+    return set(mechanistic_entity_terms())
 
 
 def evidence_domain_tags_for_context(dataset: str, context: str) -> List[str]:
     tags: List[str] = []
-    if any_term_found_in_context(synonym_map_terms(TARGET_SYNONYMS) | MOLECULAR_TARGET_SIGNAL_TERMS, context):
+    if any_term_found_in_context(molecular_target_terms(), context):
         tags.append("molecular_target")
     if any_term_found_in_context(MOLECULAR_PATHWAY_SIGNAL_TERMS, context):
         tags.append("molecular_pathway")
@@ -990,15 +1306,33 @@ def evidence_domain_tags_for_context(dataset: str, context: str) -> List[str]:
         tags.append("brain_system")
     if any_term_found_in_context(COGNITIVE_BEHAVIORAL_SIGNAL_TERMS, context):
         tags.append("cognitive_behavioral")
-    if any_term_found_in_context(synonym_map_terms(DISORDER_SYNONYMS, FILE_DISORDER_SYNONYMS) | CLINICAL_OUTCOME_SIGNAL_TERMS, context):
+    if any_term_found_in_context(clinical_outcome_terms(), context):
         tags.append("clinical_outcome")
     if any_term_found_in_context(SAFETY_SIGNAL_TERMS, context):
         tags.append("safety")
+    if any_term_found_in_context(SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS, context):
+        tags.append("subjective_experience")
+    if any_term_found_in_context(PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS, context):
+        tags.append("pharmacokinetics_exposure")
+    if any_term_found_in_context(INTERVENTION_CONTEXT_SIGNAL_TERMS, context):
+        tags.append("intervention_context")
+    if any_term_found_in_context(REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS, context):
+        tags.append("real_world_use_public_health")
     has_clinical = dataset == "disorder" or any_term_found_in_context(
-        synonym_map_terms(DISORDER_SYNONYMS, FILE_DISORDER_SYNONYMS) | CLINICAL_BRIDGE_SIGNAL_TERMS,
+        clinical_bridge_terms(),
         context,
     )
-    has_mechanistic = any(tag in tags for tag in {"molecular_target", "molecular_pathway", "brain_system", "cognitive_behavioral"})
+    has_mechanistic = any(
+        tag in tags
+        for tag in {
+            "molecular_target",
+            "molecular_pathway",
+            "brain_system",
+            "cognitive_behavioral",
+            "subjective_experience",
+            "pharmacokinetics_exposure",
+        }
+    )
     if has_clinical and has_mechanistic:
         tags.append("bridge_clinical_mechanism")
     return normalize_routing_tags(tags)
@@ -1070,9 +1404,8 @@ def matched_in_scope_intervention_terms(context: str) -> List[str]:
     seen: set[str] = set()
     acronym_supported = ambiguous_intervention_acronym_supported(normalized_context)
     class_supported = ambiguous_intervention_class_supported(normalized_context)
-    for term in SORTED_IN_SCOPE_INTERVENTION_TERMS:
-        if not term_found_in_normalized_context(term, normalized_context):
-            continue
+    for match in IN_SCOPE_INTERVENTION_RE.finditer(normalized_context):
+        term = IN_SCOPE_INTERVENTION_TERM_BY_LOWER.get(match.group(0).lower(), match.group(0))
         term_lower = term.lower()
         if (
             term_lower == "lsd"
@@ -1080,8 +1413,25 @@ def matched_in_scope_intervention_terms(context: str) -> List[str]:
             and not LSD_PSYCH_SUPPORT_RE.search(normalized_context)
         ):
             continue
+        if (
+            term_lower == "mda"
+            and MDA_NON_PSYCH_ACRONYM_RE.search(normalized_context)
+            and not MDA_PSYCH_SUPPORT_RE.search(normalized_context)
+        ):
+            continue
         if term_lower in AMBIGUOUS_INTERVENTION_ACRONYMS and not acronym_supported:
             continue
+        if term_lower in AMBIGUOUS_INTERVENTION_CLASS_TERMS and not class_supported:
+            continue
+        key = term_lower
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append("DOI" if key == "doi" else term)
+    for term in IN_SCOPE_INTERVENTION_CLASS_TERMS:
+        if not term_found_in_normalized_context(term, normalized_context):
+            continue
+        term_lower = term.lower()
         if term_lower in AMBIGUOUS_INTERVENTION_CLASS_TERMS and not class_supported:
             continue
         key = term_lower
@@ -1111,7 +1461,10 @@ def is_ketamine_only_acute_care_anesthesia_context(
     if not normalized_terms:
         return False
 
-    if any(term not in KETAMINE_ONLY_INTERVENTION_TERMS for term in normalized_terms):
+    allowed_terms = KETAMINE_ONLY_INTERVENTION_TERMS | KETAMINE_ACUTE_CARE_ALLOWED_CLASS_TERMS
+    if any(term not in allowed_terms for term in normalized_terms):
+        return False
+    if not any(term in KETAMINE_ONLY_INTERVENTION_TERMS for term in normalized_terms):
         return False
     if not KETAMINE_ACUTE_CARE_ANESTHESIA_RE.search(normalized_context):
         return False

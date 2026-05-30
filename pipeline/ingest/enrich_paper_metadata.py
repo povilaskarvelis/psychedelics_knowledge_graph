@@ -128,6 +128,27 @@ def row_by_doi(rows: list[dict]) -> dict[str, dict]:
     return out
 
 
+def merged_output_rows(output_by_doi: dict[str, dict], existing_by_doi: dict[str, dict]) -> list[dict]:
+    merged = {
+        doi: {column: clean(row.get(column, "")) for column in OUTPUT_COLUMNS}
+        for doi, row in existing_by_doi.items()
+    }
+    for doi, row in output_by_doi.items():
+        merged[doi] = {column: clean(row.get(column, "")) for column in OUTPUT_COLUMNS}
+    return sorted(merged.values(), key=lambda item: item["doi"])
+
+
+def read_doi_file(path: Path) -> set[str]:
+    dois: set[str] = set()
+    if not path.exists():
+        raise FileNotFoundError(f"DOI file does not exist: {path}")
+    for line in path.read_text(encoding="utf-8").splitlines():
+        doi = normalize_doi(line)
+        if doi and not doi.startswith("#"):
+            dois.add(doi.lower())
+    return dois
+
+
 def candidate_metadata_row(row: dict) -> dict:
     doi = normalize_doi(clean(row.get("doi") or row.get("study_doi")))
     out = {column: "" for column in OUTPUT_COLUMNS}
@@ -143,8 +164,21 @@ def candidate_metadata_row(row: dict) -> dict:
             "pmcid": clean(row.get("pmcid", "")),
             "openalex_id": clean(row.get("openalex_id", "")),
             "semantic_scholar_id": clean(row.get("semantic_scholar_id", "")),
+            "metadata_provider": clean(row.get("metadata_provider", "")),
+            "metadata_provider_chain": clean(row.get("metadata_provider_chain", "")),
+            "metadata_providers_queried": clean(row.get("metadata_providers_queried", "")),
+            "metadata_lookup_error": clean(row.get("metadata_lookup_error", "")),
+            "metadata_lookup_warnings": clean(row.get("metadata_lookup_warnings", "")),
+            "metadata_missing_reason": clean(row.get("metadata_missing_reason", "")),
+            "metadata_enrichment_status": clean(row.get("metadata_enrichment_status", "")),
+            "metadata_enrichment_run_id": clean(row.get("metadata_enrichment_run_id", "")),
+            "metadata_enriched_at_utc": clean(row.get("metadata_enriched_at_utc", "")),
             "paper_metadata_schema_version": PAPER_METADATA_SCHEMA_VERSION,
+            "open_access_is_oa": clean(row.get("open_access_is_oa", "")),
             "open_access_status": clean(row.get("open_access_status", "")),
+            "open_access_url": clean(row.get("open_access_url", "")),
+            "best_pdf_url": clean(row.get("best_pdf_url", "")),
+            "pdf_url_candidates": clean(row.get("pdf_url_candidates", "")),
         }
     )
     for field in PAPER_METADATA_FIELDS:
@@ -207,6 +241,9 @@ def fetch_metadata_row(
         metadata = {}
 
     merged_metadata = merge_metadata_values(metadata, base_row)
+    metadata_missing_reason = clean(merged_metadata.get("metadata_missing_reason", ""))
+    if metadata_error and not clean(merged_metadata.get("abstract", "")):
+        metadata_missing_reason = metadata_missing_reason or "metadata_lookup_unresolved"
     out = {column: "" for column in OUTPUT_COLUMNS}
     out.update(
         {
@@ -226,7 +263,7 @@ def fetch_metadata_row(
             or "|".join(providers_queried),
             "metadata_lookup_error": metadata_error,
             "metadata_lookup_warnings": clean(merged_metadata.get("metadata_lookup_warnings", "")),
-            "metadata_missing_reason": clean(merged_metadata.get("metadata_missing_reason", "")),
+            "metadata_missing_reason": metadata_missing_reason,
             "metadata_enrichment_status": "enriched" if not metadata_error else "metadata_unresolved",
             "metadata_enrichment_run_id": run_id,
             "metadata_enriched_at_utc": now_utc(),
@@ -390,6 +427,16 @@ def main() -> int:
     parser.add_argument("--write-every", type=int, default=100, help="Rewrite the output Parquet table every N rows.")
     parser.add_argument("--progress-every", type=int, default=25)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument(
+        "--doi-file",
+        default="",
+        help="Optional newline-delimited DOI list limiting which corpus rows are processed.",
+    )
+    parser.add_argument(
+        "--only-missing-abstract",
+        action="store_true",
+        help="Only process rows whose merged existing/candidate metadata has no abstract.",
+    )
     args = parser.parse_args()
 
     provider_order = []
@@ -419,6 +466,9 @@ def main() -> int:
     run_id = clean(args.run_id) or default_run_id()
     candidate_rows = [candidate_metadata_row(row) for row in read_table(papers_table)]
     candidate_rows = [row for row in candidate_rows if row["doi"]]
+    if clean(args.doi_file):
+        allowed_dois = read_doi_file(Path(args.doi_file).resolve())
+        candidate_rows = [row for row in candidate_rows if row["doi"].lower() in allowed_dois]
     if args.limit > 0:
         candidate_rows = candidate_rows[: args.limit]
 
@@ -431,6 +481,7 @@ def main() -> int:
     reused_existing = 0
     carried_from_candidate = 0
     unresolved = 0
+    skipped_complete_abstract = 0
 
     print(
         "START: metadata enrichment "
@@ -443,6 +494,11 @@ def main() -> int:
         doi = candidate["doi"]
         existing = existing_by_doi.get(doi.lower())
         base_row = merge_rows(existing or {}, candidate)
+        if args.only_missing_abstract and clean(base_row.get("abstract", "")):
+            skipped_complete_abstract += 1
+            if existing:
+                output_by_doi[doi.lower()] = {column: clean(existing.get(column, "")) for column in OUTPUT_COLUMNS}
+            continue
         query = should_query_provider(
             existing_row=existing,
             base_row=base_row,
@@ -490,20 +546,17 @@ def main() -> int:
         output_by_doi[doi.lower()] = {column: clean(row.get(column, "")) for column in OUTPUT_COLUMNS}
 
         if args.write_every > 0 and idx % args.write_every == 0:
-            write_table(output_table, sorted(output_by_doi.values(), key=lambda item: item["doi"]))
+            write_table(output_table, merged_output_rows(output_by_doi, existing_by_doi))
         if args.progress_every > 0 and (idx % args.progress_every == 0 or idx == len(candidate_rows)):
             print(
                 "PROGRESS: metadata enrichment "
                 f"{idx}/{len(candidate_rows)} enriched_now={enriched_now} reused={reused_existing} "
-                f"carried_from_candidate={carried_from_candidate} unresolved={unresolved}",
+                f"carried_from_candidate={carried_from_candidate} unresolved={unresolved} "
+                f"skipped_complete_abstract={skipped_complete_abstract}",
                 flush=True,
             )
 
-    for doi, row in existing_by_doi.items():
-        if doi not in output_by_doi:
-            output_by_doi[doi] = {column: clean(row.get(column, "")) for column in OUTPUT_COLUMNS}
-
-    final_rows = sorted(output_by_doi.values(), key=lambda item: item["doi"])
+    final_rows = merged_output_rows(output_by_doi, existing_by_doi)
     write_table(output_table, final_rows)
 
     print(f"Metadata enrichment table: {output_table}")
@@ -512,6 +565,7 @@ def main() -> int:
     print(f"Reused existing metadata: {reused_existing}")
     print(f"Carried from candidate table: {carried_from_candidate}")
     print(f"Unresolved this run: {unresolved}")
+    print(f"Skipped complete abstracts: {skipped_complete_abstract}")
     print(f"Provider successes: {dict(provider_success_counts)}")
     print(f"Provider errors: {dict(provider_error_counts)}")
     return 0

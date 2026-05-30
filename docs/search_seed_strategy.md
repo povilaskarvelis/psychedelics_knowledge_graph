@@ -38,6 +38,8 @@ Generated artifact families:
 - `data/raw/search_strategies/systems_neuroscience_2026_05/grouped_modules/`
 - `data/raw/search_strategies/systems_neuroscience_2026_05/direct_pairs/`
 - `data/raw/search_strategies/evidence_domain_modules_2026_05/grouped_modules/`
+- `data/raw/search_strategies/extraction_gap_domains_2026_05/grouped_modules/`
+- `data/raw/search_strategies/extraction_gap_domains_keyword_closure_2026_05/grouped_modules/`
 
 Some artifact filenames preserve earlier processing names. In the methods
 framing, those files are treated as domain-specific search instruments within
@@ -60,6 +62,10 @@ provider-specific syntax for PubMed and OpenAlex when supported by the run.
 | Molecular pathways and cellular readouts | 5 | 3 | 2 | 500 | 1,000 |
 | Brain systems, circuits, and neurophysiology | 10 | 4 | 6 | 500 | 1,000 |
 | Cognitive and behavioral function | 4 | 2 | 2 | 500 | 1,000 |
+| Subjective experience and acute effects | 2 | 1 | 1 | 500 | 1,000 |
+| Pharmacokinetics and exposure | 2 | 1 | 1 | 500 | 1,000 |
+| Intervention delivery context | 2 | 1 | 1 | 500 | 1,000 |
+| Real-world use and public health | 2 | 1 | 1 | 500 | 1,000 |
 | Clinical outcomes, symptoms, functioning, and safety | 17 | 9 | 8 | 500 | 1,000 |
 | Clinical studies with biological and behavioral endpoints | 6 | 2 | 4 | 500 | 1,000 |
 
@@ -83,6 +89,20 @@ Brain-system and cognitive-behavioral modules:
 |---|---|---|
 | Broad | systems neuroimaging and connectivity; brain regions and named circuits; PET, receptor occupancy, and metabolism; EEG, MEG, and neurophysiology; cognitive and affective task domains; translational behavioral assays | compound/class terms AND brain/circuit/network/task terms AND imaging, neurophysiology, task, or behavior evidence terms |
 | Focused | psilocybin-default mode connectivity; LSD-thalamocortical connectivity; DMT EEG/fMRI dynamics; ayahuasca-default mode connectivity; psilocybin PET/5-HT2A occupancy; ketamine prefrontal-hippocampal circuitry; MDMA social reward and cognition; psychedelic fear extinction and flexibility | narrower compound-entity combinations AND domain-specific evidence terms |
+
+Subjective experience and exposure modules:
+
+| Type | Modules | Query block pattern |
+|---|---|---|
+| Broad | acute subjective effects and phenomenology; pharmacokinetics and exposure | compound/class terms AND subjective-effect, phenomenology, exposure, or ADME terms AND questionnaire, concentration, dosing, sampling, or analytical measurement terms |
+| Focused | subjective-effect measures; metabolite and exposure measurement | narrower compound-measure combinations AND psychometric, acute-effect, metabolite, plasma/serum/blood-level, dose, route, excretion, protein-binding, and mass-spectrometry terms |
+
+Intervention-context and real-world/public-health modules:
+
+| Type | Modules | Query block pattern |
+|---|---|---|
+| Broad | psychotherapy, preparation, integration, set and setting, session structure, psychological support, aftercare, blinding, training/manual terms; epidemiology, surveys, naturalistic use, lifetime or past-year use, drug checking, poison-control/emergency records, toxicity, and harm reduction | therapeutic psychedelic terms AND delivery-context or public-health terms AND clinical, feasibility, acceptability, observational, population, risk, adverse-event, or outcome terms |
+| Focused | set/setting and therapeutic-support details; naturalistic, community, retreat, and microdosing use | narrower compound-context combinations AND qualitative, clinical, observational, survey, wellbeing, mental-health, adverse-experience, toxicity, and harm-reduction terms |
 
 Clinical evidence modules:
 
@@ -112,9 +132,9 @@ functioning terms.
 The canonical registries also support direct searches for compound-entity and
 compound-outcome combinations. These searches are supplementary to the grouped
 domain modules. They are used most densely where the pair space is bounded, such
-as molecular targets and clinical evidence concepts, and as targeted checks for
-later domain additions where sparse records may not be well represented by
-family-level queries.
+as molecular targets and clinical conditions, symptoms, functioning outcomes,
+and safety outcomes, and as targeted checks for later domain additions where
+sparse records may not be well represented by family-level queries.
 
 The generated pairwise materials include:
 

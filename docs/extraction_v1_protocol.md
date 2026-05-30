@@ -50,7 +50,9 @@ context only unless the supplied text shows substantive psychedelic coverage.
 
 Inputs may be either:
 
-- `full_text`: a full-text evidence packet built from converted PDFs
+- `full_text`: a full-text evidence packet built from converted PDFs. These
+  packets normally come from GROBID-generated TEI artifacts, preserving article
+  sections, tables, figures, references, and chunk locators for auditability.
 - `abstract`: an abstract-only candidate record for papers without available
   full text or for optional calibration examples
 
@@ -294,6 +296,8 @@ For abstract-only inputs:
 For full-text inputs:
 
 - set `access_level = full_text_seen`
+- treat GROBID-derived TEI sections, tables, figures, references, and chunk IDs
+  as provenance structure, not as model-inferred content
 - prefer Results, tables, figures, Methods, and abstract in that order for
   evidence anchors
 - preserve packet chunk IDs or table IDs in `evidence_locator` when available

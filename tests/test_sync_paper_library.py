@@ -4,6 +4,7 @@ from pathlib import Path
 
 from pipeline.ingest.sync_paper_library import (
     PAPER_METADATA_SCHEMA_VERSION,
+    crossref_title_with_subtitle,
     download_pdf_candidates,
     fetch_metadata_with_fallbacks,
     funding_from_openalex_work,
@@ -17,6 +18,7 @@ from pipeline.ingest.sync_paper_library import (
     parse_provider_order,
     row_needs_core_metadata_refresh,
     row_needs_oa_refresh,
+    strip_markup,
 )
 
 
@@ -68,6 +70,13 @@ class SyncPaperLibraryTest(unittest.TestCase):
             parse_provider_order(""),
             ["pubmed", "pmc", "unpaywall", "crossref", "openalex", "semantic_scholar"],
         )
+
+    def test_strip_markup_keeps_escaped_subtitle_text(self) -> None:
+        self.assertEqual(
+            strip_markup("Main title&lt;subtitle&gt;A Randomized Trial&lt;/subtitle&gt;"),
+            "Main title: A Randomized Trial",
+        )
+        self.assertEqual(strip_markup("Response in <i>DSM-5</i> drug use"), "Response in DSM-5 drug use")
 
     def test_existing_row_without_unpaywall_or_pdf_gets_oa_refresh(self) -> None:
         row = {
@@ -441,6 +450,7 @@ class SyncPaperLibraryTest(unittest.TestCase):
                         "message": {
                             "DOI": doi,
                             "title": ["Crossref title"],
+                            "subtitle": ["subtitle retained"],
                             "abstract": "<jats:p>Crossref abstract. ISRCTN12345678.</jats:p>",
                             "issued": {"date-parts": [[2023, 11, 9]]},
                             "container-title": ["Crossref Journal"],
@@ -474,6 +484,7 @@ class SyncPaperLibraryTest(unittest.TestCase):
         )
 
         self.assertIsNotNone(metadata)
+        self.assertEqual(metadata["study_title"], "Crossref title: subtitle retained")
         self.assertEqual(metadata["publication_date"], "2023-11-09")
         self.assertEqual(metadata["journal_issn"], "1357-2468")
         self.assertEqual(metadata["journal_eissn"], "2468-1357")
@@ -486,6 +497,11 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(metadata["has_correction"], "true")
         self.assertEqual(metadata["language"], "en")
         self.assertEqual(metadata["trial_registry_ids"], "ISRCTN12345678 | 2020-001234-56")
+
+    def test_crossref_title_without_subtitle_strips_dangling_colon(self) -> None:
+        title = crossref_title_with_subtitle({"title": ["Bioavailability of Ketamine:"]})
+
+        self.assertEqual(title, "Bioavailability of Ketamine")
 
     def test_download_pdf_candidates_tries_next_candidate(self) -> None:
         client = FakeClient(

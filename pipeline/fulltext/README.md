@@ -71,7 +71,9 @@ a separate explicit step through `apply_provenance_repairs.py --apply`.
 
 ## Backends
 
-- `grobid`: primary scholarly-article parser backed by a local GROBID service.
+- `grobid`: primary scholarly-article parser backed by a local GROBID service;
+  preserves TEI XML with article sections, references, tables, and figure
+  locators for downstream evidence packets.
 - `docling`: fallback document conversion backend when the `docling` Python
   package is installed, especially for non-article PDFs or GROBID failures.
 - `pdftotext`: lightweight plain-text converter using Poppler when explicitly

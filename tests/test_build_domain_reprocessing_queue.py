@@ -23,8 +23,12 @@ def queue_dois(path: Path) -> list[str]:
 class BuildDomainReprocessingQueueTest(unittest.TestCase):
     def test_module_scope_maps_to_routing_tags(self) -> None:
         self.assertEqual(
-            module_scopes_to_tags(["molecular_pathway", "clinical_safety"]),
-            {"molecular_pathway", "safety", "clinical_outcome"},
+            module_scopes_to_tags(["molecular_pathway", "clinical_safety", "intervention_context"]),
+            {"molecular_pathway", "safety", "clinical_outcome", "intervention_context"},
+        )
+        self.assertEqual(
+            module_scopes_to_tags(["subjective_experience", "pharmacokinetics_exposure", "real_world_use_public_health"]),
+            {"subjective_experience", "pharmacokinetics_exposure", "real_world_use_public_health", "safety"},
         )
 
     def test_builds_ready_and_metadata_queues_for_rediscovered_dois(self) -> None:

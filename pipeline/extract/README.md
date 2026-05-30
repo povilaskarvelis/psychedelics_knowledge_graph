@@ -3,6 +3,46 @@
 This stage prepares screened papers for claim extraction, then promotes
 curated-ready extracted evidence into the graph inputs.
 
+## Routing-Aware Extraction Routes
+
+The table-native extraction handoff starts from the retained corpus rather than
+the older dataset-specific extraction files. Build one row per DOI plus
+extraction task:
+
+```bash
+python pipeline/extract/build_extraction_routes.py
+```
+
+Default outputs:
+
+- `data/processed/corpus/paper_extraction_routes.parquet`
+- `data/processed/corpus/paper_extraction_routes_summary.json`
+- `data/processed/corpus/paper_extraction_routes_counts.csv`
+
+The route table joins deterministic pre-screen decisions, metadata, literature
+type routing, optional model-assigned domain routing, and full-text/PDF
+availability. Each row includes the paper source family, source type, domain
+route, access tier, route action, prompt profile, schema profile, priority,
+confidence, and basis. If no model-assigned domain table is supplied, papers
+stay on coarse general routes by paper type and access tier.
+
+Build the upstream route tables first:
+
+```bash
+python pipeline/review/run_literature_type_routing.py
+```
+
+After Gemini domain routing is available, pass it explicitly:
+
+```bash
+python pipeline/extract/build_extraction_routes.py \
+  --domain-routing-table data/processed/corpus/paper_domain_routing_gemini.parquet
+```
+
+Use this table to audit extraction queues before model calls. The prompt and
+schema profile labels are route assignments; route-specific model inputs and
+schemas are built downstream from this table.
+
 ## Prepare Extraction Inputs
 
 After literature discovery, abstract screening, PDF retrieval, and full-text

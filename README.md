@@ -132,6 +132,11 @@ full-text LLM step is best described as full-text evidence assessment plus data
 extraction; use `adjudication` only for the final conflict-resolution decision
 when model/rule/curator outputs disagree.
 
+Local PDFs are converted into structured full-text artifacts with GROBID as the
+primary scholarly-article parser. GROBID preserves TEI XML with article
+sections, tables, figures, references, and other locators that downstream
+evidence packets use for auditable extraction.
+
 - mechanistic evidence records capture compound-target assay findings
 - disorder evidence records capture compound-disorder outcome findings
 - disorder evidence records include a lightweight `result_direction` label:
@@ -202,6 +207,7 @@ python pipeline/review/curation_queue.py --dataset disorder
 python pipeline/extract/promote_ready_stubs.py --dataset disorder --apply
 python pipeline/validate/validate_claims.py
 python pipeline/kg/build_evidence_tables.py
+python pipeline/kg/build_author_tables.py
 python pipeline/publish/export_graph_payload.py
 python pipeline/publish/export_bibliography_payload.py
 ```

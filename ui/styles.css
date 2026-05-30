@@ -2059,6 +2059,81 @@ button.primary:hover {
   box-shadow: 0 0 12px rgba(188, 197, 207, 0.22);
 }
 
+.author-rank-list {
+  display: grid;
+  gap: 7px;
+}
+
+.author-rank-row {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid rgba(238, 240, 235, 0.08);
+  border-radius: 6px;
+  background: rgba(238, 240, 235, 0.035);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.author-rank-row:hover,
+.author-rank-row.hovered,
+.author-rank-row:focus-visible {
+  background: rgba(238, 240, 235, 0.065);
+  border-color: rgba(188, 197, 207, 0.24);
+  box-shadow: 0 0 12px rgba(188, 197, 207, 0.12);
+}
+
+.author-rank-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 0.8rem;
+}
+
+.author-rank-main span {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(238, 240, 235, 0.9);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.author-rank-main strong {
+  color: rgba(238, 240, 235, 0.86);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.author-role-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.author-role-counts span {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 20px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(238, 240, 235, 0.065);
+  color: rgba(238, 240, 235, 0.64);
+  font-size: 0.69rem;
+  line-height: 1;
+}
+
+.author-role-counts b {
+  color: rgba(238, 240, 235, 0.86);
+  font-weight: 700;
+}
+
 .trend-chart-actions {
   display: flex;
   justify-content: flex-start;

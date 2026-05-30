@@ -20,9 +20,15 @@ from typing import Iterable
 import pandas as pd
 
 try:
+    from pipeline.extract.clinical_comparator import normalize_clinical_comparator
+    from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
+    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
     from pipeline.extract.extraction_v1_utils import normalize, write_json
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from pipeline.extract.clinical_comparator import normalize_clinical_comparator
+    from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
+    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
     from pipeline.extract.extraction_v1_utils import normalize, write_json
 
 
@@ -118,6 +124,7 @@ CLAIM_FIELDS = (
     "mechanism_type",
     "assay_type",
     "assay_family",
+    "assay_family_normalized",
     "action_type",
     "affinity_type",
     "affinity_value",
@@ -134,6 +141,9 @@ CLAIM_FIELDS = (
     "sample_size_total",
     "sample_size_by_arm",
     "comparator",
+    "comparator_normalized",
+    "follow_up_duration",
+    "follow_up_window_normalized",
     "intervention_or_exposure",
     "dose",
     "route",
@@ -671,7 +681,25 @@ def entity_row(entity_id: str, entity_type: str, domain: str, label: str, kind: 
     }
 
 
+def normalize_claim_metadata(row: dict, domain: str) -> dict:
+    out = dict(row)
+    if domain == "mechanistic" and not normalize(out.get("assay_family_normalized", "")):
+        out["assay_family_normalized"] = normalize_mechanistic_assay_family(
+            out.get("assay_family", ""),
+            out.get("assay_type", ""),
+        )
+    if domain == "clinical" and not normalize(out.get("comparator_normalized", "")):
+        out["comparator_normalized"] = normalize_clinical_comparator(out.get("comparator", ""))
+    if domain == "clinical" and not normalize(out.get("follow_up_window_normalized", "")):
+        out["follow_up_window_normalized"] = normalize_clinical_followup_window(
+            out.get("follow_up_duration", ""),
+            out.get("timepoint", ""),
+        )
+    return out
+
+
 def claim_row(row: dict, source_name: str, domain: str, dataset: str, evidence_type: str, claim_id: str, paper_id: str) -> dict:
+    row = normalize_claim_metadata(row, domain)
     out = {
         "claim_id": claim_id,
         "source_name": source_name,
