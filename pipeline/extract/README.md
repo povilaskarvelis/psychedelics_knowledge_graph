@@ -1,7 +1,7 @@
 # Extract
 
-This stage prepares screened papers for claim extraction, then promotes
-curated-ready extracted evidence into the graph inputs.
+This stage prepares routed papers for structured evidence extraction, then
+promotes curated-ready extracted evidence into the graph inputs.
 
 ## Routing-Aware Extraction Routes
 
@@ -20,11 +20,20 @@ Default outputs:
 - `data/processed/corpus/paper_extraction_routes_counts.csv`
 
 The route table joins deterministic pre-screen decisions, metadata, literature
-type routing, optional model-assigned domain routing, and full-text/PDF
-availability. Each row includes the paper source family, source type, domain
-route, access tier, route action, prompt profile, schema profile, priority,
-confidence, and basis. If no model-assigned domain table is supplied, papers
-stay on coarse general routes by paper type and access tier.
+type routing, optional model-assigned domain routing, converted full-text
+artifacts, valid PDFs in `data/raw/papers/pdfs/`, and PDF URL availability.
+Each row includes the paper source family, source type, domain route, access
+tier, route action, prompt profile, schema profile, priority, confidence, and
+basis. If no model-assigned domain table is supplied, papers stay on coarse
+general routes by paper type and access tier.
+
+Access tiers are not evidence-quality labels. They describe the next file
+handling step:
+
+- `full_text_available` -> `extract_from_full_text`
+- `local_pdf_available` -> `convert_local_pdf_then_extract`
+- `pdf_download_url_available` -> `download_pdf_then_extract`
+- `abstract_only` -> `extract_from_abstract_only`
 
 Build the upstream route tables first:
 
@@ -43,10 +52,34 @@ Use this table to audit extraction queues before model calls. The prompt and
 schema profile labels are route assignments; route-specific model inputs and
 schemas are built downstream from this table.
 
-## Prepare Extraction Inputs
+## Manual Route Overrides
+
+Manual extraction-route review is stored as a small DOI-level input file:
+
+- `pipeline/extract/manual_extraction_route_overrides.json`
+
+The route builder applies this file by default. Use it only for reviewed edge
+cases where the automated route is too broad or clearly wrong:
+
+- `manual_action=context_only` keeps the paper in the route table for audit but
+  removes it from extraction candidates.
+- `manual_action=route_domains` replaces a broad route with specific domain
+  routes such as `clinical_outcome`, `safety_tolerability`, or
+  `molecular_target`.
+
+The generated route table records these rows with
+`domain_routing_model=manual_extraction_route_review`. The CSV audit files under
+`data/processed/corpus/audits/` are inspection outputs, not durable pipeline
+inputs.
+
+## Older Manifest-Based Prepare Extraction Inputs
+
+This path is retained for first-generation extraction runs that still use the
+corpus manifest and dataset-specific candidate files. The current route-aware
+workflow should use `paper_extraction_routes.parquet` as the extraction source.
 
 After literature discovery, abstract screening, PDF retrieval, and full-text
-conversion, build the DOI-level extraction cohort:
+conversion, the older path builds the DOI-level extraction cohort:
 
 ```bash
 python pipeline/extract/prepare_extraction_inputs.py --dataset all

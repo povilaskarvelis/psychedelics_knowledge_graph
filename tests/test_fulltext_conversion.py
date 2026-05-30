@@ -2,6 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pipeline.fulltext.convert_pdfs as convert_pdfs
 from pipeline.fulltext.convert_pdfs import (
     backend_sequence,
     build_artifact,
@@ -9,6 +10,8 @@ from pipeline.fulltext.convert_pdfs import (
     grobid_alive_url,
     iter_pdf_rows,
     multipart_body,
+    pdf_filename_prefix_for_doi,
+    resolve_pdf_path,
     should_write_artifact,
     stale_fulltext_locator_dois,
     sections_from_markdown,
@@ -22,6 +25,12 @@ class FulltextConversionTest(unittest.TestCase):
         self.assertEqual(
             doi_to_slug("https://doi.org/10.1001/JAMA.2023.14530"),
             "10_1001_jama_2023_14530",
+        )
+
+    def test_pdf_filename_prefix_matches_downloaded_pdf_naming(self) -> None:
+        self.assertEqual(
+            pdf_filename_prefix_for_doi("10.1016/S0893-133X(98)00060-8"),
+            "10.1016_s0893-133x_98_00060-8",
         )
 
     def test_sections_from_markdown_uses_headings(self) -> None:
@@ -122,6 +131,27 @@ class FulltextConversionTest(unittest.TestCase):
 
         self.assertEqual(len(found), 1)
         self.assertEqual(found[0][0]["study_doi"], "10.1000/keep")
+
+    def test_resolve_pdf_path_falls_back_to_current_repo_paper_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pdf_dir = root / "data" / "raw" / "papers" / "disorder" / "excluded"
+            pdf_dir.mkdir(parents=True)
+            pdf = pdf_dir / "10.1000_example__deadbeef00.pdf"
+            pdf.write_bytes(b"%PDF-1.4")
+            row = {
+                "study_doi": "10.1000/example",
+                "pdf_local_path": "/old/repo/data/raw/papers/disorder/pdfs/10.1000_example__deadbeef00.pdf",
+            }
+
+            old_root = convert_pdfs.ROOT
+            convert_pdfs.ROOT = root
+            try:
+                found = resolve_pdf_path(row)
+            finally:
+                convert_pdfs.ROOT = old_root
+
+        self.assertEqual(found, pdf)
 
     def test_stale_fulltext_locator_dois_selects_only_fulltext_abstract_snippets(self) -> None:
         dois = stale_fulltext_locator_dois(

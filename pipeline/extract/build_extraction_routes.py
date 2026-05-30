@@ -13,6 +13,7 @@ import argparse
 from collections import Counter, defaultdict
 import csv
 import datetime as dt
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
@@ -37,9 +38,11 @@ DEFAULT_METADATA_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadat
 DEFAULT_PRESCREEN_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_prescreen_decisions.parquet"
 DEFAULT_LITERATURE_TYPE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_literature_type_routing.parquet"
 DEFAULT_FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
+DEFAULT_PAPER_ROOT = ROOT / "data" / "raw" / "papers" / "pdfs"
 DEFAULT_OUTPUT_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes.parquet"
 DEFAULT_SUMMARY_JSON = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes_summary.json"
 DEFAULT_COUNTS_CSV = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes_counts.csv"
+DEFAULT_MANUAL_ROUTE_OVERRIDES = ROOT / "pipeline" / "extract" / "manual_extraction_route_overrides.json"
 
 TABLE_VERSION = "0.1"
 
@@ -171,6 +174,21 @@ def read_doi_file(path: Path) -> set[str]:
     return out
 
 
+def load_manual_route_overrides(path: Path | None) -> dict[str, dict]:
+    if path is None or not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    out: dict[str, dict] = {}
+    for row in records:
+        if not isinstance(row, dict):
+            continue
+        doi = normalize_doi(row.get("doi", ""))
+        if doi:
+            out[doi] = row
+    return out
+
+
 def prescreen_context_by_doi(decisions_df: pd.DataFrame) -> dict[str, dict]:
     out: dict[str, dict] = defaultdict(
         lambda: {
@@ -274,11 +292,49 @@ def fulltext_status_for_doi(doi: str, fulltext_dir: Path) -> dict:
     }
 
 
-def access_tier(metadata: dict, fulltext_status: dict) -> str:
+def local_pdf_slug(path: Path) -> str:
+    prefix = path.stem.split("__", 1)[0].lower()
+    return re.sub(r"[^a-z0-9]+", "_", prefix).strip("_")
+
+
+def file_is_valid_pdf(path: Path) -> bool:
+    try:
+        raw = path.read_bytes()[:2048].lstrip(b"\x00\t\r\n\f ")
+    except Exception:
+        return False
+    return raw.startswith(b"%PDF-")
+
+
+@lru_cache(maxsize=8)
+def build_local_pdf_index(paper_root: Path) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = defaultdict(list)
+    if not paper_root.exists():
+        return {}
+    for path in sorted(paper_root.glob("**/*.pdf")):
+        if not path.is_file() or not file_is_valid_pdf(path):
+            continue
+        slug = local_pdf_slug(path)
+        if slug:
+            out[slug].append(str(path))
+    return dict(out)
+
+
+def local_pdf_status_for_doi(doi: str, local_pdf_index: dict[str, list[str]]) -> dict:
+    paths = local_pdf_index.get(doi_to_slug(doi), [])
+    return {
+        "has_local_pdf": bool(paths),
+        "local_pdf_paths": join_values(paths),
+        "local_pdf_count": len(paths),
+    }
+
+
+def access_tier(metadata: dict, fulltext_status: dict, local_pdf_status: dict) -> str:
     if fulltext_status.get("has_converted_full_text"):
         return "full_text_available"
+    if local_pdf_status.get("has_local_pdf"):
+        return "local_pdf_available"
     if clean(metadata.get("best_pdf_url", "")):
-        return "pdf_url_available"
+        return "pdf_download_url_available"
     if clean(metadata.get("abstract", "")):
         return "abstract_only"
     return "no_usable_text"
@@ -289,8 +345,10 @@ def route_action_for_access(access: str, source_family: str) -> str:
         return "skip_or_context_only"
     if access == "full_text_available":
         return "extract_from_full_text"
-    if access == "pdf_url_available":
-        return "retrieve_pdf_then_extract"
+    if access == "local_pdf_available":
+        return "convert_local_pdf_then_extract"
+    if access == "pdf_download_url_available":
+        return "download_pdf_then_extract"
     if access == "abstract_only":
         return "extract_from_abstract_only"
     return "hold_until_text_available"
@@ -319,7 +377,48 @@ def domain_plan_for(
     source_family: str,
     fallback_tags: list[str],
     domain_by_doi: dict[str, list[dict]],
+    manual_override: dict | None = None,
 ) -> list[dict]:
+    manual_override = manual_override or {}
+    manual_action = clean(manual_override.get("manual_action", ""))
+    manual_reason = clean(manual_override.get("manual_reason", "")) or "Manual extraction-route review."
+    if manual_action == "context_only":
+        return [
+            {
+                "domain_route": "context_only",
+                "domain_tags": join_values(fallback_tags),
+                "domain_route_confidence": "high",
+                "domain_route_basis": manual_reason,
+                "domain_routing_primary_domain": "context_only",
+                "methodological_validity_tags": "",
+                "domain_screening_decision": "manual_context_only",
+                "domain_screening_reason": manual_reason,
+                "domain_routing_model": "manual_extraction_route_review",
+                "domain_needs_human_review": False,
+                "manual_action": manual_action,
+            }
+        ]
+    if manual_action == "route_domains":
+        manual_routes = split_values(manual_override.get("manual_domain_routes", ""))
+        if manual_routes:
+            manual_tags = join_values(manual_routes)
+            return [
+                {
+                    "domain_route": route,
+                    "domain_tags": manual_tags,
+                    "domain_route_confidence": "high",
+                    "domain_route_basis": manual_reason,
+                    "domain_routing_primary_domain": manual_routes[0],
+                    "methodological_validity_tags": clean(manual_override.get("manual_methodological_validity_tags", "")),
+                    "domain_screening_decision": "manual_include_in_scope",
+                    "domain_screening_reason": manual_reason,
+                    "domain_routing_model": "manual_extraction_route_review",
+                    "domain_needs_human_review": False,
+                    "manual_action": manual_action,
+                }
+                for route in manual_routes
+            ]
+
     if source_family == "non_primary_publication":
         return [
             {
@@ -411,6 +510,8 @@ def source_type_for(literature_row: dict) -> str:
 def prompt_profile_for(source_family: str, source_type: str, domain_route: str) -> str:
     if domain_route == "screening_excluded":
         return "no_extraction"
+    if domain_route == "context_only":
+        return "context_only_or_skip"
     if source_family == "non_primary_publication":
         return "context_only_or_skip"
     if source_family == "secondary_literature":
@@ -464,7 +565,8 @@ def study_system_hint(metadata: dict) -> str:
 def route_priority(source_family: str, source_type: str, domain_route: str, access: str) -> int:
     access_weight = {
         "full_text_available": 0,
-        "pdf_url_available": 10,
+        "local_pdf_available": 5,
+        "pdf_download_url_available": 10,
         "abstract_only": 20,
         "no_usable_text": 80,
     }.get(access, 80)
@@ -540,12 +642,16 @@ def build_route_rows(
     generated_at_utc: str,
     include_non_retained: bool = False,
     scoped_dois: set[str] | None = None,
+    manual_overrides: dict[str, dict] | None = None,
+    paper_root: Path = DEFAULT_PAPER_ROOT,
 ) -> list[dict]:
     prescreen = prescreen_context_by_doi(prescreen_df)
     literature_by_doi = row_by_doi(literature_df)
     domain_by_doi = domain_routing_by_doi(domain_df if domain_df is not None else pd.DataFrame())
     rows: list[dict] = []
     scoped_dois = scoped_dois or set()
+    manual_overrides = manual_overrides or {}
+    local_pdf_index = build_local_pdf_index(paper_root)
 
     for metadata in metadata_df.to_dict("records"):
         doi = normalize_doi(metadata.get("doi", ""))
@@ -562,14 +668,17 @@ def build_route_rows(
         source_family = clean(literature_row.get("source_family", "")) or "primary_or_unclear"
         source_type = source_type_for(literature_row)
         tags = [tag for tag in context.get("routing_tags", []) if tag != "uncertain"]
+        manual_override = manual_overrides.get(doi, {})
         domains = domain_plan_for(
             doi=doi,
             source_family=source_family,
             fallback_tags=tags,
             domain_by_doi=domain_by_doi,
+            manual_override=manual_override,
         )
         fulltext_status = fulltext_status_for_doi(doi, fulltext_dir)
-        access = access_tier(metadata, fulltext_status)
+        local_pdf_status = local_pdf_status_for_doi(doi, local_pdf_index)
+        access = access_tier(metadata, fulltext_status, local_pdf_status)
         action = route_action_for_access(access, source_family)
         bridge = "bridge_clinical_mechanism" in tags
         system_hint = study_system_hint(metadata)
@@ -585,11 +694,21 @@ def build_route_rows(
             domain_screening_reason = clean(domain.get("domain_screening_reason", ""))
             domain_routing_model = clean(domain.get("domain_routing_model", ""))
             domain_needs_human_review = truthy(domain.get("domain_needs_human_review", False))
+            manual_action = clean(domain.get("manual_action", ""))
             prompt_profile = prompt_profile_for(source_family, source_type, domain_route)
             schema_profile = schema_profile_for(prompt_profile)
             route_id = stable_id(doi, source_family, source_type, domain_route, access, prompt_profile)
-            row_action = "exclude_after_model_screen" if domain_screening_decision == "exclude_out_of_scope" else action
-            route_retained = retained and domain_screening_decision != "exclude_out_of_scope"
+            if manual_action == "context_only":
+                row_action = "skip_or_context_only"
+            elif domain_screening_decision == "exclude_out_of_scope":
+                row_action = "exclude_after_model_screen"
+            else:
+                row_action = action
+            route_retained = (
+                retained
+                and domain_screening_decision != "exclude_out_of_scope"
+                and row_action != "skip_or_context_only"
+            )
             rows.append(
                 {
                     "table_version": TABLE_VERSION,
@@ -623,6 +742,9 @@ def build_route_rows(
                     "has_converted_full_text": bool(fulltext_status.get("has_converted_full_text")),
                     "fulltext_artifact_paths": clean(fulltext_status.get("fulltext_artifact_paths", "")),
                     "fulltext_char_count": int(fulltext_status.get("fulltext_char_count", 0) or 0),
+                    "has_local_pdf": bool(local_pdf_status.get("has_local_pdf")),
+                    "local_pdf_paths": clean(local_pdf_status.get("local_pdf_paths", "")),
+                    "local_pdf_count": int(local_pdf_status.get("local_pdf_count", 0) or 0),
                     "open_access_status": clean(metadata.get("open_access_status", "")),
                     "best_pdf_url": clean(metadata.get("best_pdf_url", "")),
                     "route_action": row_action,
@@ -698,9 +820,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Optional model-assigned domain routing table. If omitted, routes stay general by paper type/access.",
     )
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
+    parser.add_argument("--paper-root", default=str(DEFAULT_PAPER_ROOT), help="Root directory containing local paper PDFs.")
     parser.add_argument("--output-table", default=str(DEFAULT_OUTPUT_TABLE))
     parser.add_argument("--summary-json", default=str(DEFAULT_SUMMARY_JSON))
     parser.add_argument("--counts-csv", default=str(DEFAULT_COUNTS_CSV))
+    parser.add_argument("--manual-route-overrides", default=str(DEFAULT_MANUAL_ROUTE_OVERRIDES))
     parser.add_argument("--doi-file", default="", help="Optional DOI list for a scoped route-table build.")
     parser.add_argument("--include-non-retained", action="store_true", help="Route all metadata rows, not only retained pre-screen candidates.")
     return parser
@@ -712,13 +836,16 @@ def main() -> int:
     prescreen_table = Path(args.prescreen_decisions_table).resolve()
     literature_table = Path(args.literature_type_table).resolve()
     domain_table = Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None
+    manual_overrides_path = Path(args.manual_route_overrides).resolve() if clean(args.manual_route_overrides) else None
     fulltext_dir = Path(args.fulltext_dir).resolve()
+    paper_root = Path(args.paper_root).resolve()
     scoped_dois = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else set()
 
     metadata_df = read_table(metadata_table)
     prescreen_df = read_table(prescreen_table)
     literature_df = read_table(literature_table)
     domain_df = read_table(domain_table) if domain_table is not None else pd.DataFrame()
+    manual_overrides = load_manual_route_overrides(manual_overrides_path)
     generated_at_utc = now_utc()
     rows = build_route_rows(
         metadata_df,
@@ -729,6 +856,8 @@ def main() -> int:
         generated_at_utc=generated_at_utc,
         include_non_retained=bool(args.include_non_retained),
         scoped_dois=scoped_dois,
+        manual_overrides=manual_overrides,
+        paper_root=paper_root,
     )
 
     output_table = Path(args.output_table).resolve()
@@ -742,7 +871,10 @@ def main() -> int:
             "prescreen_decisions_table": str(prescreen_table),
             "literature_type_table": str(literature_table),
             "domain_routing_table": str(domain_table) if domain_table is not None else "",
+            "manual_route_overrides": str(manual_overrides_path) if manual_overrides_path is not None else "",
+            "manual_override_dois": len(manual_overrides),
             "fulltext_dir": str(fulltext_dir),
+            "paper_root": str(paper_root),
             "doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
             "include_non_retained": bool(args.include_non_retained),
             "scoped_dois": len(scoped_dois),

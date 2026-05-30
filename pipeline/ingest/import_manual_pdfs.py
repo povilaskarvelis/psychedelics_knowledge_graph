@@ -166,7 +166,7 @@ def main() -> int:
     pdf_dir = (
         Path(args.pdf_dir).resolve()
         if args.pdf_dir
-        else ROOT / "data" / "raw" / "papers" / args.dataset / "pdfs"
+        else ROOT / "data" / "raw" / "papers" / "pdfs"
     )
     report_path = (
         Path(args.report).resolve()

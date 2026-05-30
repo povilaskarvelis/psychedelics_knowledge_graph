@@ -1,0 +1,172 @@
+{
+  "schema_version": "manual_extraction_route_overrides_v1",
+  "generated_from_review": "2026-05-30 low-specificity extraction route review",
+  "notes": [
+    "These overrides resolve papers that Gemini routed to general_primary or general_topic_coverage.",
+    "context_only records remain in the route table for audit, but are not extraction candidates.",
+    "The current KG does not yet have a dedicated compound-production, bibliometrics, field-history, or ethics/policy-commentary extraction schema."
+  ],
+  "records": [
+    {
+      "doi": "10.13016/m2txg0-wv9p",
+      "manual_action": "route_domains",
+      "manual_domain_routes": "clinical_outcome|safety_tolerability|molecular_target",
+      "manual_reason": "Manual review: comprehensive ibogaine literature review focused on anti-addiction evidence, with clinical, safety, and pharmacological relevance."
+    },
+    {
+      "doi": "10.1002/chem.202501037",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: psilocybin production and biocatalytic synthesis paper; relevant context, but not an effects/evidence source for the current KG domains."
+    },
+    {
+      "doi": "10.1016/j.cell.2020.03.020",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: broad field commentary on psychedelic psychiatry rather than a source of extractable primary or review evidence."
+    },
+    {
+      "doi": "10.1080/02791072.2014.873688",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: historical/institutional overview of the Heffter Research Institute, useful context but not an evidence extraction source."
+    },
+    {
+      "doi": "10.1080/02791072.2019.1606472",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: introductory historical overview for a special issue, not a specific evidence synthesis or primary study."
+    },
+    {
+      "doi": "10.1080/02791072.2021.1874573",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: bibliometric/top-cited article analysis, useful for field mapping but not direct evidence extraction."
+    },
+    {
+      "doi": "10.1080/02791072.2021.2022254",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: bibliometric analysis of psychedelic clinical research, useful for field mapping but not direct evidence extraction."
+    },
+    {
+      "doi": "10.1080/15265161.2025.2434398",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: ethical/regulatory analysis of psychedelic medicine exceptionalism; policy context, not extractable empirical evidence for current schemas."
+    },
+    {
+      "doi": "10.1089/psymed.2023.0031",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: conceptual terminology paper about defining psychedelics, not a domain-specific evidence source."
+    },
+    {
+      "doi": "10.1093/ijnp/pyag023",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: broad CNS drug innovation overview that only partly covers psychedelic-assisted therapy/esketamine; too broad for psychedelic evidence extraction."
+    },
+    {
+      "doi": "10.1101/2021.11.22.21266718",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: bibliometric analysis of psychedelic clinical-study literature, useful for corpus context but not direct evidence extraction."
+    },
+    {
+      "doi": "10.11477/mf.1416202356",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: broad drug-development overview mentioning psilocybin, but not focused enough for psychedelic evidence extraction."
+    },
+    {
+      "doi": "10.1176/appi.pn.2019.10a16",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: news article about a research center opening, not a scientific evidence source."
+    },
+    {
+      "doi": "10.1177/2050324519872284",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: broad field milestone/policy overview, useful context but not domain-specific evidence extraction."
+    },
+    {
+      "doi": "10.1215/08879982-4354390",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: philosophical/cultural discussion of psychedelics, not an empirical or synthesis evidence source."
+    },
+    {
+      "doi": "10.18356/9789210028233c023",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: high-level policy/control overview of recent psychedelic developments, not extractable evidence for current schemas."
+    },
+    {
+      "doi": "10.20944/preprints201901.0249.v1",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: conceptual argument about psychopharmacology and psychedelics, not a primary study or structured review evidence source."
+    },
+    {
+      "doi": "10.22289/2446-922x.v10a2a36",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: bibliometric analysis of classic psychedelic research, useful for field mapping but not direct evidence extraction."
+    },
+    {
+      "doi": "10.22541/au.172496618.87990987/v1",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: psychedelic industry/history overview, not a domain-specific scientific evidence source."
+    },
+    {
+      "doi": "10.31234/osf.io/3j2kc",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: conceptual terminology proposal, not an empirical or synthesis evidence source."
+    },
+    {
+      "doi": "10.4414/sanp.2017.00487",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: short overview of psychedelic medicine re-emergence, not a specific evidence source."
+    },
+    {
+      "doi": "10.70423/0001.07",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: historical/cultural analysis of psychedelic networks, not an extractable evidence source for current KG schemas."
+    },
+    {
+      "doi": "10.70423/0001.18",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: anthology/conference introduction, useful context but not domain-specific evidence extraction."
+    },
+    {
+      "doi": "10.1002/cmdc.202500525",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: chemical synthesis review for bufotenine/5-MeO-DMT; relevant production context, but outside the current evidence-extraction domains."
+    },
+    {
+      "doi": "10.1007/s00213-024-06722-6",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: research-program implementation guidance; useful context, but not direct evidence extraction under current schemas."
+    },
+    {
+      "doi": "10.1016/b978-0-12-821033-8.00001-0",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: historical chapter on ketamine, not a domain-specific evidence extraction source."
+    },
+    {
+      "doi": "10.1016/j.euroneuro.2022.09.004",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: scientometric analysis of psychedelic research, useful for field mapping but not direct evidence extraction."
+    },
+    {
+      "doi": "10.1016/j.neuropharm.2018.02.018",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: historical field overview and special-issue introduction, not a specific evidence synthesis source."
+    },
+    {
+      "doi": "10.1016/j.neuropharm.2023.109467",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: NIH speaker-series state-of-science overview; important context and gap mapping, but too broad for domain-specific extraction."
+    },
+    {
+      "doi": "10.1080/02791072.2023.2276230",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: scientometric analysis of ibogaine treatment research, useful for field mapping but not direct evidence extraction."
+    },
+    {
+      "doi": "10.1615/intjmedmushrooms.2021041921",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: psilocybin production-method/status review; relevant context, but outside current evidence-extraction domains."
+    },
+    {
+      "doi": "10.3390/ph18030380",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: systematic review of psilocybin/psilocin extraction and quantification methods; methods/production context, not current KG evidence extraction."
+    }
+  ]
+}

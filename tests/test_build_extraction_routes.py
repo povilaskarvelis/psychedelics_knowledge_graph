@@ -127,6 +127,64 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual({row["route_confidence"] for row in rows}, {"low"})
         self.assertIn("no model-assigned domain table supplied", rows[0]["route_basis"])
 
+    def test_valid_local_pdf_gets_local_pdf_route_before_pdf_url_route(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            paper_root = root / "papers"
+            pdf_path = paper_root / "disorder" / "excluded" / "10.1000_local_pdf__abc123.pdf"
+            pdf_path.parent.mkdir(parents=True)
+            pdf_path.write_bytes(b"%PDF-1.7\nvalid enough for the route audit")
+            metadata_df = pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/local-pdf",
+                        "study_title": "Psilocybin trial with a local PDF",
+                        "abstract": "A clinical trial abstract.",
+                        "publication_type": "Journal Article",
+                        "best_pdf_url": "https://example.org/paper.pdf",
+                    }
+                ]
+            )
+            prescreen_df = pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/local-pdf",
+                        "dataset": "clinical",
+                        "prescreen_decision": "retain",
+                        "retained_for_extraction_candidate": True,
+                        "prescreen_action": "retain_for_extraction_candidate",
+                        "routing_tags": "clinical_outcome",
+                    }
+                ]
+            )
+            literature_df = pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/local-pdf",
+                        "retained_for_extraction_candidate": True,
+                        "source_family": "primary_or_unclear",
+                        "literature_type_confidence": "medium",
+                    }
+                ]
+            )
+
+            rows = build_route_rows(
+                metadata_df,
+                prescreen_df,
+                literature_df,
+                fulltext_dir=root / "missing-fulltext",
+                paper_root=paper_root,
+                generated_at_utc="2026-05-28T00:00:00+00:00",
+            )
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["access_tier"], "local_pdf_available")
+        self.assertEqual(rows[0]["route_action"], "convert_local_pdf_then_extract")
+        self.assertTrue(rows[0]["has_local_pdf"])
+        self.assertIn("10.1000_local_pdf__abc123.pdf", rows[0]["local_pdf_paths"])
+        self.assertTrue(rows[0]["has_pdf_url"])
+        self.assertFalse(rows[0]["has_converted_full_text"])
+
     def test_primary_gap_domain_tags_do_not_create_specific_routes_without_domain_table(self) -> None:
         metadata_df = pd.DataFrame(
             [
@@ -437,6 +495,148 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(rows[0]["prompt_profile"], "context_only_or_skip")
         self.assertEqual(rows[0]["schema_profile"], "context_only_schema")
         self.assertEqual(rows[0]["route_action"], "skip_or_context_only")
+        self.assertFalse(rows[0]["retained_for_extraction_candidate"])
+
+    def test_manual_context_only_override_collapses_to_non_extraction_route(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/bibliometric",
+                    "study_title": "Bibliometric analysis of psychedelic clinical studies",
+                    "abstract": "This article maps the literature.",
+                    "publication_type": "Journal Article",
+                    "best_pdf_url": "",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/bibliometric",
+                    "dataset": "clinical",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/bibliometric",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+        domain_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/bibliometric",
+                    "domain_route": "general_topic",
+                    "all_domain_tags": "clinical_outcome",
+                    "primary_domain": "general_topic",
+                    "screening_decision": "include_in_scope",
+                    "screening_reason": "General topic.",
+                    "model": "gemini-3-flash-preview",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            domain_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-30T00:00:00+00:00",
+            manual_overrides={
+                "10.1000/bibliometric": {
+                    "manual_action": "context_only",
+                    "manual_reason": "Manual review: field-mapping paper.",
+                }
+            },
+        )
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["domain_route"], "context_only")
+        self.assertEqual(rows[0]["prompt_profile"], "context_only_or_skip")
+        self.assertEqual(rows[0]["route_action"], "skip_or_context_only")
+        self.assertEqual(rows[0]["domain_screening_decision"], "manual_context_only")
+        self.assertFalse(rows[0]["retained_for_extraction_candidate"])
+
+    def test_manual_domain_override_replaces_general_topic_route(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/ibogaine-review",
+                    "study_title": "Ibogaine: a comprehensive literature review",
+                    "abstract": "This review covers anti-addiction evidence.",
+                    "publication_type": "Review",
+                    "best_pdf_url": "",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/ibogaine-review",
+                    "dataset": "clinical",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/ibogaine-review",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "secondary_literature",
+                    "primary_secondary_source_type": "literature_review",
+                    "secondary_source_types": "literature_review|review",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+        domain_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/ibogaine-review",
+                    "domain_route": "general_topic",
+                    "all_domain_tags": "clinical_outcome",
+                    "primary_domain": "general_topic",
+                    "screening_decision": "include_in_scope",
+                    "screening_reason": "General topic.",
+                    "model": "gemini-3-flash-preview",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            domain_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-30T00:00:00+00:00",
+            manual_overrides={
+                "10.1000/ibogaine-review": {
+                    "manual_action": "route_domains",
+                    "manual_domain_routes": "clinical_outcome|safety_tolerability",
+                    "manual_reason": "Manual review: ibogaine clinical review.",
+                }
+            },
+        )
+
+        self.assertEqual({row["domain_route"] for row in rows}, {"clinical_outcome", "safety_tolerability"})
+        self.assertEqual({row["prompt_profile"] for row in rows}, {"secondary_narrative_review"})
+        self.assertEqual({row["domain_screening_decision"] for row in rows}, {"manual_include_in_scope"})
+        self.assertTrue(all(row["retained_for_extraction_candidate"] for row in rows))
 
     def test_prescreen_context_ignores_excluded_rows(self) -> None:
         df = pd.DataFrame(

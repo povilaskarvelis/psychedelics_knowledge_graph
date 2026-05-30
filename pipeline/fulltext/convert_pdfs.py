@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import re
 import shutil
@@ -75,6 +76,13 @@ def doi_to_slug(raw: object) -> str:
     return slug or "unknown_doi"
 
 
+def pdf_filename_prefix_for_doi(raw: object) -> str:
+    doi = normalize_doi(raw)
+    slug = re.sub(r"[^a-z0-9._-]+", "_", doi.lower())
+    slug = re.sub(r"_+", "_", slug).strip("._")
+    return (slug or "paper")[:90]
+
+
 def load_json_array(path: Path) -> List[dict]:
     if not path.exists():
         return []
@@ -102,11 +110,32 @@ def load_json_object(path: Path) -> dict:
 def resolve_pdf_path(row: dict) -> Path | None:
     raw_path = normalize(row.get("pdf_local_path", ""))
     if not raw_path:
-        return None
-    path = Path(raw_path).expanduser()
-    if not path.is_absolute():
+        raw_path = ""
+    path = Path(raw_path).expanduser() if raw_path else None
+    if path is not None and not path.is_absolute():
         path = ROOT / path
-    return path if path.exists() and path.is_file() else None
+    if path is not None and path.exists() and path.is_file():
+        return path
+
+    paper_root = ROOT / "data" / "raw" / "papers"
+    if path is not None and path.name:
+        for candidate in sorted(paper_root.glob(f"**/{path.name}")):
+            if candidate.exists() and candidate.is_file():
+                return candidate
+
+    doi = normalize_doi(row.get("study_doi", ""))
+    if not doi:
+        return None
+    expected_prefix = pdf_filename_prefix_for_doi(doi)
+    digest = hashlib.sha1(doi.encode("utf-8")).hexdigest()[:10]
+    expected_name = f"{expected_prefix}__{digest}.pdf"
+    for candidate in sorted(paper_root.glob(f"**/{expected_name}")):
+        if candidate.exists() and candidate.is_file():
+            return candidate
+    for candidate in sorted(paper_root.glob(f"**/{expected_prefix}__*.pdf")):
+        if candidate.exists() and candidate.is_file():
+            return candidate
+    return None
 
 
 def read_doi_file(path: Path) -> set[str]:

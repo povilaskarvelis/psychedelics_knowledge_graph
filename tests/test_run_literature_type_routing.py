@@ -67,6 +67,42 @@ class LiteratureTypeRoutingTest(unittest.TestCase):
         self.assertEqual(classification["source_family"], "secondary_literature")
         self.assertNotIn("review_protocol", classification["non_primary_flags"])
 
+    def test_response_as_outcome_does_not_route_as_non_primary(self) -> None:
+        row = {
+            "study_title": "Proteomic patterns associated with ketamine response in major depressive disorder",
+            "abstract": "This study tested biomarkers associated with ketamine treatment response.",
+            "publication_type": "Journal Article",
+        }
+
+        classification = classify_literature_type(row)
+
+        self.assertEqual(classification["source_family"], "primary_or_unclear")
+        self.assertNotIn("non_primary_title", classification["non_primary_flags"])
+
+    def test_response_to_measurement_target_does_not_route_as_non_primary(self) -> None:
+        row = {
+            "study_title": "Amygdala response to emotional faces following acute administration of psilocybin",
+            "abstract": "This study measured amygdala responses to emotional faces.",
+            "publication_type": "Journal Article",
+        }
+
+        classification = classify_literature_type(row)
+
+        self.assertEqual(classification["source_family"], "primary_or_unclear")
+        self.assertNotIn("non_primary_title", classification["non_primary_flags"])
+
+    def test_actual_response_to_article_routes_as_non_primary(self) -> None:
+        row = {
+            "study_title": "Response to: Ketamine for treatment-resistant depression",
+            "abstract": "Letter response.",
+            "publication_type": "Journal Article",
+        }
+
+        classification = classify_literature_type(row)
+
+        self.assertEqual(classification["source_family"], "non_primary_publication")
+        self.assertIn("non_primary_title", classification["non_primary_flags"])
+
     def test_build_rows_can_route_only_retained_candidates(self) -> None:
         metadata = pd.DataFrame(
             [

@@ -358,7 +358,7 @@ def print_final_summary(datasets: List[str]) -> None:
         print(f"  New DOI queue: data/raw/doi_queue.{dataset}.new.txt")
         print(f"  Triage queue: data/raw/doi_queue.{dataset}.triage_relevant.txt")
         print(f"  Ledger: data/processed/discovery_ledger_{dataset}.json")
-        print(f"  PDFs: data/raw/papers/{dataset}/pdfs/")
+        print("  PDFs: data/raw/papers/pdfs/")
         print(f"  Inventory: data/processed/paper_inventory_{dataset}.md")
     print("")
 
@@ -820,7 +820,7 @@ def main() -> int:
                     "download-pdfs=no (metadata pass before triage)",
                     f"replace-library={'yes' if args.replace_library else 'no'}",
                     f"outputs: data/processed/paper_inventory_{dataset}.json, data/processed/paper_inventory_{dataset}.md",
-                    f"pdf-dir: data/raw/papers/{dataset}/pdfs/",
+                    "pdf-dir: data/raw/papers/pdfs/",
                 ],
             )
             sync_cmd = [

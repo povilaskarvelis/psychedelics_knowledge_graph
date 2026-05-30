@@ -1,7 +1,8 @@
 # Review
 
-This stage screens synced literature candidates before PDF retrieval. It also
-contains older stub-curation helpers for maintaining the first-generation graph.
+This stage runs table-native pre-screening and paper routing after metadata
+enrichment. It also contains older abstract-screening and stub-curation helpers
+for maintaining or auditing the first-generation graph.
 
 ## Table-native deterministic pre-screen
 
@@ -62,9 +63,10 @@ routes.
 `pipeline/review/run_domain_routing.py` is retained only as a disposable
 baseline for audits while the Gemini domain-routing table is built.
 
-## Local LLM abstract screening
-Use this as the semantic screening layer after metadata sync and before PDF
-download. The current strategy is a high-recall cascade:
+## Older Local LLM abstract screening
+
+This path is retained for audit and comparison. It is not the current
+extraction gate. The older strategy was a high-recall cascade:
 
 1. A deterministic pre-screen skips only obvious no-signal rows.
 2. All retained rows go to the main local Ollama model (`qwen3:14b`) for

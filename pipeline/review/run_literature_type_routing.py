@@ -60,9 +60,16 @@ REVIEW_PROTOCOL_PATTERN = re.compile(
     r"meta[- ]analysis protocol|protocol for a systematic review|registered report for)\b",
     re.I,
 )
-NON_PRIMARY_PUBLICATION_PATTERN = re.compile(
+NON_PRIMARY_PUBLICATION_TYPE_PATTERN = re.compile(
     r"\b(editorial|letter|comment|commentary|reply|response|erratum|correction|corrigendum|"
     r"retraction|publisher'?s note|expression of concern|news)\b",
+    re.I,
+)
+NON_PRIMARY_TITLE_PATTERN = re.compile(
+    r"\b(editorial|letter|commentary|erratum|correction|corrigendum|retraction|"
+    r"publisher'?s note|expression of concern|news)\b|"
+    r"^\s*(comment on|reply to|response to|in response to)\b|"
+    r"\b(author reply|authors'? reply)\b",
     re.I,
 )
 
@@ -176,9 +183,9 @@ def non_primary_flags(publication_type: object, title: object) -> list[str]:
         r"\b(systematic review|meta[- ]analysis|scoping review)\b", title_text, re.I
     ):
         flags.append("review_protocol")
-    if NON_PRIMARY_PUBLICATION_PATTERN.search(publication_text):
+    if NON_PRIMARY_PUBLICATION_TYPE_PATTERN.search(publication_text):
         flags.append("non_primary_publication_type")
-    if NON_PRIMARY_PUBLICATION_PATTERN.search(title_text):
+    if NON_PRIMARY_TITLE_PATTERN.search(title_text):
         flags.append("non_primary_title")
     return sorted(set(flags))
 
