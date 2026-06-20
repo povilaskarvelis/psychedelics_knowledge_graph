@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 import sys
 from typing import Any
+from urllib.parse import urlparse
 
 import pandas as pd
 
@@ -17,6 +18,7 @@ if str(ROOT) not in sys.path:
 from pipeline.ingest.enrich_paper_metadata import DEFAULT_OUTPUT_TABLE, clean
 from pipeline.ingest.sync_paper_library import (
     RateLimitedHttpClient,
+    extract_pmcid_from_url,
     join_candidates,
     load_config,
     lookup_openalex_work,
@@ -67,6 +69,20 @@ def parse_provider_order(raw: str) -> list[str]:
     return providers or ["unpaywall", "openalex", "pmc"]
 
 
+def parse_csv_values(raw: str) -> set[str]:
+    return {clean(part).lower() for part in raw.split(",") if clean(part)}
+
+
+def pdf_url_hosts_for_row(row: pd.Series) -> set[str]:
+    hosts: set[str] = set()
+    for field in ("best_pdf_url", "pdf_url_candidates"):
+        for url in split_candidates(row.get(field, "")):
+            host = urlparse(url).netloc.lower()
+            if host:
+                hosts.add(host)
+    return hosts
+
+
 def selected_dois_from_routing(routing_table: Path, *, only_retained_secondary: bool) -> set[str]:
     if not only_retained_secondary:
         return set()
@@ -89,6 +105,7 @@ def candidate_rows(
     routing_table: str,
     only_retained_secondary: bool,
     only_missing_pdf_url: bool,
+    only_pdf_url_hosts: set[str] | None,
     limit: int,
 ) -> pd.DataFrame:
     out = df.copy()
@@ -102,6 +119,8 @@ def candidate_rows(
         out = out[doi_values.isin(scoped_dois)].copy()
     if only_missing_pdf_url:
         out = out[out["best_pdf_url"].fillna("").astype(str).str.strip().eq("")].copy()
+    if only_pdf_url_hosts:
+        out = out[out.apply(lambda row: bool(pdf_url_hosts_for_row(row).intersection(only_pdf_url_hosts)), axis=1)].copy()
     if limit > 0:
         out = out.head(limit).copy()
     return out
@@ -117,6 +136,18 @@ def paper_payload(row: pd.Series) -> dict[str, Any]:
         "publication_type": clean(row.get("publication_type", "")),
         "trial_registry_ids": clean(row.get("trial_registry_ids", "")),
     }
+
+
+def pmcid_hint_from_row(row: pd.Series) -> str:
+    value = clean(row.get("pmcid", ""))
+    if value:
+        return value
+    for field in ("best_pdf_url", "pdf_url_candidates", "open_access_url"):
+        for item in split_candidates(row.get(field, "")):
+            pmcid = extract_pmcid_from_url(item)
+            if pmcid:
+                return pmcid
+    return ""
 
 
 def apply_open_access_fields(row: pd.Series, metadata: dict[str, Any], *, authoritative_status: bool) -> tuple[dict[str, str], bool]:
@@ -192,6 +223,7 @@ def refresh_row(
     provider_order: list[str],
     clients: dict[str, RateLimitedHttpClient],
     settings: dict[str, str],
+    expand_existing_pdf_candidates: bool,
 ) -> tuple[dict[str, str], list[str], list[str]]:
     doi = normalize_doi(clean(row.get("doi", "")))
     updates: dict[str, str] = {}
@@ -200,7 +232,7 @@ def refresh_row(
     working_row = row.copy()
 
     for provider in provider_order:
-        if clean(working_row.get("best_pdf_url", "")):
+        if clean(working_row.get("best_pdf_url", "")) and not expand_existing_pdf_candidates:
             break
         metadata: dict[str, Any] = {}
         try:
@@ -223,7 +255,7 @@ def refresh_row(
                 )
                 metadata = metadata_from_openalex_work(work, paper_payload(working_row)) if work else {}
             elif provider == "pmc":
-                pmcid = clean(working_row.get("pmcid", ""))
+                pmcid = pmcid_hint_from_row(working_row)
                 metadata = lookup_pmc_oa_links(clients["pmc"], pmcid=pmcid) if pmcid else {}
         except Exception as err:  # keep going to fallback providers
             errors.append(f"{provider}: {type(err).__name__}: {err}")
@@ -248,6 +280,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--routing-table", default=str(DEFAULT_ROUTING_TABLE))
     parser.add_argument("--only-retained-secondary", action="store_true")
     parser.add_argument("--only-missing-pdf-url", action="store_true")
+    parser.add_argument(
+        "--only-pdf-url-hosts",
+        default="",
+        help="Optional comma-separated URL hosts to target, such as europepmc.org,pmc.ncbi.nlm.nih.gov.",
+    )
+    parser.add_argument(
+        "--expand-existing-pdf-candidates",
+        action="store_true",
+        help="Query providers even when a PDF URL already exists, merging any alternative candidates found.",
+    )
     parser.add_argument("--doi-file", default="")
     parser.add_argument("--provider-order", default="unpaywall,openalex,pmc")
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
@@ -279,6 +321,7 @@ def main() -> int:
         routing_table=args.routing_table,
         only_retained_secondary=bool(args.only_retained_secondary),
         only_missing_pdf_url=bool(args.only_missing_pdf_url),
+        only_pdf_url_hosts=parse_csv_values(args.only_pdf_url_hosts),
         limit=max(0, args.limit),
     )
     clients, settings = load_settings(args)
@@ -290,16 +333,21 @@ def main() -> int:
     )
     updated_rows = 0
     new_pdf_urls = 0
+    changed_best_pdf_urls = 0
+    expanded_candidate_rows = 0
     provider_counts = {provider: 0 for provider in provider_order}
     error_count = 0
 
     for position, (index, row) in enumerate(selected.iterrows(), start=1):
         had_pdf = bool(clean(row.get("best_pdf_url", "")))
+        old_best_pdf = clean(row.get("best_pdf_url", ""))
+        old_candidates = set(split_candidates(row.get("pdf_url_candidates", "")))
         updates, providers_queried, errors = refresh_row(
             row,
             provider_order=provider_order,
             clients=clients,
             settings=settings,
+            expand_existing_pdf_candidates=bool(args.expand_existing_pdf_candidates),
         )
         for provider in providers_queried:
             provider_counts[provider] = provider_counts.get(provider, 0) + 1
@@ -310,12 +358,18 @@ def main() -> int:
                 df.at[index, field] = value
             if not had_pdf and clean(updates.get("best_pdf_url", "")):
                 new_pdf_urls += 1
+            if clean(updates.get("best_pdf_url", "")) and clean(updates.get("best_pdf_url", "")) != old_best_pdf:
+                changed_best_pdf_urls += 1
+            new_candidates = set(split_candidates(updates.get("pdf_url_candidates", "")))
+            if new_candidates and not new_candidates.issubset(old_candidates):
+                expanded_candidate_rows += 1
         if not args.dry_run and args.write_every > 0 and position % args.write_every == 0:
             df.to_parquet(output_table, engine="pyarrow", index=False)
         if args.progress_every > 0 and (position % args.progress_every == 0 or position == len(selected)):
             print(
                 "PROGRESS: open-access/PDF URL refresh "
-                f"{position:,}/{len(selected):,} updated={updated_rows:,} new_pdf_urls={new_pdf_urls:,} errors={error_count:,}",
+                f"{position:,}/{len(selected):,} updated={updated_rows:,} new_pdf_urls={new_pdf_urls:,} "
+                f"changed_best_pdf_urls={changed_best_pdf_urls:,} expanded_candidates={expanded_candidate_rows:,} errors={error_count:,}",
                 flush=True,
             )
 
@@ -326,6 +380,8 @@ def main() -> int:
     print(f"Rows considered: {len(selected):,}")
     print(f"Rows updated: {updated_rows:,}")
     print(f"New best PDF URLs: {new_pdf_urls:,}")
+    print(f"Changed best PDF URLs: {changed_best_pdf_urls:,}")
+    print(f"Rows with expanded PDF candidates: {expanded_candidate_rows:,}")
     print(f"Provider queries: {provider_counts}")
     print(f"Provider errors: {error_count:,}")
     print(f"Dry run: {bool(args.dry_run)}")

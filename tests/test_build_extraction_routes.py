@@ -6,18 +6,44 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.extract.build_extraction_routes import (
+    build_candidate_status_updates,
     build_route_rows,
     doi_to_slug,
+    fulltext_status_for_doi,
     prescreen_context_by_doi,
 )
 
 
 class BuildExtractionRoutesTests(unittest.TestCase):
+    def test_fulltext_status_ignores_legacy_split_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fulltext_dir = Path(tmp) / "fulltext"
+            doi = "10.1000/canonical"
+            slug = doi_to_slug(doi)
+            legacy = fulltext_dir / "mechanistic" / f"{slug}.json"
+            canonical = fulltext_dir / "articles" / f"{slug}.json"
+            legacy.parent.mkdir(parents=True)
+            canonical.parent.mkdir(parents=True)
+            legacy.write_text(json.dumps({"best_char_count": 1000}), encoding="utf-8")
+
+            status = fulltext_status_for_doi(doi, fulltext_dir)
+
+            self.assertFalse(status["has_converted_full_text"])
+            self.assertEqual(status["fulltext_artifact_paths"], "")
+            self.assertEqual(status["fulltext_char_count"], 0)
+
+            canonical.write_text(json.dumps({"best_char_count": 2000}), encoding="utf-8")
+            status = fulltext_status_for_doi(doi, fulltext_dir)
+
+        self.assertTrue(status["has_converted_full_text"])
+        self.assertEqual(status["fulltext_artifact_paths"], str(canonical))
+        self.assertEqual(status["fulltext_char_count"], 2000)
+
     def test_primary_paper_uses_general_route_without_domain_table(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fulltext_dir = Path(tmp) / "fulltext"
             doi = "10.1000/primary"
-            artifact = fulltext_dir / "mechanistic" / f"{doi_to_slug(doi)}.json"
+            artifact = fulltext_dir / "articles" / f"{doi_to_slug(doi)}.json"
             artifact.parent.mkdir(parents=True)
             artifact.write_text(json.dumps({"best_char_count": 1200}), encoding="utf-8")
 
@@ -73,6 +99,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertTrue(all(row["has_converted_full_text"] for row in rows))
         self.assertTrue(all(row["bridge_clinical_mechanism"] for row in rows))
         self.assertTrue(all(row["route_action"] == "extract_from_full_text" for row in rows))
+        self.assertTrue(all("datasets" not in row for row in rows))
 
     def test_secondary_meta_analysis_uses_general_review_profile_without_domain_table(self) -> None:
         metadata_df = pd.DataFrame(
@@ -126,6 +153,263 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual({row["access_tier"] for row in rows}, {"abstract_only"})
         self.assertEqual({row["route_confidence"] for row in rows}, {"low"})
         self.assertIn("no model-assigned domain table supplied", rows[0]["route_basis"])
+
+    def test_manual_fulltext_access_override_suppresses_pdf_download_route(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/not-oa",
+                    "study_title": "Closed article with misleading PDF URL",
+                    "study_year": "2024",
+                    "abstract": "This retained article has enough abstract text for fallback extraction.",
+                    "publication_type": "Journal Article",
+                    "best_pdf_url": "https://example.org/article.pdf",
+                    "pdf_url_candidates": "https://example.org/article.pdf",
+                    "open_access_status": "green",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/not-oa",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/not-oa",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-06-20T00:00:00+00:00",
+            manual_fulltext_access_overrides={
+                "10.1000/not-oa": {
+                    "manual_access_action": "suppress_pdf_download",
+                    "open_access_status": "closed",
+                    "open_access_is_oa": False,
+                    "manual_reason": "Manual review: no open PDF access.",
+                }
+            },
+        )
+
+        self.assertEqual({row["access_tier"] for row in rows}, {"abstract_only"})
+        self.assertEqual({row["route_action"] for row in rows}, {"extract_from_abstract_only"})
+        self.assertEqual({row["open_access_status"] for row in rows}, {"closed"})
+        self.assertEqual({row["best_pdf_url"] for row in rows}, {""})
+        self.assertEqual({row["manual_fulltext_access_action"] for row in rows}, {"suppress_pdf_download"})
+
+    def test_preprint_records_are_held_out_of_extraction_routes_by_default(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1101/2025.04.16.649217",
+                    "study_title": "Speech markers of psychedelic-induced psychological change",
+                    "study_year": "2025",
+                    "abstract": "A preprint abstract.",
+                    "publication_type": "posted-content",
+                    "study_journal": "bioRxiv",
+                    "publisher": "openRxiv",
+                    "best_pdf_url": "https://www.biorxiv.org/content/10.1101/2025.04.16.649217.full.pdf",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1101/2025.04.16.649217",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1101/2025.04.16.649217",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+        preprint_holds = []
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-28T00:00:00+00:00",
+            preprint_holds=preprint_holds,
+        )
+
+        self.assertEqual(rows, [])
+        self.assertEqual(len(preprint_holds), 1)
+        self.assertEqual(preprint_holds[0]["doi"], "10.1101/2025.04.16.649217")
+        self.assertEqual(preprint_holds[0]["published_version_lookup_status"], "needs_lookup")
+        self.assertIn("doi:bioRxiv/medRxiv", preprint_holds[0]["preprint_detection_basis"])
+
+    def test_candidate_status_updates_summarize_routes_and_preprint_holds(self) -> None:
+        generated_at = "2026-05-28T00:00:00+00:00"
+        candidate_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/article",
+                    "publication_type": "Journal Article",
+                    "study_title": "Published trial",
+                    "abstract": "A trial abstract.",
+                },
+                {
+                    "doi": "10.1101/2025.04.16.649217",
+                    "publication_type": "posted-content",
+                    "study_journal": "bioRxiv",
+                    "study_title": "Preprint",
+                    "abstract": "A preprint abstract.",
+                },
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/article",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                },
+                {
+                    "doi": "10.1101/2025.04.16.649217",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                },
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/article",
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "high",
+                }
+            ]
+        )
+        route_rows = [
+            {
+                "doi": "10.1000/article",
+                "retained_for_extraction_candidate": True,
+                "route_action": "extract_from_full_text",
+                "access_tier": "full_text_available",
+                "domain_route": "clinical_outcome",
+                "domain_screening_decision": "include_in_scope",
+                "prompt_profile": "primary_clinical",
+                "schema_profile": "primary_evidence_schema",
+                "has_converted_full_text": True,
+                "fulltext_artifact_paths": "/tmp/article.json",
+                "fulltext_char_count": 1234,
+            }
+        ]
+        preprint_holds = [
+            {
+                "doi": "10.1101/2025.04.16.649217",
+                "published_version_lookup_status": "needs_lookup",
+                "published_version_doi": "",
+            }
+        ]
+
+        updates = build_candidate_status_updates(
+            candidate_df=candidate_df,
+            prescreen_df=prescreen_df,
+            literature_df=literature_df,
+            route_rows=route_rows,
+            preprint_holds=preprint_holds,
+            generated_at_utc=generated_at,
+        )
+        by_doi = {row["doi"]: row for row in updates.to_dict("records")}
+
+        article = by_doi["10.1000/article"]
+        self.assertEqual(article["publication_stage"], "published")
+        self.assertTrue(article["retained_for_extraction_candidate"])
+        self.assertEqual(article["extraction_route_status"], "ready_for_article_text_extraction")
+        self.assertEqual(article["extraction_domain_routes"], "clinical_outcome")
+        self.assertEqual(article["best_extraction_access_tier"], "full_text_available")
+        self.assertTrue(article["has_converted_full_text"])
+
+        preprint = by_doi["10.1101/2025.04.16.649217"]
+        self.assertEqual(preprint["publication_stage"], "preprint")
+        self.assertFalse(preprint["retained_for_extraction_candidate"])
+        self.assertTrue(preprint["prescreen_retained_for_extraction_candidate"])
+        self.assertEqual(preprint["published_version_lookup_status"], "needs_lookup")
+        self.assertEqual(preprint["extraction_route_status"], "preprint_hold")
+
+    def test_published_article_with_preprint_pdf_url_is_not_held_out(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1021/acschemneuro.2c00123",
+                    "study_title": "Acute behavioral and neurochemical effects in adult zebrafish",
+                    "study_year": "2022",
+                    "abstract": "A journal article abstract.",
+                    "publication_type": "Journal Article | Research Support, Non-U.S. Gov't",
+                    "study_journal": "ACS Chemical Neuroscience",
+                    "publisher": "American Chemical Society (ACS)",
+                    "best_pdf_url": "https://www.biorxiv.org/content/10.1101/2022.01.19.476767.full.pdf",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1021/acschemneuro.2c00123",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "molecular_target",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1021/acschemneuro.2c00123",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+        preprint_holds = []
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-28T00:00:00+00:00",
+            preprint_holds=preprint_holds,
+        )
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(preprint_holds, [])
+        self.assertEqual(rows[0]["route_action"], "download_pdf_then_extract")
 
     def test_valid_local_pdf_gets_local_pdf_route_before_pdf_url_route(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -183,7 +467,110 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertTrue(rows[0]["has_local_pdf"])
         self.assertIn("10.1000_local_pdf__abc123.pdf", rows[0]["local_pdf_paths"])
         self.assertTrue(rows[0]["has_pdf_url"])
+        self.assertTrue(rows[0]["has_probable_pdf_url"])
+        self.assertEqual(rows[0]["pdf_url_quality"], "probable_pdf")
         self.assertFalse(rows[0]["has_converted_full_text"])
+
+    def test_probable_pdf_url_routes_to_download(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/probable-pdf",
+                    "study_title": "Psilocybin study with probable PDF URL",
+                    "abstract": "A study abstract.",
+                    "publication_type": "Journal Article",
+                    "best_pdf_url": "https://publisher.example/content/pdf/10.1000/probable.pdf",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/probable-pdf",
+                    "dataset": "clinical",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/probable-pdf",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-28T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["access_tier"], "pdf_download_url_available")
+        self.assertEqual(rows[0]["route_action"], "download_pdf_then_extract")
+        self.assertTrue(rows[0]["has_pdf_url"])
+        self.assertTrue(rows[0]["has_probable_pdf_url"])
+        self.assertEqual(rows[0]["pdf_url_quality"], "probable_pdf")
+        self.assertIn("content/pdf", rows[0]["probable_pdf_url_candidates"])
+
+    def test_weak_pdf_url_stays_visible_but_does_not_route_to_automated_download(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/landing-url",
+                    "study_title": "Psilocybin study with landing page URL",
+                    "abstract": "A study abstract.",
+                    "publication_type": "Journal Article",
+                    "best_pdf_url": "https://doi.org/10.1000/landing-url",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/landing-url",
+                    "dataset": "clinical",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/landing-url",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-28T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["access_tier"], "abstract_only")
+        self.assertEqual(rows[0]["route_action"], "extract_from_abstract_only")
+        self.assertTrue(rows[0]["has_pdf_url"])
+        self.assertFalse(rows[0]["has_probable_pdf_url"])
+        self.assertEqual(rows[0]["pdf_url_quality"], "possible_landing_page")
+        self.assertEqual(rows[0]["probable_pdf_url_candidates"], "")
+        self.assertEqual(rows[0]["other_url_candidates"], "https://doi.org/10.1000/landing-url")
 
     def test_primary_gap_domain_tags_do_not_create_specific_routes_without_domain_table(self) -> None:
         metadata_df = pd.DataFrame(
@@ -638,7 +1025,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual({row["domain_screening_decision"] for row in rows}, {"manual_include_in_scope"})
         self.assertTrue(all(row["retained_for_extraction_candidate"] for row in rows))
 
-    def test_prescreen_context_ignores_excluded_rows(self) -> None:
+    def test_prescreen_context_ignores_excluded_rows_and_source_dataset_labels(self) -> None:
         df = pd.DataFrame(
             [
                 {
@@ -660,8 +1047,8 @@ class BuildExtractionRoutesTests(unittest.TestCase):
 
         context = prescreen_context_by_doi(df)
 
-        self.assertEqual(context["10.1000/a"]["datasets"], ["mechanistic"])
         self.assertEqual(context["10.1000/a"]["routing_tags"], ["molecular_target"])
+        self.assertNotIn("datasets", context["10.1000/a"])
 
 
 if __name__ == "__main__":

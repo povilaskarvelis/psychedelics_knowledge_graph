@@ -65,6 +65,10 @@ NON_PRIMARY_PUBLICATION_TYPE_PATTERN = re.compile(
     r"retraction|publisher'?s note|expression of concern|news)\b",
     re.I,
 )
+NON_PAPER_CONTAINER_PUBLICATION_TYPE_PATTERN = re.compile(
+    r"\b(book|book chapter|chapter)\b",
+    re.I,
+)
 NON_PRIMARY_TITLE_PATTERN = re.compile(
     r"\b(editorial|letter|commentary|erratum|correction|corrigendum|retraction|"
     r"publisher'?s note|expression of concern|news)\b|"
@@ -185,6 +189,8 @@ def non_primary_flags(publication_type: object, title: object) -> list[str]:
         flags.append("review_protocol")
     if NON_PRIMARY_PUBLICATION_TYPE_PATTERN.search(publication_text):
         flags.append("non_primary_publication_type")
+    if NON_PAPER_CONTAINER_PUBLICATION_TYPE_PATTERN.search(publication_text):
+        flags.append("non_paper_container_publication_type")
     if NON_PRIMARY_TITLE_PATTERN.search(title_text):
         flags.append("non_primary_title")
     return sorted(set(flags))
@@ -196,8 +202,13 @@ def classify_literature_type(row: dict) -> dict:
     secondary_types = normalize_secondary_types([*metadata_types, *text_types])
     flags = non_primary_flags(row.get("publication_type", ""), row.get("study_title", ""))
     is_review_protocol = "review_protocol" in flags
+    is_non_paper_container = "non_paper_container_publication_type" in flags
 
-    if secondary_types and not is_review_protocol:
+    if is_non_paper_container:
+        source_family = "non_primary_publication"
+        route = "non_primary_context_or_skip"
+        confidence = "high"
+    elif secondary_types and not is_review_protocol:
         source_family = "secondary_literature"
         route = "secondary_literature_extraction"
         if metadata_types and title_terms:

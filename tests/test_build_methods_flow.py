@@ -13,6 +13,7 @@ from pipeline.kg.build_methods_flow import (
     paper_id_for,
     pipeline_row_with_paper_artifacts,
     pdf_status,
+    prisma_flow_for_candidate_papers,
     prisma_flow_for_dataset,
     prisma_retrieval_reason,
     slug,
@@ -210,6 +211,52 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
             for reason in flow["side_boxes"]["fulltext_excluded_after_extraction"]["reasons"]
         }
         self.assertEqual(fulltext_excluded_reasons["gemini_excluded"], 1)
+
+    def test_candidate_prisma_flow_uses_single_extraction_selection(self) -> None:
+        flow = prisma_flow_for_candidate_papers(
+            [
+                {
+                    "prescreen_actions": "retain_for_extraction_candidate",
+                    "prescreen_retained_for_extraction_candidate": True,
+                    "retained_for_extraction_candidate": True,
+                    "extraction_route_status": "ready_for_article_text_extraction",
+                    "retained_extraction_route_count": 3,
+                },
+                {
+                    "prescreen_actions": "retain_for_extraction_candidate",
+                    "prescreen_retained_for_extraction_candidate": True,
+                    "retained_for_extraction_candidate": True,
+                    "extraction_route_status": "ready_for_abstract_extraction",
+                    "retained_extraction_route_count": 1,
+                },
+                {
+                    "prescreen_actions": "retain_for_extraction_candidate",
+                    "prescreen_retained_for_extraction_candidate": True,
+                    "retained_for_extraction_candidate": False,
+                    "extraction_route_status": "excluded_after_domain_screen",
+                },
+                {
+                    "prescreen_actions": "exclude_missing_abstract",
+                    "prescreen_retained_for_extraction_candidate": False,
+                    "retained_for_extraction_candidate": False,
+                    "extraction_route_status": "not_retained_for_extraction",
+                },
+            ],
+        )
+
+        self.assertEqual(flow["dataset"], "overall")
+        self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
+        self.assertEqual(flow["steps"]["prescreen_retained"]["count"], 3)
+        self.assertEqual(flow["steps"]["extraction_selected"]["count"], 2)
+        self.assertEqual(flow["side_boxes"]["records_excluded"]["reasons"][0]["key"], "exclude_missing_abstract")
+        self.assertEqual(flow["side_boxes"]["route_not_selected"]["count"], 1)
+        self.assertEqual(flow["metrics"]["selected_extraction_route_assignments"], 4)
+        input_reasons = {
+            reason["key"]: reason["count"]
+            for reason in flow["side_boxes"]["extraction_input_split"]["reasons"]
+        }
+        self.assertEqual(input_reasons["ready_for_article_text_extraction"], 1)
+        self.assertEqual(input_reasons["ready_for_abstract_extraction"], 1)
 
     def test_kg_claim_table_marks_pipeline_rows_as_claim_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

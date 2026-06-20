@@ -1,0 +1,321 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Secondary Review Coverage Extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "extraction_status",
+    "review_assessment",
+    "coverage_items",
+    "evidence_gaps",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["review_coverage_v1"]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "$ref": "#/definitions/domain_route"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "systematic_review",
+        "scoping_review",
+        "umbrella_review",
+        "review",
+        "narrative_review",
+        "literature_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_coverage",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "review_assessment": {
+      "$ref": "#/definitions/review_assessment"
+    },
+    "coverage_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_item"
+      }
+    },
+    "evidence_gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/evidence_gap"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "enum": [
+        "clinical_outcome",
+        "safety_tolerability",
+        "molecular_target",
+        "molecular_pathway_readout",
+        "brain_system",
+        "cognitive_behavioral",
+        "subjective_experience",
+        "pharmacokinetics_exposure",
+        "intervention_context",
+        "real_world_public_health",
+        "general_topic_coverage",
+        "general_topic",
+        "uncertain"
+      ]
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "direction_or_tone": {
+      "type": "string",
+      "enum": [
+        "supports",
+        "mixed",
+        "does_not_support",
+        "insufficient_evidence",
+        "descriptive_only",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "review_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "review_type",
+        "has_extractable_scoped_coverage",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "review_type": {
+          "type": "string"
+        },
+        "has_extractable_scoped_coverage": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "$ref": "#/definitions/domain_route"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "relationship_domain",
+        "coverage_type",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "reviewed_evidence_type",
+        "summary_statement",
+        "direction_or_tone",
+        "study_count",
+        "participant_or_sample_summary",
+        "key_limitations",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "$ref": "#/definitions/domain_route"
+        },
+        "coverage_type": {
+          "type": "string",
+          "enum": [
+            "summarizes",
+            "reviews",
+            "maps_evidence",
+            "discusses",
+            "identifies_gap",
+            "methodological_context",
+            "mentions",
+            "uncertain"
+          ]
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "disorder",
+            "symptom_or_outcome",
+            "safety_event",
+            "target",
+            "pathway_process",
+            "molecular_readout",
+            "brain_region_or_network",
+            "cognitive_behavioral_construct",
+            "subjective_experience_construct",
+            "pharmacokinetic_parameter",
+            "intervention_component",
+            "public_health_measure",
+            "general_topic",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "reviewed_evidence_type": {
+          "type": "string"
+        },
+        "summary_statement": {
+          "type": "string"
+        },
+        "direction_or_tone": {
+          "$ref": "#/definitions/direction_or_tone"
+        },
+        "study_count": {
+          "type": "string"
+        },
+        "participant_or_sample_summary": {
+          "type": "string"
+        },
+        "key_limitations": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    },
+    "evidence_gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gap_type",
+        "gap_text",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "gap_type": {
+          "type": "string"
+        },
+        "gap_text": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

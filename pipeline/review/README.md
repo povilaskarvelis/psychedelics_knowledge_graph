@@ -256,6 +256,7 @@ python -m pip install \
   pdf2image \
   pillow \
   pandas \
+  pyarrow \
   "markitdown[all]" \
   docling
 ```
@@ -266,7 +267,7 @@ for tool in pdftotext pdftoppm tesseract qpdf ocrmypdf gs; do
   command -v "$tool" || echo "missing: $tool"
 done
 
-conda run -n psychkg-pdf python -c "import pypdf, pdfplumber, fitz, pytesseract, pandas; from markitdown import MarkItDown; from docling.document_converter import DocumentConverter; print('PDF stack OK')"
+conda run -n psychkg-pdf python -c "import pypdf, pdfplumber, fitz, pytesseract, pandas, pyarrow; from markitdown import MarkItDown; from docling.document_converter import DocumentConverter; print('PDF stack OK')"
 ```
 
 Runtime controls:

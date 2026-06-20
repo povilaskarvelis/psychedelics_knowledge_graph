@@ -7,7 +7,8 @@ Build a knowledge graph for psychedelic compounds and related agents, focused on
 - strong provenance for every claim
 
 ## Inclusion Criteria
-- Peer-reviewed study or reputable preprint
+- Peer-reviewed study. Preprints are retained for corpus audit and
+  published-version lookup, but are not promoted into default extraction routes.
 - Clear mechanistic or clinical-outcome evidence
 - Reported assay/outcome type and target/disorder
 - Study year and DOI or stable ID

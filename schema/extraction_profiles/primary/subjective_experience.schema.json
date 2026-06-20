@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Primary Subjective Experience Extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "route_id", "study_doi", "domain_route", "paper_type", "text_depth", "extraction_status", "items", "warnings"],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["primary_subjective_experience_v1"]},
+    "task_id": {"type": "string"},
+    "source_type": {"type": "string"},
+    "route_id": {"type": "string"},
+    "study_doi": {"type": "string"},
+    "domain_route": {"type": "string", "const": "subjective_experience"},
+    "paper_type": {"type": "string", "enum": ["primary_study"]},
+    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
+    "extraction_status": {"type": "string", "enum": ["extracted", "no_extractable_scoped_evidence", "wrong_source_type", "not_relevant", "human_review"]},
+    "items": {"type": "array", "items": {"$ref": "#/definitions/item"}},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "definitions": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compound_or_exposure", "population_or_system", "subjective_construct", "instrument_or_measure", "setting_or_context", "dose_or_regimen", "timepoint", "relationship_to_outcome", "statistic_or_value", "finding_summary", "evidence_location", "evidence_quote"],
+      "properties": {
+        "compound_or_exposure": {"type": "string"},
+        "population_or_system": {"type": "string"},
+        "subjective_construct": {"type": "string"},
+        "instrument_or_measure": {"type": "string"},
+        "setting_or_context": {"type": "string"},
+        "dose_or_regimen": {"type": "string"},
+        "timepoint": {"type": "string"},
+        "relationship_to_outcome": {"type": "string"},
+        "statistic_or_value": {"type": "string"},
+        "finding_summary": {"type": "string"},
+        "evidence_location": {"type": "string"},
+        "evidence_quote": {"type": "string"}
+      }
+    }
+  }
+}

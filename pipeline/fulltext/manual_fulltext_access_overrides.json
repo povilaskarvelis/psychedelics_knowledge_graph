@@ -1,0 +1,2298 @@
+{
+  "schema_version": "manual_fulltext_access_overrides_v1",
+  "notes": [
+    "These overrides suppress PDF-download routing for DOI-level full-text access decisions confirmed by manual review.",
+    "Use manual_access_action=suppress_pdf_download when a provider supplies a probable PDF URL but manual inspection confirms it is not openly accessible or not a usable article PDF."
+  ],
+  "records": [
+    {
+      "doi": "10.1001/archpsyc.63.8.856",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1001/jamapsychiatry.2018.3000",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/(sici)1098-2396(199806)29:2<183::aid-syn9>3.0.co;2-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/(sici)1522-2586(199910)10:4<521::aid-jmri4>3.0.co;2-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/adhm.202300154",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/bmc.2981",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/cbdv.200790138",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/cpu30817",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/dta.2245",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/dta.3667",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/gps.5964",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/ibd.21873",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/jac5.1841",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/jbt.23484",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/med.21671",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/mhw.33794",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/mhw.34009",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/mhw.34150",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/mhw.34292",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/nau.25612",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/phar.4612",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/pu.31025",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/pu.31090",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/pu.31300",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/pu.31310",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/pu.31394",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/rmv.70036",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/syn.10012",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/syn.70005",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s00213-007-0792-1",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s00213-012-2811-0",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s002130051125",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s11065-019-09402-x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/0893-133x(94)00127-l",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/0893-133x(94)00131-i",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/0893-133x(95)00088-u",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/0893-133x(95)00137-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/0893-133x(95)00145-4",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/0893-133x(95)00160-f",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/0893-133x(95)00240-e",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.acn.2007.05.005",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.biopsych.2014.11.016",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.biopsych.2015.10.018",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.brs.2022.07.025",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.drugpo.2018.11.011",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.ejphar.2008.06.090",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual review: supplied repository/PDF link is not openly accessible; use abstract-level extraction rather than retrying PDF download."
+    },
+    {
+      "doi": "10.1016/j.ejphar.2022.175454",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.euroneuro.2014.11.020",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jagp.2021.09.014",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jpain.2024.104536",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jpainsymman.2012.12.005",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jpainsymman.2023.06.006",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.neuroscience.2007.12.027",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.neuroscience.2008.04.001",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.pnpbp.2013.02.013",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.tics.2025.07.006",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.xcrm.2026.102791",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0885-3924(00)00213-x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(00)00126-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(00)00136-6",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(00)00185-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(00)00194-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(00)00223-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(00)00240-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(01)00222-6",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(01)00229-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(01)00243-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(01)00282-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(01)00345-1",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(01)00346-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(01)00405-5",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(02)00380-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(96)00240-0",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(96)00246-1",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(97)00026-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(97)00036-5",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(97)00092-4",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(97)00127-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(97)00164-4",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(97)00195-4",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00012-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00030-x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00037-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00046-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00060-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00067-0",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00089-x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(98)00135-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00003-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00118-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00127-x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00140-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00148-7",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00163-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/s2215-0366(17)30099-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1017/s1092852924000452",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1017/s1092852924000580",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1017/s1461145711000927",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1021/acschemneuro.2c00123",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/bdj.2008.4",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/mp.2013.97",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/npp.1993.19",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/npp.1993.20",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/npp.1993.22",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/npp.1993.41",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/npp.1994.15",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/npp.1994.26",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/npp.2008.219",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300005",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300013",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300022",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300185",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300238",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300342",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300347",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300396",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300442",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300585",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300621",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300642",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300662",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300673",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300675",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300711",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300735",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300808",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300819",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300824",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300882",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300930",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300944",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300953",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1300994",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301031",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301057",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301133",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301161",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301220",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301225",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301302",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301309",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301324",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301356",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301415",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301491",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301512",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301547",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301565",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301600",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301647",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/sj.npp.1301652",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1046/j.1360-0443.2001.96574910.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1046/j.1365-2036.1999.00454.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1046/j.1399-6576.2003.00245.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1046/j.1460-9568.1999.00726.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1046/j.1460-9568.2003.02767.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1046/j.1471-4159.1997.68031099.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1046/j.1471-4159.1998.71062294.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/15216540410001727699",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1086/381975",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/ajhp/59.11.1067",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/anatox/35.7.452",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/arclin/acac060.118",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/brain/awn255",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/brain/awv183",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/cercor/13.8.870",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/cercor/bhg128",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/cercor/bht178",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/cercor/bhw168",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/clinchem/44.3.560",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/clinchem/45.7.1058",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/clinchem/46.12.1968",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/clinchem/47.10.1788",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/20.1.27",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/20.5.323",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/20.6.512",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/22.1.33",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/23.5.306",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/23.6.518",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/24.3.170",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/24.7.550",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/25.2.144",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/26.3.157",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/27.5.294",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/27.8.552",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/28.1.50",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/28.3.181",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/28.8.680",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/29.2.135",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/29.3.163",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/29.5.376",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/30.7.434",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/31.2.109",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/33.5.283",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/34.3.149",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/34.9.587",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bkaa022",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bku054",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bku085",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bkv058",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bkv089",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bkv092",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bkv124",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/jat/bkz116",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/pm/pnv112",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/qjmed/91.7.493",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/qjmed/hct183",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/sleep/25.6.615",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/toxsci/51.2.161",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/toxsci/57.1.95",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/toxsci/kfp300",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-197310000-00003",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-198211000-00001",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-199212000-00022",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-199610000-00024",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-199801000-00015",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-199803000-00029",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-200202000-00022",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/00000542-200309000-00016",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/01.anes.0000435635.42332.ee",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0000000000002371",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0000000000002417",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0000000000002667",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0000000000003345",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0000000000003732",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0000000000003829",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0b013e3181b437b1",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0b013e31821bdb9b",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/aln.0b013e31826a0db3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/1467-9566.13872",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/1556-4029.15679",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/1556-4029.70013",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/acem.13428",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/acem.13755",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/add.16259",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/add.70052",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/anoc.12242",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/appy.12548",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/bdi.13324",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/bdi.13409",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/dar.13973",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/eip.12775",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/epi.14480",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/head.70024",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/his.15435",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1360-0443.2007.01810.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1365-2990.2006.00790.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1369-1600.2011.00421.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1471-4159.2004.02515.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1471-4159.2005.03477.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1471-4159.2005.03485.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1472-8206.2011.00954.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1526-4637.2006.00208_8.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1526-4637.2006.00223.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1526-4637.2007.00314.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1526-4637.2007.00402.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1526-4637.2010.00981.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1526-4637.2011.01241.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1600-0773.1999.tb01492.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1742-7843.2009.00382.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1742-7843.2012.00908.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1745-7254.2006.00270.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1749-6632.1998.tb10177.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/j.1749-6632.2000.tb05199.x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/jnc.12060",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/jnc.12826",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/jnc.13377",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/jnc.14043",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/jnc.14544",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/jrh.12906",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/nyas.12725",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/pcn.13870",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/pme.12283",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/pme.12865",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/pme.12939",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/dmd.117.077263",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/dmd.118.083808",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/jpet.117.239905",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/jpet.117.242784",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/jpet.118.250217",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/molpharm.124.000890",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/pharmrev.120.000056",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/pharmrev.121.000508",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/pharmrev.121.000514",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/pharmrev.122.000590",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1124/pr.119.018697",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1136/emj.2009.079905",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1159/000324293",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1159/000506868",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1162/089892905774597191",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1176/appi.ajp.2019.18101219",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/00221678211048049",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/00221678221075076",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811251361453",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/070674376400900311",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/0898010118770302",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/2050324516683325",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/2050324518767442",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/2050324520942345",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1203/00006450-200111000-00011",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1210/en.2007-0034",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1210/jc.2011-1143",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1211/0022357044346",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.12681/eadd/36297",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1271/bbb.90095",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1309/v3j8-3kw2-bpt1-fu15",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1373/clinchem.2005.052746",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1373/clinchem.2006.069054",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1373/clinchem.2006.081547",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1373/clinchem.2007.096800",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1515/revneuro-2016-0047",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1525/ac.2001.12.2.4",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.17514/jnds-1997-16-1-p27-41.",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.17711/sm.0185-3325.2017.010",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.21767/2471-853x.100025",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.3109/15563650.2013.817658",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.4161/epi.4.3.8534",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.47611/jsrhs.v13i4.6611",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.5167/uzh-151292",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.5167/uzh-164092",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.5167/uzh-164160",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.5167/uzh-181782",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.52314/tjima.2021.v1i1.9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.56012/tsen2260",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.70462/acim",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.70462/acim.2025.1.001",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.7205/milmed-d-15-00431",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    }
+  ]
+}

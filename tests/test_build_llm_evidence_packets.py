@@ -76,6 +76,72 @@ LEAN_TEI = """
 </TEI>
 """
 
+SYNTHESIS_TEI = """
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <front>
+      <abstract><p>This meta-analysis pooled randomized trials of psilocybin for depression.</p></abstract>
+    </front>
+    <body>
+      <div><head>Introduction</head><p>Background about psychedelic therapy.</p></div>
+      <div><head>Search Strategy</head><p>MEDLINE and PsycINFO were searched for eligible trials.</p></div>
+      <div><head>Risk of Bias</head><p>Two reviewers assessed risk of bias using RoB 2.</p></div>
+      <div><head>Results</head><p>The pooled standardized mean difference favored psilocybin.</p></div>
+      <div><head>Limitations</head><p>Certainty was downgraded for small study effects.</p></div>
+      <figure type="table"><head>Table 1</head><figDesc>Included study characteristics.</figDesc><table><row><cell>Trial</cell></row></table></figure>
+      <figure><head>Figure 1</head><figDesc>Forest plot for depressive symptoms.</figDesc></figure>
+    </body>
+    <back>
+      <listBibl>
+        <biblStruct><analytic><title>Included trial</title></analytic><idno type="DOI">10.1000/trial</idno></biblStruct>
+      </listBibl>
+    </back>
+  </text>
+</TEI>
+"""
+
+REVIEW_TEI = """
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <text>
+    <front>
+      <abstract><p>This review summarizes mechanisms and safety findings for psychedelics.</p></abstract>
+    </front>
+    <body>
+      <div><head>Scope and Objectives</head><p>The review covers human and preclinical evidence.</p></div>
+      <div><head>Clinical Evidence</head><p>Trials and observational studies are summarized.</p></div>
+      <div><head>Future Directions</head><p>Evidence gaps include dose-response uncertainty.</p></div>
+      <div><head>Funding</head><p>Supported by a grant.</p></div>
+      <figure type="table"><head>Table 1</head><figDesc>Evidence coverage by domain.</figDesc><table><row><cell>Domain</cell></row></table></figure>
+    </body>
+    <back>
+      <listBibl>
+        <biblStruct><analytic><title>Background source</title></analytic><idno type="DOI">10.1000/background</idno></biblStruct>
+      </listBibl>
+    </back>
+  </text>
+</TEI>
+"""
+
+JATS_XML = """
+<article xmlns:xlink="http://www.w3.org/1999/xlink">
+  <front>
+    <article-meta>
+      <abstract id="abs1"><p>This open-access article reports psilocybin outcomes.</p></abstract>
+    </article-meta>
+  </front>
+  <body>
+    <sec id="s1">
+      <title>Methods</title>
+      <p>Participants received psilocybin-assisted therapy.</p>
+      <sec id="s2">
+        <title>Results</title>
+        <p>Depressive symptoms decreased after treatment.</p>
+      </sec>
+    </sec>
+  </body>
+</article>
+"""
+
 
 class BuildLlmEvidencePacketsTest(unittest.TestCase):
     def test_sections_from_tei_full_reconstructs_complete_nested_sections(self) -> None:
@@ -88,6 +154,16 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         self.assertIn("Depression scores improved", sections[2]["text"])
         self.assertEqual(sections[0]["section_id"], "S001")
         self.assertLess(sections[0]["char_start"], sections[1]["char_start"])
+
+    def test_sections_from_tei_full_accepts_jats_sec_title_structure(self) -> None:
+        sections = sections_from_tei_full(JATS_XML)
+
+        self.assertEqual([section["heading"] for section in sections], ["Abstract", "Methods", "Results"])
+        self.assertIn("open-access article", sections[0]["text"])
+        self.assertIn("psilocybin-assisted therapy", sections[1]["text"])
+        self.assertNotIn("Depressive symptoms decreased", sections[1]["text"])
+        self.assertIn("Depressive symptoms decreased", sections[2]["text"])
+        self.assertEqual(sections[1]["xml_id"], "s1")
 
     def test_extract_tables_figures_and_references(self) -> None:
         tables, figures = extract_tables_and_figures(TEI)
@@ -246,7 +322,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
 
         self.assertEqual(packet["candidate_contexts"], [])
 
-    def test_lean_primary_profile_keeps_methods_results_tables_and_mechanistic_other_sections(self) -> None:
+    def test_primary_empirical_profile_keeps_methods_results_tables_and_mechanistic_other_sections(self) -> None:
         artifact = {
             "study_doi": "10.1000/lean",
             "study_title": "Mechanistic example",
@@ -266,7 +342,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
             overlap_chars=0,
             max_chunks_per_paper=0,
             max_references=50,
-            packet_profile="lean_primary",
+            packet_profile="primary_empirical",
         )
 
         headings = [section["heading"] for section in packet["sections"]]
@@ -280,11 +356,69 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         self.assertEqual(len(packet["figures"]), 1)
         self.assertEqual(packet["references"], [])
         summary = packet["document_summary"]
-        self.assertEqual(summary["packet_profile"], "lean_primary")
+        self.assertEqual(summary["packet_profile"], "primary_empirical")
         self.assertGreater(summary["source_section_count"], summary["section_count"])
         self.assertGreater(summary["chunk_token_reduction_estimate"], 0)
 
-    def test_lean_primary_profile_keeps_only_abstract_for_secondary_literature(self) -> None:
+    def test_primary_empirical_legacy_alias_normalizes_to_canonical_profile(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/legacy-lean",
+            "study_title": "Mechanistic example",
+            "best_backend": "grobid",
+            "best_char_count": len(LEAN_TEI),
+            "best_section_count": 5,
+            "extractions": [{"backend": "grobid", "status": "ok", "text": LEAN_TEI, "metadata": {"format": "tei_xml"}}],
+        }
+        row = {"study_doi": "10.1000/legacy-lean", "study_title": "Mechanistic example", "publication_type": "Journal Article"}
+
+        packet = build_packet(
+            "mechanistic",
+            Path("/tmp/legacy_lean.json"),
+            artifact,
+            row,
+            max_chunk_chars=500,
+            overlap_chars=0,
+            max_chunks_per_paper=0,
+            max_references=50,
+            packet_profile="lean_primary",
+        )
+
+        self.assertEqual(packet["packet_profile"], "primary_empirical")
+        self.assertEqual(packet["requested_packet_profile"], "lean_primary")
+        self.assertEqual(packet["document_summary"]["packet_profile"], "primary_empirical")
+
+    def test_primary_study_section_selection_alias_normalizes_to_canonical_profile(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/primary-strategy",
+            "study_title": "Mechanistic example",
+            "best_backend": "grobid",
+            "best_char_count": len(LEAN_TEI),
+            "best_section_count": 5,
+            "extractions": [{"backend": "grobid", "status": "ok", "text": LEAN_TEI, "metadata": {"format": "tei_xml"}}],
+        }
+        row = {
+            "study_doi": "10.1000/primary-strategy",
+            "study_title": "Mechanistic example",
+            "publication_type": "Journal Article",
+        }
+
+        packet = build_packet(
+            "mechanistic",
+            Path("/tmp/primary_strategy.json"),
+            artifact,
+            row,
+            max_chunk_chars=500,
+            overlap_chars=0,
+            max_chunks_per_paper=0,
+            max_references=50,
+            packet_profile="primary_study",
+        )
+
+        self.assertEqual(packet["packet_profile"], "primary_empirical")
+        self.assertEqual(packet["requested_packet_profile"], "primary_study")
+        self.assertEqual(packet["document_summary"]["packet_profile"], "primary_empirical")
+
+    def test_primary_empirical_profile_keeps_only_abstract_for_secondary_literature(self) -> None:
         artifact = {
             "study_doi": "10.1000/review",
             "study_title": "Review example",
@@ -308,7 +442,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
             overlap_chars=0,
             max_chunks_per_paper=0,
             max_references=50,
-            packet_profile="lean_primary",
+            packet_profile="primary_empirical",
         )
 
         self.assertEqual([section["heading"] for section in packet["sections"]], ["Abstract"])
@@ -319,6 +453,81 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
             packet["document_summary"]["profile_summary"]["section_selection"],
             "secondary_or_context_abstract_only",
         )
+
+    def test_secondary_synthesis_profile_keeps_meta_analysis_details_and_references(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/meta",
+            "study_title": "Meta-analysis example",
+            "best_backend": "grobid",
+            "best_char_count": len(SYNTHESIS_TEI),
+            "best_section_count": 5,
+            "extractions": [{"backend": "grobid", "status": "ok", "text": SYNTHESIS_TEI, "metadata": {"format": "tei_xml"}}],
+        }
+        row = {
+            "study_doi": "10.1000/meta",
+            "study_title": "Meta-analysis example",
+            "publication_type": "Journal Article | Meta-Analysis",
+        }
+
+        packet = build_packet(
+            "disorder",
+            Path("/tmp/meta.json"),
+            artifact,
+            row,
+            max_chunk_chars=500,
+            overlap_chars=0,
+            max_chunks_per_paper=0,
+            max_references=50,
+            packet_profile="secondary_synthesis",
+        )
+
+        headings = [section["heading"] for section in packet["sections"]]
+        self.assertIn("Search Strategy", headings)
+        self.assertIn("Risk of Bias", headings)
+        self.assertIn("Results", headings)
+        self.assertIn("Limitations", headings)
+        self.assertNotIn("Introduction", headings)
+        self.assertEqual(len(packet["tables"]), 1)
+        self.assertEqual(len(packet["figures"]), 1)
+        self.assertEqual(packet["references"][0]["doi"], "10.1000/trial")
+        self.assertEqual(packet["packet_profile"], "secondary_synthesis")
+        self.assertEqual(packet["document_summary"]["profile_summary"]["section_selection"], "secondary_synthesis")
+
+    def test_review_coverage_profile_keeps_review_scope_and_omits_references(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/review-coverage",
+            "study_title": "Review coverage example",
+            "best_backend": "grobid",
+            "best_char_count": len(REVIEW_TEI),
+            "best_section_count": 4,
+            "extractions": [{"backend": "grobid", "status": "ok", "text": REVIEW_TEI, "metadata": {"format": "tei_xml"}}],
+        }
+        row = {
+            "study_doi": "10.1000/review-coverage",
+            "study_title": "Review coverage example",
+            "publication_type": "Journal Article | Review",
+        }
+
+        packet = build_packet(
+            "mechanistic",
+            Path("/tmp/review_coverage.json"),
+            artifact,
+            row,
+            max_chunk_chars=500,
+            overlap_chars=0,
+            max_chunks_per_paper=0,
+            max_references=50,
+            packet_profile="review_coverage",
+        )
+
+        headings = [section["heading"] for section in packet["sections"]]
+        self.assertIn("Scope and Objectives", headings)
+        self.assertIn("Clinical Evidence", headings)
+        self.assertIn("Future Directions", headings)
+        self.assertNotIn("Funding", headings)
+        self.assertEqual(len(packet["tables"]), 1)
+        self.assertEqual(packet["references"], [])
+        self.assertEqual(packet["document_summary"]["profile_summary"]["section_selection"], "review_coverage")
 
 
 if __name__ == "__main__":

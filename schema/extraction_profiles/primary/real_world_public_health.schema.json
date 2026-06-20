@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Primary Real-World Public Health Extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "route_id", "study_doi", "domain_route", "paper_type", "text_depth", "extraction_status", "items", "warnings"],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["primary_real_world_public_health_v1"]},
+    "task_id": {"type": "string"},
+    "source_type": {"type": "string"},
+    "route_id": {"type": "string"},
+    "study_doi": {"type": "string"},
+    "domain_route": {"type": "string", "const": "real_world_public_health"},
+    "paper_type": {"type": "string", "enum": ["primary_study"]},
+    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
+    "extraction_status": {"type": "string", "enum": ["extracted", "no_extractable_scoped_evidence", "wrong_source_type", "not_relevant", "human_review"]},
+    "items": {"type": "array", "items": {"$ref": "#/definitions/item"}},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "definitions": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exposure_or_policy", "population", "setting", "public_health_measure", "study_design", "estimate_value", "estimate_unit", "association_or_trend", "time_window", "finding_summary", "evidence_location", "evidence_quote"],
+      "properties": {
+        "exposure_or_policy": {"type": "string"},
+        "population": {"type": "string"},
+        "setting": {"type": "string"},
+        "public_health_measure": {"type": "string"},
+        "study_design": {"type": "string"},
+        "estimate_value": {"type": "string"},
+        "estimate_unit": {"type": "string"},
+        "association_or_trend": {"type": "string"},
+        "time_window": {"type": "string"},
+        "finding_summary": {"type": "string"},
+        "evidence_location": {"type": "string"},
+        "evidence_quote": {"type": "string"}
+      }
+    }
+  }
+}

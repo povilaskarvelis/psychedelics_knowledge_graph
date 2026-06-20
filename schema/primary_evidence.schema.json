@@ -1,0 +1,345 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Route-Aware Primary Evidence Extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "extraction_status",
+    "paper_assessment",
+    "evidence_items",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["primary_evidence_v1"]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "$ref": "#/definitions/domain_route"
+    },
+    "source_type": {
+      "type": "string"
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_evidence",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "paper_assessment": {
+      "$ref": "#/definitions/paper_assessment"
+    },
+    "evidence_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/evidence_item"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "enum": [
+        "clinical_outcome",
+        "safety_tolerability",
+        "molecular_target",
+        "molecular_pathway_readout",
+        "brain_system",
+        "cognitive_behavioral",
+        "subjective_experience",
+        "pharmacokinetics_exposure",
+        "intervention_context",
+        "real_world_public_health",
+        "general_primary",
+        "uncertain"
+      ]
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "result_direction": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "null",
+        "negative",
+        "mixed",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "paper_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "has_original_results",
+        "has_extractable_evidence_for_route",
+        "study_design",
+        "study_system",
+        "population_or_system",
+        "compound_or_exposure",
+        "route_relevance_summary",
+        "needs_human_review",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "has_original_results": {
+          "type": "boolean"
+        },
+        "has_extractable_evidence_for_route": {
+          "type": "boolean"
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "study_system": {
+          "type": "string",
+          "enum": [
+            "clinical",
+            "observational",
+            "preclinical",
+            "in_vitro",
+            "in_vivo",
+            "ex_vivo",
+            "mixed",
+            "unknown",
+            "not_applicable"
+          ]
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "compound_or_exposure": {
+          "type": "string"
+        },
+        "route_relevance_summary": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "evidence_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "relationship_domain",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "raw_endpoint_or_measure",
+        "population_or_system",
+        "sample_size",
+        "species_or_cell_line",
+        "intervention_or_exposure",
+        "comparator",
+        "dose_or_exposure",
+        "timepoint_or_window",
+        "assay_or_measurement_method",
+        "result_summary",
+        "result_direction",
+        "quantitative_value",
+        "quantitative_unit",
+        "effect_size_or_statistic",
+        "p_value",
+        "confidence_interval",
+        "statistical_support",
+        "study_design",
+        "study_system",
+        "graph_candidate_label",
+        "graph_candidate_type",
+        "graph_include_candidate",
+        "graph_exclusion_reason",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "$ref": "#/definitions/domain_route"
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "disorder",
+            "symptom_or_outcome",
+            "safety_event",
+            "target",
+            "pathway_process",
+            "molecular_readout",
+            "brain_region_or_network",
+            "cognitive_behavioral_construct",
+            "subjective_experience_construct",
+            "pharmacokinetic_parameter",
+            "intervention_component",
+            "public_health_measure",
+            "general_topic",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "raw_endpoint_or_measure": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "sample_size": {
+          "type": "string"
+        },
+        "species_or_cell_line": {
+          "type": "string"
+        },
+        "intervention_or_exposure": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "dose_or_exposure": {
+          "type": "string"
+        },
+        "timepoint_or_window": {
+          "type": "string"
+        },
+        "assay_or_measurement_method": {
+          "type": "string"
+        },
+        "result_summary": {
+          "type": "string"
+        },
+        "result_direction": {
+          "$ref": "#/definitions/result_direction"
+        },
+        "quantitative_value": {
+          "type": "string"
+        },
+        "quantitative_unit": {
+          "type": "string"
+        },
+        "effect_size_or_statistic": {
+          "type": "string"
+        },
+        "p_value": {
+          "type": "string"
+        },
+        "confidence_interval": {
+          "type": "string"
+        },
+        "statistical_support": {
+          "type": "string"
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "study_system": {
+          "type": "string"
+        },
+        "graph_candidate_label": {
+          "type": "string"
+        },
+        "graph_candidate_type": {
+          "type": "string",
+          "enum": [
+            "condition_indication",
+            "symptom_problem",
+            "target",
+            "system_family",
+            "pathway_process",
+            "molecular_readout",
+            "none",
+            "uncertain"
+          ]
+        },
+        "graph_include_candidate": {
+          "type": "boolean"
+        },
+        "graph_exclusion_reason": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

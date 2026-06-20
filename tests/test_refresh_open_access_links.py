@@ -5,7 +5,10 @@ import pandas as pd
 from pipeline.ingest.refresh_open_access_links import (
     apply_open_access_fields,
     candidate_rows,
+    parse_csv_values,
     parse_provider_order,
+    pdf_url_hosts_for_row,
+    pmcid_hint_from_row,
 )
 
 
@@ -31,7 +34,7 @@ class RefreshOpenAccessLinksTest(unittest.TestCase):
                 "is_oa": "true",
                 "oa_status": "gold",
                 "oa_url": "https://example.org/article",
-                "best_pdf_url": "https://europepmc.org/api/getPdf?pmcid=PMC123",
+                "best_pdf_url": "https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/oa_pdf/aa/bb/article.PMC123.pdf",
                 "pdf_url_candidates": "https://example.org/new.pdf",
             },
             authoritative_status=True,
@@ -41,7 +44,10 @@ class RefreshOpenAccessLinksTest(unittest.TestCase):
         self.assertEqual(updates["open_access_is_oa"], "true")
         self.assertEqual(updates["open_access_status"], "gold")
         self.assertEqual(updates["open_access_url"], "https://example.org/article")
-        self.assertEqual(updates["best_pdf_url"], "https://europepmc.org/api/getPdf?pmcid=PMC123")
+        self.assertEqual(
+            updates["best_pdf_url"],
+            "https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/oa_pdf/aa/bb/article.PMC123.pdf",
+        )
         self.assertIn("https://example.org/old.pdf", updates["pdf_url_candidates"])
         self.assertIn("https://example.org/new.pdf", updates["pdf_url_candidates"])
 
@@ -60,10 +66,48 @@ class RefreshOpenAccessLinksTest(unittest.TestCase):
             routing_table="",
             only_retained_secondary=False,
             only_missing_pdf_url=True,
+            only_pdf_url_hosts=None,
             limit=0,
         )
 
         self.assertEqual(selected["doi"].tolist(), ["10.example/a", "10.example/c"])
+
+    def test_candidate_rows_can_select_existing_pdf_url_hosts(self) -> None:
+        df = pd.DataFrame(
+            [
+                {"doi": "10.example/a", "best_pdf_url": "https://europepmc.org/api/getPdf?pmcid=PMC1"},
+                {"doi": "10.example/b", "best_pdf_url": "https://example.org/b.pdf"},
+                {
+                    "doi": "10.example/c",
+                    "best_pdf_url": "https://publisher.example/c.pdf",
+                    "pdf_url_candidates": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2/pdf/article.pdf",
+                },
+            ]
+        )
+
+        selected = candidate_rows(
+            df,
+            doi_file="",
+            routing_table="",
+            only_retained_secondary=False,
+            only_missing_pdf_url=False,
+            only_pdf_url_hosts=parse_csv_values("europepmc.org,pmc.ncbi.nlm.nih.gov"),
+            limit=0,
+        )
+
+        self.assertEqual(selected["doi"].tolist(), ["10.example/a", "10.example/c"])
+
+    def test_pdf_url_hosts_and_pmcid_hint_read_candidate_urls(self) -> None:
+        row = pd.Series(
+            {
+                "best_pdf_url": "https://europepmc.org/api/getPdf?pmcid=PMC123",
+                "pdf_url_candidates": "https://pmc.ncbi.nlm.nih.gov/articles/PMC123/pdf/article.pdf",
+                "open_access_url": "",
+            }
+        )
+
+        self.assertEqual(pdf_url_hosts_for_row(row), {"europepmc.org", "pmc.ncbi.nlm.nih.gov"})
+        self.assertEqual(pmcid_hint_from_row(row), "PMC123")
 
 
 if __name__ == "__main__":

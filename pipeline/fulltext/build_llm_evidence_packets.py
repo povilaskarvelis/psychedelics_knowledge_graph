@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Build frontier-LLM-ready evidence packets from full-text artifacts.
+"""Build article text inputs for model extraction from extracted text artifacts.
 
 The PDF conversion stage preserves raw GROBID TEI. This script turns that raw
-TEI plus paper-library metadata into stable JSONL packets for downstream LLM
-evidence assessment and data extraction.
+TEI plus paper-library metadata into stable JSONL records containing the article
+text sections, tables, figures, and references needed for downstream model
+extraction.
 """
 
 from __future__ import annotations
@@ -50,9 +51,34 @@ FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 PACKET_SCHEMA_VERSION = "llm_evidence_packet_v1"
 RECONSTRUCTED_TEXT_SEPARATOR = "\n\n"
 XML_ID_ATTR = "{http://www.w3.org/XML/1998/namespace}id"
-PACKET_PROFILES = ("full", "lean_primary")
+PACKET_PROFILE_FULL = "full"
+PACKET_PROFILE_PRIMARY_EMPIRICAL = "primary_empirical"
+PACKET_PROFILE_PRIMARY_EMPIRICAL_LEGACY_ALIAS = "lean_primary"
+PACKET_PROFILE_SECONDARY_SYNTHESIS = "secondary_synthesis"
+PACKET_PROFILE_REVIEW_COVERAGE = "review_coverage"
+SECTION_STRATEGY_ALL_SECTIONS_ALIAS = "all_sections"
+SECTION_STRATEGY_PRIMARY_STUDY_ALIAS = "primary_study"
+SECTION_STRATEGY_META_ANALYSIS_ALIAS = "meta_analysis"
+SECTION_STRATEGY_REVIEW_ALIAS = "review"
+SECTION_SELECTION_STRATEGY_ALIASES = {
+    SECTION_STRATEGY_ALL_SECTIONS_ALIAS: PACKET_PROFILE_FULL,
+    SECTION_STRATEGY_PRIMARY_STUDY_ALIAS: PACKET_PROFILE_PRIMARY_EMPIRICAL,
+    SECTION_STRATEGY_META_ANALYSIS_ALIAS: PACKET_PROFILE_SECONDARY_SYNTHESIS,
+    SECTION_STRATEGY_REVIEW_ALIAS: PACKET_PROFILE_REVIEW_COVERAGE,
+}
+PACKET_PROFILES = (
+    PACKET_PROFILE_FULL,
+    PACKET_PROFILE_PRIMARY_EMPIRICAL,
+    PACKET_PROFILE_SECONDARY_SYNTHESIS,
+    PACKET_PROFILE_REVIEW_COVERAGE,
+    PACKET_PROFILE_PRIMARY_EMPIRICAL_LEGACY_ALIAS,
+    SECTION_STRATEGY_ALL_SECTIONS_ALIAS,
+    SECTION_STRATEGY_PRIMARY_STUDY_ALIAS,
+    SECTION_STRATEGY_META_ANALYSIS_ALIAS,
+    SECTION_STRATEGY_REVIEW_ALIAS,
+)
 
-LEAN_EXCLUDED_SECTION_TYPES = {
+PRIMARY_EMPIRICAL_EXCLUDED_SECTION_TYPES = {
     "introduction",
     "discussion",
     "conclusion",
@@ -64,7 +90,23 @@ LEAN_EXCLUDED_SECTION_TYPES = {
     "supplement",
 }
 
-LEAN_COMMON_MARKERS = (
+PRIMARY_EMPIRICAL_EXCLUDED_HEADING_MARKERS = (
+    "introduction",
+    "background",
+    "discussion",
+    "comment",
+    "commentary",
+    "conclusion",
+    "limitations",
+    "acknowledg",
+    "funding",
+    "conflict",
+    "ethics",
+    "data availability",
+    "supplement",
+)
+
+PRIMARY_EMPIRICAL_COMMON_MARKERS = (
     "method",
     "material",
     "participant",
@@ -98,7 +140,7 @@ LEAN_COMMON_MARKERS = (
     "table",
 )
 
-LEAN_MECHANISTIC_MARKERS = (
+PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS = (
     "assay",
     "binding",
     "affinity",
@@ -124,7 +166,7 @@ LEAN_MECHANISTIC_MARKERS = (
     "pcr",
 )
 
-LEAN_DISORDER_MARKERS = (
+PRIMARY_EMPIRICAL_DISORDER_MARKERS = (
     "clinical",
     "symptom",
     "depression",
@@ -140,6 +182,112 @@ LEAN_DISORDER_MARKERS = (
     "quality of life",
     "scale",
     "score",
+)
+
+NON_EVIDENCE_SECTION_TYPES = {
+    "funding",
+    "conflicts",
+    "ethics",
+    "data_availability",
+    "supplement",
+}
+
+SECONDARY_SYNTHESIS_CORE_SECTION_TYPES = {
+    "abstract",
+    "methods",
+    "results",
+    "discussion",
+    "conclusion",
+    "limitations",
+}
+
+SECONDARY_SYNTHESIS_MARKERS = (
+    "systematic review",
+    "meta-analysis",
+    "metaanalysis",
+    "network meta",
+    "evidence synthesis",
+    "search strateg",
+    "database search",
+    "eligib",
+    "inclusion criter",
+    "exclusion criter",
+    "study selection",
+    "screening",
+    "prisma",
+    "included stud",
+    "excluded stud",
+    "study characteristics",
+    "data extraction",
+    "risk of bias",
+    "quality assessment",
+    "grade",
+    "certainty",
+    "pooled",
+    "forest plot",
+    "funnel plot",
+    "publication bias",
+    "heterogeneity",
+    "i2",
+    "tau",
+    "random-effect",
+    "fixed-effect",
+    "meta-regression",
+    "subgroup",
+    "sensitivity",
+    "effect size",
+    "standardized mean difference",
+    "mean difference",
+    "odds ratio",
+    "risk ratio",
+    "confidence interval",
+    "credible interval",
+    "league table",
+)
+
+REVIEW_COVERAGE_CORE_SECTION_TYPES = {
+    "abstract",
+    "methods",
+    "results",
+    "discussion",
+    "conclusion",
+    "limitations",
+}
+
+REVIEW_COVERAGE_MARKERS = (
+    "review",
+    "scope",
+    "objective",
+    "aim",
+    "overview",
+    "background",
+    "evidence",
+    "coverage",
+    "clinical",
+    "mechanism",
+    "safety",
+    "tolerability",
+    "adverse",
+    "therapeutic",
+    "psychedelic",
+    "psilocybin",
+    "lsd",
+    "mdma",
+    "ketamine",
+    "ayahuasca",
+    "dmt",
+    "mescaline",
+    "5-ht2a",
+    "serotonin",
+    "model",
+    "preclinical",
+    "human",
+    "limitation",
+    "gap",
+    "future",
+    "uncertain",
+    "conclusion",
+    "summary",
 )
 
 SECONDARY_SOURCE_FAMILIES = {
@@ -251,7 +399,7 @@ def direct_child_text(element: ET.Element, names: set[str]) -> str:
 
 def direct_heading(element: ET.Element, default: str = "Section") -> str:
     for child in list(element):
-        if local_name(child.tag) == "head":
+        if local_name(child.tag) in {"head", "title"}:
             heading = element_text(child)
             if heading:
                 return heading
@@ -306,21 +454,25 @@ def add_section(sections: List[dict], heading: str, text: str, level: int = 1, x
     )
 
 
+def element_is_section(element: ET.Element) -> bool:
+    return local_name(element.tag) in {"div", "sec"}
+
+
 def walk_div(div: ET.Element, sections: List[dict], level: int = 1) -> None:
     heading = direct_heading(div)
     text_parts = []
     for child in list(div):
         name = local_name(child.tag)
-        if name in {"head", "div", "figure", "table"}:
+        if name in {"head", "title", "div", "sec", "figure", "fig", "table", "table-wrap"}:
             continue
-        if name in {"p", "ab", "list", "quote"}:
+        if name in {"p", "ab", "list", "quote", "disp-quote"}:
             text = element_text(child)
             if text:
                 text_parts.append(text)
     add_section(sections, heading=heading, text=" ".join(text_parts), level=level, xml_identifier=xml_id(div))
 
     for child in list(div):
-        if local_name(child.tag) == "div":
+        if element_is_section(child):
             walk_div(child, sections=sections, level=level + 1)
 
 
@@ -341,7 +493,7 @@ def sections_from_tei_full(tei_xml: str) -> List[dict]:
         body_direct = direct_child_text(body, {"p", "ab", "list"})
         add_section(sections, heading="Body", text=body_direct, level=1, xml_identifier=xml_id(body))
         for child in list(body):
-            if local_name(child.tag) == "div":
+            if element_is_section(child):
                 walk_div(child, sections=sections, level=1)
 
     if not sections:
@@ -492,6 +644,15 @@ def estimate_tokens(text: str) -> int:
     return max(1, round(len(text) / 4))
 
 
+def canonical_packet_profile(profile: str) -> str:
+    profile = normalize(profile) or PACKET_PROFILE_FULL
+    if profile in SECTION_SELECTION_STRATEGY_ALIASES:
+        return SECTION_SELECTION_STRATEGY_ALIASES[profile]
+    if profile == PACKET_PROFILE_PRIMARY_EMPIRICAL_LEGACY_ALIAS:
+        return PACKET_PROFILE_PRIMARY_EMPIRICAL
+    return profile
+
+
 def chunk_text(text: str, max_chars: int, overlap_chars: int) -> list[tuple[int, int, str]]:
     text = normalize(text)
     if not text:
@@ -549,39 +710,144 @@ def text_matches_any_marker(text: str, markers: tuple[str, ...]) -> bool:
     return any(marker in norm for marker in markers)
 
 
-def section_matches_lean_profile(dataset: str, section: dict) -> bool:
+def section_matches_primary_empirical_profile(dataset: str, section: dict) -> bool:
     section_type = normalize(section.get("section_type", ""))
     if section_type == "abstract":
         return True
     if section_type in {"methods", "results"}:
         return True
-    if section_type in LEAN_EXCLUDED_SECTION_TYPES:
+    if section_type in PRIMARY_EMPIRICAL_EXCLUDED_SECTION_TYPES:
+        return False
+    heading = normalize(section.get("heading", "")).lower()
+    if text_matches_any_marker(heading, PRIMARY_EMPIRICAL_EXCLUDED_HEADING_MARKERS):
+        return False
+    haystack = " ".join(
+        [
+            heading,
+            section_type,
+            normalize(section.get("text", ""))[:2500],
+        ]
+    )
+    if dataset == "mechanistic":
+        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS
+    elif dataset == "disorder":
+        dataset_markers = PRIMARY_EMPIRICAL_DISORDER_MARKERS
+    else:
+        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS + PRIMARY_EMPIRICAL_DISORDER_MARKERS
+    return text_matches_any_marker(haystack, PRIMARY_EMPIRICAL_COMMON_MARKERS + dataset_markers)
+
+
+def section_matches_secondary_synthesis_profile(section: dict) -> bool:
+    section_type = normalize(section.get("section_type", ""))
+    if section_type in SECONDARY_SYNTHESIS_CORE_SECTION_TYPES:
+        return True
+    if section_type in NON_EVIDENCE_SECTION_TYPES:
         return False
     haystack = " ".join(
         [
             normalize(section.get("heading", "")),
             section_type,
-            normalize(section.get("text", ""))[:2500],
+            normalize(section.get("text", ""))[:3500],
         ]
     )
-    dataset_markers = LEAN_MECHANISTIC_MARKERS if dataset == "mechanistic" else LEAN_DISORDER_MARKERS
-    return text_matches_any_marker(haystack, LEAN_COMMON_MARKERS + dataset_markers)
+    return text_matches_any_marker(haystack, SECONDARY_SYNTHESIS_MARKERS)
+
+
+def section_matches_review_coverage_profile(section: dict) -> bool:
+    section_type = normalize(section.get("section_type", ""))
+    if section_type in REVIEW_COVERAGE_CORE_SECTION_TYPES:
+        return True
+    if section_type in NON_EVIDENCE_SECTION_TYPES:
+        return False
+    haystack = " ".join(
+        [
+            normalize(section.get("heading", "")),
+            section_type,
+            normalize(section.get("text", ""))[:3000],
+        ]
+    )
+    return text_matches_any_marker(haystack, REVIEW_COVERAGE_MARKERS)
 
 
 def secondary_or_context_hint(hints: dict) -> bool:
     return normalize(hints.get("source_family_hint", "")) in SECONDARY_SOURCE_FAMILIES
 
 
+def unique_by_identity(items: list[dict]) -> list[dict]:
+    out = []
+    seen: set[int] = set()
+    for item in items:
+        key = id(item)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(item)
+    return out
+
+
 def first_non_excluded_sections(sections: list[dict], limit: int = 3) -> list[dict]:
     out = []
     for section in sections:
         section_type = normalize(section.get("section_type", ""))
-        if section_type == "abstract" or section_type in LEAN_EXCLUDED_SECTION_TYPES:
+        if section_type == "abstract" or section_type in PRIMARY_EMPIRICAL_EXCLUDED_SECTION_TYPES:
             continue
         out.append(section)
         if len(out) >= limit:
             break
     return out
+
+
+def first_non_admin_sections(sections: list[dict], limit: int = 4) -> list[dict]:
+    out = []
+    for section in sections:
+        section_type = normalize(section.get("section_type", ""))
+        if section_type == "abstract" or section_type in NON_EVIDENCE_SECTION_TYPES:
+            continue
+        out.append(section)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def profile_selection_summary(
+    *,
+    selection_name: str,
+    fallback_used: bool,
+    source_section_count: int,
+    selected_section_count: int,
+) -> dict:
+    return {
+        "section_selection": selection_name,
+        "fallback_used": fallback_used,
+        "source_section_count": source_section_count,
+        "selected_section_count": selected_section_count,
+        "excluded_section_count": max(0, source_section_count - selected_section_count),
+    }
+
+
+def select_secondary_sections(
+    sections: list[dict],
+    *,
+    selection_name: str,
+    matcher,
+) -> tuple[list[dict], dict]:
+    selected = [section for section in sections if matcher(section)]
+    selected_ids = {id(section) for section in selected}
+    body_selected = any(normalize(section.get("section_type", "")) != "abstract" for section in selected)
+    fallback_used = False
+    if not body_selected:
+        fallback_used = True
+        for section in first_non_admin_sections(sections):
+            if id(section) not in selected_ids:
+                selected.append(section)
+                selected_ids.add(id(section))
+    selected = unique_by_identity(selected)
+    return selected, profile_selection_summary(
+        selection_name=selection_name,
+        fallback_used=fallback_used,
+        source_section_count=len(sections),
+        selected_section_count=len(selected),
+    )
 
 
 def select_sections_for_profile(
@@ -591,21 +857,34 @@ def select_sections_for_profile(
     profile: str,
     hints: dict,
 ) -> tuple[list[dict], dict]:
-    if profile == "full":
+    profile = canonical_packet_profile(profile)
+    if profile == PACKET_PROFILE_FULL:
         return sections, {"section_selection": "full", "fallback_used": False}
-    if profile != "lean_primary":
-        raise ValueError(f"Unsupported packet profile `{profile}`")
+    if profile == PACKET_PROFILE_SECONDARY_SYNTHESIS:
+        return select_secondary_sections(
+            sections,
+            selection_name="secondary_synthesis",
+            matcher=section_matches_secondary_synthesis_profile,
+        )
+    if profile == PACKET_PROFILE_REVIEW_COVERAGE:
+        return select_secondary_sections(
+            sections,
+            selection_name="review_coverage",
+            matcher=section_matches_review_coverage_profile,
+        )
+    if profile != PACKET_PROFILE_PRIMARY_EMPIRICAL:
+        raise ValueError(f"Unsupported section selection strategy `{profile}`")
 
     abstracts = [section for section in sections if normalize(section.get("section_type", "")) == "abstract"]
     if secondary_or_context_hint(hints):
         selected = abstracts or sections[:1]
-        selected_unique = list({id(section): section for section in selected}.values())
+        selected_unique = unique_by_identity(selected)
         return selected_unique, {
             "section_selection": "secondary_or_context_abstract_only",
             "fallback_used": not bool(abstracts),
         }
 
-    selected = [section for section in sections if section_matches_lean_profile(dataset, section)]
+    selected = [section for section in sections if section_matches_primary_empirical_profile(dataset, section)]
     selected_ids = {id(section) for section in selected}
     body_selected = any(normalize(section.get("section_type", "")) != "abstract" for section in selected)
     fallback_used = False
@@ -616,16 +895,15 @@ def select_sections_for_profile(
                 selected.append(section)
                 selected_ids.add(id(section))
 
-    return selected, {
-        "section_selection": "lean_primary",
-        "fallback_used": fallback_used,
-        "source_section_count": len(sections),
-        "selected_section_count": len(selected),
-        "excluded_section_count": max(0, len(sections) - len(selected)),
-    }
+    return selected, profile_selection_summary(
+        selection_name=PACKET_PROFILE_PRIMARY_EMPIRICAL,
+        fallback_used=fallback_used,
+        source_section_count=len(sections),
+        selected_section_count=len(selected),
+    )
 
 
-def table_or_figure_matches_profile(item: dict, dataset: str) -> bool:
+def table_or_figure_matches_primary_empirical_profile(item: dict, dataset: str) -> bool:
     haystack = " ".join(
         [
             normalize(item.get("caption", "")),
@@ -633,8 +911,13 @@ def table_or_figure_matches_profile(item: dict, dataset: str) -> bool:
             normalize(item.get("text", ""))[:2000],
         ]
     )
-    dataset_markers = LEAN_MECHANISTIC_MARKERS if dataset == "mechanistic" else LEAN_DISORDER_MARKERS
-    return text_matches_any_marker(haystack, LEAN_COMMON_MARKERS + dataset_markers)
+    if dataset == "mechanistic":
+        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS
+    elif dataset == "disorder":
+        dataset_markers = PRIMARY_EMPIRICAL_DISORDER_MARKERS
+    else:
+        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS + PRIMARY_EMPIRICAL_DISORDER_MARKERS
+    return text_matches_any_marker(haystack, PRIMARY_EMPIRICAL_COMMON_MARKERS + dataset_markers)
 
 
 def select_tables_figures_references_for_profile(
@@ -646,21 +929,52 @@ def select_tables_figures_references_for_profile(
     profile: str,
     hints: dict,
 ) -> tuple[list[dict], list[dict], list[dict], dict]:
-    if profile == "full":
+    profile = canonical_packet_profile(profile)
+    if profile == PACKET_PROFILE_FULL:
         return tables, figures, references, {
             "table_selection": "full",
             "figure_selection": "full",
             "reference_selection": "full",
         }
-    if profile != "lean_primary":
-        raise ValueError(f"Unsupported packet profile `{profile}`")
+    if profile == PACKET_PROFILE_SECONDARY_SYNTHESIS:
+        return tables, figures, references, {
+            "table_selection": "all_tables",
+            "figure_selection": "all_figures",
+            "reference_selection": "all_references",
+            "source_figure_count": len(figures),
+            "selected_figure_count": len(figures),
+        }
+    if profile == PACKET_PROFILE_REVIEW_COVERAGE:
+        selected_figures = [
+            figure
+            for figure in figures
+            if text_matches_any_marker(
+                " ".join(
+                    [
+                        normalize(figure.get("caption", "")),
+                        normalize(figure.get("section_heading", "")),
+                        normalize(figure.get("text", ""))[:2000],
+                    ]
+                ),
+                REVIEW_COVERAGE_MARKERS,
+            )
+        ]
+        return tables, selected_figures, [], {
+            "table_selection": "all_tables",
+            "figure_selection": "review_coverage_marker_filtered",
+            "reference_selection": "omitted",
+            "source_figure_count": len(figures),
+            "selected_figure_count": len(selected_figures),
+        }
+    if profile != PACKET_PROFILE_PRIMARY_EMPIRICAL:
+        raise ValueError(f"Unsupported section selection strategy `{profile}`")
     if secondary_or_context_hint(hints):
         return [], [], [], {
             "table_selection": "secondary_or_context_omitted",
             "figure_selection": "secondary_or_context_omitted",
             "reference_selection": "omitted",
         }
-    selected_figures = [figure for figure in figures if table_or_figure_matches_profile(figure, dataset)]
+    selected_figures = [figure for figure in figures if table_or_figure_matches_primary_empirical_profile(figure, dataset)]
     return tables, selected_figures, [], {
         "table_selection": "all_tables",
         "figure_selection": "lean_marker_filtered",
@@ -739,6 +1053,8 @@ def build_packet(
     include_candidate_contexts: bool = True,
     packet_profile: str = "full",
 ) -> dict:
+    requested_packet_profile = normalize(packet_profile) or PACKET_PROFILE_FULL
+    packet_profile = canonical_packet_profile(requested_packet_profile)
     extraction = best_extraction(artifact)
     raw_text = normalize(extraction.get("text", ""))
     source_sections = sections_from_tei_full(raw_text)
@@ -783,6 +1099,8 @@ def build_packet(
         "schema_version": PACKET_SCHEMA_VERSION,
         "created_at_utc": now_utc(),
         "packet_id": f"{dataset}:{doi}",
+        "packet_profile": packet_profile,
+        "requested_packet_profile": requested_packet_profile,
         "dataset": dataset,
         "study_doi": doi,
         "paper_metadata": metadata,
@@ -800,6 +1118,7 @@ def build_packet(
         },
         "document_summary": {
             "packet_profile": packet_profile,
+            "requested_packet_profile": requested_packet_profile,
             "profile_summary": {
                 **section_profile_summary,
                 **item_profile_summary,
@@ -865,6 +1184,8 @@ def build_dataset_packets(
     include_candidate_contexts: bool,
     packet_profile: str = "full",
 ) -> dict:
+    requested_packet_profile = normalize(packet_profile) or PACKET_PROFILE_FULL
+    packet_profile = canonical_packet_profile(requested_packet_profile)
     paper_rows = rows_by_doi(load_json_array(paper_library))
     artifact_paths = list(iter_artifact_paths(dataset, artifact_dir=artifact_dir, doi_filter=doi_filter))
     if limit > 0:
@@ -953,6 +1274,7 @@ def build_dataset_packets(
             "include_section_text": include_section_text,
             "include_candidate_contexts": include_candidate_contexts,
             "packet_profile": packet_profile,
+            "requested_packet_profile": requested_packet_profile,
         },
         "outputs": {
             "jsonl": str(out_jsonl),
@@ -973,7 +1295,7 @@ def dataset_names(raw: str) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build JSONL LLM evidence packets from full-text artifacts")
+    parser = argparse.ArgumentParser(description="Build JSONL article text inputs for model extraction")
     parser.add_argument("--dataset", choices=["all", "disorder", "mechanistic"], default="all")
     parser.add_argument("--paper-library", default="", help="Override paper library JSON path; only valid for one dataset")
     parser.add_argument("--artifact-dir", default="", help="Override artifact directory; only valid for one dataset")
@@ -984,15 +1306,21 @@ def main() -> int:
     parser.add_argument("--max-chunk-chars", type=int, default=6000)
     parser.add_argument("--chunk-overlap-chars", type=int, default=300)
     parser.add_argument("--max-chunks-per-paper", type=int, default=0, help="0 means all chunks")
-    parser.add_argument("--max-references", type=int, default=200, help="Maximum references per packet; negative means all")
+    parser.add_argument("--max-references", type=int, default=200, help="Maximum references per article text input; negative means all")
     parser.add_argument(
+        "--section-selection-strategy",
         "--packet-profile",
+        dest="packet_profile",
         choices=PACKET_PROFILES,
         default="full",
-        help="full preserves all extracted sections; lean_primary keeps title/abstract metadata plus likely methods/results/tables",
+        help=(
+            "Which article sections to include. Standard aliases: all_sections, primary_study, meta_analysis, review. "
+            "Compatibility names also accepted: full, primary_empirical, secondary_synthesis, review_coverage. "
+            "lean_primary is a deprecated alias for primary_empirical."
+        ),
     )
-    parser.add_argument("--omit-section-text", action="store_true", help="Keep chunk text but omit full section text from packets")
-    parser.add_argument("--omit-candidate-contexts", action="store_true", help="Do not include paper-library candidate contexts in packets")
+    parser.add_argument("--omit-section-text", action="store_true", help="Keep chunk text but omit full section text from article text inputs")
+    parser.add_argument("--omit-candidate-contexts", action="store_true", help="Do not include paper-library candidate contexts in article text inputs")
     args = parser.parse_args()
 
     selected_datasets = dataset_names(args.dataset)
@@ -1027,9 +1355,9 @@ def main() -> int:
         counts = report["counts"]
         print(f"Dataset: {dataset}")
         print(f"Artifacts selected: {counts['artifact_files_selected']}")
-        print(f"Packets written: {counts['packets_written']}")
+        print(f"Article text inputs written: {counts['packets_written']}")
         print(f"Total chunks: {counts['total_chunks']}")
-        print(f"Packet profile: {report['inputs']['packet_profile']}")
+        print(f"Section selection strategy: {report['inputs']['packet_profile']}")
         print(f"Estimated chunk tokens: {counts['total_chunk_token_estimate']} / {counts['total_source_chunk_token_estimate']}")
         print(f"JSONL: {report['outputs']['jsonl']}")
         print(f"Report: {report['outputs']['report_json']}")

@@ -1,0 +1,315 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Route Extraction Task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at_utc",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "task_status",
+    "paper_metadata",
+    "route_context",
+    "extraction_contract",
+    "text_source",
+    "content"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["route_extraction_task_v1"]
+    },
+    "generated_at_utc": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_status": {
+      "type": "string",
+      "enum": [
+        "ready_for_model",
+        "needs_fulltext_packet",
+        "needs_expected_fulltext_packet",
+        "missing_abstract",
+        "not_model_ready"
+      ]
+    },
+    "paper_metadata": {
+      "$ref": "#/definitions/paper_metadata"
+    },
+    "route_context": {
+      "$ref": "#/definitions/route_context"
+    },
+    "extraction_contract": {
+      "$ref": "#/definitions/extraction_contract"
+    },
+    "text_source": {
+      "$ref": "#/definitions/text_source"
+    },
+    "content": {
+      "$ref": "#/definitions/content"
+    }
+  },
+  "definitions": {
+    "paper_metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "doi",
+        "study_title",
+        "study_year",
+        "publication_type",
+        "abstract"
+      ],
+      "properties": {
+        "doi": {
+          "type": "string"
+        },
+        "study_title": {
+          "type": "string"
+        },
+        "study_year": {
+          "type": "string"
+        },
+        "publication_type": {
+          "type": "string"
+        },
+        "abstract": {
+          "type": "string"
+        }
+      }
+    },
+    "route_context": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "route_id",
+        "doi",
+        "domain_route",
+        "access_tier",
+        "route_action",
+        "prompt_profile",
+        "schema_profile"
+      ],
+      "properties": {
+        "route_id": {
+          "type": "string"
+        },
+        "doi": {
+          "type": "string"
+        },
+        "source_family": {
+          "type": "string"
+        },
+        "source_type": {
+          "type": "string"
+        },
+        "domain_route": {
+          "type": "string"
+        },
+        "domain_tags": {
+          "type": "string"
+        },
+        "access_tier": {
+          "type": "string"
+        },
+        "route_action": {
+          "type": "string"
+        },
+        "prompt_profile": {
+          "type": "string"
+        },
+        "schema_profile": {
+          "type": "string"
+        }
+      }
+    },
+    "extraction_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "route_id",
+        "prompt_profile",
+        "schema_profile",
+        "domain_route",
+        "output_family",
+        "source_family",
+        "source_type",
+        "access_level",
+        "expected_packet_profile"
+      ],
+      "properties": {
+        "contract_version": {
+          "type": "string",
+          "enum": ["route_extraction_task_v1"]
+        },
+        "route_id": {
+          "type": "string"
+        },
+        "prompt_profile": {
+          "type": "string"
+        },
+        "schema_profile": {
+          "type": "string"
+        },
+        "domain_route": {
+          "type": "string"
+        },
+        "output_family": {
+          "type": "string",
+          "enum": [
+            "primary_evidence",
+            "evidence_synthesis",
+            "review_coverage",
+            "recommendation_consensus",
+            "context_only"
+          ]
+        },
+        "source_family": {
+          "type": "string"
+        },
+        "source_type": {
+          "type": "string"
+        },
+        "access_level": {
+          "type": "string"
+        },
+        "expected_packet_profile": {
+          "type": "string",
+          "enum": [
+            "full",
+            "primary_empirical",
+            "lean_primary",
+            "secondary_synthesis",
+            "review_coverage",
+            "not_applicable"
+          ]
+        }
+      }
+    },
+    "text_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "status",
+        "access_level",
+        "route_action",
+        "packet_id",
+        "packet_source_path",
+        "packet_selection_basis",
+        "expected_packet_profile",
+        "packet_profile",
+        "packet_profile_status",
+        "fulltext_artifact_paths",
+        "local_pdf_paths",
+        "abstract_available"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "full_text_packet",
+            "full_text_artifact",
+            "abstract",
+            "not_ready"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "access_level": {
+          "type": "string"
+        },
+        "route_action": {
+          "type": "string"
+        },
+        "packet_id": {
+          "type": "string"
+        },
+        "packet_source_path": {
+          "type": "string"
+        },
+        "packet_selection_basis": {
+          "type": "string"
+        },
+        "expected_packet_profile": {
+          "type": "string",
+          "enum": [
+            "full",
+            "primary_empirical",
+            "lean_primary",
+            "secondary_synthesis",
+            "review_coverage",
+            "not_applicable"
+          ]
+        },
+        "packet_profile": {
+          "type": "string"
+        },
+        "packet_profile_status": {
+          "type": "string",
+          "enum": [
+            "matches_expected",
+            "compatible_legacy_alias",
+            "compatible_full_packet",
+            "missing_packet_profile",
+            "profile_mismatch",
+            "no_packet",
+            "not_applicable"
+          ]
+        },
+        "fulltext_artifact_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "local_pdf_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "abstract_available": {
+          "type": "boolean"
+        }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "title",
+        "abstract"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "abstract": {
+          "type": "string"
+        },
+        "packet_summary": {
+          "type": "object"
+        },
+        "packet": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

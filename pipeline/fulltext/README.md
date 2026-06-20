@@ -7,6 +7,182 @@ The first goal is provenance repair: rows marked `full_text_seen` should point
 to durable paper locations such as sections, tables, figures, pages, or TEI
 elements rather than stale abstract snippets.
 
+## PDF Retrieval
+
+Use the table-native retrieval runner for retained papers that still need local
+PDFs:
+
+```bash
+python pipeline/fulltext/run_pdf_retrieval_pipeline.py \
+  --alternate-pdf-sources pmc,openalex,semantic_scholar \
+  --progress-every 25 \
+  --write-every 25
+```
+
+The runner first downloads probable PDF endpoints from the routed corpus, then
+optionally queries alternate open-access sources for rows that still fail, and
+runs the standard repository-source pass for OSF/PsyArXiv, Figshare-style
+records, and known repository redirects into Figshare (for example Sussex SRO
+handles). It validates PDF bytes before saving files, updates
+`candidate_papers.parquet`, rebuilds `paper_extraction_routes.parquet`, and
+exports the remaining manual-download queue to
+`data/processed/corpus/audits/manual_pdf_download_dois.csv/.txt`.
+
+For lower-level retry runs, `download_routed_pdfs.py` can also query alternate
+open-access sources before giving up on a DOI:
+
+```bash
+python pipeline/fulltext/download_routed_pdfs.py \
+  --only-failure-categories forbidden,non_pdf_response,provider_error,timeout \
+  --alternate-pdf-sources pmc,openalex,semantic_scholar \
+  --progress-every 25
+```
+
+The alternate-source layer currently supports PMC ID conversion plus PMC viewer
+PDF downloads, OpenAlex repository locations, and Semantic Scholar
+`openAccessPdf` links. Successful files are written as ordinary local PDFs and
+candidate rows keep the standard `downloaded` status; report records include
+the alternate source that supplied the winning URL.
+
+Use targeted repository recovery diagnostics when needed:
+
+```bash
+python pipeline/fulltext/recover_pdf_landing_pages.py \
+  --standard-recovery-only \
+  --categories forbidden,non_pdf_response,provider_error,timeout,other_download_failure,not_found
+```
+
+Broader host probing should stay as an explicit rescue pass rather than the
+default retrieval path. Browser-only publisher flows such as SAGE reader
+downloads or LWW "Download > PDF" menus are intentionally not part of the
+unattended HTTP recovery stage unless a deterministic non-browser endpoint is
+identified; keep those in the browser-manual workflow or a future supervised
+browser helper.
+
+The Akjournals landing-page pattern recovered enough PDFs to keep as a named
+rescue preset. Run it only as an explicit post-direct cleanup:
+
+```bash
+python pipeline/fulltext/recover_pdf_landing_pages.py \
+  --rescue-preset akjournals \
+  --apply \
+  --rebuild-routes-after
+python pipeline/fulltext/export_manual_pdf_queue.py
+python pipeline/fulltext/rank_manual_pdf_queue.py
+```
+
+## Browser Manual Recovery
+
+For normal-browser click-through recovery, save browser downloads into:
+
+```text
+data/raw/papers/manual_pdf_inbox/
+```
+
+or into a temporary staging folder under that directory. Do not use the
+browser's general `Downloads` folder for corpus recovery runs.
+
+Use the browser as a short click-through ladder, not only as a direct PDF
+viewer. From a DOI or landing page, first look for article-entry controls such
+as "Article", "Full text", "View article", or "Read article"; after opening
+that view, look again for "PDF", "Download PDF", "View PDF", or the browser PDF
+viewer download control. Stop and record the page state when the visible page
+says access is unavailable, login/subscription is required, or the paper must
+be purchased. Do not save those HTML pages as PDF attempts.
+
+Before importing manually saved files, triage the browser output:
+
+```bash
+python pipeline/fulltext/browser_download_triage.py \
+  --download-dir data/raw/papers/manual_pdf_inbox \
+  --quarantine-non-pdf \
+  --apply
+```
+
+This keeps files whose bytes start with a PDF magic header and moves HTML or
+other non-PDF saves into `data/raw/papers/manual_pdf_rejected_downloads/`.
+HTML pages are classified as `no_access_or_paywalled`,
+`cookie_or_interstitial_block`, or `html_saved_non_pdf` based on the visible
+page text. Use these statuses in browser-recovery reports instead of repeatedly
+retrying pages that visibly say "Get access", "Log in", or "you do not have
+access".
+
+After triage, import valid PDFs through the canonical inbox importer:
+
+```bash
+python pipeline/fulltext/import_manual_pdfs.py \
+  --inbox-dir data/raw/papers/manual_pdf_inbox \
+  --apply \
+  --move
+```
+
+When a curator has confirmed that an existing canonical PDF is the wrong file
+for a DOI, rerun the importer with `--replace-existing`. The old canonical PDF
+is moved to `data/raw/papers/pdf_conflicts/` and the candidate row is refreshed
+with the replacement checksum.
+
+After importing manual PDFs, rebuild routes and convert any newly local PDFs:
+
+```bash
+python pipeline/extract/build_extraction_routes.py
+python pipeline/fulltext/run_local_pdf_conversion_pipeline.py --batch-size 25
+```
+
+Successful conversion writes canonical artifacts under
+`data/processed/fulltext/articles/` and the final route rebuild moves those
+papers from `needs_pdf_conversion` to `ready_for_article_text_extraction`.
+Refresh manual queue outputs after route changes:
+
+```bash
+python pipeline/fulltext/export_manual_pdf_queue.py
+python pipeline/fulltext/rank_manual_pdf_queue.py
+```
+
+If browser/manual review confirms that a DOI has no usable open article PDF,
+record that durable decision in
+`pipeline/fulltext/manual_fulltext_access_overrides.json` with
+`manual_access_action=suppress_pdf_download`, then rebuild routes. If the record
+is not an extractable article, such as a conference abstract, correction,
+poster abstract, book review, or nonstandard source, record
+`manual_action=context_only` in
+`pipeline/extract/manual_extraction_route_overrides.json` instead.
+
+## Canonical Article Text Store
+
+New full-text artifacts should be written to
+`data/processed/fulltext/articles/`. This neutral directory replaces the old
+`fulltext/disorder/` and `fulltext/mechanistic/` split for the route-native
+pipeline. Existing artifacts can be copied into the canonical store without
+re-extracting PDFs:
+
+```bash
+python pipeline/fulltext/consolidate_fulltext_artifacts.py
+```
+
+The consolidation keeps one best artifact per DOI, preferring the artifact with
+the largest successful text extraction. The old directories are migration
+sources for this explicit consolidation command only; route building reads
+converted article text only from `fulltext/articles/`.
+
+Convert local PDFs that are currently routed as
+`convert_local_pdf_then_extract`:
+
+```bash
+python pipeline/fulltext/convert_routed_local_pdfs.py \
+  --backend grobid
+```
+
+The converter reads `paper_extraction_routes.parquet`, writes artifacts into
+`fulltext/articles/`, and rebuilds the route table after successful conversion.
+For larger conversion backlogs, use the managed local-PDF runner. It still calls
+the same converter, but writes batch reports and can restart GROBID between
+batches:
+
+```bash
+python pipeline/fulltext/run_local_pdf_conversion_pipeline.py \
+  --batch-size 25
+```
+
 ## Stage Runner
 
 Run the full non-destructive maintenance stage:
@@ -73,7 +249,7 @@ a separate explicit step through `apply_provenance_repairs.py --apply`.
 
 - `grobid`: primary scholarly-article parser backed by a local GROBID service;
   preserves TEI XML with article sections, references, tables, and figure
-  locators for downstream evidence packets.
+  locators for downstream article text inputs.
 - `docling`: fallback document conversion backend when the `docling` Python
   package is installed, especially for non-article PDFs or GROBID failures.
 - `pdftotext`: lightweight plain-text converter using Poppler when explicitly
@@ -88,6 +264,27 @@ backend. Managed batching is currently only enabled for explicit
 ```bash
 python pipeline/fulltext/convert_pdfs.py --dataset disorder --backend grobid --limit 25
 ```
+
+## PMC XML Recovery
+
+Some retained papers have reusable PMC full-text XML even when no local PDF has
+been downloaded. Retrieve those XML records before finalizing abstract-only
+routes:
+
+```bash
+python pipeline/fulltext/fetch_pmc_fulltext_xml.py \
+  --progress-every 25 \
+  --rps 1.5
+```
+
+By default, the script targets retained routed papers with a PMCID and skips
+papers that already have a converted full-text artifact or a valid local PDF.
+It tries the Europe PMC XML endpoint first and falls back to PMC OAI/JATS. Each
+successful XML record is written to `data/processed/fulltext/articles/` with
+the same artifact shape as PDF conversion, including section summaries and raw
+XML for article text input building. After successful writes, the script
+rebuilds `paper_extraction_routes.parquet` so those papers move to
+`full_text_available` and are no longer treated as PDF-download candidates.
 
 Target rows where the curated claim says `full_text_seen` but still points to an
 abstract snippet:
@@ -120,13 +317,15 @@ Outputs:
 These artifacts are intentionally separate from curated claims. No claim rows
 are modified by this stage.
 
-## LLM Evidence Packets
+## Article Text Inputs For Extraction
 
-After PDF conversion, build frontier-LLM-ready JSONL packets from the preserved
-GROBID TEI plus paper-library metadata:
+After PDF conversion, build JSONL article text inputs from the preserved GROBID
+TEI plus paper-library metadata:
 
 ```bash
-python pipeline/fulltext/build_llm_evidence_packets.py --dataset all
+python pipeline/fulltext/build_llm_evidence_packets.py \
+  --dataset all \
+  --section-selection-strategy all_sections
 ```
 
 Outputs:
@@ -137,23 +336,53 @@ Outputs:
 - `data/processed/fulltext/llm_packets_mechanistic_report.json`
 - `data/processed/fulltext/llm_packets_run_report.json`
 
-Each packet includes DOI-level metadata, candidate compound/entity contexts,
-source-type hints from publication metadata, selected reconstructed TEI
-sections, tables, figures, references, and stable `llm_chunks` with
-section/document offsets. The packet builder uses raw full TEI, not the
-truncated artifact section snippets, so it is the preferred input layer for
-API-based evidence assessment and data extraction.
+Each JSONL record includes DOI-level metadata, source-type hints from
+publication metadata, selected reconstructed TEI sections, tables, figures,
+references, and stable `llm_chunks` with section/document offsets. The builder
+uses raw extracted TEI, not truncated section snippets, so it is the preferred
+input layer for model extraction.
 
-Use `--packet-profile full` to preserve all extracted sections. Use
-`--packet-profile lean_primary` for the Gemini extraction workflow; it keeps
-title/abstract metadata, methods/results-like chunks, tables, and
-marker-matched mechanistic/clinical sections while dropping most discussion,
-conclusion, references, and secondary review body text.
+Article text does not mean the whole paper. It means the text we choose to give
+the model for an article-text extraction task. Use
+`--section-selection-strategy` to choose that text:
 
-For a quick preview:
+- `primary_study`: for primary studies. Keeps title/abstract metadata,
+  methods/results-like sections, tables, and marker-matched domain evidence
+  while dropping most introduction, discussion, conclusion, references, and
+  secondary-review body text.
+- `meta_analysis`: for meta-analyses and quantitative evidence syntheses. Keeps
+  synthesis methods/results, risk-of-bias/certainty sections, tables, figures,
+  and references so included studies and pooled effects can be extracted.
+- `review`: for structured or narrative reviews. Keeps scope, methods,
+  findings, limitations, gaps, tables, and selected figures while omitting
+  references.
+- `all_sections`: preserves all extracted sections. Use this for inspection or
+  debugging, not as the default extraction input.
+
+For compatibility, the JSON output still stores the corresponding internal
+`packet_profile` values: `primary_empirical`, `secondary_synthesis`,
+`review_coverage`, or `full`.
+
+The older builder CLI still exposes `--dataset` for compatibility with
+pre-route migration inputs. Do not use that split-source mode for new
+route-native extraction runs; use route-derived queues and the canonical
+`fulltext/articles/` store instead.
+
+For a small route-native section-selection audit:
 
 ```bash
-python pipeline/fulltext/build_llm_evidence_packets.py --dataset disorder --limit 5 --packet-profile lean_primary
+python pipeline/fulltext/audit_article_text_inputs.py \
+  --per-strategy 3
+```
+
+`lean_primary` remains accepted as a deprecated compatibility alias, but new
+commands should use `primary_study`.
+
+For a meta-analysis pilot, first export the route-derived DOI queue:
+
+```bash
+python pipeline/extract/export_packet_profile_queues.py \
+  --section-selection-strategy meta_analysis
 ```
 
 ## Provenance Repair Report

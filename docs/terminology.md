@@ -14,6 +14,28 @@ compatibility with the first-generation graph.
 | Graph-ready relationship | `evidence_edge` | evidence-supported relationship | A derived graph view over one or more evidence records between normalized entities. |
 | Older extracted row/file language | `claim` | finding | Legacy term used by current schemas, file names, payloads, and some scripts. |
 
+## Routed Extraction Terms
+
+Use these terms for the table-based extraction pipeline.
+
+| Concept | Preferred Term | Notes |
+| --- | --- | --- |
+| DOI-level routing row | extraction route | A paper can have more than one route when it should be extracted for more than one evidence domain. |
+| Single model job | extraction task | One paper plus one paper type, evidence domain, text availability, prompt, and schema. Track this by `task_id`/`route_id`, not DOI alone. |
+| Paper category | paper type | Primary study, meta-analysis, systematic review, narrative review, guideline, or other routed source type. |
+| Evidence topic | evidence domain | Clinical outcome, safety/tolerability, molecular target, pathway, brain system, cognitive/behavioral, subjective experience, pharmacokinetics/exposure, intervention context, or public-health/real-world evidence. |
+| Available text level | text availability | Either abstract-only or article text. Article text can be selected sections, not necessarily the whole paper. |
+| Text extracted from PDFs/XML | extracted text | The source text produced before model extraction. |
+| Selected text sent to the model | article text input | The article sections/tables/figures/references chosen for an article-text extraction task. |
+| Rule for choosing article text | section selection strategy | For example: primary study, meta-analysis, or review. |
+| Model instructions | extraction prompt | The instructions for the model for a specific paper type, evidence domain, and text availability. |
+| Expected JSON output | extraction schema | The JSON structure the model must return. |
+| Route retained but not sent to a model | terminal no-model route | Useful for audit/accounting, not a KG extraction task. |
+
+Older code and JSON files may still use `packet` for article text input and
+`packet_profile` for section selection strategy. Treat those names as
+compatibility fields, not preferred terminology for new docs or commands.
+
 ## Practical Rule
 
 Use `evidence_record` in new table names and backend documentation. Use

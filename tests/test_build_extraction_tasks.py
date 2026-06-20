@@ -1,0 +1,381 @@
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+
+import pandas as pd
+from jsonschema import Draft7Validator
+
+from pipeline.extract.build_extraction_tasks import DEFAULT_FULLTEXT_PACKET_PATHS, TASK_SCHEMA_VERSION, build_tasks
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def make_args(root: Path, *, packet_paths: list[Path] | None = None, only_ready: bool = False) -> SimpleNamespace:
+    return SimpleNamespace(
+        route_table=str(root / "routes.parquet"),
+        metadata_table=str(root / "metadata.parquet"),
+        out_jsonl=str(root / "tasks.jsonl"),
+        report_json=str(root / "report.json"),
+        schema=str(ROOT / "schema" / "extraction_task.schema.json"),
+        doi_file="",
+        fulltext_packets_jsonl=[str(path) for path in (packet_paths or [])],
+        route_action=[],
+        prompt_profile=[],
+        schema_profile=[],
+        domain_route=[],
+        limit=0,
+        include_packet_content=False,
+        only_ready=only_ready,
+        only_retained=True,
+    )
+
+
+def route_row(**overrides: object) -> dict:
+    row = {
+        "route_id": "route-primary-clinical",
+        "doi": "10.1000/full",
+        "retained_for_extraction_candidate": True,
+        "study_title": "Full text psilocybin trial",
+        "study_year": "2024",
+        "publication_type": "Journal Article",
+        "source_family": "primary_or_unclear",
+        "source_type": "primary_or_unclear",
+        "secondary_source_types": "",
+        "primary_secondary_source_type": "",
+        "literature_type_confidence": "medium",
+        "domain_route": "clinical_outcome",
+        "domain_tags": "clinical_outcome|safety_tolerability",
+        "domain_routing_primary_domain": "clinical_outcome",
+        "methodological_validity_tags": "",
+        "domain_screening_decision": "include_in_scope",
+        "domain_screening_reason": "Clinical trial abstract.",
+        "domain_routing_model": "gemini-test",
+        "domain_needs_human_review": False,
+        "domain_route_confidence": "high",
+        "bridge_clinical_mechanism": False,
+        "study_system_hint": "clinical",
+        "access_tier": "full_text_available",
+        "has_abstract": True,
+        "has_pdf_url": True,
+        "has_converted_full_text": True,
+        "fulltext_artifact_paths": "/tmp/full.json",
+        "fulltext_char_count": 15000,
+        "has_local_pdf": False,
+        "local_pdf_paths": "",
+        "local_pdf_count": 0,
+        "open_access_status": "gold",
+        "best_pdf_url": "https://example.org/full.pdf",
+        "route_action": "extract_from_full_text",
+        "prompt_profile": "primary_clinical",
+        "schema_profile": "primary_evidence_schema",
+        "route_priority": 10,
+        "route_confidence": "high",
+        "route_basis": "source_family:primary_or_unclear",
+    }
+    row.update(overrides)
+    return row
+
+
+class BuildExtractionTasksTest(unittest.TestCase):
+    def test_default_article_text_inputs_do_not_include_legacy_split_packet_files(self) -> None:
+        names = [path.name for path in DEFAULT_FULLTEXT_PACKET_PATHS]
+
+        self.assertEqual(names, ["fulltext_packets.jsonl"])
+        self.assertNotIn("mechanistic_fulltext_packets.jsonl", names)
+        self.assertNotIn("disorder_fulltext_packets.jsonl", names)
+
+    def test_build_tasks_preserves_route_id_as_task_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            routes = pd.DataFrame(
+                [
+                    route_row(),
+                    route_row(
+                        route_id="route-primary-safety",
+                        domain_route="safety_tolerability",
+                        prompt_profile="primary_safety",
+                    ),
+                    route_row(
+                        route_id="route-meta",
+                        doi="10.1000/meta",
+                        study_title="Meta-analysis of psilocybin trials",
+                        source_family="secondary_literature",
+                        source_type="meta_analysis",
+                        primary_secondary_source_type="meta_analysis",
+                        domain_route="clinical_outcome",
+                        access_tier="abstract_only",
+                        has_converted_full_text=False,
+                        fulltext_artifact_paths="",
+                        fulltext_char_count=0,
+                        route_action="extract_from_abstract_only",
+                        prompt_profile="secondary_meta_analysis",
+                        schema_profile="synthesis_evidence_schema",
+                    ),
+                    route_row(
+                        route_id="route-download-first",
+                        doi="10.1000/download-first",
+                        route_action="download_pdf_then_extract",
+                        access_tier="pdf_download_url_available",
+                    ),
+                    route_row(
+                        route_id="route-excluded",
+                        doi="10.1000/excluded",
+                        route_action="exclude_after_model_screen",
+                        prompt_profile="no_extraction",
+                        schema_profile="no_extraction_schema",
+                    ),
+                ]
+            )
+            routes.to_parquet(root / "routes.parquet", index=False)
+            metadata = pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/full",
+                        "study_title": "Full text psilocybin trial",
+                        "study_year": "2024",
+                        "abstract": "Participants received psilocybin.",
+                        "publication_type": "Journal Article | Randomized Controlled Trial",
+                        "open_access_status": "gold",
+                        "best_pdf_url": "https://example.org/full.pdf",
+                    },
+                    {
+                        "doi": "10.1000/meta",
+                        "study_title": "Meta-analysis of psilocybin trials",
+                        "study_year": "2025",
+                        "abstract": "We meta-analyzed randomized trials.",
+                        "publication_type": "Journal Article | Meta-Analysis",
+                    },
+                ]
+            )
+            metadata.to_parquet(root / "metadata.parquet", index=False)
+            packets = root / "packets.jsonl"
+            packets.write_text(
+                json.dumps(
+                    {
+                        "packet_id": "article:10.1000/full",
+                        "packet_profile": "primary_empirical",
+                        "study_doi": "10.1000/full",
+                        "document_summary": {"packet_profile": "primary_empirical", "chunk_count": 2},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
+
+        self.assertEqual(report["tasks_written"], 3)
+        self.assertEqual({task["schema_version"] for task in tasks}, {TASK_SCHEMA_VERSION})
+        self.assertEqual({task["task_id"] for task in tasks}, {task["route_id"] for task in tasks})
+        self.assertEqual(
+            {task["route_id"] for task in tasks},
+            {"route-primary-clinical", "route-primary-safety", "route-meta"},
+        )
+        self.assertEqual({task["task_status"] for task in tasks}, {"ready_for_model"})
+        self.assertEqual(
+            {task["extraction_contract"]["schema_profile"] for task in tasks},
+            {"primary_evidence_schema", "synthesis_evidence_schema"},
+        )
+        self.assertEqual(report["by_output_family"]["primary_evidence"], 2)
+        self.assertEqual(report["by_output_family"]["evidence_synthesis"], 1)
+        by_route_id = {task["route_id"]: task for task in tasks}
+        self.assertNotIn("datasets", by_route_id["route-primary-clinical"]["route_context"])
+        self.assertNotIn("dataset", by_route_id["route-primary-clinical"]["content"]["packet_summary"])
+        self.assertEqual(
+            by_route_id["route-primary-clinical"]["extraction_contract"]["expected_packet_profile"],
+            "primary_empirical",
+        )
+        self.assertEqual(
+            by_route_id["route-meta"]["extraction_contract"]["expected_packet_profile"],
+            "secondary_synthesis",
+        )
+        self.assertEqual(report["by_expected_packet_profile"]["primary_empirical"], 2)
+        self.assertEqual(report["by_expected_packet_profile"]["secondary_synthesis"], 1)
+
+        schema = json.loads((ROOT / "schema" / "extraction_task.schema.json").read_text(encoding="utf-8"))
+        validator = Draft7Validator(schema)
+        errors = [error.message for task in tasks for error in validator.iter_errors(task)]
+        self.assertEqual(errors, [])
+
+    def test_fulltext_route_without_packet_is_kept_but_not_ready(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame([route_row()]).to_parquet(root / "routes.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/full",
+                        "study_title": "Full text psilocybin trial",
+                        "abstract": "Participants received psilocybin.",
+                    }
+                ]
+            ).to_parquet(root / "metadata.parquet", index=False)
+
+            tasks, report = build_tasks(make_args(root))
+            ready_tasks, ready_report = build_tasks(make_args(root, only_ready=True))
+
+        self.assertEqual(len(tasks), 1)
+        self.assertEqual(tasks[0]["task_status"], "needs_fulltext_packet")
+        self.assertEqual(tasks[0]["text_source"]["mode"], "full_text_artifact")
+        self.assertEqual(report["by_task_status"], {"needs_fulltext_packet": 1})
+        self.assertEqual(ready_tasks, [])
+        self.assertEqual(ready_report["tasks_written"], 0)
+
+    def test_primary_route_accepts_legacy_lean_primary_packet_alias(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame([route_row()]).to_parquet(root / "routes.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/full",
+                        "study_title": "Full text psilocybin trial",
+                        "abstract": "Participants received psilocybin.",
+                    }
+                ]
+            ).to_parquet(root / "metadata.parquet", index=False)
+            packets = root / "packets.jsonl"
+            packets.write_text(
+                json.dumps(
+                    {
+                        "packet_id": "article:10.1000/full:legacy",
+                        "packet_profile": "lean_primary",
+                        "study_doi": "10.1000/full",
+                        "document_summary": {"packet_profile": "lean_primary"},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
+
+        self.assertEqual(tasks[0]["task_status"], "ready_for_model")
+        self.assertEqual(tasks[0]["text_source"]["expected_packet_profile"], "primary_empirical")
+        self.assertEqual(tasks[0]["text_source"]["packet_profile"], "lean_primary")
+        self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "compatible_legacy_alias")
+        self.assertEqual(report["by_packet_profile_status"], {"compatible_legacy_alias": 1})
+
+    def test_fulltext_meta_analysis_selects_expected_packet_profile(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame(
+                [
+                    route_row(
+                        route_id="route-meta-fulltext",
+                        doi="10.1000/meta-fulltext",
+                        study_title="Full text meta-analysis",
+                        source_family="secondary_literature",
+                        source_type="meta_analysis",
+                        primary_secondary_source_type="meta_analysis",
+                        domain_route="clinical_outcome",
+                        access_tier="full_text_available",
+                        has_converted_full_text=True,
+                        route_action="extract_from_full_text",
+                        prompt_profile="secondary_meta_analysis",
+                        schema_profile="synthesis_evidence_schema",
+                    )
+                ]
+            ).to_parquet(root / "routes.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/meta-fulltext",
+                        "study_title": "Full text meta-analysis",
+                        "abstract": "We meta-analyzed trials.",
+                        "publication_type": "Journal Article | Meta-Analysis",
+                    }
+                ]
+            ).to_parquet(root / "metadata.parquet", index=False)
+            packets = root / "packets.jsonl"
+            packets.write_text(
+                "\n".join(
+                    [
+                        json.dumps(
+                            {
+                                "packet_id": "article:10.1000/meta-fulltext:lean",
+                                "packet_profile": "primary_empirical",
+                                "study_doi": "10.1000/meta-fulltext",
+                                "document_summary": {"packet_profile": "primary_empirical"},
+                            }
+                        ),
+                        json.dumps(
+                            {
+                                "packet_id": "article:10.1000/meta-fulltext:synthesis",
+                                "packet_profile": "secondary_synthesis",
+                                "study_doi": "10.1000/meta-fulltext",
+                                "document_summary": {"packet_profile": "secondary_synthesis"},
+                            }
+                        ),
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
+
+        self.assertEqual(len(tasks), 1)
+        task = tasks[0]
+        self.assertEqual(task["task_status"], "ready_for_model")
+        self.assertEqual(task["text_source"]["expected_packet_profile"], "secondary_synthesis")
+        self.assertEqual(task["text_source"]["packet_profile"], "secondary_synthesis")
+        self.assertEqual(task["text_source"]["packet_profile_status"], "matches_expected")
+        self.assertEqual(task["text_source"]["packet_id"], "article:10.1000/meta-fulltext:synthesis")
+        self.assertEqual(report["by_packet_profile_status"], {"matches_expected": 1})
+
+    def test_fulltext_profile_mismatch_is_not_model_ready(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame(
+                [
+                    route_row(
+                        route_id="route-meta-mismatch",
+                        doi="10.1000/meta-mismatch",
+                        source_family="secondary_literature",
+                        source_type="meta_analysis",
+                        primary_secondary_source_type="meta_analysis",
+                        access_tier="full_text_available",
+                        route_action="extract_from_full_text",
+                        prompt_profile="secondary_meta_analysis",
+                        schema_profile="synthesis_evidence_schema",
+                    )
+                ]
+            ).to_parquet(root / "routes.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/meta-mismatch",
+                        "study_title": "Mismatched packet meta-analysis",
+                        "abstract": "A meta-analysis.",
+                    }
+                ]
+            ).to_parquet(root / "metadata.parquet", index=False)
+            packets = root / "packets.jsonl"
+            packets.write_text(
+                json.dumps(
+                    {
+                        "packet_id": "article:10.1000/meta-mismatch",
+                        "packet_profile": "lean_primary",
+                        "study_doi": "10.1000/meta-mismatch",
+                        "document_summary": {"packet_profile": "lean_primary"},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
+            ready_tasks, _ = build_tasks(make_args(root, packet_paths=[packets], only_ready=True))
+
+        self.assertEqual(tasks[0]["task_status"], "needs_expected_fulltext_packet")
+        self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "profile_mismatch")
+        self.assertEqual(report["by_task_status"], {"needs_expected_fulltext_packet": 1})
+        self.assertEqual(ready_tasks, [])
+
+
+if __name__ == "__main__":
+    unittest.main()

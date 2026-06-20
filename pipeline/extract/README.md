@@ -18,6 +18,7 @@ Default outputs:
 - `data/processed/corpus/paper_extraction_routes.parquet`
 - `data/processed/corpus/paper_extraction_routes_summary.json`
 - `data/processed/corpus/paper_extraction_routes_counts.csv`
+- `data/processed/corpus/preprint_route_holds.csv`
 
 The route table joins deterministic pre-screen decisions, metadata, literature
 type routing, optional model-assigned domain routing, converted full-text
@@ -26,6 +27,22 @@ Each row includes the paper source family, source type, domain route, access
 tier, route action, prompt profile, schema profile, priority, confidence, and
 basis. If no model-assigned domain table is supplied, papers stay on coarse
 general routes by paper type and access tier.
+
+Preprint records are not promoted into extraction routes by default. The route
+builder detects preprint records deterministically from DOI patterns,
+publication type, venue, and publisher metadata, writes them to
+`preprint_route_holds.csv`, and leaves them out of
+`paper_extraction_routes.parquet`. URL-only preprint signals are weak because a
+published article can have a preprint PDF URL. Use `--include-preprints` only
+for diagnostic comparisons with the old behavior.
+
+The route build writes DOI-level status back into
+`data/processed/corpus/candidate_papers.parquet` unless
+`--no-update-candidate-table` is used. This keeps the candidate table as the
+main corpus ledger: one row per DOI with publication stage, preprint flags,
+prescreen status, literature type, extraction-route status, route counts,
+domain summaries, prompt/schema profiles, and the best available text tier.
+Detailed per-domain extraction rows remain in `paper_extraction_routes.parquet`.
 
 Access tiers are not evidence-quality labels. They describe the next file
 handling step:
@@ -52,23 +69,243 @@ Use this table to audit extraction queues before model calls. The prompt and
 schema profile labels are route assignments; route-specific model inputs and
 schemas are built downstream from this table.
 
+## Route Extraction Tasks
+
+`route_id` is the stable unit for extraction. A DOI can have several route rows
+when the same paper should be extracted for different evidence domains, so
+downstream model runs should track `route_id`/`task_id` rather than DOI alone.
+
+Build route-aware task records:
+
+```bash
+python pipeline/extract/build_extraction_tasks.py
+```
+
+Default outputs:
+
+- `data/processed/extraction/route_extraction_tasks.jsonl`
+- `data/processed/extraction/route_extraction_tasks_report.json`
+
+Each task records the paper metadata, route context, selected prompt/schema,
+expected output family, text source, and model-run status. Article-text routes
+are marked `ready_for_model` only when a compatible article text input is
+available. Otherwise they remain in the task file as `needs_fulltext_packet` or
+`needs_expected_fulltext_packet` so missing text inputs are visible.
+
+Section selection strategies are route-specific:
+
+- primary evidence routes -> primary study article text
+- `secondary_meta_analysis` -> meta-analysis article text
+- structured/narrative review routes -> review article text
+- terminal no-model routes -> no article text input
+
+Internally, current JSON files still call these `packet_profile` values:
+`primary_empirical`, `secondary_synthesis`, `review_coverage`, and
+`not_applicable`. Treat those as compatibility field values. `lean_primary` is
+accepted only as a deprecated alias for `primary_empirical`.
+
+## Route-Specific Extraction Schemas
+
+Route profiles are registered with one of three statuses:
+
+- `runnable`: detailed enough for normal model pilots.
+- `scaffold`: schema and prompt shell exist, but the profile should be tuned
+  before production-scale model calls.
+- `terminal_no_model`: route is retained for audit/accounting but is not sent to
+  an extraction model.
+
+The primary KG extraction target is original empirical evidence. Primary
+profiles are runnable and share:
+
+- `schema/primary_evidence.schema.json`
+- `docs/extraction_profiles/paper_type/primary_article_text.md`
+- `docs/extraction_profiles/paper_type/primary_abstract_only.md`
+
+Use these for `schema_profile=primary_evidence_schema`. Domain addenda under
+`docs/extraction_domains/` are appended automatically from `domain_route`.
+Primary extraction produces KG evidence candidates from original study results;
+it is the first route family to pilot.
+
+The route-specific synthesis contract is also runnable, but it is a secondary
+layer:
+
+- `schema/synthesis_evidence.schema.json`
+- `docs/extraction_profiles/paper_type/meta_analysis_article_text.md`
+- `docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md`
+
+Use this for `prompt_profile=secondary_meta_analysis` and
+`schema_profile=synthesis_evidence_schema`. It extracts meta-analysis scope,
+search methods, eligibility criteria, included-study summaries, explicitly
+listed included studies, pooled or network synthesis results, risk-of-bias and
+certainty assessments, author conclusions, and evidence gaps without creating
+primary-study graph findings.
+
+## Primary-First Article Text Inputs And Audits
+
+Export DOI queues for route-specific article text input building from the route
+table:
+
+```bash
+python pipeline/extract/export_packet_profile_queues.py \
+  --section-selection-strategy primary_study
+```
+
+Default outputs:
+
+- `data/processed/extraction/article_text_queues/primary_study.txt`
+- `data/processed/extraction/article_text_queues.csv`
+- `data/processed/extraction/article_text_queues_report.json`
+
+After article text inputs have been built from the route table's
+`fulltext_artifact_paths`, rebuild route tasks with those files:
+
+```bash
+python pipeline/extract/build_extraction_tasks.py \
+  --article-text-inputs-jsonl data/processed/extraction/primary_study_article_text_inputs.jsonl
+```
+
+Before model calls, audit a small sample of the article text selected by each
+section selection strategy:
+
+```bash
+python pipeline/fulltext/audit_article_text_inputs.py \
+  --per-strategy 3
+```
+
+Default outputs:
+
+- `data/processed/extraction/article_text_input_audit_report.json`
+- `data/processed/extraction/article_text_input_audit.csv`
+- `data/processed/extraction/article_text_input_audit.md`
+- `data/processed/extraction/article_text_input_audit_sample.jsonl`
+
+By default the audit uses `fulltext_artifact_paths` from the route table. Use
+`--artifact-dir <final-extracted-text-dir>` only when deliberately overriding
+those paths. This audit does not call a model.
+
+Audit primary readiness before running extraction:
+
+```bash
+python pipeline/extract/audit_primary_extraction_readiness.py
+```
+
+Default outputs:
+
+- `data/processed/extraction/primary_extraction_readiness_report.json`
+- `data/processed/extraction/primary_extraction_readiness.csv`
+
+The audit is no-model. It counts primary tasks by domain, prompt profile,
+model-run status, access tier, text mode, expected section selection strategy,
+actual article text input strategy, and compatibility status.
+
+Dry-run primary extraction before making model calls:
+
+```bash
+python pipeline/extract/run_route_extraction.py \
+  --input-jsonl data/processed/extraction/route_extraction_tasks.jsonl \
+  --schema-profile primary_evidence_schema \
+  --dry-run
+```
+
+The runner currently processes registered route profiles only. Unsupported
+terminal routes are never sent to the model. Review coverage profiles remain
+scaffolded and are skipped by default; include them only for deliberate local
+pilots:
+
+```bash
+python pipeline/extract/run_route_extraction.py \
+  --input-jsonl data/processed/extraction/route_extraction_tasks.jsonl \
+  --schema-profile review_coverage_schema \
+  --include-scaffold-profiles \
+  --dry-run
+```
+
+Audit meta-analysis readiness before running extraction:
+
+```bash
+python pipeline/extract/audit_meta_analysis_extraction_readiness.py
+```
+
+Default outputs:
+
+- `data/processed/extraction/meta_analysis_extraction_readiness_report.json`
+- `data/processed/extraction/meta_analysis_extraction_readiness.csv`
+
+The audit is no-model. It counts meta-analysis route tasks by readiness,
+access tier, text mode, expected section selection strategy, actual article text
+input strategy, and compatibility status.
+
+## KG Evidence vs Audit Routes
+
+Route categories are not all KG evidence categories. Keep these distinctions
+explicit:
+
+- `primary_*` profiles are KG evidence candidates. They extract original
+  empirical findings that may later become compound-target, compound-disorder,
+  endpoint, mechanism, or domain-specific evidence tables after deterministic
+  normalization.
+- `secondary_meta_analysis` extracts synthesis evidence. These rows should stay
+  separate from primary-study graph claims. They can support evidence-synthesis
+  views, certainty summaries, and later KG overlays.
+- `secondary_structured_review`, `secondary_narrative_review`, and
+  `secondary_review_coverage` are in-scope coverage routes, not primary KG
+  evidence. They describe what a review covers, summarizes, or identifies as
+  uncertain.
+- `guideline_consensus` is an in-scope recommendation/context route when the
+  paper is relevant, but it is not extracted into the KG for now.
+- `context_only_or_skip` is for papers that may be useful for provenance,
+  background, protocol tracking, commentary, or manual audit, but should not
+  create KG evidence.
+- `no_extraction` is a terminal audit route for records excluded before
+  extraction, usually after domain screening. It means the paper was seen and
+  intentionally did not enter evidence extraction.
+
+In short: some documents are in scope for corpus accounting or evidence-map
+context without being part of the main KG. Do not treat a route-table row as a
+KG contribution unless its profile family is intended to produce evidence rows.
+
+## PDF Retrieval For Routed Papers
+
+PDF retrieval for `download_pdf_then_extract` rows is handled by the table-native
+downloader:
+
+```bash
+python pipeline/fulltext/download_routed_pdfs.py
+```
+
+It writes active PDFs to `data/raw/papers/pdfs/` and updates the corpus table;
+rerun `build_extraction_routes.py` afterward so newly available PDFs move to
+the local-PDF/full-text path. Failed downloads are categorized so recovery runs
+can target temporary failures (`rate_limited`, `provider_error`, `timeout`)
+without repeatedly retrying blocked, stale, or non-PDF URLs.
+The route table separates probable direct PDF URLs from weaker landing-page or
+repository links. Only probable PDF endpoints enter the default automated
+download route; weaker links are retained for refreshed link discovery or manual
+download checks.
+
 ## Manual Route Overrides
 
 Manual extraction-route review is stored as a small DOI-level input file:
 
 - `pipeline/extract/manual_extraction_route_overrides.json`
+- `pipeline/fulltext/manual_fulltext_access_overrides.json`
 
-The route builder applies this file by default. Use it only for reviewed edge
-cases where the automated route is too broad or clearly wrong:
+The route builder applies these files by default. Use them only for reviewed
+edge cases where the automated route or access signal is too broad or clearly
+wrong:
 
 - `manual_action=context_only` keeps the paper in the route table for audit but
   removes it from extraction candidates.
 - `manual_action=route_domains` replaces a broad route with specific domain
   routes such as `clinical_outcome`, `safety_tolerability`, or
   `molecular_target`.
+- `manual_access_action=suppress_pdf_download` suppresses a misleading
+  probable-PDF URL and lets a retained paper fall back to abstract extraction
+  when manual review confirms there is no usable open PDF.
 
 The generated route table records these rows with
-`domain_routing_model=manual_extraction_route_review`. The CSV audit files under
+`domain_routing_model=manual_extraction_route_review` or
+`manual_fulltext_access_action`. The CSV audit files under
 `data/processed/corpus/audits/` are inspection outputs, not durable pipeline
 inputs.
 
@@ -102,8 +339,8 @@ to `data/processed/corpus_manifest.json` and rerun this command. Do not edit the
 candidate files by hand; they are regenerated views of the manifest and paper
 library.
 
-Then build clean full-text packet files for the papers that already have
-converted full text:
+Then build clean primary-study article text input files for the papers that
+already have converted full text:
 
 ```bash
 python pipeline/fulltext/build_llm_evidence_packets.py \
@@ -113,7 +350,7 @@ python pipeline/fulltext/build_llm_evidence_packets.py \
   --report-json data/processed/extraction/mechanistic_fulltext_packets_report.json \
   --omit-section-text \
   --omit-candidate-contexts \
-  --packet-profile lean_primary \
+  --section-selection-strategy primary_study \
   --max-references 0
 
 python pipeline/fulltext/build_llm_evidence_packets.py \
@@ -123,16 +360,16 @@ python pipeline/fulltext/build_llm_evidence_packets.py \
   --report-json data/processed/extraction/disorder_fulltext_packets_report.json \
   --omit-section-text \
   --omit-candidate-contexts \
-  --packet-profile lean_primary \
+  --section-selection-strategy primary_study \
   --max-references 0
 ```
 
 The `--omit-candidate-contexts` flag keeps previous claim/context hints out of
-the extraction packets. The extraction model should infer claims from the paper
-text itself. The `lean_primary` packet profile keeps title/abstract metadata,
-methods/results-like chunks, tables, and marker-matched mechanistic/clinical
-sections while dropping most discussion, conclusion, references, and secondary
-review body text.
+the extraction inputs. The extraction model should infer findings from the paper
+text itself. The primary study section selection strategy keeps title/abstract
+metadata, methods/results-like chunks, tables, and marker-matched
+mechanistic/clinical sections while dropping most discussion, conclusion,
+references, and secondary-review body text.
 
 ## Extraction V1 Pilot
 
@@ -181,14 +418,14 @@ The pilot records point to the shared prompt at
 inlined dataset-specific schema view through native `response_json_schema` mode
 while still validating parsed outputs against the full canonical schema. Use
 `--schema-mode prompt` to fall back to prompt-embedded schema text, or
-`--schema-mode both` for debugging. Full-text records embed the packet content
-by default so the same JSONL can be sent to the model. Use
+`--schema-mode both` for debugging. Full-text records embed the article text
+input by default so the same JSONL can be sent to the model. Use
 `--omit-fulltext-packet-content` for a lightweight inspection file.
 
 Each pilot record includes a deterministic `route_hint` derived from
 publication type, title, registry IDs, MeSH terms, and abstract phrases. The
 model may override this hint, but it helps keep secondary/context literature
-from being converted into primary evidence claims.
+from being converted into primary evidence findings.
 
 Run a Gemini pilot after setting `GEMINI_API_KEY` in the project-local `.env`:
 

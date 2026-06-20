@@ -20,6 +20,7 @@ CORPUS_MANIFEST = ROOT / "data" / "processed" / "corpus_manifest.json"
 KG_CLAIMS_TABLE = ROOT / "data" / "processed" / "kg" / "claims.parquet"
 KG_TABLE_MANIFEST = ROOT / "data" / "processed" / "kg" / "manifest.json"
 EXTRACTION_PROJECTION_REPORT = ROOT / "data" / "processed" / "extraction" / "projection_report.json"
+CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 
 DATASETS = {
     "mechanistic": {
@@ -156,6 +157,29 @@ PRISMA_EXTRACTION_OUTCOME_LABELS = {
     "needs_human_review": "Needs human review",
     "assessed_no_kg_record": "Assessed, no KG record promoted",
     "not_yet_extracted": "Not yet extracted",
+}
+
+PRISMA_CANDIDATE_PRESCREEN_LABELS = {
+    "exclude_obvious_irrelevant": "No in-scope title/abstract signal",
+    "exclude_missing_abstract": "No abstract available",
+    "exclude_non_evidence_artifact": "Non-evidence artifact",
+    "exclude_non_paper_container": "Non-paper container",
+    "retain_existing_downstream": "Already represented downstream",
+    "unknown": "Prescreen status not available",
+}
+
+PRISMA_CANDIDATE_ROUTE_LABELS = {
+    "excluded_after_domain_screen": "Excluded after domain screen",
+    "preprint_hold": "Preprint held for published-version check",
+    "context_only_or_skip": "Context-only or skip route",
+    "not_retained_for_extraction": "Not retained for extraction",
+    "unknown": "Route status not available",
+}
+
+PRISMA_CANDIDATE_INPUT_LABELS = {
+    "ready_for_article_text_extraction": "Article-text extraction set",
+    "ready_for_abstract_extraction": "Abstract-only extraction set",
+    "unknown": "Extraction input not classified",
 }
 
 
@@ -527,6 +551,7 @@ class MethodsFlowBuilder:
         self.root = root
         self.nodes: dict[str, dict] = {}
         self.papers: dict[str, dict] = {}
+        self.candidate_rows: list[dict] = []
         self.fulltext_by_doi: dict[str, dict] = {}
         self.doi_to_paper_id: dict[str, str] = {}
         self.pipeline_rows: dict[str, dict[str, dict]] = defaultdict(dict)
@@ -544,14 +569,40 @@ class MethodsFlowBuilder:
         self.warnings: list[str] = []
 
     def build(self) -> dict:
-        self.load_fulltext_status()
-        self.load_paper_libraries()
-        self.load_corpus_screening_reports()
-        self.load_triage_reports()
-        self.finalize_paper_nodes()
+        loaded_candidate_table = self.load_candidate_papers()
+        if not loaded_candidate_table:
+            self.load_fulltext_status()
+            self.load_paper_libraries()
+            self.load_corpus_screening_reports()
+            self.load_triage_reports()
+            self.finalize_paper_nodes()
         self.load_kg_claim_status()
         self.load_extraction_outcomes()
         return self.payloads()
+
+    def candidate_table_path(self) -> Path:
+        return self.root / "data" / "processed" / "corpus" / "candidate_papers.parquet"
+
+    def load_candidate_papers(self, candidate_table: Path | None = None) -> bool:
+        candidate_table = Path(candidate_table) if candidate_table is not None else self.candidate_table_path()
+        if not candidate_table.exists():
+            return False
+
+        self.input_files.append(str(candidate_table))
+        try:
+            import pandas as pd
+        except ModuleNotFoundError as exc:  # pragma: no cover - dependency failure path
+            self.warnings.append(f"Could not load candidate paper table because pandas is unavailable: {exc}")
+            return False
+
+        try:
+            df = pd.read_parquet(candidate_table)
+        except Exception as exc:
+            self.warnings.append(f"Could not read candidate paper table {candidate_table}: {exc}")
+            return False
+
+        self.candidate_rows = df.where(pd.notna(df), "").to_dict(orient="records")
+        return True
 
     def record_metadata_conflict(
         self,
@@ -1026,7 +1077,52 @@ class MethodsFlowBuilder:
         for dataset, paper_ids in matched.items():
             self.extraction_matched_pipeline_rows_by_dataset[dataset] = len(paper_ids)
 
+    def kg_claim_status_summary(self) -> dict:
+        return {
+            "claims_table": str(KG_CLAIMS_TABLE),
+            "claim_rows_by_dataset": dict(sorted(self.kg_claim_rows_by_dataset.items())),
+            "claim_papers_by_dataset": dict(sorted(self.kg_claim_papers_by_dataset.items())),
+            "claim_access_rows_by_dataset": {
+                dataset: dict(sorted(counter.items()))
+                for dataset, counter in sorted(self.kg_claim_access_rows_by_dataset.items())
+            },
+            "matched_pipeline_rows_by_dataset": dict(sorted(self.kg_claim_matched_pipeline_rows_by_dataset.items())),
+        }
+
+    def extraction_status_summary(self) -> dict:
+        return {
+            "projection_report": str(EXTRACTION_PROJECTION_REPORT),
+            "output_rows_by_dataset": dict(sorted(self.extraction_output_rows_by_dataset.items())),
+            "output_routes_by_dataset": {
+                dataset: dict(sorted(counter.items()))
+                for dataset, counter in sorted(self.extraction_output_routes_by_dataset.items())
+            },
+            "matched_pipeline_rows_by_dataset": dict(sorted(self.extraction_matched_pipeline_rows_by_dataset.items())),
+        }
+
+    def candidate_pipeline_status_view(self) -> dict:
+        counters = candidate_pipeline_counters(self.candidate_rows)
+        flow = prisma_flow_for_candidate_papers(self.candidate_rows)
+        return {
+            "contract_version": KG_VERSION,
+            "view": "pipeline_status",
+            "generated_at": now_utc(),
+            "source_table": str(self.candidate_table_path()),
+            "current_stage": "papers_selected_for_finding_extraction",
+            "counts": {key: dict(counter) for key, counter in sorted(counters.items())},
+            "kg_claim_status": self.kg_claim_status_summary(),
+            "extraction_status": self.extraction_status_summary(),
+            "metadata_quality": self.metadata_quality_summary(),
+            "prisma_flow_order": ["overall"],
+            "prisma_flow": {
+                "overall": flow,
+            },
+        }
+
     def pipeline_status_view(self) -> dict:
+        if self.candidate_rows:
+            return self.candidate_pipeline_status_view()
+
         counters: dict[str, Counter] = defaultdict(Counter)
         prisma_rows: dict[str, list[dict]] = defaultdict(list)
         for dataset, rows_by_paper in sorted(self.pipeline_rows.items()):
@@ -1051,31 +1147,13 @@ class MethodsFlowBuilder:
             "contract_version": KG_VERSION,
             "view": "pipeline_status",
             "generated_at": now_utc(),
+            "source_table": "",
+            "current_stage": "kg_inclusion_summary",
             "counts": {key: dict(counter) for key, counter in sorted(counters.items())},
-            "kg_claim_status": {
-                "claims_table": str(KG_CLAIMS_TABLE),
-                "claim_rows_by_dataset": dict(sorted(self.kg_claim_rows_by_dataset.items())),
-                "claim_papers_by_dataset": dict(sorted(self.kg_claim_papers_by_dataset.items())),
-                "claim_access_rows_by_dataset": {
-                    dataset: dict(sorted(counter.items()))
-                    for dataset, counter in sorted(self.kg_claim_access_rows_by_dataset.items())
-                },
-                "matched_pipeline_rows_by_dataset": dict(
-                    sorted(self.kg_claim_matched_pipeline_rows_by_dataset.items())
-                ),
-            },
-            "extraction_status": {
-                "projection_report": str(EXTRACTION_PROJECTION_REPORT),
-                "output_rows_by_dataset": dict(sorted(self.extraction_output_rows_by_dataset.items())),
-                "output_routes_by_dataset": {
-                    dataset: dict(sorted(counter.items()))
-                    for dataset, counter in sorted(self.extraction_output_routes_by_dataset.items())
-                },
-                "matched_pipeline_rows_by_dataset": dict(
-                    sorted(self.extraction_matched_pipeline_rows_by_dataset.items())
-                ),
-            },
+            "kg_claim_status": self.kg_claim_status_summary(),
+            "extraction_status": self.extraction_status_summary(),
             "metadata_quality": self.metadata_quality_summary(),
+            "prisma_flow_order": sorted(prisma_rows),
             "prisma_flow": {
                 dataset: prisma_flow_for_dataset(dataset, rows)
                 for dataset, rows in sorted(prisma_rows.items())
@@ -1110,6 +1188,7 @@ class MethodsFlowBuilder:
                 "input_files": sorted(set(self.input_files)),
                 "warnings": self.warnings,
                 "counts": {
+                    "candidate_papers": len(self.candidate_rows),
                     "pipeline_rows": {
                         dataset: len(rows_by_paper)
                         for dataset, rows_by_paper in sorted(self.pipeline_rows.items())
@@ -1132,6 +1211,169 @@ class MethodsFlowBuilder:
                 },
             },
         }
+
+
+def candidate_field(row: dict, field: str, fallback: str = "unknown") -> str:
+    value = normalize(row.get(field, ""))
+    return value or fallback
+
+
+def candidate_number(row: dict, field: str) -> int:
+    value = row.get(field, 0)
+    try:
+        return int(float(value))
+    except Exception:
+        return 0
+
+
+def candidate_screened(row: dict) -> bool:
+    return any(
+        field in row and normalize(row.get(field, "")) != ""
+        for field in (
+            "prescreen_actions",
+            "prescreen_decisions",
+            "prescreen_reasons",
+            "prescreen_retained_for_extraction_candidate",
+        )
+    )
+
+
+def candidate_pipeline_counters(rows: Iterable[dict]) -> dict[str, Counter]:
+    counters: dict[str, Counter] = defaultdict(Counter)
+    for row in rows:
+        counters["candidate:prescreen_action"][candidate_field(row, "prescreen_actions")] += 1
+        counters["candidate:prescreen_decision"][candidate_field(row, "prescreen_decisions")] += 1
+        counters["candidate:extraction_route_status"][candidate_field(row, "extraction_route_status")] += 1
+        counters["candidate:extraction_route_action"][candidate_field(row, "extraction_route_actions")] += 1
+        counters["candidate:best_extraction_access_tier"][candidate_field(row, "best_extraction_access_tier")] += 1
+        counters["candidate:literature_source_family"][candidate_field(row, "literature_source_family")] += 1
+        counters["candidate:extraction_schema_profiles"][candidate_field(row, "extraction_schema_profiles")] += 1
+    return counters
+
+
+def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
+    rows = list(props_rows)
+    screened_rows = [row for row in rows if candidate_screened(row)]
+    not_screened_rows = [row for row in rows if not candidate_screened(row)]
+    prescreen_retained_rows = [
+        row for row in screened_rows if boolish(row.get("prescreen_retained_for_extraction_candidate", False))
+    ]
+    prescreen_excluded_rows = [
+        row for row in screened_rows if not boolish(row.get("prescreen_retained_for_extraction_candidate", False))
+    ]
+    extraction_selected_rows = [
+        row for row in rows if boolish(row.get("retained_for_extraction_candidate", False))
+    ]
+    route_not_selected_rows = [
+        row
+        for row in prescreen_retained_rows
+        if not boolish(row.get("retained_for_extraction_candidate", False))
+    ]
+    retained_route_count = sum(candidate_number(row, "retained_extraction_route_count") for row in extraction_selected_rows)
+    input_split_reasons = Counter(candidate_field(row, "extraction_route_status") for row in extraction_selected_rows)
+    prescreen_reasons = Counter(candidate_field(row, "prescreen_actions") for row in prescreen_excluded_rows)
+    route_not_selected_reasons = Counter(candidate_field(row, "extraction_route_status") for row in route_not_selected_rows)
+    not_screened_reasons = Counter({"no_prescreen_status": len(not_screened_rows)}) if not_screened_rows else Counter()
+
+    return {
+        "dataset": "overall",
+        "label": "Candidate paper pipeline",
+        "unit": "DOI-level candidate papers",
+        "current_stage": "papers_selected_for_finding_extraction",
+        "metrics": {
+            "selected_papers": len(extraction_selected_rows),
+            "selected_extraction_route_assignments": retained_route_count,
+            "finding_counts_available": False,
+        },
+        "steps": {
+            "records_identified": {
+                "label": "Candidate DOI records identified",
+                "count": len(rows),
+            },
+            "records_screened": {
+                "label": "Records screened for relevance",
+                "count": len(screened_rows),
+            },
+            "prescreen_retained": {
+                "label": "Records retained after prescreen",
+                "count": len(prescreen_retained_rows),
+            },
+            "extraction_selected": {
+                "label": "Papers selected for finding extraction",
+                "count": len(extraction_selected_rows),
+            },
+        },
+        "side_boxes": {
+            "removed_before_screening": {
+                "label": "Records not screened",
+                "count": len(not_screened_rows),
+                "reasons": labeled_reason_counts(
+                    not_screened_reasons,
+                    {"no_prescreen_status": "No prescreen status"},
+                    ("no_prescreen_status",),
+                ),
+            },
+            "records_excluded": {
+                "label": "Not retained after prescreen",
+                "count": len(prescreen_excluded_rows),
+                "reasons": labeled_reason_counts(
+                    prescreen_reasons,
+                    PRISMA_CANDIDATE_PRESCREEN_LABELS,
+                    (
+                        "exclude_obvious_irrelevant",
+                        "exclude_missing_abstract",
+                        "exclude_non_evidence_artifact",
+                        "retain_existing_downstream",
+                        "exclude_non_paper_container",
+                        "unknown",
+                    ),
+                ),
+            },
+            "route_not_selected": {
+                "label": "Not selected after routing",
+                "count": len(route_not_selected_rows),
+                "reasons": labeled_reason_counts(
+                    route_not_selected_reasons,
+                    PRISMA_CANDIDATE_ROUTE_LABELS,
+                    (
+                        "excluded_after_domain_screen",
+                        "preprint_hold",
+                        "context_only_or_skip",
+                        "not_retained_for_extraction",
+                        "unknown",
+                    ),
+                ),
+            },
+            "extraction_input_split": {
+                "label": "Extraction input split",
+                "count": len(extraction_selected_rows),
+                "reasons": labeled_reason_counts(
+                    input_split_reasons,
+                    PRISMA_CANDIDATE_INPUT_LABELS,
+                    (
+                        "ready_for_article_text_extraction",
+                        "ready_for_abstract_extraction",
+                        "unknown",
+                    ),
+                ),
+                "note": (
+                    f"{retained_route_count:,} route/profile assignments are queued across selected papers. "
+                    "Finding-level counts will be added after extraction outputs are finalized."
+                ),
+            },
+        },
+        "rows": [
+            {"step": "records_identified", "side_box": "removed_before_screening"},
+            {"step": "records_screened", "side_box": "records_excluded"},
+            {"step": "prescreen_retained", "side_box": "route_not_selected"},
+            {
+                "step": "extraction_selected",
+                "side_box": "extraction_input_split",
+                "side_variant": "evidence-path",
+                "last": True,
+            },
+        ],
+    }
 
 
 def strongest_pdf_status(left: str, right: str) -> str:
@@ -1491,16 +1733,19 @@ def schema_payload() -> dict:
                 "required": [
                     "contract_version",
                     "view",
-                    "generated_at",
-                    "counts",
-                    "kg_claim_status",
-                    "extraction_status",
-                    "prisma_flow",
-                ],
-                "description": "Methods-page PRISMA-style paper flow, KG inclusion route, and extraction-status summary.",
-            }
-        },
-    }
+                "generated_at",
+                "source_table",
+                "current_stage",
+                "counts",
+                "kg_claim_status",
+                "extraction_status",
+                "prisma_flow_order",
+                "prisma_flow",
+            ],
+            "description": "Methods-page PRISMA-style candidate paper flow, KG inclusion route, and extraction-status summary.",
+        }
+    },
+}
 
 
 def write_outputs(payloads: dict, out_dir: Path) -> dict:

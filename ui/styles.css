@@ -1245,11 +1245,19 @@ button.primary:hover {
   gap: 0;
 }
 
+.prisma-grid.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .prisma-diagram {
   display: grid;
   gap: 32px;
   min-width: 0;
   padding: 0 28px;
+}
+
+.prisma-grid.single .prisma-diagram {
+  padding: 0;
 }
 
 .prisma-diagram + .prisma-diagram {
@@ -1269,6 +1277,10 @@ button.primary:hover {
   grid-auto-rows: minmax(96px, auto);
   gap: 0;
   align-items: stretch;
+}
+
+.prisma-grid.single .prisma-flow {
+  grid-template-columns: minmax(220px, 0.8fr) 34px minmax(290px, 1.2fr);
 }
 
 .prisma-main-track {
@@ -3720,6 +3732,10 @@ input[type="number"] {
     grid-template-columns: 1fr;
     gap: 7px;
     grid-auto-rows: auto;
+  }
+
+  .prisma-grid.single .prisma-flow {
+    grid-template-columns: 1fr;
   }
 
   .prisma-main-track,

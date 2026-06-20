@@ -9,6 +9,7 @@ const dataFetchOptions =
 const DATASET_LABELS = {
   disorder: "Clinical evidence",
   mechanistic: "Molecular, brain, and behavior evidence",
+  overall: "Candidate paper pipeline",
 };
 
 function escapeHtml(value) {
@@ -51,8 +52,9 @@ function prismaSideBox(flow, key) {
 
 function renderPrismaReasons(box) {
   const reasons = Array.isArray(box.reasons) ? box.reasons.filter((reason) => Number(reason.count || 0) > 0) : [];
+  const note = box.note ? `<p>${escapeHtml(box.note)}</p>` : "";
   if (!reasons.length) {
-    return box.note ? `<p>${escapeHtml(box.note)}</p>` : "";
+    return note;
   }
   return `
     <ul>
@@ -63,6 +65,7 @@ function renderPrismaReasons(box) {
         </li>
       `).join("")}
     </ul>
+    ${note}
   `;
 }
 
@@ -169,10 +172,11 @@ function renderPrismaFlowRow(rowIndex, step, sideBox, options = {}) {
   const mainClasses = ["prisma-main-track"];
   const showSideBox = sideBox && Number(sideBox.count || 0) > 0;
   if (options.last) mainClasses.push("last");
+  const sideVariant = options.sideVariant || options.side_variant || "";
   const sideContent = options.retrievalBranch
     ? renderPrismaRetrievalBranch(sideBox, rowIndex)
     : showSideBox
-      ? `<span class="prisma-side-arrow" style="grid-row: ${rowIndex}" aria-hidden="true"></span>${renderPrismaSide(sideBox, options.sideVariant || "", rowIndex)}`
+      ? `<span class="prisma-side-arrow" style="grid-row: ${rowIndex}" aria-hidden="true"></span>${renderPrismaSide(sideBox, sideVariant, rowIndex)}`
       : `<span class="prisma-side-placeholder" style="grid-row: ${rowIndex}" aria-hidden="true"></span>`;
   return `
     <div class="${mainClasses.join(" ")}" style="grid-row: ${rowIndex}">
@@ -183,8 +187,8 @@ function renderPrismaFlowRow(rowIndex, step, sideBox, options = {}) {
   `;
 }
 
-function renderPrismaDiagram(dataset, flow) {
-  const rows = [
+function legacyPrismaRows(flow) {
+  return [
     renderPrismaFlowRow(1, prismaStep(flow, "records_identified"), prismaSideBox(flow, "removed_before_screening")),
     renderPrismaFlowRow(2, prismaStep(flow, "records_screened"), prismaSideBox(flow, "records_excluded")),
     renderPrismaFlowRow(3, prismaStep(flow, "reports_sought"), prismaSideBox(flow, "reports_not_retrieved"), { retrievalBranch: true }),
@@ -193,9 +197,33 @@ function renderPrismaDiagram(dataset, flow) {
     renderPrismaFlowRow(6, prismaStep(flow, "fulltext_gemini_assessed"), prismaSideBox(flow, "fulltext_excluded_after_extraction"), { sideVariant: "pending" }),
     renderPrismaFlowRow(7, prismaStep(flow, "fulltext_included"), null, { last: true }),
   ];
+}
+
+function dynamicPrismaRows(flow) {
+  const rowDefs = Array.isArray(flow?.rows) ? flow.rows : [];
+  if (!rowDefs.length) return legacyPrismaRows(flow);
+  return rowDefs.map((row, index) => {
+    const rowIndex = index + 1;
+    const sideKey = row.side_box || row.sideBox || "";
+    return renderPrismaFlowRow(
+      rowIndex,
+      prismaStep(flow, row.step),
+      sideKey ? prismaSideBox(flow, sideKey) : null,
+      {
+        last: row.last === true || rowIndex === rowDefs.length,
+        retrievalBranch: row.retrieval_branch === true || row.retrievalBranch === true,
+        sideVariant: row.side_variant || row.sideVariant || "",
+      },
+    );
+  });
+}
+
+function renderPrismaDiagram(dataset, flow) {
+  const title = flow?.label || DATASET_LABELS[dataset] || dataset;
+  const rows = dynamicPrismaRows(flow);
   return `
-    <article class="prisma-diagram" aria-label="${DATASET_LABELS[dataset]} PRISMA-style flow">
-      <h3>${DATASET_LABELS[dataset]}</h3>
+    <article class="prisma-diagram" aria-label="${escapeHtml(title)} PRISMA-style flow">
+      <h3>${escapeHtml(title)}</h3>
       <div class="prisma-flow">
         ${rows.join("")}
       </div>
@@ -203,13 +231,26 @@ function renderPrismaDiagram(dataset, flow) {
   `;
 }
 
-function renderPrismaPanel(datasets, status) {
+function prismaFlowOrder(status, flows) {
+  const explicitOrder = Array.isArray(status?.prisma_flow_order) ? status.prisma_flow_order : [];
+  const ordered = explicitOrder.filter((key) => flows[key]);
+  if (ordered.length) return ordered;
+  if (flows.overall) return ["overall"];
+  return ["disorder", "mechanistic"].filter((key) => flows[key]).concat(
+    Object.keys(flows).filter((key) => !["disorder", "mechanistic"].includes(key)),
+  );
+}
+
+function renderPrismaPanel(status) {
   const flows = status?.prisma_flow || {};
   if (!Object.keys(flows).length) return "";
+  const flowOrder = prismaFlowOrder(status, flows);
+  const gridClasses = ["prisma-grid"];
+  if (flowOrder.length === 1) gridClasses.push("single");
   return `
     <section class="prisma-panel" aria-label="PRISMA-style paper flow">
-      <div class="prisma-grid">
-        ${datasets.map((dataset) => renderPrismaDiagram(dataset, flows[dataset])).join("")}
+      <div class="${gridClasses.join(" ")}">
+        ${flowOrder.map((dataset) => renderPrismaDiagram(dataset, flows[dataset])).join("")}
       </div>
     </section>
   `;
@@ -218,8 +259,7 @@ function renderPrismaPanel(datasets, status) {
 function renderPipeline() {
   if (!methodsPipelineEl || !methodsState.pipelineStatus) return;
   const status = methodsState.pipelineStatus;
-  const datasets = ["disorder", "mechanistic"];
-  const prismaPanel = renderPrismaPanel(datasets, status);
+  const prismaPanel = renderPrismaPanel(status);
 
   methodsPipelineEl.className = "flow-dashboard";
   methodsPipelineEl.innerHTML = `<div class="flow-panel">${prismaPanel}</div>`;

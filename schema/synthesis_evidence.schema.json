@@ -1,0 +1,779 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Synthesis Evidence Extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "extraction_status",
+    "synthesis_assessment",
+    "search_methods",
+    "eligibility_criteria",
+    "included_evidence_summary",
+    "included_studies",
+    "synthesis_results",
+    "risk_of_bias_assessments",
+    "certainty_assessments",
+    "authors_conclusions",
+    "coverage_gaps",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["synthesis_evidence_v1"]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "$ref": "#/definitions/domain_route"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "meta_analysis",
+        "network_meta_analysis",
+        "umbrella_review",
+        "systematic_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_synthesis_result",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "synthesis_assessment": {
+      "$ref": "#/definitions/synthesis_assessment"
+    },
+    "search_methods": {
+      "$ref": "#/definitions/search_methods"
+    },
+    "eligibility_criteria": {
+      "$ref": "#/definitions/eligibility_criteria"
+    },
+    "included_evidence_summary": {
+      "$ref": "#/definitions/included_evidence_summary"
+    },
+    "included_studies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/included_study"
+      }
+    },
+    "synthesis_results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/synthesis_result"
+      }
+    },
+    "risk_of_bias_assessments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/risk_of_bias_assessment"
+      }
+    },
+    "certainty_assessments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/certainty_assessment"
+      }
+    },
+    "authors_conclusions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/authors_conclusion"
+      }
+    },
+    "coverage_gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_gap"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "enum": [
+        "clinical_outcome",
+        "safety_tolerability",
+        "molecular_target",
+        "molecular_pathway_readout",
+        "brain_system",
+        "cognitive_behavioral",
+        "subjective_experience",
+        "pharmacokinetics_exposure",
+        "intervention_context",
+        "real_world_public_health",
+        "general_topic_coverage",
+        "general_topic",
+        "uncertain"
+      ]
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "result_direction": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "null",
+        "negative",
+        "mixed",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "synthesis_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "is_meta_analysis",
+        "is_network_meta_analysis",
+        "has_extractable_quantitative_results",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "is_meta_analysis": {
+          "type": "boolean"
+        },
+        "is_network_meta_analysis": {
+          "type": "boolean"
+        },
+        "has_extractable_quantitative_results": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "$ref": "#/definitions/domain_route"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "search_methods": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "databases_searched",
+        "search_start_date",
+        "search_end_date",
+        "last_search_date",
+        "search_strategy_summary",
+        "registration_id",
+        "protocol_doi",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "databases_searched": {
+          "type": "string"
+        },
+        "search_start_date": {
+          "type": "string"
+        },
+        "search_end_date": {
+          "type": "string"
+        },
+        "last_search_date": {
+          "type": "string"
+        },
+        "search_strategy_summary": {
+          "type": "string"
+        },
+        "registration_id": {
+          "type": "string"
+        },
+        "protocol_doi": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "eligibility_criteria": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "population_or_system",
+        "intervention_or_exposure",
+        "comparators",
+        "eligible_outcomes_or_entities",
+        "eligible_study_designs",
+        "date_or_language_limits",
+        "exclusion_criteria",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "population_or_system": {
+          "type": "string"
+        },
+        "intervention_or_exposure": {
+          "type": "string"
+        },
+        "comparators": {
+          "type": "string"
+        },
+        "eligible_outcomes_or_entities": {
+          "type": "string"
+        },
+        "eligible_study_designs": {
+          "type": "string"
+        },
+        "date_or_language_limits": {
+          "type": "string"
+        },
+        "exclusion_criteria": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "included_evidence_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included_study_count",
+        "included_participant_count",
+        "included_experiment_or_assay_count",
+        "included_studies_completeness",
+        "included_studies_not_enumerated_reason",
+        "study_year_range",
+        "country_or_region_summary",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "included_study_count": {
+          "type": "string"
+        },
+        "included_participant_count": {
+          "type": "string"
+        },
+        "included_experiment_or_assay_count": {
+          "type": "string"
+        },
+        "included_studies_completeness": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "partial",
+            "not_enumerated",
+            "not_reported",
+            "not_applicable"
+          ]
+        },
+        "included_studies_not_enumerated_reason": {
+          "type": "string"
+        },
+        "study_year_range": {
+          "type": "string"
+        },
+        "country_or_region_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "included_study": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "study_label",
+        "study_doi",
+        "trial_registry_ids",
+        "title",
+        "first_author",
+        "publication_year",
+        "study_design",
+        "sample_size_total",
+        "population_or_system",
+        "compound_or_intervention",
+        "comparator",
+        "outcomes_or_entities_contributed",
+        "included_in_result_ids",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "study_label": {
+          "type": "string"
+        },
+        "study_doi": {
+          "type": "string"
+        },
+        "trial_registry_ids": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "first_author": {
+          "type": "string"
+        },
+        "publication_year": {
+          "type": "string"
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "sample_size_total": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "compound_or_intervention": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "outcomes_or_entities_contributed": {
+          "type": "string"
+        },
+        "included_in_result_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    },
+    "synthesis_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "relationship_domain",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "intervention_or_exposure",
+        "comparator",
+        "outcome_or_endpoint",
+        "outcome_measure",
+        "timepoint_or_window",
+        "effect_metric",
+        "effect_size",
+        "confidence_interval",
+        "ci_lower",
+        "ci_upper",
+        "p_value",
+        "model_type",
+        "study_count",
+        "participant_count",
+        "heterogeneity_i2",
+        "heterogeneity_tau2",
+        "heterogeneity_q",
+        "prediction_interval",
+        "result_direction",
+        "authors_interpretation",
+        "included_study_labels",
+        "subgroup_or_sensitivity",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "result_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "$ref": "#/definitions/domain_route"
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "disorder",
+            "symptom_or_outcome",
+            "safety_event",
+            "target",
+            "pathway_process",
+            "brain_region_or_network",
+            "cognitive_behavioral_construct",
+            "subjective_experience_construct",
+            "pharmacokinetic_parameter",
+            "intervention_component",
+            "public_health_measure",
+            "general_topic",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "intervention_or_exposure": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "outcome_or_endpoint": {
+          "type": "string"
+        },
+        "outcome_measure": {
+          "type": "string"
+        },
+        "timepoint_or_window": {
+          "type": "string"
+        },
+        "effect_metric": {
+          "type": "string"
+        },
+        "effect_size": {
+          "type": "string"
+        },
+        "confidence_interval": {
+          "type": "string"
+        },
+        "ci_lower": {
+          "type": "string"
+        },
+        "ci_upper": {
+          "type": "string"
+        },
+        "p_value": {
+          "type": "string"
+        },
+        "model_type": {
+          "type": "string"
+        },
+        "study_count": {
+          "type": "string"
+        },
+        "participant_count": {
+          "type": "string"
+        },
+        "heterogeneity_i2": {
+          "type": "string"
+        },
+        "heterogeneity_tau2": {
+          "type": "string"
+        },
+        "heterogeneity_q": {
+          "type": "string"
+        },
+        "prediction_interval": {
+          "type": "string"
+        },
+        "result_direction": {
+          "$ref": "#/definitions/result_direction"
+        },
+        "authors_interpretation": {
+          "type": "string"
+        },
+        "included_study_labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subgroup_or_sensitivity": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    },
+    "risk_of_bias_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_or_framework",
+        "scope",
+        "rating",
+        "key_concerns",
+        "applies_to_result_ids",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "tool_or_framework": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "string"
+        },
+        "key_concerns": {
+          "type": "string"
+        },
+        "applies_to_result_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "certainty_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "framework",
+        "outcome_or_endpoint",
+        "certainty_rating",
+        "downgrade_or_upgrade_reasons",
+        "applies_to_result_ids",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "framework": {
+          "type": "string"
+        },
+        "outcome_or_endpoint": {
+          "type": "string"
+        },
+        "certainty_rating": {
+          "type": "string"
+        },
+        "downgrade_or_upgrade_reasons": {
+          "type": "string"
+        },
+        "applies_to_result_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "authors_conclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conclusion_domain",
+        "conclusion_text",
+        "result_direction",
+        "certainty_or_caution",
+        "applies_to_result_ids",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "conclusion_domain": {
+          "$ref": "#/definitions/domain_route"
+        },
+        "conclusion_text": {
+          "type": "string"
+        },
+        "result_direction": {
+          "$ref": "#/definitions/result_direction"
+        },
+        "certainty_or_caution": {
+          "type": "string"
+        },
+        "applies_to_result_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gap_type",
+        "gap_text",
+        "evidence_location",
+        "evidence_locator",
+        "supporting_quote"
+      ],
+      "properties": {
+        "gap_type": {
+          "type": "string"
+        },
+        "gap_text": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "supporting_quote": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

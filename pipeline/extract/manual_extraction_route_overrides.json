@@ -167,6 +167,41 @@
       "doi": "10.3390/ph18030380",
       "manual_action": "context_only",
       "manual_reason": "Manual review: systematic review of psilocybin/psilocin extraction and quantification methods; methods/production context, not current KG evidence extraction."
+    },
+    {
+      "doi": "10.1556/2054.2023.00315",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: book review; useful context only, not an extractable evidence source for current schemas."
+    },
+    {
+      "doi": "10.1136/jnnp-2013-306103.17",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: conference abstract; context only, not an extractable article for the current schemas."
+    },
+    {
+      "doi": "10.1136/bmj.q1025",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: expression of concern/correction record, not a standalone scientific article for extraction."
+    },
+    {
+      "doi": "10.1136/bmjno-2021-anzan.79",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: poster abstract; context only, not an extractable article for the current schemas."
+    },
+    {
+      "doi": "10.70969/20251001",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: student-journal item / nonstandard source; context only, not an extraction source for the current corpus."
+    },
+    {
+      "doi": "10.1136/ejhpharm-2025-eahp.115",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: conference abstract; context only, not an extractable article for the current schemas."
+    },
+    {
+      "doi": "10.1002/pu.31091",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: DOI appears to resolve to an approval/placeholder-style record rather than a usable article; context only."
     }
   ]
 }

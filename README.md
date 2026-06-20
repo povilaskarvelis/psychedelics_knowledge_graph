@@ -145,7 +145,13 @@ evidence packets use for auditable extraction.
 - bibliographic and synthesis fields include journal, publication type, trial
   registry IDs, sample size, comparator/intervention details, outcomes, effect
   sizes, adverse events, funding, conflicts of interest, and risk-of-bias notes
-- PDF-heavy extraction scripts auto-run inside the `psychkg-pdf` conda
+- PDF retrieval and conversion status lives in the DOI-level
+  `candidate_papers.parquet` ledger, while detailed extraction jobs live in
+  `paper_extraction_routes.parquet`
+- manually downloaded PDFs are imported through `data/raw/papers/manual_pdf_inbox/`
+  into the canonical PDF store, then converted into
+  `data/processed/fulltext/articles/`
+- PDF-heavy conversion scripts auto-run inside the `psychkg-pdf` conda
   environment when it exists
 
 The current extraction approach is schema-driven and conservative. The output is
@@ -192,19 +198,19 @@ Requirements:
 - optional `psychkg-pdf` conda environment for PDF-heavy extraction
 - local credentials in `pipeline/config.local.yaml` for API keys/emails
 
-Minimal current flow for one dataset after credentials are configured:
+Minimal current table-native flow after credentials are configured:
 
 ```bash
-python pipeline/ingest/run_extensive_search.py --dataset disorder --provider hybrid --discover-only
-python pipeline/ingest/sync_paper_library.py --dataset disorder --skip-download
-python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --deterministic-prescreen --deterministic-prescreen-only --only-with-abstract --only-undownloaded
-python pipeline/review/run_local_llm_abstract_screening.py --dataset disorder --doi-file data/raw/doi_queue.disorder.deterministic_prescreen_retained.txt --model qwen3:14b --only-with-abstract --continue-on-error --timeout-sec 0 --resume-from-checkpoint --num-ctx 4096
-python pipeline/ingest/sync_paper_library.py --dataset disorder --doi-file data/raw/doi_queue.disorder.llm_fulltext_candidates.txt
-python pipeline/ingest/seed_from_dois.py --dataset disorder --doi-file data/raw/doi_queue.disorder.llm_relevant.txt --replace
-python pipeline/review/autofill_stubs_from_abstracts.py --dataset disorder --mark-ready --apply
-python pipeline/review/autofill_disorder_from_pdfs.py --dataset disorder --mark-ready --apply
-python pipeline/review/curation_queue.py --dataset disorder
-python pipeline/extract/promote_ready_stubs.py --dataset disorder --apply
+python pipeline/validate/build_context_provenance_audit.py --table-out-dir data/processed/corpus
+python pipeline/ingest/run_standard_metadata_enrichment.py --dataset all
+python pipeline/review/run_deterministic_prescreen.py
+python pipeline/review/run_literature_type_routing.py
+python pipeline/review/build_gemini_domain_routing_batch_queue.py --prepare
+python pipeline/review/advance_gemini_domain_routing_batch_queue.py
+python pipeline/extract/build_extraction_routes.py
+python pipeline/fulltext/run_pdf_retrieval_pipeline.py
+python pipeline/fulltext/run_local_pdf_conversion_pipeline.py --batch-size 25
+python pipeline/extract/build_extraction_tasks.py
 python pipeline/validate/validate_claims.py
 python pipeline/kg/build_evidence_tables.py
 python pipeline/kg/build_author_tables.py

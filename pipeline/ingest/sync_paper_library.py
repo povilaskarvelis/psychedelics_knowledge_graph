@@ -16,9 +16,9 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Tuple
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote, urlencode
+from urllib.parse import quote, urlencode, urlparse
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -1245,13 +1245,14 @@ def lookup_pmc_idconv(
 def ftp_to_https(url: str) -> str:
     text = normalize(url)
     if text.lower().startswith("ftp://ftp.ncbi.nlm.nih.gov/"):
-        return "https://ftp.ncbi.nlm.nih.gov/" + text[len("ftp://ftp.ncbi.nlm.nih.gov/") :]
+        text = "https://ftp.ncbi.nlm.nih.gov/" + text[len("ftp://ftp.ncbi.nlm.nih.gov/") :]
+    if text.lower().startswith("https://ftp.ncbi.nlm.nih.gov/pub/pmc/") and not text.lower().startswith(
+        "https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/"
+    ):
+        return "https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/" + text[
+            len("https://ftp.ncbi.nlm.nih.gov/pub/pmc/") :
+        ]
     return text
-
-
-def europe_pmc_pdf_url(pmcid: str) -> str:
-    pmcid = normalize(pmcid)
-    return f"https://europepmc.org/api/getPdf?pmcid={quote(pmcid, safe='')}" if pmcid else ""
 
 
 def lookup_pmc_oa_links(client: RateLimitedHttpClient, pmcid: str) -> dict:
@@ -1291,12 +1292,12 @@ def lookup_pmc_oa_links(client: RateLimitedHttpClient, pmcid: str) -> dict:
         "pmc_oa_error": "",
         "pmc_oa_license": normalize(record.attrib.get("license", "")),
         "pmc_oa_pdf_url": pdf_url,
-        "pmc_europepmc_pdf_url": europe_pmc_pdf_url(pmcid) if pdf_url else "",
+        "pmc_europepmc_pdf_url": "",
         "pmc_oa_package_url": package_url,
         "is_oa": "true",
         "oa_status": "gold",
-        "best_pdf_url": europe_pmc_pdf_url(pmcid) if pdf_url else "",
-        "pdf_url_candidates": join_candidates([europe_pmc_pdf_url(pmcid) if pdf_url else "", pdf_url]),
+        "best_pdf_url": pdf_url,
+        "pdf_url_candidates": join_candidates([pdf_url]),
     }
 
 
@@ -1648,8 +1649,51 @@ def lookup_semantic_scholar_metadata(
 
 
 def is_probable_pdf_url(url: str) -> bool:
-    lowered = url.lower()
-    return lowered.endswith(".pdf") or ".pdf?" in lowered
+    text = normalize(url)
+    if not text:
+        return False
+    parsed = urlparse(text)
+    lowered = text.lower()
+    path = parsed.path.lower()
+    query = parsed.query.lower()
+    host = parsed.netloc.lower()
+    if "europepmc.org" in host and ("/api/getpdf" in path or "pdf=render" in query):
+        return False
+    if path.endswith(".pdf") or ".pdf/" in path or ".pdf." in path or ".pdf?" in lowered:
+        return True
+    if path.endswith("/pdf") or path.endswith("/download"):
+        return True
+    if "ftp.ncbi.nlm.nih.gov" in host and "/pub/pmc/oa_pdf/" in path:
+        return True
+    if "pmc.ncbi.nlm.nih.gov" in host and "/pdf/" in path:
+        return True
+    if host.endswith("hal.science") and path.endswith("/document"):
+        return True
+    if "archive-ouverte" in host and path.endswith("/download"):
+        return True
+    strong_path_markers = (
+        "/pdf/",
+        "/pdfdirect/",
+        "/content/pdf/",
+        "/articlepdf/",
+        "/doi/pdf/",
+        "/download/",
+        "/bitstream/",
+    )
+    if any(marker in path for marker in strong_path_markers):
+        return True
+    file_path_markers = (
+        "/files/",
+        "/fulltext",
+        "/full-text",
+        "/accepted-manuscript",
+        "/manuscript",
+    )
+    if any(marker in path for marker in file_path_markers) and "pdf" in lowered:
+        return True
+    if "pdf=render" in query or "download=true" in query:
+        return True
+    return False
 
 
 def add_unique(values: List[str], value: str) -> None:
@@ -1694,12 +1738,14 @@ def extract_pmcid_from_url(url: str) -> str:
 
 def candidate_priority(url: str) -> Tuple[int, str]:
     lowered = normalize(url).lower()
-    if "europepmc.org/api/getpdf" in lowered:
-        return (0, lowered)
     if "ftp.ncbi.nlm.nih.gov/pub/pmc" in lowered:
-        return (1, lowered)
+        return (0, lowered)
     if "pmc.ncbi.nlm.nih.gov" in lowered or "ncbi.nlm.nih.gov/pmc" in lowered:
+        return (1, lowered)
+    if "europepmc.org/api/getpdf" in lowered:
         return (2, lowered)
+    if is_probable_pdf_url(url):
+        return (5, lowered)
     return (10, lowered)
 
 
@@ -1716,9 +1762,6 @@ def add_unpaywall_location_candidates(location: object, pdf_candidates: List[str
     pdf_url = normalize(location.get("url_for_pdf", ""))
     url = normalize(location.get("url", ""))
     landing = normalize(location.get("url_for_landing_page", ""))
-    pmcid = extract_pmcid_from_url(" ".join([url, landing]))
-    if pmcid:
-        add_unique(pdf_candidates, europe_pmc_pdf_url(pmcid))
     if pdf_url:
         add_unique(pdf_candidates, pdf_url)
     if url and is_probable_pdf_url(url):
@@ -2449,18 +2492,70 @@ def metadata_pdf_candidates(metadata: dict, best_pdf_url: str) -> List[str]:
     ):
         for candidate in split_candidates(value):
             add_unique(candidates, candidate)
-            pmcid = extract_pmcid_from_url(candidate)
-            if pmcid:
-                add_unique(candidates, europe_pmc_pdf_url(pmcid))
     return rank_pdf_candidates(candidates)
+
+
+def pdf_candidate_host(url: str) -> str:
+    return urlparse(normalize(url)).netloc.lower()
+
+
+def download_error_is_transient_host_failure(status: str, error: str) -> bool:
+    text = f"{normalize(status)} {normalize(error)}".lower()
+    return (
+        "http error 429" in text
+        or "too many requests" in text
+        or "rate limit" in text
+        or "http error 500" in text
+        or "http error 502" in text
+        or "http error 503" in text
+        or "http error 504" in text
+        or "empty_response" in text
+        or "timeouterror" in text
+        or "timed out" in text
+        or "timeout" in text
+    )
+
+
+def download_error_is_rate_limited(status: str, error: str) -> bool:
+    return download_error_is_transient_host_failure(status, error)
+
+
+def ready_pdf_candidates(candidates: List[str], cooldown_until_by_host: Optional[Dict[str, float]]) -> List[str]:
+    if not cooldown_until_by_host:
+        return list(candidates)
+    now = time.monotonic()
+    ready: List[str] = []
+    for candidate in candidates:
+        host = pdf_candidate_host(candidate)
+        if cooldown_until_by_host.get(host, 0.0) <= now:
+            ready.append(candidate)
+    return ready
+
+
+def wait_for_next_pdf_candidate(candidates: List[str], cooldown_until_by_host: Optional[Dict[str, float]]) -> None:
+    if not cooldown_until_by_host:
+        return
+    waits: List[float] = []
+    now = time.monotonic()
+    for candidate in candidates:
+        host = pdf_candidate_host(candidate)
+        until = cooldown_until_by_host.get(host, 0.0)
+        if until > now:
+            waits.append(until - now)
+    if waits:
+        time.sleep(max(0.0, min(waits)))
 
 
 def download_pdf_candidates(
     client: RateLimitedHttpClient,
     pdf_urls: List[str],
     target_path: Path,
+    cooldown_until_by_host: Optional[Dict[str, float]] = None,
+    rate_limit_cooldown_sec: float = 0.0,
+    progress_callback: Optional[Callable[[Dict[str, object]], None]] = None,
+    preserve_candidate_order: bool = False,
 ) -> Tuple[str, str, int, str, str]:
-    candidates = rank_pdf_candidates(pdf_urls)
+    candidates = list(dict.fromkeys(pdf_urls)) if preserve_candidate_order else rank_pdf_candidates(pdf_urls)
     if target_path.exists() and target_path.stat().st_size > 0:
         if file_is_valid_pdf(target_path):
             return "already_present", "", int(target_path.stat().st_size), "", join_candidates(candidates)
@@ -2471,7 +2566,23 @@ def download_pdf_candidates(
     # should not block us from trying another legal OA PDF candidate for the DOI.
     max_rounds = max(1, int(getattr(client, "max_retries", 0)) + 1)
     for round_idx in range(max_rounds):
-        for pdf_url in candidates:
+        pending = list(candidates)
+        while pending:
+            ready = ready_pdf_candidates(pending, cooldown_until_by_host)
+            if not ready:
+                wait_for_next_pdf_candidate(pending, cooldown_until_by_host)
+                ready = ready_pdf_candidates(pending, cooldown_until_by_host) or list(pending)
+            pdf_url = ready[0]
+            pending.remove(pdf_url)
+            if progress_callback:
+                progress_callback(
+                    {
+                        "event": "candidate_attempt",
+                        "round": round_idx + 1,
+                        "url": pdf_url,
+                        "host": pdf_candidate_host(pdf_url),
+                    }
+                )
             try:
                 status, error, size = download_pdf(
                     client=client,
@@ -2483,8 +2594,29 @@ def download_pdf_candidates(
                 status = "download_failed"
                 error = f"{type(err).__name__}: {err}"
                 size = 0
+            if progress_callback:
+                progress_callback(
+                    {
+                        "event": "candidate_result",
+                        "round": round_idx + 1,
+                        "url": pdf_url,
+                        "host": pdf_candidate_host(pdf_url),
+                        "status": status,
+                        "error": error,
+                        "size": size,
+                    }
+                )
             if status in {"downloaded", "already_present"}:
                 return status, "", size, pdf_url, join_candidates(candidates)
+            if (
+                cooldown_until_by_host is not None
+                and rate_limit_cooldown_sec > 0
+                and download_error_is_transient_host_failure(status, error)
+            ):
+                host = pdf_candidate_host(pdf_url)
+                if host:
+                    until = time.monotonic() + rate_limit_cooldown_sec
+                    cooldown_until_by_host[host] = max(cooldown_until_by_host.get(host, 0.0), until)
             errors.append(f"round {round_idx + 1}: {pdf_url} -> {status}: {error}")
 
     if not candidates:

@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Primary Molecular Pathway Or Readout Extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "route_id", "study_doi", "domain_route", "paper_type", "text_depth", "extraction_status", "items", "warnings"],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["primary_molecular_pathway_readout_v1"]},
+    "task_id": {"type": "string"},
+    "source_type": {"type": "string"},
+    "route_id": {"type": "string"},
+    "study_doi": {"type": "string"},
+    "domain_route": {"type": "string", "const": "molecular_pathway_readout"},
+    "paper_type": {"type": "string", "enum": ["primary_study"]},
+    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
+    "extraction_status": {"type": "string", "enum": ["extracted", "no_extractable_scoped_evidence", "wrong_source_type", "not_relevant", "human_review"]},
+    "items": {"type": "array", "items": {"$ref": "#/definitions/item"}},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "definitions": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compound_or_exposure", "pathway_or_readout", "assay_or_method", "model_system", "species_or_cell_line", "tissue_or_sample", "dose_or_exposure", "timepoint", "quantitative_value", "unit", "finding_summary", "evidence_location", "evidence_quote"],
+      "properties": {
+        "compound_or_exposure": {"type": "string"},
+        "pathway_or_readout": {"type": "string"},
+        "assay_or_method": {"type": "string"},
+        "model_system": {"type": "string"},
+        "species_or_cell_line": {"type": "string"},
+        "tissue_or_sample": {"type": "string"},
+        "dose_or_exposure": {"type": "string"},
+        "timepoint": {"type": "string"},
+        "quantitative_value": {"type": "string"},
+        "unit": {"type": "string"},
+        "finding_summary": {"type": "string"},
+        "evidence_location": {"type": "string"},
+        "evidence_quote": {"type": "string"}
+      }
+    }
+  }
+}

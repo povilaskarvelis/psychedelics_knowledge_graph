@@ -103,6 +103,20 @@ class LiteratureTypeRoutingTest(unittest.TestCase):
         self.assertEqual(classification["source_family"], "non_primary_publication")
         self.assertIn("non_primary_title", classification["non_primary_flags"])
 
+    def test_book_container_routes_as_non_primary_even_with_review_language(self) -> None:
+        row = {
+            "study_title": "Future Challenges for the Diagnosis and Management of Affective Disorders",
+            "abstract": "This book discusses systematic reviews and meta-analyses of affective disorders.",
+            "publication_type": "book",
+        }
+
+        classification = classify_literature_type(row)
+
+        self.assertEqual(classification["source_family"], "non_primary_publication")
+        self.assertEqual(classification["literature_route"], "non_primary_context_or_skip")
+        self.assertEqual(classification["literature_type_confidence"], "high")
+        self.assertIn("non_paper_container_publication_type", classification["non_primary_flags"])
+
     def test_build_rows_can_route_only_retained_candidates(self) -> None:
         metadata = pd.DataFrame(
             [

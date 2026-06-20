@@ -25,10 +25,10 @@ flowchart TD
   F --> H["Extraction route table"]
   G --> H
   I["Manual route overrides"] --> H
-  H --> J["Open-access links and PDF retrieval"]
+  H --> J["Open-access links, PDF retrieval, and PMC XML retrieval"]
   J --> K["Full-text conversion"]
   H --> L["Abstract-only extraction queue"]
-  K --> M["Full-text extraction packets"]
+  K --> M["Article text inputs"]
   L --> N["LLM evidence extraction"]
   M --> N
   N --> O["Validation, normalized tables, graph exports"]
@@ -67,9 +67,10 @@ flowchart TD
    `paper_extraction_routes.parquet`. This table is the current extraction
    queue source.
 9. **Full-text handling** refreshes open-access links, downloads available legal
-   PDFs, and converts local PDFs into structured full-text artifacts. Records
-   without usable full text remain eligible for the abstract-only extraction path
-   when the route table marks them as extraction candidates.
+   PDFs, retrieves reusable PMC XML when available, and converts local full-text
+   sources into structured artifacts. Records without usable full text remain
+   eligible for the abstract-only extraction path when the route table marks
+   them as extraction candidates.
 10. **Evidence extraction** uses route-specific LLM prompts and schemas for
     primary studies, secondary literature, guideline/consensus records, and
     abstract-only records.
@@ -79,7 +80,8 @@ flowchart TD
 
 Generated Parquet tables are rebuildable. Durable decisions should live in
 tracked code, configuration, search strategy files, model prompts, or small
-manual-review files such as `pipeline/extract/manual_extraction_route_overrides.json`.
+manual-review files such as `pipeline/extract/manual_extraction_route_overrides.json`
+and `pipeline/fulltext/manual_fulltext_access_overrides.json`.
 CSV audit files are human-readable inspection artifacts unless a script
 explicitly takes them as input.
 
@@ -201,19 +203,37 @@ python pipeline/extract/build_extraction_routes.py \
 
 This writes `paper_extraction_routes.parquet`,
 `paper_extraction_routes_summary.json`, and
-`paper_extraction_routes_counts.csv`. The default build also applies
-`pipeline/extract/manual_extraction_route_overrides.json`, which is reserved
-for narrow DOI-level manual reviews of ambiguous route assignments.
+`paper_extraction_routes_counts.csv`. The default build also writes
+`preprint_route_holds.csv` and excludes preprint records from the extraction
+route table. Preprints stay in the corpus for audit and published-version
+lookup, but are not promoted into default extraction routes. The build also
+applies two narrow DOI-level manual review files:
+
+- `pipeline/extract/manual_extraction_route_overrides.json` for route/domain
+  decisions such as context-only, conference abstracts, corrections, or
+  non-article records.
+- `pipeline/fulltext/manual_fulltext_access_overrides.json` for access
+  decisions such as suppressing a misleading probable-PDF URL after manual
+  review confirms there is no usable open article PDF.
+
+The build also updates `candidate_papers.parquet` as the DOI-level pipeline
+ledger. It backfills publication-stage fields, prescreen/literature-type
+summaries, extraction-route status, route counts, domain summaries, prompt and
+schema profiles, manual full-text access decisions, and the best available text
+tier. The detailed many-row route assignments stay in
+`paper_extraction_routes.parquet`; `candidate_papers.parquet` keeps one row per
+DOI for corpus accounting and PRISMA-style counts.
 
 Access tiers are intentionally operational:
 
 - `full_text_available`: converted full-text artifact exists locally.
 - `local_pdf_available`: valid PDF exists in `data/raw/papers/pdfs/`, but
   conversion is still needed.
-- `pdf_download_url_available`: a metadata-derived PDF URL exists, but no valid local PDF
-  or converted full text has been found yet.
-- `abstract_only`: no local full text, local PDF, or PDF URL is currently
-  available.
+- `pdf_download_url_available`: a metadata-derived URL looks like a direct PDF
+  endpoint, but no valid local PDF or converted full text has been found yet.
+- `abstract_only`: no local full text, local PDF, or probable PDF download URL is
+  currently available. Weaker landing-page or repository URLs are still kept in
+  the corpus table for manual access checks.
 
 ### Canonical PDF Store
 
@@ -255,43 +275,237 @@ Use the route table to keep PDF download attempts scoped to retained extraction
 candidates and to avoid retrying known closed-access or already-downloaded
 records.
 
+Run the standard routed PDF retrieval stage:
+
+```bash
+python pipeline/fulltext/run_pdf_retrieval_pipeline.py \
+  --route-table data/processed/corpus/paper_extraction_routes.parquet \
+  --progress-every 25 \
+  --write-every 25
+```
+
+This step targets retained `download_pdf_then_extract` papers, deduplicates by
+DOI, writes successful downloads to `data/raw/papers/pdfs/`, and updates
+`candidate_papers.parquet` with the canonical local PDF path and checksum. It
+then runs the standard repository recovery pass for OSF/PsyArXiv and
+Figshare-style records, rebuilds `paper_extraction_routes.parquet`, and exports
+the remaining manual-download queue to
+`data/processed/corpus/audits/manual_pdf_download_dois.csv/.txt`. Use
+`--dry-run` to inspect the direct-download queue before network calls, and
+`--limit <N>` for a small pilot. Use `--skip-standard-recovery` for debugging
+when only the direct downloader should run. The runner prints an immediate
+queue summary, logs each DOI before and after its direct download attempt, and
+logs candidate-URL attempts/results by default. For
+quieter supervised runs, set `--attempt-log-every <N>`,
+`--candidate-log-every <N>`, or use `0` for either option; use
+`--progress-every <N>` for aggregate progress summaries.
+The route builder and downloader distinguish probable PDF endpoints from weaker
+landing-page or repository links. Automated downloads use probable PDF URLs by
+default; weaker links stay visible as `other_url_candidates` for refreshed link
+discovery or manual download. Use `--include-weak-pdf-urls` only for diagnostic
+or manually supervised recovery runs.
+
+By default, the downloader interleaves queued papers by primary PDF host instead
+of processing table order. This avoids sending long consecutive runs of requests
+to one repository or publisher, which reduces avoidable rate limiting while
+still keeping all papers in the same first-pass retrieval stage. If a host
+returns a temporary failure such as a rate-limit response, timeout, or 5xx
+provider error, only that host is cooled down; alternative PDF candidate URLs
+for the same DOI can still be tried. Use `--preserve-task-order` only for
+diagnostics where deterministic table order is required.
+The downloader records `pdf_download_failure_category`,
+`pdf_download_failure_categories`, `pdf_download_error`, and
+`pdf_download_retry_recommended` in `candidate_papers.parquet`. Retry only
+temporary categories such as `rate_limited`, `provider_error`, and `timeout`;
+do not repeatedly retry `forbidden`, `not_found`, `non_pdf_response`, or
+`weak_pdf_url_only` unless new PDF URLs have been refreshed.
+
+For low-level debugging, the direct downloader and repository-recovery steps can
+still be run separately:
+
+```bash
+python pipeline/fulltext/download_routed_pdfs.py \
+  --limit 25 \
+  --alternate-pdf-sources pmc,openalex,semantic_scholar
+python pipeline/fulltext/recover_pdf_landing_pages.py \
+  --standard-recovery-only \
+  --categories forbidden,non_pdf_response,provider_error,timeout,other_download_failure,not_found
+python pipeline/fulltext/export_manual_pdf_queue.py
+```
+
+For explicit post-direct cleanup of publisher landing pages known to expose
+downloadable same-host PDFs, use a named rescue preset instead of making broad
+host probing the default retrieval path:
+
+```bash
+python pipeline/fulltext/recover_pdf_landing_pages.py \
+  --rescue-preset akjournals \
+  --apply \
+  --rebuild-routes-after
+python pipeline/fulltext/export_manual_pdf_queue.py
+python pipeline/fulltext/rank_manual_pdf_queue.py
+```
+
+For normal-browser click-through recovery, configure Chrome or the save dialog
+to write into `data/raw/papers/manual_pdf_inbox/` rather than the general
+Downloads folder. Treat article pages as a click-through ladder: first open
+controls such as "Article", "Full text", "View article", or "Read article" when
+the PDF button is not yet visible, then look for "PDF", "Download PDF", "View
+PDF", or the browser PDF-viewer download control. Before importing, triage the
+browser output so HTML paywall, cookie, and other non-PDF saves are classified
+and moved out of the inbox:
+
+```bash
+python pipeline/fulltext/browser_download_triage.py \
+  --download-dir data/raw/papers/manual_pdf_inbox \
+  --quarantine-non-pdf \
+  --apply
+python pipeline/fulltext/import_manual_pdfs.py \
+  --inbox-dir data/raw/papers/manual_pdf_inbox \
+  --apply \
+  --move
+```
+
+If a manually inspected inbox PDF is known to replace an incorrect canonical
+PDF for the same DOI, add `--replace-existing`; the prior canonical file is
+backed up under `data/raw/papers/pdf_conflicts/` before replacement.
+
+Visible browser states such as "Get access", "Log in", or "you do not have
+access" should be recorded as `no_access_or_paywalled` instead of retried as
+PDF downloads.
+
+After importing manual PDFs or adding access/route overrides, rebuild routes,
+convert any newly local PDFs, and refresh the manual queue exports:
+
+```bash
+python pipeline/extract/build_extraction_routes.py
+python pipeline/fulltext/run_local_pdf_conversion_pipeline.py --batch-size 25
+python pipeline/fulltext/export_manual_pdf_queue.py
+python pipeline/fulltext/rank_manual_pdf_queue.py
+```
+
+When manual review confirms that a remaining DOI has no usable open article
+PDF, add `manual_access_action=suppress_pdf_download` in
+`pipeline/fulltext/manual_fulltext_access_overrides.json` and rebuild routes.
+When manual review confirms a record is not an extractable article, add
+`manual_action=context_only` in
+`pipeline/extract/manual_extraction_route_overrides.json` and rebuild routes.
+
+Backfill failure categories from existing routed download reports and legacy
+paper-library failure text:
+
+```bash
+python pipeline/fulltext/backfill_pdf_failure_categories.py
+```
+
+Example recovery pass:
+
+```bash
+python pipeline/fulltext/download_routed_pdfs.py \
+  --only-failure-categories rate_limited,provider_error,timeout \
+  --skip-candidate-statuses downloaded,already_present,manual_import \
+  --rate-limit-cooldown-sec 30 \
+  --timeout-sec 45 \
+  --max-retries 1
+```
+
 ### Full-Text Conversion
 
-Local PDFs are converted into structured full-text artifacts before full-text
+For retained papers with a PMCID but no converted full text and no local PDF,
+retrieve reusable PMC XML before treating the record as abstract-only:
+
+```bash
+python pipeline/fulltext/fetch_pmc_fulltext_xml.py \
+  --progress-every 25 \
+  --rps 1.5
+```
+
+The script tries the Europe PMC XML endpoint first and then PMC OAI/JATS. It
+writes successful XML into the canonical article-text store,
+`data/processed/fulltext/articles/`, using the same artifact shape as PDF
+conversion. After a real run writes artifacts, it rebuilds
+`paper_extraction_routes.parquet` automatically, so successful XML records move
+to `full_text_available` and are not kept in the PDF-download queue.
+
+Local PDFs are converted into structured full-text artifacts before article-text
 LLM extraction. The default backend is GROBID, which parses scholarly articles
-into TEI XML so downstream packets can preserve sections, tables, figures,
+into TEI XML so downstream model inputs can preserve sections, tables, figures,
 references, and stable evidence locators.
 
 ```bash
-python pipeline/fulltext/convert_pdfs.py \
-  --dataset mechanistic \
-  --doi-file <route-derived-doi-file> \
-  --backend grobid \
-  --only-missing-artifacts
+python pipeline/fulltext/convert_routed_local_pdfs.py \
+  --backend grobid
 ```
 
-### Extraction Packet Preparation
-
-The extraction route table is the source of truth for the next extraction run.
-Build route-specific full-text and abstract-only model inputs from
-`paper_extraction_routes.parquet`.
+Existing legacy artifacts from `fulltext/disorder/`, `fulltext/mechanistic/`,
+and `fulltext/pmc_xml/` can be copied once into the canonical store without
+re-extracting PDFs:
 
 ```bash
-python pipeline/fulltext/build_llm_evidence_packets.py \
-  --dataset all \
-  --doi-file <route-derived-full-text-doi-file> \
-  --out-jsonl data/processed/extraction/fulltext_packets.jsonl \
-  --report-json data/processed/extraction/fulltext_packets_report.json \
-  --omit-section-text \
-  --omit-candidate-contexts \
-  --packet-profile lean_primary \
-  --max-references 0
+python pipeline/fulltext/consolidate_fulltext_artifacts.py
 ```
 
-Route-specific packet builders should preserve the route fields from
-`paper_extraction_routes.parquet`, including `source_family`, `source_type`,
-`domain_route`, `access_tier`, `route_action`, `prompt_profile`, and
-`schema_profile`.
+`paper_extraction_routes.parquet` reads converted article text only from
+`data/processed/fulltext/articles/<doi_slug>.json`. The old split directories
+are migration sources for `consolidate_fulltext_artifacts.py` only; route
+building does not use them as fallbacks.
+
+### Article Text Input Preparation
+
+The extraction route table is the source of truth for the next extraction run.
+Build route-specific task records from `paper_extraction_routes.parquet`. These
+records preserve `route_id` as the stable extraction-job key, because one DOI
+can have multiple domain-specific extraction routes.
+
+```bash
+python pipeline/extract/build_extraction_tasks.py
+```
+
+Export route-derived DOI queues for the section selection strategies that need
+selected article text:
+
+```bash
+python pipeline/extract/export_packet_profile_queues.py \
+  --section-selection-strategy primary_study
+```
+
+Before model calls, audit selected article text from the canonical
+`fulltext/articles/` store:
+
+```bash
+python pipeline/fulltext/audit_article_text_inputs.py \
+  --per-strategy 3
+```
+
+Route-specific article text builders should use `fulltext_artifact_paths` from
+`paper_extraction_routes.parquet` and preserve route fields such as
+`source_family`, `source_type`, `domain_route`, `access_tier`, `route_action`,
+`prompt_profile`, and `schema_profile`. Current JSON fields may still use
+`packet_profile` internally for compatibility; new prose should use article
+text input and section selection strategy.
+
+The initial route-specific synthesis profile is
+`schema/synthesis_evidence.schema.json` plus
+paper-type/text-depth prompts under `docs/extraction_profiles/paper_type/` for
+the selected `schema_profile`. Primary and secondary-review
+profiles also have scaffold schemas/prompts in the registry, but are opt-in for
+pilots until each domain is tuned. Guideline, context-only, and no-extraction
+routes are terminal audit routes and are not sent to a model.
+
+Not every routed paper is a KG contribution. Primary evidence routes produce KG
+candidate evidence after normalization; meta-analyses produce separate synthesis
+evidence; secondary reviews can produce coverage/evidence-map context; and
+guideline, context-only, or no-extraction routes are retained for
+corpus/accounting audit rather than graph edges.
+
+Inspect the registered route-aware extraction tasks without model calls:
+
+```bash
+python pipeline/extract/run_route_extraction.py \
+  --prompt-profile secondary_meta_analysis \
+  --schema-profile synthesis_evidence_schema \
+  --dry-run
+```
 
 ### Evidence Extraction
 
@@ -318,8 +532,9 @@ python pipeline/extract/run_gemini_extraction_v1.py \
 - `data/processed/corpus/paper_literature_type_routing.parquet`
 - `data/processed/corpus/paper_domain_routing_gemini.parquet`
 - `data/processed/corpus/paper_extraction_routes.parquet`
-- `data/processed/fulltext/<dataset>/*.json`
-- `data/processed/extraction/*_fulltext_packets.jsonl`
+- `data/processed/fulltext/articles/*.json`
+- `data/processed/extraction/*_fulltext_packets.jsonl` compatibility files
+  containing article text inputs
 - `data/processed/extraction/extraction_v1_outputs*.jsonl`
 - normalized graph and bibliography payloads under `data/kg/`,
   `data/processed/`, and `ui/`
@@ -386,4 +601,4 @@ The first-generation graph used context-level stubs, autofill scripts, and
 promotion into curated evidence-record files. Those tools remain under
 `pipeline/review/` and `pipeline/extract/promote_ready_stubs.py` for maintenance
 and comparison, but new KG evidence should flow through the route table and
-route-specific extraction packets first.
+route-specific article text inputs first.
