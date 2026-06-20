@@ -39,16 +39,15 @@
       "unknown": 2
     },
     "candidate:prescreen_action": {
-      "exclude_missing_abstract": 5334,
-      "exclude_non_evidence_artifact": 2394,
-      "exclude_non_paper_container": 25,
-      "exclude_obvious_irrelevant": 29768,
-      "retain_existing_downstream": 473,
+      "exclude_missing_abstract": 5532,
+      "exclude_non_evidence_artifact": 2545,
+      "exclude_non_paper_container": 26,
+      "exclude_obvious_irrelevant": 29891,
       "retain_for_extraction_candidate": 18363
     },
     "candidate:prescreen_decision": {
-      "exclude": 37521,
-      "retain": 18836
+      "exclude": 37994,
+      "retain": 18363
     }
   },
   "current_stage": "papers_selected_for_finding_extraction",
@@ -76,7 +75,7 @@
     },
     "projection_report": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/projection_report.json"
   },
-  "generated_at": "2026-06-20T20:49:26.740211+00:00",
+  "generated_at": "2026-06-20T22:00:04.894138+00:00",
   "kg_claim_status": {
     "claim_access_rows_by_dataset": {
       "disorder": {
@@ -162,27 +161,22 @@
           "label": "Not retained after prescreen",
           "reasons": [
             {
-              "count": 29768,
+              "count": 29891,
               "key": "exclude_obvious_irrelevant",
               "label": "No in-scope title/abstract signal"
             },
             {
-              "count": 5334,
+              "count": 5532,
               "key": "exclude_missing_abstract",
               "label": "No abstract available"
             },
             {
-              "count": 2394,
+              "count": 2545,
               "key": "exclude_non_evidence_artifact",
               "label": "Non-evidence artifact"
             },
             {
-              "count": 473,
-              "key": "retain_existing_downstream",
-              "label": "Already represented downstream"
-            },
-            {
-              "count": 25,
+              "count": 26,
               "key": "exclude_non_paper_container",
               "label": "Non-paper container"
             }

@@ -217,6 +217,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
             [
                 {
                     "prescreen_actions": "retain_for_extraction_candidate",
+                    "prescreen_decisions": "retain",
                     "prescreen_retained_for_extraction_candidate": True,
                     "retained_for_extraction_candidate": True,
                     "extraction_route_status": "ready_for_article_text_extraction",
@@ -224,6 +225,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 },
                 {
                     "prescreen_actions": "retain_for_extraction_candidate",
+                    "prescreen_decisions": "retain",
                     "prescreen_retained_for_extraction_candidate": True,
                     "retained_for_extraction_candidate": True,
                     "extraction_route_status": "ready_for_abstract_extraction",
@@ -231,12 +233,14 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 },
                 {
                     "prescreen_actions": "retain_for_extraction_candidate",
+                    "prescreen_decisions": "retain",
                     "prescreen_retained_for_extraction_candidate": True,
                     "retained_for_extraction_candidate": False,
                     "extraction_route_status": "excluded_after_domain_screen",
                 },
                 {
                     "prescreen_actions": "exclude_missing_abstract",
+                    "prescreen_decisions": "exclude",
                     "prescreen_retained_for_extraction_candidate": False,
                     "retained_for_extraction_candidate": False,
                     "extraction_route_status": "not_retained_for_extraction",

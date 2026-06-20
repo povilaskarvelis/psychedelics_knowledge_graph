@@ -60,7 +60,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             papers,
             metadata,
             contexts,
-            pd.DataFrame(),
             run_id="test_run",
             generated_at_utc="2026-05-28T00:00:00+00:00",
         )
@@ -73,7 +72,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/exercise"]["prescreen_action"], "exclude_obvious_irrelevant")
         self.assertFalse(by_doi["10.example/exercise"]["retained_for_extraction_candidate"])
 
-    def test_missing_abstract_excluded_unless_downstream_protected(self) -> None:
+    def test_old_pipeline_status_does_not_affect_prescreen_exclusion(self) -> None:
         papers = pd.DataFrame(
             [
                 {
@@ -102,7 +101,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "compound": "Psilocybin",
                     "entity": "Default mode network",
                     "entity_type": "brain_region_or_network",
-                    "flag_has_curated_claim": True,
                 }
             ]
         )
@@ -111,7 +109,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             papers,
             pd.DataFrame(),
             contexts,
-            pd.DataFrame(),
             run_id="test_run",
             generated_at_utc="2026-05-28T00:00:00+00:00",
         )
@@ -120,8 +117,8 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/missing"]["prescreen_action"], "exclude_missing_abstract")
         self.assertEqual(by_doi["10.example/missing"]["prescreen_decision"], "exclude")
         self.assertEqual(by_doi["10.example/protected"]["deterministic_action"], "exclude_missing_abstract")
-        self.assertEqual(by_doi["10.example/protected"]["prescreen_action"], "retain_existing_downstream")
-        self.assertTrue(by_doi["10.example/protected"]["downstream_protected"])
+        self.assertEqual(by_doi["10.example/protected"]["prescreen_action"], "exclude_missing_abstract")
+        self.assertEqual(by_doi["10.example/protected"]["prescreen_decision"], "exclude")
         self.assertFalse(by_doi["10.example/protected"]["retained_for_extraction_candidate"])
         self.assertIn("brain_system", by_doi["10.example/protected"]["routing_tags"])
 
@@ -165,7 +162,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             papers,
             pd.DataFrame(),
             pd.DataFrame(),
-            pd.DataFrame(),
             run_id="test_run",
             generated_at_utc="2026-05-30T00:00:00+00:00",
         )
@@ -192,7 +188,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
 
         rows = build_prescreen_decisions(
             papers,
-            pd.DataFrame(),
             pd.DataFrame(),
             pd.DataFrame(),
             run_id="test_run",
@@ -248,7 +243,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             papers,
             pd.DataFrame(),
             pd.DataFrame(),
-            pd.DataFrame(),
             run_id="test_run",
             generated_at_utc="2026-05-30T00:00:00+00:00",
         )
@@ -273,7 +267,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             papers_path = root / "candidate_papers.parquet"
             metadata_path = root / "paper_metadata_enrichment.parquet"
             contexts_path = root / "candidate_contexts.parquet"
-            sources_path = root / "candidate_sources.parquet"
             decisions_path = root / "paper_prescreen_decisions.parquet"
             summary_path = root / "paper_prescreen_summary.parquet"
             pd.DataFrame(
@@ -288,7 +281,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             ).to_parquet(papers_path, index=False)
             pd.DataFrame([]).to_parquet(metadata_path, index=False)
             pd.DataFrame([]).to_parquet(contexts_path, index=False)
-            pd.DataFrame([]).to_parquet(sources_path, index=False)
 
             args = type(
                 "Args",
@@ -297,7 +289,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "papers_table": str(papers_path),
                     "metadata_table": str(metadata_path),
                     "contexts_table": str(contexts_path),
-                    "sources_table": str(sources_path),
                     "decisions_table": str(decisions_path),
                     "summary_table": str(summary_path),
                     "run_id": "test_run",
@@ -324,7 +315,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             papers_path = root / "candidate_papers.parquet"
             metadata_path = root / "paper_metadata_enrichment.parquet"
             contexts_path = root / "candidate_contexts.parquet"
-            sources_path = root / "candidate_sources.parquet"
             decisions_path = root / "paper_prescreen_decisions.parquet"
             summary_path = root / "paper_prescreen_summary.parquet"
             doi_file = root / "update_dois.txt"
@@ -356,7 +346,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                 ]
             ).to_parquet(metadata_path, index=False)
             pd.DataFrame([]).to_parquet(contexts_path, index=False)
-            pd.DataFrame([]).to_parquet(sources_path, index=False)
             pd.DataFrame(
                 [
                     {
@@ -367,7 +356,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                         "doi": "10.example/psilo",
                         "dataset": "disorder",
                         "has_abstract": False,
-                        "downstream_protected": False,
                         "prescreen_decision": "exclude",
                         "prescreen_action": "exclude_missing_abstract",
                         "deterministic_action": "exclude_missing_abstract",
@@ -381,7 +369,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                         "doi": "10.example/exercise",
                         "dataset": "disorder",
                         "has_abstract": True,
-                        "downstream_protected": False,
                         "prescreen_decision": "retain",
                         "prescreen_action": "retain_for_extraction_candidate",
                         "deterministic_action": "escalate",
@@ -398,7 +385,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "papers_table": str(papers_path),
                     "metadata_table": str(metadata_path),
                     "contexts_table": str(contexts_path),
-                    "sources_table": str(sources_path),
                     "decisions_table": str(decisions_path),
                     "summary_table": str(summary_path),
                     "run_id": "",
@@ -426,7 +412,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             papers_path = root / "candidate_papers.parquet"
             metadata_path = root / "paper_metadata_enrichment.parquet"
             contexts_path = root / "candidate_contexts.parquet"
-            sources_path = root / "candidate_sources.parquet"
             decisions_path = root / "paper_prescreen_decisions.parquet"
             summary_path = root / "paper_prescreen_summary.parquet"
             doi_file = root / "new_dois.txt"
@@ -449,7 +434,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             ).to_parquet(papers_path, index=False)
             pd.DataFrame([]).to_parquet(metadata_path, index=False)
             pd.DataFrame([]).to_parquet(contexts_path, index=False)
-            pd.DataFrame([]).to_parquet(sources_path, index=False)
             pd.DataFrame(
                 [
                     {
@@ -460,7 +444,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                         "doi": "10.example/existing",
                         "dataset": "disorder",
                         "has_abstract": True,
-                        "downstream_protected": False,
                         "prescreen_decision": "retain",
                         "prescreen_action": "retain_for_extraction_candidate",
                         "deterministic_action": "escalate",
@@ -477,7 +460,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "papers_table": str(papers_path),
                     "metadata_table": str(metadata_path),
                     "contexts_table": str(contexts_path),
-                    "sources_table": str(sources_path),
                     "decisions_table": str(decisions_path),
                     "summary_table": str(summary_path),
                     "run_id": "",
@@ -504,7 +486,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                 "doi": "10.example/a",
                 "dataset": "mechanistic",
                 "has_abstract": True,
-                "downstream_protected": False,
                 "prescreen_decision": "retain",
                 "prescreen_action": "retain_for_extraction_candidate",
                 "deterministic_action": "escalate",
@@ -514,7 +495,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                 "doi": "10.example/b",
                 "dataset": "mechanistic",
                 "has_abstract": False,
-                "downstream_protected": False,
                 "prescreen_decision": "exclude",
                 "prescreen_action": "exclude_missing_abstract",
                 "deterministic_action": "exclude_missing_abstract",

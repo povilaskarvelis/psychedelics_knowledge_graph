@@ -34,7 +34,6 @@ DEFAULT_CORPUS_DIR = ROOT / "data" / "processed" / "corpus"
 DEFAULT_PAPERS_TABLE = DEFAULT_CORPUS_DIR / "candidate_papers.parquet"
 DEFAULT_METADATA_TABLE = DEFAULT_CORPUS_DIR / "paper_metadata_enrichment.parquet"
 DEFAULT_CONTEXTS_TABLE = DEFAULT_CORPUS_DIR / "candidate_contexts.parquet"
-DEFAULT_SOURCES_TABLE = DEFAULT_CORPUS_DIR / "candidate_sources.parquet"
 DEFAULT_DECISIONS_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_decisions.parquet"
 DEFAULT_SUMMARY_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_summary.parquet"
 TABLE_VERSION = "0.1"
@@ -61,18 +60,6 @@ METADATA_FIELDS = [
     "metadata_enrichment_run_id",
 ]
 
-PROTECTED_STATUSES = {
-    "claim_stub",
-    "curated_claim",
-    "extracted_claim",
-    "normalized_claim",
-    "graph_claim",
-}
-PROTECTED_SOURCE_MARKERS = (
-    "claim",
-    "extraction",
-    "graph_payload",
-)
 NON_PAPER_CONTAINER_PUBLICATION_TYPES = {
     "component",
     "journal",
@@ -367,38 +354,6 @@ def context_routing_tags(contexts: list[dict]) -> list[str]:
     return normalize_routing_tags(tags)
 
 
-def source_types_by_doi(sources_df: pd.DataFrame) -> dict[str, set[str]]:
-    out: dict[str, set[str]] = defaultdict(set)
-    if sources_df.empty or "doi" not in sources_df.columns:
-        return out
-    for row in sources_df.to_dict("records"):
-        doi = normalize_doi(clean(row.get("doi", "")))
-        if not doi:
-            continue
-        for field in ("source_type", "context_source", "source"):
-            value = clean(row.get(field, ""))
-            if value:
-                out[doi].add(value)
-    return out
-
-
-def protection_reasons(paper: dict, contexts: list[dict], source_types: set[str]) -> list[str]:
-    reasons: list[str] = []
-    status = clean(paper.get("current_pipeline_status", "")).lower()
-    if status in PROTECTED_STATUSES:
-        reasons.append(f"current_pipeline_status={status}")
-    paper_source_types = split_values(paper.get("source_types", ""))
-    for source_type in sorted(set(paper_source_types) | source_types):
-        lowered = source_type.lower()
-        if any(marker in lowered for marker in PROTECTED_SOURCE_MARKERS):
-            reasons.append(f"source={source_type}")
-    for context in contexts:
-        for flag in ("flag_has_claim_stub", "flag_has_curated_claim", "flag_has_exploratory_claim"):
-            if clean_bool(context.get(flag, False)):
-                reasons.append(flag)
-    return sorted(set(reasons))
-
-
 def merged_screening_row(paper: dict, metadata: dict | None) -> dict:
     metadata = metadata or {}
     row = {"study_doi": normalize_doi(clean(paper.get("doi", "")))}
@@ -471,14 +426,8 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
     }
 
 
-def final_prescreen_fields(decision: dict, protected: bool) -> tuple[str, str, str]:
+def final_prescreen_fields(decision: dict) -> tuple[str, str, str]:
     action = clean(decision.get("action", ""))
-    if protected and action.startswith("exclude"):
-        return (
-            "retain",
-            "retain_existing_downstream",
-            "Retained because this DOI already has downstream claim or extraction provenance.",
-        )
     if action.startswith("exclude"):
         return ("exclude", action, clean(decision.get("reason", "")))
     return ("retain", "retain_for_extraction_candidate", clean(decision.get("reason", "")))
@@ -488,7 +437,6 @@ def build_prescreen_decisions(
     papers_df: pd.DataFrame,
     metadata_df: pd.DataFrame,
     contexts_df: pd.DataFrame,
-    sources_df: pd.DataFrame | None = None,
     *,
     run_id: str,
     generated_at_utc: str,
@@ -500,7 +448,6 @@ def build_prescreen_decisions(
     metadata_by_doi = rows_by_doi(metadata_df)
     contexts_lookup = contexts_by_doi_and_dataset(contexts_df)
     all_contexts_lookup = all_contexts_by_doi(contexts_lookup)
-    source_lookup = source_types_by_doi(sources_df if sources_df is not None else pd.DataFrame())
     rows: list[dict] = []
 
     paper_records = papers_df.to_dict("records")
@@ -536,9 +483,7 @@ def build_prescreen_decisions(
                 )
             deterministic_tags = normalize_routing_tags(decision.get("routing_tags", []))
             routing_tags = normalize_routing_tags([*deterministic_tags, *context_tags])
-            reasons = protection_reasons(paper, paper_contexts, source_lookup.get(doi, set()))
-            protected = bool(reasons)
-            prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision, protected)
+            prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision)
             retained_for_extraction_candidate = prescreen_decision == "retain" and not clean(
                 decision.get("action", "")
             ).startswith("exclude")
@@ -559,10 +504,6 @@ def build_prescreen_decisions(
                     "context_entities": join_values(context.get("entity", "") for context in dataset_contexts),
                     "context_entity_types": join_values(context.get("entity_type", "") for context in dataset_contexts),
                     "context_routing_tags": "|".join(context_tags),
-                    "input_current_pipeline_status": clean(paper.get("current_pipeline_status", "")),
-                    "input_source_types": clean(paper.get("source_types", "")),
-                    "downstream_protected": protected,
-                    "downstream_protection_reasons": " | ".join(reasons),
                     "deterministic_action": clean(decision.get("action", "")),
                     "deterministic_reason": clean(decision.get("reason", "")),
                     "deterministic_confidence": float(decision.get("confidence", 0) or 0),
@@ -602,7 +543,6 @@ def build_summary_rows(decisions: list[dict], *, run_id: str, generated_at_utc: 
         add(dataset, "decisions", "total", len(scoped))
         add(dataset, "papers", "unique_doi", len({row.get("doi") for row in scoped}))
         add(dataset, "abstract", "missing", sum(not row.get("has_abstract") for row in scoped))
-        add(dataset, "downstream_protected", "true", sum(bool(row.get("downstream_protected")) for row in scoped))
         for field in ("prescreen_decision", "prescreen_action", "deterministic_action"):
             for label, count in Counter(clean(row.get(field, "")) for row in scoped).items():
                 add(dataset, field, label, count)
@@ -637,7 +577,6 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
     papers_df = read_table(Path(args.papers_table).resolve())
     metadata_df = read_table(Path(args.metadata_table).resolve())
     contexts_df = read_table(Path(args.contexts_table).resolve())
-    sources_df = read_table(Path(args.sources_table).resolve()) if clean(args.sources_table) else pd.DataFrame()
 
     if papers_df.empty:
         raise SystemExit(f"No rows found in papers table: {args.papers_table}")
@@ -650,7 +589,6 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         papers_df = filter_table_to_dois(papers_df, scoped_dois)
         metadata_df = filter_table_to_dois(metadata_df, scoped_dois)
         contexts_df = filter_table_to_dois(contexts_df, scoped_dois)
-        sources_df = filter_table_to_dois(sources_df, scoped_dois)
         if papers_df.empty:
             raise SystemExit("No matching DOI rows found in the papers table for the requested scoped update.")
 
@@ -658,7 +596,6 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         papers_df,
         metadata_df,
         contexts_df,
-        sources_df,
         run_id=run_id,
         generated_at_utc=generated_at_utc,
         datasets=datasets,
@@ -700,7 +637,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--papers-table", default=str(DEFAULT_PAPERS_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--contexts-table", default=str(DEFAULT_CONTEXTS_TABLE))
-    parser.add_argument("--sources-table", default=str(DEFAULT_SOURCES_TABLE))
     parser.add_argument("--decisions-table", default=str(DEFAULT_DECISIONS_TABLE))
     parser.add_argument("--summary-table", default=str(DEFAULT_SUMMARY_TABLE))
     parser.add_argument("--run-id", default="")

@@ -164,7 +164,6 @@ PRISMA_CANDIDATE_PRESCREEN_LABELS = {
     "exclude_missing_abstract": "No abstract available",
     "exclude_non_evidence_artifact": "Non-evidence artifact",
     "exclude_non_paper_container": "Non-paper container",
-    "retain_existing_downstream": "Already represented downstream",
     "unknown": "Prescreen status not available",
 }
 
@@ -172,7 +171,7 @@ PRISMA_CANDIDATE_ROUTE_LABELS = {
     "excluded_after_domain_screen": "Excluded after domain screen",
     "preprint_hold": "Preprint held for published-version check",
     "context_only_or_skip": "Context-only or skip route",
-    "not_retained_for_extraction": "Not retained for extraction",
+    "not_retained_for_extraction": "No current extraction route assigned",
     "unknown": "Route status not available",
 }
 
@@ -1238,6 +1237,13 @@ def candidate_screened(row: dict) -> bool:
     )
 
 
+def candidate_prescreen_retained(row: dict) -> bool:
+    decision = normalize(row.get("prescreen_decisions", "")).lower()
+    if decision:
+        return decision == "retain"
+    return boolish(row.get("prescreen_retained_for_extraction_candidate", False))
+
+
 def candidate_pipeline_counters(rows: Iterable[dict]) -> dict[str, Counter]:
     counters: dict[str, Counter] = defaultdict(Counter)
     for row in rows:
@@ -1256,10 +1262,10 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
     screened_rows = [row for row in rows if candidate_screened(row)]
     not_screened_rows = [row for row in rows if not candidate_screened(row)]
     prescreen_retained_rows = [
-        row for row in screened_rows if boolish(row.get("prescreen_retained_for_extraction_candidate", False))
+        row for row in screened_rows if candidate_prescreen_retained(row)
     ]
     prescreen_excluded_rows = [
-        row for row in screened_rows if not boolish(row.get("prescreen_retained_for_extraction_candidate", False))
+        row for row in screened_rows if not candidate_prescreen_retained(row)
     ]
     extraction_selected_rows = [
         row for row in rows if boolish(row.get("retained_for_extraction_candidate", False))
@@ -1323,7 +1329,6 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
                         "exclude_obvious_irrelevant",
                         "exclude_missing_abstract",
                         "exclude_non_evidence_artifact",
-                        "retain_existing_downstream",
                         "exclude_non_paper_container",
                         "unknown",
                     ),

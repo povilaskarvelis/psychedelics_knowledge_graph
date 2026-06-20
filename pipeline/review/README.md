@@ -22,8 +22,8 @@ Outputs:
 - `data/processed/corpus/paper_prescreen_summary.parquet`
 
 The decision table has one row per DOI and dataset. Missing-abstract records are
-excluded by default, while records with downstream claim or extraction
-provenance are retained with `prescreen_action=retain_existing_downstream`.
+excluded by default. Existing downstream claim or extraction provenance is not
+used by this prescreen step.
 
 For small updates, such as newly added papers or metadata fixes, update only the
 affected DOIs instead of rerunning the whole corpus:

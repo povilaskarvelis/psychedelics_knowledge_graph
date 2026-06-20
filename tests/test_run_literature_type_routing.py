@@ -159,7 +159,7 @@ class LiteratureTypeRoutingTest(unittest.TestCase):
         self.assertEqual(rows[0]["doi"], "10.example/retained")
         self.assertEqual(rows[0]["source_family"], "secondary_literature")
 
-    def test_retained_existing_downstream_is_not_routing_ready_candidate(self) -> None:
+    def test_excluded_prescreen_row_is_not_routing_ready_candidate(self) -> None:
         metadata = pd.DataFrame(
             [
                 {
@@ -175,8 +175,8 @@ class LiteratureTypeRoutingTest(unittest.TestCase):
                 {
                     "doi": "10.example/protected",
                     "dataset": "disorder",
-                    "prescreen_decision": "retain",
-                    "prescreen_action": "retain_existing_downstream",
+                    "prescreen_decision": "exclude",
+                    "prescreen_action": "exclude_non_evidence_artifact",
                     "retained_for_extraction_candidate": False,
                 }
             ]
