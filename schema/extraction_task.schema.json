@@ -172,7 +172,7 @@
           "type": "string",
           "enum": [
             "primary_evidence",
-            "evidence_synthesis",
+            "meta_analysis_evidence",
             "review_coverage",
             "recommendation_consensus",
             "context_only"

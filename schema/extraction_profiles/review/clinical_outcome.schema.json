@@ -1,0 +1,379 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Secondary Review Coverage Extraction - clinical_outcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "review_assessment",
+    "coverage_items",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "review_coverage_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "clinical_outcome"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "systematic_review",
+        "scoping_review",
+        "umbrella_review",
+        "review",
+        "narrative_review",
+        "literature_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_coverage",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "review_assessment": {
+      "$ref": "#/definitions/review_assessment"
+    },
+    "coverage_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_item"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "clinical_outcome"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "direction_or_tone": {
+      "type": "string",
+      "enum": [
+        "supports",
+        "mixed",
+        "does_not_support",
+        "insufficient_evidence",
+        "descriptive_only",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "review_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "review_type",
+        "has_extractable_scoped_coverage",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "review_type": {
+          "type": "string"
+        },
+        "has_extractable_scoped_coverage": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "clinical_outcome"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "relationship_domain",
+        "coverage_type",
+        "coverage_focus",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "reviewed_evidence_type",
+        "summary_statement",
+        "direction_or_tone",
+        "participant_or_sample_summary",
+        "key_limitations",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review",
+        "domain_result"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "clinical_outcome"
+        },
+        "coverage_type": {
+          "type": "string",
+          "enum": [
+            "summarizes",
+            "reviews",
+            "maps_evidence",
+            "discusses",
+            "identifies_gap",
+            "methodological_context",
+            "mentions",
+            "uncertain"
+          ]
+        },
+        "coverage_focus": {
+          "type": "string",
+          "enum": [
+            "main_focus",
+            "substantial_topic",
+            "brief_context",
+            "unclear"
+          ],
+          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "disorder",
+            "symptom_or_outcome",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "reviewed_evidence_type": {
+          "type": "string"
+        },
+        "summary_statement": {
+          "type": "string"
+        },
+        "direction_or_tone": {
+          "$ref": "#/definitions/direction_or_tone"
+        },
+        "participant_or_sample_summary": {
+          "type": "string"
+        },
+        "key_limitations": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "condition_or_population",
+            "compound_or_intervention",
+            "clinical_topic",
+            "clinical_endpoint",
+            "clinical_endpoint_category",
+            "outcome_measure_or_instrument",
+            "comparator_or_context",
+            "dose_or_regimen",
+            "time_window",
+            "response_or_remission_metric",
+            "clinical_effect_or_statistic",
+            "certainty_or_evidence_quality",
+            "review_interpretation"
+          ],
+          "properties": {
+            "condition_or_population": {
+              "type": "string",
+              "description": "Clinical condition, symptom area, population, or indication reviewed."
+            },
+            "compound_or_intervention": {
+              "type": "string",
+              "description": "Compound, compound class, psychedelic-assisted intervention, or comparator reviewed."
+            },
+            "clinical_topic": {
+              "type": "string",
+              "description": "Clinical topic such as efficacy, response, remission, relapse, acceptability, pain, distress, or quality of life."
+            },
+            "clinical_endpoint": {
+              "type": "string",
+              "description": "Specific clinical endpoint, symptom, diagnosis, functional outcome, quality-of-life outcome, relapse outcome, or clinical problem reviewed."
+            },
+            "clinical_endpoint_category": {
+              "type": "string",
+              "description": "Endpoint category such as symptom severity, response, remission, relapse prevention, functioning, distress, pain, or acceptability."
+            },
+            "outcome_measure_or_instrument": {
+              "type": "string",
+              "description": "Outcome measure, rating scale, diagnostic criterion, clinical assessment, or endpoint instrument when stated."
+            },
+            "comparator_or_context": {
+              "type": "string",
+              "description": "Comparator, control, treatment context, care setting, or reference condition when stated."
+            },
+            "dose_or_regimen": {
+              "type": "string",
+              "description": "Dose, route, session count, administration schedule, psychotherapy/support context, or other regimen detail when reviewed."
+            },
+            "time_window": {
+              "type": "string",
+              "description": "Time window or follow-up period discussed by the review."
+            },
+            "response_or_remission_metric": {
+              "type": "string",
+              "description": "Reported response, remission, relapse, recovery, or clinically significant improvement metric when stated."
+            },
+            "clinical_effect_or_statistic": {
+              "type": "string",
+              "description": "Review-level clinical effect statement or statistic when stated, such as rapid but transient benefit, odds ratio, risk ratio, percent improved, trial count, or qualitative direction."
+            },
+            "certainty_or_evidence_quality": {
+              "type": "string",
+              "description": "Review-stated certainty, confidence, evidence quality, strength, or caution."
+            },
+            "review_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of what this review coverage means for clinical outcomes."
+            }
+          }
+        }
+      }
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

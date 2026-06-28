@@ -14,7 +14,6 @@ try:
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_FULLTEXT_DIR,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_PDF_DIR,
         DEFAULT_PRESCREEN_TABLE,
@@ -38,7 +37,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_FULLTEXT_DIR,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_PDF_DIR,
         DEFAULT_PRESCREEN_TABLE,
@@ -83,7 +81,6 @@ def run_pdf_retrieval_pipeline(
     candidate_table: Path = DEFAULT_CANDIDATE_TABLE,
     pdf_dir: Path = DEFAULT_PDF_DIR,
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
-    literature_type_table: Path = DEFAULT_LITERATURE_TYPE_TABLE,
     domain_routing_table: Path | None = DEFAULT_DOMAIN_ROUTING_TABLE,
     fulltext_dir: Path = DEFAULT_FULLTEXT_DIR,
     route_summary_json: Path = DEFAULT_ROUTE_SUMMARY_JSON,
@@ -137,7 +134,6 @@ def run_pdf_retrieval_pipeline(
         alternate_pdf_min_title_score=alternate_pdf_min_title_score,
         rebuild_routes_after=True,
         prescreen_table=prescreen_table,
-        literature_type_table=literature_type_table,
         domain_routing_table=domain_routing_table,
         fulltext_dir=fulltext_dir,
         route_summary_json=route_summary_json,
@@ -178,7 +174,6 @@ def run_pdf_retrieval_pipeline(
             route_table=route_table,
             metadata_table=metadata_table,
             prescreen_table=prescreen_table,
-            literature_type_table=literature_type_table,
             domain_routing_table=domain_routing_table,
             fulltext_dir=fulltext_dir,
             route_summary_json=route_summary_json,
@@ -238,7 +233,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--pdf-dir", default=str(DEFAULT_PDF_DIR))
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
     parser.add_argument("--route-summary-json", default=str(DEFAULT_ROUTE_SUMMARY_JSON))
@@ -304,7 +298,6 @@ def main() -> int:
         candidate_table=Path(args.candidate_table).resolve(),
         pdf_dir=Path(args.pdf_dir).resolve(),
         prescreen_table=Path(args.prescreen_table).resolve(),
-        literature_type_table=Path(args.literature_type_table).resolve(),
         domain_routing_table=Path(args.domain_routing_table).resolve() if args.domain_routing_table.strip() else None,
         fulltext_dir=Path(args.fulltext_dir).resolve(),
         route_summary_json=Path(args.route_summary_json).resolve(),

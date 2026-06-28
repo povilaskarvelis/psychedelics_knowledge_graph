@@ -33,7 +33,6 @@ try:
         DEFAULT_SUMMARY_JSON,
         DEFAULT_COUNTS_CSV,
         DEFAULT_FULLTEXT_DIR,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_MANUAL_ROUTE_OVERRIDES,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -57,7 +56,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_SUMMARY_JSON,
         DEFAULT_COUNTS_CSV,
         DEFAULT_FULLTEXT_DIR,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_MANUAL_ROUTE_OVERRIDES,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -187,8 +185,6 @@ def convert_batch_command(args: argparse.Namespace, doi_file: Path, report_path:
         str(Path(args.metadata_table).resolve()),
         "--prescreen-table",
         str(Path(args.prescreen_table).resolve()),
-        "--literature-type-table",
-        str(Path(args.literature_type_table).resolve()),
         "--fulltext-dir",
         str(Path(args.fulltext_dir).resolve()),
         "--out-dir",
@@ -238,8 +234,6 @@ def rebuild_routes_command(args: argparse.Namespace) -> list[str]:
         str(Path(args.metadata_table).resolve()),
         "--prescreen-decisions-table",
         str(Path(args.prescreen_table).resolve()),
-        "--literature-type-table",
-        str(Path(args.literature_type_table).resolve()),
         "--fulltext-dir",
         str(Path(args.fulltext_dir).resolve()),
         "--paper-root",
@@ -364,7 +358,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--route-table", default=str(DEFAULT_OUTPUT_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))

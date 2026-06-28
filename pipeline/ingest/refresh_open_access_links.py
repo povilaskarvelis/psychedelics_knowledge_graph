@@ -34,7 +34,7 @@ from pipeline.ingest.sync_paper_library import (
     usable_email,
 )
 
-DEFAULT_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_literature_type_routing.parquet"
+DEFAULT_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
 OA_FIELDS = (
     "open_access_is_oa",
     "open_access_status",

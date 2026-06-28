@@ -37,7 +37,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 DEFAULT_ENV = ROOT / ".env"
 DEFAULT_METADATA_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
 DEFAULT_PRESCREEN_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_prescreen_decisions.parquet"
-DEFAULT_LITERATURE_TYPE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_literature_type_routing.parquet"
 DEFAULT_OUTPUT_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
 DEFAULT_SUMMARY_JSON = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini_summary.json"
 DEFAULT_COUNTS_CSV = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini_counts.csv"
@@ -69,6 +68,56 @@ SCREENING_DECISIONS = (
     "exclude_out_of_scope",
     "unclear",
 )
+PAPER_TYPE_GROUPS = (
+    "primary",
+    "secondary_literature",
+    "non_primary_publication",
+)
+PAPER_TYPES = (
+    "primary",
+    "meta_analysis",
+    "network_meta_analysis",
+    "systematic_review",
+    "scoping_review",
+    "umbrella_review",
+    "narrative_review",
+    "literature_review",
+    "review",
+    "guideline",
+    "consensus_statement",
+    "protocol",
+    "trial_registration",
+    "commentary_editorial",
+    "correction_retraction",
+    "peer_review_artifact",
+    "thesis_or_dissertation",
+    "book_chapter",
+    "news_summary",
+    "other_non_primary",
+)
+SECONDARY_PAPER_TYPES = {
+    "meta_analysis",
+    "network_meta_analysis",
+    "systematic_review",
+    "scoping_review",
+    "umbrella_review",
+    "narrative_review",
+    "literature_review",
+    "review",
+    "guideline",
+    "consensus_statement",
+}
+NON_PRIMARY_PAPER_TYPES = {
+    "protocol",
+    "trial_registration",
+    "commentary_editorial",
+    "correction_retraction",
+    "peer_review_artifact",
+    "thesis_or_dissertation",
+    "book_chapter",
+    "news_summary",
+    "other_non_primary",
+}
 DOMAIN_DEFINITIONS = {
     "clinical_outcome": "Human clinical indications, symptoms, diagnoses, patient outcomes, functioning, quality of life, remission, response, relapse, or trial efficacy endpoints. Also use for systematic reviews/meta-analyses that synthesize human clinical outcome studies. Do not use for primary animal, cell, or other preclinical disease-model studies just because a human condition is named or translational relevance is discussed. Do not use for healthy-volunteer pharmacology unless clinical symptoms or patient outcomes are a substantive endpoint.",
     "safety_tolerability": "Adverse events, tolerability, abuse liability, toxicity, medical risk, contraindications, physiological safety, discontinuation, or safety monitoring.",
@@ -105,6 +154,13 @@ DOMAIN_RESPONSE_SCHEMA = {
         "primary_domain": {"type": "string", "enum": list(DOMAIN_ROUTE_ORDER)},
         "screening_decision": {"type": "string", "enum": list(SCREENING_DECISIONS)},
         "screening_reason": {"type": "string"},
+        "paper_type_group": {"type": "string", "enum": list(PAPER_TYPE_GROUPS)},
+        "paper_type": {"type": "string", "enum": list(PAPER_TYPES)},
+        "paper_type_labels": {
+            "type": "array",
+            "items": {"type": "string", "enum": list(PAPER_TYPES)},
+        },
+        "paper_type_reason": {"type": "string"},
         "methodological_validity_tags": {
             "type": "array",
             "items": {"type": "string", "enum": list(METHODOLOGICAL_VALIDITY_TAGS)},
@@ -116,6 +172,10 @@ DOMAIN_RESPONSE_SCHEMA = {
         "primary_domain",
         "screening_decision",
         "screening_reason",
+        "paper_type_group",
+        "paper_type",
+        "paper_type_labels",
+        "paper_type_reason",
         "methodological_validity_tags",
         "rationale",
     ],
@@ -123,11 +183,12 @@ DOMAIN_RESPONSE_SCHEMA = {
 }
 
 
-SYSTEM_INSTRUCTION = f"""Classify a scientific paper record into evidence domains.
+SYSTEM_INSTRUCTION = f"""Classify a scientific paper record by scope, evidence domain, and paper type.
 
-Base the classification on the supplied title and abstract. Use likely paper
-type, publication labels, MeSH terms, and keywords as supplementary context for
-paper type and ambiguous cases.
+Base the classification on the supplied title and abstract. Use publication
+labels, MeSH terms, and keywords only as supporting context; these metadata can
+be incomplete or misleading and should not override clear title or abstract
+evidence.
 
 Evidence domain options:
 {DOMAIN_DEFINITION_TEXT}
@@ -185,19 +246,6 @@ Special domain rules:
   unless the title/abstract centrally links them to psychedelic-related evidence
   covered by the domains above.
 
-Set screening_decision after domain assignment:
-- include_in_scope: use when the title/abstract substantively supports at least
-  one evidence domain, or when primary_domain is "general_topic" for a broadly
-  relevant psychedelic evidence paper.
-- exclude_out_of_scope: use when the title/abstract does not support any
-  evidence domain and does not support in-scope "general_topic" relevance. Also
-  use this for records that are only container/citation/issue records or contain
-  only a passing/background mention of an in-scope topic.
-- unclear: use when the title/abstract suggests possible relevance, but the
-  information provided is too thin or ambiguous to decide confidently.
-- For exclude_out_of_scope, return no domain_tags and primary_domain
-  "general_topic".
-
 Optional methodological validity modifiers:
 {METHODOLOGICAL_VALIDITY_TEXT}
 
@@ -213,6 +261,68 @@ For methodological papers about blinding, trial design, measurement bias, or
 regulatory validity, keep the main domain tied to the evidence being judged,
 usually clinical_outcome, subjective_experience, intervention_context, or
 real_world_public_health, and add methodological_validity_tags when appropriate.
+
+Set paper_type_group, paper_type, and paper_type_labels as follows:
+- primary: original empirical research, including human trials,
+  observational studies, case reports/series, animal studies, cell or tissue
+  studies, pharmacokinetic studies, surveys, qualitative studies, and records
+  that appear empirical but are too thin to classify more specifically. Do not
+  use primary for analyses where the data are publications, citations, search
+  records, or research-field metadata rather than participants, patients,
+  animals, cells, tissues, assays, samples, or real-world exposure/outcome
+  records. Use paper_type "primary" and paper_type_labels ["primary"].
+- secondary_literature: papers that synthesize or summarize multiple studies,
+  bodies of evidence, clinical guidance, expert consensus, or the research
+  literature itself. Bibliometric, scientometric, citation-network, and
+  research-trend or knowledge-map papers belong here, usually as paper_type
+  "review", unless the input supports a more specific review type. Set
+  paper_type to the most specific paper type supported by the input:
+  meta_analysis, network_meta_analysis, systematic_review, scoping_review,
+  umbrella_review, narrative_review, literature_review, review, guideline, or
+  consensus_statement. Set paper_type_labels to every supported secondary label
+  from that list. For example, a "systematic review and meta-analysis" should
+  use paper_type "meta_analysis" and paper_type_labels including both
+  "systematic_review" and "meta_analysis".
+- non_primary_publication: records that are not usable as original evidence or
+  evidence synthesis, such as protocols, trial registrations, commentaries,
+  editorials, letters, replies, corrections, retractions, peer-review reports,
+  author responses, dissertations, theses, book chapters, container/citation
+  records, or news summaries. Set paper_type to the most specific paper type
+  supported by the input: protocol, trial_registration, commentary_editorial,
+  correction_retraction, peer_review_artifact,
+  thesis_or_dissertation, book_chapter, news_summary, or other_non_primary. Set
+  paper_type_labels to every supported non-primary label from that list.
+
+Paper type rules:
+- Prefer explicit title and abstract evidence over weak hints.
+- If a protocol paper also reports pilot or completed study results, classify
+  it as primary rather than protocol.
+- If a review also reports a quantitative pooled analysis, classify it as
+  meta_analysis or network_meta_analysis.
+- Always include paper_type itself in paper_type_labels.
+- Do not add the generic "review" label when a more specific review type is
+  supported, unless the input itself only supports a generic review label.
+- Generic "review" labels can indicate secondary_literature, but do not treat
+  "peer review" or peer-review artifacts as evidence synthesis.
+- For non_primary_publication records, normally use screening_decision
+  "exclude_out_of_scope" unless the title/abstract contains substantive
+  original results or evidence synthesis.
+
+Set screening_decision after domain and paper-type assignment:
+- include_in_scope: use when the title/abstract substantively supports at least
+  one evidence domain, or when primary_domain is "general_topic" for a broadly
+  relevant psychedelic evidence paper.
+- exclude_out_of_scope: use when the title/abstract does not support any
+  evidence domain and does not support in-scope "general_topic" relevance. Also
+  use this for records that are only container/citation/issue records or contain
+  only a passing/background mention of an in-scope topic.
+- unclear: use when the title/abstract suggests possible relevance, but the
+  information provided is too thin or ambiguous to decide confidently.
+- For exclude_out_of_scope, return no domain_tags and primary_domain
+  "general_topic".
+- For non_primary_publication records that are excluded, return no domain_tags
+  and primary_domain "general_topic" even if the title mentions an in-scope
+  substance or disorder.
 
 Return only compact JSON matching the provided schema.
 """
@@ -335,7 +445,6 @@ def row_by_doi(df: pd.DataFrame) -> dict[str, dict]:
 def selected_records(
     metadata_df: pd.DataFrame,
     prescreen_df: pd.DataFrame,
-    literature_df: pd.DataFrame,
     *,
     scoped_dois: set[str],
     limit: int,
@@ -343,13 +452,11 @@ def selected_records(
 ) -> list[dict]:
     retained = retained_dois(prescreen_df, scoped_dois)
     prescreen_context = aggregate_prescreen_context(prescreen_df)
-    literature_by_doi = row_by_doi(literature_df)
     rows = []
     for row in metadata_df.to_dict("records"):
         doi = normalize_doi(row.get("doi", ""))
         if not doi or doi not in retained or doi in completed:
             continue
-        lit = literature_by_doi.get(doi, {})
         context = prescreen_context.get(doi, {})
         rows.append(
             {
@@ -361,14 +468,6 @@ def selected_records(
                 "publication_type": clean(row.get("publication_type", "")),
                 "mesh_terms": clean(row.get("mesh_terms", "")),
                 "keywords": clean(row.get("keywords", "")),
-                "source_family": clean(lit.get("source_family", "")),
-                "literature_route": clean(lit.get("literature_route", "")),
-                "secondary_source_types": clean(lit.get("secondary_source_types", "")),
-                "primary_secondary_source_type": clean(lit.get("primary_secondary_source_type", "")),
-                "metadata_secondary_types": clean(lit.get("metadata_secondary_types", "")),
-                "title_abstract_secondary_types": clean(lit.get("title_abstract_secondary_types", "")),
-                "non_primary_flags": clean(lit.get("non_primary_flags", "")),
-                "literature_type_confidence": clean(lit.get("literature_type_confidence", "")),
                 "prescreen_run_ids": join_values(context.get("prescreen_run_ids", [])),
             }
         )
@@ -397,13 +496,6 @@ def completed_dois(raw_jsonl: Path) -> set[str]:
     return out
 
 
-def likely_paper_type(record: dict) -> str:
-    paper_type = clean(record.get("primary_secondary_source_type", ""))
-    if not paper_type:
-        paper_type = clean(record.get("source_family", ""))
-    return paper_type.replace("_", " ")
-
-
 def prompt_for_record(record: dict) -> str:
     abstract = clean(record.get("abstract", ""))
     if len(abstract) > MAX_ABSTRACT_CHARS:
@@ -415,7 +507,6 @@ Year: {record['study_year']}
 Abstract: {abstract}
 
 Context metadata:
-Likely paper type: {likely_paper_type(record)}
 Publication labels: {record['publication_type']}
 MeSH terms: {record['mesh_terms']}
 Keywords: {record['keywords']}
@@ -478,12 +569,39 @@ def salvage_partial_json_response(text: str) -> dict:
         "primary_domain": json_string_field(text, "primary_domain"),
         "screening_decision": json_string_field(text, "screening_decision"),
         "screening_reason": json_string_field(text, "screening_reason"),
+        "paper_type_group": json_string_field(text, "paper_type_group"),
+        "paper_type": json_string_field(text, "paper_type"),
+        "paper_type_labels": json_array_field(text, "paper_type_labels"),
+        "paper_type_reason": json_string_field(text, "paper_type_reason"),
         "methodological_validity_tags": json_array_field(text, "methodological_validity_tags"),
         "rationale": json_string_field(text, "rationale"),
     }
-    if payload["domain_tags"] or payload["primary_domain"] or payload["screening_decision"]:
+    if payload["domain_tags"] or payload["primary_domain"] or payload["screening_decision"] or payload["paper_type"]:
         return payload
     return {}
+
+
+def paper_type_group_for(paper_type: str) -> str:
+    if paper_type in SECONDARY_PAPER_TYPES:
+        return "secondary_literature"
+    if paper_type in NON_PRIMARY_PAPER_TYPES:
+        return "non_primary_publication"
+    return "primary"
+
+
+def normalize_paper_type_labels(paper_type: str, raw_labels: object) -> list[str]:
+    expected_group = paper_type_group_for(paper_type)
+    labels: list[str] = []
+    raw_values = raw_labels if isinstance(raw_labels, list) else []
+    for item in raw_values:
+        value = clean(item)
+        if value in PAPER_TYPES and paper_type_group_for(value) == expected_group and value not in labels:
+            labels.append(value)
+    if paper_type not in labels:
+        labels.insert(0, paper_type)
+    if expected_group == "primary":
+        return ["primary"]
+    return labels
 
 
 def normalize_payload(payload: dict) -> dict:
@@ -514,11 +632,23 @@ def normalize_payload(payload: dict) -> dict:
         tags = []
         validity_tags = []
         primary = GENERAL_DOMAIN_ROUTE
+    paper_type = clean(payload.get("paper_type", ""))
+    if paper_type not in PAPER_TYPES:
+        paper_type = "primary"
+    paper_type_group = clean(payload.get("paper_type_group", ""))
+    expected_group = paper_type_group_for(paper_type)
+    if paper_type_group not in PAPER_TYPE_GROUPS or paper_type_group != expected_group:
+        paper_type_group = expected_group
+    paper_type_labels = normalize_paper_type_labels(paper_type, payload.get("paper_type_labels", []))
     return {
         "domain_tags": tags,
         "primary_domain": primary,
         "screening_decision": screening_decision,
         "screening_reason": clean(payload.get("screening_reason", "")),
+        "paper_type_group": paper_type_group,
+        "paper_type": paper_type,
+        "paper_type_labels": paper_type_labels,
+        "paper_type_reason": clean(payload.get("paper_type_reason", "")),
         "methodological_validity_tags": validity_tags,
         "rationale": clean(payload.get("rationale", "")),
     }
@@ -554,7 +684,6 @@ def run_gemini(args: argparse.Namespace) -> list[dict]:
     records = selected_records(
         read_table(Path(args.metadata_table).resolve()),
         read_table(Path(args.prescreen_decisions_table).resolve()),
-        read_table(Path(args.literature_type_table).resolve()),
         scoped_dois=scoped_dois,
         limit=args.limit,
         completed=completed,
@@ -616,10 +745,9 @@ def run_gemini(args: argparse.Namespace) -> list[dict]:
     return rows
 
 
-def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_df: pd.DataFrame, literature_df: pd.DataFrame) -> list[dict]:
+def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_df: pd.DataFrame) -> list[dict]:
     metadata_by_doi = row_by_doi(metadata_df)
     prescreen_context = aggregate_prescreen_context(prescreen_df)
-    literature_by_doi = row_by_doi(literature_df)
     rows = []
     if not raw_jsonl.exists():
         return rows
@@ -636,7 +764,6 @@ def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_d
                 continue
             meta = metadata_by_doi.get(doi, {})
             context = prescreen_context.get(doi, {})
-            lit = literature_by_doi.get(doi, {})
             parsed = normalize_payload(parsed)
             rows.append(
                 {
@@ -645,24 +772,39 @@ def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_d
                     "study_title": clean(meta.get("study_title", "")),
                     "study_year": clean(meta.get("study_year", "")),
                     "prescreen_run_ids": join_values(context.get("prescreen_run_ids", [])),
-                    "source_family": clean(lit.get("source_family", "")),
-                    "literature_route": clean(lit.get("literature_route", "")),
-                    "secondary_source_types": clean(lit.get("secondary_source_types", "")),
-                    "primary_secondary_source_type": clean(lit.get("primary_secondary_source_type", "")),
-                    "metadata_secondary_types": clean(lit.get("metadata_secondary_types", "")),
-                    "title_abstract_secondary_types": clean(lit.get("title_abstract_secondary_types", "")),
-                    "non_primary_flags": clean(lit.get("non_primary_flags", "")),
-                    "literature_type_confidence": clean(lit.get("literature_type_confidence", "")),
                     "domain_tags": parsed.get("domain_tags", []),
                     "primary_domain": clean(parsed.get("primary_domain", "")),
                     "screening_decision": clean(parsed.get("screening_decision", "")),
                     "screening_reason": clean(parsed.get("screening_reason", "")),
+                    "paper_type_group": clean(parsed.get("paper_type_group", "")),
+                    "paper_type": clean(parsed.get("paper_type", "")),
+                    "paper_type_labels": parsed.get("paper_type_labels", []),
+                    "paper_type_reason": clean(parsed.get("paper_type_reason", "")),
                     "methodological_validity_tags": parsed.get("methodological_validity_tags", []),
                     "rationale": clean(parsed.get("rationale", "")),
                     "model": clean(raw.get("model", "")),
                 }
             )
     return rows
+
+
+def secondary_source_types_for(paper_type: str, paper_type_labels: Iterable[str] = ()) -> str:
+    if paper_type not in SECONDARY_PAPER_TYPES:
+        return ""
+    labels = [label for label in paper_type_labels if label in SECONDARY_PAPER_TYPES]
+    if paper_type not in labels:
+        labels.insert(0, paper_type)
+    if "review" not in labels:
+        labels.append("review")
+    return join_values(labels)
+
+
+def literature_route_for(paper_type_group: str) -> str:
+    if paper_type_group == "secondary_literature":
+        return "secondary_literature_extraction"
+    if paper_type_group == "non_primary_publication":
+        return "non_primary_context_or_skip"
+    return "primary_literature_extraction"
 
 
 def route_rows_from_parsed(parsed_rows: list[dict], generated_at_utc: str) -> list[dict]:
@@ -678,6 +820,17 @@ def route_rows_from_parsed(parsed_rows: list[dict], generated_at_utc: str) -> li
             screening_decision = "include_in_scope"
         if screening_decision not in SCREENING_DECISIONS:
             screening_decision = "include_in_scope" if tags else "unclear"
+        paper_type = clean(row.get("paper_type", ""))
+        if paper_type not in PAPER_TYPES:
+            paper_type = "primary"
+        paper_type_group = clean(row.get("paper_type_group", ""))
+        expected_group = paper_type_group_for(paper_type)
+        if paper_type_group not in PAPER_TYPE_GROUPS or paper_type_group != expected_group:
+            paper_type_group = expected_group
+        paper_type_labels = normalize_paper_type_labels(paper_type, row.get("paper_type_labels", []))
+        secondary_source_types = secondary_source_types_for(paper_type, paper_type_labels)
+        primary_secondary_source_type = paper_type if paper_type_group == "secondary_literature" else ""
+        non_primary_flags = paper_type if paper_type_group == "non_primary_publication" else ""
         routes = tags or [GENERAL_DOMAIN_ROUTE]
         all_tags = join_values(tags)
         all_validity_tags = join_values(validity_tags)
@@ -692,14 +845,18 @@ def route_rows_from_parsed(parsed_rows: list[dict], generated_at_utc: str) -> li
                     "study_title": clean(row.get("study_title", "")),
                     "study_year": clean(row.get("study_year", "")),
                     "prescreen_run_ids": clean(row.get("prescreen_run_ids", "")),
-                    "source_family": clean(row.get("source_family", "")),
-                    "literature_route": clean(row.get("literature_route", "")),
-                    "secondary_source_types": clean(row.get("secondary_source_types", "")),
-                    "primary_secondary_source_type": clean(row.get("primary_secondary_source_type", "")),
-                    "metadata_secondary_types": clean(row.get("metadata_secondary_types", "")),
-                    "title_abstract_secondary_types": clean(row.get("title_abstract_secondary_types", "")),
-                    "non_primary_flags": clean(row.get("non_primary_flags", "")),
-                    "literature_type_confidence": clean(row.get("literature_type_confidence", "")),
+                    "paper_type_group": paper_type_group,
+                    "paper_type": paper_type,
+                    "paper_type_labels": join_values(paper_type_labels),
+                    "paper_type_reason": clean(row.get("paper_type_reason", "")),
+                    "source_family": paper_type_group,
+                    "literature_route": literature_route_for(paper_type_group),
+                    "secondary_source_types": secondary_source_types,
+                    "primary_secondary_source_type": primary_secondary_source_type,
+                    "metadata_secondary_types": "",
+                    "title_abstract_secondary_types": "",
+                    "non_primary_flags": non_primary_flags,
+                    "literature_type_confidence": "model",
                     "all_domain_tags": all_tags,
                     "primary_domain": clean(row.get("primary_domain", "")),
                     "screening_decision": screening_decision,
@@ -760,6 +917,9 @@ def build_summary(rows: list[dict], *, inputs: dict) -> tuple[dict, list[dict]]:
         "by_domain_route": dict(Counter(row["domain_route"] for row in rows)),
         "by_screening_decision": dict(Counter(clean(row.get("screening_decision", "")) for row in rows)),
         "by_screening_decision_doi": dict(Counter(screening_by_doi.values())),
+        "by_paper_type_group": dict(Counter(clean(row.get("paper_type_group", "")) for row in rows)),
+        "by_paper_type": dict(Counter(clean(row.get("paper_type", "")) for row in rows)),
+        "by_paper_type_label": dict(Counter(label for row in rows for label in split_values(row.get("paper_type_labels", "")))),
         "by_methodological_validity_tag": dict(methodological_counts),
         "methodological_validity_dois": len(methodological_tag_by_doi),
     }
@@ -768,6 +928,9 @@ def build_summary(rows: list[dict], *, inputs: dict) -> tuple[dict, list[dict]]:
         ("domain_route", summary["by_domain_route"]),
         ("screening_decision", summary["by_screening_decision"]),
         ("screening_decision_doi", summary["by_screening_decision_doi"]),
+        ("paper_type_group", summary["by_paper_type_group"]),
+        ("paper_type", summary["by_paper_type"]),
+        ("paper_type_label", summary["by_paper_type_label"]),
         ("methodological_validity_tag", summary["by_methodological_validity_tag"]),
     ):
         for value, count in sorted(values.items()):
@@ -779,7 +942,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Assign paper domain routes from title/abstract metadata with Gemini.")
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--output-table", default=str(DEFAULT_OUTPUT_TABLE))
     parser.add_argument("--summary-json", default=str(DEFAULT_SUMMARY_JSON))
     parser.add_argument("--counts-csv", default=str(DEFAULT_COUNTS_CSV))
@@ -803,14 +965,12 @@ def main() -> int:
     args = build_arg_parser().parse_args()
     metadata_table = Path(args.metadata_table).resolve()
     prescreen_table = Path(args.prescreen_decisions_table).resolve()
-    literature_table = Path(args.literature_type_table).resolve()
     raw_jsonl = Path(args.raw_jsonl).resolve()
     if not args.parse_only:
         run_gemini(args)
     metadata_df = read_table(metadata_table)
     prescreen_df = read_table(prescreen_table)
-    literature_df = read_table(literature_table)
-    parsed_rows = parsed_rows_from_raw(raw_jsonl, metadata_df, prescreen_df, literature_df)
+    parsed_rows = parsed_rows_from_raw(raw_jsonl, metadata_df, prescreen_df)
     generated_at_utc = now_utc()
     rows = route_rows_from_parsed(parsed_rows, generated_at_utc)
     output_table = Path(args.output_table).resolve()
@@ -822,7 +982,6 @@ def main() -> int:
         inputs={
             "metadata_table": str(metadata_table),
             "prescreen_decisions_table": str(prescreen_table),
-            "literature_type_table": str(literature_table),
             "raw_jsonl": str(raw_jsonl),
             "doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
             "limit": int(args.limit),

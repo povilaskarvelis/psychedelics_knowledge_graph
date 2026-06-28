@@ -252,7 +252,7 @@ def expected_packet_profile_for_route(route_row: dict) -> str:
     schema_profile = normalize(route_row.get("schema_profile", ""))
     if prompt_profile in TERMINAL_PROMPT_PROFILES or schema_profile in TERMINAL_SCHEMA_PROFILES:
         return PACKET_PROFILE_NOT_APPLICABLE
-    if prompt_profile == "secondary_meta_analysis" or schema_profile == "synthesis_evidence_schema":
+    if prompt_profile == "secondary_meta_analysis" or schema_profile == "meta_analysis_evidence_schema":
         return PACKET_PROFILE_SECONDARY_SYNTHESIS
     if schema_profile == "review_coverage_schema" or prompt_profile in {
         "secondary_structured_review",
@@ -367,6 +367,7 @@ def route_context_for_task(route_row: dict) -> dict:
         else:
             out[field] = compact_text(value)
     out["doi"] = normalize_doi(out.get("doi", ""))
+    out["schema_profile"] = normalize(out.get("schema_profile", ""))
     return out
 
 
@@ -381,8 +382,8 @@ def access_level_for_route(route_row: dict) -> str:
 
 def output_family_for_route(route_row: dict) -> str:
     schema_profile = normalize(route_row.get("schema_profile", ""))
-    if schema_profile == "synthesis_evidence_schema":
-        return "evidence_synthesis"
+    if schema_profile == "meta_analysis_evidence_schema":
+        return "meta_analysis_evidence"
     if schema_profile == "review_coverage_schema":
         return "review_coverage"
     if schema_profile == "recommendation_consensus_schema":
@@ -397,7 +398,10 @@ def text_source_for_task(route_row: dict, metadata: dict, packet: dict | None, p
     expected_profile = expected_packet_profile_for_route(route_row)
     actual_profile = packet_profile(packet)
     profile_status = packet_profile_status(expected_profile, actual_profile, bool(packet))
-    if action == "extract_from_full_text":
+    if expected_profile == PACKET_PROFILE_NOT_APPLICABLE:
+        mode = "not_applicable"
+        status = "not_model_ready"
+    elif action == "extract_from_full_text":
         if packet and packet_profile_is_compatible(expected_profile, actual_profile):
             mode = "full_text_packet"
             status = "ready_for_model"
@@ -455,11 +459,13 @@ def content_for_task(metadata: dict, packet: dict | None, *, include_packet_cont
 
 def extraction_contract_for_task(route_row: dict) -> dict:
     route_id = normalize(route_row.get("route_id", ""))
+    prompt_profile = normalize(route_row.get("prompt_profile", ""))
+    schema_profile = normalize(route_row.get("schema_profile", ""))
     return {
         "contract_version": TASK_SCHEMA_VERSION,
         "route_id": route_id,
-        "prompt_profile": normalize(route_row.get("prompt_profile", "")),
-        "schema_profile": normalize(route_row.get("schema_profile", "")),
+        "prompt_profile": prompt_profile,
+        "schema_profile": schema_profile,
         "domain_route": normalize(route_row.get("domain_route", "")),
         "output_family": output_family_for_route(route_row),
         "source_family": normalize(route_row.get("source_family", "")),
@@ -509,7 +515,8 @@ def route_row_is_selected(route_row: dict, args: argparse.Namespace, doi_filter:
         return False
     if args.prompt_profile and normalize(route_row.get("prompt_profile", "")) not in args.prompt_profile:
         return False
-    if args.schema_profile and normalize(route_row.get("schema_profile", "")) not in args.schema_profile:
+    schema_profile = normalize(route_row.get("schema_profile", ""))
+    if args.schema_profile and schema_profile not in args.schema_profile:
         return False
     if args.domain_route and normalize(route_row.get("domain_route", "")) not in args.domain_route:
         return False

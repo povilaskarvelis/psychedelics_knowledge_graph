@@ -2,8 +2,7 @@
 
 You are a researcher extracting structured evidence for a psychedelics knowledge
 graph. You will receive a paper title, abstract, and metadata for a
-meta-analysis, network meta-analysis, or quantitative systematic review. Use
-only the supplied text. Extract synthesis evidence that matches the scope, and
+meta-analysis, network meta-analysis, or quantitative systematic review. Extract synthesis evidence that matches the scope, and
 do not infer unstated details.
 
 ## Extraction Outcome
@@ -23,9 +22,18 @@ text:
 - Use `not_relevant` only as a rare failsafe if the supplied text is clearly
   unrelated to psychedelic evidence or appears mismatched to this task.
 
+The paper itself must be a meta-analysis, network meta-analysis, or
+quantitative systematic review. If it is a narrative, scoping, or general review
+that only cites or summarizes meta-analyses from other papers, use
+`wrong_source_type` and do not extract the cited meta-analysis results.
+
+For any status other than `extracted`, add one short reason to
+`extraction_warnings`. If no scoped synthesis result is extractable, keep
+`synthesis_results` empty.
+
 Set `synthesis_assessment.has_extractable_quantitative_results = true` only
 when the abstract reports a pooled estimate, network estimate, meta-analytic
-test, heterogeneity statistic, or other clear quantitative synthesis result.
+test, or other clear quantitative synthesis result.
 
 ## What To Extract
 
@@ -34,25 +42,30 @@ When stated, capture:
 - source type and relationship domain
 - population, sample, system, or evidence base
 - compounds/classes and scoped outcomes or entities synthesized
-- included study and participant counts
+- aggregate included study and participant counts
 - main pooled or quantitative result, including metric, effect size, confidence
-  interval, p value, heterogeneity, comparator, timepoint, and interpretation
-- author conclusion, caution, limitation, or evidence gap
-- exact quote and locator for each assessment, result, conclusion, or gap
+  comparator, assessment timepoint or window, result role, and interpretation
+- network comparison details only when they can be represented in the ordinary
+  comparator, outcome, effect, and interpretation fields
+- the domain-specific result details that are directly stated in the abstract
+- author conclusion, caution, or limitation when it helps interpret a result
+- locator for each assessment and result
 
 ## Abstract Rules
 
-- Fill search methods, eligibility, risk of bias, and certainty only when the
-  abstract states them.
-- Set `included_studies_completeness = "not_enumerated"` unless the abstract
-  explicitly provides a complete included-study list.
-- Leave `included_studies` empty for abstract-only extraction.
+- Do not extract individual included studies, included-study DOIs, trial
+  registry IDs, or reference-list details from abstracts.
+- Do not reconstruct network geometry, treatment rankings, subgroup structure,
+  search methods, eligibility criteria, or risk-of-bias details.
 - Add `abstract_only_limited_detail` to `extraction_warnings`.
 - Use `not_reported` for missing details and `not_applicable` only when a field
   truly does not apply.
+- Keep statistics and locators compact. If formatting makes a value unreadable,
+  use `not_reported` rather than copying broken fragments, repeated whitespace,
+  line breaks, or column spacing.
 - Use strings for numeric fields so units, signs, inequalities, and unusual
   formats are preserved.
 - Use `Abstract` as the locator unless the input provides a more specific
   locator.
 - Set `needs_human_review = true` for unclear source type, scope mismatch,
-  inconsistent results, incomplete quote, or risky number parsing.
+  inconsistent results, or risky number parsing.

@@ -3,41 +3,149 @@
   "title": "Primary Clinical Outcome Extraction",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "task_id", "route_id", "study_doi", "domain_route", "paper_type", "text_depth", "extraction_status", "items", "warnings"],
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "paper_type",
+    "text_depth",
+    "extraction_status",
+    "items",
+    "warnings"
+  ],
   "properties": {
-    "schema_version": {"type": "string", "enum": ["primary_clinical_outcome_v1"]},
-    "task_id": {"type": "string"},
-    "source_type": {"type": "string"},
-    "route_id": {"type": "string"},
-    "study_doi": {"type": "string"},
-    "domain_route": {"type": "string", "const": "clinical_outcome"},
-    "paper_type": {"type": "string", "enum": ["primary_study"]},
-    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
-    "extraction_status": {"type": "string", "enum": ["extracted", "no_extractable_scoped_evidence", "wrong_source_type", "not_relevant", "human_review"]},
-    "items": {"type": "array", "items": {"$ref": "#/definitions/item"}},
-    "warnings": {"type": "array", "items": {"type": "string"}}
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "primary_clinical_outcome_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "route_id": {
+      "type": "string"
+    },
+    "study_doi": {
+      "type": "string"
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "clinical_outcome"
+    },
+    "paper_type": {
+      "type": "string",
+      "enum": [
+        "primary_study"
+      ]
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_evidence",
+        "wrong_source_type",
+        "not_relevant",
+        "human_review"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/item"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_type": {
+      "type": "string"
+    }
   },
   "definitions": {
     "item": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["condition_or_population", "compound_or_intervention", "comparator", "dose_or_regimen", "sample_size", "outcome_measure", "clinical_endpoint", "timepoint", "result_direction", "effect_or_statistic", "p_value", "confidence_interval", "finding_summary", "evidence_location", "evidence_quote"],
+      "required": [
+        "condition_or_population",
+        "compound_or_intervention",
+        "comparator",
+        "dose_or_regimen",
+        "sample_size",
+        "outcome_measure",
+        "clinical_endpoint",
+        "assessment_timepoint",
+        "result_direction",
+        "effect_or_statistic",
+        "finding_summary",
+        "evidence_location",
+        "evidence_locator",
+        "study_design"
+      ],
       "properties": {
-        "condition_or_population": {"type": "string"},
-        "compound_or_intervention": {"type": "string"},
-        "comparator": {"type": "string"},
-        "dose_or_regimen": {"type": "string"},
-        "sample_size": {"type": "string"},
-        "outcome_measure": {"type": "string"},
-        "clinical_endpoint": {"type": "string"},
-        "timepoint": {"type": "string"},
-        "result_direction": {"type": "string", "enum": ["positive", "negative", "null", "mixed", "unclear", "not_applicable"]},
-        "effect_or_statistic": {"type": "string"},
-        "p_value": {"type": "string"},
-        "confidence_interval": {"type": "string"},
-        "finding_summary": {"type": "string"},
-        "evidence_location": {"type": "string"},
-        "evidence_quote": {"type": "string"}
+        "condition_or_population": {
+          "type": "string"
+        },
+        "compound_or_intervention": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "dose_or_regimen": {
+          "type": "string"
+        },
+        "sample_size": {
+          "type": "string"
+        },
+        "outcome_measure": {
+          "type": "string"
+        },
+        "clinical_endpoint": {
+          "type": "string"
+        },
+        "assessment_timepoint": {
+          "type": "string",
+          "description": "When the finding was measured or assessed, such as acute session, 2 hours post-dose, end of treatment, week 6, or follow-up. Use the paper's wording when available."
+        },
+        "result_direction": {
+          "type": "string",
+          "enum": [
+            "positive",
+            "negative",
+            "no_detected_effect",
+            "mixed",
+            "unclear",
+            "not_applicable"
+          ]
+        },
+        "effect_or_statistic": {
+          "type": "string"
+        },
+        "finding_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "type": "string"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "study_design": {
+          "type": "string"
+        }
       }
     }
   }

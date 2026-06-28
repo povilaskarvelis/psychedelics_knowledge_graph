@@ -44,7 +44,7 @@ Use `evidence_record` in new table names and backend documentation. Use
 An evidence record should be as atomic as practical: one compound or
 intervention linked to one target, system, task, clinical outcome, symptom, or
 safety event in one study context. It can still carry rich fields such as study
-design, sample size, outcome measure, timepoint, result direction, evidence
+design, sample size, outcome measure, assessment timepoint, result direction, evidence
 locator, source excerpt, extraction confidence, funding, conflicts of interest,
 and risk-of-bias notes.
 

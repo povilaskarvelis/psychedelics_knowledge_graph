@@ -9,6 +9,7 @@ from collections.abc import Mapping
 PREPRINT_DOI_PATTERNS = (
     ("doi:bioRxiv/medRxiv", re.compile(r"^10\.1101/", re.I)),
     ("doi:PsyArXiv/OSF", re.compile(r"^10\.31234/", re.I)),
+    ("doi:OSF preprint", re.compile(r"^10\.31219/osf\.io/", re.I)),
     ("doi:OSF", re.compile(r"^10\.17605/osf\.io/", re.I)),
     ("doi:Authorea", re.compile(r"^10\.22541/", re.I)),
     ("doi:Preprints.org", re.compile(r"^10\.20944/preprints", re.I)),
@@ -91,10 +92,8 @@ def classify_publication_stage(row: Mapping[str, object]) -> dict[str, object]:
 
     if "posted-content" in publication_type:
         add_signal(strong_signals, "publication_type:posted-content")
-    elif "preprint" in publication_type and "journal article" not in publication_type:
-        add_signal(strong_signals, "publication_type:preprint")
     elif "preprint" in publication_type:
-        add_signal(weak_signals, "publication_type:mixed-preprint-journal")
+        add_signal(strong_signals, "publication_type:preprint")
 
     venue_text = f"{journal} {publisher}"
     for marker in PREPRINT_VENUE_MARKERS:

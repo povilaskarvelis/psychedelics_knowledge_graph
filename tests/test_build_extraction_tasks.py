@@ -112,7 +112,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
                         fulltext_char_count=0,
                         route_action="extract_from_abstract_only",
                         prompt_profile="secondary_meta_analysis",
-                        schema_profile="synthesis_evidence_schema",
+                        schema_profile="meta_analysis_evidence_schema",
                     ),
                     route_row(
                         route_id="route-download-first",
@@ -177,10 +177,10 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertEqual({task["task_status"] for task in tasks}, {"ready_for_model"})
         self.assertEqual(
             {task["extraction_contract"]["schema_profile"] for task in tasks},
-            {"primary_evidence_schema", "synthesis_evidence_schema"},
+            {"primary_evidence_schema", "meta_analysis_evidence_schema"},
         )
         self.assertEqual(report["by_output_family"]["primary_evidence"], 2)
-        self.assertEqual(report["by_output_family"]["evidence_synthesis"], 1)
+        self.assertEqual(report["by_output_family"]["meta_analysis_evidence"], 1)
         by_route_id = {task["route_id"]: task for task in tasks}
         self.assertNotIn("datasets", by_route_id["route-primary-clinical"]["route_context"])
         self.assertNotIn("dataset", by_route_id["route-primary-clinical"]["content"]["packet_summary"])
@@ -223,6 +223,36 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertEqual(report["by_task_status"], {"needs_fulltext_packet": 1})
         self.assertEqual(ready_tasks, [])
         self.assertEqual(ready_report["tasks_written"], 0)
+
+    def test_terminal_guideline_profile_is_not_reported_as_missing_article_text(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame(
+                [
+                    route_row(
+                        route_id="route-guideline",
+                        prompt_profile="guideline_consensus",
+                        schema_profile="recommendation_consensus_schema",
+                    )
+                ]
+            ).to_parquet(root / "routes.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/full",
+                        "study_title": "Guideline paper",
+                        "abstract": "A guideline abstract.",
+                    }
+                ]
+            ).to_parquet(root / "metadata.parquet", index=False)
+
+            tasks, report = build_tasks(make_args(root))
+
+        self.assertEqual(len(tasks), 1)
+        self.assertEqual(tasks[0]["task_status"], "not_model_ready")
+        self.assertEqual(tasks[0]["text_source"]["mode"], "not_applicable")
+        self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "not_applicable")
+        self.assertEqual(report["by_task_status"], {"not_model_ready": 1})
 
     def test_primary_route_accepts_legacy_lean_primary_packet_alias(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -276,7 +306,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
                         has_converted_full_text=True,
                         route_action="extract_from_full_text",
                         prompt_profile="secondary_meta_analysis",
-                        schema_profile="synthesis_evidence_schema",
+                        schema_profile="meta_analysis_evidence_schema",
                     )
                 ]
             ).to_parquet(root / "routes.parquet", index=False)
@@ -341,7 +371,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
                         access_tier="full_text_available",
                         route_action="extract_from_full_text",
                         prompt_profile="secondary_meta_analysis",
-                        schema_profile="synthesis_evidence_schema",
+                        schema_profile="meta_analysis_evidence_schema",
                     )
                 ]
             ).to_parquet(root / "routes.parquet", index=False)

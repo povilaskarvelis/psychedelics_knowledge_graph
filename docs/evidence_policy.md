@@ -18,8 +18,8 @@ Every claim must include the core schema provenance fields:
 - `evidence_locator`: concrete location such as `Table 1`, `Figure 2`, `Results`, `Abstract`
 - `study_design`: normalized design label
 
-Claims should also preserve `source_family` when available. This broader family
-label includes `original_empirical`, `evidence_synthesis`,
+Claims should also preserve `source_family` when available. This broader
+legacy/source-family label includes `original_empirical`, `evidence_synthesis`,
 `opinion_or_commentary`, `protocol`, `correction`, `conference_abstract`, or
 `uncertain`, and is used alongside `source_type` and `paper_type` for secondary
 literature and non-primary context views.
@@ -34,7 +34,7 @@ available:
 - `sample_size_total`, `sample_size_by_arm`, `population`
 - `intervention_or_exposure`, `comparator`, `dose`, `route`,
   `session_count_or_duration`
-- `primary_outcome`, `outcome_measure`, `timepoint`, `effect_size`, `p_value`,
+- `primary_outcome`, `outcome_measure`, `assessment_timepoint`, `effect_size`, `p_value`,
   `confidence_interval`
 - `adverse_events`, `funding`, `conflicts_of_interest`,
   `risk_of_bias_summary`

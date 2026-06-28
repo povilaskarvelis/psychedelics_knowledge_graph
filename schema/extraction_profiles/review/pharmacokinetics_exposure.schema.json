@@ -1,0 +1,404 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Secondary Review Coverage Extraction - pharmacokinetics_exposure",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "review_assessment",
+    "coverage_items",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "review_coverage_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "pharmacokinetics_exposure"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "systematic_review",
+        "scoping_review",
+        "umbrella_review",
+        "review",
+        "narrative_review",
+        "literature_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_coverage",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "review_assessment": {
+      "$ref": "#/definitions/review_assessment"
+    },
+    "coverage_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_item"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "pharmacokinetics_exposure"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "direction_or_tone": {
+      "type": "string",
+      "enum": [
+        "supports",
+        "mixed",
+        "does_not_support",
+        "insufficient_evidence",
+        "descriptive_only",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "review_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "review_type",
+        "has_extractable_scoped_coverage",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "review_type": {
+          "type": "string"
+        },
+        "has_extractable_scoped_coverage": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "pharmacokinetics_exposure"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "relationship_domain",
+        "coverage_type",
+        "coverage_focus",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "reviewed_evidence_type",
+        "summary_statement",
+        "direction_or_tone",
+        "participant_or_sample_summary",
+        "key_limitations",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review",
+        "domain_result"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "pharmacokinetics_exposure"
+        },
+        "coverage_type": {
+          "type": "string",
+          "enum": [
+            "summarizes",
+            "reviews",
+            "maps_evidence",
+            "discusses",
+            "identifies_gap",
+            "methodological_context",
+            "mentions",
+            "uncertain"
+          ]
+        },
+        "coverage_focus": {
+          "type": "string",
+          "enum": [
+            "main_focus",
+            "substantial_topic",
+            "brief_context",
+            "unclear"
+          ],
+          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "pharmacokinetic_parameter",
+            "compound",
+            "target",
+            "pathway_process",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "reviewed_evidence_type": {
+          "type": "string"
+        },
+        "summary_statement": {
+          "type": "string"
+        },
+        "direction_or_tone": {
+          "$ref": "#/definitions/direction_or_tone"
+        },
+        "participant_or_sample_summary": {
+          "type": "string"
+        },
+        "key_limitations": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "compound_or_analyte",
+            "primary_graph_anchor_kind",
+            "exposure_evidence_category",
+            "analyte_type",
+            "metabolic_or_transport_target",
+            "metabolic_or_transport_pathway",
+            "metabolite_or_analyte",
+            "pk_or_exposure_parameter",
+            "value",
+            "unit",
+            "dose_route_or_formulation",
+            "route_of_administration",
+            "population_or_system",
+            "comparator_or_reference",
+            "matrix_or_sample",
+            "review_interpretation"
+          ],
+          "properties": {
+            "primary_graph_anchor_kind": {
+              "type": "string",
+              "enum": [
+                "pharmacokinetic_parameter",
+                "compound",
+                "target",
+                "pathway_process",
+                "not_applicable",
+                "uncertain"
+              ],
+              "description": "Graph node kind that should anchor this PK/exposure item: PK parameter, compound/analyte/metabolite, target enzyme or transporter, pathway/process, not applicable, or uncertain."
+            },
+            "compound_or_analyte": {
+              "type": "string",
+              "description": "Compound, analyte, metabolite, enzyme substrate, formulation, or exposure reviewed."
+            },
+            "exposure_evidence_category": {
+              "type": "string",
+              "description": "Evidence category such as metabolism, pharmacokinetics, pharmacogenomics, bioavailability, drug interaction, potentiation, dose, route, formulation, or exposure-response."
+            },
+            "analyte_type": {
+              "type": "string",
+              "description": "Type of analyte or exposure entity, such as parent compound, active metabolite, inactive metabolite, enantiomer, alkaloid mixture, enzyme, genotype, formulation, or not reported."
+            },
+            "metabolic_or_transport_target": {
+              "type": "string",
+              "description": "Metabolic enzyme, transporter, target, or protein relevant to the exposure evidence, such as MAO-A, CYP2D6, UGT, COMT, P-glycoprotein, or not_reported."
+            },
+            "metabolic_or_transport_pathway": {
+              "type": "string",
+              "description": "Metabolic, transport, bioavailability, potentiation, or exposure pathway such as MAO metabolism, CYP metabolism, UGT glucuronidation, transport, or not_reported."
+            },
+            "metabolite_or_analyte": {
+              "type": "string",
+              "description": "Metabolite, analyte, alkaloid, concentration component, or relevant chemical species reviewed."
+            },
+            "pk_or_exposure_parameter": {
+              "type": "string",
+              "description": "PK, exposure, dose-response, or concentration parameter such as Cmax, Tmax, AUC, half-life, clearance, bioavailability, volume of distribution, dose-normalized exposure, metabolite ratio, or not reported."
+            },
+            "value": {
+              "type": "string",
+              "description": "Reported value, range, qualitative value, direction, or summary for the PK or exposure parameter, or not reported."
+            },
+            "unit": {
+              "type": "string",
+              "description": "Unit for the reported PK or exposure value, such as ng/mL, mg, mg/kg, L, hours, minutes, percent, ratio, or not applicable."
+            },
+            "dose_route_or_formulation": {
+              "type": "string",
+              "description": "Dose, route, formulation, plant/brew composition, administration context, or exposure pattern reviewed."
+            },
+            "route_of_administration": {
+              "type": "string",
+              "description": "Route of administration such as oral, intravenous, intramuscular, intranasal, inhaled, insufflated, transdermal, brew ingestion, or not reported."
+            },
+            "population_or_system": {
+              "type": "string",
+              "description": "Population, species, participant group, clinical group, preclinical model, in vitro system, plant source, or experimental system reviewed."
+            },
+            "comparator_or_reference": {
+              "type": "string",
+              "description": "Comparator or reference condition such as dose level, route, formulation, enantiomer, co-administered drug, genotype, responder group, baseline, placebo, or not reported."
+            },
+            "matrix_or_sample": {
+              "type": "string",
+              "description": "Matrix, sample type, tissue, biological compartment, plant sample, model system, or not reported."
+            },
+            "review_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of what this review coverage means for pharmacokinetics or exposure."
+            }
+          }
+        }
+      }
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

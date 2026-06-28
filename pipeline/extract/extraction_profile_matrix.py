@@ -86,6 +86,20 @@ def primary_schema_path(domain_route: str) -> Path:
     return ROOT / "schema" / "extraction_profiles" / "primary" / f"{domain_route}.schema.json"
 
 
+def meta_analysis_schema_path(domain_route: str) -> Path:
+    path = ROOT / "schema" / "extraction_profiles" / "meta_analysis" / f"{domain_route}.schema.json"
+    if path.exists():
+        return path
+    return ROOT / "schema" / "meta_analysis_evidence.schema.json"
+
+
+def review_schema_path(domain_route: str) -> Path:
+    path = ROOT / "schema" / "extraction_profiles" / "review" / f"{domain_route}.schema.json"
+    if path.exists():
+        return path
+    return ROOT / "schema" / "review_coverage.schema.json"
+
+
 def paper_type_prompt_path(paper_type: str, text_depth: str) -> Path:
     return PAPER_TYPE_PROMPT_PATHS[(paper_type, normalize_text_depth(text_depth))]
 
@@ -142,11 +156,11 @@ def spec_for_route(
             paper_type=paper_type,
             text_depth=text_depth,
             prompt_profile="secondary_meta_analysis",
-            schema_profile="synthesis_evidence_schema",
+            schema_profile="meta_analysis_evidence_schema",
             prompt_path=paper_type_prompt_path(PAPER_TYPE_META_ANALYSIS, text_depth),
-            schema_path=ROOT / "schema" / "synthesis_evidence.schema.json",
+            schema_path=meta_analysis_schema_path(domain_route),
             depth_prompt_path=None,
-            output_schema_version="synthesis_evidence_v1",
+            output_schema_version="meta_analysis_evidence_v1",
             extract=True,
         )
     if paper_type == PAPER_TYPE_REVIEW:
@@ -157,7 +171,7 @@ def spec_for_route(
             prompt_profile="secondary_review_coverage",
             schema_profile="review_coverage_schema",
             prompt_path=paper_type_prompt_path(PAPER_TYPE_REVIEW, text_depth),
-            schema_path=ROOT / "schema" / "review_coverage.schema.json",
+            schema_path=review_schema_path(domain_route),
             depth_prompt_path=None,
             output_schema_version="review_coverage_v1",
             extract=True,

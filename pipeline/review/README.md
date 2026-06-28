@@ -39,26 +39,12 @@ replaces existing rows for changed DOIs, and rebuilds the summary from the
 merged table. If `--run-id` is omitted, the scoped update reuses the existing
 decisions table's run ID.
 
-## Literature Type Routing
+## Gemini Screening, Domain Routing, and Paper-Type Routing
 
-After deterministic pre-screening, build paper-level primary/secondary routing:
-
-```bash
-python pipeline/review/run_literature_type_routing.py
-```
-
-This writes `data/processed/corpus/paper_literature_type_routing.parquet`.
-The routing combines refreshed PubMed `publication_type` labels with title and
-abstract keyword rules so obvious meta-analyses, systematic reviews, scoping
-reviews, narrative reviews, guidelines, and consensus statements are routed to
-secondary-literature extraction even when provider labels are generic.
-
-## Domain Routing
-
-Domain routing for extraction should be model-assigned from title/abstract
-metadata. Do not use pre-screen keyword tags as the production domain router;
-they are high-recall discovery/screening signals, not reliable extraction
-routes.
+Scope, domain, and paper type for extraction should be model-assigned from
+title/abstract metadata in one Gemini routing step. Do not use pre-screen
+keyword tags as the production domain router; they are high-recall
+discovery/screening signals, not reliable extraction routes.
 
 `pipeline/review/run_domain_routing.py` is retained only as a disposable
 baseline for audits while the Gemini domain-routing table is built.

@@ -5,14 +5,26 @@ or modulation findings.
 Prioritize:
 
 - compound and direct molecular target
-- assay type and assay family
+- assay type or measurement method
 - affinity or potency metric such as Ki, Kd, IC50, EC50, or EC90
-- value, unit, species, tissue, cell line, or recombinant system
+- comparator or reference condition, including control group, baseline,
+  reference receptor, reference region, or placebo when reported
+- value, unit, species, cell line, tissue, or recombinant system
 - action type such as agonist, antagonist, inhibitor, or modulator
+
+Capture target-evidence category, ligand/tracer/probe, selectivity,
+off-target, multi-target, or target-effect context only when it is central to
+the reported target relationship.
 
 Do not treat broad pathway, brain-region, genotype, biomarker, behavioral, or
 clinical endpoints as clean molecular-target evidence unless the paper reports a
 direct target relationship.
+
+Do not use pharmacokinetic parameters, clinical outcomes, behavioral outcomes,
+brain regions, neural readouts, or untreated control-only comparisons as the
+target. Untreated or reference controls can be comparator context, but they
+should not become standalone molecular-target items with no compound-target
+relationship.
 
 Record target binding, affinity, potency, agonism, antagonism, inhibition, or
 modulation as action types, metrics, values, and finding summaries, not as

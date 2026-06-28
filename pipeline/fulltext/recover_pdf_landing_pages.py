@@ -63,7 +63,6 @@ DEFAULT_REPORT = ROOT / "data" / "processed" / "corpus" / "audits" / "pdf_landin
 DEFAULT_ROUTE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes.parquet"
 DEFAULT_METADATA_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
 DEFAULT_PRESCREEN_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_prescreen_decisions.parquet"
-DEFAULT_LITERATURE_TYPE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_literature_type_routing.parquet"
 DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
 DEFAULT_FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 DEFAULT_ROUTE_SUMMARY_JSON = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes_summary.json"
@@ -568,7 +567,6 @@ def recover_pdf_landing_pages(
     route_table: Path = DEFAULT_ROUTE_TABLE,
     metadata_table: Path = DEFAULT_METADATA_TABLE,
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
-    literature_type_table: Path = DEFAULT_LITERATURE_TYPE_TABLE,
     domain_routing_table: Path | None = DEFAULT_DOMAIN_ROUTING_TABLE,
     fulltext_dir: Path = DEFAULT_FULLTEXT_DIR,
     route_summary_json: Path = DEFAULT_ROUTE_SUMMARY_JSON,
@@ -741,7 +739,6 @@ def recover_pdf_landing_pages(
             route_table=route_table,
             metadata_table=metadata_table,
             prescreen_table=prescreen_table,
-            literature_type_table=literature_type_table,
             domain_routing_table=domain_table,
             fulltext_dir=fulltext_dir,
             pdf_dir=pdf_dir,
@@ -815,7 +812,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--route-table", default=str(DEFAULT_ROUTE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
     parser.add_argument("--route-summary-json", default=str(DEFAULT_ROUTE_SUMMARY_JSON))
@@ -852,7 +848,6 @@ def main() -> int:
         route_table=Path(args.route_table).resolve(),
         metadata_table=Path(args.metadata_table).resolve(),
         prescreen_table=Path(args.prescreen_table).resolve(),
-        literature_type_table=Path(args.literature_type_table).resolve(),
         domain_routing_table=Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None,
         fulltext_dir=Path(args.fulltext_dir).resolve(),
         route_summary_json=Path(args.route_summary_json).resolve(),

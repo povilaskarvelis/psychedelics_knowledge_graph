@@ -27,7 +27,6 @@ try:
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_ENV,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PRESCREEN_TABLE,
@@ -42,6 +41,7 @@ try:
         parse_response_text,
         parsed_rows_from_raw,
         prompt_for_record,
+        prescreen_row_is_extraction_candidate,
         read_doi_file,
         read_table,
         route_rows_from_parsed,
@@ -57,7 +57,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_ENV,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PRESCREEN_TABLE,
@@ -72,6 +71,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         parse_response_text,
         parsed_rows_from_raw,
         prompt_for_record,
+        prescreen_row_is_extraction_candidate,
         read_doi_file,
         read_table,
         route_rows_from_parsed,
@@ -148,7 +148,6 @@ def selected_routing_records(args: argparse.Namespace) -> list[dict]:
     records = selected_records(
         read_table(Path(args.metadata_table).resolve()),
         read_table(Path(args.prescreen_decisions_table).resolve()),
-        read_table(Path(args.literature_type_table).resolve()),
         scoped_dois=scoped_dois,
         limit=0,
         completed=completed,
@@ -203,8 +202,6 @@ def write_batch_requests(args: argparse.Namespace) -> dict:
                     "doi": normalize_doi(record.get("doi", "")),
                     "datasets": clean(record.get("datasets", "")),
                     "study_title": clean(record.get("study_title", "")),
-                    "source_family": clean(record.get("source_family", "")),
-                    "literature_route": clean(record.get("literature_route", "")),
                     "prompt_chars": len(prompt_for_record(record)),
                 }
             )
@@ -216,7 +213,6 @@ def write_batch_requests(args: argparse.Namespace) -> dict:
         "inputs": {
             "metadata_table": str(Path(args.metadata_table).resolve()),
             "prescreen_decisions_table": str(Path(args.prescreen_decisions_table).resolve()),
-            "literature_type_table": str(Path(args.literature_type_table).resolve()),
             "doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
             "raw_jsonl": str(Path(args.raw_jsonl).resolve()),
             "model": model,
@@ -233,8 +229,6 @@ def write_batch_requests(args: argparse.Namespace) -> dict:
         },
         "summary": {
             "prepared_requests": len(manifest_records),
-            "by_source_family": dict(Counter(record["source_family"] or "unknown" for record in manifest_records)),
-            "by_literature_route": dict(Counter(record["literature_route"] or "unknown" for record in manifest_records)),
             "by_dataset": dict(Counter(tag for record in manifest_records for tag in split_values(record["datasets"]))),
         },
         "records": manifest_records,
@@ -428,6 +422,28 @@ def records_by_key(manifest: dict) -> dict[str, dict]:
     }
 
 
+def retained_prescreen_dois(prescreen_df) -> set[str]:
+    out: set[str] = set()
+    if prescreen_df.empty or "doi" not in prescreen_df.columns:
+        return out
+    for row in prescreen_df.to_dict("records"):
+        doi = normalize_doi(row.get("doi", ""))
+        if doi and prescreen_row_is_extraction_candidate(row):
+            out.add(doi)
+    return out
+
+
+def all_prescreen_dois(prescreen_df) -> set[str]:
+    out: set[str] = set()
+    if prescreen_df.empty or "doi" not in prescreen_df.columns:
+        return out
+    for row in prescreen_df.to_dict("records"):
+        doi = normalize_doi(row.get("doi", ""))
+        if doi:
+            out.add(doi)
+    return out
+
+
 def parse_batch_results(args: argparse.Namespace) -> dict:
     batch_output_jsonl = Path(args.batch_output_jsonl).resolve()
     manifest_json = Path(args.manifest_json).resolve()
@@ -440,6 +456,12 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
         manifest = json.load(handle)
     manifest_by_key = records_by_key(manifest)
     model = clean(manifest.get("inputs", {}).get("model", "")) or model_from_env(args)
+    metadata_table = Path(args.metadata_table).resolve()
+    prescreen_table = Path(args.prescreen_decisions_table).resolve()
+    metadata_df = read_table(metadata_table)
+    prescreen_df = read_table(prescreen_table)
+    retained_dois = retained_prescreen_dois(prescreen_df)
+    prescreen_dois = all_prescreen_dois(prescreen_df)
 
     raw_rows = []
     status_counts: Counter = Counter()
@@ -477,20 +499,15 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
                 if isinstance(value, int):
                     total_usage[usage_key] += value
         except Exception as exc:
-            raw_row.update({"error_type": type(exc).__name__, "error": str(exc)})
+            status = "skipped_prescreen_excluded" if doi and doi in prescreen_dois and doi not in retained_dois else "error"
+            raw_row.update({"status": status, "error_type": type(exc).__name__, "error": str(exc)})
         status_counts[raw_row["status"]] += 1
         raw_rows.append(raw_row)
 
     raw_jsonl.parent.mkdir(parents=True, exist_ok=True)
     raw_jsonl.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in raw_rows), encoding="utf-8")
 
-    metadata_table = Path(args.metadata_table).resolve()
-    prescreen_table = Path(args.prescreen_decisions_table).resolve()
-    literature_table = Path(args.literature_type_table).resolve()
-    metadata_df = read_table(metadata_table)
-    prescreen_df = read_table(prescreen_table)
-    literature_df = read_table(literature_table)
-    parsed_rows = parsed_rows_from_raw(raw_jsonl, metadata_df, prescreen_df, literature_df)
+    parsed_rows = parsed_rows_from_raw(raw_jsonl, metadata_df, prescreen_df)
     generated_at_utc = now_utc()
     route_rows = route_rows_from_parsed(parsed_rows, generated_at_utc)
     write_table(output_table, route_rows)
@@ -499,7 +516,6 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
         inputs={
             "metadata_table": str(metadata_table),
             "prescreen_decisions_table": str(prescreen_table),
-            "literature_type_table": str(literature_table),
             "batch_output_jsonl": str(batch_output_jsonl),
             "manifest_json": str(manifest_json),
             "raw_jsonl": str(raw_jsonl),
@@ -518,7 +534,6 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             "manifest_json": str(manifest_json),
             "metadata_table": str(metadata_table),
             "prescreen_decisions_table": str(prescreen_table),
-            "literature_type_table": str(literature_table),
         },
         "outputs": {
             "raw_jsonl": str(raw_jsonl),
@@ -543,7 +558,6 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
 def add_common_generation_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--raw-jsonl", default=str(DEFAULT_RAW_JSONL))
     parser.add_argument("--doi-file", default="", help="Optional DOI list for a scoped routing batch.")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
@@ -559,7 +573,6 @@ def add_common_generation_args(parser: argparse.ArgumentParser) -> None:
 def add_parse_output_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--batch-output-jsonl", default=str(default_batch_output_jsonl()))
     parser.add_argument("--manifest-json", default=str(default_batch_manifest_json()))
     parser.add_argument("--raw-jsonl", default=str(DEFAULT_RAW_JSONL))

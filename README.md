@@ -204,7 +204,6 @@ Minimal current table-native flow after credentials are configured:
 python pipeline/validate/build_context_provenance_audit.py --table-out-dir data/processed/corpus
 python pipeline/ingest/run_standard_metadata_enrichment.py --dataset all
 python pipeline/review/run_deterministic_prescreen.py
-python pipeline/review/run_literature_type_routing.py
 python pipeline/review/build_gemini_domain_routing_batch_queue.py --prepare
 python pipeline/review/advance_gemini_domain_routing_batch_queue.py
 python pipeline/extract/build_extraction_routes.py

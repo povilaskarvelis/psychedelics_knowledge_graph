@@ -220,7 +220,7 @@ Graph-modeling TODO for the table-based pipeline:
   paper`, and possibly `evidence_record -> measured_with -> outcome_scale`.
 - Keep values as properties when they mainly qualify an evidence record rather
   than define a reusable graph relationship. Likely property candidates include
-  sample size, timepoint, comparator, dose, route, effect size, p value,
+  sample size, assessment timepoint, comparator, dose, route, effect size, p value,
   confidence interval, access level, evidence locator, source excerpt, study
   design, extraction confidence, and risk-of-bias notes.
 - Avoid over-assertive relation names such as `improves_symptom` until there is

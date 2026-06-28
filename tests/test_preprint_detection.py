@@ -36,6 +36,27 @@ class PreprintDetectionTest(unittest.TestCase):
         self.assertEqual(classification["preprint_signal_strength"], "weak")
         self.assertIn("url:biorxiv.org", classification["preprint_detection_basis"])
 
+    def test_osf_preprint_doi_and_mixed_preprint_metadata_are_strong_signals(self) -> None:
+        osf = classify_publication_stage(
+            {
+                "doi": "10.31219/osf.io/dy5cu_v1",
+                "publication_type": "article",
+            }
+        )
+        mixed = classify_publication_stage(
+            {
+                "doi": "10.64898/2026.04.16.718915",
+                "publication_type": "Journal Article | Preprint",
+            }
+        )
+
+        self.assertEqual(osf["publication_stage"], "preprint")
+        self.assertEqual(osf["preprint_signal_strength"], "strong")
+        self.assertIn("doi:OSF preprint", osf["preprint_detection_basis"])
+        self.assertEqual(mixed["publication_stage"], "preprint")
+        self.assertEqual(mixed["preprint_signal_strength"], "strong")
+        self.assertIn("publication_type:preprint", mixed["preprint_detection_basis"])
+
 
 if __name__ == "__main__":
     unittest.main()

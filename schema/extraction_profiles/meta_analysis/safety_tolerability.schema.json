@@ -1,0 +1,419 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Meta-Analysis Extraction - safety_tolerability",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "synthesis_assessment",
+    "included_evidence_summary",
+    "synthesis_results",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "meta_analysis_evidence_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "safety_tolerability"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "meta_analysis",
+        "network_meta_analysis",
+        "umbrella_review",
+        "systematic_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_synthesis_result",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "synthesis_assessment": {
+      "$ref": "#/definitions/synthesis_assessment"
+    },
+    "included_evidence_summary": {
+      "$ref": "#/definitions/included_evidence_summary"
+    },
+    "synthesis_results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/synthesis_result"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "safety_tolerability"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "result_direction": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "no_detected_effect",
+        "negative",
+        "mixed",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    },
+    "synthesis_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "is_meta_analysis",
+        "is_network_meta_analysis",
+        "has_extractable_quantitative_results",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "is_meta_analysis": {
+          "type": "boolean"
+        },
+        "is_network_meta_analysis": {
+          "type": "boolean"
+        },
+        "has_extractable_quantitative_results": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "safety_tolerability"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "included_evidence_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included_study_count",
+        "included_participant_count",
+        "included_experiment_or_assay_count",
+        "included_evidence_type_summary",
+        "study_year_range",
+        "country_or_region_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "included_study_count": {
+          "type": "string"
+        },
+        "included_participant_count": {
+          "type": "string"
+        },
+        "included_experiment_or_assay_count": {
+          "type": "string"
+        },
+        "included_evidence_type_summary": {
+          "type": "string"
+        },
+        "study_year_range": {
+          "type": "string"
+        },
+        "country_or_region_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "synthesis_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "result_role",
+        "relationship_domain",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "intervention_or_exposure",
+        "comparator",
+        "outcome_or_endpoint",
+        "outcome_measure",
+        "timepoint_or_window",
+        "effect_metric",
+        "effect_size",
+        "study_count",
+        "participant_count",
+        "result_direction",
+        "authors_interpretation",
+        "domain_result",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "result_id": {
+          "type": "string"
+        },
+        "result_role": {
+          "type": "string",
+          "enum": [
+            "main_result",
+            "secondary_result",
+            "subgroup_result",
+            "sensitivity_analysis",
+            "meta_regression",
+            "publication_bias",
+            "network_comparison",
+            "network_ranking",
+            "dose_response",
+            "other",
+            "uncertain"
+          ]
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "safety_tolerability"
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "safety_event",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "intervention_or_exposure": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "outcome_or_endpoint": {
+          "type": "string"
+        },
+        "outcome_measure": {
+          "type": "string"
+        },
+        "timepoint_or_window": {
+          "type": "string"
+        },
+        "effect_metric": {
+          "type": "string"
+        },
+        "effect_size": {
+          "type": "string"
+        },
+        "study_count": {
+          "type": "string"
+        },
+        "participant_count": {
+          "type": "string"
+        },
+        "result_direction": {
+          "$ref": "#/definitions/result_direction"
+        },
+        "authors_interpretation": {
+          "type": "string"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "compound_or_exposure",
+            "population_or_system",
+            "safety_event_or_measure",
+            "safety_category",
+            "severity",
+            "assessment_window",
+            "frequency_or_rate",
+            "comparator",
+            "synthesis_interpretation"
+          ],
+          "properties": {
+            "compound_or_exposure": {
+              "type": "string",
+              "description": "Drug, psychedelic-assisted intervention, dose context, or exposure linked to the safety finding."
+            },
+            "population_or_system": {
+              "type": "string",
+              "description": "Human population, animal model, or other system for the safety finding."
+            },
+            "safety_event_or_measure": {
+              "type": "string",
+              "description": "Adverse event, tolerability endpoint, physiological safety measure, toxicity outcome, or withdrawal reason."
+            },
+            "safety_category": {
+              "type": "string",
+              "description": "Safety grouping such as adverse event, serious adverse event, physiological change, discontinuation, toxicity, abuse liability, or contraindication."
+            },
+            "severity": {
+              "type": "string",
+              "description": "Reported severity level or intensity, if stated."
+            },
+            "assessment_window": {
+              "type": "string",
+              "description": "Timing or window used to count or assess the event, such as during the dosing session, within 24 hours, 7 days after dosing, treatment period, delayed follow-up, or mixed/varies by study."
+            },
+            "frequency_or_rate": {
+              "type": "string",
+              "description": "Reported count, proportion, incidence, risk, odds, or rate for the safety event."
+            },
+            "comparator": {
+              "type": "string",
+              "description": "Placebo, active comparator, baseline, or other safety comparison."
+            },
+            "synthesis_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of what the synthesis result means for safety or tolerability."
+            }
+          }
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

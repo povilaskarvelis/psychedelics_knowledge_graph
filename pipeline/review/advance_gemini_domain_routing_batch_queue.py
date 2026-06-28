@@ -14,7 +14,6 @@ try:
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_ENV,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PRESCREEN_TABLE,
@@ -41,7 +40,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_ENV,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PRESCREEN_TABLE,
@@ -66,9 +64,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 
 ACTIVE_STATES = {"JOB_STATE_PENDING", "JOB_STATE_RUNNING", "JOB_STATE_QUEUED"}
-DEFAULT_MANUAL_REVIEW_JSON = (
-    DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_manual_review_20260530.json"
-)
+DEFAULT_MANUAL_REVIEW_JSON = ""
 
 
 def read_json(path: Path) -> dict:
@@ -112,7 +108,8 @@ def submitted_part_state(part: dict, args: argparse.Namespace) -> str:
 
 def submit_part(queue: dict, part: dict, args: argparse.Namespace) -> dict:
     model = clean(args.model) or clean(queue.get("inputs", {}).get("model", ""))
-    display_name = f"psychedelics-kg-domain-routing-20260530-part{int(part['part']):03d}"
+    queue_name = clean(queue.get("name", "")) or "domain_routing"
+    display_name = f"psychedelics-kg-{queue_name}-part{int(part['part']):03d}"
     return submit_batch(
         argparse.Namespace(
             batch_input_jsonl=str(Path(part["batch_requests_jsonl"]).resolve()),
@@ -143,7 +140,6 @@ def parse_part(queue: dict, part: dict, args: argparse.Namespace) -> dict:
         argparse.Namespace(
             metadata_table=str(Path(args.metadata_table).resolve()),
             prescreen_decisions_table=str(Path(args.prescreen_decisions_table).resolve()),
-            literature_type_table=str(Path(args.literature_type_table).resolve()),
             batch_output_jsonl=str(Path(part["batch_results_jsonl"]).resolve()),
             manifest_json=str(Path(part["manifest_json"]).resolve()),
             raw_jsonl=str(Path(part["raw_jsonl"]).resolve()),
@@ -229,6 +225,7 @@ def apply_manual_reviews(df: pd.DataFrame, reviews: dict[str, dict]) -> tuple[pd
 def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
     frames = []
     parsed_parts = []
+    parts_total = len(queue.get("parts", []))
     for part in queue.get("parts", []):
         paths = part_output_paths(queue, part)
         if paths["route_table"].exists() and part_is_parsed(queue, part):
@@ -242,7 +239,7 @@ def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
     if not frames:
         return {
             "parsed_parts": 0,
-            "parts_total": len(queue.get("parts", [])),
+            "parts_total": parts_total,
             "route_rows": 0,
             "routed_dois": 0,
             "raw_rows": 0,
@@ -252,6 +249,19 @@ def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
         }
 
     combined = pd.concat(frames, ignore_index=True)
+    if len(parsed_parts) < parts_total:
+        return {
+            "parsed_parts": len(parsed_parts),
+            "parts_total": parts_total,
+            "route_rows": len(combined),
+            "routed_dois": len(set(combined["doi"].map(normalize_doi))) if "doi" in combined.columns else 0,
+            "raw_rows": 0,
+            "output_table": str(output_table),
+            "summary_json": str(summary_json),
+            "written": False,
+            "write_policy": "canonical_outputs_wait_for_all_parts",
+        }
+
     input_dois = set(combined["doi"].map(normalize_doi)) if "doi" in combined.columns else set()
     candidate_dois = current_prescreen_candidate_dois(Path(args.prescreen_decisions_table).resolve())
     if candidate_dois and "doi" in combined.columns:
@@ -272,7 +282,6 @@ def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
             "queue_json": str(Path(args.queue_json).resolve()),
             "metadata_table": str(Path(args.metadata_table).resolve()),
             "prescreen_decisions_table": str(Path(args.prescreen_decisions_table).resolve()),
-            "literature_type_table": str(Path(args.literature_type_table).resolve()),
             "raw_jsonl": str(raw_jsonl),
             "batch_queue_combined": True,
             "parsed_parts": parsed_parts,
@@ -395,7 +404,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--queue-json", default=str(DEFAULT_QUEUE_JSON))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--output-table", default=str(DEFAULT_OUTPUT_TABLE))
     parser.add_argument("--summary-json", default=str(DEFAULT_SUMMARY_JSON))
     parser.add_argument("--counts-csv", default=str(DEFAULT_COUNTS_CSV))

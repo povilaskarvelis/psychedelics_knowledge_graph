@@ -29,10 +29,11 @@ try:
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
     from pipeline.extract.route_extraction_profiles import (
         SCHEMA_MODES,
+        RESULT_DIRECTION_NOT_APPLICABLE_DOMAINS,
         RouteExtractionProfile,
         build_system_instruction,
         compact_schema,
-        load_schema,
+        load_schema_for_profile,
         profile_for_task,
         profile_key_for_task,
         schema_for_native,
@@ -48,10 +49,11 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
     from pipeline.extract.route_extraction_profiles import (
         SCHEMA_MODES,
+        RESULT_DIRECTION_NOT_APPLICABLE_DOMAINS,
         RouteExtractionProfile,
         build_system_instruction,
         compact_schema,
-        load_schema,
+        load_schema_for_profile,
         profile_for_task,
         profile_key_for_task,
         schema_for_native,
@@ -67,6 +69,10 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "processed" / "extraction"
 DEFAULT_ENV = ROOT / ".env"
+DEFAULT_GEMINI_MODEL = "gemini-3-flash-preview"
+GENERIC_EXTRACTION_MODEL_ENV = "GEMINI_ROUTE_EXTRACTION_MODEL"
+ARTICLE_TEXT_EXTRACTION_MODEL_ENV = "GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL"
+ABSTRACT_EXTRACTION_MODEL_ENV = "GEMINI_ABSTRACT_EXTRACTION_MODEL"
 PACKET_INDEX_CACHE: dict[str, dict[str, dict]] = {}
 
 
@@ -133,6 +139,64 @@ def remove_trailing_commas(text: str) -> str:
     return re.sub(r",(\s*[}\]])", r"\1", text)
 
 
+def escape_control_chars_in_strings(text: str) -> str:
+    out: list[str] = []
+    in_string = False
+    escape = False
+    replacements = {
+        "\n": "\\n",
+        "\r": "\\r",
+        "\t": "\\t",
+        "\b": "\\b",
+        "\f": "\\f",
+    }
+    for char in text:
+        if in_string:
+            if escape:
+                out.append(char)
+                escape = False
+                continue
+            if char == "\\":
+                out.append(char)
+                escape = True
+                continue
+            if char == '"':
+                out.append(char)
+                in_string = False
+                continue
+            if char in replacements:
+                out.append(replacements[char])
+                continue
+            if ord(char) < 0x20:
+                out.append(f"\\u{ord(char):04x}")
+                continue
+            out.append(char)
+            continue
+        out.append(char)
+        if char == '"':
+            in_string = True
+    return "".join(out)
+
+
+def json_parse_variants(text: str) -> list[tuple[str, bool]]:
+    variants: list[tuple[str, bool]] = []
+    seen: set[str] = set()
+
+    def add(candidate: str, repaired: bool) -> None:
+        if candidate not in seen:
+            seen.add(candidate)
+            variants.append((candidate, repaired))
+
+    add(text, False)
+    trailing_repaired = remove_trailing_commas(text)
+    add(trailing_repaired, trailing_repaired != text)
+    control_repaired = escape_control_chars_in_strings(text)
+    add(control_repaired, control_repaired != text)
+    both_repaired = remove_trailing_commas(control_repaired)
+    add(both_repaired, both_repaired != text)
+    return variants
+
+
 def parse_json_response(text: str) -> tuple[dict, str]:
     stripped = clean_json_text(text)
     candidates = [stripped]
@@ -141,11 +205,7 @@ def parse_json_response(text: str) -> tuple[dict, str]:
         candidates.append(balanced)
     last_error: json.JSONDecodeError | None = None
     for candidate in candidates:
-        variants = [(candidate, False)]
-        repaired = remove_trailing_commas(candidate)
-        if repaired != candidate:
-            variants.append((repaired, True))
-        for variant, used_cleanup in variants:
+        for variant, used_cleanup in json_parse_variants(candidate):
             try:
                 parsed = json.loads(variant)
             except json.JSONDecodeError as err:
@@ -178,6 +238,7 @@ def output_identity_for_task(task: dict) -> dict:
     route_context = task.get("route_context", {}) if isinstance(task.get("route_context"), dict) else {}
     contract = task.get("extraction_contract", {}) if isinstance(task.get("extraction_contract"), dict) else {}
     source_type = normalize(contract.get("source_type", "")) or normalize(route_context.get("source_type", "")) or "uncertain"
+    schema_profile = normalize(contract.get("schema_profile", ""))
     out = {
         "task_id": normalize(task.get("task_id", "")) or normalize(task.get("route_id", "")),
         "route_id": normalize(task.get("route_id", "")) or normalize(route_context.get("route_id", "")),
@@ -185,9 +246,17 @@ def output_identity_for_task(task: dict) -> dict:
         "domain_route": normalize(contract.get("domain_route", "")) or normalize(route_context.get("domain_route", "")),
         "source_type": source_type,
     }
-    if normalize(contract.get("schema_profile", "")) == "primary_evidence_schema":
+    if schema_profile == "primary_evidence_schema":
         out["paper_type"] = "primary_study"
         out["text_depth"] = text_depth_for_task(task)
+    if schema_profile == "meta_analysis_evidence_schema":
+        depth = text_depth_for_task(task)
+        out["text_depth"] = depth
+        out["source_text_provenance"] = source_text_provenance_for_depth(depth)
+    if schema_profile == "review_coverage_schema":
+        depth = text_depth_for_task(task)
+        out["text_depth"] = depth
+        out["source_text_provenance"] = source_text_provenance_for_depth(depth)
     return compact_nonempty_dict(out)
 
 
@@ -251,6 +320,14 @@ def packet_for_task(task: dict) -> dict | None:
     return index.get(doi)
 
 
+def clean_text_for_model(text: str) -> str:
+    cleaned = text.replace("\r\n", "\n").replace("\r", "\n")
+    cleaned = re.sub(r"[ \t\f\v]+", " ", cleaned)
+    cleaned = re.sub(r" *\n *", "\n", cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    return cleaned.strip()
+
+
 def article_or_abstract_text_for_task(task: dict) -> tuple[str, str]:
     content = task.get("content", {}) if isinstance(task.get("content"), dict) else {}
     depth = text_depth_for_task(task)
@@ -259,7 +336,7 @@ def article_or_abstract_text_for_task(task: dict) -> tuple[str, str]:
         if packet:
             text = "\n\n".join(text_parts_from_packet(packet)).strip()
             if text:
-                return "ARTICLE_TEXT", text
+                return "ARTICLE_TEXT", clean_text_for_model(text)
     title = normalize(content.get("title", ""))
     abstract = normalize(content.get("abstract", ""))
     parts = []
@@ -267,7 +344,7 @@ def article_or_abstract_text_for_task(task: dict) -> tuple[str, str]:
         parts.append(f"Title: {title}")
     if abstract:
         parts.append(f"Abstract: {abstract}")
-    return "ABSTRACT_TEXT", "\n\n".join(parts)
+    return "ABSTRACT_TEXT", clean_text_for_model("\n\n".join(parts))
 
 
 def build_contents(task: dict) -> str:
@@ -304,20 +381,69 @@ def source_type_for_synthesis(task: dict) -> str:
     return "uncertain"
 
 
+def source_text_provenance_for_depth(text_depth: str) -> dict:
+    depth = normalize(text_depth) or "abstract_only"
+    if depth == "article_text":
+        return {
+            "text_depth": "article_text",
+            "source_text_kind": "article_text",
+            "source_text_scope": "article text supplied to the model",
+        }
+    return {
+        "text_depth": "abstract_only",
+        "source_text_kind": "abstract_only",
+        "source_text_scope": "title and abstract supplied to the model",
+    }
+
+
 def inject_route_identity_fields(result: dict, task: dict, profile: RouteExtractionProfile) -> dict:
     out = dict(result)
     route_context = task.get("route_context", {}) if isinstance(task.get("route_context"), dict) else {}
     contract = task.get("extraction_contract", {}) if isinstance(task.get("extraction_contract"), dict) else {}
+    assigned_domain = normalize(contract.get("domain_route", "")) or normalize(route_context.get("domain_route", ""))
     out["schema_version"] = profile.output_schema_version
     out["task_id"] = normalize(task.get("task_id", "")) or normalize(task.get("route_id", ""))
     out["route_id"] = normalize(task.get("route_id", "")) or normalize(route_context.get("route_id", ""))
     out["study_doi"] = normalize(task.get("study_doi", "")) or normalize(route_context.get("doi", ""))
-    out["domain_route"] = normalize(contract.get("domain_route", "")) or normalize(route_context.get("domain_route", ""))
-    if profile.schema_profile == "synthesis_evidence_schema":
+    out["domain_route"] = assigned_domain
+    if profile.schema_profile == "meta_analysis_evidence_schema":
         out["source_type"] = source_type_for_synthesis(task)
+        depth = text_depth_for_task(task)
+        out["text_depth"] = depth
+        out["source_text_provenance"] = source_text_provenance_for_depth(depth)
+        enforce_secondary_domain_fields(out, assigned_domain, result_list_key="synthesis_results")
+    elif profile.schema_profile == "review_coverage_schema":
+        out["source_type"] = normalize(contract.get("source_type", "")) or normalize(route_context.get("source_type", "")) or "uncertain"
+        depth = text_depth_for_task(task)
+        out["text_depth"] = depth
+        out["source_text_provenance"] = source_text_provenance_for_depth(depth)
+        enforce_secondary_domain_fields(out, assigned_domain, result_list_key="coverage_items")
+    elif profile.schema_profile == "primary_evidence_schema":
+        out["paper_type"] = "primary_study"
+        out["text_depth"] = text_depth_for_task(task)
+        if "source_type" not in out or not normalize(out.get("source_type", "")):
+            out["source_type"] = normalize(route_context.get("source_type", "")) or "uncertain"
     elif "source_type" not in out or not normalize(out.get("source_type", "")):
         out["source_type"] = normalize(route_context.get("source_type", "")) or "uncertain"
     return out
+
+
+def enforce_secondary_domain_fields(out: dict, assigned_domain: str, *, result_list_key: str) -> None:
+    if not assigned_domain:
+        return
+    assessment_key = "synthesis_assessment" if result_list_key == "synthesis_results" else "review_assessment"
+    assessment = out.get(assessment_key)
+    if isinstance(assessment, dict):
+        assessment["relationship_domain"] = assigned_domain
+    results = out.get(result_list_key)
+    if not isinstance(results, list):
+        return
+    for item in results:
+        if not isinstance(item, dict):
+            continue
+        item["relationship_domain"] = assigned_domain
+        if result_list_key == "synthesis_results" and assigned_domain in RESULT_DIRECTION_NOT_APPLICABLE_DOMAINS:
+            item["result_direction"] = "not_applicable"
 
 
 def schema_error_messages(validator: Draft7Validator, result: dict) -> list[str]:
@@ -412,13 +538,33 @@ def text_depth_for_task(task: dict) -> str:
     return text_depth_from_access(access)
 
 
-def model_from_env(args: argparse.Namespace) -> str:
-    env_values = load_dotenv(Path(args.env_file).resolve())
-    return normalize(args.model) or env_values.get("GEMINI_MODEL") or os.environ.get("GEMINI_MODEL", "") or "gemini-2.5-flash"
+def configured_model(env_values: dict[str, str], key: str) -> str:
+    return normalize(env_values.get(key, "")) or normalize(os.environ.get(key, ""))
 
 
-def api_key_from_env(args: argparse.Namespace) -> str:
-    env_values = load_dotenv(Path(args.env_file).resolve())
+def model_for_task(args: argparse.Namespace, task: dict, env_values: dict[str, str] | None = None) -> str:
+    explicit_model = normalize(args.model)
+    if explicit_model:
+        return explicit_model
+    env_values = env_values if env_values is not None else load_dotenv(Path(args.env_file).resolve())
+    text_depth = text_depth_for_task(task)
+    if text_depth == "article_text":
+        model = configured_model(env_values, ARTICLE_TEXT_EXTRACTION_MODEL_ENV)
+        if model:
+            return model
+    if text_depth == "abstract_only":
+        model = configured_model(env_values, ABSTRACT_EXTRACTION_MODEL_ENV)
+        if model:
+            return model
+    return (
+        configured_model(env_values, GENERIC_EXTRACTION_MODEL_ENV)
+        or configured_model(env_values, "GEMINI_MODEL")
+        or DEFAULT_GEMINI_MODEL
+    )
+
+
+def api_key_from_env(args: argparse.Namespace, env_values: dict[str, str] | None = None) -> str:
+    env_values = env_values if env_values is not None else load_dotenv(Path(args.env_file).resolve())
     api_key = env_values.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
         raise SystemExit("GEMINI_API_KEY is missing. Add it to project .env or the environment.")
@@ -449,6 +595,8 @@ def dry_run_report(tasks: list[dict], selected: list[tuple[int, dict]], args: ar
             "include_unsupported": bool(args.include_unsupported),
             "start_index": max(1, int(args.start_index)),
             "limit": int(args.limit),
+            "model_override": normalize(args.model),
+            "thinking_budget": args.thinking_budget,
         },
         "supported_profiles": supported_profile_keys(),
         "tasks_read": len(tasks),
@@ -493,27 +641,30 @@ def run_tasks(args: argparse.Namespace) -> dict:
 
     from google import genai
 
-    client = genai.Client(api_key=api_key_from_env(args))
-    model = model_from_env(args)
+    env_values = load_dotenv(Path(args.env_file).resolve())
+    client = genai.Client(api_key=api_key_from_env(args, env_values))
     status_counts: Counter = Counter()
     profile_counts: Counter = Counter()
     schema_counts: Counter = Counter()
+    model_counts: Counter = Counter()
     usage_totals: Counter = Counter()
     errors: list[dict] = []
 
     for position, (input_row_index, task) in enumerate(selected, start=1):
         profile = profile_for_task(task)
-        schema = load_schema(profile.schema_path)
         assigned_domain = domain_route_for_task(task)
+        assigned_text_depth = text_depth_for_task(task)
+        schema = load_schema_for_profile(profile, assigned_domain)
         model_schema = schema_for_assigned_domain(schema, assigned_domain)
         native_schema = schema_for_native(model_schema)
         validator = Draft7Validator(model_schema)
+        model = model_for_task(args, task, env_values)
         system_instruction = build_system_instruction(
             profile,
             schema,
             args.schema_mode,
             domain_route=assigned_domain,
-            text_depth=text_depth_for_task(task),
+            text_depth=assigned_text_depth,
         )
         max_output_tokens = max_output_tokens_for_task(task, profile, args)
         raw_row = {
@@ -545,10 +696,17 @@ def run_tasks(args: argparse.Namespace) -> dict:
                 ),
             )
             text = response.text or ""
+            usage = usage_dict(response)
+            raw_row.update(
+                {
+                    "raw_text": text,
+                    "usage": usage,
+                    "max_output_tokens": max_output_tokens,
+                }
+            )
             parsed, parse_method = parse_json_response(text)
             result = inject_route_identity_fields(parsed, task, profile)
             schema_errors = schema_error_messages(validator, result)
-            usage = usage_dict(response)
             for key, value in usage.items():
                 if isinstance(value, (int, float)):
                     usage_totals[key] += value
@@ -556,10 +714,7 @@ def run_tasks(args: argparse.Namespace) -> dict:
                 {
                     "status": "schema_error" if schema_errors else "ok",
                     "parse_method": parse_method,
-                    "raw_text": text,
                     "schema_errors": schema_errors,
-                    "usage": usage,
-                    "max_output_tokens": max_output_tokens,
                 }
             )
             append_jsonl(raw_jsonl, raw_row)
@@ -586,9 +741,10 @@ def run_tasks(args: argparse.Namespace) -> dict:
                     "route_id": normalize(task.get("route_id", "")),
                     "error": str(exc),
                 }
-            )
+        )
         profile_counts[profile.prompt_profile] += 1
         schema_counts[profile.schema_profile] += 1
+        model_counts[model] += 1
         if args.sleep_sec > 0:
             time.sleep(args.sleep_sec)
 
@@ -598,11 +754,13 @@ def run_tasks(args: argparse.Namespace) -> dict:
         "status": "complete",
         "inputs": {
             "input_jsonl": str(input_jsonl),
-            "model": model,
+            "model": next(iter(model_counts)) if len(model_counts) == 1 else "multiple",
             "schema_mode": args.schema_mode,
             "only_ready": bool(args.only_ready),
             "start_index": max(1, int(args.start_index)),
             "limit": int(args.limit),
+            "model_override": normalize(args.model),
+            "thinking_budget": args.thinking_budget,
         },
         "outputs": {
             "out_jsonl": str(out_jsonl),
@@ -612,6 +770,7 @@ def run_tasks(args: argparse.Namespace) -> dict:
         "tasks_read": len(tasks),
         "tasks_selected": len(selected),
         "by_status": dict(status_counts),
+        "by_model": dict(model_counts),
         "by_prompt_profile": dict(profile_counts),
         "by_schema_profile": dict(schema_counts),
         "usage_totals": dict(usage_totals),
@@ -651,7 +810,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--max-output-tokens", type=int, default=0, help="0 uses the route profile default")
-    parser.add_argument("--thinking-budget", type=int, default=None)
+    parser.add_argument("--thinking-budget", type=int, default=0)
     parser.add_argument("--sleep-sec", type=float, default=0.0)
     args = parser.parse_args()
     args.only_ready = not args.include_not_ready

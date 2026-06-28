@@ -3,40 +3,177 @@
   "title": "Primary Pharmacokinetics And Exposure Extraction",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "task_id", "route_id", "study_doi", "domain_route", "paper_type", "text_depth", "extraction_status", "items", "warnings"],
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "paper_type",
+    "text_depth",
+    "extraction_status",
+    "items",
+    "warnings"
+  ],
   "properties": {
-    "schema_version": {"type": "string", "enum": ["primary_pharmacokinetics_exposure_v1"]},
-    "task_id": {"type": "string"},
-    "source_type": {"type": "string"},
-    "route_id": {"type": "string"},
-    "study_doi": {"type": "string"},
-    "domain_route": {"type": "string", "const": "pharmacokinetics_exposure"},
-    "paper_type": {"type": "string", "enum": ["primary_study"]},
-    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
-    "extraction_status": {"type": "string", "enum": ["extracted", "no_extractable_scoped_evidence", "wrong_source_type", "not_relevant", "human_review"]},
-    "items": {"type": "array", "items": {"$ref": "#/definitions/item"}},
-    "warnings": {"type": "array", "items": {"type": "string"}}
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "primary_pharmacokinetics_exposure_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "route_id": {
+      "type": "string"
+    },
+    "study_doi": {
+      "type": "string"
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "pharmacokinetics_exposure"
+    },
+    "paper_type": {
+      "type": "string",
+      "enum": [
+        "primary_study"
+      ]
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_evidence",
+        "wrong_source_type",
+        "not_relevant",
+        "human_review"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/item"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_type": {
+      "type": "string"
+    }
   },
   "definitions": {
     "item": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["compound_or_analyte", "analyte_type", "matrix", "pk_or_exposure_parameter", "value", "unit", "dose", "route_of_administration", "sampling_time_or_window", "population_or_system", "model_or_method", "finding_summary", "evidence_location", "evidence_quote"],
+      "required": [
+        "compound_or_analyte",
+        "primary_graph_anchor_kind",
+        "analyte_type",
+        "metabolite_or_analyte",
+        "matrix",
+        "pk_or_exposure_parameter",
+        "value",
+        "effect_or_statistic",
+        "unit",
+        "dose",
+        "route_of_administration",
+        "sampling_time_or_window",
+        "population_or_system",
+        "sample_size",
+        "study_design",
+        "metabolic_or_transport_target",
+        "metabolic_or_transport_pathway",
+        "model_or_method",
+        "finding_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
       "properties": {
-        "compound_or_analyte": {"type": "string"},
-        "analyte_type": {"type": "string"},
-        "matrix": {"type": "string"},
-        "pk_or_exposure_parameter": {"type": "string"},
-        "value": {"type": "string"},
-        "unit": {"type": "string"},
-        "dose": {"type": "string"},
-        "route_of_administration": {"type": "string"},
-        "sampling_time_or_window": {"type": "string"},
-        "population_or_system": {"type": "string"},
-        "model_or_method": {"type": "string"},
-        "finding_summary": {"type": "string"},
-        "evidence_location": {"type": "string"},
-        "evidence_quote": {"type": "string"}
+        "compound_or_analyte": {
+          "type": "string"
+        },
+        "primary_graph_anchor_kind": {
+          "type": "string",
+          "enum": [
+            "pharmacokinetic_parameter",
+            "compound",
+            "target",
+            "pathway_process",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "analyte_type": {
+          "type": "string"
+        },
+        "metabolite_or_analyte": {
+          "type": "string"
+        },
+        "matrix": {
+          "type": "string"
+        },
+        "pk_or_exposure_parameter": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "effect_or_statistic": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "dose": {
+          "type": "string"
+        },
+        "route_of_administration": {
+          "type": "string"
+        },
+        "sampling_time_or_window": {
+          "type": "string",
+          "description": "When samples or pharmacokinetic measurements were collected, or the sampling window summarized by the result. Use the paper's wording when available."
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "sample_size": {
+          "type": "string"
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "metabolic_or_transport_target": {
+          "type": "string"
+        },
+        "metabolic_or_transport_pathway": {
+          "type": "string"
+        },
+        "model_or_method": {
+          "type": "string"
+        },
+        "finding_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "type": "string"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
       }
     }
   }

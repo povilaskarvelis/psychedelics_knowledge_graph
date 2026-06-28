@@ -31,11 +31,20 @@ def test_primary_matrix_has_prompt_schema_and_depth_files_for_each_domain() -> N
         assert schema["properties"]["domain_route"]["const"] == domain
         assert schema["properties"]["paper_type"]["enum"] == ["primary_study"]
         assert schema["properties"]["text_depth"]["enum"] == ["article_text", "abstract_only"]
+        item_properties = schema["definitions"]["item"]["properties"]
+        for field in (
+            "study_design",
+            "sample_size",
+            "effect_or_statistic",
+            "evidence_locator",
+        ):
+            assert field in item_properties
 
 
 def test_spec_for_route_resolves_primary_meta_review_and_no_extraction() -> None:
     primary = spec_for_route(domain_route="molecular_target", paper_type="primary_study", text_depth="abstract_only")
     meta = spec_for_route(domain_route="clinical_outcome", paper_type="meta_analysis", text_depth="article_text")
+    meta_abstract = spec_for_route(domain_route="clinical_outcome", paper_type="meta_analysis", text_depth="abstract_only")
     review = spec_for_route(domain_route="brain_system", paper_type="review", text_depth="abstract_only")
     skipped = spec_for_route(domain_route="context_only", paper_type="context", text_depth="abstract_only")
 
@@ -43,10 +52,17 @@ def test_spec_for_route_resolves_primary_meta_review_and_no_extraction() -> None
     assert primary.schema_path.name == "molecular_target.schema.json"
     assert primary.prompt_path.name == "primary_abstract_only.md"
     assert primary.depth_prompt_path is None
-    assert meta.schema_profile == "synthesis_evidence_schema"
+    assert meta.schema_profile == "meta_analysis_evidence_schema"
+    assert meta.schema_path.name == "clinical_outcome.schema.json"
     assert meta.prompt_path.name == "meta_analysis_article_text.md"
+    assert meta.schema_path.parent.name == "meta_analysis"
+    assert meta_abstract.schema_path.name == "clinical_outcome.schema.json"
+    assert meta_abstract.schema_path == meta.schema_path
+    assert meta_abstract.prompt_path.name == "meta_analysis_abstract_only.md"
     assert review.schema_profile == "review_coverage_schema"
     assert review.prompt_path.name == "review_abstract_only.md"
+    assert review.schema_path.name == "brain_system.schema.json"
+    assert review.schema_path.parent.name == "review"
     assert skipped.extract is False
 
 

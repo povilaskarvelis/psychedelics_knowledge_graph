@@ -1,0 +1,338 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Secondary Review Coverage Extraction - general_topic",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "review_assessment",
+    "coverage_items",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "review_coverage_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "general_topic"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "systematic_review",
+        "scoping_review",
+        "umbrella_review",
+        "review",
+        "narrative_review",
+        "literature_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_coverage",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "review_assessment": {
+      "$ref": "#/definitions/review_assessment"
+    },
+    "coverage_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_item"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "general_topic"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "direction_or_tone": {
+      "type": "string",
+      "enum": [
+        "supports",
+        "mixed",
+        "does_not_support",
+        "insufficient_evidence",
+        "descriptive_only",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "review_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "review_type",
+        "has_extractable_scoped_coverage",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "review_type": {
+          "type": "string"
+        },
+        "has_extractable_scoped_coverage": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "general_topic"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "relationship_domain",
+        "coverage_type",
+        "coverage_focus",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "reviewed_evidence_type",
+        "summary_statement",
+        "direction_or_tone",
+        "participant_or_sample_summary",
+        "key_limitations",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review",
+        "domain_result"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "general_topic"
+        },
+        "coverage_type": {
+          "type": "string",
+          "enum": [
+            "summarizes",
+            "reviews",
+            "maps_evidence",
+            "discusses",
+            "identifies_gap",
+            "methodological_context",
+            "mentions",
+            "uncertain"
+          ]
+        },
+        "coverage_focus": {
+          "type": "string",
+          "enum": [
+            "main_focus",
+            "substantial_topic",
+            "brief_context",
+            "unclear"
+          ],
+          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "general_topic",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "reviewed_evidence_type": {
+          "type": "string"
+        },
+        "summary_statement": {
+          "type": "string"
+        },
+        "direction_or_tone": {
+          "$ref": "#/definitions/direction_or_tone"
+        },
+        "participant_or_sample_summary": {
+          "type": "string"
+        },
+        "key_limitations": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "best_domain_guess",
+            "compound_or_exposure",
+            "entity_or_topic",
+            "coverage_reason",
+            "review_interpretation"
+          ],
+          "properties": {
+            "best_domain_guess": {
+              "type": "string",
+              "description": "Best domain guess if the review coverage does not fit one active evidence domain cleanly."
+            },
+            "compound_or_exposure": {
+              "type": "string",
+              "description": "Compound, intervention, exposure, or broad topic reviewed."
+            },
+            "entity_or_topic": {
+              "type": "string",
+              "description": "Entity, topic, concept, or coverage area reviewed."
+            },
+            "coverage_reason": {
+              "type": "string",
+              "description": "Why this item is broad review coverage rather than a specific evidence-domain item."
+            },
+            "review_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of the broad review coverage."
+            }
+          }
+        }
+      }
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

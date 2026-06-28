@@ -92,14 +92,14 @@ class AuditPrimaryExtractionReadinessTest(unittest.TestCase):
                 extraction_contract={
                     **task_row()["extraction_contract"],
                     "prompt_profile": "secondary_meta_analysis",
-                    "schema_profile": "synthesis_evidence_schema",
-                    "output_family": "evidence_synthesis",
+                    "schema_profile": "meta_analysis_evidence_schema",
+                    "output_family": "meta_analysis_evidence",
                     "expected_packet_profile": "secondary_synthesis",
                 },
                 route_context={
                     **task_row()["route_context"],
                     "prompt_profile": "secondary_meta_analysis",
-                    "schema_profile": "synthesis_evidence_schema",
+                    "schema_profile": "meta_analysis_evidence_schema",
                 },
             ),
         ]

@@ -6,6 +6,7 @@ from pipeline.extract.extraction_profile_matrix import (
 from pipeline.extract.route_extraction_profiles import (
     build_system_instruction,
     load_schema,
+    load_schema_for_profile,
     profile_for_key,
     schema_for_assigned_domain,
     schema_for_native,
@@ -60,12 +61,16 @@ def assembled_prompt_scenarios() -> list[tuple[str, str, str, str]]:
             rows.append(("primary", domain, depth, build_system_instruction(profile, schema, "native", domain_route=domain, text_depth=depth)))
     for domain in SECONDARY_DOMAINS:
         for prompt_profile, schema_profile, family in (
-            ("secondary_meta_analysis", "synthesis_evidence_schema", "meta_analysis"),
+            ("secondary_meta_analysis", "meta_analysis_evidence_schema", "meta_analysis"),
             ("secondary_review_coverage", "review_coverage_schema", "review_coverage"),
         ):
             profile = profile_for_key(prompt_profile, schema_profile)
-            schema = load_schema(profile.schema_path)
             for depth in TEXT_DEPTHS:
+                schema = (
+                    load_schema_for_profile(profile, domain)
+                    if family in {"meta_analysis", "review_coverage"}
+                    else load_schema(profile.schema_path)
+                )
                 rows.append((family, domain, depth, build_system_instruction(profile, schema, "native", domain_route=domain, text_depth=depth)))
     return rows
 
@@ -121,6 +126,31 @@ def test_scope_section_is_used_for_every_model_prompt() -> None:
         assert prompt.count("## Scope") == 1
 
 
+def test_non_extracted_outputs_must_include_warning_reason() -> None:
+    for family, domain, depth, prompt in assembled_prompt_scenarios():
+        lower = " ".join(prompt.lower().split())
+        assert "for any status other than `extracted`, add one short reason" in lower, (family, domain, depth)
+        if family == "primary":
+            assert "to `warnings`" in lower, (family, domain, depth)
+            assert "keep `items` empty" in lower, (family, domain, depth)
+        elif family == "meta_analysis":
+            assert "to `extraction_warnings`" in lower, (family, domain, depth)
+            assert "keep `synthesis_results` empty" in lower, (family, domain, depth)
+        else:
+            assert "to `extraction_warnings`" in lower, (family, domain, depth)
+            assert "keep `coverage_items` empty" in lower, (family, domain, depth)
+
+
+def test_meta_analysis_prompts_reject_reviews_that_only_cite_meta_analyses() -> None:
+    for family, domain, depth, prompt in assembled_prompt_scenarios():
+        lower = " ".join(prompt.lower().split())
+        if family == "meta_analysis":
+            assert "the paper itself must be a meta-analysis" in lower, (domain, depth)
+            assert "only cites or summarizes meta-analyses from other papers" in lower, (domain, depth)
+        else:
+            assert "only cites or summarizes meta-analyses from other papers" not in lower, (family, domain, depth)
+
+
 def test_opening_context_stays_paper_type_only_not_domain_examples() -> None:
     for family, domain, depth, prompt in assembled_prompt_scenarios():
         opening = " ".join(prompt[: prompt.find("## Scope")].lower().split())
@@ -138,8 +168,8 @@ def test_secondary_combined_prompts_do_not_list_other_domain_ids() -> None:
 
 
 def test_secondary_schema_is_specialized_to_single_assigned_domain() -> None:
-    profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
-    schema = load_schema(profile.schema_path)
+    profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+    schema = load_schema_for_profile(profile, "clinical_outcome")
     model_schema = schema_for_native(schema_for_assigned_domain(schema, "clinical_outcome"))
 
     assert model_schema["properties"]["domain_route"]["const"] == "clinical_outcome"
@@ -154,6 +184,29 @@ def test_secondary_schema_is_specialized_to_single_assigned_domain() -> None:
         "not_applicable",
         "uncertain",
     ]
+    assert "clinical_endpoint" in (
+        model_schema["properties"]["synthesis_results"]["items"]["properties"]["domain_result"]["properties"]
+    )
+
+    review_profile = profile_for_key("secondary_review_coverage", "review_coverage_schema")
+    review_schema = load_schema_for_profile(review_profile, "clinical_outcome")
+    review_model_schema = schema_for_native(schema_for_assigned_domain(review_schema, "clinical_outcome"))
+
+    assert review_model_schema["properties"]["domain_route"]["const"] == "clinical_outcome"
+    assert (
+        review_model_schema["properties"]["review_assessment"]["properties"]["relationship_domain"]["const"]
+        == "clinical_outcome"
+    )
+    assert review_model_schema["properties"]["coverage_items"]["items"]["properties"]["relationship_domain"]["const"] == "clinical_outcome"
+    assert review_model_schema["properties"]["coverage_items"]["items"]["properties"]["entity_type"]["enum"] == [
+        "disorder",
+        "symptom_or_outcome",
+        "not_applicable",
+        "uncertain",
+    ]
+    assert "clinical_endpoint_category" in (
+        review_model_schema["properties"]["coverage_items"]["items"]["properties"]["domain_result"]["properties"]
+    )
 
 
 def test_mechanistic_prompts_do_not_force_valenced_result_direction() -> None:
@@ -170,11 +223,12 @@ def test_mechanistic_prompts_do_not_force_valenced_result_direction() -> None:
 
 
 def test_mechanistic_meta_schema_constrains_result_direction_to_not_applicable() -> None:
-    profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
-    schema = load_schema(profile.schema_path)
+    profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+    schema = load_schema_for_profile(profile, "molecular_target")
 
     non_valenced_domains = set(SECONDARY_DOMAINS) - {"clinical_outcome", "safety_tolerability"}
     for domain in non_valenced_domains:
+        schema = load_schema_for_profile(profile, domain)
         model_schema = schema_for_native(schema_for_assigned_domain(schema, domain))
         result_direction = model_schema["properties"]["synthesis_results"]["items"]["properties"]["result_direction"]
 
@@ -192,8 +246,8 @@ def test_primary_result_direction_only_appears_in_clinical_and_safety_prompts() 
 
 
 def test_schema_in_prompt_mode_does_not_reintroduce_other_secondary_domain_ids() -> None:
-    profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
-    schema = load_schema(profile.schema_path)
+    profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+    schema = load_schema_for_profile(profile, "clinical_outcome")
 
     prompt = build_system_instruction(
         profile,
@@ -209,8 +263,8 @@ def test_schema_in_prompt_mode_does_not_reintroduce_other_secondary_domain_ids()
 
 
 def test_meta_analysis_abstract_prompt_is_leaner_than_article_text_prompt() -> None:
-    profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
-    schema = load_schema(profile.schema_path)
+    profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+    schema = load_schema_for_profile(profile, "clinical_outcome")
 
     abstract_prompt = build_system_instruction(
         profile,
@@ -228,13 +282,45 @@ def test_meta_analysis_abstract_prompt_is_leaner_than_article_text_prompt() -> N
     )
 
     assert "Secondary Meta-Analysis Abstract Extraction" in abstract_prompt
-    assert "Include individual study records" not in abstract_prompt
-    assert "Leave `included_studies` empty for abstract-only extraction." in abstract_prompt
+    assert "individual included studies" in abstract_prompt
+    assert "included-study DOIs" in abstract_prompt
+    assert "included_studies" not in abstract_prompt
     assert "Included Studies" not in abstract_prompt
     assert "Search Methods" not in abstract_prompt
     assert "Eligibility Criteria" not in abstract_prompt
     assert "Risk Of Bias And Certainty" not in abstract_prompt
+    assert "network comparison" in abstract_prompt
     assert len(abstract_prompt) < len(article_prompt)
+
+
+def test_meta_analysis_uses_same_domain_schema_for_abstract_and_article_text() -> None:
+    profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+    schema = load_schema_for_profile(profile, "clinical_outcome")
+
+    removed_sections = {
+        "search_methods",
+        "eligibility_criteria",
+        "risk_of_bias_assessments",
+        "certainty_assessments",
+        "authors_conclusions",
+        "coverage_gaps",
+    }
+
+    assert removed_sections.isdisjoint(set(schema["properties"]))
+    assert schema["properties"]["text_depth"]["enum"] == [TEXT_DEPTH_ARTICLE, TEXT_DEPTH_ABSTRACT]
+    result_props = schema["definitions"]["synthesis_result"]["properties"]
+    assert {"effect_metric", "effect_size", "authors_interpretation"}.issubset(result_props)
+    for field in (
+        "contrast_type",
+        "confidence_interval",
+        "p_value",
+        "heterogeneity_i2",
+        "network_comparison",
+        "network_evidence_type",
+        "network_rank_or_score",
+        "network_inconsistency_or_transitivity",
+    ):
+        assert field not in result_props
 
 
 def test_primary_abstract_prompt_is_leaner_than_article_text_prompt() -> None:
@@ -264,7 +350,7 @@ def test_primary_abstract_prompt_is_leaner_than_article_text_prompt() -> None:
 
 def test_review_abstract_prompt_is_leaner_than_article_text_prompt() -> None:
     profile = profile_for_key("secondary_review_coverage", "review_coverage_schema")
-    schema = load_schema(profile.schema_path)
+    schema = load_schema_for_profile(profile, "clinical_outcome")
 
     abstract_prompt = build_system_instruction(
         profile,
@@ -283,5 +369,6 @@ def test_review_abstract_prompt_is_leaner_than_article_text_prompt() -> None:
 
     assert "Secondary Review Abstract Extraction" in abstract_prompt
     assert "Do not infer the review's full structure" in abstract_prompt
+    assert "domain_result" in abstract_prompt
     assert "Secondary Review Article-Text Extraction" in article_prompt
     assert len(abstract_prompt) < len(article_prompt)

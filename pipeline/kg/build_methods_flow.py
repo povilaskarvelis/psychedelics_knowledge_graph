@@ -127,6 +127,7 @@ PRISMA_RETRIEVAL_REASON_LABELS = {
     "not_open_access": "Not open access",
     "no_pdf_url": "No PDF URL found",
     "download_failed": "PDF download failed",
+    "unusable_pdf_image_only": "Image-only PDF not retained",
     "skipped": "Download not attempted",
     "missing_local_pdf": "Local PDF file missing",
     "pdf_validation_failed": "PDF validation failed",
@@ -164,12 +165,12 @@ PRISMA_CANDIDATE_PRESCREEN_LABELS = {
     "exclude_missing_abstract": "No abstract available",
     "exclude_non_evidence_artifact": "Non-evidence artifact",
     "exclude_non_paper_container": "Non-paper container",
+    "exclude_preprint_or_unpublished": "Preprint or unpublished posted content",
     "unknown": "Prescreen status not available",
 }
 
 PRISMA_CANDIDATE_ROUTE_LABELS = {
     "excluded_after_domain_screen": "Excluded after domain screen",
-    "preprint_hold": "Preprint held for published-version check",
     "context_only_or_skip": "Context-only or skip route",
     "not_retained_for_extraction": "No current extraction route assigned",
     "unknown": "Route status not available",
@@ -417,6 +418,8 @@ def prisma_retrieval_reason(props: dict) -> str:
     status = normalize(props.get("pdf_status", ""))
     if status in {"invalid_pdf_existing", "invalid_pdf_content"}:
         return "pdf_validation_failed"
+    if status == "unusable_pdf_image_only":
+        return "unusable_pdf_image_only"
     return status or "unknown"
 
 
@@ -1330,6 +1333,7 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
                         "exclude_missing_abstract",
                         "exclude_non_evidence_artifact",
                         "exclude_non_paper_container",
+                        "exclude_preprint_or_unpublished",
                         "unknown",
                     ),
                 ),
@@ -1342,7 +1346,6 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
                     PRISMA_CANDIDATE_ROUTE_LABELS,
                     (
                         "excluded_after_domain_screen",
-                        "preprint_hold",
                         "context_only_or_skip",
                         "not_retained_for_extraction",
                         "unknown",
@@ -1391,6 +1394,7 @@ def strongest_pdf_status(left: str, right: str) -> str:
         "pdf_url_known": 2,
         "not_open_access": 2,
         "no_pdf_url": 2,
+        "unusable_pdf_image_only": 4,
         "download_failed": 4,
         "invalid_pdf_existing": 5,
         "invalid_pdf_content": 5,
@@ -1412,6 +1416,7 @@ def pipeline_row_with_paper_artifacts(row_props: dict, paper_props: dict) -> dic
         props["pdf_status"] = "downloaded"
     elif row_pdf_status in {"", "not_downloaded", "skipped"} and paper_pdf_status in {
         "download_failed",
+        "unusable_pdf_image_only",
         "no_pdf_url",
         "not_open_access",
         "invalid_pdf_existing",
@@ -1688,6 +1693,7 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
                         "not_open_access",
                         "no_pdf_url",
                         "download_failed",
+                        "unusable_pdf_image_only",
                         "skipped",
                         "missing_local_pdf",
                         "pdf_validation_failed",

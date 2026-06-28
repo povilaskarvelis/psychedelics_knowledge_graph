@@ -1,0 +1,368 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Secondary Review Coverage Extraction - real_world_public_health",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "review_assessment",
+    "coverage_items",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "review_coverage_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "real_world_public_health"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "systematic_review",
+        "scoping_review",
+        "umbrella_review",
+        "review",
+        "narrative_review",
+        "literature_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_coverage",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "review_assessment": {
+      "$ref": "#/definitions/review_assessment"
+    },
+    "coverage_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_item"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "real_world_public_health"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "direction_or_tone": {
+      "type": "string",
+      "enum": [
+        "supports",
+        "mixed",
+        "does_not_support",
+        "insufficient_evidence",
+        "descriptive_only",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "review_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "review_type",
+        "has_extractable_scoped_coverage",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "review_type": {
+          "type": "string"
+        },
+        "has_extractable_scoped_coverage": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "real_world_public_health"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "relationship_domain",
+        "coverage_type",
+        "coverage_focus",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "reviewed_evidence_type",
+        "summary_statement",
+        "direction_or_tone",
+        "participant_or_sample_summary",
+        "key_limitations",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review",
+        "domain_result"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "real_world_public_health"
+        },
+        "coverage_type": {
+          "type": "string",
+          "enum": [
+            "summarizes",
+            "reviews",
+            "maps_evidence",
+            "discusses",
+            "identifies_gap",
+            "methodological_context",
+            "mentions",
+            "uncertain"
+          ]
+        },
+        "coverage_focus": {
+          "type": "string",
+          "enum": [
+            "main_focus",
+            "substantial_topic",
+            "brief_context",
+            "unclear"
+          ],
+          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "public_health_measure",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "reviewed_evidence_type": {
+          "type": "string"
+        },
+        "summary_statement": {
+          "type": "string"
+        },
+        "direction_or_tone": {
+          "$ref": "#/definitions/direction_or_tone"
+        },
+        "participant_or_sample_summary": {
+          "type": "string"
+        },
+        "key_limitations": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exposure_or_intervention",
+            "population_or_setting",
+            "public_health_topic_category",
+            "data_source_or_study_design",
+            "public_health_measure",
+            "estimate_value",
+            "estimate_unit",
+            "comparison_or_reference_group",
+            "association_or_trend",
+            "time_window",
+            "review_interpretation"
+          ],
+          "properties": {
+            "exposure_or_intervention": {
+              "type": "string",
+              "description": "Real-world exposure, therapeutic intervention, use pattern, policy, service model, or public-health topic reviewed."
+            },
+            "population_or_setting": {
+              "type": "string",
+              "description": "Population, community, geography, public, patient group, professional group, humanitarian setting, or real-world context reviewed."
+            },
+            "public_health_topic_category": {
+              "type": "string",
+              "description": "Stable public-health topic category such as use pattern, abuse potential, harm reduction, access, equity, policy, service delivery, epidemiology, implementation, or population risk/benefit."
+            },
+            "data_source_or_study_design": {
+              "type": "string",
+              "description": "Evidence source or design reviewed, such as survey, registry, administrative record, poison-center data, case series, observational study, systematic review, scoping review, qualitative evidence, consensus, or narrative review."
+            },
+            "public_health_measure": {
+              "type": "string",
+              "description": "Public-health measure or stable public-health topic, such as prevalence, rate, count, inclusion metric, emergency presentation, poison-center report, use pattern, abuse potential, harm-reduction topic, access/equity topic, policy measure, service-delivery measure, epidemiology measure, or qualitative public-health finding."
+            },
+            "estimate_value": {
+              "type": "string",
+              "description": "Reported estimate, count, rate, range, prevalence, percentage, qualitative result, or 'not_reported' when no concrete estimate is provided."
+            },
+            "estimate_unit": {
+              "type": "string",
+              "description": "Unit for the estimate, such as percent, rate per population, count, studies, participants, cases, qualitative synthesis, not_applicable, or not_reported."
+            },
+            "comparison_or_reference_group": {
+              "type": "string",
+              "description": "Comparator, reference group, baseline, exposure level, stakeholder group, geography, policy context, time period, or other contrast used to interpret the public-health finding."
+            },
+            "association_or_trend": {
+              "type": "string",
+              "description": "Direction, trend, association, difference, qualitative conclusion, mixed finding, no clear association, or not_reported."
+            },
+            "time_window": {
+              "type": "string",
+              "description": "Publication window, exposure period, follow-up interval, policy period, clinical implementation period, or time context for the public-health finding."
+            },
+            "review_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of what this review coverage means for real-world or public-health evidence."
+            }
+          }
+        }
+      }
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

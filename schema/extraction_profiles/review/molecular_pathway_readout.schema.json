@@ -1,0 +1,374 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Secondary Review Coverage Extraction - molecular_pathway_readout",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "review_assessment",
+    "coverage_items",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "review_coverage_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "molecular_pathway_readout"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "systematic_review",
+        "scoping_review",
+        "umbrella_review",
+        "review",
+        "narrative_review",
+        "literature_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_coverage",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "review_assessment": {
+      "$ref": "#/definitions/review_assessment"
+    },
+    "coverage_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/coverage_item"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "molecular_pathway_readout"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "direction_or_tone": {
+      "type": "string",
+      "enum": [
+        "supports",
+        "mixed",
+        "does_not_support",
+        "insufficient_evidence",
+        "descriptive_only",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "review_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "review_type",
+        "has_extractable_scoped_coverage",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "review_type": {
+          "type": "string"
+        },
+        "has_extractable_scoped_coverage": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "molecular_pathway_readout"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "relationship_domain",
+        "coverage_type",
+        "coverage_focus",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "reviewed_evidence_type",
+        "summary_statement",
+        "direction_or_tone",
+        "participant_or_sample_summary",
+        "key_limitations",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review",
+        "domain_result"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "molecular_pathway_readout"
+        },
+        "coverage_type": {
+          "type": "string",
+          "enum": [
+            "summarizes",
+            "reviews",
+            "maps_evidence",
+            "discusses",
+            "identifies_gap",
+            "methodological_context",
+            "mentions",
+            "uncertain"
+          ]
+        },
+        "coverage_focus": {
+          "type": "string",
+          "enum": [
+            "main_focus",
+            "substantial_topic",
+            "brief_context",
+            "unclear"
+          ],
+          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "pathway_process",
+            "molecular_readout",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "reviewed_evidence_type": {
+          "type": "string"
+        },
+        "summary_statement": {
+          "type": "string"
+        },
+        "direction_or_tone": {
+          "$ref": "#/definitions/direction_or_tone"
+        },
+        "participant_or_sample_summary": {
+          "type": "string"
+        },
+        "key_limitations": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "compound_or_exposure",
+            "pathway_or_process",
+            "readout_or_biomarker",
+            "readout_category",
+            "biological_system",
+            "model_or_species",
+            "tissue_cell_or_sample",
+            "comparator_or_reference",
+            "timepoint_or_window",
+            "dose_or_exposure_context",
+            "direction_or_change",
+            "review_interpretation"
+          ],
+          "properties": {
+            "compound_or_exposure": {
+              "type": "string",
+              "description": "Compound, intervention, exposure, or drug class linked to the pathway/readout review."
+            },
+            "pathway_or_process": {
+              "type": "string",
+              "description": "Pathway, biological process, molecular cascade, or mechanism reviewed."
+            },
+            "readout_or_biomarker": {
+              "type": "string",
+              "description": "Molecular readout, biomarker, protein, gene, metabolite, inflammatory marker, neurotrophic factor, or feature set reviewed."
+            },
+            "readout_category": {
+              "type": "string",
+              "description": "Readout category such as biomarker, pathway activation, pathway enrichment, gene expression, protein change, metabolomics, inflammation, or plasticity marker."
+            },
+            "biological_system": {
+              "type": "string",
+              "description": "Clinical, preclinical, cellular, tissue, blood, brain, immune, computational, or other system reviewed."
+            },
+            "model_or_species": {
+              "type": "string",
+              "description": "Human, animal, cell-line, organoid, tissue, computational, disease model, or species context when stated."
+            },
+            "tissue_cell_or_sample": {
+              "type": "string",
+              "description": "Tissue, cell type, sample, assay material, biofluid, organ system, or compartment measured, such as blood, CSF, immune cells, SH-SY5Y cells, myocardium, adrenal gland, or brain tissue."
+            },
+            "comparator_or_reference": {
+              "type": "string",
+              "description": "Comparator or reference condition such as baseline, placebo, control group, stress model, disease state, responder versus non-responder, reference tissue, or reference gene/protein set."
+            },
+            "timepoint_or_window": {
+              "type": "string",
+              "description": "Timing, follow-up window, sampling window, exposure duration, or temporal pattern of the readout when stated."
+            },
+            "dose_or_exposure_context": {
+              "type": "string",
+              "description": "Dose, route, regimen, exposure pattern, treatment duration, or intervention context linked to the pathway/readout when stated."
+            },
+            "direction_or_change": {
+              "type": "string",
+              "description": "Direction or qualitative change in the pathway/readout, such as increased, decreased, activated, inhibited, restored, normalized, upregulated, downregulated, or altered rhythm."
+            },
+            "review_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of what this review coverage means for pathway/readout evidence."
+            }
+          }
+        }
+      }
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

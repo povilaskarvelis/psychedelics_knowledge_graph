@@ -19,7 +19,6 @@ if str(ROOT) not in sys.path:
 
 from pipeline.extract.build_extraction_routes import (  # noqa: E402
     DEFAULT_CANDIDATE_TABLE,
-    DEFAULT_LITERATURE_TYPE_TABLE,
     DEFAULT_MANUAL_ROUTE_OVERRIDES,
     DEFAULT_METADATA_TABLE,
     DEFAULT_OUTPUT_TABLE,
@@ -420,7 +419,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Do not rebuild extraction routes after successful XML artifacts are written.",
     )
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--route-summary-json", default=str(DEFAULT_SUMMARY_JSON))
     parser.add_argument("--route-counts-csv", default=str(DEFAULT_COUNTS_CSV))
@@ -535,7 +533,6 @@ def main() -> int:
             metadata_table=metadata_table,
             candidate_table=Path(args.candidate_table).resolve(),
             prescreen_table=Path(args.prescreen_table).resolve(),
-            literature_table=Path(args.literature_type_table).resolve(),
             domain_table=Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None,
             fulltext_dir=fulltext_dir,
             paper_root=Path(args.paper_root).resolve(),

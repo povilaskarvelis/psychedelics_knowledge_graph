@@ -3,42 +3,165 @@
   "title": "Primary Safety And Tolerability Extraction",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "task_id", "route_id", "study_doi", "domain_route", "paper_type", "text_depth", "extraction_status", "items", "warnings"],
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "paper_type",
+    "text_depth",
+    "extraction_status",
+    "items",
+    "warnings"
+  ],
   "properties": {
-    "schema_version": {"type": "string", "enum": ["primary_safety_tolerability_v1"]},
-    "task_id": {"type": "string"},
-    "source_type": {"type": "string"},
-    "route_id": {"type": "string"},
-    "study_doi": {"type": "string"},
-    "domain_route": {"type": "string", "const": "safety_tolerability"},
-    "paper_type": {"type": "string", "enum": ["primary_study"]},
-    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
-    "extraction_status": {"type": "string", "enum": ["extracted", "no_extractable_scoped_evidence", "wrong_source_type", "not_relevant", "human_review"]},
-    "items": {"type": "array", "items": {"$ref": "#/definitions/item"}},
-    "warnings": {"type": "array", "items": {"type": "string"}}
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "primary_safety_tolerability_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "route_id": {
+      "type": "string"
+    },
+    "study_doi": {
+      "type": "string"
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "safety_tolerability"
+    },
+    "paper_type": {
+      "type": "string",
+      "enum": [
+        "primary_study"
+      ]
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_evidence",
+        "wrong_source_type",
+        "not_relevant",
+        "human_review"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/item"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_type": {
+      "type": "string"
+    }
   },
   "definitions": {
     "item": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["compound_or_exposure", "population_or_system", "sample_size", "safety_event_or_measure", "safety_category", "severity", "seriousness", "frequency_or_rate", "discontinuation_or_withdrawal", "comparator", "dose_or_regimen", "timepoint", "result_direction", "finding_summary", "evidence_location", "evidence_quote"],
+      "required": [
+        "compound_or_exposure",
+        "population_or_system",
+        "study_design",
+        "sample_size",
+        "safety_event_or_measure",
+        "safety_category",
+        "severity",
+        "seriousness",
+        "frequency_or_rate",
+        "discontinuation_or_withdrawal",
+        "comparator",
+        "dose_or_regimen",
+        "assessment_timepoint",
+        "result_direction",
+        "finding_summary",
+        "effect_or_statistic",
+        "evidence_location",
+        "evidence_locator"
+      ],
       "properties": {
-        "compound_or_exposure": {"type": "string"},
-        "population_or_system": {"type": "string"},
-        "sample_size": {"type": "string"},
-        "safety_event_or_measure": {"type": "string"},
-        "safety_category": {"type": "string"},
-        "severity": {"type": "string"},
-        "seriousness": {"type": "string"},
-        "frequency_or_rate": {"type": "string"},
-        "discontinuation_or_withdrawal": {"type": "string"},
-        "comparator": {"type": "string"},
-        "dose_or_regimen": {"type": "string"},
-        "timepoint": {"type": "string"},
-        "result_direction": {"type": "string", "enum": ["positive", "negative", "null", "mixed", "unclear", "not_applicable"]},
-        "finding_summary": {"type": "string"},
-        "evidence_location": {"type": "string"},
-        "evidence_quote": {"type": "string"}
+        "compound_or_exposure": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "sample_size": {
+          "type": "string"
+        },
+        "safety_event_or_measure": {
+          "type": "string"
+        },
+        "safety_category": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "seriousness": {
+          "type": "string"
+        },
+        "frequency_or_rate": {
+          "type": "string"
+        },
+        "discontinuation_or_withdrawal": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "dose_or_regimen": {
+          "type": "string"
+        },
+        "assessment_timepoint": {
+          "type": "string",
+          "description": "When the finding was measured or assessed, such as acute session, 2 hours post-dose, end of treatment, week 6, or follow-up. Use the paper's wording when available."
+        },
+        "result_direction": {
+          "type": "string",
+          "enum": [
+            "positive",
+            "negative",
+            "no_detected_effect",
+            "mixed",
+            "unclear",
+            "not_applicable"
+          ]
+        },
+        "finding_summary": {
+          "type": "string"
+        },
+        "effect_or_statistic": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "type": "string"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
       }
     }
   }

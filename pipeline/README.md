@@ -20,10 +20,8 @@ flowchart TD
   B --> C["Candidate corpus tables"]
   C --> D["Metadata enrichment"]
   D --> E["Rule-based pre-screen"]
-  E --> F["Literature-type routing"]
-  E --> G["Gemini domain routing"]
-  F --> H["Extraction route table"]
-  G --> H
+  E --> G["Gemini screening, domain routing, and paper-type routing"]
+  G --> H["Extraction route table"]
   I["Manual route overrides"] --> H
   H --> J["Open-access links, PDF retrieval, and PMC XML retrieval"]
   J --> K["Full-text conversion"]
@@ -53,20 +51,17 @@ flowchart TD
    title/abstract evidence or clearly fall outside the project scope. It writes
    decisions to `paper_prescreen_decisions.parquet` and can be rerun for the
    whole corpus or a DOI subset.
-6. **Literature-type routing** separates primary or unclear empirical papers,
-   secondary literature, and non-primary publication types. Secondary literature
-   is further labeled as review, systematic review, meta-analysis, scoping
-   review, guideline, consensus statement, or related types when the metadata
-   and title/abstract rules support it.
-7. **Domain routing** uses Gemini on title, abstract, and minimal supporting
-   metadata to assign evidence domains and to exclude records that remain out of
-   scope after pre-screening.
-8. **Extraction route assembly** combines pre-screen decisions, literature type,
-   Gemini domain routing, converted full-text artifacts, valid PDFs in the
-   canonical PDF store, PDF URLs, and narrow manual overrides into
+6. **Gemini screening, domain routing, and paper-type routing** uses Gemini on
+   title, abstract, and minimal supporting metadata to decide whether each
+   pre-screen-retained record is in scope, assign evidence domains, and classify
+   the paper as primary/unclear, secondary literature, or non-primary
+   publication with a more specific paper type.
+7. **Extraction route assembly** combines pre-screen decisions, Gemini routing,
+   converted full-text artifacts, valid PDFs in the canonical PDF store, PDF
+   URLs, and narrow manual overrides into
    `paper_extraction_routes.parquet`. This table is the current extraction
    queue source.
-9. **Full-text handling** refreshes open-access links, downloads available legal
+8. **Full-text handling** refreshes open-access links, downloads available legal
    PDFs, retrieves reusable PMC XML when available, and converts local full-text
    sources into structured artifacts. Records without usable full text remain
    eligible for the abstract-only extraction path when the route table marks
@@ -166,16 +161,6 @@ updates.
 The older local LLM abstract-screening scripts remain in `pipeline/review/` for
 audit and comparison, but they are not the current extraction gate.
 
-### Literature Type Routing
-
-```bash
-python pipeline/review/run_literature_type_routing.py
-```
-
-This writes `paper_literature_type_routing.parquet`. The router combines
-publication-type metadata with title/abstract rules to separate primary or
-unclear empirical literature, secondary literature, and non-primary context.
-
 ### Gemini Domain Routing
 
 Prepare batch requests:
@@ -192,7 +177,9 @@ python pipeline/review/advance_gemini_domain_routing_batch_queue.py
 
 This writes `paper_domain_routing_gemini.parquet`,
 `paper_domain_routing_gemini_summary.json`, and
-`paper_domain_routing_gemini_counts.csv`.
+`paper_domain_routing_gemini_counts.csv`. The Gemini response includes
+`screening_decision`, `domain_tags`, `primary_domain`, `paper_type_group`, and
+`paper_type`; this table is the source of paper type for new extraction routes.
 
 ### Extraction Routes
 
@@ -203,10 +190,9 @@ python pipeline/extract/build_extraction_routes.py \
 
 This writes `paper_extraction_routes.parquet`,
 `paper_extraction_routes_summary.json`, and
-`paper_extraction_routes_counts.csv`. The default build also writes
-`preprint_route_holds.csv` and excludes preprint records from the extraction
-route table. Preprints stay in the corpus for audit and published-version
-lookup, but are not promoted into default extraction routes. The build also
+`paper_extraction_routes_counts.csv`. Preprint and unpublished posted-content
+records are excluded before routing by deterministic pre-screening, and the
+route build treats the pre-screen table as authoritative. The build also
 applies two narrow DOI-level manual review files:
 
 - `pipeline/extract/manual_extraction_route_overrides.json` for route/domain
@@ -217,8 +203,8 @@ applies two narrow DOI-level manual review files:
   review confirms there is no usable open article PDF.
 
 The build also updates `candidate_papers.parquet` as the DOI-level pipeline
-ledger. It backfills publication-stage fields, prescreen/literature-type
-summaries, extraction-route status, route counts, domain summaries, prompt and
+ledger. It backfills publication-stage fields, pre-screen summaries, Gemini
+paper-type/domain summaries, extraction-route status, route counts, prompt and
 schema profiles, manual full-text access decisions, and the best available text
 tier. The detailed many-row route assignments stay in
 `paper_extraction_routes.parquet`; `candidate_papers.parquet` keeps one row per
@@ -453,20 +439,22 @@ building does not use them as fallbacks.
 ### Article Text Input Preparation
 
 The extraction route table is the source of truth for the next extraction run.
-Build route-specific task records from `paper_extraction_routes.parquet`. These
-records preserve `route_id` as the stable extraction-job key, because one DOI
-can have multiple domain-specific extraction routes.
+Build route-specific article text inputs from `paper_extraction_routes.parquet`
+and the canonical `fulltext/articles/` artifacts:
+
+```bash
+python pipeline/fulltext/build_article_text_inputs.py
+```
+
+The default section policy keeps primary studies focused on methods/results and
+uses all extracted sections for meta-analyses and reviews.
+
+Then build route-specific task records. These records preserve `route_id` as the
+stable extraction-job key, because one DOI can have multiple domain-specific
+extraction routes.
 
 ```bash
 python pipeline/extract/build_extraction_tasks.py
-```
-
-Export route-derived DOI queues for the section selection strategies that need
-selected article text:
-
-```bash
-python pipeline/extract/export_packet_profile_queues.py \
-  --section-selection-strategy primary_study
 ```
 
 Before model calls, audit selected article text from the canonical
@@ -484,17 +472,19 @@ Route-specific article text builders should use `fulltext_artifact_paths` from
 `packet_profile` internally for compatibility; new prose should use article
 text input and section selection strategy.
 
-The initial route-specific synthesis profile is
-`schema/synthesis_evidence.schema.json` plus
-paper-type/text-depth prompts under `docs/extraction_profiles/paper_type/` for
-the selected `schema_profile`. Primary and secondary-review
-profiles also have scaffold schemas/prompts in the registry, but are opt-in for
-pilots until each domain is tuned. Guideline, context-only, and no-extraction
-routes are terminal audit routes and are not sent to a model.
+The route-table-based meta-analysis profile uses paper-type/text-depth prompts under
+`docs/extraction_profiles/paper_type/` plus meta-analysis domain schemas under
+`schema/extraction_profiles/meta_analysis/`; the same domain schema is used for
+article-text and abstract-only meta-analysis tasks. `schema/meta_analysis_evidence.schema.json`
+is the shared base contract. Primary and secondary-review profiles also have
+schemas/prompts in the registry, but secondary-review prompts remain scaffolded
+until each domain is tuned.
+Guideline, context-only, and no-extraction routes are terminal audit routes and
+are not sent to a model.
 
 Not every routed paper is a KG contribution. Primary evidence routes produce KG
-candidate evidence after normalization; meta-analyses produce separate synthesis
-evidence; secondary reviews can produce coverage/evidence-map context; and
+candidate evidence after normalization; meta-analyses produce separate
+meta-analysis evidence; secondary reviews can produce coverage/evidence-map context; and
 guideline, context-only, or no-extraction routes are retained for
 corpus/accounting audit rather than graph edges.
 
@@ -503,7 +493,7 @@ Inspect the registered route-aware extraction tasks without model calls:
 ```bash
 python pipeline/extract/run_route_extraction.py \
   --prompt-profile secondary_meta_analysis \
-  --schema-profile synthesis_evidence_schema \
+  --schema-profile meta_analysis_evidence_schema \
   --dry-run
 ```
 
@@ -529,7 +519,6 @@ python pipeline/extract/run_gemini_extraction_v1.py \
 - `data/processed/corpus/candidate_sources.parquet`
 - `data/processed/corpus/paper_metadata_enrichment.parquet`
 - `data/processed/corpus/paper_prescreen_decisions.parquet`
-- `data/processed/corpus/paper_literature_type_routing.parquet`
 - `data/processed/corpus/paper_domain_routing_gemini.parquet`
 - `data/processed/corpus/paper_extraction_routes.parquet`
 - `data/processed/fulltext/articles/*.json`

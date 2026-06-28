@@ -16,7 +16,6 @@ try:
         DEFAULT_COUNTS_CSV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_FULLTEXT_DIR,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_MANUAL_ROUTE_OVERRIDES,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -44,7 +43,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_COUNTS_CSV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_FULLTEXT_DIR,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_MANUAL_ROUTE_OVERRIDES,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -187,7 +185,6 @@ def rebuild_routes(
     metadata_table: Path,
     candidate_table: Path,
     prescreen_table: Path,
-    literature_type_table: Path,
     domain_routing_table: Path | None,
     fulltext_dir: Path,
     paper_root: Path,
@@ -200,7 +197,6 @@ def rebuild_routes(
         metadata_table=metadata_table,
         candidate_table=candidate_table,
         prescreen_table=prescreen_table,
-        literature_table=literature_type_table,
         domain_table=domain_table,
         manual_overrides_path=manual_route_overrides if manual_route_overrides and manual_route_overrides.exists() else None,
         fulltext_dir=fulltext_dir,
@@ -234,7 +230,6 @@ def convert_routed_local_pdfs(
     metadata_table: Path = DEFAULT_METADATA_TABLE,
     candidate_table: Path = DEFAULT_CANDIDATE_TABLE,
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
-    literature_type_table: Path = DEFAULT_LITERATURE_TYPE_TABLE,
     domain_routing_table: Path | None = DEFAULT_DOMAIN_ROUTING_TABLE,
     fulltext_dir: Path = DEFAULT_FULLTEXT_DIR,
     out_dir: Path = DEFAULT_OUT_DIR,
@@ -359,7 +354,6 @@ def convert_routed_local_pdfs(
             metadata_table=metadata_table,
             candidate_table=candidate_table,
             prescreen_table=prescreen_table,
-            literature_type_table=literature_type_table,
             domain_routing_table=domain_routing_table,
             fulltext_dir=fulltext_dir,
             paper_root=paper_root,
@@ -402,7 +396,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
@@ -438,7 +431,6 @@ def main() -> int:
         metadata_table=Path(args.metadata_table).resolve(),
         candidate_table=Path(args.candidate_table).resolve(),
         prescreen_table=Path(args.prescreen_table).resolve(),
-        literature_type_table=Path(args.literature_type_table).resolve(),
         domain_routing_table=Path(args.domain_routing_table).resolve() if args.domain_routing_table.strip() else None,
         fulltext_dir=Path(args.fulltext_dir).resolve(),
         out_dir=Path(args.out_dir).resolve(),

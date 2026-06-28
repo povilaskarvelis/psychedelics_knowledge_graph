@@ -38,7 +38,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         )
 
         self.assertIn("Context metadata:", prompt)
-        self.assertIn("Likely paper type: systematic review", prompt)
+        self.assertNotIn("Likely paper type:", prompt)
         self.assertIn("Publication labels: Journal Article | Systematic Review", prompt)
         self.assertNotIn("Corpus literature route:", prompt)
         self.assertNotIn("Derived paper-type label:", prompt)
@@ -53,14 +53,18 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertNotIn("Scope and screening:", prompt)
         self.assertNotIn("Return only compact JSON", prompt)
         self.assertIn("Evidence domain options:", SYSTEM_INSTRUCTION)
-        self.assertIn("Classify a scientific paper record into evidence domains", SYSTEM_INSTRUCTION)
+        self.assertIn("Classify a scientific paper record by scope, evidence domain, and paper type", SYSTEM_INSTRUCTION)
         self.assertIn("Base the classification on the supplied title and abstract", SYSTEM_INSTRUCTION)
-        self.assertIn("Set screening_decision after domain assignment:", SYSTEM_INSTRUCTION)
+        self.assertIn("these metadata can\nbe incomplete or misleading", SYSTEM_INSTRUCTION)
+        self.assertIn("Set paper_type_group, paper_type, and paper_type_labels as follows:", SYSTEM_INSTRUCTION)
+        self.assertIn("Set screening_decision after domain and paper-type assignment:", SYSTEM_INSTRUCTION)
         self.assertNotIn("First decide whether", SYSTEM_INSTRUCTION)
         self.assertNotIn("title and abstract as the primary", SYSTEM_INSTRUCTION)
         self.assertNotIn("Scope and screening:", SYSTEM_INSTRUCTION)
         self.assertNotIn("Treat substances, interventions, or exposures as in scope", SYSTEM_INSTRUCTION)
         self.assertNotIn("evidence extraction", SYSTEM_INSTRUCTION)
+        self.assertNotIn("for extraction", SYSTEM_INSTRUCTION)
+        self.assertNotIn("routing label", SYSTEM_INSTRUCTION)
         self.assertNotIn("corpus evidence", SYSTEM_INSTRUCTION)
         self.assertNotIn("closed compound list", SYSTEM_INSTRUCTION)
         self.assertNotIn("Set confidence", SYSTEM_INSTRUCTION)
@@ -72,6 +76,8 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertNotIn("You receive one paper record", SYSTEM_INSTRUCTION)
         self.assertNotIn("KG", SYSTEM_INSTRUCTION)
         self.assertNotIn("routing tags", SYSTEM_INSTRUCTION)
+        self.assertIn("Bibliometric, scientometric, citation-network", SYSTEM_INSTRUCTION)
+        self.assertIn('usually as paper_type\n  "review"', SYSTEM_INSTRUCTION)
 
     def test_methodological_validity_tags_are_valid_modifiers(self) -> None:
         self.assertIn("blinding_expectancy_validity", METHODOLOGICAL_VALIDITY_TAGS)
@@ -79,6 +85,10 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertNotIn("include_for_extraction", SCREENING_DECISIONS)
         self.assertIn("exclude_out_of_scope", SCREENING_DECISIONS)
         self.assertIn("screening_decision", DOMAIN_RESPONSE_SCHEMA["properties"])
+        self.assertIn("paper_type_group", DOMAIN_RESPONSE_SCHEMA["properties"])
+        self.assertIn("paper_type", DOMAIN_RESPONSE_SCHEMA["properties"])
+        self.assertIn("paper_type_labels", DOMAIN_RESPONSE_SCHEMA["properties"])
+        self.assertIn("paper_type_reason", DOMAIN_RESPONSE_SCHEMA["properties"])
         self.assertNotIn("confidence", DOMAIN_RESPONSE_SCHEMA["properties"])
         self.assertNotIn("needs_human_review", DOMAIN_RESPONSE_SCHEMA["properties"])
         self.assertNotIn("confidence", DOMAIN_RESPONSE_SCHEMA["required"])
@@ -95,6 +105,10 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                 "primary_domain": "general_topic",
                 "screening_decision": "include_in_scope",
                 "screening_reason": "Psychedelic-assisted therapy overview.",
+                "paper_type_group": "secondary_literature",
+                "paper_type": "review",
+                "paper_type_labels": ["review"],
+                "paper_type_reason": "The record synthesizes evidence.",
                 "methodological_validity_tags": [],
                 "rationale": "Clinical and intervention content are central.",
             }
@@ -109,6 +123,10 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             '"primary_domain":"brain_system",'
             '"screening_decision":"include_in_scope",'
             '"screening_reason":"The abstract reports neural and molecular readouts.",'
+            '"paper_type_group":"primary",'
+            '"paper_type":"primary",'
+            '"paper_type_labels":["primary"],'
+            '"paper_type_reason":"The abstract reports original readouts.",'
             '"methodological_validity_tags":[],'
             '"rationale":"The model started repeating and was truncated'
         )
@@ -116,6 +134,9 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertEqual(parsed["domain_tags"], ["molecular_pathway_readout", "brain_system"])
         self.assertEqual(parsed["primary_domain"], "brain_system")
         self.assertEqual(parsed["screening_decision"], "include_in_scope")
+        self.assertEqual(parsed["paper_type_group"], "primary")
+        self.assertEqual(parsed["paper_type"], "primary")
+        self.assertEqual(parsed["paper_type_labels"], ["primary"])
         self.assertEqual(parsed["methodological_validity_tags"], [])
         self.assertEqual(parsed["rationale"], "")
 
@@ -127,18 +148,14 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                     "datasets": "clinical",
                     "study_title": "Blinding in psychedelic trials",
                     "study_year": "2025",
-                    "source_family": "primary_or_unclear",
-                    "literature_route": "primary_literature_extraction",
-                    "secondary_source_types": "",
-                    "primary_secondary_source_type": "",
-                    "metadata_secondary_types": "",
-                    "title_abstract_secondary_types": "",
-                    "non_primary_flags": "",
-                    "literature_type_confidence": "medium",
                     "domain_tags": ["clinical_outcome"],
                     "primary_domain": "clinical_outcome",
                     "screening_decision": "include_in_scope",
                     "screening_reason": "The title and abstract are about psychedelic clinical evidence.",
+                    "paper_type_group": "primary",
+                    "paper_type": "primary",
+                    "paper_type_labels": ["primary"],
+                    "paper_type_reason": "Original clinical evidence.",
                     "methodological_validity_tags": ["blinding_expectancy_validity"],
                     "rationale": "The abstract evaluates blinding validity.",
                     "model": "gemini-3-flash-preview",
@@ -150,6 +167,9 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["domain_route"], "clinical_outcome")
         self.assertEqual(rows[0]["primary_domain"], "clinical_outcome")
+        self.assertEqual(rows[0]["paper_type_group"], "primary")
+        self.assertEqual(rows[0]["paper_type"], "primary")
+        self.assertEqual(rows[0]["source_family"], "primary")
         self.assertEqual(rows[0]["screening_decision"], "include_in_scope")
         self.assertEqual(rows[0]["screening_reason"], "The title and abstract are about psychedelic clinical evidence.")
         self.assertEqual(rows[0]["methodological_validity_tags"], "blinding_expectancy_validity")
@@ -165,18 +185,14 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                     "datasets": "clinical",
                     "study_title": "Psilocybin clinical outcomes",
                     "study_year": "2025",
-                    "source_family": "primary_or_unclear",
-                    "literature_route": "primary_literature_extraction",
-                    "secondary_source_types": "",
-                    "primary_secondary_source_type": "",
-                    "metadata_secondary_types": "",
-                    "title_abstract_secondary_types": "",
-                    "non_primary_flags": "",
-                    "literature_type_confidence": "medium",
                     "domain_tags": ["clinical_outcome"],
                     "primary_domain": "clinical_outcome",
                     "screening_decision": "include_for_extraction",
                     "screening_reason": "Legacy model output.",
+                    "paper_type_group": "secondary_literature",
+                    "paper_type": "systematic_review",
+                    "paper_type_labels": ["systematic_review"],
+                    "paper_type_reason": "Systematic review label.",
                     "methodological_validity_tags": [],
                     "rationale": "Clinical outcome evidence is central.",
                     "model": "gemini-3-flash-preview",
@@ -186,6 +202,37 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         )
 
         self.assertEqual(rows[0]["screening_decision"], "include_in_scope")
+        self.assertEqual(rows[0]["source_family"], "secondary_literature")
+        self.assertEqual(rows[0]["primary_secondary_source_type"], "systematic_review")
+
+    def test_meta_analysis_can_keep_systematic_review_label(self) -> None:
+        rows = route_rows_from_parsed(
+            [
+                {
+                    "doi": "10.example/meta",
+                    "datasets": "clinical",
+                    "study_title": "Psilocybin for depression: systematic review and meta-analysis",
+                    "study_year": "2025",
+                    "domain_tags": ["clinical_outcome"],
+                    "primary_domain": "clinical_outcome",
+                    "screening_decision": "include_in_scope",
+                    "screening_reason": "The abstract synthesizes clinical outcome evidence.",
+                    "paper_type_group": "secondary_literature",
+                    "paper_type": "meta_analysis",
+                    "paper_type_labels": ["systematic_review", "meta_analysis"],
+                    "paper_type_reason": "The title states systematic review and meta-analysis.",
+                    "methodological_validity_tags": [],
+                    "rationale": "Clinical synthesis.",
+                    "model": "gemini-3-flash-preview",
+                }
+            ],
+            generated_at_utc="2026-05-29T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["paper_type"], "meta_analysis")
+        self.assertEqual(rows[0]["paper_type_labels"], "systematic_review|meta_analysis")
+        self.assertEqual(rows[0]["primary_secondary_source_type"], "meta_analysis")
+        self.assertEqual(rows[0]["secondary_source_types"], "systematic_review|meta_analysis|review")
 
     def test_route_rows_preserve_exclusion_screening_decision(self) -> None:
         rows = route_rows_from_parsed(
@@ -195,18 +242,14 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                     "datasets": "clinical",
                     "study_title": "Non-psychedelic paper",
                     "study_year": "2025",
-                    "source_family": "primary_or_unclear",
-                    "literature_route": "primary_literature_extraction",
-                    "secondary_source_types": "",
-                    "primary_secondary_source_type": "",
-                    "metadata_secondary_types": "",
-                    "title_abstract_secondary_types": "",
-                    "non_primary_flags": "",
-                    "literature_type_confidence": "medium",
                     "domain_tags": [],
                     "primary_domain": "general_topic",
                     "screening_decision": "exclude_out_of_scope",
                     "screening_reason": "No in-scope psychedelic evidence in the abstract.",
+                    "paper_type_group": "non_primary_publication",
+                    "paper_type": "protocol",
+                    "paper_type_labels": ["protocol"],
+                    "paper_type_reason": "Protocol without results.",
                     "methodological_validity_tags": [],
                     "rationale": "Out of scope.",
                     "model": "gemini-3-flash-preview",
@@ -220,6 +263,8 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertFalse(rows[0]["retained_for_extraction_candidate"])
         self.assertEqual(rows[0]["screening_decision"], "exclude_out_of_scope")
         self.assertEqual(rows[0]["screening_reason"], "No in-scope psychedelic evidence in the abstract.")
+        self.assertEqual(rows[0]["source_family"], "non_primary_publication")
+        self.assertEqual(rows[0]["non_primary_flags"], "protocol")
 
     def test_selected_records_uses_extraction_candidate_flag_over_prescreen_retention(self) -> None:
         metadata = pd.DataFrame(
@@ -256,13 +301,83 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         records = selected_records(
             metadata,
             prescreen,
-            pd.DataFrame(),
             scoped_dois=set(),
             limit=0,
             completed=set(),
         )
 
         self.assertEqual([record["doi"] for record in records], ["10.example/extract"])
+
+    def test_selected_records_trusts_prescreen_retention(self) -> None:
+        metadata = pd.DataFrame(
+            [
+                {
+                    "doi": "10.example/keep",
+                    "study_title": "Psilocybin paper",
+                    "abstract": "Psilocybin was studied.",
+                    "publication_type": "Journal Article",
+                },
+                {
+                    "doi": "10.31219/osf.io/dy5cu_v1",
+                    "study_title": "Legal and Regulatory Barriers to Medical Psilocybin Use",
+                    "abstract": "This overview discusses medical psilocybin regulation.",
+                    "publication_type": "article",
+                },
+                {
+                    "doi": "10.3389/fnins.2025.1554049.s002",
+                    "study_title": "Table 2_Dose-dependent changes in brain activity following psilocybin.xlsx",
+                    "abstract": "Dose-dependent brain activity and connectivity are reported.",
+                    "publication_type": "dataset",
+                },
+                {
+                    "doi": "10.64898/2026.04.16.718915",
+                    "study_title": "Serotonergic Polypharmacology of 2-Halogenated Tryptamines",
+                    "abstract": "Novel tryptamines were tested.",
+                    "publication_type": "Journal Article | Preprint",
+                },
+            ]
+        )
+        prescreen = pd.DataFrame(
+            [
+                {
+                    "doi": "10.example/keep",
+                    "dataset": "mechanistic",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                },
+                {
+                    "doi": "10.31219/osf.io/dy5cu_v1",
+                    "dataset": "mechanistic",
+                    "prescreen_decision": "exclude",
+                    "retained_for_extraction_candidate": False,
+                    "prescreen_action": "exclude_preprint_or_unpublished",
+                },
+                {
+                    "doi": "10.3389/fnins.2025.1554049.s002",
+                    "dataset": "mechanistic",
+                    "prescreen_decision": "exclude",
+                    "retained_for_extraction_candidate": False,
+                    "prescreen_action": "exclude_non_evidence_artifact",
+                },
+                {
+                    "doi": "10.64898/2026.04.16.718915",
+                    "dataset": "mechanistic",
+                    "prescreen_decision": "exclude",
+                    "retained_for_extraction_candidate": False,
+                    "prescreen_action": "exclude_preprint_or_unpublished",
+                },
+            ]
+        )
+
+        records = selected_records(
+            metadata,
+            prescreen,
+            scoped_dois=set(),
+            limit=0,
+            completed=set(),
+        )
+
+        self.assertEqual([record["doi"] for record in records], ["10.example/keep"])
 
 
 if __name__ == "__main__":

@@ -38,7 +38,6 @@ def minimal_primary_result() -> dict:
             "needs_human_review": False,
             "evidence_location": "abstract",
             "evidence_locator": "Abstract",
-            "supporting_quote": quote,
         },
         "evidence_items": [
             {
@@ -61,8 +60,6 @@ def minimal_primary_result() -> dict:
                 "quantitative_value": "not_reported",
                 "quantitative_unit": "not_reported",
                 "effect_size_or_statistic": "not_reported",
-                "p_value": "not_reported",
-                "confidence_interval": "not_reported",
                 "statistical_support": "not_reported",
                 "study_design": "randomized controlled trial",
                 "study_system": "clinical",
@@ -72,7 +69,6 @@ def minimal_primary_result() -> dict:
                 "graph_exclusion_reason": "not_applicable",
                 "evidence_location": "abstract",
                 "evidence_locator": "Abstract",
-                "supporting_quote": quote,
                 "confidence": 0.8,
                 "needs_human_review": False,
             }
@@ -111,14 +107,13 @@ def test_minimal_domain_specific_clinical_primary_result_validates() -> None:
                 "sample_size": "not_reported",
                 "outcome_measure": "depression scores",
                 "clinical_endpoint": "depressive symptoms",
-                "timepoint": "not_reported",
+                "assessment_timepoint": "not_reported",
                 "result_direction": "positive",
                 "effect_or_statistic": "not_reported",
-                "p_value": "not_reported",
-                "confidence_interval": "not_reported",
                 "finding_summary": "Psilocybin was associated with improved depression scores.",
                 "evidence_location": "abstract",
-                "evidence_quote": "Participants receiving psilocybin showed greater reductions in depression scores."
+                "evidence_locator": "Abstract",
+                "study_design": "not_reported"
             }
         ],
         "warnings": ["abstract_only_limited_detail"]
@@ -147,3 +142,32 @@ def test_primary_result_direction_only_in_domains_with_clear_valence() -> None:
         else:
             assert "result_direction" not in item["required"], path.name
             assert "result_direction" not in item["properties"], path.name
+
+
+def test_primary_result_direction_uses_no_detected_effect_not_null() -> None:
+    for path in sorted(PRIMARY_SCHEMA_DIR.glob("*.schema.json")):
+        schema = json.loads(path.read_text(encoding="utf-8"))
+        item = schema["definitions"]["item"]
+        direction = item["properties"].get("result_direction", {})
+        enum = direction.get("enum", [])
+        if enum:
+            assert "no_detected_effect" in enum, path.name
+            assert "null" not in enum, path.name
+
+
+def test_primary_domain_schemas_do_not_request_low_value_fields() -> None:
+    for path in sorted(PRIMARY_SCHEMA_DIR.glob("*.schema.json")):
+        schema = json.loads(path.read_text(encoding="utf-8"))
+        item = schema["definitions"]["item"]
+
+        for field in ("p_value", "confidence_interval", "evidence_quote", "supporting_quote"):
+            assert field not in item["required"], path.name
+            assert field not in item["properties"], path.name
+
+
+def test_primary_intervention_context_excludes_low_yield_comparator_field() -> None:
+    schema = json.loads((PRIMARY_SCHEMA_DIR / "intervention_context.schema.json").read_text(encoding="utf-8"))
+    item = schema["definitions"]["item"]
+
+    assert "comparator_or_control" not in item["required"]
+    assert "comparator_or_control" not in item["properties"]

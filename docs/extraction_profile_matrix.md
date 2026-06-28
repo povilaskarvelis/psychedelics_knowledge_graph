@@ -26,8 +26,8 @@ These are not de-emphasized; they are separate paper-type profiles.
 
 | Domain | Paper Type | Article Text | Abstract Only |
 | --- | --- | --- | --- |
-| any selected domain | meta_analysis | `docs/extraction_profiles/paper_type/meta_analysis_article_text.md` + scope notes + `schema/synthesis_evidence.schema.json` | `docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md` + scope notes + `schema/synthesis_evidence.schema.json` |
-| any selected domain | structured_or_narrative_review | `docs/extraction_profiles/paper_type/review_article_text.md` + scope notes + `schema/review_coverage.schema.json` | `docs/extraction_profiles/paper_type/review_abstract_only.md` + scope notes + `schema/review_coverage.schema.json` |
+| any selected domain | meta_analysis | `docs/extraction_profiles/paper_type/meta_analysis_article_text.md` + scope notes + `schema/extraction_profiles/meta_analysis/<domain>.schema.json` | `docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md` + scope notes + the same domain schema |
+| any selected domain | structured_or_narrative_review | `docs/extraction_profiles/paper_type/review_article_text.md` + scope notes + `schema/extraction_profiles/review/<domain>.schema.json` | `docs/extraction_profiles/paper_type/review_abstract_only.md` + scope notes + the same domain schema |
 
 ## No-Extraction Routes
 

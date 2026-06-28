@@ -29,6 +29,7 @@ DEFAULT_TASKS_JSONL = ROOT / "data" / "processed" / "extraction" / "route_extrac
 DEFAULT_OUT_JSON = ROOT / "data" / "processed" / "extraction" / "meta_analysis_extraction_readiness_report.json"
 DEFAULT_OUT_CSV = ROOT / "data" / "processed" / "extraction" / "meta_analysis_extraction_readiness.csv"
 AUDIT_SCHEMA_VERSION = "meta_analysis_extraction_readiness_v1"
+META_ANALYSIS_SCHEMA_PROFILE = "meta_analysis_evidence_schema"
 
 CSV_FIELDS = [
     "route_id",
@@ -92,9 +93,9 @@ def is_meta_analysis_task(task: dict) -> bool:
     route_context = nested_dict(task, "route_context")
     return (
         normalize(contract.get("prompt_profile", "")) == "secondary_meta_analysis"
-        or normalize(contract.get("schema_profile", "")) == "synthesis_evidence_schema"
+        or normalize(contract.get("schema_profile", "")) == META_ANALYSIS_SCHEMA_PROFILE
         or normalize(route_context.get("prompt_profile", "")) == "secondary_meta_analysis"
-        or normalize(route_context.get("schema_profile", "")) == "synthesis_evidence_schema"
+        or normalize(route_context.get("schema_profile", "")) == META_ANALYSIS_SCHEMA_PROFILE
     )
 
 

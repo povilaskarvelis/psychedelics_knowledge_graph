@@ -41,6 +41,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
     def test_prisma_retrieval_reason_groups_pdf_validation_failures(self) -> None:
         self.assertEqual(prisma_retrieval_reason({"pdf_status": "invalid_pdf_existing"}), "pdf_validation_failed")
         self.assertEqual(prisma_retrieval_reason({"pdf_status": "invalid_pdf_content"}), "pdf_validation_failed")
+        self.assertEqual(prisma_retrieval_reason({"pdf_status": "unusable_pdf_image_only"}), "unusable_pdf_image_only")
 
     def test_pipeline_row_reuses_paper_level_retrieval_artifacts(self) -> None:
         props = pipeline_row_with_paper_artifacts(
@@ -141,6 +142,16 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
     def test_explicit_access_status_outranks_stale_local_pdf_path(self) -> None:
         self.assertEqual(strongest_pdf_status("not_open_access", "missing_local_pdf"), "not_open_access")
         self.assertEqual(strongest_pdf_status("missing_local_pdf", "not_open_access"), "not_open_access")
+
+    def test_unusable_image_only_pdf_outranks_stale_local_pdf_path(self) -> None:
+        self.assertEqual(
+            strongest_pdf_status("unusable_pdf_image_only", "missing_local_pdf"),
+            "unusable_pdf_image_only",
+        )
+        self.assertEqual(
+            strongest_pdf_status("missing_local_pdf", "unusable_pdf_image_only"),
+            "unusable_pdf_image_only",
+        )
 
     def test_slug_strips_markup_and_normalizes(self) -> None:
         self.assertEqual(slug("<i>N</i>-Benzyl 5-HT<sub>2A</sub>"), "n_benzyl_5_ht2a")

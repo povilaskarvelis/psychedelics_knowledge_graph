@@ -8,15 +8,18 @@ from jsonschema import Draft7Validator
 
 from pipeline.extract.route_extraction_profiles import (
     build_system_instruction,
-    load_schema,
+    load_schema_for_profile,
     profile_for_key,
+    schema_for_assigned_domain,
     schema_for_native,
     supported_profile_keys,
 )
 from pipeline.extract.run_route_extraction import (
+    DEFAULT_GEMINI_MODEL,
     build_contents,
     dry_run_report,
     inject_route_identity_fields,
+    model_for_task,
     parse_json_response,
     selected_tasks,
     text_depth_for_task,
@@ -30,7 +33,7 @@ def make_task(
     *,
     route_id: str = "route-meta",
     prompt_profile: str = "secondary_meta_analysis",
-    schema_profile: str = "synthesis_evidence_schema",
+    schema_profile: str = "meta_analysis_evidence_schema",
     task_status: str = "ready_for_model",
     source_type: str = "meta_analysis",
 ) -> dict:
@@ -67,7 +70,7 @@ def make_task(
             "prompt_profile": prompt_profile,
             "schema_profile": schema_profile,
             "domain_route": "clinical_outcome",
-            "output_family": "evidence_synthesis",
+            "output_family": "meta_analysis_evidence",
             "source_family": "secondary_literature",
             "source_type": source_type,
             "access_level": "full_text_seen",
@@ -100,6 +103,12 @@ def minimal_synthesis_result() -> dict:
         "study_doi": "",
         "domain_route": "uncertain",
         "source_type": "uncertain",
+        "text_depth": "abstract_only",
+        "source_text_provenance": {
+            "text_depth": "abstract_only",
+            "source_text_kind": "abstract_only",
+            "source_text_scope": "title and abstract supplied to the model",
+        },
         "extraction_status": "no_extractable_synthesis_result",
         "synthesis_assessment": {
             "is_in_scope": True,
@@ -114,50 +123,111 @@ def minimal_synthesis_result() -> dict:
             "reasoning_summary": "The supplied text identifies an in-scope meta-analysis.",
             "evidence_location": "abstract",
             "evidence_locator": "Abstract",
-            "supporting_quote": quote,
-        },
-        "search_methods": {
-            "databases_searched": "not_reported",
-            "search_start_date": "not_reported",
-            "search_end_date": "not_reported",
-            "last_search_date": "not_reported",
-            "search_strategy_summary": "not_reported",
-            "registration_id": "not_reported",
-            "protocol_doi": "not_reported",
-            "evidence_location": "not_reported",
-            "evidence_locator": "not_reported",
-            "supporting_quote": "not_reported",
-        },
-        "eligibility_criteria": {
-            "population_or_system": "not_reported",
-            "intervention_or_exposure": "not_reported",
-            "comparators": "not_reported",
-            "eligible_outcomes_or_entities": "not_reported",
-            "eligible_study_designs": "not_reported",
-            "date_or_language_limits": "not_reported",
-            "exclusion_criteria": "not_reported",
-            "evidence_location": "not_reported",
-            "evidence_locator": "not_reported",
-            "supporting_quote": "not_reported",
         },
         "included_evidence_summary": {
             "included_study_count": "5",
             "included_participant_count": "238",
             "included_experiment_or_assay_count": "not_applicable",
-            "included_studies_completeness": "not_enumerated",
-            "included_studies_not_enumerated_reason": "Study list is not present in supplied text.",
+            "included_evidence_type_summary": "randomized clinical trials",
             "study_year_range": "not_reported",
             "country_or_region_summary": "not_reported",
             "evidence_location": "abstract",
             "evidence_locator": "Abstract",
-            "supporting_quote": quote,
         },
-        "included_studies": [],
         "synthesis_results": [],
-        "risk_of_bias_assessments": [],
-        "certainty_assessments": [],
-        "authors_conclusions": [],
-        "coverage_gaps": [],
+        "extraction_warnings": [],
+    }
+
+
+def minimal_primary_result() -> dict:
+    return {
+        "schema_version": "wrong_version_to_be_overwritten",
+        "task_id": "",
+        "route_id": "",
+        "study_doi": "",
+        "domain_route": "uncertain",
+        "extraction_status": "extracted",
+        "items": [
+            {
+                "condition_or_population": "Adults with depression",
+                "study_design": "randomized clinical trial",
+                "compound_or_intervention": "psilocybin",
+                "comparator": "placebo",
+                "dose_or_regimen": "single dose",
+                "sample_size": "not_reported",
+                "outcome_measure": "MADRS",
+                "clinical_endpoint": "depressive symptoms",
+                "assessment_timepoint": "primary endpoint",
+                "result_direction": "positive",
+                "effect_or_statistic": "not_reported",
+                "finding_summary": "Psilocybin improved depressive symptoms versus placebo.",
+                "evidence_location": "abstract",
+                "evidence_locator": "Abstract",
+            }
+        ],
+        "warnings": [],
+    }
+
+
+def minimal_review_result() -> dict:
+    quote = "The review summarized clinical outcomes after psilocybin-assisted therapy."
+    return {
+        "schema_version": "wrong_version_to_be_overwritten",
+        "task_id": "",
+        "route_id": "",
+        "study_doi": "",
+        "domain_route": "uncertain",
+        "source_type": "uncertain",
+        "extraction_status": "extracted",
+        "review_assessment": {
+            "is_in_scope": True,
+            "review_type": "narrative review",
+            "has_extractable_scoped_coverage": True,
+            "relationship_domain": "clinical_outcome",
+            "population_or_system": "Adults with depression",
+            "primary_compounds_or_classes": "psilocybin",
+            "primary_entities": "depressive symptoms",
+            "needs_human_review": False,
+            "reasoning_summary": "The review discusses clinical outcomes in the selected domain.",
+            "evidence_location": "abstract",
+            "evidence_locator": "Abstract",
+        },
+        "coverage_items": [
+            {
+                "item_id": "C1",
+                "relationship_domain": "clinical_outcome",
+                "coverage_type": "reviews",
+                "coverage_focus": "substantial_topic",
+                "compound_or_class": "psilocybin",
+                "entity_type": "disorder",
+                "entity": "depression",
+                "population_or_system": "Adults with depression",
+                "reviewed_evidence_type": "clinical studies",
+                "summary_statement": "The review describes psilocybin-assisted therapy for depressive symptoms.",
+                "direction_or_tone": "supports",
+                "participant_or_sample_summary": "not_reported",
+                "key_limitations": "small studies",
+                "evidence_location": "abstract",
+                "evidence_locator": "Abstract",
+                "confidence": 0.8,
+                "needs_human_review": False,
+                "domain_result": {
+                    "condition_or_population": "Adults with depression",
+                    "compound_or_intervention": "psilocybin-assisted therapy",
+                    "clinical_topic": "efficacy",
+                    "clinical_endpoint": "depressive symptoms",
+                    "clinical_endpoint_category": "depressive symptom severity",
+                    "outcome_measure_or_instrument": "depression symptom scale",
+                    "comparator_or_context": "not_reported",
+                    "dose_or_regimen": "not_reported",
+                    "time_window": "not_reported",
+                    "response_or_remission_metric": "not_reported",
+                    "clinical_effect_or_statistic": "not_reported",
+                    "certainty_or_evidence_quality": "limited evidence",
+                    "review_interpretation": "The review coverage is about clinical outcomes.",
+                },
+            }
+        ],
         "extraction_warnings": [],
     }
 
@@ -175,6 +245,9 @@ def make_args(**overrides: object) -> SimpleNamespace:
         "start_index": 1,
         "limit": 0,
         "include_scaffold_profiles": False,
+        "model": "",
+        "env_file": "/tmp/missing.env",
+        "thinking_budget": 0,
     }
     args.update(overrides)
     return SimpleNamespace(**args)
@@ -182,35 +255,92 @@ def make_args(**overrides: object) -> SimpleNamespace:
 
 class RouteExtractionRunnerTest(unittest.TestCase):
     def test_profile_registry_resolves_meta_analysis_profile(self) -> None:
-        profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
+        profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
 
-        self.assertEqual(profile.output_schema_version, "synthesis_evidence_v1")
+        self.assertEqual(profile.output_schema_version, "meta_analysis_evidence_v1")
         self.assertTrue(profile.prompt_path.exists())
         self.assertTrue(profile.schema_path.exists())
         self.assertTrue(
             any(
                 row["prompt_profile"] == "secondary_meta_analysis"
-                and row["schema_profile"] == "synthesis_evidence_schema"
+                and row["schema_profile"] == "meta_analysis_evidence_schema"
                 for row in supported_profile_keys()
             )
         )
 
     def test_system_instruction_can_use_prompt_or_native_schema_mode(self) -> None:
-        profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
-        schema = load_schema(profile.schema_path)
+        profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+        schema = load_schema_for_profile(profile, "clinical_outcome")
 
-        prompt_mode = build_system_instruction(profile, schema, "prompt")
-        native_mode = build_system_instruction(profile, schema, "native")
+        prompt_mode = build_system_instruction(profile, schema, "prompt", domain_route="clinical_outcome")
+        native_mode = build_system_instruction(profile, schema, "native", domain_route="clinical_outcome")
         native_schema = schema_for_native(schema)
 
         self.assertIn("Secondary Meta-Analysis Article-Text Extraction", prompt_mode)
-        self.assertIn("synthesis_evidence_v1", prompt_mode)
+        self.assertIn("meta_analysis_evidence_v1", prompt_mode)
+        self.assertIn("domain_result", prompt_mode)
         self.assertIn("response_json_schema", native_mode)
         self.assertNotIn("definitions", native_schema)
         self.assertIn("properties", native_schema)
 
     def test_task_text_depth_maps_full_text_access_to_article_text(self) -> None:
         self.assertEqual(text_depth_for_task(make_task()), "article_text")
+
+    def test_model_for_task_uses_article_text_model_when_configured(self) -> None:
+        task = make_task()
+
+        model = model_for_task(
+            make_args(),
+            task,
+            {
+                "GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL": "gemini-3-flash-preview",
+                "GEMINI_ABSTRACT_EXTRACTION_MODEL": "gemini-3-flash-preview",
+                "GEMINI_MODEL": "gemini-2.5-flash",
+            },
+        )
+
+        self.assertEqual(model, "gemini-3-flash-preview")
+
+    def test_model_for_task_uses_abstract_model_when_configured(self) -> None:
+        task = make_task()
+        task["text_source"]["access_level"] = "abstract_only"
+        task["text_source"]["mode"] = "abstract"
+
+        model = model_for_task(
+            make_args(),
+            task,
+            {
+                "GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL": "gemini-3-flash-preview",
+                "GEMINI_ABSTRACT_EXTRACTION_MODEL": "gemini-3-flash-preview",
+                "GEMINI_MODEL": "gemini-2.5-flash",
+            },
+        )
+
+        self.assertEqual(model, "gemini-3-flash-preview")
+
+    def test_model_for_task_explicit_cli_model_overrides_text_depth_config(self) -> None:
+        model = model_for_task(
+            make_args(model="gemini-custom"),
+            make_task(),
+            {"GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL": "gemini-3-flash-preview"},
+        )
+
+        self.assertEqual(model, "gemini-custom")
+
+    def test_model_for_task_falls_back_to_generic_extraction_model(self) -> None:
+        model = model_for_task(
+            make_args(),
+            make_task(),
+            {"GEMINI_ROUTE_EXTRACTION_MODEL": "gemini-route-default"},
+        )
+
+        self.assertEqual(model, "gemini-route-default")
+
+    def test_model_for_task_defaults_to_gemini_3_flash_preview(self) -> None:
+        model = model_for_task(make_args(), make_task(), {})
+
+        self.assertEqual(model, "gemini-3-flash-preview")
+        self.assertEqual(DEFAULT_GEMINI_MODEL, "gemini-3-flash-preview")
 
     def test_model_payload_uses_plain_extraction_task_language(self) -> None:
         contents = build_contents(make_task())
@@ -261,6 +391,37 @@ class RouteExtractionRunnerTest(unittest.TestCase):
         self.assertIn("ARTICLE_TEXT", contents)
         self.assertIn("The article text reports a pooled estimate for psilocybin.", contents)
 
+    def test_model_payload_collapses_table_layout_whitespace(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            packet_path = Path(tmpdir) / "packets.jsonl"
+            packet_path.write_text(
+                json.dumps(
+                    {
+                        "packet_id": "disorder:10.1000/meta",
+                        "dataset": "disorder",
+                        "study_doi": "10.1000/meta",
+                        "llm_chunks": [
+                            {
+                                "chunk_id": "C001",
+                                "heading": "Results",
+                                "text": "p = 0.04\t\t\t\t\t\tlarge gap\n\n\n\nnext line",
+                            }
+                        ],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            task = make_task()
+            task["text_source"]["packet_source_path"] = str(packet_path)
+            task["text_source"]["packet_id"] = "disorder:10.1000/meta"
+
+            contents = build_contents(task)
+
+        self.assertIn("p = 0.04 large gap\n\nnext line", contents)
+        self.assertNotIn("\t", contents)
+        self.assertNotIn("\n\n\n", contents)
+
     def test_selected_tasks_defaults_to_ready_supported_profiles(self) -> None:
         tasks = [
             make_task(route_id="route-meta"),
@@ -288,22 +449,166 @@ class RouteExtractionRunnerTest(unittest.TestCase):
         self.assertEqual(report["selected_tasks"][1]["route_id"], "route-primary")
 
     def test_inject_identity_fields_makes_minimal_result_schema_valid(self) -> None:
-        profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
-        schema = load_schema(profile.schema_path)
+        profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+        schema = load_schema_for_profile(profile, "clinical_outcome")
         result = inject_route_identity_fields(minimal_synthesis_result(), make_task(), profile)
         errors = sorted(Draft7Validator(schema).iter_errors(result), key=lambda error: list(error.path))
 
         self.assertEqual(errors, [], [error.message for error in errors])
-        self.assertEqual(result["schema_version"], "synthesis_evidence_v1")
+        self.assertEqual(result["schema_version"], "meta_analysis_evidence_v1")
         self.assertEqual(result["task_id"], "route-meta")
         self.assertEqual(result["study_doi"], "10.1000/meta")
         self.assertEqual(result["domain_route"], "clinical_outcome")
         self.assertEqual(result["source_type"], "meta_analysis")
+        self.assertEqual(result["text_depth"], "article_text")
+        self.assertEqual(result["source_text_provenance"]["source_text_kind"], "article_text")
+
+    def test_inject_identity_fields_makes_primary_result_schema_valid(self) -> None:
+        profile = profile_for_key("primary_clinical", "primary_evidence_schema")
+        schema = load_schema_for_profile(profile, "clinical_outcome")
+        task = make_task(
+            route_id="route-primary",
+            prompt_profile="primary_clinical",
+            schema_profile="primary_evidence_schema",
+            source_type="primary_or_unclear",
+        )
+        task["route_context"]["domain_route"] = "clinical_outcome"
+        task["extraction_contract"]["domain_route"] = "clinical_outcome"
+        result = inject_route_identity_fields(minimal_primary_result(), task, profile)
+        errors = sorted(Draft7Validator(schema).iter_errors(result), key=lambda error: list(error.path))
+
+        self.assertEqual(errors, [], [error.message for error in errors])
+        self.assertEqual(result["schema_version"], "primary_clinical_outcome_v1")
+        self.assertEqual(result["paper_type"], "primary_study")
+        self.assertEqual(result["text_depth"], "article_text")
+        self.assertEqual(result["source_type"], "primary_or_unclear")
+
+    def test_inject_identity_fields_makes_review_result_schema_valid(self) -> None:
+        profile = profile_for_key("secondary_review_coverage", "review_coverage_schema")
+        schema = load_schema_for_profile(profile, "clinical_outcome")
+        task = make_task(
+            route_id="route-review",
+            prompt_profile="secondary_review_coverage",
+            schema_profile="review_coverage_schema",
+            source_type="review",
+        )
+        result = inject_route_identity_fields(minimal_review_result(), task, profile)
+        errors = sorted(Draft7Validator(schema).iter_errors(result), key=lambda error: list(error.path))
+
+        self.assertEqual(errors, [], [error.message for error in errors])
+        self.assertEqual(result["schema_version"], "review_coverage_v1")
+        self.assertEqual(result["source_type"], "review")
+        self.assertEqual(result["text_depth"], "article_text")
+        self.assertEqual(result["source_text_provenance"]["source_text_kind"], "article_text")
+
+    def test_inject_identity_fields_enforces_secondary_assigned_domain(self) -> None:
+        profile = profile_for_key("secondary_review_coverage", "review_coverage_schema")
+        schema = schema_for_assigned_domain(load_schema_for_profile(profile, "pharmacokinetics_exposure"), "pharmacokinetics_exposure")
+        task = make_task(
+            route_id="route-review",
+            prompt_profile="secondary_review_coverage",
+            schema_profile="review_coverage_schema",
+            source_type="review",
+        )
+        task["route_context"]["domain_route"] = "pharmacokinetics_exposure"
+        task["extraction_contract"]["domain_route"] = "pharmacokinetics_exposure"
+        raw_result = minimal_review_result()
+        raw_result["review_assessment"]["relationship_domain"] = "pharmacokinetics"
+        raw_result["coverage_items"][0]["relationship_domain"] = "pharmacokinetics"
+        raw_result["coverage_items"][0]["entity_type"] = "pharmacokinetic_parameter"
+        raw_result["coverage_items"][0]["entity"] = "bioavailability"
+        raw_result["coverage_items"][0]["domain_result"] = {
+            "compound_or_analyte": "ketamine",
+            "primary_graph_anchor_kind": "pharmacokinetic_parameter",
+            "exposure_evidence_category": "bioavailability",
+            "analyte_type": "parent compound",
+            "metabolic_or_transport_target": "not_reported",
+            "metabolic_or_transport_pathway": "not_reported",
+            "metabolite_or_analyte": "not_reported",
+            "pk_or_exposure_parameter": "bioavailability",
+            "value": "16-24",
+            "unit": "percent",
+            "dose_route_or_formulation": "oral",
+            "route_of_administration": "oral",
+            "population_or_system": "human",
+            "comparator_or_reference": "not_reported",
+            "matrix_or_sample": "plasma",
+            "review_interpretation": "The review discusses oral ketamine bioavailability.",
+        }
+
+        result = inject_route_identity_fields(raw_result, task, profile)
+        errors = sorted(Draft7Validator(schema).iter_errors(result), key=lambda error: list(error.path))
+
+        self.assertEqual(errors, [], [error.message for error in errors])
+        self.assertEqual(result["review_assessment"]["relationship_domain"], "pharmacokinetics_exposure")
+        self.assertEqual(result["coverage_items"][0]["relationship_domain"], "pharmacokinetics_exposure")
+
+    def test_inject_identity_fields_coerces_non_directional_meta_analysis_result_direction(self) -> None:
+        profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+        schema = schema_for_assigned_domain(load_schema_for_profile(profile, "molecular_target"), "molecular_target")
+        task = make_task(route_id="route-meta")
+        task["route_context"]["domain_route"] = "molecular_target"
+        task["extraction_contract"]["domain_route"] = "molecular_target"
+        raw_result = minimal_synthesis_result()
+        raw_result["synthesis_assessment"]["relationship_domain"] = "target_binding"
+        raw_result["synthesis_results"] = [
+            {
+                "result_id": "R1",
+                "relationship_domain": "target_binding",
+                "entity_type": "target",
+                "entity": "5-HT2A receptor",
+                "compound_or_class": "psilocybin",
+                "population_or_system": "in vitro assays",
+                "intervention_or_exposure": "psilocybin",
+                "comparator": "not_reported",
+                "outcome_or_endpoint": "target binding",
+                "outcome_measure": "binding affinity",
+                "timepoint_or_window": "not_applicable",
+                "effect_metric": "not_reported",
+                "effect_size": "not_reported",
+                "study_count": "not_reported",
+                "participant_count": "not_applicable",
+                "result_direction": "positive",
+                "result_role": "main_result",
+                "authors_interpretation": "The review describes target binding.",
+                "evidence_location": "abstract",
+                "evidence_locator": "Abstract",
+                "confidence": 0.8,
+                "needs_human_review": False,
+                "domain_result": {
+                    "compound": "psilocybin",
+                    "target": "5-HT2A receptor",
+                    "target_type": "receptor",
+                    "assay_type": "binding assay",
+                    "system": "in vitro",
+                    "species_or_cell_line": "not_reported",
+                    "comparator_or_reference": "not_reported",
+                    "action_type": "agonist",
+                    "metric": "binding affinity",
+                    "value": "not_reported",
+                    "synthesis_interpretation": "The synthesis discusses 5-HT2A receptor binding.",
+                },
+            }
+        ]
+
+        result = inject_route_identity_fields(raw_result, task, profile)
+        errors = sorted(Draft7Validator(schema).iter_errors(result), key=lambda error: list(error.path))
+
+        self.assertEqual(errors, [], [error.message for error in errors])
+        self.assertEqual(result["synthesis_assessment"]["relationship_domain"], "molecular_target")
+        self.assertEqual(result["synthesis_results"][0]["relationship_domain"], "molecular_target")
+        self.assertEqual(result["synthesis_results"][0]["result_direction"], "not_applicable")
 
     def test_parse_json_response_handles_fenced_json(self) -> None:
         parsed, method = parse_json_response('```json\\n{"ok": true,}\\n```')
 
         self.assertEqual(parsed, {"ok": True})
+        self.assertEqual(method, "local_cleanup")
+
+    def test_parse_json_response_repairs_literal_control_chars_inside_strings(self) -> None:
+        parsed, method = parse_json_response('{"text": "line one\n\tline two"}')
+
+        self.assertEqual(parsed, {"text": "line one\n\tline two"})
         self.assertEqual(method, "local_cleanup")
 
     def test_dry_run_cli_does_not_require_api_key(self) -> None:
@@ -337,7 +642,7 @@ class RouteExtractionRunnerTest(unittest.TestCase):
                     overwrite=False,
                     temperature=0.0,
                     max_output_tokens=0,
-                    thinking_budget=None,
+                    thinking_budget=0,
                     sleep_sec=0.0,
                 )
             )

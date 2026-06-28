@@ -3,38 +3,141 @@
   "title": "Primary Intervention Context Extraction",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "task_id", "route_id", "study_doi", "domain_route", "paper_type", "text_depth", "extraction_status", "items", "warnings"],
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "paper_type",
+    "text_depth",
+    "extraction_status",
+    "items",
+    "warnings"
+  ],
   "properties": {
-    "schema_version": {"type": "string", "enum": ["primary_intervention_context_v1"]},
-    "task_id": {"type": "string"},
-    "source_type": {"type": "string"},
-    "route_id": {"type": "string"},
-    "study_doi": {"type": "string"},
-    "domain_route": {"type": "string", "const": "intervention_context"},
-    "paper_type": {"type": "string", "enum": ["primary_study"]},
-    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
-    "extraction_status": {"type": "string", "enum": ["extracted", "no_extractable_scoped_evidence", "wrong_source_type", "not_relevant", "human_review"]},
-    "items": {"type": "array", "items": {"$ref": "#/definitions/item"}},
-    "warnings": {"type": "array", "items": {"type": "string"}}
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "primary_intervention_context_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "route_id": {
+      "type": "string"
+    },
+    "study_doi": {
+      "type": "string"
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "intervention_context"
+    },
+    "paper_type": {
+      "type": "string",
+      "enum": [
+        "primary_study"
+      ]
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_scoped_evidence",
+        "wrong_source_type",
+        "not_relevant",
+        "human_review"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/item"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_type": {
+      "type": "string"
+    }
   },
   "definitions": {
     "item": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["compound_or_intervention", "context_component", "component_type", "population_or_setting", "delivery_format", "comparator_or_control", "relationship_to_outcome_or_safety", "dose_or_session_context", "timepoint_or_phase", "finding_summary", "evidence_location", "evidence_quote"],
+      "required": [
+        "compound_or_intervention",
+        "context_component",
+        "component_type",
+        "population_or_setting",
+        "sample_size",
+        "study_design",
+        "delivery_format",
+        "relationship_to_outcome_or_safety",
+        "dose_or_session_context",
+        "timepoint_or_phase",
+        "finding_summary",
+        "effect_or_statistic",
+        "evidence_location",
+        "evidence_locator"
+      ],
       "properties": {
-        "compound_or_intervention": {"type": "string"},
-        "context_component": {"type": "string"},
-        "component_type": {"type": "string"},
-        "population_or_setting": {"type": "string"},
-        "delivery_format": {"type": "string"},
-        "comparator_or_control": {"type": "string"},
-        "relationship_to_outcome_or_safety": {"type": "string"},
-        "dose_or_session_context": {"type": "string"},
-        "timepoint_or_phase": {"type": "string"},
-        "finding_summary": {"type": "string"},
-        "evidence_location": {"type": "string"},
-        "evidence_quote": {"type": "string"}
+        "compound_or_intervention": {
+          "type": "string"
+        },
+        "context_component": {
+          "type": "string"
+        },
+        "component_type": {
+          "type": "string"
+        },
+        "population_or_setting": {
+          "type": "string"
+        },
+        "sample_size": {
+          "type": "string"
+        },
+        "study_design": {
+          "type": "string"
+        },
+        "delivery_format": {
+          "type": "string"
+        },
+        "relationship_to_outcome_or_safety": {
+          "type": "string"
+        },
+        "dose_or_session_context": {
+          "type": "string"
+        },
+        "timepoint_or_phase": {
+          "type": "string",
+          "description": "The intervention phase or assessment time for the finding, such as preparation, dosing, integration, post-treatment, or follow-up. Use the paper's wording when available."
+        },
+        "finding_summary": {
+          "type": "string"
+        },
+        "effect_or_statistic": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "type": "string"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
       }
     }
   }

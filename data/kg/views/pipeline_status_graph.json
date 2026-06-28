@@ -2,52 +2,52 @@
   "contract_version": "0.1",
   "counts": {
     "candidate:best_extraction_access_tier": {
-      "abstract_only": 9040,
-      "full_text_available": 7570,
+      "abstract_only": 9016,
+      "full_text_available": 7568,
       "local_pdf_available": 3,
-      "pdf_download_url_available": 1032,
-      "unknown": 38712
+      "pdf_download_url_available": 1031,
+      "unknown": 38739
     },
     "candidate:extraction_route_action": {
-      "exclude_after_model_screen": 3562,
-      "extract_from_abstract_only": 6673,
-      "extract_from_full_text": 6962,
-      "skip_or_context_only": 448,
-      "unknown": 38712
+      "exclude_after_model_screen": 3639,
+      "extract_from_abstract_only": 6619,
+      "extract_from_full_text": 6916,
+      "skip_or_context_only": 444,
+      "unknown": 38739
     },
     "candidate:extraction_route_status": {
-      "context_only_or_skip": 448,
-      "excluded_after_domain_screen": 3562,
-      "not_retained_for_extraction": 37994,
-      "preprint_hold": 718,
-      "ready_for_abstract_extraction": 6673,
-      "ready_for_article_text_extraction": 6962
+      "context_only_or_skip": 444,
+      "excluded_after_domain_screen": 3639,
+      "not_retained_for_extraction": 38739,
+      "ready_for_abstract_extraction": 6619,
+      "ready_for_article_text_extraction": 6916
     },
     "candidate:extraction_schema_profiles": {
-      "context_only_schema": 448,
-      "no_extraction_schema": 3562,
-      "primary_evidence_schema": 10462,
-      "recommendation_consensus_schema": 21,
-      "review_coverage_schema": 2726,
-      "synthesis_evidence_schema": 426,
-      "unknown": 38712
+      "context_only_schema": 444,
+      "meta_analysis_evidence_schema": 425,
+      "no_extraction_schema": 3639,
+      "primary_evidence_schema": 10228,
+      "recommendation_consensus_schema": 19,
+      "review_coverage_schema": 2863,
+      "unknown": 38739
     },
     "candidate:literature_source_family": {
-      "non_primary_publication": 3855,
-      "primary_or_unclear": 40595,
-      "secondary_literature": 11905,
-      "unknown": 2
+      "non_primary_publication": 500,
+      "primary_or_unclear": 13780,
+      "secondary_literature": 4083,
+      "unknown": 37994
     },
     "candidate:prescreen_action": {
-      "exclude_missing_abstract": 5532,
-      "exclude_non_evidence_artifact": 2545,
+      "exclude_missing_abstract": 4980,
+      "exclude_non_evidence_artifact": 2975,
       "exclude_non_paper_container": 26,
-      "exclude_obvious_irrelevant": 29891,
-      "retain_for_extraction_candidate": 18363
+      "exclude_obvious_irrelevant": 29021,
+      "exclude_preprint_or_unpublished": 1737,
+      "retain_for_extraction_candidate": 17618
     },
     "candidate:prescreen_decision": {
-      "exclude": 37994,
-      "retain": 18363
+      "exclude": 38739,
+      "retain": 17618
     }
   },
   "current_stage": "papers_selected_for_finding_extraction",
@@ -75,7 +75,7 @@
     },
     "projection_report": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/projection_report.json"
   },
-  "generated_at": "2026-06-20T22:00:04.894138+00:00",
+  "generated_at": "2026-06-27T19:09:50.799862+00:00",
   "kg_claim_status": {
     "claim_access_rows_by_dataset": {
       "disorder": {
@@ -115,8 +115,8 @@
       "label": "Candidate paper pipeline",
       "metrics": {
         "finding_counts_available": false,
-        "selected_extraction_route_assignments": 32692,
-        "selected_papers": 13635
+        "selected_extraction_route_assignments": 32439,
+        "selected_papers": 13535
       },
       "rows": [
         {
@@ -140,38 +140,38 @@
       ],
       "side_boxes": {
         "extraction_input_split": {
-          "count": 13635,
+          "count": 13535,
           "label": "Extraction input split",
-          "note": "32,692 route/profile assignments are queued across selected papers. Finding-level counts will be added after extraction outputs are finalized.",
+          "note": "32,439 route/profile assignments are queued across selected papers. Finding-level counts will be added after extraction outputs are finalized.",
           "reasons": [
             {
-              "count": 6962,
+              "count": 6916,
               "key": "ready_for_article_text_extraction",
               "label": "Article-text extraction set"
             },
             {
-              "count": 6673,
+              "count": 6619,
               "key": "ready_for_abstract_extraction",
               "label": "Abstract-only extraction set"
             }
           ]
         },
         "records_excluded": {
-          "count": 37994,
+          "count": 38739,
           "label": "Not retained after prescreen",
           "reasons": [
             {
-              "count": 29891,
+              "count": 29021,
               "key": "exclude_obvious_irrelevant",
               "label": "No in-scope title/abstract signal"
             },
             {
-              "count": 5532,
+              "count": 4980,
               "key": "exclude_missing_abstract",
               "label": "No abstract available"
             },
             {
-              "count": 2545,
+              "count": 2975,
               "key": "exclude_non_evidence_artifact",
               "label": "Non-evidence artifact"
             },
@@ -179,6 +179,11 @@
               "count": 26,
               "key": "exclude_non_paper_container",
               "label": "Non-paper container"
+            },
+            {
+              "count": 1737,
+              "key": "exclude_preprint_or_unpublished",
+              "label": "Preprint or unpublished posted content"
             }
           ]
         },
@@ -188,21 +193,16 @@
           "reasons": []
         },
         "route_not_selected": {
-          "count": 4728,
+          "count": 4083,
           "label": "Not selected after routing",
           "reasons": [
             {
-              "count": 3562,
+              "count": 3639,
               "key": "excluded_after_domain_screen",
               "label": "Excluded after domain screen"
             },
             {
-              "count": 718,
-              "key": "preprint_hold",
-              "label": "Preprint held for published-version check"
-            },
-            {
-              "count": 448,
+              "count": 444,
               "key": "context_only_or_skip",
               "label": "Context-only or skip route"
             }
@@ -211,11 +211,11 @@
       },
       "steps": {
         "extraction_selected": {
-          "count": 13635,
+          "count": 13535,
           "label": "Papers selected for finding extraction"
         },
         "prescreen_retained": {
-          "count": 18363,
+          "count": 17618,
           "label": "Records retained after prescreen"
         },
         "records_identified": {

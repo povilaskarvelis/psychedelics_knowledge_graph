@@ -151,7 +151,7 @@ poster abstract, book review, or nonstandard source, record
 
 New full-text artifacts should be written to
 `data/processed/fulltext/articles/`. This neutral directory replaces the old
-`fulltext/disorder/` and `fulltext/mechanistic/` split for the route-native
+`fulltext/disorder/` and `fulltext/mechanistic/` split for the route-table-based
 pipeline. Existing artifacts can be copied into the canonical store without
 re-extracting PDFs:
 
@@ -319,22 +319,19 @@ are modified by this stage.
 
 ## Article Text Inputs For Extraction
 
-After PDF conversion, build JSONL article text inputs from the preserved GROBID
-TEI plus paper-library metadata:
+After PDF conversion, build JSONL article text inputs from the route table and
+the canonical `fulltext/articles/` artifacts:
 
 ```bash
-python pipeline/fulltext/build_llm_evidence_packets.py \
-  --dataset all \
-  --section-selection-strategy all_sections
+python pipeline/fulltext/build_article_text_inputs.py
 ```
 
 Outputs:
 
-- `data/processed/fulltext/llm_packets_disorder.jsonl`
-- `data/processed/fulltext/llm_packets_mechanistic.jsonl`
-- `data/processed/fulltext/llm_packets_disorder_report.json`
-- `data/processed/fulltext/llm_packets_mechanistic_report.json`
-- `data/processed/fulltext/llm_packets_run_report.json`
+- `data/processed/extraction/fulltext_packets.jsonl`
+- `data/processed/extraction/article_text_inputs_report.json`
+- `data/processed/extraction/article_text_inputs_audit.csv`
+- `data/processed/extraction/article_text_inputs_audit.md`
 
 Each JSONL record includes DOI-level metadata, source-type hints from
 publication metadata, selected reconstructed TEI sections, tables, figures,
@@ -343,32 +340,26 @@ uses raw extracted TEI, not truncated section snippets, so it is the preferred
 input layer for model extraction.
 
 Article text does not mean the whole paper. It means the text we choose to give
-the model for an article-text extraction task. Use
-`--section-selection-strategy` to choose that text:
+the model for an article-text extraction task. The default route-table policy is:
 
 - `primary_study`: for primary studies. Keeps title/abstract metadata,
   methods/results-like sections, tables, and marker-matched domain evidence
   while dropping most introduction, discussion, conclusion, references, and
   secondary-review body text.
-- `meta_analysis`: for meta-analyses and quantitative evidence syntheses. Keeps
-  synthesis methods/results, risk-of-bias/certainty sections, tables, figures,
-  and references so included studies and pooled effects can be extracted.
-- `review`: for structured or narrative reviews. Keeps scope, methods,
-  findings, limitations, gaps, tables, and selected figures while omitting
-  references.
-- `all_sections`: preserves all extracted sections. Use this for inspection or
-  debugging, not as the default extraction input.
+- `all_sections`: for meta-analyses, structured reviews, and narrative reviews.
+  This is intentionally broad because the relevant details can appear outside
+  standardized methods/results headings in secondary literature.
 
 For compatibility, the JSON output still stores the corresponding internal
-`packet_profile` values: `primary_empirical`, `secondary_synthesis`,
-`review_coverage`, or `full`.
+`packet_profile` values: `primary_empirical` for primary studies and `full` for
+secondary literature.
 
 The older builder CLI still exposes `--dataset` for compatibility with
 pre-route migration inputs. Do not use that split-source mode for new
-route-native extraction runs; use route-derived queues and the canonical
-`fulltext/articles/` store instead.
+route-table extraction runs; use `build_article_text_inputs.py` and the
+canonical `fulltext/articles/` store instead.
 
-For a small route-native section-selection audit:
+For a small route-table section-selection audit:
 
 ```bash
 python pipeline/fulltext/audit_article_text_inputs.py \
@@ -377,13 +368,6 @@ python pipeline/fulltext/audit_article_text_inputs.py \
 
 `lean_primary` remains accepted as a deprecated compatibility alias, but new
 commands should use `primary_study`.
-
-For a meta-analysis pilot, first export the route-derived DOI queue:
-
-```bash
-python pipeline/extract/export_packet_profile_queues.py \
-  --section-selection-strategy meta_analysis
-```
 
 ## Provenance Repair Report
 

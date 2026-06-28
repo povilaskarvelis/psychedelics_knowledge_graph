@@ -10,16 +10,19 @@
     "study_doi",
     "domain_route",
     "source_type",
+    "text_depth",
+    "source_text_provenance",
     "extraction_status",
     "review_assessment",
     "coverage_items",
-    "evidence_gaps",
     "extraction_warnings"
   ],
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["review_coverage_v1"]
+      "enum": [
+        "review_coverage_v1"
+      ]
     },
     "task_id": {
       "type": "string",
@@ -68,17 +71,21 @@
         "$ref": "#/definitions/coverage_item"
       }
     },
-    "evidence_gaps": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/evidence_gap"
-      }
-    },
     "extraction_warnings": {
       "type": "array",
       "items": {
         "type": "string"
       }
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
     }
   },
   "definitions": {
@@ -138,8 +145,7 @@
         "needs_human_review",
         "reasoning_summary",
         "evidence_location",
-        "evidence_locator",
-        "supporting_quote"
+        "evidence_locator"
       ],
       "properties": {
         "is_in_scope": {
@@ -174,9 +180,6 @@
         },
         "evidence_locator": {
           "type": "string"
-        },
-        "supporting_quote": {
-          "type": "string"
         }
       }
     },
@@ -187,6 +190,7 @@
         "item_id",
         "relationship_domain",
         "coverage_type",
+        "coverage_focus",
         "compound_or_class",
         "entity_type",
         "entity",
@@ -194,12 +198,10 @@
         "reviewed_evidence_type",
         "summary_statement",
         "direction_or_tone",
-        "study_count",
         "participant_or_sample_summary",
         "key_limitations",
         "evidence_location",
         "evidence_locator",
-        "supporting_quote",
         "confidence",
         "needs_human_review"
       ],
@@ -223,22 +225,36 @@
             "uncertain"
           ]
         },
+        "coverage_focus": {
+          "type": "string",
+          "enum": [
+            "main_focus",
+            "substantial_topic",
+            "brief_context",
+            "unclear"
+          ],
+          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+        },
         "compound_or_class": {
           "type": "string"
         },
         "entity_type": {
           "type": "string",
           "enum": [
+            "brain_region",
+            "brain_network",
+            "neural_circuit",
+            "biomarker_readout",
             "disorder",
             "symptom_or_outcome",
             "safety_event",
             "target",
             "pathway_process",
             "molecular_readout",
-            "brain_region_or_network",
             "cognitive_behavioral_construct",
             "subjective_experience_construct",
             "pharmacokinetic_parameter",
+            "compound",
             "intervention_component",
             "public_health_measure",
             "general_topic",
@@ -261,9 +277,6 @@
         "direction_or_tone": {
           "$ref": "#/definitions/direction_or_tone"
         },
-        "study_count": {
-          "type": "string"
-        },
         "participant_or_sample_summary": {
           "type": "string"
         },
@@ -276,9 +289,6 @@
         "evidence_locator": {
           "type": "string"
         },
-        "supporting_quote": {
-          "type": "string"
-        },
         "confidence": {
           "type": "number",
           "minimum": 0,
@@ -289,30 +299,30 @@
         }
       }
     },
-    "evidence_gap": {
+    "source_text_provenance": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "gap_type",
-        "gap_text",
-        "evidence_location",
-        "evidence_locator",
-        "supporting_quote"
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
       ],
       "properties": {
-        "gap_type": {
-          "type": "string"
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
         },
-        "gap_text": {
-          "type": "string"
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
         },
-        "evidence_location": {
-          "$ref": "#/definitions/evidence_location"
-        },
-        "evidence_locator": {
-          "type": "string"
-        },
-        "supporting_quote": {
+        "source_text_scope": {
           "type": "string"
         }
       }

@@ -216,6 +216,13 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "publication_type": "Journal Article",
                 },
                 {
+                    "doi": "10.1002/jmv.26681",
+                    "datasets": "disorder",
+                    "study_title": "Ketamine in COVID-19 patients: Thinking out of the box",
+                    "abstract": "This letter speculates about ketamine use in COVID-19 patients.",
+                    "publication_type": "Letter",
+                },
+                {
                     "doi": "10.1371/journal.pmed.1004519.g001",
                     "datasets": "disorder",
                     "study_title": "Study flow chart.",
@@ -236,6 +243,41 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "abstract": "Psilocybin and ketamine spinogenesis data are provided.",
                     "publication_type": "Dataset",
                 },
+                {
+                    "doi": "10.20944/preprints202305.2222.v1",
+                    "datasets": "mechanistic",
+                    "study_title": "Microbiome: The Next Frontier in Psychedelic Renaissance",
+                    "abstract": "This review discusses psychedelics and the microbiome.",
+                    "publication_type": "posted-content",
+                },
+                {
+                    "doi": "10.31219/osf.io/dy5cu_v1",
+                    "datasets": "disorder",
+                    "study_title": "Legal and Regulatory Barriers to Medical Psilocybin Use",
+                    "abstract": "This overview discusses medical psilocybin regulation.",
+                    "publication_type": "article",
+                },
+                {
+                    "doi": "10.3389/fnins.2025.1554049.s002",
+                    "datasets": "mechanistic",
+                    "study_title": "Table 2_Dose-dependent changes in global brain activity following psilocybin.xlsx",
+                    "abstract": "Dose-dependent brain activity and functional connectivity are reported.",
+                    "publication_type": "dataset",
+                },
+                {
+                    "doi": "10.64898/2026.04.16.718915",
+                    "datasets": "mechanistic",
+                    "study_title": "Serotonergic Polypharmacology of 2-Halogenated Tryptamines",
+                    "abstract": "Novel tryptamines were tested at serotonin receptors.",
+                    "publication_type": "Journal Article | Preprint",
+                },
+                {
+                    "doi": "10.example/case-letter",
+                    "datasets": "disorder",
+                    "study_title": "MDMA intoxication: Acute psychosis caused by a designer drug",
+                    "abstract": "This case report describes acute psychosis after MDMA exposure.",
+                    "publication_type": "Case Reports | Letter",
+                },
             ]
         )
 
@@ -252,14 +294,191 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/correction"]["prescreen_action"], "exclude_non_evidence_artifact")
         self.assertEqual(by_doi["10.example/protocol"]["prescreen_decision"], "exclude")
         self.assertEqual(by_doi["10.example/protocol"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertEqual(by_doi["10.1002/jmv.26681"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.1002/jmv.26681"]["prescreen_action"], "exclude_non_evidence_artifact")
         self.assertEqual(by_doi["10.1371/journal.pmed.1004519.g001"]["prescreen_action"], "exclude_non_evidence_artifact")
         self.assertEqual(by_doi["10.1021/acsptsci.5c00324.s001"]["prescreen_action"], "exclude_non_evidence_artifact")
         self.assertEqual(by_doi["10.6084/m9.figshare.24531073"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertEqual(by_doi["10.20944/preprints202305.2222.v1"]["prescreen_action"], "exclude_preprint_or_unpublished")
+        self.assertEqual(by_doi["10.31219/osf.io/dy5cu_v1"]["prescreen_action"], "exclude_preprint_or_unpublished")
+        self.assertEqual(by_doi["10.3389/fnins.2025.1554049.s002"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertEqual(by_doi["10.64898/2026.04.16.718915"]["prescreen_action"], "exclude_preprint_or_unpublished")
         self.assertFalse(by_doi["10.example/correction"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.example/protocol"]["retained_for_extraction_candidate"])
+        self.assertFalse(by_doi["10.1002/jmv.26681"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.1371/journal.pmed.1004519.g001"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.1021/acsptsci.5c00324.s001"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.6084/m9.figshare.24531073"]["retained_for_extraction_candidate"])
+        self.assertFalse(by_doi["10.20944/preprints202305.2222.v1"]["retained_for_extraction_candidate"])
+        self.assertFalse(by_doi["10.31219/osf.io/dy5cu_v1"]["retained_for_extraction_candidate"])
+        self.assertFalse(by_doi["10.3389/fnins.2025.1554049.s002"]["retained_for_extraction_candidate"])
+        self.assertFalse(by_doi["10.64898/2026.04.16.718915"]["retained_for_extraction_candidate"])
+        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertFalse(by_doi["10.example/case-letter"]["retained_for_extraction_candidate"])
+
+    def test_lumpy_skin_disease_lsd_acronym_is_excluded(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.3389/fvets.2026.1818746",
+                    "datasets": "mechanistic",
+                    "study_title": (
+                        "Clinical study and the diagnosis of lumpy skin disease in cattle "
+                        "using genomic, immunological, and pathological indicators."
+                    ),
+                    "abstract": (
+                        "Lumpy skin disease (LSD) is a transboundary animal disease. "
+                        "This study identified biomarkers in vaccinated cattle."
+                    ),
+                    "publication_type": "Journal Article",
+                }
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-06-28T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["prescreen_decision"], "exclude")
+        self.assertEqual(rows[0]["prescreen_action"], "exclude_obvious_irrelevant")
+        self.assertFalse(rows[0]["retained_for_extraction_candidate"])
+        self.assertIn("lumpy-skin-disease", rows[0]["prescreen_reason"])
+
+    def test_bioproduction_method_paper_is_excluded_before_routing(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1002/bit.28480",
+                    "datasets": "mechanistic",
+                    "study_title": (
+                        "Biosynthesis of psilocybin and its nonnatural derivatives by a promiscuous "
+                        "psilocybin synthesis pathway in Escherichia coli"
+                    ),
+                    "abstract": (
+                        "This synthetic biology study engineered Escherichia coli strains for the "
+                        "sustainable microbial production of psilocybin derivatives."
+                    ),
+                    "publication_type": "Journal Article",
+                },
+                {
+                    "doi": "10.example/receptor-pharmacology",
+                    "datasets": "mechanistic",
+                    "study_title": "Novel psilocybin derivatives as serotonin 5-HT2A receptor agonists",
+                    "abstract": (
+                        "This study synthesized psilocybin derivatives and measured 5-HT2A receptor "
+                        "binding affinity and functional signaling."
+                    ),
+                    "publication_type": "Journal Article",
+                },
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-06-28T00:00:00+00:00",
+        )
+        by_doi = {row["doi"]: row for row in rows}
+
+        self.assertEqual(by_doi["10.1002/bit.28480"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.1002/bit.28480"]["prescreen_action"], "exclude_obvious_irrelevant")
+        self.assertFalse(by_doi["10.1002/bit.28480"]["retained_for_extraction_candidate"])
+        self.assertIn("bioproduction", by_doi["10.1002/bit.28480"]["prescreen_reason"])
+        self.assertEqual(by_doi["10.example/receptor-pharmacology"]["prescreen_decision"], "retain")
+        self.assertTrue(by_doi["10.example/receptor-pharmacology"]["retained_for_extraction_candidate"])
+
+    def test_broad_nps_history_background_is_excluded_without_dropping_nps_pharmacology(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1002/dta.319",
+                    "datasets": "mechanistic",
+                    "study_title": "A brief history of ‘new psychoactive substances’",
+                    "abstract": (
+                        "This editorial introduces a special issue about legal highs and the adoption "
+                        "of the term new psychoactive substances."
+                    ),
+                    "publication_type": "Editorial | Historical Article",
+                },
+                {
+                    "doi": "10.example/nps-pharmacology",
+                    "datasets": "mechanistic",
+                    "study_title": "Pharmacology of MDMA- and amphetamine-like new psychoactive substances",
+                    "abstract": (
+                        "This review summarizes monoamine transporter activity, receptor interactions, "
+                        "and toxicity for MDMA-like new psychoactive substances."
+                    ),
+                    "publication_type": "Journal Article | Review",
+                },
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-06-28T00:00:00+00:00",
+        )
+        by_doi = {row["doi"]: row for row in rows}
+
+        self.assertEqual(by_doi["10.1002/dta.319"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.1002/dta.319"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertFalse(by_doi["10.1002/dta.319"]["retained_for_extraction_candidate"])
+        self.assertIn("pure letter/editorial/comment/news", by_doi["10.1002/dta.319"]["prescreen_reason"])
+        self.assertEqual(by_doi["10.example/nps-pharmacology"]["prescreen_decision"], "retain")
+        self.assertTrue(by_doi["10.example/nps-pharmacology"]["retained_for_extraction_candidate"])
+
+    def test_patent_highlight_is_excluded_without_blanket_patent_review_exclusion(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1021/acsmedchemlett.5c00484",
+                    "datasets": "mechanistic",
+                    "study_title": (
+                        "Novel Serotonergic Psychedelic Agents as 5-HT2A Agonists for Treating "
+                        "Psychosis, Mental Illness, and CNS Disorders"
+                    ),
+                    "abstract": (
+                        "ADVERTISEMENT RETURN TO ISSUE PREV Patent Highlight NEXT. Provided herein "
+                        "are novel serotonergic psychedelic agents as 5-HT2A agonists."
+                    ),
+                    "publication_type": "Journal Article",
+                },
+                {
+                    "doi": "10.example/patent-review",
+                    "datasets": "mechanistic",
+                    "study_title": "NMDA receptor modulators: an updated patent review",
+                    "abstract": (
+                        "This review discusses ketamine and other NMDA receptor modulators, including "
+                        "receptor mechanisms and clinical development."
+                    ),
+                    "publication_type": "Journal Article | Review",
+                },
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-06-28T00:00:00+00:00",
+        )
+        by_doi = {row["doi"]: row for row in rows}
+
+        self.assertEqual(by_doi["10.1021/acsmedchemlett.5c00484"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.1021/acsmedchemlett.5c00484"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertFalse(by_doi["10.1021/acsmedchemlett.5c00484"]["retained_for_extraction_candidate"])
+        self.assertEqual(by_doi["10.example/patent-review"]["prescreen_decision"], "retain")
+        self.assertTrue(by_doi["10.example/patent-review"]["retained_for_extraction_candidate"])
 
     def test_writes_parquet_decisions_and_summary_without_json_outputs(self) -> None:
         with TemporaryDirectory() as tmpdir:

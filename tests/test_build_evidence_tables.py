@@ -59,6 +59,9 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             )
             mechanistic_path = root / "mechanistic.json"
             clinical_path = root / "clinical.json"
+            brain_path = root / "brain.json"
+            pk_path = root / "pk.json"
+            public_health_path = root / "public_health.json"
             clinical_endpoint_path = root / "clinical_endpoint_raw.json"
             audit_path = root / "audit.json"
             endpoint_audit_path = root / "endpoint_audit.json"
@@ -145,6 +148,59 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 ],
             )
             write_json(
+                brain_path,
+                [
+                    {
+                        "study_doi": "10.1000/brain",
+                        "study_title": "Brain network paper",
+                        "study_year": 2025,
+                        "compound_or_exposure": "Psilocybin",
+                        "primary_graph_anchor_kind": "brain_network",
+                        "brain_network": "DMN",
+                        "readout_or_measure": "functional connectivity",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_results",
+                        "access_level": "full_text_seen",
+                    }
+                ],
+            )
+            write_json(
+                pk_path,
+                [
+                    {
+                        "study_doi": "10.1000/pk",
+                        "study_title": "Exposure target paper",
+                        "study_year": 2025,
+                        "compound_or_analyte": "DMT",
+                        "primary_graph_anchor_kind": "target",
+                        "metabolic_or_transport_target": "MAO-A",
+                        "pk_or_exposure_parameter": "metabolism",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_results",
+                        "access_level": "full_text_seen",
+                    }
+                ],
+            )
+            write_json(
+                public_health_path,
+                [
+                    {
+                        "study_doi": "10.1000/public-health",
+                        "study_title": "Public health paper",
+                        "study_year": 2025,
+                        "exposure_or_intervention": "Psychedelic therapy",
+                        "public_health_measure": "ethnoracial inclusion",
+                        "public_health_topic_category": "access and equity",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_results",
+                        "access_level": "full_text_seen",
+                    }
+                ],
+            )
+            write_json(
                 clinical_endpoint_path,
                 [
                     {
@@ -220,6 +276,27 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "dataset": "disorder",
                         "default_evidence_type": "secondary_literature",
                     },
+                    "brain_primary": {
+                        "path": brain_path,
+                        "audit_path": audit_path,
+                        "domain": "brain_system",
+                        "dataset": "brain_system",
+                        "default_evidence_type": "primary_evidence",
+                    },
+                    "pk_primary": {
+                        "path": pk_path,
+                        "audit_path": audit_path,
+                        "domain": "pharmacokinetics_exposure",
+                        "dataset": "pharmacokinetics_exposure",
+                        "default_evidence_type": "primary_evidence",
+                    },
+                    "public_health_primary": {
+                        "path": public_health_path,
+                        "audit_path": audit_path,
+                        "domain": "real_world_public_health",
+                        "dataset": "real_world_public_health",
+                        "default_evidence_type": "primary_evidence",
+                    },
                     "clinical_primary_endpoints": {
                         "path": clinical_endpoint_path,
                         "audit_path": endpoint_audit_path,
@@ -232,12 +309,23 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 },
             )
 
-            self.assertEqual(manifest["tables"]["evidence_edges"]["rows"], 7)
+            self.assertEqual(manifest["tables"]["evidence_edges"]["rows"], 10)
             edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
-            self.assertEqual(set(edges["domain"]), {"mechanistic", "clinical"})
+            self.assertEqual(
+                set(edges["domain"]),
+                {"mechanistic", "clinical", "brain_system", "pharmacokinetics_exposure", "real_world_public_health"},
+            )
             self.assertEqual(
                 set(edges["entity_kind"]),
-                {"target", "pathway_process", "condition_indication", "symptom_problem", "outcome_scale"},
+                {
+                    "target",
+                    "pathway_process",
+                    "condition_indication",
+                    "symptom_problem",
+                    "outcome_scale",
+                    "brain_network",
+                    "public_health_measure",
+                },
             )
             self.assertIn("secondary_literature", set(edges["evidence_type"]))
             self.assertNotIn("functional_outcome", set(edges["entity_kind"]))
@@ -251,6 +339,18 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             symptom_edges = edges[edges["entity_kind"] == "symptom_problem"]
             self.assertEqual(set(symptom_edges["entity_label"]), {"Depression"})
             self.assertEqual(len(symptom_edges), 2)
+            brain_edge = edges[edges["domain"] == "brain_system"].iloc[0]
+            self.assertEqual(brain_edge["entity_kind"], "brain_network")
+            self.assertEqual(brain_edge["entity_label"], "Default mode network")
+            self.assertEqual(brain_edge["relation_type"], "has_brain_system_effect")
+            pk_edge = edges[edges["domain"] == "pharmacokinetics_exposure"].iloc[0]
+            self.assertEqual(pk_edge["entity_kind"], "target")
+            self.assertEqual(pk_edge["entity_label"], "MAO-A")
+            self.assertEqual(pk_edge["relation_type"], "has_pharmacokinetic_exposure")
+            public_health_edge = edges[edges["domain"] == "real_world_public_health"].iloc[0]
+            self.assertEqual(public_health_edge["entity_kind"], "public_health_measure")
+            self.assertEqual(public_health_edge["entity_label"], "Equity")
+            self.assertEqual(public_health_edge["relation_type"], "has_public_health_evidence")
 
             papers = pd.read_parquet(out_dir / "papers.parquet")
             self.assertEqual(
@@ -258,6 +358,9 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 {
                     "paper:10.1000/mech",
                     "paper:10.1000/pathway",
+                    "paper:10.1000/brain",
+                    "paper:10.1000/pk",
+                    "paper:10.1000/public-health",
                     "paper:10.1000/clin",
                     "paper:10.1000/symptom",
                     "paper:10.1000/outcome-symptom",

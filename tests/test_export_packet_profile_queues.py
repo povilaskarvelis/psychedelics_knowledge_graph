@@ -60,7 +60,7 @@ class ExportPacketProfileQueuesTest(unittest.TestCase):
                     source_type="meta_analysis",
                     domain_route="clinical_outcome",
                     prompt_profile="secondary_meta_analysis",
-                    schema_profile="synthesis_evidence_schema",
+                    schema_profile="meta_analysis_evidence_schema",
                 ),
                 route_row(
                     route_id="route-review",

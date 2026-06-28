@@ -7,14 +7,17 @@ from pipeline.extract.build_extraction_routes import (
 from pipeline.extract.route_extraction_profiles import (
     DOMAIN_PROMPT_PATHS,
     PROFILE_STATUS_RUNNABLE,
-    PROFILE_STATUS_SCAFFOLD,
     PROFILE_STATUS_TERMINAL_NO_MODEL,
     ROUTE_EXTRACTION_PROFILES,
     REVIEW_COVERAGE_PROMPT_PROFILES,
+    REVIEW_SCHEMA_PATHS,
+    META_ANALYSIS_SCHEMA_PATHS,
     VALID_PROFILE_STATUSES,
     build_system_instruction,
     load_schema,
+    load_schema_for_profile,
     profile_for_key,
+    schema_path_for_profile,
     supported_profile_keys,
 )
 
@@ -57,26 +60,17 @@ def test_profile_statuses_and_files_are_consistent() -> None:
             assert profile.default_max_output_tokens > 0
 
 
-def test_current_runnable_profiles_include_primary_and_meta_analysis() -> None:
+def test_current_runnable_profiles_include_primary_meta_analysis_and_reviews() -> None:
     runnable = {
         (profile.prompt_profile, profile.schema_profile)
         for profile in ROUTE_EXTRACTION_PROFILES.values()
         if profile.status == PROFILE_STATUS_RUNNABLE
     }
 
-    assert ("secondary_meta_analysis", "synthesis_evidence_schema") in runnable
+    assert ("secondary_meta_analysis", "meta_analysis_evidence_schema") in runnable
     assert ("primary_clinical", "primary_evidence_schema") in runnable
     assert ("primary_molecular_target", "primary_evidence_schema") in runnable
-
-
-def test_review_profiles_are_scaffolded() -> None:
-    scaffolded = {
-        (profile.prompt_profile, profile.schema_profile)
-        for profile in ROUTE_EXTRACTION_PROFILES.values()
-        if profile.status == PROFILE_STATUS_SCAFFOLD
-    }
-
-    assert {(prompt, "review_coverage_schema") for prompt in REVIEW_COVERAGE_PROMPT_PROFILES}.issubset(scaffolded)
+    assert {(prompt, "review_coverage_schema") for prompt in REVIEW_COVERAGE_PROMPT_PROFILES}.issubset(runnable)
 
 
 def test_domain_prompt_addenda_exist() -> None:
@@ -119,8 +113,8 @@ def test_system_instruction_uses_paper_type_depth_prompt_and_scope_notes_for_pri
 
 
 def test_system_instruction_includes_scope_for_secondary_profiles() -> None:
-    profile = profile_for_key("secondary_meta_analysis", "synthesis_evidence_schema")
-    schema = load_schema(profile.schema_path)
+    profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+    schema = load_schema_for_profile(profile, "clinical_outcome")
 
     instruction = build_system_instruction(
         profile,
@@ -135,9 +129,38 @@ def test_system_instruction_includes_scope_for_secondary_profiles() -> None:
     assert "Focus on clinical outcome evidence" in instruction
 
 
+def test_meta_analysis_profile_uses_domain_specific_schema_when_available() -> None:
+    profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+
+    assert schema_path_for_profile(profile, "clinical_outcome") == META_ANALYSIS_SCHEMA_PATHS["clinical_outcome"]
+    assert schema_path_for_profile(profile, "safety_tolerability") == META_ANALYSIS_SCHEMA_PATHS["safety_tolerability"]
+
+    clinical_schema = load_schema_for_profile(profile, "clinical_outcome")
+    safety_schema = load_schema_for_profile(profile, "safety_tolerability")
+
+    clinical_result = clinical_schema["definitions"]["synthesis_result"]["properties"]["domain_result"]
+    safety_result = safety_schema["definitions"]["synthesis_result"]["properties"]["domain_result"]
+    assert "clinical_endpoint" in clinical_result["properties"]
+    assert "safety_event_or_measure" in safety_result["properties"]
+
+
+def test_review_profile_uses_domain_specific_schema_when_available() -> None:
+    profile = profile_for_key("secondary_review_coverage", "review_coverage_schema")
+
+    assert schema_path_for_profile(profile, "clinical_outcome") == REVIEW_SCHEMA_PATHS["clinical_outcome"]
+    assert schema_path_for_profile(profile, "safety_tolerability") == REVIEW_SCHEMA_PATHS["safety_tolerability"]
+
+    clinical_schema = load_schema_for_profile(profile, "clinical_outcome")
+    safety_schema = load_schema_for_profile(profile, "safety_tolerability")
+
+    clinical_result = clinical_schema["definitions"]["coverage_item"]["properties"]["domain_result"]
+    safety_result = safety_schema["definitions"]["coverage_item"]["properties"]["domain_result"]
+    assert "clinical_endpoint_category" in clinical_result["properties"]
+    assert "safety_event_or_risk" in safety_result["properties"]
+
+
 def test_supported_profile_keys_reports_status() -> None:
     rows = supported_profile_keys()
 
     assert any(row["status"] == PROFILE_STATUS_TERMINAL_NO_MODEL for row in rows)
-    assert any(row["status"] == PROFILE_STATUS_SCAFFOLD for row in rows)
     assert any(row["status"] == PROFILE_STATUS_RUNNABLE for row in rows)

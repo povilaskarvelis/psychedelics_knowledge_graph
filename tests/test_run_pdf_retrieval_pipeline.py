@@ -34,7 +34,6 @@ def test_pdf_retrieval_pipeline_runs_standard_recovery_after_direct_download(mon
         candidate_table=tmp_path / "candidate_papers.parquet",
         pdf_dir=tmp_path / "pdfs",
         prescreen_table=tmp_path / "prescreen.parquet",
-        literature_type_table=tmp_path / "literature.parquet",
         domain_routing_table=None,
         fulltext_dir=tmp_path / "fulltext",
         route_summary_json=tmp_path / "summary.json",

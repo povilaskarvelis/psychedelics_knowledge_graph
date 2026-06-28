@@ -110,14 +110,39 @@ ENTITY_TYPES_BY_DOMAIN = {
     "safety_tolerability": {"safety_event", "not_applicable", "uncertain"},
     "molecular_target": {"target", "not_applicable", "uncertain"},
     "molecular_pathway_readout": {"pathway_process", "molecular_readout", "not_applicable", "uncertain"},
-    "brain_system": {"brain_region_or_network", "not_applicable", "uncertain"},
+    "brain_system": {
+        "brain_region",
+        "brain_network",
+        "neural_circuit",
+        "biomarker_readout",
+        "not_applicable",
+        "uncertain",
+    },
     "cognitive_behavioral": {"cognitive_behavioral_construct", "not_applicable", "uncertain"},
     "subjective_experience": {"subjective_experience_construct", "not_applicable", "uncertain"},
-    "pharmacokinetics_exposure": {"pharmacokinetic_parameter", "not_applicable", "uncertain"},
+    "pharmacokinetics_exposure": {
+        "pharmacokinetic_parameter",
+        "compound",
+        "target",
+        "pathway_process",
+        "not_applicable",
+        "uncertain",
+    },
     "intervention_context": {"intervention_component", "not_applicable", "uncertain"},
     "real_world_public_health": {"public_health_measure", "not_applicable", "uncertain"},
     "general_topic": {"general_topic", "not_applicable", "uncertain"},
     "general_topic_coverage": {"general_topic", "not_applicable", "uncertain"},
+}
+
+META_ANALYSIS_SCHEMA_DIR = ROOT / "schema" / "extraction_profiles" / "meta_analysis"
+META_ANALYSIS_SCHEMA_PATHS = {
+    domain: META_ANALYSIS_SCHEMA_DIR / f"{domain}.schema.json"
+    for domain in ENTITY_TYPES_BY_DOMAIN
+}
+REVIEW_SCHEMA_DIR = ROOT / "schema" / "extraction_profiles" / "review"
+REVIEW_SCHEMA_PATHS = {
+    domain: REVIEW_SCHEMA_DIR / f"{domain}.schema.json"
+    for domain in ENTITY_TYPES_BY_DOMAIN
 }
 
 RESULT_DIRECTION_NOT_APPLICABLE_DOMAINS = {
@@ -157,23 +182,23 @@ def review_coverage_profile(prompt_profile: str) -> RouteExtractionProfile:
         schema_profile="review_coverage_schema",
         output_family="review_coverage",
         output_schema_version="review_coverage_v1",
-        status=PROFILE_STATUS_SCAFFOLD,
+        status=PROFILE_STATUS_RUNNABLE,
         prompt_path=PAPER_TYPE_PROMPT_PATHS[("review", TEXT_DEPTH_ARTICLE)],
         schema_path=ROOT / "schema" / "review_coverage.schema.json",
         default_max_output_tokens=16384,
-        description="Scaffold for domain-specific secondary review coverage extraction.",
+        description="Extract domain-specific secondary review coverage.",
     )
 
 
 ROUTE_EXTRACTION_PROFILES: dict[tuple[str, str], RouteExtractionProfile] = {
-    ("secondary_meta_analysis", "synthesis_evidence_schema"): RouteExtractionProfile(
+    ("secondary_meta_analysis", "meta_analysis_evidence_schema"): RouteExtractionProfile(
         prompt_profile="secondary_meta_analysis",
-        schema_profile="synthesis_evidence_schema",
-        output_family="evidence_synthesis",
-        output_schema_version="synthesis_evidence_v1",
+        schema_profile="meta_analysis_evidence_schema",
+        output_family="meta_analysis_evidence",
+        output_schema_version="meta_analysis_evidence_v1",
         status=PROFILE_STATUS_RUNNABLE,
         prompt_path=PAPER_TYPE_PROMPT_PATHS[("meta_analysis", TEXT_DEPTH_ARTICLE)],
-        schema_path=ROOT / "schema" / "synthesis_evidence.schema.json",
+        schema_path=ROOT / "schema" / "meta_analysis_evidence.schema.json",
         default_max_output_tokens=24576,
         description="Extract structured quantitative synthesis results from meta-analyses.",
     ),
@@ -276,6 +301,27 @@ def supported_profile_keys() -> list[dict]:
 def load_schema(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def schema_path_for_profile(profile: RouteExtractionProfile, domain_route: str = "") -> Path | None:
+    if profile.prompt_profile == "secondary_meta_analysis":
+        domain = domain_route.strip()
+        path = META_ANALYSIS_SCHEMA_PATHS.get(domain)
+        if path is not None and path.exists():
+            return path
+    if profile.prompt_profile in REVIEW_COVERAGE_PROMPT_PROFILES:
+        domain = domain_route.strip()
+        path = REVIEW_SCHEMA_PATHS.get(domain)
+        if path is not None and path.exists():
+            return path
+    return profile.schema_path
+
+
+def load_schema_for_profile(profile: RouteExtractionProfile, domain_route: str = "") -> dict:
+    path = schema_path_for_profile(profile, domain_route)
+    if path is None:
+        raise ValueError(f"Profile `{profile.prompt_profile}/{profile.schema_profile}` has no schema path")
+    return load_schema(path)
 
 
 def compact_schema(schema: dict) -> str:

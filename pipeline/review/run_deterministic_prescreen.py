@@ -15,6 +15,7 @@ from typing import Iterable
 import pandas as pd
 
 try:
+    from pipeline.ingest.preprint_detection import classify_publication_stage
     from pipeline.review.run_local_llm_abstract_screening import (
         deterministic_prescreen_decision,
         normalize_doi,
@@ -22,6 +23,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from pipeline.ingest.preprint_detection import classify_publication_stage
     from pipeline.review.run_local_llm_abstract_screening import (
         deterministic_prescreen_decision,
         normalize_doi,
@@ -69,6 +71,14 @@ NON_PAPER_CONTAINER_PUBLICATION_TYPES = {
     "proceedings-series",
     "report-component",
 }
+NON_SOURCE_PUBLICATION_TYPES = {
+    "comment",
+    "editorial",
+    "introductory journal article",
+    "letter",
+    "news",
+    "newspaper article",
+}
 NON_EVIDENCE_TITLE_PATTERNS = (
     re.compile(r"\bauthor correction\b", re.IGNORECASE),
     re.compile(r"\bcorrection:\b", re.IGNORECASE),
@@ -87,6 +97,10 @@ NON_EVIDENCE_TITLE_PATTERNS = (
     re.compile(r"\bsupporting information\b", re.IGNORECASE),
     re.compile(r"\bsupplementary information\b", re.IGNORECASE),
     re.compile(r"\bsupplemental information\b", re.IGNORECASE),
+    re.compile(r"\bsupplementary table\b", re.IGNORECASE),
+    re.compile(r"\bsupplemental table\b", re.IGNORECASE),
+    re.compile(r"\btable\s*\d+[_:]", re.IGNORECASE),
+    re.compile(r"\.xlsx\b", re.IGNORECASE),
     re.compile(r"\bprism file\b", re.IGNORECASE),
 )
 NON_EVIDENCE_PUBLICATION_PATTERNS = (
@@ -95,11 +109,45 @@ NON_EVIDENCE_PUBLICATION_PATTERNS = (
     re.compile(r"\bretracted publication\b", re.IGNORECASE),
     re.compile(r"\bretraction\b", re.IGNORECASE),
     re.compile(r"\bclinical trial protocol\b", re.IGNORECASE),
+    re.compile(r"\bdataset\b", re.IGNORECASE),
+)
+NON_EVIDENCE_TEXT_PATTERNS = (
+    re.compile(r"\bpatent highlight\b", re.IGNORECASE),
 )
 NON_EVIDENCE_DOI_PATTERNS = (
     re.compile(r"^10\.1371/journal\.[^.]+\.\d+\.[fgst]\d+$", re.IGNORECASE),
     re.compile(r"^10\.1021/.+\.s\d+$", re.IGNORECASE),
+    re.compile(r"^10\.3389/.+\.s\d+$", re.IGNORECASE),
     re.compile(r"^10\.6084/m9\.figshare", re.IGNORECASE),
+)
+OUT_OF_SCOPE_ACRONYM_FALSE_POSITIVE_PATTERNS = (
+    re.compile(r"\blumpy skin disease\b", re.IGNORECASE),
+    re.compile(r"\blumpy skin disease virus\b", re.IGNORECASE),
+    re.compile(r"\bLSDV\b", re.IGNORECASE),
+)
+OUT_OF_SCOPE_PRODUCTION_METHOD_FOCUS_PATTERNS = (
+    re.compile(r"\bbiosynthesi[sz](?:e|ed|es|ing|s)?\b", re.IGNORECASE),
+    re.compile(r"\bbioproduction\b", re.IGNORECASE),
+    re.compile(r"\bmetabolic engineering\b", re.IGNORECASE),
+    re.compile(r"\bsynthetic biology\b", re.IGNORECASE),
+    re.compile(r"\bheterologous expression\b", re.IGNORECASE),
+    re.compile(r"\bfermentation\b", re.IGNORECASE),
+    re.compile(r"\bproduction (?:of|methods?|platform|pathway|process)\b", re.IGNORECASE),
+    re.compile(r"\bsynthesi[sz](?:e|ed|es|ing|s)? pathway\b", re.IGNORECASE),
+)
+OUT_OF_SCOPE_PRODUCTION_METHOD_CONTEXT_PATTERNS = (
+    re.compile(r"\bEscherichia coli\b", re.IGNORECASE),
+    re.compile(r"\bE\.?\s*coli\b", re.IGNORECASE),
+    re.compile(r"\byeast\b", re.IGNORECASE),
+    re.compile(r"\bSaccharomyces\b", re.IGNORECASE),
+    re.compile(r"\bmicrobial\b", re.IGNORECASE),
+    re.compile(r"\bbacterial\b", re.IGNORECASE),
+    re.compile(r"\bbiocatalys(?:is|t|tic)\b", re.IGNORECASE),
+    re.compile(r"\benzyme engineering\b", re.IGNORECASE),
+    re.compile(r"\bengineered (?:strain|host|microorganism|microbe|bacterium|yeast)\b", re.IGNORECASE),
+)
+OUT_OF_SCOPE_BROAD_NPS_BACKGROUND_PATTERNS = (
+    re.compile(r"\bbrief history of [\"'‘’]?(?:new|novel) psychoactive substances\b", re.IGNORECASE),
 )
 PLACEHOLDER_ABSTRACTS = {
     "abstract not available",
@@ -397,7 +445,10 @@ def non_paper_container_without_title_decision(row: dict, contexts: list[dict]) 
 def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | None:
     doi = normalize_doi(clean(row.get("study_doi", "")))
     title = clean(row.get("study_title", ""))
+    abstract = clean(row.get("abstract", ""))
     publication_type = clean(row.get("publication_type", ""))
+    publication_types = {value.lower() for value in split_values(publication_type)}
+    title_abstract = " ".join(value for value in (title, abstract) if value)
     matched_terms: list[str] = []
     for pattern in NON_EVIDENCE_DOI_PATTERNS:
         match = pattern.search(doi)
@@ -411,6 +462,13 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
         match = pattern.search(publication_type)
         if match:
             matched_terms.append(match.group(0))
+    for pattern in NON_EVIDENCE_TEXT_PATTERNS:
+        match = pattern.search(title_abstract)
+        if match:
+            matched_terms.append(match.group(0))
+    non_source_publication_types = publication_types.intersection(NON_SOURCE_PUBLICATION_TYPES)
+    if non_source_publication_types:
+        matched_terms.extend(sorted(non_source_publication_types))
     if not matched_terms:
         return None
     return {
@@ -418,12 +476,125 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
         "confidence": 1.0,
         "supporting_quote": title or publication_type or doi,
         "reason": (
-            "Record is a protocol, correction, review report, supplementary material, "
-            "figure/table/data deposit, retraction, or citation artifact rather than source evidence."
+            "Record is a protocol, correction, review report, patent highlight, pure "
+            "letter/editorial/comment/news item, supplementary material, figure/table/data deposit, "
+            "retraction, or citation artifact rather than source evidence."
         ),
         "matched_terms": matched_terms,
         "routing_tags": context_routing_tags(contexts),
     }
+
+
+def publication_stage_row(row: dict) -> dict:
+    out = dict(row)
+    if not clean(out.get("doi", "")):
+        out["doi"] = clean(row.get("study_doi", ""))
+    return out
+
+
+def preprint_or_unpublished_decision(row: dict, contexts: list[dict]) -> dict | None:
+    classification = classify_publication_stage(publication_stage_row(row))
+    if clean(classification.get("publication_stage", "")) != "preprint":
+        return None
+    basis = clean(classification.get("preprint_detection_basis", "")) or "preprint metadata"
+    return {
+        "action": "exclude_preprint_or_unpublished",
+        "confidence": 1.0,
+        "supporting_quote": clean(row.get("publication_type", "")) or clean(row.get("study_title", "")) or basis,
+        "reason": f"Record appears to be a preprint or unpublished posted-content record: {basis}.",
+        "matched_terms": split_values(basis),
+        "routing_tags": context_routing_tags(contexts),
+    }
+
+
+def acronym_false_positive_decision(row: dict, contexts: list[dict]) -> dict | None:
+    text = " ".join(
+        clean(row.get(field, ""))
+        for field in ("study_title", "abstract", "keywords", "mesh_terms")
+    )
+    matched_terms: list[str] = []
+    for pattern in OUT_OF_SCOPE_ACRONYM_FALSE_POSITIVE_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            matched_terms.append(match.group(0))
+    if not matched_terms:
+        return None
+    return {
+        "action": "exclude_obvious_irrelevant",
+        "confidence": 1.0,
+        "supporting_quote": clean(row.get("study_title", "")) or matched_terms[0],
+        "reason": (
+            "Record uses LSD/LSDV in the veterinary lumpy-skin-disease sense, "
+            "not as psychedelic evidence."
+        ),
+        "matched_terms": matched_terms,
+        "routing_tags": context_routing_tags(contexts),
+    }
+
+
+def production_method_false_positive_decision(row: dict, contexts: list[dict]) -> dict | None:
+    text = " ".join(
+        clean(row.get(field, ""))
+        for field in ("study_title", "abstract", "keywords", "mesh_terms")
+    )
+    focus_matches: list[str] = []
+    context_matches: list[str] = []
+    for pattern in OUT_OF_SCOPE_PRODUCTION_METHOD_FOCUS_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            focus_matches.append(match.group(0))
+    for pattern in OUT_OF_SCOPE_PRODUCTION_METHOD_CONTEXT_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            context_matches.append(match.group(0))
+    if not focus_matches or not context_matches:
+        return None
+    return {
+        "action": "exclude_obvious_irrelevant",
+        "confidence": 1.0,
+        "supporting_quote": clean(row.get("study_title", "")) or focus_matches[0],
+        "reason": (
+            "Record is focused on compound biosynthesis, bioproduction, or manufacturing methods "
+            "rather than biological, clinical, pharmacological, or public-health evidence."
+        ),
+        "matched_terms": [*focus_matches, *context_matches],
+        "routing_tags": context_routing_tags(contexts),
+    }
+
+
+def broad_nps_background_false_positive_decision(row: dict, contexts: list[dict]) -> dict | None:
+    title = clean(row.get("study_title", ""))
+    publication_type = clean(row.get("publication_type", ""))
+    matched_terms: list[str] = []
+    for pattern in OUT_OF_SCOPE_BROAD_NPS_BACKGROUND_PATTERNS:
+        match = pattern.search(title)
+        if match:
+            matched_terms.append(match.group(0))
+    if not matched_terms:
+        return None
+    return {
+        "action": "exclude_obvious_irrelevant",
+        "confidence": 1.0,
+        "supporting_quote": title or matched_terms[0],
+        "reason": (
+            "Record is a broad historical or editorial overview of new psychoactive substances, "
+            "rather than source evidence or a domain-specific evidence synthesis for the knowledge graph."
+        ),
+        "matched_terms": [*matched_terms, publication_type] if publication_type else matched_terms,
+        "routing_tags": context_routing_tags(contexts),
+    }
+
+
+def before_model_exclusion_decision(row: dict, contexts: list[dict] | None = None) -> dict | None:
+    contexts = contexts or []
+    return (
+        non_paper_container_without_title_decision(row, contexts)
+        or non_evidence_artifact_decision(row, contexts)
+        or preprint_or_unpublished_decision(row, contexts)
+        or acronym_false_positive_decision(row, contexts)
+        or production_method_false_positive_decision(row, contexts)
+        or broad_nps_background_false_positive_decision(row, contexts)
+    )
 
 
 def final_prescreen_fields(decision: dict) -> tuple[str, str, str]:
@@ -467,11 +638,9 @@ def build_prescreen_decisions(
         for dataset in paper_datasets:
             dataset_contexts = compact_contexts(contexts_lookup.get((doi, dataset), []))
             context_tags = context_routing_tags(dataset_contexts)
-            non_paper_decision = non_paper_container_without_title_decision(screening_row, dataset_contexts)
-            if non_paper_decision:
-                decision = non_paper_decision
-            elif artifact_decision := non_evidence_artifact_decision(screening_row, dataset_contexts):
-                decision = artifact_decision
+            before_model_decision = before_model_exclusion_decision(screening_row, dataset_contexts)
+            if before_model_decision:
+                decision = before_model_decision
             elif exclude_missing_abstract and not has_abstract:
                 decision = missing_abstract_decision(screening_row, dataset_contexts, abstract_status_reason)
             else:

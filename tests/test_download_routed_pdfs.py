@@ -325,7 +325,6 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
             metadata = root / "metadata.parquet"
             candidates = root / "candidate_papers.parquet"
             prescreen = root / "prescreen.parquet"
-            literature = root / "literature.parquet"
             fulltext_dir = root / "fulltext"
             pdf_dir = root / "pdfs"
             report = root / "report.json"
@@ -372,17 +371,6 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
                     }
                 ]
             ).to_parquet(prescreen, engine="pyarrow", index=False)
-            pd.DataFrame(
-                [
-                    {
-                        "doi": doi,
-                        "retained_for_extraction_candidate": True,
-                        "source_family": "primary_or_unclear",
-                        "literature_type_confidence": "medium",
-                    }
-                ]
-            ).to_parquet(literature, engine="pyarrow", index=False)
-
             payload = download_routed_pdfs(
                 route_table=routes,
                 metadata_table=metadata,
@@ -393,7 +381,6 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
                 max_retries=0,
                 rebuild_routes_after=True,
                 prescreen_table=prescreen,
-                literature_type_table=literature,
                 domain_routing_table=None,
                 fulltext_dir=fulltext_dir,
                 route_summary_json=summary,

@@ -7,6 +7,7 @@ import pandas as pd
 
 from pipeline.extract.build_extraction_routes import (
     build_candidate_status_updates,
+    build_extraction_routes,
     build_route_rows,
     doi_to_slug,
     fulltext_status_for_doi,
@@ -101,6 +102,77 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertTrue(all(row["route_action"] == "extract_from_full_text" for row in rows))
         self.assertTrue(all("datasets" not in row for row in rows))
 
+    def test_build_extraction_routes_uses_gemini_domain_table_for_paper_type_and_domain(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata_table = root / "metadata.parquet"
+            prescreen_table = root / "prescreen.parquet"
+            domain_table = root / "domain.parquet"
+            output_table = root / "routes.parquet"
+            summary_json = root / "summary.json"
+            counts_csv = root / "counts.csv"
+
+            doi = "10.1000/gemini-route"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "study_title": "Psilocybin trial outcomes",
+                        "study_year": "2024",
+                        "abstract": "A randomized trial reports depression outcomes.",
+                        "publication_type": "Journal Article",
+                    }
+                ]
+            ).to_parquet(metadata_table, engine="pyarrow", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "prescreen_decision": "retain",
+                        "retained_for_extraction_candidate": True,
+                        "prescreen_action": "retain_for_extraction_candidate",
+                        "routing_tags": "clinical_outcome",
+                    }
+                ]
+            ).to_parquet(prescreen_table, engine="pyarrow", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "retained_for_extraction_candidate": True,
+                        "screening_decision": "include_in_scope",
+                        "domain_route": "clinical_outcome",
+                        "domain_tags": "clinical_outcome",
+                        "paper_type_group": "primary",
+                        "paper_type": "primary",
+                        "paper_type_reason": "Reports original empirical outcomes.",
+                        "domain_route_confidence": "high",
+                    }
+                ]
+            ).to_parquet(domain_table, engine="pyarrow", index=False)
+
+            build_extraction_routes(
+                metadata_table=metadata_table,
+                candidate_table=root / "candidate_papers.parquet",
+                prescreen_table=prescreen_table,
+                domain_table=domain_table,
+                manual_overrides_path=None,
+                manual_fulltext_access_overrides_path=None,
+                fulltext_dir=root / "fulltext",
+                paper_root=root / "papers",
+                output_table=output_table,
+                summary_json=summary_json,
+                counts_csv=counts_csv,
+                update_candidate_table=False,
+            )
+
+            routes = pd.read_parquet(output_table)
+
+        self.assertEqual(routes.loc[0, "source_family"], "primary")
+        self.assertEqual(routes.loc[0, "source_type"], "primary")
+        self.assertEqual(routes.loc[0, "domain_route"], "clinical_outcome")
+        self.assertEqual(routes.loc[0, "prompt_profile"], "primary_clinical")
+
     def test_secondary_meta_analysis_uses_general_review_profile_without_domain_table(self) -> None:
         metadata_df = pd.DataFrame(
             [
@@ -149,7 +221,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
 
         self.assertEqual({row["domain_route"] for row in rows}, {"general_topic_coverage"})
         self.assertEqual({row["prompt_profile"] for row in rows}, {"secondary_meta_analysis"})
-        self.assertEqual({row["schema_profile"] for row in rows}, {"synthesis_evidence_schema"})
+        self.assertEqual({row["schema_profile"] for row in rows}, {"meta_analysis_evidence_schema"})
         self.assertEqual({row["access_tier"] for row in rows}, {"abstract_only"})
         self.assertEqual({row["route_confidence"] for row in rows}, {"low"})
         self.assertIn("no model-assigned domain table supplied", rows[0]["route_basis"])
@@ -213,7 +285,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual({row["best_pdf_url"] for row in rows}, {""})
         self.assertEqual({row["manual_fulltext_access_action"] for row in rows}, {"suppress_pdf_download"})
 
-    def test_preprint_records_are_held_out_of_extraction_routes_by_default(self) -> None:
+    def test_prescreen_excluded_preprint_does_not_route(self) -> None:
         metadata_df = pd.DataFrame(
             [
                 {
@@ -232,10 +304,10 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1101/2025.04.16.649217",
-                    "prescreen_decision": "retain",
-                    "retained_for_extraction_candidate": True,
-                    "prescreen_action": "retain_for_extraction_candidate",
-                    "routing_tags": "clinical_outcome",
+                    "prescreen_decision": "exclude",
+                    "retained_for_extraction_candidate": False,
+                    "prescreen_action": "exclude_preprint_or_unpublished",
+                    "routing_tags": "",
                 }
             ]
         )
@@ -249,7 +321,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 }
             ]
         )
-        preprint_holds = []
 
         rows = build_route_rows(
             metadata_df,
@@ -257,16 +328,69 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             literature_df,
             fulltext_dir=Path("/tmp/does-not-exist"),
             generated_at_utc="2026-05-28T00:00:00+00:00",
-            preprint_holds=preprint_holds,
         )
 
         self.assertEqual(rows, [])
-        self.assertEqual(len(preprint_holds), 1)
-        self.assertEqual(preprint_holds[0]["doi"], "10.1101/2025.04.16.649217")
-        self.assertEqual(preprint_holds[0]["published_version_lookup_status"], "needs_lookup")
-        self.assertIn("doi:bioRxiv/medRxiv", preprint_holds[0]["preprint_detection_basis"])
 
-    def test_candidate_status_updates_summarize_routes_and_preprint_holds(self) -> None:
+    def test_non_evidence_artifact_blocks_stale_model_route_rows(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.3389/fnins.2025.1554049.s002",
+                    "study_title": "Table 2_Dose-dependent changes in brain activity following psilocybin.xlsx",
+                    "study_year": "2025",
+                    "abstract": "Dose-dependent brain activity and functional connectivity are reported.",
+                    "publication_type": "dataset",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.3389/fnins.2025.1554049.s002",
+                    "prescreen_decision": "exclude",
+                    "retained_for_extraction_candidate": False,
+                    "prescreen_action": "exclude_non_evidence_artifact",
+                    "routing_tags": "",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.3389/fnins.2025.1554049.s002",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+        domain_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.3389/fnins.2025.1554049.s002",
+                    "retained_for_extraction_candidate": True,
+                    "domain_route": "brain_system",
+                    "domain_tag": "brain_system",
+                    "screening_decision": "include_in_scope",
+                    "paper_type_group": "primary",
+                    "paper_type": "primary",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            domain_df=domain_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-28T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows, [])
+
+    def test_candidate_status_updates_summarize_routes_and_prescreen_exclusions(self) -> None:
         generated_at = "2026-05-28T00:00:00+00:00"
         candidate_df = pd.DataFrame(
             [
@@ -283,6 +407,12 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                     "study_title": "Preprint",
                     "abstract": "A preprint abstract.",
                 },
+                {
+                    "doi": "10.1000/thesis",
+                    "publication_type": "dissertation",
+                    "study_title": "Ketamine thesis",
+                    "abstract": "This thesis is concerned with ketamine.",
+                },
             ]
         )
         prescreen_df = pd.DataFrame(
@@ -296,6 +426,14 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 },
                 {
                     "doi": "10.1101/2025.04.16.649217",
+                    "prescreen_decision": "exclude",
+                    "retained_for_extraction_candidate": False,
+                    "prescreen_action": "exclude_preprint_or_unpublished",
+                    "prescreen_reason": "Record appears to be a preprint.",
+                    "routing_tags": "",
+                },
+                {
+                    "doi": "10.1000/thesis",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -308,6 +446,12 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 {
                     "doi": "10.1000/article",
                     "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "high",
+                },
+                {
+                    "doi": "10.1000/thesis",
+                    "source_family": "non_primary_publication",
+                    "non_primary_flags": "thesis_or_dissertation_publication_type|thesis_or_dissertation_abstract",
                     "literature_type_confidence": "high",
                 }
             ]
@@ -325,22 +469,22 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 "has_converted_full_text": True,
                 "fulltext_artifact_paths": "/tmp/article.json",
                 "fulltext_char_count": 1234,
-            }
-        ]
-        preprint_holds = [
+            },
             {
-                "doi": "10.1101/2025.04.16.649217",
-                "published_version_lookup_status": "needs_lookup",
-                "published_version_doi": "",
+                "doi": "10.1000/thesis",
+                "retained_for_extraction_candidate": False,
+                "route_action": "skip_or_context_only",
+                "access_tier": "full_text_available",
+                "domain_route": "context_only",
+                "prompt_profile": "context_only_or_skip",
+                "schema_profile": "context_only_schema",
             }
         ]
-
         updates = build_candidate_status_updates(
             candidate_df=candidate_df,
             prescreen_df=prescreen_df,
             literature_df=literature_df,
             route_rows=route_rows,
-            preprint_holds=preprint_holds,
             generated_at_utc=generated_at,
         )
         by_doi = {row["doi"]: row for row in updates.to_dict("records")}
@@ -356,9 +500,18 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         preprint = by_doi["10.1101/2025.04.16.649217"]
         self.assertEqual(preprint["publication_stage"], "preprint")
         self.assertFalse(preprint["retained_for_extraction_candidate"])
-        self.assertTrue(preprint["prescreen_retained_for_extraction_candidate"])
-        self.assertEqual(preprint["published_version_lookup_status"], "needs_lookup")
-        self.assertEqual(preprint["extraction_route_status"], "preprint_hold")
+        self.assertFalse(preprint["prescreen_retained_for_extraction_candidate"])
+        self.assertEqual(preprint["prescreen_actions"], "exclude_preprint_or_unpublished")
+        self.assertEqual(preprint["extraction_route_status"], "not_retained_for_extraction")
+
+        thesis = by_doi["10.1000/thesis"]
+        self.assertFalse(thesis["retained_for_extraction_candidate"])
+        self.assertEqual(thesis["literature_source_family"], "non_primary_publication")
+        self.assertEqual(
+            thesis["non_primary_flags"],
+            "thesis_or_dissertation_publication_type|thesis_or_dissertation_abstract",
+        )
+        self.assertEqual(thesis["extraction_route_status"], "context_only_or_skip")
 
     def test_published_article_with_preprint_pdf_url_is_not_held_out(self) -> None:
         metadata_df = pd.DataFrame(
@@ -396,19 +549,15 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 }
             ]
         )
-        preprint_holds = []
-
         rows = build_route_rows(
             metadata_df,
             prescreen_df,
             literature_df,
             fulltext_dir=Path("/tmp/does-not-exist"),
             generated_at_utc="2026-05-28T00:00:00+00:00",
-            preprint_holds=preprint_holds,
         )
 
         self.assertEqual(len(rows), 1)
-        self.assertEqual(preprint_holds, [])
         self.assertEqual(rows[0]["route_action"], "download_pdf_then_extract")
 
     def test_valid_local_pdf_gets_local_pdf_route_before_pdf_url_route(self) -> None:

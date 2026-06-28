@@ -1,0 +1,903 @@
+{
+  "mapping_version": "extraction_to_kg_mapping_v1",
+  "generated_on": "2026-06-25",
+  "purpose": "Describe how routed extraction outputs should map to KG node kinds, relationship types, graph anchor fields, and descriptive attributes.",
+  "current_graph_basis": {
+    "tables": [
+      "data/processed/kg/entities.parquet",
+      "data/processed/kg/claims.parquet",
+      "data/processed/kg/evidence_edges.parquet"
+    ],
+    "mapping_rule": "Evidence records become graph edges by normalized compound, normalized entity, entity_kind, relation_type, paper provenance, and evidence type.",
+    "secondary_literature_relation_type": "discusses_relationship"
+  },
+  "node_kinds": {
+    "compound": {
+      "status": "current",
+      "entity_type": "compound",
+      "description": "Psychedelic compound, psychoactive compound, active metabolite, prodrug, or compound class."
+    },
+    "condition_indication": {
+      "status": "current",
+      "entity_type": "clinical_entity",
+      "description": "Specific clinical condition, diagnosis, or treatment indication."
+    },
+    "symptom_problem": {
+      "status": "current",
+      "entity_type": "clinical_entity",
+      "description": "Symptom, symptom cluster, clinical problem, or broad outcome problem that is not a specific diagnosis."
+    },
+    "safety_adverse_event": {
+      "status": "current",
+      "entity_type": "clinical_entity",
+      "description": "Adverse event, tolerability outcome, complication, safety signal, or risk."
+    },
+    "outcome_scale": {
+      "status": "current",
+      "entity_type": "clinical_entity",
+      "description": "Clinical outcome instrument, questionnaire, rating scale, or endpoint measure."
+    },
+    "target": {
+      "status": "current",
+      "entity_type": "mechanistic_entity",
+      "description": "Molecular target such as receptor, transporter, enzyme, ion channel, gene, or protein complex."
+    },
+    "pathway_process": {
+      "status": "current",
+      "entity_type": "mechanistic_entity",
+      "description": "Molecular pathway, signaling process, cellular process, or biological process."
+    },
+    "biomarker_readout": {
+      "status": "current",
+      "entity_type": "mechanistic_entity",
+      "description": "Measured biomarker, molecular readout, biochemical readout, or imaging/PET ligand readout."
+    },
+    "system_family": {
+      "status": "current",
+      "entity_type": "mechanistic_entity",
+      "description": "Broad mechanistic system or family, currently used for broad receptor families and system-level biology."
+    },
+    "brain_region": {
+      "status": "planned",
+      "entity_type": "brain_system_entity",
+      "description": "Named anatomical brain region or subregion."
+    },
+    "brain_network": {
+      "status": "planned",
+      "entity_type": "brain_system_entity",
+      "description": "Named functional brain network or connectivity-defined network."
+    },
+    "neural_circuit": {
+      "status": "planned",
+      "entity_type": "brain_system_entity",
+      "description": "Named circuit, projection, or circuit-level relationship between brain regions."
+    },
+    "cognitive_behavioral_construct": {
+      "status": "planned",
+      "entity_type": "behavioral_entity",
+      "description": "Cognitive construct, behavioral construct, task domain, or behavioral process."
+    },
+    "subjective_experience_construct": {
+      "status": "planned",
+      "entity_type": "subjective_experience_entity",
+      "description": "Subjective or phenomenological construct such as mystical experience, ego dissolution, insight, awe, or challenging experience."
+    },
+    "pharmacokinetic_parameter": {
+      "status": "planned",
+      "entity_type": "exposure_entity",
+      "description": "Pharmacokinetic or exposure parameter, analyte, metabolite, route-dependent exposure measure, or exposure-response construct."
+    },
+    "intervention_component": {
+      "status": "planned",
+      "entity_type": "intervention_entity",
+      "description": "Psychotherapy, preparation, integration, setting, therapist, care-delivery, or protocol component."
+    },
+    "public_health_measure": {
+      "status": "planned",
+      "entity_type": "public_health_entity",
+      "description": "Population-level measure, access/equity measure, policy measure, harm-reduction measure, use pattern, or public-health impact measure."
+    }
+  },
+  "relation_types": {
+    "studied_for_condition": {
+      "status": "current",
+      "from": "compound",
+      "to": "condition_indication"
+    },
+    "studied_for_symptom": {
+      "status": "current",
+      "from": "compound",
+      "to": "symptom_problem"
+    },
+    "reports_safety_signal": {
+      "status": "current",
+      "from": "compound",
+      "to": "safety_adverse_event"
+    },
+    "reports_outcome_scale": {
+      "status": "current",
+      "from": "compound",
+      "to": "outcome_scale"
+    },
+    "has_mechanistic_target": {
+      "status": "current",
+      "from": "compound",
+      "to": "target"
+    },
+    "has_mechanistic_pathway": {
+      "status": "current",
+      "from": "compound",
+      "to": "pathway_process"
+    },
+    "has_biomarker_readout": {
+      "status": "current",
+      "from": "compound",
+      "to": "biomarker_readout"
+    },
+    "has_mechanistic_system": {
+      "status": "current",
+      "from": "compound",
+      "to": "system_family"
+    },
+    "discusses_relationship": {
+      "status": "current",
+      "from": "compound",
+      "to": "any_mappable_entity",
+      "description": "Secondary literature coverage of a compound-to-entity relationship."
+    },
+    "has_brain_system_effect": {
+      "status": "planned",
+      "from": "compound",
+      "to": "brain_region|brain_network|neural_circuit"
+    },
+    "has_cognitive_behavioral_effect": {
+      "status": "planned",
+      "from": "compound",
+      "to": "cognitive_behavioral_construct"
+    },
+    "has_subjective_experience_effect": {
+      "status": "planned",
+      "from": "compound",
+      "to": "subjective_experience_construct"
+    },
+    "has_pharmacokinetic_exposure": {
+      "status": "planned",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter"
+    },
+    "uses_intervention_component": {
+      "status": "planned",
+      "from": "compound_or_intervention",
+      "to": "intervention_component"
+    },
+    "has_public_health_evidence": {
+      "status": "planned",
+      "from": "compound_or_intervention_or_policy",
+      "to": "public_health_measure"
+    }
+  },
+  "common_edge_attributes": [
+    "source_name",
+    "evidence_type",
+    "paper_type",
+    "text_depth",
+    "study_doi",
+    "study_year",
+    "support",
+    "confidence",
+    "evidence_location",
+    "evidence_locator",
+    "supporting_quote"
+  ],
+  "common_secondary_attributes": [
+    "coverage_type",
+    "coverage_focus",
+    "reviewed_evidence_type",
+    "study_count",
+    "participant_or_sample_summary",
+    "key_limitations",
+    "review_interpretation"
+  ],
+  "coverage_focus_values": [
+    "main_focus",
+    "substantial_topic",
+    "brief_context",
+    "unclear"
+  ],
+  "review_anchor_audit": {
+    "sample_source": "data/processed/corpus/audits/review_coverage_anchor_sample_20260625.tsv",
+    "review_coverage_route_count": 7774,
+    "finding": "Sampled review routes support the current planned anchor list. The main schema-alignment risk is not missing broad node kinds, but collapsing distinct anchors into broad fields.",
+    "domain_focus_patterns": {
+      "clinical_outcome": [
+        "clinical conditions or indications",
+        "symptoms or outcome problems",
+        "clinical endpoints and outcome instruments"
+      ],
+      "safety_tolerability": [
+        "adverse events and tolerability issues",
+        "acute or chronic risk windows",
+        "severity, discontinuation, monitoring, and mitigation context"
+      ],
+      "molecular_target": [
+        "receptors, transporters, enzymes, channels, genes, proteins, and target complexes",
+        "binding, agonism/antagonism, selectivity, and off-target evidence"
+      ],
+      "molecular_pathway_readout": [
+        "signaling pathways and biological processes",
+        "biomarkers, molecular readouts, tissues, cell types, and model systems"
+      ],
+      "brain_system": [
+        "brain regions",
+        "functional brain networks",
+        "neural circuits and connectivity relationships",
+        "neural readouts such as activation, connectivity, oscillations, and imaging/PET measures"
+      ],
+      "cognitive_behavioral": [
+        "cognitive constructs",
+        "behavioral constructs",
+        "tasks, behavioral models, and task domains"
+      ],
+      "subjective_experience": [
+        "subjective and phenomenological constructs",
+        "experience dimensions, valence, setting-linked experiences, and scale subdimensions"
+      ],
+      "pharmacokinetics_exposure": [
+        "pharmacokinetic parameters",
+        "analytes, metabolites, routes, formulations, and matrices",
+        "metabolic enzymes, transporters, and metabolic or transport pathways",
+        "exposure-response relationships"
+      ],
+      "intervention_context": [
+        "psychotherapy or support models",
+        "preparation, dosing-session, integration, setting, provider, and protocol components",
+        "delivery, fidelity, implementation, access, and cultural adaptation context"
+      ],
+      "real_world_public_health": [
+        "real-world use patterns",
+        "abuse potential, harm reduction, access, equity, policy, service delivery, and epidemiology topics",
+        "population-level risks, benefits, estimates, and trends"
+      ]
+    },
+    "schema_alignment_notes": [
+      "Do not add schema fields only because reviews mention them; prefer fields that are graph anchors or useful edge attributes.",
+      "Split combined anchor fields during schema alignment where the graph needs separate node kinds, especially brain region, brain network, and neural circuit.",
+      "For pharmacokinetics/exposure, do not force analytes, metabolites, enzymes, transporters, and pathways into one PK-parameter node. Normalize analytes and metabolites as compounds where appropriate, enzymes and transporters as targets, and metabolic or transport pathways as pathway_process when the downstream mapper supports those cross-domain anchors.",
+      "For brain-system reviews, neural readouts can remain edge attributes at first, but imaging/PET/EEG measures that need graph queries can reuse the current biomarker_readout node kind.",
+      "For public-health reviews, public_health_measure should be interpreted broadly enough to include stable public-health topics such as use patterns, abuse potential, harm reduction, access, equity, policy, service delivery, and epidemiology measures."
+    ]
+  },
+  "domain_mappings": {
+    "clinical_outcome": {
+      "maps_to_graph": true,
+      "graph_domain": "clinical",
+      "description": "Compound or intervention evidence for clinical conditions, symptoms, endpoints, and outcome measures.",
+      "extraction_entity_types": [
+        "disorder",
+        "symptom_or_outcome",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "condition_indication",
+          "status": "current",
+          "primary_relation_type": "studied_for_condition",
+          "secondary_relation_type": "discusses_relationship"
+        },
+        {
+          "kind": "symptom_problem",
+          "status": "current",
+          "primary_relation_type": "studied_for_symptom",
+          "secondary_relation_type": "discusses_relationship"
+        },
+        {
+          "kind": "outcome_scale",
+          "status": "current",
+          "primary_relation_type": "reports_outcome_scale",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_intervention",
+          "compound_or_class"
+        ],
+        "entity": [
+          "condition_or_disorder",
+          "condition_or_population",
+          "clinical_endpoint",
+          "symptom_or_outcome",
+          "outcome_measure",
+          "outcome_measure_or_instrument"
+        ],
+        "context": [
+          "population_or_system",
+          "population_or_subgroup",
+          "clinical_topic"
+        ]
+      },
+      "attribute_fields": [
+        "clinical_endpoint_category",
+        "comparator",
+        "comparator_or_context",
+        "dose_or_regimen",
+        "assessment_timepoint",
+        "time_window",
+        "result_direction",
+        "effect_or_statistic",
+        "clinical_effect_or_statistic",
+        "certainty_or_evidence_quality"
+      ],
+      "schema_cleanup_notes": [
+        "Split disorder/condition from population or subgroup where possible.",
+        "Treat outcome measures as outcome_scale nodes only when the instrument itself is the useful graph target.",
+        "Use symptom_problem for broad symptoms such as depression, anxiety, pain, suicidality, or sleep disturbance when they are not specific diagnoses."
+      ]
+    },
+    "safety_tolerability": {
+      "maps_to_graph": true,
+      "graph_domain": "clinical",
+      "description": "Compound or exposure evidence for adverse events, tolerability, complications, and safety risks.",
+      "extraction_entity_types": [
+        "safety_event",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "safety_adverse_event",
+          "status": "current",
+          "primary_relation_type": "reports_safety_signal",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_exposure",
+          "compound_or_class"
+        ],
+        "entity": [
+          "safety_event_or_risk",
+          "safety_event",
+          "safety_category"
+        ],
+        "context": [
+          "population_or_context",
+          "exposure_or_session_context"
+        ]
+      },
+      "attribute_fields": [
+        "severity_or_seriousness",
+        "frequency_or_rate",
+        "event_count_or_numerator_denominator",
+        "medical_or_psychiatric_attention",
+        "event_duration_or_resolution",
+        "discontinuation_or_withdrawal",
+        "ascertainment_or_reporting_method",
+        "risk_factor_or_population_context",
+        "comparator_or_reference",
+        "time_window",
+        "management_or_mitigation"
+      ],
+      "schema_cleanup_notes": [
+        "Keep safety event labels graph-stable and put severity, rate, setting, and management details on the edge."
+      ]
+    },
+    "molecular_target": {
+      "maps_to_graph": true,
+      "graph_domain": "mechanistic",
+      "description": "Compound evidence for direct molecular targets.",
+      "extraction_entity_types": [
+        "target",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "target",
+          "status": "current",
+          "primary_relation_type": "has_mechanistic_target",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_class",
+          "compound_or_exposure"
+        ],
+        "entity": [
+          "target"
+        ],
+        "context": [
+          "system_or_species",
+          "target_type"
+        ]
+      },
+      "attribute_fields": [
+        "target_evidence_category",
+        "assay_or_method",
+        "comparator_or_reference",
+        "action_or_interaction",
+        "target_effect_or_change",
+        "metric_or_value",
+        "ligand_probe_or_tracer",
+        "pharmacogenomic_or_variant_context",
+        "selectivity_or_off_target_context"
+      ],
+      "schema_cleanup_notes": [
+        "Keep target nodes to receptors, transporters, enzymes, channels, genes, proteins, or stable target complexes.",
+        "Put assay details and values on the edge, not in the node label."
+      ]
+    },
+    "molecular_pathway_readout": {
+      "maps_to_graph": true,
+      "graph_domain": "mechanistic",
+      "description": "Compound evidence for pathways, processes, and measured molecular readouts.",
+      "extraction_entity_types": [
+        "pathway_process",
+        "molecular_readout",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "pathway_process",
+          "status": "current",
+          "primary_relation_type": "has_mechanistic_pathway",
+          "secondary_relation_type": "discusses_relationship"
+        },
+        {
+          "kind": "biomarker_readout",
+          "status": "current",
+          "primary_relation_type": "has_biomarker_readout",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_exposure"
+        ],
+        "entity": [
+          "pathway_or_process",
+          "pathway_or_readout",
+          "readout_or_biomarker"
+        ],
+        "context": [
+          "biological_system",
+          "model_or_species",
+          "tissue_cell_or_sample",
+          "brain_region_or_compartment"
+        ]
+      },
+      "attribute_fields": [
+        "readout_category",
+        "assay_or_method",
+        "data_source_or_method",
+        "comparator_or_reference",
+        "timepoint_or_window",
+        "dose_or_exposure_context",
+        "direction_or_change",
+        "quantitative_value",
+        "unit",
+        "relationship_to_response_or_disease"
+      ],
+      "schema_cleanup_notes": [
+        "Map extraction value molecular_readout to KG entity_kind biomarker_readout.",
+        "Use pathway_process for processes such as mTOR signaling or synaptogenesis, and biomarker_readout for measured readouts such as BDNF."
+      ]
+    },
+    "brain_system": {
+      "maps_to_graph": true,
+      "graph_domain": "mechanistic",
+      "description": "Compound evidence for brain regions, functional networks, neural circuits, and brain-system readouts.",
+      "extraction_entity_types": [
+        "brain_region",
+        "brain_network",
+        "neural_circuit",
+        "biomarker_readout",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "system_family",
+          "status": "current",
+          "primary_relation_type": "has_mechanistic_system",
+          "secondary_relation_type": "discusses_relationship"
+        },
+        {
+          "kind": "brain_region",
+          "status": "planned",
+          "primary_relation_type": "has_brain_system_effect",
+          "secondary_relation_type": "discusses_relationship"
+        },
+        {
+          "kind": "brain_network",
+          "status": "planned",
+          "primary_relation_type": "has_brain_system_effect",
+          "secondary_relation_type": "discusses_relationship"
+        },
+        {
+          "kind": "neural_circuit",
+          "status": "planned",
+          "primary_relation_type": "has_brain_system_effect",
+          "secondary_relation_type": "discusses_relationship"
+        },
+        {
+          "kind": "biomarker_readout",
+          "status": "current",
+          "primary_relation_type": "has_biomarker_readout",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_exposure"
+        ],
+        "entity": [
+          "brain_region",
+          "brain_network",
+          "neural_circuit",
+          "readout",
+          "readout_or_measure"
+        ],
+        "context": [
+          "modality",
+          "modality_or_evidence_type",
+          "task_or_state",
+          "system_or_species"
+        ]
+      },
+      "attribute_fields": [
+        "primary_graph_anchor_kind",
+        "readout_or_measure",
+        "analysis_method",
+        "neural_effect_or_change",
+        "neural_effect_or_alteration",
+        "connectivity_or_circuit_relationship",
+        "spatial_or_network_context",
+        "comparator_or_reference",
+        "timepoint_or_window",
+        "dose_or_exposure_context",
+        "direction_or_change",
+        "statistic_or_value",
+        "clinical_or_behavioral_link"
+      ],
+      "schema_cleanup_notes": [
+        "Use brain_region, brain_network, and neural_circuit as separate graph anchors when the text supports the distinction.",
+        "Use biomarker_readout for neural measures such as imaging, PET, EEG, oscillation, activation, or connectivity readouts when the measure itself is the useful graph target.",
+        "Retain system_family only for broad compatibility until specific brain-system node kinds are fully wired into the KG projector."
+      ]
+    },
+    "cognitive_behavioral": {
+      "maps_to_graph": true,
+      "graph_domain": "behavioral",
+      "description": "Compound evidence for cognitive constructs, behavioral constructs, and task-level behavioral outcomes.",
+      "extraction_entity_types": [
+        "cognitive_behavioral_construct",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "cognitive_behavioral_construct",
+          "status": "planned",
+          "primary_relation_type": "has_cognitive_behavioral_effect",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_exposure"
+        ],
+        "entity": [
+          "construct_or_behavior",
+          "behavior_or_task",
+          "task_or_measure"
+        ],
+        "context": [
+          "population_or_species",
+          "behavioral_context",
+          "acute_or_long_term_context"
+        ]
+      },
+      "attribute_fields": [
+        "construct_category",
+        "model_or_measure",
+        "task_condition_or_subdomain",
+        "comparator_or_reference",
+        "dose_or_regimen",
+        "timepoint_or_window",
+        "outcome_metric",
+        "behavioral_effect_or_change",
+        "moderator_or_subgroup",
+        "confounding_or_validity_context",
+        "statistic_or_value"
+      ],
+      "schema_cleanup_notes": [
+        "Do not force cognitive/behavioral constructs into condition_indication unless the paper is actually about a clinical diagnosis.",
+        "Keep task and measurement details as edge attributes unless the task domain itself is the graph entity."
+      ]
+    },
+    "subjective_experience": {
+      "maps_to_graph": true,
+      "graph_domain": "subjective_experience",
+      "description": "Compound evidence for subjective, phenomenological, and acute experience constructs.",
+      "extraction_entity_types": [
+        "subjective_experience_construct",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "subjective_experience_construct",
+          "status": "planned",
+          "primary_relation_type": "has_subjective_experience_effect",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_exposure"
+        ],
+        "entity": [
+          "subjective_construct",
+          "subjective_construct_category"
+        ],
+        "context": [
+          "population_or_system",
+          "setting_or_context",
+          "setting_or_session_context"
+        ]
+      },
+      "attribute_fields": [
+        "instrument_or_measure",
+        "instrument_or_phenomenological_frame",
+        "scale_subscale_or_dimension",
+        "dose_or_regimen",
+        "timepoint_or_window",
+        "subjective_effect_or_change",
+        "valence_or_quality",
+        "therapeutic_process_link",
+        "relationship_to_outcome",
+        "dose_response_or_moderator",
+        "statistic_or_value"
+      ],
+      "schema_cleanup_notes": [
+        "Use subjective experience nodes for experience constructs, not for clinical symptoms or safety events.",
+        "Put outcome linkage and therapeutic-process claims on the edge."
+      ]
+    },
+    "pharmacokinetics_exposure": {
+      "maps_to_graph": true,
+      "graph_domain": "exposure",
+      "description": "Compound evidence for pharmacokinetic, exposure, analyte, metabolite, route, and exposure-response findings.",
+      "extraction_entity_types": [
+        "pharmacokinetic_parameter",
+        "compound",
+        "target",
+        "pathway_process",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "pharmacokinetic_parameter",
+          "status": "planned",
+          "primary_relation_type": "has_pharmacokinetic_exposure",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_analyte"
+        ],
+        "entity": [
+          "pk_or_exposure_parameter",
+          "metabolite_or_analyte",
+          "metabolic_or_transport_target",
+          "metabolic_or_transport_pathway"
+        ],
+        "context": [
+          "population_or_system",
+          "matrix",
+          "matrix_or_sample",
+          "route_of_administration"
+        ]
+      },
+      "attribute_fields": [
+        "primary_graph_anchor_kind",
+        "analyte_type",
+        "value",
+        "unit",
+        "dose",
+        "dose_route_or_formulation",
+        "dose_standardization_or_equivalence",
+        "sampling_time_or_window",
+        "comparator_or_reference",
+        "co_exposure_or_modifier",
+        "model_or_method",
+        "interaction_or_potentiation_context",
+        "exposure_response_implication"
+      ],
+      "schema_cleanup_notes": [
+        "Use primary_graph_anchor_kind to state whether the target-side graph anchor is a PK parameter, compound/analyte/metabolite, target enzyme/transporter, or pathway/process.",
+        "Keep values, units, dose, route, sampling window, matrix, and population/system details as edge attributes.",
+        "Do not force metabolites, enzymes, transporters, or metabolic pathways into a generic pharmacokinetic_parameter label."
+      ],
+      "cross_domain_anchor_kinds": [
+        {
+          "kind": "compound",
+          "use": "Metabolites, analytes, enantiomers, alkaloids, or active chemical species when the chemical entity is the graph target."
+        },
+        {
+          "kind": "target",
+          "use": "Metabolic enzymes, transporters, genes, proteins, or target complexes relevant to exposure."
+        },
+        {
+          "kind": "pathway_process",
+          "use": "Metabolic, transport, bioavailability, potentiation, or exposure-response pathways."
+        }
+      ]
+    },
+    "intervention_context": {
+      "maps_to_graph": true,
+      "graph_domain": "intervention",
+      "description": "Evidence for psychotherapy, preparation, integration, setting, provider, protocol, delivery, and implementation components.",
+      "extraction_entity_types": [
+        "intervention_component",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "intervention_component",
+          "status": "planned",
+          "primary_relation_type": "uses_intervention_component",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_intervention"
+        ],
+        "entity": [
+          "context_component",
+          "component_type",
+          "intervention_model_or_orientation"
+        ],
+        "context": [
+          "population_or_setting",
+          "implementation_setting",
+          "delivery_format"
+        ]
+      },
+      "attribute_fields": [
+        "component_quantity_or_intensity",
+        "session_or_protocol_structure",
+        "dose_or_session_context",
+        "timepoint_or_phase",
+        "comparator_or_control",
+        "provider_or_facilitator_context",
+        "care_coordination_or_collaboration_context",
+        "protocol_standardization_or_fidelity",
+        "implementation_or_acceptability_context",
+        "access_or_cultural_context",
+        "adjunctive_strategy",
+        "relationship_to_outcome_or_safety"
+      ],
+      "schema_cleanup_notes": [
+        "Use intervention_component for stable care-delivery components; keep quantities, timing, fidelity, and implementation details as attributes."
+      ]
+    },
+    "real_world_public_health": {
+      "maps_to_graph": true,
+      "graph_domain": "public_health",
+      "description": "Evidence for real-world use, access, equity, policy, harm reduction, epidemiology, service delivery, and public-health measures.",
+      "extraction_entity_types": [
+        "public_health_measure",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [
+        {
+          "kind": "public_health_measure",
+          "status": "planned",
+          "primary_relation_type": "has_public_health_evidence",
+          "secondary_relation_type": "discusses_relationship"
+        }
+      ],
+      "anchor_fields": {
+        "compound": [
+          "compound_or_intervention",
+          "exposure_or_policy",
+          "exposure_or_intervention"
+        ],
+        "entity": [
+          "public_health_measure",
+          "public_health_topic_category"
+        ],
+        "context": [
+          "population",
+          "population_or_setting",
+          "setting",
+          "use_pattern_or_service_context"
+        ]
+      },
+      "attribute_fields": [
+        "data_source_or_study_design",
+        "exposure_pattern_or_intensity",
+        "estimate_value",
+        "estimate_unit",
+        "comparison_or_reference_group",
+        "association_or_trend",
+        "confounding_or_adjustment",
+        "time_window",
+        "policy_or_regulatory_context",
+        "policy_or_practice_implication",
+        "access_equity_or_cultural_context",
+        "risk_or_benefit_framing",
+        "implementation_or_practice_implication"
+      ],
+      "schema_cleanup_notes": [
+        "Use public_health_measure for stable public-health measures or topics, including use patterns, abuse potential, harm reduction, access, equity, policy, service delivery, epidemiology, and population-level risks or benefits.",
+        "Put estimates, policy setting, equity context, data source, and implementation implications on the edge."
+      ]
+    },
+    "general_primary": {
+      "maps_to_graph": false,
+      "graph_domain": "none",
+      "description": "Fallback primary extraction. Use only for audit or later manual assignment.",
+      "extraction_entity_types": [
+        "general_topic",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [],
+      "anchor_fields": {
+        "compound": [],
+        "entity": [],
+        "context": []
+      },
+      "attribute_fields": [],
+      "no_graph_mapping_reason": "General primary routes do not define a stable KG node kind or relationship type."
+    },
+    "general_topic": {
+      "maps_to_graph": false,
+      "graph_domain": "none",
+      "description": "Fallback secondary topic route. Use only for audit or later manual assignment.",
+      "extraction_entity_types": [
+        "general_topic",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [],
+      "anchor_fields": {
+        "compound": [],
+        "entity": [],
+        "context": []
+      },
+      "attribute_fields": [],
+      "no_graph_mapping_reason": "General secondary routes do not define a stable KG node kind or relationship type."
+    },
+    "general_topic_coverage": {
+      "maps_to_graph": false,
+      "graph_domain": "none",
+      "description": "Fallback secondary coverage route. Use only for audit or later manual assignment.",
+      "extraction_entity_types": [
+        "general_topic",
+        "not_applicable",
+        "uncertain"
+      ],
+      "node_kinds": [],
+      "anchor_fields": {
+        "compound": [],
+        "entity": [],
+        "context": []
+      },
+      "attribute_fields": [],
+      "no_graph_mapping_reason": "General coverage routes do not define a stable KG node kind or relationship type."
+    }
+  }
+}

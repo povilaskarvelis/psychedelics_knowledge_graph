@@ -18,30 +18,26 @@ Default outputs:
 - `data/processed/corpus/paper_extraction_routes.parquet`
 - `data/processed/corpus/paper_extraction_routes_summary.json`
 - `data/processed/corpus/paper_extraction_routes_counts.csv`
-- `data/processed/corpus/preprint_route_holds.csv`
 
-The route table joins deterministic pre-screen decisions, metadata, literature
-type routing, optional model-assigned domain routing, converted full-text
-artifacts, valid PDFs in `data/raw/papers/pdfs/`, and PDF URL availability.
+The route table joins deterministic pre-screen decisions, metadata, Gemini
+paper-type and domain routing, converted full-text artifacts, valid PDFs in
+`data/raw/papers/pdfs/`, and PDF URL availability.
 Each row includes the paper source family, source type, domain route, access
 tier, route action, prompt profile, schema profile, priority, confidence, and
 basis. If no model-assigned domain table is supplied, papers stay on coarse
-general routes by paper type and access tier.
+fallback routes by access tier.
 
-Preprint records are not promoted into extraction routes by default. The route
-builder detects preprint records deterministically from DOI patterns,
-publication type, venue, and publisher metadata, writes them to
-`preprint_route_holds.csv`, and leaves them out of
-`paper_extraction_routes.parquet`. URL-only preprint signals are weak because a
-published article can have a preprint PDF URL. Use `--include-preprints` only
-for diagnostic comparisons with the old behavior.
+Preprint and unpublished posted-content records are excluded upstream by the
+deterministic pre-screen stage. The route builder treats the pre-screen table as
+the authority for whether a DOI is retained; stale domain-routing rows cannot
+revive a DOI that pre-screen excluded.
 
 The route build writes DOI-level status back into
 `data/processed/corpus/candidate_papers.parquet` unless
 `--no-update-candidate-table` is used. This keeps the candidate table as the
 main corpus ledger: one row per DOI with publication stage, preprint flags,
-prescreen status, literature type, extraction-route status, route counts,
-domain summaries, prompt/schema profiles, and the best available text tier.
+prescreen status, paper type, extraction-route status, route counts, domain
+summaries, prompt/schema profiles, and the best available text tier.
 Detailed per-domain extraction rows remain in `paper_extraction_routes.parquet`.
 
 Access tiers are not evidence-quality labels. They describe the next file
@@ -52,13 +48,7 @@ handling step:
 - `pdf_download_url_available` -> `download_pdf_then_extract`
 - `abstract_only` -> `extract_from_abstract_only`
 
-Build the upstream route tables first:
-
-```bash
-python pipeline/review/run_literature_type_routing.py
-```
-
-After Gemini domain routing is available, pass it explicitly:
+Build the Gemini routing table first, then pass it explicitly:
 
 ```bash
 python pipeline/extract/build_extraction_routes.py \
@@ -92,6 +82,18 @@ are marked `ready_for_model` only when a compatible article text input is
 available. Otherwise they remain in the task file as `needs_fulltext_packet` or
 `needs_expected_fulltext_packet` so missing text inputs are visible.
 
+Route-aware extraction defaults to Gemini 3 Flash preview for article-text and
+abstract-only tasks:
+
+```bash
+GEMINI_ROUTE_EXTRACTION_MODEL=gemini-3-flash-preview
+GEMINI_ABSTRACT_EXTRACTION_MODEL=gemini-3-flash-preview
+GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL=gemini-3-flash-preview
+```
+
+The route-aware runner also defaults to `--thinking-budget 0`. Override
+`--model` or `--thinking-budget` only for deliberate comparison runs.
+
 Section selection strategies are route-specific:
 
 - primary evidence routes -> primary study article text
@@ -117,7 +119,7 @@ Route profiles are registered with one of three statuses:
 The primary KG extraction target is original empirical evidence. Primary
 profiles are runnable and share:
 
-- `schema/primary_evidence.schema.json`
+- domain schemas under `schema/extraction_profiles/primary/`
 - `docs/extraction_profiles/paper_type/primary_article_text.md`
 - `docs/extraction_profiles/paper_type/primary_abstract_only.md`
 
@@ -126,42 +128,48 @@ Use these for `schema_profile=primary_evidence_schema`. Domain addenda under
 Primary extraction produces KG evidence candidates from original study results;
 it is the first route family to pilot.
 
-The route-specific synthesis contract is also runnable, but it is a secondary
-layer:
+The route-specific meta-analysis contract is also runnable, but it is a
+secondary layer:
 
-- `schema/synthesis_evidence.schema.json`
+- domain schemas under `schema/extraction_profiles/meta_analysis/`
+- shared base schema at `schema/meta_analysis_evidence.schema.json`
 - `docs/extraction_profiles/paper_type/meta_analysis_article_text.md`
 - `docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md`
 
 Use this for `prompt_profile=secondary_meta_analysis` and
-`schema_profile=synthesis_evidence_schema`. It extracts meta-analysis scope,
-search methods, eligibility criteria, included-study summaries, explicitly
-listed included studies, pooled or network synthesis results, risk-of-bias and
-certainty assessments, author conclusions, and evidence gaps without creating
-primary-study graph findings.
+`schema_profile=meta_analysis_evidence_schema`. The runner selects the meta-analysis
+domain schema from `domain_route`; text depth selects the prompt and is injected
+as output provenance. The shared domain schema can hold meta-analysis scope,
+aggregate included evidence summaries, pooled or network synthesis results, and
+domain-specific result details. Abstract-only prompts ask the model to fill only
+what is visible in the abstract and leave unavailable fields empty.
+Meta-analysis extraction does not create primary-study graph findings.
 
-## Primary-First Article Text Inputs And Audits
+## Article Text Inputs And Audits
 
-Export DOI queues for route-specific article text input building from the route
-table:
+Build article text inputs from the route table and the canonical
+`fulltext/articles/` artifacts:
 
 ```bash
-python pipeline/extract/export_packet_profile_queues.py \
-  --section-selection-strategy primary_study
+python pipeline/fulltext/build_article_text_inputs.py
 ```
+
+The default section policy is primary-study selection for primary evidence
+routes, and all extracted article sections for meta-analyses and reviews. This
+keeps primary studies focused on methods/results while avoiding brittle section
+filtering for secondary literature.
 
 Default outputs:
 
-- `data/processed/extraction/article_text_queues/primary_study.txt`
-- `data/processed/extraction/article_text_queues.csv`
-- `data/processed/extraction/article_text_queues_report.json`
+- `data/processed/extraction/fulltext_packets.jsonl`
+- `data/processed/extraction/article_text_inputs_report.json`
+- `data/processed/extraction/article_text_inputs_audit.csv`
+- `data/processed/extraction/article_text_inputs_audit.md`
 
-After article text inputs have been built from the route table's
-`fulltext_artifact_paths`, rebuild route tasks with those files:
+After article text inputs have been built, rebuild route tasks:
 
 ```bash
-python pipeline/extract/build_extraction_tasks.py \
-  --article-text-inputs-jsonl data/processed/extraction/primary_study_article_text_inputs.jsonl
+python pipeline/extract/build_extraction_tasks.py
 ```
 
 Before model calls, audit a small sample of the article text selected by each

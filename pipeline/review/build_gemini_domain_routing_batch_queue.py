@@ -13,7 +13,6 @@ try:
     from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, split_values, write_json
     from pipeline.review.run_gemini_domain_routing_batch import (
         DEFAULT_ENV,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_PRESCREEN_TABLE,
         DEFAULT_RAW_JSONL,
@@ -25,7 +24,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, split_values, write_json
     from pipeline.review.run_gemini_domain_routing_batch import (
         DEFAULT_ENV,
-        DEFAULT_LITERATURE_TYPE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_PRESCREEN_TABLE,
         DEFAULT_RAW_JSONL,
@@ -81,7 +79,6 @@ def prepare_part(*, start_index: int, limit: int, paths: dict[str, str], args: a
     prepare_args = argparse.Namespace(
         metadata_table=str(Path(args.metadata_table).resolve()),
         prescreen_decisions_table=str(Path(args.prescreen_decisions_table).resolve()),
-        literature_type_table=str(Path(args.literature_type_table).resolve()),
         raw_jsonl=paths["raw_jsonl"],
         doi_file=args.doi_file,
         env_file=str(Path(args.env_file).resolve()),
@@ -116,8 +113,6 @@ def build_queue(args: argparse.Namespace) -> dict:
             "start_index": start_index,
             "limit": limit,
             "approx_input_tokens_char4": sum(approx_input_tokens_char4(row) for row in rows),
-            "by_source_family": dict(Counter(clean(row.get("source_family", "")) or "unknown" for row in rows)),
-            "by_literature_route": dict(Counter(clean(row.get("literature_route", "")) or "unknown" for row in rows)),
             "by_dataset": dict(Counter(tag for row in rows for tag in split_values(row.get("datasets", "")))),
             **paths,
         }
@@ -137,14 +132,11 @@ def build_queue(args: argparse.Namespace) -> dict:
             "max_requests": max(1, args.max_requests),
             "max_approx_input_tokens": max(1, args.max_approx_input_tokens),
             "prepared": bool(args.prepare),
-            "by_source_family": dict(Counter(clean(row.get("source_family", "")) or "unknown" for row in records)),
-            "by_literature_route": dict(Counter(clean(row.get("literature_route", "")) or "unknown" for row in records)),
             "by_dataset": dict(Counter(tag for row in records for tag in split_values(row.get("datasets", "")))),
         },
         "inputs": {
             "metadata_table": str(Path(args.metadata_table).resolve()),
             "prescreen_decisions_table": str(Path(args.prescreen_decisions_table).resolve()),
-            "literature_type_table": str(Path(args.literature_type_table).resolve()),
             "doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
             "model": args.model,
             "temperature": args.temperature,
@@ -161,7 +153,6 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--doi-file", default="")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
     parser.add_argument("--model", default="gemini-3-flash-preview")

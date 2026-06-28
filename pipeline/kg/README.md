@@ -37,13 +37,14 @@ not-yet-extracted counts separately.
 The main KG backbone is the normalized evidence-table layer:
 
 ```bash
+python pipeline/kg/convert_routed_extractions_to_evidence_rows.py
 python pipeline/kg/build_evidence_tables.py
 ```
 
 Default outputs are written under `data/processed/kg/`:
 
 - `papers.parquet`: one row per source paper represented in normalized evidence.
-- `entities.parquet`: compounds plus normalized clinical/mechanistic entities.
+- `entities.parquet`: compounds plus normalized graph entities.
 - `claims.parquet`: one rich normalized claim row per projected evidence record.
 - `evidence_edges.parquet`: graph-oriented compound-to-entity evidence edges.
 - `normalization_audit.parquet`: normalization successes and misses for review.
@@ -69,12 +70,35 @@ This table layer is the preferred place to build new graph views. The browser UI
 should continue to load compact JSON payloads generated from these tables rather
 than loading the whole KG directly.
 
+The converter reads `data/processed/extraction/route_extraction_outputs.jsonl`
+plus `route_extraction_tasks.jsonl`, writes
+`data/processed/extraction/routed_evidence_rows.json`, and keeps one row per
+extracted finding or review/synthesis item. The table builder reads that file
+as an optional mixed-domain source; if it does not exist yet, it contributes
+zero rows.
+
+The extraction-to-KG mapping is documented in
+`docs/extraction_to_kg_mapping.md`, with the machine-readable mapping in
+`schema/extraction_to_kg_mapping.json`. Use that mapping before adding or
+renaming extraction fields that are meant to become graph nodes or graph-edge
+attributes.
+
+Seed alias vocabularies for newer node kinds are in
+`schema/kg_node_vocabularies.json`. The evidence-table builder uses this file
+to canonicalize common labels such as `DMN` to `Default mode network` while
+pilot outputs reveal which aliases need to be added next.
+
 The current main UI views are driven by `evidence_edges.entity_kind`:
 
 - clinical: conditions, symptoms, safety/adverse events, and outcome scales
   currently have graph rows.
 - mechanistic: targets, pathways/processes, biomarkers/readouts, and
   systems/families currently have canonical graph rows.
+- routed extension domains: brain regions/networks/circuits, cognitive or
+  behavioral constructs, subjective-experience constructs, PK/exposure
+  parameters, intervention components, and public-health measures are supported
+  by the normalized table layer before they are promoted into dedicated UI
+  views.
 
 Clinical endpoint rows are derived from raw disorder extraction rows plus the
 normalization audit. They keep only rows with canonicalized compounds and label

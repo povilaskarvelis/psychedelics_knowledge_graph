@@ -66,7 +66,6 @@ DEFAULT_PDF_DIR = ROOT / "data" / "raw" / "papers" / "pdfs"
 DEFAULT_REPORT = ROOT / "data" / "processed" / "corpus" / "audits" / "routed_pdf_download_report.json"
 DEFAULT_ROUTE_ACTION = "download_pdf_then_extract"
 DEFAULT_PRESCREEN_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_prescreen_decisions.parquet"
-DEFAULT_LITERATURE_TYPE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_literature_type_routing.parquet"
 DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
 DEFAULT_FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 DEFAULT_ROUTE_SUMMARY_JSON = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes_summary.json"
@@ -635,7 +634,6 @@ def rebuild_routes_after_pdf_downloads(
     metadata_table: Path,
     candidate_table: Path,
     prescreen_table: Path,
-    literature_type_table: Path,
     domain_routing_table: Path | None,
     fulltext_dir: Path,
     pdf_dir: Path,
@@ -653,7 +651,6 @@ def rebuild_routes_after_pdf_downloads(
         metadata_table=metadata_table,
         candidate_table=candidate_table,
         prescreen_table=prescreen_table,
-        literature_table=literature_type_table,
         domain_table=domain_table,
         manual_overrides_path=manual_route_overrides if manual_route_overrides and manual_route_overrides.exists() else None,
         fulltext_dir=fulltext_dir,
@@ -703,7 +700,6 @@ def download_routed_pdfs(
     alternate_pdf_min_title_score: float = 0.5,
     rebuild_routes_after: bool = False,
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
-    literature_type_table: Path = DEFAULT_LITERATURE_TYPE_TABLE,
     domain_routing_table: Path | None = DEFAULT_DOMAIN_ROUTING_TABLE,
     fulltext_dir: Path = DEFAULT_FULLTEXT_DIR,
     route_summary_json: Path = DEFAULT_ROUTE_SUMMARY_JSON,
@@ -983,7 +979,6 @@ def download_routed_pdfs(
             metadata_table=metadata_table,
             candidate_table=candidate_table,
             prescreen_table=prescreen_table,
-            literature_type_table=literature_type_table,
             domain_routing_table=domain_routing_table,
             fulltext_dir=fulltext_dir,
             pdf_dir=pdf_dir,
@@ -1119,7 +1114,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Do not rebuild the extraction route table after a real run updates PDF availability.",
     )
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
-    parser.add_argument("--literature-type-table", default=str(DEFAULT_LITERATURE_TYPE_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
     parser.add_argument("--route-summary-json", default=str(DEFAULT_ROUTE_SUMMARY_JSON))
@@ -1161,7 +1155,6 @@ def main() -> int:
         candidate_log_every=args.candidate_log_every,
         rebuild_routes_after=not bool(args.no_rebuild_routes_after),
         prescreen_table=Path(args.prescreen_table).resolve(),
-        literature_type_table=Path(args.literature_type_table).resolve(),
         domain_routing_table=Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None,
         fulltext_dir=Path(args.fulltext_dir).resolve(),
         route_summary_json=Path(args.route_summary_json).resolve(),

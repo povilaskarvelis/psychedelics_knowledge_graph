@@ -1,0 +1,352 @@
+{
+  "version": "0.1",
+  "purpose": "Seed canonical labels and aliases for routed extraction node kinds that are not fully covered by the legacy entity registry.",
+  "node_kinds": {
+    "brain_region": [
+      {
+        "label": "Prefrontal cortex",
+        "aliases": ["PFC", "prefrontal cortical region"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Medial prefrontal cortex",
+        "aliases": ["mPFC", "medial PFC"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Anterior cingulate cortex",
+        "aliases": ["ACC", "anterior cingulate"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Orbitofrontal cortex",
+        "aliases": ["OFC", "orbital frontal cortex"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Amygdala",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Hippocampus",
+        "aliases": ["hippocampal region"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Thalamus",
+        "aliases": ["thalamic region"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Striatum",
+        "aliases": ["striatal region"],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ],
+    "brain_network": [
+      {
+        "label": "Default mode network",
+        "aliases": ["DMN", "default-mode network"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Salience network",
+        "aliases": ["SN"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Central executive network",
+        "aliases": ["CEN", "executive control network"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Frontoparietal network",
+        "aliases": ["FPN", "fronto-parietal network"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Limbic network",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ],
+    "neural_circuit": [
+      {
+        "label": "Frontostriatal circuit",
+        "aliases": ["fronto-striatal circuit", "prefrontal-striatal circuit"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Amygdala-prefrontal circuit",
+        "aliases": ["amygdala-PFC circuit", "prefrontal-amygdala circuit"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Thalamocortical circuit",
+        "aliases": ["thalamo-cortical circuit"],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ],
+    "cognitive_behavioral_construct": [
+      {
+        "label": "Cognitive flexibility",
+        "aliases": ["psychological flexibility"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Emotional processing",
+        "aliases": ["emotion processing"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Reward processing",
+        "aliases": ["reward function"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Fear extinction",
+        "aliases": ["extinction learning"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Executive function",
+        "aliases": ["executive functioning"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Memory",
+        "aliases": ["memory performance"],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ],
+    "subjective_experience_construct": [
+      {
+        "label": "Mystical-type experience",
+        "aliases": ["mystical experience", "complete mystical experience"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Ego dissolution",
+        "aliases": ["ego-dissolution", "ego loss"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Challenging experience",
+        "aliases": ["difficult experience", "bad trip"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Psychological insight",
+        "aliases": ["insight", "personal insight"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Emotional breakthrough",
+        "aliases": ["emotional release"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Oceanic boundlessness",
+        "aliases": ["OBN"],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ],
+    "pharmacokinetic_parameter": [
+      {
+        "label": "Cmax",
+        "aliases": ["maximum concentration", "peak plasma concentration"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Tmax",
+        "aliases": ["time to maximum concentration", "time to peak concentration"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "AUC",
+        "aliases": ["area under the curve", "area under the concentration-time curve"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Half-life",
+        "aliases": ["elimination half-life", "t1/2"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Clearance",
+        "aliases": ["CL", "drug clearance"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Bioavailability",
+        "aliases": ["absolute bioavailability", "relative bioavailability"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Volume of distribution",
+        "aliases": ["Vd", "apparent volume of distribution"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Exposure-response relationship",
+        "aliases": ["exposure response", "exposure-response"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Dose-response relationship",
+        "aliases": ["dose response", "dose-response"],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ],
+    "intervention_component": [
+      {
+        "label": "Preparation",
+        "aliases": ["preparation session", "preparatory session"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Dosing session",
+        "aliases": ["medicine session", "drug session"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Integration",
+        "aliases": ["integration session", "post-session integration"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Psychological support",
+        "aliases": ["psychotherapeutic support", "therapy support"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Therapeutic alliance",
+        "aliases": ["therapist alliance"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Set and setting",
+        "aliases": ["set/setting", "setting"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Music",
+        "aliases": ["music playlist", "music support"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Safety monitoring",
+        "aliases": ["clinical monitoring", "medical monitoring"],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ],
+    "public_health_measure": [
+      {
+        "label": "Prevalence",
+        "aliases": ["prevalence rate"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Use pattern",
+        "aliases": ["pattern of use", "real-world use pattern"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Abuse potential",
+        "aliases": ["misuse potential", "addiction potential"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Harm reduction",
+        "aliases": ["harm-reduction practice", "risk reduction"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Access",
+        "aliases": ["treatment access", "access barrier"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Equity",
+        "aliases": ["health equity", "ethnoracial inclusion"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Policy",
+        "aliases": ["regulation", "legal status"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Service delivery",
+        "aliases": ["care delivery", "implementation service model"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Emergency department visit",
+        "aliases": ["ED visit", "emergency presentation"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Poison center report",
+        "aliases": ["poison centre report", "poison-center call"],
+        "ids": {},
+        "status": "seed_alias"
+      }
+    ]
+  }
+}

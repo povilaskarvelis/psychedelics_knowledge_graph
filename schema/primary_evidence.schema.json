@@ -18,7 +18,9 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["primary_evidence_v1"]
+      "enum": [
+        "primary_evidence_v1"
+      ]
     },
     "task_id": {
       "type": "string",
@@ -119,8 +121,7 @@
         "route_relevance_summary",
         "needs_human_review",
         "evidence_location",
-        "evidence_locator",
-        "supporting_quote"
+        "evidence_locator"
       ],
       "properties": {
         "is_in_scope": {
@@ -166,9 +167,6 @@
         },
         "evidence_locator": {
           "type": "string"
-        },
-        "supporting_quote": {
-          "type": "string"
         }
       }
     },
@@ -195,8 +193,6 @@
         "quantitative_value",
         "quantitative_unit",
         "effect_size_or_statistic",
-        "p_value",
-        "confidence_interval",
         "statistical_support",
         "study_design",
         "study_system",
@@ -206,7 +202,6 @@
         "graph_exclusion_reason",
         "evidence_location",
         "evidence_locator",
-        "supporting_quote",
         "confidence",
         "needs_human_review"
       ],
@@ -223,16 +218,20 @@
         "entity_type": {
           "type": "string",
           "enum": [
+            "brain_region",
+            "brain_network",
+            "neural_circuit",
+            "biomarker_readout",
             "disorder",
             "symptom_or_outcome",
             "safety_event",
             "target",
             "pathway_process",
             "molecular_readout",
-            "brain_region_or_network",
             "cognitive_behavioral_construct",
             "subjective_experience_construct",
             "pharmacokinetic_parameter",
+            "compound",
             "intervention_component",
             "public_health_measure",
             "general_topic",
@@ -265,7 +264,8 @@
           "type": "string"
         },
         "timepoint_or_window": {
-          "type": "string"
+          "type": "string",
+          "description": "When the finding was measured or assessed, or the time window summarized by the result. Use the paper's wording when available."
         },
         "assay_or_measurement_method": {
           "type": "string"
@@ -283,12 +283,6 @@
           "type": "string"
         },
         "effect_size_or_statistic": {
-          "type": "string"
-        },
-        "p_value": {
-          "type": "string"
-        },
-        "confidence_interval": {
           "type": "string"
         },
         "statistical_support": {
@@ -326,9 +320,6 @@
           "$ref": "#/definitions/evidence_location"
         },
         "evidence_locator": {
-          "type": "string"
-        },
-        "supporting_quote": {
           "type": "string"
         },
         "confidence": {

@@ -36,6 +36,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EXTRACTION_DIR = ROOT / "data" / "processed" / "extraction"
 DEFAULT_OUT_DIR = ROOT / "data" / "processed" / "kg"
 DEFAULT_REGISTRY_PATH = ROOT / "data" / "curated" / "entity_registry.json"
+DEFAULT_NODE_VOCABULARY_PATH = ROOT / "schema" / "kg_node_vocabularies.json"
 DEFAULT_PAPER_LIBRARY_PATHS = {
     "disorder": ROOT / "data" / "processed" / "paper_library_disorder.csv",
     "mechanistic": ROOT / "data" / "processed" / "paper_library_mechanistic.csv",
@@ -43,6 +44,13 @@ DEFAULT_PAPER_LIBRARY_PATHS = {
 KG_TABLE_VERSION = "0.1"
 
 GRAPH_SOURCES = {
+    "routed_extractions": {
+        "path": DEFAULT_EXTRACTION_DIR / "routed_evidence_rows.json",
+        "domain": "routed",
+        "dataset": "routed",
+        "default_evidence_type": "primary_evidence",
+        "skip_audit": True,
+    },
     "mechanistic_primary": {
         "path": DEFAULT_EXTRACTION_DIR / "mechanistic_graph_claims.json",
         "audit_path": DEFAULT_EXTRACTION_DIR / "mechanistic_normalization_audit.json",
@@ -149,7 +157,7 @@ CLAIM_FIELDS = (
     "route",
     "session_count_or_duration",
     "primary_outcome",
-    "timepoint",
+    "assessment_timepoint",
     "effect_size",
     "p_value",
     "confidence_interval",
@@ -185,6 +193,136 @@ CLAIM_FIELDS = (
 PRIMARY_MARKERS = {"primary_evidence", "primary_study", "primary_results"}
 SECONDARY_MARKERS = {"secondary_literature", "secondary_evidence", "review", "meta_analysis", "systematic_review"}
 MECHANISTIC_ENTITY_KIND_OVERRIDES = {"target", "pathway_process", "biomarker_readout", "system_family"}
+ROUTE_NATIVE_ENTITY_KINDS = {
+    "brain_region",
+    "brain_network",
+    "neural_circuit",
+    "cognitive_behavioral_construct",
+    "subjective_experience_construct",
+    "pharmacokinetic_parameter",
+    "intervention_component",
+    "public_health_measure",
+}
+GRAPH_ENTITY_KINDS = {
+    "compound",
+    "condition_indication",
+    "symptom_problem",
+    "safety_adverse_event",
+    "outcome_scale",
+    "target",
+    "pathway_process",
+    "biomarker_readout",
+    "system_family",
+    *ROUTE_NATIVE_ENTITY_KINDS,
+}
+ENTITY_TYPE_BY_KIND = {
+    "compound": "compound",
+    "condition_indication": "clinical_entity",
+    "symptom_problem": "clinical_entity",
+    "safety_adverse_event": "clinical_entity",
+    "outcome_scale": "clinical_entity",
+    "target": "mechanistic_entity",
+    "pathway_process": "mechanistic_entity",
+    "biomarker_readout": "mechanistic_entity",
+    "system_family": "mechanistic_entity",
+    "brain_region": "brain_system_entity",
+    "brain_network": "brain_system_entity",
+    "neural_circuit": "brain_system_entity",
+    "cognitive_behavioral_construct": "behavioral_entity",
+    "subjective_experience_construct": "subjective_experience_entity",
+    "pharmacokinetic_parameter": "exposure_entity",
+    "intervention_component": "intervention_entity",
+    "public_health_measure": "public_health_entity",
+}
+ENTITY_KIND_ALIASES = {
+    "molecular_readout": "biomarker_readout",
+    "brain_readout": "biomarker_readout",
+    "neural_readout": "biomarker_readout",
+    "pk_parameter": "pharmacokinetic_parameter",
+    "pk_or_exposure_parameter": "pharmacokinetic_parameter",
+}
+DOMAIN_DEFAULT_ENTITY_KIND = {
+    "clinical_outcome": "condition_indication",
+    "safety_tolerability": "safety_adverse_event",
+    "molecular_target": "target",
+    "molecular_pathway_readout": "pathway_process",
+    "brain_system": "brain_network",
+    "cognitive_behavioral": "cognitive_behavioral_construct",
+    "behavioral": "cognitive_behavioral_construct",
+    "subjective_experience": "subjective_experience_construct",
+    "pharmacokinetics_exposure": "pharmacokinetic_parameter",
+    "exposure": "pharmacokinetic_parameter",
+    "intervention_context": "intervention_component",
+    "intervention": "intervention_component",
+    "real_world_public_health": "public_health_measure",
+    "public_health": "public_health_measure",
+}
+COMPOUND_LABEL_FIELDS = (
+    "compound",
+    "canonical_compound",
+    "compound_or_class",
+    "compound_or_exposure",
+    "compound_or_intervention",
+    "compound_or_analyte",
+    "intervention_or_exposure",
+    "exposure_or_intervention",
+    "exposure_or_policy",
+)
+ENTITY_LABEL_FIELDS_BY_KIND = {
+    "target": ("target", "metabolic_or_transport_target", "graph_entity_label", "entity_label", "entity"),
+    "pathway_process": (
+        "pathway_or_process",
+        "pathway_or_readout",
+        "metabolic_or_transport_pathway",
+        "graph_entity_label",
+        "entity_label",
+        "entity",
+    ),
+    "biomarker_readout": (
+        "readout_or_biomarker",
+        "readout_or_measure",
+        "readout",
+        "outcome_measure",
+        "graph_entity_label",
+        "entity_label",
+        "entity",
+    ),
+    "brain_region": ("brain_region", "graph_entity_label", "entity_label", "entity"),
+    "brain_network": ("brain_network", "graph_entity_label", "entity_label", "entity"),
+    "neural_circuit": ("neural_circuit", "connectivity_or_circuit_relationship", "graph_entity_label", "entity_label", "entity"),
+    "cognitive_behavioral_construct": (
+        "construct_or_behavior",
+        "behavior_or_task",
+        "task_or_measure",
+        "graph_entity_label",
+        "entity_label",
+        "entity",
+    ),
+    "subjective_experience_construct": (
+        "subjective_construct",
+        "subjective_construct_category",
+        "graph_entity_label",
+        "entity_label",
+        "entity",
+    ),
+    "pharmacokinetic_parameter": ("pk_or_exposure_parameter", "graph_entity_label", "entity_label", "entity"),
+    "compound": ("metabolite_or_analyte", "compound_or_analyte", "graph_entity_label", "entity_label", "entity"),
+    "intervention_component": (
+        "context_component",
+        "component_type",
+        "intervention_model_or_orientation",
+        "graph_entity_label",
+        "entity_label",
+        "entity",
+    ),
+    "public_health_measure": (
+        "public_health_measure",
+        "public_health_topic_category",
+        "graph_entity_label",
+        "entity_label",
+        "entity",
+    ),
+}
 MECHANISTIC_BIOMARKER_LABELS = {
     "Arc",
     "BDNF",
@@ -305,6 +443,61 @@ def paper_id_for(row: dict) -> str:
 
 def entity_id_for(entity_type: str, label: object) -> str:
     return f"{entity_type}:{slug(label, entity_type)}"
+
+
+def label_key(value: object) -> str:
+    text = normalize(value).casefold()
+    text = text.replace("&", " and ")
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def normalized_entity_kind(value: object) -> str:
+    key = normalize(value).casefold().replace("-", "_").replace(" ", "_")
+    return ENTITY_KIND_ALIASES.get(key, key)
+
+
+def first_normalized_value(row: dict, fields: Iterable[str]) -> str:
+    for field in fields:
+        value = normalize(row.get(field, ""))
+        if value:
+            return value
+    return ""
+
+
+def compound_label_for(row: dict) -> str:
+    return first_normalized_value(row, COMPOUND_LABEL_FIELDS)
+
+
+def node_vocabulary_lookup(path: Path = DEFAULT_NODE_VOCABULARY_PATH) -> dict[tuple[str, str], dict]:
+    data = load_json_object(path)
+    out: dict[tuple[str, str], dict] = {}
+    node_kinds = data.get("node_kinds", {})
+    if not isinstance(node_kinds, dict):
+        return out
+    for kind, entries in node_kinds.items():
+        normalized_kind = normalized_entity_kind(kind)
+        if normalized_kind not in GRAPH_ENTITY_KINDS or not isinstance(entries, list):
+            continue
+        for item in entries:
+            if not isinstance(item, dict):
+                continue
+            label = normalize(item.get("label", ""))
+            if not label:
+                continue
+            labels = [label]
+            labels.extend(normalize(alias) for alias in item.get("aliases", []) if normalize(alias))
+            for candidate in labels:
+                out[(normalized_kind, label_key(candidate))] = item
+    return out
+
+
+def canonicalize_node_label(entity_kind: str, label: str, node_vocabulary: dict[tuple[str, str], dict]) -> tuple[str, dict | None]:
+    item = node_vocabulary.get((entity_kind, label_key(label)))
+    if not item:
+        return label, None
+    canonical = normalize(item.get("label", "")) or label
+    return canonical, item
 
 
 def registry_lookup(registry_path: Path) -> dict[tuple[str, str], dict]:
@@ -632,9 +825,65 @@ def clinical_entity_kind(row: dict, registry_item: dict | None = None) -> str:
     return "condition_indication"
 
 
+def entity_kind_for(row: dict, domain: str, registry_item: dict | None = None) -> str:
+    for field in ("kg_entity_kind_override", "primary_graph_anchor_kind", "graph_candidate_type", "graph_entity_type", "entity_type"):
+        kind = normalized_entity_kind(row.get(field, ""))
+        if kind in GRAPH_ENTITY_KINDS:
+            return kind
+    if domain == "mechanistic":
+        return mechanistic_entity_kind(row, registry_item)
+    if domain == "clinical":
+        return clinical_entity_kind(row, registry_item)
+    domain_key = normalize(domain).casefold()
+    return DOMAIN_DEFAULT_ENTITY_KIND.get(domain_key, "condition_indication")
+
+
+def entity_type_for_kind(entity_kind: str, domain: str) -> str:
+    if entity_kind in ENTITY_TYPE_BY_KIND:
+        return ENTITY_TYPE_BY_KIND[entity_kind]
+    if domain == "mechanistic":
+        return "mechanistic_entity"
+    if domain == "clinical":
+        return "clinical_entity"
+    return f"{slug(domain, 'domain')}_entity"
+
+
+def entity_label_for(row: dict, domain: str, entity_kind: str) -> str:
+    explicit_label = first_normalized_value(row, ("graph_entity_label", "entity_label"))
+    if explicit_label:
+        return explicit_label
+    fields = ENTITY_LABEL_FIELDS_BY_KIND.get(entity_kind, ())
+    label = first_normalized_value(row, fields)
+    if label:
+        return label
+    if domain == "mechanistic":
+        return normalize(row.get("target", ""))
+    if domain == "clinical":
+        return normalize(row.get("disorder", ""))
+    return first_normalized_value(row, ("graph_entity_label", "entity_label", "entity", "target", "disorder"))
+
+
 def relation_type_for(domain: str, entity_kind: str, evidence_type: str) -> str:
     if evidence_type == "secondary_literature":
         return "discusses_relationship"
+    if entity_kind in {"brain_region", "brain_network", "neural_circuit"} or domain == "brain_system":
+        return "has_brain_system_effect"
+    if entity_kind == "cognitive_behavioral_construct" or domain in {"cognitive_behavioral", "behavioral"}:
+        return "has_cognitive_behavioral_effect"
+    if entity_kind == "subjective_experience_construct" or domain == "subjective_experience":
+        return "has_subjective_experience_effect"
+    if entity_kind == "pharmacokinetic_parameter" or domain in {"pharmacokinetics_exposure", "exposure"}:
+        return "has_pharmacokinetic_exposure"
+    if entity_kind == "intervention_component" or domain in {"intervention_context", "intervention"}:
+        return "uses_intervention_component"
+    if entity_kind == "public_health_measure" or domain in {"real_world_public_health", "public_health"}:
+        return "has_public_health_evidence"
+    if entity_kind == "target" or domain == "molecular_target":
+        return "has_mechanistic_target"
+    if entity_kind == "pathway_process" or domain == "molecular_pathway_readout":
+        return "has_mechanistic_pathway"
+    if entity_kind == "biomarker_readout":
+        return "has_biomarker_readout"
     if domain == "mechanistic":
         if entity_kind == "target":
             return "has_mechanistic_target"
@@ -693,13 +942,15 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
     if domain == "clinical" and not normalize(out.get("follow_up_window_normalized", "")):
         out["follow_up_window_normalized"] = normalize_clinical_followup_window(
             out.get("follow_up_duration", ""),
-            out.get("timepoint", ""),
+            out.get("assessment_timepoint", "") or out.get("timepoint", ""),
         )
     return out
 
 
 def claim_row(row: dict, source_name: str, domain: str, dataset: str, evidence_type: str, claim_id: str, paper_id: str) -> dict:
     row = normalize_claim_metadata(row, domain)
+    entity_kind = entity_kind_for(row, domain)
+    entity_label = entity_label_for(row, domain, entity_kind)
     out = {
         "claim_id": claim_id,
         "source_name": source_name,
@@ -709,8 +960,8 @@ def claim_row(row: dict, source_name: str, domain: str, dataset: str, evidence_t
         "paper_id": paper_id,
         "study_doi": normalize_doi(row.get("study_doi", "")),
         "study_year": as_int_or_none(row.get("study_year", "")),
-        "compound": normalize(row.get("compound", "")),
-        "entity_label": normalize(row.get("target" if domain == "mechanistic" else "disorder", "")),
+        "compound": compound_label_for(row),
+        "entity_label": entity_label,
         "raw_row_json": json_dumps(row),
     }
     for field in CLAIM_FIELDS:
@@ -737,7 +988,7 @@ def evidence_edge_row(
     compound_id: str,
     entity_id: str,
 ) -> dict:
-    entity_label = normalize(row.get("target" if domain == "mechanistic" else "disorder", ""))
+    entity_label = entity_label_for(row, domain, entity_kind)
     relation_type = relation_type_for(domain, entity_kind, evidence_type)
     return {
         "evidence_id": evidence_id,
@@ -749,7 +1000,7 @@ def evidence_edge_row(
         "evidence_type": evidence_type,
         "relation_type": relation_type,
         "compound_id": compound_id,
-        "compound": normalize(row.get("compound", "")),
+        "compound": compound_label_for(row),
         "entity_id": entity_id,
         "entity_label": entity_label,
         "paper_id": paper_id,
@@ -776,15 +1027,16 @@ def evidence_edge_row(
 
 
 def audit_row(row: dict, source_name: str, domain: str, dataset: str) -> dict:
+    entity_kind = entity_kind_for(row, domain)
     return {
         "source_name": source_name,
         "domain": domain,
         "dataset": dataset,
         "normalization_status": normalize(row.get("normalization_status", "")),
         "normalization_notes": normalize(row.get("normalization_notes", "")),
-        "compound": normalize(row.get("compound", "")),
+        "compound": compound_label_for(row),
         "canonical_compound": normalize(row.get("canonical_compound", "")),
-        "entity_label": normalize(row.get("target" if dataset == "mechanistic" else "disorder", "")),
+        "entity_label": entity_label_for(row, domain, entity_kind),
         "canonical_entity": normalize(row.get("canonical_entity", "")),
         "entity_role": normalize(row.get("entity_role", "")),
         "graph_entity_type": normalize(row.get("graph_entity_type", "")),
@@ -814,11 +1066,13 @@ def build_tables(
     *,
     graph_sources: dict[str, dict] | None = None,
     registry_path: Path = DEFAULT_REGISTRY_PATH,
+    node_vocabulary_path: Path = DEFAULT_NODE_VOCABULARY_PATH,
     out_dir: Path = DEFAULT_OUT_DIR,
     write_duckdb: bool = True,
 ) -> dict:
     graph_sources = graph_sources or GRAPH_SOURCES
     registry = registry_lookup(registry_path)
+    node_vocabulary = node_vocabulary_lookup(node_vocabulary_path)
     access_lookups = paper_library_lookups()
     papers: dict[str, dict] = {}
     entities: dict[str, dict] = {}
@@ -830,12 +1084,14 @@ def build_tables(
     for source_name, cfg in graph_sources.items():
         rows = rows_for_source(cfg)
         source_counts[source_name] = len(rows)
-        domain = cfg["domain"]
-        dataset = cfg["dataset"]
+        source_domain = cfg["domain"]
+        source_dataset = cfg["dataset"]
         default_evidence_type = cfg["default_evidence_type"]
-        access_lookup = access_lookups.get(dataset, {})
 
         for index, row in enumerate(rows):
+            domain = normalize(row.get("domain", "")) or normalize(row.get("domain_route", "")) or source_domain
+            dataset = normalize(row.get("dataset", "")) or domain or source_dataset
+            access_lookup = access_lookups.get(dataset, {})
             row = enrich_open_access_metadata(row, access_lookup)
             if should_skip_evidence_row(domain, row):
                 continue
@@ -843,7 +1099,7 @@ def build_tables(
             paper_id = paper_id_for(row)
             papers.setdefault(paper_id, paper_row(row, paper_id))
 
-            compound_label = normalize(row.get("compound", ""))
+            compound_label = compound_label_for(row)
             compound_id = entity_id_for("compound", compound_label)
             compound_registry = registry.get(("compound", compound_label))
             entities.setdefault(
@@ -851,16 +1107,20 @@ def build_tables(
                 entity_row(compound_id, "compound", "compound", compound_label, "compound", compound_registry),
             )
 
-            entity_label = normalize(row.get("target" if domain == "mechanistic" else "disorder", ""))
-            entity_type = "mechanistic_entity" if domain == "mechanistic" else "clinical_entity"
-            registry_item = registry.get((entity_type, entity_label))
-            entity_kind = (
-                mechanistic_entity_kind(row, registry_item)
-                if domain == "mechanistic"
-                else clinical_entity_kind(row, registry_item)
-            )
+            legacy_entity_label = normalize(row.get("target" if domain == "mechanistic" else "disorder", ""))
+            legacy_entity_type = "mechanistic_entity" if domain == "mechanistic" else "clinical_entity"
+            legacy_registry_item = registry.get((legacy_entity_type, legacy_entity_label))
+            entity_kind = entity_kind_for(row, domain, legacy_registry_item)
+            entity_label = entity_label_for(row, domain, entity_kind)
+            entity_label, vocabulary_item = canonicalize_node_label(entity_kind, entity_label, node_vocabulary)
+            entity_type = entity_type_for_kind(entity_kind, domain)
+            registry_item = registry.get((entity_type, entity_label)) or vocabulary_item
             entity_id = entity_id_for(entity_type, entity_label)
             entities.setdefault(entity_id, entity_row(entity_id, entity_type, domain, entity_label, entity_kind, registry_item))
+            table_row = dict(row)
+            table_row["compound"] = compound_label
+            table_row["graph_entity_label"] = entity_label
+            table_row["kg_entity_kind_override"] = entity_kind
 
             evidence_type = evidence_type_for(row, default_evidence_type)
             claim_id = stable_id(
@@ -868,16 +1128,16 @@ def build_tables(
                 source_name,
                 index,
                 row.get("study_doi", ""),
-                row.get("compound", ""),
+                compound_label,
                 entity_label,
-                row.get("evidence_locator", ""),
-                row.get("supporting_quote", ""),
+                table_row.get("evidence_locator", ""),
+                table_row.get("supporting_quote", ""),
             )
             evidence_id = stable_id("evidence", claim_id, evidence_type, entity_kind)
-            claims.append(claim_row(row, source_name, domain, dataset, evidence_type, claim_id, paper_id))
+            claims.append(claim_row(table_row, source_name, domain, dataset, evidence_type, claim_id, paper_id))
             evidence_edges.append(
                 evidence_edge_row(
-                    row,
+                    table_row,
                     source_name,
                     domain,
                     dataset,
@@ -922,6 +1182,7 @@ def build_tables(
         "generated_at": now_utc(),
         "out_dir": str(out_dir),
         "registry_path": str(registry_path),
+        "node_vocabulary_path": str(node_vocabulary_path),
         "source_counts": source_counts,
         "tables": {
             table_name: {

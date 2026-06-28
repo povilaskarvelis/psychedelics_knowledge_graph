@@ -1,0 +1,425 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Meta-Analysis Extraction - clinical_outcome",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "synthesis_assessment",
+    "included_evidence_summary",
+    "synthesis_results",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "meta_analysis_evidence_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "clinical_outcome"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "meta_analysis",
+        "network_meta_analysis",
+        "umbrella_review",
+        "systematic_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_synthesis_result",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "synthesis_assessment": {
+      "$ref": "#/definitions/synthesis_assessment"
+    },
+    "included_evidence_summary": {
+      "$ref": "#/definitions/included_evidence_summary"
+    },
+    "synthesis_results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/synthesis_result"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "clinical_outcome"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "result_direction": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "no_detected_effect",
+        "negative",
+        "mixed",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    },
+    "synthesis_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "is_meta_analysis",
+        "is_network_meta_analysis",
+        "has_extractable_quantitative_results",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "is_meta_analysis": {
+          "type": "boolean"
+        },
+        "is_network_meta_analysis": {
+          "type": "boolean"
+        },
+        "has_extractable_quantitative_results": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "clinical_outcome"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "included_evidence_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included_study_count",
+        "included_participant_count",
+        "included_experiment_or_assay_count",
+        "included_evidence_type_summary",
+        "study_year_range",
+        "country_or_region_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "included_study_count": {
+          "type": "string"
+        },
+        "included_participant_count": {
+          "type": "string"
+        },
+        "included_experiment_or_assay_count": {
+          "type": "string"
+        },
+        "included_evidence_type_summary": {
+          "type": "string"
+        },
+        "study_year_range": {
+          "type": "string"
+        },
+        "country_or_region_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "synthesis_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "result_role",
+        "relationship_domain",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "intervention_or_exposure",
+        "comparator",
+        "outcome_or_endpoint",
+        "outcome_measure",
+        "timepoint_or_window",
+        "effect_metric",
+        "effect_size",
+        "study_count",
+        "participant_count",
+        "result_direction",
+        "authors_interpretation",
+        "domain_result",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "result_id": {
+          "type": "string"
+        },
+        "result_role": {
+          "type": "string",
+          "enum": [
+            "main_result",
+            "secondary_result",
+            "subgroup_result",
+            "sensitivity_analysis",
+            "meta_regression",
+            "publication_bias",
+            "network_comparison",
+            "network_ranking",
+            "dose_response",
+            "other",
+            "uncertain"
+          ]
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "clinical_outcome"
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "disorder",
+            "symptom_or_outcome",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "intervention_or_exposure": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "outcome_or_endpoint": {
+          "type": "string"
+        },
+        "outcome_measure": {
+          "type": "string"
+        },
+        "timepoint_or_window": {
+          "type": "string"
+        },
+        "effect_metric": {
+          "type": "string"
+        },
+        "effect_size": {
+          "type": "string"
+        },
+        "study_count": {
+          "type": "string"
+        },
+        "participant_count": {
+          "type": "string"
+        },
+        "result_direction": {
+          "$ref": "#/definitions/result_direction"
+        },
+        "authors_interpretation": {
+          "type": "string"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "condition_or_population",
+            "compound_or_intervention",
+            "comparator",
+            "dose_or_regimen",
+            "outcome_measure",
+            "clinical_endpoint",
+            "assessment_timepoint",
+            "clinical_endpoint_category",
+            "effect_or_statistic",
+            "synthesis_interpretation"
+          ],
+          "properties": {
+            "condition_or_population": {
+              "type": "string",
+              "description": "Clinical condition, indication, or participant population for the synthesized outcome."
+            },
+            "compound_or_intervention": {
+              "type": "string",
+              "description": "Drug, psychedelic-assisted intervention, comparator class, or treatment being synthesized."
+            },
+            "comparator": {
+              "type": "string",
+              "description": "Control, placebo, active comparator, baseline, or other comparison group."
+            },
+            "dose_or_regimen": {
+              "type": "string",
+              "description": "Dose, dosing schedule, session count, or treatment regimen when reported."
+            },
+            "outcome_measure": {
+              "type": "string",
+              "description": "Scale, instrument, endpoint definition, or measurement used for the clinical outcome."
+            },
+            "clinical_endpoint": {
+              "type": "string",
+              "description": "Clinical outcome being synthesized, such as symptom severity, response, remission, relapse, functioning, or quality of life."
+            },
+            "assessment_timepoint": {
+              "type": "string",
+              "description": "When the finding was measured or assessed, such as acute session, 2 hours post-dose, end of treatment, week 6, or follow-up. Use the paper's wording when available."
+            },
+            "clinical_endpoint_category": {
+              "type": "string",
+              "description": "Broad clinical result category, such as depression severity, PTSD symptoms, anxiety, suicidality, pain, response, remission, relapse, functioning, quality of life, or global improvement."
+            },
+            "effect_or_statistic": {
+              "type": "string",
+              "description": "Domain-specific copy of the main clinical statistic, effect estimate, rate, or comparison."
+            },
+            "synthesis_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of what the synthesis result means for this clinical outcome."
+            }
+          }
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

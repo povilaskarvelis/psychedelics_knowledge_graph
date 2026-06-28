@@ -1,0 +1,430 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Meta-Analysis Extraction - molecular_target",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "synthesis_assessment",
+    "included_evidence_summary",
+    "synthesis_results",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "meta_analysis_evidence_v1"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "study_doi": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain_route": {
+      "type": "string",
+      "const": "molecular_target"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "meta_analysis",
+        "network_meta_analysis",
+        "umbrella_review",
+        "systematic_review",
+        "secondary_evidence",
+        "uncertain"
+      ]
+    },
+    "text_depth": {
+      "type": "string",
+      "enum": [
+        "article_text",
+        "abstract_only"
+      ]
+    },
+    "source_text_provenance": {
+      "$ref": "#/definitions/source_text_provenance"
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_synthesis_result",
+        "not_relevant",
+        "wrong_source_type",
+        "human_review"
+      ]
+    },
+    "synthesis_assessment": {
+      "$ref": "#/definitions/synthesis_assessment"
+    },
+    "included_evidence_summary": {
+      "$ref": "#/definitions/included_evidence_summary"
+    },
+    "synthesis_results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/synthesis_result"
+      }
+    },
+    "extraction_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "const": "molecular_target"
+    },
+    "evidence_location": {
+      "type": "string",
+      "enum": [
+        "abstract",
+        "text",
+        "table",
+        "figure",
+        "supplement",
+        "metadata",
+        "not_reported"
+      ]
+    },
+    "result_direction": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "no_detected_effect",
+        "negative",
+        "mixed",
+        "unclear",
+        "not_applicable"
+      ]
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_depth",
+        "source_text_kind",
+        "source_text_scope"
+      ],
+      "properties": {
+        "text_depth": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_kind": {
+          "type": "string",
+          "enum": [
+            "article_text",
+            "abstract_only"
+          ]
+        },
+        "source_text_scope": {
+          "type": "string"
+        }
+      }
+    },
+    "synthesis_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope",
+        "is_meta_analysis",
+        "is_network_meta_analysis",
+        "has_extractable_quantitative_results",
+        "relationship_domain",
+        "population_or_system",
+        "primary_compounds_or_classes",
+        "primary_entities",
+        "needs_human_review",
+        "reasoning_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {
+          "type": "boolean"
+        },
+        "is_meta_analysis": {
+          "type": "boolean"
+        },
+        "is_network_meta_analysis": {
+          "type": "boolean"
+        },
+        "has_extractable_quantitative_results": {
+          "type": "boolean"
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "molecular_target"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "primary_compounds_or_classes": {
+          "type": "string"
+        },
+        "primary_entities": {
+          "type": "string"
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "reasoning_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "included_evidence_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included_study_count",
+        "included_participant_count",
+        "included_experiment_or_assay_count",
+        "included_evidence_type_summary",
+        "study_year_range",
+        "country_or_region_summary",
+        "evidence_location",
+        "evidence_locator"
+      ],
+      "properties": {
+        "included_study_count": {
+          "type": "string"
+        },
+        "included_participant_count": {
+          "type": "string"
+        },
+        "included_experiment_or_assay_count": {
+          "type": "string"
+        },
+        "included_evidence_type_summary": {
+          "type": "string"
+        },
+        "study_year_range": {
+          "type": "string"
+        },
+        "country_or_region_summary": {
+          "type": "string"
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        }
+      }
+    },
+    "synthesis_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "result_role",
+        "relationship_domain",
+        "compound_or_class",
+        "entity_type",
+        "entity",
+        "population_or_system",
+        "intervention_or_exposure",
+        "comparator",
+        "outcome_or_endpoint",
+        "outcome_measure",
+        "timepoint_or_window",
+        "effect_metric",
+        "effect_size",
+        "study_count",
+        "participant_count",
+        "result_direction",
+        "authors_interpretation",
+        "domain_result",
+        "evidence_location",
+        "evidence_locator",
+        "confidence",
+        "needs_human_review"
+      ],
+      "properties": {
+        "result_id": {
+          "type": "string"
+        },
+        "result_role": {
+          "type": "string",
+          "enum": [
+            "main_result",
+            "secondary_result",
+            "subgroup_result",
+            "sensitivity_analysis",
+            "meta_regression",
+            "publication_bias",
+            "network_comparison",
+            "network_ranking",
+            "dose_response",
+            "other",
+            "uncertain"
+          ]
+        },
+        "relationship_domain": {
+          "type": "string",
+          "const": "molecular_target"
+        },
+        "compound_or_class": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "target",
+            "not_applicable",
+            "uncertain"
+          ]
+        },
+        "entity": {
+          "type": "string"
+        },
+        "population_or_system": {
+          "type": "string"
+        },
+        "intervention_or_exposure": {
+          "type": "string"
+        },
+        "comparator": {
+          "type": "string"
+        },
+        "outcome_or_endpoint": {
+          "type": "string"
+        },
+        "outcome_measure": {
+          "type": "string"
+        },
+        "timepoint_or_window": {
+          "type": "string"
+        },
+        "effect_metric": {
+          "type": "string"
+        },
+        "effect_size": {
+          "type": "string"
+        },
+        "study_count": {
+          "type": "string"
+        },
+        "participant_count": {
+          "type": "string"
+        },
+        "result_direction": {
+          "type": "string",
+          "const": "not_applicable"
+        },
+        "authors_interpretation": {
+          "type": "string"
+        },
+        "domain_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "compound",
+            "target",
+            "target_type",
+            "assay_type",
+            "system",
+            "species_or_cell_line",
+            "comparator_or_reference",
+            "action_type",
+            "metric",
+            "value",
+            "synthesis_interpretation"
+          ],
+          "properties": {
+            "compound": {
+              "type": "string",
+              "description": "Compound, drug class, metabolite, or exposure linked to the target finding."
+            },
+            "target": {
+              "type": "string",
+              "description": "Direct molecular target such as receptor, transporter, enzyme, ion channel, or binding site."
+            },
+            "target_type": {
+              "type": "string",
+              "description": "Target class, for example receptor, transporter, enzyme, ion channel, or target-engagement marker."
+            },
+            "assay_type": {
+              "type": "string",
+              "description": "Assay or measurement type, such as binding assay, occupancy PET, molecular imaging, network pharmacology, or in vitro potency assay."
+            },
+            "system": {
+              "type": "string",
+              "description": "Biological, experimental, clinical, or computational system in which the target relationship was assessed."
+            },
+            "species_or_cell_line": {
+              "type": "string",
+              "description": "Species, cell line, recombinant system, human population, or model organism when reported."
+            },
+            "comparator_or_reference": {
+              "type": "string",
+              "description": "Target-specific comparison or reference, such as control group, baseline, placebo, reference receptor, reference region, or no comparator."
+            },
+            "action_type": {
+              "type": "string",
+              "description": "Reported action or relationship, such as agonist, antagonist, inhibitor, modulator, occupancy, availability change, binding, or target association."
+            },
+            "metric": {
+              "type": "string",
+              "description": "Target metric such as Ki, Kd, IC50, EC50, occupancy, binding potential, availability, SMD, enrichment score, or association statistic."
+            },
+            "value": {
+              "type": "string",
+              "description": "Reported value or estimate for the target metric."
+            },
+            "synthesis_interpretation": {
+              "type": "string",
+              "description": "Short interpretation of what the synthesis result means for the molecular target relationship."
+            }
+          }
+        },
+        "evidence_location": {
+          "$ref": "#/definitions/evidence_location"
+        },
+        "evidence_locator": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
