@@ -210,12 +210,26 @@ python pipeline/extract/build_extraction_routes.py
 python pipeline/fulltext/run_pdf_retrieval_pipeline.py
 python pipeline/fulltext/run_local_pdf_conversion_pipeline.py --batch-size 25
 python pipeline/extract/build_extraction_tasks.py
+RUN_ID=gemini3_flash_YYYYMMDD_first_batch
+python pipeline/extract/run_route_extraction.py --run-id "$RUN_ID"
+python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
+  --run-id "$RUN_ID" \
+  --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl"
 python pipeline/validate/validate_claims.py
-python pipeline/kg/build_evidence_tables.py
-python pipeline/kg/build_author_tables.py
-python pipeline/publish/export_graph_payload.py
+python pipeline/kg/build_evidence_tables.py --source-preset routed --run-id "$RUN_ID"
+python pipeline/kg/build_author_tables.py \
+  --papers "data/processed/kg_routed_runs/$RUN_ID/papers.parquet" \
+  --out-dir "data/processed/kg_routed_runs/$RUN_ID" \
+  --cache "data/processed/kg_routed_runs/$RUN_ID/openalex_author_cache.json"
+python pipeline/publish/export_graph_payload.py \
+  --kg-dir "data/processed/kg_routed_runs/$RUN_ID" \
+  --out-dir "data/processed/graph_payload_runs/$RUN_ID"
 python pipeline/publish/export_bibliography_payload.py
 ```
+
+The stable current KG remains under `data/processed/kg/`. Routed extraction
+reruns should use a `RUN_ID` first; write to `data/processed/kg/` only when a
+reviewed run is intentionally promoted as the current graph table.
 
 For the operational walkthrough, search completeness checks, provider settings,
 PDF runtime setup, and larger search runs, see [pipeline/README.md](pipeline/README.md).

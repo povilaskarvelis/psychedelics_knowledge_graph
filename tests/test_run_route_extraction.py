@@ -16,11 +16,13 @@ from pipeline.extract.route_extraction_profiles import (
 )
 from pipeline.extract.run_route_extraction import (
     DEFAULT_GEMINI_MODEL,
+    DEFAULT_ROUTED_RUN_ROOT,
     build_contents,
     dry_run_report,
     inject_route_identity_fields,
     model_for_task,
     parse_json_response,
+    resolve_output_paths,
     selected_tasks,
     text_depth_for_task,
 )
@@ -254,6 +256,31 @@ def make_args(**overrides: object) -> SimpleNamespace:
 
 
 class RouteExtractionRunnerTest(unittest.TestCase):
+    def test_run_id_resolves_runner_outputs_to_versioned_directory(self) -> None:
+        args = resolve_output_paths(
+            make_args(
+                run_id="Gemini 3 Flash Batch",
+                run_dir="",
+                out_jsonl="",
+                raw_jsonl="",
+                report_json="",
+            )
+        )
+
+        self.assertEqual(args.run_id, "Gemini_3_Flash_Batch")
+        self.assertEqual(
+            Path(args.out_jsonl),
+            DEFAULT_ROUTED_RUN_ROOT / "Gemini_3_Flash_Batch" / "route_extraction_outputs.jsonl",
+        )
+        self.assertEqual(
+            Path(args.raw_jsonl),
+            DEFAULT_ROUTED_RUN_ROOT / "Gemini_3_Flash_Batch" / "route_extraction_raw.jsonl",
+        )
+        self.assertEqual(
+            Path(args.report_json),
+            DEFAULT_ROUTED_RUN_ROOT / "Gemini_3_Flash_Batch" / "route_extraction_report.json",
+        )
+
     def test_profile_registry_resolves_meta_analysis_profile(self) -> None:
         profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
 

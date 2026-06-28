@@ -34,6 +34,13 @@ Mechanistic only:
 Custom output directory:
 `python pipeline/publish/export_graph_payload.py --out-dir data/processed`
 
+Export graph payloads from a versioned routed KG run for review:
+`python pipeline/publish/export_graph_payload.py --kg-dir data/processed/kg_routed_runs/<RUN_ID> --out-dir data/processed/graph_payload_runs/<RUN_ID>`
+
+The default command reads `data/processed/kg/` and writes the stable current
+payloads. Use `--kg-dir` plus a separate `--out-dir` when reviewing a new
+extraction/KG version before promoting it.
+
 ## Outputs
 - `data/processed/graph_payload_mechanistic.json` (all evidence)
 - `data/processed/graph_payload_mechanistic_primary_only.json`

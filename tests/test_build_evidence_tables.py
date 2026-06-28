@@ -6,10 +6,42 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.extract.extraction_v1_utils import write_json
-from pipeline.kg.build_evidence_tables import build_tables
+from pipeline.kg.build_evidence_tables import (
+    DEFAULT_OUT_DIR,
+    DEFAULT_ROUTED_KG_RUN_ROOT,
+    build_tables,
+    graph_sources_for_preset,
+    resolve_kg_output_dir,
+)
 
 
 class BuildEvidenceTablesTest(unittest.TestCase):
+    def test_current_source_preset_excludes_routed_extractions(self) -> None:
+        self.assertNotIn("routed_extractions", graph_sources_for_preset("current"))
+        self.assertEqual(set(graph_sources_for_preset("routed")), {"routed_extractions"})
+        self.assertIn("routed_extractions", graph_sources_for_preset("combined"))
+
+    def test_routed_run_id_resolves_to_versioned_kg_directory(self) -> None:
+        out_dir, run_id = resolve_kg_output_dir(
+            source_preset="routed",
+            out_dir=None,
+            run_id="Gemini 3 Flash / first batch",
+        )
+
+        self.assertEqual(run_id, "Gemini_3_Flash_first_batch")
+        self.assertEqual(out_dir, DEFAULT_ROUTED_KG_RUN_ROOT / "Gemini_3_Flash_first_batch")
+        self.assertTrue(
+            str(graph_sources_for_preset("routed", run_id=run_id)["routed_extractions"]["path"]).endswith(
+                "data/processed/extraction/routed_runs/Gemini_3_Flash_first_batch/routed_evidence_rows.json"
+            )
+        )
+
+    def test_current_source_preset_keeps_existing_default_output_directory(self) -> None:
+        out_dir, run_id = resolve_kg_output_dir(source_preset="current", out_dir=None, run_id="")
+
+        self.assertEqual(out_dir, DEFAULT_OUT_DIR)
+        self.assertEqual(run_id, "")
+
     def test_builds_unified_parquet_tables_with_entity_kinds(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

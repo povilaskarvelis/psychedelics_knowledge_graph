@@ -2,12 +2,17 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 
 from pipeline.extract.extraction_v1_utils import write_json
 from pipeline.kg.build_evidence_tables import build_tables
-from pipeline.kg.convert_routed_extractions_to_evidence_rows import convert_outputs
+from pipeline.kg.convert_routed_extractions_to_evidence_rows import (
+    DEFAULT_ROUTED_RUN_ROOT,
+    convert_outputs,
+    resolve_output_paths,
+)
 
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -15,6 +20,23 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
 
 
 class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
+    def test_run_id_resolves_converter_outputs_to_versioned_directory(self) -> None:
+        args = resolve_output_paths(
+            SimpleNamespace(
+                run_id="gemini 3 flash batch",
+                run_dir="",
+                out_json="",
+                report_json="",
+            )
+        )
+
+        self.assertEqual(args.run_id, "gemini_3_flash_batch")
+        self.assertEqual(Path(args.out_json), DEFAULT_ROUTED_RUN_ROOT / "gemini_3_flash_batch" / "routed_evidence_rows.json")
+        self.assertEqual(
+            Path(args.report_json),
+            DEFAULT_ROUTED_RUN_ROOT / "gemini_3_flash_batch" / "routed_evidence_rows_report.json",
+        )
+
     def test_converts_routed_outputs_into_rows_consumed_by_kg_builder(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

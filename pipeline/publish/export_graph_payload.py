@@ -24,6 +24,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
 
 DEFAULT_CLAIM_SOURCE = "kg_tables"
+DEFAULT_KG_TABLE_DIR = ROOT / "data" / "processed" / "kg"
 LEGACY_MECHANISTIC_SCHEMA = ROOT / "schema" / "legacy_mechanistic_affinity_claims.schema.json"
 LEGACY_DISORDER_SCHEMA = ROOT / "schema" / "legacy_disorder_claims.schema.json"
 
@@ -63,8 +64,8 @@ CLAIM_SOURCES = {
     },
     "kg_tables": {
         "label": "Normalized KG evidence tables",
-        "claims_parquet": ROOT / "data" / "processed" / "kg" / "claims.parquet",
-        "paper_authors_parquet": ROOT / "data" / "processed" / "kg" / "paper_authors.parquet",
+        "claims_parquet": DEFAULT_KG_TABLE_DIR / "claims.parquet",
+        "paper_authors_parquet": DEFAULT_KG_TABLE_DIR / "paper_authors.parquet",
         "mechanistic": {
             "primary_source_name": "mechanistic_primary",
             "secondary_source_name": "mechanistic_secondary",
@@ -253,15 +254,16 @@ def load_json_array(path: Path) -> List[dict]:
     return data
 
 
-def claim_source_paths(dataset: str, claim_source: str) -> dict:
+def claim_source_paths(dataset: str, claim_source: str, kg_dir: Path | None = None) -> dict:
     source = CLAIM_SOURCES[claim_source]
     if claim_source == "kg_tables":
         paths = source[dataset]
+        resolved_kg_dir = kg_dir or DEFAULT_KG_TABLE_DIR
         return {
             "claim_source": claim_source,
             "claim_source_label": source["label"],
-            "claims_parquet": source["claims_parquet"],
-            "paper_authors_parquet": source["paper_authors_parquet"],
+            "claims_parquet": resolved_kg_dir / "claims.parquet",
+            "paper_authors_parquet": resolved_kg_dir / "paper_authors.parquet",
             "primary_source_name": paths["primary_source_name"],
             "secondary_source_name": paths["secondary_source_name"],
         }
@@ -1017,9 +1019,14 @@ def graph_preview_payload(payload: dict) -> dict:
     }
 
 
-def export_dataset(dataset: str, out_dir: Path, claim_source: str = DEFAULT_CLAIM_SOURCE) -> Tuple[dict, Dict[str, List[str]]]:
+def export_dataset(
+    dataset: str,
+    out_dir: Path,
+    claim_source: str = DEFAULT_CLAIM_SOURCE,
+    kg_dir: Path | None = None,
+) -> Tuple[dict, Dict[str, List[str]]]:
     cfg = DATASET_CONFIG[dataset]
-    source_paths = claim_source_paths(dataset, claim_source)
+    source_paths = claim_source_paths(dataset, claim_source, kg_dir=kg_dir)
     rows, exploratory_rows = load_claim_rows_for_source(dataset, claim_source, source_paths)
     author_lookup = (
         load_author_role_lookup(source_paths.get("paper_authors_parquet"))
@@ -1126,9 +1133,15 @@ def main() -> int:
         default=DEFAULT_CLAIM_SOURCE,
         help="Claim source for main graph payloads. Default uses normalized KG evidence tables.",
     )
+    parser.add_argument(
+        "--kg-dir",
+        default=str(DEFAULT_KG_TABLE_DIR),
+        help="KG table directory to read when --claim-source kg_tables.",
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir).resolve()
+    kg_dir = Path(args.kg_dir).resolve()
     datasets = ["mechanistic", "disorder"] if args.dataset == "all" else [args.dataset]
 
     manifest = {
@@ -1136,6 +1149,7 @@ def main() -> int:
         "contract_version": "1.0",
         "claim_source": args.claim_source,
         "claim_source_label": CLAIM_SOURCES[args.claim_source]["label"],
+        "kg_dir": str(kg_dir) if args.claim_source == "kg_tables" else "",
         "datasets": {},
         "status": "ok",
         "errors": [],
@@ -1143,7 +1157,7 @@ def main() -> int:
     view_payloads: dict[str, List[dict]] = {view: [] for view in VIEW_NAMES}
 
     for dataset in datasets:
-        views, errors_by_view = export_dataset(dataset, out_dir, claim_source=args.claim_source)
+        views, errors_by_view = export_dataset(dataset, out_dir, claim_source=args.claim_source, kg_dir=kg_dir)
         for view in VIEW_NAMES:
             view_payloads[view].append(views[view]["payload"])
         manifest["datasets"][dataset] = {

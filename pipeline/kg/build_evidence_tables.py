@@ -35,6 +35,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_EXTRACTION_DIR = ROOT / "data" / "processed" / "extraction"
 DEFAULT_OUT_DIR = ROOT / "data" / "processed" / "kg"
+DEFAULT_ROUTED_KG_RUN_ROOT = ROOT / "data" / "processed" / "kg_routed_runs"
 DEFAULT_REGISTRY_PATH = ROOT / "data" / "curated" / "entity_registry.json"
 DEFAULT_NODE_VOCABULARY_PATH = ROOT / "schema" / "kg_node_vocabularies.json"
 DEFAULT_PAPER_LIBRARY_PATHS = {
@@ -43,7 +44,7 @@ DEFAULT_PAPER_LIBRARY_PATHS = {
 }
 KG_TABLE_VERSION = "0.1"
 
-GRAPH_SOURCES = {
+ROUTED_GRAPH_SOURCES = {
     "routed_extractions": {
         "path": DEFAULT_EXTRACTION_DIR / "routed_evidence_rows.json",
         "domain": "routed",
@@ -51,6 +52,9 @@ GRAPH_SOURCES = {
         "default_evidence_type": "primary_evidence",
         "skip_audit": True,
     },
+}
+
+CURRENT_GRAPH_SOURCES = {
     "mechanistic_primary": {
         "path": DEFAULT_EXTRACTION_DIR / "mechanistic_graph_claims.json",
         "audit_path": DEFAULT_EXTRACTION_DIR / "mechanistic_normalization_audit.json",
@@ -89,6 +93,15 @@ GRAPH_SOURCES = {
         "default_evidence_type": "secondary_literature",
     },
 }
+COMBINED_GRAPH_SOURCES = {**CURRENT_GRAPH_SOURCES, **ROUTED_GRAPH_SOURCES}
+GRAPH_SOURCE_PRESETS = {
+    "current": CURRENT_GRAPH_SOURCES,
+    "routed": ROUTED_GRAPH_SOURCES,
+    "combined": COMBINED_GRAPH_SOURCES,
+}
+# Backwards-compatible module name. The default remains the current KG sources,
+# so routed extraction outputs cannot be mixed in by accident.
+GRAPH_SOURCES = CURRENT_GRAPH_SOURCES
 
 PAPER_FIELDS = (
     "study_doi",
@@ -352,6 +365,48 @@ MECHANISTIC_BIOMARKER_LABELS = {
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def default_run_id(prefix: str = "routed") -> str:
+    return f"{prefix}_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+
+
+def safe_run_id(value: object) -> str:
+    text = normalize(value)
+    text = re.sub(r"[^A-Za-z0-9._-]+", "_", text).strip("._-")
+    return text
+
+
+def routed_evidence_rows_path_for_run(run_id: str) -> Path:
+    return DEFAULT_EXTRACTION_DIR / "routed_runs" / safe_run_id(run_id) / "routed_evidence_rows.json"
+
+
+def graph_sources_for_preset(source_preset: str, run_id: str = "") -> dict[str, dict]:
+    try:
+        sources = GRAPH_SOURCE_PRESETS[source_preset]
+    except KeyError as exc:
+        choices = ", ".join(sorted(GRAPH_SOURCE_PRESETS))
+        raise ValueError(f"Unknown source preset {source_preset!r}; expected one of: {choices}") from exc
+    out = {name: dict(cfg) for name, cfg in sources.items()}
+    if safe_run_id(run_id) and "routed_extractions" in out:
+        out["routed_extractions"]["path"] = routed_evidence_rows_path_for_run(run_id)
+    return out
+
+
+def resolve_kg_output_dir(
+    *,
+    source_preset: str,
+    out_dir: Path | None,
+    run_id: str,
+) -> tuple[Path, str]:
+    resolved_run_id = safe_run_id(run_id)
+    if out_dir is not None:
+        return out_dir, resolved_run_id
+    if source_preset != "current":
+        if not resolved_run_id:
+            resolved_run_id = default_run_id(source_preset)
+        return DEFAULT_ROUTED_KG_RUN_ROOT / resolved_run_id, resolved_run_id
+    return DEFAULT_OUT_DIR, resolved_run_id
 
 
 def load_json_array(path: Path) -> list[dict]:
@@ -1065,12 +1120,18 @@ def write_parquet(df: pd.DataFrame, path: Path) -> None:
 def build_tables(
     *,
     graph_sources: dict[str, dict] | None = None,
+    source_preset: str = "current",
+    run_id: str = "",
     registry_path: Path = DEFAULT_REGISTRY_PATH,
     node_vocabulary_path: Path = DEFAULT_NODE_VOCABULARY_PATH,
     out_dir: Path = DEFAULT_OUT_DIR,
     write_duckdb: bool = True,
 ) -> dict:
-    graph_sources = graph_sources or GRAPH_SOURCES
+    if graph_sources is None:
+        graph_sources = graph_sources_for_preset(source_preset, run_id=run_id)
+        manifest_source_preset = source_preset
+    else:
+        manifest_source_preset = "custom"
     registry = registry_lookup(registry_path)
     node_vocabulary = node_vocabulary_lookup(node_vocabulary_path)
     access_lookups = paper_library_lookups()
@@ -1181,6 +1242,8 @@ def build_tables(
         "kg_table_version": KG_TABLE_VERSION,
         "generated_at": now_utc(),
         "out_dir": str(out_dir),
+        "source_preset": manifest_source_preset,
+        "run_id": safe_run_id(run_id),
         "registry_path": str(registry_path),
         "node_vocabulary_path": str(node_vocabulary_path),
         "source_counts": source_counts,
@@ -1250,15 +1313,60 @@ def write_duckdb_database(out_dir: Path, table_names: Iterable[str]) -> dict:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY_PATH)
-    parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
+    parser.add_argument(
+        "--source-preset",
+        choices=sorted(GRAPH_SOURCE_PRESETS),
+        default="current",
+        help="Evidence source set to materialize. Use routed with --run-id for new routed extraction builds.",
+    )
+    parser.add_argument(
+        "--run-id",
+        default="",
+        help="Version label for routed KG runs. Used in the default output path for --source-preset routed.",
+    )
+    parser.add_argument("--out-dir", type=Path, default=None)
+    parser.add_argument(
+        "--allow-current-overwrite",
+        action="store_true",
+        help="Allow non-current source presets to write directly to data/processed/kg.",
+    )
     parser.add_argument("--skip-duckdb", action="store_true", help="Only write Parquet tables and manifest.")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    manifest = build_tables(registry_path=args.registry, out_dir=args.out_dir, write_duckdb=not args.skip_duckdb)
-    print(f"wrote KG tables to {args.out_dir}")
+    out_dir, run_id = resolve_kg_output_dir(
+        source_preset=args.source_preset,
+        out_dir=args.out_dir,
+        run_id=args.run_id,
+    )
+    if (
+        args.source_preset != "current"
+        and out_dir.resolve() == DEFAULT_OUT_DIR.resolve()
+        and not args.allow_current_overwrite
+    ):
+        raise SystemExit(
+            "Refusing to write routed/combined sources directly to data/processed/kg. "
+            "Use --run-id for a versioned build, or add --allow-current-overwrite if this is an intentional promotion."
+        )
+    if (
+        args.source_preset != "current"
+        and out_dir.resolve() == DEFAULT_OUT_DIR.resolve()
+        and not run_id
+    ):
+        raise SystemExit("Promoting routed/combined sources to data/processed/kg requires --run-id.")
+    manifest = build_tables(
+        source_preset=args.source_preset,
+        run_id=run_id,
+        registry_path=args.registry,
+        out_dir=out_dir,
+        write_duckdb=not args.skip_duckdb,
+    )
+    print(f"wrote KG tables to {out_dir}")
+    print(f"source preset: {manifest['source_preset']}")
+    if manifest.get("run_id"):
+        print(f"run id: {manifest['run_id']}")
     for table_name, info in manifest["tables"].items():
         print(f"{table_name}: {info['rows']} rows -> {info['path']}")
     print(f"duckdb: {manifest['duckdb']['status']}")

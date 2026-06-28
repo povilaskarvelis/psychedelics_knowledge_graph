@@ -6,6 +6,7 @@ import pandas as pd
 
 from pipeline.publish.export_graph_payload import (
     DEFAULT_CLAIM_SOURCE,
+    DEFAULT_KG_TABLE_DIR,
     claim_source_paths,
     evidence_role_for_row,
     export_dataset,
@@ -38,7 +39,7 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
     def test_kg_tables_source_uses_parquet_and_source_names(self) -> None:
         paths = claim_source_paths("mechanistic", "kg_tables")
 
-        self.assertTrue(str(paths["claims_parquet"]).endswith("data/processed/kg/claims.parquet"))
+        self.assertEqual(paths["claims_parquet"], DEFAULT_KG_TABLE_DIR / "claims.parquet")
         self.assertEqual(paths["primary_source_name"], "mechanistic_primary")
         self.assertEqual(paths["secondary_source_name"], "mechanistic_secondary")
         self.assertEqual(paths["claim_source"], "kg_tables")
@@ -46,6 +47,15 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
         disorder_paths = claim_source_paths("disorder", "kg_tables")
         self.assertEqual(disorder_paths["primary_source_name"], ["clinical_primary", "clinical_primary_endpoints"])
         self.assertEqual(disorder_paths["secondary_source_name"], "clinical_secondary")
+
+    def test_kg_tables_source_can_read_from_versioned_kg_directory(self) -> None:
+        kg_dir = Path("/tmp/kg_routed_runs/gemini3_flash_first_batch")
+
+        paths = claim_source_paths("mechanistic", "kg_tables", kg_dir=kg_dir)
+
+        self.assertEqual(paths["claims_parquet"], kg_dir / "claims.parquet")
+        self.assertEqual(paths["paper_authors_parquet"], kg_dir / "paper_authors.parquet")
+        self.assertEqual(paths["primary_source_name"], "mechanistic_primary")
 
     def test_legacy_curated_mechanistic_source_uses_legacy_affinity_schema(self) -> None:
         schema_path = schema_path_for_claim_source(

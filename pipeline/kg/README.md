@@ -37,11 +37,33 @@ not-yet-extracted counts separately.
 The main KG backbone is the normalized evidence-table layer:
 
 ```bash
-python pipeline/kg/convert_routed_extractions_to_evidence_rows.py
-python pipeline/kg/build_evidence_tables.py
+RUN_ID=gemini3_flash_YYYYMMDD_first_batch
+python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
+  --run-id "$RUN_ID" \
+  --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl"
+python pipeline/kg/build_evidence_tables.py --source-preset routed --run-id "$RUN_ID"
 ```
 
-Default outputs are written under `data/processed/kg/`:
+Routed extraction builds are versioned by default under
+`data/processed/kg_routed_runs/<RUN_ID>/`. The stable current KG remains under
+`data/processed/kg/`; it is rebuilt with:
+
+```bash
+python pipeline/kg/build_evidence_tables.py --source-preset current
+```
+
+When a reviewed routed run should replace the current KG table, make that
+promotion explicit:
+
+```bash
+python pipeline/kg/build_evidence_tables.py \
+  --source-preset routed \
+  --run-id "$RUN_ID" \
+  --out-dir data/processed/kg \
+  --allow-current-overwrite
+```
+
+Each KG output directory contains:
 
 - `papers.parquet`: one row per source paper represented in normalized evidence.
 - `entities.parquet`: compounds plus normalized graph entities.
@@ -70,12 +92,13 @@ This table layer is the preferred place to build new graph views. The browser UI
 should continue to load compact JSON payloads generated from these tables rather
 than loading the whole KG directly.
 
-The converter reads `data/processed/extraction/route_extraction_outputs.jsonl`
-plus `route_extraction_tasks.jsonl`, writes
-`data/processed/extraction/routed_evidence_rows.json`, and keeps one row per
-extracted finding or review/synthesis item. The table builder reads that file
-as an optional mixed-domain source; if it does not exist yet, it contributes
-zero rows.
+The converter reads route extraction outputs plus `route_extraction_tasks.jsonl`
+and keeps one row per extracted finding or review/synthesis item. With
+`--run-id`, it writes to
+`data/processed/extraction/routed_runs/<RUN_ID>/routed_evidence_rows.json`.
+The routed table builder reads the canonical routed evidence row file for the
+selected run; the current-source builder does not mix routed extraction rows
+into `data/processed/kg/` by accident.
 
 The extraction-to-KG mapping is documented in
 `docs/extraction_to_kg_mapping.md`, with the machine-readable mapping in

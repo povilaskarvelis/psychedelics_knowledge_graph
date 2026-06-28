@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -29,6 +30,7 @@ DEFAULT_INPUT_JSONL = DEFAULT_EXTRACTION_DIR / "route_extraction_outputs.jsonl"
 DEFAULT_TASKS_JSONL = DEFAULT_EXTRACTION_DIR / "route_extraction_tasks.jsonl"
 DEFAULT_OUT_JSON = DEFAULT_EXTRACTION_DIR / "routed_evidence_rows.json"
 DEFAULT_REPORT_JSON = DEFAULT_EXTRACTION_DIR / "routed_evidence_rows_report.json"
+DEFAULT_ROUTED_RUN_ROOT = DEFAULT_EXTRACTION_DIR / "routed_runs"
 
 ROUTE_OUTPUT_SCHEMA_VERSION = "routed_evidence_rows_v1"
 EXTRACTABLE_STATUSES = {"extracted"}
@@ -139,6 +141,36 @@ ENTITY_LABEL_FIELDS_BY_KIND = {
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def safe_run_id(value: object) -> str:
+    text = normalize(value)
+    text = re.sub(r"[^A-Za-z0-9._-]+", "_", text).strip("._-")
+    return text
+
+
+def resolve_run_dir(run_id: str, run_dir: str) -> Path | None:
+    if normalize(run_dir):
+        return Path(run_dir)
+    resolved_run_id = safe_run_id(run_id)
+    if resolved_run_id:
+        return DEFAULT_ROUTED_RUN_ROOT / resolved_run_id
+    return None
+
+
+def resolve_output_paths(args: argparse.Namespace) -> argparse.Namespace:
+    run_dir = resolve_run_dir(args.run_id, args.run_dir)
+    if run_dir is not None:
+        args.run_dir = str(run_dir)
+        args.run_id = safe_run_id(args.run_id) or run_dir.name
+        args.out_json = Path(args.out_json) if args.out_json else run_dir / "routed_evidence_rows.json"
+        args.report_json = Path(args.report_json) if args.report_json else run_dir / "routed_evidence_rows_report.json"
+        return args
+    args.run_dir = ""
+    args.run_id = safe_run_id(args.run_id)
+    args.out_json = Path(args.out_json) if args.out_json else DEFAULT_OUT_JSON
+    args.report_json = Path(args.report_json) if args.report_json else DEFAULT_REPORT_JSON
+    return args
 
 
 def meaningful(value: object) -> bool:
@@ -429,14 +461,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-jsonl", type=Path, default=DEFAULT_INPUT_JSONL)
     parser.add_argument("--tasks-jsonl", type=Path, default=DEFAULT_TASKS_JSONL)
-    parser.add_argument("--out-json", type=Path, default=DEFAULT_OUT_JSON)
-    parser.add_argument("--report-json", type=Path, default=DEFAULT_REPORT_JSON)
+    parser.add_argument("--run-id", default="", help="Version label for routed extraction outputs.")
+    parser.add_argument("--run-dir", default="", help="Explicit routed extraction run directory.")
+    parser.add_argument("--out-json", default="")
+    parser.add_argument("--report-json", default="")
     parser.add_argument(
         "--include-schema-errors",
         action="store_true",
         help="Also convert parsed rows whose runner status was schema_error.",
     )
-    return parser.parse_args()
+    return resolve_output_paths(parser.parse_args())
 
 
 def main() -> int:
@@ -446,6 +480,12 @@ def main() -> int:
         tasks_jsonl=args.tasks_jsonl,
         include_schema_errors=args.include_schema_errors,
     )
+    report["run_id"] = args.run_id
+    report["run_dir"] = args.run_dir
+    report["outputs"] = {
+        "out_json": str(args.out_json),
+        "report_json": str(args.report_json),
+    }
     write_json(args.out_json, rows)
     write_json(args.report_json, report)
     print(f"wrote {len(rows)} evidence rows -> {args.out_json}")

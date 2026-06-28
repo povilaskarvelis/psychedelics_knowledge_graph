@@ -68,6 +68,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "processed" / "extraction"
+DEFAULT_ROUTED_RUN_ROOT = DEFAULT_OUTPUT_DIR / "routed_runs"
 DEFAULT_ENV = ROOT / ".env"
 DEFAULT_GEMINI_MODEL = "gemini-3-flash-preview"
 GENERIC_EXTRACTION_MODEL_ENV = "GEMINI_ROUTE_EXTRACTION_MODEL"
@@ -78,6 +79,42 @@ PACKET_INDEX_CACHE: dict[str, dict[str, dict]] = {}
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def safe_run_id(value: object) -> str:
+    text = normalize(value)
+    text = re.sub(r"[^A-Za-z0-9._-]+", "_", text).strip("._-")
+    return text
+
+
+def resolve_run_dir(run_id: str, run_dir: str) -> Path | None:
+    if normalize(run_dir):
+        return Path(run_dir)
+    resolved_run_id = safe_run_id(run_id)
+    if resolved_run_id:
+        return DEFAULT_ROUTED_RUN_ROOT / resolved_run_id
+    return None
+
+
+def resolve_output_paths(args: argparse.Namespace) -> argparse.Namespace:
+    run_dir = resolve_run_dir(args.run_id, args.run_dir)
+    if run_dir is not None:
+        args.run_dir = str(run_dir)
+        args.run_id = safe_run_id(args.run_id) or run_dir.name
+        args.out_jsonl = args.out_jsonl or str(run_dir / "route_extraction_outputs.jsonl")
+        args.raw_jsonl = args.raw_jsonl or str(run_dir / "route_extraction_raw.jsonl")
+        args.report_json = args.report_json or str(run_dir / "route_extraction_report.json")
+        return args
+    args.run_dir = ""
+    args.run_id = safe_run_id(args.run_id)
+    args.out_jsonl = args.out_jsonl or str(DEFAULT_OUTPUT_DIR / "route_extraction_outputs.jsonl")
+    args.raw_jsonl = args.raw_jsonl or str(DEFAULT_OUTPUT_DIR / "route_extraction_raw.jsonl")
+    args.report_json = args.report_json or str(DEFAULT_OUTPUT_DIR / "route_extraction_report.json")
+    return args
+
+
+def normalized_arg(args: argparse.Namespace, name: str) -> str:
+    return normalize(getattr(args, name, ""))
 
 
 def load_dotenv(path: Path) -> dict[str, str]:
@@ -589,6 +626,8 @@ def dry_run_report(tasks: list[dict], selected: list[tuple[int, dict]], args: ar
         "status": "dry_run",
         "inputs": {
             "input_jsonl": str(Path(args.input_jsonl).resolve()),
+            "run_id": normalized_arg(args, "run_id"),
+            "run_dir": normalized_arg(args, "run_dir"),
             "schema_mode": args.schema_mode,
             "only_ready": bool(args.only_ready),
             "include_scaffold_profiles": bool(args.include_scaffold_profiles),
@@ -754,6 +793,8 @@ def run_tasks(args: argparse.Namespace) -> dict:
         "status": "complete",
         "inputs": {
             "input_jsonl": str(input_jsonl),
+            "run_id": normalized_arg(args, "run_id"),
+            "run_dir": normalized_arg(args, "run_dir"),
             "model": next(iter(model_counts)) if len(model_counts) == 1 else "multiple",
             "schema_mode": args.schema_mode,
             "only_ready": bool(args.only_ready),
@@ -783,9 +824,11 @@ def run_tasks(args: argparse.Namespace) -> dict:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-jsonl", default=str(DEFAULT_INPUT))
-    parser.add_argument("--out-jsonl", default=str(DEFAULT_OUTPUT_DIR / "route_extraction_outputs.jsonl"))
-    parser.add_argument("--raw-jsonl", default=str(DEFAULT_OUTPUT_DIR / "route_extraction_raw.jsonl"))
-    parser.add_argument("--report-json", default=str(DEFAULT_OUTPUT_DIR / "route_extraction_report.json"))
+    parser.add_argument("--run-id", default="", help="Version label for routed extraction outputs.")
+    parser.add_argument("--run-dir", default="", help="Explicit routed extraction run directory.")
+    parser.add_argument("--out-jsonl", default="")
+    parser.add_argument("--raw-jsonl", default="")
+    parser.add_argument("--report-json", default="")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
     parser.add_argument("--model", default="", help="Override GEMINI_MODEL from .env")
     parser.add_argument("--schema-mode", choices=SCHEMA_MODES, default="native")
@@ -812,7 +855,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-output-tokens", type=int, default=0, help="0 uses the route profile default")
     parser.add_argument("--thinking-budget", type=int, default=0)
     parser.add_argument("--sleep-sec", type=float, default=0.0)
-    args = parser.parse_args()
+    args = resolve_output_paths(parser.parse_args())
     args.only_ready = not args.include_not_ready
     args.doi = [normalize(doi).lower() for doi in args.doi]
     return args
