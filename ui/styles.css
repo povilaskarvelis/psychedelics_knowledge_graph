@@ -255,7 +255,7 @@ button.primary:hover {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 6px;
+  gap: 8px;
   box-sizing: border-box;
 }
 
@@ -263,18 +263,21 @@ button.primary:hover {
 .toolbar-filter-row {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   box-sizing: border-box;
 }
 
 .toolbar-main-row {
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-  gap: 8px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 10px;
 }
 
 .toolbar-filter-row {
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 10px;
 }
 
 .panel-header {
@@ -333,9 +336,16 @@ button.primary:hover {
 .category-toggle {
   flex: 1 1 auto;
   min-width: 0;
-  gap: 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: flex-start;
+  gap: 4px;
+  height: auto;
+  min-height: var(--header-control-height);
+  padding: 4px;
+  overflow: visible;
+  border-radius: 14px;
 }
 
 .category-toggle::-webkit-scrollbar {
@@ -353,8 +363,10 @@ button.primary:hover {
 .filter-toggles {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
   margin-left: 0;
 }
 

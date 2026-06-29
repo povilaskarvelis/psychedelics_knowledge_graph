@@ -50,6 +50,60 @@
         "aliases": ["striatal region"],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Nucleus accumbens",
+        "aliases": ["NAc", "nucleus accumbens core", "nucleus accumbens shell"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Insula",
+        "aliases": ["insular cortex", "anterior insula", "AI"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Claustrum",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Frontal cortex",
+        "aliases": ["frontal cortical region"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Occipital cortex",
+        "aliases": ["visual cortex"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Posterior cingulate cortex",
+        "aliases": ["PCC", "posterior cingulate"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Prelimbic cortex",
+        "aliases": ["PL cortex"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Hypothalamus",
+        "aliases": ["paraventricular nucleus of the hypothalamus", "PVN"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Dorsal raphe nucleus",
+        "aliases": ["DRN", "raphe nucleus"],
+        "ids": {},
+        "status": "seed_alias"
       }
     ],
     "brain_network": [
@@ -82,6 +136,36 @@
         "aliases": [],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Visual network",
+        "aliases": ["medial visual network", "visual cortical network"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Sensorimotor network",
+        "aliases": ["somatosensory network"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Auditory network",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Task-positive network",
+        "aliases": ["TPN"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Dorsal attention network",
+        "aliases": ["DAN"],
+        "ids": {},
+        "status": "seed_alias"
       }
     ],
     "neural_circuit": [
@@ -99,7 +183,31 @@
       },
       {
         "label": "Thalamocortical circuit",
-        "aliases": ["thalamo-cortical circuit"],
+        "aliases": ["thalamo-cortical circuit", "thalamocortical connectivity", "thalamocortical pathway"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Hippocampal-prefrontal circuit",
+        "aliases": ["hippocampal-prefrontal connectivity", "mPFC-hippocampus coupling", "ventral CA1/subiculum to prelimbic cortex"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Cortico-striatal circuit",
+        "aliases": ["cortico-striatal circuit", "corticostriatal circuit"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Mesolimbic reward circuit",
+        "aliases": ["mesoaccumbens dopamine circuit", "VTA-NAc circuit"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Schaffer collateral-CA1 circuit",
+        "aliases": ["Schaffer Collateral-CA1 synapse", "Schaffer collateral-commissural pathway", "CA3-CA1 circuit"],
         "ids": {},
         "status": "seed_alias"
       }
@@ -140,6 +248,66 @@
         "aliases": ["memory performance"],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Motor behavior",
+        "aliases": ["locomotor activity", "motor activity"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Depression-like behavior",
+        "aliases": ["depressive-like behavior", "antidepressant-like behavior"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Anxiety-like behavior",
+        "aliases": ["anxiety behavior"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Addiction behavior",
+        "aliases": ["drug-seeking behavior", "alcohol intake"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Sensorimotor gating",
+        "aliases": ["prepulse inhibition", "PPI"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Anhedonia",
+        "aliases": ["sucrose preference"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Social behavior",
+        "aliases": ["social interaction"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Working memory",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Drug discrimination",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Pain behavior",
+        "aliases": ["nociceptive behavior"],
+        "ids": {},
+        "status": "seed_alias"
       }
     ],
     "subjective_experience_construct": [
@@ -176,6 +344,48 @@
       {
         "label": "Oceanic boundlessness",
         "aliases": ["OBN"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Dissociation",
+        "aliases": ["dissociative symptoms", "dissociative state"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Altered states of consciousness",
+        "aliases": ["altered state of consciousness", "altered states"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Near-death experience phenomenology",
+        "aliases": ["near-death experience", "NDE phenomenology"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Psychotomimetic symptoms",
+        "aliases": ["psychotomimetic effects"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Derealization",
+        "aliases": ["depersonalization", "depersonalization-derealization"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Subjective drug intensity",
+        "aliases": ["drug effect intensity", "global subjective intensity"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Hallucinogenic effects",
+        "aliases": ["visual hallucinations", "drug-induced synaesthesia"],
         "ids": {},
         "status": "seed_alias"
       }
@@ -234,6 +444,54 @@
         "aliases": ["dose response", "dose-response"],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Concentration",
+        "aliases": ["concentration level", "concentration_level", "plasma concentration", "drug concentration"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "IC50",
+        "aliases": ["half maximal inhibitory concentration"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "EC50",
+        "aliases": ["half maximal effective concentration"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "ED50",
+        "aliases": ["median effective dose"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Km",
+        "aliases": ["Michaelis constant"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Concentration-response relationship",
+        "aliases": ["concentration response", "concentration-response"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Metabolic ratio",
+        "aliases": ["metabolite ratio"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Receptor occupancy",
+        "aliases": ["5-HT2AR receptor occupancy", "target occupancy"],
+        "ids": {},
+        "status": "seed_alias"
       }
     ],
     "intervention_component": [
@@ -282,6 +540,48 @@
       {
         "label": "Safety monitoring",
         "aliases": ["clinical monitoring", "medical monitoring"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Cognitive behavioral therapy",
+        "aliases": ["CBT", "Cognitive Behavioral Therapy"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Acceptance and commitment therapy",
+        "aliases": ["ACT", "Acceptance and Commitment Therapy"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Psychotherapy",
+        "aliases": ["supportive psychotherapy", "preparation and integration psychotherapy"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Group therapy",
+        "aliases": ["group psychotherapy"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Mindfulness-based intervention",
+        "aliases": ["mindfulness-based relapse prevention", "MBRP", "mindfulness"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Therapist training",
+        "aliases": ["therapist training program", "facilitator training"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Prior psychedelic experience",
+        "aliases": ["facilitator personal psychedelic experience", "participant prior psychedelic experience"],
         "ids": {},
         "status": "seed_alias"
       }
@@ -344,6 +644,48 @@
       {
         "label": "Poison center report",
         "aliases": ["poison centre report", "poison-center call"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Suicidality",
+        "aliases": ["suicidal ideation", "suicidal ideation, planning, and attempts", "suicide risk"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Reporting odds ratio",
+        "aliases": ["ROR", "reporting odds ratio"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Wastewater drug load",
+        "aliases": ["population-normalised daily loads", "population-normalised daily loads (PNDLs)", "wastewater"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Crime arrest",
+        "aliases": ["past year crime arrests", "crime arrests"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Hypertension",
+        "aliases": ["past year hypertension", "self-reported hypertension"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Unexpected drug detection",
+        "aliases": ["unexpected drug detection", "suspected DFSA cases"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Population consumption",
+        "aliases": ["per inhabitant consumption", "consumption based on metabolic rate"],
         "ids": {},
         "status": "seed_alias"
       }

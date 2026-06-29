@@ -12,6 +12,7 @@ from pipeline.kg.build_evidence_tables import (
     build_tables,
     graph_sources_for_preset,
     resolve_kg_output_dir,
+    write_duckdb_database,
 )
 
 
@@ -42,6 +43,88 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertEqual(out_dir, DEFAULT_OUT_DIR)
         self.assertEqual(run_id, "")
 
+    def test_routed_source_writes_findings_table_not_claims_table(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            routed_path = root / "routed_evidence_rows.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [{"label": "Psilocybin", "aliases": ["psilocybin"], "ids": {}, "status": "seeded"}],
+                    "targets": [],
+                    "disorders": [
+                        {
+                            "label": "Major depressive disorder",
+                            "aliases": ["MDD"],
+                            "ids": {},
+                            "status": "seeded",
+                        }
+                    ],
+                },
+            )
+            write_json(
+                routed_path,
+                [
+                    {
+                        "study_doi": "10.1000/routed",
+                        "study_title": "Routed finding paper",
+                        "study_year": 2026,
+                        "domain": "clinical_outcome",
+                        "compound": "psilocybin",
+                        "condition_or_population": "MDD",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_study",
+                        "access_level": "article_text",
+                    }
+                ],
+            )
+
+            manifest = build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    }
+                },
+            )
+
+            self.assertIn("findings", manifest["tables"])
+            self.assertNotIn("claims", manifest["tables"])
+            self.assertTrue((out_dir / "findings.parquet").exists())
+            self.assertFalse((out_dir / "claims.parquet").exists())
+            findings = pd.read_parquet(out_dir / "findings.parquet")
+            edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
+            self.assertIn("finding_id", findings.columns)
+            self.assertNotIn("claim_id", findings.columns)
+            self.assertIn("finding_id", edges.columns)
+            self.assertNotIn("claim_id", edges.columns)
+            self.assertEqual(findings.iloc[0]["compound"], "Psilocybin")
+
+    def test_duckdb_writer_skips_zero_column_auxiliary_tables(self) -> None:
+        try:
+            import duckdb  # noqa: F401
+        except ModuleNotFoundError:
+            self.skipTest("duckdb is not installed")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_dir = Path(tmpdir)
+            pd.DataFrame([{"claim_id": "claim:1"}]).to_parquet(out_dir / "claims.parquet", index=False)
+            pd.DataFrame().to_parquet(out_dir / "normalization_audit.parquet", index=False)
+
+            status = write_duckdb_database(out_dir, ["claims", "normalization_audit"])
+
+        self.assertEqual(status["status"], "ok")
+        self.assertEqual(status["skipped_empty_tables"], ["normalization_audit"])
+
     def test_builds_unified_parquet_tables_with_entity_kinds(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -52,6 +135,8 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "compounds": [
                         {"label": "Psilocybin", "aliases": [], "ids": {"pubchem_cid": "10624"}, "status": "seeded"},
                         {"label": "Ketamine", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "MDMA", "aliases": ["3,4-methylenedioxymethamphetamine"], "ids": {}, "status": "seeded"},
+                        {"label": "DMT", "aliases": ["N,N-dimethyltryptamine"], "ids": {}, "status": "seeded"},
                     ],
                     "targets": [
                         {
@@ -65,6 +150,12 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                             "aliases": [],
                             "ids": {},
                             "status": "pathway_or_process",
+                        },
+                        {
+                            "label": "MAO-A",
+                            "aliases": ["monoamine oxidase A"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
                         },
                     ],
                     "disorders": [
@@ -104,8 +195,8 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "study_doi": "https://doi.org/10.1000/MECH",
                         "study_title": "Mechanistic paper",
                         "study_year": 2024,
-                        "compound": "Psilocybin",
-                        "target": "5-HT2A",
+                        "compound": "psilocybin",
+                        "target": "5-HT2A receptor",
                         "entity_role": "molecular_target",
                         "paper_assessment_route": "primary_evidence",
                         "source_type": "primary_study",
@@ -170,8 +261,32 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "study_title": "PTSD symptom outcome paper",
                         "study_year": 2023,
                         "compound": "Ketamine",
-                        "disorder": "Post-traumatic stress disorder",
+                        "disorder": "PTSD",
                         "entity_role": "symptom_or_problem",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_results",
+                        "access_level": "full_text_seen",
+                    },
+                    {
+                        "study_doi": "10.1000/combo-compound",
+                        "study_title": "Combo compound paper",
+                        "study_year": 2023,
+                        "compound": "Psilocybin and MDMA",
+                        "disorder": "Major depressive disorder",
+                        "entity_role": "therapeutic_indication",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_results",
+                        "access_level": "full_text_seen",
+                    },
+                    {
+                        "study_doi": "10.1000/reference-compound",
+                        "study_title": "Reference compound paper",
+                        "study_year": 2023,
+                        "compound": "Ketanserin",
+                        "disorder": "Major depressive disorder",
+                        "entity_role": "therapeutic_indication",
                         "paper_assessment_route": "primary_evidence",
                         "source_type": "primary_study",
                         "paper_type": "primary_results",
@@ -222,7 +337,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "study_doi": "10.1000/public-health",
                         "study_title": "Public health paper",
                         "study_year": 2025,
-                        "exposure_or_intervention": "Psychedelic therapy",
+                        "exposure_or_intervention": "Psilocybin",
                         "public_health_measure": "ethnoracial inclusion",
                         "public_health_topic_category": "access and equity",
                         "paper_assessment_route": "primary_evidence",
@@ -366,11 +481,16 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertEqual(scale["compound"], "Psilocybin")
             self.assertNotIn("Wellbeing", set(edges["entity_label"]))
             self.assertNotIn("Patient experience", set(edges["entity_label"]))
+            self.assertNotIn("Psilocybin and MDMA", set(edges["compound"]))
+            self.assertNotIn("Ketanserin", set(edges["compound"]))
             condition_edges = edges[edges["entity_kind"] == "condition_indication"]
             self.assertEqual(set(condition_edges["entity_label"]), {"Major depressive disorder", "Post-traumatic stress disorder"})
             symptom_edges = edges[edges["entity_kind"] == "symptom_problem"]
             self.assertEqual(set(symptom_edges["entity_label"]), {"Depression"})
             self.assertEqual(len(symptom_edges), 2)
+            target_edges = edges[edges["entity_kind"] == "target"]
+            self.assertIn("5-HT2A", set(target_edges["entity_label"]))
+            self.assertNotIn("5-HT2A receptor", set(target_edges["entity_label"]))
             brain_edge = edges[edges["domain"] == "brain_system"].iloc[0]
             self.assertEqual(brain_edge["entity_kind"], "brain_network")
             self.assertEqual(brain_edge["entity_label"], "Default mode network")
@@ -383,6 +503,9 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertEqual(public_health_edge["entity_kind"], "public_health_measure")
             self.assertEqual(public_health_edge["entity_label"], "Equity")
             self.assertEqual(public_health_edge["relation_type"], "has_public_health_evidence")
+            audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
+            self.assertIn("compound_combo_not_graphable", set(audit["normalization_status"]))
+            self.assertIn("compound_reference_not_graphable", set(audit["normalization_status"]))
 
             papers = pd.read_parquet(out_dir / "papers.parquet")
             self.assertEqual(

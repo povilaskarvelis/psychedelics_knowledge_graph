@@ -1,5 +1,6 @@
 import unittest
 import tempfile
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -27,7 +28,8 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
         paths = claim_source_paths("mechanistic", DEFAULT_CLAIM_SOURCE)
 
         self.assertTrue(str(paths["claims_parquet"]).endswith("data/processed/kg/claims.parquet"))
-        self.assertEqual(paths["primary_source_name"], "mechanistic_primary")
+        self.assertEqual(paths["primary_source_name"], ["mechanistic_primary", "routed_extractions"])
+        self.assertEqual(paths["domain_names"], ["brain_system", "mechanistic", "molecular_pathway_readout", "molecular_target", "pharmacokinetics_exposure"])
         self.assertEqual(paths["claim_source"], "kg_tables")
 
     def test_normalized_claim_source_uses_graph_claim_files(self) -> None:
@@ -40,13 +42,25 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
         paths = claim_source_paths("mechanistic", "kg_tables")
 
         self.assertEqual(paths["claims_parquet"], DEFAULT_KG_TABLE_DIR / "claims.parquet")
-        self.assertEqual(paths["primary_source_name"], "mechanistic_primary")
+        self.assertEqual(paths["primary_source_name"], ["mechanistic_primary", "routed_extractions"])
         self.assertEqual(paths["secondary_source_name"], "mechanistic_secondary")
         self.assertEqual(paths["claim_source"], "kg_tables")
 
         disorder_paths = claim_source_paths("disorder", "kg_tables")
-        self.assertEqual(disorder_paths["primary_source_name"], ["clinical_primary", "clinical_primary_endpoints"])
+        self.assertEqual(disorder_paths["primary_source_name"], ["clinical_primary", "clinical_primary_endpoints", "routed_extractions"])
         self.assertEqual(disorder_paths["secondary_source_name"], "clinical_secondary")
+        self.assertEqual(
+            disorder_paths["domain_names"],
+            [
+                "clinical",
+                "clinical_outcome",
+                "cognitive_behavioral",
+                "intervention_context",
+                "real_world_public_health",
+                "safety_tolerability",
+                "subjective_experience",
+            ],
+        )
 
     def test_kg_tables_source_can_read_from_versioned_kg_directory(self) -> None:
         kg_dir = Path("/tmp/kg_routed_runs/gemini3_flash_first_batch")
@@ -55,7 +69,7 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
 
         self.assertEqual(paths["claims_parquet"], kg_dir / "claims.parquet")
         self.assertEqual(paths["paper_authors_parquet"], kg_dir / "paper_authors.parquet")
-        self.assertEqual(paths["primary_source_name"], "mechanistic_primary")
+        self.assertEqual(paths["primary_source_name"], ["mechanistic_primary", "routed_extractions"])
 
     def test_legacy_curated_mechanistic_source_uses_legacy_affinity_schema(self) -> None:
         schema_path = schema_path_for_claim_source(
@@ -195,6 +209,54 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
                 }
             ],
         )
+
+    def test_routed_kg_rows_are_adapted_for_current_ui_payload_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "claims.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "claim_id": "claim-routed",
+                        "source_name": "routed_extractions",
+                        "domain": "molecular_pathway_readout",
+                        "evidence_type": "primary_evidence",
+                        "raw_row_json": json.dumps(
+                            {
+                                "compound": "LSD",
+                                "graph_entity_label": "ERK signaling",
+                                "paper_type": "primary_study",
+                                "source_type": "primary",
+                                "paper_assessment_route": "primary_evidence",
+                                "access_level": "article_text",
+                                "evidence_location": "Results [C003]",
+                                "study_year": "2024",
+                            }
+                        ),
+                    }
+                ]
+            ).to_parquet(path, index=False)
+
+            rows, secondary_rows = load_claim_rows_for_source(
+                "mechanistic",
+                "kg_tables",
+                {
+                    "claims_parquet": path,
+                    "primary_source_name": ["mechanistic_primary", "routed_extractions"],
+                    "secondary_source_name": "mechanistic_secondary",
+                    "domain_names": ["mechanistic", "molecular_pathway_readout"],
+                },
+            )
+
+        self.assertEqual(secondary_rows, [])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["target"], "ERK signaling")
+        self.assertNotIn("claim_type", rows[0])
+        self.assertEqual(rows[0]["finding_type"], "molecular_pathway_readout")
+        self.assertEqual(rows[0]["paper_type"], "primary_results")
+        self.assertEqual(rows[0]["source_type"], "primary_study")
+        self.assertEqual(rows[0]["access_level"], "full_text_seen")
+        self.assertEqual(rows[0]["evidence_location"], "text")
+        self.assertEqual(rows[0]["support"], "supported")
 
     def test_secondary_literature_detection_is_focused_on_reviews_and_meta_analyses(self) -> None:
         self.assertTrue(
@@ -359,8 +421,8 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
             "contract_version": "1.0",
             "dataset": "disorder",
             "evidence_view": "all_evidence",
-            "claim_source": "kg_tables",
-            "claim_source_label": "Normalized KG evidence tables",
+            "evidence_source": "kg_tables",
+            "evidence_source_label": "Normalized KG evidence tables",
             "contributions": [
                 {
                     "paper": {
@@ -404,7 +466,7 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
 
         self.assertEqual(preview["row_count"], 1)
         self.assertEqual(
-            preview["claims"],
+            preview["findings"],
             [
                 {
                     "compound": "Psilocybin",
@@ -437,8 +499,8 @@ class ExportGraphPayloadViewsTest(unittest.TestCase):
                 }
             ],
         )
-        self.assertNotIn("authors", preview["claims"][0])
-        self.assertNotIn("supporting_quote", preview["claims"][0])
+        self.assertNotIn("authors", preview["findings"][0])
+        self.assertNotIn("supporting_quote", preview["findings"][0])
         self.assertEqual(
             evidence_role_for_row(
                 {

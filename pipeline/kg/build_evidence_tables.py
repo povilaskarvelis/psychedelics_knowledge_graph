@@ -14,6 +14,7 @@ import hashlib
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 from typing import Iterable
 
@@ -216,6 +217,24 @@ ROUTE_NATIVE_ENTITY_KINDS = {
     "intervention_component",
     "public_health_measure",
 }
+REGISTRY_BACKED_ENTITY_KINDS = {
+    "condition_indication",
+    "symptom_problem",
+    "target",
+    "pathway_process",
+    "biomarker_readout",
+    "system_family",
+}
+VOCABULARY_BACKED_ENTITY_KINDS = {
+    "brain_region",
+    "brain_network",
+    "neural_circuit",
+    "cognitive_behavioral_construct",
+    "subjective_experience_construct",
+    "pharmacokinetic_parameter",
+    "intervention_component",
+    "public_health_measure",
+}
 GRAPH_ENTITY_KINDS = {
     "compound",
     "condition_indication",
@@ -361,6 +380,64 @@ MECHANISTIC_BIOMARKER_LABELS = {
     "TGF-beta",
     "TNF-alpha",
 }
+GREEK_FOLD_REPLACEMENTS = {
+    "α": "alpha",
+    "Α": "Alpha",
+    "β": "beta",
+    "Β": "Beta",
+    "γ": "gamma",
+    "Γ": "Gamma",
+    "δ": "delta",
+    "Δ": "Delta",
+    "κ": "kappa",
+    "Κ": "Kappa",
+    "μ": "mu",
+    "µ": "mu",
+    "Μ": "Mu",
+}
+CLASS_LEVEL_COMPOUND_RE = re.compile(
+    r"\b("
+    r"classic(?:al)?\s+psychedelics?|"
+    r"serotonergic\s+psychedelics?|"
+    r"psychedelic(?:[- ]assisted)?\s+(?:medicines?|drugs?|substances?|compounds?|therap(?:y|ies))|"
+    r"psychedelics?|"
+    r"hallucinogenic\s+drugs?|"
+    r"hallucinogens?|"
+    r"arylcyclohexylamines?|"
+    r"synthetic\s+cathinones?|"
+    r"iboga\s+alkaloids?|"
+    r"nbome\s+drugs?|"
+    r"5[-\s]*ht2a?r?\s+agonists?"
+    r")\b",
+    re.IGNORECASE,
+)
+REFERENCE_CONTROL_COMPOUND_KEYS = {
+    "5 ht",
+    "5 hydroxytryptamine",
+    "5 hydroxytryptophan",
+    "8 oh dpat",
+    "cp 93129",
+    "clozapine",
+    "d serine",
+    "glycine",
+    "gr 127935",
+    "ifenprodil",
+    "ketanserin",
+    "m100907",
+    "memantine",
+    "methysergide",
+    "mk 801",
+    "nmda",
+    "pcp",
+    "phencyclidine",
+    "phencyclidine pcp",
+    "pnu 142633",
+    "ritanserin",
+    "sb 216641",
+    "sb271046",
+    "serotonin",
+    "way100635",
+}
 
 
 def now_utc() -> str:
@@ -500,11 +577,60 @@ def entity_id_for(entity_type: str, label: object) -> str:
     return f"{entity_type}:{slug(label, entity_type)}"
 
 
+def ascii_fold(value: object) -> str:
+    text = normalize(value)
+    text = "".join(GREEK_FOLD_REPLACEMENTS.get(char, char) for char in text)
+    text = unicodedata.normalize("NFKD", text)
+    return text.encode("ascii", "ignore").decode("ascii")
+
+
 def label_key(value: object) -> str:
-    text = normalize(value).casefold()
+    text = ascii_fold(value).casefold()
     text = text.replace("&", " and ")
     text = re.sub(r"[^a-z0-9]+", " ", text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def compact_key(value: object) -> str:
+    return re.sub(r"[^a-z0-9]+", "", label_key(value))
+
+
+def target_variants(label: str) -> list[str]:
+    text = normalize(label)
+    variants = []
+    if re.fullmatch(r"5-HT\d[A-Z]?", text, flags=re.IGNORECASE):
+        variants.append(f"{text} receptor")
+    match = re.match(r"^(.+?)\s*\((.+?)\)$", text)
+    if match:
+        variants.extend([match.group(1), match.group(2), f"{match.group(1)} {match.group(2)}"])
+    return variants
+
+
+def entity_key_variants(value: object, entity_type: str = "") -> list[tuple[str, str]]:
+    text = normalize(value)
+    if not text:
+        return []
+    variants: list[tuple[str, str]] = [(text, "label")]
+    no_parenthetical = re.sub(r"\([^)]*\)", " ", text)
+    if normalize(no_parenthetical) and label_key(no_parenthetical) != label_key(text):
+        variants.append((no_parenthetical, "without_parenthetical"))
+    for inside in re.findall(r"\(([^)]*)\)", text):
+        if normalize(inside):
+            variants.append((inside, "parenthetical"))
+    if entity_type == "mechanistic_entity":
+        variants.extend((variant, "target_variant") for variant in target_variants(text))
+
+    out: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for variant, variant_type in variants:
+        for candidate_key, key_type in (
+            (label_key(variant), variant_type),
+            (compact_key(variant), f"{variant_type}_compact"),
+        ):
+            if candidate_key and (candidate_key, key_type) not in seen:
+                seen.add((candidate_key, key_type))
+                out.append((candidate_key, key_type))
+    return out
 
 
 def normalized_entity_kind(value: object) -> str:
@@ -543,16 +669,57 @@ def node_vocabulary_lookup(path: Path = DEFAULT_NODE_VOCABULARY_PATH) -> dict[tu
             labels = [label]
             labels.extend(normalize(alias) for alias in item.get("aliases", []) if normalize(alias))
             for candidate in labels:
-                out[(normalized_kind, label_key(candidate))] = item
+                for key, _variant_type in entity_key_variants(candidate):
+                    out[(normalized_kind, key)] = item
     return out
 
 
 def canonicalize_node_label(entity_kind: str, label: str, node_vocabulary: dict[tuple[str, str], dict]) -> tuple[str, dict | None]:
-    item = node_vocabulary.get((entity_kind, label_key(label)))
+    item = None
+    for key, _variant_type in entity_key_variants(label):
+        item = node_vocabulary.get((entity_kind, key))
+        if item:
+            break
     if not item:
         return label, None
     canonical = normalize(item.get("label", "")) or label
     return canonical, item
+
+
+def compound_key_variants(value: object) -> list[tuple[str, str]]:
+    text = normalize(value)
+    if not text:
+        return []
+    variants: list[tuple[str, str]] = [(text, "label")]
+    no_parenthetical = re.sub(r"\([^)]*\)", " ", text)
+    if normalize(no_parenthetical) and label_key(no_parenthetical) != label_key(text):
+        variants.append((no_parenthetical, "without_parenthetical"))
+    for inside in re.findall(r"\(([^)]*)\)", text):
+        if normalize(inside):
+            variants.append((inside, "parenthetical"))
+
+    stripped = text
+    stripped = re.sub(r"\b(?:intravenous|intranasal|sublingual|oral|subcutaneous|nasal spray|infusion)\b", " ", stripped, flags=re.IGNORECASE)
+    stripped = re.sub(r"\b(?:iv|i\.v\.|in|s\.c\.|sc)\b", " ", stripped, flags=re.IGNORECASE)
+    stripped = re.sub(r"\b(?:hydrochloride|hcl)\b", " ", stripped, flags=re.IGNORECASE)
+    stripped = re.sub(r"\buse(?:rs?)?\b", " ", stripped, flags=re.IGNORECASE)
+    stripped = re.sub(r"\b(?:lifetime|naturalistic|microdosing|weekly|synthetic|extracted)\b", " ", stripped, flags=re.IGNORECASE)
+    stripped = re.sub(r"\b(?:therapy|treatment|assisted|psychotherapy|psychotherapeutic|support|program)\b", " ", stripped, flags=re.IGNORECASE)
+    stripped = re.sub(r"\b(?:mushrooms?|truffles?)\b", " ", stripped, flags=re.IGNORECASE)
+    if normalize(stripped) and label_key(stripped) != label_key(text):
+        variants.append((stripped, "stripped_context"))
+
+    out: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for variant, variant_type in variants:
+        for candidate_key, key_type in (
+            (label_key(variant), variant_type),
+            (compact_key(variant), f"{variant_type}_compact"),
+        ):
+            if candidate_key and (candidate_key, key_type) not in seen:
+                seen.add((candidate_key, key_type))
+                out.append((candidate_key, key_type))
+    return out
 
 
 def registry_lookup(registry_path: Path) -> dict[tuple[str, str], dict]:
@@ -565,8 +732,342 @@ def registry_lookup(registry_path: Path) -> dict[tuple[str, str], dict]:
             label = normalize(item.get("label", ""))
             if not label:
                 continue
-            out[(entity_type, label)] = item
+            labels = [label]
+            labels.extend(normalize(alias) for alias in item.get("aliases", []) if normalize(alias))
+            for candidate in labels:
+                if entity_type == "compound":
+                    variants = compound_key_variants(candidate)
+                else:
+                    variants = entity_key_variants(candidate, entity_type)
+                for key, _variant_type in variants:
+                    out[(entity_type, key)] = item
     return out
+
+
+def canonicalize_registry_label(
+    entity_type: str,
+    label: str,
+    registry: dict[tuple[str, str], dict],
+) -> tuple[str, dict | None]:
+    if entity_type == "compound":
+        keys = compound_key_variants(label)
+    else:
+        keys = entity_key_variants(label, entity_type)
+    item = None
+    for key, _variant_type in keys:
+        item = registry.get((entity_type, key))
+        if item:
+            break
+    if not item:
+        return label, None
+    canonical = normalize(item.get("label", "")) or label
+    return canonical, item
+
+
+def registry_match_type(entity_type: str, label: str, canonical: str, registry: dict[tuple[str, str], dict]) -> str:
+    variants = compound_key_variants(label) if entity_type == "compound" else entity_key_variants(label, entity_type)
+    for key, variant_type in variants:
+        item = registry.get((entity_type, key))
+        if item and normalize(item.get("label", "")) == canonical:
+            return variant_type
+    return ""
+
+
+def class_level_compound_label(value: object) -> bool:
+    return bool(CLASS_LEVEL_COMPOUND_RE.search(ascii_fold(value)))
+
+
+def reference_control_compound_label(value: object) -> bool:
+    key = label_key(value)
+    compact = compact_key(value)
+    reference_compacts = {compact_key(item) for item in REFERENCE_CONTROL_COMPOUND_KEYS}
+    return key in REFERENCE_CONTROL_COMPOUND_KEYS or compact in reference_compacts
+
+
+def registry_compound_labels_in_text(value: object, registry: dict[tuple[str, str], dict]) -> set[str]:
+    text_key = label_key(value)
+    if not text_key:
+        return set()
+    labels: set[str] = set()
+    for entity_type, key in registry:
+        if entity_type != "compound" or len(key) < 4:
+            continue
+        if re.search(rf"\b{re.escape(key)}\b", text_key):
+            labels.add(normalize(registry[(entity_type, key)].get("label", "")))
+    return {label for label in labels if label}
+
+
+def graphable_compound_match(raw_compound: object, registry: dict[tuple[str, str], dict]) -> dict:
+    raw = normalize(raw_compound)
+    if not raw:
+        return {
+            "matched": False,
+            "label": "",
+            "item": None,
+            "status": "compound_missing",
+            "match_type": "",
+            "notes": "compound field is empty",
+        }
+    if class_level_compound_label(raw):
+        return {
+            "matched": False,
+            "label": "",
+            "item": None,
+            "status": "compound_class_not_graphable",
+            "match_type": "",
+            "notes": "compound is a broad class label; graph compound nodes use specific registered compounds",
+        }
+    if reference_control_compound_label(raw):
+        return {
+            "matched": False,
+            "label": "",
+            "item": None,
+            "status": "compound_reference_not_graphable",
+            "match_type": "",
+            "notes": "compound is a reference/control compound; graph compound nodes focus on in-scope compounds",
+        }
+
+    label, item = canonicalize_registry_label("compound", raw, registry)
+    if item:
+        return {
+            "matched": True,
+            "label": label,
+            "item": item,
+            "status": "compound_normalized",
+            "match_type": registry_match_type("compound", raw, label, registry),
+            "notes": "compound matched local registry",
+        }
+
+    matched_labels = registry_compound_labels_in_text(raw, registry)
+    if len(matched_labels) > 1:
+        return {
+            "matched": False,
+            "label": "",
+            "item": None,
+            "status": "compound_combo_not_graphable",
+            "match_type": "",
+            "notes": "compound is a multi-compound label; graph compound nodes use one registered compound per edge",
+        }
+    return {
+        "matched": False,
+        "label": "",
+        "item": None,
+        "status": "compound_unmapped",
+        "match_type": "",
+        "notes": f"compound `{raw}` did not match local registry",
+    }
+
+
+def registry_entity_labels_in_text(value: object, entity_type: str, registry: dict[tuple[str, str], dict]) -> set[str]:
+    text_key = label_key(value)
+    if not text_key:
+        return set()
+    labels: set[str] = set()
+    for candidate_entity_type, key in registry:
+        if candidate_entity_type != entity_type or len(key) < 3:
+            continue
+        if re.search(rf"\b{re.escape(key)}\b", text_key):
+            labels.add(normalize(registry[(candidate_entity_type, key)].get("label", "")))
+    return {label for label in labels if label}
+
+
+def node_vocabulary_labels_in_text(value: object, entity_kind: str, node_vocabulary: dict[tuple[str, str], dict]) -> set[str]:
+    text_key = label_key(value)
+    if not text_key:
+        return set()
+    labels: set[str] = set()
+    for candidate_kind, key in node_vocabulary:
+        if candidate_kind != entity_kind or len(key) < 4:
+            continue
+        if re.search(rf"\b{re.escape(key)}\b", text_key):
+            labels.add(normalize(node_vocabulary[(candidate_kind, key)].get("label", "")))
+    return {label for label in labels if label}
+
+
+def registry_kind_for_item(default_kind: str, item: dict | None) -> str:
+    status = normalize((item or {}).get("status", "")).casefold()
+    if default_kind in {"condition_indication", "symptom_problem"}:
+        if default_kind == "symptom_problem":
+            return "symptom_problem"
+        if "symptom" in status or "generic_symptom" in status:
+            return "symptom_problem"
+        return "condition_indication"
+    if "family" in status or "system" in status:
+        return "system_family"
+    if "pathway" in status or "process" in status:
+        return "pathway_process"
+    if "marker" in status or "readout" in status or "ligand" in status or "neurotransmitter" in status:
+        return "biomarker_readout"
+    return default_kind
+
+
+def match_registry_entity(
+    raw_label: str,
+    entity_kind: str,
+    registry: dict[tuple[str, str], dict],
+) -> dict:
+    entity_type = ENTITY_TYPE_BY_KIND.get(entity_kind, "")
+    canonical, item = canonicalize_registry_label(entity_type, raw_label, registry)
+    if item:
+        canonical_kind = registry_kind_for_item(entity_kind, item)
+        return {
+            "matched": True,
+            "label": canonical,
+            "kind": canonical_kind,
+            "item": item,
+            "status": "entity_normalized",
+            "match_type": registry_match_type(entity_type, raw_label, canonical, registry),
+            "notes": "entity matched local registry",
+        }
+    matched_labels = registry_entity_labels_in_text(raw_label, entity_type, registry)
+    if len(matched_labels) == 1:
+        label = next(iter(matched_labels))
+        _, item = canonicalize_registry_label(entity_type, label, registry)
+        canonical_kind = registry_kind_for_item(entity_kind, item)
+        return {
+            "matched": True,
+            "label": label,
+            "kind": canonical_kind,
+            "item": item,
+            "status": "entity_normalized",
+            "match_type": "text_contains_registry_label",
+            "notes": "entity text contained one local registry label",
+        }
+    if len(matched_labels) > 1:
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "entity_combo_not_graphable",
+            "match_type": "",
+            "notes": "entity text contains multiple graph entities; graph rows need one entity per edge",
+        }
+    return {
+        "matched": False,
+        "label": "",
+        "kind": entity_kind,
+        "item": None,
+        "status": "entity_unmapped",
+        "match_type": "",
+        "notes": f"entity `{raw_label}` did not match local registry",
+    }
+
+
+def match_vocabulary_entity(
+    raw_label: str,
+    entity_kind: str,
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> dict:
+    canonical, item = canonicalize_node_label(entity_kind, raw_label, node_vocabulary)
+    if item:
+        return {
+            "matched": True,
+            "label": canonical,
+            "kind": entity_kind,
+            "item": item,
+            "status": "entity_normalized",
+            "match_type": "node_vocabulary",
+            "notes": "entity matched route-native node vocabulary",
+        }
+    matched_labels = node_vocabulary_labels_in_text(raw_label, entity_kind, node_vocabulary)
+    if len(matched_labels) == 1:
+        label = next(iter(matched_labels))
+        _, item = canonicalize_node_label(entity_kind, label, node_vocabulary)
+        return {
+            "matched": True,
+            "label": label,
+            "kind": entity_kind,
+            "item": item,
+            "status": "entity_normalized",
+            "match_type": "text_contains_node_vocabulary_label",
+            "notes": "entity text contained one route-native vocabulary label",
+        }
+    if len(matched_labels) > 1:
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "entity_combo_not_graphable",
+            "match_type": "",
+            "notes": "entity text contains multiple graph entities; graph rows need one entity per edge",
+        }
+    return {
+        "matched": False,
+        "label": "",
+        "kind": entity_kind,
+        "item": None,
+        "status": "entity_unmapped",
+        "match_type": "",
+        "notes": f"entity `{raw_label}` did not match route-native node vocabulary",
+    }
+
+
+def graphable_entity_match(
+    row: dict,
+    domain: str,
+    entity_kind: str,
+    raw_label: str,
+    registry: dict[tuple[str, str], dict],
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> dict:
+    raw = normalize(raw_label)
+    if not raw:
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "entity_missing",
+            "match_type": "",
+            "notes": "entity label is empty",
+        }
+    if entity_kind == "safety_adverse_event":
+        return {
+            "matched": True,
+            "label": safety_endpoint_label(row),
+            "kind": entity_kind,
+            "item": None,
+            "status": "entity_normalized",
+            "match_type": "safety_endpoint_pattern",
+            "notes": "safety/adverse-event entity normalized to safety endpoint bucket",
+        }
+    if entity_kind == "outcome_scale":
+        label = title_endpoint_label(raw)
+        return {
+            "matched": bool(label),
+            "label": label,
+            "kind": entity_kind,
+            "item": None,
+            "status": "entity_normalized" if label else "entity_unmapped",
+            "match_type": "outcome_scale_label",
+            "notes": "outcome scale label normalized" if label else f"entity `{raw}` did not produce an outcome scale label",
+        }
+    if entity_kind == "compound":
+        match = graphable_compound_match(raw, registry)
+        return {
+            "matched": match["matched"],
+            "label": match["label"],
+            "kind": entity_kind,
+            "item": match["item"],
+            "status": "entity_normalized" if match["matched"] else match["status"].replace("compound", "entity"),
+            "match_type": match["match_type"],
+            "notes": match["notes"],
+        }
+    if entity_kind in REGISTRY_BACKED_ENTITY_KINDS:
+        return match_registry_entity(raw, entity_kind, registry)
+    if entity_kind in VOCABULARY_BACKED_ENTITY_KINDS:
+        return match_vocabulary_entity(raw, entity_kind, node_vocabulary)
+    return {
+        "matched": False,
+        "label": "",
+        "kind": entity_kind,
+        "item": None,
+        "status": "entity_unmapped",
+        "match_type": "",
+        "notes": f"entity kind `{entity_kind}` has no normalization rule",
+    }
 
 
 OPEN_ACCESS_FIELDS = (
@@ -1002,12 +1503,26 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
     return out
 
 
-def claim_row(row: dict, source_name: str, domain: str, dataset: str, evidence_type: str, claim_id: str, paper_id: str) -> dict:
+def route_native_output(manifest_source_preset: str, graph_sources: dict[str, dict]) -> bool:
+    return manifest_source_preset == "routed" or set(graph_sources) == {"routed_extractions"}
+
+
+def finding_row(
+    row: dict,
+    source_name: str,
+    domain: str,
+    dataset: str,
+    evidence_type: str,
+    finding_id: str,
+    paper_id: str,
+    *,
+    id_field: str,
+) -> dict:
     row = normalize_claim_metadata(row, domain)
     entity_kind = entity_kind_for(row, domain)
     entity_label = entity_label_for(row, domain, entity_kind)
     out = {
-        "claim_id": claim_id,
+        id_field: finding_id,
         "source_name": source_name,
         "domain": domain,
         "dataset": dataset,
@@ -1037,17 +1552,19 @@ def evidence_edge_row(
     dataset: str,
     evidence_type: str,
     entity_kind: str,
-    claim_id: str,
+    finding_id: str,
     evidence_id: str,
     paper_id: str,
     compound_id: str,
     entity_id: str,
+    *,
+    id_field: str,
 ) -> dict:
     entity_label = entity_label_for(row, domain, entity_kind)
     relation_type = relation_type_for(domain, entity_kind, evidence_type)
     return {
         "evidence_id": evidence_id,
-        "claim_id": claim_id,
+        id_field: finding_id,
         "source_name": source_name,
         "domain": domain,
         "dataset": dataset,
@@ -1091,8 +1608,13 @@ def audit_row(row: dict, source_name: str, domain: str, dataset: str) -> dict:
         "normalization_notes": normalize(row.get("normalization_notes", "")),
         "compound": compound_label_for(row),
         "canonical_compound": normalize(row.get("canonical_compound", "")),
+        "compound_original": normalize(row.get("compound_original", "")),
+        "compound_match_type": normalize(row.get("compound_match_type", "")),
         "entity_label": entity_label_for(row, domain, entity_kind),
         "canonical_entity": normalize(row.get("canonical_entity", "")),
+        "graph_entity_original": normalize(row.get("graph_entity_original", "")),
+        "entity_match_type": normalize(row.get("entity_match_type", "")),
+        "kg_entity_kind_override": normalize(row.get("kg_entity_kind_override", "")),
         "entity_role": normalize(row.get("entity_role", "")),
         "graph_entity_type": normalize(row.get("graph_entity_type", "")),
         "graph_include_candidate": as_bool(row.get("graph_include_candidate", "")),
@@ -1135,9 +1657,13 @@ def build_tables(
     registry = registry_lookup(registry_path)
     node_vocabulary = node_vocabulary_lookup(node_vocabulary_path)
     access_lookups = paper_library_lookups()
+    route_native = route_native_output(manifest_source_preset, graph_sources)
+    finding_table_name = "findings" if route_native else "claims"
+    finding_id_field = "finding_id" if route_native else "claim_id"
+    finding_id_prefix = "finding" if route_native else "claim"
     papers: dict[str, dict] = {}
     entities: dict[str, dict] = {}
-    claims: list[dict] = []
+    findings: list[dict] = []
     evidence_edges: list[dict] = []
     audits: list[dict] = []
     source_counts: dict[str, int] = {}
@@ -1157,12 +1683,22 @@ def build_tables(
             if should_skip_evidence_row(domain, row):
                 continue
 
+            compound_label_raw = compound_label_for(row)
+            compound_match = graphable_compound_match(compound_label_raw, registry)
+            if not compound_match["matched"]:
+                audit_source_row = dict(row)
+                audit_source_row["normalization_status"] = compound_match["status"]
+                audit_source_row["normalization_notes"] = compound_match["notes"]
+                audit_source_row["compound_original"] = compound_label_raw
+                audits.append(audit_row(audit_source_row, source_name, domain, dataset))
+                continue
+
             paper_id = paper_id_for(row)
             papers.setdefault(paper_id, paper_row(row, paper_id))
 
-            compound_label = compound_label_for(row)
+            compound_label = compound_match["label"]
+            compound_registry = compound_match["item"]
             compound_id = entity_id_for("compound", compound_label)
-            compound_registry = registry.get(("compound", compound_label))
             entities.setdefault(
                 compound_id,
                 entity_row(compound_id, "compound", "compound", compound_label, "compound", compound_registry),
@@ -1170,22 +1706,55 @@ def build_tables(
 
             legacy_entity_label = normalize(row.get("target" if domain == "mechanistic" else "disorder", ""))
             legacy_entity_type = "mechanistic_entity" if domain == "mechanistic" else "clinical_entity"
-            legacy_registry_item = registry.get((legacy_entity_type, legacy_entity_label))
+            _, legacy_registry_item = canonicalize_registry_label(legacy_entity_type, legacy_entity_label, registry)
             entity_kind = entity_kind_for(row, domain, legacy_registry_item)
-            entity_label = entity_label_for(row, domain, entity_kind)
-            entity_label, vocabulary_item = canonicalize_node_label(entity_kind, entity_label, node_vocabulary)
+            raw_entity_label = entity_label_for(row, domain, entity_kind)
+            entity_match = graphable_entity_match(
+                row=row,
+                domain=domain,
+                entity_kind=entity_kind,
+                raw_label=raw_entity_label,
+                registry=registry,
+                node_vocabulary=node_vocabulary,
+            )
+            if not entity_match["matched"]:
+                audit_source_row = dict(row)
+                audit_source_row["compound"] = compound_label
+                audit_source_row["canonical_compound"] = compound_label
+                audit_source_row["compound_original"] = compound_label_raw
+                audit_source_row["graph_entity_label"] = raw_entity_label
+                audit_source_row["canonical_entity"] = entity_match["label"]
+                audit_source_row["kg_entity_kind_override"] = entity_kind
+                audit_source_row["normalization_status"] = entity_match["status"]
+                audit_source_row["normalization_notes"] = entity_match["notes"]
+                audit_source_row["entity_match_type"] = entity_match["match_type"]
+                audits.append(audit_row(audit_source_row, source_name, domain, dataset))
+                continue
+
+            entity_kind = entity_match["kind"]
+            entity_label = entity_match["label"]
             entity_type = entity_type_for_kind(entity_kind, domain)
-            registry_item = registry.get((entity_type, entity_label)) or vocabulary_item
+            registry_item = entity_match["item"]
             entity_id = entity_id_for(entity_type, entity_label)
             entities.setdefault(entity_id, entity_row(entity_id, entity_type, domain, entity_label, entity_kind, registry_item))
             table_row = dict(row)
+            table_row["compound_original"] = compound_label_raw
             table_row["compound"] = compound_label
+            table_row["canonical_compound"] = compound_label
+            table_row["compound_match_type"] = compound_match["match_type"]
+            table_row["compound_registry_status"] = normalize((compound_registry or {}).get("status", ""))
+            table_row["normalization_status"] = "normalized"
+            table_row["normalization_notes"] = f"{compound_match['notes']}; {entity_match['notes']}"
+            table_row["graph_entity_original"] = raw_entity_label
             table_row["graph_entity_label"] = entity_label
+            table_row["canonical_entity"] = entity_label
+            table_row["entity_match_type"] = entity_match["match_type"]
+            table_row["entity_registry_status"] = normalize((registry_item or {}).get("status", ""))
             table_row["kg_entity_kind_override"] = entity_kind
 
             evidence_type = evidence_type_for(row, default_evidence_type)
-            claim_id = stable_id(
-                "claim",
+            finding_id = stable_id(
+                finding_id_prefix,
                 source_name,
                 index,
                 row.get("study_doi", ""),
@@ -1194,8 +1763,19 @@ def build_tables(
                 table_row.get("evidence_locator", ""),
                 table_row.get("supporting_quote", ""),
             )
-            evidence_id = stable_id("evidence", claim_id, evidence_type, entity_kind)
-            claims.append(claim_row(table_row, source_name, domain, dataset, evidence_type, claim_id, paper_id))
+            evidence_id = stable_id("evidence", finding_id, evidence_type, entity_kind)
+            findings.append(
+                finding_row(
+                    table_row,
+                    source_name,
+                    domain,
+                    dataset,
+                    evidence_type,
+                    finding_id,
+                    paper_id,
+                    id_field=finding_id_field,
+                )
+            )
             evidence_edges.append(
                 evidence_edge_row(
                     table_row,
@@ -1204,11 +1784,12 @@ def build_tables(
                     dataset,
                     evidence_type,
                     entity_kind,
-                    claim_id,
+                    finding_id,
                     evidence_id,
                     paper_id,
                     compound_id,
                     entity_id,
+                    id_field=finding_id_field,
                 )
             )
 
@@ -1220,7 +1801,7 @@ def build_tables(
     tables = {
         "papers": dataframe(list(papers.values())),
         "entities": dataframe(list(entities.values())),
-        "claims": dataframe(claims),
+        finding_table_name: dataframe(findings),
         "evidence_edges": dataframe(evidence_edges),
         "normalization_audit": dataframe(audits),
     }
@@ -1230,6 +1811,10 @@ def build_tables(
             existing = out_dir / f"{table_name}.parquet"
             if existing.exists():
                 existing.unlink()
+        stale_table = "claims" if route_native else "findings"
+        stale_path = out_dir / f"{stale_table}.parquet"
+        if stale_path.exists():
+            stale_path.unlink()
     out_dir.mkdir(parents=True, exist_ok=True)
     for table_name, df in tables.items():
         write_parquet(df, out_dir / f"{table_name}.parquet")
@@ -1300,14 +1885,18 @@ def write_duckdb_database(out_dir: Path, table_names: Iterable[str]) -> dict:
     if db_path.exists():
         db_path.unlink()
     con = duckdb.connect(str(db_path))
+    skipped_empty_tables: list[str] = []
     try:
         for table_name in table_names:
             parquet_path = (out_dir / f"{table_name}.parquet").as_posix()
+            if len(pd.read_parquet(parquet_path).columns) == 0:
+                skipped_empty_tables.append(table_name)
+                continue
             con.execute(f"CREATE TABLE {table_name} AS SELECT * FROM read_parquet(?)", [parquet_path])
         con.execute("CHECKPOINT")
     finally:
         con.close()
-    return {"status": "ok", "path": str(db_path)}
+    return {"status": "ok", "path": str(db_path), "skipped_empty_tables": skipped_empty_tables}
 
 
 def parse_args() -> argparse.Namespace:

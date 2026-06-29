@@ -22,14 +22,7 @@
     />
     <link
       rel="preload"
-      href="/data/processed/graph_payload_manifest.json"
-      as="fetch"
-      type="application/json"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="preload"
-      href="/data/processed/graph_preview_disorder.json"
+      href="/data/processed/graph_payload_active.json"
       as="fetch"
       type="application/json"
       crossorigin="anonymous"
@@ -82,6 +75,20 @@
             <div class="graph-toolbar">
               <div class="graph-header-controls">
                 <div class="toolbar-main-row">
+                  <div
+                    class="mode-toggle entity-kind-toggle category-toggle"
+                    data-entity-kind-toggle
+                    role="tablist"
+                    aria-label="Graph category"
+                  ></div>
+                  <div class="filter-toggles" aria-label="Evidence filters">
+                    <label class="access-toggle" for="fullTextOnlyToggle">
+                      <input id="fullTextOnlyToggle" type="checkbox" checked />
+                      <span>Full text only</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="toolbar-filter-row">
                   <div class="year-range-inline" aria-label="Year range">
                     <div class="year-field">
                       <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
@@ -99,12 +106,6 @@
                       </div>
                     </div>
                   </div>
-                  <div
-                    class="mode-toggle entity-kind-toggle category-toggle"
-                    data-entity-kind-toggle
-                    role="tablist"
-                    aria-label="Graph category"
-                  ></div>
                   <div class="mode-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
                     <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
                       Primary
@@ -112,14 +113,6 @@
                     <button class="ghost small" data-evidence-view="secondary" role="tab" aria-selected="false">
                       Secondary
                     </button>
-                  </div>
-                </div>
-                <div class="toolbar-filter-row">
-                  <div class="filter-toggles" aria-label="Evidence filters">
-                    <label class="access-toggle" for="fullTextOnlyToggle">
-                      <input id="fullTextOnlyToggle" type="checkbox" checked />
-                      <span>Full text only</span>
-                    </label>
                   </div>
                 </div>
               </div>

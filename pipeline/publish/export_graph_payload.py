@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
@@ -25,8 +26,26 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 DEFAULT_CLAIM_SOURCE = "kg_tables"
 DEFAULT_KG_TABLE_DIR = ROOT / "data" / "processed" / "kg"
+DEFAULT_ACTIVE_PAYLOAD_JSON = ROOT / "data" / "processed" / "graph_payload_active.json"
 LEGACY_MECHANISTIC_SCHEMA = ROOT / "schema" / "legacy_mechanistic_affinity_claims.schema.json"
 LEGACY_DISORDER_SCHEMA = ROOT / "schema" / "legacy_disorder_claims.schema.json"
+ROUTED_SOURCE_NAME = "routed_extractions"
+MECHANISTIC_KG_DOMAINS = {
+    "mechanistic",
+    "molecular_target",
+    "molecular_pathway_readout",
+    "brain_system",
+    "pharmacokinetics_exposure",
+}
+DISORDER_KG_DOMAINS = {
+    "clinical",
+    "clinical_outcome",
+    "safety_tolerability",
+    "cognitive_behavioral",
+    "subjective_experience",
+    "real_world_public_health",
+    "intervention_context",
+}
 
 CLAIM_SOURCES = {
     "gemini_extraction": {
@@ -67,12 +86,14 @@ CLAIM_SOURCES = {
         "claims_parquet": DEFAULT_KG_TABLE_DIR / "claims.parquet",
         "paper_authors_parquet": DEFAULT_KG_TABLE_DIR / "paper_authors.parquet",
         "mechanistic": {
-            "primary_source_name": "mechanistic_primary",
+            "primary_source_name": ["mechanistic_primary", ROUTED_SOURCE_NAME],
             "secondary_source_name": "mechanistic_secondary",
+            "domain_names": sorted(MECHANISTIC_KG_DOMAINS),
         },
         "disorder": {
-            "primary_source_name": ["clinical_primary", "clinical_primary_endpoints"],
+            "primary_source_name": ["clinical_primary", "clinical_primary_endpoints", ROUTED_SOURCE_NAME],
             "secondary_source_name": "clinical_secondary",
+            "domain_names": sorted(DISORDER_KG_DOMAINS),
         },
     },
 }
@@ -86,7 +107,7 @@ DATASET_CONFIG = {
         "secondary_sources_file": "graph_payload_mechanistic_secondary_sources.json",
         "primary_with_secondary_file": "graph_payload_mechanistic_primary_with_secondary.json",
         "id_fields": [
-            "claim_type",
+            "finding_type",
             "compound",
             "target",
             "study_doi",
@@ -111,7 +132,7 @@ DATASET_CONFIG = {
         "secondary_sources_file": "graph_payload_disorder_secondary_sources.json",
         "primary_with_secondary_file": "graph_payload_disorder_primary_with_secondary.json",
         "id_fields": [
-            "claim_type",
+            "finding_type",
             "compound",
             "disorder",
             "study_doi",
@@ -155,7 +176,7 @@ PAPER_METADATA_FIELDS = (
     "unpaywall_license",
 )
 EXTRACTED_VARIABLE_FIELDS = (
-    "claim_type",
+    "finding_type",
     "raw_entity_label",
     "entity_role",
     "clinical_context_condition",
@@ -266,6 +287,7 @@ def claim_source_paths(dataset: str, claim_source: str, kg_dir: Path | None = No
             "paper_authors_parquet": resolved_kg_dir / "paper_authors.parquet",
             "primary_source_name": paths["primary_source_name"],
             "secondary_source_name": paths["secondary_source_name"],
+            "domain_names": paths.get("domain_names", []),
         }
     paths = source[dataset]
     return {
@@ -307,7 +329,7 @@ def source_name_values(source_name: object) -> list[str]:
     return [normalize(source_name)] if normalize(source_name) else []
 
 
-def load_kg_claim_rows(claims_parquet: Path, source_name: object) -> List[dict]:
+def load_kg_claim_rows(claims_parquet: Path, source_name: object, domain_names: object = None) -> List[dict]:
     if not claims_parquet.exists():
         return []
     try:
@@ -320,6 +342,9 @@ def load_kg_claim_rows(claims_parquet: Path, source_name: object) -> List[dict]:
         return []
     source_names = source_name_values(source_name)
     selected = df[df["source_name"].isin(source_names)].copy()
+    domains = set(source_name_values(domain_names))
+    if domains and "domain" in selected.columns:
+        selected = selected[selected["domain"].isin(domains)].copy()
 
     edge_path = claims_parquet.with_name("evidence_edges.parquet")
     if edge_path.exists() and "claim_id" in selected.columns:
@@ -361,11 +386,126 @@ def load_kg_claim_rows(claims_parquet: Path, source_name: object) -> List[dict]:
     return rows
 
 
+def meaningful(value: object) -> bool:
+    text = normalize(value).lower()
+    return text not in {"", "nan", "none", "not_reported", "not reported", "not_applicable", "not applicable"}
+
+
+def first_meaningful(*values: object) -> str:
+    for value in values:
+        if meaningful(value):
+            return normalize(value)
+    return ""
+
+
+def is_routed_kg_row(row: dict) -> bool:
+    return normalize(row.get("kg_source_name", "")) == ROUTED_SOURCE_NAME
+
+
+def ui_evidence_location(value: object) -> str:
+    text = normalize(value).lower()
+    if not text:
+        return "unknown"
+    if "abstract" in text:
+        return "abstract"
+    if "table" in text:
+        return "table"
+    if "figure" in text or re.search(r"\bfig(?:ure)?\.?\b", text):
+        return "figure"
+    if "supplement" in text:
+        return "supplement"
+    if "mixed" in text:
+        return "mixed"
+    if any(term in text for term in ("result", "method", "discussion", "text")):
+        return "text"
+    return "unknown"
+
+
+def ui_access_level(value: object) -> str:
+    text = normalize(value)
+    if text == "article_text":
+        return "full_text_seen"
+    if text in {"full_text_seen", "abstract_only", "secondary_summary"}:
+        return text
+    return "abstract_only" if text == "abstract" else "full_text_seen"
+
+
+def adapt_kg_row_for_ui(row: dict, dataset: str) -> dict:
+    out = dict(row)
+    domain = first_meaningful(out.get("kg_domain", ""), out.get("domain", ""))
+    out["finding_type"] = first_meaningful(out.get("finding_type", ""), domain, "routed_evidence")
+    entity_label = first_meaningful(
+        out.get("target", ""),
+        out.get("disorder", ""),
+        out.get("graph_entity_label", ""),
+        out.get("raw_entity_label", ""),
+        out.get("entity_label", ""),
+        out.get("outcome_measure", ""),
+    )
+    if dataset == "mechanistic":
+        out["target"] = first_meaningful(out.get("target", ""), entity_label)
+        if not meaningful(out.get("result_direction", "")):
+            out["result_direction"] = "not_applicable"
+    else:
+        out["disorder"] = first_meaningful(out.get("disorder", ""), entity_label)
+        if not meaningful(out.get("result_direction", "")):
+            out["result_direction"] = "not_applicable"
+    out["raw_entity_label"] = first_meaningful(out.get("raw_entity_label", ""), entity_label)
+    out["graph_entity_label"] = first_meaningful(out.get("graph_entity_label", ""), entity_label)
+    if normalize(out.get("paper_type", "")) == "primary_study":
+        out["paper_type"] = "primary_results"
+    if normalize(out.get("source_type", "")) == "primary":
+        out["source_type"] = "primary_study"
+    if normalize(out.get("source_family", "")) in {"primary", "primary_study"}:
+        out["source_family"] = "original_empirical"
+    out["access_level"] = ui_access_level(out.get("access_level", ""))
+    out["evidence_location"] = ui_evidence_location(out.get("evidence_location", ""))
+    if not meaningful(out.get("evidence_locator", "")):
+        out["evidence_locator"] = out["evidence_location"]
+    if not meaningful(out.get("study_design", "")):
+        out["study_design"] = "not_reported"
+    if not meaningful(out.get("evidence_level", "")):
+        out["evidence_level"] = "low"
+    if normalize(out.get("support", "")) not in {"supported", "uncertain", "not_supported"}:
+        out["support"] = "supported"
+    if not meaningful(out.get("confidence", "")):
+        out["confidence"] = "0.8"
+    if not meaningful(out.get("source", "")):
+        out["source"] = "doi"
+    if "needs_human_review" not in out:
+        out["needs_human_review"] = False
+    return out
+
+
+def maybe_adapt_kg_row_for_ui(row: dict, dataset: str) -> dict:
+    if is_routed_kg_row(row):
+        return adapt_kg_row_for_ui(row, dataset)
+    return row
+
+
 def load_claim_rows_for_source(dataset: str, claim_source: str, source_paths: dict) -> tuple[List[dict], List[dict]]:
     if claim_source == "kg_tables":
+        primary_candidates = [
+            maybe_adapt_kg_row_for_ui(row, dataset)
+            for row in load_kg_claim_rows(
+                source_paths["claims_parquet"],
+                source_paths["primary_source_name"],
+                source_paths.get("domain_names"),
+            )
+        ]
+        secondary_candidates = [
+            maybe_adapt_kg_row_for_ui(row, dataset)
+            for row in load_kg_claim_rows(
+                source_paths["claims_parquet"],
+                source_paths["secondary_source_name"],
+                source_paths.get("domain_names"),
+            )
+        ]
+        primary_rows = [row for row in primary_candidates if is_primary_graph_row(row)]
+        secondary_rows = [row for row in secondary_candidates if is_secondary_literature_row(row)]
         return (
-            load_kg_claim_rows(source_paths["claims_parquet"], source_paths["primary_source_name"]),
-            load_kg_claim_rows(source_paths["claims_parquet"], source_paths["secondary_source_name"]),
+            primary_rows,
+            secondary_rows,
         )
     return load_json_array(source_paths["claims_json"]), load_json_array(source_paths["secondary_json"])
 
@@ -404,7 +544,11 @@ def validate_row(
 
     cleaned = {key: row.get(key, "") for key in allowed_keys}
 
-    for field in required:
+    row_required = required
+    if is_routed_kg_row(row):
+        row_required = [field for field in required if field not in {"claim_type", "outcome_type", "authors"}]
+
+    for field in row_required:
         if normalize(cleaned.get(field, "")) == "":
             errors.append(f"row {row_idx}: missing required field `{field}`")
 
@@ -418,6 +562,8 @@ def validate_row(
             errors.append(f"row {row_idx}: requires one of {group_names}")
 
     for field, allowed in enums.items():
+        if is_routed_kg_row(row):
+            continue
         value = normalize(cleaned.get(field, ""))
         if value and value not in allowed:
             errors.append(f"row {row_idx}: invalid enum `{field}` value `{value}`")
@@ -615,6 +761,17 @@ def paper_metadata(row: dict, author_lookup: dict | None = None) -> dict:
     return out
 
 
+def payload_properties(row: dict, properties: dict) -> dict:
+    out = dict(properties)
+    finding_type = normalize(row.get("finding_type", ""))
+    if finding_type:
+        out["finding_type"] = finding_type
+    legacy_claim_type = normalize(row.get("claim_type", ""))
+    if legacy_claim_type and not is_routed_kg_row(row):
+        out["claim_type"] = legacy_claim_type
+    return out
+
+
 def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str, author_lookup: dict | None = None) -> dict:
     assay_family_normalized = normalize(row.get("assay_family_normalized", "")) or normalize_mechanistic_assay_family(
         row.get("assay_family", ""),
@@ -628,8 +785,7 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "compound": normalize(row.get("compound", "")),
             "target": normalize(row.get("target", "")),
         },
-        "properties": {
-            "claim_type": normalize(row.get("claim_type", "")),
+        "properties": payload_properties(row, {
             "raw_entity_label": normalize(row.get("raw_entity_label", "")),
             "entity_role": normalize(row.get("entity_role", "")),
             "clinical_context_condition": normalize(row.get("clinical_context_condition", "")),
@@ -660,7 +816,7 @@ def make_mechanistic_contribution(row: dict, id_fields: List[str], template: str
             "kg_evidence_type": normalize(row.get("kg_evidence_type", "")),
             "kg_relation_type": normalize(row.get("kg_relation_type", "")),
             "kg_source_name": normalize(row.get("kg_source_name", "")),
-        },
+        }),
         "extracted_variables": extracted_variables(row),
         "provenance": {
             "paper_type": normalize(row.get("paper_type", "")),
@@ -697,8 +853,7 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str, a
             "compound": normalize(row.get("compound", "")),
             "disorder": normalize(row.get("disorder", "")),
         },
-        "properties": {
-            "claim_type": normalize(row.get("claim_type", "")),
+        "properties": payload_properties(row, {
             "raw_entity_label": normalize(row.get("raw_entity_label", "")),
             "entity_role": normalize(row.get("entity_role", "")),
             "clinical_context_condition": normalize(row.get("clinical_context_condition", "")),
@@ -729,7 +884,7 @@ def make_disorder_contribution(row: dict, id_fields: List[str], template: str, a
             "kg_evidence_type": normalize(row.get("kg_evidence_type", "")),
             "kg_relation_type": normalize(row.get("kg_relation_type", "")),
             "kg_source_name": normalize(row.get("kg_source_name", "")),
-        },
+        }),
         "extracted_variables": extracted_variables(row),
         "provenance": {
             "paper_type": normalize(row.get("paper_type", "")),
@@ -831,6 +986,35 @@ def compact_json(payload: dict) -> str:
     return json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n"
 
 
+def relative_payload_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(ROOT).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
+def write_active_payload_pointer(
+    *,
+    active_json: Path,
+    out_dir: Path,
+    manifest_path: Path,
+    kg_dir: Path,
+    claim_source: str,
+) -> dict:
+    payload = {
+        "schema_version": "graph_payload_active_v1",
+        "active_payload_dir": relative_payload_path(out_dir),
+        "active_manifest": relative_payload_path(manifest_path),
+        "evidence_source": claim_source,
+        "kg_dir": relative_payload_path(kg_dir) if claim_source == "kg_tables" else "",
+        "fallback_payload_dir": "data/processed",
+    }
+    active_json.parent.mkdir(parents=True, exist_ok=True)
+    active_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return payload
+
+
 def study_identity_from_paper(paper: dict) -> str:
     doi = normalize(paper.get("doi", "")).lower()
     if doi:
@@ -927,7 +1111,7 @@ def aggregate_payload_summary_stats(payloads: List[dict]) -> dict:
     }
 
 
-def graph_preview_claim(contribution: dict) -> dict:
+def graph_preview_finding(contribution: dict) -> dict:
     paper = contribution.get("paper") if isinstance(contribution.get("paper"), dict) else {}
     resources = contribution.get("resources") if isinstance(contribution.get("resources"), dict) else {}
     properties = contribution.get("properties") if isinstance(contribution.get("properties"), dict) else {}
@@ -939,7 +1123,7 @@ def graph_preview_claim(contribution: dict) -> dict:
     provenance = contribution.get("provenance") if isinstance(contribution.get("provenance"), dict) else {}
     study_doi = normalize(paper.get("doi", ""))
     openalex_id = normalize(paper.get("openalex_id", ""))
-    claim = {
+    finding = {
         "compound": normalize(resources.get("compound", "")),
         "target": normalize(resources.get("target", "")),
         "disorder": normalize(resources.get("disorder", "")),
@@ -1003,7 +1187,7 @@ def graph_preview_claim(contribution: dict) -> dict:
         ),
         "action_type": normalize(properties.get("action_type", "")),
     }
-    return {key: value for key, value in claim.items() if value != ""}
+    return {key: value for key, value in finding.items() if value != ""}
 
 
 def graph_preview_payload(payload: dict) -> dict:
@@ -1012,10 +1196,14 @@ def graph_preview_payload(payload: dict) -> dict:
         "contract_version": payload.get("contract_version", "1.0"),
         "dataset": payload.get("dataset", ""),
         "evidence_view": payload.get("evidence_view", ""),
-        "claim_source": payload.get("claim_source", ""),
-        "claim_source_label": payload.get("claim_source_label", ""),
+        "evidence_source": payload.get("evidence_source", payload.get("claim_source", "")),
+        "evidence_source_label": payload.get("evidence_source_label", payload.get("claim_source_label", "")),
         "row_count": len(contributions),
-        "claims": [graph_preview_claim(contribution) for contribution in contributions if isinstance(contribution, dict)],
+        "findings": [
+            graph_preview_finding(contribution)
+            for contribution in contributions
+            if isinstance(contribution, dict)
+        ],
     }
 
 
@@ -1079,8 +1267,8 @@ def export_dataset(
             "dataset": dataset,
             "evidence_view": view,
             "template": cfg["template"],
-            "claim_source": source_paths["claim_source"],
-            "claim_source_label": source_paths["claim_source_label"],
+            "evidence_source": source_paths["claim_source"],
+            "evidence_source_label": source_paths["claim_source_label"],
             "input_file": str(source_paths.get("claims_json") or source_paths.get("claims_parquet")),
             "secondary_source_file": str(source_paths.get("secondary_json") or source_paths.get("secondary_source_name", "")),
             "view_policy": {
@@ -1138,6 +1326,16 @@ def main() -> int:
         default=str(DEFAULT_KG_TABLE_DIR),
         help="KG table directory to read when --claim-source kg_tables.",
     )
+    parser.add_argument(
+        "--activate-default",
+        action="store_true",
+        help="Write data/processed/graph_payload_active.json so the browser UI loads this output directory by default.",
+    )
+    parser.add_argument(
+        "--active-json",
+        default=str(DEFAULT_ACTIVE_PAYLOAD_JSON),
+        help="Active payload pointer written when --activate-default is used.",
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir).resolve()
@@ -1147,8 +1345,8 @@ def main() -> int:
     manifest = {
         "generated_at": now_utc(),
         "contract_version": "1.0",
-        "claim_source": args.claim_source,
-        "claim_source_label": CLAIM_SOURCES[args.claim_source]["label"],
+        "evidence_source": args.claim_source,
+        "evidence_source_label": CLAIM_SOURCES[args.claim_source]["label"],
         "kg_dir": str(kg_dir) if args.claim_source == "kg_tables" else "",
         "datasets": {},
         "status": "ok",
@@ -1205,6 +1403,16 @@ def main() -> int:
 
     manifest_path = out_dir / args.manifest
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if args.activate_default:
+        active_payload = write_active_payload_pointer(
+            active_json=Path(args.active_json).resolve(),
+            out_dir=out_dir,
+            manifest_path=manifest_path,
+            kg_dir=kg_dir,
+            claim_source=args.claim_source,
+        )
+        manifest["active_payload_pointer"] = active_payload
+        manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     print(f"Datasets: {', '.join(datasets)}")
     for dataset in datasets:
@@ -1214,6 +1422,8 @@ def main() -> int:
             view_info = info["views"][view]
             print(f"  - {view}: {view_info['row_count']} rows -> {view_info['output_file']}")
     print(f"Manifest: {manifest_path}")
+    if args.activate_default:
+        print(f"Active payload pointer: {Path(args.active_json).resolve()}")
     print(f"Status: {manifest['status']}")
 
     return 1 if manifest["status"] == "failed" else 0

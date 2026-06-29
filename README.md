@@ -221,9 +221,10 @@ python pipeline/kg/build_author_tables.py \
   --papers "data/processed/kg_routed_runs/$RUN_ID/papers.parquet" \
   --out-dir "data/processed/kg_routed_runs/$RUN_ID" \
   --cache "data/processed/kg_routed_runs/$RUN_ID/openalex_author_cache.json"
-python pipeline/publish/export_graph_payload.py \
+python pipeline/publish/export_evidence_payload.py \
   --kg-dir "data/processed/kg_routed_runs/$RUN_ID" \
-  --out-dir "data/processed/graph_payload_runs/$RUN_ID"
+  --out-dir "data/processed/graph_payload_runs/$RUN_ID" \
+  --activate-default
 python pipeline/publish/export_bibliography_payload.py
 ```
 

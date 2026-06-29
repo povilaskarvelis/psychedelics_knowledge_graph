@@ -85,6 +85,34 @@ const ENTITY_VIEW_OPTIONS = {
       lowerSingular: "safety/adverse event",
     },
     { key: "outcome_scale", label: "Scales", singular: "Outcome scale", lowerPlural: "outcome scales", lowerSingular: "outcome scale" },
+    {
+      key: "cognitive_behavioral_construct",
+      label: "Cognition/behavior",
+      singular: "Cognitive/behavioral construct",
+      lowerPlural: "cognitive/behavioral constructs",
+      lowerSingular: "cognitive/behavioral construct",
+    },
+    {
+      key: "subjective_experience_construct",
+      label: "Subjective experience",
+      singular: "Subjective experience construct",
+      lowerPlural: "subjective experience constructs",
+      lowerSingular: "subjective experience construct",
+    },
+    {
+      key: "intervention_component",
+      label: "Intervention context",
+      singular: "Intervention/context component",
+      lowerPlural: "intervention/context components",
+      lowerSingular: "intervention/context component",
+    },
+    {
+      key: "public_health_measure",
+      label: "Public health",
+      singular: "Public health measure",
+      lowerPlural: "public health measures",
+      lowerSingular: "public health measure",
+    },
   ],
   mechanistic: [
     { key: "target", label: "Targets", singular: "Target", lowerPlural: "targets", lowerSingular: "target" },
@@ -97,17 +125,77 @@ const ENTITY_VIEW_OPTIONS = {
       lowerSingular: "biomarker/readout",
     },
     { key: "system_family", label: "Systems", singular: "System/family", lowerPlural: "systems/families", lowerSingular: "system/family" },
+    {
+      key: "brain_region",
+      label: "Brain regions",
+      singular: "Brain region",
+      lowerPlural: "brain regions",
+      lowerSingular: "brain region",
+    },
+    {
+      key: "brain_network",
+      label: "Brain networks",
+      singular: "Brain network",
+      lowerPlural: "brain networks",
+      lowerSingular: "brain network",
+    },
+    {
+      key: "neural_circuit",
+      label: "Neural circuits",
+      singular: "Neural circuit",
+      lowerPlural: "neural circuits",
+      lowerSingular: "neural circuit",
+    },
+    {
+      key: "pharmacokinetic_parameter",
+      label: "PK/exposure",
+      singular: "PK/exposure parameter",
+      lowerPlural: "PK/exposure parameters",
+      lowerSingular: "PK/exposure parameter",
+    },
   ],
 };
 const ENTITY_CATEGORY_OPTIONS = [
   { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[0] },
   { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[1] },
   { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[2] },
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[3] },
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[4] },
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[5] },
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[6] },
+  { mode: "disorders", ...ENTITY_VIEW_OPTIONS.disorders[7] },
   { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[3] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[4] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[5] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[6] },
+  { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[7] },
   { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[2] },
   { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[1] },
   { mode: "mechanistic", ...ENTITY_VIEW_OPTIONS.mechanistic[0] },
 ];
+const ROUTE_NATIVE_DISPLAY_MODE_BY_DOMAIN = {
+  molecular_target: "mechanistic",
+  molecular_pathway_readout: "mechanistic",
+  brain_system: "mechanistic",
+  pharmacokinetics_exposure: "mechanistic",
+  clinical_outcome: "disorders",
+  safety_tolerability: "disorders",
+  cognitive_behavioral: "disorders",
+  subjective_experience: "disorders",
+  real_world_public_health: "disorders",
+  intervention_context: "disorders",
+};
+const ROUTE_NATIVE_MECHANISTIC_ENTITY_KINDS = new Set([
+  "target",
+  "pathway_process",
+  "molecular_readout",
+  "biomarker_readout",
+  "system_family",
+  "brain_region",
+  "brain_network",
+  "neural_circuit",
+  "pharmacokinetic_parameter",
+]);
 
 let claims = [];
 let disorderClaims = [];
@@ -139,6 +227,9 @@ const expandedChartKeys = new Set();
 let currentDataLoadToken = 0;
 let heroStatsSnapshot = null;
 let graphManifestPromise = null;
+let graphPayloadConfigPromise = null;
+let routeNativeEvidencePayloadPromise = null;
+let routeNativeEvidencePreviewPromise = null;
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let pendingTooltipPoint = null;
@@ -4655,17 +4746,52 @@ function dataCandidates(path) {
   return [`../${path}`, `/${path}`, path];
 }
 
+function joinPayloadPath(dir, fileName) {
+  return `${(dir || "").replace(/\/+$/, "")}/${fileName}`;
+}
+
+function uniquePaths(paths) {
+  return Array.from(new Set(paths.filter(Boolean)));
+}
+
+async function loadGraphPayloadConfig() {
+  if (graphPayloadConfigPromise) return graphPayloadConfigPromise;
+  graphPayloadConfigPromise = fetchJsonFromCandidates(dataCandidates("data/processed/graph_payload_active.json"))
+    .then(({ data }) => data || {})
+    .catch(() => ({}));
+  return graphPayloadConfigPromise;
+}
+
+async function resolveGraphPayloadPaths(paths) {
+  const config = await loadGraphPayloadConfig();
+  const activeDir = cleanDisplayText(config?.active_payload_dir || "");
+  const activeManifest = cleanDisplayText(config?.active_manifest || "");
+  const out = [];
+  for (const path of paths) {
+    const fileName = path.split("/").pop();
+    if (activeManifest && fileName === "graph_payload_manifest.json") {
+      out.push(activeManifest);
+    } else if (activeDir && /^graph_(?:payload|preview)_/.test(fileName || "")) {
+      out.push(joinPayloadPath(activeDir, fileName));
+    }
+    out.push(path);
+  }
+  return uniquePaths(out);
+}
+
 function loadGraphManifestStats() {
   if (graphManifestPromise) return graphManifestPromise;
-  graphManifestPromise = fetchJsonFromCandidates(dataCandidates("data/processed/graph_payload_manifest.json"))
-    .then(({ data }) => {
+  graphManifestPromise = (async () => {
+    const paths = await resolveGraphPayloadPaths(["data/processed/graph_payload_manifest.json"]);
+    return fetchJsonFromCandidates(paths.flatMap((path) => dataCandidates(path))).then(({ data }) => {
       const snapshot = heroStatsFromGraphManifest(data);
       if (snapshot) {
         heroStatsSnapshot = snapshot;
         updateStats();
       }
       return snapshot;
-    })
+    });
+  })()
     .catch(() => null);
   return graphManifestPromise;
 }
@@ -4703,7 +4829,7 @@ async function loadOptionalClaimArray(options) {
 function mechanisticFromPayload(payload) {
   const contributions = Array.isArray(payload?.contributions) ? payload.contributions : [];
   return contributions.map((item) => ({
-    claim_type: item?.properties?.claim_type || "",
+    finding_type: item?.properties?.finding_type || "",
     compound: item?.resources?.compound || "",
     target: item?.resources?.target || "",
     raw_entity_label: item?.properties?.raw_entity_label || "",
@@ -4780,7 +4906,7 @@ function mechanisticFromPayload(payload) {
 function disorderFromPayload(payload) {
   const contributions = Array.isArray(payload?.contributions) ? payload.contributions : [];
   return contributions.map((item) => ({
-    claim_type: item?.properties?.claim_type || "",
+    finding_type: item?.properties?.finding_type || "",
     compound: item?.resources?.compound || "",
     disorder: item?.resources?.disorder || "",
     raw_entity_label: item?.properties?.raw_entity_label || "",
@@ -5002,7 +5128,128 @@ function enrichAllLoadedClaimsWithBibliography() {
 }
 
 function graphPreviewFromPayload(payload) {
+  if (Array.isArray(payload?.findings)) return payload.findings;
   return Array.isArray(payload?.claims) ? payload.claims : [];
+}
+
+function routeNativeFindingsFromPayload(payload) {
+  return Array.isArray(payload?.findings) ? payload.findings : null;
+}
+
+async function loadActiveRouteNativeFindings(preview = false) {
+  const config = await loadGraphPayloadConfig();
+  const path = cleanDisplayText(preview ? config?.active_evidence_preview : config?.active_evidence_payload);
+  if (!path) return null;
+
+  const promiseKey = preview ? "routeNativeEvidencePreviewPromise" : "routeNativeEvidencePayloadPromise";
+  if (preview && routeNativeEvidencePreviewPromise) return routeNativeEvidencePreviewPromise;
+  if (!preview && routeNativeEvidencePayloadPromise) return routeNativeEvidencePayloadPromise;
+
+  const task = fetchJsonFromCandidates(dataCandidates(path))
+    .then(({ data }) => routeNativeFindingsFromPayload(data))
+    .catch(() => null);
+
+  if (promiseKey === "routeNativeEvidencePreviewPromise") {
+    routeNativeEvidencePreviewPromise = task;
+  } else {
+    routeNativeEvidencePayloadPromise = task;
+  }
+  return task;
+}
+
+function routeNativeDisplayMode(finding) {
+  const domain = normalizeValue(finding.domain || finding.kg_domain || finding.finding_type);
+  if (ROUTE_NATIVE_DISPLAY_MODE_BY_DOMAIN[domain]) return ROUTE_NATIVE_DISPLAY_MODE_BY_DOMAIN[domain];
+  const entityKind = normalizeValue(finding.entity_kind || finding.kg_entity_kind);
+  return ROUTE_NATIVE_MECHANISTIC_ENTITY_KINDS.has(entityKind) ? "mechanistic" : "disorders";
+}
+
+function routeNativeSourceKey(finding) {
+  const evidenceType = normalizeValue(finding.evidence_type || finding.kg_evidence_type);
+  return evidenceType === "secondary_literature" ? "secondary" : "primary";
+}
+
+function routeNativeAccessLevel(finding) {
+  const depth = normalizeValue(finding.text_depth || finding.access_level || finding.source_access_level);
+  if (depth === "article_text" || depth === "full_text" || depth === "full_text_seen") return "full_text_seen";
+  if (depth === "secondary_summary") return "secondary_summary";
+  return "abstract_only";
+}
+
+function routeNativePaperType(value) {
+  const type = normalizeValue(value);
+  if (type === "primary_study") return "primary_results";
+  return cleanDisplayText(value);
+}
+
+function routeNativeSourceType(value) {
+  const type = normalizeValue(value);
+  if (type === "primary") return "primary_study";
+  return cleanDisplayText(value);
+}
+
+function routeNativeEntityLabel(finding) {
+  return (
+    cleanDisplayText(finding.entity_label) ||
+    cleanDisplayText(finding.graph_entity_label) ||
+    cleanDisplayText(finding.raw_entity_label) ||
+    cleanDisplayText(finding.outcome_measure)
+  );
+}
+
+function routeNativeFindingForCurrentUi(finding, modeKey) {
+  const entityLabel = routeNativeEntityLabel(finding);
+  const entityKind = cleanDisplayText(finding.entity_kind || finding.kg_entity_kind);
+  const accessLevel = routeNativeAccessLevel(finding);
+  const item = {
+    ...finding,
+    finding_type: cleanDisplayText(finding.finding_type || finding.domain),
+    kg_domain: cleanDisplayText(finding.domain || finding.kg_domain),
+    kg_entity_kind: entityKind,
+    entity_kind: entityKind,
+    kg_evidence_type: cleanDisplayText(finding.evidence_type || finding.kg_evidence_type),
+    kg_relation_type: cleanDisplayText(finding.relation_type || finding.kg_relation_type),
+    kg_source_name: "routed_extractions",
+    paper_type: routeNativePaperType(finding.paper_type),
+    source_type: routeNativeSourceType(finding.source_type),
+    source_family: cleanDisplayText(finding.source_family),
+    paper_assessment_route:
+      cleanDisplayText(finding.paper_assessment_route) ||
+      (routeNativeSourceKey(finding) === "secondary" ? "secondary_literature" : "primary_evidence"),
+    access_level: accessLevel,
+    source_access_level: accessLevel,
+    evidence_location: cleanDisplayText(finding.evidence_location),
+    evidence_locator: cleanDisplayText(finding.evidence_locator || finding.evidence_location),
+    timepoint: cleanDisplayText(finding.assessment_timepoint || finding.timepoint),
+  };
+  if (modeKey === "mechanistic") {
+    item.target = entityLabel;
+  } else {
+    item.disorder = entityLabel;
+  }
+  return item;
+}
+
+async function loadRouteNativeEvidenceSource(modeKey, sourceKey, preview = false) {
+  const findings = await loadActiveRouteNativeFindings(preview);
+  if (!Array.isArray(findings)) return false;
+  const items = findings
+    .filter((finding) => routeNativeDisplayMode(finding) === modeKey)
+    .filter((finding) => routeNativeSourceKey(finding) === sourceKey)
+    .map((finding) => routeNativeFindingForCurrentUi(finding, modeKey));
+
+  if (preview) {
+    graphPreviewByMode[modeKey][sourceKey] = items;
+    graphPreviewLoaded[modeKey][sourceKey] = true;
+    return true;
+  }
+
+  const enrichedItems = bibliographyPayloadsLoaded()
+    ? enrichClaimsWithBibliographyMetadata(items, modeKey)
+    : items;
+  claimStores.normalized[modeKey] = dedupeClaims(enrichedItems);
+  normalizedSourceLoaded[modeKey][sourceKey] = true;
+  return true;
 }
 
 async function loadGraphPreviewSource(modeKey, sourceKey) {
@@ -5015,8 +5262,10 @@ async function loadGraphPreviewSource(modeKey, sourceKey) {
   }
 
   graphPreviewTasks[modeKey][sourceKey] = (async () => {
+    if (await loadRouteNativeEvidenceSource(modeKey, sourceKey, true)) return;
+    const payloadPaths = await resolveGraphPayloadPaths(source.paths);
     const items = await loadClaimArray({
-      payloadPaths: source.paths,
+      payloadPaths,
       payloadMapper: graphPreviewFromPayload,
     });
     graphPreviewByMode[modeKey][sourceKey] = items;
@@ -5096,8 +5345,10 @@ async function loadNormalizedClaimSource(modeKey, sourceKey) {
   }
 
   normalizedSourceTasks[modeKey][sourceKey] = (async () => {
+    if (await loadRouteNativeEvidenceSource(modeKey, sourceKey, false)) return;
+    const payloadPaths = await resolveGraphPayloadPaths(source.paths);
     const items = await loadClaimArray({
-      payloadPaths: source.paths,
+      payloadPaths,
       payloadMapper: source.mapper,
     });
     const enrichedItems = bibliographyPayloadsLoaded()

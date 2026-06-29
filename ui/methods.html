@@ -73,7 +73,8 @@
         <p>
           How the Psychedelics Knowledge Graph is assembled: what literature is
           searched, how papers are screened, how evidence is extracted, and how
-          everything is maintained.
+          everything is maintained, including the Gemini 3 Flash-assisted
+          screening, routing, and finding-extraction steps.
         </p>
       </div>
     </header>
@@ -122,6 +123,8 @@
           and real-world evidence. Each paper is then interpreted according to
           what it actually contains and how much source text is available, so
           the graph shows evidence that can be traced back to specific papers.
+          The current model-assisted stages use Gemini 3 Flash for paper
+          screening and routing, then for route-specific finding extraction.
         </p>
         <div class="method-workflow-list">
           <article>
@@ -172,13 +175,13 @@
             <div>
               <h3>Screen and Route</h3>
               <p>
-                Candidate papers are screened for clear psychedelic relevance
-                using their titles and abstracts. Papers that remain in scope
-                are routed by evidence domain, publication type, and available
-                source text. This separates, for example, primary studies from
-                reviews and meta-analyses, and lets the extraction step use
-                different expectations for full-text and abstract-based
-                evidence.
+                Candidate papers first pass deterministic prescreening, then
+                Gemini 3 Flash-assisted screening and routing using titles and
+                abstracts. Papers that remain in scope are routed by evidence
+                domain, publication type, and available source text. This
+                separates, for example, primary studies from reviews and
+                meta-analyses, and lets the extraction step use different
+                expectations for full-text and abstract-based evidence.
               </p>
             </div>
           </article>
@@ -191,16 +194,16 @@
             <div>
               <h3>Extract Structured Evidence</h3>
               <p>
-                Eligible papers are processed with LLM-based, route-specific
-                extraction instructions. The model identifies candidate
-                structured evidence: compounds, evidence domains, study type,
-                assay or outcome details, result direction, and source
-                locators. When PDFs are available, they are first converted
-                with GROBID into structured TEI full-text artifacts so the
-                extraction step can use article sections, tables, figures, and
-                references as auditable evidence anchors. Abstract-only records
-                are handled more conservatively because they expose less of the
-                underlying evidence.
+                Eligible papers are processed with Gemini 3 Flash using
+                route-specific extraction instructions. The model identifies
+                candidate structured evidence: compounds, evidence domains,
+                study type, assay or outcome details, result direction, and
+                source locators. When PDFs are available, they are first
+                converted with GROBID into structured TEI full-text artifacts
+                so the extraction step can use article sections, tables,
+                figures, and references as auditable evidence anchors.
+                Abstract-only records are handled more conservatively because
+                they expose less of the underlying evidence.
               </p>
             </div>
           </article>
@@ -513,7 +516,9 @@
               <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
               flow follows the current candidate-papers table from discovery
               through prescreening, routing, and selection for finding
-              extraction. Side boxes show the current reasons papers leave or
+              extraction. The screening/routing and extraction-selection layers
+              reflect the Gemini 3 Flash-assisted decisions currently stored in
+              that table. Side boxes show the current reasons papers leave or
               pause the extraction-selection path. Finding counts and any
               additional exclusions during extraction will be added after that
               layer is finalized. Because duplicate records are identified
@@ -530,10 +535,11 @@
           <h2 id="quality-control">Limits, Updates, And Reuse</h2>
           <p>
             Coverage depends on the search vocabulary, source indexing, DOI
-            metadata, and access to full text. LLMs help scale screening and
-            extraction, but their outputs stay tied to reviewable records.
-            Evidence labels and risk-of-bias notes are descriptive unless a
-            formal certainty or risk-of-bias workflow is added.
+            metadata, and access to full text. Gemini 3 Flash helps scale
+            screening, routing, and finding extraction, but model outputs stay
+            tied to reviewable records. Evidence labels and risk-of-bias notes
+            are descriptive unless a formal certainty or risk-of-bias workflow
+            is added.
           </p>
         </div>
         <div class="method-quality-grid">
