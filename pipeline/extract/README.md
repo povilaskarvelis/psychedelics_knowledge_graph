@@ -215,18 +215,37 @@ python pipeline/extract/run_route_extraction.py \
   --dry-run
 ```
 
-The runner currently processes registered route profiles only. Unsupported
-terminal routes are never sent to the model. Review coverage profiles remain
-scaffolded and are skipped by default; include them only for deliberate local
-pilots:
+The runner processes registered model-runnable route profiles only. Unsupported
+terminal routes are never sent to the model. Use profile filters when you want a
+dry run for a specific family:
 
 ```bash
 python pipeline/extract/run_route_extraction.py \
   --input-jsonl data/processed/extraction/route_extraction_tasks.jsonl \
   --schema-profile review_coverage_schema \
-  --include-scaffold-profiles \
   --dry-run
 ```
+
+For the actual accumulating extraction, use the batch wrapper. It appends each
+batch to a named routed extraction run, converts all accumulated outputs for that
+run into evidence rows, and rebuilds versioned KG tables for that run. It does
+not overwrite `data/processed/kg/`.
+
+```bash
+RUN_ID=gemini3_flash_20260628_routed_extraction
+python pipeline/extract/run_routed_extraction_batch.py \
+  --run-id "$RUN_ID" \
+  --batch-size 100 \
+  --shuffle \
+  --seed 1
+```
+
+The same command can be rerun with the same `RUN_ID`; tasks already attempted in
+that run are skipped. Use `--dry-run` first to inspect the selected tasks without
+calling Gemini. Outputs accumulate under:
+
+- `data/processed/extraction/routed_runs/<RUN_ID>/`
+- `data/processed/kg_routed_runs/<RUN_ID>/`
 
 Audit meta-analysis readiness before running extraction:
 

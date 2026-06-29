@@ -37,6 +37,162 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             DEFAULT_ROUTED_RUN_ROOT / "gemini_3_flash_batch" / "routed_evidence_rows_report.json",
         )
 
+    def test_preserves_domain_specific_fields_as_ui_facing_aliases(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "clinical",
+                        "route_id": "clinical",
+                        "study_doi": "10.1000/clinical",
+                        "paper_metadata": {
+                            "doi": "10.1000/clinical",
+                            "study_title": "Clinical trial",
+                            "study_year": "2025",
+                        },
+                    },
+                    {
+                        "task_id": "target",
+                        "route_id": "target",
+                        "study_doi": "10.1000/target",
+                        "paper_metadata": {
+                            "doi": "10.1000/target",
+                            "study_title": "Target study",
+                            "study_year": "2025",
+                        },
+                    },
+                    {
+                        "task_id": "meta",
+                        "route_id": "meta",
+                        "study_doi": "10.1000/meta",
+                        "paper_metadata": {
+                            "doi": "10.1000/meta",
+                            "study_title": "Clinical meta-analysis",
+                            "study_year": "2025",
+                        },
+                    },
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "clinical",
+                        "route_id": "clinical",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "clinical",
+                            "route_id": "clinical",
+                            "study_doi": "10.1000/clinical",
+                            "domain_route": "clinical_outcome",
+                            "source_type": "primary",
+                            "paper_type": "primary",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {
+                                    "compound_or_intervention": "Psilocybin",
+                                    "condition_or_population": "Adults with depression",
+                                    "sample_size": "80",
+                                    "comparator_or_context": "Placebo",
+                                    "dose_or_regimen": "25 mg oral psilocybin",
+                                    "outcome_measure_or_instrument": "MADRS",
+                                    "time_window": "6 weeks",
+                                    "effect_or_statistic": "mean difference -6.6",
+                                    "primary_graph_anchor_kind": "condition_indication",
+                                }
+                            ],
+                        },
+                    },
+                    {
+                        "task_id": "target",
+                        "route_id": "target",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "target",
+                            "route_id": "target",
+                            "study_doi": "10.1000/target",
+                            "domain_route": "molecular_target",
+                            "source_type": "primary",
+                            "paper_type": "primary",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {
+                                    "compound": "LSD",
+                                    "target": "5-HT2A receptor",
+                                    "metric": "Ki",
+                                    "value": "2.9",
+                                    "unit": "nM",
+                                    "assay_or_method": "radioligand binding",
+                                    "model_system": "HEK293 cells",
+                                    "species_or_cell_line": "human cell line",
+                                }
+                            ],
+                        },
+                    },
+                    {
+                        "task_id": "meta",
+                        "route_id": "meta",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "meta",
+                            "route_id": "meta",
+                            "study_doi": "10.1000/meta",
+                            "domain_route": "clinical_outcome",
+                            "source_type": "meta_analysis",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "included_evidence_summary": {
+                                "included_study_count": "7",
+                                "included_participant_count": "512",
+                            },
+                            "synthesis_results": [
+                                {
+                                    "compound_or_class": "Ketamine",
+                                    "entity": "depressive symptoms",
+                                    "entity_type": "symptom_problem",
+                                    "effect_size": "SMD -0.8",
+                                    "domain_result": {
+                                        "condition_or_population": "Adults with depression",
+                                        "outcome_measure": "depression scales",
+                                    },
+                                }
+                            ],
+                        },
+                    },
+                ],
+            )
+
+            rows, report = convert_outputs(input_jsonl=outputs_jsonl, tasks_jsonl=tasks_jsonl)
+
+        self.assertEqual(report["rows_written"], 3)
+        clinical = next(row for row in rows if row["study_doi"] == "10.1000/clinical")
+        self.assertEqual(clinical["population"], "Adults with depression")
+        self.assertEqual(clinical["sample_size_total"], "80")
+        self.assertEqual(clinical["comparator"], "Placebo")
+        self.assertEqual(clinical["dose"], "25 mg oral psilocybin")
+        self.assertEqual(clinical["outcome_measure"], "MADRS")
+        self.assertEqual(clinical["follow_up_duration"], "6 weeks")
+        self.assertEqual(clinical["effect_size"], "mean difference -6.6")
+
+        target = next(row for row in rows if row["study_doi"] == "10.1000/target")
+        self.assertEqual(target["affinity_type"], "Ki")
+        self.assertEqual(target["affinity_value"], "2.9")
+        self.assertEqual(target["affinity_unit"], "nM")
+        self.assertEqual(target["assay_type"], "radioligand binding")
+        self.assertEqual(target["model_or_system"], "HEK293 cells")
+        self.assertEqual(target["species"], "human cell line")
+
+        meta = next(row for row in rows if row["study_doi"] == "10.1000/meta")
+        self.assertEqual(meta["included_study_count"], "7")
+        self.assertEqual(meta["included_participant_count"], "512")
+        self.assertEqual(meta["sample_size_total"], "512")
+
     def test_converts_routed_outputs_into_rows_consumed_by_kg_builder(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

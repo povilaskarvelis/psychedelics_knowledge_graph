@@ -314,7 +314,7 @@ def infer_entity_label(row: dict, entity_kind: str) -> str:
     return first_meaningful(row, ("entity", "target", "disorder", "entity_or_endpoint", "outcome_or_endpoint"))
 
 
-def add_common_field_aliases(row: dict) -> None:
+def add_common_field_aliases(row: dict, domain: str) -> None:
     compound = first_meaningful(row, COMPOUND_FIELDS)
     if compound:
         row["compound"] = compound
@@ -337,12 +337,56 @@ def add_common_field_aliases(row: dict) -> None:
             row,
             ("sample_size_total", "sample_size", "participant_count", "included_participant_count", "participant_or_sample_summary"),
         )
+    if not meaningful(row.get("population", "")):
+        row["population"] = first_meaningful(
+            row,
+            (
+                "population",
+                "condition_or_population",
+                "population_or_system",
+                "population_or_species",
+                "population_or_setting",
+                "population_or_context",
+            ),
+        )
+    if not meaningful(row.get("comparator", "")):
+        row["comparator"] = first_meaningful(
+            row,
+            (
+                "comparator",
+                "comparator_or_context",
+                "comparator_or_reference",
+                "comparator_or_control",
+                "comparison_or_reference_group",
+            ),
+        )
+    if not meaningful(row.get("follow_up_duration", "")):
+        row["follow_up_duration"] = first_meaningful(row, ("follow_up_duration", "time_window"))
+    if not meaningful(row.get("dose", "")):
+        row["dose"] = first_meaningful(row, ("dose", "dose_or_regimen", "dose_or_exposure_context", "dose_or_session_context"))
+    if not meaningful(row.get("route", "")):
+        row["route"] = first_meaningful(row, ("route", "route_of_administration"))
     if not meaningful(row.get("effect_size", "")):
         row["effect_size"] = first_meaningful(row, ("effect_size", "effect_or_statistic", "statistic_or_value", "value", "estimate_value"))
     if not meaningful(row.get("outcome_measure", "")):
         row["outcome_measure"] = first_meaningful(row, ("outcome_measure", "outcome_measure_or_instrument", "instrument_or_measure", "task_or_measure"))
     if not meaningful(row.get("result_direction", "")):
         row["result_direction"] = first_meaningful(row, ("result_direction", "direction_or_tone", "direction_or_change", "association_or_trend"))
+    if not meaningful(row.get("adverse_events", "")):
+        row["adverse_events"] = first_meaningful(row, ("adverse_events", "safety_event_or_measure", "safety_event_or_risk"))
+    if not meaningful(row.get("assay_type", "")):
+        row["assay_type"] = first_meaningful(row, ("assay_type", "assay_or_method", "modality"))
+    if not meaningful(row.get("model_or_system", "")):
+        row["model_or_system"] = first_meaningful(row, ("model_or_system", "model_system", "model_or_species", "system_or_species"))
+    if not meaningful(row.get("species", "")):
+        row["species"] = first_meaningful(row, ("species", "species_or_cell_line", "population_or_species"))
+    if domain == "molecular_target":
+        if not meaningful(row.get("affinity_type", "")):
+            row["affinity_type"] = first_meaningful(row, ("affinity_type", "metric"))
+        if not meaningful(row.get("affinity_value", "")):
+            row["affinity_value"] = first_meaningful(row, ("affinity_value", "value", "quantitative_value"))
+        if not meaningful(row.get("affinity_unit", "")):
+            row["affinity_unit"] = first_meaningful(row, ("affinity_unit", "unit"))
     assessment_timepoint = first_meaningful(row, ("assessment_timepoint", "timepoint", "timepoint_or_window"))
     if assessment_timepoint:
         row["assessment_timepoint"] = assessment_timepoint
@@ -383,10 +427,18 @@ def evidence_row_for_item(
             "source_result_status": normalize(result.get("extraction_status", "")),
         }
     )
+    for parent_key in (
+        "synthesis_assessment",
+        "included_evidence_summary",
+        "review_assessment",
+        "source_text_provenance",
+    ):
+        parent = result.get(parent_key, {}) if isinstance(result.get(parent_key), dict) else {}
+        merge_prefer_meaningful(row, parent)
     merge_prefer_meaningful(row, item)
     domain_result = item.get("domain_result", {}) if isinstance(item.get("domain_result"), dict) else {}
     merge_prefer_meaningful(row, domain_result)
-    add_common_field_aliases(row)
+    add_common_field_aliases(row, domain)
 
     entity_kind = infer_entity_kind(row, domain)
     entity_label = infer_entity_label(row, entity_kind)
