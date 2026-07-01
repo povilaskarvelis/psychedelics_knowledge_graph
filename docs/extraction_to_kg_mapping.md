@@ -123,3 +123,27 @@ For each extraction item:
 This means schemas should prefer stable graph anchors over exhaustive detail.
 If a field cannot become either a node anchor or an edge attribute, it should
 usually not be required.
+
+## Forward-Compatible Extraction Fields
+
+Primary extraction schemas keep existing required fields, but newer runs may
+also emit optional normalized fields that separate graph-facing labels from raw
+paper context:
+
+- Clinical outcomes: use `condition_or_indication` for the condition node and
+  `population_or_subgroup` for age, subgroup, eligibility, comorbidity, or
+  recruitment context. `condition_or_population` remains valid as the legacy
+  combined wording.
+- Cognition and behavior: use `graph_construct_label` for the graph node,
+  `construct_family` for cognition versus behavior, and `raw_task_or_measure`
+  for the task, assay, or instrument.
+- Molecular pathway/readout evidence: use `molecular_effect_category` for the
+  graph node and `specific_readout_or_marker` for the exact marker or assay
+  readout.
+- Naturalistic use: use `data_source_type` for survey, poison-center,
+  wastewater, drug-checking, registry, qualitative/interview, or observational
+  cohort source classes.
+- Cross-domain context: optional `population_model_category`,
+  `study_design_category`, `administration_route`, `dosing_schedule`,
+  `session_context`, and `experimental_system_category` fields support cleaner
+  UI facets while preserving exact wording in the legacy fields.

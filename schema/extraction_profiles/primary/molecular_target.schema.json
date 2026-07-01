@@ -113,17 +113,101 @@
         "system": {
           "type": "string"
         },
+        "experimental_system_category": {
+          "type": "string",
+          "enum": [
+            "clinical",
+            "in_vivo",
+            "ex_vivo",
+            "in_vitro",
+            "computational",
+            "mixed_or_unclear",
+            "not_reported"
+          ],
+          "description": "Experimental system category for the finding."
+        },
         "sample_size": {
           "type": "string"
         },
         "study_design": {
           "type": "string"
         },
+        "study_design_category": {
+          "type": "string",
+          "enum": [
+            "rct",
+            "phase_2_rct",
+            "phase_3_rct",
+            "open_label",
+            "single_arm_trial",
+            "clinical_trial",
+            "observational",
+            "retrospective",
+            "case_report",
+            "case_series",
+            "qualitative",
+            "preclinical_experiment",
+            "ex_vivo_experiment",
+            "in_vitro_assay",
+            "binding_assay",
+            "functional_assay",
+            "computational",
+            "pharmacovigilance",
+            "wastewater_surveillance",
+            "dose_finding",
+            "post_hoc",
+            "follow_up",
+            "review",
+            "systematic_review",
+            "meta_analysis",
+            "other",
+            "not_reported"
+          ],
+          "description": "Coarse study-design bucket for filtering and UI facets. Use the closest allowed value."
+        },
         "species_or_cell_line": {
           "type": "string"
         },
+        "population_model_category": {
+          "type": "string",
+          "enum": [
+            "clinical_population",
+            "healthy_volunteers",
+            "human_participants",
+            "community_sample",
+            "veterans",
+            "adolescents_youth",
+            "older_adults",
+            "mouse_model",
+            "rat_model",
+            "animal_model",
+            "in_vitro_cell_model",
+            "ex_vivo_tissue_model",
+            "computational_model",
+            "mixed_or_unclear",
+            "not_reported"
+          ],
+          "description": "Coarse population/model bucket for filtering and UI facets. Use the closest allowed value."
+        },
         "action_type": {
           "type": "string"
+        },
+        "mechanistic_relationship_type": {
+          "type": "string",
+          "enum": [
+            "binding_affinity",
+            "agonism_antagonism",
+            "transporter_uptake",
+            "neurotransmitter_release",
+            "expression_change",
+            "connectivity_change",
+            "plasticity_marker",
+            "toxicity_marker",
+            "metabolism_or_transport",
+            "other_or_mixed",
+            "not_reported"
+          ],
+          "description": "Kind of biological relationship being claimed, separate from the assay method."
         },
         "metric": {
           "type": "string"

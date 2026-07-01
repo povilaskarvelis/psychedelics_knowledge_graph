@@ -66,6 +66,26 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                         },
                     },
                     {
+                        "task_id": "cognition",
+                        "route_id": "cognition",
+                        "study_doi": "10.1000/cognition",
+                        "paper_metadata": {
+                            "doi": "10.1000/cognition",
+                            "study_title": "Cognitive flexibility study",
+                            "study_year": "2025",
+                        },
+                    },
+                    {
+                        "task_id": "pathway",
+                        "route_id": "pathway",
+                        "study_doi": "10.1000/pathway",
+                        "paper_metadata": {
+                            "doi": "10.1000/pathway",
+                            "study_title": "Neuroplasticity study",
+                            "study_year": "2025",
+                        },
+                    },
+                    {
                         "task_id": "meta",
                         "route_id": "meta",
                         "study_doi": "10.1000/meta",
@@ -96,7 +116,14 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                             "items": [
                                 {
                                     "compound_or_intervention": "Psilocybin",
-                                    "condition_or_population": "Adults with depression",
+                                    "condition_or_population": "Adults with treatment-resistant depression",
+                                    "condition_or_indication": "Treatment-resistant depression",
+                                    "population_or_subgroup": "Adults",
+                                    "population_model_category": "clinical_population",
+                                    "study_design_category": "rct",
+                                    "administration_route": "oral",
+                                    "dosing_schedule": "single_dose",
+                                    "session_context": "clinical_administration",
                                     "sample_size": "80",
                                     "comparator_or_context": "Placebo",
                                     "dose_or_regimen": "25 mg oral psilocybin",
@@ -136,6 +163,60 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                         },
                     },
                     {
+                        "task_id": "cognition",
+                        "route_id": "cognition",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "cognition",
+                            "route_id": "cognition",
+                            "study_doi": "10.1000/cognition",
+                            "domain_route": "cognitive_behavioral",
+                            "source_type": "primary",
+                            "paper_type": "primary",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {
+                                    "compound_or_exposure": "Psilocybin",
+                                    "graph_construct_label": "Cognitive flexibility",
+                                    "construct_family": "cognition",
+                                    "raw_task_or_measure": "reversal learning task",
+                                    "population_model_category": "human_participants",
+                                    "study_design_category": "rct",
+                                    "effect_or_statistic": "improved performance",
+                                }
+                            ],
+                        },
+                    },
+                    {
+                        "task_id": "pathway",
+                        "route_id": "pathway",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "pathway",
+                            "route_id": "pathway",
+                            "study_doi": "10.1000/pathway",
+                            "domain_route": "molecular_pathway_readout",
+                            "source_type": "primary",
+                            "paper_type": "primary",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {
+                                    "compound_or_exposure": "Psilocybin",
+                                    "pathway_or_readout": "BDNF protein level",
+                                    "molecular_effect_category": "Neuroplasticity",
+                                    "specific_readout_or_marker": "BDNF",
+                                    "mechanistic_relationship_type": "plasticity_marker",
+                                    "experimental_system_category": "clinical",
+                                    "population_model_category": "healthy_volunteers",
+                                    "study_design_category": "rct",
+                                    "assay_or_method": "ELISA",
+                                }
+                            ],
+                        },
+                    },
+                    {
                         "task_id": "meta",
                         "route_id": "meta",
                         "status": "ok",
@@ -170,9 +251,17 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
 
             rows, report = convert_outputs(input_jsonl=outputs_jsonl, tasks_jsonl=tasks_jsonl)
 
-        self.assertEqual(report["rows_written"], 3)
+        self.assertEqual(report["rows_written"], 5)
         clinical = next(row for row in rows if row["study_doi"] == "10.1000/clinical")
-        self.assertEqual(clinical["population"], "Adults with depression")
+        self.assertEqual(clinical["graph_entity_label"], "Treatment-resistant depression")
+        self.assertEqual(clinical["clinical_context_condition"], "Treatment-resistant depression")
+        self.assertEqual(clinical["population"], "Adults")
+        self.assertEqual(clinical["population_model_category"], "clinical_population")
+        self.assertEqual(clinical["study_design_category"], "rct")
+        self.assertEqual(clinical["administration_route"], "oral")
+        self.assertEqual(clinical["dosing_schedule"], "single_dose")
+        self.assertEqual(clinical["session_context"], "clinical_administration")
+        self.assertEqual(clinical["route"], "oral")
         self.assertEqual(clinical["sample_size_total"], "80")
         self.assertEqual(clinical["comparator"], "Placebo")
         self.assertEqual(clinical["dose"], "25 mg oral psilocybin")
@@ -187,6 +276,19 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
         self.assertEqual(target["assay_type"], "radioligand binding")
         self.assertEqual(target["model_or_system"], "HEK293 cells")
         self.assertEqual(target["species"], "human cell line")
+
+        cognition = next(row for row in rows if row["study_doi"] == "10.1000/cognition")
+        self.assertEqual(cognition["graph_entity_label"], "Cognitive flexibility")
+        self.assertEqual(cognition["cognitive_behavioral_graph_label"], "Cognitive flexibility")
+        self.assertEqual(cognition["outcome_measure"], "reversal learning task")
+        self.assertEqual(cognition["construct_family"], "cognition")
+
+        pathway = next(row for row in rows if row["study_doi"] == "10.1000/pathway")
+        self.assertEqual(pathway["graph_entity_label"], "Neuroplasticity")
+        self.assertEqual(pathway["molecular_effect_label"], "Neuroplasticity")
+        self.assertEqual(pathway["readout"], "BDNF")
+        self.assertEqual(pathway["mechanistic_relationship_type"], "plasticity_marker")
+        self.assertEqual(pathway["system"], "clinical")
 
         meta = next(row for row in rows if row["study_doi"] == "10.1000/meta")
         self.assertEqual(meta["included_study_count"], "7")
@@ -234,6 +336,16 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                             "doi": "10.1000/public-health-route",
                             "study_title": "Equity in psychedelic services",
                             "study_year": "2023",
+                        },
+                    },
+                    {
+                        "task_id": "route-pathway",
+                        "route_id": "route-pathway",
+                        "study_doi": "10.1000/pathway-route",
+                        "paper_metadata": {
+                            "doi": "10.1000/pathway-route",
+                            "study_title": "Psilocybin and BDNF",
+                            "study_year": "2025",
                         },
                     },
                 ],
@@ -354,6 +466,42 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                         },
                     },
                     {
+                        "task_id": "route-pathway",
+                        "route_id": "route-pathway",
+                        "prompt_profile": "primary_molecular_pathway_readout",
+                        "schema_profile": "primary_evidence_schema",
+                        "status": "ok",
+                        "schema_errors": [],
+                        "result": {
+                            "schema_version": "primary_molecular_pathway_readout_v1",
+                            "task_id": "route-pathway",
+                            "route_id": "route-pathway",
+                            "study_doi": "10.1000/pathway-route",
+                            "domain_route": "molecular_pathway_readout",
+                            "source_type": "primary_or_unclear",
+                            "paper_type": "primary_study",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {
+                                    "compound_or_exposure": "Psilocybin",
+                                    "pathway_or_readout": "BDNF protein level",
+                                    "molecular_effect_category": "Neuroplasticity",
+                                    "specific_readout_or_marker": "BDNF",
+                                    "mechanistic_relationship_type": "plasticity_marker",
+                                    "experimental_system_category": "clinical",
+                                    "population_model_category": "healthy_volunteers",
+                                    "study_design_category": "rct",
+                                    "assay_or_method": "ELISA",
+                                    "finding_summary": "Psilocybin was associated with a BDNF change.",
+                                    "evidence_location": "text",
+                                    "evidence_locator": "Results",
+                                }
+                            ],
+                            "warnings": [],
+                        },
+                    },
+                    {
                         "task_id": "route-empty",
                         "route_id": "route-empty",
                         "status": "ok",
@@ -384,7 +532,13 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                             "aliases": ["monoamine oxidase A"],
                             "ids": {},
                             "status": "needs_external_id_lookup",
-                        }
+                        },
+                        {
+                            "label": "Neuroplasticity",
+                            "aliases": ["plasticity"],
+                            "ids": {},
+                            "status": "pathway_process",
+                        },
                     ],
                     "disorders": [],
                 },
@@ -393,7 +547,7 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             rows, report = convert_outputs(input_jsonl=outputs_jsonl, tasks_jsonl=tasks_jsonl)
             write_json(evidence_rows_json, rows)
 
-            self.assertEqual(report["rows_written"], 3)
+            self.assertEqual(report["rows_written"], 4)
             self.assertEqual(report["skipped"], {"extraction_status:no_extractable_scoped_coverage": 1})
             self.assertEqual({row["source_item_type"] for row in rows}, {"primary_item", "synthesis_result", "review_coverage_item"})
             brain_row = next(row for row in rows if row["domain_route"] == "brain_system")
@@ -421,13 +575,21 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                 out_dir=out_dir,
                 write_duckdb=False,
             )
-            self.assertEqual(manifest["tables"]["evidence_edges"]["rows"], 3)
+            self.assertEqual(manifest["tables"]["evidence_edges"]["rows"], 4)
             findings = pd.read_parquet(out_dir / "findings.parquet")
             brain_claim = findings[findings["domain"] == "brain_system"].iloc[0]
             self.assertEqual(brain_claim["assessment_timepoint"], "2 hours post-dose")
+            pathway_claim = findings[findings["domain"] == "molecular_pathway_readout"].iloc[0]
+            self.assertEqual(pathway_claim["graph_entity_label"], "Neuroplasticity")
+            self.assertEqual(pathway_claim["molecular_effect_label"], "Neuroplasticity")
+            self.assertEqual(pathway_claim["specific_readout_or_marker"], "BDNF")
+            self.assertEqual(pathway_claim["experimental_system_category"], "clinical")
 
             edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
-            self.assertEqual(set(edges["domain"]), {"brain_system", "pharmacokinetics_exposure", "real_world_public_health"})
+            self.assertEqual(
+                set(edges["domain"]),
+                {"brain_system", "pharmacokinetics_exposure", "real_world_public_health", "molecular_pathway_readout"},
+            )
             brain_edge = edges[edges["domain"] == "brain_system"].iloc[0]
             self.assertEqual(brain_edge["entity_label"], "Default mode network")
             self.assertEqual(brain_edge["relation_type"], "has_brain_system_effect")
@@ -437,6 +599,9 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             public_health_edge = edges[edges["domain"] == "real_world_public_health"].iloc[0]
             self.assertEqual(public_health_edge["entity_label"], "Access to services")
             self.assertEqual(public_health_edge["relation_type"], "discusses_relationship")
+            pathway_edge = edges[edges["domain"] == "molecular_pathway_readout"].iloc[0]
+            self.assertEqual(pathway_edge["entity_label"], "Neuroplasticity")
+            self.assertEqual(pathway_edge["relation_type"], "has_mechanistic_pathway")
 
 
 if __name__ == "__main__":

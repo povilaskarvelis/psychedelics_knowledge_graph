@@ -8,6 +8,7 @@ Prioritize:
 - population and setting
 - evidence source or study design, such as survey, registry, observational,
   administrative, poison-center, qualitative, or scoping-review evidence
+- controlled data-source type when it can be identified
 - comparison group, exposure level, or reference group when reported
 - stable public-health topic or measure, such as use pattern, abuse potential,
   harm reduction, access, equity, policy, service delivery, epidemiology, or
@@ -18,6 +19,18 @@ Prioritize:
 Capture policy, regulatory, access/equity, implementation, exposure-pattern,
 confounding, adjustment, or bias context only when it is central to the
 public-health finding.
+
+Use `public_health_topic_category` for the graph-facing naturalistic-use topic
+and `public_health_measure` for the specific estimate, behavior, signal, or
+measure. Prefer stable topic labels such as Microdosing, Recreational use,
+Self-treatment, Ceremonial/retreat use, Polysubstance use, Prevalence & trends,
+Problematic use, Drug checking & adulteration, Emergency/toxicology reports,
+Wastewater & market signals, Access to services, and Legal/criminal justice.
+
+Fill `data_source_type` with the closest controlled value when stated: survey,
+poison center/toxicology, wastewater, drug checking, administrative/registry,
+qualitative/interview, or observational cohort. Use `study_design` for exact
+paper wording and `study_design_category` for the coarse design bucket.
 
 Do not extract a result merely because participants are described as drug users
 in a mechanistic or clinical study.

@@ -38,3 +38,10 @@ relationship.
 Record target binding, affinity, potency, agonism, antagonism, inhibition, or
 modulation as action types, metrics, values, and finding summaries, not as
 therapeutic benefit or harm.
+
+Use `mechanistic_relationship_type` for the broad biological claim type, such
+as binding/affinity, agonism/antagonism, transporter uptake, metabolism or
+transport, expression change, plasticity marker, or toxicity marker. Keep exact
+paper wording in `action_type`, `metric`, `value`, and `assay_type`. Use
+`experimental_system_category`, `population_model_category`, and
+`study_design_category` when stated.

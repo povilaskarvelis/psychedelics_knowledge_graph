@@ -181,12 +181,26 @@ CLAIM_FIELDS = (
     "follow_up_duration",
     "follow_up_window_normalized",
     "intervention_or_exposure",
+    "condition_or_indication",
+    "population_or_subgroup",
+    "population_model_category",
+    "study_design_category",
+    "administration_route",
+    "dosing_schedule",
+    "session_context",
+    "graph_construct_label",
+    "construct_family",
+    "raw_task_or_measure",
     "cognitive_behavioral_graph_label",
     "subjective_experience_graph_label",
     "public_health_graph_label",
     "molecular_effect_label",
+    "molecular_effect_category",
+    "specific_readout_or_marker",
+    "mechanistic_relationship_type",
     "public_health_topic_category",
     "public_health_measure",
+    "data_source_type",
     "exposure_or_policy",
     "exposure_or_intervention",
     "setting",
@@ -219,6 +233,7 @@ CLAIM_FIELDS = (
     "co_exposure_or_modifier",
     "metabolic_or_transport_target",
     "metabolic_or_transport_pathway",
+    "experimental_system_category",
     "model_or_method",
     "interaction_or_potentiation_context",
     "exposure_response_or_pk_effect",
@@ -269,6 +284,8 @@ MECHANISTIC_METADATA_DOMAINS = {
 }
 CLINICAL_METADATA_DOMAINS = {"clinical", "clinical_outcome"}
 EXPERIMENTAL_SYSTEM_TEXT_FIELDS = (
+    "experimental_system_category",
+    "population_model_category",
     "system",
     "model_or_system",
     "model_system",
@@ -300,6 +317,8 @@ SYSTEM_IN_VIVO_RE = re.compile(
     re.IGNORECASE,
 )
 PUBLIC_HEALTH_CONTEXT_FIELDS = (
+    "data_source_type",
+    "study_design_category",
     "public_health_topic_category",
     "public_health_measure",
     "graph_entity_label",
@@ -432,7 +451,11 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         ),
     ),
 )
+PUBLIC_HEALTH_TOPIC_LABELS = {label for label, _pattern in PUBLIC_HEALTH_TOPIC_RULES}
 COGNITIVE_BEHAVIORAL_CONTEXT_FIELDS = (
+    "graph_construct_label",
+    "construct_family",
+    "raw_task_or_measure",
     "graph_entity_label",
     "raw_entity_label",
     "entity_label",
@@ -450,6 +473,7 @@ COGNITIVE_BEHAVIORAL_CONTEXT_FIELDS = (
     "supporting_quote",
 )
 COGNITIVE_BEHAVIORAL_MEASURE_FIELDS = (
+    "raw_task_or_measure",
     "task_or_measure",
     "model_or_measure",
     "outcome_measure",
@@ -458,6 +482,7 @@ COGNITIVE_BEHAVIORAL_MEASURE_FIELDS = (
     "construct_or_behavior",
 )
 WITHDRAWAL_CONDITION_CONTEXT_FIELDS = (
+    "raw_task_or_measure",
     "task_or_measure",
     "model_or_measure",
     "outcome_measure",
@@ -962,6 +987,7 @@ COMPOUND_LABEL_FIELDS = (
 )
 ENTITY_LABEL_FIELDS_BY_KIND = {
     "condition_indication": (
+        "condition_or_indication",
         "condition_or_population",
         "disorder",
         "condition",
@@ -999,6 +1025,7 @@ ENTITY_LABEL_FIELDS_BY_KIND = {
     ),
     "target": ("target", "metabolic_or_transport_target", "graph_entity_label", "entity_label", "entity"),
     "pathway_process": (
+        "molecular_effect_category",
         "pathway_or_process",
         "pathway_or_readout",
         "metabolic_or_transport_pathway",
@@ -1007,6 +1034,7 @@ ENTITY_LABEL_FIELDS_BY_KIND = {
         "entity",
     ),
     "biomarker_readout": (
+        "specific_readout_or_marker",
         "readout_or_biomarker",
         "readout_or_measure",
         "readout",
@@ -1019,9 +1047,11 @@ ENTITY_LABEL_FIELDS_BY_KIND = {
     "brain_network": ("brain_network", "graph_entity_label", "entity_label", "entity"),
     "neural_circuit": ("neural_circuit", "connectivity_or_circuit_relationship", "graph_entity_label", "entity_label", "entity"),
     "cognitive_behavioral_construct": (
+        "graph_construct_label",
         "construct_or_behavior",
         "behavior_or_task",
         "task_or_measure",
+        "raw_task_or_measure",
         "graph_entity_label",
         "entity_label",
         "entity",
@@ -1390,6 +1420,14 @@ def normalized_entity_kind(value: object) -> str:
 def first_normalized_value(row: dict, fields: Iterable[str]) -> str:
     for field in fields:
         value = normalize(row.get(field, ""))
+        if value:
+            return value
+    return ""
+
+
+def first_endpoint_value(row: dict, fields: Iterable[str]) -> str:
+    for field in fields:
+        value = endpoint_value(row.get(field, ""))
         if value:
             return value
     return ""
@@ -1843,6 +1881,9 @@ PATHWAY_NODE_LABELS = {
 }
 MOLECULAR_EFFECT_ENTITY_KINDS = {"pathway_process", "biomarker_readout"}
 MOLECULAR_EFFECT_CONTEXT_FIELDS = (
+    "molecular_effect_category",
+    "specific_readout_or_marker",
+    "mechanistic_relationship_type",
     "graph_entity_label",
     "graph_entity_original",
     "raw_entity_label",
@@ -1856,12 +1897,14 @@ MOLECULAR_EFFECT_CONTEXT_FIELDS = (
     "action_type",
     "assay_type",
     "assay_family",
+    "experimental_system_category",
     "outcome_measure",
     "finding_summary",
     "support",
     "effect_or_statistic",
 )
 MOLECULAR_EFFECT_LABEL_FIELDS = (
+    "molecular_effect_category",
     "graph_entity_label",
     "graph_entity_original",
     "raw_entity_label",
@@ -1870,6 +1913,7 @@ MOLECULAR_EFFECT_LABEL_FIELDS = (
     "pathway_or_process",
     "readout_or_biomarker",
     "readout_or_measure",
+    "specific_readout_or_marker",
     "target",
 )
 MOLECULAR_EFFECT_RULES = (
@@ -3328,6 +3372,9 @@ def inferred_experimental_system(row: dict) -> str:
 
 
 def public_health_graph_label(row: dict) -> str:
+    explicit_label = first_endpoint_value(row, ("public_health_graph_label", "public_health_topic_category"))
+    if explicit_label in PUBLIC_HEALTH_TOPIC_LABELS:
+        return explicit_label
     context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in PUBLIC_HEALTH_CONTEXT_FIELDS))
     if not normalize(context):
         return "Prevalence & trends"
@@ -3362,6 +3409,13 @@ def withdrawal_condition_label(row: dict) -> str:
 
 
 def cognitive_behavioral_graph_label(row: dict) -> str:
+    explicit_label = first_endpoint_value(row, ("cognitive_behavioral_graph_label", "graph_construct_label"))
+    explicit_key = label_key(explicit_label)
+    if explicit_key in COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS:
+        return COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS[explicit_key]
+    if explicit_label:
+        return explicit_label
+
     measure_context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_MEASURE_FIELDS))
     for label, pattern in COGNITIVE_BEHAVIORAL_RULES:
         if pattern.search(measure_context):
@@ -3402,6 +3456,9 @@ def subjective_experience_graph_label(row: dict) -> str:
 def molecular_effect_label(row: dict, entity_kind: str, entity_label: str) -> str:
     if normalize(entity_kind).casefold() not in MOLECULAR_EFFECT_ENTITY_KINDS:
         return ""
+    explicit_label = first_endpoint_value(row, ("molecular_effect_label", "molecular_effect_category"))
+    if explicit_label:
+        return explicit_label
 
     def effect_from_context(fields: tuple[str, ...]) -> str:
         context = ascii_fold(
@@ -3469,7 +3526,10 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
             out["endpoint_label_source"] = "behavioral_withdrawal_condition_boundary"
             out["graph_entity_label"] = withdrawal_condition
         else:
-            out["cognitive_behavioral_graph_label"] = cognitive_behavioral_graph_label(out)
+            out["cognitive_behavioral_graph_label"] = first_endpoint_value(
+                out,
+                ("cognitive_behavioral_graph_label", "graph_construct_label"),
+            ) or cognitive_behavioral_graph_label(out)
             if out["cognitive_behavioral_graph_label"]:
                 out["graph_entity_label"] = out["cognitive_behavioral_graph_label"]
     if domain == "subjective_experience":

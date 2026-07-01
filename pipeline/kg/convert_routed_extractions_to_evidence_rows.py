@@ -129,17 +129,24 @@ DOMAIN_DEFAULT_ENTITY_KIND = {
 }
 
 ENTITY_LABEL_FIELDS_BY_KIND = {
-    "condition_indication": ("entity", "condition_or_population", "population_or_system"),
+    "condition_indication": ("condition_or_indication", "entity", "condition_or_population", "population_or_system"),
     "symptom_problem": ("entity", "clinical_endpoint", "outcome_or_endpoint"),
     "safety_adverse_event": ("entity", "safety_event_or_measure", "safety_category"),
     "outcome_scale": ("entity", "outcome_measure", "outcome_measure_or_instrument"),
     "target": ("target", "metabolic_or_transport_target", "entity"),
-    "pathway_process": ("pathway_or_process", "pathway_or_readout", "metabolic_or_transport_pathway", "entity"),
-    "biomarker_readout": ("readout_or_biomarker", "readout_or_measure", "readout", "outcome_measure", "entity"),
+    "pathway_process": ("molecular_effect_category", "pathway_or_process", "pathway_or_readout", "metabolic_or_transport_pathway", "entity"),
+    "biomarker_readout": (
+        "specific_readout_or_marker",
+        "readout_or_biomarker",
+        "readout_or_measure",
+        "readout",
+        "outcome_measure",
+        "entity",
+    ),
     "brain_region": ("brain_region", "entity"),
     "brain_network": ("brain_network", "entity"),
     "neural_circuit": ("neural_circuit", "connectivity_or_circuit_relationship", "entity"),
-    "cognitive_behavioral_construct": ("construct_or_behavior", "behavior_or_task", "task_or_measure", "entity"),
+    "cognitive_behavioral_construct": ("graph_construct_label", "construct_or_behavior", "behavior_or_task", "task_or_measure", "entity"),
     "subjective_experience_construct": ("subjective_construct", "subjective_construct_category", "entity"),
     "pharmacokinetic_parameter": ("pk_or_exposure_parameter", "entity"),
     "compound": ("metabolite_or_analyte", "compound_or_analyte", "entity"),
@@ -396,6 +403,7 @@ def add_common_field_aliases(row: dict, domain: str) -> None:
             row,
             (
                 "population",
+                "population_or_subgroup",
                 "condition_or_population",
                 "population_or_system",
                 "population_or_species",
@@ -419,11 +427,14 @@ def add_common_field_aliases(row: dict, domain: str) -> None:
     if not meaningful(row.get("dose", "")):
         row["dose"] = first_meaningful(row, ("dose", "dose_or_regimen", "dose_or_exposure_context", "dose_or_session_context"))
     if not meaningful(row.get("route", "")):
-        row["route"] = first_meaningful(row, ("route", "route_of_administration"))
+        row["route"] = first_meaningful(row, ("route", "administration_route", "route_of_administration"))
     if not meaningful(row.get("effect_size", "")):
         row["effect_size"] = first_meaningful(row, ("effect_size", "effect_or_statistic", "statistic_or_value", "value", "estimate_value"))
     if not meaningful(row.get("outcome_measure", "")):
-        row["outcome_measure"] = first_meaningful(row, ("outcome_measure", "outcome_measure_or_instrument", "instrument_or_measure", "task_or_measure"))
+        row["outcome_measure"] = first_meaningful(
+            row,
+            ("outcome_measure", "outcome_measure_or_instrument", "instrument_or_measure", "raw_task_or_measure", "task_or_measure"),
+        )
     if not meaningful(row.get("result_direction", "")):
         row["result_direction"] = first_meaningful(row, ("result_direction", "direction_or_tone", "direction_or_change", "association_or_trend"))
     if not meaningful(row.get("adverse_events", "")):
@@ -432,8 +443,29 @@ def add_common_field_aliases(row: dict, domain: str) -> None:
         row["assay_type"] = first_meaningful(row, ("assay_type", "assay_or_method", "modality"))
     if not meaningful(row.get("model_or_system", "")):
         row["model_or_system"] = first_meaningful(row, ("model_or_system", "model_system", "model_or_species", "system_or_species"))
+    if not meaningful(row.get("system", "")):
+        row["system"] = first_meaningful(row, ("system", "experimental_system_category"))
     if not meaningful(row.get("species", "")):
         row["species"] = first_meaningful(row, ("species", "species_or_cell_line", "population_or_species"))
+    if domain == "clinical_outcome" and meaningful(row.get("condition_or_indication", "")):
+        if not meaningful(row.get("clinical_context_condition", "")):
+            row["clinical_context_condition"] = row["condition_or_indication"]
+    if domain == "cognitive_behavioral" and meaningful(row.get("graph_construct_label", "")):
+        if not meaningful(row.get("cognitive_behavioral_graph_label", "")):
+            row["cognitive_behavioral_graph_label"] = row["graph_construct_label"]
+    if domain == "molecular_pathway_readout":
+        if meaningful(row.get("molecular_effect_category", "")):
+            if not meaningful(row.get("molecular_effect_label", "")):
+                row["molecular_effect_label"] = row["molecular_effect_category"]
+        if meaningful(row.get("specific_readout_or_marker", "")):
+            if not meaningful(row.get("readout", "")):
+                row["readout"] = row["specific_readout_or_marker"]
+    if domain == "real_world_public_health":
+        if meaningful(row.get("public_health_topic_category", "")):
+            if not meaningful(row.get("public_health_graph_label", "")):
+                row["public_health_graph_label"] = row["public_health_topic_category"]
+        if not meaningful(row.get("data_source_or_study_design", "")):
+            row["data_source_or_study_design"] = first_meaningful(row, ("data_source_type", "study_design"))
     if domain == "molecular_target":
         if not meaningful(row.get("affinity_type", "")):
             row["affinity_type"] = first_meaningful(row, ("affinity_type", "metric"))

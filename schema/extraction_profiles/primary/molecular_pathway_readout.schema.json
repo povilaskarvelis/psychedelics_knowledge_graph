@@ -101,13 +101,73 @@
           "type": "string"
         },
         "pathway_or_readout": {
-          "type": "string"
+          "type": "string",
+          "description": "Legacy combined pathway/readout field. Prefer also filling molecular_effect_category and specific_readout_or_marker."
+        },
+        "molecular_effect_category": {
+          "type": "string",
+          "description": "Clean user-facing molecular effect category for the graph node, such as Neuroplasticity, Inflammation, Intracellular signaling, Immediate early gene activation, Gene expression, Epigenetic regulation, Neurotransmitter signaling, Drug metabolism, Cellular stress, Endocrine response, or Gut microbiome. Use a category-level biological effect, not a one-off assay value."
+        },
+        "specific_readout_or_marker": {
+          "type": "string",
+          "description": "Specific measured marker, molecule, gene, protein, phosphorylation ratio, neurotransmitter, cytokine, metabolite, assay readout, tissue signal, or molecular endpoint, such as BDNF, c-Fos, phospho-mTOR/mTOR, IL-6, dopamine, glutamate, 5-HIAA, TrkB, or Iba1."
+        },
+        "mechanistic_relationship_type": {
+          "type": "string",
+          "enum": [
+            "binding_affinity",
+            "agonism_antagonism",
+            "transporter_uptake",
+            "neurotransmitter_release",
+            "expression_change",
+            "connectivity_change",
+            "plasticity_marker",
+            "toxicity_marker",
+            "metabolism_or_transport",
+            "other_or_mixed",
+            "not_reported"
+          ],
+          "description": "Kind of biological relationship being claimed, separate from the assay method."
         },
         "assay_or_method": {
           "type": "string"
         },
         "model_system": {
           "type": "string"
+        },
+        "experimental_system_category": {
+          "type": "string",
+          "enum": [
+            "clinical",
+            "in_vivo",
+            "ex_vivo",
+            "in_vitro",
+            "computational",
+            "mixed_or_unclear",
+            "not_reported"
+          ],
+          "description": "Experimental system category for the finding."
+        },
+        "population_model_category": {
+          "type": "string",
+          "enum": [
+            "clinical_population",
+            "healthy_volunteers",
+            "human_participants",
+            "community_sample",
+            "veterans",
+            "adolescents_youth",
+            "older_adults",
+            "mouse_model",
+            "rat_model",
+            "animal_model",
+            "in_vitro_cell_model",
+            "ex_vivo_tissue_model",
+            "computational_model",
+            "mixed_or_unclear",
+            "not_reported"
+          ],
+          "description": "Coarse population/model bucket for filtering and UI facets. Use the closest allowed value."
         },
         "species_or_cell_line": {
           "type": "string"
@@ -117,6 +177,39 @@
         },
         "study_design": {
           "type": "string"
+        },
+        "study_design_category": {
+          "type": "string",
+          "enum": [
+            "rct",
+            "phase_2_rct",
+            "phase_3_rct",
+            "open_label",
+            "single_arm_trial",
+            "clinical_trial",
+            "observational",
+            "retrospective",
+            "case_report",
+            "case_series",
+            "qualitative",
+            "preclinical_experiment",
+            "ex_vivo_experiment",
+            "in_vitro_assay",
+            "binding_assay",
+            "functional_assay",
+            "computational",
+            "pharmacovigilance",
+            "wastewater_surveillance",
+            "dose_finding",
+            "post_hoc",
+            "follow_up",
+            "review",
+            "systematic_review",
+            "meta_analysis",
+            "other",
+            "not_reported"
+          ],
+          "description": "Coarse study-design bucket for filtering and UI facets. Use the closest allowed value."
         },
         "tissue_or_sample": {
           "type": "string"

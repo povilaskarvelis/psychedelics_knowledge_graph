@@ -27,6 +27,11 @@ Capture medical/psychiatric attention, duration/resolution, ascertainment
 method, management, mitigation, risk factors, or subgroup context only when it
 is central to the safety finding.
 
+Use optional controlled context fields when stated: `administration_route`,
+`dosing_schedule`, `session_context`, `population_model_category`, and
+`study_design_category`. These are coarse filters; keep exact paper wording in
+`dose_or_regimen`, `population_or_system`, and `study_design`.
+
 Do not extract every minor side effect as a separate item unless safety or
 tolerability is central to the supplied text, the event is serious, frequent,
 clinically important, or the paper reports the event as a main safety result.

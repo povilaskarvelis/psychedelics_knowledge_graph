@@ -105,8 +105,62 @@
         "population_or_system": {
           "type": "string"
         },
+        "population_model_category": {
+          "type": "string",
+          "enum": [
+            "clinical_population",
+            "healthy_volunteers",
+            "human_participants",
+            "community_sample",
+            "veterans",
+            "adolescents_youth",
+            "older_adults",
+            "mouse_model",
+            "rat_model",
+            "animal_model",
+            "in_vitro_cell_model",
+            "ex_vivo_tissue_model",
+            "computational_model",
+            "mixed_or_unclear",
+            "not_reported"
+          ],
+          "description": "Coarse population/model bucket for filtering and UI facets. Use the closest allowed value."
+        },
         "study_design": {
           "type": "string"
+        },
+        "study_design_category": {
+          "type": "string",
+          "enum": [
+            "rct",
+            "phase_2_rct",
+            "phase_3_rct",
+            "open_label",
+            "single_arm_trial",
+            "clinical_trial",
+            "observational",
+            "retrospective",
+            "case_report",
+            "case_series",
+            "qualitative",
+            "preclinical_experiment",
+            "ex_vivo_experiment",
+            "in_vitro_assay",
+            "binding_assay",
+            "functional_assay",
+            "computational",
+            "pharmacovigilance",
+            "wastewater_surveillance",
+            "dose_finding",
+            "post_hoc",
+            "follow_up",
+            "review",
+            "systematic_review",
+            "meta_analysis",
+            "other",
+            "not_reported"
+          ],
+          "description": "Coarse study-design bucket for filtering and UI facets. Use the closest allowed value."
         },
         "sample_size": {
           "type": "string"
@@ -133,7 +187,48 @@
           "type": "string"
         },
         "dose_or_regimen": {
-          "type": "string"
+          "type": "string",
+          "description": "Paper wording for dose, route, schedule, session count, and regimen. Prefer also filling administration_route, dosing_schedule, and session_context when stated."
+        },
+        "administration_route": {
+          "type": "string",
+          "enum": [
+            "oral_or_sublingual",
+            "intravenous",
+            "intranasal",
+            "subcutaneous_or_intramuscular",
+            "smoked_or_vaporized",
+            "preclinical_injection",
+            "other",
+            "not_reported"
+          ],
+          "description": "Route of administration as a coarse controlled value when stated."
+        },
+        "dosing_schedule": {
+          "type": "string",
+          "enum": [
+            "single_dose",
+            "repeated_dosing",
+            "dose_ranging",
+            "microdosing",
+            "maintenance_or_course",
+            "other",
+            "not_reported"
+          ],
+          "description": "Coarse dosing schedule when stated."
+        },
+        "session_context": {
+          "type": "string",
+          "enum": [
+            "therapy_assisted_session",
+            "ceremony_or_retreat",
+            "clinical_administration",
+            "naturalistic_use",
+            "preclinical_experiment",
+            "not_reported",
+            "other"
+          ],
+          "description": "Session or setting context when it is part of the finding."
         },
         "assessment_timepoint": {
           "type": "string",

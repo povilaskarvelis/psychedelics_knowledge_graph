@@ -1181,6 +1181,34 @@ function paperTypeLabel(paperType) {
   return displayFieldLabel(normalized);
 }
 
+const STUDY_DESIGN_CATEGORY_LABELS = {
+  rct: "RCT",
+  phase_2_rct: "Phase 2 RCT",
+  phase_3_rct: "Phase 3 RCT",
+  open_label: "Open label",
+  single_arm_trial: "Single-arm trial",
+  clinical_trial: "Clinical trial",
+  observational: "Observational",
+  retrospective: "Retrospective",
+  case_report: "Case report",
+  case_series: "Case series",
+  qualitative: "Qualitative",
+  preclinical_experiment: "Preclinical experiment",
+  ex_vivo_experiment: "Ex vivo experiment",
+  in_vitro_assay: "In vitro assay",
+  binding_assay: "Binding assay",
+  functional_assay: "Functional assay",
+  computational: "Computational",
+  pharmacovigilance: "Pharmacovigilance",
+  wastewater_surveillance: "Wastewater surveillance",
+  dose_finding: "Dose finding",
+  post_hoc: "Post-hoc",
+  follow_up: "Follow-up",
+  review: "Review",
+  systematic_review: "Systematic review",
+  meta_analysis: "Meta-analysis",
+};
+
 function studyDesignLabel(design) {
   const normalized = normalizeValue(design);
   if (
@@ -1229,6 +1257,8 @@ function studyDesignLabel(design) {
 }
 
 function studyDesignFacetLabel(claim) {
+  const explicit = controlledCategoryLabel(claim.study_design_category, STUDY_DESIGN_CATEGORY_LABELS);
+  if (explicit) return explicit;
   const raw = meaningfulText(claim.study_design);
   if (!raw) return "";
   const normalized = normalizeValue(raw).replace(/[_/()-]+/g, " ").replace(/\s+/g, " ").trim();
@@ -1306,6 +1336,12 @@ function openAccessFacetLabel(claim) {
   return "Paywalled";
 }
 
+function controlledCategoryLabel(value, labels) {
+  const key = normalizeValue(value);
+  if (!key || key === "not_reported") return "";
+  return labels[key] || "";
+}
+
 function orderedFacetEntries(entries, preferredLabels = []) {
   if (!preferredLabels.length) return entries;
   const order = new Map(preferredLabels.map((label, index) => [normalizeValue(label), index]));
@@ -1325,7 +1361,27 @@ function trialRegistrationFacetLabel(claim) {
   return meaningfulText(claim.trial_registry_ids) ? "Registered trial" : "Registration not reported";
 }
 
+const POPULATION_MODEL_CATEGORY_LABELS = {
+  clinical_population: "Clinical population",
+  healthy_volunteers: "Healthy volunteers",
+  human_participants: "Human participants",
+  community_sample: "Community sample",
+  veterans: "Veterans",
+  adolescents_youth: "Adolescents & youth",
+  older_adults: "Older adults",
+  mouse_model: "Mouse model",
+  rat_model: "Rat model",
+  animal_model: "Animal model",
+  in_vitro_cell_model: "In vitro cell model",
+  ex_vivo_tissue_model: "Ex vivo tissue model",
+  computational_model: "Computational model",
+  mixed_or_unclear: "Mixed/unclear sample",
+};
+
 function populationModelFacetLabel(claim) {
+  const explicit = controlledCategoryLabel(claim.population_model_category, POPULATION_MODEL_CATEGORY_LABELS);
+  if (explicit) return explicit;
+
   const system = normalizeValue(meaningfulText(claim.system));
   const species = normalizeValue(meaningfulText(claim.species));
   const model = normalizeValue(meaningfulText(claim.model_or_system));
@@ -1461,13 +1517,37 @@ const DOSE_ROUTE_SESSION_CONTEXT_ORDER = [
   "Oral or sublingual",
   "Smoked or vaporized",
   "Therapy-assisted session",
+  "Clinical administration",
   "Ceremony & retreat",
+  "Naturalistic use",
   "Microdosing",
   "Dose-ranging",
   "Repeated dosing",
   "Single-dose session",
   "Preclinical injection",
 ];
+const ADMINISTRATION_ROUTE_LABELS = {
+  oral_or_sublingual: "Oral or sublingual",
+  intravenous: "Intravenous infusion or injection",
+  intranasal: "Intranasal",
+  subcutaneous_or_intramuscular: "Subcutaneous or intramuscular injection",
+  smoked_or_vaporized: "Smoked or vaporized",
+  preclinical_injection: "Preclinical injection",
+};
+const DOSING_SCHEDULE_LABELS = {
+  single_dose: "Single-dose session",
+  repeated_dosing: "Repeated dosing",
+  dose_ranging: "Dose-ranging",
+  microdosing: "Microdosing",
+  maintenance_or_course: "Repeated dosing",
+};
+const SESSION_CONTEXT_LABELS = {
+  therapy_assisted_session: "Therapy-assisted session",
+  ceremony_or_retreat: "Ceremony & retreat",
+  clinical_administration: "Clinical administration",
+  naturalistic_use: "Naturalistic use",
+  preclinical_experiment: "Preclinical injection",
+};
 
 function doseRouteSessionFacetLabels(claim) {
   const doseText = [
@@ -1519,8 +1599,14 @@ function doseRouteSessionFacetLabels(claim) {
 
   const labels = [];
   const addLabel = (label) => {
+    if (!label) return;
     if (!labels.includes(label)) labels.push(label);
   };
+  [
+    controlledCategoryLabel(claim.administration_route, ADMINISTRATION_ROUTE_LABELS),
+    controlledCategoryLabel(claim.dosing_schedule, DOSING_SCHEDULE_LABELS),
+    controlledCategoryLabel(claim.session_context, SESSION_CONTEXT_LABELS),
+  ].forEach(addLabel);
   const animalMetaPattern =
     /\b(preclinical|animal|mouse|mice|rats?|rattus|rodent|zebrafish|cell culture|cultured cells?|in vitro|ex vivo)\b/;
   const preclinicalRoutePattern =
@@ -1596,6 +1682,16 @@ const PUBLIC_HEALTH_DATA_SOURCE_ORDER = [
   "Observational cohort",
   "Other/unclear source",
 ];
+const PUBLIC_HEALTH_DATA_SOURCE_LABELS = {
+  survey: "Survey",
+  poison_center_toxicology: "Poison center/toxicology",
+  wastewater: "Wastewater",
+  drug_checking: "Drug checking",
+  administrative_registry: "Administrative/registry",
+  qualitative_interview: "Qualitative/interview",
+  observational_cohort: "Observational cohort",
+  other_or_unclear: "Other/unclear source",
+};
 
 function publicHealthTopicFacetLabel(claim) {
   const graphLabel = meaningfulText(claim.public_health_graph_label || claim.graph_entity_label || claim.entity_label);
@@ -1664,6 +1760,9 @@ function publicHealthTopicFacetLabel(claim) {
 }
 
 function publicHealthDataSourceFacetLabel(claim) {
+  const explicit = controlledCategoryLabel(claim.data_source_type, PUBLIC_HEALTH_DATA_SOURCE_LABELS);
+  if (explicit) return explicit;
+
   const text = [
     claim.study_design,
     claim.setting,
@@ -1728,6 +1827,7 @@ const MECHANISTIC_RELATIONSHIP_TYPE_ORDER = [
   "Binding/affinity",
   "Agonism/antagonism",
   "Transporter uptake",
+  "Metabolism/transport",
   "Neurotransmitter release",
   "Expression change",
   "Connectivity change",
@@ -1735,8 +1835,23 @@ const MECHANISTIC_RELATIONSHIP_TYPE_ORDER = [
   "Toxicity marker",
   "Other/mixed relationship",
 ];
+const MECHANISTIC_RELATIONSHIP_TYPE_LABELS = {
+  binding_affinity: "Binding/affinity",
+  agonism_antagonism: "Agonism/antagonism",
+  transporter_uptake: "Transporter uptake",
+  neurotransmitter_release: "Neurotransmitter release",
+  expression_change: "Expression change",
+  connectivity_change: "Connectivity change",
+  plasticity_marker: "Plasticity marker",
+  toxicity_marker: "Toxicity marker",
+  metabolism_or_transport: "Metabolism/transport",
+  other_or_mixed: "Other/mixed relationship",
+};
 
 function mechanisticRelationshipTypeFacetLabel(claim) {
+  const explicit = controlledCategoryLabel(claim.mechanistic_relationship_type, MECHANISTIC_RELATIONSHIP_TYPE_LABELS);
+  if (explicit) return explicit;
+
   const text = [
     claim.action_type,
     claim.affinity_type,

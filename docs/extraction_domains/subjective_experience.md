@@ -26,6 +26,12 @@ are central to the Subjective effects finding. Treat Oceanic Boundlessness as a
 subdimension of Mystical-type experience unless the paper explicitly presents it
 as a standalone construct.
 
+Use optional controlled context fields when stated: `administration_route`,
+`dosing_schedule`, `session_context`, `population_model_category`, and
+`study_design_category`. These are coarse filters; keep exact paper wording in
+`dose_or_regimen`, `setting_or_context`, `population_or_system`, and
+`study_design`.
+
 Do not extract broad consciousness or intoxication discussion unless subjective
 experience is measured or centrally reviewed.
 
