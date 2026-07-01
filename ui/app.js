@@ -314,10 +314,6 @@ let bibliographyByMode = {
   mechanistic: [],
   disorders: [],
 };
-let graphPreviewByMode = {
-  mechanistic: { primary: [], secondary: [] },
-  disorders: { primary: [], secondary: [] },
-};
 let selected = null;
 let isolateSelection = false;
 let mode = "disorders";
@@ -338,7 +334,6 @@ let heroStatsSnapshot = null;
 let graphManifestPromise = null;
 let graphPayloadConfigPromise = null;
 let routeNativeEvidencePayloadPromise = null;
-let routeNativeEvidencePreviewPromise = null;
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let pendingTooltipPoint = null;
@@ -5713,12 +5708,6 @@ function scheduleRender() {
   });
 }
 
-function waitForPaint() {
-  return new Promise((resolve) => {
-    window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
-  });
-}
-
 function updateSearchPlaceholder() {
   if (!searchInput) return;
   if (mode === "mechanistic") {
@@ -5792,7 +5781,7 @@ function switchMode(nextMode) {
   syncYearFilterControls(activeClaimsForMode());
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender({ showGraphPreview: true });
+  loadCurrentClaimsAndRender();
 }
 
 function switchClaimLayer(nextLayer) {
@@ -5807,7 +5796,7 @@ function switchClaimLayer(nextLayer) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender({ showGraphPreview: true });
+  loadCurrentClaimsAndRender();
 }
 
 function switchEvidenceView(nextView) {
@@ -5821,7 +5810,7 @@ function switchEvidenceView(nextView) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender({ showGraphPreview: true });
+  loadCurrentClaimsAndRender();
 }
 
 function switchEntityView(nextView, nextMode = mode) {
@@ -5839,7 +5828,7 @@ function switchEntityView(nextView, nextMode = mode) {
   syncYearFilterControls(activeClaimsForMode(), true);
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
-  loadCurrentClaimsAndRender({ showGraphPreview: true });
+  loadCurrentClaimsAndRender();
 }
 
 async function fetchJsonFromCandidates(candidates) {
@@ -5952,16 +5941,6 @@ const normalizedSourceTasks = {
   disorders: { primary: null, secondary: null },
 };
 
-const graphPreviewLoaded = {
-  mechanistic: { primary: false, secondary: false },
-  disorders: { primary: false, secondary: false },
-};
-
-const graphPreviewTasks = {
-  mechanistic: { primary: null, secondary: null },
-  disorders: { primary: null, secondary: null },
-};
-
 function renderDataLoading() {
   setDetailHeader(defaultDetail.title);
   renderDetailEmpty();
@@ -5990,25 +5969,17 @@ function routeNativeFindingsFromPayload(payload) {
   return Array.isArray(payload?.findings) ? payload.findings : null;
 }
 
-async function loadActiveRouteNativeFindings(preview = false) {
+async function loadActiveRouteNativeFindings() {
   const config = await loadGraphPayloadConfig();
-  const path = cleanDisplayText(preview ? config?.active_evidence_preview : config?.active_evidence_payload);
+  const path = cleanDisplayText(config?.active_evidence_payload);
   if (!path) return null;
 
-  const promiseKey = preview ? "routeNativeEvidencePreviewPromise" : "routeNativeEvidencePayloadPromise";
-  if (preview && routeNativeEvidencePreviewPromise) return routeNativeEvidencePreviewPromise;
-  if (!preview && routeNativeEvidencePayloadPromise) return routeNativeEvidencePayloadPromise;
+  if (routeNativeEvidencePayloadPromise) return routeNativeEvidencePayloadPromise;
 
-  const task = fetchJsonFromCandidates(dataCandidates(path))
+  routeNativeEvidencePayloadPromise = fetchJsonFromCandidates(dataCandidates(path))
     .then(({ data }) => routeNativeFindingsFromPayload(data))
     .catch(() => null);
-
-  if (promiseKey === "routeNativeEvidencePreviewPromise") {
-    routeNativeEvidencePreviewPromise = task;
-  } else {
-    routeNativeEvidencePayloadPromise = task;
-  }
-  return task;
+  return routeNativeEvidencePayloadPromise;
 }
 
 function routeNativeDisplayMode(finding) {
@@ -6097,20 +6068,14 @@ function routeNativeFindingForCurrentUi(finding, modeKey) {
   return item;
 }
 
-async function loadRouteNativeEvidenceSource(modeKey, sourceKey, preview = false) {
-  const findings = await loadActiveRouteNativeFindings(preview);
+async function loadRouteNativeEvidenceSource(modeKey, sourceKey) {
+  const findings = await loadActiveRouteNativeFindings();
   if (!Array.isArray(findings)) return false;
   const items = findings
     .filter((finding) => !isHiddenMainGraphItem(finding))
     .filter((finding) => routeNativeDisplayMode(finding) === modeKey)
     .filter((finding) => routeNativeSourceKey(finding) === sourceKey)
     .map((finding) => routeNativeFindingForCurrentUi(finding, modeKey));
-
-  if (preview) {
-    graphPreviewByMode[modeKey][sourceKey] = items;
-    graphPreviewLoaded[modeKey][sourceKey] = true;
-    return true;
-  }
 
   const enrichedItems = bibliographyPayloadsLoaded()
     ? enrichClaimsWithBibliographyMetadata(items, modeKey)
@@ -6123,26 +6088,6 @@ async function loadRouteNativeEvidenceSource(modeKey, sourceKey, preview = false
   return true;
 }
 
-async function loadGraphPreviewSource(modeKey, sourceKey) {
-  if (graphPreviewLoaded[modeKey][sourceKey]) return;
-  if (graphPreviewTasks[modeKey][sourceKey]) {
-    await graphPreviewTasks[modeKey][sourceKey];
-    return;
-  }
-
-  graphPreviewTasks[modeKey][sourceKey] = (async () => {
-    if (!(await loadRouteNativeEvidenceSource(modeKey, sourceKey, true))) {
-      throw new Error("Route-native graph preview payload is unavailable");
-    }
-  })();
-
-  try {
-    await graphPreviewTasks[modeKey][sourceKey];
-  } finally {
-    graphPreviewTasks[modeKey][sourceKey] = null;
-  }
-}
-
 function currentSourceKey() {
   return isSecondaryEvidenceView() ? "secondary" : "primary";
 }
@@ -6151,53 +6096,6 @@ function normalizedCurrentSourceLoaded() {
   return Boolean(normalizedSourceLoaded[mode]?.[currentSourceKey()]);
 }
 
-function activeGraphPreviewClaims() {
-  const sourceKey = currentSourceKey();
-  const baseClaims = graphPreviewByMode[mode]?.[sourceKey] || [];
-  return graphViewClaims(claimsForEntityView(baseClaims));
-}
-
-async function renderCurrentGraphPreview(loadToken, resetDetail = true) {
-  if (normalizedCurrentSourceLoaded()) return false;
-  const sourceKey = currentSourceKey();
-
-  try {
-    await loadGraphPreviewSource(mode, sourceKey);
-  } catch (_error) {
-    return false;
-  }
-
-  if (loadToken !== currentDataLoadToken) return true;
-
-  const previewClaims = activeGraphPreviewClaims();
-  if (!previewClaims.length) return false;
-
-  updateModeUI();
-  syncYearFilterControls(previewClaims, true);
-  const filtered = applyFiltersToClaims(previewClaims);
-  if (selected && !selectionIsValid(filtered)) {
-    selected = null;
-    isolateSelection = false;
-    clearSelectedStyles();
-  }
-  updateStats();
-  buildGraph(filtered);
-  if (resetDetail) {
-    setDetailHeader(defaultDetail.title);
-    if (selected) {
-      renderSelectedDetailFromData(filtered);
-    } else {
-      renderOverviewDetail(filtered);
-    }
-    if (cardsEl) {
-      cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
-    }
-    if (studyListEl) {
-      studyListEl.innerHTML = "";
-    }
-  }
-  return true;
-}
 
 async function loadNormalizedClaimSource(modeKey, sourceKey) {
   if (normalizedSourceLoaded[modeKey][sourceKey]) return;
@@ -6223,19 +6121,10 @@ async function ensureClaimsForCurrentView() {
   await loadNormalizedClaimSource(mode, currentSourceKey());
 }
 
-async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true, showGraphPreview = false } = {}) {
+async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true } = {}) {
   const token = ++currentDataLoadToken;
-  let previewRendered = false;
-  if (showGraphPreview) {
-    previewRendered = await renderCurrentGraphPreview(token, resetDetail);
-  }
-  if (token !== currentDataLoadToken) return;
-
-  if (showLoading && !previewRendered) {
+  if (showLoading) {
     renderDataLoading();
-  }
-  if (previewRendered) {
-    await waitForPaint();
   }
   if (token !== currentDataLoadToken) return;
 
@@ -6319,7 +6208,7 @@ function preloadLikelyNextData() {
 
 async function init() {
   await loadGraphManifestStats();
-  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphPreview: true });
+  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true });
   preloadLikelyNextData();
 }
 
