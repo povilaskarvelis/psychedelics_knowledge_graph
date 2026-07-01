@@ -28,6 +28,9 @@ data/processed/*
 !data/processed/graph_payload_manifest.json
 !data/processed/graph_payload_mechanistic.json
 !data/processed/graph_payload_mechanistic_secondary_sources.json
+!data/processed/graph_payload_active.json
+!data/processed/graph_payload_runs/
+!data/processed/graph_payload_runs/**
 !data/processed/graph_preview_*.json
 !data/processed/extraction/
 data/processed/extraction/*
@@ -114,4 +117,5 @@ data/processed/paper_library_*.checkpoint.json
 
 # Static-site deploy output and Netlify local state
 dist/
+site/
 .netlify/
