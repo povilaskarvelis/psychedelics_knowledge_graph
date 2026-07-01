@@ -8,7 +8,13 @@ Prioritize:
   readout/measure
 - named brain regions, named networks, and named circuits separately when the
   text supports the distinction
-- modality and measurement type
+- modality and measurement type, using familiar acronyms when the paper uses
+  them: EEG, ERP, MEG, fMRI, PET, SPECT, MRI, MRS, LFP, iEEG/ECoG, DTI, ASL,
+  calcium imaging, or fiber photometry
+- neural measures/readouts such as MMN, P300/P3a/P3b, BOLD response,
+  functional connectivity, receptor occupancy, cerebral blood flow, glucose
+  metabolism, EEG power/oscillations, LFP power, MRS neurochemistry, calcium
+  activity, c-Fos, or neurotransmitter levels
 - neural effect or change, such as increased activation, decreased activation,
   altered connectivity, reduced receptor availability, changed neurotransmitter
   level, or changed sleep architecture
@@ -28,6 +34,8 @@ directly tied to a brain-system endpoint in the reported result.
 
 Do not create standalone clinical, behavioral, subjective-experience, molecular
 target, pathway, or pharmacokinetic items here. If no named brain region,
-network, or circuit is reported, use a neural readout such as EEG oscillation,
-PET signal, activation, connectivity, or neurotransmitter level only when that
-readout is itself the central brain-system finding.
+network, or circuit is reported, use a neural readout such as MMN, P300, EEG
+oscillation, PET signal, activation, connectivity, or neurotransmitter level only
+when that readout is itself the central brain-system finding. Do not put MMN,
+P300, BOLD, or other measures into the brain-region field; put them in the
+readout/measure field.

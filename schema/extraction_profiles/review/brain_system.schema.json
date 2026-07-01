@@ -325,11 +325,11 @@
             },
             "modality_or_evidence_type": {
               "type": "string",
-              "description": "Evidence type such as neuroimaging, PET/SPECT, fMRI, EEG, structural imaging, postmortem, lesion, animal neurobiology, or computational evidence."
+              "description": "Measurement modality or evidence type. Prefer familiar acronyms when used in the paper, such as EEG, ERP, MEG, fMRI, PET, SPECT, MRI, MRS, LFP, iEEG/ECoG, DTI, ASL, calcium imaging, fiber photometry, postmortem, lesion, animal neurobiology, or computational evidence."
             },
             "readout_or_measure": {
               "type": "string",
-              "description": "Neural readout or measure reviewed, such as activation, connectivity, receptor/transporter binding, oscillatory amplitude, sleep architecture, regional volume, synaptic density, or not reported."
+              "description": "Neural readout or measure reviewed, not a brain region. Examples include MMN, P300/P3a/P3b, BOLD response, functional connectivity, receptor/transporter binding or occupancy, cerebral blood flow, glucose metabolism, EEG power/oscillations, LFP power, MRS neurochemistry, calcium activity, c-Fos, synaptic density, regional volume, sleep architecture, or not reported."
             },
             "neural_effect_or_alteration": {
               "type": "string",

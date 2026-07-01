@@ -24,13 +24,18 @@ EMPTY_ASSAY_VALUES = {
 
 ASSAY_FAMILY_ORDER = (
     "Binding / affinity",
-    "Functional activity",
+    "Receptor activity",
+    "fMRI",
+    "PET / SPECT",
+    "MRI / MRS",
+    "EEG",
+    "MEG",
+    "LFP / electrophysiology",
+    "Calcium imaging / photometry",
     "Behavioral assay",
     "Protein expression / proteomics",
-    "Electrophysiology",
     "Neurochemical levels",
     "Gene expression",
-    "Imaging / connectivity",
     "Immunoassay / histology",
     "Computational / in silico",
     "Transporter / uptake",
@@ -63,17 +68,57 @@ def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: ob
     if text in EMPTY_ASSAY_VALUES:
         return ""
 
-    if has(r"\b(radioligand|binding|affinity|competition|displacement|scatchard|autoradiograph|receptor density)\b", text):
-        return "Binding / affinity"
     if has(
         r"\b("
-        r"electrophysiolog\w*|patch clamp|voltage clamp|current clamp|field potential|field potentials|"
-        r"f?epsp|ipsc|epsc|tevc|whole cell|extracellular recording|eeg|ecog|synaptic transmission|"
-        r"synaptic plasticity|theta burst"
+        r"fmri|rs\s?fmri|phmri|functional mri|functional magnetic resonance|"
+        r"asl|pcasl|arterial spin labell?ing"
         r")\b",
         text,
     ):
-        return "Electrophysiology"
+        return "fMRI"
+    if has(
+        r"\b("
+        r"pet|spect|fdg|h2?15o|15o labeled|18f|radiotracer|positron emission|single photon"
+        r")\b",
+        text,
+    ):
+        return "PET / SPECT"
+    if has(r"\b(meg|magnetoencephalograph\w*)\b", text):
+        return "MEG"
+    if has(
+        r"\b("
+        r"eeg|erp|event related|event related potential|p300|p3a|p3b|mmn|mismatch negativity|"
+        r"eloreta|sloreta|ecog|ieeg"
+        r")\b",
+        text,
+    ):
+        return "EEG"
+    if has(
+        r"\b("
+        r"electrophysiolog\w*|lfp|local field|patch clamp|voltage clamp|current clamp|"
+        r"field potential|field potentials|f?epsp|ipsc|epsc|tevc|whole cell|extracellular recording|"
+        r"single unit|multiunit|mua|synaptic transmission|synaptic plasticity|theta burst"
+        r")\b",
+        text,
+    ):
+        return "LFP / electrophysiology"
+    if has(
+        r"\b(calcium imaging|gcamp|fiber photometry|fibre photometry|photometry|two photon|2 photon|light sheet|"
+        r"functional ultrasound|fusi)\b",
+        text,
+    ):
+        return "Calcium imaging / photometry"
+    if has(
+        r"\b(mrs|magnetic resonance spectroscopy|nmr spectroscopy|spectroscopy|structural mri|dti|diffusion tensor|diffusion mri|mri|7t mri)\b",
+        text,
+    ):
+        return "MRI / MRS"
+    if has(
+        r"\b(radioligand|binding|affinity|competition|displacement|scatchard|autoradiograph|autoradiography|"
+        r"receptor density|receptor occupancy|binding potential|bpnd|bp nd)\b",
+        text,
+    ):
+        return "Binding / affinity"
     if has(
         r"\b("
         r"behavior\w*|behaviour\w*|behavioral pharmacology|drug discrimination|head twitch|htr|"
@@ -82,14 +127,6 @@ def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: ob
         text,
     ):
         return "Behavioral assay"
-    if has(
-        r"\b("
-        r"functional connectivity|neuroimaging|imaging|fmri|phmri|pet|mri|connectivity|"
-        r"calcium imaging|autoradiography|magnetic resonance spectroscopy|spectroscopy|mrs"
-        r")\b",
-        text,
-    ):
-        return "Imaging / connectivity"
     if has(
         r"\b("
         r"microdialysis|hplc|uhplc|neurotransmitter|monoamine|dopamine|serotonin|"
@@ -103,7 +140,8 @@ def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: ob
         return "Transporter / uptake"
     if has(
         r"\b(gene expression|mrna|qpcr|qrt pcr|rt qpcr|rna seq|rnaseq|transcript|microarray|"
-        r"in situ hybridization|genomic|immediate early gene|fos|arc)\b",
+        r"in situ hybridization|in situ hybridisation|genomic|immediate early gene|fos|arc|"
+        r"rnascope|snrna seq|single nucleus rna)\b",
         text,
     ):
         return "Gene expression"
@@ -117,8 +155,9 @@ def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: ob
         return "Protein expression / proteomics"
     if has(
         r"\b("
-        r"elisa|immunoassay|immunohistochemistry|immunofluorescence|histolog|staining|confocal|"
-        r"light sheet|cytometric bead array|flow cytometry|cytokine production|cytokine assay|milliplex|chemokine"
+        r"elisa|immunoassay|immunohistochemistry|immunocytochemistry|immunofluorescence|histolog|"
+        r"staining|confocal|microscopy|golgi|stereology|cytometric bead array|flow cytometry|"
+        r"cytokine production|cytokine assay|milliplex|chemokine"
         r")\b",
         text,
     ):
@@ -133,6 +172,8 @@ def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: ob
         text,
     ):
         return "Signaling / phosphorylation"
+    if has(r"\b(biochemical activity assay|proteasome|trypsin like|chymotrypsin like|ups activity)\b", text):
+        return "Enzyme / metabolism"
     if has(
         r"\b("
         r"functional|activity|activation|agonis\w*|antagonis\w*|pharmacological antagonism|pharmacological blockade|"
@@ -141,7 +182,7 @@ def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: ob
         r")\b",
         text,
     ):
-        return "Functional activity"
+        return "Receptor activity"
     if has(r"\b(computational|in silico|docking|modeling|modelling|prediction|admet|simulation|molecular dynamics)\b", text):
         return "Computational / in silico"
     if has(r"\b(enzyme|enzymatic|metabolic|metabolism|esterase|pka|pk a|chemical assay|pka determination)\b", text):

@@ -21,6 +21,15 @@ perioperative anesthesia outcomes, or nonspecific wellbeing/context labels into
 clean indication graph endpoints unless the paper explicitly frames them as the
 treated clinical problem.
 
+Do not use disease-model or drug-challenge language as a treated condition. In
+healthy-volunteer, animal-model, or experimental challenge studies,
+schizophrenia-like, psychosis-like, depression-like, anxiety-like, dissociative,
+perceptual, or other induced acute effects are not clinical indications. Leave
+`condition_or_indication` as `not_applicable` or `not_reported` unless the paper
+enrolled participants with that condition. These effects belong to subjective
+experience, safety, cognitive/behavioral, or mechanistic scopes depending on how
+the paper frames them.
+
 For graph-facing condition labels, use `condition_or_indication` for the
 treated or studied clinical problem and `population_or_subgroup` for demographic,
 recruitment, eligibility, comorbidity, or subgroup details. Keep
@@ -36,6 +45,9 @@ Examples:
 - Use `condition_or_indication`: Suicidality when suicidality is the studied
   treatment target; use safety only when suicidality is treatment-emergent or
   worsened risk.
+- Do not use `condition_or_indication`: Schizophrenia for a healthy-volunteer
+  ketamine challenge that reports schizophrenia-like or psychotomimetic effects.
+  Treat that as subjective-experience evidence, not a condition edge.
 
 Use the optional controlled context fields when stated: `administration_route`,
 `dosing_schedule`, `session_context`, `population_model_category`, and

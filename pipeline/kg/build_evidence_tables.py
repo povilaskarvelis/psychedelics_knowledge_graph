@@ -161,6 +161,10 @@ CLAIM_FIELDS = (
     "assay_type",
     "assay_family",
     "assay_family_normalized",
+    "modality",
+    "modality_or_evidence_type",
+    "readout",
+    "readout_or_measure",
     "action_type",
     "affinity_type",
     "affinity_value",
@@ -1777,6 +1781,37 @@ NON_GRAPHABLE_BROAD_CONDITION_LABELS = {
     "Depressive disorders",
     "Pain conditions",
 }
+CONDITION_ANALOG_CONTEXT_RE = re.compile(
+    r"\b("
+    r"\w+(?:[- ]like)\s+(?:symptoms?|effects?|behavio(?:u)?rs?|phenotypes?|states?|responses?|profiles?)|"
+    r"(?:psychosis|psychotic|schizophrenia|depression|anxiety|mania|ptsd|autism)[- ]like|"
+    r"psychotomimetic|"
+    r"(?:model|models|modeling|modelling|paradigm)\s+(?:of|for|relevant to)\s+"
+    r"(?:schizophrenia|psychosis|depression|anxiety|mania|ptsd|autism)|"
+    r"(?:ketamine|phencyclidine|pcp|nmda antagonist)[- ](?:model|challenge)|"
+    r"induc(?:e|ed|es|ing)\s+.{0,80}(?:[- ]like\s+)?(?:symptoms?|effects?|behavio(?:u)?rs?)"
+    r")\b",
+    re.IGNORECASE,
+)
+SUBJECTIVE_EFFECT_CONTEXT_RE = re.compile(
+    r"\b("
+    r"psychotomimetic|psychosis[- ]like|psychotic[- ]like|schizophrenia[- ]like|"
+    r"dissociation|dissociative|depersonalization|depersonalisation|derealization|derealisation|"
+    r"perceptual alterations?|perceptual changes?|hallucinations?|hallucinogenic|"
+    r"subjective (?:drug )?effects?|altered states?|cadss|panss|bprs"
+    r")\b",
+    re.IGNORECASE,
+)
+NON_CLINICAL_MODEL_POPULATION_RE = re.compile(
+    r"\b("
+    r"healthy\s+(?:human\s+)?(?:volunteers?|participants?|controls?|subjects?)|"
+    r"human\s+volunteers?|"
+    r"drug\s+challenge|ketamine\s+challenge|experimental\s+challenge|"
+    r"healthy_volunteers|mouse|mice|rat|rats|rodent|animal\s+model|preclinical|"
+    r"in\s+vitro|ex\s+vivo|cell\s+model"
+    r")\b",
+    re.IGNORECASE,
+)
 
 
 def prune_condition_labels(labels: set[str]) -> list[str]:
@@ -1789,7 +1824,98 @@ def prune_condition_labels(labels: set[str]) -> list[str]:
 
 
 def condition_labels_in_text(value: object, registry: dict[tuple[str, str], dict]) -> list[str]:
+    if condition_analog_text(value):
+        return []
     return prune_condition_labels(registry_entity_labels_in_text(value, "clinical_entity", registry))
+
+
+def condition_analog_text(value: object) -> bool:
+    text = normalize(value)
+    return bool(text and CONDITION_ANALOG_CONTEXT_RE.search(text))
+
+
+def condition_analog_context(row: dict | None, raw_label: object = "") -> bool:
+    row = row or {}
+    focal_text = " ".join(
+        normalize(value)
+        for value in (
+            raw_label,
+            row.get("condition_or_indication", ""),
+            row.get("condition_or_population", ""),
+            row.get("clinical_context_condition", ""),
+            row.get("clinical_endpoint", ""),
+            row.get("outcome_domain", ""),
+        )
+        if normalize(value)
+    )
+    if condition_analog_text(focal_text):
+        return True
+
+    context_text = " ".join(
+        normalize(value)
+        for value in (
+            focal_text,
+            row.get("finding_summary", ""),
+            row.get("support", ""),
+            row.get("study_title", ""),
+            row.get("keywords", ""),
+        )
+        if normalize(value)
+    )
+    population_text = " ".join(
+        normalize(value)
+        for value in (
+            row.get("population", ""),
+            row.get("population_or_subgroup", ""),
+            row.get("population_model_category", ""),
+            row.get("model_or_system", ""),
+            row.get("species", ""),
+        )
+        if normalize(value)
+    )
+    return bool(
+        context_text
+        and CONDITION_ANALOG_CONTEXT_RE.search(context_text)
+        and population_text
+        and NON_CLINICAL_MODEL_POPULATION_RE.search(population_text)
+    )
+
+
+def clinical_subjective_effect_context(row: dict | None) -> bool:
+    row = row or {}
+    context_text = " ".join(
+        normalize(value)
+        for value in (
+            row.get("condition_or_indication", ""),
+            row.get("condition_or_population", ""),
+            row.get("clinical_context_condition", ""),
+            row.get("clinical_endpoint", ""),
+            row.get("outcome_measure", ""),
+            row.get("outcome_measure_normalized", ""),
+            row.get("finding_summary", ""),
+            row.get("support", ""),
+            row.get("study_title", ""),
+            row.get("keywords", ""),
+        )
+        if normalize(value)
+    )
+    population_text = " ".join(
+        normalize(value)
+        for value in (
+            row.get("population", ""),
+            row.get("population_or_subgroup", ""),
+            row.get("population_model_category", ""),
+            row.get("model_or_system", ""),
+            row.get("species", ""),
+        )
+        if normalize(value)
+    )
+    return bool(
+        context_text
+        and SUBJECTIVE_EFFECT_CONTEXT_RE.search(context_text)
+        and population_text
+        and NON_CLINICAL_MODEL_POPULATION_RE.search(population_text)
+    )
 
 
 def node_vocabulary_labels_in_text(value: object, entity_kind: str, node_vocabulary: dict[tuple[str, str], dict]) -> set[str]:
@@ -2091,6 +2217,16 @@ def match_registry_entity(
 ) -> dict:
     entity_type = ENTITY_TYPE_BY_KIND.get(entity_kind, "")
     context_text = mechanistic_kind_context(row, raw_label)
+    if entity_kind == "condition_indication" and condition_analog_context(row, raw_label):
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "condition_analog_not_graphable",
+            "match_type": "",
+            "notes": "condition-like or model-like wording is not promoted to a visible condition node",
+        }
     contained_condition_labels = (
         set(condition_labels_in_text(raw_label, registry))
         if entity_kind == "condition_indication"
@@ -3083,6 +3219,8 @@ def clinical_endpoint_rows(rows: list[dict], audit_rows: list[dict]) -> list[dic
         audit = audit_rows[index] if index < len(audit_rows) and isinstance(audit_rows[index], dict) else {}
         role = normalize(row.get("entity_role", "")).casefold()
         domain = normalize(row.get("domain", "")) or normalize(row.get("domain_route", ""))
+        if domain in {"clinical", "clinical_outcome", ""} and clinical_subjective_effect_context(row):
+            continue
         if (domain in CLINICAL_METADATA_DOMAINS or not domain) and not normalize(row.get("outcome_measure_normalized", "")):
             row = dict(row)
             row["outcome_measure_normalized"] = normalize_outcome_measure(row.get("outcome_measure", ""))
@@ -3152,6 +3290,8 @@ def condition_expanded_rows(row: dict, domain: str, registry: dict[tuple[str, st
         return [row]
 
     raw_entity_label = entity_label_for(row, domain, entity_kind)
+    if condition_analog_context(row, raw_entity_label):
+        return [row]
     labels = condition_labels_in_text(raw_entity_label, registry)
     if len(labels) <= 1:
         return [row]

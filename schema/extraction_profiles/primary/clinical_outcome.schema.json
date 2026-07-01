@@ -101,7 +101,7 @@
         },
         "condition_or_indication": {
           "type": "string",
-          "description": "Clean clinical condition or treatment indication that should become the graph node, such as major depressive disorder, treatment-resistant depression, opioid use disorder, suicidality, fibromyalgia, migraine, or alcohol use disorder. Do not include age, sex, recruitment source, treatment resistance details, or other subgroup wording unless it is part of the condition name."
+          "description": "Clean clinical condition or treatment indication that should become the graph node, such as major depressive disorder, treatment-resistant depression, opioid use disorder, suicidality, fibromyalgia, migraine, or alcohol use disorder. Do not include age, sex, recruitment source, treatment resistance details, or other subgroup wording unless it is part of the condition name. Do not use disease-model or drug-challenge phrases such as schizophrenia-like symptoms, psychosis-like effects, depression-like behavior, dissociation, or perceptual alterations as a condition; use not_applicable or not_reported unless participants actually had the condition."
         },
         "population_or_subgroup": {
           "type": "string",

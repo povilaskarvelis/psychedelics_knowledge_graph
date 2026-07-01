@@ -49,24 +49,37 @@ const GRAPH_COLOR_STOPS = [
   { r: 232, g: 117, b: 141 },
 ];
 const CATEGORY_COLORS = [
-  "#49bfb5",
-  "#c89b45",
-  "#9f86c0",
   "#7f9fcf",
+  "#c89b45",
+  "#77b98a",
+  "#9f86c0",
+  "#d18473",
+  "#49bfb5",
   "#b96c8b",
+  "#a7a064",
+  "#8b96b8",
+  "#c06f6a",
   "#9ac5ae",
+  "#b88a6a",
+  "#75a0c4",
+  "#b9a65a",
+  "#5fae8b",
+  "#a989bd",
   "#c7825c",
+  "#6fb0a0",
+  "#d08aa3",
+  "#8fa85f",
   "#7d8492",
+  "#d0b07a",
+  "#8d78ad",
+  "#a7b56f",
 ];
-const SYSTEM_COLORS = {
-  clinical: "#49bfb5",
-  preclinical: "#c89b45",
-  in_vitro: "#7f9fcf",
-  in_vivo: "#b96c8b",
-  ex_vivo: "#9f86c0",
-  observational: "#9ac5ae",
-  unknown: "#7d8492",
-};
+const PALETTE_BLUE_FIRST = CATEGORY_COLORS;
+const PALETTE_TEAL_FIRST = CATEGORY_COLORS;
+const PALETTE_ROSE_FIRST = CATEGORY_COLORS;
+const PALETTE_SAGE_FIRST = CATEGORY_COLORS;
+const PALETTE_GOLD_FIRST = CATEGORY_COLORS;
+const OTHER_CATEGORY_COLOR = "#8f9ba8";
 const PUBLICATION_YEAR_COLOR = "#3faea6";
 const SAMPLE_SIZE_HEATMAP_COLOR = "#c89b45";
 const COGNITION_NODE_LABELS = [
@@ -185,6 +198,7 @@ const DETAIL_PANEL_PROFILE_DEFAULT = {
   comparators: false,
   followUpWindows: false,
   assayFamilies: false,
+  brainMeasures: false,
   mechanisticRelationshipTypes: false,
   safetyContexts: false,
   doseRouteSessionContexts: false,
@@ -279,6 +293,7 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
     experimentalSystem: true,
     populationModel: true,
     assayFamilies: true,
+    brainMeasures: true,
     mechanisticRelationshipTypes: true,
   },
 };
@@ -1352,6 +1367,47 @@ function orderedFacetEntries(entries, preferredLabels = []) {
   });
 }
 
+function entryOrderIndex(entry, order = new Map()) {
+  if (!order.size) return 999;
+  const key = normalizeValue(entry?.displayLabel || entry?.label || "");
+  return order.has(key) ? order.get(key) : 999;
+}
+
+function entrySortValue(entry, valueKey = "studies") {
+  return (
+    Number(entry?.[valueKey]) ||
+    Number(entry?.studies) ||
+    Number(entry?.count) ||
+    Number(entry?.claims) ||
+    0
+  );
+}
+
+function isOtherEntry(entry) {
+  const label = normalizeValue(entry?.displayLabel || entry?.label || "");
+  return (
+    Boolean(entry?.isAggregate) ||
+    label.startsWith("other") ||
+    label.includes("mixed_unclear")
+  );
+}
+
+function sortEntriesByValue(entries, valueKey = "studies", preferredLabels = []) {
+  const order = new Map(preferredLabels.map((label, index) => [normalizeValue(label), index]));
+  return [...entries].sort((a, b) => {
+    if (isOtherEntry(a) !== isOtherEntry(b)) return isOtherEntry(a) ? 1 : -1;
+    const byValue = entrySortValue(b, valueKey) - entrySortValue(a, valueKey);
+    if (byValue !== 0) return byValue;
+    const byStudies = Number(b.studies || 0) - Number(a.studies || 0);
+    if (byStudies !== 0) return byStudies;
+    const byClaims = Number((b.claims ?? b.count) || 0) - Number((a.claims ?? a.count) || 0);
+    if (byClaims !== 0) return byClaims;
+    const byPreferredOrder = entryOrderIndex(a, order) - entryOrderIndex(b, order);
+    if (byPreferredOrder !== 0) return byPreferredOrder;
+    return String(a.label || "").localeCompare(String(b.label || ""));
+  });
+}
+
 function trialRegistrationFacetLabel(claim) {
   return meaningfulText(claim.trial_registry_ids) ? "Registered trial" : "Registration not reported";
 }
@@ -1804,19 +1860,47 @@ function publicHealthDataSourceFacetLabel(claim) {
 
 const MECHANISTIC_ASSAY_FAMILY_ORDER = [
   "Binding / affinity",
-  "Functional activity",
+  "Receptor activity",
+  "fMRI",
+  "PET / SPECT",
+  "MRI / MRS",
+  "EEG",
+  "MEG",
+  "LFP / electrophysiology",
+  "Calcium imaging / photometry",
   "Behavioral assay",
   "Protein expression / proteomics",
-  "Electrophysiology",
   "Neurochemical levels",
   "Gene expression",
-  "Imaging / connectivity",
   "Immunoassay / histology",
   "Computational / in silico",
   "Transporter / uptake",
   "Signaling / phosphorylation",
   "Enzyme / metabolism",
   "Other / mixed method",
+];
+const LEGACY_REFINABLE_ASSAY_FAMILY_KEYS = new Set([
+  "functional activity",
+  "imaging / connectivity",
+  "electrophysiology",
+  "other / mixed method",
+]);
+const BRAIN_MEASURE_ORDER = [
+  "Functional connectivity",
+  "BOLD response",
+  "Cerebral blood flow",
+  "Glucose metabolism",
+  "Receptor occupancy",
+  "MRS neurochemistry",
+  "EEG power/oscillations",
+  "MMN",
+  "P300",
+  "ERP",
+  "LFP power",
+  "Calcium activity",
+  "c-Fos",
+  "Neurotransmitter levels",
+  "Structural MRI/DTI",
 ];
 const MECHANISTIC_RELATIONSHIP_TYPE_ORDER = [
   "Binding/affinity",
@@ -1922,25 +2006,72 @@ function mechanisticRelationshipTypeFacetLabel(claim) {
   return "Other/mixed relationship";
 }
 
-function mechanisticAssayFamilyFacetLabel(claim) {
-  const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
-  if (normalized) return normalized;
-
-  const text = normalizeValue([claim.assay_family, claim.assay_type].map(meaningfulText).filter(Boolean).join(" "))
+function assayFamilyText(claim) {
+  return [
+    claim.assay_family,
+    claim.assay_type,
+    claim.modality,
+    claim.modality_or_evidence_type,
+    claim.model_or_method,
+  ]
+    .map(meaningfulText)
+    .filter(Boolean)
+    .join(" ")
+    .replace(/&/g, " and ")
     .replace(/[_/()+-]+/g, " ")
     .replace(/\s+/g, " ")
+    .toLowerCase()
     .trim();
+}
+
+function assayFamilyFromText(text) {
   if (!text || ["none", "not applicable", "not_applicable", "not reported", "not_reported", "unknown", "uncertain"].includes(text)) {
     return "";
   }
 
-  if (/\b(radioligand|binding|affinity|competition|displacement|scatchard|autoradiograph|receptor density)\b/.test(text)) {
-    return "Binding / affinity";
+  if (/\b(fmri|rs\s?fmri|phmri|functional mri|functional magnetic resonance|asl|pcasl|arterial spin labell?ing)\b/.test(text)) {
+    return "fMRI";
   }
   if (
-    /\b(electrophysiolog\w*|patch clamp|voltage clamp|current clamp|field potential|field potentials|f?epsp|ipsc|epsc|tevc|whole cell|extracellular recording|eeg|ecog|synaptic transmission|synaptic plasticity|theta burst)\b/.test(text)
+    /\b(pet|spect|fdg|h2?15o|15o labeled|18f|radiotracer|positron emission|single photon)\b/.test(
+      text
+    )
   ) {
-    return "Electrophysiology";
+    return "PET / SPECT";
+  }
+  if (/\b(meg|magnetoencephalograph\w*)\b/.test(text)) {
+    return "MEG";
+  }
+  if (
+    /\b(eeg|erp|event related|event related potential|p300|p3a|p3b|mmn|mismatch negativity|eloreta|sloreta|ecog|ieeg)\b/.test(
+      text
+    )
+  ) {
+    return "EEG";
+  }
+  if (
+    /\b(electrophysiolog\w*|lfp|local field|patch clamp|voltage clamp|current clamp|field potential|field potentials|f?epsp|ipsc|epsc|tevc|whole cell|extracellular recording|single unit|multiunit|mua|synaptic transmission|synaptic plasticity|theta burst)\b/.test(
+      text
+    )
+  ) {
+    return "LFP / electrophysiology";
+  }
+  if (
+    /\b(calcium imaging|gcamp|fiber photometry|fibre photometry|photometry|two photon|2 photon|light sheet|functional ultrasound|fusi)\b/.test(
+      text
+    )
+  ) {
+    return "Calcium imaging / photometry";
+  }
+  if (/\b(mrs|magnetic resonance spectroscopy|nmr spectroscopy|spectroscopy|structural mri|dti|diffusion tensor|diffusion mri|mri|7t mri)\b/.test(text)) {
+    return "MRI / MRS";
+  }
+  if (
+    /\b(radioligand|binding|affinity|competition|displacement|scatchard|autoradiograph|autoradiography|receptor density|receptor occupancy|binding potential|bpnd|bp nd)\b/.test(
+      text
+    )
+  ) {
+    return "Binding / affinity";
   }
   if (
     /\b(behavior\w*|behaviour\w*|behavioral pharmacology|drug discrimination|head twitch|htr|locomot|nocicept|antinocicept|forced swim|tail suspension|open field|prepulse)\b/.test(
@@ -1948,11 +2079,6 @@ function mechanisticAssayFamilyFacetLabel(claim) {
     )
   ) {
     return "Behavioral assay";
-  }
-  if (
-    /\b(functional connectivity|neuroimaging|imaging|fmri|phmri|pet|mri|connectivity|calcium imaging|autoradiography|magnetic resonance spectroscopy|spectroscopy|mrs)\b/.test(text)
-  ) {
-    return "Imaging / connectivity";
   }
   if (
     /\b(microdialysis|hplc|uhplc|neurotransmitter|monoamine|dopamine|serotonin|norepinephrine|noradrenaline|glutamate|gaba|release|metabolite|tissue content|neurochemical assay|electrochemical|voltammetry|fscv)\b/.test(
@@ -1963,7 +2089,7 @@ function mechanisticAssayFamilyFacetLabel(claim) {
   }
   if (/\b(transport|transporter|uptake|reuptake|efflux|sert|dat|net)\b/.test(text)) return "Transporter / uptake";
   if (
-    /\b(gene expression|mrna|qpcr|qrt pcr|rt qpcr|rna seq|rnaseq|transcript|microarray|in situ hybridization|genomic|immediate early gene|fos|arc)\b/.test(
+    /\b(gene expression|mrna|qpcr|qrt pcr|rt qpcr|rna seq|rnaseq|transcript|microarray|in situ hybridization|in situ hybridisation|genomic|immediate early gene|fos|arc|rnascope|snrna seq|single nucleus rna)\b/.test(
       text
     )
   ) {
@@ -1977,7 +2103,7 @@ function mechanisticAssayFamilyFacetLabel(claim) {
     return "Protein expression / proteomics";
   }
   if (
-    /\b(elisa|immunoassay|immunohistochemistry|immunofluorescence|histolog|staining|confocal|light sheet|cytometric bead array|flow cytometry|cytokine production|cytokine assay|milliplex|chemokine)\b/.test(
+    /\b(elisa|immunoassay|immunohistochemistry|immunocytochemistry|immunofluorescence|histolog|staining|confocal|microscopy|golgi|stereology|cytometric bead array|flow cytometry|cytokine production|cytokine assay|milliplex|chemokine)\b/.test(
       text
     )
   ) {
@@ -1989,12 +2115,15 @@ function mechanisticAssayFamilyFacetLabel(claim) {
   if (/\b(phosphorylation|phospho|phosphoinositide|kinase|mtor|erk|akt|camp pathway|signal transduction|pathway activation)\b/.test(text)) {
     return "Signaling / phosphorylation";
   }
+  if (/\b(biochemical activity assay|proteasome|trypsin like|chymotrypsin like|ups activity)\b/.test(text)) {
+    return "Enzyme / metabolism";
+  }
   if (
     /\b(functional|activity|activation|agonis\w*|antagonis\w*|pharmacological antagonism|pharmacological blockade|pharmacological classification|g protein|beta arrestin|arrestin|bret|camp|ip1|inositol|calcium|recruitment|potency|efficacy|modulation)\b/.test(
       text
     )
   ) {
-    return "Functional activity";
+    return "Receptor activity";
   }
   if (/\b(computational|in silico|docking|modeling|modelling|prediction|admet|simulation|molecular dynamics)\b/.test(text)) {
     return "Computational / in silico";
@@ -2003,6 +2132,77 @@ function mechanisticAssayFamilyFacetLabel(claim) {
     return "Enzyme / metabolism";
   }
   return "Other / mixed method";
+}
+
+function mechanisticAssayFamilyFacetLabel(claim) {
+  const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
+  const refined = assayFamilyFromText(assayFamilyText(claim));
+  if (refined && (!normalized || LEGACY_REFINABLE_ASSAY_FAMILY_KEYS.has(normalizeValue(normalized)))) return refined;
+  if (normalized) return normalized;
+  return refined;
+}
+
+function brainMeasureText(claim) {
+  return [
+    claim.readout,
+    claim.readout_or_measure,
+    claim.outcome_measure,
+    claim.modality,
+    claim.modality_or_evidence_type,
+    claim.assay_type,
+    claim.assay_family,
+    claim.assay_family_normalized,
+    claim.graph_entity_label,
+    claim.entity_label,
+    claim.effect_size,
+    claim.support,
+  ]
+    .map(meaningfulText)
+    .filter(Boolean)
+    .join(" ")
+    .replace(/&/g, " and ")
+    .replace(/[_/()+-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+    .trim();
+}
+
+function brainMeasureFacetLabels(claim) {
+  const domain = graphDomainForItem(claim);
+  if (domain && domain !== "brain_system") return [];
+
+  const text = brainMeasureText(claim);
+  if (!text) return [];
+
+  const labels = [];
+  const add = (condition, label) => {
+    if (condition) labels.push(label);
+  };
+  const hasMRS = /\b(mrs|magnetic resonance spectroscopy|nmr spectroscopy|1h mrs|7t mrs)\b/.test(text);
+
+  add(/\b(functional connectivity|resting state connectivity|resting state|connectivity|coupling|connectome|within network|between network|network integration|network segregation)\b/.test(text), "Functional connectivity");
+  add(/\b(bold|blood oxygen level dependent)\b/.test(text), "BOLD response");
+  add(/\b(cbf|rcbf|cerebral blood flow|regional cerebral blood flow|blood perfusion|perfusion|arterial spin labell?ing|asl|pcasl|hmpao)\b/.test(text), "Cerebral blood flow");
+  add(/\b(fdg|glucose metabolism|metabolic activity|2dg|2 dg|deoxyglucose|deoxy glucose)\b/.test(text), "Glucose metabolism");
+  add(/\b(receptor occupancy|binding potential|bpnd|bp nd|receptor availability|receptor binding|receptor density)\b/.test(text), "Receptor occupancy");
+  add(hasMRS && /\b(mrs|magnetic resonance spectroscopy|glutamate|glutamine|glx|gaba|n acetyl|nacetyl|naa)\b/.test(text), "MRS neurochemistry");
+  add(/\b(oscillation\w*|oscillatory|power density|band power|gamma|alpha|theta|delta|beta|desynchroni[sz]ation|current source density|source density)\b/.test(text), "EEG power/oscillations");
+  add(/\b(mmn|mismatch negativity)\b/.test(text), "MMN");
+  add(/\b(p300|p3a|p3b|novelty p3)\b/.test(text), "P300");
+  add(/\b(erp|event related potential|event related potentials)\b/.test(text), "ERP");
+  add(/\b(lfp|local field potential|local field potentials)\b/.test(text) && /\b(power|oscillation\w*|oscillatory|gamma|alpha|theta|delta|beta|hfo|frequency)\b/.test(text), "LFP power");
+  add(/\b(calcium|ca2|ca 2|gcamp|fiber photometry|fibre photometry|photometry)\b/.test(text), "Calcium activity");
+  add(/\b(c fos|cfos|fos\b|egr\b|arc\b|immediate early gene)\b/.test(text), "c-Fos");
+  add(
+    !hasMRS &&
+      /\b(neurotransmitter|microdialysis|monoamine|dopamine|serotonin|glutamate|gaba|norepinephrine|noradrenaline|5 ht|5 hiaa)\b/.test(
+        text
+      ),
+    "Neurotransmitter levels"
+  );
+  add(/\b(dti|diffusion tensor|fractional anisotropy|structural mri|cortical thickness|gray matter|grey matter|brain volume|morphometry)\b/.test(text), "Structural MRI/DTI");
+
+  return compactUniqueParts(labels);
 }
 
 const CLINICAL_COMPARATOR_ORDER = [
@@ -3808,7 +4008,8 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
     );
   }
 
-  const preparedEntries = orderedFacetEntries(entries, options.order || [])
+  const valueKey = options.valueKey || "studies";
+  const preparedEntries = entries
     .map((entry) => {
       const claims = Number(entry.claims ?? entry.count ?? 0) || 0;
       const studies = Number(entry.studies ?? claims) || 0;
@@ -3821,10 +4022,10 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
       };
     })
     .filter((entry) => entry.studies || entry.count);
-  const limitedEntries = limitCompositionEntries(preparedEntries, options.maxEntries || 7).map((entry) =>
+  const rankedEntries = sortEntriesByValue(preparedEntries, valueKey, options.order || []);
+  const limitedEntries = limitCompositionEntries(rankedEntries, options.maxEntries || 7).map((entry) =>
     entry.isAggregate ? { ...entry, displayLabel: "Other" } : entry
   );
-  const valueKey = options.valueKey || "studies";
   const total = limitedEntries.reduce((sum, entry) => sum + (Number(entry[valueKey]) || 0), 0);
   if (!total) {
     if (options.hideWhenEmpty) return "";
@@ -3837,7 +4038,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
   }
 
   const palette = options.palette || CATEGORY_COLORS;
-  const colorForEntry = (index) => chartFillSoft(palette[index % palette.length]);
+  const fillForEntry = (entry, index) => chartFillSoft(colorForEntry(entry, index, palette));
   const segments = limitedEntries
     .map((entry, index) => {
       const value = Number(entry[valueKey]) || 0;
@@ -3846,7 +4047,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
       return `<span class="trend-stack-segment${compositionTargetClass(entry)}" ${compositionFilterAttrs(
         entry,
         filterField
-      )} style="width: ${width.toFixed(2)}%; background: ${colorForEntry(index)}" title="${escapeHtml(
+      )} style="width: ${width.toFixed(2)}%; background: ${fillForEntry(entry, index)}" title="${escapeHtml(
         `${label}: ${formatCompactNumber(entry.studies)} studies, ${formatCompactNumber(entry.count)} findings`
       )}"></span>`;
     })
@@ -3857,7 +4058,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
       const label = entry.displayLabel || entry.label;
       return `
         <span class="trend-legend-item${compositionTargetClass(entry)}" ${compositionFilterAttrs(entry, filterField)}>
-          <i style="background: ${colorForEntry(index)}"></i>
+          <i style="background: ${fillForEntry(entry, index)}"></i>
           ${escapeHtml(label)} <strong>${formatCompactNumber(value)}</strong>
         </span>
       `;
@@ -3924,9 +4125,9 @@ function renderAuthorRoleChart(items) {
   const rows = visibleEntries
     .map((entry) => {
       const studiesLabel = `${formatCompactNumber(entry.studies)} stud${entry.studies === 1 ? "y" : "ies"}`;
-      const title = `${entry.label}: ${formatCompactNumber(entry.studies)} studies, ${formatCompactNumber(
-        entry.claims
-      )} findings; first author in ${formatCompactNumber(entry.firstStudies)}, last author in ${formatCompactNumber(
+      const title = `${entry.label}: ${formatCompactNumber(
+        entry.studies
+      )} studies; first author in ${formatCompactNumber(entry.firstStudies)}, last author in ${formatCompactNumber(
         entry.lastStudies
       )}`;
       return `
@@ -3942,9 +4143,8 @@ function renderAuthorRoleChart(items) {
             <strong>${escapeHtml(studiesLabel)}</strong>
           </div>
           <div class="author-role-counts">
-            <span>First <b>${formatCompactNumber(entry.firstStudies)}</b></span>
-            <span>Last <b>${formatCompactNumber(entry.lastStudies)}</b></span>
-            <span>Findings <b>${formatCompactNumber(entry.claims)}</b></span>
+            <span>First author <b>${formatCompactNumber(entry.firstStudies)}</b></span>
+            <span>Last author <b>${formatCompactNumber(entry.lastStudies)}</b></span>
           </div>
         </div>
       `;
@@ -3972,8 +4172,20 @@ function renderMechanisticAssayFamilyChart(items) {
     hideWhenEmpty: true,
     order: MECHANISTIC_ASSAY_FAMILY_ORDER,
     maxEntries: 12,
-    palette: ["#7f9fcf", "#49bfb5", "#c89b45", "#9f86c0", "#b96c8b", "#9ac5ae", "#c7825c", "#7d8492"],
+    palette: PALETTE_BLUE_FIRST,
     emptyText: "No assay-family metadata in this selection.",
+  });
+}
+
+function renderBrainMeasureChart(items) {
+  if (evidenceView !== "primary" || !currentDetailPanelProfile().brainMeasures) return "";
+  const measureEntries = summarizeMultiFacetEvidence(items, brainMeasureFacetLabels);
+  return renderFacetCompositionChart(measureEntries, "Measures", "brain_measure_facet", {
+    hideWhenEmpty: true,
+    order: BRAIN_MEASURE_ORDER,
+    maxEntries: 12,
+    palette: PALETTE_BLUE_FIRST,
+    emptyText: "No neural-measure metadata in this selection.",
   });
 }
 
@@ -3984,7 +4196,7 @@ function renderMechanisticRelationshipTypeChart(items) {
     hideWhenEmpty: true,
     order: MECHANISTIC_RELATIONSHIP_TYPE_ORDER,
     maxEntries: 9,
-    palette: ["#49bfb5", "#7f9fcf", "#c89b45", "#9f86c0", "#9ac5ae", "#b96c8b", "#c7825c", "#7d8492"],
+    palette: PALETTE_TEAL_FIRST,
     emptyText: "No relationship-type metadata in this selection.",
   });
 }
@@ -3996,7 +4208,7 @@ function renderSafetyContextChart(items) {
     hideWhenEmpty: true,
     order: SAFETY_CONTEXT_ORDER,
     maxEntries: 7,
-    palette: ["#b96c8b", "#c89b45", "#49bfb5", "#9f86c0", "#7f9fcf", "#c7825c", "#7d8492"],
+    palette: PALETTE_ROSE_FIRST,
     emptyText: "No safety-context metadata in this selection.",
   });
 }
@@ -4004,9 +4216,11 @@ function renderSafetyContextChart(items) {
 function renderDoseRouteSessionContextChart(items) {
   if (evidenceView !== "primary" || !currentDetailPanelProfile().doseRouteSessionContexts) return "";
   const contextEntries = summarizeMultiFacetEvidence(items, doseRouteSessionFacetLabels);
-  return renderFacetChipChart(contextEntries, "Administration context", "dose_route_session_facet", {
+  return renderFacetCompositionChart(contextEntries, "Administration context", "dose_route_session_facet", {
     hideWhenEmpty: true,
     order: DOSE_ROUTE_SESSION_CONTEXT_ORDER,
+    maxEntries: 12,
+    palette: PALETTE_TEAL_FIRST,
     emptyText: "No administration-context metadata in this selection.",
   });
 }
@@ -4018,7 +4232,7 @@ function renderClinicalComparatorChart(items) {
     hideWhenEmpty: true,
     order: CLINICAL_COMPARATOR_ORDER,
     maxEntries: 10,
-    palette: ["#7f9fcf", "#9f86c0", "#9ac5ae", "#c89b45", "#b96c8b", "#49bfb5", "#c7825c", "#7d8492"],
+    palette: PALETTE_BLUE_FIRST,
     emptyText: "No comparator metadata in this selection.",
   });
 }
@@ -4030,7 +4244,7 @@ function renderClinicalFollowUpWindowChart(items) {
     hideWhenEmpty: true,
     order: CLINICAL_FOLLOW_UP_WINDOW_ORDER,
     maxEntries: 10,
-    palette: ["#49bfb5", "#7f9fcf", "#9ac5ae", "#c89b45", "#c7825c", "#b96c8b", "#9f86c0", "#7d8492"],
+    palette: PALETTE_TEAL_FIRST,
     emptyText: "No follow-up window metadata in this selection.",
   });
 }
@@ -4042,7 +4256,7 @@ function renderPublicHealthTopicChart(items) {
     hideWhenEmpty: true,
     order: PUBLIC_HEALTH_TOPIC_ORDER,
     maxEntries: 8,
-    palette: ["#49bfb5", "#c89b45", "#9ac5ae", "#7f9fcf", "#b96c8b", "#9f86c0", "#c7825c", "#7d8492"],
+    palette: CATEGORY_COLORS,
     emptyText: "No naturalistic-use topic metadata in this selection.",
   });
 }
@@ -4054,7 +4268,7 @@ function renderPublicHealthDataSourceChart(items) {
     hideWhenEmpty: true,
     order: PUBLIC_HEALTH_DATA_SOURCE_ORDER,
     maxEntries: 8,
-    palette: ["#7f9fcf", "#b96c8b", "#49bfb5", "#c89b45", "#9f86c0", "#9ac5ae", "#c7825c", "#7d8492"],
+    palette: PALETTE_BLUE_FIRST,
     emptyText: "No data-source metadata in this selection.",
   });
 }
@@ -4077,13 +4291,14 @@ function renderEvidenceCompositionFacetCharts(items) {
             hideWhenEmpty: true,
             order: POPULATION_MODEL_ORDER,
             maxEntries: 15,
-            palette: ["#9ac5ae", "#9f86c0", "#c89b45", "#7f9fcf", "#b96c8b", "#49bfb5", "#7d8492"],
+            palette: PALETTE_SAGE_FIRST,
           })
         : ""
     }
     ${renderClinicalComparatorChart(items)}
     ${renderClinicalFollowUpWindowChart(items)}
     ${renderMechanisticRelationshipTypeChart(items)}
+    ${renderBrainMeasureChart(items)}
     ${renderMechanisticAssayFamilyChart(items)}
     ${
       profile.studyDesigns
@@ -4091,7 +4306,7 @@ function renderEvidenceCompositionFacetCharts(items) {
             hideWhenEmpty: true,
             order: STUDY_DESIGN_ORDER,
             maxEntries: 12,
-            palette: ["#c89b45", "#7f9fcf", "#9f86c0", "#49bfb5", "#b96c8b", "#c7825c", "#7d8492"],
+            palette: PALETTE_GOLD_FIRST,
             emptyText: "No study-design metadata in this selection.",
           })
         : ""
@@ -4244,17 +4459,7 @@ function sortCompositionEntries(entries, field) {
     system: ["clinical", "preclinical", "in_vitro", "in_vivo", "ex_vivo", "observational", "unknown"],
   };
   const order = orders[field] || [];
-
-  return [...entries].sort((a, b) => {
-    const aIndex = order.indexOf(a.label);
-    const bIndex = order.indexOf(b.label);
-    if (aIndex !== -1 || bIndex !== -1) {
-      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-    }
-    const byCount = b.count - a.count;
-    if (byCount !== 0) return byCount;
-    return a.label.localeCompare(b.label);
-  });
+  return sortEntriesByValue(entries, "count", order);
 }
 
 function limitCompositionEntries(entries, maxEntries = 5) {
@@ -4265,9 +4470,12 @@ function limitCompositionEntries(entries, maxEntries = 5) {
   return [...visible, { label: "other", count: otherCount, studies: otherStudies, isAggregate: true }];
 }
 
+function colorForEntry(entry, index, palette = CATEGORY_COLORS) {
+  return isOtherEntry(entry) ? OTHER_CATEGORY_COLOR : palette[index % palette.length];
+}
+
 function colorForCategory(label, index, field = "") {
-  const normalized = normalizeValue(label) || "unknown";
-  if (field === "system" && SYSTEM_COLORS[normalized]) return SYSTEM_COLORS[normalized];
+  if (isOtherEntry({ label })) return OTHER_CATEGORY_COLOR;
   return CATEGORY_COLORS[index % CATEGORY_COLORS.length];
 }
 
@@ -4288,8 +4496,8 @@ function compositionTargetClass(entry) {
   return entry?.isAggregate ? "" : " composition-filter-target";
 }
 
-/** Overview trend charts (#rrggbb only): soften fills slightly; alpha near 1 so colors stay saturated. */
-function chartFillSoft(hexColor, alpha = 0.96) {
+/** Overview trend charts (#rrggbb only): soften fills so categorical colors sit inside the dark UI. */
+function chartFillSoft(hexColor, alpha = 0.82) {
   const s = (hexColor || "").trim();
   if (!s.startsWith("#")) return s;
   const hex = s.slice(1);
@@ -4421,17 +4629,18 @@ function renderHorizontalBarChart(entries, title, subtitle, options = {}) {
   const valueKey = options.valueKey || "studies";
   const maxEntries = Number(options.maxEntries) || entries.length;
   const expandKey = options.expandKey || "";
-  const canExpand = Boolean(expandKey && entries.length > maxEntries);
+  const rankedEntries = sortEntriesByValue(entries, valueKey);
+  const canExpand = Boolean(expandKey && rankedEntries.length > maxEntries);
   const isExpanded = canExpand && expandedChartKeys.has(expandKey);
-  const visibleEntries = canExpand && !isExpanded ? entries.slice(0, maxEntries) : entries;
-  const maxValue = Math.max(1, ...entries.map((entry) => Number(entry[valueKey]) || 0));
+  const visibleEntries = canExpand && !isExpanded ? rankedEntries.slice(0, maxEntries) : rankedEntries;
+  const maxValue = Math.max(1, ...rankedEntries.map((entry) => Number(entry[valueKey]) || 0));
   const expandControl = canExpand
     ? `
       <div class="trend-chart-actions">
         <button class="chart-expand-toggle" type="button"
           data-chart-expand-key="${escapeHtml(expandKey)}"
           aria-expanded="${escapeHtml(String(isExpanded))}">
-          ${isExpanded ? `Show top ${formatCompactNumber(maxEntries)}` : `Show all ${formatCompactNumber(entries.length)}`}
+          ${isExpanded ? `Show top ${formatCompactNumber(maxEntries)}` : `Show all ${formatCompactNumber(rankedEntries.length)}`}
         </button>
       </div>
     `
@@ -4477,30 +4686,12 @@ function renderOutcomeMeasureChart(items) {
   if (!currentDetailPanelProfile().outcomeScales) return "";
   const scaleItems = outcomeScaleClaimsForChart(items);
   const entries = summarizeOutcomeScaleEvidence(scaleItems);
-  if (!entries.length) {
-    return "";
-  }
-
-  const chips = entries
-    .map(
-      (entry) => `
-        <button class="scale-chip" type="button"
-          data-outcome-scale="${escapeHtml(entry.label)}"
-          title="${escapeHtml(entry.label)}: ${entry.count} findings"
-          aria-label="Show ${escapeHtml(entry.count)} findings using ${escapeHtml(entry.label)}">
-          <strong>${escapeHtml(entry.label)}</strong>
-          <em>${formatCompactNumber(entry.count)}</em>
-        </button>
-      `
-    )
-    .join("");
-
-  return trendCardHtml(
-    "Outcome scales",
-    "",
-    `<div class="scale-chip-grid">${chips}</div>`,
-    "evidence-card chip-tone-blue"
-  );
+  return renderFacetCompositionChart(entries, "Outcome scales", "outcome_scale_facet", {
+    hideWhenEmpty: true,
+    maxEntries: 12,
+    palette: PALETTE_BLUE_FIRST,
+    emptyText: "No outcome-scale metadata in this selection.",
+  });
 }
 
 function renderSampleSizePlotBody(items) {
@@ -4827,6 +5018,7 @@ function fieldValueDetailTitle(field, value) {
   if (field === "trial_registration_facet") return `Trial registration: ${value}`;
   if (field === "population_model_facet") return `Population & model: ${value}`;
   if (field === "assay_family_facet") return `Assay family: ${value}`;
+  if (field === "brain_measure_facet") return `Measure: ${value}`;
   if (field === "mechanistic_relationship_type_facet") return `Relationship type: ${value}`;
   if (field === "safety_context_facet") return `Safety context: ${value}`;
   if (field === "dose_route_session_facet") return `Administration context: ${value}`;
@@ -4844,6 +5036,7 @@ function fieldValueForClaim(claim, field) {
   if (field === "trial_registration_facet") return trialRegistrationFacetLabel(claim);
   if (field === "population_model_facet") return populationModelFacetLabel(claim);
   if (field === "assay_family_facet") return mechanisticAssayFamilyFacetLabel(claim);
+  if (field === "brain_measure_facet") return brainMeasureFacetLabels(claim);
   if (field === "mechanistic_relationship_type_facet") return mechanisticRelationshipTypeFacetLabel(claim);
   if (field === "safety_context_facet") return safetyContextFacetLabel(claim);
   if (field === "dose_route_session_facet") return doseRouteSessionFacetLabels(claim);
@@ -6396,6 +6589,10 @@ if (detailBody) {
     if (!target || !detailBody.contains(target)) return;
     event.preventDefault();
     hideTooltip();
+    if (target.dataset.filterField === "outcome_scale_facet") {
+      renderOutcomeScaleDetail(target.dataset.filterValue || target.dataset.filterLabel || "");
+      return;
+    }
     renderFieldValueDetail(target.dataset.filterField || "", target.dataset.filterValue || "", target.dataset.filterLabel || "");
   });
   detailBody.addEventListener("keydown", (event) => {
@@ -6426,6 +6623,10 @@ if (detailBody) {
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
     hideTooltip();
+    if (target.dataset.filterField === "outcome_scale_facet") {
+      renderOutcomeScaleDetail(target.dataset.filterValue || target.dataset.filterLabel || "");
+      return;
+    }
     renderFieldValueDetail(target.dataset.filterField || "", target.dataset.filterValue || "", target.dataset.filterLabel || "");
   });
   detailBody.addEventListener("click", (event) => {

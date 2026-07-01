@@ -380,7 +380,7 @@
             },
             "modality": {
               "type": "string",
-              "description": "Measurement modality such as fMRI, PET, SPECT, MRI, EEG, MEG, spectroscopy, or molecular imaging."
+              "description": "Measurement modality or method family. Prefer familiar acronyms when used in the paper, such as EEG, ERP, MEG, fMRI, PET, SPECT, MRI, MRS, LFP, iEEG/ECoG, DTI, ASL, calcium imaging, fiber photometry, or molecular imaging."
             },
             "primary_graph_anchor_kind": {
               "type": "string",
@@ -404,7 +404,7 @@
             },
             "readout": {
               "type": "string",
-              "description": "Neural readout such as connectivity, activation, receptor availability, neurotransmitter function, oscillation, volume, or metabolism."
+              "description": "Neural measure or readout, not a brain region. Examples include MMN, P300/P3a/P3b, BOLD response, functional connectivity, receptor availability or occupancy, cerebral blood flow, glucose metabolism, EEG power/oscillations, LFP power, MRS neurochemistry, calcium activity, c-Fos, neurotransmitter function, regional volume, or metabolism."
             },
             "neural_effect_or_change": {
               "type": "string",

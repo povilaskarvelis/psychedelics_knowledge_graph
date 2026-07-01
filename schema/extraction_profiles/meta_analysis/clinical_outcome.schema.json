@@ -365,7 +365,7 @@
           "properties": {
             "condition_or_population": {
               "type": "string",
-              "description": "Clinical condition, indication, or participant population for the synthesized outcome."
+              "description": "Clinical condition, indication, or participant population for the synthesized outcome. Do not turn disease-model or drug-challenge phrases such as schizophrenia-like symptoms, psychosis-like effects, depression-like behavior, dissociation, or perceptual alterations into a clinical condition unless participants actually had the condition."
             },
             "compound_or_intervention": {
               "type": "string",

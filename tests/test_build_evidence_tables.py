@@ -1383,6 +1383,96 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         madrs_findings = findings[findings["outcome_measure"].str.contains("Montgomery", na=False)]
         self.assertEqual(set(madrs_findings["outcome_measure_normalized"]), {"MADRS"})
 
+    def test_disease_like_challenge_effects_are_not_condition_or_clinical_symptom_edges(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            routed_path = root / "routed_evidence_rows.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [
+                        {"label": "Ketamine", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "Psilocybin", "aliases": [], "ids": {}, "status": "seeded"},
+                    ],
+                    "targets": [],
+                    "disorders": [
+                        {"label": "Schizophrenia", "aliases": ["schizophrenia"], "ids": {}, "status": "seeded"},
+                        {"label": "Major depressive disorder", "aliases": ["MDD"], "ids": {}, "status": "seeded"},
+                    ],
+                },
+            )
+            write_json(
+                routed_path,
+                [
+                    {
+                        "study_doi": "10.1000/ketamine-challenge",
+                        "study_title": "Effects of nicotine on the neurophysiological and behavioral effects of ketamine in humans",
+                        "domain": "clinical_outcome",
+                        "compound": "Ketamine",
+                        "condition_or_indication": "Schizophrenia-like symptoms",
+                        "condition_or_population": "Healthy human volunteers",
+                        "clinical_endpoint": "Schizophrenia-like behavioral symptoms",
+                        "outcome_measure": "Positive and Negative Syndrome Scale (PANSS)",
+                        "population": "Healthy human volunteers",
+                        "population_or_subgroup": "Healthy human volunteers",
+                        "population_model_category": "healthy_volunteers",
+                        "finding_summary": "Ketamine induced significant transient schizophrenia-like behavioral effects.",
+                        "support": "Ketamine induced significant transient schizophrenia-like behavioral effects.",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_study",
+                        "access_level": "article_text",
+                    },
+                    {
+                        "study_doi": "10.1000/mdd",
+                        "domain": "clinical_outcome",
+                        "compound": "Psilocybin",
+                        "condition_or_indication": "Major depressive disorder",
+                        "condition_or_population": "Adults with MDD",
+                        "clinical_endpoint": "depressive symptom severity",
+                        "outcome_measure": "MADRS",
+                        "population": "Adults with MDD",
+                        "population_model_category": "clinical_population",
+                        "paper_assessment_route": "primary_evidence",
+                        "source_type": "primary_study",
+                        "paper_type": "primary_study",
+                        "access_level": "article_text",
+                    },
+                ],
+            )
+
+            build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    },
+                    "routed_clinical_endpoints": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "transform": "clinical_endpoints",
+                        "skip_audit": True,
+                    },
+                },
+            )
+
+            edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
+
+        self.assertIn("Major depressive disorder", set(edges["entity_label"]))
+        self.assertNotIn("Schizophrenia", set(edges["entity_label"]))
+        self.assertNotIn("Psychotic-like symptoms", set(edges["entity_label"]))
+        self.assertNotIn("PANSS", set(edges["entity_label"]))
+
     def test_condition_text_splits_distinct_conditions_and_prefers_specific_labels(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
