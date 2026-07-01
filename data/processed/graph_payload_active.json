@@ -4,6 +4,5 @@
   "active_evidence_preview": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_preview_evidence.json",
   "active_manifest": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_manifest.json",
   "evidence_source": "kg_tables",
-  "kg_dir": "data/processed/kg_routed_runs/gemini3_flash_20260628_primary_extraction",
-  "fallback_payload_dir": "data/processed"
+  "kg_dir": "data/processed/kg_routed_runs/gemini3_flash_20260628_primary_extraction"
 }

@@ -699,7 +699,6 @@ def write_active_pointer(active_json: Path, out_dir: Path, manifest_path: Path, 
         "active_manifest": relative_path(manifest_path),
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
-        "fallback_payload_dir": "data/processed",
     }
     active_json.parent.mkdir(parents=True, exist_ok=True)
     active_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

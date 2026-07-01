@@ -5864,14 +5864,6 @@ function dataCandidates(path) {
   return [`../${path}`, `/${path}`, path];
 }
 
-function joinPayloadPath(dir, fileName) {
-  return `${(dir || "").replace(/\/+$/, "")}/${fileName}`;
-}
-
-function uniquePaths(paths) {
-  return Array.from(new Set(paths.filter(Boolean)));
-}
-
 async function loadGraphPayloadConfig() {
   if (graphPayloadConfigPromise) return graphPayloadConfigPromise;
   graphPayloadConfigPromise = fetchJsonFromCandidates(dataCandidates("data/processed/graph_payload_active.json"))
@@ -5880,28 +5872,13 @@ async function loadGraphPayloadConfig() {
   return graphPayloadConfigPromise;
 }
 
-async function resolveGraphPayloadPaths(paths) {
-  const config = await loadGraphPayloadConfig();
-  const activeDir = cleanDisplayText(config?.active_payload_dir || "");
-  const activeManifest = cleanDisplayText(config?.active_manifest || "");
-  const out = [];
-  for (const path of paths) {
-    const fileName = path.split("/").pop();
-    if (activeManifest && fileName === "graph_payload_manifest.json") {
-      out.push(activeManifest);
-    } else if (activeDir && /^graph_(?:payload|preview)_/.test(fileName || "")) {
-      out.push(joinPayloadPath(activeDir, fileName));
-    }
-    out.push(path);
-  }
-  return uniquePaths(out);
-}
-
 function loadGraphManifestStats() {
   if (graphManifestPromise) return graphManifestPromise;
   graphManifestPromise = (async () => {
-    const paths = await resolveGraphPayloadPaths(["data/processed/graph_payload_manifest.json"]);
-    return fetchJsonFromCandidates(paths.flatMap((path) => dataCandidates(path))).then(({ data }) => {
+    const config = await loadGraphPayloadConfig();
+    const activeManifest = cleanDisplayText(config?.active_manifest || "");
+    if (!activeManifest) return null;
+    return fetchJsonFromCandidates(dataCandidates(activeManifest)).then(({ data }) => {
       const snapshot = heroStatsFromGraphManifest(data);
       if (snapshot) {
         heroStatsSnapshot = snapshot;
