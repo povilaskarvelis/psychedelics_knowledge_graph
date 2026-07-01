@@ -27,6 +27,7 @@ from pipeline.ingest.sync_paper_library import (
     normalize_doi,
     parse_provider_order,
     provider_chain,
+    reconcile_open_access_metadata,
     read_float,
     read_int,
     row_needs_core_metadata_refresh,
@@ -183,7 +184,7 @@ def candidate_metadata_row(row: dict) -> dict:
     )
     for field in PAPER_METADATA_FIELDS:
         out[field] = clean(row.get(field, ""))
-    return out
+    return reconcile_open_access_metadata(out, row)
 
 
 def merge_rows(primary: dict, fallback: dict) -> dict:
@@ -192,7 +193,7 @@ def merge_rows(primary: dict, fallback: dict) -> dict:
         value = clean(primary.get(column, ""))
         if value:
             out[column] = value
-    return out
+    return reconcile_open_access_metadata(out, primary, fallback)
 
 
 def fetch_metadata_row(

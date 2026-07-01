@@ -6,9 +6,9 @@ from __future__ import annotations
 import re
 
 try:
-    from pipeline.extract.extraction_v1_utils import normalize
+    from pipeline.extract.io_utils import normalize
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
-    from extraction_v1_utils import normalize
+    from io_utils import normalize
 
 
 EMPTY_ASSAY_VALUES = {

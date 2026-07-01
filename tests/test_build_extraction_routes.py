@@ -12,6 +12,7 @@ from pipeline.extract.build_extraction_routes import (
     doi_to_slug,
     fulltext_status_for_doi,
     prescreen_context_by_doi,
+    thesis_or_dissertation_flags,
 )
 
 
@@ -172,6 +173,155 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(routes.loc[0, "source_type"], "primary")
         self.assertEqual(routes.loc[0, "domain_route"], "clinical_outcome")
         self.assertEqual(routes.loc[0, "prompt_profile"], "primary_clinical")
+
+    def test_dissertation_metadata_overrides_model_primary_classification(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata_table = root / "metadata.parquet"
+            prescreen_table = root / "prescreen.parquet"
+            domain_table = root / "domain.parquet"
+            output_table = root / "routes.parquet"
+            summary_json = root / "summary.json"
+            counts_csv = root / "counts.csv"
+
+            doi = "10.1000/model-called-primary-thesis"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "study_title": "Ketamine thesis",
+                        "study_year": "2024",
+                        "abstract": "This thesis reports original mixed-methods ketamine research.",
+                        "publication_type": "dissertation",
+                    }
+                ]
+            ).to_parquet(metadata_table, engine="pyarrow", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "prescreen_decision": "retain",
+                        "retained_for_extraction_candidate": True,
+                        "prescreen_action": "retain_for_extraction_candidate",
+                        "routing_tags": "clinical_outcome|intervention_context",
+                    }
+                ]
+            ).to_parquet(prescreen_table, engine="pyarrow", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "retained_for_extraction_candidate": True,
+                        "screening_decision": "include_in_scope",
+                        "domain_route": "clinical_outcome",
+                        "all_domain_tags": "clinical_outcome|intervention_context",
+                        "paper_type_group": "primary",
+                        "paper_type": "primary",
+                        "paper_type_reason": "Model says this thesis reports original empirical outcomes.",
+                    }
+                ]
+            ).to_parquet(domain_table, engine="pyarrow", index=False)
+
+            build_extraction_routes(
+                metadata_table=metadata_table,
+                candidate_table=root / "candidate_papers.parquet",
+                prescreen_table=prescreen_table,
+                domain_table=domain_table,
+                manual_overrides_path=None,
+                manual_fulltext_access_overrides_path=None,
+                fulltext_dir=root / "fulltext",
+                paper_root=root / "papers",
+                output_table=output_table,
+                summary_json=summary_json,
+                counts_csv=counts_csv,
+                update_candidate_table=False,
+            )
+
+            routes = pd.read_parquet(output_table)
+
+        self.assertEqual(len(routes), 1)
+        self.assertFalse(bool(routes.loc[0, "retained_for_extraction_candidate"]))
+        self.assertEqual(routes.loc[0, "source_family"], "non_primary_publication")
+        self.assertEqual(routes.loc[0, "source_type"], "non_primary_publication")
+        self.assertEqual(
+            routes.loc[0, "non_primary_flags"],
+            "thesis_or_dissertation_publication_type|thesis_or_dissertation_title|thesis_or_dissertation_abstract",
+        )
+        self.assertEqual(routes.loc[0, "domain_route"], "context_only")
+        self.assertEqual(routes.loc[0, "route_action"], "skip_or_context_only")
+        self.assertEqual(routes.loc[0, "prompt_profile"], "context_only_or_skip")
+
+    def test_abstract_only_thesis_mention_does_not_override_journal_article(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata_table = root / "metadata.parquet"
+            prescreen_table = root / "prescreen.parquet"
+            domain_table = root / "domain.parquet"
+            output_table = root / "routes.parquet"
+            summary_json = root / "summary.json"
+            counts_csv = root / "counts.csv"
+
+            doi = "10.1000/abstract-only-thesis-mention"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "study_title": "Psilocybin clinical outcomes",
+                        "study_year": "2024",
+                        "abstract": "The background cites a doctoral thesis, but this paper reports a trial.",
+                        "publication_type": "Journal Article",
+                        "study_journal": "Example Medical Journal",
+                    }
+                ]
+            ).to_parquet(metadata_table, engine="pyarrow", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "prescreen_decision": "retain",
+                        "retained_for_extraction_candidate": True,
+                        "prescreen_action": "retain_for_extraction_candidate",
+                        "routing_tags": "clinical_outcome",
+                    }
+                ]
+            ).to_parquet(prescreen_table, engine="pyarrow", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "retained_for_extraction_candidate": True,
+                        "screening_decision": "include_in_scope",
+                        "domain_route": "clinical_outcome",
+                        "all_domain_tags": "clinical_outcome",
+                        "paper_type_group": "primary",
+                        "paper_type": "primary",
+                        "paper_type_reason": "Reports original empirical outcomes.",
+                    }
+                ]
+            ).to_parquet(domain_table, engine="pyarrow", index=False)
+
+            build_extraction_routes(
+                metadata_table=metadata_table,
+                candidate_table=root / "candidate_papers.parquet",
+                prescreen_table=prescreen_table,
+                domain_table=domain_table,
+                manual_overrides_path=None,
+                manual_fulltext_access_overrides_path=None,
+                fulltext_dir=root / "fulltext",
+                paper_root=root / "papers",
+                output_table=output_table,
+                summary_json=summary_json,
+                counts_csv=counts_csv,
+                update_candidate_table=False,
+            )
+
+            routes = pd.read_parquet(output_table)
+
+        self.assertEqual(thesis_or_dissertation_flags(routes.loc[0].to_dict()), "")
+        self.assertTrue(bool(routes.loc[0, "retained_for_extraction_candidate"]))
+        self.assertEqual(routes.loc[0, "source_family"], "primary")
+        self.assertEqual(routes.loc[0, "domain_route"], "clinical_outcome")
+        self.assertEqual(routes.loc[0, "route_action"], "extract_from_abstract_only")
 
     def test_secondary_meta_analysis_uses_general_review_profile_without_domain_table(self) -> None:
         metadata_df = pd.DataFrame(

@@ -24,7 +24,7 @@ from collections import Counter
 from pathlib import Path
 
 try:
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
         profile_key_for_task,
         task_has_model_profile,
@@ -33,7 +33,7 @@ try:
     from pipeline.extract.run_route_extraction import safe_run_id, text_depth_for_task
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
         profile_key_for_task,
         task_has_model_profile,

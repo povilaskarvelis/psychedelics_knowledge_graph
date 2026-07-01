@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 
-from pipeline.extract.extraction_v1_utils import write_json
+from pipeline.extract.io_utils import write_json
 from pipeline.kg.build_evidence_tables import build_tables
 from pipeline.kg.convert_routed_extractions_to_evidence_rows import (
     DEFAULT_ROUTED_RUN_ROOT,
@@ -335,7 +335,7 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                                     "relationship_domain": "real_world_public_health",
                                     "coverage_type": "reviews",
                                     "coverage_focus": "main_focus",
-                                    "compound_or_class": "Psychedelic therapy",
+                                    "compound_or_class": "Psilocybin",
                                     "entity_type": "public_health_measure",
                                     "entity": "ethnoracial inclusion",
                                     "summary_statement": "The review covers equity concerns in psychedelic services.",
@@ -344,7 +344,7 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                                     "confidence": 0.78,
                                     "needs_human_review": False,
                                     "domain_result": {
-                                        "exposure_or_intervention": "Psychedelic therapy",
+                                        "exposure_or_intervention": "Psilocybin",
                                         "public_health_measure": "ethnoracial inclusion",
                                         "public_health_topic_category": "access and equity",
                                         "review_interpretation": "Equity is a main public-health topic in the review.",
@@ -377,9 +377,15 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                     "compounds": [
                         {"label": "Psilocybin", "aliases": [], "ids": {}, "status": "seeded"},
                         {"label": "DMT", "aliases": [], "ids": {}, "status": "seeded"},
-                        {"label": "Psychedelic therapy", "aliases": [], "ids": {}, "status": "seeded"},
                     ],
-                    "targets": [],
+                    "targets": [
+                        {
+                            "label": "MAO-A",
+                            "aliases": ["monoamine oxidase A"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        }
+                    ],
                     "disorders": [],
                 },
             )
@@ -395,6 +401,11 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             self.assertEqual(brain_row["compound"], "Psilocybin")
             self.assertEqual(brain_row["graph_entity_label"], "DMN")
             self.assertEqual(brain_row["assessment_timepoint"], "2 hours post-dose")
+            pk_row = next(row for row in rows if row["domain_route"] == "pharmacokinetics_exposure")
+            self.assertEqual(pk_row["pk_relationship_type"], "metabolized_by")
+            self.assertEqual(pk_row["pk_relationship_label"], "metabolized by")
+            self.assertEqual(pk_row["pk_graph_object_kind"], "enzyme_or_transporter")
+            self.assertEqual(pk_row["pk_graph_object_label"], "MAO-A")
 
             manifest = build_tables(
                 graph_sources={
@@ -411,8 +422,8 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                 write_duckdb=False,
             )
             self.assertEqual(manifest["tables"]["evidence_edges"]["rows"], 3)
-            claims = pd.read_parquet(out_dir / "claims.parquet")
-            brain_claim = claims[claims["domain"] == "brain_system"].iloc[0]
+            findings = pd.read_parquet(out_dir / "findings.parquet")
+            brain_claim = findings[findings["domain"] == "brain_system"].iloc[0]
             self.assertEqual(brain_claim["assessment_timepoint"], "2 hours post-dose")
 
             edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
@@ -424,7 +435,7 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             self.assertEqual(pk_edge["entity_kind"], "target")
             self.assertEqual(pk_edge["relation_type"], "discusses_relationship")
             public_health_edge = edges[edges["domain"] == "real_world_public_health"].iloc[0]
-            self.assertEqual(public_health_edge["entity_label"], "Equity")
+            self.assertEqual(public_health_edge["entity_label"], "Access to services")
             self.assertEqual(public_health_edge["relation_type"], "discusses_relationship")
 
 

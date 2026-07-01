@@ -19,7 +19,7 @@
     "schema_version": {
       "type": "string",
       "enum": [
-        "primary_pharmacokinetics_exposure_v1"
+        "primary_pharmacokinetics_exposure_v2"
       ]
     },
     "task_id": {
@@ -81,6 +81,9 @@
       "required": [
         "compound_or_analyte",
         "primary_graph_anchor_kind",
+        "pk_relationship_type",
+        "pk_graph_object_kind",
+        "pk_graph_object_label",
         "analyte_type",
         "metabolite_or_analyte",
         "matrix",
@@ -114,7 +117,50 @@
             "pathway_process",
             "not_applicable",
             "uncertain"
-          ]
+          ],
+          "description": "Compatibility graph anchor kind for the current KG table builder. Prefer compound for metabolites/analytes, target for enzymes/transporters, pathway_process for metabolic or transport pathways, and pharmacokinetic_parameter only when no more specific PK object is supported."
+        },
+        "pk_relationship_type": {
+          "type": "string",
+          "enum": [
+            "exposure_characterized",
+            "metabolized_to",
+            "metabolized_by",
+            "metabolized_via",
+            "exposure_altered_by",
+            "route_or_formulation_changes_exposure",
+            "distributed_to",
+            "eliminated_by",
+            "exposure_linked_to_effect",
+            "detected_or_monitored_in",
+            "other_pk_relationship",
+            "not_applicable",
+            "uncertain"
+          ],
+          "description": "The specific pharmacokinetic relationship supported by this finding. Use a relationship that says what happens to the compound or what changes its exposure, rather than the metric that was measured."
+        },
+        "pk_graph_object_kind": {
+          "type": "string",
+          "enum": [
+            "parent_or_analyte_exposure",
+            "metabolite_or_analyte",
+            "enzyme_or_transporter",
+            "metabolic_or_transport_pathway",
+            "route_or_formulation",
+            "compartment_or_tissue",
+            "modifier_or_interaction",
+            "effect_or_response",
+            "excretion_or_elimination",
+            "detection_or_monitoring",
+            "other_pk_object",
+            "not_applicable",
+            "uncertain"
+          ],
+          "description": "The kind of object that should appear on the non-compound side of the PK graph."
+        },
+        "pk_graph_object_label": {
+          "type": "string",
+          "description": "Short user-facing graph object label. Prefer specific PK objects such as psilocin, noribogaine, CYP2D6, MAO-A, oral bioavailability, brain exposure, urinary excretion, escitalopram pretreatment, or blood pressure response. Avoid metric-only labels such as Cmax, AUC, or Tmax unless no more meaningful object is supported."
         },
         "analyte_type": {
           "type": "string"

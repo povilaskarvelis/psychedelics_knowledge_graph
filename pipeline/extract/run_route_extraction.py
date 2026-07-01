@@ -25,7 +25,7 @@ except ModuleNotFoundError as err:  # pragma: no cover - environment guard
     raise SystemExit("jsonschema is required for route extraction validation") from err
 
 try:
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
     from pipeline.extract.route_extraction_profiles import (
         SCHEMA_MODES,
@@ -45,7 +45,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
     from pipeline.extract.route_extraction_profiles import (
         SCHEMA_MODES,

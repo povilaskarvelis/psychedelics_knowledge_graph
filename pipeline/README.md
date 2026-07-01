@@ -499,14 +499,14 @@ python pipeline/extract/run_route_extraction.py \
 
 ### Evidence Extraction
 
-Run extraction pilots before scaling a full batch:
+Run route-native extraction tasks before converting results into KG evidence
+rows:
 
 ```bash
-python pipeline/extract/run_gemini_extraction_v1.py \
-  --input-jsonl <route-specific-pilot-inputs.jsonl> \
-  --out-jsonl data/processed/extraction/extraction_v1_outputs.jsonl \
-  --raw-jsonl data/processed/extraction/extraction_v1_gemini_raw.jsonl \
-  --report-json data/processed/extraction/extraction_v1_gemini_report.json
+python pipeline/extract/build_extraction_tasks.py
+python pipeline/extract/run_route_extraction.py \
+  --input-jsonl data/processed/extraction/route_extraction_tasks.jsonl
+python pipeline/kg/convert_routed_extractions_to_evidence_rows.py
 ```
 
 ## Canonical Outputs
@@ -524,7 +524,8 @@ python pipeline/extract/run_gemini_extraction_v1.py \
 - `data/processed/fulltext/articles/*.json`
 - `data/processed/extraction/*_fulltext_packets.jsonl` compatibility files
   containing article text inputs
-- `data/processed/extraction/extraction_v1_outputs*.jsonl`
+- route-native extraction outputs and converted evidence rows under
+  `data/processed/extraction/`
 - normalized graph and bibliography payloads under `data/kg/`,
   `data/processed/`, and `ui/`
 
@@ -587,7 +588,6 @@ Scripts that use `pipeline/config.example.yaml` automatically overlay
 ## Legacy Maintenance Path
 
 The first-generation graph used context-level stubs, autofill scripts, and
-promotion into curated evidence-record files. Those tools remain under
-`pipeline/review/` and `pipeline/extract/promote_ready_stubs.py` for maintenance
-and comparison, but new KG evidence should flow through the route table and
-route-specific article text inputs first.
+promotion into curated evidence-record files. The stub autofill and promotion
+scripts have been retired; new KG evidence should flow through the route table
+and route-specific article text inputs first.

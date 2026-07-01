@@ -1991,6 +1991,8 @@ def row_needs_metadata_refresh(row: dict) -> bool:
         return True
     if normalize(row.get("metadata_lookup_error", "")):
         return True
+    if metadata_has_open_access_conflict(row):
+        return True
     for field in ("study_title", "abstract", "study_journal", "publication_type", "publication_date"):
         if not normalize(row.get(field, "")):
             return True
@@ -2038,12 +2040,85 @@ def row_from_existing(existing: dict, paper: dict, pdf_dir: Path) -> dict:
     return row
 
 
+OPEN_ACCESS_STATUSES = {"gold", "green", "hybrid", "bronze", "diamond"}
+CLOSED_ACCESS_STATUSES = {"closed", "not oa", "not open access", "paywalled", "false"}
+
+
+def truthy_text(value: object) -> bool:
+    return normalize(value).lower() in {"1", "true", "yes", "y"}
+
+
+def status_is_open(value: object) -> bool:
+    return normalize(value).lower().replace(" ", "_") in OPEN_ACCESS_STATUSES
+
+
+def status_is_closed(value: object) -> bool:
+    return normalize(value).lower().replace("_", " ") in CLOSED_ACCESS_STATUSES
+
+
+def value_has_pmc_article_url(value: object) -> bool:
+    text = normalize(value).lower()
+    return bool(text and ("pmc.ncbi.nlm.nih.gov/articles/pmc" in text or "ncbi.nlm.nih.gov/pmc/articles/pmc" in text))
+
+
+def metadata_has_pmc_fulltext_signal(metadata: dict) -> bool:
+    if normalize(metadata.get("pmcid", "")).upper().startswith("PMC"):
+        return True
+    return any(
+        value_has_pmc_article_url(metadata.get(field, ""))
+        for field in (
+            "oa_url",
+            "open_access_url",
+            "unpaywall_best_url",
+            "best_pdf_url",
+            "pdf_url_candidates",
+            "unpaywall_pdf_url_candidates",
+        )
+    )
+
+
+def metadata_has_open_access_signal(metadata: dict) -> bool:
+    if any(truthy_text(metadata.get(field, "")) for field in ("is_oa", "open_access_is_oa", "unpaywall_is_oa")):
+        return True
+    if any(status_is_open(metadata.get(field, "")) for field in ("oa_status", "open_access_status", "unpaywall_oa_status")):
+        return True
+    return metadata_has_pmc_fulltext_signal(metadata)
+
+
+def best_open_access_status(*sources: dict) -> str:
+    for source in sources:
+        for field in ("oa_status", "open_access_status", "unpaywall_oa_status"):
+            status = normalize(source.get(field, "")).lower().replace(" ", "_")
+            if status_is_open(status):
+                return status
+    return "green" if any(metadata_has_pmc_fulltext_signal(source) for source in sources) else "green"
+
+
+def metadata_has_open_access_conflict(metadata: dict) -> bool:
+    if not metadata_has_open_access_signal(metadata):
+        return False
+    canonical_status = normalize(metadata.get("oa_status", "") or metadata.get("open_access_status", ""))
+    canonical_is_oa = normalize(metadata.get("is_oa", "") or metadata.get("open_access_is_oa", "")).lower()
+    return canonical_is_oa == "false" or status_is_closed(canonical_status)
+
+
+def reconcile_open_access_metadata(out: dict, *sources: dict) -> dict:
+    if not any(metadata_has_open_access_signal(source) for source in (out, *sources)):
+        return out
+    status = best_open_access_status(out, *sources)
+    out["is_oa"] = "true"
+    out["open_access_is_oa"] = "true"
+    out["oa_status"] = status
+    out["open_access_status"] = status
+    return out
+
+
 def merge_metadata_values(primary: dict, fallback: dict) -> dict:
     out = dict(fallback)
     for key, value in primary.items():
         if normalize(value) != "":
             out[key] = value
-    return out
+    return reconcile_open_access_metadata(out, primary, fallback)
 
 
 def provider_chain(metadata: dict) -> List[str]:
@@ -2069,6 +2144,8 @@ def metadata_has_unpaywall_check(metadata: dict) -> bool:
 
 def metadata_needs_oa_resolution(metadata: dict) -> bool:
     if not metadata:
+        return True
+    if metadata_has_open_access_conflict(metadata):
         return True
     if metadata_has_pdf_url(metadata):
         return False

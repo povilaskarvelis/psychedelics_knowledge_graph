@@ -123,12 +123,7 @@ Disorder claims:
 2. Replace review-derived mechanistic values with primary-study values when available.
 3. Add a second independent source for high-impact edges.
 
-## Cleanup workflow
-- Build a cleanup candidate report:
-  `python pipeline/validate/build_cleanup_report.py`
-- Apply only the obvious auto-demotions:
-  `python pipeline/validate/apply_cleanup_demotions.py --apply`
-- Refresh stale abstract locators for rows already marked `full_text_seen`:
-  `python pipeline/validate/refresh_pdf_provenance.py --apply`
-- Resolve the clearest `paper_type=other` high-impact disorder rows before the long-tail manual pass:
-  `python pipeline/validate/resolve_high_impact_manual_review.py --apply`
+## Retired cleanup workflow
+The old curated-claim cleanup reports and demotion scripts have been removed.
+Current evidence should move through route-native extraction outputs and parquet
+KG tables rather than patching curated JSON/CSV claim files.

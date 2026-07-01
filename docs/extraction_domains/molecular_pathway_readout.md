@@ -1,6 +1,7 @@
 Focus on molecular pathway or readout evidence: cellular or molecular pathways,
 signaling cascades, plasticity markers, gene/protein expression, inflammation,
-neurochemistry, hormones, and biomarker readouts.
+neurochemistry, hormones, and molecular readouts, including biomarkers when the
+paper frames them that way.
 
 Prioritize:
 
@@ -19,10 +20,19 @@ Do not collapse pathway/readout evidence into direct receptor-target evidence
 unless the direct target is measured. Keep broad mechanistic speculation out of
 evidence items.
 
+Use pathway/process anchors for signaling, cascades, plasticity, inflammation,
+or other biological processes. Use molecular readout anchors for measured
+levels, expression, phosphorylation ratios, transporter/receptor density or
+availability, immunoreactivity, ligand/neurotransmitter concentrations, and
+similar assay outputs. If the evidence is actually binding, affinity, potency,
+agonism/antagonism, inhibition, occupancy, target engagement, or selectivity at
+a receptor, transporter, enzyme, channel, or stable target complex, keep it as a
+direct molecular-target finding instead.
+
 Do not create standalone behavioral, clinical, safety, subjective-experience, or
 brain-system items here. Include those results only when the pathway or
 molecular readout is measured in the same finding and remains the item anchor.
 
-Record increases, decreases, pathway activation, and biomarker changes as
+Record increases, decreases, pathway activation, and molecular-readout changes as
 directions of change, quantitative values, and finding summaries, not as
 therapeutic benefit or harm.

@@ -148,6 +148,7 @@ STUDY_SYSTEM_PATTERNS = (
     ("in_vitro", re.compile(r"\b(in vitro|cell line|cells?|binding assay|radioligand|transfected|recombinant)\b", re.I)),
     ("ex_vivo", re.compile(r"\b(ex vivo|brain slices?|tissue slices?)\b", re.I)),
 )
+THESIS_OR_DISSERTATION_RE = re.compile(r"\b(dissertation|thesis|doctoral|phd|master'?s thesis)\b", re.I)
 
 
 def now_utc() -> str:
@@ -181,6 +182,29 @@ def split_values(value: object) -> list[str]:
         if item and item not in out:
             out.append(item)
     return out
+
+
+def thesis_or_dissertation_flags(row: dict) -> str:
+    publication_type = clean(row.get("publication_type", ""))
+    title = clean(row.get("study_title", "")) or clean(row.get("title", ""))
+    journal = clean(row.get("study_journal", "")) or clean(row.get("journal", ""))
+    abstract = clean(row.get("abstract", ""))
+    url_text = " ".join(
+        clean(row.get(field, ""))
+        for field in ("best_pdf_url", "open_access_url", "pdf_url_candidates", "unpaywall_best_pdf_url")
+    )
+    flags: list[str] = []
+    if THESIS_OR_DISSERTATION_RE.search(publication_type):
+        flags.append("thesis_or_dissertation_publication_type")
+    if THESIS_OR_DISSERTATION_RE.search(journal):
+        flags.append("thesis_or_dissertation_venue")
+    if THESIS_OR_DISSERTATION_RE.search(title):
+        flags.append("thesis_or_dissertation_title")
+    if THESIS_OR_DISSERTATION_RE.search(url_text):
+        flags.append("thesis_or_dissertation_url")
+    if flags and THESIS_OR_DISSERTATION_RE.search(abstract):
+        flags.append("thesis_or_dissertation_abstract")
+    return join_values(flags)
 
 
 def join_values(values: Iterable[str]) -> str:
@@ -595,6 +619,22 @@ def domain_plan_for(
                 for route in manual_routes
             ]
 
+    if source_family == "non_primary_publication":
+        return [
+            {
+                "domain_route": "context_only",
+                "domain_tags": join_values(fallback_tags),
+                "domain_route_confidence": "medium" if fallback_tags else "low",
+                "domain_route_basis": "non-primary publication routed as context-only",
+                "domain_routing_primary_domain": "",
+                "methodological_validity_tags": "",
+                "domain_screening_decision": "",
+                "domain_screening_reason": "",
+                "domain_routing_model": "",
+                "domain_needs_human_review": False,
+            }
+        ]
+
     domain_rows = domain_by_doi.get(doi, [])
     if domain_rows:
         screening_decision = clean(domain_rows[0].get("screening_decision", ""))
@@ -636,22 +676,6 @@ def domain_plan_for(
             )
         if plan:
             return plan
-
-    if source_family == "non_primary_publication":
-        return [
-            {
-                "domain_route": "context_only",
-                "domain_tags": join_values(fallback_tags),
-                "domain_route_confidence": "medium" if fallback_tags else "low",
-                "domain_route_basis": "non-primary publication routed as context-only",
-                "domain_routing_primary_domain": "",
-                "methodological_validity_tags": "",
-                "domain_screening_decision": "",
-                "domain_screening_reason": "",
-                "domain_routing_model": "",
-                "domain_needs_human_review": False,
-            }
-        ]
 
     return [
         {
@@ -695,8 +719,20 @@ def secondary_source_types_for(source_type: str) -> str:
     return ""
 
 
-def source_status_from_domain_rows(domain_rows: list[dict], literature_row: dict | None = None) -> dict:
+def source_status_from_domain_rows(domain_rows: list[dict], literature_row: dict | None = None, metadata: dict | None = None) -> dict:
     literature_row = literature_row or {}
+    metadata = metadata or {}
+    metadata_non_primary_flags = thesis_or_dissertation_flags(metadata)
+    if metadata_non_primary_flags:
+        return {
+            "source_family": "non_primary_publication",
+            "source_type": "non_primary_publication",
+            "secondary_source_types": "",
+            "primary_secondary_source_type": "",
+            "non_primary_flags": metadata_non_primary_flags,
+            "literature_type_confidence": "high",
+            "paper_type_reason": "Deterministic publication metadata indicates thesis or dissertation.",
+        }
     model_row = domain_rows[0] if domain_rows else {}
     source_family = clean(model_row.get("paper_type_group", "")) or clean(model_row.get("source_family", ""))
     source_family = source_family or clean(literature_row.get("source_family", "")) or "primary_or_unclear"
@@ -899,7 +935,7 @@ def build_route_rows(
         context = prescreen.get(doi, {})
         literature_row = literature_by_doi.get(doi, {})
         domain_rows = domain_by_doi.get(doi, [])
-        source_status = source_status_from_domain_rows(domain_rows, literature_row)
+        source_status = source_status_from_domain_rows(domain_rows, literature_row, metadata)
         route_literature_row = {**literature_row, **source_status}
         if doi in prescreen_dois:
             retained = bool(context.get("retained"))
@@ -979,6 +1015,7 @@ def build_route_rows(
                     "primary_secondary_source_type": clean(route_literature_row.get("primary_secondary_source_type", "")),
                     "literature_type_confidence": clean(route_literature_row.get("literature_type_confidence", "")),
                     "paper_type_reason": clean(route_literature_row.get("paper_type_reason", "")),
+                    "non_primary_flags": clean(route_literature_row.get("non_primary_flags", "")),
                     "domain_route": domain_route,
                     "domain_tags": join_values(domain_tags),
                     "domain_routing_primary_domain": domain_routing_primary_domain,

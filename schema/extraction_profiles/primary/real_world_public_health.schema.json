@@ -103,7 +103,8 @@
           "type": "string"
         },
         "sample_size": {
-          "type": "string"
+          "type": "string",
+          "description": "Actual unweighted number of participants, respondents, records, cases, samples, sites, or observations used for the finding. Do not use weighted population estimates as the sample size; include them in estimate_value or finding_summary when relevant."
         },
         "setting": {
           "type": "string"

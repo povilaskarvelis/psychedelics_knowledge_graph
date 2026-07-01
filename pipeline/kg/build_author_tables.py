@@ -31,10 +31,10 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency fallback
     yaml = None
 
 try:
-    from pipeline.extract.extraction_v1_utils import normalize, write_json
+    from pipeline.extract.io_utils import normalize, write_json
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.extraction_v1_utils import normalize, write_json
+    from pipeline.extract.io_utils import normalize, write_json
 
 
 ROOT = Path(__file__).resolve().parents[2]

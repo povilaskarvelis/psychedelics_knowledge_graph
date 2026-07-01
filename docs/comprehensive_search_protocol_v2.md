@@ -100,10 +100,10 @@ brain, molecular, cognitive, behavioral, or neurophysiology endpoints.
 
 | Evidence domain | Module type | Modules | Cap per source/module |
 |---|---|---|---:|
-| Molecular targets | Primary broad | serotonin receptors; monoamine transporters; glutamate/NMDA/AMPA/mGluR2 targets; opioid, sigma, and TAAR targets; plasticity, TrkB, and BDNF target evidence | 500 |
-| Molecular targets | Dense topic | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | 1,000 |
-| Molecular pathways and cellular readouts | Primary broad | molecular plasticity pathways; gene-expression/transcriptomics; inflammatory and neuroendocrine molecular readouts | 500 |
-| Molecular pathways and cellular readouts | Dense topic | ketamine/psychedelic mTOR-synaptogenesis; immediate early genes | 1,000 |
+| Targets | Primary broad | serotonin receptors; monoamine transporters; glutamate/NMDA/AMPA/mGluR2 targets; opioid, sigma, and TAAR targets; TrkB and target-linked plasticity evidence | 500 |
+| Targets | Dense topic | LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor | 1,000 |
+| Pathways and readouts | Primary broad | molecular plasticity pathways; gene-expression/transcriptomics; inflammatory and neuroendocrine molecular readouts | 500 |
+| Pathways and readouts | Dense topic | ketamine/psychedelic mTOR-synaptogenesis; immediate early genes | 1,000 |
 | Brain systems, circuits, and neurophysiology | Primary broad | systems neuroimaging/connectivity; brain regions and circuits; PET/receptor occupancy/metabolism; EEG/MEG/neurophysiology | 500 |
 | Brain systems, circuits, and neurophysiology | Dense topic | psilocybin-default mode connectivity; LSD-thalamocortical connectivity; DMT-EEG/fMRI dynamics; ayahuasca-default mode connectivity; psilocybin-PET/5-HT2A occupancy; ketamine-prefrontal/hippocampal circuitry | 1,000 |
 | Cognitive and behavioral function | Primary broad | cognitive-affective tasks; translational behavioral assays | 500 |

@@ -215,61 +215,121 @@
     "cognitive_behavioral_construct": [
       {
         "label": "Cognitive flexibility",
-        "aliases": ["psychological flexibility"],
+        "aliases": ["psychological flexibility", "reversal learning", "set shifting", "set-shifting"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Emotional processing",
-        "aliases": ["emotion processing"],
+        "aliases": ["emotion processing", "emotion recognition", "emotional face processing", "negative emotional processing"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Reward processing",
-        "aliases": ["reward function"],
+        "aliases": ["reward function", "anhedonia", "sucrose preference", "hedonic response", "motivation", "intracranial self-stimulation", "ICSS"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Fear extinction",
-        "aliases": ["extinction learning"],
+        "aliases": ["extinction learning", "extinction recall", "extinction retrieval"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Executive function",
-        "aliases": ["executive functioning"],
+        "aliases": ["executive functioning", "cognitive function", "decision making", "planning"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Attention",
+        "aliases": ["attentional performance", "5-choice serial reaction time task", "5-CSRTT"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Inhibitory control",
+        "aliases": ["impulsivity", "response inhibition", "impulsive action"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Memory",
-        "aliases": ["memory performance"],
+        "aliases": ["memory performance", "memory retrieval", "memory consolidation", "memory acquisition"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Motor behavior",
-        "aliases": ["locomotor activity", "motor activity"],
+        "label": "Working memory",
+        "aliases": ["spatial working memory", "n-back"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Depression-like behavior",
-        "aliases": ["depressive-like behavior", "antidepressant-like behavior"],
+        "label": "Recognition memory",
+        "aliases": ["object recognition", "novel object recognition", "recognition memory"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Anxiety-like behavior",
-        "aliases": ["anxiety behavior"],
+        "label": "Spatial memory",
+        "aliases": ["spatial learning", "spatial learning and memory", "water maze", "Morris water maze", "Cincinnati water maze"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Addiction behavior",
-        "aliases": ["drug-seeking behavior", "alcohol intake"],
+        "label": "Fear memory",
+        "aliases": ["conditioned fear", "fear conditioning", "learned fear", "contextual fear"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Motor coordination",
+        "aliases": ["rotarod", "ataxia", "dystaxia", "gait", "tremor"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Head-twitch response",
+        "aliases": ["head twitch response", "head-twitch response", "HTR", "hallucinogen-like behavior", "hallucinogenic-like behavior", "psychedelic-like behavior"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Psychomotor sensitization",
+        "aliases": ["locomotor sensitization", "sensitization"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Stress-coping behavior",
+        "aliases": ["depression-like behavior", "depressive-like behavior", "antidepressant-like behavior", "behavioral despair", "forced swim test", "tail suspension test", "learned helplessness"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Threat avoidance",
+        "aliases": ["anxiety-like behavior", "anxiety behavior", "anxiety", "anxiogenic behavior", "anxiolytic behavior", "elevated plus maze", "novelty-suppressed feeding", "bottom dwelling"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Drug self-administration",
+        "aliases": ["self-administration", "drug intake", "alcohol intake", "ethanol intake", "two-bottle choice", "2BC"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Drug seeking",
+        "aliases": ["addiction behavior", "drug-seeking behavior", "drug seeking", "drug seeking & reinstatement", "alcohol seeking", "ethanol seeking", "cocaine seeking", "reinstatement", "relapse", "craving", "craving-like behavior"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Conditioned place preference",
+        "aliases": ["CPP", "place preference"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -280,32 +340,26 @@
         "status": "seed_alias"
       },
       {
-        "label": "Anhedonia",
-        "aliases": ["sucrose preference"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Social behavior",
-        "aliases": ["social interaction"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Working memory",
-        "aliases": [],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
         "label": "Drug discrimination",
-        "aliases": [],
+        "aliases": ["discriminative stimulus effects", "drug-appropriate lever responding", "drug-lever responding"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Social cognition",
+        "aliases": ["social cognition and interaction", "empathy", "cognitive empathy", "emotional empathy", "theory of mind", "Reading the Mind in the Eyes", "Multifaceted Empathy Test", "MASC"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Social interaction",
+        "aliases": ["social behavior", "social interaction", "sociability", "social preference", "social approach", "prosocial behavior", "aggression", "aggressive behavior"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Pain behavior",
-        "aliases": ["nociceptive behavior"],
+        "aliases": ["nociception and pain behavior", "pain behavior", "nociceptive behavior", "antinociception", "allodynia", "hyperalgesia", "hot plate", "tail flick", "von Frey", "paw withdrawal"],
         "ids": {},
         "status": "seed_alias"
       }
@@ -313,79 +367,115 @@
     "subjective_experience_construct": [
       {
         "label": "Mystical-type experience",
-        "aliases": ["mystical experience", "complete mystical experience"],
+        "aliases": ["mystical experience", "complete mystical experience", "oceanic boundlessness", "OBN", "experience of unity", "self-transcendence", "ineffability"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Ego dissolution",
-        "aliases": ["ego-dissolution", "ego loss"],
+        "aliases": ["ego-dissolution", "ego loss", "ego death", "ego disintegration"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Challenging experience",
-        "aliases": ["difficult experience", "bad trip"],
+        "aliases": ["difficult experience", "bad trip", "psychological distress", "adverse mental states", "acute anxiety", "somatic challenges", "dread"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Psychological insight",
-        "aliases": ["insight", "personal insight"],
+        "aliases": ["insight", "personal insight", "acute psychological insight", "insightful", "self-acceptance", "identity transformation"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Emotional breakthrough",
-        "aliases": ["emotional release"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Oceanic boundlessness",
-        "aliases": ["OBN"],
+        "aliases": ["emotional release", "emotional catharsis"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dissociation",
-        "aliases": ["dissociative symptoms", "dissociative state"],
+        "aliases": ["Dissociation & derealization", "dissociation", "dissociative symptoms", "dissociative state", "derealization", "depersonalization", "depersonalization-derealization", "DP/DR", "DDD", "CADSS", "self-alienation", "disembodiment"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Altered states of consciousness",
-        "aliases": ["altered state of consciousness", "altered states"],
+        "label": "Altered state profile",
+        "aliases": ["Altered states of consciousness", "altered state of consciousness", "altered states", "ASC", "5D-ASC", "11D-ASC", "3D-ASC", "APZ", "continuous subjective experience", "primary process thinking"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Near-death experience phenomenology",
-        "aliases": ["near-death experience", "NDE phenomenology"],
+        "label": "Near-death-like experience",
+        "aliases": ["near-death experience", "NDE phenomenology", "near-death experience phenomenology", "Greyson NDE scale"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Psychotomimetic symptoms",
-        "aliases": ["psychotomimetic effects"],
+        "label": "Psychosis-like effects",
+        "aliases": ["Psychosis-like experience", "psychotomimetic symptoms", "psychotomimetic effects", "psychosis-like experience", "psychosis-like effects", "psychotic-like symptoms", "positive symptoms", "BPRS", "PANSS"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Derealization",
-        "aliases": ["depersonalization", "depersonalization-derealization"],
+        "label": "Subjective intensity",
+        "aliases": ["Experience intensity", "subjective drug intensity", "drug effect intensity", "global subjective intensity", "subjective intensity of drug effects", "subjective intensity of the experience", "strength of effect", "peak experience", "highness"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Subjective drug intensity",
-        "aliases": ["drug effect intensity", "global subjective intensity"],
+        "label": "Perceptual alterations",
+        "aliases": ["hallucinogenic effects", "visual hallucinations", "hallucinations", "drug-induced synaesthesia", "perceptual alteration", "perceptual alterations", "perceptual changes", "visual phenomena", "auditory and visual phenomena", "elementary imagery", "complex imagery", "synthetic synesthesia", "sensory changes"],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Hallucinogenic effects",
-        "aliases": ["visual hallucinations", "drug-induced synaesthesia"],
+        "label": "Connectedness",
+        "aliases": ["Connectedness & empathy", "connectedness", "social connection", "connection", "closeness to others", "trusting of others", "community", "communitas", "togetherness", "emotional intimacy", "love", "pro-social effects", "prosocial effects"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Empathy",
+        "aliases": ["empathy", "empathogenic", "entactogenic", "emotional empathy", "empathy-related effects"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Personal meaning",
+        "aliases": ["Meaning & spirituality", "meaning", "meaningfulness", "presence of meaning in life", "personally meaningful", "purpose in life", "important experience", "significant experience", "personal significance", "life satisfaction"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Spiritual significance",
+        "aliases": ["spirituality", "spiritual outlook", "spiritual significance", "spiritual cleansing", "sacred sensemaking", "direct encounter with the divine", "supernatural quality", "religious well-being", "existential well-being", "numinous"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Euphoria",
+        "aliases": ["Mood & euphoria", "euphoria", "euphoric", "drug liking", "liking", "good effects", "high", "emotional bliss", "bliss"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Positive affect",
+        "aliases": ["well-being", "wellbeing", "positive mood", "positive affect", "contentedness", "calmness", "alertness", "happiness", "peacefulness", "serenity", "joy", "awe", "satisfaction"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Negative affect",
+        "aliases": ["dysphoria", "negative mood", "negative effects", "tension", "worry", "anxiety", "paranoia", "confusion"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Somatic sensations",
+        "aliases": ["Embodiment & bodily sensations", "embodiment", "somatic", "bodily sensations", "body sensations", "unusual bodily sensations", "physical effects", "negative bodily feelings", "nausea", "vomiting"],
         "ids": {},
         "status": "seed_alias"
       }
@@ -405,19 +495,19 @@
       },
       {
         "label": "AUC",
-        "aliases": ["area under the curve", "area under the concentration-time curve"],
+        "aliases": ["area under the curve", "area under the concentration-time curve", "AUC0-inf", "AUC 0-inf", "AUC 0-72h", "AUC ratio"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Half-life",
-        "aliases": ["elimination half-life", "t1/2"],
+        "aliases": ["elimination half-life", "terminal half-life", "t1/2", "T1/2"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Clearance",
-        "aliases": ["CL", "drug clearance"],
+        "aliases": ["CL", "CL/F", "drug clearance", "apparent clearance"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -471,7 +561,7 @@
       },
       {
         "label": "Km",
-        "aliases": ["Michaelis constant"],
+        "aliases": ["Michaelis constant", "Vmax_and_Km"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -492,200 +582,447 @@
         "aliases": ["5-HT2AR receptor occupancy", "target occupancy"],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Dissolution profile",
+        "aliases": ["dissolution_profile", "drug release profile", "in vitro release"],
+        "ids": {},
+        "status": "seed_alias"
       }
     ],
     "intervention_component": [
       {
         "label": "Preparation",
-        "aliases": ["preparation session", "preparatory session"],
+        "aliases": [
+          "preparation session",
+          "preparatory session",
+          "preparatory sessions",
+          "preparatory counselling",
+          "preparatory counseling",
+          "preparatory counselling and rapport with study team",
+          "patient fitness/readiness criteria",
+          "screening and extra support"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Dosing session",
-        "aliases": ["medicine session", "drug session"],
+        "label": "Session structure",
+        "aliases": [
+          "dosing session",
+          "medicine session",
+          "drug session",
+          "dosing-session structure",
+          "session structure",
+          "strategic session placement",
+          "supplemental dosing",
+          "three experimental sessions",
+          "three-session dosing regimen vs. two-session regimen",
+          "three-session vs two-session dosing structure",
+          "sequential administration",
+          "sequential administration (memory activation before dosing)",
+          "low-dose safety session",
+          "dosing frequency/eligibility criteria"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Integration",
-        "aliases": ["integration session", "post-session integration"],
+        "aliases": [
+          "integration session",
+          "post-session integration",
+          "debriefing session",
+          "debriefing sessions",
+          "preparatory and debriefing sessions",
+          "spiritual or religious counseling",
+          "spiritual or religious counselling"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Psychological support",
-        "aliases": ["psychotherapeutic support", "therapy support"],
+        "aliases": [
+          "psychotherapeutic support",
+          "therapy support",
+          "therapeutic suggestions",
+          "non-directive, supportive therapeutic approach",
+          "supportive therapeutic approach"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Therapeutic alliance",
-        "aliases": ["therapist alliance"],
+        "aliases": [
+          "therapist alliance",
+          "therapeutic relationship",
+          "therapeutic relationship (trust and safety)",
+          "rapport with study team",
+          "emotional connection with trial staff"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Set and setting",
-        "aliases": ["set/setting", "setting"],
+        "aliases": [
+          "set/setting",
+          "setting",
+          "ceremonial setting",
+          "carefully structured ritual settings",
+          "religious ceremony and community reception",
+          "ayahuasca ritual and social interactions",
+          "artistic and performative ritual elements",
+          "artistic and performative ritual elements (theatre, slam poetry, drag, free dance)",
+          "supportive therapeutic environment",
+          "supportive treatment environment",
+          "unrushed, individualized sessions",
+          "mindset (set)",
+          "set (spirituality and spiritual intentions)"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Music",
-        "aliases": ["music playlist", "music support"],
+        "aliases": [
+          "music playlist",
+          "music support",
+          "musical genre",
+          "musical genre (overtone-based vs. western classical)"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Safety monitoring",
-        "aliases": ["clinical monitoring", "medical monitoring"],
+        "aliases": [
+          "clinical monitoring",
+          "medical monitoring",
+          "interdisciplinary monitoring",
+          "safety protocols",
+          "dual facilitation and safety protocols"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Cognitive behavioral therapy",
-        "aliases": ["CBT", "Cognitive Behavioral Therapy"],
+        "aliases": [
+          "CBT",
+          "Cognitive Behavioral Therapy",
+          "Cognitive Behavioral Conjoint Therapy",
+          "Cognitive Behavioral Conjoint Therapy (CBCT)",
+          "Cognitive-behavioural conjoint therapy",
+          "Cognitive-behavioural conjoint therapy (CBCT)",
+          "CBCT",
+          "Condensed CBCT protocol",
+          "Mental Wellness Coaching (CBT-based)",
+          "Behavioural Activation (BA) therapy",
+          "Behavioral Activation (BA) therapy"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Acceptance and commitment therapy",
-        "aliases": ["ACT", "Acceptance and Commitment Therapy"],
+        "aliases": [
+          "ACT",
+          "Acceptance and Commitment Therapy",
+          "ACE (Accept, Connect, Embody) model based on Psychological Flexibility Model (PFM)",
+          "Therapeutic dyad and manualized therapy (MI and ACT)"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Psychotherapy",
-        "aliases": ["supportive psychotherapy", "preparation and integration psychotherapy"],
+        "aliases": [
+          "supportive psychotherapy",
+          "preparation and integration psychotherapy",
+          "talk therapy",
+          "manualized therapy",
+          "manualised therapy",
+          "standardized MAPS protocol (manualized therapy)",
+          "manualized therapy structure (Preparatory, Active, and Integrative sessions)",
+          "Ketamine Assisted EMDR Therapy™ (KA-EMDR)",
+          "Brief exposure therapy (post-retrieval extinction)",
+          "Three-phase treatment model (DBT followed by MDMA-AT)",
+          "Affective Contra-Attribution (ACA) method"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Group therapy",
-        "aliases": ["group psychotherapy"],
+        "aliases": [
+          "group psychotherapy",
+          "group therapy",
+          "group-based delivery format",
+          "group cohort size and therapist ratio"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Mindfulness-based intervention",
-        "aliases": ["mindfulness-based relapse prevention", "MBRP", "mindfulness"],
+        "aliases": [
+          "mindfulness-based relapse prevention",
+          "MBRP",
+          "mindfulness",
+          "meditation",
+          "somatic processing practices",
+          "somatic processing practices (e.g., yoga, tai-chi)"
+        ],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Facilitator role",
+        "aliases": [
+          "facilitator role",
+          "therapist role",
+          "provider role",
+          "facilitator_or_therapist_role",
+          "facilitator or therapist role",
+          "co-therapy dyad composition",
+          "dyadic MDMA administration",
+          "male/female co-therapist team",
+          "male and female co-therapist team",
+          "two-therapist team model",
+          "dual facilitation",
+          "facilitator use of touch",
+          "facilitator use of touch (haptic experience)",
+          "judicious use of touch",
+          "evolved touch guidelines",
+          "evolved touch guidelines ('Considered' touch)",
+          "nurse presence and support",
+          "empathetic staff and supportive team",
+          "support from individual health care providers",
+          "traditional training and Amazonian healers"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Therapist training",
-        "aliases": ["therapist training program", "facilitator training"],
+        "aliases": [
+          "therapist training program",
+          "facilitator training",
+          "training and qualifications",
+          "facilitator personal psychedelic experience",
+          "ACPE training and certification guidelines"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Prior psychedelic experience",
-        "aliases": ["facilitator personal psychedelic experience", "participant prior psychedelic experience"],
+        "aliases": [
+          "participant prior psychedelic experience",
+          "participant prior psychedelic use"
+        ],
         "ids": {},
         "status": "seed_alias"
       }
     ],
     "public_health_measure": [
       {
-        "label": "Prevalence",
-        "aliases": ["prevalence rate"],
+        "label": "Microdosing",
+        "aliases": [
+          "microdosing",
+          "microdose",
+          "microdoses",
+          "low-dose repeated use",
+          "psychedelic microdosing"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Use pattern",
-        "aliases": ["pattern of use", "real-world use pattern"],
+        "label": "Recreational use",
+        "aliases": [
+          "recreational use",
+          "first-time use",
+          "club use",
+          "festival use",
+          "dance event use",
+          "use pattern",
+          "use patterns",
+          "pattern of use",
+          "route of administration",
+          "administration route",
+          "frequency of use",
+          "future use preference"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Abuse potential",
-        "aliases": ["misuse potential", "addiction potential"],
+        "label": "Self-treatment",
+        "aliases": [
+          "self-treatment",
+          "self-medication",
+          "perceived benefit",
+          "therapeutic benefit",
+          "psychotherapeutic benefit",
+          "medical reasons for use",
+          "cluster headache busting",
+          "preventive efficacy",
+          "abortive efficacy",
+          "naturalistic benefit"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Harm reduction",
-        "aliases": ["harm-reduction practice", "risk reduction"],
+        "label": "Ceremonial/retreat use",
+        "aliases": [
+          "ceremonial use",
+          "retreat use",
+          "ayahuasca ceremony",
+          "ritual use",
+          "shamanic use",
+          "intention-setting ritual",
+          "naturalistic ceremonial use"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Access",
-        "aliases": ["treatment access", "access barrier"],
+        "label": "Polysubstance use",
+        "aliases": [
+          "polysubstance use",
+          "polydrug use",
+          "co-use",
+          "co use",
+          "concomitant use",
+          "combined use",
+          "cannabis co-use",
+          "alcohol co-use"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Equity",
-        "aliases": ["health equity", "ethnoracial inclusion"],
+        "label": "Prevalence & trends",
+        "aliases": [
+          "prevalence",
+          "prevalence rate",
+          "lifetime prevalence",
+          "past-year prevalence",
+          "past 12-month prevalence",
+          "epidemiology",
+          "population trend",
+          "age of initiation",
+          "demographic correlates"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Policy",
-        "aliases": ["regulation", "legal status"],
+        "label": "Problematic use",
+        "aliases": [
+          "problematic use",
+          "misuse",
+          "abuse liability",
+          "dependence",
+          "addiction potential",
+          "substance abuse",
+          "drug abuse",
+          "drug dependence",
+          "substance use disorder",
+          "diversion",
+          "nonmedical use"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Service delivery",
-        "aliases": ["care delivery", "implementation service model"],
+        "label": "Drug checking & adulteration",
+        "aliases": [
+          "drug checking",
+          "drug-checking",
+          "amnesty bin",
+          "seized samples",
+          "unexpected drug detection",
+          "suspected DFSA cases",
+          "adulteration",
+          "substitution",
+          "portable GC-MS",
+          "trip-sitter",
+          "babysitter"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Emergency department visit",
-        "aliases": ["ED visit", "emergency presentation"],
+        "label": "Emergency/toxicology reports",
+        "aliases": [
+          "emergency department visit",
+          "ED visit",
+          "emergency presentation",
+          "poison center report",
+          "poison centre report",
+          "poison-center call",
+          "toxicology report",
+          "fatality report",
+          "forensic report",
+          "FAERS report",
+          "suicidality surveillance"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Poison center report",
-        "aliases": ["poison centre report", "poison-center call"],
+        "label": "Wastewater & market signals",
+        "aliases": [
+          "wastewater drug load",
+          "population-normalised daily loads",
+          "population-normalised daily loads (PNDLs)",
+          "population-normalized daily loads",
+          "wastewater",
+          "population consumption",
+          "per inhabitant consumption",
+          "consumption based on metabolic rate",
+          "cryptomarket purchase",
+          "market availability"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Suicidality",
-        "aliases": ["suicidal ideation", "suicidal ideation, planning, and attempts", "suicide risk"],
+        "label": "Access to services",
+        "aliases": [
+          "access",
+          "treatment access",
+          "access barrier",
+          "service delivery",
+          "care delivery",
+          "implementation service model",
+          "early access",
+          "prescribing",
+          "treatment availability",
+          "certified treatment center"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
-        "label": "Reporting odds ratio",
-        "aliases": ["ROR", "reporting odds ratio"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Wastewater drug load",
-        "aliases": ["population-normalised daily loads", "population-normalised daily loads (PNDLs)", "wastewater"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Crime arrest",
-        "aliases": ["past year crime arrests", "crime arrests"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Hypertension",
-        "aliases": ["past year hypertension", "self-reported hypertension"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Unexpected drug detection",
-        "aliases": ["unexpected drug detection", "suspected DFSA cases"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Population consumption",
-        "aliases": ["per inhabitant consumption", "consumption based on metabolic rate"],
+        "label": "Legal/criminal justice",
+        "aliases": [
+          "policy",
+          "regulation",
+          "legal status",
+          "criminality",
+          "crime arrest",
+          "past year crime arrests",
+          "crime arrests",
+          "criminal justice",
+          "intimate partner violence"
+        ],
         "ids": {},
         "status": "seed_alias"
       }

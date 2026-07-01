@@ -372,7 +372,7 @@
             },
             "pathway_or_readout": {
               "type": "string",
-              "description": "Molecular pathway, biological process, biomarker, analyte, gene, protein, hormone, or neurochemical readout."
+              "description": "Molecular pathway, biological process, molecular readout, candidate biomarker, analyte, gene, protein, hormone, or neurochemical readout."
             },
             "assay_or_method": {
               "type": "string",

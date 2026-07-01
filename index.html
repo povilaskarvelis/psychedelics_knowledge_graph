@@ -52,14 +52,15 @@
         >
           <span class="stat-label">Studies</span>
           <span class="stat-value" data-stat="studies">0</span>
+          <span class="stat-detail" data-stat-detail="studies"></span>
         </div>
         <div class="stat">
           <span class="stat-label">Compounds</span>
           <span class="stat-value" data-stat="compounds">0</span>
         </div>
         <div class="stat">
-          <span class="stat-label">Indications</span>
-          <span class="stat-value" data-stat="indications">0</span>
+          <span class="stat-label">Conditions</span>
+          <span class="stat-value" data-stat="conditions">0</span>
         </div>
         <div class="stat">
           <span class="stat-label">Targets</span>
@@ -74,13 +75,37 @@
           <div class="graph-column">
             <div class="graph-toolbar">
               <div class="graph-header-controls">
-                <div class="toolbar-main-row">
-                  <div
-                    class="mode-toggle entity-kind-toggle category-toggle"
-                    data-entity-kind-toggle
-                    role="tablist"
-                    aria-label="Graph category"
-                  ></div>
+                <div class="toolbar-filter-row">
+                  <div class="filter-center-controls">
+                    <div class="year-range-inline" aria-label="Year range">
+                      <div class="year-field">
+                        <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
+                        <div class="year-stepper" aria-hidden="true">
+                          <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
+                          <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
+                        </div>
+                      </div>
+                      <span>—</span>
+                      <div class="year-field">
+                        <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
+                        <div class="year-stepper" aria-hidden="true">
+                          <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
+                          <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mode-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
+                      <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
+                        Primary research
+                      </button>
+                      <button class="ghost small" data-evidence-view="meta_analyses" role="tab" aria-selected="false">
+                        Meta-analyses
+                      </button>
+                      <button class="ghost small" data-evidence-view="reviews" role="tab" aria-selected="false">
+                        Reviews
+                      </button>
+                    </div>
+                  </div>
                   <div class="filter-toggles" aria-label="Evidence filters">
                     <label class="access-toggle" for="fullTextOnlyToggle">
                       <input id="fullTextOnlyToggle" type="checkbox" checked />
@@ -88,32 +113,13 @@
                     </label>
                   </div>
                 </div>
-                <div class="toolbar-filter-row">
-                  <div class="year-range-inline" aria-label="Year range">
-                    <div class="year-field">
-                      <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
-                      <div class="year-stepper" aria-hidden="true">
-                        <button class="year-step up" type="button" data-target="yearMinFilter" data-dir="up" aria-label="Increase start year">▲</button>
-                        <button class="year-step down" type="button" data-target="yearMinFilter" data-dir="down" aria-label="Decrease start year">▼</button>
-                      </div>
-                    </div>
-                    <span>—</span>
-                    <div class="year-field">
-                      <input id="yearMaxFilter" type="number" inputmode="numeric" placeholder="To" aria-label="To year" />
-                      <div class="year-stepper" aria-hidden="true">
-                        <button class="year-step up" type="button" data-target="yearMaxFilter" data-dir="up" aria-label="Increase end year">▲</button>
-                        <button class="year-step down" type="button" data-target="yearMaxFilter" data-dir="down" aria-label="Decrease end year">▼</button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mode-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
-                    <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
-                      Primary
-                    </button>
-                    <button class="ghost small" data-evidence-view="secondary" role="tab" aria-selected="false">
-                      Secondary
-                    </button>
-                  </div>
+                <div class="toolbar-main-row">
+                  <div
+                    class="mode-toggle entity-kind-toggle category-toggle"
+                    data-entity-kind-toggle
+                    role="tablist"
+                    aria-label="Graph category"
+                  ></div>
                 </div>
               </div>
             </div>

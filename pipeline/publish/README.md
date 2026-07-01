@@ -26,10 +26,6 @@ Export the interim bibliography payloads:
 python pipeline/publish/export_bibliography_payload.py
 ```
 
-Legacy comparison exports are still available in
-`pipeline/publish/export_graph_payload.py`, but they are not the preferred
-default path for new routed extraction runs.
-
 ## Outputs
 
 - `data/processed/graph_payload_active.json`

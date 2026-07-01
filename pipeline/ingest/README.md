@@ -313,20 +313,10 @@ For registry enrichment tied to already found papers:
 python pipeline/enrich/enrich_trial_registries.py --dataset disorder
 ```
 
-## Legacy Stub Generation
+## Retired Stub Generation
 
-`seed_from_dois.py` still creates context-level claim stubs for the older graph
-build path:
-
-```bash
-python pipeline/ingest/seed_from_dois.py \
-  --dataset mechanistic \
-  --doi-file data/raw/doi_queue.mechanistic.llm_relevant.txt \
-  --replace
-```
-
-Do not use discovered DOI queues directly for production stubs. The canonical
-path now prepares DOI-level extraction inputs in `pipeline/extract/`.
+The old DOI-to-claim-stub generator has been removed. The canonical path now
+prepares DOI-level extraction inputs in `pipeline/extract/`.
 
 ## Main Outputs
 

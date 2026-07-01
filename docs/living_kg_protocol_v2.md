@@ -88,72 +88,12 @@ The flag is conservative. It does not prove a row is wrong. It marks rows that
 deserve a human or stricter automated check before they are used as trusted KG
 edges.
 
-## Promotion Plan
+## Retired Promotion Queues
 
-After rebuilding the provenance audit, build the promotion plan:
-
-```bash
-python pipeline/validate/build_context_promotion_plan.py
-```
-
-Default outputs:
-
-- `data/processed/context_promotion_plan.json`
-- `data/processed/context_promotion_worklist.csv`
-- `data/processed/context_edge_rollup.json`
-- `data/processed/context_promotion_summary.json`
-
-The plan converts each `DOI + compound + target/indication` context into a
-next action:
-
-- `retain_in_curated_kg`: already curated evidence and no blocking audit flag
-- `review_possible_acronym_or_entity_collision`: blocked until the short label
-  or entity match is rechecked
-- `curate_existing_claim_stub`: a claim stub exists but is not promoted
-- `review_exploratory_claim_before_public_kg`: evidence exists only in the
-  exploratory layer
-- `extract_structured_claim_from_full_text`: screened context with local PDF
-- `obtain_full_text_or_extract_abstract_only_claim`: screened context without a
-  local PDF
-- `screen_candidate_context`: discovered context that has not been screened
-
-The edge rollup aggregates multiple papers into one compound-target or
-compound-indication edge status. This is the bridge between broad search
-coverage and the public KG: an edge can be visible as a gap or candidate before
-it becomes a verified KG edge, but only `verified_evidence` should count as
-public evidence by default.
-
-The full plan, worklist CSV, and edge rollup are generated artifacts and may be
-large. Keep the summary file for review, and regenerate the full artifacts from
-the audit when needed.
-
-## Stage Queues
-
-Export actionable queues from the promotion plan:
-
-```bash
-python pipeline/validate/export_context_promotion_queues.py
-```
-
-Default outputs:
-
-- `data/processed/context_queue_manifest.json`
-- `data/processed/context_queues/*.csv`
-- `data/raw/doi_queue.<dataset>.context_<stage>.txt`
-
-The generated DOI queues preserve `doi, compound, entity, study_title,
-study_year` in the same CSV-style format used by existing DOI queue scripts.
-The richer stage CSVs preserve the original `context_id`, source artifacts, and
-blocking flags.
-
-Suggested queue order:
-
-1. `noise_review`: resolve possible acronym/entity collisions first.
-2. `curation_review`: finish existing stubs before creating duplicate work.
-3. `full_text_extraction_ready`: extract structured evidence from local PDFs.
-4. `screened_needs_pdf_or_abstract_extraction`: acquire PDFs or explicitly
-   mark abstract-only evidence.
-5. `abstract_screening_needed`: screen the broader candidate pool.
+The older context-promotion plan and stage-queue exporters have been removed.
+The provenance audit still records where contexts came from, but downstream KG
+work should now proceed through routing, route-specific article inputs,
+extraction outputs, and parquet KG tables.
 
 ## Living Update Loop
 
@@ -285,8 +225,8 @@ Examples:
 Rationale:
 
 This should be a separate mechanistic category rather than a target or
-target-family/system category. Molecular targets describe receptors,
-transporters, enzymes, genes, and pathway nodes. Brain regions/networks describe
+target-family/system category. Target evidence describes receptors,
+transporters, enzymes, genes, and target complexes. Brain regions/networks describe
 anatomical or functional neurobiology at a different scale. Keeping them
 separate avoids treating a study of `5-HT2A` as if it directly studied the
 whole serotonergic system or a brain network. Cognitive-behavioral task domains

@@ -31,6 +31,8 @@ from pipeline.ingest.sync_paper_library import (
     read_float,
     read_int,
     split_candidates,
+    status_is_closed,
+    status_is_open,
     usable_email,
 )
 
@@ -164,9 +166,12 @@ def apply_open_access_fields(row: pd.Series, metadata: dict[str, Any], *, author
     current_best_pdf = clean(row.get("best_pdf_url", ""))
     current_candidates = split_candidates(row.get("pdf_url_candidates", ""))
 
-    if new_is_oa and (authoritative_status or not current_is_oa or new_is_oa.lower() == "true"):
+    new_is_open = new_is_oa.lower() == "true" or status_is_open(new_status)
+    current_is_closed = current_is_oa.lower() == "false" or status_is_closed(current_status)
+
+    if new_is_oa and (authoritative_status or not current_is_oa or new_is_open):
         updates["open_access_is_oa"] = new_is_oa
-    if new_status and (authoritative_status or not current_status):
+    if new_status and (authoritative_status or not current_status or (new_is_open and current_is_closed)):
         updates["open_access_status"] = new_status
     if new_oa_url and (authoritative_status or not current_oa_url):
         updates["open_access_url"] = new_oa_url

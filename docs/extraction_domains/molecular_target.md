@@ -16,9 +16,18 @@ Capture target-evidence category, ligand/tracer/probe, selectivity,
 off-target, multi-target, or target-effect context only when it is central to
 the reported target relationship.
 
-Do not treat broad pathway, brain-region, genotype, biomarker, behavioral, or
-clinical endpoints as clean molecular-target evidence unless the paper reports a
-direct target relationship.
+Do not treat broad pathway, brain-region, genotype, molecular-readout,
+behavioral, or clinical endpoints as clean molecular-target evidence unless the
+paper reports a direct target relationship.
+
+Direct target relationships require evidence such as binding, affinity,
+potency, receptor/transporter/enzyme/channel activation or inhibition,
+agonism/antagonism, target engagement, occupancy, selectivity, or comparable
+target-pharmacology evidence. If the paper measures receptor/protein expression,
+protein levels, phosphorylation ratios, transporter density/availability,
+ligand or neurotransmitter concentrations, or other molecular readouts, extract
+that under the pathway/readout domain instead of treating the measured molecule
+as a direct target node.
 
 Do not use pharmacokinetic parameters, clinical outcomes, behavioral outcomes,
 brain regions, neural readouts, or untreated control-only comparisons as the

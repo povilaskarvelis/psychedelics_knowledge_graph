@@ -299,11 +299,11 @@
             },
             "subjective_construct_category": {
               "type": "string",
-              "description": "Construct category such as mystical-type experience, altered state, ego dissolution, challenging experience, emotional process, insight, self-transcendence, or phenomenology."
+              "description": "Subjective effects construct category such as Mystical-type experience, Ego dissolution, Altered state profile, Perceptual alterations, Dissociation, Challenging experience, Psychological insight, Emotional breakthrough, Connectedness, Empathy, Personal meaning, Spiritual significance, Euphoria, Positive affect, Negative affect, Somatic sensations, Subjective intensity, Near-death-like experience, or Psychosis-like effects."
             },
             "subjective_construct": {
               "type": "string",
-              "description": "Specific subjective construct, phenomenological theme, emotion, experience type, or process reviewed."
+              "description": "Specific Subjective effects construct, phenomenological theme, emotion, experience type, or process reviewed."
             },
             "instrument_or_phenomenological_frame": {
               "type": "string",
@@ -323,7 +323,7 @@
             },
             "subjective_effect_or_change": {
               "type": "string",
-              "description": "Reviewed subjective effect or change, such as increased mystical experience, greater dissociation, reduced death anxiety, stronger social connection, mixed findings, no clear effect, or not reported."
+              "description": "Reviewed Subjective effects change, such as increased mystical-type experience, greater dissociation, reduced death anxiety, stronger connectedness, mixed findings, no clear effect, or not reported."
             },
             "relationship_to_outcome": {
               "type": "string",

@@ -370,7 +370,7 @@
             },
             "target": {
               "type": "string",
-              "description": "Direct molecular target such as receptor, transporter, enzyme, ion channel, or binding site."
+              "description": "Molecular target such as receptor, transporter, enzyme, ion channel, or binding site."
             },
             "target_type": {
               "type": "string",

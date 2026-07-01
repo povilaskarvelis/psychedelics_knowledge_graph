@@ -215,7 +215,6 @@ python pipeline/extract/run_route_extraction.py --run-id "$RUN_ID"
 python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
   --run-id "$RUN_ID" \
   --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl"
-python pipeline/validate/validate_claims.py
 python pipeline/kg/build_evidence_tables.py --source-preset routed --run-id "$RUN_ID"
 python pipeline/kg/build_author_tables.py \
   --papers "data/processed/kg_routed_runs/$RUN_ID/papers.parquet" \

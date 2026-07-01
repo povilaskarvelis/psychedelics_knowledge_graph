@@ -11,6 +11,18 @@ Prioritize:
 - comparator and exposure context
 - whether safety findings favor, disfavor, or are neutral for the intervention
 
+For `safety_category`, prefer a stable family-level category when the text
+supports one. Keep the concrete paper wording in `safety_event_or_measure`.
+Useful category families include cardiovascular safety, respiratory safety,
+serious adverse events, discontinuation due to adverse events, suicidality,
+mania switch, psychosis/psychotomimetic symptoms, anxiety/panic adverse effects,
+dissociation, flashbacks/HPPD, seizure/convulsion, serotonin syndrome,
+nausea/vomiting, headache, sedation/cognitive or motor impairment, sleep
+disturbance, urinary toxicity, hepatic toxicity, renal/muscle toxicity,
+neurotoxicity/cytotoxicity, weight/metabolic safety, abuse/dependence liability,
+and general tolerability/adverse events. Use the general category only when the
+text does not identify a more specific event, organ system, or risk family.
+
 Capture medical/psychiatric attention, duration/resolution, ascertainment
 method, management, mitigation, risk factors, or subgroup context only when it
 is central to the safety finding.

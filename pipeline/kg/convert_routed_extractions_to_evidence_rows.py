@@ -18,10 +18,12 @@ from pathlib import Path
 from typing import Iterable
 
 try:
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.kg.pk_relationships import add_pk_relationship_fields
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.kg.pk_relationships import add_pk_relationship_fields
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -74,9 +76,16 @@ PAPER_METADATA_FIELDS = (
     "funding",
     "conflicts_of_interest",
     "risk_of_bias_summary",
+    "open_access_is_oa",
     "open_access_status",
     "open_access_url",
+    "unpaywall_is_oa",
+    "unpaywall_oa_status",
+    "unpaywall_license",
 )
+
+OPEN_ACCESS_STATUSES = {"gold", "green", "hybrid", "bronze", "diamond"}
+ARTICLE_TEXT_DEPTHS = {"article_text", "full_text", "full_text_seen"}
 
 COMPOUND_FIELDS = (
     "compound",
@@ -228,6 +237,32 @@ def normalized_metadata(metadata: dict) -> dict:
     return out
 
 
+def normalized_status(value: object) -> str:
+    return normalize(value).lower().replace(" ", "_")
+
+
+def has_open_access_signal(row: dict) -> bool:
+    if normalize(row.get("open_access_is_oa", "")).lower() == "true":
+        return True
+    if normalize(row.get("unpaywall_is_oa", "")).lower() == "true":
+        return True
+    return normalized_status(row.get("open_access_status", "")) in OPEN_ACCESS_STATUSES or normalized_status(
+        row.get("unpaywall_oa_status", "")
+    ) in OPEN_ACCESS_STATUSES
+
+
+def apply_full_text_open_access_signal(row: dict) -> None:
+    depth = normalized_status(row.get("text_depth", "")) or normalized_status(row.get("access_level", ""))
+    if depth not in ARTICLE_TEXT_DEPTHS:
+        return
+    if has_open_access_signal(row):
+        if normalize(row.get("open_access_is_oa", "")).lower() != "true":
+            row["open_access_is_oa"] = "true"
+        return
+    row["open_access_is_oa"] = "true"
+    row["open_access_status"] = "green"
+
+
 def task_lookup(tasks_jsonl: Path) -> dict[str, dict]:
     lookup: dict[str, dict] = {}
     for task in read_jsonl(tasks_jsonl):
@@ -259,6 +294,25 @@ def metadata_for_output_row(output_row: dict, result: dict, tasks: dict[str, dic
         if key and key in tasks:
             return dict(tasks[key])
     return {}
+
+
+def output_task_keys(output_row: dict, result: dict) -> tuple[list[str], str]:
+    id_keys = [
+        normalize(output_row.get("task_id", "")),
+        normalize(output_row.get("route_id", "")),
+        normalize(result.get("task_id", "")),
+        normalize(result.get("route_id", "")),
+    ]
+    id_keys = [key for key in id_keys if key]
+    doi_key = normalize(result.get("study_doi", ""))
+    return id_keys, doi_key
+
+
+def output_has_current_task(output_row: dict, result: dict, tasks: dict[str, dict]) -> bool:
+    id_keys, doi_key = output_task_keys(output_row, result)
+    if id_keys:
+        return any(key in tasks for key in id_keys)
+    return bool(doi_key and doi_key in tasks)
 
 
 def result_items(result: dict) -> tuple[str, list[dict]]:
@@ -439,6 +493,8 @@ def evidence_row_for_item(
     domain_result = item.get("domain_result", {}) if isinstance(item.get("domain_result"), dict) else {}
     merge_prefer_meaningful(row, domain_result)
     add_common_field_aliases(row, domain)
+    row = add_pk_relationship_fields(row)
+    apply_full_text_open_access_signal(row)
 
     entity_kind = infer_entity_kind(row, domain)
     entity_label = infer_entity_label(row, entity_kind)
@@ -473,6 +529,9 @@ def convert_outputs(
         extraction_status = normalize(result.get("extraction_status", ""))
         if extraction_status not in EXTRACTABLE_STATUSES:
             skipped[f"extraction_status:{extraction_status or 'missing'}"] += 1
+            continue
+        if not output_has_current_task(output_row, result, tasks):
+            skipped["missing_current_task"] += 1
             continue
 
         item_kind, items = result_items(result)

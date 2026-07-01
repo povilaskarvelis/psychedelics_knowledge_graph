@@ -193,150 +193,14 @@ Canonical alias rules live in `schema/disorder_canonicalization.json`.
 Older triage PDF queue:
 `python pipeline/ingest/sync_paper_library.py --dataset mechanistic --doi-file data/raw/doi_queue.mechanistic.triage_relevant.txt`
 
-## Older abstract-first autofill (claim fields)
-Use paper title/abstract metadata to populate missing stub fields for all
-screened stubs before PDF extraction.
+## Retired stub/autofill maintenance path
 
-Dry run:
-`python pipeline/review/autofill_stubs_from_abstracts.py --dataset disorder --mark-ready`
-
-Apply updates:
-`python pipeline/review/autofill_stubs_from_abstracts.py --dataset disorder --mark-ready --apply`
-
-What it fills (when possible):
-- provenance for abstract-first workflow (`access_level=abstract_only`,
-  `evidence_location=abstract`, `evidence_locator=Abstract`)
-- missing metadata (`study_title`, `authors`, `study_year`, journal/type/date,
-  ISSNs, publisher, trial registry IDs, MeSH/keywords, funders/grants,
-  publication relations, language, Semantic Scholar ID)
-- disorder claim hints (e.g., `outcome_type`, `study_design`, `system`,
-  `evidence_level`)
-- clean disorder rows can be marked `ready_for_promotion` from abstracts alone
-- mechanistic rows usually remain blocked until quantitative affinity fields
-  are extracted from full text
-
-## Older mechanistic full-PDF autofill (affinity fields)
-Use local mechanistic PDFs to extract affinity evidence and fill schema-critical
-fields (`affinity_value`, `affinity_unit`, and often `affinity_type`).
-
-### PDF extraction environment
-PDF-heavy review scripts automatically re-run themselves inside the conda
-environment `psychkg-pdf` when it exists, so commands can be run normally from
-the repo root without manually activating the environment first.
-
-One-time setup:
-```bash
-conda create -n psychkg-pdf python=3.12 -y
-conda activate psychkg-pdf
-
-python -m pip install --upgrade pip setuptools wheel
-
-brew install poppler tesseract tesseract-lang qpdf ghostscript ocrmypdf
-
-python -m pip install \
-  pypdf \
-  pdfplumber \
-  pymupdf \
-  pdfminer.six \
-  pytesseract \
-  pdf2image \
-  pillow \
-  pandas \
-  pyarrow \
-  "markitdown[all]" \
-  docling
-```
-
-Verification:
-```bash
-for tool in pdftotext pdftoppm tesseract qpdf ocrmypdf gs; do
-  command -v "$tool" || echo "missing: $tool"
-done
-
-conda run -n psychkg-pdf python -c "import pypdf, pdfplumber, fitz, pytesseract, pandas, pyarrow; from markitdown import MarkItDown; from docling.document_converter import DocumentConverter; print('PDF stack OK')"
-```
-
-Runtime controls:
-- Use a different conda env name:
-  `PSYCHKG_PDF_CONDA_ENV=my-env python pipeline/review/autofill_mechanistic_from_pdfs.py ...`
-- Disable auto-bootstrap:
-  `PSYCHKG_DISABLE_PDF_ENV_BOOTSTRAP=1 python pipeline/review/autofill_mechanistic_from_pdfs.py ...`
-
-Dry run:
-`python pipeline/review/autofill_mechanistic_from_pdfs.py --dataset mechanistic --mark-ready`
-
-Apply updates:
-`python pipeline/review/autofill_mechanistic_from_pdfs.py --dataset mechanistic --mark-ready --apply`
-
-Notes:
-- This step is intended for mechanistic rows that stay blocked after abstract
-  autofill.
-- It only uses locally available PDFs (from `sync_paper_library.py` output).
-- It performs multi-pass extraction (typed patterns + table/header-aware parsing).
-- Current text extraction aggregates multiple local readers: Poppler
-  `pdftotext -layout`, `pdfplumber` text/table extraction, PyMuPDF, `pypdf`,
-  and internal PDF stream decoding (literal + hex text extraction).
-- For scanned/image PDFs, OCR fallback (`pdftoppm` + `tesseract`) is used when
-  extraction text is sparse; disable with `--disable-ocr-fallback`.
-- The `psychkg-pdf` environment also installs MarkItDown, Docling, and OCRmyPDF.
-  These are available for later conversion/cache upgrades, but the current
-  mechanistic extractor focuses on local text/table readers.
-- Tighten/loosen extraction confidence with `--min-score` (default `6`).
-
-## Older disorder full-PDF autofill (outcome + provenance fields)
-Use local disorder PDFs to upgrade abstract-only rows to full-text evidence and
-populate missing outcome/provenance fields. This is an upgrade/rescue pass after
-abstract extraction, not the only source of disorder claims.
-
-The disorder PDF extractor uses the same local reader stack as the mechanistic
-extractor for text/table recovery. Paper type is inferred from title-level
-source signals plus clinical-result language so incidental PDF words such as
-supplementary material or study-design headings do not by themselves demote a
-primary clinical trial.
-
-Dry run:
-`python pipeline/review/autofill_disorder_from_pdfs.py --dataset disorder --mark-ready`
-
-Apply updates:
-`python pipeline/review/autofill_disorder_from_pdfs.py --dataset disorder --mark-ready --apply`
-
-## Author backfill (API fallback)
-Use this when rows are still blocked only by missing `authors`.
-
-Dry run:
-`python pipeline/review/backfill_stub_authors.py --dataset disorder --mark-ready`
-
-Apply updates:
-`python pipeline/review/backfill_stub_authors.py --dataset disorder --mark-ready --apply`
-
-Fallback mode (forces unresolved rows to `authors=Unknown`):
-`python pipeline/review/backfill_stub_authors.py --dataset disorder --mark-ready --fallback-unknown --apply`
-
-Optional cleanup for already-downloaded irrelevant PDFs:
-- Dry run:
-  `python pipeline/review/cleanup_irrelevant_pdfs.py --dataset mechanistic`
-- Apply (moves files to archive by default):
-  `python pipeline/review/cleanup_irrelevant_pdfs.py --dataset mechanistic --apply`
-
-## Older stub queue report
-Mechanistic:
-`python pipeline/review/curation_queue.py --dataset mechanistic`
-
-Disorder:
-`python pipeline/review/curation_queue.py --dataset disorder`
-
-Include all statuses:
-`python pipeline/review/curation_queue.py --dataset mechanistic --all-statuses`
-
-## Status updates
-Mark clean rows as ready for promotion:
-`python pipeline/review/curation_queue.py --dataset mechanistic --mark-ready --apply`
-
-Set explicit status for row indices:
-`python pipeline/review/curation_queue.py --dataset mechanistic --set-status blocked_needs_fulltext --row-indices 2,5 --apply`
-
-Autofill missing fields from curated matches and mark ready:
-`python pipeline/review/autofill_stubs_from_curated.py --dataset mechanistic --mark-ready --apply`
+The first-generation stub curation tools have been removed. That includes
+abstract autofill, mechanistic/disorder PDF autofill, author backfill, curation
+queue updates, irrelevant-PDF cleanup, curated-row autofill, and promotion into
+curated JSON/CSV evidence files. New evidence should move through routing,
+route-specific article text inputs, extraction tasks, routed evidence rows, and
+parquet KG tables.
 
 ## Output
 - `data/processed/triage_report_mechanistic.json`
@@ -345,21 +209,8 @@ Autofill missing fields from curated matches and mark ready:
 - `data/processed/triage_report_disorder.csv`
 - `data/raw/doi_queue.mechanistic.triage_relevant.txt`
 - `data/raw/doi_queue.disorder.triage_relevant.txt`
-- `data/processed/abstract_autofill_report_mechanistic.json`
-- `data/processed/abstract_autofill_report_disorder.json`
-- `data/processed/pdf_autofill_report_mechanistic.json`
-- `data/processed/pdf_autofill_report_disorder.json`
-- `data/processed/authors_backfill_report_mechanistic.json`
-- `data/processed/authors_backfill_report_disorder.json`
-- `data/processed/pdf_cleanup_report_mechanistic.json`
-- `data/processed/pdf_cleanup_report_disorder.json`
-- `data/processed/review_queue_mechanistic.json`
-- `data/processed/review_queue_disorder.json`
-- `data/processed/autofill_report_mechanistic.json`
-- `data/processed/autofill_report_disorder.json`
 
 ## Notes
 - `stub_index` is 1-based and maps to row position in `*_claim_stubs.json`.
-- Dry run is default; no files are modified unless `--apply` is passed.
 - `excluded_not_relevant` rows are intentionally filtered out by default because
   queue scan defaults to `--status pending_curation`.

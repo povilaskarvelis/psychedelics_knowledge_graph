@@ -31,7 +31,7 @@ Current graph node kinds:
 | `outcome_scale` | current | Clinical outcome instrument, scale, or endpoint measure. |
 | `target` | current | Receptor, transporter, enzyme, channel, gene, protein, or target complex. |
 | `pathway_process` | current | Pathway, signaling process, cellular process, or biological process. |
-| `biomarker_readout` | current | Biomarker, molecular readout, biochemical readout, or ligand/readout measure. |
+| `biomarker_readout` | current | Internal compatibility kind for molecular readouts: measured molecular, biochemical, ligand, or assay readouts; true biomarkers are a subset. |
 | `system_family` | current | Broad mechanistic system or family. |
 
 Current primary relation types:
@@ -74,8 +74,8 @@ fully wired into the current KG projector:
 | `clinical_outcome` | `condition_indication`, `symptom_problem`, `outcome_scale` |
 | `safety_tolerability` | `safety_adverse_event` |
 | `molecular_target` | `target` |
-| `molecular_pathway_readout` | `pathway_process`, `biomarker_readout` |
-| `brain_system` | current fallback `system_family` and `biomarker_readout`; planned `brain_region`, `brain_network`, `neural_circuit` |
+| `molecular_pathway_readout` | `pathway_process`, `biomarker_readout` compatibility kind for molecular readouts |
+| `brain_system` | current fallback `system_family` and `biomarker_readout` compatibility kind for queryable neural readouts; planned `brain_region`, `brain_network`, `neural_circuit` |
 | `cognitive_behavioral` | planned `cognitive_behavioral_construct` |
 | `subjective_experience` | planned `subjective_experience_construct` |
 | `pharmacokinetics_exposure` | planned `pharmacokinetic_parameter` |
@@ -101,8 +101,8 @@ things that should later become separate graph anchors.
 | `clinical_outcome` | Conditions, symptoms/problems, endpoints, outcome instruments. | Keep `condition_indication`, `symptom_problem`, `outcome_scale`. |
 | `safety_tolerability` | Adverse events, tolerability issues, risk windows, severity, monitoring, mitigation. | Keep `safety_adverse_event`; keep severity/rate/context as edge attributes. |
 | `molecular_target` | Receptors, transporters, enzymes, channels, genes, proteins, binding/action/selectivity. | Keep `target`. |
-| `molecular_pathway_readout` | Signaling pathways, biological processes, biomarkers, tissues, cell/model systems. | Keep `pathway_process` and `biomarker_readout`. |
-| `brain_system` | Regions, networks, circuits, connectivity, activation, oscillations, imaging/PET/EEG measures. | Use separate `brain_region`, `brain_network`, and `neural_circuit` anchors; reuse `biomarker_readout` for neural measures when they need graph queries. |
+| `molecular_pathway_readout` | Signaling pathways, biological processes, molecular readouts, tissues, cell/model systems. | Keep `pathway_process` and the `biomarker_readout` compatibility kind for measured readouts. |
+| `brain_system` | Regions, networks, circuits, connectivity, activation, oscillations, imaging/PET/EEG measures. | Use separate `brain_region`, `brain_network`, and `neural_circuit` anchors; reuse the molecular-readout-compatible `biomarker_readout` kind for neural measures when they need graph queries. |
 | `cognitive_behavioral` | Cognitive constructs, behavioral constructs, tasks, task domains, animal or human behavioral models. | Keep `cognitive_behavioral_construct`. |
 | `subjective_experience` | Mystical-type experience, ego dissolution, insight, challenging experience, valence, scale dimensions. | Keep `subjective_experience_construct`; instruments/subscales are usually attributes unless we want them as `outcome_scale` nodes. |
 | `pharmacokinetics_exposure` | PK parameters, analytes, metabolites, route/formulation, matrix, enzymes/transporters, metabolic pathways, exposure-response. | Use `pharmacokinetic_parameter` for true PK/exposure parameters, and mark metabolites/analytes, enzymes/transporters, and metabolic pathways with `compound`, `target`, or `pathway_process` anchor kinds when those are the real target-side anchors. |

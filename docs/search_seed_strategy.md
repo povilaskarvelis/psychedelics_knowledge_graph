@@ -58,8 +58,8 @@ provider-specific syntax for PubMed and OpenAlex when supported by the run.
 
 | Evidence domain | Query modules | Broad modules | Focused modules | Broad cap | Focused cap |
 |---|---:|---:|---:|---:|---:|
-| Molecular targets | 10 | 5 | 5 | 500 | 1,000 |
-| Molecular pathways and cellular readouts | 5 | 3 | 2 | 500 | 1,000 |
+| Targets | 10 | 5 | 5 | 500 | 1,000 |
+| Pathways and readouts | 5 | 3 | 2 | 500 | 1,000 |
 | Brain systems, circuits, and neurophysiology | 10 | 4 | 6 | 500 | 1,000 |
 | Cognitive and behavioral function | 4 | 2 | 2 | 500 | 1,000 |
 | Subjective experience and acute effects | 2 | 1 | 1 | 500 | 1,000 |

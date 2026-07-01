@@ -43,28 +43,8 @@ status, conditions, interventions, arms, outcomes, dates, sponsors,
 eligibility, and registry URL. Raw ClinicalTrials.gov payloads are retained by
 default; pass `--omit-raw` for a smaller cache.
 
-## Author Backfill
+## Retired Curated-Claim Backfills
 
-Backfill missing `authors` in curated datasets (`claims.*`, `disorder_claims.*`)
-from a DOI->authors lookup.
-
-Dry run report only:
-
-```bash
-python pipeline/enrich/backfill_authors_from_lookup.py
-```
-
-Apply updates to curated JSON/CSV:
-
-```bash
-python pipeline/enrich/backfill_authors_from_lookup.py --apply
-```
-
-Inputs:
-- `data/raw/doi_authors_lookup.json`
-- `data/curated/claims.json`
-- `data/curated/disorder_claims.json`
-
-Outputs:
-- `data/processed/authors_backfill_report.json`
-- updated curated JSON/CSV files with `authors`
+The older curated-claim and claim-stub backfill scripts have been removed. New
+metadata enrichment should flow through the paper/corpus tables and route-native
+KG outputs.

@@ -28,6 +28,7 @@ DEFAULT_KG_DIR = ROOT / "data" / "processed" / "kg"
 DEFAULT_OUT_DIR = ROOT / "data" / "processed"
 DEFAULT_ACTIVE_JSON = ROOT / "data" / "processed" / "graph_payload_active.json"
 ROUTED_SOURCE_NAME = "routed_extractions"
+ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 SCHEMA_VERSION = "route_native_evidence_payload_v1"
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
@@ -92,6 +93,49 @@ FINDING_FIELDS = (
     "follow_up_duration",
     "follow_up_window_normalized",
     "intervention_or_exposure",
+    "cognitive_behavioral_graph_label",
+    "subjective_experience_graph_label",
+    "public_health_graph_label",
+    "molecular_effect_label",
+    "public_health_topic_category",
+    "public_health_measure",
+    "exposure_or_policy",
+    "exposure_or_intervention",
+    "setting",
+    "estimate_value",
+    "estimate_unit",
+    "association_or_trend",
+    "time_window",
+    "data_source_or_study_design",
+    "comparison_or_reference_group",
+    "policy_or_practice_implication",
+    "compound_or_analyte",
+    "primary_graph_anchor_kind",
+    "pharmacokinetic_display_label",
+    "pk_relationship_type",
+    "pk_relationship_label",
+    "pk_graph_object_kind",
+    "pk_graph_object_label",
+    "analyte_type",
+    "metabolite_or_analyte",
+    "matrix",
+    "matrix_or_sample_type",
+    "pk_or_exposure_parameter",
+    "value",
+    "unit",
+    "route_of_administration",
+    "sampling_time_or_window",
+    "study_design",
+    "dose_standardization_or_equivalence",
+    "comparator_or_reference",
+    "co_exposure_or_modifier",
+    "metabolic_or_transport_target",
+    "metabolic_or_transport_pathway",
+    "model_or_method",
+    "interaction_or_potentiation_context",
+    "exposure_response_or_pk_effect",
+    "exposure_response_implication",
+    "synthesis_interpretation",
     "dose",
     "route",
     "session_count_or_duration",
@@ -153,12 +197,55 @@ PREVIEW_FIELDS = (
     "sample_size_total",
     "sample_size_by_arm",
     "result_direction",
+    "cognitive_behavioral_graph_label",
+    "subjective_experience_graph_label",
+    "public_health_graph_label",
+    "molecular_effect_label",
+    "public_health_topic_category",
+    "public_health_measure",
+    "exposure_or_policy",
+    "exposure_or_intervention",
+    "setting",
+    "estimate_value",
+    "estimate_unit",
+    "association_or_trend",
+    "time_window",
+    "data_source_or_study_design",
+    "comparison_or_reference_group",
+    "policy_or_practice_implication",
     "outcome_measure",
     "outcome_measure_normalized",
     "comparator",
     "comparator_normalized",
     "follow_up_duration",
     "follow_up_window_normalized",
+    "compound_or_analyte",
+    "primary_graph_anchor_kind",
+    "pharmacokinetic_display_label",
+    "pk_relationship_type",
+    "pk_relationship_label",
+    "pk_graph_object_kind",
+    "pk_graph_object_label",
+    "analyte_type",
+    "metabolite_or_analyte",
+    "matrix",
+    "matrix_or_sample_type",
+    "pk_or_exposure_parameter",
+    "value",
+    "unit",
+    "route_of_administration",
+    "sampling_time_or_window",
+    "study_design",
+    "dose_standardization_or_equivalence",
+    "comparator_or_reference",
+    "co_exposure_or_modifier",
+    "metabolic_or_transport_target",
+    "metabolic_or_transport_pathway",
+    "model_or_method",
+    "interaction_or_potentiation_context",
+    "exposure_response_or_pk_effect",
+    "exposure_response_implication",
+    "synthesis_interpretation",
     "assessment_timepoint",
     "mechanism_type",
     "assay_type",
@@ -355,6 +442,7 @@ def merge_edge_metadata(rows, kg_dir: Path):
             "source_name",
             "domain",
             "entity_kind",
+            "entity_label",
             "evidence_type",
             "relation_type",
         )
@@ -369,6 +457,7 @@ def finding_from_record(record: dict, author_roles: dict[str, dict]) -> dict:
     domain = field_value(raw, record, "domain_edge", "domain")
     evidence_type = field_value(raw, record, "evidence_type_edge", "evidence_type") or "primary_evidence"
     entity_label = first_meaningful(
+        field_value(raw, record, "entity_label_edge"),
         field_value(raw, record, "graph_entity_label"),
         field_value(raw, record, "entity_label"),
         field_value(raw, record, "target"),
@@ -443,7 +532,7 @@ def load_findings(kg_dir: Path) -> list[dict]:
     if df.empty:
         return []
     if "source_name" in df.columns:
-        df = df[df["source_name"] == ROUTED_SOURCE_NAME].copy()
+        df = df[df["source_name"].isin(ROUTED_SOURCE_NAMES)].copy()
     df = merge_edge_metadata(df, kg_dir)
     author_roles = load_author_roles(kg_dir)
     findings = [finding_from_record(record, author_roles) for record in df.to_dict(orient="records")]
@@ -472,6 +561,36 @@ def study_key(finding: dict) -> str:
     return f"title:{title}|{year}" if title or year else ""
 
 
+def candidate_study_key(record: dict) -> str:
+    doi = normalize(record.get("study_doi") or record.get("doi")).lower()
+    if doi:
+        return f"doi:{doi}"
+    openalex = normalize(record.get("openalex_id")).lower()
+    if openalex:
+        return f"openalex:{openalex}"
+    title = normalize(record.get("study_title") or record.get("title")).lower()
+    year = normalize(record.get("study_year") or record.get("year"))
+    if title or year:
+        return f"title:{title}|{year}"
+    paper_id = normalize(record.get("paper_id")).lower()
+    return f"paper:{paper_id}" if paper_id else ""
+
+
+def load_candidate_study_keys(kg_dir: Path) -> set[str] | None:
+    path = kg_dir / "papers.parquet"
+    if not path.exists():
+        return None
+    try:
+        import pandas as pd
+    except ModuleNotFoundError:
+        return None
+
+    df = pd.read_parquet(path)
+    if df.empty:
+        return set()
+    return {key for record in df.to_dict(orient="records") if (key := candidate_study_key(record))}
+
+
 def value_counts(findings: Iterable[dict], field: str) -> dict[str, int]:
     counts: dict[str, int] = {}
     for finding in findings:
@@ -482,11 +601,11 @@ def value_counts(findings: Iterable[dict], field: str) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
 
 
-def summary_stats(findings: list[dict]) -> dict:
+def summary_stats(findings: list[dict], candidate_study_keys: set[str] | None = None) -> dict:
     studies = {key for finding in findings if (key := study_key(finding))}
     compounds = {normalize(finding.get("compound")) for finding in findings if normalize(finding.get("compound"))}
     entities = {normalize(finding.get("entity_label")) for finding in findings if normalize(finding.get("entity_label"))}
-    indications = {
+    conditions = {
         normalize(finding.get("entity_label"))
         for finding in findings
         if normalize(finding.get("entity_kind")) == "condition_indication" and normalize(finding.get("entity_label"))
@@ -496,19 +615,30 @@ def summary_stats(findings: list[dict]) -> dict:
         for finding in findings
         if normalize(finding.get("entity_kind")) == "target" and normalize(finding.get("entity_label"))
     }
-    return {
+    stats = {
         "row_count": len(findings),
         "study_count": len(studies),
         "compound_count": len(compounds),
         "entity_count": len(entities),
         "domain_count": len(value_counts(findings, "domain")),
-        "indication_count": len(indications),
+        "condition_count": len(conditions),
         "target_count": len(targets),
         "domain_counts": value_counts(findings, "domain"),
         "entity_kind_counts": value_counts(findings, "entity_kind"),
         "evidence_type_counts": value_counts(findings, "evidence_type"),
         "text_depth_counts": value_counts(findings, "text_depth"),
     }
+    if candidate_study_keys is not None:
+        candidate_keys = {key for key in candidate_study_keys if key}
+        not_in_graph_keys = candidate_keys - studies
+        stats["graph_study_coverage"] = {
+            "included_count": len(studies),
+            "candidate_count": len(candidate_keys),
+            "not_in_graph_count": len(not_in_graph_keys),
+        }
+        stats["graph_candidate_study_count"] = len(candidate_keys)
+        stats["graph_excluded_study_count"] = len(not_in_graph_keys)
+    return stats
 
 
 def preview_findings(findings: list[dict]) -> list[dict]:
@@ -556,7 +686,8 @@ def export_evidence_payload(
     active_json: Path | None = None,
 ) -> dict:
     findings = load_findings(kg_dir)
-    stats = summary_stats(findings)
+    candidate_study_keys = load_candidate_study_keys(kg_dir)
+    stats = summary_stats(findings, candidate_study_keys)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     payload_path = out_dir / payload_name
@@ -597,7 +728,10 @@ def export_evidence_payload(
         "summary_stats": {
             "default": stats,
             "views": {
-                "primary": summary_stats([f for f in findings if normalize(f.get("evidence_type")) == "primary_evidence"]),
+                "primary": summary_stats(
+                    [f for f in findings if normalize(f.get("evidence_type")) == "primary_evidence"],
+                    candidate_study_keys,
+                ),
                 "secondary": summary_stats([f for f in findings if normalize(f.get("evidence_type")) == "secondary_literature"]),
             },
         },

@@ -50,7 +50,7 @@
     "biomarker_readout": {
       "status": "current",
       "entity_type": "mechanistic_entity",
-      "description": "Measured biomarker, molecular readout, biochemical readout, or imaging/PET ligand readout."
+      "description": "Internal compatibility kind for measured molecular readouts, biochemical readouts, ligand/readout measures, imaging/PET measures, or true biomarkers."
     },
     "system_family": {
       "status": "current",
@@ -225,7 +225,7 @@
       ],
       "molecular_pathway_readout": [
         "signaling pathways and biological processes",
-        "biomarkers, molecular readouts, tissues, cell types, and model systems"
+        "molecular readouts, candidate biomarkers, tissues, cell types, and model systems"
       ],
       "brain_system": [
         "brain regions",
@@ -263,7 +263,7 @@
       "Do not add schema fields only because reviews mention them; prefer fields that are graph anchors or useful edge attributes.",
       "Split combined anchor fields during schema alignment where the graph needs separate node kinds, especially brain region, brain network, and neural circuit.",
       "For pharmacokinetics/exposure, do not force analytes, metabolites, enzymes, transporters, and pathways into one PK-parameter node. Normalize analytes and metabolites as compounds where appropriate, enzymes and transporters as targets, and metabolic or transport pathways as pathway_process when the downstream mapper supports those cross-domain anchors.",
-      "For brain-system reviews, neural readouts can remain edge attributes at first, but imaging/PET/EEG measures that need graph queries can reuse the current biomarker_readout node kind.",
+      "For brain-system reviews, neural readouts can remain edge attributes at first, but imaging/PET/EEG measures that need graph queries can reuse the current biomarker_readout compatibility kind for molecular or neural readouts.",
       "For public-health reviews, public_health_measure should be interpreted broadly enough to include stable public-health topics such as use patterns, abuse potential, harm reduction, access, equity, policy, service delivery, and epidemiology measures."
     ]
   },
@@ -332,7 +332,8 @@
       "schema_cleanup_notes": [
         "Split disorder/condition from population or subgroup where possible.",
         "Treat outcome measures as outcome_scale nodes only when the instrument itself is the useful graph target.",
-        "Use symptom_problem for broad symptoms such as depression, anxiety, pain, suicidality, or sleep disturbance when they are not specific diagnoses."
+        "Use symptom_problem for broad symptoms such as depression, anxiety, pain, or sleep disturbance when they are not specific diagnoses.",
+        "Treat suicidality as a condition_indication when it is the studied clinical target, and as a safety_adverse_event only when framed as treatment-emergent or worsened risk."
       ]
     },
     "safety_tolerability": {
@@ -387,7 +388,7 @@
     "molecular_target": {
       "maps_to_graph": true,
       "graph_domain": "mechanistic",
-      "description": "Compound evidence for direct molecular targets.",
+      "description": "Compound evidence for molecular targets with binding, action, target-engagement, or target-pharmacology evidence.",
       "extraction_entity_types": [
         "target",
         "not_applicable",
@@ -483,8 +484,8 @@
         "relationship_to_response_or_disease"
       ],
       "schema_cleanup_notes": [
-        "Map extraction value molecular_readout to KG entity_kind biomarker_readout.",
-        "Use pathway_process for processes such as mTOR signaling or synaptogenesis, and biomarker_readout for measured readouts such as BDNF."
+        "Map extraction value molecular_readout to KG entity_kind biomarker_readout until the internal compatibility key is renamed.",
+        "Use pathway_process for processes such as mTOR signaling or synaptogenesis, and biomarker_readout for measured molecular readouts such as BDNF expression or cytokine levels."
       ]
     },
     "brain_system": {
@@ -566,7 +567,7 @@
       ],
       "schema_cleanup_notes": [
         "Use brain_region, brain_network, and neural_circuit as separate graph anchors when the text supports the distinction.",
-        "Use biomarker_readout for neural measures such as imaging, PET, EEG, oscillation, activation, or connectivity readouts when the measure itself is the useful graph target.",
+        "Use biomarker_readout as a compatibility kind for neural measures such as imaging, PET, EEG, oscillation, activation, or connectivity readouts when the measure itself is the useful graph target.",
         "Retain system_family only for broad compatibility until specific brain-system node kinds are fully wired into the KG projector."
       ]
     },

@@ -300,11 +300,11 @@
             },
             "readout_or_biomarker": {
               "type": "string",
-              "description": "Molecular readout, biomarker, protein, gene, metabolite, inflammatory marker, neurotrophic factor, or feature set reviewed."
+              "description": "Molecular readout, candidate biomarker, protein, gene, metabolite, inflammatory marker, neurotrophic factor, or feature set reviewed."
             },
             "readout_category": {
               "type": "string",
-              "description": "Readout category such as biomarker, pathway activation, pathway enrichment, gene expression, protein change, metabolomics, inflammation, or plasticity marker."
+              "description": "Readout category such as pathway activation, pathway enrichment, gene expression, protein change, metabolomics, inflammation, plasticity marker, or candidate biomarker."
             },
             "biological_system": {
               "type": "string",

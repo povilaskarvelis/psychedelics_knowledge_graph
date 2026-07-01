@@ -34,7 +34,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 try:
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
         build_system_instruction,
         load_schema_for_profile,
@@ -68,7 +68,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
-    from pipeline.extract.extraction_v1_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
         build_system_instruction,
         load_schema_for_profile,

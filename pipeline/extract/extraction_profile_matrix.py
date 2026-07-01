@@ -62,6 +62,7 @@ PRIMARY_SCHEMA_VERSION_BY_DOMAIN = {
 }
 PRIMARY_SCHEMA_VERSION_BY_DOMAIN["clinical_outcome"] = "primary_clinical_outcome_v1"
 PRIMARY_SCHEMA_VERSION_BY_DOMAIN["general_primary"] = "primary_general_primary_v1"
+PRIMARY_SCHEMA_VERSION_BY_DOMAIN["pharmacokinetics_exposure"] = "primary_pharmacokinetics_exposure_v2"
 
 
 @dataclass(frozen=True)
