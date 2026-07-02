@@ -10,6 +10,7 @@ from pipeline.kg.build_evidence_tables import (
     DEFAULT_ROUTED_KG_RUN_ROOT,
     build_tables,
     canonicalize_registry_label,
+    clinical_endpoint_rows,
     graphable_compound_match,
     graph_sources_for_preset,
     molecular_effect_label,
@@ -192,6 +193,39 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         for row, expected in cases:
             with self.subTest(row=row):
                 self.assertEqual(symptom_endpoint_label(row), expected)
+
+    def test_clinical_worsened_suicidality_derives_safety_endpoint(self) -> None:
+        rows = [
+            {
+                "domain": "clinical_outcome",
+                "compound": "LSD",
+                "clinical_endpoint": "Suicidal thinking",
+                "condition_or_indication": "Suicidality",
+                "outcome_measure": "Self-reported suicidal thinking",
+                "support": "Past-year LSD use was associated with an increased likelihood of suicidal thinking.",
+                "effect_or_statistic": "aPR = 1.21 (95% CI: 1.09-1.34)",
+                "result_direction": "negative",
+            },
+            {
+                "domain": "clinical_outcome",
+                "compound": "MDMA",
+                "clinical_endpoint": "Suicidal thinking",
+                "condition_or_indication": "Suicidality",
+                "outcome_measure": "Self-reported suicidal thinking",
+                "support": "Past-year ecstasy use was associated with a decreased likelihood of suicidal thinking.",
+                "effect_or_statistic": "aPR = 0.86 (95% CI: 0.75-0.99)",
+                "result_direction": "positive",
+            },
+        ]
+
+        derived = clinical_endpoint_rows(rows, [{}, {}])
+        safety_rows = [row for row in derived if row.get("kg_entity_kind_override") == "safety_adverse_event"]
+
+        self.assertEqual(len(safety_rows), 1)
+        self.assertEqual(safety_rows[0]["compound"], "LSD")
+        self.assertEqual(safety_rows[0]["graph_entity_label"], "Suicidality safety signals")
+        self.assertEqual(safety_rows[0]["endpoint_label_source"], "clinical_worsened_safety_endpoint")
+        self.assertNotIn("MDMA", {row["compound"] for row in safety_rows})
 
     def test_route_native_mechanistic_metadata_infers_experimental_system(self) -> None:
         cases = [

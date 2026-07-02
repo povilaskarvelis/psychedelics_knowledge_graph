@@ -138,7 +138,7 @@
         },
         "readout": {
           "type": "string",
-          "description": "Neural measure or readout, not a brain region. Examples include MMN, P300/P3a/P3b, BOLD response, functional connectivity, receptor occupancy, cerebral blood flow, glucose metabolism, EEG power/oscillations, LFP power, MRS neurochemistry, calcium activity, c-Fos, or neurotransmitter levels."
+          "description": "Neural measure or readout, not a brain region. Examples include MMN, P300/P3a/P3b, BOLD response, functional connectivity, receptor occupancy, cerebral blood flow, glucose metabolism, oscillatory power, neurochemical levels, calcium activity, c-Fos, brain structure, or white matter integrity."
         },
         "task_or_state": {
           "type": "string"

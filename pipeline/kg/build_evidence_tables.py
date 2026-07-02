@@ -2608,6 +2608,21 @@ COMPOUND_BLOCK_STATUSES = {
 EMPTY_ENDPOINT_VALUES = {"", "none", "not_applicable", "not applicable", "not_reported", "not reported", "unknown", "uncertain"}
 SKIPPED_CLINICAL_GRAPH_ROLES = {"functional_outcome", "patient_reported_outcome"}
 SAFETY_ENDPOINT_ROLES = {"safety_or_adverse_event"}
+SAFETY_WORSENED_RISK_RE = re.compile(
+    r"\b("
+    r"increas(?:ed|es|ing)|higher|greater|elevated|worsen(?:ed|ing|s)?|"
+    r"more likely|greater likelihood|higher odds|new[- ]?onset|emerg(?:ed|ent)|treatment[- ]emergent|"
+    r"induc(?:ed|es|ing)"
+    r")\b",
+    re.IGNORECASE,
+)
+SAFETY_NON_WORSENED_RE = re.compile(
+    r"\b("
+    r"decreas(?:ed|es|ing)|lower|reduc(?:ed|es|ing)|less likely|"
+    r"not significantly associated|not associated|no significant|no detected|no meaningful"
+    r")\b",
+    re.IGNORECASE,
+)
 SAFETY_PHYSIOLOGY_TERMS = {
     "safety",
     "adverse",
@@ -3171,6 +3186,31 @@ def row_has_safety_physiology(row: dict) -> bool:
     return any(term in text for term in SAFETY_PHYSIOLOGY_TERMS)
 
 
+def row_reports_worsened_safety_risk(row: dict) -> bool:
+    if not safety_endpoint_label(row):
+        return False
+    direction = normalize(row.get("result_direction", "")).casefold()
+    if direction in {"positive", "no_detected_effect", "not_applicable", "not reported", "not_reported"}:
+        return False
+
+    text = ascii_fold(
+        " ".join(
+            normalize(row.get(field, ""))
+            for field in (
+                "support",
+                "finding_summary",
+                "clinical_endpoint",
+                "outcome_measure",
+                "effect_or_statistic",
+                "association_or_trend",
+            )
+        )
+    )
+    if SAFETY_NON_WORSENED_RE.search(text):
+        return False
+    return bool(SAFETY_WORSENED_RISK_RE.search(text))
+
+
 def canonical_compound_from_audit(row: dict, audit: dict | None) -> str:
     audit = audit or {}
     if normalize(audit.get("normalization_status", "")) in COMPOUND_BLOCK_STATUSES:
@@ -3233,6 +3273,18 @@ def clinical_endpoint_rows(rows: list[dict], audit_rows: list[dict]) -> list[dic
                 "safety_adverse_event",
                 normalize(row.get("entity_role", "")) or "safety_or_adverse_event",
                 "safety_endpoint",
+            )
+            if derived:
+                out.append(derived)
+
+        if domain in {"clinical", "clinical_outcome", ""} and role not in SAFETY_ENDPOINT_ROLES and row_reports_worsened_safety_risk(row):
+            derived = endpoint_row(
+                row,
+                audit,
+                safety_endpoint_label(row),
+                "safety_adverse_event",
+                "safety_or_adverse_event",
+                "clinical_worsened_safety_endpoint",
             )
             if derived:
                 out.append(derived)
@@ -3683,9 +3735,9 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
             out["subjective_experience_graph_label"] = subjective_experience_graph_label(out)
             if out["subjective_experience_graph_label"]:
                 out["graph_entity_label"] = out["subjective_experience_graph_label"]
-    if domain in MECHANISTIC_METADATA_DOMAINS and not normalize(out.get("assay_family_normalized", "")):
+    if domain in MECHANISTIC_METADATA_DOMAINS:
         out["assay_family_normalized"] = normalize_mechanistic_assay_family(
-            out.get("assay_family", ""),
+            out.get("assay_family_normalized", "") or out.get("assay_family", ""),
             out.get("assay_type", ""),
         )
     if domain in MECHANISTIC_METADATA_DOMAINS:

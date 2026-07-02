@@ -13,8 +13,8 @@ Prioritize:
   calcium imaging, or fiber photometry
 - neural measures/readouts such as MMN, P300/P3a/P3b, BOLD response,
   functional connectivity, receptor occupancy, cerebral blood flow, glucose
-  metabolism, EEG power/oscillations, LFP power, MRS neurochemistry, calcium
-  activity, c-Fos, or neurotransmitter levels
+  metabolism, oscillatory power, neurochemical levels, calcium activity, c-Fos,
+  brain structure, or white matter integrity
 - neural effect or change, such as increased activation, decreased activation,
   altered connectivity, reduced receptor availability, changed neurotransmitter
   level, or changed sleep architecture

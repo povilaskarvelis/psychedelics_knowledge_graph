@@ -36,6 +36,7 @@ const statDetails = {
 const HERO_STAT_KEYS = ["studies", "compounds", "conditions", "targets"];
 const evidenceRank = { low: 1, medium: 2, high: 3 };
 const MAX_GRAPH_EDGES = 500;
+const MAIN_FINDING_MAX_CHARS = 260;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
 const LIST_CHUNK_SIZE = 120;
 
@@ -49,29 +50,29 @@ const GRAPH_COLOR_STOPS = [
   { r: 232, g: 117, b: 141 },
 ];
 const CATEGORY_COLORS = [
-  "#7f9fcf",
-  "#c89b45",
-  "#77b98a",
+  "#9ac5ae",
+  "#d0b07a",
+  "#b96c8b",
+  "#49bfb5",
   "#9f86c0",
   "#d18473",
-  "#49bfb5",
-  "#b96c8b",
-  "#a7a064",
-  "#8b96b8",
-  "#c06f6a",
-  "#9ac5ae",
+  "#77b98a",
   "#b88a6a",
-  "#75a0c4",
-  "#b9a65a",
-  "#5fae8b",
+  "#8b96b8",
+  "#c89b45",
   "#a989bd",
-  "#c7825c",
-  "#6fb0a0",
+  "#5fae8b",
+  "#c06f6a",
+  "#6f9ab8",
+  "#a7a064",
   "#d08aa3",
   "#8fa85f",
+  "#7f9fcf",
+  "#c7825c",
   "#7d8492",
-  "#d0b07a",
+  "#6fb0a0",
   "#8d78ad",
+  "#75a0c4",
   "#a7b56f",
 ];
 const PALETTE_BLUE_FIRST = CATEGORY_COLORS;
@@ -419,6 +420,113 @@ function isHiddenMainGraphItem(item) {
 
 function unique(values) {
   return Array.from(new Set(values)).sort();
+}
+
+const rawSearchTextCache = new WeakMap();
+const claimSearchTextCache = new WeakMap();
+
+function normalizeSearchText(value) {
+  return normalizeValue(value).replace(/\s+/g, " ").trim();
+}
+
+function addSearchTextAliases(parts, value) {
+  const text = meaningfulText(value);
+  if (!text) return;
+  parts.push(text);
+
+  const expanded = text
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[._/|\u2013\u2014-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (expanded && normalizeValue(expanded) !== normalizeValue(text)) {
+    parts.push(expanded);
+  }
+}
+
+function collectSearchTextParts(value, parts, seen = new WeakSet()) {
+  if (value === null || value === undefined) return;
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectSearchTextParts(item, parts, seen));
+    return;
+  }
+  if (typeof value === "object") {
+    if (seen.has(value)) return;
+    seen.add(value);
+    Object.values(value).forEach((item) => collectSearchTextParts(item, parts, seen));
+    return;
+  }
+  if (["string", "number", "bigint", "boolean"].includes(typeof value)) {
+    addSearchTextAliases(parts, value);
+  }
+}
+
+function compactSearchTextParts(parts) {
+  const seen = new Set();
+  return parts.filter((part) => {
+    const key = normalizeSearchText(part);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function rawSearchTextForObject(value) {
+  if (value && typeof value === "object") {
+    const cached = rawSearchTextCache.get(value);
+    if (cached !== undefined) return cached;
+  }
+
+  const parts = [];
+  collectSearchTextParts(value, parts);
+  const text = normalizeSearchText(compactSearchTextParts(parts).join(" "));
+  if (value && typeof value === "object") {
+    rawSearchTextCache.set(value, text);
+  }
+  return text;
+}
+
+function claimDerivedSearchParts(claim) {
+  return compactSearchTextParts([
+    compoundGraphLabel(claim.compound),
+    graphRightLabelForClaim(claim),
+    claimMainFindingText(claim),
+    paperTypeLabel(claim.paper_type),
+    publicationTypeFacetLabel(claim),
+    openAccessFacetLabel(claim),
+    meaningfulText(claim.trial_registry_ids) ? trialRegistrationFacetLabel(claim) : "",
+    populationModelFacetLabel(claim),
+    assayFamilySummaryLabel(claim),
+    mechanisticAssayFamilyFacetLabel(claim),
+    ...brainMeasureFacetLabels(claim),
+    mechanisticRelationshipTypeFacetLabel(claim),
+    safetyContextFacetLabel(claim),
+    ...doseRouteSessionFacetLabels(claim),
+    clinicalComparatorFacetLabel(claim),
+    clinicalFollowUpWindowFacetLabel(claim),
+    studyDesignFacetLabel(claim),
+    publicHealthTopicFacetLabel(claim),
+    publicHealthDataSourceFacetLabel(claim),
+    specificPathwayReadoutLabel(claim),
+    firstAuthorName(claim),
+    lastAuthorName(claim),
+  ]);
+}
+
+function claimSearchHaystack(claim) {
+  if (!claim || typeof claim !== "object") {
+    return normalizeSearchText([rawSearchTextForObject(claim), ...claimDerivedSearchParts(claim)].join(" "));
+  }
+
+  const contextKey = `${claimLayer}|${mode}|${currentEntityViewKey()}|${evidenceView}`;
+  const cachedByContext = claimSearchTextCache.get(claim);
+  if (cachedByContext?.has(contextKey)) return cachedByContext.get(contextKey);
+
+  const text = normalizeSearchText([rawSearchTextForObject(claim), ...claimDerivedSearchParts(claim)].join(" "));
+  const nextCache = cachedByContext || new Map();
+  nextCache.set(contextKey, text);
+  claimSearchTextCache.set(claim, nextCache);
+  return text;
 }
 
 function graphLabel(value) {
@@ -1193,13 +1301,15 @@ function paperTypeLabel(paperType) {
 
 const STUDY_DESIGN_CATEGORY_LABELS = {
   rct: "RCT",
-  phase_2_rct: "Phase 2 RCT",
-  phase_3_rct: "Phase 3 RCT",
-  open_label: "Open label",
+  phase_2_rct: "RCT",
+  phase_3_rct: "RCT",
+  open_label: "Open-label trial",
   single_arm_trial: "Single-arm trial",
   clinical_trial: "Clinical trial",
-  observational: "Observational",
-  retrospective: "Retrospective",
+  human_experimental_study: "Human experimental study",
+  experimental_study: "Experimental study",
+  observational: "Observational study",
+  retrospective: "Retrospective study",
   case_report: "Case report",
   case_series: "Case series",
   qualitative: "Qualitative",
@@ -1211,16 +1321,17 @@ const STUDY_DESIGN_CATEGORY_LABELS = {
   computational: "Computational",
   pharmacovigilance: "Pharmacovigilance",
   wastewater_surveillance: "Wastewater surveillance",
-  dose_finding: "Dose finding",
-  post_hoc: "Post-hoc",
-  follow_up: "Follow-up",
+  dose_finding: "Dose-finding trial",
+  post_hoc: "Secondary analysis",
+  follow_up: "Follow-up study",
   review: "Review",
   systematic_review: "Systematic review",
   meta_analysis: "Meta-analysis",
 };
 
-function studyDesignLabel(design) {
-  const normalized = normalizeValue(design);
+function studyDesignLabel(design, claim = null) {
+  const raw = meaningfulText(design);
+  const normalized = normalizeValue(raw);
   if (
     !normalized ||
     ["unknown", "pending_curation", "not_reported", "not_applicable", "not reported", "not applicable"].includes(
@@ -1230,39 +1341,82 @@ function studyDesignLabel(design) {
     return "";
   }
 
-  const text = normalized.replace(/[_/()-]+/g, " ").replace(/\s+/g, " ").trim();
-  if (/phase\s*3/.test(text) && /randomi[sz]ed|controlled|trial/.test(text)) return "Phase 3 RCT";
-  if (/phase\s*2/.test(text) && /randomi[sz]ed|controlled|trial/.test(text)) return "Phase 2 RCT";
-  if (/randomi[sz]ed|randomised|double blind|controlled trial|placebo controlled|crossover|cross over/.test(text)) return "RCT";
-  if (/open label/.test(text)) return "Open label";
-  if (/single arm|single-arm|uncontrolled pilot|pre post|pre-post|phase\s*1/.test(text)) return "Single-arm trial";
-  if (/dose finding|dose response|rising tolerance/.test(text)) return "Dose finding";
-  if (/post hoc/.test(text)) return "Post-hoc";
-  if (/follow up|followup/.test(text)) return "Follow-up";
+  const context = claim
+    ? [
+        raw,
+        claim.system,
+        claim.experimental_system,
+        claim.population_model_category,
+        claim.population,
+        claim.sample_description,
+        claim.model_or_system,
+        claim.species,
+        claim.study_title,
+      ]
+        .map(cleanDisplayText)
+        .filter(Boolean)
+        .join(" ")
+    : raw;
+  const text = normalizeValue(context).replace(/[_/()+–—-]+/g, " ").replace(/\s+/g, " ").trim();
+  const explicitClinicalSystem = /\bclinical\b/.test(text);
+  const humanPopulation =
+    explicitClinicalSystem ||
+    /\b(human|humans|participant|participants|volunteer|volunteers|patient|patients|subject|subjects|healthy adult|healthy male|healthy female)\b/.test(
+      text
+    );
+  const preclinicalSystem =
+    /\b(preclinical|animal model|animal|mouse|mice|rat|rats|rodent|zebrafish|nonhuman primate|non human primate|marmoset|rhesus|c57bl|sprague dawley|wistar|knockout|genotype|saline controlled|vehicle controlled|in vivo|conditioned place preference|\bcpp\b|head twitch|\bhtr\b|forced swim|tail suspension|open field|fear conditioning|monocular deprivation|chronic mild stress|\bcums\b|self administration|yoked triad|microdialysis|extracellular recording|systemic injection|intraperitoneal|i\.p\.|subcutaneous|s\.c\.)\b/.test(
+      text
+    ) && !humanPopulation;
+  const exVivoSystem = /\b(ex vivo|slice|slices|brain slice|hippocampal slice|patch clamp|whole cell|voltage clamp|current clamp|electrophysiolog)\b/.test(
+    text
+  );
+  const inVitroSystem = /\b(in vitro|cell based|cell-based|cell culture|cultured cells|enzyme assay|pharmacology study|receptor assay|binding assay|radioligand|competition binding|functional assay|uptake assay)\b/.test(
+    text
+  );
+
+  if (/network meta|meta analysis|meta-analysis/.test(text)) return "Meta-analysis";
+  if (/systematic review/.test(text)) return "Systematic review";
+  if (/scoping review/.test(text)) return "Scoping review";
+  if (/narrative review|literature review|\breview\b/.test(text)) return "Review";
+  if (/case report/.test(text)) return "Case report";
+  if (/case series/.test(text)) return "Case series";
+  if (/qualitative|ethnographic|user generated|reddit|interview/.test(text)) return "Qualitative";
+  if (/computational|in silico|modeling|modelling|admet/.test(text)) return "Computational";
+  if (exVivoSystem) return "Ex vivo experiment";
+  if (/binding|radioligand|competition/.test(text)) return "Binding assay";
+  if (/functional receptor|potency|uptake/.test(text)) return "Functional assay";
+  if (inVitroSystem) return "In vitro assay";
+  if (preclinicalSystem) return "Preclinical experiment";
+  if (/dose finding|dose response|dose ranging|rising tolerance|ascending dose|escalating concentration|concentration controlled infusion/.test(text)) {
+    return "Dose-finding trial";
+  }
+  if (/post hoc|post-hoc|secondary analysis|exploratory analysis|correlation analysis|correlational analysis|voxel based analysis|\bspm\b/.test(text)) {
+    return "Secondary analysis";
+  }
+  if (/follow up|followup|follow-up|longitudinal follow/.test(text)) return "Follow-up study";
   if (/wastewater|wbe\b|sewage/.test(text)) return "Wastewater surveillance";
   if (/pharmacovigilance|disproportionality|faers|adverse event reporting/.test(text)) return "Pharmacovigilance";
   if (/case control|cross sectional|observational|naturalistic|survey|internet survey|prospective|real world|real-world|cohort|registry|medical records?|target trial/.test(text)) {
-    return "Observational";
+    return "Observational study";
   }
-  if (/qualitative|ethnographic|user generated|reddit|interview/.test(text)) return "Qualitative";
-  if (/retrospective|chart review|case series|single arm effectiveness/.test(text)) return "Retrospective";
-  if (/case report/.test(text)) return "Case report";
-  if (/case series/.test(text)) return "Case series";
-  if (/ex vivo|slice|patch clamp|electrophysiolog/.test(text)) return "Ex vivo experiment";
+  if (/retrospective|chart review|single arm effectiveness/.test(text)) return "Retrospective study";
+  if (/randomi[sz]ed|randomised|double blind|controlled trial|placebo controlled|crossover|cross over/.test(text)) return "RCT";
+  if (/open label|open-label/.test(text)) return "Open-label trial";
+  if (/single arm|single-arm|uncontrolled pilot|pre post|pre-post|phase\s*1/.test(text)) return "Single-arm trial";
   if (
-    /preclinical|animal|mouse|mice|rat|rats|in vivo|between subjects?|between-subjects?|vehicle controlled|saline|conditioned place preference|\bcpp\b|antagonist blockade|pharmacological challenge|pharmacological interaction|genotype|knockout|cums|chronic mild stress|prenatal|neonatal|binge regimen|fear conditioning|paradigm|pretreatment/.test(
+    humanPopulation &&
+    /\b(first in human|first-in-human|first in humans|first-in-humans|pharmacological challenge|drug challenge|pet|positron emission tomography|fmri|mri|mrs|eeg|meg|within subject|within subjects|between subject|between subjects|placebo controlled|controlled experimental|experimental study|imaging study|pilot study|proof of principle|proof-of-principle|interventional study|repeated measures|longitudinal repeated measures)\b/.test(
       text
     )
   ) {
-    return "Preclinical experiment";
+    return "Human experimental study";
   }
   if (/clinical trial/.test(text)) return "Clinical trial";
-  if (/binding|radioligand|competition/.test(text)) return "Binding assay";
-  if (/functional receptor|potency|uptake/.test(text)) return "Functional assay";
-  if (/in vitro|cell based|cell-based|enzyme assay|pharmacology study|correlation study/.test(text)) return "In vitro assay";
-  if (/computational|in silico|modeling|modelling|admet/.test(text)) return "Computational";
   if (/pka|pk a|pka determination|chemical/.test(text)) return "Chemical assay";
-  if (/experimental|within subject|pretreatment/.test(text)) return "Experimental";
+  if (/experimental|within subject|within subjects|between subject|between subjects|controlled study|controlled experimental|pharmacological challenge|pretreatment|challenge study|imaging study|interventional study|mechanism of action study|positron emission tomography|repeated measures|longitudinal repeated measures/.test(text)) {
+    return "Experimental study";
+  }
   return "";
 }
 
@@ -1277,7 +1431,7 @@ function studyDesignFacetLabel(claim) {
   if (/systematic review/.test(normalized)) return "Systematic review";
   if (/scoping review/.test(normalized)) return "Scoping review";
   if (/narrative review|literature review|\breview\b/.test(normalized)) return "Review";
-  const label = studyDesignLabel(raw);
+  const label = studyDesignLabel(raw, claim);
   if (label) return label;
 
   const populationModel = populationModelFacetLabel(claim);
@@ -1289,13 +1443,14 @@ function studyDesignFacetLabel(claim) {
 
 const STUDY_DESIGN_ORDER = [
   "RCT",
-  "Phase 2 RCT",
-  "Phase 3 RCT",
-  "Open label",
+  "Open-label trial",
   "Single-arm trial",
+  "Dose-finding trial",
   "Clinical trial",
-  "Observational",
-  "Retrospective",
+  "Human experimental study",
+  "Experimental study",
+  "Observational study",
+  "Retrospective study",
   "Case report",
   "Case series",
   "Qualitative",
@@ -1307,9 +1462,8 @@ const STUDY_DESIGN_ORDER = [
   "Computational",
   "Pharmacovigilance",
   "Wastewater surveillance",
-  "Dose finding",
-  "Post-hoc",
-  "Follow-up",
+  "Secondary analysis",
+  "Follow-up study",
   "Review",
   "Systematic review",
   "Meta-analysis",
@@ -1585,6 +1739,83 @@ const ADMINISTRATION_ROUTE_LABELS = {
   smoked_or_vaporized: "Smoked or vaporized",
   preclinical_injection: "Preclinical injection",
 };
+const ADMINISTRATION_ROUTE_DISPLAY_LABELS = {
+  oral: "Oral",
+  "p.o.": "Oral",
+  "per os": "Oral",
+  peroral: "Oral",
+  ingestion: "Oral",
+  "oral (ayahuasca)": "Oral",
+  "oral (accidental ingestion)": "Oral",
+  "oral (dietary fortification)": "Oral",
+  "oral (prolonged-release tablet)": "Oral",
+  intragastric: "Oral",
+  gavage: "Oral gavage",
+  "oral gavage": "Oral gavage",
+  "gastric gavage": "Oral gavage",
+  sublingual: "Sublingual",
+  "sublingual or buccal": "Sublingual or buccal",
+  intravenous: "Intravenous",
+  infusion: "Intravenous",
+  "intravenous infusion": "Intravenous",
+  "intravenous bolus": "Intravenous",
+  intravenous_infusion: "Intravenous",
+  "iv bolus": "Intravenous",
+  iv: "Intravenous",
+  "i.v.": "Intravenous",
+  "intravenous infusion (30 min)": "Intravenous",
+  intranasal: "Intranasal",
+  insufflation: "Intranasal",
+  inhalation: "Inhaled",
+  inhaled: "Inhaled",
+  smoking: "Smoked",
+  vaporization: "Vaporized",
+  "dry powder inhalation": "Inhaled",
+  subcutaneous: "Subcutaneous",
+  "s.c.": "Subcutaneous",
+  sc: "Subcutaneous",
+  intramuscular: "Intramuscular",
+  "intramuscular injection": "Intramuscular",
+  "i.m.": "Intramuscular",
+  im: "Intramuscular",
+  intraperitoneal: "Intraperitoneal",
+  "intraperitoneal injection": "Intraperitoneal",
+  "i.p.": "Intraperitoneal",
+  ip: "Intraperitoneal",
+  "intravenous, subcutaneous, intramuscular": "Multiple injection routes",
+  "intravenous and subcutaneous": "Multiple injection routes",
+  "intranasal, sublingual, oral": "Multiple routes",
+  "subcutaneous vs intraperitoneal": "Multiple injection routes",
+  "subcutaneous, intramuscular": "Multiple injection routes",
+  "s.c. and i.v.": "Multiple injection routes",
+  "iv, im, sc": "Multiple injection routes",
+  injection: "Injection",
+  "unintentional intake": "Unintentional intake",
+  immersion: "Immersion",
+  "immersion (medium treatment)": "Immersion",
+  perfusion: "Perfusion",
+  "intracerebral perfusion": "Intracerebral perfusion",
+  systemic: "Systemic",
+  transdermal: "Transdermal",
+  "transdermal (hydrogel-forming microneedle array with lw3 lyophilised reservoir)": "Transdermal",
+  "transdermal (hydrogel-forming microneedle array with f3 film reservoir)": "Transdermal",
+  "in utero": "In utero",
+  "in vitro": "",
+  in_vitro: "",
+  "in vitro incubation": "",
+  "in vitro application (apical)": "",
+  "in vitro / ex vivo": "",
+  "in vitro (microfluidic droplet)": "",
+  "in vitro medium enrichment": "",
+  "bath application (in vitro)": "",
+  "bath incubation": "",
+  extracellular_bath: "",
+  "co-administered with voriconazole": "",
+  "recreational (various)": "",
+  "unknown (intoxication case)": "",
+  "in vivo (human)": "",
+  "self-reported use": "",
+};
 const DOSING_SCHEDULE_LABELS = {
   single_dose: "Single-dose session",
   repeated_dosing: "Repeated dosing",
@@ -1706,6 +1937,82 @@ function doseRouteSessionFacetLabels(claim) {
   if (isRepeated) addLabel("Repeated dosing");
   if (singlePattern.test(text) && !isRepeated) addLabel("Single-dose session");
   return labels;
+}
+
+function normalizedAdministrationRouteText(value) {
+  const route = meaningfulText(value);
+  if (!route) return "";
+  const routeKey = normalizeValue(route);
+  if (routeKey === "other") return "";
+  if (Object.prototype.hasOwnProperty.call(ADMINISTRATION_ROUTE_DISPLAY_LABELS, routeKey)) {
+    return ADMINISTRATION_ROUTE_DISPLAY_LABELS[routeKey];
+  }
+  return controlledCategoryLabel(route, ADMINISTRATION_ROUTE_LABELS) || displayFieldLabel(route, "");
+}
+
+function administrationRouteText(rawRoute, normalizedRoute) {
+  const raw = meaningfulText(rawRoute);
+  if (raw) return normalizedAdministrationRouteText(raw);
+  return normalizedAdministrationRouteText(normalizedRoute);
+}
+
+function routeAddsAdministrationDetail(doseText, routeText) {
+  const route = normalizeValue(routeText);
+  if (!route || route === "other") return false;
+  if (!doseText) return true;
+
+  const dose = normalizeValue(doseText).replace(/[_/()+–—-]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!dose) return true;
+
+  const routePatterns = {
+    oral_or_sublingual:
+      /\b(oral|orally|p\.?o\.?|per os|peroral|ingest\w*|drinking|drink|brew|ayahuasca|capsule|tablet|sublingual|buccal|gavage)\b/,
+    oral: /\b(oral|orally|p\.?o\.?|per os|peroral|ingest\w*|capsule|tablet|gavage)\b/,
+    sublingual: /\b(sublingual|buccal)\b/,
+    intravenous: /\b(intravenous|i\.?v\.?|iv\b|infusion|infused|bolus)\b/,
+    intravenous_infusion: /\b(intravenous|i\.?v\.?|iv\b|infusion|infused)\b/,
+    intranasal: /\b(intranasal|nasal|spray|spravato)\b/,
+    smoked_or_vaporized: /\b(smok\w*|vapori[sz]\w*|vapouri[sz]\w*|inhal\w*)\b/,
+    inhalation: /\b(inhal\w*|smok\w*|vapori[sz]\w*|vapouri[sz]\w*)\b/,
+    inhaled: /\b(inhal\w*|smok\w*|vapori[sz]\w*|vapouri[sz]\w*)\b/,
+    subcutaneous_or_intramuscular: /\b(subcutaneous|s\.?c\.?|sc\b|intramuscular|i\.?m\.?|im\b|injection|injected)\b/,
+    subcutaneous: /\b(subcutaneous|s\.?c\.?|sc\b|injection|injected)\b/,
+    intramuscular: /\b(intramuscular|i\.?m\.?|im\b|injection|injected)\b/,
+    intraperitoneal: /\b(intraperitoneal|i\.?p\.?|ip\b|injection|injected)\b/,
+    preclinical_injection:
+      /\b(injection|injected|intraperitoneal|i\.?p\.?|ip\b|subcutaneous|s\.?c\.?|sc\b|intramuscular|i\.?m\.?|im\b|systemic|mg\s*kg|mg\/kg)\b/,
+    "p.o.": /\b(oral|orally|p\.?o\.?|per os|peroral|ingest\w*|capsule|tablet|gavage)\b/,
+    "per os": /\b(oral|orally|p\.?o\.?|per os|peroral|ingest\w*|capsule|tablet|gavage)\b/,
+    "i.v.": /\b(intravenous|i\.?v\.?|iv\b|infusion|infused|bolus)\b/,
+    "s.c.": /\b(subcutaneous|s\.?c\.?|sc\b|injection|injected)\b/,
+    "i.m.": /\b(intramuscular|i\.?m\.?|im\b|injection|injected)\b/,
+    "i.p.": /\b(intraperitoneal|i\.?p\.?|ip\b|injection|injected)\b/,
+    ip: /\b(intraperitoneal|i\.?p\.?|ip\b|injection|injected)\b/,
+    im: /\b(intramuscular|i\.?m\.?|im\b|injection|injected)\b/,
+    sc: /\b(subcutaneous|s\.?c\.?|sc\b|injection|injected)\b/,
+  };
+
+  const pattern = routePatterns[route];
+  if (pattern && pattern.test(dose)) return false;
+
+  const routeWords = route
+    .replace(/_/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 3);
+  if (routeWords.length && routeWords.every((word) => dose.includes(word))) return false;
+
+  return true;
+}
+
+function administrationSummaryText(claim) {
+  const dose = meaningfulText(claim.dose);
+  const rawRoute = meaningfulText(claim.route || claim.route_of_administration);
+  const normalizedRoute = meaningfulText(claim.administration_route);
+  const route = rawRoute || normalizedRoute;
+  const routeLabel = administrationRouteText(rawRoute, normalizedRoute);
+  if (!dose) return routeLabel;
+  if (!routeLabel || !routeAddsAdministrationDetail(dose, route)) return dose;
+  return compactUniqueParts([dose, routeLabel]).join(" • ");
 }
 
 const PUBLIC_HEALTH_TOPIC_ORDER = [
@@ -1859,48 +2166,66 @@ function publicHealthDataSourceFacetLabel(claim) {
 }
 
 const MECHANISTIC_ASSAY_FAMILY_ORDER = [
-  "Binding / affinity",
+  "Binding assays",
   "Receptor activity",
   "fMRI",
-  "PET / SPECT",
-  "MRI / MRS",
+  "PET",
+  "SPECT",
+  "MRI",
+  "MRS",
   "EEG",
   "MEG",
-  "LFP / electrophysiology",
-  "Calcium imaging / photometry",
-  "Behavioral assay",
-  "Protein expression / proteomics",
-  "Neurochemical levels",
-  "Gene expression",
-  "Immunoassay / histology",
-  "Computational / in silico",
-  "Transporter / uptake",
-  "Signaling / phosphorylation",
-  "Enzyme / metabolism",
-  "Other / mixed method",
+  "LFP",
+  "Electrophysiology",
+  "Calcium imaging",
+  "Fiber photometry",
+  "Behavioral assays",
+  "Protein assays",
+  "Proteomics",
+  "Neurochemical assays",
+  "Gene expression assays",
+  "Immunoassays",
+  "Histology",
+  "Computational modeling",
+  "Uptake assays",
+  "Signaling assays",
+  "Enzyme assays",
+  "Other methods",
 ];
-const LEGACY_REFINABLE_ASSAY_FAMILY_KEYS = new Set([
-  "functional activity",
-  "imaging / connectivity",
-  "electrophysiology",
-  "other / mixed method",
-]);
+const ASSAY_FAMILY_DISPLAY_LABELS = {
+  "binding / affinity": "Binding assays",
+  "functional activity": "Receptor activity",
+  "imaging / connectivity": "Other methods",
+  electrophysiology: "Electrophysiology",
+  "behavioral assay": "Behavioral assays",
+  "protein expression / proteomics": "Protein assays",
+  "neurochemical levels": "Neurochemical assays",
+  "gene expression": "Gene expression assays",
+  "immunoassay / histology": "Immunoassays",
+  "computational / in silico": "Computational modeling",
+  "transporter / uptake": "Uptake assays",
+  "signaling / phosphorylation": "Signaling assays",
+  "enzyme / metabolism": "Enzyme assays",
+  "other / mixed method": "Other methods",
+};
+for (const label of MECHANISTIC_ASSAY_FAMILY_ORDER) {
+  ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(label)] = label;
+}
 const BRAIN_MEASURE_ORDER = [
   "Functional connectivity",
   "BOLD response",
   "Cerebral blood flow",
   "Glucose metabolism",
   "Receptor occupancy",
-  "MRS neurochemistry",
-  "EEG power/oscillations",
+  "Neurochemical levels",
+  "Oscillatory power",
   "MMN",
   "P300",
   "ERP",
-  "LFP power",
   "Calcium activity",
   "c-Fos",
-  "Neurotransmitter levels",
-  "Structural MRI/DTI",
+  "Brain structure",
+  "White matter integrity",
 ];
 const MECHANISTIC_RELATIONSHIP_TYPE_ORDER = [
   "Binding/affinity",
@@ -2032,12 +2357,15 @@ function assayFamilyFromText(text) {
   if (/\b(fmri|rs\s?fmri|phmri|functional mri|functional magnetic resonance|asl|pcasl|arterial spin labell?ing)\b/.test(text)) {
     return "fMRI";
   }
+  if (/\b(spect|single photon)\b/.test(text)) {
+    return "SPECT";
+  }
   if (
-    /\b(pet|spect|fdg|h2?15o|15o labeled|18f|radiotracer|positron emission|single photon)\b/.test(
+    /\b(pet|fdg|h2?15o|15o labeled|18f|radiotracer|positron emission)\b/.test(
       text
     )
   ) {
-    return "PET / SPECT";
+    return "PET";
   }
   if (/\b(meg|magnetoencephalograph\w*)\b/.test(text)) {
     return "MEG";
@@ -2049,74 +2377,89 @@ function assayFamilyFromText(text) {
   ) {
     return "EEG";
   }
+  if (/\b(lfp|local field potential)\b/.test(text)) {
+    return "LFP";
+  }
   if (
-    /\b(electrophysiolog\w*|lfp|local field|patch clamp|voltage clamp|current clamp|field potential|field potentials|f?epsp|ipsc|epsc|tevc|whole cell|extracellular recording|single unit|multiunit|mua|synaptic transmission|synaptic plasticity|theta burst)\b/.test(
+    /\b(electrophysiolog\w*|patch clamp|voltage clamp|current clamp|field potential|field potentials|f?epsp|ipsc|epsc|tevc|whole cell|extracellular recording|single unit|multiunit|mua|synaptic transmission|synaptic plasticity|theta burst)\b/.test(
       text
     )
   ) {
-    return "LFP / electrophysiology";
+    return "Electrophysiology";
+  }
+  if (/\b(fiber photometry|fibre photometry|photometry)\b/.test(text)) {
+    return "Fiber photometry";
   }
   if (
-    /\b(calcium imaging|gcamp|fiber photometry|fibre photometry|photometry|two photon|2 photon|light sheet|functional ultrasound|fusi)\b/.test(
+    /\b(calcium imaging|gcamp|two photon|2 photon|light sheet|functional ultrasound|fusi)\b/.test(
       text
     )
   ) {
-    return "Calcium imaging / photometry";
+    return "Calcium imaging";
   }
-  if (/\b(mrs|magnetic resonance spectroscopy|nmr spectroscopy|spectroscopy|structural mri|dti|diffusion tensor|diffusion mri|mri|7t mri)\b/.test(text)) {
-    return "MRI / MRS";
+  if (/\b(mrs|magnetic resonance spectroscopy|nmr spectroscopy|spectroscopy|7t mrs)\b/.test(text)) {
+    return "MRS";
+  }
+  if (/\b(structural mri|dti|diffusion tensor|diffusion mri|mri|7t mri)\b/.test(text)) {
+    return "MRI";
   }
   if (
     /\b(radioligand|binding|affinity|competition|displacement|scatchard|autoradiograph|autoradiography|receptor density|receptor occupancy|binding potential|bpnd|bp nd)\b/.test(
       text
     )
   ) {
-    return "Binding / affinity";
+    return "Binding assays";
   }
   if (
     /\b(behavior\w*|behaviour\w*|behavioral pharmacology|drug discrimination|head twitch|htr|locomot|nocicept|antinocicept|forced swim|tail suspension|open field|prepulse)\b/.test(
       text
     )
   ) {
-    return "Behavioral assay";
+    return "Behavioral assays";
   }
   if (
     /\b(microdialysis|hplc|uhplc|neurotransmitter|monoamine|dopamine|serotonin|norepinephrine|noradrenaline|glutamate|gaba|release|metabolite|tissue content|neurochemical assay|electrochemical|voltammetry|fscv)\b/.test(
       text
     )
   ) {
-    return "Neurochemical levels";
+    return "Neurochemical assays";
   }
-  if (/\b(transport|transporter|uptake|reuptake|efflux|sert|dat|net)\b/.test(text)) return "Transporter / uptake";
+  if (/\b(transport|transporter|uptake|reuptake|efflux|sert|dat|net)\b/.test(text)) return "Uptake assays";
   if (
     /\b(gene expression|mrna|qpcr|qrt pcr|rt qpcr|rna seq|rnaseq|transcript|microarray|in situ hybridization|in situ hybridisation|genomic|immediate early gene|fos|arc|rnascope|snrna seq|single nucleus rna)\b/.test(
       text
     )
   ) {
-    return "Gene expression";
+    return "Gene expression assays";
+  }
+  if (/\b(phosphoproteomics?|proteomics?|proteomic|mass spectrometry)\b/.test(text)) {
+    return "Proteomics";
   }
   if (
-    /\b(western|immunoblot|protein expression|protein levels?|protein quantification|measurement of protein|proteomics?|mass spectrometry|synaptic expression|brain derived neurotrophic factor|bdnf|psd)\b/.test(
+    /\b(western|immunoblot|protein expression|protein levels?|protein quantification|measurement of protein|synaptic expression|brain derived neurotrophic factor|bdnf|psd)\b/.test(
       text
     )
   ) {
-    return "Protein expression / proteomics";
+    return "Protein assays";
+  }
+  if (/\b(histolog|staining|confocal|microscopy|golgi|stereology)\b/.test(text)) {
+    return "Histology";
   }
   if (
-    /\b(elisa|immunoassay|immunohistochemistry|immunocytochemistry|immunofluorescence|histolog|staining|confocal|microscopy|golgi|stereology|cytometric bead array|flow cytometry|cytokine production|cytokine assay|milliplex|chemokine)\b/.test(
+    /\b(elisa|immunoassay|immunohistochemistry|immunocytochemistry|immunofluorescence|cytometric bead array|flow cytometry|cytokine production|cytokine assay|milliplex|chemokine)\b/.test(
       text
     )
   ) {
-    return "Immunoassay / histology";
+    return "Immunoassays";
   }
   if (/\b(expression assay|expression measurement|expression in|expression analysis|detection of expression|gene expression|mrna|transcript)\b/.test(text)) {
-    return "Gene expression";
+    return "Gene expression assays";
   }
   if (/\b(phosphorylation|phospho|phosphoinositide|kinase|mtor|erk|akt|camp pathway|signal transduction|pathway activation)\b/.test(text)) {
-    return "Signaling / phosphorylation";
+    return "Signaling assays";
   }
   if (/\b(biochemical activity assay|proteasome|trypsin like|chymotrypsin like|ups activity)\b/.test(text)) {
-    return "Enzyme / metabolism";
+    return "Enzyme assays";
   }
   if (
     /\b(functional|activity|activation|agonis\w*|antagonis\w*|pharmacological antagonism|pharmacological blockade|pharmacological classification|g protein|beta arrestin|arrestin|bret|camp|ip1|inositol|calcium|recruitment|potency|efficacy|modulation)\b/.test(
@@ -2126,20 +2469,29 @@ function assayFamilyFromText(text) {
     return "Receptor activity";
   }
   if (/\b(computational|in silico|docking|modeling|modelling|prediction|admet|simulation|molecular dynamics)\b/.test(text)) {
-    return "Computational / in silico";
+    return "Computational modeling";
   }
   if (/\b(enzyme|enzymatic|metabolic|metabolism|esterase|pka|pk a|chemical assay|pka determination)\b/.test(text)) {
-    return "Enzyme / metabolism";
+    return "Enzyme assays";
   }
-  return "Other / mixed method";
+  return "Other methods";
 }
 
 function mechanisticAssayFamilyFacetLabel(claim) {
-  const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
   const refined = assayFamilyFromText(assayFamilyText(claim));
-  if (refined && (!normalized || LEGACY_REFINABLE_ASSAY_FAMILY_KEYS.has(normalizeValue(normalized)))) return refined;
-  if (normalized) return normalized;
+  if (refined && refined !== "Other methods") return refined;
+  const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
+  if (normalized) return ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(normalized)] || normalized;
   return refined;
+}
+
+function assayFamilySummaryLabel(claim) {
+  const refined = assayFamilyFromText(assayFamilyText(claim));
+  if (refined && refined !== "Other methods") return refined;
+  const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
+  if (normalized) return ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(normalized)] || normalized;
+  const raw = meaningfulText(claim.assay_family);
+  return raw ? ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(raw)] || cleanDisplayText(raw) : "";
 }
 
 function brainMeasureText(claim) {
@@ -2185,22 +2537,22 @@ function brainMeasureFacetLabels(claim) {
   add(/\b(cbf|rcbf|cerebral blood flow|regional cerebral blood flow|blood perfusion|perfusion|arterial spin labell?ing|asl|pcasl|hmpao)\b/.test(text), "Cerebral blood flow");
   add(/\b(fdg|glucose metabolism|metabolic activity|2dg|2 dg|deoxyglucose|deoxy glucose)\b/.test(text), "Glucose metabolism");
   add(/\b(receptor occupancy|binding potential|bpnd|bp nd|receptor availability|receptor binding|receptor density)\b/.test(text), "Receptor occupancy");
-  add(hasMRS && /\b(mrs|magnetic resonance spectroscopy|glutamate|glutamine|glx|gaba|n acetyl|nacetyl|naa)\b/.test(text), "MRS neurochemistry");
-  add(/\b(oscillation\w*|oscillatory|power density|band power|gamma|alpha|theta|delta|beta|desynchroni[sz]ation|current source density|source density)\b/.test(text), "EEG power/oscillations");
+  add(hasMRS && /\b(mrs|magnetic resonance spectroscopy|glutamate|glutamine|glx|gaba|n acetyl|nacetyl|naa)\b/.test(text), "Neurochemical levels");
+  add(/\b(oscillation\w*|oscillatory|power density|band power|gamma|alpha|theta|delta|beta|desynchroni[sz]ation|current source density|source density)\b/.test(text), "Oscillatory power");
   add(/\b(mmn|mismatch negativity)\b/.test(text), "MMN");
   add(/\b(p300|p3a|p3b|novelty p3)\b/.test(text), "P300");
   add(/\b(erp|event related potential|event related potentials)\b/.test(text), "ERP");
-  add(/\b(lfp|local field potential|local field potentials)\b/.test(text) && /\b(power|oscillation\w*|oscillatory|gamma|alpha|theta|delta|beta|hfo|frequency)\b/.test(text), "LFP power");
   add(/\b(calcium|ca2|ca 2|gcamp|fiber photometry|fibre photometry|photometry)\b/.test(text), "Calcium activity");
   add(/\b(c fos|cfos|fos\b|egr\b|arc\b|immediate early gene)\b/.test(text), "c-Fos");
   add(
     !hasMRS &&
-      /\b(neurotransmitter|microdialysis|monoamine|dopamine|serotonin|glutamate|gaba|norepinephrine|noradrenaline|5 ht|5 hiaa)\b/.test(
+      /\b(neurochemical|neurotransmitter|microdialysis|monoamine|dopamine|serotonin|glutamate|gaba|norepinephrine|noradrenaline|5 ht|5 hiaa)\b/.test(
         text
       ),
-    "Neurotransmitter levels"
+    "Neurochemical levels"
   );
-  add(/\b(dti|diffusion tensor|fractional anisotropy|structural mri|cortical thickness|gray matter|grey matter|brain volume|morphometry)\b/.test(text), "Structural MRI/DTI");
+  add(/\b(dti|diffusion tensor|fractional anisotropy|white matter|tract integrity)\b/.test(text), "White matter integrity");
+  add(/\b(structural mri|cortical thickness|gray matter|grey matter|brain volume|regional volume|morphometry)\b/.test(text), "Brain structure");
 
   return compactUniqueParts(labels);
 }
@@ -2471,8 +2823,8 @@ function literatureTypeBadgeHtml(claim) {
   return chipHtml("literature-type", label, label);
 }
 
-function studyDesignBadgeHtml(design) {
-  const label = studyDesignLabel(design);
+function studyDesignBadgeHtml(design, claim = null) {
+  const label = studyDesignLabel(design, claim);
   return chipHtml("study-design", label, label);
 }
 
@@ -2508,7 +2860,7 @@ function claimBadgeHtml(claim) {
   return [
     reviewBadgeHtml(claim),
     secondary ? "" : systemBadgeHtml(claim.system),
-    secondary || mode !== "disorders" ? "" : studyDesignBadgeHtml(claim.study_design),
+    secondary || mode !== "disorders" ? "" : studyDesignBadgeHtml(claim.study_design, claim),
     accessLevelBadgeHtml(claim.access_level),
     secondary ? literatureTypeBadgeHtml(claim) : "",
   ]
@@ -2913,65 +3265,29 @@ function disconnectBibliographyLoadObserver() {
   }
 }
 
-function createClaimCardElement(claim) {
-  const card = document.createElement("div");
-  card.className = "card";
-
+function claimCardInnerHtml(claim, referenceClass = "card-reference") {
   const secondary = isSecondaryLiteratureClaim(claim);
   const badges = claimBadgeHtml(claim);
 
-  const doiValue = meaningfulText(claim.study_doi);
-  const openAlexId = meaningfulText(claim.openalex_id);
-  const doiHref = doiUrl(doiValue);
-  const sourceLine = doiHref
-    ? claimFieldLine(
-        "DOI",
-        `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-          doiValue
-        )}</a>`
-      )
-    : openAlexId
-      ? claimFieldLine("OpenAlex", escapeHtml(String(openAlexId)))
-      : "";
-
   const relation = claimRelationText(claim);
-  const authors = claimAuthors(claim);
-  const journal = meaningfulText(claim.study_journal || claim.journal);
-
-  const mechanismSummary = [
-    cleanDisplayText(claim.mechanism_type),
-    cleanDisplayText(claim.action_type),
-  ]
-    .filter(Boolean)
-    .filter((part, index, parts) => parts.indexOf(part) === index)
-    .join(" • ");
-  const assaySummary = [
-    cleanDisplayText(claim.assay_type),
-    cleanDisplayText(claim.assay_family),
-    cleanDisplayText(claim.model_or_system),
-  ]
-    .filter(Boolean)
-    .filter((part, index, parts) => parts.indexOf(part) === index)
-    .join(" • ");
-  const doseRouteSummary = compactUniqueParts([claim.dose, claim.route || claim.route_of_administration]).join(" • ");
+  const doseRouteSummary = administrationSummaryText(claim);
   const pkAnalyte = compactUniqueParts([claim.metabolite_or_analyte, claim.compound_or_analyte]).join(" • ");
   const pkMatrix = compactUniqueParts([claim.matrix, claim.matrix_or_sample_type]).join(" • ");
   const pkMethod = compactUniqueParts([claim.model_or_method, claim.study_design]).join(" • ");
   const pkObject = compactUniqueParts([claim.pk_graph_object_label, claim.pk_graph_object_kind]).join(" • ");
   const publicHealthEstimate = compactUniqueParts([claim.estimate_value, claim.estimate_unit]).join(" ");
+  const systemSummary = compactUniqueParts([displayFieldLabel(claim.system, ""), claim.species]).join(" • ");
   const mainFinding = claimMainFindingText(claim);
   const mainFindingLine = !secondary && mainFinding
-    ? `<div class="card-main-finding"><span class="card-field-label">${
-        mode === "mechanistic" ? "Finding" : "Outcome"
-      }:</span> ${escapeHtml(mainFinding)}</div>`
+    ? `<div class="card-main-finding"><span class="card-field-label">Finding:</span> ${escapeHtml(mainFinding)}</div>`
     : "";
+  const referenceLine = studyReferenceHtml(claim, referenceClass);
 
   const evidenceLines = secondary
     ? ""
     : mode === "disorders"
       ? isRealWorldPublicHealthClaim(claim)
         ? [
-            claimFieldLineFromValue("Measure", claim.public_health_measure),
             claimFieldLineFromValue("Category", claim.public_health_topic_category),
             claimFieldLineFromValue("Estimate", publicHealthEstimate),
             claimFieldLineFromValue("Setting", claim.setting),
@@ -2979,10 +3295,12 @@ function createClaimCardElement(claim) {
             claimFieldLineFromValue("Time window", claim.time_window),
           ].join("")
         : [
-            claimFieldLineFromValue("Scale", claim.outcome_measure_normalized),
-            claimFieldLineFromValue("Sample", sampleSizeText(claim)),
-            claimFieldLineFromValue("Context", claim.clinical_context_condition),
             claimFieldLineFromValue("Population", claim.population),
+            claimFieldLineFromValue("Sample", sampleSizeText(claim)),
+            claimFieldLineFromValue("Condition", claim.clinical_context_condition),
+            claimFieldLineFromValue("Timepoint", claim.timepoint),
+            claimFieldLineFromValue("Comparator", claim.comparator_normalized || claim.comparator),
+            claimFieldLineFromValue("Administration", doseRouteSummary),
           ].join("")
       : isPharmacokineticsClaim(claim)
         ? [
@@ -2995,129 +3313,72 @@ function createClaimCardElement(claim) {
             claimFieldLineFromValue("Method", pkMethod),
           ].join("")
         : [
-            claimFieldLineFromValue("Mechanism", mechanismSummary),
-            claimFieldLineFromValue("Assay", assaySummary),
-            claimFieldLineFromValue("Species", claim.species),
+            claimFieldLineFromValue("System", systemSummary),
+            claimFieldLineFromValue("Administration", doseRouteSummary),
           ].join("");
-  const studyTitle = cleanDisplayText(claim.study_title);
-  const studyLine = studyTitle
-    ? `${escapeHtml(studyTitle)}${
-        claim.study_year != null && String(claim.study_year) !== ""
-          ? ` (${escapeHtml(String(claim.study_year))})`
-          : ""
-      }`
-    : "not available";
 
-  card.innerHTML = `
+  return `
       <div class="card-header">
         <h3>${relation}</h3>
         <div class="badge-row">${badges}</div>
       </div>
       <div class="meta">
         ${mainFindingLine}
-        ${claimFieldLine("Study", studyLine)}
-        ${claimFieldLine("Authors", escapeHtml(authors || "not available"))}
-        ${sourceLine ? sourceLine : ""}
-        ${claimFieldLine("Journal", escapeHtml(journal || "not available"))}
-        ${secondary ? "" : claimFieldLineFromValue("Trial registry", claim.trial_registry_ids)}
         ${evidenceLines}
+        ${secondary ? "" : claimFieldLineFromValue("Trial registry", claim.trial_registry_ids)}
+        ${referenceLine}
       </div>
     `;
+}
+
+function createClaimCardElement(claim) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = claimCardInnerHtml(claim);
 
   return card;
 }
 
+function cardsMasonryColumnCount(itemCount = Infinity) {
+  const width = cardsEl?.clientWidth || window.innerWidth;
+  const preferredCount = width <= 640 ? 1 : width <= 860 ? 2 : 4;
+  return Math.max(1, Math.min(preferredCount, itemCount));
+}
+
+function createCardsMasonryColumns(itemCount) {
+  const columnCount = cardsMasonryColumnCount(itemCount);
+  cardsEl.style.setProperty("--cards-masonry-column-count", String(columnCount));
+  return Array.from({ length: columnCount }, (_, index) => {
+    const column = document.createElement("div");
+    column.className = "cards-masonry-column";
+    column.dataset.masonryColumn = String(index + 1);
+    column.dataset.masonryHeight = "0";
+    cardsEl.appendChild(column);
+    return column;
+  });
+}
+
+function shortestCardsMasonryColumn(columns) {
+  return columns.reduce(
+    (shortest, column) =>
+      Number(column.dataset.masonryHeight || 0) < Number(shortest.dataset.masonryHeight || 0) ? column : shortest,
+    columns[0]
+  );
+}
+
+function appendCardToMasonryColumn(columns, card, index) {
+  const column = index < columns.length ? columns[index] : shortestCardsMasonryColumn(columns);
+  const previousHeight = Number(column.dataset.masonryHeight || 0);
+  column.appendChild(card);
+  const cardHeight = card.getBoundingClientRect().height || card.scrollHeight || 160;
+  column.dataset.masonryHeight = String(previousHeight + cardHeight + (previousHeight ? 16 : 0));
+}
+
 function renderCards(data) {
-  const searchValue = normalizeValue(searchInput?.value);
-  const rightKey = rightEntityKey();
+  const searchValue = normalizeSearchText(searchInput?.value);
   const cardData = !searchValue
     ? data
-    : data.filter((claim) => {
-        const haystack = [
-          claim.compound,
-          claim[rightKey],
-          claim.mechanism_type,
-          claim.assay_type,
-          claim.assay_family,
-          claim.action_type,
-          claim.study_title,
-          claim.affinity_type,
-          claim.outcome_type,
-          claim.outcome_domain,
-          claim.outcome_measure_normalized,
-          claim.sample_size_total,
-          claim.sample_size_by_arm,
-          claim.population,
-          claim.intervention_or_exposure,
-          claim.public_health_graph_label,
-          claim.public_health_topic_category,
-          claim.public_health_measure,
-          claim.exposure_or_policy,
-          claim.exposure_or_intervention,
-          claim.setting,
-          claim.estimate_value,
-          claim.estimate_unit,
-          claim.association_or_trend,
-          claim.time_window,
-          claim.data_source_or_study_design,
-          claim.comparison_or_reference_group,
-          claim.policy_or_practice_implication,
-          claim.comparator,
-          claim.dose,
-          claim.route,
-          claim.route_of_administration,
-          claim.compound_or_analyte,
-          claim.primary_graph_anchor_kind,
-          claim.pk_relationship_type,
-          claim.pk_relationship_label,
-          claim.pk_graph_object_kind,
-          claim.pk_graph_object_label,
-          claim.analyte_type,
-          claim.metabolite_or_analyte,
-          claim.matrix,
-          claim.matrix_or_sample_type,
-          claim.pk_or_exposure_parameter,
-          claim.value,
-          claim.unit,
-          claim.sampling_time_or_window,
-          claim.study_design,
-          claim.dose_standardization_or_equivalence,
-          claim.comparator_or_reference,
-          claim.co_exposure_or_modifier,
-          claim.metabolic_or_transport_target,
-          claim.metabolic_or_transport_pathway,
-          claim.model_or_method,
-          claim.interaction_or_potentiation_context,
-          claim.exposure_response_or_pk_effect,
-          claim.exposure_response_implication,
-          claim.synthesis_interpretation,
-          claim.timepoint,
-          claim.adverse_events,
-          claim.support,
-          claim.supporting_quote,
-          claim.raw_entity_label,
-          claim.entity_role,
-          claim.clinical_context_condition,
-          claim.graph_entity_label,
-          claim.graph_exclusion_reason,
-          claim.normalization_status,
-          claim.normalization_notes,
-          claim.canonical_compound,
-          claim.canonical_entity,
-          claim.paper_assessment_route,
-          claim.paper_type,
-          claim.source_family,
-          claim.source_type,
-          claimAuthors(claim),
-          claim.study_doi,
-          claim.openalex_id,
-          graphRightLabelForClaim(claim),
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(searchValue);
-      });
+    : data.filter((claim) => claimSearchHaystack(claim).includes(searchValue));
 
   disconnectCardsLoadObserver();
   cardsEl.innerHTML = "";
@@ -3127,11 +3388,12 @@ function renderCards(data) {
   }
 
   let rendered = 0;
+  const cardColumns = createCardsMasonryColumns(cardData.length);
 
   function appendCardsChunk() {
     const end = Math.min(rendered + LIST_CHUNK_SIZE, cardData.length);
     for (let i = rendered; i < end; i += 1) {
-      cardsEl.appendChild(createClaimCardElement(cardData[i]));
+      appendCardToMasonryColumn(cardColumns, createClaimCardElement(cardData[i]), i);
     }
     rendered = end;
   }
@@ -3191,6 +3453,7 @@ function normalizeBibliographyPaper(item, index = 0) {
     trialRegistryIds: cleanDisplayText(item?.trial_registry_ids ?? item?.trialRegistryIds),
     keywords: cleanDisplayText(item?.keywords),
     meshTerms: cleanDisplayText(item?.mesh_terms ?? item?.meshTerms),
+    searchText: rawSearchTextForObject(item),
     contexts: Array.isArray(item?.contexts)
       ? item.contexts
           .map((context) => ({
@@ -3273,6 +3536,7 @@ function bibliographyRowsFromClaims(data) {
       },
       index
     );
+    baseEntry.searchText = normalizeSearchText([baseEntry.searchText, claimSearchHaystack(claim)].join(" "));
     addBibliographyContext(baseEntry, claim.compound, graphRightLabelForClaim(claim) || claim[rightKey]);
     const id = bibliographyEntryId(baseEntry, index);
     const existing = studies.get(id);
@@ -3286,6 +3550,7 @@ function bibliographyRowsFromClaims(data) {
         if (!existing[field] && baseEntry[field]) existing[field] = baseEntry[field];
       }
     );
+    existing.searchText = normalizeSearchText([existing.searchText, baseEntry.searchText].join(" "));
     baseEntry.contexts.forEach((context) => addBibliographyContext(existing, context.compound, context.entity));
   });
 
@@ -3348,8 +3613,9 @@ function bibliographyHaystack(entry) {
   const contextText = (entry.contexts || [])
     .map((context) => `${context.compound} ${context.entity}`)
     .join(" ");
-  return normalizeValue(
+  return normalizeSearchText(
     [
+      entry.searchText,
       entry.title,
       entry.authors,
       entry.journal,
@@ -3393,7 +3659,7 @@ function renderBibliography(data) {
   if (!studyListEl) return;
 
   const rows = bibliographyRowsForCurrentView(data);
-  const bibliographyQuery = normalizeValue(bibliographySearchInput?.value);
+  const bibliographyQuery = normalizeSearchText(bibliographySearchInput?.value);
   const filteredRows = !bibliographyQuery
     ? rows
     : rows.filter((entry) => bibliographyHaystack(entry).includes(bibliographyQuery));
@@ -3532,6 +3798,44 @@ function claimFieldLineFromValue(label, value) {
   return text ? claimFieldLine(label, escapeHtml(text)) : "";
 }
 
+function linkedStudyIdentifierHtml(claim) {
+  const doiValue = meaningfulText(claim.study_doi);
+  const doiHref = doiUrl(doiValue);
+  if (doiValue && doiHref) {
+    return `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">doi:${escapeHtml(doiValue)}</a>`;
+  }
+
+  const openAlexId = meaningfulText(claim.openalex_id);
+  const openAlexHref = openAlexUrl(openAlexId);
+  if (openAlexId && openAlexHref) {
+    return `<a href="${openAlexHref}" target="_blank" rel="noopener noreferrer">OpenAlex</a>`;
+  }
+
+  return "";
+}
+
+function studyReferenceHtml(claim, className = "card-reference") {
+  const authors = citationAuthors(claimAuthors(claim));
+  const year = meaningfulText(claim.study_year);
+  const title = meaningfulText(claim.study_title) || "Untitled study";
+  const journal = meaningfulText(claim.study_journal || claim.journal);
+  const source = linkedStudyIdentifierHtml(claim);
+  const authorYear = compactUniqueParts([
+    authors && authors !== "Unknown authors" ? authors : "",
+    year ? `(${year})` : "",
+  ]).join(" ");
+  const citation = [
+    authorYear ? escapeHtml(sentencePart(authorYear)) : "",
+    escapeHtml(sentencePart(title)),
+    journal ? `<span class="card-reference-journal">${escapeHtml(sentencePart(journal))}</span>` : "",
+    source,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return citation ? `<div class="${className}">${citation}</div>` : "";
+}
+
 function claimRelationText(claim) {
   const rightKey = rightEntityKey();
   const compound = meaningfulText(claim.compound) || "Unknown compound";
@@ -3593,7 +3897,52 @@ function displayOutcomeType(value) {
   return text ? labelFromSlug(text) : "";
 }
 
+function conciseFindingText(value, maxChars = MAIN_FINDING_MAX_CHARS) {
+  const text = meaningfulText(value).replace(/\s+/g, " ").trim();
+  if (!text) return "";
+
+  const emptyKey = normalizeValue(text.replace(/[.?!]+$/g, ""));
+  if (EMPTY_FIELD_VALUES.has(emptyKey)) return "";
+  if (text.length <= maxChars) return text;
+
+  const preview = text.slice(0, Math.max(1, maxChars - 3)).trimEnd();
+  const sentenceEnd = Math.max(preview.lastIndexOf(". "), preview.lastIndexOf("; "));
+  if (sentenceEnd >= 100) return preview.slice(0, sentenceEnd + 1);
+  return `${preview.replace(/[,\s;:]+$/g, "")}...`;
+}
+
+function resultDetailText(claim) {
+  const text = meaningfulText(claim.effect_size).replace(/\s+/g, " ").trim();
+  if (!text) return "";
+
+  const normalized = normalizeValue(text);
+  const genericDetailPatterns = [
+    /^qualitative summary(?: of scores)?$/,
+    /^mean\s*(?:\u00b1|\+\/-|plus minus)?\s*(?:sem|sd)?$/,
+    /^descriptive(?: statistics)?$/,
+    /^count$/,
+    /^serum concentration$/,
+    /^(?:one|two)-way anova(?:\b|$)/,
+    /^anova(?:\b|$)/,
+  ];
+  if (genericDetailPatterns.some((pattern) => pattern.test(normalized))) return "";
+  if (normalizeValue(claim.support) === normalized) return "";
+  return conciseFindingText(text, 180);
+}
+
+function outcomeMeasureSummaryText(claim) {
+  const outcome = meaningfulText(claim.outcome_measure) || displayOutcomeType(claim.outcome_type);
+  const scale = meaningfulText(claim.outcome_measure_normalized);
+  return compactUniqueParts([outcome, scale]).join(" · ");
+}
+
 function claimMainFindingText(claim) {
+  const support = conciseFindingText(claim.support);
+  if (support) return support;
+
+  const resultDetail = resultDetailText(claim);
+  if (resultDetail) return resultDetail;
+
   if (mode === "mechanistic") {
     const value = [
       meaningfulText(claim.affinity_value),
@@ -3602,7 +3951,7 @@ function claimMainFindingText(claim) {
       .filter(Boolean)
       .join(" ");
     if (value) {
-      return compactUniqueParts([claim.affinity_type || "Measure", value]).join(" · ");
+      return compactUniqueParts([claim.affinity_type, value]).join(" · ");
     }
     return compactUniqueParts([claim.mechanism_type, claim.action_type, claim.assay_type]).join(" · ");
   }
@@ -3612,10 +3961,7 @@ function claimMainFindingText(claim) {
     return compactUniqueParts([claim.public_health_measure, estimate, claim.association_or_trend]).join(" · ");
   }
 
-  const outcome = meaningfulText(claim.outcome_measure) || displayOutcomeType(claim.outcome_type);
-  const scale = meaningfulText(claim.outcome_measure_normalized);
-  const parts = compactUniqueParts([outcome, scale]);
-  return parts.join(" · ");
+  return outcomeMeasureSummaryText(claim);
 }
 
 function sampleSizeBinsForItems(items = []) {
@@ -3853,6 +4199,7 @@ function summarizeFacetEvidence(items, valueForClaim) {
         : label;
     const study = studyKey(claim, index);
     const entry = map.get(value) || { label, value, claims: 0, studies: new Set() };
+    entry.label = preferredFacetLabel(entry.label, label);
     entry.claims += 1;
     entry.studies.add(study);
     map.set(value, entry);
@@ -3892,6 +4239,7 @@ function summarizeMultiFacetEvidence(items, valuesForClaim) {
           ? meaningfulText(rawValue.value || rawValue.id || rawValue.key || label)
           : label;
       const entry = map.get(value) || { label, value, claims: 0, studies: new Set() };
+      entry.label = preferredFacetLabel(entry.label, label);
       entry.claims += 1;
       entry.studies.add(study);
       map.set(value, entry);
@@ -3912,6 +4260,43 @@ function summarizeMultiFacetEvidence(items, valuesForClaim) {
       if (byClaims !== 0) return byClaims;
       return a.label.localeCompare(b.label);
     });
+}
+
+function facetLabelCaseScore(label) {
+  const text = meaningfulText(label);
+  if (!text) return 0;
+  const letters = text.match(/[A-Za-z]/g) || [];
+  if (!letters.length) return text.length / 1000;
+  const uppercaseCount = letters.filter((letter) => letter === letter.toUpperCase()).length;
+  const lowercaseCount = letters.length - uppercaseCount;
+  const isAllLowercase = uppercaseCount === 0 && lowercaseCount > 0;
+  const isAllUppercase = lowercaseCount === 0 && uppercaseCount > 0;
+  const hasMixedCase = uppercaseCount > 0 && lowercaseCount > 0;
+  return (
+    (hasMixedCase ? 100 : 0) +
+    (isAllUppercase ? 40 : 0) -
+    (isAllLowercase ? 40 : 0) +
+    uppercaseCount / 100 +
+    text.length / 1000
+  );
+}
+
+function preferredFacetLabel(currentLabel, candidateLabel) {
+  const current = meaningfulText(currentLabel);
+  const candidate = meaningfulText(candidateLabel);
+  if (!candidate) return current;
+  if (!current) return candidate;
+  return facetLabelCaseScore(candidate) > facetLabelCaseScore(current) ? candidate : current;
+}
+
+function journalFacetKey(value) {
+  return meaningfulText(value).toLocaleLowerCase("en-US").replace(/\s+/g, " ");
+}
+
+function journalFacetValue(claim) {
+  const label = meaningfulText(claim.study_journal || claim.journal);
+  const value = journalFacetKey(label);
+  return label && value ? { label, value } : "";
 }
 
 function summarizeAuthorRoleEvidence(items) {
@@ -4038,16 +4423,23 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
   }
 
   const palette = options.palette || CATEGORY_COLORS;
-  const fillForEntry = (entry, index) => chartFillSoft(colorForEntry(entry, index, palette));
+  const colorsForEntry = (entry, index) => {
+    const color = colorForEntry(entry, index, palette);
+    return {
+      fill: chartFillSoft(color, isOtherEntry(entry) ? 0.86 : 0.93),
+      glow: chartFillSoft(color, isOtherEntry(entry) ? 0.18 : 0.34),
+    };
+  };
   const segments = limitedEntries
     .map((entry, index) => {
       const value = Number(entry[valueKey]) || 0;
       const width = (value / total) * 100;
       const label = entry.displayLabel || entry.label;
+      const colors = colorsForEntry(entry, index);
       return `<span class="trend-stack-segment${compositionTargetClass(entry)}" ${compositionFilterAttrs(
         entry,
         filterField
-      )} style="width: ${width.toFixed(2)}%; background: ${fillForEntry(entry, index)}" title="${escapeHtml(
+      )} style="width: ${width.toFixed(2)}%; --bar-fill: ${colors.fill}; --bar-glow: ${colors.glow}; background: var(--bar-fill)" title="${escapeHtml(
         `${label}: ${formatCompactNumber(entry.studies)} studies, ${formatCompactNumber(entry.count)} findings`
       )}"></span>`;
     })
@@ -4056,9 +4448,10 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
     .map((entry, index) => {
       const value = Number(entry[valueKey]) || 0;
       const label = entry.displayLabel || entry.label;
+      const colors = colorsForEntry(entry, index);
       return `
         <span class="trend-legend-item${compositionTargetClass(entry)}" ${compositionFilterAttrs(entry, filterField)}>
-          <i style="background: ${fillForEntry(entry, index)}"></i>
+          <i style="--bar-fill: ${colors.fill}; --bar-glow: ${colors.glow}; background: var(--bar-fill)"></i>
           ${escapeHtml(label)} <strong>${formatCompactNumber(value)}</strong>
         </span>
       `;
@@ -4155,7 +4548,7 @@ function renderAuthorRoleChart(items) {
 }
 
 function renderJournalChart(items) {
-  const journalEntries = summarizeFacetEvidence(items, (claim) => claim.study_journal);
+  const journalEntries = summarizeFacetEvidence(items, journalFacetValue);
   return renderHorizontalBarChart(journalEntries, "Journals", "", {
     filterField: "study_journal",
     emptyText: "No journal metadata in this selection.",
@@ -4474,11 +4867,6 @@ function colorForEntry(entry, index, palette = CATEGORY_COLORS) {
   return isOtherEntry(entry) ? OTHER_CATEGORY_COLOR : palette[index % palette.length];
 }
 
-function colorForCategory(label, index, field = "") {
-  if (isOtherEntry({ label })) return OTHER_CATEGORY_COLOR;
-  return CATEGORY_COLORS[index % CATEGORY_COLORS.length];
-}
-
 function compositionFilterAttrs(entry, field) {
   if (!field || !entry?.label || entry.isAggregate) return "";
   const label = entry.displayLabel || displayFieldLabel(entry.label);
@@ -4496,8 +4884,8 @@ function compositionTargetClass(entry) {
   return entry?.isAggregate ? "" : " composition-filter-target";
 }
 
-/** Overview trend charts (#rrggbb only): soften fills so categorical colors sit inside the dark UI. */
-function chartFillSoft(hexColor, alpha = 0.82) {
+/** Overview trend charts (#rrggbb only): soften fills while keeping a slight luminous edge in the dark UI. */
+function chartFillSoft(hexColor, alpha = 0.88) {
   const s = (hexColor || "").trim();
   if (!s.startsWith("#")) return s;
   const hex = s.slice(1);
@@ -4594,7 +4982,8 @@ function renderAnnualPublicationChart(items) {
           data-record-singular="${escapeHtml(recordLabels.lowerSingular)}">
           <rect class="publication-year-hit" x="${hitX.toFixed(2)}" y="${margin.top}" width="${hitWidth.toFixed(2)}" height="${plotHeight}" rx="3"></rect>
           <rect class="publication-year-bar" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${barHeight.toFixed(2)}" rx="2" fill="${chartFillSoft(
-            PUBLICATION_YEAR_COLOR
+            PUBLICATION_YEAR_COLOR,
+            0.92
           )}"></rect>
         </g>
       `;
@@ -4811,54 +5200,19 @@ function renderEvidenceDetailGroup(items) {
   `;
 }
 
-function renderCompositionChart(items, field, title, options = {}) {
-  let entries = sortCompositionEntries(countByField(items, field, options), field);
-  if (!entries.length) {
-    return trendCardHtml(title, "Finding composition", '<div class="trend-empty">No categorized evidence.</div>');
-  }
-  entries = limitCompositionEntries(entries, options.maxEntries || 6);
-
-  const total = entries.reduce((sum, entry) => sum + entry.count, 0);
-  const segments = entries
-    .map((entry, index) => {
-      const width = total ? (entry.count / total) * 100 : 0;
-      return `<span class="trend-stack-segment${compositionTargetClass(entry)}" ${compositionFilterAttrs(
-        entry,
-        field
-      )} style="width: ${width.toFixed(2)}%; background: ${chartFillSoft(
-        colorForCategory(entry.label, index, field)
-      )}" title="${escapeHtml(displayFieldLabel(entry.label))}: ${entry.count}"></span>`;
-    })
-    .join("");
-  const legend = entries
-    .map(
-      (entry, index) => `
-        <span class="trend-legend-item${compositionTargetClass(entry)}" ${compositionFilterAttrs(entry, field)}>
-          <i style="background: ${chartFillSoft(colorForCategory(entry.label, index, field))}"></i>
-          ${escapeHtml(displayFieldLabel(entry.label))} <strong>${formatCompactNumber(entry.count)}</strong>
-        </span>
-      `
-    )
-    .join("");
-
-  const compositionSubtitle =
-    options.subtitle !== undefined
-      ? options.subtitle
-      : "Findings";
-  return trendCardHtml(
-    title,
-    compositionSubtitle,
-    `
-      <div class="trend-stack">${segments}</div>
-      <div class="trend-legend">${legend}</div>
-    `
-  );
-}
-
 function renderExperimentalSystemChart(items) {
   if (evidenceView !== "primary") return "";
   if (!currentDetailPanelProfile().experimentalSystem) return "";
-  return renderCompositionChart(items, "system", "Experimental system");
+  const entries = sortCompositionEntries(countByField(items, "system"), "system").map((entry) => ({
+    label: displayFieldLabel(entry.label),
+    value: entry.label,
+    claims: entry.count,
+    studies: entry.studies,
+  }));
+  return renderFacetCompositionChart(entries, "Experimental system", "system", {
+    emptyText: "No experimental-system metadata in this selection.",
+    maxEntries: 6,
+  });
 }
 
 function renderSpecificPathwayReadoutChart(items) {
@@ -4882,67 +5236,10 @@ function renderDetailClaimCards(items) {
     return (a.study_title || "").localeCompare(b.study_title || "");
   });
 
-  const rightKey = rightEntityKey();
   const body = `
     <div class="detail-claim-cards">
       ${sortedClaims
-        .map((claim) => {
-          const secondary = isSecondaryLiteratureClaim(claim);
-          const relation = claimRelationText(claim);
-          const doiHref = doiUrl(claim.study_doi);
-          const source = doiHref
-            ? `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(claim.study_doi)}</a>`
-            : claim.openalex_id
-            ? `<a href="${openAlexUrl(claim.openalex_id)}" target="_blank" rel="noopener noreferrer">${escapeHtml(claim.openalex_id)}</a>`
-            : "";
-          const mainLine = secondary
-            ? secondaryCoverageText(claim)
-            : mode === "mechanistic"
-              ? `${claim.affinity_value ? claim.affinity_type || "Measure" : claim.mechanism_type || "Mechanism"} ${
-                  claim.affinity_value || claim.action_type || claim.assay_type || "reported"
-                } ${claim.affinity_unit || ""}`.trim()
-              : `${meaningfulText(claim.outcome_type) || "Outcome"}${
-                  meaningfulText(claim.outcome_measure_normalized)
-                    ? ` · ${meaningfulText(claim.outcome_measure_normalized)}`
-                    : meaningfulText(claim.outcome_measure)
-                      ? ` · ${meaningfulText(claim.outcome_measure)}`
-                      : ""
-                }`;
-          const contextLine = secondary
-            ? [literatureTypeLabel(claim), evidenceLocationText(claim)].filter(Boolean).join(" · ")
-            : mode === "mechanistic"
-              ? `System: ${claim.system || "unknown"} · Species: ${claim.species || "unknown"}`
-              : `Population: ${claim.population || "unknown"}`;
-          const sampleLine =
-            !secondary && mode === "disorders"
-              ? [
-                  sampleSizeText(claim) ? `Sample: ${sampleSizeText(claim)}` : "",
-                  meaningfulText(claim.timepoint) ? `Timepoint: ${meaningfulText(claim.timepoint)}` : "",
-                  meaningfulText(claim.comparator) ? `Comparator: ${meaningfulText(claim.comparator)}` : "",
-                ]
-                  .filter(Boolean)
-                  .join(" · ")
-              : "";
-          const journalLine = [claim.study_journal, claim.publication_type]
-            .map(cleanDisplayText)
-            .filter(Boolean)
-            .join(" · ");
-
-          return `
-            <article class="detail-claim-card">
-              <h5>${escapeHtml(relation)}</h5>
-              <div class="detail-claim-meta">
-                <div>${escapeHtml(mainLine)}</div>
-                <div>${escapeHtml(contextLine)}</div>
-                ${sampleLine ? `<div>${escapeHtml(sampleLine)}</div>` : ""}
-                <div>${escapeHtml(cleanDisplayText(claim.study_title) || "Unknown study")}${claim.study_year ? ` (${escapeHtml(claim.study_year)})` : ""}</div>
-                ${journalLine ? `<div>${escapeHtml(journalLine)}</div>` : ""}
-                ${source ? `<div>${source}</div>` : ""}
-              </div>
-              <div class="badge-row">${claimBadgeHtml(claim)}</div>
-            </article>
-          `;
-        })
+        .map((claim) => `<article class="card detail-claim-card">${claimCardInnerHtml(claim, "card-reference detail-reference")}</article>`)
         .join("")}
     </div>
   `;
@@ -5049,6 +5346,7 @@ function fieldValueForClaim(claim, field) {
   if (field === "specific_pathway_readout") return specificPathwayReadoutLabel(claim);
   if (field === "first_author") return authorRoleIdentity(claim, "first").id || firstAuthorName(claim);
   if (field === "last_author") return authorRoleIdentity(claim, "last").id || lastAuthorName(claim);
+  if (field === "study_journal") return journalFacetKey(claim.study_journal || claim.journal);
   return cleanDisplayText(claim[field]);
 }
 
@@ -5904,9 +6202,9 @@ function scheduleRender() {
 function updateSearchPlaceholder() {
   if (!searchInput) return;
   if (mode === "mechanistic") {
-    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, or assays`;
+    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, assays, methods, or papers`;
   } else {
-    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, or outcomes`;
+    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, outcomes, methods, or papers`;
   }
 }
 

@@ -401,10 +401,8 @@ def normalized_source_family(value: object) -> str:
 
 def normalized_assay_family(raw: dict, record: dict) -> str:
     existing = field_value(raw, record, "assay_family_normalized", "normalized_assay_family")
-    if existing:
-        return existing
     return normalize_mechanistic_assay_family(
-        field_value(raw, record, "assay_family"),
+        existing or field_value(raw, record, "assay_family"),
         field_value(raw, record, "assay_type"),
     )
 

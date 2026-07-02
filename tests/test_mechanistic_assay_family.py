@@ -4,12 +4,16 @@ from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assa
 def test_neural_assay_families_keep_familiar_acronyms() -> None:
     examples = {
         "resting-state fMRI BOLD connectivity": "fMRI",
-        "18F-FDG PET receptor occupancy": "PET / SPECT",
+        "18F-FDG PET receptor occupancy": "PET",
+        "99mTc-HMPAO SPECT": "SPECT",
         "EEG event-related potential P300": "EEG",
         "MEG oscillatory power": "MEG",
-        "local field potential (LFP)": "LFP / electrophysiology",
-        "fiber photometry GCaMP6s": "Calcium imaging / photometry",
-        "7T magnetic resonance spectroscopy": "MRI / MRS",
+        "local field potential (LFP)": "LFP",
+        "whole-cell patch clamp": "Electrophysiology",
+        "fiber photometry GCaMP6s": "Fiber photometry",
+        "two-photon calcium imaging": "Calcium imaging",
+        "7T magnetic resonance spectroscopy": "MRS",
+        "structural MRI": "MRI",
     }
 
     for raw, expected in examples.items():
@@ -18,11 +22,28 @@ def test_neural_assay_families_keep_familiar_acronyms() -> None:
 
 def test_non_neural_assay_families_stay_stable() -> None:
     examples = {
-        "radioligand competition binding": "Binding / affinity",
+        "radioligand competition binding": "Binding assays",
         "cAMP beta-arrestin recruitment": "Receptor activity",
-        "Western blot protein expression": "Protein expression / proteomics",
-        "qPCR mRNA expression": "Gene expression",
+        "Western blot protein expression": "Protein assays",
+        "LC-MS/MS phosphoproteomics": "Proteomics",
+        "qPCR mRNA expression": "Gene expression assays",
     }
 
     for raw, expected in examples.items():
         assert normalize_mechanistic_assay_family("", raw) == expected
+
+
+def test_existing_and_legacy_assay_families_are_canonicalized() -> None:
+    examples = {
+        "Binding / affinity": "Binding assays",
+        "Protein expression / proteomics": "Protein assays",
+        "Immunoassay / histology": "Immunoassays",
+        "Other / mixed method": "Other methods",
+        "Protein assays": "Protein assays",
+        "Gene expression assays": "Gene expression assays",
+    }
+
+    for raw, expected in examples.items():
+        assert normalize_mechanistic_assay_family(raw, "") == expected
+
+    assert normalize_mechanistic_assay_family("Imaging / connectivity", "resting-state fMRI") == "fMRI"

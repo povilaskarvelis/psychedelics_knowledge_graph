@@ -1984,6 +1984,7 @@ button.primary:hover {
   pointer-events: none;
   transform-box: fill-box;
   transform-origin: bottom center;
+  filter: saturate(1.1) brightness(1.04);
   transition:
     filter 0.15s ease,
     opacity 0.15s ease,
@@ -1993,7 +1994,7 @@ button.primary:hover {
 .publication-year-target:hover .publication-year-bar,
 .publication-year-target.hovered .publication-year-bar,
 .publication-year-target:focus-visible .publication-year-bar {
-  filter: drop-shadow(0 0 8px rgba(63, 174, 166, 0.28));
+  filter: saturate(1.2) brightness(1.12) drop-shadow(0 0 9px rgba(63, 174, 166, 0.36));
   opacity: 1;
   transform: scaleY(1.06);
 }
@@ -2064,8 +2065,10 @@ button.primary:hover {
 .trend-bar-row.interactive-bar:hover .trend-bar-track span,
 .trend-bar-row.interactive-bar.hovered .trend-bar-track span,
 .trend-bar-row.interactive-bar:focus-visible .trend-bar-track span {
-  filter: brightness(1.12);
-  box-shadow: 0 0 14px rgba(169, 247, 239, 0.26);
+  filter: saturate(1.2) brightness(1.16);
+  box-shadow:
+    0 0 15px rgba(169, 247, 239, 0.28),
+    inset 0 0 7px rgba(255, 237, 190, 0.2);
 }
 
 .trend-bar-row.interactive-bar:hover .trend-bar-topline span,
@@ -2098,6 +2101,7 @@ button.primary:hover {
   border-radius: 4px;
   overflow: hidden;
   background: rgba(238, 240, 235, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(238, 240, 235, 0.035);
 }
 
 .trend-bar-track span {
@@ -2106,12 +2110,18 @@ button.primary:hover {
   height: 100%;
   border-radius: inherit;
   background: var(--accent);
-  box-shadow: 0 0 12px rgba(241, 183, 75, 0.2);
+  filter: saturate(1.13) brightness(1.06);
+  box-shadow:
+    0 0 13px rgba(241, 183, 75, 0.28),
+    inset 0 0 6px rgba(255, 237, 190, 0.18);
 }
 
 .trend-card.bar-tone-gray .trend-bar-track span {
   background: #9ea9b5;
-  box-shadow: 0 0 10px rgba(158, 169, 181, 0.16);
+  filter: saturate(1.06) brightness(1.05);
+  box-shadow:
+    0 0 11px rgba(188, 197, 207, 0.18),
+    inset 0 0 5px rgba(238, 240, 235, 0.1);
 }
 
 .trend-card.bar-tone-gray .trend-bar-row.interactive-bar:hover .trend-bar-track span,
@@ -2229,10 +2239,14 @@ button.primary:hover {
 
 .trend-stack {
   display: flex;
-  height: 13px;
+  height: 14px;
   overflow: hidden;
   border-radius: 4px;
   background: rgba(238, 240, 235, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(169, 247, 239, 0.06),
+    0 0 14px rgba(73, 214, 200, 0.08),
+    inset 0 0 10px rgba(238, 240, 235, 0.04);
 }
 
 .trend-stack span {
@@ -2240,6 +2254,10 @@ button.primary:hover {
 }
 
 .trend-stack-segment {
+  filter: saturate(1.18) brightness(1.07);
+  box-shadow:
+    inset 0 0 8px var(--bar-glow, rgba(169, 247, 239, 0.14)),
+    inset 0 1px rgba(238, 240, 235, 0.08);
   transition:
     filter 0.15s ease,
     opacity 0.15s ease,
@@ -2247,7 +2265,10 @@ button.primary:hover {
 }
 
 .trend-stack-segment + .trend-stack-segment {
-  box-shadow: inset 1px 0 rgba(7, 10, 10, 0.58);
+  box-shadow:
+    inset 1px 0 rgba(7, 10, 10, 0.58),
+    inset 0 0 8px var(--bar-glow, rgba(169, 247, 239, 0.14)),
+    inset 0 1px rgba(238, 240, 235, 0.08);
 }
 
 .composition-filter-target {
@@ -2262,7 +2283,7 @@ button.primary:hover {
 .trend-stack-segment.composition-filter-target:hover,
 .trend-stack-segment.composition-filter-target.hovered,
 .trend-stack-segment.composition-filter-target:focus-visible {
-  filter: brightness(1.16) drop-shadow(0 0 8px rgba(169, 247, 239, 0.34));
+  filter: saturate(1.28) brightness(1.18) drop-shadow(0 0 8px rgba(169, 247, 239, 0.38));
   opacity: 1;
   transform: scaleY(1.12);
 }
@@ -2301,6 +2322,10 @@ button.primary:hover {
   height: 10px;
   border-radius: 2px;
   flex: 0 0 auto;
+  filter: saturate(1.18) brightness(1.07);
+  box-shadow:
+    0 0 8px var(--bar-glow, rgba(169, 247, 239, 0.12)),
+    inset 0 0 4px rgba(238, 240, 235, 0.08);
 }
 
 .trend-legend-item strong {
@@ -2315,10 +2340,6 @@ button.primary:hover {
 .metadata-composition {
   display: grid;
   gap: 9px;
-}
-
-.metadata-composition-card .trend-stack {
-  height: 16px;
 }
 
 .scale-chip-grid {
@@ -2494,6 +2515,12 @@ button.primary:hover {
   color: var(--muted);
   font-size: 0.76rem;
   line-height: 1.35;
+}
+
+.detail-reference {
+  margin-top: 3px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(151, 168, 175, 0.16);
 }
 
 .detail-claim-meta a {
@@ -2726,14 +2753,26 @@ input[type="number"] {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--cards-masonry-column-count, 4), minmax(0, 1fr));
   gap: 16px;
+  align-content: start;
   max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 6px;
+}
+
+.cards-masonry-column {
+  display: grid;
+  gap: 16px;
   align-content: start;
-  grid-auto-rows: max-content;
+  min-width: 0;
+}
+
+.cards .card {
+  display: grid;
+  width: 100%;
+  margin: 0;
 }
 
 .cards-panel {
@@ -2755,10 +2794,15 @@ input[type="number"] {
 /* Sentinel nodes for progressive list loading (IntersectionObserver). */
 .cards-load-sentinel,
 .bibliography-load-sentinel {
+  display: block;
   height: 1px;
   margin: 0;
   padding: 0;
   pointer-events: none;
+}
+
+.cards-load-sentinel {
+  grid-column: 1 / -1;
 }
 
 .study-item {
@@ -2842,12 +2886,58 @@ input[type="number"] {
   gap: 5px;
 }
 
+.detail-claim-card.card {
+  padding: 12px;
+  gap: 10px;
+  background:
+    linear-gradient(180deg, rgba(15, 19, 20, 0.7), rgba(7, 10, 10, 0.56)),
+    rgba(7, 10, 10, 0.42);
+}
+
+.detail-claim-card.card .card-header {
+  gap: 8px;
+}
+
+.detail-claim-card.card h3 {
+  font-size: 0.9rem;
+  line-height: 1.28;
+  min-height: 0;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.detail-claim-card.card .meta {
+  font-size: 0.78rem;
+  gap: 4px;
+}
+
+.detail-claim-card.card .badge-row {
+  gap: 6px;
+}
+
+.detail-claim-card.card .badge {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+}
+
 .card-main-finding {
   color: var(--fg);
   line-height: 1.36;
 }
 
-.card .card-field-label {
+.card-reference {
+  margin-top: 3px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(151, 168, 175, 0.16);
+  color: rgba(205, 214, 218, 0.78);
+}
+
+.card-reference-journal {
+  font-style: italic;
+}
+
+.card .card-field-label,
+.detail-claim-card .card-field-label {
   font-weight: 600;
 }
 
@@ -3620,7 +3710,7 @@ input[type="number"] {
   }
 
   .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--cards-masonry-column-count, 2), minmax(0, 1fr));
   }
 
   .method-stage-grid,
@@ -3679,7 +3769,7 @@ input[type="number"] {
   }
 
   .cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(var(--cards-masonry-column-count, 1), minmax(0, 1fr));
   }
 
   .method-stage-grid,
