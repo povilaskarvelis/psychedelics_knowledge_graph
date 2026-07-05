@@ -32,6 +32,32 @@ ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 SCHEMA_VERSION = "route_native_evidence_payload_v1"
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
+PRIMARY_SOURCE_KEY = "primary"
+SECONDARY_SOURCE_KEY = "secondary"
+UI_VIEW_KEYS = ("disorders", "targets")
+UI_SOURCE_KEYS = (PRIMARY_SOURCE_KEY, SECONDARY_SOURCE_KEY)
+HIDDEN_MAIN_GRAPH_DOMAINS = {"pharmacokinetics_exposure"}
+UI_VIEW_BY_DOMAIN = {
+    "molecular_target": "targets",
+    "molecular_pathway_readout": "targets",
+    "brain_system": "targets",
+    "clinical_outcome": "disorders",
+    "safety_tolerability": "disorders",
+    "cognitive_behavioral": "disorders",
+    "subjective_experience": "disorders",
+    "real_world_public_health": "disorders",
+    "intervention_context": "disorders",
+}
+UI_TARGET_ENTITY_KINDS = {
+    "target",
+    "pathway_process",
+    "molecular_readout",
+    "biomarker_readout",
+    "system_family",
+    "brain_region",
+    "brain_network",
+    "neural_circuit",
+}
 
 PAPER_FIELDS = (
     "study_doi",
@@ -685,6 +711,45 @@ def preview_findings(findings: list[dict]) -> list[dict]:
     return out
 
 
+def ui_view_for_finding(finding: dict) -> str:
+    domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type")).lower()
+    if domain in HIDDEN_MAIN_GRAPH_DOMAINS:
+        return ""
+    if domain in UI_VIEW_BY_DOMAIN:
+        return UI_VIEW_BY_DOMAIN[domain]
+    entity_kind = normalize(finding.get("entity_kind") or finding.get("kg_entity_kind")).lower()
+    return "targets" if entity_kind in UI_TARGET_ENTITY_KINDS else "disorders"
+
+
+def ui_source_key_for_finding(finding: dict) -> str:
+    evidence_type = normalize(finding.get("evidence_type") or finding.get("kg_evidence_type")).lower()
+    return SECONDARY_SOURCE_KEY if evidence_type == "secondary_literature" else PRIMARY_SOURCE_KEY
+
+
+def findings_for_ui_view_source(findings: list[dict], view_key: str, source_key: str) -> list[dict]:
+    return [
+        finding
+        for finding in findings
+        if ui_view_for_finding(finding) == view_key and ui_source_key_for_finding(finding) == source_key
+    ]
+
+
+def evidence_payload(findings: list[dict], stats: dict, generated_at: str, kg_dir: Path) -> dict:
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "evidence_source": "kg_tables",
+        "kg_dir": relative_path(kg_dir),
+        "row_count": len(findings),
+        "summary_stats": stats,
+        "findings": findings,
+    }
+
+
+def ui_view_payload_name(view_key: str, source_key: str) -> str:
+    return f"graph_payload_view_{view_key}_{source_key}.json"
+
+
 def remove_stale_payload_files(out_dir: Path, keep_names: set[str]) -> None:
     for pattern in ("graph_payload_*.json", "graph_preview_*.json"):
         for path in out_dir.glob(pattern):
@@ -693,10 +758,22 @@ def remove_stale_payload_files(out_dir: Path, keep_names: set[str]) -> None:
             path.unlink()
 
 
-def write_active_pointer(active_json: Path, out_dir: Path, manifest_path: Path, payload_path: Path, preview_path: Path, kg_dir: Path) -> dict:
+def write_active_pointer(
+    active_json: Path,
+    out_dir: Path,
+    manifest_path: Path,
+    payload_path: Path,
+    preview_path: Path,
+    view_payload_paths: dict[str, dict[str, Path]],
+    kg_dir: Path,
+) -> dict:
     payload = {
         "schema_version": ACTIVE_SCHEMA_VERSION,
         "active_evidence_payload": relative_path(payload_path),
+        "active_evidence_payloads": {
+            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
+            for view_key, source_paths in view_payload_paths.items()
+        },
         "active_evidence_preview": relative_path(preview_path),
         "active_manifest": relative_path(manifest_path),
         "evidence_source": "kg_tables",
@@ -724,17 +801,16 @@ def export_evidence_payload(
     payload_path = out_dir / payload_name
     preview_path = out_dir / preview_name
     manifest_path = out_dir / manifest_name
-    remove_stale_payload_files(out_dir, {payload_path.name, preview_path.name, manifest_path.name})
-
-    payload = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at": now_utc(),
-        "evidence_source": "kg_tables",
-        "kg_dir": relative_path(kg_dir),
-        "row_count": len(findings),
-        "summary_stats": stats,
-        "findings": findings,
+    view_payload_paths = {
+        view_key: {source_key: out_dir / ui_view_payload_name(view_key, source_key) for source_key in UI_SOURCE_KEYS}
+        for view_key in UI_VIEW_KEYS
     }
+    keep_names = {payload_path.name, preview_path.name, manifest_path.name}
+    keep_names.update(path.name for source_paths in view_payload_paths.values() for path in source_paths.values())
+    remove_stale_payload_files(out_dir, keep_names)
+
+    generated_at = now_utc()
+    payload = evidence_payload(findings, stats, generated_at, kg_dir)
     preview_payload = {
         "schema_version": SCHEMA_VERSION,
         "generated_at": payload["generated_at"],
@@ -747,6 +823,15 @@ def export_evidence_payload(
 
     payload_path.write_text(compact_json(payload), encoding="utf-8")
     preview_path.write_text(compact_json(preview_payload), encoding="utf-8")
+    view_payloads: dict[str, dict[str, dict]] = {}
+    for view_key, source_paths in view_payload_paths.items():
+        view_payloads[view_key] = {}
+        for source_key, view_payload_path in source_paths.items():
+            view_findings = findings_for_ui_view_source(findings, view_key, source_key)
+            view_stats = summary_stats(view_findings, candidate_study_keys)
+            view_payload = evidence_payload(view_findings, view_stats, generated_at, kg_dir)
+            view_payload_path.write_text(compact_json(view_payload), encoding="utf-8")
+            view_payloads[view_key][source_key] = view_payload
 
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -754,16 +839,20 @@ def export_evidence_payload(
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
         "evidence_payload": relative_path(payload_path),
+        "evidence_payloads": {
+            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
+            for view_key, source_paths in view_payload_paths.items()
+        },
         "evidence_preview": relative_path(preview_path),
         "row_count": len(findings),
         "summary_stats": {
             "default": stats,
             "views": {
-                "primary": summary_stats(
-                    [f for f in findings if normalize(f.get("evidence_type")) == "primary_evidence"],
-                    candidate_study_keys,
-                ),
-                "secondary": summary_stats([f for f in findings if normalize(f.get("evidence_type")) == "secondary_literature"]),
+                view_key: {
+                    source_key: view_payloads[view_key][source_key]["summary_stats"]
+                    for source_key in UI_SOURCE_KEYS
+                }
+                for view_key in UI_VIEW_KEYS
             },
         },
         "status": "ok",
@@ -775,12 +864,14 @@ def export_evidence_payload(
             manifest_path=manifest_path,
             payload_path=payload_path,
             preview_path=preview_path,
+            view_payload_paths=view_payload_paths,
             kg_dir=kg_dir,
         )
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return {
         "payload_path": payload_path,
         "preview_path": preview_path,
+        "view_payload_paths": view_payload_paths,
         "manifest_path": manifest_path,
         "manifest": manifest,
     }

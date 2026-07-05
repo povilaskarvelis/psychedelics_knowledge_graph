@@ -75,6 +75,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
 
             payload = json.loads(result["payload_path"].read_text())
             preview = json.loads(result["preview_path"].read_text())
+            view_payload = json.loads(result["view_payload_paths"]["targets"]["primary"].read_text())
             active = json.loads(active_json.read_text())
 
         self.assertEqual(payload["schema_version"], "route_native_evidence_payload_v1")
@@ -95,8 +96,12 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertNotIn("target", finding)
         self.assertNotIn("disorder", finding)
         self.assertEqual(preview["findings"][0]["entity_label"], "Default mode network")
+        self.assertEqual(view_payload["row_count"], 1)
+        self.assertEqual(view_payload["findings"][0]["entity_label"], "Default mode network")
         self.assertEqual(active["schema_version"], "route_native_evidence_payload_active_v1")
         self.assertIn("active_evidence_payload", active)
+        self.assertIn("active_evidence_payloads", active)
+        self.assertIn("primary", active["active_evidence_payloads"]["targets"])
         self.assertIn("active_evidence_preview", active)
         self.assertNotIn("active_payload_dir", active)
         self.assertNotIn("claim_source", active)

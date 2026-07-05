@@ -349,7 +349,7 @@ let currentDataLoadToken = 0;
 let heroStatsSnapshot = null;
 let graphManifestPromise = null;
 let graphPayloadConfigPromise = null;
-let routeNativeEvidencePayloadPromise = null;
+const routeNativeEvidencePayloadPromises = new Map();
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let pendingTooltipPoint = null;
@@ -6460,17 +6460,30 @@ function routeNativeFindingsFromPayload(payload) {
   return Array.isArray(payload?.findings) ? payload.findings : null;
 }
 
-async function loadActiveRouteNativeFindings() {
+function evidencePayloadViewKey(modeKey) {
+  return modeKey === "mechanistic" ? "targets" : modeKey;
+}
+
+function activeEvidencePayloadPath(config, modeKey, sourceKey) {
+  const viewPayloads = config?.active_evidence_payloads || {};
+  const viewKey = evidencePayloadViewKey(modeKey);
+  return cleanDisplayText(
+    viewPayloads?.[viewKey]?.[sourceKey] || viewPayloads?.[modeKey]?.[sourceKey] || config?.active_evidence_payload
+  );
+}
+
+async function loadActiveRouteNativeFindings(modeKey, sourceKey) {
   const config = await loadGraphPayloadConfig();
-  const path = cleanDisplayText(config?.active_evidence_payload);
+  const path = activeEvidencePayloadPath(config, modeKey, sourceKey);
   if (!path) return null;
 
-  if (routeNativeEvidencePayloadPromise) return routeNativeEvidencePayloadPromise;
+  if (routeNativeEvidencePayloadPromises.has(path)) return routeNativeEvidencePayloadPromises.get(path);
 
-  routeNativeEvidencePayloadPromise = fetchJsonFromCandidates(dataCandidates(path))
+  const task = fetchJsonFromCandidates(dataCandidates(path))
     .then(({ data }) => routeNativeFindingsFromPayload(data))
     .catch(() => null);
-  return routeNativeEvidencePayloadPromise;
+  routeNativeEvidencePayloadPromises.set(path, task);
+  return task;
 }
 
 function routeNativeDisplayMode(finding) {
@@ -6560,7 +6573,7 @@ function routeNativeFindingForCurrentUi(finding, modeKey) {
 }
 
 async function loadRouteNativeEvidenceSource(modeKey, sourceKey) {
-  const findings = await loadActiveRouteNativeFindings();
+  const findings = await loadActiveRouteNativeFindings(modeKey, sourceKey);
   if (!Array.isArray(findings)) return false;
   const items = findings
     .filter((finding) => !isHiddenMainGraphItem(finding))
