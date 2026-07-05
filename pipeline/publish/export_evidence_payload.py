@@ -32,6 +32,7 @@ ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 SCHEMA_VERSION = "route_native_evidence_payload_v1"
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
+GRAPH_BOOTSTRAP_SCHEMA_VERSION = "route_native_graph_bootstrap_v1"
 PRIMARY_SOURCE_KEY = "primary"
 SECONDARY_SOURCE_KEY = "secondary"
 UI_VIEW_KEYS = ("disorders", "targets")
@@ -750,8 +751,68 @@ def ui_view_payload_name(view_key: str, source_key: str) -> str:
     return f"graph_payload_view_{view_key}_{source_key}.json"
 
 
+def ui_graph_bootstrap_name(view_key: str, source_key: str) -> str:
+    return f"graph_bootstrap_view_{view_key}_{source_key}.json"
+
+
+def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, view_key: str, source_key: str) -> dict:
+    edges: dict[tuple[str, str, str], dict] = {}
+    for finding in findings:
+        compound = normalize(finding.get("compound"))
+        entity_label = normalize(finding.get("entity_label") or finding.get("graph_entity_label") or finding.get("raw_entity_label"))
+        entity_kind = normalize(finding.get("entity_kind") or finding.get("kg_entity_kind"))
+        if not compound or not entity_label or not entity_kind:
+            continue
+
+        domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type"))
+        key = (compound, entity_kind, entity_label)
+        entry = edges.setdefault(
+            key,
+            {
+                "compound": compound,
+                "entity_label": entity_label,
+                "entity_kind": entity_kind,
+                "domain": domain,
+                "finding_type": normalize(finding.get("finding_type")) or domain,
+                "evidence_type": normalize(finding.get("evidence_type") or finding.get("kg_evidence_type")) or "primary_evidence",
+                "finding_count": 0,
+                "study_keys": set(),
+                "full_text_seen_count": 0,
+                "abstract_only_count": 0,
+            },
+        )
+        entry["finding_count"] += 1
+        study = study_key(finding)
+        if study:
+            entry["study_keys"].add(study)
+        depth = normalize(finding.get("text_depth") or finding.get("access_level") or finding.get("source_access_level")).lower()
+        if depth in {"article_text", "full_text", "full_text_seen"}:
+            entry["full_text_seen_count"] += 1
+        else:
+            entry["abstract_only_count"] += 1
+
+    edge_entries = []
+    for entry in edges.values():
+        study_keys = entry.pop("study_keys")
+        entry["study_count"] = len(study_keys)
+        edge_entries.append(entry)
+    edge_entries.sort(key=lambda item: (-item["finding_count"], item["compound"].lower(), item["entity_kind"], item["entity_label"].lower()))
+
+    return {
+        "schema_version": GRAPH_BOOTSTRAP_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "evidence_source": "kg_tables",
+        "kg_dir": relative_path(kg_dir),
+        "view": view_key,
+        "source": source_key,
+        "edge_count": len(edge_entries),
+        "finding_count": len(findings),
+        "edges": edge_entries,
+    }
+
+
 def remove_stale_payload_files(out_dir: Path, keep_names: set[str]) -> None:
-    for pattern in ("graph_payload_*.json", "graph_preview_*.json"):
+    for pattern in ("graph_payload_*.json", "graph_preview_*.json", "graph_bootstrap_*.json"):
         for path in out_dir.glob(pattern):
             if path.name in keep_names:
                 continue
@@ -765,6 +826,7 @@ def write_active_pointer(
     payload_path: Path,
     preview_path: Path,
     view_payload_paths: dict[str, dict[str, Path]],
+    graph_bootstrap_paths: dict[str, dict[str, Path]],
     kg_dir: Path,
 ) -> dict:
     payload = {
@@ -773,6 +835,10 @@ def write_active_pointer(
         "active_evidence_payloads": {
             view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
             for view_key, source_paths in view_payload_paths.items()
+        },
+        "active_graph_bootstraps": {
+            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
+            for view_key, source_paths in graph_bootstrap_paths.items()
         },
         "active_evidence_preview": relative_path(preview_path),
         "active_manifest": relative_path(manifest_path),
@@ -805,8 +871,13 @@ def export_evidence_payload(
         view_key: {source_key: out_dir / ui_view_payload_name(view_key, source_key) for source_key in UI_SOURCE_KEYS}
         for view_key in UI_VIEW_KEYS
     }
+    graph_bootstrap_paths = {
+        view_key: {source_key: out_dir / ui_graph_bootstrap_name(view_key, source_key) for source_key in UI_SOURCE_KEYS}
+        for view_key in UI_VIEW_KEYS
+    }
     keep_names = {payload_path.name, preview_path.name, manifest_path.name}
     keep_names.update(path.name for source_paths in view_payload_paths.values() for path in source_paths.values())
+    keep_names.update(path.name for source_paths in graph_bootstrap_paths.values() for path in source_paths.values())
     remove_stale_payload_files(out_dir, keep_names)
 
     generated_at = now_utc()
@@ -831,6 +902,8 @@ def export_evidence_payload(
             view_stats = summary_stats(view_findings, candidate_study_keys)
             view_payload = evidence_payload(view_findings, view_stats, generated_at, kg_dir)
             view_payload_path.write_text(compact_json(view_payload), encoding="utf-8")
+            graph_bootstrap = graph_bootstrap_payload(view_findings, generated_at, kg_dir, view_key, source_key)
+            graph_bootstrap_paths[view_key][source_key].write_text(compact_json(graph_bootstrap), encoding="utf-8")
             view_payloads[view_key][source_key] = view_payload
 
     manifest = {
@@ -842,6 +915,10 @@ def export_evidence_payload(
         "evidence_payloads": {
             view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
             for view_key, source_paths in view_payload_paths.items()
+        },
+        "graph_bootstraps": {
+            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
+            for view_key, source_paths in graph_bootstrap_paths.items()
         },
         "evidence_preview": relative_path(preview_path),
         "row_count": len(findings),
@@ -865,6 +942,7 @@ def export_evidence_payload(
             payload_path=payload_path,
             preview_path=preview_path,
             view_payload_paths=view_payload_paths,
+            graph_bootstrap_paths=graph_bootstrap_paths,
             kg_dir=kg_dir,
         )
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -872,6 +950,7 @@ def export_evidence_payload(
         "payload_path": payload_path,
         "preview_path": preview_path,
         "view_payload_paths": view_payload_paths,
+        "graph_bootstrap_paths": graph_bootstrap_paths,
         "manifest_path": manifest_path,
         "manifest": manifest,
     }

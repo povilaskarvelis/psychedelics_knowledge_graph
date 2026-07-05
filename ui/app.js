@@ -350,6 +350,7 @@ let heroStatsSnapshot = null;
 let graphManifestPromise = null;
 let graphPayloadConfigPromise = null;
 const routeNativeEvidencePayloadPromises = new Map();
+const graphBootstrapPayloadPromises = new Map();
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let pendingTooltipPoint = null;
@@ -4052,9 +4053,26 @@ function uniqueStudyCount(items) {
   return uniqueStudyEntries(items).length;
 }
 
+function graphRecordCount(claim) {
+  const count = Number(claim?.graph_claim_count ?? claim?.finding_count);
+  return Number.isFinite(count) && count > 0 ? count : 1;
+}
+
+function graphRecordCountForItems(items) {
+  return items.reduce((sum, claim) => sum + graphRecordCount(claim), 0);
+}
+
+function graphStudyCountForItems(items) {
+  if (!items.some((claim) => claim?.__graph_bootstrap)) return uniqueStudyCount(items);
+  return items.reduce((sum, claim) => {
+    const count = Number(claim?.graph_study_count ?? claim?.study_count);
+    return sum + (Number.isFinite(count) && count > 0 ? count : graphRecordCount(claim));
+  }, 0);
+}
+
 function evidenceCountTooltipHtml(items) {
-  const studyCount = uniqueStudyCount(items);
-  const recordCount = items.length;
+  const studyCount = graphStudyCountForItems(items);
+  const recordCount = graphRecordCountForItems(items);
   const labels = recordLabelsForItems(items);
   const recordLabel = recordCount === 1 ? labels.lowerSingular : labels.lowerPlural;
   return `<span class="tooltip-meta">${formatCompactNumber(studyCount)} stud${
@@ -5617,6 +5635,7 @@ function renderSelectedDetailFromData(data) {
 function buildGraph(data) {
   graphEl.innerHTML = "";
 
+  const graphIsBootstrap = data.some((claim) => claim?.__graph_bootstrap);
   const rightKey = rightEntityKey();
   const compoundCounts = new Map();
   const rightCounts = new Map();
@@ -5629,9 +5648,10 @@ function buildGraph(data) {
     const compound = compoundGraphLabel(claim.compound);
     const right = graphRightLabelForClaim(claim);
     if (!compound || !right) return;
+    const graphCount = graphRecordCount(claim);
 
-    compoundCounts.set(compound, (compoundCounts.get(compound) || 0) + 1);
-    rightCounts.set(right, (rightCounts.get(right) || 0) + 1);
+    compoundCounts.set(compound, (compoundCounts.get(compound) || 0) + graphCount);
+    rightCounts.set(right, (rightCounts.get(right) || 0) + graphCount);
 
     const compoundSet = compoundConnections.get(compound) || new Set();
     compoundSet.add(right);
@@ -5756,7 +5776,7 @@ function buildGraph(data) {
       claims: [],
     };
     const rank = evidenceRank[claim.evidence_level] || 1;
-    existing.count += 1;
+    existing.count += graphRecordCount(claim);
     existing.claims.push(claim);
     if (rank > existing.rank) {
       existing.rank = rank;
@@ -5977,6 +5997,7 @@ function buildGraph(data) {
     });
     path.addEventListener("click", (event) => {
       event.stopPropagation();
+      if (graphIsBootstrap) return;
       const sameSelection =
         selected?.type === "edge" && selected.compound === compound && selected.target === target;
       if (sameSelection) {
@@ -6044,6 +6065,7 @@ function buildGraph(data) {
     };
     const click = (event) => {
       event.stopPropagation();
+      if (graphIsBootstrap) return;
       const sameSelection = selected?.type === "compound" && selected.name === compound;
       if (sameSelection) {
         if (!isolateSelection) {
@@ -6117,6 +6139,7 @@ function buildGraph(data) {
     };
     const click = (event) => {
       event.stopPropagation();
+      if (graphIsBootstrap) return;
       const sameSelection = selected?.type === "target" && selected.name === target;
       if (sameSelection) {
         if (!isolateSelection) {
@@ -6472,6 +6495,60 @@ function activeEvidencePayloadPath(config, modeKey, sourceKey) {
   );
 }
 
+function activeGraphBootstrapPath(config, modeKey, sourceKey) {
+  const bootstraps = config?.active_graph_bootstraps || {};
+  const viewKey = evidencePayloadViewKey(modeKey);
+  return cleanDisplayText(bootstraps?.[viewKey]?.[sourceKey] || bootstraps?.[modeKey]?.[sourceKey]);
+}
+
+function graphBootstrapClaimsFromPayload(payload, modeKey, sourceKey) {
+  const edges = Array.isArray(payload?.edges) ? payload.edges : [];
+  return edges.map((edge, index) => {
+    const entityLabel = cleanDisplayText(edge.entity_label);
+    const accessLevel = Number(edge.full_text_seen_count || 0) > 0 ? "full_text_seen" : "abstract_only";
+    const secondary = sourceKey === "secondary";
+    const item = {
+      finding_id: `graph-bootstrap:${index}`,
+      compound: cleanDisplayText(edge.compound),
+      entity_label: entityLabel,
+      graph_entity_label: entityLabel,
+      kg_entity_kind: cleanDisplayText(edge.entity_kind),
+      entity_kind: cleanDisplayText(edge.entity_kind),
+      kg_domain: cleanDisplayText(edge.domain),
+      domain: cleanDisplayText(edge.domain),
+      finding_type: cleanDisplayText(edge.finding_type || edge.domain),
+      kg_evidence_type: cleanDisplayText(edge.evidence_type || (secondary ? "secondary_literature" : "primary_evidence")),
+      paper_assessment_route: secondary ? "secondary_literature" : "primary_evidence",
+      paper_type: secondary ? "review" : "primary_results",
+      source_type: secondary ? "review" : "primary_study",
+      access_level: accessLevel,
+      source_access_level: accessLevel,
+      graph_claim_count: Number(edge.finding_count || 0) || 1,
+      graph_study_count: Number(edge.study_count || 0) || 0,
+      __graph_bootstrap: true,
+    };
+    if (modeKey === "mechanistic") {
+      item.target = entityLabel;
+    } else {
+      item.disorder = entityLabel;
+    }
+    return item;
+  });
+}
+
+async function loadGraphBootstrapClaims(modeKey, sourceKey) {
+  const config = await loadGraphPayloadConfig();
+  const path = activeGraphBootstrapPath(config, modeKey, sourceKey);
+  if (!path) return [];
+  if (graphBootstrapPayloadPromises.has(path)) return graphBootstrapPayloadPromises.get(path);
+
+  const task = fetchJsonFromCandidates(dataCandidates(path))
+    .then(({ data }) => graphBootstrapClaimsFromPayload(data, modeKey, sourceKey))
+    .catch(() => []);
+  graphBootstrapPayloadPromises.set(path, task);
+  return task;
+}
+
 async function loadActiveRouteNativeFindings(modeKey, sourceKey) {
   const config = await loadGraphPayloadConfig();
   const path = activeEvidencePayloadPath(config, modeKey, sourceKey);
@@ -6625,10 +6702,49 @@ async function ensureClaimsForCurrentView() {
   await loadNormalizedClaimSource(mode, currentSourceKey());
 }
 
-async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true } = {}) {
+function waitForPaint() {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
+  });
+}
+
+async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
+  if (normalizedCurrentSourceLoaded()) return false;
+  const sourceKey = currentSourceKey();
+  const bootstrapClaims = await loadGraphBootstrapClaims(mode, sourceKey);
+  if (loadToken !== currentDataLoadToken) return true;
+  if (!bootstrapClaims.length) return false;
+
+  updateModeUI();
+  const graphClaims = graphViewClaims(claimsForEntityView(bootstrapClaims));
+  const filtered = applyFiltersToClaims(graphClaims);
+  if (!filtered.length) return false;
+
+  buildGraph(filtered);
+  if (resetDetail) {
+    setDetailHeader(defaultDetail.title);
+    renderDetailEmpty();
+    cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
+    if (studyListEl) {
+      studyListEl.innerHTML = "";
+    }
+  }
+  return true;
+}
+
+async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true, showGraphBootstrap = false } = {}) {
   const token = ++currentDataLoadToken;
-  if (showLoading) {
+  let bootstrapRendered = false;
+  if (showGraphBootstrap) {
+    bootstrapRendered = await renderCurrentGraphBootstrap(token, resetDetail);
+  }
+  if (token !== currentDataLoadToken) return;
+
+  if (showLoading && !bootstrapRendered) {
     renderDataLoading();
+  }
+  if (bootstrapRendered) {
+    await waitForPaint();
   }
   if (token !== currentDataLoadToken) return;
 
@@ -6712,7 +6828,7 @@ function preloadLikelyNextData() {
 
 async function init() {
   await loadGraphManifestStats();
-  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true });
+  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
   preloadLikelyNextData();
 }
 

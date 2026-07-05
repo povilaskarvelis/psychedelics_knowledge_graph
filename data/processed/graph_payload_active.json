@@ -11,6 +11,16 @@
       "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_view_targets_secondary.json"
     }
   },
+  "active_graph_bootstraps": {
+    "disorders": {
+      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_primary.json",
+      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_secondary.json"
+    },
+    "targets": {
+      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_primary.json",
+      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_secondary.json"
+    }
+  },
   "active_evidence_preview": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_preview_evidence.json",
   "active_manifest": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_manifest.json",
   "evidence_source": "kg_tables",

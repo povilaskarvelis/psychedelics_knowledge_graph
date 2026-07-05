@@ -1,6 +1,6 @@
 {
   "schema_version": "route_native_evidence_manifest_v1",
-  "generated_at": "2026-07-03T19:15:41.218363+00:00",
+  "generated_at": "2026-07-05T13:52:46.654234+00:00",
   "evidence_source": "kg_tables",
   "kg_dir": "data/processed/kg_routed_runs/gemini3_flash_20260628_primary_extraction",
   "evidence_payload": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_evidence.json",
@@ -12,6 +12,16 @@
     "targets": {
       "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_view_targets_primary.json",
       "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_view_targets_secondary.json"
+    }
+  },
+  "graph_bootstraps": {
+    "disorders": {
+      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_primary.json",
+      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_secondary.json"
+    },
+    "targets": {
+      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_primary.json",
+      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_secondary.json"
     }
   },
   "evidence_preview": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_preview_evidence.json",
@@ -208,6 +218,16 @@
       "targets": {
         "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_view_targets_primary.json",
         "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_view_targets_secondary.json"
+      }
+    },
+    "active_graph_bootstraps": {
+      "disorders": {
+        "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_primary.json",
+        "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_secondary.json"
+      },
+      "targets": {
+        "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_primary.json",
+        "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_secondary.json"
       }
     },
     "active_evidence_preview": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_preview_evidence.json",
