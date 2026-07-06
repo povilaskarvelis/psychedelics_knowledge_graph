@@ -5777,7 +5777,8 @@ function renderSelectedDetailFromData(data) {
 function buildGraph(data) {
   graphEl.innerHTML = "";
 
-  const graphIsBootstrap = data.some((claim) => claim?.__graph_bootstrap || claim?.__detail_bootstrap);
+  const graphHasDetailBootstrap = data.some((claim) => claim?.__detail_bootstrap);
+  const graphIsAggregateBootstrap = data.some((claim) => claim?.__graph_bootstrap) && !graphHasDetailBootstrap;
   const rightKey = rightEntityKey();
   const compoundCounts = new Map();
   const rightCounts = new Map();
@@ -6139,7 +6140,7 @@ function buildGraph(data) {
     });
     path.addEventListener("click", (event) => {
       event.stopPropagation();
-      if (graphIsBootstrap) return;
+      if (graphIsAggregateBootstrap) return;
       const sameSelection =
         selected?.type === "edge" && selected.compound === compound && selected.target === target;
       if (sameSelection) {
@@ -6207,7 +6208,7 @@ function buildGraph(data) {
     };
     const click = (event) => {
       event.stopPropagation();
-      if (graphIsBootstrap) return;
+      if (graphIsAggregateBootstrap) return;
       const sameSelection = selected?.type === "compound" && selected.name === compound;
       if (sameSelection) {
         if (!isolateSelection) {
@@ -6281,7 +6282,7 @@ function buildGraph(data) {
     };
     const click = (event) => {
       event.stopPropagation();
-      if (graphIsBootstrap) return;
+      if (graphIsAggregateBootstrap) return;
       const sameSelection = selected?.type === "target" && selected.name === target;
       if (sameSelection) {
         if (!isolateSelection) {
