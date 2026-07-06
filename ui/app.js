@@ -6154,7 +6154,7 @@ function buildGraph(data) {
       }
 
       selected = { type: "edge", compound, target };
-      isolateSelection = true;
+      isolateSelection = false;
       clearSelectedStyles();
       path.classList.add("selected");
       renderEdgeDetail(compound, target, edge.claims);
@@ -6221,7 +6221,7 @@ function buildGraph(data) {
       }
 
       selected = { type: "compound", name: compound };
-      isolateSelection = true;
+      isolateSelection = false;
       clearSelectedStyles();
       node.classList.add("selected");
       label.classList.add("selected");
@@ -6295,7 +6295,7 @@ function buildGraph(data) {
       }
 
       selected = { type: "target", name: target };
-      isolateSelection = true;
+      isolateSelection = false;
       clearSelectedStyles();
       node.classList.add("selected");
       label.classList.add("selected");
