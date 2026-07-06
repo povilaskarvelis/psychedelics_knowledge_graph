@@ -6804,7 +6804,10 @@ function routeNativeFindingForCurrentUi(finding, modeKey) {
 }
 
 async function loadRouteNativeEvidenceSource(modeKey, sourceKey) {
-  const findings = await loadActiveRouteNativeFindings(modeKey, sourceKey);
+  let findings = await loadDetailBootstrapClaims(modeKey, sourceKey);
+  if (!Array.isArray(findings) || !findings.length) {
+    findings = await loadActiveRouteNativeFindings(modeKey, sourceKey);
+  }
   if (!Array.isArray(findings)) return false;
   const items = findings
     .filter((finding) => !isHiddenMainGraphItem(finding))
