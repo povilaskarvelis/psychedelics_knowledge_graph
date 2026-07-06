@@ -220,7 +220,6 @@ def domain_tag_supported(tag: str, metadata_context: str) -> bool:
 def aggregate_decision_context(decisions_df: pd.DataFrame, *, scoped_dois: set[str] | None = None) -> dict[str, dict]:
     out: dict[str, dict] = defaultdict(
         lambda: {
-            "datasets": [],
             "prescreen_actions": [],
             "run_ids": [],
             "study_title": "",
@@ -244,7 +243,6 @@ def aggregate_decision_context(decisions_df: pd.DataFrame, *, scoped_dois: set[s
         entry = out[doi]
         entry["source_row_count"] += 1
         for source_field, target in (
-            ("dataset", "datasets"),
             ("prescreen_action", "prescreen_actions"),
             ("run_id", "run_ids"),
         ):
@@ -291,7 +289,6 @@ def build_rows(
             "table_version": TABLE_VERSION,
             "generated_at_utc": generated_at_utc,
             "doi": doi,
-            "datasets": join_values(context["datasets"]),
             "retained_for_extraction_candidate": True,
             "study_title": clean(context["study_title"]),
             "study_year": clean(context["study_year"]),

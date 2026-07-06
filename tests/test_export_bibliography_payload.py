@@ -3,6 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pandas as pd
+
 from pipeline.publish.export_bibliography_payload import export_dataset, papers_from_reports
 
 
@@ -90,13 +92,70 @@ class ExportBibliographyPayloadTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            summary = export_dataset("mechanistic", out_dir=out_dir, report_paths=[report])
+            summary = export_dataset("mechanistic", out_dir=out_dir, report_paths=[report], prescreen_table=None)
             payload = json.loads((out_dir / "bibliography_payload_mechanistic.json").read_text())
 
             self.assertEqual(summary["paper_count"], 1)
             self.assertEqual(payload["source"], "abstract_screening_relevant")
             self.assertEqual(payload["paper_count"], 1)
             self.assertEqual(payload["papers"][0]["journal"], "Example Journal")
+
+    def test_export_dataset_filters_current_prescreen_exclusions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            report = root / "screening.json"
+            out_dir = root / "out"
+            prescreen = root / "paper_prescreen_decisions.parquet"
+            report.write_text(
+                json.dumps(
+                    {
+                        "rows": [
+                            {
+                                "input_row": {
+                                    "study_doi": "10.1000/retain",
+                                    "study_title": "Retained Study",
+                                    "study_year": "2024",
+                                },
+                                "adjudication": {"relevance": "relevant"},
+                                "flat": {"status": "ok"},
+                            },
+                            {
+                                "input_row": {
+                                    "study_doi": "10.1000/exclude",
+                                    "study_title": "Newsletter Summary",
+                                    "study_year": "2024",
+                                },
+                                "adjudication": {"relevance": "relevant"},
+                                "flat": {"status": "ok"},
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/retain",
+                        "dataset": "disorder",
+                        "prescreen_decision": "retain",
+                        "retained_for_extraction_candidate": True,
+                    },
+                    {
+                        "doi": "10.1000/exclude",
+                        "dataset": "disorder",
+                        "prescreen_decision": "exclude",
+                        "retained_for_extraction_candidate": False,
+                    },
+                ]
+            ).to_parquet(prescreen, index=False)
+
+            summary = export_dataset("disorder", out_dir=out_dir, report_paths=[report], prescreen_table=prescreen)
+            payload = json.loads((out_dir / "bibliography_payload_disorder.json").read_text())
+
+        self.assertEqual(summary["paper_count"], 1)
+        self.assertEqual(payload["papers"][0]["doi"], "10.1000/retain")
+        self.assertEqual(payload["prescreen_filter"], str(prescreen))
 
 
 if __name__ == "__main__":

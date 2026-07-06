@@ -145,7 +145,6 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             [
                 {
                     "doi": "10.example/methods",
-                    "datasets": "clinical",
                     "study_title": "Blinding in psychedelic trials",
                     "study_year": "2025",
                     "domain_tags": ["clinical_outcome"],
@@ -182,7 +181,6 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             [
                 {
                     "doi": "10.example/legacy",
-                    "datasets": "clinical",
                     "study_title": "Psilocybin clinical outcomes",
                     "study_year": "2025",
                     "domain_tags": ["clinical_outcome"],
@@ -210,7 +208,6 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             [
                 {
                     "doi": "10.example/meta",
-                    "datasets": "clinical",
                     "study_title": "Psilocybin for depression: systematic review and meta-analysis",
                     "study_year": "2025",
                     "domain_tags": ["clinical_outcome"],
@@ -239,7 +236,6 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             [
                 {
                     "doi": "10.example/out",
-                    "datasets": "clinical",
                     "study_title": "Non-psychedelic paper",
                     "study_year": "2025",
                     "domain_tags": [],
@@ -285,13 +281,11 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             [
                 {
                     "doi": "10.example/provenance-only",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": False,
                 },
                 {
                     "doi": "10.example/extract",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                 },
@@ -341,27 +335,23 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             [
                 {
                     "doi": "10.example/keep",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                 },
                 {
                     "doi": "10.31219/osf.io/dy5cu_v1",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "exclude",
                     "retained_for_extraction_candidate": False,
                     "prescreen_action": "exclude_preprint_or_unpublished",
                 },
                 {
                     "doi": "10.3389/fnins.2025.1554049.s002",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "exclude",
                     "retained_for_extraction_candidate": False,
                     "prescreen_action": "exclude_non_evidence_artifact",
                 },
                 {
                     "doi": "10.64898/2026.04.16.718915",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "exclude",
                     "retained_for_extraction_candidate": False,
                     "prescreen_action": "exclude_preprint_or_unpublished",

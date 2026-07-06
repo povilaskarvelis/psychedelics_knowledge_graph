@@ -1,16 +1,28 @@
 const methodsPipelineEl = document.getElementById("methodsPipeline");
+const methodsBibliographySectionEl = document.getElementById("paper-bibliography");
+const methodsBibliographySearchEl = document.getElementById("methodsBibliographySearch");
+const methodsBibliographyStageEl = document.getElementById("methodsBibliographyStage");
+const methodsBibliographySortEl = document.getElementById("methodsBibliographySort");
+const methodsBibliographySummaryEl = document.getElementById("methodsBibliographySummary");
+const methodsBibliographyRowsEl = document.getElementById("methodsBibliographyRows");
+const methodsBibliographyLoadMoreEl = document.getElementById("methodsBibliographyLoadMore");
 
 const methodsState = {
   pipelineStatus: null,
+  bibliographyPayload: null,
+  bibliographyRows: [],
+  bibliographyFilteredRows: [],
+  bibliographyRendered: 0,
+  bibliographyPromise: null,
+  bibliographySearchTimer: null,
 };
 const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
 
 const DATASET_LABELS = {
-  disorder: "Clinical evidence",
-  mechanistic: "Molecular, brain, and behavior evidence",
-  overall: "Candidate paper pipeline",
+  overall: "Paper search and screening flow",
 };
+const BIBLIOGRAPHY_PAGE_SIZE = 120;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -23,6 +35,15 @@ function escapeHtml(value) {
 function formatNumber(value) {
   const number = Number(value || 0);
   return new Intl.NumberFormat("en", { maximumFractionDigits: 0 }).format(number);
+}
+
+function normalizeText(value) {
+  return String(value ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function doiHref(doi) {
+  const clean = String(doi ?? "").trim();
+  return clean ? `https://doi.org/${encodeURIComponent(clean).replace(/%2F/g, "/")}` : "";
 }
 
 async function fetchJsonFromCandidates(candidates) {
@@ -102,14 +123,14 @@ function renderPrismaSideSummary(box, variant = "") {
 
 function renderNonFullTextFlow(flow = {}) {
   const candidates = flow.candidates || {
-    label: "Abstract-only records",
+    label: "Records without article text",
     count: 0,
   };
   const assessed = flow.assessed;
   const pending = flow.not_extracted;
   const excluded = flow.excluded;
   const included = flow.included_total || {
-    label: "Included in KG from abstracts",
+    label: "Included in KG evidence layer",
     count: 0,
   };
   const hasPending = Number(pending?.count || 0) > 0;
@@ -236,9 +257,7 @@ function prismaFlowOrder(status, flows) {
   const ordered = explicitOrder.filter((key) => flows[key]);
   if (ordered.length) return ordered;
   if (flows.overall) return ["overall"];
-  return ["disorder", "mechanistic"].filter((key) => flows[key]).concat(
-    Object.keys(flows).filter((key) => !["disorder", "mechanistic"].includes(key)),
-  );
+  return Object.keys(flows).sort();
 }
 
 function renderPrismaPanel(status) {
@@ -263,6 +282,245 @@ function renderPipeline() {
 
   methodsPipelineEl.className = "flow-dashboard";
   methodsPipelineEl.innerHTML = `<div class="flow-panel">${prismaPanel}</div>`;
+}
+
+function bibliographyColumns(payload) {
+  return Array.isArray(payload?.columns) ? payload.columns : [];
+}
+
+function bibliographyRowsFromPayload(payload) {
+  const columns = bibliographyColumns(payload);
+  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+  const stringTable = Array.isArray(payload?.string_table) ? payload.string_table : [];
+  const internedColumns = new Set(Array.isArray(payload?.interned_columns) ? payload.interned_columns : []);
+  return rows.map((row) => {
+    if (!Array.isArray(row)) return row && typeof row === "object" ? row : {};
+    const item = {};
+    columns.forEach((column, index) => {
+      const value = row[index];
+      item[column] = internedColumns.has(column) && Number.isInteger(value) ? stringTable[value] || "" : value;
+    });
+    item.search_text = normalizeText([
+      item.authors,
+      item.title,
+      item.doi,
+      item.year,
+      item.journal,
+    ].join(" "));
+    return item;
+  });
+}
+
+function bibliographyStageRankMap(payload) {
+  const entries = Array.isArray(payload?.stage_options) ? payload.stage_options : [];
+  const rank = {};
+  entries.forEach((entry, index) => {
+    rank[entry.key] = index;
+  });
+  return rank;
+}
+
+function populateBibliographyStageFilter(payload) {
+  if (!methodsBibliographyStageEl) return;
+  const currentValue = methodsBibliographyStageEl.value;
+  const options = Array.isArray(payload?.stage_options) ? payload.stage_options : [];
+  methodsBibliographyStageEl.innerHTML = `
+    <option value="">All stages</option>
+    ${options.map((option) => `
+      <option value="${escapeHtml(option.key)}">
+        ${escapeHtml(option.label)} (${formatNumber(option.count)})
+      </option>
+    `).join("")}
+  `;
+  methodsBibliographyStageEl.value = options.some((option) => option.key === currentValue) ? currentValue : "";
+}
+
+function bibliographySortValue(row, field) {
+  const value = normalizeText(row[field] || "");
+  return value || "\uffff";
+}
+
+function sortBibliographyRows(rows) {
+  const sortKey = methodsBibliographySortEl?.value || "author";
+  const stageRank = bibliographyStageRankMap(methodsState.bibliographyPayload);
+  const sorted = [...rows];
+  sorted.sort((left, right) => {
+    if (sortKey === "year-desc") {
+      const leftYear = Number(left.year || 0);
+      const rightYear = Number(right.year || 0);
+      if (leftYear !== rightYear) return rightYear - leftYear;
+    } else if (sortKey === "title") {
+      const value = bibliographySortValue(left, "title").localeCompare(bibliographySortValue(right, "title"));
+      if (value !== 0) return value;
+    } else if (sortKey === "stage") {
+      const value = (stageRank[left.stage_key] ?? 999) - (stageRank[right.stage_key] ?? 999);
+      if (value !== 0) return value;
+    } else {
+      const value = bibliographySortValue(left, "authors").localeCompare(bibliographySortValue(right, "authors"));
+      if (value !== 0) return value;
+    }
+    return bibliographySortValue(left, "title").localeCompare(bibliographySortValue(right, "title"))
+      || bibliographySortValue(left, "doi").localeCompare(bibliographySortValue(right, "doi"));
+  });
+  return sorted;
+}
+
+function bibliographyStageCellHtml(status, label, note) {
+  const statusKey = status || "not_reached";
+  const symbols = {
+    pass: "✓",
+    fail: "×",
+    not_reached: "–",
+  };
+  const cleanLabel = label || "Not reached";
+  const cleanNote = note || "";
+  return `
+    <div class="bibliography-stage-cell ${escapeHtml(statusKey)}">
+      <strong><span aria-hidden="true">${symbols[statusKey] || "–"}</span>${escapeHtml(cleanLabel)}</strong>
+      ${cleanNote ? `<span>${escapeHtml(cleanNote)}</span>` : ""}
+    </div>
+  `;
+}
+
+function bibliographyPaperHtml(row) {
+  const doi = row.doi || "";
+  const href = doiHref(doi);
+  const title = row.title || "Title unavailable";
+  const authors = row.authors || "Authors unavailable";
+  const meta = [row.year, row.journal].filter(Boolean).join(" · ");
+  return `
+    <div class="bibliography-paper-cell">
+      <strong>${escapeHtml(title)}</strong>
+      <span class="bibliography-authors">${escapeHtml(authors)}</span>
+      ${meta ? `<span>${escapeHtml(meta)}</span>` : ""}
+      ${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(doi)}</a>` : ""}
+    </div>
+  `;
+}
+
+function bibliographyRowHtml(row) {
+  const selectedClass = row.selected_for_extraction ? " selected" : "";
+  return `
+    <tr class="methods-bibliography-row${selectedClass}">
+      <td>${bibliographyPaperHtml(row)}</td>
+      <td>${bibliographyStageCellHtml(row.initial_screening_status, row.initial_screening_label, row.initial_screening_note)}</td>
+      <td>${bibliographyStageCellHtml(row.llm_screening_status, row.llm_screening_label, row.llm_screening_note)}</td>
+      <td>${bibliographyStageCellHtml(row.extraction_status, row.extraction_label, row.extraction_note)}</td>
+    </tr>
+  `;
+}
+
+function updateBibliographySummary() {
+  if (!methodsBibliographySummaryEl) return;
+  const total = methodsState.bibliographyRows.length;
+  const filtered = methodsState.bibliographyFilteredRows.length;
+  const rendered = Math.min(methodsState.bibliographyRendered, filtered);
+  const stage = (methodsBibliographyStageEl?.selectedOptions?.[0]?.textContent || "All stages").replace(/\s+/g, " ").trim();
+  const query = methodsBibliographySearchEl?.value?.trim() || "";
+  const filterText = query || methodsBibliographyStageEl?.value
+    ? `Filtered to ${formatNumber(filtered)} of ${formatNumber(total)} papers.`
+    : `${formatNumber(total)} papers in the full search corpus.`;
+  methodsBibliographySummaryEl.textContent = `${filterText} Showing ${formatNumber(rendered)}. Stage: ${stage}.`;
+}
+
+function appendBibliographyRows() {
+  if (!methodsBibliographyRowsEl) return;
+  const start = methodsState.bibliographyRendered;
+  const end = Math.min(start + BIBLIOGRAPHY_PAGE_SIZE, methodsState.bibliographyFilteredRows.length);
+  const slice = methodsState.bibliographyFilteredRows.slice(start, end);
+  methodsBibliographyRowsEl.insertAdjacentHTML("beforeend", slice.map(bibliographyRowHtml).join(""));
+  methodsState.bibliographyRendered = end;
+  if (methodsBibliographyLoadMoreEl) {
+    methodsBibliographyLoadMoreEl.hidden = end >= methodsState.bibliographyFilteredRows.length;
+    methodsBibliographyLoadMoreEl.textContent = `Load more (${formatNumber(methodsState.bibliographyFilteredRows.length - end)} remaining)`;
+  }
+  updateBibliographySummary();
+}
+
+function renderBibliography() {
+  if (!methodsBibliographyRowsEl) return;
+  const query = normalizeText(methodsBibliographySearchEl?.value || "");
+  const queryTerms = query.split(" ").filter(Boolean);
+  const stage = methodsBibliographyStageEl?.value || "";
+  let rows = methodsState.bibliographyRows.filter((row) => {
+    if (stage && row.stage_key !== stage) return false;
+    if (queryTerms.length && !queryTerms.every((term) => row.search_text.includes(term))) return false;
+    return true;
+  });
+  rows = sortBibliographyRows(rows);
+  methodsState.bibliographyFilteredRows = rows;
+  methodsState.bibliographyRendered = 0;
+  methodsBibliographyRowsEl.innerHTML = "";
+  if (!rows.length) {
+    methodsBibliographyRowsEl.innerHTML = `
+      <tr>
+        <td colspan="4" class="methods-bibliography-empty">No bibliography rows match the current filters.</td>
+      </tr>
+    `;
+    if (methodsBibliographyLoadMoreEl) methodsBibliographyLoadMoreEl.hidden = true;
+    updateBibliographySummary();
+    return;
+  }
+  appendBibliographyRows();
+}
+
+function renderBibliographyError(error) {
+  if (methodsBibliographySummaryEl) {
+    methodsBibliographySummaryEl.textContent = `Bibliography is not available yet. ${error.message}`;
+  }
+  if (methodsBibliographyRowsEl) {
+    methodsBibliographyRowsEl.innerHTML = `
+      <tr>
+        <td colspan="4" class="methods-bibliography-empty">Run python pipeline/kg/build_methods_flow.py from the project root, then refresh this page.</td>
+      </tr>
+    `;
+  }
+}
+
+async function loadMethodsBibliography() {
+  if (!methodsBibliographyRowsEl) return;
+  if (methodsState.bibliographyPromise) return methodsState.bibliographyPromise;
+  methodsState.bibliographyPromise = fetchJsonFromCandidates([
+    "../data/kg/views/methods_bibliography.json",
+    "/data/kg/views/methods_bibliography.json",
+    "data/kg/views/methods_bibliography.json",
+  ])
+    .then((payload) => {
+      methodsState.bibliographyPayload = payload;
+      methodsState.bibliographyRows = bibliographyRowsFromPayload(payload);
+      populateBibliographyStageFilter(payload);
+      renderBibliography();
+    })
+    .catch((error) => {
+      renderBibliographyError(error);
+    });
+  return methodsState.bibliographyPromise;
+}
+
+function initMethodsBibliography() {
+  if (!methodsBibliographySectionEl || !methodsBibliographyRowsEl) return;
+  const load = () => {
+    loadMethodsBibliography();
+  };
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      load();
+    }, { rootMargin: "800px 0px" });
+    observer.observe(methodsBibliographySectionEl);
+  } else {
+    load();
+  }
+}
+
+function scheduleBibliographyRender() {
+  if (!methodsState.bibliographyRows.length) {
+    loadMethodsBibliography();
+    return;
+  }
+  window.clearTimeout(methodsState.bibliographySearchTimer);
+  methodsState.bibliographySearchTimer = window.setTimeout(renderBibliography, 80);
 }
 
 function renderMethodsError(error) {
@@ -291,3 +549,9 @@ async function initMethods() {
 }
 
 initMethods();
+initMethodsBibliography();
+
+methodsBibliographySearchEl?.addEventListener("input", scheduleBibliographyRender);
+methodsBibliographyStageEl?.addEventListener("change", scheduleBibliographyRender);
+methodsBibliographySortEl?.addEventListener("change", scheduleBibliographyRender);
+methodsBibliographyLoadMoreEl?.addEventListener("click", appendBibliographyRows);

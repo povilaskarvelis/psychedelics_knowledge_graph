@@ -52,6 +52,7 @@ class DomainRoutingTest(unittest.TestCase):
         )
         self.assertTrue(all(row["bridge_clinical_mechanism"] for row in rows))
         self.assertTrue(all(row["domain_route_confidence"] == "medium" for row in rows))
+        self.assertTrue(all("datasets" not in row for row in rows))
 
     def test_build_rows_adds_general_topic_fallback_without_domain_tags(self) -> None:
         decisions = pd.DataFrame(

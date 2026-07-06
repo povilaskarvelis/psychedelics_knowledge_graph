@@ -33,6 +33,7 @@ SCHEMA_VERSION = "route_native_evidence_payload_v1"
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
 GRAPH_BOOTSTRAP_SCHEMA_VERSION = "route_native_graph_bootstrap_v1"
+DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v1"
 PRIMARY_SOURCE_KEY = "primary"
 SECONDARY_SOURCE_KEY = "secondary"
 UI_VIEW_KEYS = ("disorders", "targets")
@@ -319,6 +320,76 @@ PREVIEW_FIELDS = (
     "evidence_level",
     "support",
     "confidence",
+)
+DETAIL_BOOTSTRAP_FIELDS = (
+    "domain",
+    "finding_type",
+    "evidence_type",
+    "relation_type",
+    "compound",
+    "entity_label",
+    "entity_kind",
+    "graph_entity_label",
+    "mechanism_type",
+    "assay_type",
+    "assay_family",
+    "action_type",
+    "affinity_type",
+    "affinity_value",
+    "study_doi",
+    "openalex_id",
+    "study_title",
+    "study_year",
+    "study_journal",
+    "publication_type",
+    "open_access_is_oa",
+    "open_access_status",
+    "unpaywall_is_oa",
+    "unpaywall_oa_status",
+    "text_depth",
+    "access_level",
+    "source_access_level",
+    "paper_type",
+    "source_type",
+    "source_family",
+    "paper_assessment_route",
+    "study_design",
+    "study_design_category",
+    "population_model_category",
+    "outcome_type",
+    "sample_size_total",
+    "sample_size_by_arm",
+    "comparator",
+    "comparator_normalized",
+    "normalized_comparator",
+    "follow_up_duration",
+    "follow_up_window_normalized",
+    "normalized_follow_up_window",
+    "assessment_timepoint",
+    "timepoint",
+    "administration_route",
+    "route",
+    "route_of_administration",
+    "dose",
+    "dosing_schedule",
+    "session_context",
+    "system",
+    "outcome_measure",
+    "outcome_measure_normalized",
+    "evidence_location",
+    "evidence_locator",
+    "supporting_quote",
+    "first_author",
+    "last_author",
+    "authors",
+    "trial_registry_ids",
+    "data_source_type",
+    "public_health_graph_label",
+    "public_health_topic_category",
+    "public_health_measure",
+    "assay_family_normalized",
+    "normalized_assay_family",
+    "mechanistic_relationship_type",
 )
 BOOL_FIELDS = {"needs_human_review", "is_retracted", "has_correction", "open_access_is_oa", "unpaywall_is_oa"}
 
@@ -755,6 +826,10 @@ def ui_graph_bootstrap_name(view_key: str, source_key: str) -> str:
     return f"graph_bootstrap_view_{view_key}_{source_key}.json"
 
 
+def ui_detail_bootstrap_name(view_key: str, source_key: str) -> str:
+    return f"detail_bootstrap_view_{view_key}_{source_key}.json"
+
+
 def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, view_key: str, source_key: str) -> dict:
     edges: dict[tuple[str, str, str], dict] = {}
     for finding in findings:
@@ -777,6 +852,8 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
                 "evidence_type": normalize(finding.get("evidence_type") or finding.get("kg_evidence_type")) or "primary_evidence",
                 "finding_count": 0,
                 "study_keys": set(),
+                "full_text_study_keys": set(),
+                "abstract_only_study_keys": set(),
                 "full_text_seen_count": 0,
                 "abstract_only_count": 0,
             },
@@ -788,13 +865,21 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
         depth = normalize(finding.get("text_depth") or finding.get("access_level") or finding.get("source_access_level")).lower()
         if depth in {"article_text", "full_text", "full_text_seen"}:
             entry["full_text_seen_count"] += 1
+            if study:
+                entry["full_text_study_keys"].add(study)
         else:
             entry["abstract_only_count"] += 1
+            if study:
+                entry["abstract_only_study_keys"].add(study)
 
     edge_entries = []
     for entry in edges.values():
         study_keys = entry.pop("study_keys")
+        full_text_study_keys = entry.pop("full_text_study_keys")
+        abstract_only_study_keys = entry.pop("abstract_only_study_keys")
         entry["study_count"] = len(study_keys)
+        entry["full_text_seen_study_count"] = len(full_text_study_keys)
+        entry["abstract_only_study_count"] = len(abstract_only_study_keys)
         edge_entries.append(entry)
     edge_entries.sort(key=lambda item: (-item["finding_count"], item["compound"].lower(), item["entity_kind"], item["entity_label"].lower()))
 
@@ -811,8 +896,57 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
     }
 
 
+def detail_bootstrap_value(value: object) -> object:
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        slim = {
+            key: value[key]
+            for key in ("id", "name", "openalex_author_id", "orcid")
+            if meaningful(value.get(key))
+        }
+        return slim or None
+    if isinstance(value, list):
+        slim = [detail_bootstrap_value(item) for item in value]
+        slim = [item for item in slim if item is not None]
+        return slim or None
+    if isinstance(value, str):
+        return value if meaningful(value) else None
+    return value
+
+
+def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, view_key: str, source_key: str) -> dict:
+    values: list[object] = [None]
+    value_indexes = {json.dumps(None): 0}
+    rows: list[list[int]] = []
+
+    def value_index(value: object) -> int:
+        normalized = detail_bootstrap_value(value)
+        key = json.dumps(normalized, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+        if key not in value_indexes:
+            value_indexes[key] = len(values)
+            values.append(normalized)
+        return value_indexes[key]
+
+    for finding in findings:
+        rows.append([value_index(finding.get(field)) for field in DETAIL_BOOTSTRAP_FIELDS])
+
+    return {
+        "schema_version": DETAIL_BOOTSTRAP_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "evidence_source": "kg_tables",
+        "kg_dir": relative_path(kg_dir),
+        "view": view_key,
+        "source": source_key,
+        "row_count": len(rows),
+        "fields": list(DETAIL_BOOTSTRAP_FIELDS),
+        "values": values,
+        "rows": rows,
+    }
+
+
 def remove_stale_payload_files(out_dir: Path, keep_names: set[str]) -> None:
-    for pattern in ("graph_payload_*.json", "graph_preview_*.json", "graph_bootstrap_*.json"):
+    for pattern in ("graph_payload_*.json", "graph_preview_*.json", "graph_bootstrap_*.json", "detail_bootstrap_*.json"):
         for path in out_dir.glob(pattern):
             if path.name in keep_names:
                 continue
@@ -827,6 +961,7 @@ def write_active_pointer(
     preview_path: Path,
     view_payload_paths: dict[str, dict[str, Path]],
     graph_bootstrap_paths: dict[str, dict[str, Path]],
+    detail_bootstrap_paths: dict[str, dict[str, Path]],
     kg_dir: Path,
 ) -> dict:
     payload = {
@@ -839,6 +974,10 @@ def write_active_pointer(
         "active_graph_bootstraps": {
             view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
             for view_key, source_paths in graph_bootstrap_paths.items()
+        },
+        "active_detail_bootstraps": {
+            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
+            for view_key, source_paths in detail_bootstrap_paths.items()
         },
         "active_evidence_preview": relative_path(preview_path),
         "active_manifest": relative_path(manifest_path),
@@ -875,9 +1014,14 @@ def export_evidence_payload(
         view_key: {source_key: out_dir / ui_graph_bootstrap_name(view_key, source_key) for source_key in UI_SOURCE_KEYS}
         for view_key in UI_VIEW_KEYS
     }
+    detail_bootstrap_paths = {
+        view_key: {source_key: out_dir / ui_detail_bootstrap_name(view_key, source_key) for source_key in UI_SOURCE_KEYS}
+        for view_key in UI_VIEW_KEYS
+    }
     keep_names = {payload_path.name, preview_path.name, manifest_path.name}
     keep_names.update(path.name for source_paths in view_payload_paths.values() for path in source_paths.values())
     keep_names.update(path.name for source_paths in graph_bootstrap_paths.values() for path in source_paths.values())
+    keep_names.update(path.name for source_paths in detail_bootstrap_paths.values() for path in source_paths.values())
     remove_stale_payload_files(out_dir, keep_names)
 
     generated_at = now_utc()
@@ -904,6 +1048,8 @@ def export_evidence_payload(
             view_payload_path.write_text(compact_json(view_payload), encoding="utf-8")
             graph_bootstrap = graph_bootstrap_payload(view_findings, generated_at, kg_dir, view_key, source_key)
             graph_bootstrap_paths[view_key][source_key].write_text(compact_json(graph_bootstrap), encoding="utf-8")
+            detail_bootstrap = detail_bootstrap_payload(view_findings, generated_at, kg_dir, view_key, source_key)
+            detail_bootstrap_paths[view_key][source_key].write_text(compact_json(detail_bootstrap), encoding="utf-8")
             view_payloads[view_key][source_key] = view_payload
 
     manifest = {
@@ -919,6 +1065,10 @@ def export_evidence_payload(
         "graph_bootstraps": {
             view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
             for view_key, source_paths in graph_bootstrap_paths.items()
+        },
+        "detail_bootstraps": {
+            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
+            for view_key, source_paths in detail_bootstrap_paths.items()
         },
         "evidence_preview": relative_path(preview_path),
         "row_count": len(findings),
@@ -943,6 +1093,7 @@ def export_evidence_payload(
             preview_path=preview_path,
             view_payload_paths=view_payload_paths,
             graph_bootstrap_paths=graph_bootstrap_paths,
+            detail_bootstrap_paths=detail_bootstrap_paths,
             kg_dir=kg_dir,
         )
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -951,6 +1102,7 @@ def export_evidence_payload(
         "preview_path": preview_path,
         "view_payload_paths": view_payload_paths,
         "graph_bootstrap_paths": graph_bootstrap_paths,
+        "detail_bootstrap_paths": detail_bootstrap_paths,
         "manifest_path": manifest_path,
         "manifest": manifest,
     }

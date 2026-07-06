@@ -40,7 +40,6 @@ DEFAULT_OUTPUT_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadata_
 
 OUTPUT_COLUMNS = (
     "doi",
-    "datasets",
     "study_title",
     "study_year",
     "authors",
@@ -156,7 +155,6 @@ def candidate_metadata_row(row: dict) -> dict:
     out.update(
         {
             "doi": doi,
-            "datasets": clean(row.get("datasets", "")),
             "study_title": clean(row.get("study_title", "")),
             "study_year": clean(row.get("study_year", "")),
             "authors": clean(row.get("authors", "")),
@@ -249,7 +247,6 @@ def fetch_metadata_row(
     out.update(
         {
             "doi": doi,
-            "datasets": clean(base_row.get("datasets", "")),
             "study_title": clean(merged_metadata.get("study_title", "")),
             "study_year": clean(merged_metadata.get("study_year", "")),
             "authors": clean(merged_metadata.get("authors", "")),

@@ -18,6 +18,7 @@ VERSION = "0.1"
 CORPUS_TABLE_VERSION = "0.1"
 DEFAULT_TABLE_OUT_DIR = ROOT / "data" / "processed" / "corpus"
 CORPUS_METADATA_TABLE = "data/processed/corpus/paper_metadata_enrichment.parquet"
+CANONICAL_PDF_DIR = "data/raw/papers/pdfs"
 
 DATASETS = {
     "mechanistic": {
@@ -31,7 +32,7 @@ DATASETS = {
         "stubs": "data/processed/mechanistic_claim_stubs.json",
         "curated": "data/curated/claims.json",
         "exploratory": "data/curated/exploratory_claims.json",
-        "pdf_dir": "data/raw/papers/mechanistic/pdfs",
+        "pdf_dir": CANONICAL_PDF_DIR,
     },
     "disorder": {
         "entity_key": "disorder",
@@ -44,7 +45,7 @@ DATASETS = {
         "stubs": "data/processed/disorder_claim_stubs.json",
         "curated": "data/curated/disorder_claims.json",
         "exploratory": "data/curated/exploratory_disorder_claims.json",
-        "pdf_dir": "data/raw/papers/disorder/pdfs",
+        "pdf_dir": CANONICAL_PDF_DIR,
     },
 }
 
@@ -228,7 +229,6 @@ def paper_record(papers: dict[str, dict], doi: str) -> dict:
         doi,
         {
             "doi": doi,
-            "datasets": [],
             "study_title": "",
             "study_year": "",
             "authors": "",
@@ -268,8 +268,6 @@ def merge_paper(
         return
     row = row or {}
     record = paper_record(papers, doi)
-    if dataset and dataset not in record["datasets"]:
-        record["datasets"].append(dataset)
     if source_type and source_type not in record["source_types"]:
         record["source_types"].append(source_type)
 
@@ -285,10 +283,12 @@ def merge_paper(
 
     for field in PAPER_FIELDS:
         value = normalize(row.get(field))
+        if field == "pdf_local_path":
+            value = canonical_local_pdf_path(value)
         if value and not normalize(record["metadata"].get(field)):
             record["metadata"][field] = value
 
-    pdf_path = normalize(row.get("pdf_local_path"))
+    pdf_path = canonical_local_pdf_path(row.get("pdf_local_path"))
     if pdf_path:
         record["flags"]["has_local_pdf"] = True
         if pdf_path not in record["local_pdf_paths"]:
@@ -297,15 +297,14 @@ def merge_paper(
     source = {
         "source_type": source_type,
         "source_artifact": source_artifact,
-        "dataset": dataset,
     }
     if extra:
         source.update({k: v for k, v in extra.items() if v not in ("", None, [], {})})
     unique_append(record["sources"], source)
 
 
-def context_id(dataset: str, doi: str, compound: str, entity: str) -> str:
-    return "|".join((dataset, normalize_doi(doi), key_text(compound), key_text(entity)))
+def context_id(doi: str, compound: str, entity: str, entity_type: str) -> str:
+    return "|".join((normalize_doi(doi), key_text(compound), key_text(entity), key_text(entity_type)))
 
 
 def context_record(
@@ -321,12 +320,11 @@ def context_record(
     entity = normalize(entity)
     if not doi or not compound or not entity:
         return None
-    key = context_id(dataset, doi, compound, entity)
+    key = context_id(doi, compound, entity, entity_type)
     return contexts.setdefault(
         key,
         {
             "context_id": key,
-            "dataset": dataset,
             "doi": doi,
             "compound": compound,
             "entity": entity,
@@ -434,6 +432,21 @@ def source_artifact(root: Path, path: Path) -> str:
         return str(path.relative_to(root))
     except ValueError:
         return str(path)
+
+
+def canonical_local_pdf_path(value: object) -> str:
+    text = normalize(value)
+    if not text:
+        return ""
+    path = Path(text)
+    parts = path.parts
+    for index in range(0, max(len(parts) - 5, 0)):
+        if parts[index : index + 5] == ("data", "raw", "papers", "mechanistic", "pdfs") or parts[
+            index : index + 5
+        ] == ("data", "raw", "papers", "disorder", "pdfs"):
+            canonical_parts = (*parts[:index], "data", "raw", "papers", "pdfs", *parts[index + 5 :])
+            return str(Path(*canonical_parts))
+    return text
 
 
 def classify_queue_context(path: Path) -> str:
@@ -557,15 +570,6 @@ def add_contexts_from_row_contexts(
         )
 
 
-def metadata_row_datasets(row: dict, selected: list[str]) -> list[str]:
-    datasets: list[str] = []
-    for dataset in join_values(row.get("datasets", [])).split("|"):
-        dataset = normalize(dataset)
-        if dataset in selected and dataset not in datasets:
-            datasets.append(dataset)
-    return datasets
-
-
 def parquet_rows(path: Path) -> list[dict]:
     if not path.exists():
         return []
@@ -638,13 +642,11 @@ def finalize_context(record: dict, paper: dict | None) -> None:
 
 
 def finalize_paper(record: dict) -> None:
-    record["datasets"] = sorted(record["datasets"])
     record["source_types"] = sorted(record["source_types"])
     record["sources"] = sorted(
         record["sources"],
         key=lambda item: (
             normalize(item.get("source_type")),
-            normalize(item.get("dataset")),
             normalize(item.get("source_artifact")),
         ),
     )
@@ -674,6 +676,7 @@ def build_audit(root: Path = ROOT, datasets: list[str] | None = None) -> dict:
     papers: dict[str, dict] = {}
     contexts: dict[str, dict] = {}
     input_artifacts: list[str] = []
+    scanned_pdf_dirs: set[Path] = set()
 
     raw_dir = root / "data" / "raw"
     for path in sorted(raw_dir.glob("doi_queue.*.txt")) if raw_dir.exists() else []:
@@ -773,34 +776,18 @@ def build_audit(root: Path = ROOT, datasets: list[str] | None = None) -> dict:
         input_artifacts.append(artifact)
         for row in parquet_rows(corpus_metadata_path):
             doi = normalize_doi(row.get("study_doi") or row.get("doi"))
-            datasets_for_row = metadata_row_datasets(row, selected)
-            if datasets_for_row:
-                for dataset in datasets_for_row:
-                    merge_paper(
-                        papers,
-                        doi,
-                        dataset,
-                        "metadata_enrichment",
-                        artifact,
-                        row,
-                        {
-                            "metadata_enrichment_run_id": row.get("metadata_enrichment_run_id", ""),
-                            "metadata_enrichment_status": row.get("metadata_enrichment_status", ""),
-                        },
-                    )
-            else:
-                merge_paper(
-                    papers,
-                    doi,
-                    "",
-                    "metadata_enrichment",
-                    artifact,
-                    row,
-                    {
-                        "metadata_enrichment_run_id": row.get("metadata_enrichment_run_id", ""),
-                        "metadata_enrichment_status": row.get("metadata_enrichment_status", ""),
-                    },
-                )
+            merge_paper(
+                papers,
+                doi,
+                "",
+                "metadata_enrichment",
+                artifact,
+                row,
+                {
+                    "metadata_enrichment_run_id": row.get("metadata_enrichment_run_id", ""),
+                    "metadata_enrichment_status": row.get("metadata_enrichment_status", ""),
+                },
+            )
 
     manifest_path = root / "data" / "raw" / "benchmark_manifest.json"
     if manifest_path.exists():
@@ -1018,6 +1005,9 @@ def build_audit(root: Path = ROOT, datasets: list[str] | None = None) -> dict:
                 )
 
         pdf_dir = root / cfg["pdf_dir"]
+        if pdf_dir in scanned_pdf_dirs:
+            continue
+        scanned_pdf_dirs.add(pdf_dir)
         if pdf_dir.exists():
             input_artifacts.append(source_artifact(root, pdf_dir))
             for pdf in sorted(pdf_dir.glob("*.pdf")):
@@ -1039,7 +1029,7 @@ def build_audit(root: Path = ROOT, datasets: list[str] | None = None) -> dict:
         finalize_context(record, papers.get(record["doi"]))
 
     paper_records = sorted(papers.values(), key=lambda row: row["doi"])
-    context_records = sorted(contexts.values(), key=lambda row: (row["dataset"], row["doi"], row["compound"], row["entity"]))
+    context_records = sorted(contexts.values(), key=lambda row: (row["doi"], row["compound"], row["entity"], row["entity_type"]))
     return {
         "version": VERSION,
         "generated_at_utc": now_utc(),
@@ -1064,7 +1054,6 @@ def build_summary(papers: list[dict], contexts: list[dict]) -> dict:
     context_source_counts = Counter(source for ctx in contexts for source in ctx.get("context_sources", []))
     layer_counts = Counter(ctx.get("verification_layer", "") for ctx in contexts)
     status_counts = Counter(ctx.get("revalidation_status", "") for ctx in contexts)
-    dataset_counts = Counter(ctx.get("dataset", "") for ctx in contexts)
     return {
         "paper_count": len(papers),
         "context_count": len(contexts),
@@ -1072,7 +1061,6 @@ def build_summary(papers: list[dict], contexts: list[dict]) -> dict:
         "context_source_counts": dict(sorted(context_source_counts.items())),
         "verification_layer_counts": dict(sorted(layer_counts.items())),
         "revalidation_status_counts": dict(sorted(status_counts.items())),
-        "context_dataset_counts": dict(sorted(dataset_counts.items())),
         "possible_acronym_collision_contexts": sum(
             1 for ctx in contexts if ctx.get("flags", {}).get("possible_acronym_collision")
         ),
@@ -1104,8 +1092,6 @@ def paper_table_row(paper: dict) -> dict:
     flags = paper.get("flags", {}) if isinstance(paper.get("flags"), dict) else {}
     row = {
         "doi": normalize(paper.get("doi", "")),
-        "datasets": join_values(paper.get("datasets", [])),
-        "dataset_count": len(paper.get("datasets", [])) if isinstance(paper.get("datasets"), list) else 0,
         "study_title": normalize(paper.get("study_title", "")),
         "study_year": normalize(paper.get("study_year", "")),
         "authors": normalize(paper.get("authors", "")),
@@ -1141,7 +1127,6 @@ def context_table_row(context: dict) -> dict:
     )
     row = {
         "context_id": normalize(context.get("context_id", "")),
-        "dataset": normalize(context.get("dataset", "")),
         "doi": normalize(context.get("doi", "")),
         "compound": normalize(context.get("compound", "")),
         "entity": normalize(context.get("entity", "")),
@@ -1164,7 +1149,6 @@ SOURCE_EVENT_FIELDS = (
     "source_event_id",
     "event_scope",
     "doi",
-    "dataset",
     "context_id",
     "compound",
     "entity",
@@ -1197,7 +1181,6 @@ def source_event_row(
     *,
     event_scope: str,
     doi: str,
-    dataset: str,
     payload: dict,
     context: dict | None = None,
     ordinal: int = 0,
@@ -1211,7 +1194,6 @@ def source_event_row(
         "source_event_id": stable_id(
             event_scope,
             doi,
-            dataset,
             context.get("context_id", ""),
             source,
             source_type,
@@ -1221,7 +1203,6 @@ def source_event_row(
         ),
         "event_scope": event_scope,
         "doi": normalize_doi(doi),
-        "dataset": normalize(dataset),
         "context_id": normalize(context.get("context_id", "")),
         "compound": normalize(context.get("compound", "")),
         "entity": normalize(context.get("entity", "")),
@@ -1263,14 +1244,12 @@ def source_table_rows(papers: list[dict], contexts: list[dict]) -> list[dict]:
                 source_event_row(
                     event_scope="paper_source",
                     doi=doi,
-                    dataset=source.get("dataset", ""),
                     payload=source,
                     ordinal=index,
                 )
             )
     for context in contexts:
         doi = normalize_doi(context.get("doi", ""))
-        dataset = normalize(context.get("dataset", ""))
         for index, provenance in enumerate(context.get("provenance", []) if isinstance(context.get("provenance"), list) else []):
             if not isinstance(provenance, dict):
                 continue
@@ -1278,7 +1257,6 @@ def source_table_rows(papers: list[dict], contexts: list[dict]) -> list[dict]:
                 source_event_row(
                     event_scope="context_provenance",
                     doi=doi,
-                    dataset=dataset,
                     payload=provenance,
                     context=context,
                     ordinal=index,

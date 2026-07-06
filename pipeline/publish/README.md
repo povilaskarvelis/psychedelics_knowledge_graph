@@ -20,10 +20,10 @@ python pipeline/publish/export_evidence_payload.py \
   --activate-default
 ```
 
-Export the interim bibliography payloads:
+Build the unified methods bibliography:
 
 ```bash
-python pipeline/publish/export_bibliography_payload.py
+python pipeline/kg/build_methods_flow.py
 ```
 
 ## Outputs
@@ -32,9 +32,8 @@ python pipeline/publish/export_bibliography_payload.py
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_payload_evidence.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_preview_evidence.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_payload_manifest.json`
-- `data/processed/bibliography_payload_mechanistic.json`
-- `data/processed/bibliography_payload_disorder.json`
-- `data/processed/bibliography_payload_manifest.json`
+- `data/kg/views/pipeline_status_graph.json`
+- `data/kg/views/methods_bibliography.json`
 
 ## Contract
 

@@ -168,9 +168,7 @@ Main outputs:
 - curated evidence-record files in `data/curated/`
 - exploratory evidence-record files for weak or demoted evidence
 - graph export payloads in `data/processed/graph_payload_*.json`
-- interim bibliography payloads in
-  `data/processed/bibliography_payload_*.json`
-- methods paper-flow files in `data/kg/` when
+- methods paper-flow and bibliography files in `data/kg/` when
   `python pipeline/kg/build_methods_flow.py --refresh-kg-tables` is run locally
 - the GUI defaults to primary evidence and has a `Secondary sources` checkbox
   for reviews, systematic reviews, and meta-analyses
@@ -224,7 +222,7 @@ python pipeline/publish/export_evidence_payload.py \
   --kg-dir "data/processed/kg_routed_runs/$RUN_ID" \
   --out-dir "data/processed/graph_payload_runs/$RUN_ID" \
   --activate-default
-python pipeline/publish/export_bibliography_payload.py
+python pipeline/kg/build_methods_flow.py
 ```
 
 The stable current KG remains under `data/processed/kg/`. Routed extraction

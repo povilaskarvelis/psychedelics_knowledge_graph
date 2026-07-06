@@ -5,49 +5,49 @@
     "brain_region": [
       {
         "label": "Prefrontal cortex",
-        "aliases": ["PFC", "prefrontal cortical region"],
+        "aliases": ["PFC", "prefrontal cortical region", "dorsolateral prefrontal cortex", "DLPFC", "dorsomedial prefrontal cortex", "dmPFC", "DMPFC", "frontal pole", "frontal poles", "frontopolar cortex"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Medial prefrontal cortex",
-        "aliases": ["mPFC", "medial PFC"],
+        "aliases": ["mPFC", "medial PFC", "medial prefrontal region", "ventromedial prefrontal cortex", "ventro-medial prefrontal cortex", "ventral medial prefrontal cortex", "vmPFC"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Anterior cingulate cortex",
-        "aliases": ["ACC", "anterior cingulate"],
+        "aliases": ["ACC", "anterior cingulate", "anterior cingulate gyrus", "dorsal anterior cingulate cortex", "dACC", "midcingulate cortex", "subgenual anterior cingulate cortex", "subcallosal anterior cingulate cortex", "subgenual cingulate cortex", "sgACC"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Orbitofrontal cortex",
-        "aliases": ["OFC", "orbital frontal cortex"],
+        "aliases": ["OFC", "orbital frontal cortex", "frontal orbital cortex"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Amygdala",
-        "aliases": [],
+        "aliases": ["basolateral amygdala", "BLA", "central amygdala", "medial amygdala", "left amygdala", "right amygdala"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Hippocampus",
-        "aliases": ["hippocampal region"],
+        "aliases": ["hippocampal region", "hippocampal formation", "dentate gyrus", "DG", "CA1", "CA2", "CA3", "hippocampal CA1", "hippocampal CA1 area", "CA1 region of hippocampus", "left hippocampus", "right hippocampus", "left hippocampal", "right hippocampal", "dorsal hippocampus"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Thalamus",
-        "aliases": ["thalamic region"],
+        "aliases": ["thalamic region", "pulvinar", "pulvinar nuclei", "thalamic subnuclei", "midline thalamic nuclei", "paraventricular thalamus", "paraventricular thalamic nucleus", "reticular nucleus of the thalamus"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Striatum",
-        "aliases": ["striatal region"],
+        "aliases": ["striatal", "striatal region", "dorsal striatum", "caudate", "caudate nucleus", "caudate nuclei", "putamen", "caudate putamen", "caudate-putamen", "CPu", "associative striatum", "limbic striatum", "sensorimotor striatum", "anterior striatum", "medial anterior striatum"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -71,25 +71,43 @@
       },
       {
         "label": "Frontal cortex",
-        "aliases": ["frontal cortical region"],
+        "aliases": ["frontal cortical region", "frontal lobe", "frontal region", "frontal brain regions"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Occipital cortex",
-        "aliases": ["visual cortex"],
+        "aliases": ["visual cortex", "primary visual cortex", "primary visual area", "primary visual area (V1)", "V1", "inferior visual cortex", "occipital lobe", "occipital region", "occipital brain regions", "inferior occipital cortex", "lingual gyrus", "left lingual gyrus", "calcarine", "cuneus", "occipital areas"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Posterior cingulate cortex",
-        "aliases": ["PCC", "posterior cingulate"],
+        "aliases": ["PCC", "posterior cingulate", "posterior cingulate gyrus"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Cingulate cortex",
+        "aliases": ["cingulate cortex", "cingulate", "midline cingulate cortex", "supracingulate cortex"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Retrosplenial cortex",
+        "aliases": ["retrosplenial region", "retrosplenial cortex (RSP)", "RSP"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Prelimbic cortex",
-        "aliases": ["PL cortex"],
+        "aliases": ["PL cortex", "prelimbic medial prefrontal cortex", "Prelimbic medial prefrontal cortex", "PL mPFC", "prelimbic cortex (PRL)"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Infralimbic cortex",
+        "aliases": ["IL cortex", "infralimbic cortex (IL)", "Infralimbic medial prefrontal cortex", "IL mPFC"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -104,30 +122,126 @@
         "aliases": ["DRN", "raphe nucleus"],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Locus coeruleus",
+        "aliases": ["locus coeruleus (LC)", "left locus coeruleus"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Ventral tegmental area",
+        "aliases": ["VTA", "ventral tegmental area (VTA)"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Lateral habenula",
+        "aliases": ["LHb", "lateral habenula (LHb)"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Motor cortex",
+        "aliases": ["primary motor cortex", "primary motor cortex (M1)", "M1", "supplementary motor area"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Somatosensory cortex",
+        "aliases": ["primary somatosensory cortex", "primary somatosensory cortex (S1)", "S1", "somatosensory cortex", "sensorimotor cortex", "left sensorimotor cortex"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Parietal cortex",
+        "aliases": ["parietal lobe", "parietal region", "superior parietal cortex", "superior parietal lobe", "supramarginal gyrus", "post-central gyrus", "postcentral gyrus"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Precuneus",
+        "aliases": ["left precuneus", "precuneus (BA 31)"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Temporal cortex",
+        "aliases": ["temporal lobe", "temporal association area", "temporal association area (TeA)", "TeA", "temporal region", "temporal brain regions", "anterior temporal lobe", "superior temporal gyrus"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Auditory cortex",
+        "aliases": ["auditory cortex", "auditory cortical region"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Medial temporal lobe",
+        "aliases": ["MTL", "medial temporal lobe (MTL)", "right medial temporal lobe", "right medial temporal lobe (MTL)"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Entorhinal cortex",
+        "aliases": ["medial entorhinal cortex", "medial entorhinal cortex (mEC)", "mEC"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Parahippocampal cortex",
+        "aliases": ["parahippocampus", "parahippocampal cortex", "posterior parahippocampal cortex"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Piriform cortex",
+        "aliases": ["piriform cortex (PirC)", "PirC", "piriform cortices"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Cerebellum",
+        "aliases": ["cerebellar vermis"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Midbrain",
+        "aliases": ["brain stem", "brainstem", "substantia nigra", "substantia nigra pars reticulata", "superior colliculus", "inferior colliculus"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Periaqueductal gray",
+        "aliases": ["periaqueductal grey", "periaqueductal gray (PAG)", "periaqueductal grey (PAG)", "PAG", "dorsal periaqueductal gray", "dorsal periaqueductal grey", "dorsal periaqueductal gray matter", "dorsal periaqueductal gray matter (D-PAG)", "dPAG", "ventrolateral periaqueductal gray", "ventrolateral periaqueductal grey", "vlPAG", "periaqueductal gray matter", "periaqueductal grey matter"],
+        "ids": {},
+        "status": "seed_alias"
       }
     ],
     "brain_network": [
       {
         "label": "Default mode network",
-        "aliases": ["DMN", "default-mode network"],
+        "aliases": ["DMN", "default-mode network", "default mode", "Default Mode"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Salience network",
-        "aliases": ["SN"],
+        "aliases": ["SN", "SAL", "salience network (SAL)", "ventral salience network"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Central executive network",
-        "aliases": ["CEN", "executive control network"],
+        "aliases": ["CEN", "executive control network", "central executive"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Frontoparietal network",
-        "aliases": ["FPN", "fronto-parietal network"],
+        "aliases": ["FPN", "fronto-parietal network", "frontoparietal subsystem", "fronto-parietal"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -145,7 +259,7 @@
       },
       {
         "label": "Sensorimotor network",
-        "aliases": ["somatosensory network"],
+        "aliases": ["somatosensory network", "somatomotor network", "somato-motor network", "somatomotor"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -183,7 +297,7 @@
       },
       {
         "label": "Thalamocortical circuit",
-        "aliases": ["thalamo-cortical circuit", "thalamocortical connectivity", "thalamocortical pathway"],
+        "aliases": ["thalamocortical", "thalamoneocortical circuit", "thalamo-cortical circuit", "thalamocortical connectivity", "thalamocortical pathway"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -245,7 +359,7 @@
       },
       {
         "label": "Attention",
-        "aliases": ["attentional performance", "5-choice serial reaction time task", "5-CSRTT"],
+        "aliases": ["attentional performance", "5-choice serial reaction time task", "5-CSRTT", "vigilance"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -335,7 +449,25 @@
       },
       {
         "label": "Sensorimotor gating",
-        "aliases": ["prepulse inhibition", "PPI"],
+        "aliases": ["sensory gating", "prepulse inhibition", "PPI"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Processing speed",
+        "aliases": ["processing speed", "reaction time", "psychomotor performance"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Time perception",
+        "aliases": ["time perception", "temporal perception", "interval timing", "temporal bisection", "temporal bisection task", "temporal reproduction", "temporal reproduction task", "temporal discrimination", "temporal discrimination task", "time estimation", "time production"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Perceptual processing",
+        "aliases": ["visual perception", "visual processing", "perceptual processing"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -404,6 +536,12 @@
       {
         "label": "Altered state profile",
         "aliases": ["Altered states of consciousness", "altered state of consciousness", "altered states", "ASC", "5D-ASC", "11D-ASC", "3D-ASC", "APZ", "continuous subjective experience", "primary process thinking"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Time distortion",
+        "aliases": ["altered time perception", "time distortion", "time dilation", "time compression", "time sped up", "time slowed down", "timelessness", "loss of temporal awareness", "space-time distortion", "sense of time"],
         "ids": {},
         "status": "seed_alias"
       },

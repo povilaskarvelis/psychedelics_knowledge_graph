@@ -1293,7 +1293,9 @@ def normalize_routing_tags(value: object) -> List[str]:
 def entity_terms_for_dataset(dataset: str) -> set[str]:
     if dataset == "disorder":
         return set(disorder_entity_terms())
-    return set(mechanistic_entity_terms())
+    if dataset == "mechanistic":
+        return set(mechanistic_entity_terms())
+    return set(disorder_entity_terms()) | set(mechanistic_entity_terms())
 
 
 def evidence_domain_tags_for_context(dataset: str, context: str) -> List[str]:
@@ -1318,10 +1320,12 @@ def evidence_domain_tags_for_context(dataset: str, context: str) -> List[str]:
         tags.append("intervention_context")
     if any_term_found_in_context(REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS, context):
         tags.append("real_world_use_public_health")
-    has_clinical = dataset == "disorder" or any_term_found_in_context(
-        clinical_bridge_terms(),
-        context,
-    )
+    if dataset == "disorder":
+        has_clinical = True
+    elif dataset == "mechanistic":
+        has_clinical = any_term_found_in_context(clinical_bridge_terms(), context)
+    else:
+        has_clinical = "clinical_outcome" in tags or any_term_found_in_context(clinical_bridge_terms(), context)
     has_mechanistic = any(
         tag in tags
         for tag in {
@@ -1513,7 +1517,7 @@ def deterministic_prescreen_decision(
                 "supporting_quote": deterministic_supporting_quote(row),
                 "reason": (
                     "Ketamine/esketamine/arketamine appears only in an acute procedural anesthesia or sedation "
-                    "context, without psychiatric, chronic pain, brain/cognition, safety, or mechanistic KG signals."
+                    "context, without psychiatric, chronic pain, brain/cognition, safety, or biological evidence signals."
                 ),
                 "matched_terms": matched_intervention_terms[:20],
                 "routing_tags": matched_domain_tags,
@@ -1532,7 +1536,7 @@ def deterministic_prescreen_decision(
         }
 
     entity_terms = entity_terms_for_dataset(dataset)
-    entity_reason = "dataset entity terms present" if any_term_found_in_context(entity_terms, context) else "no dataset entity terms found"
+    entity_reason = "context entity terms present" if any_term_found_in_context(entity_terms, context) else "no context entity terms found"
     return {
         "action": "exclude_obvious_irrelevant",
         "confidence": 1.0,

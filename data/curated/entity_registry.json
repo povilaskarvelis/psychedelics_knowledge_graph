@@ -1,0 +1,1417 @@
+{
+  "version": "0.1",
+  "scope": "Warning-level registry for entities already present in curated claims. External identifiers should be resolved from PubChem, ChEMBL, BindingDB, UniProt, Open Targets, MONDO, EFO, MeSH, and related source databases before this becomes a blocking validator.",
+  "id_policy": {
+    "compounds": "Prefer PubChem CID plus ChEMBL molecule ID when available; include InChIKey or canonical SMILES after structure validation.",
+    "targets": "Prefer human gene symbol and UniProt accession for protein targets; use ChEMBL target IDs for binding-assay reconciliation.",
+    "disorders": "Prefer MONDO or EFO identifiers, plus MeSH terms when literature search depends on PubMed indexing."
+  },
+  "compounds": [
+    {
+      "label": "2C-I",
+      "aliases": ["2,5-dimethoxy-4-iodophenethylamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "4-OH-DiPT",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "2C-B",
+      "aliases": ["4-bromo-2,5-dimethoxyphenethylamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "2C-E",
+      "aliases": ["2,5-dimethoxy-4-ethylphenethylamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "2-bromo-LSD",
+      "aliases": ["BOL", "2-bromo-LSD (BOL)"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25C-NBOMe",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25B-NBOMe",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25CN-NBOMe",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25D-NBOMe",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25E-NBOMe",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25H-NBOMe",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25I-NBOMe",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25I-NBOH",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "25CN-NBOH",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-MeO-DMT",
+      "aliases": ["5-methoxy-N,N-dimethyltryptamine", "5-Methoxy-DMT", "5-methoxy-DMT"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-MeO-AMT",
+      "aliases": ["5-methoxy-alpha-methyltryptamine", "5-methoxy-α-methyltryptamine", "5-methoxy-α-methyltryptamine (5-MeO-AMT)"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-MeO-DET",
+      "aliases": ["5-N,N-diethyl-5-methoxytryptamine", "5-N,N-diethyl-5-methoxytryptamine (5-MeO-DET)"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-MeO-DiPT",
+      "aliases": ["5-methoxy-N,N-diisopropyltryptamine", "foxy methoxy"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-MeO-DALT",
+      "aliases": ["N,N-diallyl-5-methoxytryptamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-MeO-MiPT",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "(2R,6R)-hydroxynorketamine",
+      "aliases": ["(2R, 6R)-hydroxynorketamine", "(2R,6R)-Hydroxynorketamine", "(2R,6R)-HNK", "R-HNK"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Ayahuasca",
+      "aliases": ["DMT/HAR formulation"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "mixture_needs_component_mapping"
+    },
+    {
+      "label": "Bromo-DragonFLY",
+      "aliases": ["Bromo-dragonfly"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TCB-2",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Bufotenin",
+      "aliases": ["Bufotenine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Cannabidiol",
+      "aliases": ["CBD", "cannabidiol"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup",
+      "graph_scope": "out_of_scope_nonpsychedelic"
+    },
+    {
+      "label": "Cannabis",
+      "aliases": ["medical cannabis", "Marijuana"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "mixture_needs_component_mapping",
+      "graph_scope": "out_of_scope_nonpsychedelic"
+    },
+    {
+      "label": "D-cycloserine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup",
+      "graph_scope": "out_of_scope_comparator"
+    },
+    {
+      "label": "Dextromethorphan",
+      "aliases": ["dextromethorphan"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DMT",
+      "aliases": ["N,N-dimethyltryptamine", "dimethyltryptamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DPT",
+      "aliases": ["N,N-dipropyltryptamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Ephenidine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DiPT",
+      "aliases": ["N,N-diisopropyltryptamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DOI",
+      "aliases": ["2,5-dimethoxy-4-iodoamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DOB",
+      "aliases": ["2,5-dimethoxy-4-bromoamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DOM",
+      "aliases": ["2,5-dimethoxy-4-methylamphetamine", "STP"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Ibogaine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Harmaline",
+      "aliases": ["harmaline"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Harmine",
+      "aliases": ["harmine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Ketamine",
+      "aliases": ["racemic ketamine", "(R,S)-ketamine", "intravenous racemic ketamine", "IV ketamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Kratom",
+      "aliases": ["Mitragyna speciosa", "Mitragyna speciosa (Kratom)"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "mixture_needs_component_mapping",
+      "graph_scope": "out_of_scope_nonpsychedelic"
+    },
+    {
+      "label": "Lanicemine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup",
+      "graph_scope": "out_of_scope_comparator"
+    },
+    {
+      "label": "Lisuride",
+      "aliases": ["lysuride"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup",
+      "graph_scope": "out_of_scope_comparator"
+    },
+    {
+      "label": "LSD",
+      "aliases": ["lysergic acid diethylamide", "d-Lysergic acid diethylamide", "d-lysergic acid diethylamide", "lysergide", "MM120", "MM120 (lysergide D-tartrate)", "lysergide D-tartrate"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "LSA",
+      "aliases": ["lysergic acid amide", "ergine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "MDA",
+      "aliases": ["3,4-methylenedioxyamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "MDAI",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "MDMA",
+      "aliases": ["3,4-methylenedioxymethamphetamine", "ecstasy", "R(-)-MDMA", "S(+)-MDMA", "S,R(+-)-MDMA", "MDMA-assisted therapy", "MDMA-assisted psychotherapy"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "MDEA",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "MDPV",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Mescaline",
+      "aliases": ["San Pedro", "Huachuma", "San Pedro cactus", "Huachuma cactus", "Trichocereus pachanoi", "Echinopsis pachanoi"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Mephedrone",
+      "aliases": ["mephedrone"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Methoxetamine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Methylone",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "MIJ821",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup",
+      "graph_scope": "out_of_scope_comparator"
+    },
+    {
+      "label": "Mitragynine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup",
+      "graph_scope": "out_of_scope_nonpsychedelic"
+    },
+    {
+      "label": "Noribogaine",
+      "aliases": ["12-hydroxyibogamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "18-methoxycoronaridine",
+      "aliases": ["18-methoxycoronaridine (18-MC)", "18-MC"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Nitrous oxide",
+      "aliases": ["nitrous oxide"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Norketamine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Peyote",
+      "aliases": ["peyote"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "mixture_needs_component_mapping"
+    },
+    {
+      "label": "Psilocin",
+      "aliases": ["4-hydroxy-DMT", "4-HO-DMT"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Psilocybin",
+      "aliases": ["psilocybin mushroom", "psilocybin mushrooms", "psilocybin-assisted therapy", "COMP360", "COMP360 psilocybin", "psilocibina", "Psilocybe cubensis", "Psilocybe cubensis mushroom", "Psilocybe cubensis mushrooms", "Psilocybe cubensis extract", "Psilocybe cubensis aqueous extract", "Psilocybe zapotecorum", "Psilocybe azurescens", "magic mushrooms", "magic truffles", "psilocybin-containing mushrooms", "psilocybin-containing truffles"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Psilacetin",
+      "aliases": ["4-AcO-DMT", "O-acetylpsilocin"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "R-ketamine",
+      "aliases": ["arketamine", "(R)-ketamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Rapastinel",
+      "aliases": ["GLYX-13", "rapastinel"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup",
+      "graph_scope": "out_of_scope_comparator"
+    },
+    {
+      "label": "S-ketamine",
+      "aliases": ["esketamine", "(S)-ketamine", "Esketamine nasal spray", "esketamine nasal spray", "intranasal esketamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Salvinorin A",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Salvia divinorum",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "mixture_needs_component_mapping"
+    },
+    {
+      "label": "Tabernanthalog",
+      "aliases": ["TBG"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Tetrahydroharmine",
+      "aliases": [],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TMA",
+      "aliases": ["3,4,5-trimethoxyamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TMA-2",
+      "aliases": ["2,4,5-trimethoxyamphetamine"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "needs_external_id_lookup"
+    }
+  ],
+  "targets": [
+    {
+      "label": "5-HT1A",
+      "aliases": ["HTR1A", "5-HT1AR", "5-HT1ARs", "h5-HT1A", "h5-HT1AR", "5-HT1A serotonin receptor", "serotonin 1A receptor", "serotonin 1A receptors", "Serotonin 5-HT1A receptor", "5-HT1A receptors"],
+      "ids": {"gene_symbol": "HTR1A", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT1B",
+      "aliases": ["HTR1B", "5-HT1B receptor", "5-HT1B receptors", "5-HT1B serotonin receptor", "serotonin 1B receptor", "serotonin 1B receptors"],
+      "ids": {"gene_symbol": "HTR1B", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT receptor family",
+      "aliases": ["5-HT receptor", "5-HT receptors", "serotonin receptor", "Serotonin receptor", "serotonin receptors", "serotonergic receptor", "serotonergic receptors", "serotonergic receptor subtypes", "5-HT receptor subtypes", "5-HT recognition site", "5-HT recognition sites", "serotonin recognition site", "serotonin recognition sites", "post-synaptic 5-HT receptor"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "5-HT2 receptor family",
+      "aliases": ["5-HT2 receptor", "5-HT2 receptors", "5-HT2 serotonin receptor", "Serotonin 5-HT2 receptor", "5-HT2R", "5HT2R", "serotonin 2 receptor", "serotonin 2 receptors", "S2 serotonin receptor", "S-2 binding site", "5-HT2-type binding sites", "5-hydroxytryptamine2 receptor", "serotonergic (5-HT2A, 5-HT2B and 5-HT2C) receptor subtypes"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "5-HT2A",
+      "aliases": ["HTR2A", "5-HT2AR", "5-HT2ARs", "h5-HT2A", "h5-HT2AR", "h5-HT2A receptor", "5-HT2A receptor", "5-HT2A receptors", "5-HT 2A R", "serotonergic 5-HT2A receptors", "5-HT2A serotonin receptor", "intracellular 5-HT2A receptors", "cortical 5-HT2A receptor density", "serotonin 2A receptor", "serotonin 5-HT2A receptor", "serotonin 5-HT2A receptors"],
+      "ids": {"gene_symbol": "HTR2A", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT2A/2C receptor",
+      "aliases": ["5-HT2A/2C receptors", "5-HT2A/C receptor", "5HT2A/C receptors", "5HT2A/2C receptors", "5-HT2A and 5-HT2C receptors", "5-HT2B/C receptor", "5-HT2B/2C receptor", "5HT2B/2C receptor", "5-HT2/1C receptor"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "composite_target_needs_split"
+    },
+    {
+      "label": "5-HT2B",
+      "aliases": ["HTR2B", "serotonin 2B receptor", "serotonin 2B receptors", "5-HT2B receptor", "5-HT2B receptors"],
+      "ids": {"gene_symbol": "HTR2B", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT2C",
+      "aliases": ["HTR2C", "5-HT1C receptor", "5HT1C receptor", "5-HT1C serotonin receptor", "5-HT2C serotonin receptor", "serotonin 2C receptor", "serotonin 2C receptors", "Serotonin 5-HT2C receptor", "5-HT2C receptor", "5-HT2C receptors", "5-HT2C-INI receptor", "5-HT2C-VGV receptor", "5-HT2CR", "5-HT2CRs"],
+      "ids": {"gene_symbol": "HTR2C", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT1D",
+      "aliases": ["HTR1D", "5-HT1D receptor", "5-HT1D receptors", "serotonin 1D receptor", "serotonin 1D receptors"],
+      "ids": {"gene_symbol": "HTR1D", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT1E",
+      "aliases": ["HTR1E", "5-HT1E receptor", "5-HT1E receptors", "serotonin 1E receptor", "serotonin 1E receptors"],
+      "ids": {"gene_symbol": "HTR1E", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT4",
+      "aliases": ["HTR4", "5-HT4 receptor", "5-HT4 receptors", "5-HT4-serotonin receptors", "serotonin 4 receptor", "serotonin 4 receptors"],
+      "ids": {"gene_symbol": "HTR4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT5A",
+      "aliases": ["HTR5A", "serotonin 5A receptor", "serotonin 5A receptors", "5-HT5 receptor", "5-HT5 receptors", "5HT5 receptor", "5-HT5A receptor", "5-HT5A receptors"],
+      "ids": {"gene_symbol": "HTR5A", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT6",
+      "aliases": ["HTR6", "5-HT6 receptor", "5-HT6 receptors", "serotonin 6 receptor", "serotonin 6 receptors"],
+      "ids": {"gene_symbol": "HTR6", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT7",
+      "aliases": ["HTR7", "serotonin 7 receptor", "serotonin 7 receptors", "5-HT7 receptor", "5-HT7 receptors", "h5-HT7 receptor"],
+      "ids": {"gene_symbol": "HTR7", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "5-HT3",
+      "aliases": ["5-HT3 receptor", "5-HT3 receptors", "serotonin receptor 3A", "HTR3A"],
+      "ids": {"gene_symbol": "HTR3A", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "AMPA receptor",
+      "aliases": ["AMPAR", "AMPARs", "AMPA receptors", "AMPA-type glutamate receptor", "ionotropic AMPA receptor", "α-amino-3-hydroxy-5-methyl-4-isoxazolepropionic acid (AMPA) receptor"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "complex_target_needs_subunit_mapping"
+    },
+    {
+      "label": "Akt",
+      "aliases": ["AKT", "protein kinase B", "AKT signaling", "AKT signaling pathway", "AKT phosphorylation"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "Arc",
+      "aliases": ["activity-regulated cytoskeleton-associated protein", "Arc expression"],
+      "ids": {"gene_symbol": "ARC", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "BDNF",
+      "aliases": ["Brain-derived neurotrophic factor", "Brain-Derived Neurotrophic Factor", "brain-derived neurotrophic factor (BDNF)", "Brain-derived neurotrophic factor (BDNF)", "BDNF expression", "BDNF mRNA", "BDNF release", "BDNF signalling", "BDNF signaling pathway", "BDNF synthesis", "proBDNF", "mature BDNF", "mature BDNF (mBDNF)", "BDNF exon IV", "BDNF exon IV mRNA", "Bdnf mRNA", "total Bdnf mRNA", "Bdnf exon I mRNA", "Bdnf exon VI mRNA"],
+      "ids": {"gene_symbol": "BDNF", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "BDNF-TrkB signaling",
+      "aliases": ["BDNF-TrkB", "BDNF-TrkB pathway", "BDNF-TrkB activity", "BDNF/TrkB signaling", "BDNF/TrkB signaling pathway", "TrkB signaling pathway", "BDNF-TrkB-mTOR pathway", "BDNF-TrkB-ERK1/2-CREB pathway", "BDNF-TrkB-ERK1/2-CREB signaling pathway", "neurotrophic signalling"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "Catalase",
+      "aliases": [],
+      "ids": {"gene_symbol": "CAT", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "c-Fos",
+      "aliases": ["FOS", "cFos", "cfos", "c-Fos expression", "c-fos mRNA", "c-fos mRNA expression"],
+      "ids": {"gene_symbol": "FOS", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "COX-2 (PTGS2)",
+      "aliases": ["COX-2", "cyclooxygenase-2", "PTGS2"],
+      "ids": {"gene_symbol": "PTGS2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CREB",
+      "aliases": ["cAMP response element-binding protein"],
+      "ids": {"gene_symbol": "CREB1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP1A2",
+      "aliases": ["Cytochrome P-450 1A2"],
+      "ids": {"gene_symbol": "CYP1A2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP2A6",
+      "aliases": ["Cytochrome P-450 2A6"],
+      "ids": {"gene_symbol": "CYP2A6", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP2B6",
+      "aliases": ["Cytochrome P-450 2B6"],
+      "ids": {"gene_symbol": "CYP2B6", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP2C9",
+      "aliases": ["Cytochrome P-450 2C9"],
+      "ids": {"gene_symbol": "CYP2C9", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP2C19",
+      "aliases": ["Cytochrome P-450 2C19"],
+      "ids": {"gene_symbol": "CYP2C19", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP2D6",
+      "aliases": ["Cytochrome P-450 2D6"],
+      "ids": {"gene_symbol": "CYP2D6", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP2E1",
+      "aliases": ["Cytochrome P-450 2E1"],
+      "ids": {"gene_symbol": "CYP2E1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CYP3A4",
+      "aliases": ["Cytochrome P-450 3A4"],
+      "ids": {"gene_symbol": "CYP3A4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Xanthine oxidase",
+      "aliases": [],
+      "ids": {"gene_symbol": "XDH", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "DAT (SLC6A3)",
+      "aliases": ["DAT", "dopamine transporter", "dopamine reuptake transporter", "hDAT", "SLC6A3"],
+      "ids": {"gene_symbol": "SLC6A3", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Dopamine",
+      "aliases": ["dopamine"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "neurotransmitter_or_ligand"
+    },
+    {
+      "label": "Dopamine receptor family",
+      "aliases": ["dopamine receptor", "dopamine receptors", "Dopamine receptors", "dopaminergic receptor", "dopaminergic receptors", "Dopaminergic D1-5 receptors", "D1-like dopamine receptors", "D1-like receptor", "D2/3 receptor", "D2/3 receptors", "D2-like receptor", "D2-like dopamine receptors", "DAR2", "DAR3", "pituitary dopamine receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "Dopamine D1 receptor (DRD1)",
+      "aliases": ["D1 receptor", "D1 dopamine receptor", "Dopamine D1 receptor", "dopamine D1 receptor", "Dopaminergic D1 receptor", "dopaminergic D1 receptor", "DRD1"],
+      "ids": {"gene_symbol": "DRD1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Dopamine D2 receptor (DRD2)",
+      "aliases": ["Dopamine D2 receptor", "D2 receptor", "D2", "D2 dopamine receptor", "Dopaminergic D2 receptor", "dopaminergic D2 receptor", "Dopaminergic D2 receptors", "D2Short receptor", "D2High", "D2High dopamine D2 receptor high-affinity state", "DRD2"],
+      "ids": {"gene_symbol": "DRD2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "ERK",
+      "aliases": ["pERK", "pERK1", "pERK2", "ERK1/2", "ERK pathway", "extracellular signal-regulated kinase", "Extracellular signal-regulated kinases", "MAPK/ERK1/2", "MAPK/ERK pathway", "MEK-ERK pathway"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "GABA receptor family",
+      "aliases": ["GABA receptor", "GABA receptors", "GABAA receptor", "GABA-A receptor", "GABA A receptor", "GABAA receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "GABAergic system",
+      "aliases": ["GABAergic system", "GABAergic mechanisms", "GABAergic neurotransmission", "GABAergic neurons", "GABAergic interneurons", "TRN GABAergic neurons"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_system"
+    },
+    {
+      "label": "GluA1 (GRIA1)",
+      "aliases": ["GluA1", "GluR1", "GluR1 AMPA receptor", "AMPA receptor subunit GluA1", "AMPA receptor subunit GluR1"],
+      "ids": {"gene_symbol": "GRIA1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "GluA2 (GRIA2)",
+      "aliases": ["GluA2", "GluR2", "AMPA receptor subunit GluA2", "AMPA receptor subunit GluR2"],
+      "ids": {"gene_symbol": "GRIA2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "GluA3 (GRIA3)",
+      "aliases": ["GluA3", "GluR3", "AMPA receptor subunit GluA3", "AMPA receptor subunit GluR3"],
+      "ids": {"gene_symbol": "GRIA3", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "GluN1 (GRIN1)",
+      "aliases": ["GluN1", "GluN1-1a", "NR1", "NMDAR1", "NR1 subunit of NMDA receptor", "NMDA receptor NR1 subunit", "NMDA receptor subunit NR1", "NMDA receptor subunit GluN1"],
+      "ids": {"gene_symbol": "GRIN1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "GluN2A (GRIN2A)",
+      "aliases": ["GluN2A", "NR2A", "GluN2A NMDA receptor", "GluN2A N615K NMDA receptor", "NMDA receptor GluN2A subunit", "NMDA receptor subunit GluN2A", "NMDA receptor subunit NR2A", "N-methyl-D-aspartate receptor subunit 2A", "NMDAR NR1/2A", "GluN1-GluN2A receptor", "GluN1/GluN2A NMDAR", "GluN1/GluN2A N-methyl-D-aspartate receptor", "GluN1/GluN2A N-methyl-D-aspartate receptor (WT)"],
+      "ids": {"gene_symbol": "GRIN2A", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "GluN2B (GRIN2B)",
+      "aliases": ["GluN2B", "NR2B", "GluN2B NMDA receptor", "NMDA receptor GluN2B subunit", "NMDA receptor subunit GluN2B", "GluN2B subunit of the NMDA receptor", "NMDA receptor subunit NR2B", "N-methyl-D-aspartate receptor 2B subunit", "N-methyl-D-aspartate receptor subunit 2B", "GluN2B-containing NMDAR", "GluN2B-containing NMDARs", "GluN2B-containing NMDA receptor", "GluN2B-NMDAR", "NMDAR NR1/2B", "NMDA receptor subunit GluN1/2B", "GluN1/GluN2B N-methyl-D-aspartate receptor", "GluN1/GluN2B N-methyl-D-aspartate receptor (WT)"],
+      "ids": {"gene_symbol": "GRIN2B", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "GluN2C (GRIN2C)",
+      "aliases": ["GluN2C", "NR2C", "GluN2C-containing NMDA receptor", "NMDA receptor GluN2C subunit", "NMDA receptor subunit GluN2C", "NMDA receptor subunit NR2C", "NMDAR NR1/2C"],
+      "ids": {"gene_symbol": "GRIN2C", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "GluN2D (GRIN2D)",
+      "aliases": ["GluN2D", "NR2D", "GluN2D subunit", "GluN2D-containing NMDAR", "GluN2D-containing NMDA receptor", "GluN2D subunit of NMDAR", "GluN2D N-methyl-D-aspartate receptor", "NMDAR GluN2D subunit", "NMDA receptor GluN2D subunit", "NMDA receptor subunit GluN2D", "NMDA receptor subunit NR2D", "NMDAR NR1/2D"],
+      "ids": {"gene_symbol": "GRIN2D", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Glutamatergic system",
+      "aliases": ["glutamatergic system", "glutamatergic mechanism", "glutamatergic neurotransmission", "glutamatergic transmission", "glutamatergic signaling", "Glutamate signaling", "glutamate transmission"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_system"
+    },
+    {
+      "label": "Gut microbiota",
+      "aliases": ["gut microbiota"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_system"
+    },
+    {
+      "label": "IL-6",
+      "aliases": ["IL6", "interleukin-6", "Interleukin-6"],
+      "ids": {"gene_symbol": "IL6", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "INMT",
+      "aliases": ["Indolethylamine-N-methyltransferase", "indolethylamine N-methyltransferase", "indolethylamine-N-methyltransferase (INMT)", "INMT enzyme"],
+      "ids": {"gene_symbol": "INMT", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Monoamine transporter family",
+      "aliases": ["monoamine transporters"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "MAO-A (MAOA)",
+      "aliases": ["MAO-A", "monoamine oxidase A", "monoamine oxidase-A", "monoamine oxidase A (MAO-A)", "Monoamine oxidase A (MAO-A)", "Monoamine oxidase-A (MAO-A)"],
+      "ids": {"gene_symbol": "MAOA", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "mTOR",
+      "aliases": ["mammalian target of rapamycin (mTOR)", "mammalian target of rapamycine (mTOR)", "mammalian target of rapamycin (mTOR) complex", "mechanistic target of rapamycin"],
+      "ids": {"gene_symbol": "MTOR", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "mTORC1",
+      "aliases": ["mechanistic target of rapamycin complex 1 (mTORC1)", "mammalian target of rapamycin (mTOR) pathway", "mTOR signaling", "mTOR signaling pathway", "mTOR signalling pathway", "mTOR pathway", "mTORC1 signaling", "mTORC1 pathway", "mTORC1/mTORC2 signaling", "mTORC1, mTORC2", "mTOR signalling", "mammalian target of rapamycin (mTOR) signaling pathway", "mechanistic target of rapamycin (mTOR) signaling pathways", "p-mTOR"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "Muscarinic receptor family",
+      "aliases": ["muscarinic receptor", "muscarinic receptors", "muscarinic acetylcholine receptors", "muscarinic cholinergic receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "NET (SLC6A2)",
+      "aliases": ["NET", "norepinephrine transporter", "norepinephrine reuptake transporter", "Noradrenaline transporter", "noradrenaline transporter", "noradrenaline reuptake transporter", "Sodium-dependent noradrenaline transporter", "SLC6A2"],
+      "ids": {"gene_symbol": "SLC6A2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Neuroplasticity",
+      "aliases": ["neuroplasticity", "synaptic plasticity", "structural neural plasticity", "functional plasticity", "neural plasticity", "neuronal plasticity", "hippocampal neurogenesis", "neurogenesis", "plasticity gene expression", "neuroplasticity and BDNF expression", "dendritic spine density", "spine density", "spines density", "long-term potentiation", "LTP", "paired-pulse facilitation", "PPF"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_process"
+    },
+    {
+      "label": "Nicotinic acetylcholine receptor family",
+      "aliases": ["nicotinic acetylcholine receptors", "nicotinic receptor family", "nicotinic receptors", "nAChR", "nAChRs", "heteromeric nAChR", "heteromeric nicotinic receptor", "heteromeric nicotinic receptors", "α3β4 nAChR", "hα3β4 nicotinic acetylcholine receptor", "alpha6/alpha3beta4 nicotinic acetylcholine receptor", "alpha6/alpha3beta2beta3 nicotinic acetylcholine receptor"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "alpha7 nicotinic acetylcholine receptor (CHRNA7)",
+      "aliases": ["alpha 7-nicotinic acetylcholine receptor", "alpha7 nicotinic acetylcholine receptor", "alpha7-nicotinic acetylcholine receptor", "alpha7 nAChR", "alpha 7 nAChR", "α7 nicotinic acetylcholine receptor", "α7 nAChR", "CHRNA7"],
+      "ids": {"gene_symbol": "CHRNA7", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "NMDA receptor",
+      "aliases": ["NMDAR", "NMDARs", "NMDA receptors", "NMDA glutamate receptor", "NMDA glutamate receptors", "glutamatergic NMDA receptor", "phencyclidine (PCP) binding sites", "PCP binding sites", "GluN1-2B NMDA receptor", "N-methyl-D-aspartate receptor", "N-methyl-D-aspartate receptors", "N-methyl-D-aspartate (NMDA) receptor", "N-methyl-D-aspartate (NMDA) receptors", "N-methyl-D-aspartate glutamate receptor", "N-methyl-D-aspartic acid receptor"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "complex_target_needs_subunit_mapping"
+    },
+    {
+      "label": "Norepinephrine",
+      "aliases": ["noradrenaline"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "neurotransmitter_or_ligand"
+    },
+    {
+      "label": "Opioid receptor family",
+      "aliases": ["opioid receptor", "opioid receptors", "Opioid receptors", "opioid system", "Opioid signaling"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "Oxytocin receptor (OXTR)",
+      "aliases": ["oxytocin receptor", "oxytocin receptors", "OXTR"],
+      "ids": {"gene_symbol": "OXTR", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Phosphodiesterase-4",
+      "aliases": ["PDE4"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "complex_target_needs_subunit_mapping"
+    },
+    {
+      "label": "PSD-95 (DLG4)",
+      "aliases": ["PSD95", "PSD-95"],
+      "ids": {"gene_symbol": "DLG4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "Serotonergic system",
+      "aliases": ["serotonergic system", "serotonergic systems", "Human serotonergic systems", "serotonergic mechanism", "serotonergic signaling mechanisms", "serotonergic neurotransmission", "serotonergic signalling", "serotonergic pathway", "serotoninergic pathway", "serotonergic nerve terminals"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_system"
+    },
+    {
+      "label": "Serotonin",
+      "aliases": ["serotonin", "5-HT", "5 hydroxytryptamine", "5-hydroxytryptamine"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "neurotransmitter_or_ligand"
+    },
+    {
+      "label": "mGluR2 (GRM2)",
+      "aliases": ["mGluR2", "mGlu2", "mGlu2 receptor", "metabotropic glutamate receptor 2", "GRM2"],
+      "ids": {"gene_symbol": "GRM2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "M3 muscarinic receptor (CHRM3)",
+      "aliases": ["M3 receptor", "muscarinic acetylcholine receptor M3", "CHRM3"],
+      "ids": {"gene_symbol": "CHRM3", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "mu opioid receptor (OPRM1)",
+      "aliases": ["MOR", "mu opioid receptor", "mu-opioid receptor", "µ-opioid receptor", "μ-opioid receptor", "OPRM1"],
+      "ids": {"gene_symbol": "OPRM1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "SERT (SLC6A4)",
+      "aliases": ["SERT", "hSERT", "dSERT", "5-HT transporter", "5HTT", "5-HTT", "serotonin transporter", "human serotonin transporter", "platelet plasma membrane serotonin transporter", "serotonin reuptake transporter", "serotonin uptake site", "Sodium-dependent serotonin transporter", "Sodium-dependent serotonin transporter (5HTT)", "SLC6A4"],
+      "ids": {"gene_symbol": "SLC6A4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "P-glycoprotein (ABCB1)",
+      "aliases": ["P-glycoprotein", "P-glycoprotein (P-gp)", "P-gp", "ABCB1", "MDR1"],
+      "ids": {"gene_symbol": "ABCB1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "OCT1 (SLC22A1)",
+      "aliases": ["OCT1", "hOCT1", "organic cation transporter 1", "human organic cation transporter 1", "SLC22A1"],
+      "ids": {"gene_symbol": "SLC22A1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "OCT2 (SLC22A2)",
+      "aliases": ["OCT2", "hOCT2", "organic cation transporter 2", "human organic cation transporter 2", "SLC22A2"],
+      "ids": {"gene_symbol": "SLC22A2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "PMAT (SLC29A4)",
+      "aliases": ["PMAT", "hPMAT", "plasma membrane monoamine transporter", "SLC29A4"],
+      "ids": {"gene_symbol": "SLC29A4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "SV2A",
+      "aliases": [],
+      "ids": {"gene_symbol": "SV2A", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Synaptic marker family",
+      "aliases": ["synaptic markers", "Synapsin-1", "Synaptophysin", "GAP43"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_marker_family"
+    },
+    {
+      "label": "TNF-alpha",
+      "aliases": ["TNF", "TNF-α", "TNFα", "TNF-alpha", "Pro-TNFα", "tumor necrosis factor alpha"],
+      "ids": {"gene_symbol": "TNF", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "Sigma-1 receptor (SIGMAR1)",
+      "aliases": ["SIGMA-1", "sigma-1 receptor", "sigma receptor", "sigma receptors", "SIGMAR1"],
+      "ids": {"gene_symbol": "SIGMAR1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Sigma-2 receptor (TMEM97)",
+      "aliases": ["SIGMA-2", "sigma-2 receptor", "TMEM97"],
+      "ids": {"gene_symbol": "TMEM97", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TAAR1",
+      "aliases": ["TAAR1 receptor", "trace amine-associated receptor 1", "trace amine receptor 1", "Trace Amine Receptor 1"],
+      "ids": {"gene_symbol": "TAAR1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TPH2",
+      "aliases": ["tryptophan hydroxylase 2", "tryptophan hydroxylase 2 (TPH2)"],
+      "ids": {"gene_symbol": "TPH2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "TrkB (NTRK2)",
+      "aliases": ["TrkB", "TrkB receptor", "TrkB receptors", "BDNF receptor", "BDNF TrkB receptor", "NTRK2", "tropomyosin receptor kinase B"],
+      "ids": {"gene_symbol": "NTRK2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "VMAT2 (SLC18A2)",
+      "aliases": ["VMAT", "VMAT-2", "VMAT2", "Vesicular monoamine transporter", "vesicular monoamine transporter", "Vesicular monoamine transporter 2", "vesicular monoamine transporter 2", "vesicle monoamine transporter 2"],
+      "ids": {"gene_symbol": "SLC18A2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "kappa opioid receptor (OPRK1)",
+      "aliases": ["KOR", "KOP", "KOPr", "hKOR", "hKOPR", "rKOR", "kappa opioid receptor", "kappa-opioid receptor", "kappa opioid receptors", "kappa-opioid receptors", "kappa opiate receptor", "kappa-opiate receptor", "kappa 1-opioid receptor", "kappa-1 opioid receptor", "κ-opioid receptor", "OPRK1"],
+      "ids": {"gene_symbol": "OPRK1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "delta opioid receptor (OPRD1)",
+      "aliases": ["DOR", "delta opioid receptor", "delta-opioid receptor", "delta opioid receptors", "OPRD1"],
+      "ids": {"gene_symbol": "OPRD1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "CB1 receptor (CNR1)",
+      "aliases": ["CB1", "CB1 receptor", "cannabinoid CB1 receptor", "endocannabinoid receptor CB1", "CNR1"],
+      "ids": {"gene_symbol": "CNR1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Dopamine D3 receptor (DRD3)",
+      "aliases": ["D3 receptor", "Dopamine D3 receptor", "dopaminergic D3 receptor", "DRD3"],
+      "ids": {"gene_symbol": "DRD3", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Dopamine D4 receptor (DRD4)",
+      "aliases": ["D4 receptor", "Dopamine D4 receptor", "Dopamine D4.4 receptor", "DRD4"],
+      "ids": {"gene_symbol": "DRD4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "mGluR1 (GRM1)",
+      "aliases": ["mGluR1", "mGlu1 receptor", "metabotropic glutamate receptor 1", "GRM1"],
+      "ids": {"gene_symbol": "GRM1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "mGluR5 (GRM5)",
+      "aliases": ["mGluR5", "mGlu5 receptor", "metabotropic glutamate receptor 5", "GRM5"],
+      "ids": {"gene_symbol": "GRM5", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "MAO-B (MAOB)",
+      "aliases": ["MAO-B", "monoamine oxidase B", "monoamine oxidase-B", "monoamine oxidase B (MAO-B)", "MAOB"],
+      "ids": {"gene_symbol": "MAOB", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Monoamine oxidase family",
+      "aliases": ["MAO", "MonoAmine Oxidase (MAO)", "Monoamine oxidase", "monoamine oxidase", "monoamine oxidase (MAO)"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "HCN channel family",
+      "aliases": ["HCN channel", "HCN channels", "HCN1-HCN2 channel", "HCN1-HCN2 channels"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "complex_target_needs_subunit_mapping"
+    },
+    {
+      "label": "hERG (KCNH2)",
+      "aliases": ["hERG", "hERG channel", "hERG channels", "KCNH2"],
+      "ids": {"gene_symbol": "KCNH2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Voltage-gated calcium channel family",
+      "aliases": ["High-voltage-activated calcium channel", "voltage-gated calcium channels", "calcium channel family"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "Voltage-gated sodium channel family",
+      "aliases": ["voltage-gated sodium channel", "voltage-gated sodium channels", "voltage-dependent sodium channel", "voltage-dependent sodium channels", "sodium channel family"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "Dopaminergic system",
+      "aliases": ["dopaminergic system", "dopaminergic pathway", "dopaminergic pathways", "dopaminergic neurotransmission", "Dopamine signaling", "dopamine signaling", "dopamine transmission"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_system"
+    },
+    {
+      "label": "Monoaminergic system",
+      "aliases": ["monoaminergic system", "monoaminergic neurotransmission", "monoaminergic receptor", "monoaminergic receptors", "monoaminergic signaling pathways", "monoamine", "monoamine system", "monoamine systems", "monoamine receptor", "monoamine receptors", "monoamine neurotransmitters", "monoamine receptors and transporters", "monoamine transmission", "monoamine uptake", "monoamine uptake sites", "monoamine reuptake", "monoamine reuptake blocker", "monoaminergic reuptake transporters", "serotonergic and non-serotonergic receptors and transporters"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_system"
+    },
+    {
+      "label": "Adrenergic receptor family",
+      "aliases": ["adrenergic receptor", "adrenergic receptors", "adrenergic pathway", "alpha-1 adrenergic receptors", "alpha1-adrenoceptors", "alpha 2-adrenergic sites", "alpha-2 adrenergic sites", "alpha 2 adrenergic receptor", "alpha-2 adrenergic receptor", "α₂-adrenergic receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
+      "label": "Cholinergic system",
+      "aliases": ["cholinergic system", "cholinergic pathway", "cholinergic receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_system"
+    },
+    {
+      "label": "GDNF",
+      "aliases": ["glial cell line-derived neurotrophic factor", "glial cell line-derived neurotrophic factor (GDNF)"],
+      "ids": {"gene_symbol": "GDNF", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "NGF",
+      "aliases": ["nerve growth factor", "nerve growth factor (NGF)"],
+      "ids": {"gene_symbol": "NGF", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "GFAP",
+      "aliases": ["Glial Fibrillary Acidic Protein", "glial fibrillary acidic protein"],
+      "ids": {"gene_symbol": "GFAP", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "HSP70",
+      "aliases": ["Heat shock protein 70", "Heat shock protein 70 (HSP70)"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "Myelin basic protein",
+      "aliases": ["MBP", "MBP mRNA", "MBP protein"],
+      "ids": {"gene_symbol": "MBP", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "Neurofilament light chain",
+      "aliases": ["NfL", "Neurofilament light chain (NfL)", "Neurofilament light chain (NfL) levels"],
+      "ids": {"gene_symbol": "NEFL", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "IL-1beta",
+      "aliases": ["IL-1β", "IL-1beta", "interleukin-1 beta", "Pro-IL-1β", "active IL-1β", "secreted IL-1β"],
+      "ids": {"gene_symbol": "IL1B", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "IL-8",
+      "aliases": ["IL8", "Interleukin-8", "interleukin-8"],
+      "ids": {"gene_symbol": "CXCL8", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "TGF-beta",
+      "aliases": ["TGF-β", "TGF-β1", "TGF-beta", "TGF-beta1"],
+      "ids": {"gene_symbol": "TGFB1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "IGF1",
+      "aliases": ["IGF-1", "insulin-like growth factor 1"],
+      "ids": {"gene_symbol": "IGF1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "DOPAC",
+      "aliases": ["3,4-dihydroxyphenylacetic acid"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "HVA",
+      "aliases": ["homovanillic acid"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "Prolactin",
+      "aliases": ["prolactin"],
+      "ids": {"gene_symbol": "PRL", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "biomarker_readout_needs_external_id_lookup"
+    },
+    {
+      "label": "Rac1",
+      "aliases": ["RAC1", "Rac1 expression", "Rac1 activity", "Rac1 GTPase"],
+      "ids": {"gene_symbol": "RAC1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Glutamate",
+      "aliases": ["glutamate"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "neurotransmitter_or_ligand"
+    },
+    {
+      "label": "NF-kB signaling",
+      "aliases": ["NF-κB", "NFκB", "NF-kB", "NFKB pathway", "NFκB cascade", "NF-κB signaling pathway", "NF-κB phosphorylation", "NFκB p65"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_process"
+    },
+    {
+      "label": "JNK signaling",
+      "aliases": ["JNK", "JNK pathway", "JNK signaling pathway"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_process"
+    },
+    {
+      "label": "CREB phosphorylation",
+      "aliases": ["p-CREB", "pCREB", "pCREB expression", "pCREB immunoreactivity", "phosphorylated CREB", "CREB phosphorylation"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_process"
+    },
+    {
+      "label": "Phosphoinositide hydrolysis",
+      "aliases": ["phosphoinositide hydrolysis", "5-HT-elicited PI hydrolysis signaling"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_process"
+    },
+    {
+      "label": "Neuroinflammation",
+      "aliases": ["neuroinflammation", "proinflammatory cytokines", "pro-inflammatory cytokines", "cytokines", "peripheral cytokine cascades"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_process"
+    },
+    {
+      "label": "NLRP3 inflammasome",
+      "aliases": ["NLRP3", "NLRP3 inflammasome"],
+      "ids": {"gene_symbol": "NLRP3", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "pathway_or_process"
+    },
+    {
+      "label": "GSK3B",
+      "aliases": ["GSK3β", "Gsk-3β", "GSK-3β", "GSK-3", "GSK3 pathway", "GSK3B"],
+      "ids": {"gene_symbol": "GSK3B", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "STAT3",
+      "aliases": ["STAT3"],
+      "ids": {"gene_symbol": "STAT3", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "p70S6K",
+      "aliases": ["p70S6K", "S6K1", "RPS6KB1"],
+      "ids": {"gene_symbol": "RPS6KB1", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "p38 MAPK",
+      "aliases": ["p38 MAPK", "p38 MAP kinase"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_node_needs_external_id_lookup"
+    },
+    {
+      "label": "MAPK signaling",
+      "aliases": ["MAPK", "MAPK signaling", "MAPK pathway"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "pathway_or_process"
+    }
+  ],
+  "disorders": [
+    {"label": "Alcohol use disorder", "aliases": ["AUD", "alcohol dependence", "alcohol addiction", "alcoholism"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Anorexia nervosa", "aliases": ["anorexia", "anorexic"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Anxiety disorders", "aliases": ["anxiety", "anxiety symptoms", "anxiety disorder", "anxiety spectrum disorders", "anxiety spectrum", "mixed anxiety and depressive disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
+    {"label": "Anhedonia", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "symptom_or_problem_needs_external_id_lookup"},
+    {"label": "Autism spectrum disorder", "aliases": ["ASD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Bipolar depression", "aliases": ["Bipolar II depression", "bipolar II depression", "bipolar 2 depression", "bipolar I/II depression", "bipolar I or II depression", "treatment-resistant bipolar depression", "treatment resistant bipolar depression", "treatment-resistant bipolar I/II depression", "treatment resistant bipolar I/II depression", "treatment-resistant bipolar I or II depression", "treatment resistant bipolar I or II depression", "treatment-refractory bipolar depression", "refractory bipolar depression", "bipolar major depressive episodes", "bipolar depressive episodes", "TRBD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Bipolar disorder", "aliases": ["bipolar disorder", "Bipolar II disorder", "bipolar II disorder", "bipolar 2 disorder", "bipolar affective disorder", "BPAD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Body dysmorphic disorder", "aliases": ["BDD", "body dysmorphia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Borderline personality disorder", "aliases": ["BPD", "borderline personality disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Cannabis use disorder", "aliases": ["CUD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Chronic pain", "aliases": ["persistent pain", "refractory pain", "chronic pain resistant to conventional therapy", "chronic cancer pain", "refractory chronic cancer pain"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Cluster headache", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Complicated grief", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Complex post-traumatic stress disorder", "aliases": ["complex PTSD", "C-PTSD", "CPTSD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Complex regional pain syndrome", "aliases": ["Complex Regional Pain Syndrome", "CRPS", "CRPS I", "CRPS II", "CRPS type I", "CRPS type II", "complex regional pain syndrome type I", "complex regional pain syndrome type II", "CRPS-related limb dystonia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Cocaine use disorder", "aliases": ["cocaine dependence", "cocaine dependency", "cocaine addiction"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Demoralization", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Depressive disorders", "aliases": ["depression", "depressive disorder", "depressive symptoms", "depressed mood", "unipolar depression", "postpartum depression", "postoperative depression", "Postoperative depression", "catatonic depression", "depressive episode", "depressive episodes", "major depressive episode", "major depressive episodes", "MDE", "current depressive episode", "severe depressive episode", "depressed patients", "depressed participants"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
+    {"label": "Distress associated with life-threatening disease", "aliases": ["cancer-related distress", "life-threatening disease distress", "life-threatening disease anxiety", "life-threatening illness anxiety", "life-threatening illnesses anxiety", "anxiety related to life-threatening illness", "anxiety related to life-threatening illnesses", "end-of-life anxiety", "terminal cancer", "patients with terminal cancer", "cancer-related psychiatric distress", "life-threatening cancer diagnosis"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Eating disorders", "aliases": ["eating disorder", "eating disorder symptoms", "eating disorder psychopathology", "disordered eating"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Fibromyalgia", "aliases": ["FM", "hyperalgesic fibromyalgia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Generalized anxiety disorder", "aliases": ["GAD", "generalized anxiety"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Headache disorders", "aliases": ["refractory headache", "acute non-traumatic headaches", "headache", "headaches"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
+    {"label": "Major depressive disorder", "aliases": ["MDD", "major depression", "severe depression", "Severe depression", "severe major depression"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Methamphetamine use disorder", "aliases": ["methamphetamine dependence", "methamphetamine addiction", "methamphetamine use"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Migraine", "aliases": ["migraine headache", "migraine headaches"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Mood disorders", "aliases": ["mood disorders"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
+    {"label": "Neuropathic pain", "aliases": ["chronic neuropathic pain", "neuropathic orofacial pain", "chronic neuropathic orofacial pain"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Nicotine dependence", "aliases": ["nicotine addiction", "nicotine use disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Obsessive-compulsive disorder", "aliases": ["OCD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Opioid use disorder", "aliases": ["OUD", "opioid dependence", "opioid addiction"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Pain conditions", "aliases": ["pain", "acute pain", "Acute pain", "postoperative pain", "Postoperative pain", "post-operative pain", "post operative pain", "acute postoperative pain", "acute post-operative pain", "post-tonsillectomy pain", "post tonsillectomy pain", "acute traumatic pain", "Acute traumatic pain", "traumatic pain", "mixed pain", "cancer pain", "refractory cancer pain", "pain management", "pain relief", "acute and chronic pain", "chronic postsurgical pain", "Chronic post-surgical pain", "chronic postthoracotomy pain", "Pain in sickle cell disease"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
+    {"label": "Persistent depressive disorder", "aliases": ["dysthymia", "recurrent depressive disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Post-treatment Lyme disease syndrome", "aliases": ["post-treatment Lyme disease", "post-treatment lyme disease syndrome", "PTLDS", "posttreatment lyme disease syndrome", "posttreatment lyme disease"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Post-traumatic stress disorder", "aliases": ["PTSD", "posttraumatic stress disorder", "post-traumatic stress disorder (PTSD)", "posttraumatic stress disorder (PTSD)", "treatment-resistant PTSD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Psychosis", "aliases": ["psychosis", "schizophrenia-like symptoms"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "symptom_or_problem_needs_external_id_lookup"},
+    {"label": "Restless legs syndrome", "aliases": ["RLS"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Schizoaffective disorder", "aliases": ["schizoaffective disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Schizophrenia", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Social anxiety disorder", "aliases": ["SAD", "social phobia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Stimulant use disorder", "aliases": ["stimulant dependence", "stimulant addiction", "amphetamine use disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Substance use disorder", "aliases": ["SUD", "Substance-Related Disorders", "addiction", "addictions", "drug addiction", "Drug addiction", "addictive disorders", "drug dependence", "substance abuse", "substance misuse", "MDMA dependence", "ecstasy use disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Suicidality", "aliases": ["suicidal ideation", "suicidal ideations", "suicide ideation", "suicidal ideation or behavior", "suicide risk", "suicidal risk", "suicide crisis", "high-risk suicide crisis", "suicide attempt", "attempted suicide", "unsuccessful suicide attempt", "suicide attempt or intent", "seriously considered suicide", "suicidal symptoms", "acute suicidal ideation", "chronic suicidal ideation"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Tobacco use disorder", "aliases": ["tobacco addiction", "smoking", "smoking cessation"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Treatment-resistant depression", "aliases": ["TRD", "TR-MDD", "treatment-resistant major depressive disorder", "treatment-resistant major depression", "treatment-resistant unipolar depression", "treatment resistant depression", "treatment resistant major depressive disorder", "late-life treatment-resistant depression", "late-life treatment resistant depression", "late life treatment-resistant depression", "late life treatment resistant depression", "late-life TRD", "late life TRD", "resistant depression", "refractory depression", "treatment-refractory depression", "treatment refractory depression", "treatment-refractory depressed", "treatment-refractory depressed participants", "treatment-resistant depressive episode", "treatment resistant depressive episode", "difficult-to-treat depression", "DTD", "refractory major depression"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"}
+  ]
+}

@@ -166,20 +166,98 @@ PRISMA_CANDIDATE_PRESCREEN_LABELS = {
     "exclude_non_evidence_artifact": "Non-evidence artifact",
     "exclude_non_paper_container": "Non-paper container",
     "exclude_preprint_or_unpublished": "Preprint or unpublished posted content",
-    "unknown": "Prescreen status not available",
+    "unknown": "Screening status not available",
 }
 
 PRISMA_CANDIDATE_ROUTE_LABELS = {
-    "excluded_after_domain_screen": "Excluded after domain screen",
-    "context_only_or_skip": "Context-only or skip route",
-    "not_retained_for_extraction": "No current extraction route assigned",
-    "unknown": "Route status not available",
+    "excluded_after_domain_screen": "Excluded during LLM-based screening",
+    "context_only_or_skip": "Kept as background/context only",
+    "not_retained_for_extraction": "Not selected for evidence extraction",
+    "unknown": "LLM-based screening status not available",
+}
+
+PRISMA_PUBLIC_LLM_SCREENING_LABELS = {
+    "excluded_during_llm_screening": "Excluded during LLM-based screening",
+    "background_context_only": "Kept as background/context only",
+    "not_selected_for_extraction": "Not selected for evidence extraction",
+    "unknown": "LLM-based screening status not available",
 }
 
 PRISMA_CANDIDATE_INPUT_LABELS = {
-    "ready_for_article_text_extraction": "Article-text extraction set",
-    "ready_for_abstract_extraction": "Abstract-only extraction set",
-    "unknown": "Extraction input not classified",
+    "ready_for_article_text_extraction": "Selected for evidence extraction",
+    "ready_for_abstract_extraction": "Selected for evidence extraction",
+    "unknown": "Evidence extraction input not classified",
+}
+
+METHODS_BIBLIOGRAPHY_COLUMNS = (
+    "id",
+    "doi",
+    "title",
+    "authors",
+    "year",
+    "journal",
+    "initial_screening_status",
+    "initial_screening_label",
+    "initial_screening_note",
+    "llm_screening_status",
+    "llm_screening_label",
+    "llm_screening_note",
+    "extraction_status",
+    "extraction_label",
+    "extraction_note",
+    "stage_key",
+    "stage_label",
+    "selected_for_extraction",
+)
+
+METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS = (
+    "initial_screening_status",
+    "initial_screening_label",
+    "initial_screening_note",
+    "llm_screening_status",
+    "llm_screening_label",
+    "llm_screening_note",
+    "extraction_status",
+    "extraction_label",
+    "extraction_note",
+    "stage_key",
+    "stage_label",
+)
+
+METHODS_BIBLIOGRAPHY_STAGE_LABELS = {
+    "selected_for_extraction": "Selected for evidence extraction",
+    "excluded_during_llm_screening": "Excluded during LLM-based screening",
+    "background_context_only": "Kept as background/context only",
+    "not_selected_for_extraction": "Not selected for evidence extraction",
+    "excluded_during_initial_screening": "Excluded during initial screening",
+    "identified_not_screened": "Identified, not screened",
+}
+
+METHODS_BIBLIOGRAPHY_STAGE_ORDER = (
+    "selected_for_extraction",
+    "excluded_during_llm_screening",
+    "background_context_only",
+    "not_selected_for_extraction",
+    "excluded_during_initial_screening",
+    "identified_not_screened",
+)
+
+METHODS_BIBLIOGRAPHY_PROFILE_LABELS = {
+    "primary_evidence_schema": "primary-study evidence",
+    "review_coverage_schema": "review evidence",
+    "meta_analysis_evidence_schema": "meta-analysis evidence",
+    "recommendation_consensus_schema": "guideline/consensus evidence",
+    "context_only_schema": "background/context evidence",
+    "no_extraction_schema": "no evidence extraction",
+}
+
+METHODS_BIBLIOGRAPHY_SCREENING_REASONS = {
+    "exclude_obvious_irrelevant": "No in-scope signal",
+    "exclude_missing_abstract": "No abstract",
+    "exclude_non_evidence_artifact": "Not an evidence paper",
+    "exclude_non_paper_container": "Journal/container record",
+    "exclude_preprint_or_unpublished": "Preprint/unpublished",
+    "retain_for_extraction_candidate": "",
 }
 
 
@@ -289,6 +367,11 @@ def resolve_project_path(path: object) -> Path:
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def write_compact_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def first_nonempty(*values: object) -> object:
@@ -578,8 +661,8 @@ class MethodsFlowBuilder:
             self.load_corpus_screening_reports()
             self.load_triage_reports()
             self.finalize_paper_nodes()
-        self.load_kg_claim_status()
-        self.load_extraction_outcomes()
+            self.load_kg_claim_status()
+            self.load_extraction_outcomes()
         return self.payloads()
 
     def candidate_table_path(self) -> Path:
@@ -1103,18 +1186,13 @@ class MethodsFlowBuilder:
         }
 
     def candidate_pipeline_status_view(self) -> dict:
-        counters = candidate_pipeline_counters(self.candidate_rows)
         flow = prisma_flow_for_candidate_papers(self.candidate_rows)
         return {
             "contract_version": KG_VERSION,
             "view": "pipeline_status",
             "generated_at": now_utc(),
-            "source_table": str(self.candidate_table_path()),
-            "current_stage": "papers_selected_for_finding_extraction",
-            "counts": {key: dict(counter) for key, counter in sorted(counters.items())},
-            "kg_claim_status": self.kg_claim_status_summary(),
-            "extraction_status": self.extraction_status_summary(),
-            "metadata_quality": self.metadata_quality_summary(),
+            "current_stage": "papers_selected_for_evidence_extraction",
+            "counts": public_candidate_pipeline_counts(flow),
             "prisma_flow_order": ["overall"],
             "prisma_flow": {
                 "overall": flow,
@@ -1149,7 +1227,6 @@ class MethodsFlowBuilder:
             "contract_version": KG_VERSION,
             "view": "pipeline_status",
             "generated_at": now_utc(),
-            "source_table": "",
             "current_stage": "kg_inclusion_summary",
             "counts": {key: dict(counter) for key, counter in sorted(counters.items())},
             "kg_claim_status": self.kg_claim_status_summary(),
@@ -1182,15 +1259,17 @@ class MethodsFlowBuilder:
         }
 
     def payloads(self) -> dict:
+        bibliography_rows = self.candidate_rows if self.candidate_rows else []
         return {
             "pipeline_status": self.pipeline_status_view(),
+            "methods_bibliography": candidate_bibliography_payload(bibliography_rows),
             "manifest": {
                 "contract_version": KG_VERSION,
                 "generated_at": now_utc(),
                 "input_files": sorted(set(self.input_files)),
                 "warnings": self.warnings,
                 "counts": {
-                    "candidate_papers": len(self.candidate_rows),
+                    "papers_found_by_search": len(self.candidate_rows),
                     "pipeline_rows": {
                         dataset: len(rows_by_paper)
                         for dataset, rows_by_paper in sorted(self.pipeline_rows.items())
@@ -1247,17 +1326,261 @@ def candidate_prescreen_retained(row: dict) -> bool:
     return boolish(row.get("prescreen_retained_for_extraction_candidate", False))
 
 
-def candidate_pipeline_counters(rows: Iterable[dict]) -> dict[str, Counter]:
-    counters: dict[str, Counter] = defaultdict(Counter)
+def candidate_label_for(mapping: dict[str, str], key: str, fallback: str = "unknown") -> str:
+    return mapping.get(key, status_label(key or fallback))
+
+
+def candidate_bibliography_stage(row: dict) -> tuple[str, str]:
+    screened = candidate_screened(row)
+    prescreen_retained = candidate_prescreen_retained(row)
+    selected = boolish(row.get("retained_for_extraction_candidate", False))
+    route_status = normalize(row.get("extraction_route_status", "")).lower()
+
+    if selected:
+        key = "selected_for_extraction"
+        label = METHODS_BIBLIOGRAPHY_STAGE_LABELS[key]
+        return key, label
+
+    if not screened:
+        key = "identified_not_screened"
+        label = METHODS_BIBLIOGRAPHY_STAGE_LABELS[key]
+        return key, label
+
+    if not prescreen_retained:
+        key = "excluded_during_initial_screening"
+        label = METHODS_BIBLIOGRAPHY_STAGE_LABELS[key]
+        return key, label
+
+    if route_status == "excluded_after_domain_screen":
+        key = "excluded_during_llm_screening"
+    elif route_status == "context_only_or_skip":
+        key = "background_context_only"
+    else:
+        key = "not_selected_for_extraction"
+    label = METHODS_BIBLIOGRAPHY_STAGE_LABELS[key]
+    return key, label
+
+
+def extraction_detail_for_candidate(row: dict) -> str:
+    details = []
+    route_count = candidate_number(row, "retained_extraction_route_count")
+    if route_count:
+        details.append(f"{route_count:,} evidence-extraction assignment{'s' if route_count != 1 else ''}")
+    access_tier = normalize(row.get("best_extraction_access_tier", ""))
+    if access_tier:
+        details.append(status_label(access_tier))
+    profiles = public_profile_labels(row.get("extraction_schema_profiles", ""))
+    if profiles:
+        details.append(profiles)
+    return "; ".join(details)
+
+
+def public_profile_labels(value: object) -> str:
+    text = strip_markup(value)
+    if not text:
+        return ""
+    parts = [
+        part.strip()
+        for part in re.split(r"\s*\|\s*", text)
+        if part.strip()
+    ]
+    labels = [
+        METHODS_BIBLIOGRAPHY_PROFILE_LABELS.get(part, status_label(part))
+        for part in parts
+    ]
+    return " | ".join(labels)
+
+
+def public_llm_screening_reason(row: dict) -> str:
+    route_status = normalize(row.get("extraction_route_status", "")).lower()
+    if route_status == "ready_for_article_text_extraction":
+        return "The paper was selected for evidence extraction."
+    if route_status == "ready_for_abstract_extraction":
+        return "The paper was selected for evidence extraction."
+    if route_status == "excluded_after_domain_screen":
+        return "LLM-based screening did not identify an in-scope evidence area for extraction."
+    if route_status == "context_only_or_skip":
+        return "The paper may be useful as background, but it is not part of the extracted evidence set."
+    if not candidate_prescreen_retained(row):
+        return "The paper did not pass initial screening."
+    return "No current evidence extraction assignment is stored for this paper."
+
+
+def public_screening_reason(row: dict, action: str = "") -> str:
+    action = action or normalize(row.get("prescreen_actions", "")).lower() or "unknown"
+    mapped = METHODS_BIBLIOGRAPHY_SCREENING_REASONS.get(action)
+    if mapped:
+        return mapped
+    return strip_markup(row.get("prescreen_reasons", "")) or candidate_label_for(
+        PRISMA_CANDIDATE_PRESCREEN_LABELS,
+        action,
+    )
+
+
+def candidate_screening_cell(row: dict) -> tuple[str, str, str]:
+    if not candidate_screened(row):
+        return "not_reached", "Not screened", "No screening status"
+    action = normalize(row.get("prescreen_actions", "")).lower() or "unknown"
+    if candidate_prescreen_retained(row):
+        return "pass", "Passed", ""
+    return "fail", "Did not pass", public_screening_reason(row, action)
+
+
+def candidate_llm_screening_cell(row: dict) -> tuple[str, str, str]:
+    if not candidate_prescreen_retained(row):
+        return "not_reached", "Not reached", ""
+    route_status = normalize(row.get("extraction_route_status", "")).lower() or "unknown"
+    if boolish(row.get("retained_for_extraction_candidate", False)):
+        return "pass", "Passed", ""
+    if route_status == "context_only_or_skip":
+        return "fail", "Background/context only", ""
+    if route_status == "excluded_after_domain_screen":
+        return "fail", "Did not pass", "No in-scope evidence area"
+    return "fail", "Did not pass", ""
+
+
+def candidate_extraction_cell(row: dict) -> tuple[str, str, str]:
+    if not candidate_prescreen_retained(row):
+        return "not_reached", "Not reached", ""
+    if not boolish(row.get("retained_for_extraction_candidate", False)):
+        return "fail", "Not selected", ""
+    return "pass", "Selected", ""
+
+
+def candidate_bibliography_row(row: dict) -> list:
+    screening_status, screening_label, screening_note = candidate_screening_cell(row)
+    llm_screening_status, llm_screening_label, llm_screening_note = candidate_llm_screening_cell(row)
+    extraction_status, extraction_label, extraction_note = candidate_extraction_cell(row)
+    stage_key, stage_label = candidate_bibliography_stage(row)
+    doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
+    metadata_row = {
+        "study_doi": doi,
+        "openalex_id": row.get("openalex_id", ""),
+        "study_title": row.get("study_title", ""),
+        "study_year": row.get("study_year", ""),
+    }
+    return [
+        paper_id_for(metadata_row),
+        doi,
+        strip_markup(row.get("study_title", "")),
+        strip_markup(row.get("authors", "")),
+        as_int(row.get("study_year", "")),
+        strip_markup(row.get("study_journal", "")),
+        screening_status,
+        screening_label,
+        screening_note,
+        llm_screening_status,
+        llm_screening_label,
+        llm_screening_note,
+        extraction_status,
+        extraction_label,
+        extraction_note,
+        stage_key,
+        stage_label,
+        boolish(row.get("retained_for_extraction_candidate", False)),
+    ]
+
+
+def candidate_bibliography_sort_key(row: list) -> tuple[str, str, str, str]:
+    by_name = dict(zip(METHODS_BIBLIOGRAPHY_COLUMNS, row))
+    return (
+        compact_key(by_name.get("authors", "")),
+        compact_key(by_name.get("title", "")),
+        normalize(by_name.get("year", "")),
+        normalize(by_name.get("doi", "")),
+    )
+
+
+def intern_bibliography_rows(rows: list[list]) -> tuple[list[list], list[str]]:
+    string_table: list[str] = []
+    string_indexes: dict[str, int] = {}
+    column_indexes = [
+        METHODS_BIBLIOGRAPHY_COLUMNS.index(column)
+        for column in METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS
+    ]
+
+    def intern(value: object) -> int:
+        text = normalize(value)
+        if text not in string_indexes:
+            string_indexes[text] = len(string_table)
+            string_table.append(text)
+        return string_indexes[text]
+
+    out = []
     for row in rows:
-        counters["candidate:prescreen_action"][candidate_field(row, "prescreen_actions")] += 1
-        counters["candidate:prescreen_decision"][candidate_field(row, "prescreen_decisions")] += 1
-        counters["candidate:extraction_route_status"][candidate_field(row, "extraction_route_status")] += 1
-        counters["candidate:extraction_route_action"][candidate_field(row, "extraction_route_actions")] += 1
-        counters["candidate:best_extraction_access_tier"][candidate_field(row, "best_extraction_access_tier")] += 1
-        counters["candidate:literature_source_family"][candidate_field(row, "literature_source_family")] += 1
-        counters["candidate:extraction_schema_profiles"][candidate_field(row, "extraction_schema_profiles")] += 1
-    return counters
+        encoded = list(row)
+        for index in column_indexes:
+            encoded[index] = intern(encoded[index])
+        out.append(encoded)
+    return out, string_table
+
+
+def candidate_bibliography_payload(rows: Iterable[dict]) -> dict:
+    bibliography_rows = sorted(
+        (candidate_bibliography_row(row) for row in rows),
+        key=candidate_bibliography_sort_key,
+    )
+    stage_index = METHODS_BIBLIOGRAPHY_COLUMNS.index("stage_key")
+    stage_counts = Counter(row[stage_index] for row in bibliography_rows)
+    stage_options = [
+        {
+            "key": key,
+            "label": METHODS_BIBLIOGRAPHY_STAGE_LABELS[key],
+            "count": stage_counts[key],
+        }
+        for key in METHODS_BIBLIOGRAPHY_STAGE_ORDER
+        if stage_counts.get(key)
+    ]
+    stage_options.extend(
+        {
+            "key": key,
+            "label": METHODS_BIBLIOGRAPHY_STAGE_LABELS.get(key, status_label(key)),
+            "count": stage_counts[key],
+        }
+        for key in sorted(stage_counts)
+        if key not in METHODS_BIBLIOGRAPHY_STAGE_ORDER
+    )
+    encoded_rows, string_table = intern_bibliography_rows(bibliography_rows)
+    return {
+        "contract_version": KG_VERSION,
+        "view": "methods_bibliography",
+        "generated_at": now_utc(),
+        "unit": "papers",
+        "columns": list(METHODS_BIBLIOGRAPHY_COLUMNS),
+        "interned_columns": list(METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS),
+        "string_table": string_table,
+        "stage_options": stage_options,
+        "counts": {
+            "papers": len(bibliography_rows),
+            "by_stage": {item["key"]: item["count"] for item in stage_options},
+        },
+        "rows": encoded_rows,
+    }
+
+
+def public_candidate_pipeline_counts(flow: dict) -> dict:
+    steps = flow.get("steps", {})
+    side_boxes = flow.get("side_boxes", {})
+    return {
+        "papers_found_by_search": int(steps.get("records_identified", {}).get("count", 0) or 0),
+        "screened_for_relevance": int(steps.get("records_screened", {}).get("count", 0) or 0),
+        "kept_after_initial_screening": int(steps.get("prescreen_retained", {}).get("count", 0) or 0),
+        "selected_for_evidence_extraction": int(steps.get("evidence_extraction_selected", {}).get("count", 0) or 0),
+        "not_screened": int(side_boxes.get("removed_before_screening", {}).get("count", 0) or 0),
+        "excluded_during_initial_screening": int(side_boxes.get("records_excluded", {}).get("count", 0) or 0),
+        "not_selected_for_evidence_extraction": int(side_boxes.get("route_not_selected", {}).get("count", 0) or 0),
+    }
+
+
+def public_llm_screening_reason_key(row: dict) -> str:
+    route_status = normalize(row.get("extraction_route_status", "")).lower()
+    if route_status == "excluded_after_domain_screen":
+        return "excluded_during_llm_screening"
+    if route_status == "context_only_or_skip":
+        return "background_context_only"
+    if route_status:
+        return "not_selected_for_extraction"
+    return "unknown"
 
 
 def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
@@ -1278,37 +1601,34 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
         for row in prescreen_retained_rows
         if not boolish(row.get("retained_for_extraction_candidate", False))
     ]
-    retained_route_count = sum(candidate_number(row, "retained_extraction_route_count") for row in extraction_selected_rows)
-    input_split_reasons = Counter(candidate_field(row, "extraction_route_status") for row in extraction_selected_rows)
     prescreen_reasons = Counter(candidate_field(row, "prescreen_actions") for row in prescreen_excluded_rows)
-    route_not_selected_reasons = Counter(candidate_field(row, "extraction_route_status") for row in route_not_selected_rows)
+    route_not_selected_reasons = Counter(public_llm_screening_reason_key(row) for row in route_not_selected_rows)
     not_screened_reasons = Counter({"no_prescreen_status": len(not_screened_rows)}) if not_screened_rows else Counter()
 
     return {
         "dataset": "overall",
-        "label": "Candidate paper pipeline",
-        "unit": "DOI-level candidate papers",
-        "current_stage": "papers_selected_for_finding_extraction",
+        "label": "Paper search and screening flow",
+        "unit": "papers",
+        "current_stage": "papers_selected_for_evidence_extraction",
         "metrics": {
             "selected_papers": len(extraction_selected_rows),
-            "selected_extraction_route_assignments": retained_route_count,
             "finding_counts_available": False,
         },
         "steps": {
             "records_identified": {
-                "label": "Candidate DOI records identified",
+                "label": "Papers found by the search",
                 "count": len(rows),
             },
             "records_screened": {
-                "label": "Records screened for relevance",
+                "label": "Papers screened for relevance",
                 "count": len(screened_rows),
             },
             "prescreen_retained": {
-                "label": "Records retained after prescreen",
+                "label": "Papers kept after initial screening",
                 "count": len(prescreen_retained_rows),
             },
-            "extraction_selected": {
-                "label": "Papers selected for finding extraction",
+            "evidence_extraction_selected": {
+                "label": "Papers selected for evidence extraction",
                 "count": len(extraction_selected_rows),
             },
         },
@@ -1318,12 +1638,12 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
                 "count": len(not_screened_rows),
                 "reasons": labeled_reason_counts(
                     not_screened_reasons,
-                    {"no_prescreen_status": "No prescreen status"},
+                    {"no_prescreen_status": "No screening status"},
                     ("no_prescreen_status",),
                 ),
             },
             "records_excluded": {
-                "label": "Not retained after prescreen",
+                "label": "Excluded during initial screening",
                 "count": len(prescreen_excluded_rows),
                 "reasons": labeled_reason_counts(
                     prescreen_reasons,
@@ -1339,34 +1659,17 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
                 ),
             },
             "route_not_selected": {
-                "label": "Not selected after routing",
+                "label": "Not selected for evidence extraction",
                 "count": len(route_not_selected_rows),
                 "reasons": labeled_reason_counts(
                     route_not_selected_reasons,
-                    PRISMA_CANDIDATE_ROUTE_LABELS,
+                    PRISMA_PUBLIC_LLM_SCREENING_LABELS,
                     (
-                        "excluded_after_domain_screen",
-                        "context_only_or_skip",
-                        "not_retained_for_extraction",
+                        "excluded_during_llm_screening",
+                        "background_context_only",
+                        "not_selected_for_extraction",
                         "unknown",
                     ),
-                ),
-            },
-            "extraction_input_split": {
-                "label": "Extraction input split",
-                "count": len(extraction_selected_rows),
-                "reasons": labeled_reason_counts(
-                    input_split_reasons,
-                    PRISMA_CANDIDATE_INPUT_LABELS,
-                    (
-                        "ready_for_article_text_extraction",
-                        "ready_for_abstract_extraction",
-                        "unknown",
-                    ),
-                ),
-                "note": (
-                    f"{retained_route_count:,} route/profile assignments are queued across selected papers. "
-                    "Finding-level counts will be added after extraction outputs are finalized."
                 ),
             },
         },
@@ -1375,9 +1678,7 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
             {"step": "records_screened", "side_box": "records_excluded"},
             {"step": "prescreen_retained", "side_box": "route_not_selected"},
             {
-                "step": "extraction_selected",
-                "side_box": "extraction_input_split",
-                "side_variant": "evidence-path",
+                "step": "evidence_extraction_selected",
                 "last": True,
             },
         ],
@@ -1744,19 +2045,31 @@ def schema_payload() -> dict:
                 "required": [
                     "contract_version",
                     "view",
-                "generated_at",
-                "source_table",
-                "current_stage",
-                "counts",
-                "kg_claim_status",
-                "extraction_status",
-                "prisma_flow_order",
-                "prisma_flow",
-            ],
-            "description": "Methods-page PRISMA-style candidate paper flow, KG inclusion route, and extraction-status summary.",
-        }
-    },
-}
+                    "generated_at",
+                    "current_stage",
+                    "counts",
+                    "prisma_flow_order",
+                    "prisma_flow",
+                ],
+                "description": "Methods-page PRISMA-style paper search and screening flow with public status summary.",
+            },
+            "methods_bibliography": {
+                "required": [
+                    "contract_version",
+                    "view",
+                    "generated_at",
+                    "unit",
+                    "columns",
+                    "interned_columns",
+                    "string_table",
+                    "stage_options",
+                    "counts",
+                    "rows",
+                ],
+                "description": "Complete paper bibliography with sequential initial-screening, LLM-based screening, and evidence-extraction labels.",
+            },
+        },
+    }
 
 
 def write_outputs(payloads: dict, out_dir: Path) -> dict:
@@ -1766,6 +2079,9 @@ def write_outputs(payloads: dict, out_dir: Path) -> dict:
 
     outputs["pipeline_status_graph"] = str(out_dir / "views" / "pipeline_status_graph.json")
     write_json(Path(outputs["pipeline_status_graph"]), payloads["pipeline_status"])
+
+    outputs["methods_bibliography"] = str(out_dir / "views" / "methods_bibliography.json")
+    write_compact_json(Path(outputs["methods_bibliography"]), payloads["methods_bibliography"])
 
     manifest = dict(payloads["manifest"])
     manifest["outputs"] = outputs

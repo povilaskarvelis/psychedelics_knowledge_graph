@@ -1,123 +1,24 @@
 {
   "contract_version": "0.1",
   "counts": {
-    "candidate:best_extraction_access_tier": {
-      "abstract_only": 8886,
-      "full_text_available": 7512,
-      "local_pdf_available": 1,
-      "pdf_download_url_available": 880,
-      "unknown": 39078
-    },
-    "candidate:extraction_route_action": {
-      "exclude_after_model_screen": 3565,
-      "extract_from_abstract_only": 6642,
-      "extract_from_full_text": 6866,
-      "skip_or_context_only": 206,
-      "unknown": 39078
-    },
-    "candidate:extraction_route_status": {
-      "context_only_or_skip": 206,
-      "excluded_after_domain_screen": 3565,
-      "not_retained_for_extraction": 39078,
-      "ready_for_abstract_extraction": 6642,
-      "ready_for_article_text_extraction": 6866
-    },
-    "candidate:extraction_schema_profiles": {
-      "context_only_schema": 206,
-      "meta_analysis_evidence_schema": 276,
-      "no_extraction_schema": 3565,
-      "primary_evidence_schema": 9718,
-      "recommendation_consensus_schema": 52,
-      "review_coverage_schema": 3462,
-      "unknown": 39078
-    },
-    "candidate:literature_source_family": {
-      "non_primary_publication": 713,
-      "primary": 12313,
-      "primary_or_unclear": 706,
-      "secondary_literature": 4631,
-      "unknown": 37994
-    },
-    "candidate:prescreen_action": {
-      "exclude_missing_abstract": 4525,
-      "exclude_non_evidence_artifact": 3985,
-      "exclude_non_paper_container": 26,
-      "exclude_obvious_irrelevant": 28818,
-      "exclude_preprint_or_unpublished": 1724,
-      "retain_for_extraction_candidate": 17279
-    },
-    "candidate:prescreen_decision": {
-      "exclude": 39078,
-      "retain": 17279
-    }
+    "excluded_during_initial_screening": 39169,
+    "kept_after_initial_screening": 17244,
+    "not_screened": 0,
+    "not_selected_for_evidence_extraction": 3794,
+    "papers_found_by_search": 56413,
+    "screened_for_relevance": 56413,
+    "selected_for_evidence_extraction": 13450
   },
-  "current_stage": "papers_selected_for_finding_extraction",
-  "extraction_status": {
-    "matched_pipeline_rows_by_dataset": {},
-    "output_routes_by_dataset": {
-      "disorder": {
-        "context_only": 728,
-        "exclude": 35,
-        "human_review": 21,
-        "primary_evidence": 2168,
-        "secondary_literature": 1668
-      },
-      "mechanistic": {
-        "context_only": 171,
-        "exclude": 31,
-        "human_review": 22,
-        "primary_evidence": 1439,
-        "secondary_literature": 632
-      }
-    },
-    "output_rows_by_dataset": {
-      "disorder": 4620,
-      "mechanistic": 2295
-    },
-    "projection_report": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/extraction/projection_report.json"
-  },
-  "generated_at": "2026-06-29T00:49:59.685950+00:00",
-  "kg_claim_status": {
-    "claim_access_rows_by_dataset": {
-      "disorder": {
-        "abstract_only": 2164,
-        "full_text_seen": 3308,
-        "secondary_summary": 4716
-      },
-      "mechanistic": {
-        "abstract_only": 549,
-        "full_text_seen": 1655,
-        "secondary_summary": 2255
-      }
-    },
-    "claim_papers_by_dataset": {
-      "disorder": 3157,
-      "mechanistic": 1531
-    },
-    "claim_rows_by_dataset": {
-      "disorder": 10188,
-      "mechanistic": 4459
-    },
-    "claims_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg/claims.parquet",
-    "matched_pipeline_rows_by_dataset": {}
-  },
-  "metadata_quality": {
-    "conflicts": [],
-    "reconciliation_rules": {
-      "paper_artifacts": "Valid downloaded PDFs and converted full-text artifacts may be reused across dataset views; negative failure labels are reused only for unattempted rows.",
-      "retrieval": "Paper-library rows are authoritative for retrieval/access fields; triage retrieval fields are fallback only.",
-      "screening": "Dataset-specific triage rows are authoritative for screening/relevance fields."
-    }
-  },
+  "current_stage": "papers_selected_for_evidence_extraction",
+  "generated_at": "2026-07-06T15:41:20.858164+00:00",
   "prisma_flow": {
     "overall": {
-      "current_stage": "papers_selected_for_finding_extraction",
+      "current_stage": "papers_selected_for_evidence_extraction",
       "dataset": "overall",
-      "label": "Candidate paper pipeline",
+      "label": "Paper search and screening flow",
       "metrics": {
         "finding_counts_available": false,
-        "selected_extraction_route_assignments": 31877,
-        "selected_papers": 13508
+        "selected_papers": 13450
       },
       "rows": [
         {
@@ -134,45 +35,26 @@
         },
         {
           "last": true,
-          "side_box": "extraction_input_split",
-          "side_variant": "evidence-path",
-          "step": "extraction_selected"
+          "step": "evidence_extraction_selected"
         }
       ],
       "side_boxes": {
-        "extraction_input_split": {
-          "count": 13508,
-          "label": "Extraction input split",
-          "note": "31,877 route/profile assignments are queued across selected papers. Finding-level counts will be added after extraction outputs are finalized.",
-          "reasons": [
-            {
-              "count": 6866,
-              "key": "ready_for_article_text_extraction",
-              "label": "Article-text extraction set"
-            },
-            {
-              "count": 6642,
-              "key": "ready_for_abstract_extraction",
-              "label": "Abstract-only extraction set"
-            }
-          ]
-        },
         "records_excluded": {
-          "count": 39078,
-          "label": "Not retained after prescreen",
+          "count": 39169,
+          "label": "Excluded during initial screening",
           "reasons": [
             {
-              "count": 28818,
+              "count": 28814,
               "key": "exclude_obvious_irrelevant",
               "label": "No in-scope title/abstract signal"
             },
             {
-              "count": 4525,
+              "count": 4547,
               "key": "exclude_missing_abstract",
               "label": "No abstract available"
             },
             {
-              "count": 3985,
+              "count": 4031,
               "key": "exclude_non_evidence_artifact",
               "label": "Non-evidence artifact"
             },
@@ -182,7 +64,7 @@
               "label": "Non-paper container"
             },
             {
-              "count": 1724,
+              "count": 1751,
               "key": "exclude_preprint_or_unpublished",
               "label": "Preprint or unpublished posted content"
             }
@@ -194,46 +76,45 @@
           "reasons": []
         },
         "route_not_selected": {
-          "count": 3771,
-          "label": "Not selected after routing",
+          "count": 3794,
+          "label": "Not selected for evidence extraction",
           "reasons": [
             {
-              "count": 3565,
-              "key": "excluded_after_domain_screen",
-              "label": "Excluded after domain screen"
+              "count": 3318,
+              "key": "excluded_during_llm_screening",
+              "label": "Excluded during LLM-based screening"
             },
             {
-              "count": 206,
-              "key": "context_only_or_skip",
-              "label": "Context-only or skip route"
+              "count": 476,
+              "key": "background_context_only",
+              "label": "Kept as background/context only"
             }
           ]
         }
       },
       "steps": {
-        "extraction_selected": {
-          "count": 13508,
-          "label": "Papers selected for finding extraction"
+        "evidence_extraction_selected": {
+          "count": 13450,
+          "label": "Papers selected for evidence extraction"
         },
         "prescreen_retained": {
-          "count": 17279,
-          "label": "Records retained after prescreen"
+          "count": 17244,
+          "label": "Papers kept after initial screening"
         },
         "records_identified": {
-          "count": 56357,
-          "label": "Candidate DOI records identified"
+          "count": 56413,
+          "label": "Papers found by the search"
         },
         "records_screened": {
-          "count": 56357,
-          "label": "Records screened for relevance"
+          "count": 56413,
+          "label": "Papers screened for relevance"
         }
       },
-      "unit": "DOI-level candidate papers"
+      "unit": "papers"
     }
   },
   "prisma_flow_order": [
     "overall"
   ],
-  "source_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/candidate_papers.parquet",
   "view": "pipeline_status"
 }

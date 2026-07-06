@@ -34,7 +34,7 @@ class EnrichPaperMetadataTest(unittest.TestCase):
         )
 
         self.assertEqual(row["doi"], "10.1000/example")
-        self.assertEqual(row["datasets"], "mechanistic | disorder")
+        self.assertNotIn("datasets", row)
         self.assertEqual(row["study_title"], "Example paper")
         self.assertEqual(row["abstract"], "Example abstract.")
         self.assertEqual(row["publication_type"], "journal-article")
@@ -51,7 +51,6 @@ class EnrichPaperMetadataTest(unittest.TestCase):
                 [
                     {
                         "doi": "10.1000/example",
-                        "datasets": "mechanistic",
                         "study_title": "Example paper",
                     }
                 ],
@@ -114,19 +113,16 @@ class EnrichPaperMetadataTest(unittest.TestCase):
                 [
                     {
                         "doi": "10.1000/complete",
-                        "datasets": "mechanistic",
                         "study_title": "Complete paper",
                         "abstract": "Already has an abstract.",
                     },
                     {
                         "doi": "10.1000/missing",
-                        "datasets": "mechanistic",
                         "study_title": "Missing abstract paper",
                         "abstract": "",
                     },
                     {
                         "doi": "10.1000/not-listed",
-                        "datasets": "mechanistic",
                         "study_title": "Not listed paper",
                         "abstract": "",
                     },

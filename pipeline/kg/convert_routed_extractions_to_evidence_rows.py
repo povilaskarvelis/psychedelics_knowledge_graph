@@ -17,6 +17,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable
 
+import pandas as pd
+
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.kg.pk_relationships import add_pk_relationship_fields
@@ -33,6 +35,7 @@ DEFAULT_TASKS_JSONL = DEFAULT_EXTRACTION_DIR / "route_extraction_tasks.jsonl"
 DEFAULT_OUT_JSON = DEFAULT_EXTRACTION_DIR / "routed_evidence_rows.json"
 DEFAULT_REPORT_JSON = DEFAULT_EXTRACTION_DIR / "routed_evidence_rows_report.json"
 DEFAULT_ROUTED_RUN_ROOT = DEFAULT_EXTRACTION_DIR / "routed_runs"
+DEFAULT_ACTIVE_ROUTE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes.parquet"
 
 ROUTE_OUTPUT_SCHEMA_VERSION = "routed_evidence_rows_v1"
 EXTRACTABLE_STATUSES = {"extracted"}
@@ -322,6 +325,40 @@ def output_has_current_task(output_row: dict, result: dict, tasks: dict[str, dic
     return bool(doi_key and doi_key in tasks)
 
 
+def active_route_lookup(route_table: Path | None) -> dict[str, set] | None:
+    if route_table is None or not route_table.exists():
+        return None
+    df = pd.read_parquet(route_table)
+    route_ids: set[str] = set()
+    doi_domains: set[tuple[str, str]] = set()
+    dois: set[str] = set()
+    for row in df.to_dict("records"):
+        doi = normalize(row.get("doi", "")) or normalize(row.get("study_doi", ""))
+        route_id = normalize(row.get("route_id", ""))
+        domain = normalize(row.get("domain_route", ""))
+        if route_id:
+            route_ids.add(route_id)
+        if doi:
+            dois.add(doi)
+            if domain:
+                doi_domains.add((doi, domain))
+    return {"route_ids": route_ids, "doi_domains": doi_domains, "dois": dois}
+
+
+def output_has_active_route(output_row: dict, result: dict, active_routes: dict[str, set] | None) -> bool:
+    if active_routes is None:
+        return True
+    id_keys, doi_key = output_task_keys(output_row, result)
+    domain = normalize(result.get("domain_route", ""))
+    if id_keys and any(key in active_routes["route_ids"] for key in id_keys):
+        return True
+    if doi_key and domain and (doi_key, domain) in active_routes["doi_domains"]:
+        return True
+    if doi_key and not id_keys and not domain and doi_key in active_routes["dois"]:
+        return True
+    return False
+
+
 def result_items(result: dict) -> tuple[str, list[dict]]:
     if isinstance(result.get("items"), list):
         return "primary_item", [item for item in result["items"] if isinstance(item, dict)]
@@ -541,9 +578,11 @@ def convert_outputs(
     *,
     input_jsonl: Path,
     tasks_jsonl: Path = DEFAULT_TASKS_JSONL,
+    active_route_table: Path | None = None,
     include_schema_errors: bool = False,
 ) -> tuple[list[dict], dict]:
     tasks = task_lookup(tasks_jsonl)
+    active_routes = active_route_lookup(active_route_table)
     out: list[dict] = []
     report_counts: Counter = Counter()
     skipped: Counter = Counter()
@@ -564,6 +603,9 @@ def convert_outputs(
             continue
         if not output_has_current_task(output_row, result, tasks):
             skipped["missing_current_task"] += 1
+            continue
+        if not output_has_active_route(output_row, result, active_routes):
+            skipped["inactive_current_route"] += 1
             continue
 
         item_kind, items = result_items(result)
@@ -588,6 +630,7 @@ def convert_outputs(
         "inputs": {
             "input_jsonl": str(input_jsonl),
             "tasks_jsonl": str(tasks_jsonl),
+            "active_route_table": str(active_route_table) if active_route_table else "",
             "include_schema_errors": include_schema_errors,
         },
         "rows_written": len(out),
@@ -604,6 +647,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-jsonl", type=Path, default=DEFAULT_INPUT_JSONL)
     parser.add_argument("--tasks-jsonl", type=Path, default=DEFAULT_TASKS_JSONL)
+    parser.add_argument("--active-route-table", type=Path, default=None)
+    parser.add_argument(
+        "--use-default-active-route-table",
+        action="store_true",
+        help="Filter outputs to routes still present in data/processed/corpus/paper_extraction_routes.parquet.",
+    )
     parser.add_argument("--run-id", default="", help="Version label for routed extraction outputs.")
     parser.add_argument("--run-dir", default="", help="Explicit routed extraction run directory.")
     parser.add_argument("--out-json", default="")
@@ -618,9 +667,13 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    active_route_table = args.active_route_table
+    if active_route_table is None and args.use_default_active_route_table:
+        active_route_table = DEFAULT_ACTIVE_ROUTE_TABLE
     rows, report = convert_outputs(
         input_jsonl=args.input_jsonl,
         tasks_jsonl=args.tasks_jsonl,
+        active_route_table=active_route_table,
         include_schema_errors=args.include_schema_errors,
     )
     report["run_id"] = args.run_id

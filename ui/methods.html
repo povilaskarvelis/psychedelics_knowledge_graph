@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260620-methods-candidate-flow" />
+    <link rel="stylesheet" href="styles.css?v=20260706-methods-bibliography" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
@@ -73,8 +73,7 @@
         <p>
           How the Psychedelics Knowledge Graph is assembled: what literature is
           searched, how papers are screened, how evidence is extracted, and how
-          everything is maintained, including the Gemini 3 Flash-assisted
-          screening, routing, and finding-extraction steps.
+          everything is maintained.
         </p>
       </div>
     </header>
@@ -95,7 +94,7 @@
         </p>
         <p>
           Agentic tools make it possible to build a new type of living evidence
-          system, where literature discovery, screening, extraction,
+          system, where literature discovery, screening, evidence extraction,
           visualization, and updating are part of a continuous workflow.
           Findings can be converted into structured, provenance-rich records
           that remain linked to their source papers and evidence locators, so
@@ -104,8 +103,8 @@
         </p>
         <p>
           The Psychedelics Knowledge Graph applies this model to psychedelic
-          research, where a fast-growing literature spans clinical, mechanistic,
-          and translational work that is often read separately. Screened papers
+          research, where a fast-growing literature spans clinical, biological,
+          brain, behavioral, and translational work that is often read separately. Screened papers
           are converted into structured evidence records that power an
           interactive graph and dashboard. Human researchers can move from
           field-level patterns and gaps to source studies visually, while agents
@@ -124,7 +123,7 @@
           what it actually contains and how much source text is available, so
           the graph shows evidence that can be traced back to specific papers.
           The current model-assisted stages use Gemini 3 Flash for paper
-          screening and routing, then for route-specific finding extraction.
+          screening, LLM-based screening, and evidence extraction.
         </p>
         <div class="method-workflow-list">
           <article>
@@ -153,7 +152,7 @@
               </span>
             </div>
             <div>
-              <h3>Discover Candidate Papers</h3>
+              <h3>Find Papers</h3>
               <p>
                 PubMed and OpenAlex searches combine broad domain queries,
                 focused compound-topic queries, and supplementary direct-pair
@@ -173,15 +172,15 @@
               </span>
             </div>
             <div>
-              <h3>Screen and Route</h3>
+              <h3>Screen and Assign Evidence Areas</h3>
               <p>
-                Candidate papers first pass deterministic prescreening, then
-                Gemini 3 Flash-assisted screening and routing using titles and
-                abstracts. Papers that remain in scope are routed by evidence
-                domain, publication type, and available source text. This
-                separates, for example, primary studies from reviews and
-                meta-analyses, and lets the extraction step use different
-                expectations for full-text and abstract-based evidence.
+                Papers first pass initial deterministic screening,
+                then Gemini 3 Flash-assisted screening and evidence-area assignment
+                using titles and abstracts. Papers that remain in scope are
+                assigned by evidence domain, publication type, and available
+                source text. This separates, for example, primary studies from
+                reviews and meta-analyses, and keeps later selection criteria
+                aligned with what the paper actually reports.
               </p>
             </div>
           </article>
@@ -195,15 +194,15 @@
               <h3>Extract Structured Evidence</h3>
               <p>
                 Eligible papers are processed with Gemini 3 Flash using
-                route-specific extraction instructions. The model identifies
-                candidate structured evidence: compounds, evidence domains,
+                evidence-area extraction instructions. The model identifies
+                structured evidence: compounds, evidence domains,
                 study type, assay or outcome details, result direction, and
                 source locators. When PDFs are available, they are first
                 converted with GROBID into structured TEI full-text artifacts
                 so the extraction step can use article sections, tables,
                 figures, and references as auditable evidence anchors.
-                Abstract-only records are handled more conservatively because
-                they expose less of the underlying evidence.
+                Records with limited source text are handled more conservatively
+                because they expose less of the underlying evidence.
               </p>
             </div>
           </article>
@@ -221,7 +220,7 @@
                 Accepted records become graph relationships linking psychedelic
                 compounds to targets, pathways, brain systems, tasks, clinical
                 outcomes, safety outcomes, and study contexts. Records that are
-                ambiguous or insufficiently supported are held back for review.
+                ambiguous or insufficiently supported are held back for further checking.
               </p>
             </div>
           </article>
@@ -235,7 +234,7 @@
               <h3>Maintain the Living Graph</h3>
               <p>
                 The graph is designed to evolve as the literature grows. New
-                papers, corrected metadata, improved extraction, and community
+                papers, corrected metadata, improved evidence extraction, and community
                 feedback can all update the evidence base. Each public build is
                 versioned, and release notes summarize what changed so
                 readers can understand how the graph evolves over time.
@@ -511,18 +510,16 @@
           <div>
             <h2 id="evidence-base-snapshot">PRISMA Flow Diagram</h2>
             <p>
-              Evidence synthesis needs a visible record of what entered the
-              review and what happened next. This
+              Evidence synthesis needs a visible record of the papers found by
+              the search and what happened next. This
               <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
-              flow follows the current candidate-papers table from discovery
-              through prescreening, routing, and selection for finding
-              extraction. The screening/routing and extraction-selection layers
-              reflect the Gemini 3 Flash-assisted decisions currently stored in
-              that table. Side boxes show the current reasons papers leave or
-              pause the extraction-selection path. Finding counts and any
-              additional exclusions during extraction will be added after that
-              layer is finalized. Because duplicate records are identified
-              before papers are added, there is no separate duplicate-removal
+              flow follows the current paper library from discovery
+              through initial screening, LLM-based screening, and selection
+              for evidence extraction. Side boxes show the current reasons
+              papers leave or pause that path. Finding counts and any
+              additional exclusions during later evidence coding will be added after that
+              layer is finalized. Because duplicate records are merged before
+              papers are added, there is no separate duplicate-removal
               step in this diagram.
             </p>
           </div>
@@ -536,8 +533,8 @@
           <p>
             Coverage depends on the search vocabulary, source indexing, DOI
             metadata, and access to full text. Gemini 3 Flash helps scale
-            screening, routing, and finding extraction, but model outputs stay
-            tied to reviewable records. Evidence labels and risk-of-bias notes
+            screening, evidence-area assignment, and evidence extraction, but model outputs stay
+            tied to source records. Evidence labels and risk-of-bias notes
             are descriptive unless a formal certainty or risk-of-bias workflow
             is added.
           </p>
@@ -602,7 +599,7 @@
         <div class="method-feedback" id="feedback">
           <p>
             Corrections are part of the method. Missing papers, wrong edges,
-            extraction errors, unclear labels, and scope suggestions all help
+            evidence-extraction errors, unclear labels, and scope suggestions all help
             improve the graph.
           </p>
           <a
@@ -612,6 +609,65 @@
             rel="noopener noreferrer"
           >Open a GitHub issue</a>
         </div>
+      </section>
+
+      <section class="about-section methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
+        <div class="methods-section-header">
+          <div>
+            <h2 id="paper-bibliography-heading">Full Paper Bibliography</h2>
+            <p>
+              This is the complete paper list produced by the search. It shows,
+              paper by paper, whether each one passed initial screening,
+              LLM-based screening, and selection for evidence extraction. The
+              purpose is transparency: anyone can search by author, title,
+              journal, year, or DOI, audit a decision, and flag missing or
+              questionable classifications.
+            </p>
+          </div>
+        </div>
+        <div class="methods-bibliography-controls" aria-label="Bibliography controls">
+          <label>
+            Search papers
+            <input
+              id="methodsBibliographySearch"
+              type="search"
+              placeholder="Author, title, journal, year, or DOI"
+              autocomplete="off"
+            />
+          </label>
+          <label>
+            Stage
+            <select id="methodsBibliographyStage">
+              <option value="">All stages</option>
+            </select>
+          </label>
+          <label>
+            Sort
+            <select id="methodsBibliographySort">
+              <option value="author">Author A-Z</option>
+              <option value="title">Title A-Z</option>
+              <option value="year-desc">Newest first</option>
+              <option value="stage">Decision stage</option>
+            </select>
+          </label>
+        </div>
+        <div id="methodsBibliographySummary" class="methods-bibliography-summary">Loading bibliography.</div>
+        <div class="methods-bibliography-table-wrap">
+          <table class="methods-bibliography-table">
+            <thead>
+              <tr>
+                <th scope="col">Paper</th>
+                <th scope="col">Initial Screening</th>
+                <th scope="col">LLM-Based Screening</th>
+                <th scope="col">Evidence Extraction</th>
+              </tr>
+            </thead>
+            <tbody id="methodsBibliographyRows"></tbody>
+          </table>
+        </div>
+        <button id="methodsBibliographyLoadMore" class="ghost methods-bibliography-load-more" type="button" hidden>
+          Load more
+        </button>
       </section>
     </main>
 
@@ -623,6 +679,6 @@
         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">source repository</a>.
       </div>
     </footer>
-    <script src="methods.js?v=20260620-methods-candidate-flow"></script>
+    <script src="methods.js?v=20260706-methods-bibliography"></script>
   </body>
 </html>

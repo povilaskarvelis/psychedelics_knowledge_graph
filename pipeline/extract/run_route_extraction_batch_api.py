@@ -494,6 +494,7 @@ def rebuild_run_tables(args: argparse.Namespace) -> list[dict]:
             str(paths["outputs_jsonl"]),
             "--tasks-jsonl",
             str(Path(args.input_jsonl).resolve()),
+            "--use-default-active-route-table",
         ],
         [
             sys.executable,

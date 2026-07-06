@@ -414,7 +414,7 @@ def retained_dois(prescreen_df: pd.DataFrame, scoped_dois: set[str]) -> set[str]
 
 
 def aggregate_prescreen_context(prescreen_df: pd.DataFrame) -> dict[str, dict]:
-    out: dict[str, dict] = defaultdict(lambda: {"datasets": [], "prescreen_run_ids": []})
+    out: dict[str, dict] = defaultdict(lambda: {"prescreen_run_ids": []})
     if prescreen_df.empty or "doi" not in prescreen_df.columns:
         return {}
     for row in prescreen_df.to_dict("records"):
@@ -424,10 +424,9 @@ def aggregate_prescreen_context(prescreen_df: pd.DataFrame) -> dict[str, dict]:
         if not prescreen_row_is_extraction_candidate(row):
             continue
         entry = out[doi]
-        for field, target in (("dataset", "datasets"), ("run_id", "prescreen_run_ids")):
-            value = clean(row.get(field, ""))
-            if value and value not in entry[target]:
-                entry[target].append(value)
+        value = clean(row.get("run_id", ""))
+        if value and value not in entry["prescreen_run_ids"]:
+            entry["prescreen_run_ids"].append(value)
     return dict(out)
 
 
@@ -461,7 +460,6 @@ def selected_records(
         rows.append(
             {
                 "doi": doi,
-                "datasets": join_values(context.get("datasets", [])) or clean(row.get("datasets", "")),
                 "study_title": clean(row.get("study_title", "")),
                 "study_year": clean(row.get("study_year", "")),
                 "abstract": clean(row.get("abstract", "")),
@@ -768,7 +766,6 @@ def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_d
             rows.append(
                 {
                     "doi": doi,
-                    "datasets": join_values(context.get("datasets", [])) or clean(meta.get("datasets", "")),
                     "study_title": clean(meta.get("study_title", "")),
                     "study_year": clean(meta.get("study_year", "")),
                     "prescreen_run_ids": join_values(context.get("prescreen_run_ids", [])),
@@ -840,7 +837,6 @@ def route_rows_from_parsed(parsed_rows: list[dict], generated_at_utc: str) -> li
                     "table_version": TABLE_VERSION,
                     "generated_at_utc": generated_at_utc,
                     "doi": row["doi"],
-                    "datasets": clean(row.get("datasets", "")),
                     "retained_for_extraction_candidate": screening_decision != "exclude_out_of_scope",
                     "study_title": clean(row.get("study_title", "")),
                     "study_year": clean(row.get("study_year", "")),

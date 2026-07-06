@@ -12,7 +12,7 @@ from pipeline.review.run_deterministic_prescreen import (
 
 
 class TableDeterministicPrescreenTest(unittest.TestCase):
-    def test_builds_one_decision_per_doi_dataset_and_uses_metadata_abstract(self) -> None:
+    def test_builds_one_decision_per_doi_and_uses_metadata_abstract(self) -> None:
         papers = pd.DataFrame(
             [
                 {
@@ -66,6 +66,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         by_doi = {row["doi"]: row for row in rows}
 
         self.assertEqual(len(rows), 2)
+        self.assertTrue(all("dataset" not in row and "datasets" not in row for row in rows))
         self.assertEqual(by_doi["10.example/psilo"]["study_title"], "Psilocybin therapy for depression")
         self.assertEqual(by_doi["10.example/psilo"]["prescreen_decision"], "retain")
         self.assertEqual(by_doi["10.example/psilo"]["metadata_enrichment_run_id"], "test_metadata")
@@ -480,6 +481,61 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/patent-review"]["prescreen_decision"], "retain")
         self.assertTrue(by_doi["10.example/patent-review"]["retained_for_extraction_candidate"])
 
+    def test_brown_psychopharmacology_update_newsletter_items_are_excluded(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1002/pu.31440",
+                    "datasets": "disorder",
+                    "study_title": "Ketamine shows long-term benefit in patients with treatment-resistant depression",
+                    "abstract": (
+                        "Patients with treatment-resistant depression who received ketamine or esketamine "
+                        "showed reduced emergency department visits, a study has found."
+                    ),
+                    "study_journal": "The Brown University Psychopharmacology Update",
+                    "publication_type": "journal-article",
+                },
+                {
+                    "doi": "10.1002/cpu30817",
+                    "datasets": "disorder",
+                    "study_title": "Esketamine has no effect on cognition compared to midazolam",
+                    "abstract": (
+                        "Researchers conducted a randomized controlled trial and found that cognition "
+                        "was not harmed by esketamine."
+                    ),
+                    "study_journal": "The Brown University Child & Adolescent Psychopharmacology Update",
+                    "publication_type": "journal-article",
+                },
+                {
+                    "doi": "10.example/jop",
+                    "datasets": "mechanistic",
+                    "study_title": "Psilocybin changes default mode network connectivity",
+                    "abstract": "This study reports psilocybin effects on default mode network connectivity.",
+                    "study_journal": "Journal of Psychopharmacology",
+                    "publication_type": "Journal Article",
+                },
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-05T00:00:00+00:00",
+        )
+        by_doi = {row["doi"]: row for row in rows}
+
+        self.assertEqual(by_doi["10.1002/pu.31440"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.1002/pu.31440"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertIn("newsletter/update summary", by_doi["10.1002/pu.31440"]["prescreen_reason"])
+        self.assertFalse(by_doi["10.1002/pu.31440"]["retained_for_extraction_candidate"])
+        self.assertEqual(by_doi["10.1002/cpu30817"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.1002/cpu30817"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertFalse(by_doi["10.1002/cpu30817"]["retained_for_extraction_candidate"])
+        self.assertEqual(by_doi["10.example/jop"]["prescreen_decision"], "retain")
+        self.assertTrue(by_doi["10.example/jop"]["retained_for_extraction_candidate"])
+
     def test_writes_parquet_decisions_and_summary_without_json_outputs(self) -> None:
         with TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -527,6 +583,11 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             self.assertEqual(list(root.glob("*.json")), [])
             written = pd.read_parquet(decisions_path)
             self.assertEqual(written.loc[0, "prescreen_decision"], "retain")
+            self.assertNotIn("dataset", written.columns)
+            self.assertNotIn("datasets", written.columns)
+            written_summary = pd.read_parquet(summary_path)
+            self.assertIn("scope", written_summary.columns)
+            self.assertNotIn("dataset", written_summary.columns)
 
     def test_scoped_update_replaces_only_requested_doi_rows_and_reuses_existing_run_id(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -624,6 +685,8 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/psilo"]["prescreen_action"], "retain_for_extraction_candidate")
         self.assertEqual(by_doi["10.example/exercise"]["prescreen_decision_id"], "old-exercise")
         self.assertEqual(by_doi["10.example/exercise"]["prescreen_action"], "retain_for_extraction_candidate")
+        self.assertNotIn("dataset", written.columns)
+        self.assertNotIn("datasets", written.columns)
 
     def test_scoped_update_adds_new_doi_rows(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -698,12 +761,13 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/existing"]["prescreen_decision_id"], "old-existing")
         self.assertEqual(by_doi["10.example/new"]["run_id"], "existing_prescreen_run")
         self.assertEqual(by_doi["10.example/new"]["prescreen_action"], "retain_for_extraction_candidate")
+        self.assertNotIn("dataset", written.columns)
+        self.assertNotIn("datasets", written.columns)
 
     def test_summary_counts_actions_and_routing_tags(self) -> None:
         decisions = [
             {
                 "doi": "10.example/a",
-                "dataset": "mechanistic",
                 "has_abstract": True,
                 "prescreen_decision": "retain",
                 "prescreen_action": "retain_for_extraction_candidate",
@@ -712,7 +776,6 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             },
             {
                 "doi": "10.example/b",
-                "dataset": "mechanistic",
                 "has_abstract": False,
                 "prescreen_decision": "exclude",
                 "prescreen_action": "exclude_missing_abstract",
@@ -722,12 +785,13 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         ]
 
         summary = build_summary_rows(decisions, run_id="test_run", generated_at_utc="now")
-        keyed = {(row["dataset"], row["metric"], row["label"]): row["count"] for row in summary}
+        keyed = {(row["scope"], row["metric"], row["label"]): row["count"] for row in summary}
 
-        self.assertEqual(keyed[("mechanistic", "prescreen_decision", "retain")], 1)
-        self.assertEqual(keyed[("mechanistic", "prescreen_action", "exclude_missing_abstract")], 1)
-        self.assertEqual(keyed[("mechanistic", "routing_tag", "brain_system")], 1)
-        self.assertEqual(keyed[("all", "abstract", "missing")], 1)
+        self.assertTrue(all("dataset" not in row for row in summary))
+        self.assertEqual(keyed[("all_papers", "prescreen_decision", "retain")], 1)
+        self.assertEqual(keyed[("all_papers", "prescreen_action", "exclude_missing_abstract")], 1)
+        self.assertEqual(keyed[("all_papers", "routing_tag", "brain_system")], 1)
+        self.assertEqual(keyed[("all_papers", "abstract", "missing")], 1)
 
 
 if __name__ == "__main__":

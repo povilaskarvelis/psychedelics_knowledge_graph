@@ -1,7 +1,7 @@
 :root {
   --bg: #080a0b;
   --bg-2: #101315;
-  --fg: #edf0ef;
+  --fg: #e8ece8;
   --muted: #aeb5b4;
   --accent: #f1b74b;
   --accent-2: #49d6c8;
@@ -91,6 +91,20 @@ body {
 .hero-inner p a:focus-visible {
   color: #a9f7ef;
   border-bottom-color: rgba(169, 247, 239, 0.9);
+}
+
+.hero-version {
+  display: block;
+  margin-top: 28px;
+  color: rgba(238, 240, 235, 0.72);
+  font-size: 0.92rem;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+.hero-version-date {
+  display: block;
+  margin-top: 2px;
 }
 
 .pill {
@@ -556,7 +570,7 @@ button.primary:hover {
 }
 
 .methods-page {
-  --fg: #edf0ef;
+  --fg: #e8ece8;
   --muted: #aeb5b4;
   --accent: #f1b74b;
   --accent-2: #49d6c8;
@@ -627,7 +641,7 @@ button.primary:hover {
 
 .back-link:hover,
 .back-link:focus-visible {
-  color: #ffffff;
+  color: #f2f4ef;
   background: rgba(110, 227, 215, 0.12);
   border-color: rgba(110, 227, 215, 0.48);
   transform: translateY(-1px);
@@ -1242,7 +1256,7 @@ button.primary:hover {
 }
 
 .prisma-panel {
-  --prisma-fg: #edf0ef;
+  --prisma-fg: #e8ece8;
   --prisma-muted: #aeb5b4;
   --prisma-main-base: rgba(18, 35, 31, 0.92);
   --prisma-side-base: rgba(43, 31, 28, 0.92);
@@ -1708,6 +1722,150 @@ button.primary:hover {
   align-self: start;
 }
 
+.methods-bibliography-section {
+  display: grid;
+  gap: 16px;
+}
+
+.methods-bibliography-controls {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.8fr) minmax(180px, 1fr) minmax(170px, 0.75fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.methods-bibliography-controls label {
+  font-size: 0.84rem;
+}
+
+.methods-bibliography-controls input[type="search"],
+.methods-bibliography-controls select {
+  width: 100%;
+  border-radius: 8px;
+  border-color: rgba(188, 200, 201, 0.18);
+  background: rgba(7, 10, 10, 0.72);
+}
+
+.methods-bibliography-summary {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.methods-bibliography-table-wrap {
+  max-height: min(72vh, 780px);
+  overflow: auto;
+  border: 1px solid var(--method-line);
+  border-radius: 8px;
+  background: rgba(10, 13, 14, 0.82);
+}
+
+.methods-bibliography-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.methods-bibliography-table th,
+.methods-bibliography-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--method-line-soft);
+  text-align: left;
+  vertical-align: top;
+}
+
+.methods-bibliography-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: #d8fffa;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.76rem;
+  letter-spacing: 0;
+  background: #101315;
+  box-shadow: 0 1px 0 var(--method-line);
+}
+
+.methods-bibliography-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.methods-bibliography-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.methods-bibliography-table tbody tr:hover {
+  background: rgba(110, 227, 215, 0.055);
+}
+
+.bibliography-paper-cell,
+.bibliography-stage-cell {
+  display: grid;
+  gap: 5px;
+}
+
+.bibliography-paper-cell strong,
+.bibliography-stage-cell strong {
+  color: var(--fg);
+  line-height: 1.28;
+}
+
+.bibliography-paper-cell span,
+.bibliography-stage-cell span {
+  color: var(--muted);
+  line-height: 1.36;
+}
+
+.bibliography-stage-cell strong {
+  display: inline-flex;
+  gap: 7px;
+  align-items: baseline;
+}
+
+.bibliography-stage-cell.pass strong {
+  color: #c7ffd7;
+}
+
+.bibliography-stage-cell.fail strong {
+  color: #ffd0c2;
+}
+
+.bibliography-stage-cell.not_reached strong {
+  color: #c6ccc9;
+}
+
+.bibliography-paper-cell .bibliography-authors {
+  color: #d4dad8;
+}
+
+.bibliography-paper-cell a {
+  width: fit-content;
+  color: #b8fff7;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(110, 227, 215, 0.44);
+  overflow-wrap: anywhere;
+}
+
+.bibliography-paper-cell a:hover,
+.bibliography-paper-cell a:focus-visible {
+  color: #eafffb;
+  border-bottom-color: rgba(216, 255, 250, 0.88);
+}
+
+.methods-bibliography-row.selected td:last-child .bibliography-stage-cell strong {
+  color: #c7ffd7;
+}
+
+.methods-bibliography-empty {
+  color: var(--muted);
+  text-align: center;
+}
+
+.methods-bibliography-load-more {
+  justify-self: center;
+  border-radius: 8px;
+}
+
 .graph-grid {
   display: grid;
   width: 100%;
@@ -2065,10 +2223,10 @@ button.primary:hover {
 .trend-bar-row.interactive-bar:hover .trend-bar-track span,
 .trend-bar-row.interactive-bar.hovered .trend-bar-track span,
 .trend-bar-row.interactive-bar:focus-visible .trend-bar-track span {
-  filter: saturate(1.2) brightness(1.16);
+  filter: saturate(1.12) brightness(1.06);
   box-shadow:
-    0 0 15px rgba(169, 247, 239, 0.28),
-    inset 0 0 7px rgba(255, 237, 190, 0.2);
+    0 0 14px rgba(169, 247, 239, 0.24),
+    inset 0 0 7px rgba(255, 237, 190, 0.16);
 }
 
 .trend-bar-row.interactive-bar:hover .trend-bar-topline span,
@@ -2110,18 +2268,18 @@ button.primary:hover {
   height: 100%;
   border-radius: inherit;
   background: var(--accent);
-  filter: saturate(1.13) brightness(1.06);
+  filter: saturate(1.08) brightness(0.99);
   box-shadow:
-    0 0 13px rgba(241, 183, 75, 0.28),
-    inset 0 0 6px rgba(255, 237, 190, 0.18);
+    0 0 12px rgba(241, 183, 75, 0.22),
+    inset 0 0 6px rgba(255, 237, 190, 0.14);
 }
 
 .trend-card.bar-tone-gray .trend-bar-track span {
   background: #9ea9b5;
-  filter: saturate(1.06) brightness(1.05);
+  filter: saturate(1.02) brightness(0.99);
   box-shadow:
-    0 0 11px rgba(188, 197, 207, 0.18),
-    inset 0 0 5px rgba(238, 240, 235, 0.1);
+    0 0 10px rgba(188, 197, 207, 0.14),
+    inset 0 0 5px rgba(238, 240, 235, 0.08);
 }
 
 .trend-card.bar-tone-gray .trend-bar-row.interactive-bar:hover .trend-bar-track span,
@@ -2254,9 +2412,9 @@ button.primary:hover {
 }
 
 .trend-stack-segment {
-  filter: saturate(1.18) brightness(1.07);
+  filter: saturate(1.1) brightness(0.99);
   box-shadow:
-    inset 0 0 8px var(--bar-glow, rgba(169, 247, 239, 0.14)),
+    inset 0 0 7px var(--bar-glow, rgba(169, 247, 239, 0.12)),
     inset 0 1px rgba(238, 240, 235, 0.08);
   transition:
     filter 0.15s ease,
@@ -2267,7 +2425,7 @@ button.primary:hover {
 .trend-stack-segment + .trend-stack-segment {
   box-shadow:
     inset 1px 0 rgba(7, 10, 10, 0.58),
-    inset 0 0 8px var(--bar-glow, rgba(169, 247, 239, 0.14)),
+    inset 0 0 7px var(--bar-glow, rgba(169, 247, 239, 0.12)),
     inset 0 1px rgba(238, 240, 235, 0.08);
 }
 
@@ -2283,7 +2441,7 @@ button.primary:hover {
 .trend-stack-segment.composition-filter-target:hover,
 .trend-stack-segment.composition-filter-target.hovered,
 .trend-stack-segment.composition-filter-target:focus-visible {
-  filter: saturate(1.28) brightness(1.18) drop-shadow(0 0 8px rgba(169, 247, 239, 0.38));
+  filter: saturate(1.18) brightness(1.06) drop-shadow(0 0 8px rgba(169, 247, 239, 0.32));
   opacity: 1;
   transform: scaleY(1.12);
 }
@@ -2322,9 +2480,9 @@ button.primary:hover {
   height: 10px;
   border-radius: 2px;
   flex: 0 0 auto;
-  filter: saturate(1.18) brightness(1.07);
+  filter: saturate(1.1) brightness(0.99);
   box-shadow:
-    0 0 8px var(--bar-glow, rgba(169, 247, 239, 0.12)),
+    0 0 7px var(--bar-glow, rgba(169, 247, 239, 0.1)),
     inset 0 0 4px rgba(238, 240, 235, 0.08);
 }
 
@@ -2640,7 +2798,7 @@ button.primary:hover {
 .node.hovered,
 .node.selected {
   stroke-width: 2.5;
-  filter: drop-shadow(0 0 8px var(--node-glow, rgba(73, 214, 200, 0.38)));
+  filter: drop-shadow(0 0 6px var(--node-glow, rgba(73, 214, 200, 0.3)));
 }
 
 .node.compound {
@@ -2663,7 +2821,7 @@ button.primary:hover {
 
 .node-label.hovered,
 .node-label.selected {
-  fill: #ffffff;
+  fill: #f2f4ef;
   font-weight: 700;
 }
 
@@ -2683,7 +2841,7 @@ button.primary:hover {
 .edge.selected {
   opacity: 1;
   stroke-width: calc(var(--edge-width) + 2px);
-  filter: drop-shadow(0 0 8px var(--edge-glow, rgba(73, 214, 200, 0.42)));
+  filter: drop-shadow(0 0 6px var(--edge-glow, rgba(73, 214, 200, 0.32)));
 }
 
 .edge.muted,
@@ -2703,7 +2861,7 @@ button.primary:hover {
 .edge.focus-primary {
   opacity: 1;
   stroke-width: calc(var(--edge-width) + 3px);
-  filter: drop-shadow(0 0 10px var(--edge-glow, rgba(73, 214, 200, 0.46)));
+  filter: drop-shadow(0 0 8px var(--edge-glow, rgba(73, 214, 200, 0.34)));
 }
 
 .edge.focus-related {
@@ -2714,7 +2872,7 @@ button.primary:hover {
 .node.focus-primary,
 .node-label.focus-primary {
   opacity: 1;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.35));
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.26));
 }
 
 .node.focus-related,
@@ -3829,6 +3987,14 @@ input[type="number"] {
 
   .methods-section-header {
     align-items: stretch;
+  }
+
+  .methods-bibliography-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .methods-bibliography-table-wrap {
+    max-height: 76vh;
   }
 
   .method-segmented {

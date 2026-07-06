@@ -533,6 +533,41 @@ GENERIC_LOCOMOTOR_CONTEXT_RE = re.compile(
     r"total activity|horizontal activity|photobeam)\b",
     re.IGNORECASE,
 )
+GENERIC_BEHAVIOR_NOT_GRAPHABLE_KEYS = {
+    "exploratory behavior",
+    "feeding behavior",
+    "hyperactivity",
+    "hyperlocomotion",
+    "locomotion",
+    "locomotor activity",
+    "locomotor behavior",
+    "motor activity",
+    "motor behavior",
+    "open field locomotor activity",
+    "open field test",
+    "open field",
+    "serotonin syndrome behavior",
+    "sexual behavior",
+    "stereotyped behavior",
+    "stereotypy",
+    "thermoregulation",
+}
+BRAIN_MEASURE_NOT_GRAPHABLE_RE = re.compile(
+    r"\b("
+    r"mismatch negativity|mmn|p300|alpha power|delta power|theta power|gamma power|"
+    r"bold response|lempel[- ]ziv|lzc|cbf|cerebral blood flow|"
+    r"functional connectivity|glucose metabolism|grey matter volume|gray matter volume|"
+    r"seizure duration|electric quantity|rem sleep latency|white matter bundle|"
+    r"serotonin transporter binding|5[- ]?ht transporter density|receptor binding"
+    r")\b",
+    re.IGNORECASE,
+)
+BROAD_BRAIN_SYSTEM_NOT_GRAPHABLE_KEYS = {
+    "cerebral cortex",
+    "cortex",
+    "functional brain network",
+    "neocortex",
+}
 COGNITIVE_BEHAVIORAL_RULES = (
     (
         "Fear extinction",
@@ -698,7 +733,32 @@ COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS = {
     "hallucinogen like behavior": "Head-twitch response",
     "hallucinogenic like behavior": "Head-twitch response",
     "psychedelic like behavior": "Head-twitch response",
+    "time perception": "Time perception",
+    "temporal perception": "Time perception",
+    "interval timing": "Time perception",
 }
+OBJECTIVE_TIME_TASK_RE = re.compile(
+    r"\b("
+    r"temporal (?:bisection|reproduction|discrimination|production)|"
+    r"time (?:bisection|reproduction|discrimination|estimation|production)|"
+    r"interval timing|bisection procedure|psychophysical procedure|"
+    r"\bt50\b|weber fraction|just noticeable difference|indifference point|difference limen"
+    r")\b",
+    re.IGNORECASE,
+)
+SUBJECTIVE_TIME_DISTORTION_RE = re.compile(
+    r"\b("
+    r"altered time perception|time perception|time distortion|time dilation|time compression|"
+    r"time sped up|time slowed down|timelessness|loss of temporal awareness|"
+    r"space[- ]time distortion|sense of time|subjective sense of time"
+    r")\b",
+    re.IGNORECASE,
+)
+SELF_REPORT_TIME_CONTEXT_RE = re.compile(
+    r"\b(v(?:isual)?\s*analog(?:ue)?\s*scale|vas|self[- ]report|subjective report|"
+    r"interview|qualitative|phenomenolog|cadss|5d[- ]?asc|11d[- ]?asc|3d[- ]?asc|awe[- ]?s)\b",
+    re.IGNORECASE,
+)
 SUBJECTIVE_EXPERIENCE_CONTEXT_FIELDS = (
     "graph_entity_label",
     "raw_entity_label",
@@ -762,6 +822,15 @@ SUBJECTIVE_EXPERIENCE_RULES = (
         re.compile(
             r"\b(challenging experience|difficult experience|bad trip|ceq\b|psychological distress|"
             r"adverse mental states?|acute anxiety|somatic challenges?|dread|fear|grief)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Time distortion",
+        re.compile(
+            r"\b(altered time perception|time distortion|time dilation|time compression|"
+            r"time sped up|time slowed down|timelessness|loss of temporal awareness|"
+            r"space[- ]time distortion|sense of time|subjective sense of time)\b",
             re.IGNORECASE,
         ),
     ),
@@ -863,6 +932,9 @@ SUBJECTIVE_EXPERIENCE_LABEL_FALLBACKS = {
     "meaning spirituality": "Personal meaning",
     "mood euphoria": "Euphoria",
     "mystical experience": "Mystical-type experience",
+    "time perception": "Time distortion",
+    "altered time perception": "Time distortion",
+    "time distortion": "Time distortion",
     "mystical type experience": "Mystical-type experience",
     "near death experience phenomenology": "Near-death-like experience",
     "oceanic boundlessness": "Mystical-type experience",
@@ -1155,26 +1227,48 @@ REFERENCE_CONTROL_COMPOUND_KEYS = {
     "5 hydroxytryptamine",
     "5 hydroxytryptophan",
     "8 oh dpat",
+    "amphetamine",
+    "azd6765",
+    "cocaine",
     "cp 93129",
     "clozapine",
     "d serine",
+    "d amphetamine",
+    "efavirenz",
+    "escitalopram",
+    "fluoxetine",
     "glycine",
     "gr 127935",
     "ifenprodil",
     "ketanserin",
+    "ly341495",
     "m100907",
+    "mcpp",
     "memantine",
     "methysergide",
+    "methamphetamine",
+    "midazolam",
+    "mdl 100 907",
+    "mdl100907",
     "mk 801",
     "nmda",
+    "p chloroamphetamine",
+    "p chloroamphetamine pca",
+    "pca",
     "pcp",
     "phencyclidine",
     "phencyclidine pcp",
     "pnu 142633",
+    "quipazine",
     "ritanserin",
+    "ro 25 6981",
+    "ro25 6981",
+    "saline",
+    "scopolamine",
     "sb 216641",
     "sb271046",
     "serotonin",
+    "serotonin 5 ht",
     "way100635",
 }
 GRAPH_EXCLUDED_COMPOUND_SCOPES = {
@@ -1193,6 +1287,23 @@ GRAPH_EXCLUDED_COMPOUND_LABEL_SCOPES = {
     "MIJ821": "out_of_scope_comparator",
     "Mitragynine": "out_of_scope_nonpsychedelic",
     "Rapastinel": "out_of_scope_comparator",
+}
+RAW_GRAPH_EXCLUDED_COMPOUND_LABEL_SCOPES = {
+    "4 chlorokynurenine": "out_of_scope_comparator",
+    "4 cl kyn": "out_of_scope_comparator",
+    "cathodal transcranial direct current stimulation tdcs": "out_of_scope_comparator",
+    "electroconvulsive therapy": "out_of_scope_comparator",
+    "ect": "out_of_scope_comparator",
+    "kambo": "out_of_scope_nonpsychedelic",
+    "kambo phyllomedusa bicolor secretion": "out_of_scope_nonpsychedelic",
+    "major depressive disorder": "out_of_scope",
+    "mdd": "out_of_scope",
+    "nicotiana rustica": "out_of_scope_nonpsychedelic",
+    "nicotiana rustica l tobacco": "out_of_scope_nonpsychedelic",
+    "nicotine": "out_of_scope_nonpsychedelic",
+    "placebo": "out_of_scope_comparator",
+    "tobacco": "out_of_scope_nonpsychedelic",
+    "thc": "out_of_scope_nonpsychedelic",
 }
 
 
@@ -1596,10 +1707,13 @@ def class_level_compound_label(value: object) -> bool:
 
 
 def reference_control_compound_label(value: object) -> bool:
-    key = label_key(value)
-    compact = compact_key(value)
+    keys = {label_key(value)}
+    compacts = {compact_key(value)}
+    for variant, _variant_type in compound_key_variants(value):
+        keys.add(label_key(variant))
+        compacts.add(compact_key(variant))
     reference_compacts = {compact_key(item) for item in REFERENCE_CONTROL_COMPOUND_KEYS}
-    return key in REFERENCE_CONTROL_COMPOUND_KEYS or compact in reference_compacts
+    return bool((keys & REFERENCE_CONTROL_COMPOUND_KEYS) or (compacts & reference_compacts))
 
 
 def compound_graph_scope_block(label: object, item: dict | None) -> str:
@@ -1621,6 +1735,23 @@ def graph_scope_blocked_compound_result(label: str, item: dict | None) -> dict |
         "status": "compound_graph_scope_not_graphable",
         "match_type": "",
         "notes": f"compound `{label}` is registered as {scope}; graph compound nodes focus on focal psychedelic compounds",
+    }
+
+
+def raw_graph_scope_blocked_compound_result(label: str) -> dict | None:
+    keys = {label_key(label)}
+    for variant, _variant_type in compound_key_variants(label):
+        keys.add(label_key(variant))
+    scope = next((RAW_GRAPH_EXCLUDED_COMPOUND_LABEL_SCOPES[key] for key in keys if key in RAW_GRAPH_EXCLUDED_COMPOUND_LABEL_SCOPES), "")
+    if not scope:
+        return None
+    return {
+        "matched": False,
+        "label": "",
+        "item": None,
+        "status": "compound_graph_scope_not_graphable",
+        "match_type": "",
+        "notes": f"compound `{label}` is classified as {scope}; graph compound nodes focus on focal psychedelic compounds",
     }
 
 
@@ -1686,6 +1817,9 @@ def graphable_compound_match(raw_compound: object, registry: dict[tuple[str, str
             "match_type": "",
             "notes": "compound is a reference/control compound; graph compound nodes focus on in-scope compounds",
         }
+    raw_scope_block = raw_graph_scope_blocked_compound_result(raw)
+    if raw_scope_block:
+        return raw_scope_block
 
     label, item = canonicalize_registry_label("compound", raw, registry)
     if item:
@@ -1918,17 +2052,224 @@ def clinical_subjective_effect_context(row: dict | None) -> bool:
     )
 
 
+BRAIN_SYSTEM_ENTITY_KINDS = ("brain_region", "brain_network", "neural_circuit")
+BRAIN_TEXT_MATCH_SHORT_KEYS = {"dmn", "pcc", "drn", "fpn", "dan", "cen", "sal", "pag", "rsp"}
+BRAIN_RELATIONAL_LABEL_RE = re.compile(
+    r"\b(connectivity|coupling|projection|pathway|circuit|between|from|to)\b|[-–—]",
+    re.IGNORECASE,
+)
+BRAIN_LIST_SEPARATOR_RE = re.compile(r"[;,/+]")
+
+
+def node_vocabulary_key_allowed_in_text(entity_kind: str, key: str) -> bool:
+    if len(key) >= 4:
+        return True
+    return entity_kind in BRAIN_SYSTEM_ENTITY_KINDS and key in BRAIN_TEXT_MATCH_SHORT_KEYS
+
+
 def node_vocabulary_labels_in_text(value: object, entity_kind: str, node_vocabulary: dict[tuple[str, str], dict]) -> set[str]:
     text_key = label_key(value)
     if not text_key:
         return set()
     labels: set[str] = set()
     for candidate_kind, key in node_vocabulary:
-        if candidate_kind != entity_kind or len(key) < 4:
+        if candidate_kind != entity_kind or not node_vocabulary_key_allowed_in_text(candidate_kind, key):
             continue
         if re.search(rf"\b{re.escape(key)}\b", text_key):
             labels.add(normalize(node_vocabulary[(candidate_kind, key)].get("label", "")))
     return {label for label in labels if label}
+
+
+def node_vocabulary_hits_in_text(
+    value: object,
+    entity_kinds: Iterable[str],
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> list[tuple[str, str]]:
+    text_key = label_key(value)
+    if not text_key:
+        return []
+    allowed_kinds = set(entity_kinds)
+    hits: dict[tuple[str, str], tuple[int, int]] = {}
+    for candidate_kind, key in node_vocabulary:
+        if candidate_kind not in allowed_kinds or not node_vocabulary_key_allowed_in_text(candidate_kind, key):
+            continue
+        match = re.search(rf"\b{re.escape(key)}\b", text_key)
+        if not match:
+            continue
+        label = normalize(node_vocabulary[(candidate_kind, key)].get("label", ""))
+        if not label:
+            continue
+        hit_key = (candidate_kind, label)
+        score = (match.start(), -len(key))
+        if hit_key not in hits or score < hits[hit_key]:
+            hits[hit_key] = score
+    return [hit for hit, _score in sorted(hits.items(), key=lambda item: item[1])]
+
+
+def exact_node_vocabulary_matches(
+    value: object,
+    entity_kinds: Iterable[str],
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> list[tuple[str, str]]:
+    matches: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for entity_kind in entity_kinds:
+        label, item = canonicalize_node_label(entity_kind, normalize(value), node_vocabulary)
+        if not item:
+            continue
+        match = (entity_kind, label)
+        if match in seen:
+            continue
+        seen.add(match)
+        matches.append(match)
+    return matches
+
+
+def brain_entity_list_parts(value: object) -> list[str]:
+    text = normalize(value)
+    if not text or not BRAIN_LIST_SEPARATOR_RE.search(text):
+        return []
+    working = text.replace("；", ";")
+    working = re.sub(r"\s+and/or\s+", ";", working, flags=re.IGNORECASE)
+    working = re.sub(r"\s*[;,/+]\s*", ";", working)
+    working = re.sub(r";\s+(?:and|or)\s+", ";", working, flags=re.IGNORECASE)
+    working = re.sub(r"\s+", " ", working).strip("; ")
+    parts = [re.sub(r"^(?:and|or)\s+", "", normalize(part).strip(" ."), flags=re.IGNORECASE) for part in working.split(";")]
+    return [part for part in parts if part]
+
+
+def brain_entity_split_matches(
+    raw_label: object,
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> list[tuple[str, str]]:
+    raw = normalize(raw_label)
+    if not raw:
+        return []
+
+    parts = brain_entity_list_parts(raw)
+    if parts:
+        if len(parts) > ENTITY_SPLIT_MAX_PARTS:
+            return []
+        matches: list[tuple[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+        for part in parts:
+            part_matches = exact_node_vocabulary_matches(part, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
+            if not part_matches:
+                contained_matches = node_vocabulary_hits_in_text(part, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
+                if len(contained_matches) == 1 or BRAIN_RELATIONAL_LABEL_RE.search(part):
+                    part_matches = contained_matches
+            if not part_matches:
+                return []
+            for match in part_matches:
+                if match in seen:
+                    continue
+                seen.add(match)
+                matches.append(match)
+        if len(matches) <= ENTITY_SPLIT_MAX_PARTS:
+            return matches
+        return []
+
+    if not BRAIN_RELATIONAL_LABEL_RE.search(raw):
+        return []
+    matches = node_vocabulary_hits_in_text(raw, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
+    return matches if 1 < len(matches) <= ENTITY_SPLIT_MAX_PARTS else []
+
+
+def match_brain_vocabulary_entity(
+    raw_label: str,
+    preferred_kind: str,
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> dict:
+    exact_matches = exact_node_vocabulary_matches(raw_label, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
+    if len(exact_matches) == 1:
+        kind, label = exact_matches[0]
+        _, item = canonicalize_node_label(kind, label, node_vocabulary)
+        return {
+            "matched": True,
+            "label": label,
+            "kind": kind,
+            "item": item,
+            "status": "entity_normalized",
+            "match_type": "node_vocabulary",
+            "notes": "brain-system entity matched route-native node vocabulary",
+        }
+    if len(exact_matches) > 1:
+        return {
+            "matched": False,
+            "label": "",
+            "kind": preferred_kind,
+            "item": None,
+            "status": "entity_combo_not_graphable",
+            "match_type": "",
+            "notes": "brain-system entity text contains multiple graph entities; graph rows need one entity per edge",
+        }
+
+    if brain_entity_list_parts(raw_label):
+        split_matches = brain_entity_split_matches(raw_label, node_vocabulary)
+        if len(split_matches) > 1:
+            return {
+                "matched": False,
+                "label": "",
+                "kind": preferred_kind,
+                "item": None,
+                "status": "entity_combo_not_graphable",
+                "match_type": "",
+                "notes": "brain-system entity text contains multiple graph entities; graph rows need one entity per edge",
+            }
+        if len(split_matches) == 1:
+            kind, label = split_matches[0]
+            _, item = canonicalize_node_label(kind, label, node_vocabulary)
+            return {
+                "matched": True,
+                "label": label,
+                "kind": kind,
+                "item": item,
+                "status": "entity_normalized",
+                "match_type": "brain_list_collapsed_to_node_vocabulary_label",
+                "notes": "brain-system entity list safely collapsed to one route-native vocabulary label",
+            }
+        return {
+            "matched": False,
+            "label": "",
+            "kind": preferred_kind,
+            "item": None,
+            "status": "entity_unmapped",
+            "match_type": "",
+            "notes": f"brain-system entity `{raw_label}` did not safely split into known graph nodes",
+        }
+
+    matches = node_vocabulary_hits_in_text(raw_label, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
+    if len(matches) == 1:
+        kind, label = matches[0]
+        _, item = canonicalize_node_label(kind, label, node_vocabulary)
+        return {
+            "matched": True,
+            "label": label,
+            "kind": kind,
+            "item": item,
+            "status": "entity_normalized",
+            "match_type": "text_contains_node_vocabulary_label",
+            "notes": "brain-system entity text contained one route-native vocabulary label",
+        }
+    if len(matches) > 1:
+        return {
+            "matched": False,
+            "label": "",
+            "kind": preferred_kind,
+            "item": None,
+            "status": "entity_combo_not_graphable",
+            "match_type": "",
+            "notes": "brain-system entity text contains multiple graph entities; graph rows need one entity per edge",
+        }
+    return {
+        "matched": False,
+        "label": "",
+        "kind": preferred_kind,
+        "item": None,
+        "status": "entity_unmapped",
+        "match_type": "",
+        "notes": f"brain-system entity `{raw_label}` did not match route-native node vocabulary",
+    }
 
 
 DIRECT_TARGET_REGISTRY_STATUSES = {
@@ -2082,7 +2423,7 @@ MOLECULAR_EFFECT_RULES = (
         re.compile(
             r"\b(erk|mapk|mtor|mtorc1|akt|camp|creb|pka|pkc|plc|pi3k|gsk[- ]?3|p70s6k|"
             r"stat3|jnk|phosphorylation|phosphorylated|phospho|second messenger\w*|"
-            r"kinase\w*|signal(?:ing|ling)|phosphoinositide)\b",
+            r"kinase\w*|phosphoinositide)\b",
             re.IGNORECASE,
         ),
     ),
@@ -2152,6 +2493,35 @@ MOLECULAR_EFFECT_RULES = (
         ),
     ),
 )
+MOLECULAR_EFFECT_RULE_LABELS = tuple(label for label, _pattern in MOLECULAR_EFFECT_RULES)
+MOLECULAR_EFFECT_RULE_LABEL_BY_KEY = {label_key(label): label for label in MOLECULAR_EFFECT_RULE_LABELS}
+GENERIC_MOLECULAR_EFFECT_PLACEHOLDER_KEYS = {
+    "neurotransmitter signaling",
+    "metabolism",
+    "cellular metabolism",
+    "energy metabolism",
+    "other molecular effects",
+}
+
+
+def canonical_molecular_effect_rule_label(value: object) -> str:
+    return MOLECULAR_EFFECT_RULE_LABEL_BY_KEY.get(label_key(value), "")
+
+
+def generic_molecular_effect_placeholder(value: object) -> bool:
+    return label_key(value) in GENERIC_MOLECULAR_EFFECT_PLACEHOLDER_KEYS
+
+
+def molecular_effect_context(row: dict, entity_label: object, fields: tuple[str, ...]) -> str:
+    values: list[str] = []
+    if not generic_molecular_effect_placeholder(entity_label):
+        values.append(normalize(entity_label))
+    for field in fields:
+        value = row.get(field, "")
+        if generic_molecular_effect_placeholder(value):
+            continue
+        values.append(normalize(value))
+    return ascii_fold(" ".join(value for value in values if value))
 
 
 def mechanistic_kind_context(row: dict | None, raw_label: object) -> str:
@@ -2485,6 +2855,46 @@ def graphable_entity_match(
             "match_type": "",
             "notes": "entity label is empty",
         }
+    if entity_kind == "cognitive_behavioral_construct" and label_key(raw) in GENERIC_BEHAVIOR_NOT_GRAPHABLE_KEYS:
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "generic_behavior_not_graphable",
+            "match_type": "",
+            "notes": "generic activity or behavior label is too broad for the cognition graph",
+        }
+    if (domain == "brain_system" or entity_kind in {"brain_region", "brain_network", "neural_circuit"}) and BRAIN_MEASURE_NOT_GRAPHABLE_RE.search(raw):
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "brain_measure_not_graphable",
+            "match_type": "",
+            "notes": "brain measure/readout is kept as metadata rather than promoted to a brain-region graph node",
+        }
+    if entity_kind in {"brain_region", "brain_network", "neural_circuit"} and label_key(raw) in BROAD_BRAIN_SYSTEM_NOT_GRAPHABLE_KEYS:
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "broad_brain_system_not_graphable",
+            "match_type": "",
+            "notes": "brain-system label is too broad to promote to a visible graph node",
+        }
+    if entity_kind == "condition_indication" and NON_CLINICAL_MODEL_POPULATION_RE.search(raw):
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "population_not_graphable",
+            "match_type": "",
+            "notes": "population/model label is not a condition node",
+        }
     if entity_kind == "safety_adverse_event":
         label = safety_endpoint_label(row)
         return {
@@ -2536,7 +2946,33 @@ def graphable_entity_match(
             "notes": match["notes"],
         }
     if entity_kind in REGISTRY_BACKED_ENTITY_KINDS:
-        return match_registry_entity(raw, entity_kind, registry, row)
+        match = match_registry_entity(raw, entity_kind, registry, row)
+        if match["matched"] or entity_kind not in MOLECULAR_EFFECT_ENTITY_KINDS or match["status"] != "entity_unmapped":
+            return match
+        label = molecular_effect_graph_label(row, entity_kind, raw)
+        if label and label != "Other molecular effects":
+            return {
+                "matched": True,
+                "label": label,
+                "kind": "pathway_process",
+                "item": None,
+                "status": "entity_normalized",
+                "match_type": "molecular_effect_rule",
+                "notes": "molecular effect entity inferred from route-native fields",
+            }
+        if generic_molecular_effect_placeholder(raw):
+            return {
+                "matched": False,
+                "label": "",
+                "kind": entity_kind,
+                "item": None,
+                "status": "molecular_effect_placeholder_not_graphable",
+                "match_type": "",
+                "notes": "generic molecular-effect placeholder needs a specific pathway or marker before graphing",
+            }
+        return match
+    if domain == "brain_system" or entity_kind in BRAIN_SYSTEM_ENTITY_KINDS:
+        return match_brain_vocabulary_entity(raw, entity_kind, node_vocabulary)
     if entity_kind in VOCABULARY_BACKED_ENTITY_KINDS:
         return match_vocabulary_entity(raw, entity_kind, node_vocabulary)
     return {
@@ -3143,6 +3579,8 @@ def pattern_endpoint_label(row: dict, patterns: tuple[tuple[re.Pattern[str], str
     text = " ".join(
         endpoint_value(row.get(field, ""))
         for field in (
+            "graph_entity_label",
+            "entity_label",
             "raw_entity_label",
             "clinical_endpoint",
             "clinical_endpoint_category",
@@ -3361,6 +3799,112 @@ def condition_expanded_rows(row: dict, domain: str, registry: dict[tuple[str, st
     return out
 
 
+SAFE_ENTITY_SPLIT_KINDS = {
+    "target",
+    "pathway_process",
+    "biomarker_readout",
+    "brain_region",
+    "brain_network",
+    "neural_circuit",
+    "intervention_component",
+    "pharmacokinetic_parameter",
+}
+ENTITY_SPLIT_STATUS_CANDIDATES = {"entity_combo_not_graphable", "entity_unmapped"}
+ENTITY_SPLIT_MAX_PARTS = 6
+
+
+def entity_split_candidates(value: object) -> list[str]:
+    text = normalize(value)
+    if not text or not re.search(r"\s(?:and|or)\s|[;,/+]", text, flags=re.IGNORECASE):
+        return []
+    working = text.replace("；", ";")
+    working = re.sub(r"\s+and/or\s+", ";", working, flags=re.IGNORECASE)
+    working = re.sub(r"\s+(?:and|or)\s+", ";", working, flags=re.IGNORECASE)
+    working = re.sub(r"\s*[;,/+]\s*", ";", working)
+    working = re.sub(r"\s+", " ", working).strip("; ")
+    parts = [normalize(part).strip(" .") for part in working.split(";")]
+    parts = [part for part in parts if part]
+    if len(parts) < 2 or len(parts) > ENTITY_SPLIT_MAX_PARTS:
+        return []
+    if any(len(label_key(part)) < 2 for part in parts):
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for part in parts:
+        key = label_key(part)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(part)
+    return out if len(out) > 1 else []
+
+
+def entity_split_row(row: dict, entity_kind: str, label: str, source_label: str) -> dict:
+    split_row = dict(row)
+    fields = ENTITY_LABEL_FIELDS_BY_KIND.get(entity_kind, ())
+    if fields:
+        split_row[fields[0]] = label
+    split_row["graph_entity_label"] = label
+    split_row["entity_label"] = label
+    split_row["entity"] = label
+    split_row["graph_entity_original"] = source_label
+    split_row["entity_split_source_label"] = source_label
+    split_row["endpoint_label_source"] = "entity_text_split"
+    split_row["kg_entity_kind_override"] = entity_kind
+    return split_row
+
+
+def entity_expanded_rows(
+    row: dict,
+    domain: str,
+    registry: dict[tuple[str, str], dict],
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> list[dict]:
+    if normalize(row.get("entity_split_source_label", "")):
+        return [row]
+    if not graphable_compound_match(compound_label_for(row), registry)["matched"]:
+        return [row]
+
+    legacy_entity_label = normalize(row.get("target" if domain == "mechanistic" else "disorder", ""))
+    legacy_entity_type = "mechanistic_entity" if domain == "mechanistic" else "clinical_entity"
+    _, legacy_registry_item = canonicalize_registry_label(legacy_entity_type, legacy_entity_label, registry)
+    entity_kind = entity_kind_for(row, domain, legacy_registry_item)
+    if entity_kind not in SAFE_ENTITY_SPLIT_KINDS:
+        return [row]
+
+    raw_entity_label = entity_label_for(row, domain, entity_kind)
+    if domain == "brain_system" or entity_kind in BRAIN_SYSTEM_ENTITY_KINDS:
+        brain_matches = brain_entity_split_matches(raw_entity_label, node_vocabulary)
+        if brain_matches:
+            split_rows: list[dict] = []
+            for split_kind, split_label in brain_matches:
+                split_rows.append(entity_split_row(row, split_kind, split_label, raw_entity_label))
+            return split_rows if len(split_rows) > 1 else [row]
+
+    initial_match = graphable_entity_match(row, domain, entity_kind, raw_entity_label, registry, node_vocabulary)
+    if initial_match["matched"] or initial_match["status"] not in ENTITY_SPLIT_STATUS_CANDIDATES:
+        return [row]
+
+    parts = entity_split_candidates(raw_entity_label)
+    if not parts:
+        return [row]
+
+    split_rows: list[dict] = []
+    normalized_targets: set[tuple[str, str]] = set()
+    for part in parts:
+        split_row = entity_split_row(row, entity_kind, part, raw_entity_label)
+        split_match = graphable_entity_match(split_row, domain, entity_kind, part, registry, node_vocabulary)
+        if not split_match["matched"]:
+            return [row]
+        target = (split_match["kind"], target_family_display_label(split_match["label"], split_match["kind"]))
+        if target in normalized_targets:
+            continue
+        normalized_targets.add(target)
+        split_rows.append(split_row)
+
+    return split_rows if len(split_rows) > 1 else [row]
+
+
 def rows_for_source(cfg: dict) -> list[dict]:
     rows = load_json_array(Path(cfg["path"]))
     if cfg.get("transform") == "clinical_endpoints":
@@ -3494,10 +4038,10 @@ def relation_type_for(domain: str, entity_kind: str, evidence_type: str) -> str:
         return "reports_outcome_scale"
     if entity_kind in {"brain_region", "brain_network", "neural_circuit"} or domain == "brain_system":
         return "has_brain_system_effect"
-    if entity_kind == "cognitive_behavioral_construct" or domain in {"cognitive_behavioral", "behavioral"}:
-        return "has_cognitive_behavioral_effect"
     if entity_kind == "subjective_experience_construct" or domain == "subjective_experience":
         return "has_subjective_experience_effect"
+    if entity_kind == "cognitive_behavioral_construct" or domain in {"cognitive_behavioral", "behavioral"}:
+        return "has_cognitive_behavioral_effect"
     if entity_kind == "pharmacokinetic_parameter" or domain in {"pharmacokinetics_exposure", "exposure"}:
         return "has_pharmacokinetic_exposure"
     if entity_kind == "intervention_component" or domain in {"intervention_context", "intervention"}:
@@ -3600,6 +4144,31 @@ def withdrawal_condition_label(row: dict) -> str:
     return ""
 
 
+def subjective_time_distortion_from_cognitive_row(row: dict) -> bool:
+    label_context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_LABEL_FIELDS))
+    measure_context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_MEASURE_FIELDS))
+    full_context = ascii_fold(
+        " ".join(
+            normalize(row.get(field, ""))
+            for field in (
+                *COGNITIVE_BEHAVIORAL_LABEL_FIELDS,
+                *COGNITIVE_BEHAVIORAL_MEASURE_FIELDS,
+                "finding_summary",
+                "support",
+            )
+        )
+    )
+    if not SUBJECTIVE_TIME_DISTORTION_RE.search(full_context):
+        return False
+    if OBJECTIVE_TIME_TASK_RE.search(measure_context):
+        return False
+    return bool(
+        SELF_REPORT_TIME_CONTEXT_RE.search(measure_context)
+        or SELF_REPORT_TIME_CONTEXT_RE.search(full_context)
+        or "sense of time" in label_context
+    )
+
+
 def cognitive_behavioral_graph_label(row: dict) -> str:
     explicit_label = first_endpoint_value(row, ("cognitive_behavioral_graph_label", "graph_construct_label"))
     explicit_key = label_key(explicit_label)
@@ -3649,19 +4218,14 @@ def molecular_effect_label(row: dict, entity_kind: str, entity_label: str) -> st
     if normalize(entity_kind).casefold() not in MOLECULAR_EFFECT_ENTITY_KINDS:
         return ""
     explicit_label = first_endpoint_value(row, ("molecular_effect_label", "molecular_effect_category"))
-    if explicit_label:
+    exact_entity_label = canonical_molecular_effect_rule_label(entity_label)
+    if exact_entity_label:
+        return exact_entity_label
+    if explicit_label and not generic_molecular_effect_placeholder(explicit_label):
         return explicit_label
 
     def effect_from_context(fields: tuple[str, ...]) -> str:
-        context = ascii_fold(
-            " ".join(
-                normalize(value)
-                for value in (
-                    entity_label,
-                    *(row.get(field, "") for field in fields),
-                )
-            )
-        )
+        context = molecular_effect_context(row, entity_label, fields)
         if not normalize(context):
             return ""
         for label, pattern in MOLECULAR_EFFECT_RULES:
@@ -3676,6 +4240,32 @@ def molecular_effect_label(row: dict, entity_kind: str, entity_label: str) -> st
     if full_match:
         return full_match
     return "Other molecular effects"
+
+
+def molecular_effect_graph_label(row: dict, entity_kind: str, entity_label: str) -> str:
+    if normalize(entity_kind).casefold() not in MOLECULAR_EFFECT_ENTITY_KINDS:
+        return ""
+    exact_entity_label = canonical_molecular_effect_rule_label(entity_label)
+    if exact_entity_label:
+        return exact_entity_label
+    explicit_label = first_endpoint_value(row, ("molecular_effect_label", "molecular_effect_category"))
+    exact_explicit_label = canonical_molecular_effect_rule_label(explicit_label)
+    if exact_explicit_label:
+        return exact_explicit_label
+
+    def effect_from_context(fields: tuple[str, ...]) -> str:
+        context = molecular_effect_context(row, entity_label, fields)
+        if not normalize(context):
+            return ""
+        for label, pattern in MOLECULAR_EFFECT_RULES:
+            if pattern.search(context):
+                return label
+        return ""
+
+    label_match = effect_from_context(MOLECULAR_EFFECT_LABEL_FIELDS)
+    if label_match:
+        return label_match
+    return effect_from_context(MOLECULAR_EFFECT_CONTEXT_FIELDS)
 
 
 def subjective_experience_safety_label(row: dict) -> str:
@@ -3717,6 +4307,12 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
             out["kg_entity_kind_override"] = "condition_indication"
             out["endpoint_label_source"] = "behavioral_withdrawal_condition_boundary"
             out["graph_entity_label"] = withdrawal_condition
+        elif subjective_time_distortion_from_cognitive_row(out):
+            out["domain"] = "subjective_experience"
+            out["kg_entity_kind_override"] = "subjective_experience_construct"
+            out["endpoint_label_source"] = "subjective_time_distortion_boundary"
+            out["subjective_experience_graph_label"] = "Time distortion"
+            out["graph_entity_label"] = "Time distortion"
         else:
             out["cognitive_behavioral_graph_label"] = first_endpoint_value(
                 out,
@@ -3936,7 +4532,8 @@ def build_tables(
         for source_row in source_rows:
             source_row_domain = normalize(source_row.get("domain", "")) or normalize(source_row.get("domain_route", "")) or source_domain
             normalized_source_row = normalize_claim_metadata(source_row, source_row_domain)
-            rows.extend(condition_expanded_rows(normalized_source_row, source_row_domain, registry))
+            for condition_row in condition_expanded_rows(normalized_source_row, source_row_domain, registry):
+                rows.extend(entity_expanded_rows(condition_row, source_row_domain, registry, node_vocabulary))
 
         for index, row in enumerate(rows):
             domain = normalize(row.get("domain", "")) or normalize(row.get("domain_route", "")) or source_domain

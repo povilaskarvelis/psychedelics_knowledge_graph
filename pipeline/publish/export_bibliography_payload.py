@@ -15,8 +15,11 @@ import re
 from pathlib import Path
 from typing import Iterable
 
+import pandas as pd
+
 ROOT = Path(__file__).resolve().parents[2]
 DATASETS = ("mechanistic", "disorder")
+DEFAULT_PRESCREEN_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_prescreen_decisions.parquet"
 
 
 def normalize(value: object) -> str:
@@ -244,7 +247,30 @@ def merge_paper(existing: dict, incoming: dict) -> dict:
     return existing
 
 
-def papers_from_reports(dataset: str, report_paths: Iterable[Path]) -> list[dict]:
+def prescreen_retained_dois(dataset: str, prescreen_table: Path | None = DEFAULT_PRESCREEN_TABLE) -> set[str] | None:
+    if prescreen_table is None or not prescreen_table.exists():
+        return None
+    df = pd.read_parquet(prescreen_table)
+    if df.empty or "doi" not in df.columns or "dataset" not in df.columns:
+        return None
+    decision = df["prescreen_decision"].astype(str) if "prescreen_decision" in df.columns else pd.Series("", index=df.index)
+    if "retained_for_extraction_candidate" in df.columns:
+        retained_flag = df["retained_for_extraction_candidate"].map(lambda value: str(value).strip().lower() in {"1", "true", "yes"})
+    else:
+        retained_flag = pd.Series(False, index=df.index)
+    retained = df[
+        (df["dataset"].astype(str) == dataset)
+        & ((decision == "retain") | retained_flag)
+    ]
+    return {clean_doi(value).lower() for value in retained["doi"].tolist() if clean_doi(value)}
+
+
+def papers_from_reports(
+    dataset: str,
+    report_paths: Iterable[Path],
+    *,
+    retained_dois: set[str] | None = None,
+) -> list[dict]:
     papers_by_id: dict[str, dict] = {}
     for report_path in report_paths:
         if not report_path.exists():
@@ -257,6 +283,9 @@ def papers_from_reports(dataset: str, report_paths: Iterable[Path]) -> list[dict
             if not isinstance(row, dict) or not row_is_relevant(row):
                 continue
             paper = paper_from_row(dataset=dataset, row=row, report_path=report_path)
+            doi = clean_doi(paper.get("doi")).lower()
+            if retained_dois is not None and doi and doi not in retained_dois:
+                continue
             identity = paper_identity(paper)
             if not identity:
                 continue
@@ -276,14 +305,22 @@ def papers_from_reports(dataset: str, report_paths: Iterable[Path]) -> list[dict
     )
 
 
-def export_dataset(dataset: str, out_dir: Path, report_paths: Iterable[Path] | None = None) -> dict:
+def export_dataset(
+    dataset: str,
+    out_dir: Path,
+    report_paths: Iterable[Path] | None = None,
+    *,
+    prescreen_table: Path | None = DEFAULT_PRESCREEN_TABLE,
+) -> dict:
     paths = list(report_paths or default_report_paths(dataset))
-    papers = papers_from_reports(dataset=dataset, report_paths=paths)
+    retained_dois = prescreen_retained_dois(dataset, prescreen_table=prescreen_table)
+    papers = papers_from_reports(dataset=dataset, report_paths=paths, retained_dois=retained_dois)
     payload = {
         "contract_version": "1.0",
         "dataset": dataset,
         "source": "abstract_screening_relevant",
         "source_reports": [str(path) for path in paths if path.exists()],
+        "prescreen_filter": str(prescreen_table) if retained_dois is not None and prescreen_table else "",
         "generated_at_utc": now_utc(),
         "paper_count": len(papers),
         "papers": papers,
@@ -298,7 +335,24 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Export citation-focused bibliography payloads")
     parser.add_argument("--dataset", choices=[*DATASETS, "all"], default="all")
     parser.add_argument("--out-dir", default=str(ROOT / "data" / "processed"))
+    parser.add_argument(
+        "--legacy-split-output",
+        action="store_true",
+        help="Write the retired split bibliography payloads. The public site uses data/kg/views/methods_bibliography.json.",
+    )
+    parser.add_argument(
+        "--no-prescreen-filter",
+        action="store_true",
+        help="Do not filter bibliography papers by current deterministic prescreen decisions.",
+    )
     args = parser.parse_args()
+
+    if not args.legacy_split_output:
+        raise SystemExit(
+            "The split bibliography payloads are retired. Run "
+            "`python pipeline/kg/build_methods_flow.py` to build data/kg/views/methods_bibliography.json. "
+            "Pass --legacy-split-output only if you intentionally need the old compatibility payloads."
+        )
 
     datasets = DATASETS if args.dataset == "all" else (args.dataset,)
     manifest = {
@@ -307,7 +361,11 @@ def main() -> int:
     }
     out_dir = Path(args.out_dir)
     for dataset in datasets:
-        manifest["datasets"][dataset] = export_dataset(dataset, out_dir=out_dir)
+        manifest["datasets"][dataset] = export_dataset(
+            dataset,
+            out_dir=out_dir,
+            prescreen_table=None if args.no_prescreen_filter else DEFAULT_PRESCREEN_TABLE,
+        )
 
     manifest_path = out_dir / "bibliography_payload_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

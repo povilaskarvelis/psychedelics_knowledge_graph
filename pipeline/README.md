@@ -506,7 +506,8 @@ rows:
 python pipeline/extract/build_extraction_tasks.py
 python pipeline/extract/run_route_extraction.py \
   --input-jsonl data/processed/extraction/route_extraction_tasks.jsonl
-python pipeline/kg/convert_routed_extractions_to_evidence_rows.py
+python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
+  --use-default-active-route-table
 ```
 
 ## Canonical Outputs

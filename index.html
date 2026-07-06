@@ -27,7 +27,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260705-graph-bootstrap" />
+    <link rel="stylesheet" href="styles.css?v=20260705-offwhite-text" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -39,6 +39,10 @@
           <br />
           <br />
           See <a href="methods.html">Methods</a> page for more details.
+          <span class="hero-version">
+            <span>Graph version: v0.0.1</span>
+            <span class="hero-version-date">Literature search through: 2026-05-28</span>
+          </span>
 
         </p>
       </div>
@@ -75,6 +79,14 @@
           <div class="graph-column">
             <div class="graph-toolbar">
               <div class="graph-header-controls">
+                <div class="toolbar-main-row">
+                  <div
+                    class="mode-toggle entity-kind-toggle category-toggle"
+                    data-entity-kind-toggle
+                    role="tablist"
+                    aria-label="Graph category"
+                  ></div>
+                </div>
                 <div class="toolbar-filter-row">
                   <div class="filter-center-controls">
                     <div class="year-range-inline" aria-label="Year range">
@@ -112,14 +124,6 @@
                       <span>Full text only</span>
                     </label>
                   </div>
-                </div>
-                <div class="toolbar-main-row">
-                  <div
-                    class="mode-toggle entity-kind-toggle category-toggle"
-                    data-entity-kind-toggle
-                    role="tablist"
-                    aria-label="Graph category"
-                  ></div>
                 </div>
               </div>
             </div>
@@ -176,6 +180,6 @@
       </div>
     </footer>
 
-    <script src="app.js?v=20260705-graph-bootstrap"></script>
+    <script src="app.js?v=20260706-detail-bootstrap-v4"></script>
   </body>
 </html>

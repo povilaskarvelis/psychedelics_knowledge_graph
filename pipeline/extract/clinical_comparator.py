@@ -12,17 +12,17 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 
 COMPARATOR_ORDER = (
-    "Placebo / vehicle",
+    "Placebo",
     "Active placebo",
-    "Baseline / pre-post",
-    "No comparator / single-arm",
-    "Dose / route comparison",
-    "Active treatment comparator",
-    "Treatment as usual / standard care",
-    "Observational / matched controls",
-    "Comparator not reported",
+    "Baseline",
+    "No comparator",
+    "Dose or route comparison",
+    "Active treatment",
+    "Standard care",
+    "Observational controls",
+    "Not reported",
     "Not applicable",
-    "Other / mixed comparator",
+    "Other",
 )
 
 NOT_REPORTED_VALUES = {"", "not_reported", "not reported", "unknown", "uncertain"}
@@ -43,28 +43,28 @@ def has(pattern: str, text: str) -> bool:
 def normalize_clinical_comparator(comparator: object = "") -> str:
     text = comparator_text(comparator)
     if text in NOT_REPORTED_VALUES:
-        return "Comparator not reported"
+        return "Not reported"
     if text in NOT_APPLICABLE_VALUES:
         return "Not applicable"
 
     if has(r"\b(no comparator|no control|no comparative|uncontrolled|single arm|no treatment|no ketamine|no analgesia|none)\b", text):
-        return "No comparator / single-arm"
+        return "No comparator"
     if has(
         r"\b(baseline|pre treatment|pre intervention|pre retreat|pre dose|previous treatments?|retrospective pre|"
         r"pre operation|preoperation|pretreatment|before infusion|preinfusion|before psychedelic|intake|time period before|"
         r"pre study|study exit|after first pap|post dosing|before the second infusion)\b",
         text,
     ):
-        return "Baseline / pre-post"
+        return "Baseline"
     if has(r"\b(midazolam|niacin|diphenhydramine|active placebo|psychoactive placebo|1 mg psilocybin|5 mg psilocybin|low dose)\b", text):
         return "Active placebo"
     if has(r"\b(placebo|saline|normal saline|isotonic saline|0\.9% saline|vehicle|lactose|nitrogen|water)\b", text):
-        return "Placebo / vehicle"
+        return "Placebo"
     if has(r"\b(\d+(?:\.\d+)?\s*(?:mg|mcg|ug|μg|µg|g|ml)|dose|doses?)\b", text) and has(
         r"\b(ket|ketamine|esketamine|psilocybin|comp360|mdma|dmt|lsd|nitrous|cannabidiol)\b",
         text,
     ):
-        return "Dose / route comparison"
+        return "Dose or route comparison"
     if has(
         r"\b(iv ketamine|intravenous ketamine|intranasal esketamine|in esketamine|esketamine alone|ketamine alone|"
         r"ketamine therapy|es ketamine therapy|r s ketamine|oral ketamine|subcutaneous versus intranasal|four infusion|"
@@ -72,13 +72,13 @@ def normalize_clinical_comparator(comparator: object = "") -> str:
         r"intrathecal psilocin|ketamine only|2r 6r hnk|ibogaine|other routes of administration)\b",
         text,
     ):
-        return "Dose / route comparison"
+        return "Dose or route comparison"
     if has(
         r"\b(treatment as usual|treatment-as-usual|standard care|standard of care|usual care|conventional|community of practice|"
         r"mbsr|routine treatment|rwt|standard postpartum care|linkage alone|outpatient medication management|waitlist)\b",
         text,
     ):
-        return "Treatment as usual / standard care"
+        return "Standard care"
     if has(
         r"\b("
         r"healthy comparison|comparison group|matched controls?|control group|controls?|non users?|non mdma users?|"
@@ -91,7 +91,7 @@ def normalize_clinical_comparator(comparator: object = "") -> str:
         r")\b",
         text,
     ):
-        return "Observational / matched controls"
+        return "Observational controls"
     if has(
         r"\b("
         r"ect|electro convulsive|electroconvulsive|escitalopram|antidepressants?|ssri|oad|quetiapine|lithium|"
@@ -104,5 +104,5 @@ def normalize_clinical_comparator(comparator: object = "") -> str:
         r")\b",
         text,
     ):
-        return "Active treatment comparator"
-    return "Other / mixed comparator"
+        return "Active treatment"
+    return "Other"

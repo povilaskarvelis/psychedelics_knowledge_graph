@@ -4,13 +4,12 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter
 import json
 from pathlib import Path
 import sys
 
 try:
-    from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, split_values, write_json
+    from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, write_json
     from pipeline.review.run_gemini_domain_routing_batch import (
         DEFAULT_ENV,
         DEFAULT_METADATA_TABLE,
@@ -21,7 +20,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, split_values, write_json
+    from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, write_json
     from pipeline.review.run_gemini_domain_routing_batch import (
         DEFAULT_ENV,
         DEFAULT_METADATA_TABLE,
@@ -113,7 +112,6 @@ def build_queue(args: argparse.Namespace) -> dict:
             "start_index": start_index,
             "limit": limit,
             "approx_input_tokens_char4": sum(approx_input_tokens_char4(row) for row in rows),
-            "by_dataset": dict(Counter(tag for row in rows for tag in split_values(row.get("datasets", "")))),
             **paths,
         }
         if args.prepare:
@@ -132,7 +130,6 @@ def build_queue(args: argparse.Namespace) -> dict:
             "max_requests": max(1, args.max_requests),
             "max_approx_input_tokens": max(1, args.max_approx_input_tokens),
             "prepared": bool(args.prepare),
-            "by_dataset": dict(Counter(tag for row in records for tag in split_values(row.get("datasets", "")))),
         },
         "inputs": {
             "metadata_table": str(Path(args.metadata_table).resolve()),

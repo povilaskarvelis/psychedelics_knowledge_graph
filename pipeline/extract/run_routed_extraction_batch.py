@@ -374,6 +374,7 @@ def run_batch(args: argparse.Namespace) -> dict:
             str(paths["outputs_jsonl"]),
             "--tasks-jsonl",
             str(Path(args.input_jsonl).resolve()),
+            "--use-default-active-route-table",
         ]
         if args.include_schema_errors:
             convert_cmd.append("--include-schema-errors")

@@ -39,7 +39,7 @@ DEFAULT_CONTEXTS_TABLE = DEFAULT_CORPUS_DIR / "candidate_contexts.parquet"
 DEFAULT_DECISIONS_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_decisions.parquet"
 DEFAULT_SUMMARY_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_summary.parquet"
 TABLE_VERSION = "0.1"
-DATASETS = ("mechanistic", "disorder")
+SCREENING_SCOPE = "unified_corpus"
 
 METADATA_FIELDS = [
     "study_title",
@@ -113,6 +113,9 @@ NON_EVIDENCE_PUBLICATION_PATTERNS = (
 )
 NON_EVIDENCE_TEXT_PATTERNS = (
     re.compile(r"\bpatent highlight\b", re.IGNORECASE),
+)
+NON_EVIDENCE_SOURCE_PATTERNS = (
+    re.compile(r"\bbrown university(?: child & adolescent)? psychopharmacology update\b", re.IGNORECASE),
 )
 NON_EVIDENCE_DOI_PATTERNS = (
     re.compile(r"^10\.1371/journal\.[^.]+\.\d+\.[fgst]\d+$", re.IGNORECASE),
@@ -321,19 +324,24 @@ def merge_scoped_decisions(
     updated_rows: list[dict],
     *,
     scoped_dois: set[str],
-    datasets: Iterable[str],
 ) -> tuple[list[dict], int]:
-    requested_datasets = set(datasets)
     retained_existing: list[dict] = []
     replaced = 0
     for row in existing_rows:
         doi = normalize_doi(clean(row.get("doi", "")))
-        dataset = clean(row.get("dataset", ""))
-        if doi in scoped_dois and dataset in requested_datasets:
+        if doi in scoped_dois:
             replaced += 1
             continue
-        retained_existing.append(row)
+        retained_existing.append(strip_legacy_dataset_fields(row))
     return [*retained_existing, *updated_rows], replaced
+
+
+def strip_legacy_dataset_fields(row: dict) -> dict:
+    return {
+        key: value
+        for key, value in row.items()
+        if key not in {"dataset", "datasets", "dataset_count"}
+    }
 
 
 def rows_by_doi(df: pd.DataFrame) -> dict[str, dict]:
@@ -347,29 +355,15 @@ def rows_by_doi(df: pd.DataFrame) -> dict[str, dict]:
     return out
 
 
-def datasets_for_paper(paper: dict, contexts: list[dict]) -> list[str]:
-    values = set(split_values(paper.get("datasets", "")))
-    values.update(clean(context.get("dataset", "")) for context in contexts)
-    return [dataset for dataset in DATASETS if dataset in values]
-
-
-def contexts_by_doi_and_dataset(contexts_df: pd.DataFrame) -> dict[tuple[str, str], list[dict]]:
-    out: dict[tuple[str, str], list[dict]] = defaultdict(list)
+def contexts_by_doi(contexts_df: pd.DataFrame) -> dict[str, list[dict]]:
+    out: dict[str, list[dict]] = defaultdict(list)
     if contexts_df.empty or "doi" not in contexts_df.columns:
         return out
     for row in contexts_df.to_dict("records"):
         doi = normalize_doi(clean(row.get("doi", "")))
-        dataset = clean(row.get("dataset", ""))
-        if not doi or dataset not in DATASETS:
+        if not doi:
             continue
-        out[(doi, dataset)].append(row)
-    return out
-
-
-def all_contexts_by_doi(contexts_by_dataset: dict[tuple[str, str], list[dict]]) -> dict[str, list[dict]]:
-    out: dict[str, list[dict]] = defaultdict(list)
-    for (doi, _dataset), rows in contexts_by_dataset.items():
-        out[doi].extend(rows)
+        out[doi].append(row)
     return out
 
 
@@ -447,6 +441,7 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
     title = clean(row.get("study_title", ""))
     abstract = clean(row.get("abstract", ""))
     publication_type = clean(row.get("publication_type", ""))
+    journal = clean(row.get("study_journal", ""))
     publication_types = {value.lower() for value in split_values(publication_type)}
     title_abstract = " ".join(value for value in (title, abstract) if value)
     matched_terms: list[str] = []
@@ -466,6 +461,10 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
         match = pattern.search(title_abstract)
         if match:
             matched_terms.append(match.group(0))
+    for pattern in NON_EVIDENCE_SOURCE_PATTERNS:
+        match = pattern.search(journal)
+        if match:
+            matched_terms.append(match.group(0))
     non_source_publication_types = publication_types.intersection(NON_SOURCE_PUBLICATION_TYPES)
     if non_source_publication_types:
         matched_terms.extend(sorted(non_source_publication_types))
@@ -477,8 +476,8 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
         "supporting_quote": title or publication_type or doi,
         "reason": (
             "Record is a protocol, correction, review report, patent highlight, pure "
-            "letter/editorial/comment/news item, supplementary material, figure/table/data deposit, "
-            "retraction, or citation artifact rather than source evidence."
+            "letter/editorial/comment/news item, newsletter/update summary, supplementary material, "
+            "figure/table/data deposit, retraction, or citation artifact rather than source evidence."
         ),
         "matched_terms": matched_terms,
         "routing_tags": context_routing_tags(contexts),
@@ -611,14 +610,11 @@ def build_prescreen_decisions(
     *,
     run_id: str,
     generated_at_utc: str,
-    datasets: Iterable[str] = DATASETS,
     exclude_missing_abstract: bool = True,
     progress_every: int = 0,
 ) -> list[dict]:
-    requested_datasets = set(datasets)
     metadata_by_doi = rows_by_doi(metadata_df)
-    contexts_lookup = contexts_by_doi_and_dataset(contexts_df)
-    all_contexts_lookup = all_contexts_by_doi(contexts_lookup)
+    contexts_lookup = contexts_by_doi(contexts_df)
     rows: list[dict] = []
 
     paper_records = papers_df.to_dict("records")
@@ -628,114 +624,95 @@ def build_prescreen_decisions(
         doi = normalize_doi(clean(paper.get("doi", "")))
         if not doi:
             continue
-        paper_contexts = all_contexts_lookup.get(doi, [])
-        paper_datasets = [dataset for dataset in datasets_for_paper(paper, paper_contexts) if dataset in requested_datasets]
-        if not paper_datasets:
-            continue
+        paper_contexts = compact_contexts(contexts_lookup.get(doi, []))
+        context_tags = context_routing_tags(paper_contexts)
         screening_row = merged_screening_row(paper, metadata_by_doi.get(doi))
         abstract_status_reason = unusable_abstract_reason(screening_row.get("abstract", ""))
         has_abstract = not bool(abstract_status_reason)
-        for dataset in paper_datasets:
-            dataset_contexts = compact_contexts(contexts_lookup.get((doi, dataset), []))
-            context_tags = context_routing_tags(dataset_contexts)
-            before_model_decision = before_model_exclusion_decision(screening_row, dataset_contexts)
-            if before_model_decision:
-                decision = before_model_decision
-            elif exclude_missing_abstract and not has_abstract:
-                decision = missing_abstract_decision(screening_row, dataset_contexts, abstract_status_reason)
-            else:
-                decision = deterministic_prescreen_decision(
-                    dataset,
-                    screening_row,
-                    heuristic={},
-                    candidate_contexts=dataset_contexts,
-                )
-            deterministic_tags = normalize_routing_tags(decision.get("routing_tags", []))
-            routing_tags = normalize_routing_tags([*deterministic_tags, *context_tags])
-            prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision)
-            retained_for_extraction_candidate = prescreen_decision == "retain" and not clean(
-                decision.get("action", "")
-            ).startswith("exclude")
-            rows.append(
-                {
-                    "table_version": TABLE_VERSION,
-                    "run_id": run_id,
-                    "generated_at_utc": generated_at_utc,
-                    "prescreen_decision_id": stable_id(run_id, doi, dataset),
-                    "doi": doi,
-                    "dataset": dataset,
-                    "study_title": clean(screening_row.get("study_title", "")),
-                    "study_year": clean(screening_row.get("study_year", "")),
-                    "has_abstract": has_abstract,
-                    "abstract_char_count": len(clean(screening_row.get("abstract", ""))),
-                    "candidate_context_count": len(dataset_contexts),
-                    "context_compounds": join_values(context.get("compound", "") for context in dataset_contexts),
-                    "context_entities": join_values(context.get("entity", "") for context in dataset_contexts),
-                    "context_entity_types": join_values(context.get("entity_type", "") for context in dataset_contexts),
-                    "context_routing_tags": "|".join(context_tags),
-                    "deterministic_action": clean(decision.get("action", "")),
-                    "deterministic_reason": clean(decision.get("reason", "")),
-                    "deterministic_confidence": float(decision.get("confidence", 0) or 0),
-                    "deterministic_matched_terms": join_values(decision.get("matched_terms", [])),
-                    "deterministic_supporting_quote": clean(decision.get("supporting_quote", "")),
-                    "deterministic_routing_tags": "|".join(deterministic_tags),
-                    "routing_tags": "|".join(routing_tags),
-                    "prescreen_decision": prescreen_decision,
-                    "prescreen_action": prescreen_action,
-                    "prescreen_reason": prescreen_reason,
-                    "retained_for_extraction_candidate": retained_for_extraction_candidate,
-                    "metadata_enrichment_status": clean(screening_row.get("metadata_enrichment_status", "")),
-                    "metadata_enrichment_run_id": clean(screening_row.get("metadata_enrichment_run_id", "")),
-                }
+        before_model_decision = before_model_exclusion_decision(screening_row, paper_contexts)
+        if before_model_decision:
+            decision = before_model_decision
+        elif exclude_missing_abstract and not has_abstract:
+            decision = missing_abstract_decision(screening_row, paper_contexts, abstract_status_reason)
+        else:
+            decision = deterministic_prescreen_decision(
+                SCREENING_SCOPE,
+                screening_row,
+                heuristic={},
+                candidate_contexts=paper_contexts,
             )
+        deterministic_tags = normalize_routing_tags(decision.get("routing_tags", []))
+        routing_tags = normalize_routing_tags([*deterministic_tags, *context_tags])
+        prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision)
+        retained_for_extraction_candidate = prescreen_decision == "retain" and not clean(
+            decision.get("action", "")
+        ).startswith("exclude")
+        rows.append(
+            {
+                "table_version": TABLE_VERSION,
+                "run_id": run_id,
+                "generated_at_utc": generated_at_utc,
+                "prescreen_decision_id": stable_id(run_id, doi),
+                "doi": doi,
+                "study_title": clean(screening_row.get("study_title", "")),
+                "study_year": clean(screening_row.get("study_year", "")),
+                "has_abstract": has_abstract,
+                "abstract_char_count": len(clean(screening_row.get("abstract", ""))),
+                "candidate_context_count": len(paper_contexts),
+                "context_compounds": join_values(context.get("compound", "") for context in paper_contexts),
+                "context_entities": join_values(context.get("entity", "") for context in paper_contexts),
+                "context_entity_types": join_values(context.get("entity_type", "") for context in paper_contexts),
+                "context_routing_tags": "|".join(context_tags),
+                "deterministic_action": clean(decision.get("action", "")),
+                "deterministic_reason": clean(decision.get("reason", "")),
+                "deterministic_confidence": float(decision.get("confidence", 0) or 0),
+                "deterministic_matched_terms": join_values(decision.get("matched_terms", [])),
+                "deterministic_supporting_quote": clean(decision.get("supporting_quote", "")),
+                "deterministic_routing_tags": "|".join(deterministic_tags),
+                "routing_tags": "|".join(routing_tags),
+                "prescreen_decision": prescreen_decision,
+                "prescreen_action": prescreen_action,
+                "prescreen_reason": prescreen_reason,
+                "retained_for_extraction_candidate": retained_for_extraction_candidate,
+                "metadata_enrichment_status": clean(screening_row.get("metadata_enrichment_status", "")),
+                "metadata_enrichment_run_id": clean(screening_row.get("metadata_enrichment_run_id", "")),
+            }
+        )
     return rows
 
 
 def build_summary_rows(decisions: list[dict], *, run_id: str, generated_at_utc: str) -> list[dict]:
     rows: list[dict] = []
 
-    def add(dataset: str, metric: str, label: str, count: int) -> None:
+    def add(metric: str, label: str, count: int) -> None:
         rows.append(
             {
                 "table_version": TABLE_VERSION,
                 "run_id": run_id,
                 "generated_at_utc": generated_at_utc,
-                "dataset": dataset,
+                "scope": "all_papers",
                 "metric": metric,
                 "label": label,
                 "count": int(count),
             }
         )
 
-    for dataset in ["all", *DATASETS]:
-        scoped = decisions if dataset == "all" else [row for row in decisions if row.get("dataset") == dataset]
-        add(dataset, "decisions", "total", len(scoped))
-        add(dataset, "papers", "unique_doi", len({row.get("doi") for row in scoped}))
-        add(dataset, "abstract", "missing", sum(not row.get("has_abstract") for row in scoped))
-        for field in ("prescreen_decision", "prescreen_action", "deterministic_action"):
-            for label, count in Counter(clean(row.get(field, "")) for row in scoped).items():
-                add(dataset, field, label, count)
-        tag_counts: Counter = Counter()
-        for row in scoped:
-            for tag in normalize_routing_tags(row.get("routing_tags", "")):
-                tag_counts[tag] += 1
-        for tag, count in tag_counts.items():
-            add(dataset, "routing_tag", tag, count)
+    add("decisions", "total", len(decisions))
+    add("papers", "unique_doi", len({row.get("doi") for row in decisions}))
+    add("abstract", "missing", sum(not row.get("has_abstract") for row in decisions))
+    for field in ("prescreen_decision", "prescreen_action", "deterministic_action"):
+        for label, count in Counter(clean(row.get(field, "")) for row in decisions).items():
+            add(field, label, count)
+    tag_counts: Counter = Counter()
+    for row in decisions:
+        for tag in normalize_routing_tags(row.get("routing_tags", "")):
+            tag_counts[tag] += 1
+    for tag, count in tag_counts.items():
+        add("routing_tag", tag, count)
     return rows
 
 
-def parse_datasets(raw: str) -> list[str]:
-    if clean(raw).lower() == "all":
-        return list(DATASETS)
-    datasets = [item for item in split_values(raw) if item in DATASETS]
-    invalid = [item for item in split_values(raw) if item not in DATASETS]
-    if invalid:
-        raise ValueError(f"Invalid dataset(s): {', '.join(invalid)}")
-    return datasets
-
-
 def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
-    datasets = parse_datasets(args.dataset)
     decisions_table = Path(args.decisions_table).resolve()
     summary_table = Path(args.summary_table).resolve()
     scoped_dois = scoped_dois_from_args(args)
@@ -767,7 +744,6 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         contexts_df,
         run_id=run_id,
         generated_at_utc=generated_at_utc,
-        datasets=datasets,
         exclude_missing_abstract=not args.retain_missing_abstract,
         progress_every=getattr(args, "progress_every", 0),
     )
@@ -776,7 +752,6 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
             existing_decisions_df.to_dict("records"),
             updated_decisions,
             scoped_dois=scoped_dois,
-            datasets=datasets,
         )
     else:
         decisions = updated_decisions
@@ -809,7 +784,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--decisions-table", default=str(DEFAULT_DECISIONS_TABLE))
     parser.add_argument("--summary-table", default=str(DEFAULT_SUMMARY_TABLE))
     parser.add_argument("--run-id", default="")
-    parser.add_argument("--dataset", default="all", help="all, mechanistic, disorder, or a comma-separated subset")
+    parser.add_argument(
+        "--dataset",
+        default="all",
+        help="Deprecated compatibility option; unified corpus screening no longer uses split search labels.",
+    )
     parser.add_argument("--doi-file", default="", help="Optional newline-delimited DOI list for a scoped update.")
     parser.add_argument("--doi", action="append", default=[], help="Single DOI for a scoped update; can be repeated.")
     parser.add_argument(

@@ -169,7 +169,6 @@ class BuildContextProvenanceAuditTest(unittest.TestCase):
             self.assertIn("metadata_enrichment", paper["source_types"])
             self.assertEqual(paper["metadata"]["abstract"], "Psilocybin altered default mode network connectivity.")
             self.assertTrue(paper["flags"]["in_metadata_enrichment"])
-            self.assertEqual(audit["contexts"][0]["dataset"], "mechanistic")
             self.assertIn("queue_discovered_context", audit["contexts"][0]["context_sources"])
 
     def test_writes_normalized_corpus_parquet_tables(self) -> None:
@@ -210,6 +209,10 @@ class BuildContextProvenanceAuditTest(unittest.TestCase):
 
             self.assertEqual(papers.loc[0, "doi"], "10.example/paper")
             self.assertEqual(papers.loc[0, "abstract"], "Psilocybin altered default mode network connectivity.")
+            self.assertNotIn("datasets", papers.columns)
+            self.assertNotIn("dataset_count", papers.columns)
+            self.assertNotIn("dataset", contexts.columns)
+            self.assertNotIn("dataset", sources.columns)
             self.assertEqual(contexts.loc[0, "compound"], "Psilocybin")
             self.assertIn("paper_library_context", contexts.loc[0, "context_sources"])
             self.assertIn("paper_source", set(sources["event_scope"]))

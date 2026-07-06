@@ -14,7 +14,6 @@ class BuildGeminiDomainRoutingBatchQueueTests(unittest.TestCase):
                 "publication_type": "Journal Article",
                 "source_family": "primary_or_unclear",
                 "literature_route": "primary_literature_extraction",
-                "datasets": "mechanistic",
                 "primary_secondary_source_type": "",
                 "secondary_source_types": "",
                 "metadata_secondary_types": "",

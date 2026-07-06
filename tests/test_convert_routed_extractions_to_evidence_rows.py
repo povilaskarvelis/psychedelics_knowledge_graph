@@ -37,6 +37,87 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             DEFAULT_ROUTED_RUN_ROOT / "gemini_3_flash_batch" / "routed_evidence_rows_report.json",
         )
 
+    def test_active_route_table_filters_stale_extraction_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            active_routes = root / "paper_extraction_routes.parquet"
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "active-task",
+                        "route_id": "active-route",
+                        "study_doi": "10.1000/active",
+                        "paper_metadata": {"doi": "10.1000/active", "study_title": "Active paper"},
+                    },
+                    {
+                        "task_id": "stale-task",
+                        "route_id": "stale-route",
+                        "study_doi": "10.1000/stale",
+                        "paper_metadata": {"doi": "10.1000/stale", "study_title": "Stale paper"},
+                    },
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "active-task",
+                        "route_id": "active-route",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "active-task",
+                            "route_id": "active-route",
+                            "study_doi": "10.1000/active",
+                            "domain_route": "clinical_outcome",
+                            "source_type": "primary",
+                            "paper_type": "primary",
+                            "text_depth": "abstract_only",
+                            "extraction_status": "extracted",
+                            "items": [{"compound": "Psilocybin", "condition_or_indication": "Depression"}],
+                        },
+                    },
+                    {
+                        "task_id": "stale-task",
+                        "route_id": "stale-route",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "stale-task",
+                            "route_id": "stale-route",
+                            "study_doi": "10.1000/stale",
+                            "domain_route": "clinical_outcome",
+                            "source_type": "primary",
+                            "paper_type": "primary",
+                            "text_depth": "abstract_only",
+                            "extraction_status": "extracted",
+                            "items": [{"compound": "Ketamine", "condition_or_indication": "Depression"}],
+                        },
+                    },
+                ],
+            )
+            pd.DataFrame(
+                [
+                    {
+                        "route_id": "active-route",
+                        "doi": "10.1000/active",
+                        "domain_route": "clinical_outcome",
+                        "route_action": "extract_from_abstract_only",
+                    }
+                ]
+            ).to_parquet(active_routes, index=False)
+
+            rows, report = convert_outputs(
+                input_jsonl=outputs_jsonl,
+                tasks_jsonl=tasks_jsonl,
+                active_route_table=active_routes,
+            )
+
+        self.assertEqual([row["study_doi"] for row in rows], ["10.1000/active"])
+        self.assertEqual(report["rows_written"], 1)
+        self.assertEqual(report["skipped"]["inactive_current_route"], 1)
+
     def test_preserves_domain_specific_fields_as_ui_facing_aliases(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

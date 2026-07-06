@@ -41,7 +41,8 @@ The main KG backbone is the normalized evidence-table layer:
 RUN_ID=gemini3_flash_YYYYMMDD_first_batch
 python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
   --run-id "$RUN_ID" \
-  --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl"
+  --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl" \
+  --use-default-active-route-table
 python pipeline/kg/build_evidence_tables.py --source-preset routed --run-id "$RUN_ID"
 ```
 

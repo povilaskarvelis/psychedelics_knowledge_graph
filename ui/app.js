@@ -50,30 +50,31 @@ const GRAPH_COLOR_STOPS = [
   { r: 232, g: 117, b: 141 },
 ];
 const CATEGORY_COLORS = [
-  "#9ac5ae",
-  "#d0b07a",
+  "#6fa79f",
+  "#c0a160",
   "#b96c8b",
-  "#49bfb5",
-  "#9f86c0",
-  "#d18473",
-  "#77b98a",
-  "#b88a6a",
-  "#8b96b8",
-  "#c89b45",
-  "#a989bd",
-  "#5fae8b",
-  "#c06f6a",
-  "#6f9ab8",
-  "#a7a064",
-  "#d08aa3",
-  "#8fa85f",
-  "#7f9fcf",
-  "#c7825c",
-  "#7d8492",
-  "#6fb0a0",
-  "#8d78ad",
-  "#75a0c4",
-  "#a7b56f",
+  "#7893b6",
+  "#b98278",
+  "#9ac5ae",
+  "#a393b1",
+  "#98ad8e",
+  "#b29599",
+  "#99a3c1",
+  "#b397c5",
+  "#72b899",
+  "#c8807c",
+  "#80a6c1",
+  "#b2ab77",
+  "#d698ae",
+  "#9cb272",
+  "#8eabd5",
+  "#9c8ea9",
+  "#8d939f",
+  "#7da7a0",
+  "#9b88b7",
+  "#86abcb",
+  "#b2be80",
+  "#b49c84",
 ];
 const PALETTE_BLUE_FIRST = CATEGORY_COLORS;
 const PALETTE_TEAL_FIRST = CATEGORY_COLORS;
@@ -82,7 +83,7 @@ const PALETTE_SAGE_FIRST = CATEGORY_COLORS;
 const PALETTE_GOLD_FIRST = CATEGORY_COLORS;
 const OTHER_CATEGORY_COLOR = "#8f9ba8";
 const PUBLICATION_YEAR_COLOR = "#3faea6";
-const SAMPLE_SIZE_HEATMAP_COLOR = "#c89b45";
+const SAMPLE_SIZE_HEATMAP_COLOR = "#b89a5b";
 const COGNITION_NODE_LABELS = [
   "Attention",
   "Cognitive flexibility",
@@ -92,10 +93,13 @@ const COGNITION_NODE_LABELS = [
   "Fear memory",
   "Inhibitory control",
   "Memory",
+  "Perceptual processing",
+  "Processing speed",
   "Recognition memory",
   "Reward processing",
   "Social cognition",
   "Spatial memory",
+  "Time perception",
   "Working memory",
 ];
 const BEHAVIORAL_EFFECT_NODE_LABELS = [
@@ -212,7 +216,6 @@ const DETAIL_PANEL_PROFILE_DEFAULT = {
 const DETAIL_PANEL_PROFILE_BY_VIEW = {
   clinical_default: {
     sampleSizes: true,
-    populationModel: true,
     comparators: true,
     followUpWindows: true,
     trialRegistration: true,
@@ -224,7 +227,6 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
   },
   condition_indication: {
     sampleSizes: true,
-    populationModel: true,
     doseRouteSessionContexts: true,
     comparators: true,
     followUpWindows: true,
@@ -233,7 +235,6 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
   },
   symptom_problem: {
     sampleSizes: true,
-    populationModel: true,
     doseRouteSessionContexts: true,
     comparators: true,
     followUpWindows: true,
@@ -242,14 +243,12 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
   },
   safety_adverse_event: {
     sampleSizes: true,
-    populationModel: true,
     safetyContexts: true,
     doseRouteSessionContexts: true,
     trialRegistration: true,
   },
   cognitive_behavioral_construct: {
     sampleSizes: true,
-    populationModel: true,
     doseRouteSessionContexts: true,
     comparators: true,
     followUpWindows: true,
@@ -257,7 +256,6 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
   },
   behavioral_effect: {
     sampleSizes: true,
-    populationModel: true,
     doseRouteSessionContexts: true,
     comparators: true,
     followUpWindows: true,
@@ -265,20 +263,19 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
   },
   subjective_experience_construct: {
     sampleSizes: true,
-    populationModel: true,
     doseRouteSessionContexts: true,
     followUpWindows: true,
     trialRegistration: true,
   },
   intervention_component: {
     sampleSizes: true,
-    populationModel: true,
     doseRouteSessionContexts: true,
+    trialRegistration: true,
   },
   public_health_measure: {
     sampleSizes: true,
-    populationModel: true,
     publicHealthDataSources: true,
+    trialRegistration: true,
   },
   target_system: {
     experimentalSystem: true,
@@ -292,7 +289,6 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
   },
   brain_system: {
     experimentalSystem: true,
-    populationModel: true,
     assayFamilies: true,
     brainMeasures: true,
     mechanisticRelationshipTypes: true,
@@ -351,6 +347,7 @@ let graphManifestPromise = null;
 let graphPayloadConfigPromise = null;
 const routeNativeEvidencePayloadPromises = new Map();
 const graphBootstrapPayloadPromises = new Map();
+const detailBootstrapPayloadPromises = new Map();
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let pendingTooltipPoint = null;
@@ -397,6 +394,7 @@ const GRAPH_COMPACT_BASE_HEIGHT_PX = 560;
 const GRAPH_MIN_NODE_SPACING_PX = 40;
 const GRAPH_COMPACT_MIN_NODE_SPACING_PX = 38;
 const HIDDEN_MAIN_GRAPH_DOMAINS = new Set(["pharmacokinetics_exposure"]);
+const AUTHOR_LABEL_FILTER_PREFIX = "author_label:";
 
 function normalizeValue(value) {
   return (value || "").toString().trim().toLowerCase();
@@ -1145,7 +1143,7 @@ function rgbaString(color, alpha) {
 function applyGraphNodeColor(node, color) {
   node.style.setProperty("--node-color", rgbString(color));
   node.style.setProperty("--node-fill", rgbaString(color, 0.2));
-  node.style.setProperty("--node-glow", rgbaString(color, 0.44));
+  node.style.setProperty("--node-glow", rgbaString(color, 0.34));
 }
 
 function estimateLabelWidth(label) {
@@ -1436,9 +1434,8 @@ function studyDesignFacetLabel(claim) {
   if (label) return label;
 
   const populationModel = populationModelFacetLabel(claim);
-  if (["Mouse model", "Rat model", "Animal model"].includes(populationModel)) return "Preclinical experiment";
-  if (["In vitro cell model", "In vitro model"].includes(populationModel)) return "In vitro assay";
-  if (populationModel === "Ex vivo tissue model") return "Ex vivo experiment";
+  if (populationModel === "Preclinical animals") return "Preclinical experiment";
+  if (populationModel === "Cell & tissue studies") return "In vitro assay";
   return displayFieldLabel(raw);
 }
 
@@ -1498,7 +1495,8 @@ function openAccessFacetLabel(claim) {
   const isOpen = normalizeValue(claim.open_access_is_oa || claim.unpaywall_is_oa);
   const status = normalizeValue(claim.open_access_status || claim.unpaywall_oa_status);
   if (isOpen === "true" || ["gold", "green", "hybrid", "bronze", "diamond"].includes(status)) return "Open access";
-  return "Paywalled";
+  if (isOpen || status) return "Paywalled";
+  return "";
 }
 
 function controlledCategoryLabel(value, labels) {
@@ -1568,20 +1566,19 @@ function trialRegistrationFacetLabel(claim) {
 }
 
 const POPULATION_MODEL_CATEGORY_LABELS = {
-  clinical_population: "Clinical population",
-  healthy_volunteers: "Healthy volunteers",
+  clinical_population: "Human participants",
+  healthy_volunteers: "Human participants",
   human_participants: "Human participants",
-  community_sample: "Community sample",
-  veterans: "Veterans",
-  adolescents_youth: "Adolescents & youth",
-  older_adults: "Older adults",
-  mouse_model: "Mouse model",
-  rat_model: "Rat model",
-  animal_model: "Animal model",
-  in_vitro_cell_model: "In vitro cell model",
-  ex_vivo_tissue_model: "Ex vivo tissue model",
-  computational_model: "Computational model",
-  mixed_or_unclear: "Mixed/unclear sample",
+  community_sample: "Human participants",
+  veterans: "Human participants",
+  adolescents_youth: "Human participants",
+  older_adults: "Human participants",
+  mouse_model: "Preclinical animals",
+  rat_model: "Preclinical animals",
+  animal_model: "Preclinical animals",
+  in_vitro_cell_model: "Cell & tissue studies",
+  ex_vivo_tissue_model: "Cell & tissue studies",
+  computational_model: "In silico studies",
 };
 
 function populationModelFacetLabel(claim) {
@@ -1591,62 +1588,58 @@ function populationModelFacetLabel(claim) {
   const system = normalizeValue(meaningfulText(claim.system));
   const species = normalizeValue(meaningfulText(claim.species));
   const model = normalizeValue(meaningfulText(claim.model_or_system));
-  const population = normalizeValue(meaningfulText(claim.population));
+  const population = normalizeValue(meaningfulText(claim.population || claim.population_or_subgroup));
   const text = [population, species, model, system].filter(Boolean).join(" ");
 
   if (!text) return "";
-  if (/\b(admet|computational|in silico|docking|modeling|modelling)\b/.test(text)) return "Computational model";
-  if (/\b(hek|cho|hela|cell|cells|transfected|culture|organoid)\b/.test(text)) return "In vitro cell model";
-  if (/\b(ex vivo|slice|synaptosome|tissue|brain tissue|cortical tissue)\b/.test(text)) return "Ex vivo tissue model";
-  if (/\b(rat|rats|rattus)\b/.test(text)) return "Rat model";
-  if (/\b(mouse|mice|mus musculus)\b/.test(text)) return "Mouse model";
-  if (/\b(animal|rodent|preclinical|in vivo|zebrafish|drosophila)\b/.test(text)) return "Animal model";
-  if (/\b(veteran|veterans|military)\b/.test(text)) return "Veterans";
-  if (/\b(adolescent|adolescents|youth|young people|children|pediatric|paediatric)\b/.test(text)) return "Adolescents & youth";
-  if (/\b(older adults|elderly|aged)\b/.test(text)) return "Older adults";
-  if (
-    /\bhealthy\b/.test(text) &&
-    /\b(adults?|humans?|volunteers?|participants?|subjects?|controls?|males?|females?)\b/.test(text)
-  ) {
-    return "Healthy volunteers";
-  }
-  if (
-    /\b(patient|patients|clinical|diagnos|disorder|depression|depressive|ptsd|anxiety|pain|cancer|terminal|life-threatening|substance|dependence|addiction|parkinson|schizophrenia|bipolar|ocd|migraine|anorexia|eating disorder|body dysmorphic|bdd|borderline|suicid\w*)\b/.test(
+
+  const hasInSilico = /\b(admet|computational|in silico|docking|modeling|modelling)\b/.test(text);
+  const hasCellOrTissue =
+    /\b(hek|cho|hela|cell|cells|cell lines?|transfected|culture|cultured|organoid|ex vivo|slice|slices|synaptosome|tissue|brain tissue|cortical tissue)\b/.test(
       text
-    )
-  ) {
-    return "Clinical population";
-  }
-  if (
-    /\b(recreational|community|survey|general population|respondents|users|people who use|nonclinical|non clinical|lifetime use|website|newsletter|members|immigrants|refugees|ceremon(?:y|ies|ial)|retreat)\b/.test(
+    ) || system === "in_vitro" || system === "ex_vivo";
+  const hasAnimalSignal =
+    /\b(rat|rats|rattus|mouse|mice|murine|mus musculus|c57bl\/?6j?|animal|animals|rodent|rodents|preclinical|zebrafish|drosophila|marmoset|marmosets|callithrix|cat|cats|kitten|kittens|feline|nonhuman primate|non-human primate|monkey|monkeys|macaque|macaques|rhesus|baboon|baboons|papio|squirrel monkey|saimiri|rabbit|rabbits|piglet|piglets|porcine|canine|dog|dogs)\b/.test(
       text
-    )
-  ) {
-    return "Community sample";
-  }
-  if (/\b(adults?|humans?|volunteers?|participants?|subjects?|individuals?)\b/.test(text)) return "Human participants";
-  if (system === "clinical") return "Human participants";
-  if (system === "in_vitro") return "In vitro model";
-  if (system === "ex_vivo") return "Ex vivo tissue model";
-  return "Mixed/unclear sample";
+    ) || (/\bin vivo\b/.test(text) && !system.includes("clinical"));
+  const hasAnimalAndCellMix =
+    hasCellOrTissue &&
+    /\b(rat|rats|mouse|mice|animal|animals|marmoset|marmosets|cat|cats|monkey|monkeys|baboon|baboons|piglet|piglets)\b[^.;,]*(?:\band\b|&)[^.;,]*\b(cell|cells|culture|cultured|in vitro)\b|\b(cell|cells|culture|cultured|in vitro)\b[^.;,]*(?:\band\b|&)[^.;,]*\b(rat|rats|mouse|mice|animal|animals|marmoset|marmosets|cat|cats|monkey|monkeys|baboon|baboons|piglet|piglets)\b/.test(
+      text
+    );
+  const hasAnimal = hasAnimalSignal && (!hasCellOrTissue || hasAnimalAndCellMix);
+  const hasHumanParticipantMarkers = /\b(humans|human(?!\s+(?:cell|cells|cell lines?|tissue|placenta|hepatocytes?|neurons?|neuronal|brain library))|human exposure|volunteers?|participants?|patients?|respondents?|people|users?|consumers?|smokers?|abusers?|veterans?|attendees?|immigrants?|refugees?|clients?|students?|staff|workers?|first responders?|facilitators?|psychiatrists?|drivers?|decedents?|residents?|civilians?|westerners?|members?|cohort|normal volunteers?|clinical controls?)\b/.test(
+    text
+  );
+  const hasHumanDemographicMarkers =
+    /\b(adults?|subjects?|individuals?|men|women|males?|females?|man|woman|person|parturients?|case|cases|adolescents?|youth|children|pediatric|paediatric|seniors?|healthy controls?)\b/.test(
+      text
+    );
+  const hasHumanClinicalContext = /\b(clinical|diagnos|disorder|depression|depressive|treatment resistant|treatment-resistant|trd|mdd|ptsd|anxiety|pain|cancer|terminal|life-threatening|substance|dependence|addiction|parkinson|schizophrenia|schizophrenic|bipolar|ocd|migraine|cluster headache|fibromyalgia|restless legs|syndrome|anorexia|eating disorder|body dysmorphic|bdd|borderline|suicid\w*|ceremon(?:y|ies|ial)|retreat|recreational|community|population|poison control|faers|medical records?)\b/.test(
+      text
+    );
+  const hasHuman =
+    system === "clinical" ||
+    hasHumanParticipantMarkers ||
+    (!hasAnimalSignal && !hasCellOrTissue && (hasHumanDemographicMarkers || hasHumanClinicalContext));
+
+  const buckets = [
+    hasHuman && !hasCellOrTissue ? "Human participants" : "",
+    hasAnimal ? "Preclinical animals" : "",
+    hasCellOrTissue ? "Cell & tissue studies" : "",
+    hasInSilico && !hasHuman && !hasAnimal && !hasCellOrTissue ? "In silico studies" : "",
+  ].filter(Boolean);
+  const uniqueBuckets = [...new Set(buckets)];
+  if (uniqueBuckets.length === 1) return uniqueBuckets[0];
+  return "Other";
 }
 
 const POPULATION_MODEL_ORDER = [
-  "Clinical population",
-  "Healthy volunteers",
   "Human participants",
-  "Community sample",
-  "Veterans",
-  "Adolescents & youth",
-  "Older adults",
-  "Mouse model",
-  "Rat model",
-  "Animal model",
-  "In vitro cell model",
-  "In vitro model",
-  "Ex vivo tissue model",
-  "Computational model",
-  "Mixed/unclear sample",
+  "Preclinical animals",
+  "Cell & tissue studies",
+  "In silico studies",
+  "Other",
 ];
 
 const SAFETY_CONTEXT_ORDER = [
@@ -2559,18 +2552,40 @@ function brainMeasureFacetLabels(claim) {
 }
 
 const CLINICAL_COMPARATOR_ORDER = [
-  "Placebo / vehicle",
+  "Placebo",
   "Active placebo",
-  "Baseline / pre-post",
-  "No comparator / single-arm",
-  "Dose / route comparison",
-  "Active treatment comparator",
-  "Treatment as usual / standard care",
-  "Observational / matched controls",
-  "Comparator not reported",
+  "Baseline",
+  "No comparator",
+  "Dose or route comparison",
+  "Active treatment",
+  "Standard care",
+  "Observational controls",
+  "Not reported",
   "Not applicable",
-  "Other / mixed comparator",
+  "Other",
 ];
+
+const CLINICAL_COMPARATOR_LABEL_ALIASES = {
+  "placebo vehicle": "Placebo",
+  "baseline pre post": "Baseline",
+  "no comparator single arm": "No comparator",
+  "dose route comparison": "Dose or route comparison",
+  "active treatment comparator": "Active treatment",
+  "treatment as usual standard care": "Standard care",
+  "observational matched controls": "Observational controls",
+  "comparator not reported": "Not reported",
+  "other mixed comparator": "Other",
+};
+
+function clinicalComparatorDisplayLabel(value) {
+  const label = meaningfulText(value);
+  if (!label) return "";
+  const key = normalizeValue(label)
+    .replace(/[_/()+-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return CLINICAL_COMPARATOR_LABEL_ALIASES[key] || label;
+}
 
 const CLINICAL_FOLLOW_UP_WINDOW_ORDER = [
   "Acute / same day",
@@ -2614,65 +2629,65 @@ const FOLLOW_UP_NUMBER_WORDS = {
 
 function clinicalComparatorFacetLabel(claim) {
   const normalized = meaningfulText(claim.comparator_normalized || claim.normalized_comparator);
-  if (normalized) return normalized;
+  if (normalized) return clinicalComparatorDisplayLabel(normalized);
 
   const text = normalizeValue(meaningfulText(claim.comparator))
     .replace(/[_/()+-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  if (!text || ["not_reported", "not reported", "unknown", "uncertain"].includes(text)) return "Comparator not reported";
+  if (!text || ["not_reported", "not reported", "unknown", "uncertain"].includes(text)) return "Not reported";
   if (["not_applicable", "not applicable", "n/a", "na"].includes(text)) return "Not applicable";
   if (/\b(no comparator|no control|no comparative|uncontrolled|single arm|no treatment|no ketamine|no analgesia|none)\b/.test(text)) {
-    return "No comparator / single-arm";
+    return "No comparator";
   }
   if (
     /\b(baseline|pre treatment|pre intervention|pre retreat|pre dose|previous treatments?|retrospective pre|pre operation|preoperation|pretreatment|before infusion|preinfusion|before psychedelic|intake|time period before|pre study|study exit|after first pap|post dosing|before the second infusion)\b/.test(
       text
     )
   ) {
-    return "Baseline / pre-post";
+    return "Baseline";
   }
   if (/\b(midazolam|niacin|diphenhydramine|active placebo|psychoactive placebo|1 mg psilocybin|5 mg psilocybin|low dose)\b/.test(text)) {
     return "Active placebo";
   }
   if (/\b(placebo|saline|normal saline|isotonic saline|0\.9% saline|vehicle|lactose|nitrogen|water)\b/.test(text)) {
-    return "Placebo / vehicle";
+    return "Placebo";
   }
   if (
     /\b(\d+(?:\.\d+)?\s*(?:mg|mcg|ug|μg|µg|g|ml)|dose|doses?)\b/.test(text) &&
     /\b(ket|ketamine|esketamine|psilocybin|comp360|mdma|dmt|lsd|nitrous|cannabidiol)\b/.test(text)
   ) {
-    return "Dose / route comparison";
+    return "Dose or route comparison";
   }
   if (
     /\b(iv ketamine|intravenous ketamine|intranasal esketamine|in esketamine|esketamine alone|ketamine alone|ketamine therapy|es ketamine therapy|r s ketamine|oral ketamine|subcutaneous versus intranasal|four infusion|injectable r s ketamine|racemic ketamine|s ketamine|r ketamine|esk in|mdma alone|psilocybin alone|intrathecal psilocin|ketamine only|2r 6r hnk|ibogaine|other routes of administration)\b/.test(
       text
     )
   ) {
-    return "Dose / route comparison";
+    return "Dose or route comparison";
   }
   if (
     /\b(treatment as usual|treatment-as-usual|standard care|standard of care|usual care|conventional|community of practice|mbsr|routine treatment|rwt|standard postpartum care|linkage alone|outpatient medication management|waitlist)\b/.test(
       text
     )
   ) {
-    return "Treatment as usual / standard care";
+    return "Standard care";
   }
   if (
     /\b(healthy comparison|comparison group|matched controls?|control group|controls?|non users?|non mdma users?|non responders?|nonresponders?|younger patients?|unmedicated|anxious mdd|no change|non aia|patients without|patients with no|non early improvers?|no lifetime|subjects who had no|normative sample|reference category|men|women|unipolar depression|low trauma|trauma type absent|without pain|other chronic pain|mild pain|non pain|healthy individuals?|males?|female|socially isolated|with low insomnia|non obese|without comorbid|do not suffer|without diabetes|without hyperlipidemia|did not have|did not receive|responders?|abstinent users?|neuroleptic free|adults without)\b/.test(
       text
     )
   ) {
-    return "Observational / matched controls";
+    return "Observational controls";
   }
   if (
     /\b(ect|electro convulsive|electroconvulsive|escitalopram|antidepressants?|ssri|oad|quetiapine|lithium|rtms|methadone|ketorolac|fentanyl|sufentanil|remifentanil|acetaminophen|hydromorphone|morphine|opioid|analgesic|propofol|etomidate|bupivacaine|dexamethasone|gabapentin|tramadol|diclofenac|metoclopramide|psychotherapy|therapy alone|thiopental|methohexital|dexmedetomidine|lorazepam|prochlorperazine|aminophylline|lidocaine|anaesthetic|benzodiazepines?|medication management|valproate|lexapro|ketamine|esketamine|mdma|lsd|ayahuasca|dextromethorphan|pethidine|imipramine|duloxetine|sertraline|magnesium sulfate|budesonide|methamphetamine|opiates|psychostimulants|antidepressivos)\b/.test(
       text
     )
   ) {
-    return "Active treatment comparator";
+    return "Active treatment";
   }
-  return "Other / mixed comparator";
+  return "Other";
 }
 
 function followUpTextFromClaim(claim) {
@@ -3032,13 +3047,14 @@ function authorRoleIdentity(claim, role) {
       return {
         id: id || name,
         name: name || id,
+        source: "structured",
       };
     }
   }
 
   const authors = splitAuthorNames(claimAuthors(claim)).map(meaningfulAuthorName).filter(Boolean);
   const name = role === "last" ? authors[authors.length - 1] || "" : authors[0] || "";
-  return name ? { id: name, name } : { id: "", name: "" };
+  return name ? { id: name, name, source: "fallback" } : { id: "", name: "", source: "none" };
 }
 
 function firstAuthorName(claim) {
@@ -3049,14 +3065,70 @@ function lastAuthorName(claim) {
   return authorRoleIdentity(claim, "last").name;
 }
 
-function firstAuthorFacetValue(claim) {
-  const author = authorRoleIdentity(claim, "first");
-  return author.name ? { value: author.id || author.name, label: author.name } : "";
+function authorRoleLabelKey(label) {
+  const text = cleanDisplayText(label);
+  if (!text) return "";
+  const normalized = typeof text.normalize === "function" ? text.normalize("NFKC") : text;
+  return normalized
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u2018-\u201B]/g, "'")
+    .replace(/[\u201C-\u201F]/g, '"')
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleLowerCase("en-US");
 }
 
-function lastAuthorFacetValue(claim) {
-  const author = authorRoleIdentity(claim, "last");
-  return author.name ? { value: author.id || author.name, label: author.name } : "";
+function buildAuthorRoleAliasMap(items) {
+  const candidates = new Map();
+  items.forEach((claim) => {
+    ["first", "last"].forEach((role) => {
+      const author = authorRoleIdentity(claim, role);
+      const labelKey = authorRoleLabelKey(author.name);
+      if (!labelKey || author.source !== "structured") return;
+      const valueKey = normalizeValue(author.id);
+      if (!valueKey || valueKey === labelKey) return;
+      const entry = candidates.get(labelKey) || { ids: new Set() };
+      entry.ids.add(author.id);
+      candidates.set(labelKey, entry);
+    });
+  });
+
+  const aliases = new Map();
+  candidates.forEach((entry, labelKey) => {
+    if (entry.ids.size === 1) {
+      aliases.set(labelKey, Array.from(entry.ids)[0]);
+    }
+  });
+  return aliases;
+}
+
+function authorRoleLabelFilterValue(label) {
+  const labelKey = authorRoleLabelKey(label);
+  return labelKey ? `${AUTHOR_LABEL_FILTER_PREFIX}${labelKey}` : "";
+}
+
+function authorRoleLabelFromFilterValue(value) {
+  const text = (value || "").toString();
+  return text.startsWith(AUTHOR_LABEL_FILTER_PREFIX) ? text.slice(AUTHOR_LABEL_FILTER_PREFIX.length) : "";
+}
+
+function authorFacetValueForRole(claim, role, aliases = null) {
+  const author = authorRoleIdentity(claim, role);
+  if (!author.name) return "";
+  const labelKey = authorRoleLabelKey(author.name);
+  let value = author.id || author.name;
+  if (labelKey && aliases?.has(labelKey) && author.source !== "structured") {
+    value = aliases.get(labelKey);
+  }
+  return { value, label: author.name };
+}
+
+function firstAuthorFacetValue(claim, aliases = null) {
+  return authorFacetValueForRole(claim, "first", aliases);
+}
+
+function lastAuthorFacetValue(claim, aliases = null) {
+  return authorFacetValueForRole(claim, "last", aliases);
 }
 
 function normalizeDoi(value) {
@@ -4054,6 +4126,10 @@ function uniqueStudyCount(items) {
 }
 
 function graphRecordCount(claim) {
+  if (claim?.__graph_bootstrap && fullTextOnlyToggle?.checked) {
+    const fullTextCount = Number(claim?.graph_full_text_claim_count);
+    return Number.isFinite(fullTextCount) && fullTextCount > 0 ? fullTextCount : 1;
+  }
   const count = Number(claim?.graph_claim_count ?? claim?.finding_count);
   return Number.isFinite(count) && count > 0 ? count : 1;
 }
@@ -4065,7 +4141,10 @@ function graphRecordCountForItems(items) {
 function graphStudyCountForItems(items) {
   if (!items.some((claim) => claim?.__graph_bootstrap)) return uniqueStudyCount(items);
   return items.reduce((sum, claim) => {
-    const count = Number(claim?.graph_study_count ?? claim?.study_count);
+    const count =
+      claim?.__graph_bootstrap && fullTextOnlyToggle?.checked
+        ? Number(claim?.graph_full_text_study_count)
+        : Number(claim?.graph_study_count ?? claim?.study_count);
     return sum + (Number.isFinite(count) && count > 0 ? count : graphRecordCount(claim));
   }, 0);
 }
@@ -4319,16 +4398,17 @@ function journalFacetValue(claim) {
 
 function summarizeAuthorRoleEvidence(items) {
   const map = new Map();
+  const authorAliases = buildAuthorRoleAliasMap(items);
 
   items.forEach((claim, index) => {
     const study = studyKey(claim, index);
     const claimKey = claim.kg_claim_id || claim.external_id || `${study}|${index}`;
     [
-      ["first", firstAuthorFacetValue(claim)],
-      ["last", lastAuthorFacetValue(claim)],
+      ["first", firstAuthorFacetValue(claim, authorAliases)],
+      ["last", lastAuthorFacetValue(claim, authorAliases)],
     ].forEach(([role, rawValue]) => {
       const label = rawValue && typeof rawValue === "object" ? meaningfulText(rawValue.label || rawValue.value) : "";
-      const value = rawValue && typeof rawValue === "object" ? meaningfulText(rawValue.value || rawValue.id || label) : "";
+      const value = authorRoleLabelFilterValue(label);
       if (!label || !value) return;
       const entry =
         map.get(value) ||
@@ -4340,7 +4420,7 @@ function summarizeAuthorRoleEvidence(items) {
           firstStudies: new Set(),
           lastStudies: new Set(),
         };
-      entry.label = entry.label || label;
+      entry.label = preferredFacetLabel(entry.label, label);
       entry.studies.add(study);
       entry.claims.add(claimKey);
       if (role === "first") entry.firstStudies.add(study);
@@ -4426,7 +4506,12 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
     })
     .filter((entry) => entry.studies || entry.count);
   const rankedEntries = sortEntriesByValue(preparedEntries, valueKey, options.order || []);
-  const limitedEntries = limitCompositionEntries(rankedEntries, options.maxEntries || 7).map((entry) =>
+  const maxEntries = options.maxEntries || 7;
+  const displayEntries =
+    options.aggregateOther === false && rankedEntries.length > maxEntries
+      ? rankedEntries.slice(0, maxEntries)
+      : limitCompositionEntries(rankedEntries, maxEntries);
+  const limitedEntries = displayEntries.map((entry) =>
     entry.isAggregate ? { ...entry, displayLabel: "Other" } : entry
   );
   const total = limitedEntries.reduce((sum, entry) => sum + (Number(entry[valueKey]) || 0), 0);
@@ -4444,8 +4529,8 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
   const colorsForEntry = (entry, index) => {
     const color = colorForEntry(entry, index, palette);
     return {
-      fill: chartFillSoft(color, isOtherEntry(entry) ? 0.86 : 0.93),
-      glow: chartFillSoft(color, isOtherEntry(entry) ? 0.18 : 0.34),
+      fill: chartFillSoft(color, isOtherEntry(entry) ? 0.82 : 0.9),
+      glow: chartFillSoft(color, isOtherEntry(entry) ? 0.17 : 0.3),
     };
   };
   const segments = limitedEntries
@@ -4493,33 +4578,51 @@ function hasRegisteredTrial(items) {
   return items.some((claim) => trialRegistrationFacetLabel(claim) === "Registered trial");
 }
 
+function hasOpenAccess(items) {
+  return items.some((claim) => openAccessFacetLabel(claim) === "Open access");
+}
+
 function renderMetadataFacetCharts(items) {
   const profile = currentDetailPanelProfile();
-  const accessEntries = summarizeFacetEvidence(items, openAccessFacetLabel);
+  const accessEntries = hasOpenAccess(items)
+    ? summarizeFacetEvidence(items, openAccessFacetLabel).filter((entry) => normalizeValue(entry.label) === "open access")
+    : [];
   const shouldShowTrialRegistration = evidenceView === "primary" && profile.trialRegistration && hasRegisteredTrial(items);
-  const trialEntries = shouldShowTrialRegistration ? summarizeFacetEvidence(items, trialRegistrationFacetLabel) : [];
-  const publicationEntries = summarizeFacetEvidence(items, publicationTypeFacetLabel).slice(0, 8);
-  const publicationTitle = isSecondaryEvidenceView() ? "Literature types" : "Publication types";
+  const trialEntries = shouldShowTrialRegistration
+    ? summarizeFacetEvidence(items, trialRegistrationFacetLabel).filter(
+        (entry) => normalizeValue(entry.label) === "registered trial"
+      )
+    : [];
+  const showLiteratureTypes = isSecondaryEvidenceView();
+  const publicationEntries = showLiteratureTypes ? summarizeFacetEvidence(items, publicationTypeFacetLabel).slice(0, 8) : [];
   const trialRegistrationChart =
-    shouldShowTrialRegistration
+    trialEntries.length
       ? renderFacetChipChart(trialEntries, "Trial registration", "trial_registration_facet", {
-          order: ["Registered trial", "Registration not reported"],
+          order: ["Registered trial"],
           extraClass: "chip-tone-pink",
           emptyText: "No trial-registration metadata in this selection.",
         })
       : "";
 
   return `
-    ${renderFacetChipChart(accessEntries, "Access", "open_access_facet", {
-      order: ["Open access", "Paywalled"],
-      extraClass: "chip-tone-teal",
-      emptyText: "No access metadata in this selection.",
-    })}
+    ${
+      accessEntries.length
+        ? renderFacetChipChart(accessEntries, "Access", "open_access_facet", {
+            order: ["Open access"],
+            extraClass: "chip-tone-teal",
+            emptyText: "No access metadata in this selection.",
+          })
+        : ""
+    }
     ${trialRegistrationChart}
-    ${renderFacetChipChart(publicationEntries, publicationTitle, "publication_type_facet", {
-      extraClass: isSecondaryEvidenceView() ? "chip-tone-amber" : "chip-tone-gray",
-      emptyText: `No ${publicationTitle.toLowerCase()} metadata in this selection.`,
-    })}
+    ${
+      showLiteratureTypes
+        ? renderFacetChipChart(publicationEntries, "Literature types", "publication_type_facet", {
+            extraClass: "chip-tone-amber",
+            emptyText: "No literature-type metadata in this selection.",
+          })
+        : ""
+    }
     ${renderAuthorRoleChart(items)}
     ${renderJournalChart(items)}
   `;
@@ -4698,7 +4801,7 @@ function renderEvidenceCompositionFacetCharts(items) {
     ${renderDoseRouteSessionContextChart(items)}
     ${
       profile.populationModel
-        ? renderFacetCompositionChart(populationModelEntries, "Population & model", "population_model_facet", {
+        ? renderFacetCompositionChart(populationModelEntries, "Population", "population_model_facet", {
             hideWhenEmpty: true,
             order: POPULATION_MODEL_ORDER,
             maxEntries: 15,
@@ -4747,12 +4850,40 @@ function summarizeOutcomeScaleEvidence(items) {
       studies: entry.studies.size,
     }))
     .sort((a, b) => {
-      const byCount = b.count - a.count;
-      if (byCount !== 0) return byCount;
       const byStudies = b.studies - a.studies;
       if (byStudies !== 0) return byStudies;
+      const byCount = b.count - a.count;
+      if (byCount !== 0) return byCount;
       return a.label.localeCompare(b.label);
     });
+}
+
+function aggregateSparseOutcomeScaleEntries(entries, maxStudiesForOther = 3) {
+  const commonEntries = [];
+  const sparseEntries = [];
+
+  entries.forEach((entry) => {
+    const studies = Number(entry.studies || 0);
+    if (studies > 0 && studies <= maxStudiesForOther) {
+      sparseEntries.push(entry);
+    } else {
+      commonEntries.push(entry);
+    }
+  });
+
+  if (!sparseEntries.length) return commonEntries;
+
+  return [
+    ...commonEntries,
+    {
+      label: "other",
+      value: "other",
+      displayLabel: "Other",
+      count: sparseEntries.reduce((sum, entry) => sum + (Number(entry.count) || 0), 0),
+      studies: sparseEntries.reduce((sum, entry) => sum + (Number(entry.studies) || 0), 0),
+      isAggregate: true,
+    },
+  ];
 }
 
 function summarizeSampleSizeBuckets(items) {
@@ -5092,10 +5223,11 @@ function renderOutcomeMeasureChart(items) {
   if (evidenceView !== "primary") return "";
   if (!currentDetailPanelProfile().outcomeScales) return "";
   const scaleItems = outcomeScaleClaimsForChart(items);
-  const entries = summarizeOutcomeScaleEvidence(scaleItems);
+  const entries = aggregateSparseOutcomeScaleEntries(summarizeOutcomeScaleEvidence(scaleItems), 3);
   return renderFacetCompositionChart(entries, "Outcome scales", "outcome_scale_facet", {
     hideWhenEmpty: true,
-    maxEntries: 12,
+    maxEntries: Math.max(entries.length, 1),
+    aggregateOther: false,
     palette: PALETTE_BLUE_FIRST,
     emptyText: "No outcome-scale metadata in this selection.",
   });
@@ -5310,8 +5442,18 @@ function claimsForFieldValue(field, value) {
   if (!field || !value) return [];
   const normalizedValue = normalizeValue(value);
   if (field === "author_role") {
+    const labelValue = authorRoleLabelFromFilterValue(value);
+    if (labelValue) {
+      return activeDetailItems.filter((claim) =>
+        ["first", "last"].some((role) => authorRoleLabelKey(authorRoleIdentity(claim, role).name) === labelValue)
+      );
+    }
+    const authorAliases = buildAuthorRoleAliasMap(activeDetailItems);
     return activeDetailItems.filter((claim) =>
-      ["first", "last"].some((role) => normalizeValue(authorRoleIdentity(claim, role).id) === normalizedValue)
+      ["first", "last"].some((role) => {
+        const author = authorFacetValueForRole(claim, role, authorAliases);
+        return normalizeValue(author.value) === normalizedValue || normalizeValue(author.label) === normalizedValue;
+      })
     );
   }
   return activeDetailItems.filter((claim) => {
@@ -5331,7 +5473,7 @@ function fieldValueDetailTitle(field, value) {
   if (field === "specific_pathway_readout") return `Specific finding: ${value}`;
   if (field === "open_access_facet") return `Access: ${value}`;
   if (field === "trial_registration_facet") return `Trial registration: ${value}`;
-  if (field === "population_model_facet") return `Population & model: ${value}`;
+  if (field === "population_model_facet") return `Population: ${value}`;
   if (field === "assay_family_facet") return `Assay family: ${value}`;
   if (field === "brain_measure_facet") return `Measure: ${value}`;
   if (field === "mechanistic_relationship_type_facet") return `Relationship type: ${value}`;
@@ -5635,7 +5777,7 @@ function renderSelectedDetailFromData(data) {
 function buildGraph(data) {
   graphEl.innerHTML = "";
 
-  const graphIsBootstrap = data.some((claim) => claim?.__graph_bootstrap);
+  const graphIsBootstrap = data.some((claim) => claim?.__graph_bootstrap || claim?.__detail_bootstrap);
   const rightKey = rightEntityKey();
   const compoundCounts = new Map();
   const rightCounts = new Map();
@@ -5970,7 +6112,7 @@ function buildGraph(data) {
     gradient.appendChild(end);
     defs.appendChild(gradient);
     path.style.stroke = `url(#${gradientId})`;
-    path.style.setProperty("--edge-glow", rgbaString(compoundColor, 0.36));
+    path.style.setProperty("--edge-glow", rgbaString(compoundColor, 0.28));
     path.dataset.compound = compound;
     path.dataset.target = target;
     path.dataset.claimCount = `${edge.count}`;
@@ -6412,37 +6554,8 @@ function renderLoadError(messages) {
 }
 
 async function loadBibliographyPayloads() {
-  const payloads = [
-    {
-      key: "mechanistic",
-      candidates: [
-        "../data/processed/bibliography_payload_mechanistic.json",
-        "/data/processed/bibliography_payload_mechanistic.json",
-        "data/processed/bibliography_payload_mechanistic.json",
-      ],
-    },
-    {
-      key: "disorders",
-      candidates: [
-        "../data/processed/bibliography_payload_disorder.json",
-        "/data/processed/bibliography_payload_disorder.json",
-        "data/processed/bibliography_payload_disorder.json",
-      ],
-    },
-  ];
-
-  await Promise.all(
-    payloads
-      .filter(({ key }) => !(bibliographyByMode[key] || []).length)
-      .map(async ({ key, candidates }) => {
-        try {
-          const { data } = await fetchJsonFromCandidates(candidates);
-          bibliographyByMode[key] = bibliographyFromPayload(data);
-        } catch (_error) {
-          bibliographyByMode[key] = [];
-        }
-      })
-  );
+  bibliographyByMode.mechanistic = bibliographyByMode.mechanistic || [];
+  bibliographyByMode.disorders = bibliographyByMode.disorders || [];
 }
 
 const normalizedSourceLoaded = {
@@ -6501,6 +6614,12 @@ function activeGraphBootstrapPath(config, modeKey, sourceKey) {
   return cleanDisplayText(bootstraps?.[viewKey]?.[sourceKey] || bootstraps?.[modeKey]?.[sourceKey]);
 }
 
+function activeDetailBootstrapPath(config, modeKey, sourceKey) {
+  const bootstraps = config?.active_detail_bootstraps || {};
+  const viewKey = evidencePayloadViewKey(modeKey);
+  return cleanDisplayText(bootstraps?.[viewKey]?.[sourceKey] || bootstraps?.[modeKey]?.[sourceKey]);
+}
+
 function graphBootstrapClaimsFromPayload(payload, modeKey, sourceKey) {
   const edges = Array.isArray(payload?.edges) ? payload.edges : [];
   return edges.map((edge, index) => {
@@ -6525,6 +6644,8 @@ function graphBootstrapClaimsFromPayload(payload, modeKey, sourceKey) {
       source_access_level: accessLevel,
       graph_claim_count: Number(edge.finding_count || 0) || 1,
       graph_study_count: Number(edge.study_count || 0) || 0,
+      graph_full_text_claim_count: Number(edge.full_text_seen_count || 0) || 0,
+      graph_full_text_study_count: Number(edge.full_text_seen_study_count || 0) || 0,
       __graph_bootstrap: true,
     };
     if (modeKey === "mechanistic") {
@@ -6533,6 +6654,26 @@ function graphBootstrapClaimsFromPayload(payload, modeKey, sourceKey) {
       item.disorder = entityLabel;
     }
     return item;
+  });
+}
+
+function detailBootstrapClaimsFromPayload(payload, modeKey) {
+  const fields = Array.isArray(payload?.fields) ? payload.fields : [];
+  const values = Array.isArray(payload?.values) ? payload.values : [];
+  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+  if (!fields.length || !values.length || !rows.length) return [];
+
+  return rows.map((row) => {
+    const raw = {};
+    fields.forEach((field, index) => {
+      const value = values[Number(row[index]) || 0];
+      if (value === null || value === undefined || value === "") return;
+      raw[field] = value;
+    });
+    return {
+      ...routeNativeFindingForCurrentUi(raw, modeKey),
+      __detail_bootstrap: true,
+    };
   });
 }
 
@@ -6546,6 +6687,19 @@ async function loadGraphBootstrapClaims(modeKey, sourceKey) {
     .then(({ data }) => graphBootstrapClaimsFromPayload(data, modeKey, sourceKey))
     .catch(() => []);
   graphBootstrapPayloadPromises.set(path, task);
+  return task;
+}
+
+async function loadDetailBootstrapClaims(modeKey, sourceKey) {
+  const config = await loadGraphPayloadConfig();
+  const path = activeDetailBootstrapPath(config, modeKey, sourceKey);
+  if (!path) return [];
+  if (detailBootstrapPayloadPromises.has(path)) return detailBootstrapPayloadPromises.get(path);
+
+  const task = fetchJsonFromCandidates(dataCandidates(path))
+    .then(({ data }) => detailBootstrapClaimsFromPayload(data, modeKey))
+    .catch(() => []);
+  detailBootstrapPayloadPromises.set(path, task);
   return task;
 }
 
@@ -6711,19 +6865,30 @@ function waitForPaint() {
 async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
   if (normalizedCurrentSourceLoaded()) return false;
   const sourceKey = currentSourceKey();
-  const bootstrapClaims = await loadGraphBootstrapClaims(mode, sourceKey);
+  const [bootstrapClaims, detailBootstrapClaims] = await Promise.all([
+    loadGraphBootstrapClaims(mode, sourceKey),
+    loadDetailBootstrapClaims(mode, sourceKey),
+  ]);
   if (loadToken !== currentDataLoadToken) return true;
-  if (!bootstrapClaims.length) return false;
+  if (!bootstrapClaims.length && !detailBootstrapClaims.length) return false;
 
   updateModeUI();
-  const graphClaims = graphViewClaims(claimsForEntityView(bootstrapClaims));
-  const filtered = applyFiltersToClaims(graphClaims);
-  if (!filtered.length) return false;
+  const detailBootstrapItems = detailBootstrapClaims.length ? dedupeClaims(detailBootstrapClaims) : [];
+  const detailClaims = detailBootstrapItems.length
+    ? graphViewClaims(claimsForEntityView(detailBootstrapItems))
+    : [];
+  const fallbackGraphClaims = bootstrapClaims.length ? graphViewClaims(claimsForEntityView(bootstrapClaims)) : [];
+  const graphClaims = detailClaims.length ? detailClaims : fallbackGraphClaims;
+  const filtered = graphClaims.length ? applyFiltersToClaims(graphClaims) : [];
 
-  buildGraph(filtered);
+  if (filtered.length) buildGraph(filtered);
   if (resetDetail) {
-    setDetailHeader(defaultDetail.title);
-    renderDetailEmpty();
+    if (filtered.length) {
+      renderOverviewDetail(filtered);
+    } else {
+      setDetailHeader(defaultDetail.title);
+      renderDetailEmpty();
+    }
     cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
     if (studyListEl) {
       studyListEl.innerHTML = "";
@@ -6762,7 +6927,7 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
   applyClaimLayerStore();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  if (resetDetail) {
+  if (resetDetail && !bootstrapRendered) {
     setDetailHeader(defaultDetail.title);
     renderDetailEmpty();
   }

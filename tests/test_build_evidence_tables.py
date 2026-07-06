@@ -13,7 +13,9 @@ from pipeline.kg.build_evidence_tables import (
     clinical_endpoint_rows,
     graphable_compound_match,
     graph_sources_for_preset,
+    match_vocabulary_entity,
     molecular_effect_label,
+    node_vocabulary_lookup,
     normalize_claim_metadata,
     registry_lookup,
     resolve_kg_output_dir,
@@ -57,8 +59,16 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "compounds": [
                         {"label": "Ketamine", "aliases": ["racemic ketamine"], "ids": {}, "status": "seeded"},
                         {"label": "S-ketamine", "aliases": ["esketamine", "(S)-ketamine"], "ids": {}, "status": "seeded"},
+                        {"label": "LSD", "aliases": ["lysergide", "MM120", "MM120 (lysergide D-tartrate)"], "ids": {}, "status": "seeded"},
                         {"label": "5-MeO-DMT", "aliases": ["5-methoxy-N,N-dimethyltryptamine"], "ids": {}, "status": "seeded"},
-                        {"label": "Psilocybin", "aliases": [], "ids": {}, "status": "seeded"},
+                        {
+                            "label": "Psilocybin",
+                            "aliases": ["Psilocybe cubensis mushrooms", "magic mushrooms"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                        {"label": "Mescaline", "aliases": ["San Pedro", "Huachuma"], "ids": {}, "status": "seeded"},
+                        {"label": "25B-NBOMe", "aliases": [], "ids": {}, "status": "seeded"},
                         {"label": "DMT", "aliases": ["N,N-dimethyltryptamine"], "ids": {}, "status": "seeded"},
                         {"label": "Harmine", "aliases": [], "ids": {}, "status": "seeded"},
                         {
@@ -92,6 +102,15 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             graphable_compound_match("psilocybin with psychological support", registry)["label"],
             "Psilocybin",
         )
+        self.assertEqual(graphable_compound_match("MM120 (lysergide D-tartrate)", registry)["label"], "LSD")
+        self.assertEqual(graphable_compound_match("Psilocybe cubensis mushrooms", registry)["label"], "Psilocybin")
+        self.assertEqual(graphable_compound_match("San Pedro (Huachuma)", registry)["label"], "Mescaline")
+        self.assertEqual(graphable_compound_match("25B-NBOMe", registry)["label"], "25B-NBOMe")
+        self.assertEqual(graphable_compound_match("Serotonin (5-HT)", registry)["status"], "compound_reference_not_graphable")
+        self.assertEqual(
+            graphable_compound_match("Kambô (Phyllomedusa bicolor secretion)", registry)["status"],
+            "compound_graph_scope_not_graphable",
+        )
         combo = graphable_compound_match("DMT and harmine (DMT-harmine)", registry)
         self.assertFalse(combo["matched"])
         self.assertEqual(combo["status"], "compound_combo_not_graphable")
@@ -101,6 +120,66 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         fallback_scoped_out = graphable_compound_match("D-cycloserine", registry)
         self.assertFalse(fallback_scoped_out["matched"])
         self.assertEqual(fallback_scoped_out["status"], "compound_graph_scope_not_graphable")
+
+    def test_final_registry_and_vocabulary_aliases_cover_common_leftovers(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        registry = registry_lookup(root / "data" / "curated" / "entity_registry.json")
+        vocabulary = node_vocabulary_lookup(root / "schema" / "kg_node_vocabularies.json")
+
+        target_cases = [
+            ("h5-HT2A", "5-HT2A"),
+            ("Sodium-dependent serotonin transporter (5HTT)", "SERT (SLC6A4)"),
+            ("human serotonin transporter", "SERT (SLC6A4)"),
+            ("platelet plasma membrane serotonin transporter", "SERT (SLC6A4)"),
+            ("Sodium-dependent noradrenaline transporter", "NET (SLC6A2)"),
+            ("D2 dopamine receptor", "Dopamine D2 receptor (DRD2)"),
+            ("D2Short receptor", "Dopamine D2 receptor (DRD2)"),
+            ("D1-like dopamine receptors", "Dopamine receptor family"),
+            ("D2/3 receptors", "Dopamine receptor family"),
+            ("DAR2", "Dopamine receptor family"),
+            ("5-HT1C serotonin receptor", "5-HT2C"),
+            ("h5-HT7 receptor", "5-HT7"),
+            ("S2 serotonin receptor", "5-HT2 receptor family"),
+            ("S-2 binding site", "5-HT2 receptor family"),
+            ("hKOPR", "kappa opioid receptor (OPRK1)"),
+            ("kappa-opiate receptor", "kappa opioid receptor (OPRK1)"),
+            ("mGlu2", "mGluR2 (GRM2)"),
+            ("Indolethylamine-N-methyltransferase", "INMT"),
+            ("phencyclidine (PCP) binding sites", "NMDA receptor"),
+            ("NMDA glutamate receptors", "NMDA receptor"),
+            ("GluN2A N615K NMDA receptor", "GluN2A (GRIN2A)"),
+            ("hα3β4 nicotinic acetylcholine receptor", "Nicotinic acetylcholine receptor family"),
+            ("P-glycoprotein", "P-glycoprotein (ABCB1)"),
+            ("hOCT1", "OCT1 (SLC22A1)"),
+            ("hOCT2", "OCT2 (SLC22A2)"),
+            ("hPMAT", "PMAT (SLC29A4)"),
+            ("voltage-dependent sodium channel", "Voltage-gated sodium channel family"),
+        ]
+        for raw_label, expected in target_cases:
+            with self.subTest(raw_label=raw_label):
+                self.assertEqual(canonicalize_registry_label("mechanistic_entity", raw_label, registry)[0], expected)
+
+        brain_cases = [
+            ("ventral medial prefrontal cortex (vmPFC)", "Medial prefrontal cortex"),
+            ("primary visual area (V1)", "Occipital cortex"),
+            ("ventral tegmental area (VTA)", "Ventral tegmental area"),
+            ("caudate nucleus", "Striatum"),
+            ("primary somatosensory cortex (S1)", "Somatosensory cortex"),
+            ("lateral habenula (LHb)", "Lateral habenula"),
+            ("periaqueductal grey (PAG)", "Periaqueductal gray"),
+            ("piriform cortex (PirC)", "Piriform cortex"),
+            ("locus coeruleus", "Locus coeruleus"),
+            ("left precuneus", "Precuneus"),
+            ("posterior parahippocampal cortex", "Parahippocampal cortex"),
+            ("auditory cortex", "Auditory cortex"),
+        ]
+        for raw_label, expected in brain_cases:
+            with self.subTest(raw_label=raw_label):
+                self.assertEqual(match_vocabulary_entity(raw_label, "brain_region", vocabulary)["label"], expected)
+        self.assertEqual(
+            match_vocabulary_entity("thalamocortical", "neural_circuit", vocabulary)["label"],
+            "Thalamocortical circuit",
+        )
 
     def test_safety_endpoint_label_uses_specific_route_native_fields(self) -> None:
         cases = [
@@ -138,6 +217,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ({"support": "The compound is predicted to cross the placenta, indicating fetal exposure."}, "Pregnancy/fetal exposure"),
             ({"support": "Driving under the influence increased accident risk."}, "Driving/accident risk"),
             ({"support": "Plasma cortisol and prolactin increased after dosing."}, "Endocrine effects"),
+            ({"graph_entity_label": "Neuropsychiatric sequelae"}, "Neuropsychiatric sequelae"),
         ]
 
         for row, expected in cases:
@@ -519,6 +599,14 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 },
                 "Pain behavior",
             ),
+            (
+                {
+                    "graph_entity_label": "time perception",
+                    "task_or_measure": "Temporal Bisection Task",
+                    "outcome_measure": "Just noticeable difference",
+                },
+                "Time perception",
+            ),
         ]
 
         for row, expected in cases:
@@ -526,6 +614,23 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 normalized = normalize_claim_metadata(dict(row), "cognitive_behavioral")
                 self.assertEqual(normalized["cognitive_behavioral_graph_label"], expected)
                 self.assertEqual(normalized["graph_entity_label"], expected)
+
+    def test_self_report_time_distortion_routes_to_subjective_effects(self) -> None:
+        subjective_time = normalize_claim_metadata(
+            {
+                "graph_entity_label": "time perception",
+                "construct_or_behavior": "Sense of time",
+                "task_or_measure": "Visual Analog Scale (VAS) Sense of time",
+                "outcome_measure": "VAS Sense of time",
+                "support": "Participants reported that time slowed down.",
+            },
+            "cognitive_behavioral",
+        )
+
+        self.assertEqual(subjective_time["domain"], "subjective_experience")
+        self.assertEqual(subjective_time["kg_entity_kind_override"], "subjective_experience_construct")
+        self.assertEqual(subjective_time["endpoint_label_source"], "subjective_time_distortion_boundary")
+        self.assertEqual(subjective_time["graph_entity_label"], "Time distortion")
 
     def test_behavioral_withdrawal_endpoints_are_condition_nodes(self) -> None:
         cases = [
@@ -620,7 +725,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             findings = pd.read_parquet(out_dir / "findings.parquet")
             audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
             self.assertTrue(findings.empty)
-            self.assertEqual(audit.iloc[0]["normalization_status"], "entity_unmapped")
+            self.assertEqual(audit.iloc[0]["normalization_status"], "generic_behavior_not_graphable")
 
     def test_subjective_experience_metadata_uses_experience_graph_nodes(self) -> None:
         cases = [
@@ -729,6 +834,14 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "instrument_or_measure": "5D-ASC",
                 },
                 "Altered state profile",
+            ),
+            (
+                {
+                    "graph_entity_label": "altered time perception",
+                    "instrument_or_measure": "semi-structured interview",
+                    "support": "Participants described time dilation and loss of temporal awareness.",
+                },
+                "Time distortion",
             ),
         ]
 
@@ -982,6 +1095,30 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                             "status": "broad_target_family",
                         },
                         {
+                            "label": "5-HT1A",
+                            "aliases": ["5-HT1A receptor"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        },
+                        {
+                            "label": "5-HT1D",
+                            "aliases": ["5-HT1D receptor"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        },
+                        {
+                            "label": "5-HT2A",
+                            "aliases": ["5-HT2A receptor"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        },
+                        {
+                            "label": "5-HT2C",
+                            "aliases": ["5-HT2C receptor"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        },
+                        {
                             "label": "5-HT2 receptor family",
                             "aliases": ["5-HT2 receptor", "5-HT2 receptors"],
                             "ids": {},
@@ -1000,6 +1137,18 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                             "status": "broad_target_family",
                         },
                         {
+                            "label": "Adrenergic receptor family",
+                            "aliases": ["alpha 2-adrenergic sites"],
+                            "ids": {},
+                            "status": "broad_target_family",
+                        },
+                        {
+                            "label": "Dopamine receptor family",
+                            "aliases": ["D2-like dopamine receptors"],
+                            "ids": {},
+                            "status": "broad_target_family",
+                        },
+                        {
                             "label": "alpha7 nicotinic acetylcholine receptor (CHRNA7)",
                             "aliases": ["alpha 7-nicotinic acetylcholine receptor", "alpha7 nAChR"],
                             "ids": {},
@@ -1012,8 +1161,26 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                             "status": "needs_external_id_lookup",
                         },
                         {
+                            "label": "GluN1 (GRIN1)",
+                            "aliases": ["GluN1-1a"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        },
+                        {
+                            "label": "GluN2A (GRIN2A)",
+                            "aliases": ["GluN2A NMDA receptor"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        },
+                        {
                             "label": "NET (SLC6A2)",
                             "aliases": ["NET", "norepinephrine transporter"],
+                            "ids": {},
+                            "status": "needs_external_id_lookup",
+                        },
+                        {
+                            "label": "OCT2 (SLC22A2)",
+                            "aliases": ["hOCT2"],
                             "ids": {},
                             "status": "needs_external_id_lookup",
                         },
@@ -1102,6 +1269,31 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "support": "Treatment reduced perineuronal net intensity around PV neurons.",
                     },
                     {
+                        "study_doi": "10.1000/generic-neurotransmitter-specific-readout",
+                        "domain": "molecular_pathway_readout",
+                        "compound": "Psilocybin",
+                        "molecular_effect_category": "Neurotransmitter signaling",
+                        "specific_readout_or_marker": "5-HT1A receptor expression",
+                        "assay_type": "Western blot",
+                        "support": "Treatment increased 5-HT1A receptor expression in cortical tissue.",
+                    },
+                    {
+                        "study_doi": "10.1000/generic-neurotransmitter-unspecified",
+                        "domain": "molecular_pathway_readout",
+                        "compound": "Psilocybin",
+                        "molecular_effect_category": "Neurotransmitter signaling",
+                        "support": "Treatment altered neurotransmitter signaling.",
+                    },
+                    {
+                        "study_doi": "10.1000/explicit-inflammation",
+                        "domain": "molecular_pathway_readout",
+                        "compound": "Psilocybin",
+                        "molecular_effect_category": "Inflammation",
+                        "specific_readout_or_marker": "TNF-alpha levels",
+                        "assay_type": "ELISA",
+                        "support": "Treatment reduced the inflammatory cytokine TNF-alpha.",
+                    },
+                    {
                         "study_doi": "10.1000/family",
                         "domain": "molecular_target",
                         "compound": "Psilocybin",
@@ -1115,6 +1307,101 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "target": "5-HT recognition sites",
                         "assay_type": "radioligand binding",
                         "support": "The assay measured competition at serotonin recognition sites.",
+                    },
+                    {
+                        "study_doi": "10.1000/split-targets",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "5-HT2A, 5-HT1A, 5-HT2C",
+                        "support": "The screen reported activity at 5-HT2A, 5-HT1A, and 5-HT2C receptors.",
+                    },
+                    {
+                        "study_doi": "10.1000/split-target-subunits",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "GluN1-1a/GluN2A NMDA receptor",
+                        "support": "The assay reported activity at GluN1/GluN2A NMDA receptors.",
+                    },
+                    {
+                        "study_doi": "10.1000/split-target-families",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "5-HT1A, 5-HT1D, and alpha 2-adrenergic sites",
+                        "support": "Binding was reported at 5-HT1A, 5-HT1D, and alpha 2-adrenergic sites.",
+                    },
+                    {
+                        "study_doi": "10.1000/serotonin-transporter-alias",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "human serotonin transporter",
+                        "support": "The assay measured the human serotonin transporter.",
+                    },
+                    {
+                        "study_doi": "10.1000/dopamine-family-alias",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "D2-like dopamine receptors",
+                        "support": "The assay measured D2-like dopamine receptor binding.",
+                    },
+                    {
+                        "study_doi": "10.1000/organic-cation-transporter",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "hOCT2",
+                        "support": "The assay reported interaction with hOCT2.",
+                    },
+                    {
+                        "study_doi": "10.1000/unsafe-split-targets",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "5-HT2A, 5-HT1A, not-a-real-target",
+                        "support": "One listed target cannot be normalized.",
+                    },
+                    {
+                        "study_doi": "10.1000/split-brain-regions",
+                        "domain": "brain_system",
+                        "compound": "Psilocybin",
+                        "kg_entity_kind_override": "brain_region",
+                        "brain_region": "Nucleus accumbens; Striatum",
+                        "support": "Signal changed in nucleus accumbens and striatum.",
+                    },
+                    {
+                        "study_doi": "10.1000/split-brain-networks",
+                        "domain": "brain_system",
+                        "compound": "Psilocybin",
+                        "primary_graph_anchor_kind": "brain_network",
+                        "brain_network": "Default Mode Network, Frontoparietal Network, Somatomotor Network",
+                        "support": "The finding involved default mode, frontoparietal, and somatomotor networks.",
+                    },
+                    {
+                        "study_doi": "10.1000/split-brain-connectivity",
+                        "domain": "brain_system",
+                        "compound": "Psilocybin",
+                        "primary_graph_anchor_kind": "brain_network",
+                        "brain_network": "insula-DMN connectivity",
+                        "support": "Connectivity changed between the insula and DMN.",
+                    },
+                    {
+                        "study_doi": "10.1000/cross-kind-brain-region",
+                        "domain": "brain_system",
+                        "compound": "Psilocybin",
+                        "graph_entity_label": "occipital region",
+                        "support": "The effect was localized to the occipital region.",
+                    },
+                    {
+                        "study_doi": "10.1000/collapsed-brain-subregions",
+                        "domain": "brain_system",
+                        "compound": "Psilocybin",
+                        "graph_entity_label": "occipital cortex, calcarine, cuneus, lingual gyrus",
+                        "support": "The effect involved occipital cortical subregions.",
+                    },
+                    {
+                        "study_doi": "10.1000/unsafe-brain-network-list",
+                        "domain": "brain_system",
+                        "compound": "Psilocybin",
+                        "primary_graph_anchor_kind": "brain_network",
+                        "brain_network": "Default Mode Network, unresolved network",
+                        "support": "One listed network cannot be normalized.",
                     },
                     {
                         "study_doi": "10.1000/composite-family",
@@ -1164,6 +1451,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
 
             edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
             by_doi = {row["study_doi"]: row for row in edges.to_dict(orient="records")}
+            labels_by_doi = edges.groupby("study_doi")["entity_label"].apply(set).to_dict()
             findings = pd.read_parquet(out_dir / "findings.parquet")
             finding_by_doi = {row["study_doi"]: row for row in findings.to_dict(orient="records")}
             self.assertEqual(by_doi["10.1000/direct-target"]["entity_kind"], "target")
@@ -1197,11 +1485,50 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertEqual(by_doi["10.1000/dopamine-uptake"]["entity_kind"], "biomarker_readout")
             self.assertEqual(by_doi["10.1000/dopamine-uptake"]["entity_label"], "Dopamine uptake")
             self.assertEqual(finding_by_doi["10.1000/dopamine-uptake"]["molecular_effect_label"], "Dopamine signaling")
-            self.assertNotIn("10.1000/perineuronal-net", by_doi)
+            self.assertEqual(by_doi["10.1000/perineuronal-net"]["entity_kind"], "pathway_process")
+            self.assertEqual(by_doi["10.1000/perineuronal-net"]["entity_label"], "Neuroplasticity")
+            self.assertEqual(finding_by_doi["10.1000/perineuronal-net"]["molecular_effect_label"], "Neuroplasticity")
+            self.assertEqual(by_doi["10.1000/generic-neurotransmitter-specific-readout"]["entity_kind"], "pathway_process")
+            self.assertEqual(by_doi["10.1000/generic-neurotransmitter-specific-readout"]["entity_label"], "Serotonin signaling")
+            self.assertEqual(
+                finding_by_doi["10.1000/generic-neurotransmitter-specific-readout"]["molecular_effect_label"],
+                "Serotonin signaling",
+            )
+            self.assertNotIn("10.1000/generic-neurotransmitter-unspecified", by_doi)
+            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_kind"], "pathway_process")
+            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_label"], "Inflammation")
+            self.assertEqual(finding_by_doi["10.1000/explicit-inflammation"]["molecular_effect_label"], "Inflammation")
             self.assertEqual(by_doi["10.1000/family"]["entity_kind"], "system_family")
             self.assertEqual(by_doi["10.1000/family"]["relation_type"], "has_mechanistic_system")
             self.assertEqual(by_doi["10.1000/recognition-sites-family"]["entity_kind"], "system_family")
             self.assertEqual(by_doi["10.1000/recognition-sites-family"]["entity_label"], "5-HT receptor family")
+            self.assertEqual(labels_by_doi["10.1000/split-targets"], {"5-HT2A", "5-HT1A", "5-HT2C"})
+            self.assertEqual(labels_by_doi["10.1000/split-target-subunits"], {"GluN1 (GRIN1)", "GluN2A (GRIN2A)"})
+            self.assertEqual(
+                labels_by_doi["10.1000/split-target-families"],
+                {"5-HT1A", "5-HT1D", "Adrenergic receptor family"},
+            )
+            self.assertEqual(by_doi["10.1000/serotonin-transporter-alias"]["entity_kind"], "target")
+            self.assertEqual(by_doi["10.1000/serotonin-transporter-alias"]["entity_label"], "SERT (SLC6A4)")
+            self.assertEqual(by_doi["10.1000/dopamine-family-alias"]["entity_kind"], "system_family")
+            self.assertEqual(by_doi["10.1000/dopamine-family-alias"]["entity_label"], "Dopamine receptor family")
+            self.assertEqual(by_doi["10.1000/organic-cation-transporter"]["entity_kind"], "target")
+            self.assertEqual(by_doi["10.1000/organic-cation-transporter"]["entity_label"], "OCT2 (SLC22A2)")
+            self.assertEqual(labels_by_doi["10.1000/split-brain-regions"], {"Nucleus accumbens", "Striatum"})
+            self.assertEqual(
+                labels_by_doi["10.1000/split-brain-networks"],
+                {"Default mode network", "Frontoparietal network", "Sensorimotor network"},
+            )
+            self.assertEqual(
+                labels_by_doi["10.1000/split-brain-connectivity"],
+                {"Insula", "Default mode network"},
+            )
+            self.assertEqual(by_doi["10.1000/cross-kind-brain-region"]["entity_kind"], "brain_region")
+            self.assertEqual(by_doi["10.1000/cross-kind-brain-region"]["entity_label"], "Occipital cortex")
+            self.assertEqual(by_doi["10.1000/collapsed-brain-subregions"]["entity_kind"], "brain_region")
+            self.assertEqual(by_doi["10.1000/collapsed-brain-subregions"]["entity_label"], "Occipital cortex")
+            self.assertNotIn("10.1000/unsafe-split-targets", by_doi)
+            self.assertNotIn("10.1000/unsafe-brain-network-list", by_doi)
             self.assertEqual(by_doi["10.1000/composite-family"]["entity_kind"], "system_family")
             self.assertEqual(by_doi["10.1000/composite-family"]["entity_label"], "5-HT2 receptor family")
             self.assertEqual(by_doi["10.1000/nicotinic-family"]["entity_kind"], "system_family")

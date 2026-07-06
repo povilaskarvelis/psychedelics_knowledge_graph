@@ -8,6 +8,7 @@ import pandas as pd
 
 from pipeline.kg.build_methods_flow import (
     MethodsFlowBuilder,
+    candidate_bibliography_payload,
     labeled_reason_counts,
     normalize_doi,
     paper_id_for,
@@ -223,7 +224,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         }
         self.assertEqual(fulltext_excluded_reasons["gemini_excluded"], 1)
 
-    def test_candidate_prisma_flow_uses_single_extraction_selection(self) -> None:
+    def test_candidate_prisma_flow_uses_single_evidence_extraction_selection(self) -> None:
         flow = prisma_flow_for_candidate_papers(
             [
                 {
@@ -262,16 +263,96 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(flow["dataset"], "overall")
         self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
         self.assertEqual(flow["steps"]["prescreen_retained"]["count"], 3)
-        self.assertEqual(flow["steps"]["extraction_selected"]["count"], 2)
+        self.assertEqual(flow["steps"]["evidence_extraction_selected"]["count"], 2)
         self.assertEqual(flow["side_boxes"]["records_excluded"]["reasons"][0]["key"], "exclude_missing_abstract")
         self.assertEqual(flow["side_boxes"]["route_not_selected"]["count"], 1)
-        self.assertEqual(flow["metrics"]["selected_extraction_route_assignments"], 4)
-        input_reasons = {
-            reason["key"]: reason["count"]
-            for reason in flow["side_boxes"]["extraction_input_split"]["reasons"]
+        self.assertEqual(
+            flow["side_boxes"]["route_not_selected"]["reasons"][0]["key"],
+            "excluded_during_llm_screening",
+        )
+        self.assertNotIn("extraction_input_split", flow["side_boxes"])
+
+    def test_candidate_bibliography_payload_explains_sequential_decisions(self) -> None:
+        payload = candidate_bibliography_payload(
+            [
+                {
+                    "doi": "10.1000/selected",
+                    "study_title": "Selected Paper",
+                    "authors": "Ada Lovelace; Grace Hopper",
+                    "study_year": 2024,
+                    "study_journal": "Example Journal",
+                    "datasets": "mechanistic",
+                    "literature_source_family": "primary",
+                    "publication_stage": "published",
+                    "prescreen_actions": "retain_for_extraction_candidate",
+                    "prescreen_decisions": "retain",
+                    "prescreen_reasons": "in-scope compound/intervention term appears in title or abstract",
+                    "prescreen_retained_for_extraction_candidate": True,
+                    "retained_for_extraction_candidate": True,
+                    "extraction_route_status": "ready_for_article_text_extraction",
+                    "extraction_route_reason": "route_action=extract_from_full_text; access_tier=full_text_available",
+                    "best_extraction_access_tier": "full_text_available",
+                    "retained_extraction_route_count": 2,
+                    "extraction_schema_profiles": "primary_evidence_schema",
+                },
+                {
+                    "doi": "10.1000/excluded",
+                    "study_title": "Excluded Paper",
+                    "authors": "Barbara McClintock",
+                    "study_year": 2023,
+                    "prescreen_actions": "exclude_missing_abstract",
+                    "prescreen_decisions": "exclude",
+                    "prescreen_reasons": "No abstract available for screening.",
+                    "prescreen_retained_for_extraction_candidate": False,
+                    "retained_for_extraction_candidate": False,
+                    "extraction_route_status": "not_retained_for_extraction",
+                },
+            ]
+        )
+
+        interned = set(payload["interned_columns"])
+        string_table = payload["string_table"]
+        rows = []
+        for raw_row in payload["rows"]:
+            row = {}
+            for column, value in zip(payload["columns"], raw_row):
+                row[column] = string_table[value] if column in interned else value
+            rows.append(row)
+        by_doi = {row["doi"]: row for row in rows}
+
+        forbidden_public_columns = {
+            "datasets",
+            "dataset",
+            "source_table",
+            "search_source",
+            "literature_source_family",
+            "publication_stage",
         }
-        self.assertEqual(input_reasons["ready_for_article_text_extraction"], 1)
-        self.assertEqual(input_reasons["ready_for_abstract_extraction"], 1)
+        self.assertTrue(forbidden_public_columns.isdisjoint(payload["columns"]))
+        self.assertEqual(payload["unit"], "papers")
+        self.assertIn("papers", payload["counts"])
+        self.assertNotIn("candidate_papers", payload["counts"])
+        self.assertNotIn("mechanistic", payload["string_table"])
+        self.assertNotIn("disorder", payload["string_table"])
+
+        selected = by_doi["10.1000/selected"]
+        self.assertEqual(selected["initial_screening_status"], "pass")
+        self.assertEqual(selected["initial_screening_label"], "Passed")
+        self.assertEqual(selected["llm_screening_status"], "pass")
+        self.assertEqual(selected["llm_screening_label"], "Passed")
+        self.assertEqual(selected["extraction_status"], "pass")
+        self.assertEqual(selected["extraction_label"], "Selected")
+        self.assertEqual(selected["stage_key"], "selected_for_extraction")
+        self.assertTrue(selected["selected_for_extraction"])
+
+        excluded = by_doi["10.1000/excluded"]
+        self.assertEqual(excluded["initial_screening_status"], "fail")
+        self.assertEqual(excluded["initial_screening_label"], "Did not pass")
+        self.assertEqual(excluded["initial_screening_note"], "No abstract")
+        self.assertEqual(excluded["llm_screening_status"], "not_reached")
+        self.assertEqual(excluded["extraction_status"], "not_reached")
+        self.assertEqual(excluded["stage_key"], "excluded_during_initial_screening")
+        self.assertFalse(excluded["selected_for_extraction"])
 
     def test_kg_claim_table_marks_pipeline_rows_as_claim_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
