@@ -1,18 +1,18 @@
 {
   "contract_version": "0.1",
   "counts": {
-    "excluded_during_initial_screening": 39169,
-    "kept_after_initial_screening": 17244,
-    "not_represented_in_knowledge_graph": 5243,
+    "excluded_during_initial_screening": 39213,
+    "kept_after_initial_screening": 17200,
+    "not_represented_in_knowledge_graph": 5235,
     "not_screened": 0,
-    "not_selected_for_evidence_extraction": 3794,
+    "not_selected_for_evidence_extraction": 3789,
     "papers_found_by_search": 56413,
-    "represented_in_knowledge_graph": 8207,
+    "represented_in_knowledge_graph": 8176,
     "screened_for_relevance": 56413,
-    "selected_for_evidence_extraction": 13450
+    "selected_for_evidence_extraction": 13411
   },
   "current_stage": "kg_inclusion_summary",
-  "generated_at": "2026-07-07T12:19:17.205650+00:00",
+  "generated_at": "2026-07-07T12:29:34.151764+00:00",
   "prisma_flow": {
     "overall": {
       "current_stage": "kg_inclusion_summary",
@@ -20,9 +20,9 @@
       "label": "Paper search and graph-inclusion flow",
       "metrics": {
         "finding_counts_available": true,
-        "not_represented_in_knowledge_graph": 5243,
-        "represented_in_knowledge_graph": 8207,
-        "selected_papers": 13450
+        "not_represented_in_knowledge_graph": 5235,
+        "represented_in_knowledge_graph": 8176,
+        "selected_papers": 13411
       },
       "rows": [
         {
@@ -48,42 +48,42 @@
       ],
       "side_boxes": {
         "kg_not_included": {
-          "count": 5243,
+          "count": 5235,
           "label": "Selected papers not represented in graph",
           "reasons": [
             {
-              "count": 793,
+              "count": 792,
               "key": "not_graphable",
               "label": "Not graphable"
             },
             {
-              "count": 511,
+              "count": 509,
               "key": "not_normalized",
               "label": "Not normalized"
             },
             {
-              "count": 3939,
+              "count": 3934,
               "key": "no_graph_finding",
               "label": "No graph finding"
             }
           ]
         },
         "records_excluded": {
-          "count": 39169,
+          "count": 39213,
           "label": "Excluded during initial screening",
           "reasons": [
             {
-              "count": 28814,
+              "count": 28768,
               "key": "exclude_obvious_irrelevant",
               "label": "No in-scope title/abstract signal"
             },
             {
-              "count": 4547,
+              "count": 4510,
               "key": "exclude_missing_abstract",
               "label": "No abstract available"
             },
             {
-              "count": 4031,
+              "count": 4158,
               "key": "exclude_non_evidence_artifact",
               "label": "Non-evidence artifact"
             },
@@ -105,16 +105,16 @@
           "reasons": []
         },
         "route_not_selected": {
-          "count": 3794,
+          "count": 3789,
           "label": "Not selected for evidence extraction",
           "reasons": [
             {
-              "count": 3318,
+              "count": 3315,
               "key": "excluded_during_llm_screening",
               "label": "Excluded during LLM-based screening"
             },
             {
-              "count": 476,
+              "count": 474,
               "key": "background_context_only",
               "label": "Kept as background/context only"
             }
@@ -123,15 +123,15 @@
       },
       "steps": {
         "evidence_extraction_selected": {
-          "count": 13450,
+          "count": 13411,
           "label": "Papers selected for evidence extraction"
         },
         "kg_included": {
-          "count": 8207,
+          "count": 8176,
           "label": "Papers represented in the knowledge graph"
         },
         "prescreen_retained": {
-          "count": 17244,
+          "count": 17200,
           "label": "Papers kept after initial screening"
         },
         "records_identified": {

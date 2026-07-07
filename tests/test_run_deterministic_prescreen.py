@@ -536,6 +536,93 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/jop"]["prescreen_decision"], "retain")
         self.assertTrue(by_doi["10.example/jop"]["retained_for_extraction_candidate"])
 
+    def test_numbered_conference_abstracts_are_excluded_without_blanket_numeric_title_exclusion(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1093/ijnp/pyaf052.166",
+                    "datasets": "disorder",
+                    "study_title": (
+                        "155. EXPLORING LSD MICRODOSING IN AN OPEN-LABEL PILOT FOR "
+                        "MAJOR DEPRESSIVE DISORDER"
+                    ),
+                    "abstract": "This numbered congress abstract reports LSD microdosing outcomes.",
+                    "study_journal": "International Journal of Neuropsychopharmacology",
+                    "publication_type": "journal-article",
+                },
+                {
+                    "doi": "10.1017/s1092852920000589",
+                    "datasets": "disorder",
+                    "study_title": (
+                        "142 Withdrawal Symptom Assessment in an Esketamine Safety Study "
+                        "in Patients with Treatment-resistant Depression"
+                    ),
+                    "abstract": "This meeting abstract reports withdrawal symptoms in an esketamine safety study.",
+                    "study_journal": "CNS Spectrums",
+                    "publication_type": "journal-article",
+                },
+                {
+                    "doi": "10.3109/15563650.2013.817658",
+                    "datasets": "disorder",
+                    "study_title": "2013 Annual Meeting of the North American Congress of Clinical Toxicology (NACCT)",
+                    "abstract": "This annual meeting record includes ketamine-related abstracts.",
+                    "study_journal": "Clinical Toxicology",
+                    "publication_type": "article",
+                },
+                {
+                    "doi": "10.example/5ht",
+                    "datasets": "mechanistic",
+                    "study_title": "5-HT2A receptor signaling after psilocybin exposure",
+                    "abstract": "This study reports psilocybin effects on 5-HT2A receptor signaling.",
+                    "study_journal": "Journal of Psychopharmacology",
+                    "publication_type": "Journal Article",
+                },
+                {
+                    "doi": "10.example/40hz",
+                    "datasets": "mechanistic",
+                    "study_title": "40 Hz Auditory Steady-State Response Is a Pharmacodynamic Biomarker",
+                    "abstract": "This study reports ketamine effects on 40 Hz auditory steady-state response.",
+                    "study_journal": "Neuropsychopharmacology",
+                    "publication_type": "Journal Article",
+                },
+                {
+                    "doi": "10.example/years",
+                    "datasets": "disorder",
+                    "study_title": "5 Years of bipolar disorder conversations on Reddit: Methods and key topics",
+                    "abstract": "This study reports ketamine discussions in bipolar disorder conversations.",
+                    "study_journal": "PLoS ONE",
+                    "publication_type": "Journal Article",
+                },
+                {
+                    "doi": "10.example/guideline",
+                    "datasets": "disorder",
+                    "study_title": "2025 guideline update to acute treatment of migraine for adults",
+                    "abstract": "This guideline discusses ketamine among acute treatment options.",
+                    "study_journal": "Headache",
+                    "publication_type": "Journal Article | Practice Guideline",
+                },
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-07T00:00:00+00:00",
+        )
+        by_doi = {row["doi"]: row for row in rows}
+
+        for doi in ("10.1093/ijnp/pyaf052.166", "10.1017/s1092852920000589", "10.3109/15563650.2013.817658"):
+            self.assertEqual(by_doi[doi]["prescreen_decision"], "exclude")
+            self.assertEqual(by_doi[doi]["prescreen_action"], "exclude_non_evidence_artifact")
+            self.assertIn("numbered conference", by_doi[doi]["prescreen_reason"])
+            self.assertFalse(by_doi[doi]["retained_for_extraction_candidate"])
+
+        for doi in ("10.example/5ht", "10.example/40hz", "10.example/years", "10.example/guideline"):
+            self.assertEqual(by_doi[doi]["prescreen_decision"], "retain")
+            self.assertTrue(by_doi[doi]["retained_for_extraction_candidate"])
+
     def test_writes_parquet_decisions_and_summary_without_json_outputs(self) -> None:
         with TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

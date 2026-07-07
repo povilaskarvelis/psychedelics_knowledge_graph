@@ -117,6 +117,52 @@ NON_EVIDENCE_TEXT_PATTERNS = (
 NON_EVIDENCE_SOURCE_PATTERNS = (
     re.compile(r"\bbrown university(?: child & adolescent)? psychopharmacology update\b", re.IGNORECASE),
 )
+NUMBERED_TITLE_TOKEN_RE = re.compile(
+    r"^\s*(?P<number>\d{1,4})(?P<sep>[.)\]:])?\s+(?P<rest>\S.*)$",
+    re.IGNORECASE,
+)
+NUMBERED_TITLE_PROTECTED_REST_PATTERNS = (
+    re.compile(r"^(?:hz|khz|mhz|ghz)\b", re.IGNORECASE),
+    re.compile(r"^(?:mg|ug|µg|μg|g|kg|ml|mL|l)\b", re.IGNORECASE),
+    re.compile(r"^(?:years?|months?|weeks?|days?|hours?|minutes?|mins?)\b", re.IGNORECASE),
+    re.compile(r"^%|\bpercent\b", re.IGNORECASE),
+)
+NUMBERED_TITLE_CONFERENCE_TITLE_PATTERNS = (
+    re.compile(r"\bannual meeting\b", re.IGNORECASE),
+    re.compile(r"\bscientific meeting\b", re.IGNORECASE),
+    re.compile(r"\bconference abstracts?\b", re.IGNORECASE),
+    re.compile(r"\bconference proceedings?\b", re.IGNORECASE),
+    re.compile(r"\bcongress\b", re.IGNORECASE),
+    re.compile(r"\bsymposium\b", re.IGNORECASE),
+    re.compile(r"\bposter\b", re.IGNORECASE),
+)
+NUMBERED_TITLE_CONFERENCE_PUBLICATION_PATTERNS = (
+    re.compile(r"\bconference\b", re.IGNORECASE),
+    re.compile(r"\bmeeting abstract\b", re.IGNORECASE),
+    re.compile(r"\bcongress\b", re.IGNORECASE),
+    re.compile(r"\bposter\b", re.IGNORECASE),
+    re.compile(r"\bproceedings\b", re.IGNORECASE),
+)
+NUMBERED_TITLE_CONFERENCE_JOURNAL_PATTERNS = (
+    re.compile(r"\binternational journal of neuropsychopharmacology\b", re.IGNORECASE),
+    re.compile(r"\bcns spectrums\b", re.IGNORECASE),
+    re.compile(r"\bjournal of clinical and translational science\b", re.IGNORECASE),
+    re.compile(r"\bbiological psychiatry\b", re.IGNORECASE),
+    re.compile(r"\beuropean psychiatry\b", re.IGNORECASE),
+    re.compile(r"\beuropean journal of pain\b", re.IGNORECASE),
+    re.compile(r"\bjournal of urology\b", re.IGNORECASE),
+    re.compile(r"\bthe journal of urology\b", re.IGNORECASE),
+    re.compile(r"\bjournal of burn care\b", re.IGNORECASE),
+    re.compile(r"\bsleep\b", re.IGNORECASE),
+    re.compile(r"\bjournal of the international neuropsychological society\b", re.IGNORECASE),
+)
+NUMBERED_TITLE_CONFERENCE_DOI_PATTERNS = (
+    re.compile(r"^10\.1093/(?:ijnp|sleep|jbcr)/[a-z]{4}\d{3}\.\d{1,4}$", re.IGNORECASE),
+    re.compile(r"^10\.1017/(?:cts|s1092852920)\.?\d*", re.IGNORECASE),
+    re.compile(r"^10\.1016/j\.biopsych\.\d{4}\.\d{2}\.\d{2,4}$", re.IGNORECASE),
+    re.compile(r"^10\.1016/s\d{4}-\d{4}\(\d{2}\)\d{5}-\d$", re.IGNORECASE),
+    re.compile(r"^10\.1136/[a-z0-9-]+\.\d{1,4}$", re.IGNORECASE),
+)
 NON_EVIDENCE_DOI_PATTERNS = (
     re.compile(r"^10\.1371/journal\.[^.]+\.\d+\.[fgst]\d+$", re.IGNORECASE),
     re.compile(r"^10\.1021/.+\.s\d+$", re.IGNORECASE),
@@ -484,6 +530,98 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
     }
 
 
+def numbered_title_metadata(row: dict) -> dict:
+    title = clean(row.get("study_title", ""))
+    match = NUMBERED_TITLE_TOKEN_RE.search(title)
+    if not match:
+        return {}
+    number_text = match.group("number")
+    rest = clean(match.group("rest") or "").lstrip(" -–—:.)]")
+    try:
+        number = int(number_text)
+    except ValueError:
+        return {}
+    return {
+        "number_text": number_text,
+        "number": number,
+        "separator": clean(match.group("sep") or ""),
+        "rest": rest,
+        "title": title,
+    }
+
+
+def numbered_title_is_protected(metadata: dict) -> bool:
+    if not metadata:
+        return True
+    number = int(metadata.get("number", 0))
+    rest = clean(metadata.get("rest", ""))
+    if 1800 <= number <= 2099 and not any(pattern.search(rest) for pattern in NUMBERED_TITLE_CONFERENCE_TITLE_PATTERNS):
+        return True
+    return any(pattern.search(rest) for pattern in NUMBERED_TITLE_PROTECTED_REST_PATTERNS)
+
+
+def mostly_uppercase(text: str) -> bool:
+    letters = [char for char in text if char.isalpha()]
+    if len(letters) < 12:
+        return False
+    uppercase = sum(char.isupper() for char in letters)
+    return uppercase / len(letters) >= 0.75
+
+
+def numbered_conference_abstract_decision(row: dict, contexts: list[dict]) -> dict | None:
+    metadata = numbered_title_metadata(row)
+    if not metadata or numbered_title_is_protected(metadata):
+        return None
+
+    doi = normalize_doi(clean(row.get("study_doi", "")))
+    title = metadata["title"]
+    rest = metadata["rest"]
+    number = int(metadata["number"])
+    separator = clean(metadata.get("separator", ""))
+    publication_type = clean(row.get("publication_type", ""))
+    journal = clean(row.get("study_journal", ""))
+    matched_terms = [f"numbered_title:{metadata['number_text']}"]
+
+    strong_signal = False
+    source_signal = False
+    for pattern in NUMBERED_TITLE_CONFERENCE_TITLE_PATTERNS:
+        match = pattern.search(title)
+        if match:
+            matched_terms.append(match.group(0))
+            strong_signal = True
+    for pattern in NUMBERED_TITLE_CONFERENCE_PUBLICATION_PATTERNS:
+        match = pattern.search(publication_type)
+        if match:
+            matched_terms.append(match.group(0))
+            strong_signal = True
+    for pattern in NUMBERED_TITLE_CONFERENCE_DOI_PATTERNS:
+        match = pattern.search(doi)
+        if match:
+            matched_terms.append(match.group(0))
+            source_signal = True
+    for pattern in NUMBERED_TITLE_CONFERENCE_JOURNAL_PATTERNS:
+        match = pattern.search(journal)
+        if match:
+            matched_terms.append(match.group(0))
+            source_signal = True
+
+    title_format_signal = bool(separator) or number >= 20 or mostly_uppercase(rest)
+    if not strong_signal and not (source_signal and title_format_signal):
+        return None
+
+    return {
+        "action": "exclude_non_evidence_artifact",
+        "confidence": 1.0,
+        "supporting_quote": title,
+        "reason": (
+            "Record appears to be a numbered conference, poster, or meeting abstract "
+            "rather than a source article or review."
+        ),
+        "matched_terms": matched_terms,
+        "routing_tags": context_routing_tags(contexts),
+    }
+
+
 def publication_stage_row(row: dict) -> dict:
     out = dict(row)
     if not clean(out.get("doi", "")):
@@ -589,6 +727,7 @@ def before_model_exclusion_decision(row: dict, contexts: list[dict] | None = Non
     return (
         non_paper_container_without_title_decision(row, contexts)
         or non_evidence_artifact_decision(row, contexts)
+        or numbered_conference_abstract_decision(row, contexts)
         or preprint_or_unpublished_decision(row, contexts)
         or acronym_false_positive_decision(row, contexts)
         or production_method_false_positive_decision(row, contexts)
