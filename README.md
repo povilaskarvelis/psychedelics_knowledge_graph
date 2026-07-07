@@ -3,7 +3,7 @@
 A provenance-aware literature pipeline and web interface for exploring
 structured findings about psychedelics, mechanisms, and mental health outcomes.
 
-[Live GUI](https://povilaskarvelis.github.io/psychedelics_knowledge_graph/ui) |
+[Live GUI](https://psychedelicskg.com/) |
 [Pipeline Guide](pipeline/README.md) |
 [Search Seed Strategy](docs/search_seed_strategy.md) |
 [Search Completeness](docs/search_completeness.md) |

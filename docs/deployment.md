@@ -4,6 +4,10 @@ The public website is a static Netlify deploy built from a curated `dist/`
 directory. The build copies only the UI and the JSON payloads required by the
 browser app.
 
+GitHub Pages is not used for the public site. Keep Netlify as the single
+deployment path so the repository does not maintain parallel generated site
+outputs.
+
 ## Netlify
 
 Use the settings in `netlify.toml`:
