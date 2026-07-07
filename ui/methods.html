@@ -505,40 +505,43 @@
         </div>
       </section>
 
-      <section class="about-section methods-analytics" aria-labelledby="evidence-base-snapshot">
+      <section class="about-section methods-analytics methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
         <div class="methods-section-header">
           <div>
-            <h2 id="evidence-base-snapshot">PRISMA Flow Diagram</h2>
+            <h2 id="paper-bibliography-heading">Paper Selection And Audit Trail</h2>
             <p>
-              Evidence synthesis needs a visible record of the papers found by
-              the search and what happened next. This
+              Evidence synthesis needs a visible record of every paper found by
+              the search and what happened next. The
               <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
-              flow follows the current paper library from discovery
-              through initial screening, LLM-based screening, and selection
-              for evidence extraction. Side boxes show the current reasons
-              papers leave or pause that path. Finding counts and any
-              additional exclusions during later evidence coding will be added after that
-              layer is finalized. Because duplicate records are merged before
-              papers are added, there is no separate duplicate-removal
-              step in this diagram.
+              diagram gives the high-level summary of the current paper library:
+              how many records were found, screened, selected for evidence
+              extraction, and represented in the knowledge graph. The table below
+              uses the same record set, but goes further than a typical review
+              diagram by making every paper searchable and auditable, including
+              the stage it reached and the reason it was not included when it
+              left the process.
             </p>
           </div>
         </div>
-        <div id="methodsPipeline" class="methods-loading">Loading paper flow.</div>
-      </section>
 
-      <section class="about-section methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
-        <div class="methods-section-header">
+        <div class="methods-audit-subsection" aria-labelledby="evidence-base-snapshot">
           <div>
-            <h2 id="paper-bibliography-heading">Full Paper Bibliography</h2>
+            <h3 id="evidence-base-snapshot">PRISMA Flow Diagram</h3>
             <p>
-              This is the complete paper list produced by the search. It shows,
-              paper by paper, whether each one passed initial screening,
-              LLM-based screening, selection for evidence extraction, and final
-              appearance in the knowledge graph. The purpose is transparency:
-              anyone can search by author, title,
-              journal, year, or DOI, audit a decision, and flag missing or
-              questionable classifications.
+              A compact count-based view of the search, screening, evidence
+              extraction, and knowledge-graph inclusion path.
+            </p>
+          </div>
+          <div id="methodsPipeline" class="methods-loading">Loading paper flow.</div>
+        </div>
+
+        <div class="methods-audit-subsection" aria-labelledby="record-audit-heading">
+          <div>
+            <h3 id="record-audit-heading">Full Record Audit</h3>
+            <p>
+              The complete paper list can be searched by author, title, journal,
+              year, or DOI. Each row shows whether the record passed each stage
+              and, where needed, why it was excluded.
             </p>
           </div>
         </div>
