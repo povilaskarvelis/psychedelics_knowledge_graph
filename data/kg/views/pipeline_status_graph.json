@@ -3,21 +3,25 @@
   "counts": {
     "excluded_during_initial_screening": 39169,
     "kept_after_initial_screening": 17244,
+    "not_represented_in_knowledge_graph": 5243,
     "not_screened": 0,
     "not_selected_for_evidence_extraction": 3794,
     "papers_found_by_search": 56413,
+    "represented_in_knowledge_graph": 8207,
     "screened_for_relevance": 56413,
     "selected_for_evidence_extraction": 13450
   },
-  "current_stage": "papers_selected_for_evidence_extraction",
-  "generated_at": "2026-07-07T08:33:52.471940+00:00",
+  "current_stage": "kg_inclusion_summary",
+  "generated_at": "2026-07-07T12:19:17.205650+00:00",
   "prisma_flow": {
     "overall": {
-      "current_stage": "papers_selected_for_evidence_extraction",
+      "current_stage": "kg_inclusion_summary",
       "dataset": "overall",
-      "label": "Paper search and screening flow",
+      "label": "Paper search and graph-inclusion flow",
       "metrics": {
-        "finding_counts_available": false,
+        "finding_counts_available": true,
+        "not_represented_in_knowledge_graph": 5243,
+        "represented_in_knowledge_graph": 8207,
         "selected_papers": 13450
       },
       "rows": [
@@ -34,11 +38,36 @@
           "step": "prescreen_retained"
         },
         {
-          "last": true,
+          "side_box": "kg_not_included",
           "step": "evidence_extraction_selected"
+        },
+        {
+          "last": true,
+          "step": "kg_included"
         }
       ],
       "side_boxes": {
+        "kg_not_included": {
+          "count": 5243,
+          "label": "Selected papers not represented in graph",
+          "reasons": [
+            {
+              "count": 793,
+              "key": "not_graphable",
+              "label": "Not graphable"
+            },
+            {
+              "count": 511,
+              "key": "not_normalized",
+              "label": "Not normalized"
+            },
+            {
+              "count": 3939,
+              "key": "no_graph_finding",
+              "label": "No graph finding"
+            }
+          ]
+        },
         "records_excluded": {
           "count": 39169,
           "label": "Excluded during initial screening",
@@ -96,6 +125,10 @@
         "evidence_extraction_selected": {
           "count": 13450,
           "label": "Papers selected for evidence extraction"
+        },
+        "kg_included": {
+          "count": 8207,
+          "label": "Papers represented in the knowledge graph"
         },
         "prescreen_retained": {
           "count": 17244,

@@ -184,6 +184,13 @@ PRISMA_PUBLIC_LLM_SCREENING_LABELS = {
     "unknown": "LLM-based screening status not available",
 }
 
+PRISMA_CANDIDATE_KG_LABELS = {
+    "not_graphable": "Not graphable",
+    "not_normalized": "Not normalized",
+    "no_graph_finding": "No graph finding",
+    "unknown": "Knowledge-graph status not available",
+}
+
 PRISMA_CANDIDATE_INPUT_LABELS = {
     "ready_for_article_text_extraction": "Selected for evidence extraction",
     "ready_for_abstract_extraction": "Selected for evidence extraction",
@@ -1274,12 +1281,15 @@ class MethodsFlowBuilder:
         }
 
     def candidate_pipeline_status_view(self) -> dict:
-        flow = prisma_flow_for_candidate_papers(self.candidate_rows)
+        flow = prisma_flow_for_candidate_papers(
+            self.candidate_rows,
+            kg_status_by_doi=self.kg_graph_status_by_doi,
+        )
         return {
             "contract_version": KG_VERSION,
             "view": "pipeline_status",
             "generated_at": now_utc(),
-            "current_stage": "papers_selected_for_evidence_extraction",
+            "current_stage": "kg_inclusion_summary",
             "counts": public_candidate_pipeline_counts(flow),
             "prisma_flow_order": ["overall"],
             "prisma_flow": {
@@ -1665,12 +1675,46 @@ def candidate_kg_cell(row: dict, kg_status_by_doi: dict[str, dict] | None = None
     return "fail", "No graph finding", "No normalized graph finding"
 
 
-def candidate_bibliography_row(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> list:
+def candidate_audit_decision(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> dict:
     screening_status, screening_label, screening_note = candidate_screening_cell(row)
     llm_screening_status, llm_screening_label, llm_screening_note = candidate_llm_screening_cell(row)
     extraction_status, extraction_label, extraction_note = candidate_extraction_cell(row)
     kg_status, kg_label, kg_note = candidate_kg_cell(row, kg_status_by_doi)
     stage_key, stage_label = candidate_bibliography_stage(row)
+    return {
+        "initial_screening_status": screening_status,
+        "initial_screening_label": screening_label,
+        "initial_screening_note": screening_note,
+        "llm_screening_status": llm_screening_status,
+        "llm_screening_label": llm_screening_label,
+        "llm_screening_note": llm_screening_note,
+        "extraction_status": extraction_status,
+        "extraction_label": extraction_label,
+        "extraction_note": extraction_note,
+        "kg_status": kg_status,
+        "kg_label": kg_label,
+        "kg_note": kg_note,
+        "stage_key": stage_key,
+        "stage_label": stage_label,
+        "selected_for_extraction": boolish(row.get("retained_for_extraction_candidate", False)),
+        "screened": candidate_screened(row),
+        "prescreen_retained": candidate_prescreen_retained(row),
+    }
+
+
+def candidate_kg_reason_key(decision: dict) -> str:
+    label = normalize(decision.get("kg_label", ""))
+    if label == "Not graphable":
+        return "not_graphable"
+    if label == "Not normalized":
+        return "not_normalized"
+    if label == "No graph finding":
+        return "no_graph_finding"
+    return "unknown"
+
+
+def candidate_bibliography_row(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> list:
+    decision = candidate_audit_decision(row, kg_status_by_doi)
     doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
     metadata_row = {
         "study_doi": doi,
@@ -1685,21 +1729,21 @@ def candidate_bibliography_row(row: dict, kg_status_by_doi: dict[str, dict] | No
         strip_markup(row.get("authors", "")),
         as_int(row.get("study_year", "")),
         strip_markup(row.get("study_journal", "")),
-        screening_status,
-        screening_label,
-        screening_note,
-        llm_screening_status,
-        llm_screening_label,
-        llm_screening_note,
-        extraction_status,
-        extraction_label,
-        extraction_note,
-        kg_status,
-        kg_label,
-        kg_note,
-        stage_key,
-        stage_label,
-        boolish(row.get("retained_for_extraction_candidate", False)),
+        decision["initial_screening_status"],
+        decision["initial_screening_label"],
+        decision["initial_screening_note"],
+        decision["llm_screening_status"],
+        decision["llm_screening_label"],
+        decision["llm_screening_note"],
+        decision["extraction_status"],
+        decision["extraction_label"],
+        decision["extraction_note"],
+        decision["kg_status"],
+        decision["kg_label"],
+        decision["kg_note"],
+        decision["stage_key"],
+        decision["stage_label"],
+        decision["selected_for_extraction"],
     ]
 
 
@@ -1813,9 +1857,11 @@ def public_candidate_pipeline_counts(flow: dict) -> dict:
         "screened_for_relevance": int(steps.get("records_screened", {}).get("count", 0) or 0),
         "kept_after_initial_screening": int(steps.get("prescreen_retained", {}).get("count", 0) or 0),
         "selected_for_evidence_extraction": int(steps.get("evidence_extraction_selected", {}).get("count", 0) or 0),
+        "represented_in_knowledge_graph": int(steps.get("kg_included", {}).get("count", 0) or 0),
         "not_screened": int(side_boxes.get("removed_before_screening", {}).get("count", 0) or 0),
         "excluded_during_initial_screening": int(side_boxes.get("records_excluded", {}).get("count", 0) or 0),
         "not_selected_for_evidence_extraction": int(side_boxes.get("route_not_selected", {}).get("count", 0) or 0),
+        "not_represented_in_knowledge_graph": int(side_boxes.get("kg_not_included", {}).get("count", 0) or 0),
     }
 
 
@@ -1830,36 +1876,52 @@ def public_llm_screening_reason_key(row: dict) -> str:
     return "unknown"
 
 
-def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
+def prisma_flow_for_candidate_papers(
+    props_rows: Iterable[dict],
+    kg_status_by_doi: dict[str, dict] | None = None,
+) -> dict:
     rows = list(props_rows)
-    screened_rows = [row for row in rows if candidate_screened(row)]
-    not_screened_rows = [row for row in rows if not candidate_screened(row)]
+    decisions = [
+        (row, candidate_audit_decision(row, kg_status_by_doi))
+        for row in rows
+    ]
+    screened_rows = [row for row, decision in decisions if decision["screened"]]
+    not_screened_rows = [row for row, decision in decisions if not decision["screened"]]
     prescreen_retained_rows = [
-        row for row in screened_rows if candidate_prescreen_retained(row)
+        row for row, decision in decisions if decision["screened"] and decision["prescreen_retained"]
     ]
     prescreen_excluded_rows = [
-        row for row in screened_rows if not candidate_prescreen_retained(row)
+        row for row, decision in decisions if decision["screened"] and not decision["prescreen_retained"]
     ]
-    extraction_selected_rows = [
-        row for row in rows if boolish(row.get("retained_for_extraction_candidate", False))
+    extraction_selected = [
+        (row, decision) for row, decision in decisions if decision["selected_for_extraction"]
     ]
     route_not_selected_rows = [
         row
-        for row in prescreen_retained_rows
-        if not boolish(row.get("retained_for_extraction_candidate", False))
+        for row, decision in decisions
+        if decision["screened"] and decision["prescreen_retained"] and not decision["selected_for_extraction"]
+    ]
+    kg_included_rows = [
+        row for row, decision in extraction_selected if decision["kg_status"] == "pass"
+    ]
+    kg_not_included = [
+        (row, decision) for row, decision in extraction_selected if decision["kg_status"] != "pass"
     ]
     prescreen_reasons = Counter(candidate_field(row, "prescreen_actions") for row in prescreen_excluded_rows)
     route_not_selected_reasons = Counter(public_llm_screening_reason_key(row) for row in route_not_selected_rows)
+    kg_not_included_reasons = Counter(candidate_kg_reason_key(decision) for _, decision in kg_not_included)
     not_screened_reasons = Counter({"no_prescreen_status": len(not_screened_rows)}) if not_screened_rows else Counter()
 
     return {
         "dataset": "overall",
-        "label": "Paper search and screening flow",
+        "label": "Paper search and graph-inclusion flow",
         "unit": "papers",
-        "current_stage": "papers_selected_for_evidence_extraction",
+        "current_stage": "kg_inclusion_summary",
         "metrics": {
-            "selected_papers": len(extraction_selected_rows),
-            "finding_counts_available": False,
+            "selected_papers": len(extraction_selected),
+            "represented_in_knowledge_graph": len(kg_included_rows),
+            "not_represented_in_knowledge_graph": len(kg_not_included),
+            "finding_counts_available": True,
         },
         "steps": {
             "records_identified": {
@@ -1876,7 +1938,11 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
             },
             "evidence_extraction_selected": {
                 "label": "Papers selected for evidence extraction",
-                "count": len(extraction_selected_rows),
+                "count": len(extraction_selected),
+            },
+            "kg_included": {
+                "label": "Papers represented in the knowledge graph",
+                "count": len(kg_included_rows),
             },
         },
         "side_boxes": {
@@ -1919,6 +1985,20 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
                     ),
                 ),
             },
+            "kg_not_included": {
+                "label": "Selected papers not represented in graph",
+                "count": len(kg_not_included),
+                "reasons": labeled_reason_counts(
+                    kg_not_included_reasons,
+                    PRISMA_CANDIDATE_KG_LABELS,
+                    (
+                        "not_graphable",
+                        "not_normalized",
+                        "no_graph_finding",
+                        "unknown",
+                    ),
+                ),
+            },
         },
         "rows": [
             {"step": "records_identified", "side_box": "removed_before_screening"},
@@ -1926,6 +2006,10 @@ def prisma_flow_for_candidate_papers(props_rows: Iterable[dict]) -> dict:
             {"step": "prescreen_retained", "side_box": "route_not_selected"},
             {
                 "step": "evidence_extraction_selected",
+                "side_box": "kg_not_included",
+            },
+            {
+                "step": "kg_included",
                 "last": True,
             },
         ],

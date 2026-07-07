@@ -17,6 +17,7 @@ from pipeline.kg.build_methods_flow import (
     prisma_flow_for_candidate_papers,
     prisma_flow_for_dataset,
     prisma_retrieval_reason,
+    public_candidate_pipeline_counts,
     routed_kg_graph_status_by_doi,
     slug,
     strongest_pdf_status,
@@ -229,6 +230,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         flow = prisma_flow_for_candidate_papers(
             [
                 {
+                    "doi": "10.1000/in-graph",
                     "prescreen_actions": "retain_for_extraction_candidate",
                     "prescreen_decisions": "retain",
                     "prescreen_retained_for_extraction_candidate": True,
@@ -237,6 +239,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "retained_extraction_route_count": 3,
                 },
                 {
+                    "doi": "10.1000/not-graphable",
                     "prescreen_actions": "retain_for_extraction_candidate",
                     "prescreen_decisions": "retain",
                     "prescreen_retained_for_extraction_candidate": True,
@@ -245,6 +248,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "retained_extraction_route_count": 1,
                 },
                 {
+                    "doi": "10.1000/screened-out",
                     "prescreen_actions": "retain_for_extraction_candidate",
                     "prescreen_decisions": "retain",
                     "prescreen_retained_for_extraction_candidate": True,
@@ -252,6 +256,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "extraction_route_status": "excluded_after_domain_screen",
                 },
                 {
+                    "doi": "10.1000/no-abstract",
                     "prescreen_actions": "exclude_missing_abstract",
                     "prescreen_decisions": "exclude",
                     "prescreen_retained_for_extraction_candidate": False,
@@ -259,17 +264,39 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "extraction_route_status": "not_retained_for_extraction",
                 },
             ],
+            kg_status_by_doi={
+                "10.1000/in-graph": {"status": "pass", "label": "In graph", "note": ""},
+                "10.1000/not-graphable": {
+                    "status": "fail",
+                    "label": "Not graphable",
+                    "note": "Compound outside graph scope: Mephedrone",
+                },
+            },
         )
 
         self.assertEqual(flow["dataset"], "overall")
+        self.assertEqual(flow["current_stage"], "kg_inclusion_summary")
         self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
         self.assertEqual(flow["steps"]["prescreen_retained"]["count"], 3)
         self.assertEqual(flow["steps"]["evidence_extraction_selected"]["count"], 2)
+        self.assertEqual(flow["steps"]["kg_included"]["count"], 1)
         self.assertEqual(flow["side_boxes"]["records_excluded"]["reasons"][0]["key"], "exclude_missing_abstract")
         self.assertEqual(flow["side_boxes"]["route_not_selected"]["count"], 1)
         self.assertEqual(
             flow["side_boxes"]["route_not_selected"]["reasons"][0]["key"],
             "excluded_during_llm_screening",
+        )
+        self.assertEqual(flow["side_boxes"]["kg_not_included"]["count"], 1)
+        self.assertEqual(flow["side_boxes"]["kg_not_included"]["reasons"][0]["key"], "not_graphable")
+        self.assertEqual(flow["rows"][-2]["side_box"], "kg_not_included")
+        self.assertEqual(flow["rows"][-1]["step"], "kg_included")
+        self.assertEqual(
+            public_candidate_pipeline_counts(flow)["represented_in_knowledge_graph"],
+            1,
+        )
+        self.assertEqual(
+            public_candidate_pipeline_counts(flow)["not_represented_in_knowledge_graph"],
+            1,
         )
         self.assertNotIn("extraction_input_split", flow["side_boxes"])
 
@@ -368,6 +395,62 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(excluded["kg_label"], "Not reached")
         self.assertEqual(excluded["stage_key"], "excluded_during_initial_screening")
         self.assertFalse(excluded["selected_for_extraction"])
+
+    def test_candidate_prisma_and_bibliography_share_kg_status_counts(self) -> None:
+        rows = [
+            {
+                "doi": "10.1000/in-graph",
+                "study_title": "In Graph",
+                "prescreen_actions": "retain_for_extraction_candidate",
+                "prescreen_decisions": "retain",
+                "prescreen_retained_for_extraction_candidate": True,
+                "retained_for_extraction_candidate": True,
+                "extraction_route_status": "ready_for_article_text_extraction",
+            },
+            {
+                "doi": "10.1000/not-graphable",
+                "study_title": "Not Graphable",
+                "prescreen_actions": "retain_for_extraction_candidate",
+                "prescreen_decisions": "retain",
+                "prescreen_retained_for_extraction_candidate": True,
+                "retained_for_extraction_candidate": True,
+                "extraction_route_status": "ready_for_article_text_extraction",
+            },
+            {
+                "doi": "10.1000/not-normalized",
+                "study_title": "Not Normalized",
+                "prescreen_actions": "retain_for_extraction_candidate",
+                "prescreen_decisions": "retain",
+                "prescreen_retained_for_extraction_candidate": True,
+                "retained_for_extraction_candidate": True,
+                "extraction_route_status": "ready_for_article_text_extraction",
+            },
+            {
+                "doi": "10.1000/no-finding",
+                "study_title": "No Finding",
+                "prescreen_actions": "retain_for_extraction_candidate",
+                "prescreen_decisions": "retain",
+                "prescreen_retained_for_extraction_candidate": True,
+                "retained_for_extraction_candidate": True,
+                "extraction_route_status": "ready_for_article_text_extraction",
+            },
+        ]
+        kg_status_by_doi = {
+            "10.1000/in-graph": {"status": "pass", "label": "In graph", "note": ""},
+            "10.1000/not-graphable": {"status": "fail", "label": "Not graphable", "note": "Out of scope"},
+            "10.1000/not-normalized": {"status": "fail", "label": "Not normalized", "note": "Unmapped entity"},
+        }
+
+        flow = prisma_flow_for_candidate_papers(rows, kg_status_by_doi=kg_status_by_doi)
+        bibliography = candidate_bibliography_payload(rows, kg_status_by_doi=kg_status_by_doi)
+
+        self.assertEqual(flow["steps"]["kg_included"]["count"], bibliography["counts"]["by_kg_status"]["In graph"])
+        flow_not_in_graph = {
+            reason["label"]: reason["count"]
+            for reason in flow["side_boxes"]["kg_not_included"]["reasons"]
+        }
+        for label in ("Not graphable", "Not normalized", "No graph finding"):
+            self.assertEqual(flow_not_in_graph[label], bibliography["counts"]["by_kg_status"][label])
 
     def test_routed_kg_graph_status_marks_out_of_scope_compounds(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
