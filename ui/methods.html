@@ -527,6 +527,80 @@
         <div id="methodsPipeline" class="methods-loading">Loading paper flow.</div>
       </section>
 
+      <section class="about-section methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
+        <div class="methods-section-header">
+          <div>
+            <h2 id="paper-bibliography-heading">Full Paper Bibliography</h2>
+            <p>
+              This is the complete paper list produced by the search. It shows,
+              paper by paper, whether each one passed initial screening,
+              LLM-based screening, selection for evidence extraction, and final
+              appearance in the knowledge graph. The purpose is transparency:
+              anyone can search by author, title,
+              journal, year, or DOI, audit a decision, and flag missing or
+              questionable classifications.
+            </p>
+          </div>
+        </div>
+        <div class="methods-bibliography-controls" aria-label="Bibliography controls">
+          <label>
+            Search papers
+            <input
+              id="methodsBibliographySearch"
+              type="search"
+              placeholder="Author, title, journal, year, or DOI"
+              autocomplete="off"
+            />
+          </label>
+          <label>
+            Stage
+            <select id="methodsBibliographyStage">
+              <option value="">All stages</option>
+            </select>
+          </label>
+          <label>
+            KG status
+            <select id="methodsBibliographyKgStatus">
+              <option value="">All KG statuses</option>
+            </select>
+          </label>
+          <label>
+            Sort
+            <select id="methodsBibliographySort">
+              <option value="author">Author A-Z</option>
+              <option value="title">Title A-Z</option>
+              <option value="year-desc">Newest first</option>
+              <option value="stage">Decision stage</option>
+            </select>
+          </label>
+        </div>
+        <div id="methodsBibliographySummary" class="methods-bibliography-summary">Loading bibliography.</div>
+        <div class="methods-bibliography-table-wrap">
+          <table class="methods-bibliography-table">
+            <colgroup>
+              <col class="methods-bibliography-records-col" />
+              <col class="methods-bibliography-stage-col" />
+              <col class="methods-bibliography-stage-col" />
+              <col class="methods-bibliography-stage-col" />
+              <col class="methods-bibliography-stage-col" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">Records</th>
+                <th scope="col">Initial Screening</th>
+                <th scope="col">LLM-Based Screening</th>
+                <th scope="col">Evidence Extraction</th>
+                <th scope="col">Knowledge Graph</th>
+              </tr>
+            </thead>
+            <tbody id="methodsBibliographyRows"></tbody>
+          </table>
+        </div>
+        <button id="methodsBibliographyLoadMore" class="ghost methods-bibliography-load-more" type="button" hidden>
+          Load more
+        </button>
+      </section>
+
       <section class="about-section method-quality-section" aria-labelledby="quality-control">
         <div>
           <h2 id="quality-control">Limits, Updates, And Reuse</h2>
@@ -609,80 +683,6 @@
             rel="noopener noreferrer"
           >Open a GitHub issue</a>
         </div>
-      </section>
-
-      <section class="about-section methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
-        <div class="methods-section-header">
-          <div>
-            <h2 id="paper-bibliography-heading">Full Paper Bibliography</h2>
-            <p>
-              This is the complete paper list produced by the search. It shows,
-              paper by paper, whether each one passed initial screening,
-              LLM-based screening, selection for evidence extraction, and final
-              appearance in the knowledge graph. The purpose is transparency:
-              anyone can search by author, title,
-              journal, year, or DOI, audit a decision, and flag missing or
-              questionable classifications.
-            </p>
-          </div>
-        </div>
-        <div class="methods-bibliography-controls" aria-label="Bibliography controls">
-          <label>
-            Search papers
-            <input
-              id="methodsBibliographySearch"
-              type="search"
-              placeholder="Author, title, journal, year, or DOI"
-              autocomplete="off"
-            />
-          </label>
-          <label>
-            Stage
-            <select id="methodsBibliographyStage">
-              <option value="">All stages</option>
-            </select>
-          </label>
-          <label>
-            KG status
-            <select id="methodsBibliographyKgStatus">
-              <option value="">All KG statuses</option>
-            </select>
-          </label>
-          <label>
-            Sort
-            <select id="methodsBibliographySort">
-              <option value="author">Author A-Z</option>
-              <option value="title">Title A-Z</option>
-              <option value="year-desc">Newest first</option>
-              <option value="stage">Decision stage</option>
-            </select>
-          </label>
-        </div>
-        <div id="methodsBibliographySummary" class="methods-bibliography-summary">Loading bibliography.</div>
-        <div class="methods-bibliography-table-wrap">
-          <table class="methods-bibliography-table">
-            <colgroup>
-              <col class="methods-bibliography-records-col" />
-              <col class="methods-bibliography-stage-col" />
-              <col class="methods-bibliography-stage-col" />
-              <col class="methods-bibliography-stage-col" />
-              <col class="methods-bibliography-stage-col" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th scope="col">Records</th>
-                <th scope="col">Initial Screening</th>
-                <th scope="col">LLM-Based Screening</th>
-                <th scope="col">Evidence Extraction</th>
-                <th scope="col">Knowledge Graph</th>
-              </tr>
-            </thead>
-            <tbody id="methodsBibliographyRows"></tbody>
-          </table>
-        </div>
-        <button id="methodsBibliographyLoadMore" class="ghost methods-bibliography-load-more" type="button" hidden>
-          Load more
-        </button>
       </section>
     </main>
 
