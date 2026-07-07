@@ -8,6 +8,20 @@ import pandas as pd
 from pipeline.publish.export_evidence_payload import export_evidence_payload
 
 
+def detail_bootstrap_rows(payload: dict) -> list[dict]:
+    fields = payload["fields"]
+    values = payload["values"]
+    rows = []
+    for row in payload["rows"]:
+        decoded = {}
+        for index, field in enumerate(fields):
+            value = values[row[index]]
+            if value is not None:
+                decoded[field] = value
+        rows.append(decoded)
+    return rows
+
+
 class ExportEvidencePayloadTest(unittest.TestCase):
     def test_exports_route_native_findings_without_legacy_split_or_claim_type(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -38,7 +52,6 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                                 "source_type": "primary",
                                 "source_family": "primary_study",
                                 "assessment_timepoint": "2 hours post-dose",
-                                "needs_human_review": False,
                                 "open_access_is_oa": True,
                             }
                         ),
@@ -73,33 +86,28 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 active_json=active_json,
             )
 
-            payload = json.loads(result["payload_path"].read_text())
-            preview = json.loads(result["preview_path"].read_text())
-            view_payload = json.loads(result["view_payload_paths"]["targets"]["primary"].read_text())
             graph_bootstrap = json.loads(result["graph_bootstrap_paths"]["targets"]["primary"].read_text())
             detail_bootstrap = json.loads(result["detail_bootstrap_paths"]["targets"]["primary"].read_text())
             active = json.loads(active_json.read_text())
+            manifest = json.loads(result["manifest_path"].read_text())
+            rows = detail_bootstrap_rows(detail_bootstrap)
 
-        self.assertEqual(payload["schema_version"], "route_native_evidence_payload_v1")
-        self.assertEqual(payload["row_count"], 1)
-        self.assertIn("findings", payload)
-        self.assertNotIn("datasets", payload)
-        finding = payload["findings"][0]
-        self.assertEqual(finding["finding_id"], "finding-1")
+        self.assertEqual(manifest["schema_version"], "route_native_evidence_manifest_v1")
+        self.assertEqual(manifest["row_count"], 1)
+        self.assertNotIn("evidence_payload", manifest)
+        self.assertNotIn("evidence_payloads", manifest)
+        self.assertNotIn("evidence_preview", manifest)
+        finding = rows[0]
         self.assertEqual(finding["domain"], "brain_system")
         self.assertEqual(finding["finding_type"], "brain_system")
         self.assertEqual(finding["entity_label"], "Default mode network")
         self.assertEqual(finding["entity_kind"], "brain_network")
         self.assertEqual(finding["text_depth"], "article_text")
         self.assertEqual(finding["assessment_timepoint"], "2 hours post-dose")
-        self.assertIs(finding["needs_human_review"], False)
         self.assertIs(finding["open_access_is_oa"], True)
         self.assertNotIn("claim_type", finding)
         self.assertNotIn("target", finding)
         self.assertNotIn("disorder", finding)
-        self.assertEqual(preview["findings"][0]["entity_label"], "Default mode network")
-        self.assertEqual(view_payload["row_count"], 1)
-        self.assertEqual(view_payload["findings"][0]["entity_label"], "Default mode network")
         self.assertEqual(graph_bootstrap["edge_count"], 1)
         self.assertEqual(graph_bootstrap["edges"][0]["finding_count"], 1)
         self.assertEqual(graph_bootstrap["edges"][0]["full_text_seen_count"], 1)
@@ -111,18 +119,17 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertIn("supporting_quote", detail_bootstrap["fields"])
         self.assertEqual(len(detail_bootstrap["rows"]), 1)
         self.assertEqual(active["schema_version"], "route_native_evidence_payload_active_v1")
-        self.assertIn("active_evidence_payload", active)
-        self.assertIn("active_evidence_payloads", active)
-        self.assertIn("primary", active["active_evidence_payloads"]["targets"])
+        self.assertNotIn("active_evidence_payload", active)
+        self.assertNotIn("active_evidence_payloads", active)
+        self.assertNotIn("active_evidence_preview", active)
         self.assertIn("active_graph_bootstraps", active)
         self.assertIn("primary", active["active_graph_bootstraps"]["targets"])
         self.assertIn("active_detail_bootstraps", active)
         self.assertIn("primary", active["active_detail_bootstraps"]["targets"])
-        self.assertIn("active_evidence_preview", active)
         self.assertNotIn("active_payload_dir", active)
         self.assertNotIn("claim_source", active)
 
-    def test_exports_pharmacokinetics_specific_fields(self) -> None:
+    def test_excludes_hidden_pharmacokinetics_from_public_bootstraps(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             kg_dir = root / "kg"
@@ -183,28 +190,13 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
 
             result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
-            payload = json.loads(result["payload_path"].read_text())
-            preview = json.loads(result["preview_path"].read_text())
+            manifest = json.loads(result["manifest_path"].read_text())
+            target_detail = json.loads(result["detail_bootstrap_paths"]["targets"]["primary"].read_text())
+            disorder_detail = json.loads(result["detail_bootstrap_paths"]["disorders"]["primary"].read_text())
 
-        finding = payload["findings"][0]
-        self.assertEqual(finding["domain"], "pharmacokinetics_exposure")
-        self.assertEqual(finding["entity_kind"], "pharmacokinetic_parameter")
-        self.assertEqual(finding["primary_graph_anchor_kind"], "pharmacokinetic_parameter")
-        self.assertEqual(finding["pharmacokinetic_display_label"], "Ketamine plasma exposure")
-        self.assertEqual(finding["pk_relationship_type"], "exposure_characterized")
-        self.assertEqual(finding["pk_relationship_label"], "exposure characterized")
-        self.assertEqual(finding["pk_graph_object_kind"], "parent_or_analyte_exposure")
-        self.assertEqual(finding["pk_graph_object_label"], "Ketamine plasma exposure")
-        self.assertEqual(finding["pk_or_exposure_parameter"], "Cmax")
-        self.assertEqual(finding["metabolite_or_analyte"], "ketamine")
-        self.assertEqual(finding["matrix"], "plasma")
-        self.assertEqual(finding["route_of_administration"], "intravenous")
-        self.assertEqual(finding["sampling_time_or_window"], "40 minutes post-dose")
-        self.assertEqual(finding["model_or_method"], "noncompartmental analysis")
-        self.assertEqual(finding["exposure_response_or_pk_effect"], "higher peak exposure")
-        self.assertEqual(preview["findings"][0]["pharmacokinetic_display_label"], "Ketamine plasma exposure")
-        self.assertEqual(preview["findings"][0]["pk_graph_object_label"], "Ketamine plasma exposure")
-        self.assertEqual(preview["findings"][0]["matrix"], "plasma")
+        self.assertEqual(manifest["row_count"], 1)
+        self.assertEqual(target_detail["row_count"], 0)
+        self.assertEqual(disorder_detail["row_count"], 0)
 
     def test_exports_graph_study_coverage_from_candidate_papers(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -270,16 +262,15 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             ).to_parquet(kg_dir / "papers.parquet", index=False)
 
             result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
-            payload = json.loads(result["payload_path"].read_text())
             manifest = json.loads(result["manifest_path"].read_text())
 
-        self.assertEqual(payload["summary_stats"]["study_count"], 2)
+        self.assertEqual(manifest["summary_stats"]["default"]["study_count"], 2)
         self.assertEqual(
-            payload["summary_stats"]["graph_study_coverage"],
+            manifest["summary_stats"]["default"]["graph_study_coverage"],
             {"included_count": 2, "candidate_count": 3, "not_in_graph_count": 1},
         )
-        self.assertEqual(payload["summary_stats"]["graph_candidate_study_count"], 3)
-        self.assertEqual(payload["summary_stats"]["graph_excluded_study_count"], 1)
+        self.assertEqual(manifest["summary_stats"]["default"]["graph_candidate_study_count"], 3)
+        self.assertEqual(manifest["summary_stats"]["default"]["graph_excluded_study_count"], 1)
         self.assertEqual(manifest["summary_stats"]["default"]["graph_study_coverage"]["not_in_graph_count"], 1)
 
     def test_exports_routed_clinical_endpoint_source(self) -> None:
@@ -361,12 +352,13 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
 
             result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
-            payload = json.loads(result["payload_path"].read_text())
+            detail = json.loads(result["detail_bootstrap_paths"]["disorders"]["primary"].read_text())
+            rows = detail_bootstrap_rows(detail)
 
-        self.assertEqual(payload["row_count"], 2)
-        labels = {finding["entity_label"] for finding in payload["findings"]}
+        self.assertEqual(detail["row_count"], 2)
+        labels = {finding["entity_label"] for finding in rows}
         self.assertEqual(labels, {"Major depressive disorder", "Depression"})
-        symptom = next(finding for finding in payload["findings"] if finding["entity_label"] == "Depression")
+        symptom = next(finding for finding in rows if finding["entity_label"] == "Depression")
         self.assertEqual(symptom["entity_kind"], "symptom_problem")
         self.assertEqual(symptom["relation_type"], "studied_for_symptom")
 

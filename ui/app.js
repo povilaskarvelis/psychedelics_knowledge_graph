@@ -345,7 +345,6 @@ let currentDataLoadToken = 0;
 let heroStatsSnapshot = null;
 let graphManifestPromise = null;
 let graphPayloadConfigPromise = null;
-const routeNativeEvidencePayloadPromises = new Map();
 const graphBootstrapPayloadPromises = new Map();
 const detailBootstrapPayloadPromises = new Map();
 let bibliographyPayloadsPromise = null;
@@ -2867,14 +2866,9 @@ function supportBadgeHtml(support) {
   return chipHtml("support", supportLabel(support), support || "unknown");
 }
 
-function reviewBadgeHtml(claim) {
-  return claim.needs_human_review ? chipHtml("review", "needs review", "needs_review") : "";
-}
-
 function claimBadgeHtml(claim) {
   const secondary = isSecondaryLiteratureClaim(claim);
   return [
-    reviewBadgeHtml(claim),
     secondary ? "" : systemBadgeHtml(claim.system),
     secondary || mode !== "disorders" ? "" : studyDesignBadgeHtml(claim.study_design, claim),
     accessLevelBadgeHtml(claim.access_level),
@@ -6593,20 +6587,8 @@ function enrichAllLoadedClaimsWithBibliography() {
   });
 }
 
-function routeNativeFindingsFromPayload(payload) {
-  return Array.isArray(payload?.findings) ? payload.findings : null;
-}
-
 function evidencePayloadViewKey(modeKey) {
   return modeKey === "mechanistic" ? "targets" : modeKey;
-}
-
-function activeEvidencePayloadPath(config, modeKey, sourceKey) {
-  const viewPayloads = config?.active_evidence_payloads || {};
-  const viewKey = evidencePayloadViewKey(modeKey);
-  return cleanDisplayText(
-    viewPayloads?.[viewKey]?.[sourceKey] || viewPayloads?.[modeKey]?.[sourceKey] || config?.active_evidence_payload
-  );
 }
 
 function activeGraphBootstrapPath(config, modeKey, sourceKey) {
@@ -6704,20 +6686,6 @@ async function loadDetailBootstrapClaims(modeKey, sourceKey) {
   return task;
 }
 
-async function loadActiveRouteNativeFindings(modeKey, sourceKey) {
-  const config = await loadGraphPayloadConfig();
-  const path = activeEvidencePayloadPath(config, modeKey, sourceKey);
-  if (!path) return null;
-
-  if (routeNativeEvidencePayloadPromises.has(path)) return routeNativeEvidencePayloadPromises.get(path);
-
-  const task = fetchJsonFromCandidates(dataCandidates(path))
-    .then(({ data }) => routeNativeFindingsFromPayload(data))
-    .catch(() => null);
-  routeNativeEvidencePayloadPromises.set(path, task);
-  return task;
-}
-
 function routeNativeDisplayMode(finding) {
   const domain = normalizeValue(finding.domain || finding.kg_domain || finding.finding_type);
   if (HIDDEN_MAIN_GRAPH_DOMAINS.has(domain)) return "";
@@ -6805,10 +6773,7 @@ function routeNativeFindingForCurrentUi(finding, modeKey) {
 }
 
 async function loadRouteNativeEvidenceSource(modeKey, sourceKey) {
-  let findings = await loadDetailBootstrapClaims(modeKey, sourceKey);
-  if (!Array.isArray(findings) || !findings.length) {
-    findings = await loadActiveRouteNativeFindings(modeKey, sourceKey);
-  }
+  const findings = await loadDetailBootstrapClaims(modeKey, sourceKey);
   if (!Array.isArray(findings)) return false;
   const items = findings
     .filter((finding) => !isHiddenMainGraphItem(finding))

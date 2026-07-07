@@ -1,12 +1,12 @@
 # Publish Prep: Evidence Payload Export
 
-This step exports route-native evidence findings for the web UI. The default
-UI payload is a single findings file keyed by the actual routed extraction
-domains, not by the old two-dataset UI split.
+This step exports compact route-native evidence files for the web UI. The
+public site reads a manifest plus graph and detail bootstrap files keyed by the
+actual routed extraction domains, not by the old two-dataset UI split.
 
 The browser can still render the existing graph, cards, filters, and
 bibliography layout. It derives its display grouping from each finding's
-`domain` and `entity_kind` after loading the route-native payload.
+`domain` and `entity_kind` after loading the compact detail bootstrap.
 
 ## Run
 
@@ -29,26 +29,37 @@ python pipeline/kg/build_methods_flow.py
 ## Outputs
 
 - `data/processed/graph_payload_active.json`
-- `data/processed/graph_payload_runs/<RUN_ID>/graph_payload_evidence.json`
-- `data/processed/graph_payload_runs/<RUN_ID>/graph_preview_evidence.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_payload_manifest.json`
+- `data/processed/graph_payload_runs/<RUN_ID>/graph_bootstrap_view_<view>_<source>.json`
+- `data/processed/graph_payload_runs/<RUN_ID>/detail_bootstrap_view_<view>_<source>.json`
 - `data/kg/views/pipeline_status_graph.json`
 - `data/kg/views/methods_bibliography.json`
 
 ## Contract
 
-`graph_payload_evidence.json` contains:
+`graph_payload_manifest.json` contains:
 
 - `schema_version`
 - `evidence_source`
 - `kg_dir`
 - `row_count`
 - `summary_stats`
-- `findings[]`
+- `graph_bootstraps`
+- `detail_bootstraps`
 
-Each finding is flat and route-native. Important fields include:
+`graph_bootstrap_view_<view>_<source>.json` contains aggregate graph edges for
+fast initial rendering: compound, entity label, entity kind, finding count,
+study count, and full-text-seen counts.
 
-- `finding_id`
+`detail_bootstrap_view_<view>_<source>.json` contains the row-level public UI
+data in a compact field/value/row representation:
+
+- `fields[]`
+- `values[]`
+- `rows[]`
+
+The decoded rows are flat and route-native. Important fields include:
+
 - `domain`
 - `finding_type`
 - `evidence_type`
@@ -60,5 +71,6 @@ Each finding is flat and route-native. Important fields include:
 - domain-specific evidence fields such as `outcome_measure`, `sample_size_total`,
   `mechanism_type`, `assay_type`, `assessment_timepoint`, and `effect_size`
 
-The payload does not use the old `claim_type` field and does not split routed
-findings into old mechanistic/disorder export files.
+The public export does not use the old `claim_type` field, does not split
+routed findings into old mechanistic/disorder export files, and does not publish
+the heavy full-evidence JSON dump.
