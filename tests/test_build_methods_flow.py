@@ -17,6 +17,7 @@ from pipeline.kg.build_methods_flow import (
     prisma_flow_for_candidate_papers,
     prisma_flow_for_dataset,
     prisma_retrieval_reason,
+    routed_kg_graph_status_by_doi,
     slug,
     strongest_pdf_status,
 )
@@ -307,7 +308,14 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "retained_for_extraction_candidate": False,
                     "extraction_route_status": "not_retained_for_extraction",
                 },
-            ]
+            ],
+            kg_status_by_doi={
+                "10.1000/selected": {
+                    "status": "fail",
+                    "label": "Not graphable",
+                    "note": "Compound outside graph scope: Mephedrone",
+                },
+            },
         )
 
         interned = set(payload["interned_columns"])
@@ -331,6 +339,8 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertTrue(forbidden_public_columns.isdisjoint(payload["columns"]))
         self.assertEqual(payload["unit"], "papers")
         self.assertIn("papers", payload["counts"])
+        self.assertEqual(payload["counts"]["by_kg_status"]["Not graphable"], 1)
+        self.assertEqual(payload["counts"]["by_kg_status"]["Not reached"], 1)
         self.assertNotIn("candidate_papers", payload["counts"])
         self.assertNotIn("mechanistic", payload["string_table"])
         self.assertNotIn("disorder", payload["string_table"])
@@ -342,6 +352,9 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(selected["llm_screening_label"], "Passed")
         self.assertEqual(selected["extraction_status"], "pass")
         self.assertEqual(selected["extraction_label"], "Selected")
+        self.assertEqual(selected["kg_status"], "fail")
+        self.assertEqual(selected["kg_label"], "Not graphable")
+        self.assertEqual(selected["kg_note"], "Compound outside graph scope: Mephedrone")
         self.assertEqual(selected["stage_key"], "selected_for_extraction")
         self.assertTrue(selected["selected_for_extraction"])
 
@@ -351,8 +364,56 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(excluded["initial_screening_note"], "No abstract")
         self.assertEqual(excluded["llm_screening_status"], "not_reached")
         self.assertEqual(excluded["extraction_status"], "not_reached")
+        self.assertEqual(excluded["kg_status"], "not_reached")
+        self.assertEqual(excluded["kg_label"], "Not reached")
         self.assertEqual(excluded["stage_key"], "excluded_during_initial_screening")
         self.assertFalse(excluded["selected_for_extraction"])
+
+    def test_routed_kg_graph_status_marks_out_of_scope_compounds(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            kg_dir = root / "data" / "processed" / "kg_routed_runs" / "test_run"
+            kg_dir.mkdir(parents=True)
+            active_pointer = root / "data" / "processed" / "graph_payload_active.json"
+            active_pointer.write_text(
+                json.dumps({"kg_dir": "data/processed/kg_routed_runs/test_run"}),
+                encoding="utf-8",
+            )
+            pd.DataFrame(
+                [
+                    {"study_doi": "10.1000/in-graph"},
+                ]
+            ).to_parquet(kg_dir / "findings.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "study_doi": "10.1000/not-graphable",
+                        "normalization_status": "compound_graph_scope_not_graphable",
+                        "canonical_compound": "Mephedrone",
+                        "compound": "Mephedrone",
+                        "compound_original": "mephedrone",
+                    },
+                    {
+                        "study_doi": "10.1000/unmapped",
+                        "normalization_status": "entity_unmapped",
+                        "canonical_compound": "Psilocybin",
+                        "compound": "Psilocybin",
+                        "compound_original": "psilocybin",
+                    },
+                ]
+            ).to_parquet(kg_dir / "normalization_audit.parquet", index=False)
+
+            lookup, input_files, warnings = routed_kg_graph_status_by_doi(root)
+
+        self.assertFalse(warnings)
+        self.assertTrue(input_files)
+        self.assertEqual(lookup["10.1000/in-graph"]["label"], "In graph")
+        self.assertEqual(lookup["10.1000/not-graphable"]["label"], "Not graphable")
+        self.assertEqual(
+            lookup["10.1000/not-graphable"]["note"],
+            "Compound outside graph scope: Mephedrone",
+        )
+        self.assertEqual(lookup["10.1000/unmapped"]["label"], "Not normalized")
 
     def test_kg_claim_table_marks_pipeline_rows_as_claim_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

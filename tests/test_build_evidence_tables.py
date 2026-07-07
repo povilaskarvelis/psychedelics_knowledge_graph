@@ -181,6 +181,12 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             "Thalamocortical circuit",
         )
 
+        for raw_label in ("MDPV", "Mephedrone"):
+            with self.subTest(raw_label=raw_label):
+                match = graphable_compound_match(raw_label, registry)
+                self.assertFalse(match["matched"])
+                self.assertEqual(match["status"], "compound_graph_scope_not_graphable")
+
     def test_safety_endpoint_label_uses_specific_route_native_fields(self) -> None:
         cases = [
             ({"safety_event_or_measure": "QTc prolongation"}, "Cardiovascular safety"),

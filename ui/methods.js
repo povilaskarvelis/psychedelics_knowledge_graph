@@ -2,6 +2,7 @@ const methodsPipelineEl = document.getElementById("methodsPipeline");
 const methodsBibliographySectionEl = document.getElementById("paper-bibliography");
 const methodsBibliographySearchEl = document.getElementById("methodsBibliographySearch");
 const methodsBibliographyStageEl = document.getElementById("methodsBibliographyStage");
+const methodsBibliographyKgStatusEl = document.getElementById("methodsBibliographyKgStatus");
 const methodsBibliographySortEl = document.getElementById("methodsBibliographySort");
 const methodsBibliographySummaryEl = document.getElementById("methodsBibliographySummary");
 const methodsBibliographyRowsEl = document.getElementById("methodsBibliographyRows");
@@ -306,6 +307,8 @@ function bibliographyRowsFromPayload(payload) {
       item.doi,
       item.year,
       item.journal,
+      item.kg_label,
+      item.kg_note,
     ].join(" "));
     return item;
   });
@@ -333,6 +336,21 @@ function populateBibliographyStageFilter(payload) {
     `).join("")}
   `;
   methodsBibliographyStageEl.value = options.some((option) => option.key === currentValue) ? currentValue : "";
+}
+
+function populateBibliographyKgStatusFilter(payload) {
+  if (!methodsBibliographyKgStatusEl) return;
+  const currentValue = methodsBibliographyKgStatusEl.value;
+  const options = Array.isArray(payload?.kg_options) ? payload.kg_options : [];
+  methodsBibliographyKgStatusEl.innerHTML = `
+    <option value="">All KG statuses</option>
+    ${options.map((option) => `
+      <option value="${escapeHtml(option.label)}">
+        ${escapeHtml(option.label)} (${formatNumber(option.count)})
+      </option>
+    `).join("")}
+  `;
+  methodsBibliographyKgStatusEl.value = options.some((option) => option.label === currentValue) ? currentValue : "";
 }
 
 function bibliographySortValue(row, field) {
@@ -406,6 +424,7 @@ function bibliographyRowHtml(row) {
       <td>${bibliographyStageCellHtml(row.initial_screening_status, row.initial_screening_label, row.initial_screening_note)}</td>
       <td>${bibliographyStageCellHtml(row.llm_screening_status, row.llm_screening_label, row.llm_screening_note)}</td>
       <td>${bibliographyStageCellHtml(row.extraction_status, row.extraction_label, row.extraction_note)}</td>
+      <td>${bibliographyStageCellHtml(row.kg_status, row.kg_label, row.kg_note)}</td>
     </tr>
   `;
 }
@@ -416,11 +435,12 @@ function updateBibliographySummary() {
   const filtered = methodsState.bibliographyFilteredRows.length;
   const rendered = Math.min(methodsState.bibliographyRendered, filtered);
   const stage = (methodsBibliographyStageEl?.selectedOptions?.[0]?.textContent || "All stages").replace(/\s+/g, " ").trim();
+  const kgStatus = (methodsBibliographyKgStatusEl?.selectedOptions?.[0]?.textContent || "All KG statuses").replace(/\s+/g, " ").trim();
   const query = methodsBibliographySearchEl?.value?.trim() || "";
-  const filterText = query || methodsBibliographyStageEl?.value
+  const filterText = query || methodsBibliographyStageEl?.value || methodsBibliographyKgStatusEl?.value
     ? `Filtered to ${formatNumber(filtered)} of ${formatNumber(total)} papers.`
     : `${formatNumber(total)} papers in the full search corpus.`;
-  methodsBibliographySummaryEl.textContent = `${filterText} Showing ${formatNumber(rendered)}. Stage: ${stage}.`;
+  methodsBibliographySummaryEl.textContent = `${filterText} Showing ${formatNumber(rendered)}. Stage: ${stage}. KG status: ${kgStatus}.`;
 }
 
 function appendBibliographyRows() {
@@ -442,8 +462,10 @@ function renderBibliography() {
   const query = normalizeText(methodsBibliographySearchEl?.value || "");
   const queryTerms = query.split(" ").filter(Boolean);
   const stage = methodsBibliographyStageEl?.value || "";
+  const kgStatus = methodsBibliographyKgStatusEl?.value || "";
   let rows = methodsState.bibliographyRows.filter((row) => {
     if (stage && row.stage_key !== stage) return false;
+    if (kgStatus && row.kg_label !== kgStatus) return false;
     if (queryTerms.length && !queryTerms.every((term) => row.search_text.includes(term))) return false;
     return true;
   });
@@ -454,7 +476,7 @@ function renderBibliography() {
   if (!rows.length) {
     methodsBibliographyRowsEl.innerHTML = `
       <tr>
-        <td colspan="4" class="methods-bibliography-empty">No bibliography rows match the current filters.</td>
+        <td colspan="5" class="methods-bibliography-empty">No bibliography rows match the current filters.</td>
       </tr>
     `;
     if (methodsBibliographyLoadMoreEl) methodsBibliographyLoadMoreEl.hidden = true;
@@ -471,7 +493,7 @@ function renderBibliographyError(error) {
   if (methodsBibliographyRowsEl) {
     methodsBibliographyRowsEl.innerHTML = `
       <tr>
-        <td colspan="4" class="methods-bibliography-empty">Run python pipeline/kg/build_methods_flow.py from the project root, then refresh this page.</td>
+        <td colspan="5" class="methods-bibliography-empty">Run python pipeline/kg/build_methods_flow.py from the project root, then refresh this page.</td>
       </tr>
     `;
   }
@@ -489,6 +511,7 @@ async function loadMethodsBibliography() {
       methodsState.bibliographyPayload = payload;
       methodsState.bibliographyRows = bibliographyRowsFromPayload(payload);
       populateBibliographyStageFilter(payload);
+      populateBibliographyKgStatusFilter(payload);
       renderBibliography();
     })
     .catch((error) => {
@@ -553,5 +576,6 @@ initMethodsBibliography();
 
 methodsBibliographySearchEl?.addEventListener("input", scheduleBibliographyRender);
 methodsBibliographyStageEl?.addEventListener("change", scheduleBibliographyRender);
+methodsBibliographyKgStatusEl?.addEventListener("change", scheduleBibliographyRender);
 methodsBibliographySortEl?.addEventListener("change", scheduleBibliographyRender);
 methodsBibliographyLoadMoreEl?.addEventListener("click", appendBibliographyRows);

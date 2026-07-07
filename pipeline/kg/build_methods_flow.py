@@ -21,6 +21,7 @@ KG_CLAIMS_TABLE = ROOT / "data" / "processed" / "kg" / "claims.parquet"
 KG_TABLE_MANIFEST = ROOT / "data" / "processed" / "kg" / "manifest.json"
 EXTRACTION_PROJECTION_REPORT = ROOT / "data" / "processed" / "extraction" / "projection_report.json"
 CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
+GRAPH_PAYLOAD_ACTIVE_POINTER = ROOT / "data" / "processed" / "graph_payload_active.json"
 
 DATASETS = {
     "mechanistic": {
@@ -205,6 +206,9 @@ METHODS_BIBLIOGRAPHY_COLUMNS = (
     "extraction_status",
     "extraction_label",
     "extraction_note",
+    "kg_status",
+    "kg_label",
+    "kg_note",
     "stage_key",
     "stage_label",
     "selected_for_extraction",
@@ -220,6 +224,9 @@ METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS = (
     "extraction_status",
     "extraction_label",
     "extraction_note",
+    "kg_status",
+    "kg_label",
+    "kg_note",
     "stage_key",
     "stage_label",
 )
@@ -240,6 +247,48 @@ METHODS_BIBLIOGRAPHY_STAGE_ORDER = (
     "not_selected_for_extraction",
     "excluded_during_initial_screening",
     "identified_not_screened",
+)
+
+METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER = (
+    "In graph",
+    "Not graphable",
+    "Not normalized",
+    "No graph finding",
+    "Not reached",
+)
+
+KG_AUDIT_REASON_LABELS = {
+    "compound_graph_scope_not_graphable": "Compound outside graph scope",
+    "compound_class_not_graphable": "Compound class, not a graphable compound",
+    "compound_reference_not_graphable": "Reference compound, not a graphable compound",
+    "compound_combo_not_graphable": "Compound combination not split into a graphable compound",
+    "condition_analog_not_graphable": "Condition analogue not graphable",
+    "condition_broad_placeholder_not_graphable": "Condition label too broad for the graph",
+    "brain_measure_not_graphable": "Brain measure not mapped to a graph node",
+    "broad_brain_system_not_graphable": "Brain-system label too broad for the graph",
+    "molecular_effect_placeholder_not_graphable": "Molecular-effect label too broad for the graph",
+    "generic_behavior_not_graphable": "Behavior label too generic for the graph",
+    "entity_combo_not_graphable": "Combined entity label not split into a graph node",
+    "entity_reference_not_graphable": "Reference entity, not a graphable node",
+    "compound_unmapped": "Compound was not normalized",
+    "entity_unmapped": "Entity was not normalized",
+}
+
+KG_AUDIT_REASON_ORDER = (
+    "compound_graph_scope_not_graphable",
+    "compound_reference_not_graphable",
+    "compound_class_not_graphable",
+    "compound_combo_not_graphable",
+    "compound_unmapped",
+    "entity_unmapped",
+    "condition_broad_placeholder_not_graphable",
+    "condition_analog_not_graphable",
+    "brain_measure_not_graphable",
+    "broad_brain_system_not_graphable",
+    "molecular_effect_placeholder_not_graphable",
+    "generic_behavior_not_graphable",
+    "entity_combo_not_graphable",
+    "entity_reference_not_graphable",
 )
 
 METHODS_BIBLIOGRAPHY_PROFILE_LABELS = {
@@ -372,6 +421,37 @@ def write_json(path: Path, payload: object) -> None:
 def write_compact_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def active_routed_kg_dir(root: Path = ROOT, active_pointer: Path | None = None) -> Path | None:
+    active_pointer = active_pointer or root / "data" / "processed" / "graph_payload_active.json"
+    if not active_pointer.exists():
+        return None
+    try:
+        active = read_json_object(active_pointer)
+    except Exception:
+        return None
+    kg_dir = normalize(active.get("kg_dir", ""))
+    if not kg_dir:
+        return None
+    path = Path(kg_dir)
+    return path if path.is_absolute() else root / path
+
+
+def unique_public_labels(values: Iterable[object], limit: int = 3) -> str:
+    labels = []
+    seen = set()
+    for value in values:
+        label = strip_markup(value)
+        if not label or label in seen:
+            continue
+        labels.append(label)
+        seen.add(label)
+    if not labels:
+        return ""
+    shown = labels[:limit]
+    suffix = f" +{len(labels) - limit} more" if len(labels) > limit else ""
+    return ", ".join(shown) + suffix
 
 
 def first_nonempty(*values: object) -> object:
@@ -637,6 +717,7 @@ class MethodsFlowBuilder:
         self.nodes: dict[str, dict] = {}
         self.papers: dict[str, dict] = {}
         self.candidate_rows: list[dict] = []
+        self.kg_graph_status_by_doi: dict[str, dict] = {}
         self.fulltext_by_doi: dict[str, dict] = {}
         self.doi_to_paper_id: dict[str, str] = {}
         self.pipeline_rows: dict[str, dict[str, dict]] = defaultdict(dict)
@@ -655,6 +736,7 @@ class MethodsFlowBuilder:
 
     def build(self) -> dict:
         loaded_candidate_table = self.load_candidate_papers()
+        self.load_routed_kg_graph_status()
         if not loaded_candidate_table:
             self.load_fulltext_status()
             self.load_paper_libraries()
@@ -667,6 +749,12 @@ class MethodsFlowBuilder:
 
     def candidate_table_path(self) -> Path:
         return self.root / "data" / "processed" / "corpus" / "candidate_papers.parquet"
+
+    def load_routed_kg_graph_status(self) -> None:
+        lookup, input_files, warnings = routed_kg_graph_status_by_doi(self.root)
+        self.kg_graph_status_by_doi = lookup
+        self.input_files.extend(input_files)
+        self.warnings.extend(warnings)
 
     def load_candidate_papers(self, candidate_table: Path | None = None) -> bool:
         candidate_table = Path(candidate_table) if candidate_table is not None else self.candidate_table_path()
@@ -1262,7 +1350,10 @@ class MethodsFlowBuilder:
         bibliography_rows = self.candidate_rows if self.candidate_rows else []
         return {
             "pipeline_status": self.pipeline_status_view(),
-            "methods_bibliography": candidate_bibliography_payload(bibliography_rows),
+            "methods_bibliography": candidate_bibliography_payload(
+                bibliography_rows,
+                kg_status_by_doi=self.kg_graph_status_by_doi,
+            ),
             "manifest": {
                 "contract_version": KG_VERSION,
                 "generated_at": now_utc(),
@@ -1447,10 +1538,138 @@ def candidate_extraction_cell(row: dict) -> tuple[str, str, str]:
     return "pass", "Selected", ""
 
 
-def candidate_bibliography_row(row: dict) -> list:
+def kg_audit_reason_label(statuses: Iterable[str]) -> str:
+    normalized_statuses = {normalize(status).lower() for status in statuses if normalize(status)}
+    for status in KG_AUDIT_REASON_ORDER:
+        if status in normalized_statuses:
+            return KG_AUDIT_REASON_LABELS[status]
+    if normalized_statuses:
+        return status_label(sorted(normalized_statuses)[0])
+    return "No normalized graph finding"
+
+
+def kg_public_status_for_audit(statuses: Iterable[str]) -> tuple[str, str]:
+    normalized_statuses = {normalize(status).lower() for status in statuses if normalize(status)}
+    if any(status.endswith("_not_graphable") for status in normalized_statuses):
+        return "fail", "Not graphable"
+    if any(status.endswith("_unmapped") for status in normalized_statuses):
+        return "fail", "Not normalized"
+    return "fail", "No graph finding"
+
+
+def kg_status_from_audit(info: dict) -> dict:
+    statuses = info.get("statuses", set())
+    status, label = kg_public_status_for_audit(statuses)
+    note = kg_audit_reason_label(statuses)
+    compounds = unique_public_labels(info.get("compounds", []))
+    if compounds and any(normalize(status).lower().startswith("compound_") for status in statuses):
+        note = f"{note}: {compounds}"
+    return {"status": status, "label": label, "note": note}
+
+
+def routed_kg_graph_status_by_doi(root: Path = ROOT) -> tuple[dict[str, dict], list[str], list[str]]:
+    input_files: list[str] = []
+    warnings: list[str] = []
+    active_pointer = root / GRAPH_PAYLOAD_ACTIVE_POINTER.relative_to(ROOT)
+    kg_dir = active_routed_kg_dir(root, active_pointer)
+    if not kg_dir:
+        warnings.append(
+            "Active graph payload pointer is missing; methods bibliography cannot mark final KG graph status."
+        )
+        return {}, input_files, warnings
+
+    input_files.append(str(active_pointer))
+    findings_table = kg_dir / "findings.parquet"
+    audit_table = kg_dir / "normalization_audit.parquet"
+
+    try:
+        import pandas as pd
+    except ModuleNotFoundError as exc:  # pragma: no cover - dependency failure path
+        warnings.append(f"Could not load routed KG graph status because pandas is unavailable: {exc}")
+        return {}, input_files, warnings
+
+    included_dois: set[str] = set()
+    if findings_table.exists():
+        input_files.append(str(findings_table))
+        try:
+            findings = pd.read_parquet(findings_table, columns=["study_doi"])
+            included_dois = {
+                doi
+                for doi in (normalize_doi(value) for value in findings["study_doi"].tolist())
+                if doi
+            }
+        except Exception as exc:
+            warnings.append(f"Could not read routed KG findings table {findings_table}: {exc}")
+    else:
+        warnings.append(f"Routed KG findings table is missing: {findings_table}")
+
+    audit_by_doi: dict[str, dict] = defaultdict(lambda: {"statuses": set(), "compounds": []})
+    if audit_table.exists():
+        input_files.append(str(audit_table))
+        try:
+            audit = pd.read_parquet(audit_table)
+            wanted_columns = [
+                column
+                for column in (
+                    "study_doi",
+                    "normalization_status",
+                    "canonical_compound",
+                    "compound",
+                    "compound_original",
+                )
+                if column in audit.columns
+            ]
+            for record in audit[wanted_columns].where(pd.notna(audit[wanted_columns]), "").to_dict(orient="records"):
+                doi = normalize_doi(record.get("study_doi", ""))
+                status = normalize(record.get("normalization_status", "")).lower()
+                if not doi or not status:
+                    continue
+                info = audit_by_doi[doi]
+                info["statuses"].add(status)
+                compound = first_nonempty(
+                    record.get("canonical_compound", ""),
+                    record.get("compound", ""),
+                    record.get("compound_original", ""),
+                )
+                if normalize(compound):
+                    info["compounds"].append(compound)
+        except Exception as exc:
+            warnings.append(f"Could not read routed KG normalization audit table {audit_table}: {exc}")
+    else:
+        warnings.append(f"Routed KG normalization audit table is missing: {audit_table}")
+
+    lookup = {
+        doi: {"status": "pass", "label": "In graph", "note": ""}
+        for doi in included_dois
+    }
+    for doi, info in audit_by_doi.items():
+        if doi in lookup:
+            continue
+        lookup[doi] = kg_status_from_audit(info)
+    return lookup, input_files, warnings
+
+
+def candidate_kg_cell(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> tuple[str, str, str]:
+    if not boolish(row.get("retained_for_extraction_candidate", False)):
+        return "not_reached", "Not reached", ""
+    doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
+    if not doi:
+        return "fail", "No graph finding", "No DOI available for graph matching"
+    status = (kg_status_by_doi or {}).get(doi)
+    if status:
+        return (
+            normalize(status.get("status", "")) or "fail",
+            normalize(status.get("label", "")) or "No graph finding",
+            strip_markup(status.get("note", "")),
+        )
+    return "fail", "No graph finding", "No normalized graph finding"
+
+
+def candidate_bibliography_row(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> list:
     screening_status, screening_label, screening_note = candidate_screening_cell(row)
     llm_screening_status, llm_screening_label, llm_screening_note = candidate_llm_screening_cell(row)
     extraction_status, extraction_label, extraction_note = candidate_extraction_cell(row)
+    kg_status, kg_label, kg_note = candidate_kg_cell(row, kg_status_by_doi)
     stage_key, stage_label = candidate_bibliography_stage(row)
     doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
     metadata_row = {
@@ -1475,6 +1694,9 @@ def candidate_bibliography_row(row: dict) -> list:
         extraction_status,
         extraction_label,
         extraction_note,
+        kg_status,
+        kg_label,
+        kg_note,
         stage_key,
         stage_label,
         boolish(row.get("retained_for_extraction_candidate", False)),
@@ -1515,13 +1737,18 @@ def intern_bibliography_rows(rows: list[list]) -> tuple[list[list], list[str]]:
     return out, string_table
 
 
-def candidate_bibliography_payload(rows: Iterable[dict]) -> dict:
+def candidate_bibliography_payload(
+    rows: Iterable[dict],
+    kg_status_by_doi: dict[str, dict] | None = None,
+) -> dict:
     bibliography_rows = sorted(
-        (candidate_bibliography_row(row) for row in rows),
+        (candidate_bibliography_row(row, kg_status_by_doi=kg_status_by_doi) for row in rows),
         key=candidate_bibliography_sort_key,
     )
     stage_index = METHODS_BIBLIOGRAPHY_COLUMNS.index("stage_key")
     stage_counts = Counter(row[stage_index] for row in bibliography_rows)
+    kg_label_index = METHODS_BIBLIOGRAPHY_COLUMNS.index("kg_label")
+    kg_label_counts = Counter(row[kg_label_index] for row in bibliography_rows)
     stage_options = [
         {
             "key": key,
@@ -1540,6 +1767,24 @@ def candidate_bibliography_payload(rows: Iterable[dict]) -> dict:
         for key in sorted(stage_counts)
         if key not in METHODS_BIBLIOGRAPHY_STAGE_ORDER
     )
+    kg_options = [
+        {
+            "key": slug(label),
+            "label": label,
+            "count": kg_label_counts[label],
+        }
+        for label in METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER
+        if kg_label_counts.get(label)
+    ]
+    kg_options.extend(
+        {
+            "key": slug(label),
+            "label": label,
+            "count": kg_label_counts[label],
+        }
+        for label in sorted(kg_label_counts)
+        if label not in METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER
+    )
     encoded_rows, string_table = intern_bibliography_rows(bibliography_rows)
     return {
         "contract_version": KG_VERSION,
@@ -1550,9 +1795,11 @@ def candidate_bibliography_payload(rows: Iterable[dict]) -> dict:
         "interned_columns": list(METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS),
         "string_table": string_table,
         "stage_options": stage_options,
+        "kg_options": kg_options,
         "counts": {
             "papers": len(bibliography_rows),
             "by_stage": {item["key"]: item["count"] for item in stage_options},
+            "by_kg_status": {item["label"]: item["count"] for item in kg_options},
         },
         "rows": encoded_rows,
     }
@@ -2063,10 +2310,11 @@ def schema_payload() -> dict:
                     "interned_columns",
                     "string_table",
                     "stage_options",
+                    "kg_options",
                     "counts",
                     "rows",
                 ],
-                "description": "Complete paper bibliography with sequential initial-screening, LLM-based screening, and evidence-extraction labels.",
+                "description": "Complete paper bibliography with sequential initial-screening, LLM-based screening, evidence-extraction, and final KG graph-projection labels.",
             },
         },
     }

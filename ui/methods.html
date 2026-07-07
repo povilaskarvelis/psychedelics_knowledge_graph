@@ -618,8 +618,9 @@
             <p>
               This is the complete paper list produced by the search. It shows,
               paper by paper, whether each one passed initial screening,
-              LLM-based screening, and selection for evidence extraction. The
-              purpose is transparency: anyone can search by author, title,
+              LLM-based screening, selection for evidence extraction, and final
+              appearance in the knowledge graph. The purpose is transparency:
+              anyone can search by author, title,
               journal, year, or DOI, audit a decision, and flag missing or
               questionable classifications.
             </p>
@@ -642,6 +643,12 @@
             </select>
           </label>
           <label>
+            KG status
+            <select id="methodsBibliographyKgStatus">
+              <option value="">All KG statuses</option>
+            </select>
+          </label>
+          <label>
             Sort
             <select id="methodsBibliographySort">
               <option value="author">Author A-Z</option>
@@ -660,6 +667,7 @@
                 <th scope="col">Initial Screening</th>
                 <th scope="col">LLM-Based Screening</th>
                 <th scope="col">Evidence Extraction</th>
+                <th scope="col">Knowledge Graph</th>
               </tr>
             </thead>
             <tbody id="methodsBibliographyRows"></tbody>
@@ -679,6 +687,6 @@
         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">source repository</a>.
       </div>
     </footer>
-    <script src="methods.js?v=20260706-methods-bibliography"></script>
+    <script src="methods.js?v=20260707-kg-status"></script>
   </body>
 </html>
