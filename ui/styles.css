@@ -1761,9 +1761,18 @@ button.primary:hover {
 
 .methods-bibliography-table {
   width: 100%;
-  min-width: 860px;
+  min-width: 980px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.82rem;
+}
+
+.methods-bibliography-records-col {
+  width: 32%;
+}
+
+.methods-bibliography-stage-col {
+  width: 17%;
 }
 
 .methods-bibliography-table th,
