@@ -39,6 +39,8 @@ DEFAULT_ACTIVE_ROUTE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_ext
 
 ROUTE_OUTPUT_SCHEMA_VERSION = "routed_evidence_rows_v1"
 EXTRACTABLE_STATUSES = {"extracted"}
+REVIEW_COVERAGE_GRAPHABLE_FOCUS = {"main_focus", "substantial_topic"}
+REVIEW_COVERAGE_NON_GRAPHABLE_TYPES = {"mentions", "methodological_context"}
 MISSING_VALUES = {
     "",
     "not_reported",
@@ -392,6 +394,16 @@ def paper_type_for(result: dict, item_kind: str) -> str:
     return source_type or "review"
 
 
+def review_coverage_exclusion_reason(item: dict) -> str:
+    focus = normalize(item.get("coverage_focus", ""))
+    coverage_type = normalize(item.get("coverage_type", ""))
+    if focus and focus not in REVIEW_COVERAGE_GRAPHABLE_FOCUS:
+        return f"review_coverage_focus:{focus}"
+    if coverage_type in REVIEW_COVERAGE_NON_GRAPHABLE_TYPES:
+        return f"review_coverage_type:{coverage_type}"
+    return ""
+
+
 def infer_entity_kind(row: dict, domain: str) -> str:
     for field in ("primary_graph_anchor_kind", "kg_entity_kind_override", "graph_candidate_type", "graph_entity_type", "entity_type"):
         kind = normalized_entity_kind(row.get(field, ""))
@@ -611,6 +623,11 @@ def convert_outputs(
         item_kind, items = result_items(result)
         report_counts[f"{item_kind}_objects_seen"] += len(items)
         for item_index, item in enumerate(items, start=1):
+            if item_kind == "review_coverage_item":
+                exclusion_reason = review_coverage_exclusion_reason(item)
+                if exclusion_reason:
+                    skipped[exclusion_reason] += 1
+                    continue
             row = evidence_row_for_item(
                 output_row=output_row,
                 result=result,

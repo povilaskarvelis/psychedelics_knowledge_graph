@@ -118,6 +118,116 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
         self.assertEqual(report["rows_written"], 1)
         self.assertEqual(report["skipped"]["inactive_current_route"], 1)
 
+    def test_review_coverage_filters_peripheral_mentions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "review-intervention",
+                        "route_id": "review-intervention",
+                        "study_doi": "10.1000/review-intervention",
+                        "paper_metadata": {
+                            "doi": "10.1000/review-intervention",
+                            "study_title": "MDMA therapy model review",
+                            "study_year": "2026",
+                        },
+                    }
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "review-intervention",
+                        "route_id": "review-intervention",
+                        "prompt_profile": "secondary_review_coverage",
+                        "schema_profile": "review_coverage_schema",
+                        "status": "ok",
+                        "result": {
+                            "schema_version": "review_coverage_v1",
+                            "task_id": "review-intervention",
+                            "route_id": "review-intervention",
+                            "study_doi": "10.1000/review-intervention",
+                            "domain_route": "intervention_context",
+                            "source_type": "narrative_review",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "coverage_items": [
+                                {
+                                    "item_id": "R1",
+                                    "relationship_domain": "intervention_context",
+                                    "coverage_type": "summarizes",
+                                    "coverage_focus": "main_focus",
+                                    "compound_or_class": "MDMA",
+                                    "entity_type": "intervention_component",
+                                    "entity": "Inner Healing Intelligence model",
+                                    "summary_statement": "The review centers a participant-led healing model.",
+                                    "direction_or_tone": "supports",
+                                    "confidence": 0.95,
+                                    "needs_human_review": False,
+                                },
+                                {
+                                    "item_id": "R2",
+                                    "relationship_domain": "intervention_context",
+                                    "coverage_type": "discusses",
+                                    "coverage_focus": "substantial_topic",
+                                    "compound_or_class": "MDMA",
+                                    "entity_type": "intervention_component",
+                                    "entity": "Therapeutic Witnessing",
+                                    "summary_statement": "The review discusses witnessing as a therapist stance.",
+                                    "direction_or_tone": "supports",
+                                    "confidence": 0.9,
+                                    "needs_human_review": False,
+                                },
+                                {
+                                    "item_id": "R3",
+                                    "relationship_domain": "intervention_context",
+                                    "coverage_type": "mentions",
+                                    "coverage_focus": "brief_context",
+                                    "compound_or_class": "MDMA",
+                                    "entity_type": "intervention_component",
+                                    "entity": "Music and eye shades",
+                                    "summary_statement": "Music and eye shades are mentioned in one protocol sentence.",
+                                    "direction_or_tone": "descriptive_only",
+                                    "confidence": 0.85,
+                                    "needs_human_review": False,
+                                },
+                                {
+                                    "item_id": "R4",
+                                    "relationship_domain": "intervention_context",
+                                    "coverage_type": "methodological_context",
+                                    "coverage_focus": "substantial_topic",
+                                    "compound_or_class": "MDMA",
+                                    "entity_type": "intervention_component",
+                                    "entity": "manual description",
+                                    "summary_statement": "The paper describes background manual procedures.",
+                                    "direction_or_tone": "descriptive_only",
+                                    "confidence": 0.75,
+                                    "needs_human_review": False,
+                                },
+                            ],
+                        },
+                    }
+                ],
+            )
+
+            rows, report = convert_outputs(input_jsonl=outputs_jsonl, tasks_jsonl=tasks_jsonl)
+
+        self.assertEqual(report["rows_written"], 2)
+        self.assertEqual(report["skipped"]["review_coverage_focus:brief_context"], 1)
+        self.assertEqual(report["skipped"]["review_coverage_type:methodological_context"], 1)
+        self.assertEqual(
+            [(row["graph_entity_label"], row["coverage_focus"], row["coverage_type"]) for row in rows],
+            [
+                ("Inner Healing Intelligence model", "main_focus", "summarizes"),
+                ("Therapeutic Witnessing", "substantial_topic", "discusses"),
+            ],
+        )
+
     def test_preserves_domain_specific_fields_as_ui_facing_aliases(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

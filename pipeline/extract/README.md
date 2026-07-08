@@ -336,68 +336,6 @@ The generated route table records these rows with
 `data/processed/corpus/audits/` are inspection outputs, not durable pipeline
 inputs.
 
-## Older Manifest-Based Prepare Extraction Inputs
-
-This path is retained for first-generation extraction runs that still use the
-corpus manifest and dataset-specific candidate files. The current route-aware
-workflow should use `paper_extraction_routes.parquet` as the extraction source.
-
-After literature discovery, abstract screening, PDF retrieval, and full-text
-conversion, the older path builds the DOI-level extraction cohort:
-
-```bash
-python pipeline/extract/prepare_extraction_inputs.py --dataset all
-```
-
-By default this reads `data/processed/corpus_manifest.json`, combines screened
-`relevant` and `uncertain` papers across all included screening reports,
-deduplicates by DOI, and writes:
-
-- `data/processed/extraction/*_extraction_candidates.jsonl`
-- `data/processed/extraction/*_extraction_candidates.csv`
-- `data/raw/doi_queue.*.extraction_candidates.txt`
-- `data/raw/doi_queue.*.extraction_fulltext_ready.txt`
-- `data/raw/doi_queue.*.extraction_abstract_only.txt`
-- `data/processed/extraction/extraction_readiness_report.json`
-- `data/processed/extraction/extraction_readiness_report.md`
-
-To include a new literature update, add its completed abstract-screening report
-to `data/processed/corpus_manifest.json` and rerun this command. Do not edit the
-candidate files by hand; they are regenerated views of the manifest and paper
-library.
-
-Then build clean primary-study article text input files for the papers that
-already have converted full text:
-
-```bash
-python pipeline/fulltext/build_llm_evidence_packets.py \
-  --dataset mechanistic \
-  --doi-file data/raw/doi_queue.mechanistic.extraction_fulltext_ready.txt \
-  --out-jsonl data/processed/extraction/mechanistic_fulltext_packets.jsonl \
-  --report-json data/processed/extraction/mechanistic_fulltext_packets_report.json \
-  --omit-section-text \
-  --omit-candidate-contexts \
-  --section-selection-strategy primary_study \
-  --max-references 0
-
-python pipeline/fulltext/build_llm_evidence_packets.py \
-  --dataset disorder \
-  --doi-file data/raw/doi_queue.disorder.extraction_fulltext_ready.txt \
-  --out-jsonl data/processed/extraction/disorder_fulltext_packets.jsonl \
-  --report-json data/processed/extraction/disorder_fulltext_packets_report.json \
-  --omit-section-text \
-  --omit-candidate-contexts \
-  --section-selection-strategy primary_study \
-  --max-references 0
-```
-
-The `--omit-candidate-contexts` flag keeps previous claim/context hints out of
-the extraction inputs. The extraction model should infer findings from the paper
-text itself. The primary study section selection strategy keeps title/abstract
-metadata, methods/results-like chunks, tables, and marker-matched
-mechanistic/clinical sections while dropping most discussion, conclusion,
-references, and secondary-review body text.
-
 ## Retired Extraction V1 Path
 
 The older extraction-v1 pilot, Gemini runner, batch queue, QA, projection,
@@ -406,6 +344,13 @@ path has been removed. Use route-native extraction tasks
 (`build_extraction_tasks.py`), `run_route_extraction.py` or routed batch
 runners, `convert_routed_extractions_to_evidence_rows.py`, and parquet KG
 tables instead.
+
+## Retired Manifest-Based Extraction Prep
+
+The older corpus-manifest and dataset-specific candidate-file handoff has been
+removed. Use `paper_extraction_routes.parquet`, route-specific article text
+inputs, `build_extraction_tasks.py`, and route-native extraction outputs
+instead.
 
 ## Retired Stub Promotion
 

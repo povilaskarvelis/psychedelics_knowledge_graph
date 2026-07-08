@@ -53,14 +53,16 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                                 "source_family": "primary_study",
                                 "assessment_timepoint": "2 hours post-dose",
                                 "open_access_is_oa": True,
+                                "support": "Psilocybin reduced default-mode network integrity after dosing.",
+                                "effect_size": "Reduced functional connectivity",
                             }
                         ),
                     },
                     {
                         "finding_id": "legacy-1",
                         "paper_id": "paper-2",
-                        "source_name": "mechanistic_primary",
-                        "domain": "mechanistic",
+                        "source_name": "legacy_primary",
+                        "domain": "legacy",
                         "evidence_type": "primary_evidence",
                         "raw_row_json": "{}",
                     },
@@ -86,8 +88,8 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 active_json=active_json,
             )
 
-            graph_bootstrap = json.loads(result["graph_bootstrap_paths"]["targets"]["primary"].read_text())
-            detail_bootstrap = json.loads(result["detail_bootstrap_paths"]["targets"]["primary"].read_text())
+            graph_bootstrap = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
+            detail_bootstrap = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
             active = json.loads(active_json.read_text())
             manifest = json.loads(result["manifest_path"].read_text())
             rows = detail_bootstrap_rows(detail_bootstrap)
@@ -104,6 +106,8 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(finding["entity_kind"], "brain_network")
         self.assertEqual(finding["text_depth"], "article_text")
         self.assertEqual(finding["assessment_timepoint"], "2 hours post-dose")
+        self.assertEqual(finding["support"], "Psilocybin reduced default-mode network integrity after dosing.")
+        self.assertEqual(finding["effect_size"], "Reduced functional connectivity")
         self.assertIs(finding["open_access_is_oa"], True)
         self.assertNotIn("claim_type", finding)
         self.assertNotIn("target", finding)
@@ -116,6 +120,8 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(detail_bootstrap["row_count"], 1)
         self.assertIn("study_year", detail_bootstrap["fields"])
         self.assertIn("evidence_locator", detail_bootstrap["fields"])
+        self.assertIn("support", detail_bootstrap["fields"])
+        self.assertIn("effect_size", detail_bootstrap["fields"])
         self.assertIn("supporting_quote", detail_bootstrap["fields"])
         self.assertEqual(len(detail_bootstrap["rows"]), 1)
         self.assertEqual(active["schema_version"], "route_native_evidence_payload_active_v1")
@@ -123,13 +129,15 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertNotIn("active_evidence_payloads", active)
         self.assertNotIn("active_evidence_preview", active)
         self.assertIn("active_graph_bootstraps", active)
-        self.assertIn("primary", active["active_graph_bootstraps"]["targets"])
+        self.assertIn("primary", active["active_graph_bootstraps"])
         self.assertIn("active_detail_bootstraps", active)
-        self.assertIn("primary", active["active_detail_bootstraps"]["targets"])
+        self.assertIn("primary", active["active_detail_bootstraps"])
+        self.assertEqual(set(active["active_graph_bootstraps"]), {"primary", "secondary"})
+        self.assertEqual(set(active["active_detail_bootstraps"]), {"primary", "secondary"})
         self.assertNotIn("active_payload_dir", active)
         self.assertNotIn("claim_source", active)
 
-    def test_excludes_hidden_pharmacokinetics_from_public_bootstraps(self) -> None:
+    def test_exports_pharmacokinetics_with_all_other_domains(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             kg_dir = root / "kg"
@@ -191,12 +199,105 @@ class ExportEvidencePayloadTest(unittest.TestCase):
 
             result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
             manifest = json.loads(result["manifest_path"].read_text())
-            target_detail = json.loads(result["detail_bootstrap_paths"]["targets"]["primary"].read_text())
-            disorder_detail = json.loads(result["detail_bootstrap_paths"]["disorders"]["primary"].read_text())
+            graph = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
+            detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
+            rows = detail_bootstrap_rows(detail)
 
         self.assertEqual(manifest["row_count"], 1)
-        self.assertEqual(target_detail["row_count"], 0)
-        self.assertEqual(disorder_detail["row_count"], 0)
+        self.assertEqual(graph["edge_count"], 0)
+        self.assertEqual(graph["finding_count"], 0)
+        self.assertEqual(graph["source_row_count"], 1)
+        self.assertEqual(detail["row_count"], 1)
+        self.assertEqual(rows[0]["domain"], "pharmacokinetics_exposure")
+        self.assertEqual(rows[0]["entity_kind"], "pharmacokinetic_parameter")
+
+    def test_metadata_entity_kinds_remain_detail_rows_not_graph_edges(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            kg_dir = root / "kg"
+            out_dir = root / "payload"
+            kg_dir.mkdir()
+
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-condition",
+                        "paper_id": "paper-1",
+                        "source_name": "routed_extractions",
+                        "domain": "clinical_outcome",
+                        "evidence_type": "primary_evidence",
+                        "study_doi": "10.1000/condition",
+                        "compound": "Psilocybin",
+                        "entity_label": "Major depressive disorder",
+                        "raw_row_json": "{}",
+                    },
+                    {
+                        "finding_id": "finding-scale",
+                        "paper_id": "paper-1",
+                        "source_name": "routed_extractions",
+                        "domain": "clinical_outcome",
+                        "evidence_type": "primary_evidence",
+                        "study_doi": "10.1000/condition",
+                        "compound": "Psilocybin",
+                        "entity_label": "MADRS",
+                        "raw_row_json": "{}",
+                    },
+                    {
+                        "finding_id": "finding-compound-class",
+                        "paper_id": "paper-1",
+                        "source_name": "routed_extractions",
+                        "domain": "intervention_context",
+                        "evidence_type": "primary_evidence",
+                        "study_doi": "10.1000/condition",
+                        "compound": "Psilocybin",
+                        "entity_label": "Classic psychedelics",
+                        "raw_row_json": "{}",
+                    },
+                ]
+            ).to_parquet(kg_dir / "findings.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-condition",
+                        "evidence_id": "evidence-condition",
+                        "domain": "clinical_outcome",
+                        "entity_kind": "condition_indication",
+                        "entity_label": "Major depressive disorder",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "studied_for_condition",
+                    },
+                    {
+                        "finding_id": "finding-scale",
+                        "evidence_id": "evidence-scale",
+                        "domain": "clinical_outcome",
+                        "entity_kind": "outcome_scale",
+                        "entity_label": "MADRS",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "measured_with",
+                    },
+                    {
+                        "finding_id": "finding-compound-class",
+                        "evidence_id": "evidence-compound-class",
+                        "domain": "intervention_context",
+                        "entity_kind": "compound",
+                        "entity_label": "Classic psychedelics",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "has_compound_class",
+                    },
+                ]
+            ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
+
+            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+            graph = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
+            detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
+            rows = detail_bootstrap_rows(detail)
+
+        self.assertEqual(detail["row_count"], 3)
+        self.assertEqual(graph["source_row_count"], 3)
+        self.assertEqual(graph["finding_count"], 1)
+        self.assertEqual(graph["edge_count"], 1)
+        self.assertEqual(graph["edges"][0]["entity_kind"], "condition_indication")
+        self.assertEqual({row["entity_kind"] for row in rows}, {"condition_indication", "outcome_scale", "compound"})
 
     def test_exports_graph_study_coverage_from_candidate_papers(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -321,8 +422,8 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                     {
                         "finding_id": "legacy-1",
                         "paper_id": "paper-2",
-                        "source_name": "mechanistic_primary",
-                        "domain": "mechanistic",
+                        "source_name": "legacy_primary",
+                        "domain": "legacy",
                         "evidence_type": "primary_evidence",
                         "raw_row_json": "{}",
                     },
@@ -352,7 +453,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
 
             result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
-            detail = json.loads(result["detail_bootstrap_paths"]["disorders"]["primary"].read_text())
+            detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
             rows = detail_bootstrap_rows(detail)
 
         self.assertEqual(detail["row_count"], 2)

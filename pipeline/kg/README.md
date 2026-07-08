@@ -8,9 +8,7 @@ evidence table into a paper-flow view.
 
 The route-native main-page graph payload is generated separately by
 `pipeline/publish/export_evidence_payload.py`. The active main-page payload uses
-the normalized KG evidence tables by default; older projected Gemini claim JSON
-files remain only as legacy source/audit artifacts while the old pipeline is
-still retained.
+the normalized KG evidence tables by default.
 
 Run:
 
@@ -145,8 +143,8 @@ bipolar depression, social anxiety disorder, chronic pain, neuropathic pain, or
 migraine, remain eligible for the condition view. Endpoint-only symptom rows
 still route to symptom/problem labels rather than condition nodes.
 
-For new search runs, add the completed abstract-screening report to
-`data/processed/corpus_manifest.json`, regenerate extraction inputs if needed,
-then rerun `python pipeline/kg/build_methods_flow.py --refresh-kg-tables`. The
-methods PRISMA flow will update from the manifest-defined corpus and the current
-normalized KG evidence table without editing UI data by hand.
+For new search runs, rebuild the corpus tables, routing tables, routed
+extraction outputs, and normalized KG tables before rerunning
+`python pipeline/kg/build_methods_flow.py --refresh-kg-tables`. The methods
+PRISMA flow should be regenerated from pipeline artifacts rather than edited in
+UI data by hand.

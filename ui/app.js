@@ -9,7 +9,6 @@ const fullTextOnlyToggle = document.getElementById("fullTextOnlyToggle");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
 const detailBody = document.getElementById("detailBody");
-const modeButtons = document.querySelectorAll("[data-mode]");
 const claimLayerButtons = document.querySelectorAll("[data-claim-layer]");
 const evidenceViewButtons = document.querySelectorAll("[data-evidence-view]");
 const entityKindToggle = document.querySelector("[data-entity-kind-toggle]");
@@ -116,85 +115,77 @@ const BEHAVIORAL_EFFECT_NODE_LABELS = [
   "Stress-coping behavior",
   "Threat avoidance",
 ];
-const ENTITY_VIEW_OPTIONS = {
-  disorders: [
-    { key: "condition_indication", label: "Conditions", singular: "Condition", lowerPlural: "conditions", lowerSingular: "condition" },
-    {
-      key: "safety_adverse_event",
-      label: "Safety",
-      singular: "Safety event",
-      lowerPlural: "safety events",
-      lowerSingular: "safety event",
-    },
-    {
-      key: "cognitive_behavioral_construct",
-      label: "Cognition",
-      singular: "Cognitive construct",
-      lowerPlural: "cognitive constructs",
-      lowerSingular: "cognitive construct",
-      labels: COGNITION_NODE_LABELS,
-    },
-    {
-      key: "behavioral_effect",
-      kinds: ["cognitive_behavioral_construct"],
-      label: "Behavior",
-      singular: "Behavior",
-      lowerPlural: "behavior",
-      lowerSingular: "behavior",
-      labels: BEHAVIORAL_EFFECT_NODE_LABELS,
-    },
-    {
-      key: "subjective_experience_construct",
-      label: "Subjective effects",
-      singular: "Subjective effect",
-      lowerPlural: "subjective effects",
-      lowerSingular: "subjective effect",
-    },
-    {
-      key: "intervention_component",
-      label: "Therapy context",
-      singular: "Therapy context",
-      lowerPlural: "therapy context nodes",
-      lowerSingular: "therapy context node",
-    },
-    {
-      key: "public_health_measure",
-      label: "Naturalistic use",
-      singular: "Naturalistic use pattern",
-      lowerPlural: "naturalistic use patterns",
-      lowerSingular: "naturalistic use pattern",
-    },
-  ],
-  mechanistic: [
-    {
-      key: "brain_system",
-      kinds: ["brain_region", "brain_network", "neural_circuit"],
-      label: "Brain regions",
-      singular: "Brain region",
-      lowerPlural: "brain regions",
-      lowerSingular: "brain region",
-    },
-    {
-      key: "pathway_readout",
-      kinds: ["pathway_process", "biomarker_readout"],
-      label: "Molecular effects",
-      singular: "Molecular effect",
-      lowerPlural: "molecular effects",
-      lowerSingular: "molecular effect",
-    },
-    {
-      key: "target_system",
-      kinds: ["target", "system_family"],
-      label: "Targets",
-      singular: "Target",
-      lowerPlural: "targets",
-      lowerSingular: "target",
-    },
-  ],
-};
 const ENTITY_CATEGORY_OPTIONS = [
-  ...ENTITY_VIEW_OPTIONS.disorders.map((option) => ({ mode: "disorders", ...option })),
-  ...ENTITY_VIEW_OPTIONS.mechanistic.map((option) => ({ mode: "mechanistic", ...option })),
+  { key: "condition_indication", label: "Conditions", singular: "Condition", lowerPlural: "conditions", lowerSingular: "condition" },
+  {
+    key: "safety_adverse_event",
+    label: "Safety",
+    singular: "Safety event",
+    lowerPlural: "safety events",
+    lowerSingular: "safety event",
+  },
+  {
+    key: "cognitive_behavioral_construct",
+    label: "Cognition",
+    singular: "Cognitive construct",
+    lowerPlural: "cognitive constructs",
+    lowerSingular: "cognitive construct",
+    labels: COGNITION_NODE_LABELS,
+  },
+  {
+    key: "behavioral_effect",
+    kinds: ["cognitive_behavioral_construct"],
+    label: "Behavior",
+    singular: "Behavior",
+    lowerPlural: "behavior",
+    lowerSingular: "behavior",
+    labels: BEHAVIORAL_EFFECT_NODE_LABELS,
+  },
+  {
+    key: "subjective_experience_construct",
+    label: "Subjective effects",
+    singular: "Subjective effect",
+    lowerPlural: "subjective effects",
+    lowerSingular: "subjective effect",
+  },
+  {
+    key: "intervention_component",
+    label: "Therapy context",
+    singular: "Therapy context",
+    lowerPlural: "therapy context nodes",
+    lowerSingular: "therapy context node",
+  },
+  {
+    key: "public_health_measure",
+    label: "Naturalistic use",
+    singular: "Naturalistic use pattern",
+    lowerPlural: "naturalistic use patterns",
+    lowerSingular: "naturalistic use pattern",
+  },
+  {
+    key: "brain_system",
+    kinds: ["brain_region", "brain_network", "neural_circuit"],
+    label: "Brain regions",
+    singular: "Brain region",
+    lowerPlural: "brain regions",
+    lowerSingular: "brain region",
+  },
+  {
+    key: "pathway_readout",
+    kinds: ["pathway_process", "biomarker_readout"],
+    label: "Molecular effects",
+    singular: "Molecular effect",
+    lowerPlural: "molecular effects",
+    lowerSingular: "molecular effect",
+  },
+  {
+    key: "target_system",
+    kinds: ["target", "system_family"],
+    label: "Targets",
+    singular: "Target",
+    lowerPlural: "targets",
+    lowerSingular: "target",
+  },
 ];
 const DETAIL_PANEL_PROFILE_DEFAULT = {
   experimentalSystem: false,
@@ -294,49 +285,21 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
     mechanisticRelationshipTypes: true,
   },
 };
-const ROUTE_NATIVE_DISPLAY_MODE_BY_DOMAIN = {
-  molecular_target: "mechanistic",
-  molecular_pathway_readout: "mechanistic",
-  brain_system: "mechanistic",
-  clinical_outcome: "disorders",
-  safety_tolerability: "disorders",
-  cognitive_behavioral: "disorders",
-  subjective_experience: "disorders",
-  real_world_public_health: "disorders",
-  intervention_context: "disorders",
-};
-const ROUTE_NATIVE_MECHANISTIC_ENTITY_KINDS = new Set([
-  "target",
-  "pathway_process",
-  "molecular_readout",
-  "biomarker_readout",
-  "system_family",
-  "brain_region",
-  "brain_network",
-  "neural_circuit",
-]);
-
 let claims = [];
-let disorderClaims = [];
 const claimStores = {
-  normalized: { mechanistic: [], disorders: [] },
-  extracted: { mechanistic: [], disorders: [] },
+  normalized: { all: [] },
+  extracted: { all: [] },
 };
-let bibliographyByMode = {
-  mechanistic: [],
-  disorders: [],
+let bibliographyBySource = {
+  all: [],
 };
 let selected = null;
 let isolateSelection = false;
-let mode = "disorders";
 let claimLayer = "normalized";
 let evidenceView = "primary";
 const EVIDENCE_VIEW_KEYS = ["primary", "meta_analyses", "reviews", "secondary"];
 const SECONDARY_EVIDENCE_VIEW_KEYS = new Set(["meta_analyses", "reviews", "secondary"]);
-let entityView = {
-  disorders: "condition_indication",
-  mechanistic: "target_system",
-};
+let entityViewKey = "condition_indication";
 let renderScheduled = false;
 let activeDetailItems = [];
 let detailGraphFilter = null;
@@ -349,12 +312,10 @@ const graphBootstrapPayloadPromises = new Map();
 const detailBootstrapPayloadPromises = new Map();
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
+let tooltipMeasureFrame = 0;
 let pendingTooltipPoint = null;
 let tooltipSize = { width: 240, height: 40 };
-const yearFilterState = {
-  mechanistic: { min: "", max: "" },
-  disorders: { min: "", max: "" },
-};
+const yearFilterState = {};
 
 const defaultDetail = {
   title: "Graph Detail",
@@ -516,7 +477,7 @@ function claimSearchHaystack(claim) {
     return normalizeSearchText([rawSearchTextForObject(claim), ...claimDerivedSearchParts(claim)].join(" "));
   }
 
-  const contextKey = `${claimLayer}|${mode}|${currentEntityViewKey()}|${evidenceView}`;
+  const contextKey = `${claimLayer}|${currentEntityViewKey()}|${evidenceView}`;
   const cachedByContext = claimSearchTextCache.get(claim);
   if (cachedByContext?.has(contextKey)) return cachedByContext.get(contextKey);
 
@@ -554,17 +515,17 @@ const PATHWAY_READOUT_FAMILY_RULES = [
   {
     label: "Cellular stress",
     pattern:
-      /\b(oxidative stress|reactive oxygen|\bros\b|lipid peroxidation|malondialdehyde|\bmda\b|glutathione|\bgsh\b|\bsod\b|catalase|apoptosis|caspase|cell death|necrosis|hsp[- ]?70|heat shock|neurotox\w*|toxicity|toxic marker|neurofilament|\bnfl\b|s100b)\b/,
+      /\b(cellular stress|oxidative stress|reactive oxygen|\bros\b|lipid peroxidation|malondialdehyde|\bmda\b|glutathione|\bgsh\b|\bsod\b|catalase|apoptosis|caspase|cell death|necrosis|hsp[- ]?70|heat shock|neurotox\w*|toxicity|toxic marker|neurofilament|\bnfl\b|s100b)\b/,
   },
   {
     label: "Neuroplasticity",
     pattern:
-      /\b(bdnf|trkb|trk b|ngf|gdnf|vegf|igf[- ]?1|insulin[- ]like growth factor|neurotroph\w*|growth factor\w*|plasticity|synaptic|synapse|dendritic|spine|neurogenesis|neurite|synaptogenesis|long[- ]?term potentiation|ltp|long[- ]?term depression|ltd|psd[- ]?95|synaptophysin|arc|sv2a|synaptic vesicle|perineuronal net)\b/,
+      /\b(neuroplasticity|bdnf|trkb|trk b|ngf|gdnf|vegf|igf[- ]?1|insulin[- ]like growth factor|neurotroph\w*|growth factor\w*|plasticity|synaptic|synapse|dendritic|spine|neurogenesis|neurite|synaptogenesis|paired[- ]pulse facilitation|ppf|long[- ]?term potentiation|ltp|long[- ]?term depression|ltd|psd[- ]?95|synaptophysin|arc|sv2a|synaptic vesicle|perineuronal net|myelin basic protein|myelination)\b/,
   },
   {
     label: "Intracellular signaling",
     pattern:
-      /\b(erk|mapk|mtor|mtorc1|akt|camp|creb|pka|pkc|plc|pi3k|gsk[- ]?3|p70s6k|stat3|jnk|phosphorylation|phosphorylated|phospho|second messenger\w*|kinase\w*|signal(?:ing|ling)|phosphoinositide)\b/,
+      /\b(intracellular signaling|erk|mapk|mtor|mtorc1|akt|camp|creb|pka|pkc|plc|pi3k|gsk[- ]?3|p70s6k|stat3|jnk|rac1|phosphorylation|phosphorylated|phospho|second messenger\w*|kinase\w*|signal(?:ing|ling)|phosphoinositide)\b/,
   },
   {
     label: "Immediate early gene activation",
@@ -573,19 +534,19 @@ const PATHWAY_READOUT_FAMILY_RULES = [
   },
   {
     label: "Serotonin signaling",
-    pattern: /\b(serotonin|5[- ]?hydroxytryptamine|5[- ]?hiaa|5[- ]?ht\d?[a-z]?|sert|slc6a4)\b/,
+    pattern: /\b(serotonin signaling|serotonin|5[- ]?hydroxytryptamine|5[- ]?hiaa|5[- ]?ht\d?[a-z]?|sert|slc6a4)\b/,
   },
   {
     label: "Dopamine signaling",
-    pattern: /\b(dopamine|\bdopa\b|dopac|\bhva\b|\bdat\b|slc6a3|d[1-5][ -]?receptor)\b/,
+    pattern: /\b(dopamine signaling|dopamine|\bdopa\b|dopac|\bhva\b|\bdat\b|slc6a3|d[1-5][ -]?receptor)\b/,
   },
   {
     label: "Glutamate signaling",
-    pattern: /\b(glutamate|glutamatergic|ampa|nmda|nmdar|ampar|mglur|mglu\d?|glua\d?|glun\d?|vglut)\b/,
+    pattern: /\b(glutamate signaling|glutamate|glutamatergic|ampa|nmda|nmdar|ampar|mglur\d?[a-z]?|mglu\d?|glua\d?|glun\d?|vglut)\b/,
   },
   {
     label: "GABA signaling",
-    pattern: /\b(gaba|gabaergic|gabr|gad[- ]?65|gad[- ]?67)\b/,
+    pattern: /\b(gaba signaling|gaba|gabaergic|gabr|gad[- ]?65|gad[- ]?67)\b/,
   },
   {
     label: "Epigenetic regulation",
@@ -601,30 +562,33 @@ const PATHWAY_READOUT_FAMILY_RULES = [
   },
   {
     label: "Drug metabolism",
-    pattern: /\b(cyp\d+\w*|cytochrome p450|ugt\d*\w*|monoamine oxidase|mao[- ]?[ab]?|comt|metabolic enzyme\w*|in vitro metabolism)\b/,
+    pattern: /\b(drug metabolism|cyp\d+\w*|cytochrome p450|ugt\d*\w*|monoamine oxidase|mao[- ]?[ab]?|comt|metabolic enzyme\w*|in vitro metabolism)\b/,
   },
   {
     label: "Endocrine response",
-    pattern: /\b(cortisol|corticosterone|acth|prolactin|hormone\w*|endocrine|melatonin|oxytocin|vasopressin)\b/,
+    pattern: /\b(endocrine response|cortisol|corticosterone|acth|prolactin|hormone\w*|endocrine|melatonin|oxytocin|vasopressin)\b/,
   },
   {
     label: "Norepinephrine signaling",
-    pattern: /\b(norepinephrine|noradrenaline|\bne\b|\bna\b|slc6a2|net\b)\b/,
+    pattern: /\b(norepinephrine signaling|norepinephrine|noradrenaline|\bne\b|\bna\b|slc6a2|net\b)\b/,
   },
   {
     label: "Neuronal excitability",
     pattern:
-      /\b(firing rate|spik(?:e|ing)|calcium imaging|calcium flux|electrophysiolog\w*|oscillation\w*|gamma|theta|field potential\w*|currents?|\bepscs?\b|\bipscs?\b|\bmepscs?\b|\bmipscs?\b)\b/,
+      /\b(neuronal excitability|excitability|firing rate|spik(?:e|ing)|calcium imaging|calcium flux|electrophysiolog\w*|oscillation\w*|gamma|theta|field potential\w*|currents?|\bepscs?\b|\bipscs?\b|\bmepscs?\b|\bmipscs?\b)\b/,
   },
   {
     label: "Receptor regulation",
     pattern:
-      /\b(receptor\w*|transport(?:er|ers)|availability|binding potential|densit(?:y|ies)|occupancy|trafficking|surface expression|internalization|uptake site)\b/,
+      /\b(receptor regulation|receptor\w*|transport(?:er|ers)|availability|binding potential|densit(?:y|ies)|occupancy|trafficking|surface expression|internalization|uptake site|p[- ]?glycoprotein|abcb1|pmat|slc29a4|vmat\d?|vesicular monoamine transporter)\b/,
   },
 ];
+const PATHWAY_READOUT_FAMILY_LABELS = new Map(
+  PATHWAY_READOUT_FAMILY_RULES.map((item) => [normalizeValue(item.label), item.label]),
+);
 
 function usesPathwayReadoutFamilies() {
-  return claimLayer === "normalized" && mode === "mechanistic" && currentEntityViewKey() === "pathway_readout";
+  return claimLayer === "normalized" && currentEntityViewKey() === "pathway_readout";
 }
 
 function pathwayReadoutMatchText(values) {
@@ -640,8 +604,10 @@ function pathwayReadoutMatchText(values) {
 function pathwayReadoutFamilyFromText(value) {
   const text = pathwayReadoutMatchText([value]);
   if (!text) return "";
+  const exactLabel = PATHWAY_READOUT_FAMILY_LABELS.get(normalizeValue(text));
+  if (exactLabel) return exactLabel;
   const rule = PATHWAY_READOUT_FAMILY_RULES.find((item) => item.pattern.test(text));
-  return rule?.label || "Other molecular effects";
+  return rule?.label || "";
 }
 
 function specificPathwayReadoutLabel(claim) {
@@ -664,6 +630,8 @@ function pathwayReadoutFamilyForClaim(claim) {
     claim?.raw_entity_label,
     claim?.canonical_entity,
   ]);
+  const exactLabel = PATHWAY_READOUT_FAMILY_LABELS.get(normalizeValue(specificLabel));
+  if (exactLabel) return exactLabel;
   const labelRule = PATHWAY_READOUT_FAMILY_RULES.find((item) => item.pattern.test(labelText));
   if (labelRule) return labelRule.label;
   const text = pathwayReadoutMatchText([
@@ -677,12 +645,11 @@ function pathwayReadoutFamilyForClaim(claim) {
     claim?.action_type,
   ]);
   const rule = PATHWAY_READOUT_FAMILY_RULES.find((item) => item.pattern.test(text));
-  return rule?.label || "Other molecular effects";
+  return rule?.label || "";
 }
 
 function graphRightLabelForClaim(claim) {
-  const rightKey = rightEntityKey();
-  const right = graphLabel(claim?.[rightKey]);
+  const right = graphLabel(graphRightRawLabel(claim));
   if (!right) return "";
   if (usesPathwayReadoutFamilies()) return pathwayReadoutFamilyForClaim(claim);
   return right;
@@ -711,24 +678,28 @@ function claimMatchesGraphEdge(claim, compound, right) {
   return claimMatchesGraphCompound(claim, compound) && claimMatchesGraphRight(claim, right);
 }
 
-function rightEntityKey() {
-  return mode === "mechanistic" ? "target" : "disorder";
+function graphRightRawLabel(claim) {
+  return (
+    meaningfulText(claim?.graph_entity_label) ||
+    meaningfulText(claim?.entity_label) ||
+    meaningfulText(claim?.raw_entity_label) ||
+    meaningfulText(claim?.target) ||
+    meaningfulText(claim?.disorder)
+  );
 }
 
-function entityViewOptionsForMode() {
-  return ENTITY_VIEW_OPTIONS[mode] || [];
+function rightEntityKey() {
+  return "graph_entity_label";
 }
 
 function currentEntityViewKey() {
-  const options = entityViewOptionsForMode();
-  const selectedKey = entityView[mode];
-  if (options.some((option) => option.key === selectedKey)) return selectedKey;
-  return options[0]?.key || "";
+  if (ENTITY_CATEGORY_OPTIONS.some((option) => option.key === entityViewKey)) return entityViewKey;
+  return ENTITY_CATEGORY_OPTIONS[0]?.key || "";
 }
 
 function currentEntityViewOption() {
   const key = currentEntityViewKey();
-  return entityViewOptionsForMode().find((option) => option.key === key) || null;
+  return ENTITY_CATEGORY_OPTIONS.find((option) => option.key === key) || null;
 }
 
 function detailPanelProfileForKey(key) {
@@ -739,9 +710,8 @@ function detailPanelProfileForKey(key) {
 }
 
 function currentDetailPanelProfile() {
-  const fallbackKey = mode === "mechanistic" ? "mechanistic_default" : "clinical_default";
-  if (claimLayer !== "normalized") return detailPanelProfileForKey(fallbackKey);
-  return detailPanelProfileForKey(currentEntityViewKey() || fallbackKey);
+  if (claimLayer !== "normalized") return detailPanelProfileForKey("clinical_default");
+  return detailPanelProfileForKey(currentEntityViewKey() || "clinical_default");
 }
 
 function entityKindsForViewOption(option) {
@@ -775,31 +745,19 @@ function claimMatchesEntityViewOption(claim, option) {
 
 function rightEntityLabel(plural = true) {
   if (claimLayer !== "normalized") {
-    return mode === "mechanistic"
-      ? plural
-        ? "Mechanistic nodes"
-        : "Mechanistic node"
-      : plural
-        ? "Clinical nodes"
-        : "Clinical node";
+    return plural ? "Graph nodes" : "Graph node";
   }
   const option = currentEntityViewOption();
-  if (!option) return mode === "mechanistic" ? (plural ? "Targets" : "Target") : plural ? "Conditions" : "Condition";
+  if (!option) return plural ? "Graph nodes" : "Graph node";
   return plural ? option.label : option.singular;
 }
 
 function lowerRightEntityLabel(plural = true) {
   if (claimLayer !== "normalized") {
-    return mode === "mechanistic"
-      ? plural
-        ? "mechanistic nodes"
-        : "mechanistic node"
-      : plural
-        ? "clinical nodes"
-        : "clinical node";
+    return plural ? "graph nodes" : "graph node";
   }
   const option = currentEntityViewOption();
-  if (!option) return mode === "mechanistic" ? (plural ? "targets" : "target") : plural ? "conditions" : "condition";
+  if (!option) return plural ? "graph nodes" : "graph node";
   return plural ? option.lowerPlural : option.lowerSingular;
 }
 
@@ -815,8 +773,7 @@ function claimsForEntityView(baseClaims) {
 }
 
 function activeClaimsForMode() {
-  const baseClaims = mode === "mechanistic" ? claims : disorderClaims;
-  return graphViewClaims(claimsForEntityView(baseClaims));
+  return graphViewClaims(claimsForEntityView(claims));
 }
 
 function passesAccessAndYearFilters(claim, yearRange) {
@@ -832,9 +789,9 @@ function passesAccessAndYearFilters(claim, yearRange) {
 }
 
 function activeOutcomeScaleClaims() {
-  if (mode !== "disorders" || evidenceView !== "primary") return [];
+  if (evidenceView !== "primary") return [];
   const yearRange = activeYearRange(activeClaimsForMode());
-  return graphViewClaims(disorderClaims)
+  return graphViewClaims(claims)
     .filter((claim) => isOutcomeScaleClaim(claim))
     .filter((claim) => passesAccessAndYearFilters(claim, yearRange));
 }
@@ -887,8 +844,7 @@ function claimSourceAccessLevel(claim) {
 
 function applyClaimLayerStore() {
   const store = claimStores[claimLayer] || claimStores.normalized;
-  claims = store.mechanistic || [];
-  disorderClaims = store.disorders || [];
+  claims = store.all || [];
 }
 
 function primaryEvidenceClaims(baseClaims) {
@@ -1025,6 +981,7 @@ function yearBoundsFromClaims(data) {
 
 function syncYearFilterControls(data, forceReset = false) {
   if (!yearMinFilter || !yearMaxFilter) return;
+  const filterKey = currentEntityViewKey();
 
   const bounds = yearBoundsFromClaims(data);
   if (!bounds) {
@@ -1032,7 +989,7 @@ function syncYearFilterControls(data, forceReset = false) {
     yearMaxFilter.value = "";
     yearMinFilter.disabled = true;
     yearMaxFilter.disabled = true;
-    yearFilterState[mode] = { min: "", max: "" };
+    yearFilterState[filterKey] = { min: "", max: "" };
     return;
   }
 
@@ -1043,7 +1000,7 @@ function syncYearFilterControls(data, forceReset = false) {
   yearMaxFilter.min = String(bounds.min);
   yearMaxFilter.max = String(bounds.max);
 
-  const state = yearFilterState[mode] || { min: "", max: "" };
+  const state = yearFilterState[filterKey] || { min: "", max: "" };
   let minYear = parseYearValue(forceReset ? "" : state.min);
   let maxYear = parseYearValue(forceReset ? "" : state.max);
 
@@ -1056,7 +1013,7 @@ function syncYearFilterControls(data, forceReset = false) {
     [minYear, maxYear] = [maxYear, minYear];
   }
 
-  yearFilterState[mode] = { min: String(minYear), max: String(maxYear) };
+  yearFilterState[filterKey] = { min: String(minYear), max: String(maxYear) };
   yearMinFilter.value = String(minYear);
   yearMaxFilter.value = String(maxYear);
 }
@@ -1084,7 +1041,7 @@ function activeYearRange(data) {
 
   yearMinFilter.value = String(minYear);
   yearMaxFilter.value = String(maxYear);
-  yearFilterState[mode] = { min: String(minYear), max: String(maxYear) };
+  yearFilterState[currentEntityViewKey()] = { min: String(minYear), max: String(maxYear) };
 
   const constrained = minYear > bounds.min || maxYear < bounds.max;
   return {
@@ -2014,6 +1971,7 @@ const PUBLIC_HEALTH_TOPIC_ORDER = [
   "Self-treatment",
   "Ceremonial/retreat use",
   "Polysubstance use",
+  "Clinical treatment",
   "Prevalence & trends",
   "Problematic use",
   "Drug checking & adulteration",
@@ -2046,7 +2004,12 @@ const PUBLIC_HEALTH_DATA_SOURCE_LABELS = {
 
 function publicHealthTopicFacetLabel(claim) {
   const graphLabel = meaningfulText(claim.public_health_graph_label || claim.graph_entity_label || claim.entity_label);
-  if (PUBLIC_HEALTH_TOPIC_ORDER.some((label) => normalizeValue(label) === normalizeValue(graphLabel))) return graphLabel;
+  if (
+    PUBLIC_HEALTH_TOPIC_ORDER.some((label) => normalizeValue(label) === normalizeValue(graphLabel)) &&
+    !["problematic use", "self treatment"].includes(normalizeValue(graphLabel))
+  ) {
+    return graphLabel;
+  }
   const text = [
     claim.public_health_topic_category,
     claim.public_health_measure,
@@ -2089,7 +2052,10 @@ function publicHealthTopicFacetLabel(claim) {
   if (/\b(polysubstance|poly drug|polydrug|co use|concomitant|combined with|combination|cannabis taken alongside|additional substances?|one or more additional substances|mdma mda|mdma methamphetamine)\b/.test(text)) {
     return "Polysubstance use";
   }
-  if (/\b(self treat\w*|self medicat\w*|perceived benefit|therapeutic benefit|psychotherapeutic benefit|medical reasons?|psychiatric improvement|symptom improvement|treatment outcomes?|cluster headache|busting|preventive efficacy|abortive efficacy|healing|trauma|cravings?|life changes|quality of life|wellbeing|well being)\b/.test(text)) {
+  if (/\b(real world clinical|clinical practice|clinical treatment|treatment response|response and remission|remission rate|depression severity|madrs|qids|cgi s|cgi i|treatment discontinuation|treatment continuation|intranasal esketamine|spravato)\b/.test(text)) {
+    return "Clinical treatment";
+  }
+  if (/\b(self treat\w*|self medicat\w*|perceived benefit|perceived efficacy|perceived unpleasant side effects|therapeutic benefit|psychotherapeutic benefit|medical reasons?|psychiatric improvement|symptom improvement|treatment outcomes?|cluster headache|busting|preventive efficacy|abortive efficacy|healing|trauma|cravings?|life changes|quality of life|wellbeing|well being|eating disorders?|disordered eating)\b/.test(text)) {
     return "Self-treatment";
   }
   if (/\b(access|service delivery|care delivery|implementation|early access|prescrib\w*|prescription|treatment availability|certified treatment centers?|provider|social workers?|psychiatrists?|attitudes|acceptability|appropriateness|feasibility|patient characteristics|social determinants|atuc)\b/.test(text)) {
@@ -2098,7 +2064,7 @@ function publicHealthTopicFacetLabel(claim) {
   if (/\b(policy|regulat\w*|legal|criminal\w*|crime|arrest\w*|prison|incarcerat\w*|violence|intimate partner violence|classification|drug harms?|scheduling)\b/.test(text)) {
     return "Legal/criminal justice";
   }
-  if (/\b(misuse|abuse liability|dependen\w*|addict\w*|diversion|nonmedical|non medical|substance use disorder|use disorder|sud\b|drug abuse|drug dependence|alcohol abuse|problematic|compulsive|obsessive|over eager|tolerance|withdrawal|craving)\b/.test(text)) {
+  if (/\b(misuse|abuse liability|dependen\w*|addict\w*|diversion|nonmedical|non medical|substance use disorder|use disorder|sud\b|drug abuse|drug dependence|alcohol abuse|problematic use patterns?|compulsive use|obsessive relationship|over eager use|tolerance escalation|withdrawal syndrome|use despite harm)\b/.test(text)) {
     return "Problematic use";
   }
   if (/\b(recreational|first time use|club|club going|nightlife|dance event|festival|rave|party|naturalistic|pattern of use|use patterns?|route of administration|administration route|frequency|user profiles?|future use|preference|intentions to use|novelty|subjective experience themes|motivations for use|primary reason for use)\b/.test(text)) {
@@ -2870,7 +2836,7 @@ function claimBadgeHtml(claim) {
   const secondary = isSecondaryLiteratureClaim(claim);
   return [
     secondary ? "" : systemBadgeHtml(claim.system),
-    secondary || mode !== "disorders" ? "" : studyDesignBadgeHtml(claim.study_design, claim),
+    secondary ? "" : studyDesignBadgeHtml(claim.study_design, claim),
     accessLevelBadgeHtml(claim.access_level),
     secondary ? literatureTypeBadgeHtml(claim) : "",
   ]
@@ -2904,13 +2870,10 @@ function clearSelection() {
 function showTooltip(content, event) {
   if (tooltip.innerHTML !== content) {
     tooltip.innerHTML = content;
+    scheduleTooltipMeasure();
   }
   tooltip.style.opacity = "1";
   tooltip.style.transform = "translateY(0)";
-  tooltipSize = {
-    width: tooltip.offsetWidth || tooltipSize.width,
-    height: tooltip.offsetHeight || tooltipSize.height,
-  };
   positionTooltipNow(event.clientX, event.clientY);
 }
 
@@ -2923,6 +2886,10 @@ function hideTooltip() {
   if (tooltipFrame) {
     window.cancelAnimationFrame(tooltipFrame);
     tooltipFrame = 0;
+  }
+  if (tooltipMeasureFrame) {
+    window.cancelAnimationFrame(tooltipMeasureFrame);
+    tooltipMeasureFrame = 0;
   }
   tooltip.style.opacity = "0";
   tooltip.style.transform = "translateY(6px)";
@@ -2943,6 +2910,21 @@ function positionTooltip(event) {
     tooltipFrame = 0;
     if (!pendingTooltipPoint) return;
     positionTooltipNow(pendingTooltipPoint.clientX, pendingTooltipPoint.clientY);
+  });
+}
+
+function scheduleTooltipMeasure() {
+  if (tooltipMeasureFrame) return;
+  tooltipMeasureFrame = window.requestAnimationFrame(() => {
+    tooltipMeasureFrame = 0;
+    const rect = tooltip.getBoundingClientRect();
+    tooltipSize = {
+      width: rect.width || tooltipSize.width,
+      height: rect.height || tooltipSize.height,
+    };
+    if (pendingTooltipPoint) {
+      positionTooltipNow(pendingTooltipPoint.clientX, pendingTooltipPoint.clientY);
+    }
   });
 }
 
@@ -3159,9 +3141,7 @@ function sentencePart(value) {
 }
 
 function normalizedKgClaims() {
-  return [...claimStores.normalized.disorders, ...claimStores.normalized.mechanistic].filter(
-    (claim) => !isHiddenMainGraphItem(claim)
-  );
+  return (claimStores.normalized.all || []).filter((claim) => !isHiddenMainGraphItem(claim));
 }
 
 function loadedHeroStats() {
@@ -3169,17 +3149,17 @@ function loadedHeroStats() {
   return {
     compounds: unique(totalClaims.map((claim) => compoundGraphLabel(claim.compound)).filter(Boolean)).length,
     conditions: unique(
-      claimStores.normalized.disorders
+      totalClaims
         .filter((claim) => !isHiddenMainGraphItem(claim))
         .filter((claim) => entityKindForClaim(claim) === "condition_indication")
-        .map((claim) => graphLabel(claim.disorder))
+        .map((claim) => graphRightLabelForClaim(claim))
         .filter(Boolean)
     ).length,
     targets: unique(
-      claimStores.normalized.mechanistic
+      totalClaims
         .filter((claim) => !isHiddenMainGraphItem(claim))
         .filter((claim) => entityKindForClaim(claim) === "target")
-        .map((claim) => graphLabel(claim.target))
+        .map((claim) => graphRightLabelForClaim(claim))
         .filter(Boolean)
     ).length,
     studies: uniqueStudyCount(totalClaims),
@@ -3352,23 +3332,14 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference") {
 
   const evidenceLines = secondary
     ? ""
-    : mode === "disorders"
-      ? isRealWorldPublicHealthClaim(claim)
-        ? [
-            claimFieldLineFromValue("Category", claim.public_health_topic_category),
-            claimFieldLineFromValue("Estimate", publicHealthEstimate),
-            claimFieldLineFromValue("Setting", claim.setting),
-            claimFieldLineFromValue("Population", claim.population),
-            claimFieldLineFromValue("Time window", claim.time_window),
-          ].join("")
-        : [
-            claimFieldLineFromValue("Population", claim.population),
-            claimFieldLineFromValue("Sample", sampleSizeText(claim)),
-            claimFieldLineFromValue("Condition", claim.clinical_context_condition),
-            claimFieldLineFromValue("Timepoint", claim.timepoint),
-            claimFieldLineFromValue("Comparator", claim.comparator_normalized || claim.comparator),
-            claimFieldLineFromValue("Administration", doseRouteSummary),
-          ].join("")
+    : isRealWorldPublicHealthClaim(claim)
+      ? [
+          claimFieldLineFromValue("Category", claim.public_health_topic_category),
+          claimFieldLineFromValue("Estimate", publicHealthEstimate),
+          claimFieldLineFromValue("Setting", claim.setting),
+          claimFieldLineFromValue("Population", claim.population),
+          claimFieldLineFromValue("Time window", claim.time_window),
+        ].join("")
       : isPharmacokineticsClaim(claim)
         ? [
             claimFieldLineFromValue("Relation", claim.pk_relationship_label),
@@ -3379,10 +3350,19 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference") {
             claimFieldLineFromValue("Sampling", claim.sampling_time_or_window),
             claimFieldLineFromValue("Method", pkMethod),
           ].join("")
-        : [
+        : isMechanisticDomainClaim(claim)
+          ? [
             claimFieldLineFromValue("System", systemSummary),
             claimFieldLineFromValue("Administration", doseRouteSummary),
-          ].join("");
+          ].join("")
+          : [
+              claimFieldLineFromValue("Population", claim.population),
+              claimFieldLineFromValue("Sample", sampleSizeText(claim)),
+              claimFieldLineFromValue("Condition", claim.clinical_context_condition),
+              claimFieldLineFromValue("Timepoint", claim.timepoint),
+              claimFieldLineFromValue("Comparator", claim.comparator_normalized || claim.comparator),
+              claimFieldLineFromValue("Administration", doseRouteSummary),
+            ].join("");
 
   return `
       <div class="card-header">
@@ -3539,8 +3519,8 @@ function bibliographyFromPayload(payload) {
   return papers.map((paper, index) => normalizeBibliographyPaper(paper, index));
 }
 
-function bibliographyLookup(modeKey) {
-  const rows = bibliographyByMode[modeKey] || [];
+function bibliographyLookup() {
+  const rows = bibliographyBySource.all || [];
   const byDoi = new Map();
   const byOpenAlex = new Map();
   rows.forEach((entry) => {
@@ -3552,8 +3532,8 @@ function bibliographyLookup(modeKey) {
   return { byDoi, byOpenAlex };
 }
 
-function enrichClaimsWithBibliographyMetadata(items, modeKey) {
-  const lookup = bibliographyLookup(modeKey);
+function enrichClaimsWithBibliographyMetadata(items) {
+  const lookup = bibliographyLookup();
   return items.map((claim) => {
     const doiKey = normalizeValue(normalizeDoi(claim.study_doi));
     const openAlexKey = normalizeValue(claim.openalex_id);
@@ -3663,7 +3643,7 @@ function bibliographyPaperMatchesSelection(entry) {
 }
 
 function bibliographyRowsForCurrentView(data) {
-  const payloadRows = bibliographyByMode[mode] || [];
+  const payloadRows = bibliographyBySource.all || [];
   const rows = payloadRows.length ? payloadRows : bibliographyRowsFromClaims(data);
   const yearRange = payloadRows.length ? currentBibliographyYearRange() : { constrained: false };
   return rows.filter((entry) => {
@@ -3918,6 +3898,12 @@ function isPharmacokineticsClaim(claim) {
   return normalizeValue(claim?.kg_domain || claim?.domain || claim?.finding_type) === "pharmacokinetics_exposure";
 }
 
+function isMechanisticDomainClaim(claim) {
+  return ["molecular_target", "molecular_pathway_readout", "brain_system"].includes(
+    normalizeValue(claim?.kg_domain || claim?.domain || claim?.finding_type)
+  );
+}
+
 function isRealWorldPublicHealthClaim(claim) {
   return normalizeValue(claim?.kg_domain || claim?.domain || claim?.finding_type) === "real_world_public_health";
 }
@@ -4010,7 +3996,7 @@ function claimMainFindingText(claim) {
   const resultDetail = resultDetailText(claim);
   if (resultDetail) return resultDetail;
 
-  if (mode === "mechanistic") {
+  if (isMechanisticDomainClaim(claim)) {
     const value = [
       meaningfulText(claim.affinity_value),
       meaningfulText(claim.affinity_unit),
@@ -4081,7 +4067,7 @@ function isOutcomeScaleClaim(claim) {
 
 function outcomeScaleLabelsForClaim(claim) {
   if (isOutcomeScaleClaim(claim)) {
-    return [graphLabel(claim.disorder)].filter(Boolean);
+    return [graphRightLabelForClaim(claim)].filter(Boolean);
   }
   return splitNormalizedOutcomeMeasures(claim.outcome_measure_normalized);
 }
@@ -5948,6 +5934,8 @@ function buildGraph(data) {
   const rightNodeElements = new Map();
   let currentFocusClasses = new Map();
   let currentMuteRest = false;
+  let focusFrame = 0;
+  let pendingFocusRequest = null;
   let restoreFocusFrame = 0;
 
   function addFocusClass(focusClasses, element, focusClass) {
@@ -5995,6 +5983,18 @@ function buildGraph(data) {
     currentMuteRest = muteRest;
   }
 
+  function scheduleFocusState(nextFocusClasses, muteRest) {
+    pendingFocusRequest = { nextFocusClasses, muteRest };
+    if (focusFrame) return;
+    focusFrame = window.requestAnimationFrame(() => {
+      focusFrame = 0;
+      const request = pendingFocusRequest;
+      pendingFocusRequest = null;
+      if (!request) return;
+      applyFocusState(request.nextFocusClasses, request.muteRest);
+    });
+  }
+
   function focusClassesForNode(nodeType, nodeName) {
     const focusClasses = new Map();
     const edgeKeys =
@@ -6030,16 +6030,16 @@ function buildGraph(data) {
   }
 
   function applyFocusForNode(nodeType, nodeName) {
-    applyFocusState(focusClassesForNode(nodeType, nodeName), true);
+    scheduleFocusState(focusClassesForNode(nodeType, nodeName), true);
   }
 
   function applyFocusForEdge(edgeKey) {
-    applyFocusState(focusClassesForEdge(edgeKey), true);
+    scheduleFocusState(focusClassesForEdge(edgeKey), true);
   }
 
   function applyFocusFromSelection() {
     if (!selected) {
-      applyFocusState(new Map(), false);
+      scheduleFocusState(new Map(), false);
       return;
     }
     if (selected.type === "edge") {
@@ -6116,15 +6116,13 @@ function buildGraph(data) {
       path.classList.add("selected");
     }
     edgeElementByKey.set(key, path);
+    const edgeTooltipHtml = `<strong>${compound} → ${target}</strong><br/>${evidenceCountTooltipHtml(edge.claims)}`;
 
     path.addEventListener("mouseenter", (event) => {
       cancelPendingFocusRestore();
       path.classList.add("hovered");
       applyFocusForEdge(key);
-      showTooltip(
-        `<strong>${compound} → ${target}</strong><br/>${evidenceCountTooltipHtml(edge.claims)}`,
-        event
-      );
+      showTooltip(edgeTooltipHtml, event);
     });
     path.addEventListener("mousemove", moveTooltip);
     path.addEventListener("mouseleave", () => {
@@ -6182,17 +6180,15 @@ function buildGraph(data) {
     compoundNodeElements.set(compound, { node, label });
 
     const nodeClaims = claimsByCompound.get(compound) || [];
+    const nodeTooltipHtml = `<strong>${compound}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Connections: ${
+      summarizeConnections(nodeClaims, rightKey).length
+    }`;
     const enter = (event) => {
       cancelPendingFocusRestore();
       node.classList.add("hovered");
       label.classList.add("hovered");
       applyFocusForNode("compound", compound);
-      showTooltip(
-        `<strong>${compound}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Connections: ${
-          summarizeConnections(nodeClaims, rightKey).length
-        }`,
-        event
-      );
+      showTooltip(nodeTooltipHtml, event);
     };
     const leave = () => {
       node.classList.remove("hovered");
@@ -6256,17 +6252,15 @@ function buildGraph(data) {
     rightNodeElements.set(target, { node, label });
 
     const nodeClaims = claimsByRight.get(target) || [];
+    const nodeTooltipHtml = `<strong>${target}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
+      summarizeConnections(nodeClaims, "compound").length
+    }`;
     const enter = (event) => {
       cancelPendingFocusRestore();
       node.classList.add("hovered");
       label.classList.add("hovered");
       applyFocusForNode("target", target);
-      showTooltip(
-        `<strong>${target}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
-          summarizeConnections(nodeClaims, "compound").length
-        }`,
-        event
-      );
+      showTooltip(nodeTooltipHtml, event);
     };
     const leave = () => {
       node.classList.remove("hovered");
@@ -6361,11 +6355,7 @@ function scheduleRender() {
 
 function updateSearchPlaceholder() {
   if (!searchInput) return;
-  if (mode === "mechanistic") {
-    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, assays, methods, or papers`;
-  } else {
-    searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, outcomes, methods, or papers`;
-  }
+  searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, findings, methods, or papers`;
 }
 
 function updateEntityKindToggle() {
@@ -6379,14 +6369,12 @@ function updateEntityKindToggle() {
 
   entityKindToggle.innerHTML = ENTITY_CATEGORY_OPTIONS
     .map((option) => {
-      const isActive = option.mode === mode && option.key === currentEntityViewKey();
-      const modeClaims = option.mode === "mechanistic" ? claims : disorderClaims;
-      const count = graphViewClaims(modeClaims).filter((claim) => claimMatchesEntityViewOption(claim, option)).length;
+      const isActive = option.key === currentEntityViewKey();
+      const count = graphViewClaims(claims).filter((claim) => claimMatchesEntityViewOption(claim, option)).length;
       return `
         <button
           class="ghost small ${isActive ? "active" : ""}"
           data-entity-view="${escapeHtml(option.key)}"
-          data-entity-mode="${escapeHtml(option.mode)}"
           role="tab"
           aria-selected="${isActive ? "true" : "false"}"
           aria-label="${escapeHtml(`${option.label}${count ? `, ${count} findings` : ""}`)}"
@@ -6400,11 +6388,6 @@ function updateEntityKindToggle() {
 }
 
 function updateModeUI() {
-  modeButtons.forEach((btn) => {
-    const isActive = btn.dataset.mode === mode;
-    btn.classList.toggle("active", isActive);
-    btn.setAttribute("aria-selected", isActive ? "true" : "false");
-  });
   claimLayerButtons.forEach((btn) => {
     const isActive = btn.dataset.claimLayer === claimLayer;
     btn.classList.toggle("active", isActive);
@@ -6419,20 +6402,6 @@ function updateModeUI() {
   updateSearchPlaceholder();
   if (fullTextOnlyToggle) fullTextOnlyToggle.disabled = false;
   fullTextOnlyToggle?.closest(".access-toggle")?.classList.remove("disabled");
-}
-
-function switchMode(nextMode) {
-  if (mode === nextMode) return;
-  mode = nextMode;
-  selected = null;
-  isolateSelection = false;
-  detailGraphFilter = null;
-  clearSelectedStyles();
-  updateModeUI();
-  syncYearFilterControls(activeClaimsForMode());
-  setDetailHeader(defaultDetail.title);
-  renderDetailEmpty();
-  loadCurrentClaimsAndRender();
 }
 
 function switchClaimLayer(nextLayer) {
@@ -6464,13 +6433,10 @@ function switchEvidenceView(nextView) {
   loadCurrentClaimsAndRender();
 }
 
-function switchEntityView(nextView, nextMode = mode) {
-  const targetMode = ["disorders", "mechanistic"].includes(nextMode) ? nextMode : mode;
-  const options = ENTITY_VIEW_OPTIONS[targetMode] || [];
-  if (!options.some((option) => option.key === nextView)) return;
-  if (mode === targetMode && currentEntityViewKey() === nextView) return;
-  mode = targetMode;
-  entityView = { ...entityView, [targetMode]: nextView };
+function switchEntityView(nextView) {
+  if (!ENTITY_CATEGORY_OPTIONS.some((option) => option.key === nextView)) return;
+  if (currentEntityViewKey() === nextView) return;
+  entityViewKey = nextView;
   selected = null;
   isolateSelection = false;
   detailGraphFilter = null;
@@ -6549,18 +6515,17 @@ function renderLoadError(messages) {
 }
 
 async function loadBibliographyPayloads() {
-  bibliographyByMode.mechanistic = bibliographyByMode.mechanistic || [];
-  bibliographyByMode.disorders = bibliographyByMode.disorders || [];
+  bibliographyBySource.all = bibliographyBySource.all || [];
 }
 
 const normalizedSourceLoaded = {
-  mechanistic: { primary: false, secondary: false },
-  disorders: { primary: false, secondary: false },
+  primary: false,
+  secondary: false,
 };
 
 const normalizedSourceTasks = {
-  mechanistic: { primary: null, secondary: null },
-  disorders: { primary: null, secondary: null },
+  primary: null,
+  secondary: null,
 };
 
 function renderDataLoading() {
@@ -6574,36 +6539,26 @@ function renderDataLoading() {
 }
 
 function bibliographyPayloadsLoaded() {
-  return Object.values(bibliographyByMode).some((rows) => Array.isArray(rows) && rows.length);
+  return Object.values(bibliographyBySource).some((rows) => Array.isArray(rows) && rows.length);
 }
 
 function enrichAllLoadedClaimsWithBibliography() {
   Object.keys(claimStores).forEach((layer) => {
-    claimStores[layer].mechanistic = enrichClaimsWithBibliographyMetadata(
-      claimStores[layer].mechanistic,
-      "mechanistic"
-    );
-    claimStores[layer].disorders = enrichClaimsWithBibliographyMetadata(claimStores[layer].disorders, "disorders");
+    claimStores[layer].all = enrichClaimsWithBibliographyMetadata(claimStores[layer].all || []);
   });
 }
 
-function evidencePayloadViewKey(modeKey) {
-  return modeKey === "mechanistic" ? "targets" : modeKey;
-}
-
-function activeGraphBootstrapPath(config, modeKey, sourceKey) {
+function activeGraphBootstrapPath(config, sourceKey) {
   const bootstraps = config?.active_graph_bootstraps || {};
-  const viewKey = evidencePayloadViewKey(modeKey);
-  return cleanDisplayText(bootstraps?.[viewKey]?.[sourceKey] || bootstraps?.[modeKey]?.[sourceKey]);
+  return cleanDisplayText(bootstraps?.[sourceKey]);
 }
 
-function activeDetailBootstrapPath(config, modeKey, sourceKey) {
+function activeDetailBootstrapPath(config, sourceKey) {
   const bootstraps = config?.active_detail_bootstraps || {};
-  const viewKey = evidencePayloadViewKey(modeKey);
-  return cleanDisplayText(bootstraps?.[viewKey]?.[sourceKey] || bootstraps?.[modeKey]?.[sourceKey]);
+  return cleanDisplayText(bootstraps?.[sourceKey]);
 }
 
-function graphBootstrapClaimsFromPayload(payload, modeKey, sourceKey) {
+function graphBootstrapClaimsFromPayload(payload, sourceKey) {
   const edges = Array.isArray(payload?.edges) ? payload.edges : [];
   return edges.map((edge, index) => {
     const entityLabel = cleanDisplayText(edge.entity_label);
@@ -6631,16 +6586,11 @@ function graphBootstrapClaimsFromPayload(payload, modeKey, sourceKey) {
       graph_full_text_study_count: Number(edge.full_text_seen_study_count || 0) || 0,
       __graph_bootstrap: true,
     };
-    if (modeKey === "mechanistic") {
-      item.target = entityLabel;
-    } else {
-      item.disorder = entityLabel;
-    }
     return item;
   });
 }
 
-function detailBootstrapClaimsFromPayload(payload, modeKey) {
+function detailBootstrapClaimsFromPayload(payload) {
   const fields = Array.isArray(payload?.fields) ? payload.fields : [];
   const values = Array.isArray(payload?.values) ? payload.values : [];
   const rows = Array.isArray(payload?.rows) ? payload.rows : [];
@@ -6654,44 +6604,36 @@ function detailBootstrapClaimsFromPayload(payload, modeKey) {
       raw[field] = value;
     });
     return {
-      ...routeNativeFindingForCurrentUi(raw, modeKey),
+      ...routeNativeFindingForCurrentUi(raw),
       __detail_bootstrap: true,
     };
   });
 }
 
-async function loadGraphBootstrapClaims(modeKey, sourceKey) {
+async function loadGraphBootstrapClaims(sourceKey) {
   const config = await loadGraphPayloadConfig();
-  const path = activeGraphBootstrapPath(config, modeKey, sourceKey);
+  const path = activeGraphBootstrapPath(config, sourceKey);
   if (!path) return [];
   if (graphBootstrapPayloadPromises.has(path)) return graphBootstrapPayloadPromises.get(path);
 
   const task = fetchJsonFromCandidates(dataCandidates(path))
-    .then(({ data }) => graphBootstrapClaimsFromPayload(data, modeKey, sourceKey))
+    .then(({ data }) => graphBootstrapClaimsFromPayload(data, sourceKey))
     .catch(() => []);
   graphBootstrapPayloadPromises.set(path, task);
   return task;
 }
 
-async function loadDetailBootstrapClaims(modeKey, sourceKey) {
+async function loadDetailBootstrapClaims(sourceKey) {
   const config = await loadGraphPayloadConfig();
-  const path = activeDetailBootstrapPath(config, modeKey, sourceKey);
+  const path = activeDetailBootstrapPath(config, sourceKey);
   if (!path) return [];
   if (detailBootstrapPayloadPromises.has(path)) return detailBootstrapPayloadPromises.get(path);
 
   const task = fetchJsonFromCandidates(dataCandidates(path))
-    .then(({ data }) => detailBootstrapClaimsFromPayload(data, modeKey))
+    .then(({ data }) => detailBootstrapClaimsFromPayload(data))
     .catch(() => []);
   detailBootstrapPayloadPromises.set(path, task);
   return task;
-}
-
-function routeNativeDisplayMode(finding) {
-  const domain = normalizeValue(finding.domain || finding.kg_domain || finding.finding_type);
-  if (HIDDEN_MAIN_GRAPH_DOMAINS.has(domain)) return "";
-  if (ROUTE_NATIVE_DISPLAY_MODE_BY_DOMAIN[domain]) return ROUTE_NATIVE_DISPLAY_MODE_BY_DOMAIN[domain];
-  const entityKind = normalizeValue(finding.entity_kind || finding.kg_entity_kind);
-  return ROUTE_NATIVE_MECHANISTIC_ENTITY_KINDS.has(entityKind) ? "mechanistic" : "disorders";
 }
 
 function routeNativeSourceKey(finding) {
@@ -6738,7 +6680,7 @@ function routeNativeGraphEntityLabel(finding) {
   return routeNativeEntityLabel(finding);
 }
 
-function routeNativeFindingForCurrentUi(finding, modeKey) {
+function routeNativeFindingForCurrentUi(finding) {
   const entityLabel = routeNativeEntityLabel(finding);
   const graphEntityLabel = routeNativeGraphEntityLabel(finding);
   const entityKind = cleanDisplayText(finding.entity_kind || finding.kg_entity_kind);
@@ -6764,31 +6706,26 @@ function routeNativeFindingForCurrentUi(finding, modeKey) {
     evidence_locator: cleanDisplayText(finding.evidence_locator || finding.evidence_location),
     timepoint: cleanDisplayText(finding.assessment_timepoint || finding.timepoint),
   };
-  if (modeKey === "mechanistic") {
-    item.target = graphEntityLabel || entityLabel;
-  } else {
-    item.disorder = entityLabel;
-  }
+  item.graph_entity_label = graphEntityLabel || entityLabel;
   return item;
 }
 
-async function loadRouteNativeEvidenceSource(modeKey, sourceKey) {
-  const findings = await loadDetailBootstrapClaims(modeKey, sourceKey);
+async function loadRouteNativeEvidenceSource(sourceKey) {
+  const findings = await loadDetailBootstrapClaims(sourceKey);
   if (!Array.isArray(findings)) return false;
   const items = findings
     .filter((finding) => !isHiddenMainGraphItem(finding))
-    .filter((finding) => routeNativeDisplayMode(finding) === modeKey)
     .filter((finding) => routeNativeSourceKey(finding) === sourceKey)
-    .map((finding) => routeNativeFindingForCurrentUi(finding, modeKey));
+    .map((finding) => routeNativeFindingForCurrentUi(finding));
 
   const enrichedItems = bibliographyPayloadsLoaded()
-    ? enrichClaimsWithBibliographyMetadata(items, modeKey)
+    ? enrichClaimsWithBibliographyMetadata(items)
     : items;
-  claimStores.normalized[modeKey] = dedupeClaims([
-    ...(claimStores.normalized[modeKey] || []),
+  claimStores.normalized.all = dedupeClaims([
+    ...(claimStores.normalized.all || []),
     ...enrichedItems,
   ]);
-  normalizedSourceLoaded[modeKey][sourceKey] = true;
+  normalizedSourceLoaded[sourceKey] = true;
   return true;
 }
 
@@ -6797,32 +6734,32 @@ function currentSourceKey() {
 }
 
 function normalizedCurrentSourceLoaded() {
-  return Boolean(normalizedSourceLoaded[mode]?.[currentSourceKey()]);
+  return Boolean(normalizedSourceLoaded[currentSourceKey()]);
 }
 
 
-async function loadNormalizedClaimSource(modeKey, sourceKey) {
-  if (normalizedSourceLoaded[modeKey][sourceKey]) return;
-  if (normalizedSourceTasks[modeKey][sourceKey]) {
-    await normalizedSourceTasks[modeKey][sourceKey];
+async function loadNormalizedClaimSource(sourceKey) {
+  if (normalizedSourceLoaded[sourceKey]) return;
+  if (normalizedSourceTasks[sourceKey]) {
+    await normalizedSourceTasks[sourceKey];
     return;
   }
 
-  normalizedSourceTasks[modeKey][sourceKey] = (async () => {
-    if (!(await loadRouteNativeEvidenceSource(modeKey, sourceKey, false))) {
+  normalizedSourceTasks[sourceKey] = (async () => {
+    if (!(await loadRouteNativeEvidenceSource(sourceKey))) {
       throw new Error("Route-native graph payload is unavailable");
     }
   })();
 
   try {
-    await normalizedSourceTasks[modeKey][sourceKey];
+    await normalizedSourceTasks[sourceKey];
   } finally {
-    normalizedSourceTasks[modeKey][sourceKey] = null;
+    normalizedSourceTasks[sourceKey] = null;
   }
 }
 
 async function ensureClaimsForCurrentView() {
-  await loadNormalizedClaimSource(mode, currentSourceKey());
+  await loadNormalizedClaimSource(currentSourceKey());
 }
 
 function waitForPaint() {
@@ -6835,8 +6772,8 @@ async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
   if (normalizedCurrentSourceLoaded()) return false;
   const sourceKey = currentSourceKey();
   const [bootstrapClaims, detailBootstrapClaims] = await Promise.all([
-    loadGraphBootstrapClaims(mode, sourceKey),
-    loadDetailBootstrapClaims(mode, sourceKey),
+    loadGraphBootstrapClaims(sourceKey),
+    loadDetailBootstrapClaims(sourceKey),
   ]);
   if (loadToken !== currentDataLoadToken) return true;
   if (!bootstrapClaims.length && !detailBootstrapClaims.length) return false;
@@ -6927,9 +6864,9 @@ function scheduleIdleTask(callback, delay = 0) {
   }, delay);
 }
 
-function preloadNormalizedSourceInBackground(modeKey, sourceKey, delay) {
+function preloadNormalizedSourceInBackground(sourceKey, delay) {
   scheduleIdleTask(() => {
-    loadNormalizedClaimSource(modeKey, sourceKey)
+    loadNormalizedClaimSource(sourceKey)
       .then(() => {
         applyClaimLayerStore();
         updateModeUI();
@@ -6940,22 +6877,18 @@ function preloadNormalizedSourceInBackground(modeKey, sourceKey, delay) {
 }
 
 function preloadLikelyNextData() {
-  const alternateMode = mode === "mechanistic" ? "disorders" : "mechanistic";
   const saveData = Boolean(window.navigator?.connection?.saveData);
   const queue = saveData
-    ? [[alternateMode, "primary"]]
+    ? []
     : [
-        [alternateMode, "primary"],
-        [mode, evidenceView === "primary" ? "secondary" : "primary"],
-        [alternateMode, "secondary"],
+        evidenceView === "primary" ? "secondary" : "primary",
       ];
   const seen = new Set();
 
-  queue.forEach(([modeKey, sourceKey], index) => {
-    const key = `${modeKey}:${sourceKey}`;
-    if (seen.has(key)) return;
-    seen.add(key);
-    preloadNormalizedSourceInBackground(modeKey, sourceKey, 650 + index * 900);
+  queue.forEach((sourceKey, index) => {
+    if (seen.has(sourceKey)) return;
+    seen.add(sourceKey);
+    preloadNormalizedSourceInBackground(sourceKey, 650 + index * 900);
   });
   scheduleIdleTask(loadBibliographyPayloadsInBackground, saveData ? 3000 : 4200);
 }
@@ -7209,11 +7142,6 @@ graphEl.addEventListener("click", (event) => {
     clearSelection();
   }
 });
-modeButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    switchMode(button.dataset.mode);
-  });
-});
 claimLayerButtons.forEach((button) => {
   button.addEventListener("click", () => {
     switchClaimLayer(button.dataset.claimLayer);
@@ -7228,7 +7156,7 @@ if (entityKindToggle) {
   entityKindToggle.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-entity-view]");
     if (!button || !entityKindToggle.contains(button)) return;
-    switchEntityView(button.dataset.entityView || "", button.dataset.entityMode || mode);
+    switchEntityView(button.dataset.entityView || "");
   });
 }
 window.addEventListener("resize", scheduleRender);

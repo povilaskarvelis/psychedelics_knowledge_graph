@@ -139,8 +139,8 @@ Terminology TODO for the table-based pipeline:
 
 - Use `evidence_record` for the canonical extracted row and `finding` for the
   human-facing UI label. See `docs/terminology.md`.
-- Reserve `claim` for legacy schemas, payload fields, file names, and
-  compatibility code in the first-generation graph.
+- Reserve `claim` for legacy payload fields, file names, and compatibility code
+  in the first-generation graph.
 - If graph-ready tables are materialized, treat `evidence_edges` as derived
   views over evidence records rather than the canonical extracted evidence.
 - Keep model/extraction confidence separate from evidence certainty or

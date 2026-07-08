@@ -9,7 +9,7 @@ Prioritize:
   paper supports them: Mystical-type experience, Ego dissolution, Altered state
   profile, Perceptual alterations, Dissociation,
   Challenging experience, Psychological insight, Emotional breakthrough,
-  Connectedness, Empathy, Personal meaning, Spiritual significance, Euphoria,
+  Connectedness, Empathy, Personal significance, Spiritual significance, Euphoria,
   Positive affect, Negative affect, Somatic sensations, Subjective intensity,
   Near-death-like experience, or Psychosis-like effects.
 - timing relative to dosing/session

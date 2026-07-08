@@ -30,8 +30,8 @@ python pipeline/kg/build_methods_flow.py
 
 - `data/processed/graph_payload_active.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_payload_manifest.json`
-- `data/processed/graph_payload_runs/<RUN_ID>/graph_bootstrap_view_<view>_<source>.json`
-- `data/processed/graph_payload_runs/<RUN_ID>/detail_bootstrap_view_<view>_<source>.json`
+- `data/processed/graph_payload_runs/<RUN_ID>/graph_bootstrap_<source>.json`
+- `data/processed/graph_payload_runs/<RUN_ID>/detail_bootstrap_<source>.json`
 - `data/kg/views/pipeline_status_graph.json`
 - `data/kg/views/methods_bibliography.json`
 
@@ -47,11 +47,14 @@ python pipeline/kg/build_methods_flow.py
 - `graph_bootstraps`
 - `detail_bootstraps`
 
-`graph_bootstrap_view_<view>_<source>.json` contains aggregate graph edges for
-fast initial rendering: compound, entity label, entity kind, finding count,
-study count, and full-text-seen counts.
+`graph_bootstrap_<source>.json` contains aggregate graph edges for
+fast initial rendering: compound, graph-anchor entity label, graph-anchor
+entity kind, finding count, study count, and full-text-seen counts. It is
+intentionally limited to graph-visible anchor kinds. Metadata/detail kinds such
+as outcome scales, compound classes, symptoms that are not top-level graph
+anchors, and pharmacokinetic parameters stay out of this aggregate graph file.
 
-`detail_bootstrap_view_<view>_<source>.json` contains the row-level public UI
+`detail_bootstrap_<source>.json` contains the row-level public UI
 data in a compact field/value/row representation:
 
 - `fields[]`
@@ -68,9 +71,15 @@ The decoded rows are flat and route-native. Important fields include:
 - `entity_kind`
 - `text_depth`
 - paper metadata such as `study_doi`, `openalex_id`, `study_title`, and `study_year`
-- domain-specific evidence fields such as `outcome_measure`, `sample_size_total`,
-  `mechanism_type`, `assay_type`, `assessment_timepoint`, and `effect_size`
+- domain-specific evidence fields such as `support`, `effect_size`,
+  `outcome_measure`, `sample_size_total`, `mechanism_type`, `assay_type`, and
+  `assessment_timepoint`
+
+Detail rows may include metadata/detail entity kinds that are not graph
+anchors, such as `outcome_scale`, `compound`, `symptom_problem`, and
+`pharmacokinetic_parameter`. These feed right-panel facets and evidence cards;
+they are not top-level graph views.
 
 The public export does not use the old `claim_type` field, does not split
-routed findings into old mechanistic/disorder export files, and does not publish
-the heavy full-evidence JSON dump.
+routed findings into multiple legacy export files, and does not publish the
+heavy full-evidence JSON dump.

@@ -180,6 +180,15 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             match_vocabulary_entity("thalamocortical", "neural_circuit", vocabulary)["label"],
             "Thalamocortical circuit",
         )
+        intervention_cases = [
+            ("Inner Healing Intelligence model", "Non-directive support"),
+            ("Therapeutic Witnessing", "Non-directive support"),
+            ("Therapist attitude (Witnessing)", "Non-directive support"),
+            ("non-directive, supportive therapeutic approach", "Non-directive support"),
+        ]
+        for raw_label, expected in intervention_cases:
+            with self.subTest(raw_label=raw_label):
+                self.assertEqual(match_vocabulary_entity(raw_label, "intervention_component", vocabulary)["label"], expected)
 
         for raw_label in ("MDPV", "Mephedrone"):
             with self.subTest(raw_label=raw_label):
@@ -378,6 +387,69 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 },
                 "Inflammation",
             ),
+            (
+                {
+                    "graph_entity_label": "Neuroplasticity",
+                    "support": "The review summarized neuroplasticity findings.",
+                },
+                "Neuroplasticity",
+            ),
+            (
+                {
+                    "graph_entity_label": "Cellular stress",
+                    "support": "The finding concerned cellular stress markers.",
+                },
+                "Cellular stress",
+            ),
+            (
+                {
+                    "graph_entity_label": "Paired-pulse facilitation",
+                    "support": "Treatment increased paired-pulse facilitation in slice recordings.",
+                },
+                "Neuroplasticity",
+            ),
+            (
+                {
+                    "graph_entity_label": "GluN2B levels",
+                    "support": "Treatment altered GluN2B protein levels.",
+                },
+                "Glutamate signaling",
+            ),
+            (
+                {
+                    "graph_entity_label": "P-glycoprotein levels",
+                    "support": "Treatment changed P-glycoprotein levels at the blood-brain barrier.",
+                },
+                "Receptor regulation",
+            ),
+            (
+                {
+                    "graph_entity_label": "mGluR5 expression",
+                    "support": "Treatment changed mGluR5 expression.",
+                },
+                "Glutamate signaling",
+            ),
+            (
+                {
+                    "graph_entity_label": "Rac1 activation",
+                    "support": "Treatment increased Rac1 activation.",
+                },
+                "Intracellular signaling",
+            ),
+            (
+                {
+                    "graph_entity_label": "Myelin basic protein expression",
+                    "support": "Treatment changed myelin basic protein expression.",
+                },
+                "Neuroplasticity",
+            ),
+            (
+                {
+                    "graph_entity_label": "Monoaminergic system",
+                    "support": "The finding referred broadly to the monoaminergic system.",
+                },
+                "",
+            ),
         ]
 
         for row, expected in cases:
@@ -487,6 +559,44 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ),
             (
                 {
+                    "compound_original": "Intranasal esketamine (56 mg or 84 mg) plus oral antidepressant",
+                    "population": "Outpatients with treatment-resistant depression (TRD)",
+                    "public_health_measure": "Treatment discontinuation rate",
+                    "public_health_topic_category": "Problematic use",
+                    "support": "Seven out of 21 patients discontinued treatment because of clinical reasons, lack of benefit, or side effects.",
+                },
+                "Clinical treatment",
+            ),
+            (
+                {
+                    "compound_original": "Intranasal esketamine (28-84 mg)",
+                    "population": "Inpatients with treatment-resistant depression (TRD)",
+                    "public_health_measure": "Treatment response and remission rates",
+                    "public_health_topic_category": "Self-treatment",
+                    "support": "In a real-world inpatient cohort, patients achieved response and remission following esketamine induction.",
+                },
+                "Clinical treatment",
+            ),
+            (
+                {
+                    "compound_original": "Recreational ketamine use",
+                    "public_health_measure": "Urinary symptoms",
+                    "public_health_topic_category": "Problematic use",
+                    "support": "Among recreational ketamine users, six individuals reported urinary frequency.",
+                },
+                "Recreational use",
+            ),
+            (
+                {
+                    "population": "Adults with self-reported eating disorders or disordered eating",
+                    "public_health_measure": "Perceived unpleasant side effects",
+                    "public_health_topic_category": "Problematic use",
+                    "support": "Psilocybin was rated as having low levels of unpleasant side effects compared to alcohol or nicotine.",
+                },
+                "Self-treatment",
+            ),
+            (
+                {
                     "public_health_measure": "Hallucinogen use disorder prevalence",
                     "public_health_topic_category": "Abuse liability and misuse",
                 },
@@ -583,6 +693,52 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "task_or_measure": "Novel object recognition",
                 },
                 "Recognition memory",
+            ),
+            (
+                {
+                    "graph_construct_label": "memory",
+                    "graph_entity_label": "memory",
+                    "raw_task_or_measure": "contextual fear conditioning",
+                    "outcome_measure": "contextual fear conditioning",
+                },
+                "Fear memory",
+            ),
+            (
+                {
+                    "graph_entity_label": "Memory",
+                    "outcome_measure": "CFC, TFC, and PMDAT",
+                },
+                "Fear memory",
+            ),
+            (
+                {
+                    "graph_entity_label": "Memory",
+                    "outcome_measure": "One-trial passive avoidance task",
+                },
+                "Threat avoidance",
+            ),
+            (
+                {
+                    "graph_construct_label": "memory consolidation",
+                    "graph_entity_label": "Memory",
+                    "raw_task_or_measure": "Percentage time spent freezing",
+                    "support": "Ketamine altered retrieval of the original fear memory.",
+                },
+                "Fear memory",
+            ),
+            (
+                {
+                    "graph_entity_label": "fear extinction",
+                    "task_or_measure": "Extinction recall",
+                },
+                "Fear extinction",
+            ),
+            (
+                {
+                    "graph_entity_label": "working memory",
+                    "outcome_measure": "N-back accuracy",
+                },
+                "Working memory",
             ),
             (
                 {
@@ -783,7 +939,14 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "Presence of meaning in life",
                     "support": "Participants described greater meaningfulness and purpose in life.",
                 },
-                "Personal meaning",
+                "Personal significance",
+            ),
+            (
+                {
+                    "graph_entity_label": "Changed meaning of percepts",
+                    "instrument_or_measure": "5D-ASC subscale",
+                },
+                "Perceptual alterations",
             ),
             (
                 {

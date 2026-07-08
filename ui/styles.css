@@ -161,7 +161,7 @@ button.ghost:not(.active):hover {
   border-color: var(--control-border-hover);
 }
 
-.mode-toggle button.active:hover {
+.segmented-toggle button.active:hover {
   background: rgba(73, 214, 200, 0.18);
   border-color: rgba(73, 214, 200, 0.48);
 }
@@ -329,7 +329,7 @@ button.primary:hover {
   justify-content: flex-end;
 }
 
-.mode-toggle {
+.segmented-toggle {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -341,18 +341,18 @@ button.primary:hover {
   border: 1px solid var(--control-border);
 }
 
-.mode-toggle button {
+.segmented-toggle button {
   border-radius: 999px;
 }
 
-.mode-toggle button.ghost:not(.active) {
+.segmented-toggle button.ghost:not(.active) {
   background: transparent;
   border-color: transparent;
   color: rgba(238, 240, 235, 0.46);
   box-shadow: none;
 }
 
-.mode-toggle button.ghost:not(.active):hover {
+.segmented-toggle button.ghost:not(.active):hover {
   color: rgba(238, 240, 235, 0.66);
   background: rgba(238, 240, 235, 0.045);
   border-color: transparent;
@@ -360,7 +360,7 @@ button.primary:hover {
   transform: none;
 }
 
-.mode-toggle button.active {
+.segmented-toggle button.active {
   background: var(--control-active-fill);
   border: 1px solid var(--control-active-border);
   color: #eafffb;
@@ -2843,14 +2843,13 @@ button.primary:hover {
   stroke-linejoin: round;
   cursor: pointer;
   opacity: 0.78;
-  transition: opacity 120ms ease, stroke-width 120ms ease, filter 120ms ease;
+  transition: opacity 90ms ease, stroke-width 90ms ease;
 }
 
 .edge.hovered,
 .edge.selected {
   opacity: 1;
   stroke-width: calc(var(--edge-width) + 2px);
-  filter: drop-shadow(0 0 6px var(--edge-glow, rgba(73, 214, 200, 0.32)));
 }
 
 .edge.muted,
@@ -2870,7 +2869,6 @@ button.primary:hover {
 .edge.focus-primary {
   opacity: 1;
   stroke-width: calc(var(--edge-width) + 3px);
-  filter: drop-shadow(0 0 8px var(--edge-glow, rgba(73, 214, 200, 0.34)));
 }
 
 .edge.focus-related {

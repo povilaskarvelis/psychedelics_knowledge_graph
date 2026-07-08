@@ -10,4 +10,3 @@ data/kg/views/pipeline_status_graph.json
 data/kg/views/methods_bibliography.json
 data/processed/graph_payload_active.json
 data/processed/graph_payload_runs
-data/processed/extraction/extraction_readiness_report.json

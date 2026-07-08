@@ -9,7 +9,6 @@ evidence annotations, aggregation fields, provenance fields, and public export
 schemas in files such as:
 
 - `data/processed/graph_payload_*.json`
-- `data/processed/extraction/extraction_readiness_report.json`
 - `data/kg/views/pipeline_status_graph.json`
 - `data/kg/views/methods_bibliography.json`
 

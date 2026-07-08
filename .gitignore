@@ -115,5 +115,4 @@ data/processed/paper_library_*.checkpoint.json
 
 # Static-site deploy output and Netlify local state
 dist/
-site/
 .netlify/

@@ -1,24 +1,12 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
   "active_graph_bootstraps": {
-    "disorders": {
-      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_primary.json",
-      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_disorders_secondary.json"
-    },
-    "targets": {
-      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_primary.json",
-      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_view_targets_secondary.json"
-    }
+    "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_primary.json",
+    "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_secondary.json"
   },
   "active_detail_bootstraps": {
-    "disorders": {
-      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_view_disorders_primary.json",
-      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_view_disorders_secondary.json"
-    },
-    "targets": {
-      "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_view_targets_primary.json",
-      "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_view_targets_secondary.json"
-    }
+    "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_primary.json",
+    "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_secondary.json"
   },
   "active_manifest": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_manifest.json",
   "evidence_source": "kg_tables",

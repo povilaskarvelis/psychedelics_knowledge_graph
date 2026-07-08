@@ -35,29 +35,24 @@ GRAPH_BOOTSTRAP_SCHEMA_VERSION = "route_native_graph_bootstrap_v1"
 DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v1"
 PRIMARY_SOURCE_KEY = "primary"
 SECONDARY_SOURCE_KEY = "secondary"
-UI_VIEW_KEYS = ("disorders", "targets")
 UI_SOURCE_KEYS = (PRIMARY_SOURCE_KEY, SECONDARY_SOURCE_KEY)
-HIDDEN_MAIN_GRAPH_DOMAINS = {"pharmacokinetics_exposure"}
-UI_VIEW_BY_DOMAIN = {
-    "molecular_target": "targets",
-    "molecular_pathway_readout": "targets",
-    "brain_system": "targets",
-    "clinical_outcome": "disorders",
-    "safety_tolerability": "disorders",
-    "cognitive_behavioral": "disorders",
-    "subjective_experience": "disorders",
-    "real_world_public_health": "disorders",
-    "intervention_context": "disorders",
-}
-UI_TARGET_ENTITY_KINDS = {
-    "target",
-    "pathway_process",
-    "molecular_readout",
-    "biomarker_readout",
-    "system_family",
+GRAPH_BOOTSTRAP_ENTITY_KINDS = {
+    "condition_indication",
+    "safety_adverse_event",
+    "cognitive_behavioral_construct",
+    "subjective_experience_construct",
+    "intervention_component",
+    "public_health_measure",
     "brain_region",
     "brain_network",
     "neural_circuit",
+    "pathway_process",
+    "biomarker_readout",
+    "target",
+    "system_family",
+}
+GRAPH_BOOTSTRAP_EXCLUDED_DOMAINS = {
+    "pharmacokinetics_exposure",
 }
 
 PAPER_FIELDS = (
@@ -267,6 +262,8 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "dosing_schedule",
     "session_context",
     "system",
+    "support",
+    "effect_size",
     "outcome_measure",
     "outcome_measure_normalized",
     "evidence_location",
@@ -664,46 +661,44 @@ def summary_stats(findings: list[dict], candidate_study_keys: set[str] | None = 
     return stats
 
 
-def ui_view_for_finding(finding: dict) -> str:
-    domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type")).lower()
-    if domain in HIDDEN_MAIN_GRAPH_DOMAINS:
-        return ""
-    if domain in UI_VIEW_BY_DOMAIN:
-        return UI_VIEW_BY_DOMAIN[domain]
-    entity_kind = normalize(finding.get("entity_kind") or finding.get("kg_entity_kind")).lower()
-    return "targets" if entity_kind in UI_TARGET_ENTITY_KINDS else "disorders"
-
-
 def ui_source_key_for_finding(finding: dict) -> str:
     evidence_type = normalize(finding.get("evidence_type") or finding.get("kg_evidence_type")).lower()
     return SECONDARY_SOURCE_KEY if evidence_type == "secondary_literature" else PRIMARY_SOURCE_KEY
 
 
-def findings_for_ui_view_source(findings: list[dict], view_key: str, source_key: str) -> list[dict]:
-    return [
-        finding
-        for finding in findings
-        if ui_view_for_finding(finding) == view_key and ui_source_key_for_finding(finding) == source_key
-    ]
+def findings_for_ui_source(findings: list[dict], source_key: str) -> list[dict]:
+    return [finding for finding in findings if ui_source_key_for_finding(finding) == source_key]
 
 
-def ui_graph_bootstrap_name(view_key: str, source_key: str) -> str:
-    return f"graph_bootstrap_view_{view_key}_{source_key}.json"
+def is_graph_bootstrap_finding(finding: dict) -> bool:
+    domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type")).lower()
+    if domain in GRAPH_BOOTSTRAP_EXCLUDED_DOMAINS:
+        return False
+    entity_kind = normalize(finding.get("entity_kind") or finding.get("kg_entity_kind")).lower()
+    return entity_kind in GRAPH_BOOTSTRAP_ENTITY_KINDS
 
 
-def ui_detail_bootstrap_name(view_key: str, source_key: str) -> str:
-    return f"detail_bootstrap_view_{view_key}_{source_key}.json"
+def ui_graph_bootstrap_name(source_key: str) -> str:
+    return f"graph_bootstrap_{source_key}.json"
 
 
-def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, view_key: str, source_key: str) -> dict:
+def ui_detail_bootstrap_name(source_key: str) -> str:
+    return f"detail_bootstrap_{source_key}.json"
+
+
+def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
     edges: dict[tuple[str, str, str], dict] = {}
+    graph_finding_count = 0
     for finding in findings:
+        if not is_graph_bootstrap_finding(finding):
+            continue
         compound = normalize(finding.get("compound"))
         entity_label = normalize(finding.get("entity_label") or finding.get("graph_entity_label") or finding.get("raw_entity_label"))
         entity_kind = normalize(finding.get("entity_kind") or finding.get("kg_entity_kind"))
         if not compound or not entity_label or not entity_kind:
             continue
 
+        graph_finding_count += 1
         domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type"))
         key = (compound, entity_kind, entity_label)
         entry = edges.setdefault(
@@ -753,10 +748,11 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
         "generated_at": generated_at,
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
-        "view": view_key,
+        "literature_source": source_key,
         "source": source_key,
         "edge_count": len(edge_entries),
-        "finding_count": len(findings),
+        "finding_count": graph_finding_count,
+        "source_row_count": len(findings),
         "edges": edge_entries,
     }
 
@@ -780,7 +776,7 @@ def detail_bootstrap_value(value: object) -> object:
     return value
 
 
-def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, view_key: str, source_key: str) -> dict:
+def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
     values: list[object] = [None]
     value_indexes = {json.dumps(None): 0}
     rows: list[list[int]] = []
@@ -801,7 +797,7 @@ def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pa
         "generated_at": generated_at,
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
-        "view": view_key,
+        "literature_source": source_key,
         "source": source_key,
         "row_count": len(rows),
         "fields": list(DETAIL_BOOTSTRAP_FIELDS),
@@ -822,20 +818,14 @@ def write_active_pointer(
     active_json: Path,
     out_dir: Path,
     manifest_path: Path,
-    graph_bootstrap_paths: dict[str, dict[str, Path]],
-    detail_bootstrap_paths: dict[str, dict[str, Path]],
+    graph_bootstrap_paths: dict[str, Path],
+    detail_bootstrap_paths: dict[str, Path],
     kg_dir: Path,
 ) -> dict:
     payload = {
         "schema_version": ACTIVE_SCHEMA_VERSION,
-        "active_graph_bootstraps": {
-            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
-            for view_key, source_paths in graph_bootstrap_paths.items()
-        },
-        "active_detail_bootstraps": {
-            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
-            for view_key, source_paths in detail_bootstrap_paths.items()
-        },
+        "active_graph_bootstraps": {source_key: relative_path(path) for source_key, path in graph_bootstrap_paths.items()},
+        "active_detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
         "active_manifest": relative_path(manifest_path),
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
@@ -859,48 +849,40 @@ def export_evidence_payload(
 
     manifest_path = out_dir / manifest_name
     graph_bootstrap_paths = {
-        view_key: {source_key: out_dir / ui_graph_bootstrap_name(view_key, source_key) for source_key in UI_SOURCE_KEYS}
-        for view_key in UI_VIEW_KEYS
+        source_key: out_dir / ui_graph_bootstrap_name(source_key)
+        for source_key in UI_SOURCE_KEYS
     }
     detail_bootstrap_paths = {
-        view_key: {source_key: out_dir / ui_detail_bootstrap_name(view_key, source_key) for source_key in UI_SOURCE_KEYS}
-        for view_key in UI_VIEW_KEYS
+        source_key: out_dir / ui_detail_bootstrap_name(source_key)
+        for source_key in UI_SOURCE_KEYS
     }
     keep_names = {manifest_path.name}
-    keep_names.update(path.name for source_paths in graph_bootstrap_paths.values() for path in source_paths.values())
-    keep_names.update(path.name for source_paths in detail_bootstrap_paths.values() for path in source_paths.values())
+    keep_names.update(path.name for path in graph_bootstrap_paths.values())
+    keep_names.update(path.name for path in detail_bootstrap_paths.values())
     remove_stale_payload_files(out_dir, keep_names)
 
     generated_at = now_utc()
-    view_summary_stats: dict[str, dict[str, dict]] = {}
-    for view_key in UI_VIEW_KEYS:
-        view_summary_stats[view_key] = {}
-        for source_key in UI_SOURCE_KEYS:
-            view_findings = findings_for_ui_view_source(findings, view_key, source_key)
-            view_stats = summary_stats(view_findings, candidate_study_keys)
-            view_summary_stats[view_key][source_key] = view_stats
-            graph_bootstrap = graph_bootstrap_payload(view_findings, generated_at, kg_dir, view_key, source_key)
-            graph_bootstrap_paths[view_key][source_key].write_text(compact_json(graph_bootstrap), encoding="utf-8")
-            detail_bootstrap = detail_bootstrap_payload(view_findings, generated_at, kg_dir, view_key, source_key)
-            detail_bootstrap_paths[view_key][source_key].write_text(compact_json(detail_bootstrap), encoding="utf-8")
+    source_summary_stats: dict[str, dict] = {}
+    for source_key in UI_SOURCE_KEYS:
+        source_findings = findings_for_ui_source(findings, source_key)
+        source_stats = summary_stats(source_findings, candidate_study_keys)
+        source_summary_stats[source_key] = source_stats
+        graph_bootstrap = graph_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
+        graph_bootstrap_paths[source_key].write_text(compact_json(graph_bootstrap), encoding="utf-8")
+        detail_bootstrap = detail_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
+        detail_bootstrap_paths[source_key].write_text(compact_json(detail_bootstrap), encoding="utf-8")
 
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "generated_at": generated_at,
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
-        "graph_bootstraps": {
-            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
-            for view_key, source_paths in graph_bootstrap_paths.items()
-        },
-        "detail_bootstraps": {
-            view_key: {source_key: relative_path(path) for source_key, path in source_paths.items()}
-            for view_key, source_paths in detail_bootstrap_paths.items()
-        },
+        "graph_bootstraps": {source_key: relative_path(path) for source_key, path in graph_bootstrap_paths.items()},
+        "detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
         "row_count": len(findings),
         "summary_stats": {
             "default": stats,
-            "views": view_summary_stats,
+            "sources": source_summary_stats,
         },
         "status": "ok",
     }

@@ -5,6 +5,20 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="${DIST_DIR:-"${ROOT_DIR}/dist"}"
 MANIFEST="${ROOT_DIR}/scripts/public_site_files.txt"
 
+if [[ "${DIST_DIR}" != /* ]]; then
+  DIST_DIR="$(pwd)/${DIST_DIR}"
+fi
+
+DIST_PARENT="$(dirname "${DIST_DIR}")"
+DIST_BASENAME="$(basename "${DIST_DIR}")"
+mkdir -p "${DIST_PARENT}"
+DIST_DIR="$(cd "${DIST_PARENT}" && pwd -P)/${DIST_BASENAME}"
+
+if [[ "${DIST_DIR}" == "${ROOT_DIR}/site" ]]; then
+  echo "The site/ build output is retired. Use dist/ for the public site and local preview." >&2
+  exit 1
+fi
+
 if [[ ! -f "${MANIFEST}" ]]; then
   echo "Missing public site manifest: ${MANIFEST}" >&2
   exit 1

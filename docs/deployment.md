@@ -8,6 +8,9 @@ GitHub Pages is not used for the public site. Keep Netlify as the single
 deployment path so the repository does not maintain parallel generated site
 outputs.
 
+Use `dist/` for both Netlify deploys and local previews. The old `site/`
+output is retired and should not be rebuilt.
+
 ## Netlify
 
 Use the settings in `netlify.toml`:

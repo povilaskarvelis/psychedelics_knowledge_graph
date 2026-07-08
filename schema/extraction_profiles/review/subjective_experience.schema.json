@@ -299,7 +299,7 @@
             },
             "subjective_construct_category": {
               "type": "string",
-              "description": "Subjective effects construct category such as Mystical-type experience, Ego dissolution, Altered state profile, Perceptual alterations, Dissociation, Challenging experience, Psychological insight, Emotional breakthrough, Connectedness, Empathy, Personal meaning, Spiritual significance, Euphoria, Positive affect, Negative affect, Somatic sensations, Subjective intensity, Near-death-like experience, or Psychosis-like effects."
+              "description": "Subjective effects construct category such as Mystical-type experience, Ego dissolution, Altered state profile, Perceptual alterations, Dissociation, Challenging experience, Psychological insight, Emotional breakthrough, Connectedness, Empathy, Personal significance, Spiritual significance, Euphoria, Positive affect, Negative affect, Somatic sensations, Subjective intensity, Near-death-like experience, or Psychosis-like effects."
             },
             "subjective_construct": {
               "type": "string",

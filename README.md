@@ -159,14 +159,13 @@ meant to be auditable and easy to improve over time.
 
 ### Validation and Outputs
 
-Curated rows are checked against JSON schemas and evidence-policy rules before
-publication.
+Extracted evidence is checked against route-specific schemas and evidence-policy
+rules before graph publication.
 
 Main outputs:
 
 - browser interface in `ui/`
-- curated evidence-record files in `data/curated/`
-- exploratory evidence-record files for weak or demoted evidence
+- normalized parquet KG tables under `data/processed/kg*/`
 - graph export payloads in `data/processed/graph_payload_*.json`
 - methods paper-flow and bibliography files in `data/kg/` when
   `python pipeline/kg/build_methods_flow.py --refresh-kg-tables` is run locally
@@ -179,14 +178,14 @@ type and result direction directly in the interface.
 ## Repository Layout
 
 - `pipeline/ingest/`: discovery, paper sync, DOI seeding
-- `pipeline/review/`: abstract screening, legacy triage audit, and autofill
-- `pipeline/extract/`: promotion into curated evidence records
-- `pipeline/validate/`: validation, cleanup, and audit helpers
+- `pipeline/review/`: deterministic pre-screening, Gemini routing, and audit baselines
+- `pipeline/extract/`: route assembly, route-specific task building, and extraction runners
+- `pipeline/validate/`: corpus provenance and table-building audits
 - `pipeline/publish/`: export
-- `schema/`: legacy claim schemas and normalization rules
+- `schema/`: route extraction schemas, KG mappings, and node vocabularies
 - `ui/`: browser interface
-- `data/curated/`: main and exploratory evidence-record sets
-- `data/processed/`: paper libraries, reports, stubs, and export payloads
+- `data/curated/`: retained first-generation evidence artifacts and manual review inputs
+- `data/processed/`: corpus tables, extraction outputs, KG tables, and public payloads
 
 ## Quick Start
 

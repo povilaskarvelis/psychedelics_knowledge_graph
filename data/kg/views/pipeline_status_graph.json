@@ -3,16 +3,16 @@
   "counts": {
     "excluded_during_initial_screening": 39213,
     "kept_after_initial_screening": 17200,
-    "not_represented_in_knowledge_graph": 5235,
+    "not_represented_in_knowledge_graph": 4931,
     "not_screened": 0,
     "not_selected_for_evidence_extraction": 3789,
     "papers_found_by_search": 56413,
-    "represented_in_knowledge_graph": 8176,
+    "represented_in_knowledge_graph": 8480,
     "screened_for_relevance": 56413,
     "selected_for_evidence_extraction": 13411
   },
   "current_stage": "kg_inclusion_summary",
-  "generated_at": "2026-07-07T12:29:34.151764+00:00",
+  "generated_at": "2026-07-08T19:55:10.170610+00:00",
   "prisma_flow": {
     "overall": {
       "current_stage": "kg_inclusion_summary",
@@ -20,8 +20,8 @@
       "label": "Paper search and graph-inclusion flow",
       "metrics": {
         "finding_counts_available": true,
-        "not_represented_in_knowledge_graph": 5235,
-        "represented_in_knowledge_graph": 8176,
+        "not_represented_in_knowledge_graph": 4931,
+        "represented_in_knowledge_graph": 8480,
         "selected_papers": 13411
       },
       "rows": [
@@ -48,21 +48,21 @@
       ],
       "side_boxes": {
         "kg_not_included": {
-          "count": 5235,
+          "count": 4931,
           "label": "Selected papers not represented in graph",
           "reasons": [
             {
-              "count": 792,
+              "count": 911,
               "key": "not_graphable",
               "label": "Not graphable"
             },
             {
-              "count": 509,
+              "count": 545,
               "key": "not_normalized",
               "label": "Not normalized"
             },
             {
-              "count": 3934,
+              "count": 3475,
               "key": "no_graph_finding",
               "label": "No graph finding"
             }
@@ -127,7 +127,7 @@
           "label": "Papers selected for evidence extraction"
         },
         "kg_included": {
-          "count": 8176,
+          "count": 8480,
           "label": "Papers represented in the knowledge graph"
         },
         "prescreen_retained": {

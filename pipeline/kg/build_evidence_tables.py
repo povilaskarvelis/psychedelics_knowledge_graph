@@ -260,6 +260,11 @@ CLAIM_FIELDS = (
     "evidence_location",
     "evidence_locator",
     "paper_assessment_route",
+    "source_item_type",
+    "source_item_index",
+    "coverage_type",
+    "coverage_focus",
+    "coverage_focus_normalized",
     "source_type",
     "source_family",
     "paper_type",
@@ -399,12 +404,24 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         ),
     ),
     (
+        "Clinical treatment",
+        re.compile(
+            r"\b(real[- ]world clinical|clinical practice|clinical treatment|treatment response|"
+            r"response and remission|remission rate|depression severity|"
+            r"madrs|qids|cgi[- ]?s|cgi[- ]?i|treatment discontinuation|treatment continuation|"
+            r"intranasal esketamine|spravato)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
         "Self-treatment",
         re.compile(
-            r"\b(self[- ]?treat\w*|self[- ]?medicat\w*|perceived benefit|therapeutic benefit|"
+            r"\b(self[- ]?treat\w*|self[- ]?medicat\w*|perceived benefit|perceived efficacy|"
+            r"perceived unpleasant side effects|therapeutic benefit|"
             r"psychotherapeutic benefit|medical reasons?|psychiatric improvement|symptom improvement|"
             r"treatment outcomes?|cluster headache|busting|preventive efficacy|abortive efficacy|healing|"
-            r"trauma|cravings?|life changes|quality of life|wellbeing|well-being)\b",
+            r"trauma|cravings?|life changes|quality of life|wellbeing|well-being|"
+            r"eating disorders?|disordered eating)\b",
             re.IGNORECASE,
         ),
     ),
@@ -431,7 +448,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         re.compile(
             r"\b(misuse|abuse liability|dependen\w*|addict\w*|diversion|nonmedical|non[- ]medical|"
             r"substance use disorder|use disorder|sud\b|drug abuse|drug dependence|alcohol abuse|"
-            r"problematic|compulsive|obsessive|over[- ]?eager|tolerance|withdrawal|craving)\b",
+            r"problematic use patterns?|compulsive use|obsessive relationship|over[- ]?eager use|"
+            r"tolerance escalation|withdrawal syndrome|use despite harm)\b",
             re.IGNORECASE,
         ),
     ),
@@ -456,6 +474,32 @@ PUBLIC_HEALTH_TOPIC_RULES = (
     ),
 )
 PUBLIC_HEALTH_TOPIC_LABELS = {label for label, _pattern in PUBLIC_HEALTH_TOPIC_RULES}
+PUBLIC_HEALTH_STRICT_PROBLEMATIC_USE_RE = re.compile(
+    r"\b(misuse|abuse liability|dependen\w*|addict\w*|diversion|nonmedical|non[- ]medical|"
+    r"substance use disorder|use disorder|sud\b|drug abuse|drug dependence|alcohol abuse|"
+    r"problematic use patterns?|compulsive use|obsessive relationship|over[- ]?eager use|"
+    r"tolerance escalation|withdrawal syndrome|use despite harm)\b",
+    re.IGNORECASE,
+)
+PUBLIC_HEALTH_NON_PROBLEMATIC_OUTCOME_RE = re.compile(
+    r"\b(treatment discontinuation|discontinued treatment|treatment response|response and remission|"
+    r"remission|depression severity|madrs|hopelessness|side effects?|adverse events?|"
+    r"unpleasant side effects|urinary symptoms?|urolog\w*|renal|dissociation|sedation|"
+    r"suicid\w*)\b",
+    re.IGNORECASE,
+)
+PUBLIC_HEALTH_CLINICAL_TREATMENT_RE = re.compile(
+    r"\b(real[- ]world clinical|clinical practice|clinical treatment|"
+    r"treatment[- ]resistant depression|intranasal esketamine|spravato|oral antidepressant|"
+    r"treatment response|response and remission|remission|madrs|qids|cgi[- ]?[si]|"
+    r"treatment discontinuation)\b",
+    re.IGNORECASE,
+)
+PUBLIC_HEALTH_RECREATIONAL_USE_RE = re.compile(
+    r"\b(recreational|regular users?|chronic users?|club|nightlife|festival|rave|party|"
+    r"non[- ]?medical use|nonmedical use)\b",
+    re.IGNORECASE,
+)
 COGNITIVE_BEHAVIORAL_CONTEXT_FIELDS = (
     "graph_construct_label",
     "construct_family",
@@ -645,13 +689,20 @@ COGNITIVE_BEHAVIORAL_RULES = (
             r"elevated plus maze|plus[- ]maze|\bepm\b|"
             r"elevated zero maze|\bezm\b|zero maze|open arms?|novelty[- ]suppressed feeding|\bnsft\b|"
             r"light[- ]dark|marble burying|bottom dwelling|center zone|center time|thigmotaxis|"
-            r"defensive burying|threat avoidance)\b",
+            r"defensive burying|threat avoidance|active avoidance|passive avoidance|avoidance task|"
+            r"step[- ]down passive avoidance|step[- ]through(?: latency)?|shuttle box)\b",
             re.IGNORECASE,
         ),
     ),
     (
         "Fear memory",
-        re.compile(r"\b(fear memory|fear conditioning|conditioned fear|learned fear|contextual fear|cued fear)\b", re.IGNORECASE),
+        re.compile(
+            r"\b(fear memory|fear conditioning|conditioned fear|learned fear|contextual fear|"
+            r"contextual fear conditioning|cued fear|cued fear conditioning|tone fear conditioning|"
+            r"trace fear conditioning|conditioned freezing|freezing time|percentage time spent freezing|"
+            r"freezing behavior|cfc|tfc)\b",
+            re.IGNORECASE,
+        ),
     ),
     (
         "Recognition memory",
@@ -667,7 +718,7 @@ COGNITIVE_BEHAVIORAL_RULES = (
     ),
     (
         "Memory",
-        re.compile(r"\b(memory|retrieval|consolidation|reconsolidation|passive avoidance|autoshaping)\b", re.IGNORECASE),
+        re.compile(r"\b(memory|retrieval|consolidation|reconsolidation|autoshaping)\b", re.IGNORECASE),
     ),
     (
         "Cognitive flexibility",
@@ -737,6 +788,7 @@ COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS = {
     "temporal perception": "Time perception",
     "interval timing": "Time perception",
 }
+COGNITIVE_BEHAVIORAL_BROAD_LABEL_KEYS = {"memory", "cognitive function"}
 OBJECTIVE_TIME_TASK_RE = re.compile(
     r"\b("
     r"temporal (?:bisection|reproduction|discrimination|production)|"
@@ -839,7 +891,7 @@ SUBJECTIVE_EXPERIENCE_RULES = (
         re.compile(
             r"\b(perceptual alteration|perceptual changes?|perception|visual|auditory|hallucination|hallucinogenic|"
             r"hallucinogen rating|hrs\b|imagery|elementary imagery|complex imagery|syna?esth|sensory changes?|"
-            r"phosphenic|perceptual rivalry|visionary)\b",
+            r"changed meaning of percepts|meaning of percepts|phosphenic|perceptual rivalry|visionary)\b",
             re.IGNORECASE,
         ),
     ),
@@ -873,10 +925,11 @@ SUBJECTIVE_EXPERIENCE_RULES = (
         ),
     ),
     (
-        "Personal meaning",
+        "Personal significance",
         re.compile(
-            r"\b(meaning|meaningful|meaningfulness|presence of meaning|purpose in life|important experiences?|"
-            r"significant experiences?|personal significance|life satisfaction)\b",
+            r"\b(meaning in life|presence of meaning|meaningfulness|personally meaningful|personal meaningfulness|"
+            r"meaningful experiences?|purpose in life|important experiences?|significant experiences?|"
+            r"personal significance|life satisfaction)\b",
             re.IGNORECASE,
         ),
     ),
@@ -929,7 +982,7 @@ SUBJECTIVE_EXPERIENCE_LABEL_FALLBACKS = {
     "experience intensity": "Subjective intensity",
     "hallucinations": "Perceptual alterations",
     "hallucinogenic effects": "Perceptual alterations",
-    "meaning spirituality": "Personal meaning",
+    "meaning spirituality": "Spiritual significance",
     "mood euphoria": "Euphoria",
     "mystical experience": "Mystical-type experience",
     "time perception": "Time distortion",
@@ -1483,6 +1536,9 @@ def label_key(value: object) -> str:
     text = text.replace("&", " and ")
     text = re.sub(r"[^a-z0-9]+", " ", text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+COGNITIVE_BEHAVIORAL_RULE_LABEL_BY_KEY = {label_key(label): label for label, _pattern in COGNITIVE_BEHAVIORAL_RULES}
 
 
 def compact_key(value: object) -> str:
@@ -2401,7 +2457,7 @@ MOLECULAR_EFFECT_RULES = (
     (
         "Cellular stress",
         re.compile(
-            r"\b(oxidative stress|reactive oxygen|\bros\b|lipid peroxidation|malondialdehyde|\bmda\b|"
+            r"\b(cellular stress|oxidative stress|reactive oxygen|\bros\b|lipid peroxidation|malondialdehyde|\bmda\b|"
             r"glutathione|\bgsh\b|\bsod\b|catalase|apoptosis|caspase|cell death|necrosis|"
             r"hsp[- ]?70|heat shock|neurotox\w*|toxicity|toxic marker|neurofilament|\bnfl\b|s100b)\b",
             re.IGNORECASE,
@@ -2410,19 +2466,20 @@ MOLECULAR_EFFECT_RULES = (
     (
         "Neuroplasticity",
         re.compile(
-            r"\b(bdnf|trkb|trk b|ngf|gdnf|vegf|igf[- ]?1|insulin[- ]like growth factor|"
+            r"\b(neuroplasticity|bdnf|trkb|trk b|ngf|gdnf|vegf|igf[- ]?1|insulin[- ]like growth factor|"
             r"neurotroph\w*|growth factor\w*|plasticity|"
             r"synaptic|synapse|dendritic|spine|neurogenesis|neurite|synaptogenesis|"
-            r"long[- ]?term potentiation|\bltp\b|long[- ]?term depression|\bltd\b|psd[- ]?95|"
-            r"synaptophysin|\barc\b|sv2a|synaptic vesicle|perineuronal net)\b",
+            r"paired[- ]pulse facilitation|\bppf\b|long[- ]?term potentiation|\bltp\b|long[- ]?term depression|\bltd\b|psd[- ]?95|"
+            r"synaptophysin|\barc\b|sv2a|synaptic vesicle|perineuronal net|"
+            r"myelin basic protein|myelination)\b",
             re.IGNORECASE,
         ),
     ),
     (
         "Intracellular signaling",
         re.compile(
-            r"\b(erk|mapk|mtor|mtorc1|akt|camp|creb|pka|pkc|plc|pi3k|gsk[- ]?3|p70s6k|"
-            r"stat3|jnk|phosphorylation|phosphorylated|phospho|second messenger\w*|"
+            r"\b(intracellular signaling|erk|mapk|mtor|mtorc1|akt|camp|creb|pka|pkc|plc|pi3k|gsk[- ]?3|p70s6k|"
+            r"stat3|jnk|rac1|phosphorylation|phosphorylated|phospho|second messenger\w*|"
             r"kinase\w*|phosphoinositide)\b",
             re.IGNORECASE,
         ),
@@ -2437,19 +2494,19 @@ MOLECULAR_EFFECT_RULES = (
     ),
     (
         "Serotonin signaling",
-        re.compile(r"\b(serotonin|5[- ]?hydroxytryptamine|5[- ]?hiaa|5[- ]?ht\d?[a-z]?|sert|slc6a4)\b", re.IGNORECASE),
+        re.compile(r"\b(serotonin signaling|serotonin|5[- ]?hydroxytryptamine|5[- ]?hiaa|5[- ]?ht\d?[a-z]?|sert|slc6a4)\b", re.IGNORECASE),
     ),
     (
         "Dopamine signaling",
-        re.compile(r"\b(dopamine|\bdopa\b|dopac|\bhva\b|\bdat\b|slc6a3|d[1-5][ -]?receptor)\b", re.IGNORECASE),
+        re.compile(r"\b(dopamine signaling|dopamine|\bdopa\b|dopac|\bhva\b|\bdat\b|slc6a3|d[1-5][ -]?receptor)\b", re.IGNORECASE),
     ),
     (
         "Glutamate signaling",
-        re.compile(r"\b(glutamate|glutamatergic|ampa|nmda|nmdar|ampar|mglur|mglu\d?|glua\d?|glun\d?|vglut)\b", re.IGNORECASE),
+        re.compile(r"\b(glutamate signaling|glutamate|glutamatergic|ampa|nmda|nmdar|ampar|mglur\d?[a-z]?|mglu\d?|glua\d?[a-z]?|glun\d?[a-z]?|vglut)\b", re.IGNORECASE),
     ),
     (
         "GABA signaling",
-        re.compile(r"\b(gaba|gabaergic|gabr|gad[- ]?65|gad[- ]?67)\b", re.IGNORECASE),
+        re.compile(r"\b(gaba signaling|gaba|gabaergic|gabr|gad[- ]?65|gad[- ]?67)\b", re.IGNORECASE),
     ),
     (
         "Epigenetic regulation",
@@ -2465,20 +2522,20 @@ MOLECULAR_EFFECT_RULES = (
     ),
     (
         "Drug metabolism",
-        re.compile(r"\b(cyp\d+\w*|cytochrome p450|ugt\d*\w*|monoamine oxidase|mao[- ]?[ab]?|comt|metabolic enzyme\w*|in vitro metabolism)\b", re.IGNORECASE),
+        re.compile(r"\b(drug metabolism|cyp\d+\w*|cytochrome p450|ugt\d*\w*|monoamine oxidase|mao[- ]?[ab]?|comt|metabolic enzyme\w*|in vitro metabolism)\b", re.IGNORECASE),
     ),
     (
         "Endocrine response",
-        re.compile(r"\b(cortisol|corticosterone|acth|prolactin|hormone\w*|endocrine|melatonin|oxytocin|vasopressin)\b", re.IGNORECASE),
+        re.compile(r"\b(endocrine response|cortisol|corticosterone|acth|prolactin|hormone\w*|endocrine|melatonin|oxytocin|vasopressin)\b", re.IGNORECASE),
     ),
     (
         "Norepinephrine signaling",
-        re.compile(r"\b(norepinephrine|noradrenaline|\bne\b|\bna\b|slc6a2|net\b)\b", re.IGNORECASE),
+        re.compile(r"\b(norepinephrine signaling|norepinephrine|noradrenaline|\bne\b|\bna\b|slc6a2|net\b)\b", re.IGNORECASE),
     ),
     (
         "Neuronal excitability",
         re.compile(
-            r"\b(firing rate|spik(?:e|ing)|calcium imaging|calcium flux|electrophysiolog\w*|"
+            r"\b(neuronal excitability|excitability|firing rate|spik(?:e|ing)|calcium imaging|calcium flux|electrophysiolog\w*|"
             r"oscillation\w*|gamma|theta|field potential\w*|currents?|\bepscs?\b|\bipscs?\b|"
             r"\bmepscs?\b|\bmipscs?\b)\b",
             re.IGNORECASE,
@@ -2488,7 +2545,8 @@ MOLECULAR_EFFECT_RULES = (
         "Receptor regulation",
         re.compile(
             r"\b(receptor\w*|transport(?:er|ers)|availability|binding potential|densit(?:y|ies)|"
-            r"occupancy|trafficking|surface expression|internalization|uptake site)\b",
+            r"occupancy|trafficking|surface expression|internalization|uptake site|"
+            r"p[- ]?glycoprotein|abcb1|pmat|slc29a4|vmat\d?|vesicular monoamine transporter)\b",
             re.IGNORECASE,
         ),
     ),
@@ -4107,17 +4165,45 @@ def inferred_experimental_system(row: dict) -> str:
     return ""
 
 
+def public_health_context(row: dict) -> str:
+    return ascii_fold(" ".join(normalize(row.get(field, "")) for field in PUBLIC_HEALTH_CONTEXT_FIELDS))
+
+
+def public_health_rule_label(context: str, skip_labels: set[str] | None = None) -> str:
+    if not normalize(context):
+        return ""
+    skip = skip_labels or set()
+    for label, pattern in PUBLIC_HEALTH_TOPIC_RULES:
+        if label in skip:
+            continue
+        if pattern.search(context):
+            return label
+    return ""
+
+
 def public_health_graph_label(row: dict) -> str:
     explicit_label = first_endpoint_value(row, ("public_health_graph_label", "public_health_topic_category"))
     if explicit_label in PUBLIC_HEALTH_TOPIC_LABELS:
+        context = public_health_context(row)
+        if explicit_label == "Self-treatment" and PUBLIC_HEALTH_CLINICAL_TREATMENT_RE.search(context):
+            return "Clinical treatment"
+        if explicit_label == "Problematic use":
+            if PUBLIC_HEALTH_STRICT_PROBLEMATIC_USE_RE.search(context):
+                return "Problematic use"
+            if PUBLIC_HEALTH_NON_PROBLEMATIC_OUTCOME_RE.search(context):
+                if PUBLIC_HEALTH_CLINICAL_TREATMENT_RE.search(context):
+                    return "Clinical treatment"
+                if PUBLIC_HEALTH_RECREATIONAL_USE_RE.search(context):
+                    return "Recreational use"
+                rerouted = public_health_rule_label(context, skip_labels={"Problematic use"})
+                return rerouted or "Other naturalistic topic"
+            rerouted = public_health_rule_label(context, skip_labels={"Problematic use"})
+            return rerouted or "Other naturalistic topic"
         return explicit_label
-    context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in PUBLIC_HEALTH_CONTEXT_FIELDS))
+    context = public_health_context(row)
     if not normalize(context):
         return "Prevalence & trends"
-    for label, pattern in PUBLIC_HEALTH_TOPIC_RULES:
-        if pattern.search(context):
-            return label
-    return "Prevalence & trends"
+    return public_health_rule_label(context) or "Prevalence & trends"
 
 
 def withdrawal_condition_label(row: dict) -> str:
@@ -4169,36 +4255,58 @@ def subjective_time_distortion_from_cognitive_row(row: dict) -> bool:
     )
 
 
-def cognitive_behavioral_graph_label(row: dict) -> str:
-    explicit_label = first_endpoint_value(row, ("cognitive_behavioral_graph_label", "graph_construct_label"))
-    explicit_key = label_key(explicit_label)
-    if explicit_key in COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS:
-        return COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS[explicit_key]
-    if explicit_label:
-        return explicit_label
+def canonical_cognitive_behavioral_label(value: object) -> tuple[str, bool]:
+    label = normalize(value)
+    if not label:
+        return "", False
+    key = label_key(label)
+    if key in COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS:
+        return COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS[key], True
+    if key in COGNITIVE_BEHAVIORAL_RULE_LABEL_BY_KEY:
+        return COGNITIVE_BEHAVIORAL_RULE_LABEL_BY_KEY[key], True
+    return label, False
 
-    measure_context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_MEASURE_FIELDS))
-    for label, pattern in COGNITIVE_BEHAVIORAL_RULES:
-        if pattern.search(measure_context):
-            return label
 
-    explicit_label = first_normalized_value(row, COGNITIVE_BEHAVIORAL_LABEL_FIELDS)
-    explicit_key = label_key(explicit_label)
-    if measure_context and GENERIC_LOCOMOTOR_CONTEXT_RE.search(measure_context):
-        return first_normalized_value(row, COGNITIVE_BEHAVIORAL_MEASURE_FIELDS) or explicit_label
-    if explicit_key in COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS:
-        return COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS[explicit_key]
-
-    label_context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_LABEL_FIELDS))
-    for label, pattern in COGNITIVE_BEHAVIORAL_RULES:
-        if pattern.search(label_context):
-            return label
-
-    context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_CONTEXT_FIELDS))
+def cognitive_behavioral_rule_label(row: dict, fields: Iterable[str]) -> str:
+    context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in fields))
+    if not context:
+        return ""
     for label, pattern in COGNITIVE_BEHAVIORAL_RULES:
         if pattern.search(context):
             return label
-    return explicit_label
+    return ""
+
+
+def cognitive_behavioral_graph_label(row: dict) -> str:
+    explicit_label = first_endpoint_value(row, ("cognitive_behavioral_graph_label", "graph_construct_label"))
+    canonical_explicit, explicit_is_known = canonical_cognitive_behavioral_label(explicit_label)
+    explicit_key = label_key(canonical_explicit)
+
+    measure_label = cognitive_behavioral_rule_label(row, COGNITIVE_BEHAVIORAL_MEASURE_FIELDS)
+    if measure_label and (not explicit_is_known or explicit_key in COGNITIVE_BEHAVIORAL_BROAD_LABEL_KEYS):
+        return measure_label
+    if canonical_explicit and explicit_is_known and explicit_key not in COGNITIVE_BEHAVIORAL_BROAD_LABEL_KEYS:
+        return canonical_explicit
+
+    explicit_label = first_normalized_value(row, COGNITIVE_BEHAVIORAL_LABEL_FIELDS)
+    canonical_label, label_is_known = canonical_cognitive_behavioral_label(explicit_label)
+    explicit_key = label_key(canonical_label)
+    measure_context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_MEASURE_FIELDS))
+    if measure_context and GENERIC_LOCOMOTOR_CONTEXT_RE.search(measure_context):
+        return first_normalized_value(row, COGNITIVE_BEHAVIORAL_MEASURE_FIELDS) or canonical_label
+    if measure_label and (not label_is_known or explicit_key in COGNITIVE_BEHAVIORAL_BROAD_LABEL_KEYS):
+        return measure_label
+
+    label_context_label = cognitive_behavioral_rule_label(row, COGNITIVE_BEHAVIORAL_LABEL_FIELDS)
+    if label_context_label:
+        return label_context_label
+    if canonical_label and label_is_known:
+        return canonical_label
+
+    context_label = cognitive_behavioral_rule_label(row, COGNITIVE_BEHAVIORAL_CONTEXT_FIELDS)
+    if context_label:
+        return context_label
+    return canonical_label
 
 
 def subjective_experience_graph_label(row: dict) -> str:
@@ -4239,7 +4347,7 @@ def molecular_effect_label(row: dict, entity_kind: str, entity_label: str) -> st
     full_match = effect_from_context(MOLECULAR_EFFECT_CONTEXT_FIELDS)
     if full_match:
         return full_match
-    return "Other molecular effects"
+    return ""
 
 
 def molecular_effect_graph_label(row: dict, entity_kind: str, entity_label: str) -> str:
@@ -4314,10 +4422,7 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
             out["subjective_experience_graph_label"] = "Time distortion"
             out["graph_entity_label"] = "Time distortion"
         else:
-            out["cognitive_behavioral_graph_label"] = first_endpoint_value(
-                out,
-                ("cognitive_behavioral_graph_label", "graph_construct_label"),
-            ) or cognitive_behavioral_graph_label(out)
+            out["cognitive_behavioral_graph_label"] = cognitive_behavioral_graph_label(out)
             if out["cognitive_behavioral_graph_label"]:
                 out["graph_entity_label"] = out["cognitive_behavioral_graph_label"]
     if domain == "subjective_experience":
@@ -4496,7 +4601,7 @@ def write_parquet(df: pd.DataFrame, path: Path) -> None:
 def build_tables(
     *,
     graph_sources: dict[str, dict] | None = None,
-    source_preset: str = "current",
+    source_preset: str = "routed",
     run_id: str = "",
     registry_path: Path = DEFAULT_REGISTRY_PATH,
     node_vocabulary_path: Path = DEFAULT_NODE_VOCABULARY_PATH,
@@ -4798,7 +4903,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--allow-current-overwrite",
         action="store_true",
-        help="Allow non-current source presets to write directly to data/processed/kg.",
+        help="Allow a routed KG build to write directly to data/processed/kg.",
     )
     parser.add_argument("--skip-duckdb", action="store_true", help="Only write Parquet tables and manifest.")
     return parser.parse_args()
@@ -4811,21 +4916,14 @@ def main() -> None:
         out_dir=args.out_dir,
         run_id=args.run_id,
     )
-    if (
-        args.source_preset != "current"
-        and out_dir.resolve() == DEFAULT_OUT_DIR.resolve()
-        and not args.allow_current_overwrite
-    ):
+    promoting_to_current = out_dir.resolve() == DEFAULT_OUT_DIR.resolve()
+    if promoting_to_current and not args.allow_current_overwrite:
         raise SystemExit(
-            "Refusing to write routed/combined sources directly to data/processed/kg. "
+            "Refusing to write routed sources directly to data/processed/kg. "
             "Use --run-id for a versioned build, or add --allow-current-overwrite if this is an intentional promotion."
         )
-    if (
-        args.source_preset != "current"
-        and out_dir.resolve() == DEFAULT_OUT_DIR.resolve()
-        and not run_id
-    ):
-        raise SystemExit("Promoting routed/combined sources to data/processed/kg requires --run-id.")
+    if promoting_to_current and not run_id:
+        raise SystemExit("Promoting routed sources to data/processed/kg requires --run-id.")
     manifest = build_tables(
         source_preset=args.source_preset,
         run_id=run_id,

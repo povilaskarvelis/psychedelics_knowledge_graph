@@ -395,7 +395,7 @@
       },
       {
         "label": "Fear memory",
-        "aliases": ["conditioned fear", "fear conditioning", "learned fear", "contextual fear"],
+        "aliases": ["conditioned fear", "fear conditioning", "learned fear", "contextual fear", "contextual fear conditioning", "cued fear conditioning", "tone fear conditioning", "trace fear conditioning", "conditioned freezing", "freezing time", "percentage time spent freezing", "CFC", "TFC"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -425,7 +425,7 @@
       },
       {
         "label": "Threat avoidance",
-        "aliases": ["anxiety-like behavior", "anxiety behavior", "anxiety", "anxiogenic behavior", "anxiolytic behavior", "elevated plus maze", "novelty-suppressed feeding", "bottom dwelling"],
+        "aliases": ["anxiety-like behavior", "anxiety behavior", "anxiety", "anxiogenic behavior", "anxiolytic behavior", "elevated plus maze", "novelty-suppressed feeding", "bottom dwelling", "active avoidance", "passive avoidance", "avoidance task", "step-down passive avoidance", "step-through latency", "shuttle box test"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -582,8 +582,8 @@
         "status": "seed_alias"
       },
       {
-        "label": "Personal meaning",
-        "aliases": ["Meaning & spirituality", "meaning", "meaningfulness", "presence of meaning in life", "personally meaningful", "purpose in life", "important experience", "significant experience", "personal significance", "life satisfaction"],
+        "label": "Personal significance",
+        "aliases": ["meaningfulness", "meaning in life", "presence of meaning in life", "personally meaningful", "personal meaningfulness", "purpose in life", "important experience", "significant experience", "meaningful experience", "personal significance", "life satisfaction"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -784,9 +784,29 @@
         "aliases": [
           "psychotherapeutic support",
           "therapy support",
-          "therapeutic suggestions",
+          "therapeutic suggestions"
+        ],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Non-directive support",
+        "aliases": [
+          "non-directive support",
+          "non-directive therapeutic support",
+          "non-directive therapy",
           "non-directive, supportive therapeutic approach",
-          "supportive therapeutic approach"
+          "supportive therapeutic approach",
+          "inner healing intelligence",
+          "inner healing intelligence model",
+          "IHI",
+          "therapeutic witnessing",
+          "witnessing",
+          "therapist attitude",
+          "therapist attitude (witnessing)",
+          "beginner's mind",
+          "participant-led process",
+          "self-directed healing"
         ],
         "ids": {},
         "status": "seed_alias"
@@ -1040,6 +1060,20 @@
           "combined use",
           "cannabis co-use",
           "alcohol co-use"
+        ],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Clinical treatment",
+        "aliases": [
+          "real-world clinical treatment",
+          "clinical practice",
+          "treatment response",
+          "response and remission",
+          "treatment discontinuation",
+          "tolerability",
+          "intranasal esketamine"
         ],
         "ids": {},
         "status": "seed_alias"
