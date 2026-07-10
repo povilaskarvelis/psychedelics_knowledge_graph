@@ -35,6 +35,20 @@ treated or studied clinical problem and `population_or_subgroup` for demographic
 recruitment, eligibility, comorbidity, or subgroup details. Keep
 `condition_or_population` as the paper-facing combined wording when useful.
 
+For review and meta-analysis coverage, fill `condition_or_indication` with the
+clean condition or treatment target being reviewed, even when the extracted
+`entity` is phrased as a symptom, endpoint, or population. Put the measured
+symptom, response, remission, functioning, quality-of-life, or relapse endpoint
+in `clinical_endpoint` and `clinical_endpoint_category`. Put scales and
+instruments such as VAS, BPRS, MADRS, STAI, HADS, TLFB, or Y-BOCS only in
+`outcome_measure_or_instrument` or `outcome_measure`; do not use a scale name
+as the clinical condition.
+
+When a review substantially discusses several compound-condition pairs, create
+separate coverage rows for those pairs. For example, if a review separately
+covers psilocybin for alcohol dependence and psilocybin for tobacco dependence,
+these should be separate clinical outcome coverage rows.
+
 Examples:
 
 - Use `condition_or_indication`: Major depressive disorder; use
@@ -45,6 +59,13 @@ Examples:
 - Use `condition_or_indication`: Suicidality when suicidality is the studied
   treatment target; use safety only when suicidality is treatment-emergent or
   worsened risk.
+- Use `condition_or_indication`: Tobacco use disorder for tobacco dependence or
+  smoking cessation treatment studies; put abstinence, craving, or withdrawal
+  endpoints in `clinical_endpoint`.
+- Use `condition_or_indication`: Distress associated with life-threatening
+  disease for end-of-life, terminal illness, life-threatening disease, or
+  advanced cancer anxiety/depression/distress studies; put anxiety, depression,
+  or distress scales in the endpoint and outcome-measure fields.
 - Do not use `condition_or_indication`: Schizophrenia for a healthy-volunteer
   ketamine challenge that reports schizophrenia-like or psychotomimetic effects.
   Treat that as subjective-experience evidence, not a condition edge.

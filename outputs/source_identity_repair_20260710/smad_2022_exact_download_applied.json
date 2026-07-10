@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-07-10T11:10:31.132284+00:00",
+  "apply": true,
+  "scope": "manual_pdf_inbox_only",
+  "queue_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_download_queue_all.csv",
+  "inbox_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox",
+  "report_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/smad_2022_exact_download_applied.json",
+  "filters": {
+    "priority_only": false,
+    "priority_tiers": [],
+    "min_priority_score": 0,
+    "doi_filter_count": 1,
+    "limit": 0
+  },
+  "queue_row_count": 45,
+  "selected_row_count": 1,
+  "counts": {
+    "download_failed": 1
+  },
+  "records": [
+    {
+      "doi": "10.11606/issn.1806-6976.smad.2022.183132",
+      "title": "O uso de agentes psicodélicos no tratamento da dependência de álcool e tabaco: revisão integrativa",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_resolve_ambiguous_document_identity",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.11606_issn.1806-6976.smad.2022.183132__b2743ce8e2.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.11606/issn.1806-6976.smad.2022.183132"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.11606/issn.1806-6976.smad.2022.183132",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.11606/issn.1806-6976.smad.2022.183132",
+              "error": "URLError: <urlopen error timed out>"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    }
+  ]
+}

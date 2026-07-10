@@ -1,0 +1,145 @@
+{
+  "generated_at_utc": "2026-07-10T12:23:04.424455+00:00",
+  "schema_version": "source_identity_final_reporting_v1",
+  "inputs": {
+    "pre_repair_audit": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/pre_repair_audit_v2.csv",
+    "live_artifact_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/articles",
+    "identity_registry": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/pipeline/fulltext/source_identity_registry.json",
+    "pdf_hash_attestation_registry": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/pipeline/fulltext/source_identity_pdf_hash_registry.json",
+    "candidate_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/candidate_papers.parquet",
+    "metadata_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/paper_metadata_enrichment.parquet",
+    "route_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/paper_extraction_routes.parquet",
+    "active_kg_findings": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg_routed_runs/gemini3_flash_20260628_primary_extraction/findings.parquet"
+  },
+  "snapshot_fingerprints": {
+    "input_files": {
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/pre_repair_audit_v2.csv": {
+        "sha256": "cdc658eaa17d693cc57427d657c3f83b5f68c82873cc45a05dc2b8ebe1872532",
+        "size_bytes": 6078370
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/candidate_papers.parquet": {
+        "sha256": "801d461a6ee2adfcd5168f808e3919528e76d0cc88607a3be94eb3c854799c26",
+        "size_bytes": 65411891
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/paper_metadata_enrichment.parquet": {
+        "sha256": "2f3ea7d19d3245e7971bb0ec4fd2017f38a1505c62042981df1c69cea102c37b",
+        "size_bytes": 63641094
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/paper_extraction_routes.parquet": {
+        "sha256": "114ba4bcb7a56061dbe79d314500424db48913655f2cc5b98c7523b67de26eb4",
+        "size_bytes": 12935806
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/pipeline/fulltext/source_identity_registry.json": {
+        "sha256": "06371d041c181ccfbfd53c7d631ef1053d1415b23b245007b707a60b5ffd0e75",
+        "size_bytes": 25698
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/pipeline/fulltext/source_identity_pdf_hash_registry.json": {
+        "sha256": "a6dd3f6d397cd170b48319b580039334b71748c2822c46cf824a8fb06ee3300b",
+        "size_bytes": 4894
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/source_identity_special_classes.csv": {
+        "sha256": "62c80bcd1c94f233ab49432038aebfeb487ab038dfb87211999dfce9830d0537",
+        "size_bytes": 507539
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/pmc_identity_inventory.csv": {
+        "sha256": "a2c5e709873365873b43b7b83a22b7b6381ea7e9e771f57681356e073505b73b",
+        "size_bytes": 4351158
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/artifact_pmcid_resolution.csv": {
+        "sha256": "6813c2b912efec28ecd436b24c1f95fa1ca513a66874658547728ae87181560f",
+        "size_bytes": 967807
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/artifact_quarantine_applied.json": {
+        "sha256": "46249aa380fff301e01ace70c724a4370b0dc4e17c72226cbfed97526f3f0186",
+        "size_bytes": 797789
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/artifact_quarantine_strict_front_applied.json": {
+        "sha256": "fd1647880b6b0f268e4a4ef6bf3d61b8593d8fa8da71815ee5b767a07c02f17e",
+        "size_bytes": 3151
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/residual_pdf_quarantine_applied.json": {
+        "sha256": "d162da99c76c33c33db621565eebb409d349934cbed3fe213e34bebbf66ff121",
+        "size_bytes": 214226
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/pdf_artifact_repair_applied.json": {
+        "sha256": "9ce13a772f1a03e8c9aa39920d49758a7aa02ee33314a4c955810982c140642d",
+        "size_bytes": 280581
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/validated_pdf_restoration_applied.json": {
+        "sha256": "c9ccb7af48ded541844d38ec000ac0ba17e9b97583d15cda9b0ce20760b8025d",
+        "size_bytes": 14829
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/pipeline/fulltext/manual_pdf_source_identity_repairs.json": {
+        "sha256": "61e076e9513fa4d86a304d01addd591194319dda22c969ac3749a6f95802213e",
+        "size_bytes": 596
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/pipeline/fulltext/manual_fulltext_access_overrides.json": {
+        "sha256": "1f1ed5df097f9a6fc912b734103c43d444f01158f296b1b9302444f927304506",
+        "size_bytes": 139738
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/graph_payload_active.json": {
+        "sha256": "d39fd2165723a32754b418835150ef19dd7b6ad373762eff65ab4ce1e3840433",
+        "size_bytes": 1151
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/pmc_repair_applied.json": {
+        "sha256": "2335d20633fc7241f541d29871d198a891e0f321d136f006a410383a31af02d0",
+        "size_bytes": 70677
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_jats_repair_applied.json": {
+        "sha256": "2388636e71e7abe6e3770cbb1b8fd1d177d4ef30576b8beab7de66fb84be259b",
+        "size_bytes": 2694
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_10_2196_46281_applied.json": {
+        "sha256": "e4728f4ee4808f3c7698720cde410f991d6ec93c6407d258f0867fa5579bda83",
+        "size_bytes": 1083
+      },
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg_routed_runs/gemini3_flash_20260628_primary_extraction/findings.parquet": {
+        "sha256": "26683564a485d998d8ed8e6eb5904f5d5ae94b36c93ec09556445872918a064d",
+        "size_bytes": 48292981
+      }
+    },
+    "live_artifact_set": {
+      "algorithm": "sha256(relative_filename + NUL + file_sha256 + newline)",
+      "sha256": "aa28ca7981bcbaa744670041a4e1d34e28ec7154157eed3ddcc497a1edd612b2",
+      "file_count": 8487,
+      "total_bytes": 1357614822
+    }
+  },
+  "summary": {
+    "original_artifact_count": 8885,
+    "current_active_artifact_count": 8487,
+    "current_active_verified_count": 8487,
+    "current_active_unverified_count": 0,
+    "quarantined_no_active_artifact_count": 398,
+    "manual_download_queue_count": 0,
+    "unverified_not_repair_eligible_count": 398,
+    "priority_queue_count": 0,
+    "action_category_counts": {
+      "retained_verified_active_artifact": 8233,
+      "excluded_prescreen_no_artifact_repair": 221,
+      "repaired_exact_jats_active": 97,
+      "abstract_only_no_fulltext_repair": 162,
+      "verified_curated_identifier_override": 58,
+      "verified_curated_related_document": 33,
+      "repaired_validated_pdf_active": 26,
+      "verified_after_identity_reaudit": 12,
+      "not_retained_no_artifact_repair": 15,
+      "verified_curated_correction_relationship": 12,
+      "verified_pdf_front_title_validation": 15,
+      "verified_curated_pdf_hash": 1
+    },
+    "manual_category_counts": {},
+    "priority_tier_counts": {},
+    "queue_source_family_counts": {},
+    "queue_paper_type_counts": {},
+    "queue_with_candidate_url_count": 0,
+    "queue_with_verified_pmcid_count": 0,
+    "queue_with_curated_exact_url_count": 0,
+    "queue_active_kg_finding_count": 0,
+    "queue_active_kg_paper_count": 0
+  },
+  "priority_policy": "Source reacquisition requires both current retained_for_extraction_candidate=true and an active extraction route that requires public full text. Abstract-only routes remain eligible for KG extraction but never enter the full-text repair queue. Within that eligible set, active KG findings and curated-claim/claim-stub/known-study flags raise priority. Stale KG findings never override a current exclusion.",
+  "url_policy": "Candidate URLs exclude known attempted failures, ancillary filename patterns, and PMC URLs whose PMCID is not independently verified for the DOI. Every candidate still requires the row-specific front-page DOI/title acceptance test.",
+  "report": "priority_manual_download_queue",
+  "records": []
+}

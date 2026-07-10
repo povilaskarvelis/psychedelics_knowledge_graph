@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -22,7 +23,164 @@ def detail_bootstrap_rows(payload: dict) -> list[dict]:
     return rows
 
 
+def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str = "Ada Example; Grace Example") -> None:
+    pd.DataFrame(
+        [
+            {
+                "paper_id": paper_id,
+                "doi": "10.1000/authors",
+                "authors": authors,
+            }
+        ]
+    ).to_parquet(kg_dir / "papers.parquet", index=False)
+    pd.DataFrame(
+        [
+            {
+                "author_id": "openalex:A1",
+                "display_name": "Ada Example",
+                "canonical_name": "ada example",
+                "openalex_author_id": "https://openalex.org/A1",
+                "orcid": "",
+                "source": "openalex",
+                "identity_confidence": "openalex_author_id",
+                "paper_count": 1,
+                "authorship_count": 1,
+                "first_author_paper_count": 1,
+                "last_author_paper_count": 0,
+            },
+            {
+                "author_id": "openalex:A2",
+                "display_name": "Grace Example",
+                "canonical_name": "grace example",
+                "openalex_author_id": "https://openalex.org/A2",
+                "orcid": "",
+                "source": "openalex",
+                "identity_confidence": "openalex_author_id",
+                "paper_count": 1,
+                "authorship_count": 1,
+                "first_author_paper_count": 0,
+                "last_author_paper_count": 1,
+            },
+        ]
+    ).to_parquet(kg_dir / "authors.parquet", index=False)
+    pd.DataFrame(
+        [
+            {
+                "paper_id": paper_id,
+                "doi": "10.1000/authors",
+                "paper_openalex_id": "https://openalex.org/W1",
+                "author_id": "openalex:A1",
+                "display_name": "Ada Example",
+                "canonical_name": "ada example",
+                "openalex_author_id": "https://openalex.org/A1",
+                "orcid": "",
+                "author_position": 1,
+                "author_position_label": "first",
+                "is_first_author": True,
+                "is_last_author": False,
+                "source": "openalex",
+                "identity_confidence": "openalex_author_id",
+            },
+            {
+                "paper_id": paper_id,
+                "doi": "10.1000/authors",
+                "paper_openalex_id": "https://openalex.org/W1",
+                "author_id": "openalex:A2",
+                "display_name": "Grace Example",
+                "canonical_name": "grace example",
+                "openalex_author_id": "https://openalex.org/A2",
+                "orcid": "",
+                "author_position": 2,
+                "author_position_label": "last",
+                "is_first_author": False,
+                "is_last_author": True,
+                "source": "openalex",
+                "identity_confidence": "openalex_author_id",
+            },
+        ]
+    ).to_parquet(kg_dir / "paper_authors.parquet", index=False)
+    (kg_dir / "author_resolution_report.json").write_text(
+        json.dumps({"paper_count": 1, "paper_author_rows": 2}),
+        encoding="utf-8",
+    )
+
+
 class ExportEvidencePayloadTest(unittest.TestCase):
+    def test_requires_author_tables_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            kg_dir = root / "kg"
+            out_dir = root / "payload"
+            kg_dir.mkdir()
+
+            pd.DataFrame([{"paper_id": "paper-1", "authors": "Ada Example"}]).to_parquet(
+                kg_dir / "papers.parquet", index=False
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "build_author_tables"):
+                export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+
+    def test_rejects_author_tables_older_than_papers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            kg_dir = root / "kg"
+            out_dir = root / "payload"
+            kg_dir.mkdir()
+            write_author_tables(kg_dir)
+
+            for name in ("authors.parquet", "paper_authors.parquet", "author_resolution_report.json"):
+                os.utime(kg_dir / name, (1000, 1000))
+            os.utime(kg_dir / "papers.parquet", (2000, 2000))
+
+            with self.assertRaisesRegex(RuntimeError, "older than papers.parquet"):
+                export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+
+    def test_exports_fresh_author_roles_into_detail_payload(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            kg_dir = root / "kg"
+            out_dir = root / "payload"
+            kg_dir.mkdir()
+            write_author_tables(kg_dir)
+
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-1",
+                        "paper_id": "paper-1",
+                        "source_name": "routed_extractions",
+                        "domain": "clinical_outcome",
+                        "evidence_type": "primary_evidence",
+                        "study_doi": "10.1000/authors",
+                        "compound": "Psilocybin",
+                        "entity_label": "Major depressive disorder",
+                        "raw_row_json": "{}",
+                    }
+                ]
+            ).to_parquet(kg_dir / "findings.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-1",
+                        "evidence_id": "evidence-1",
+                        "domain": "clinical_outcome",
+                        "entity_kind": "condition_indication",
+                        "entity_label": "Major depressive disorder",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "studied_for_condition",
+                    }
+                ]
+            ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
+
+            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+            detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
+            rows = detail_bootstrap_rows(detail)
+
+        self.assertEqual(rows[0]["first_author"]["name"], "Ada Example")
+        self.assertEqual(rows[0]["first_author"]["id"], "openalex:A1")
+        self.assertEqual(rows[0]["last_author"]["name"], "Grace Example")
+        self.assertEqual(rows[0]["last_author"]["id"], "openalex:A2")
+
     def test_exports_route_native_findings_without_legacy_split_or_claim_type(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -86,6 +244,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 kg_dir=kg_dir,
                 out_dir=out_dir,
                 active_json=active_json,
+                require_fresh_author_tables=False,
             )
 
             graph_bootstrap = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
@@ -132,10 +291,115 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertIn("primary", active["active_graph_bootstraps"])
         self.assertIn("active_detail_bootstraps", active)
         self.assertIn("primary", active["active_detail_bootstraps"])
-        self.assertEqual(set(active["active_graph_bootstraps"]), {"primary", "secondary"})
-        self.assertEqual(set(active["active_detail_bootstraps"]), {"primary", "secondary"})
+        self.assertEqual(set(active["active_graph_bootstraps"]), {"primary", "meta_analyses", "reviews"})
+        self.assertEqual(set(active["active_detail_bootstraps"]), {"primary", "meta_analyses", "reviews"})
         self.assertNotIn("active_payload_dir", active)
         self.assertNotIn("claim_source", active)
+
+    def test_exports_primary_meta_analysis_and_review_sources_separately(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            kg_dir = root / "kg"
+            out_dir = root / "payload"
+            active_json = root / "graph_payload_active.json"
+            kg_dir.mkdir()
+
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "primary-1",
+                        "paper_id": "paper-primary",
+                        "source_name": "routed_extractions",
+                        "domain": "clinical_outcome",
+                        "evidence_type": "primary_evidence",
+                        "study_doi": "10.1000/primary",
+                        "study_year": 2024,
+                        "compound": "Psilocybin",
+                        "entity_label": "Major depressive disorder",
+                        "paper_type": "primary_results",
+                        "source_type": "primary_study",
+                        "raw_row_json": "{}",
+                    },
+                    {
+                        "finding_id": "meta-1",
+                        "paper_id": "paper-meta",
+                        "source_name": "routed_extractions",
+                        "domain": "clinical_outcome",
+                        "evidence_type": "secondary_literature",
+                        "study_doi": "10.1000/meta",
+                        "study_year": 2023,
+                        "compound": "Ketamine",
+                        "entity_label": "Treatment-resistant depression",
+                        "paper_type": "meta_analysis",
+                        "source_type": "meta_analysis",
+                        "support": "Pooled estimates favored ketamine over control.",
+                        "raw_row_json": "{}",
+                    },
+                    {
+                        "finding_id": "review-1",
+                        "paper_id": "paper-review",
+                        "source_name": "routed_extractions",
+                        "domain": "brain_system",
+                        "evidence_type": "secondary_literature",
+                        "study_doi": "10.1000/review",
+                        "study_year": 2022,
+                        "compound": "LSD",
+                        "entity_label": "Thalamocortical circuit",
+                        "paper_type": "review",
+                        "source_type": "review",
+                        "support": "Review coverage discusses thalamocortical connectivity.",
+                        "raw_row_json": "{}",
+                    },
+                ]
+            ).to_parquet(kg_dir / "findings.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "primary-1",
+                        "evidence_id": "edge-primary",
+                        "domain": "clinical_outcome",
+                        "entity_kind": "condition_indication",
+                        "entity_label": "Major depressive disorder",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "studied_for_condition",
+                    },
+                    {
+                        "finding_id": "meta-1",
+                        "evidence_id": "edge-meta",
+                        "domain": "clinical_outcome",
+                        "entity_kind": "condition_indication",
+                        "entity_label": "Treatment-resistant depression",
+                        "evidence_type": "secondary_literature",
+                        "relation_type": "meta_analyzes_relationship",
+                    },
+                    {
+                        "finding_id": "review-1",
+                        "evidence_id": "edge-review",
+                        "domain": "brain_system",
+                        "entity_kind": "neural_circuit",
+                        "entity_label": "Thalamocortical circuit",
+                        "evidence_type": "secondary_literature",
+                        "relation_type": "reviews_relationship",
+                    },
+                ]
+            ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
+
+            result = export_evidence_payload(
+                kg_dir=kg_dir,
+                out_dir=out_dir,
+                active_json=active_json,
+                require_fresh_author_tables=False,
+            )
+            active = json.loads(active_json.read_text())
+            primary_rows = detail_bootstrap_rows(json.loads(result["detail_bootstrap_paths"]["primary"].read_text()))
+            meta_rows = detail_bootstrap_rows(json.loads(result["detail_bootstrap_paths"]["meta_analyses"].read_text()))
+            review_rows = detail_bootstrap_rows(json.loads(result["detail_bootstrap_paths"]["reviews"].read_text()))
+
+        self.assertEqual(set(active["active_detail_bootstraps"]), {"primary", "meta_analyses", "reviews"})
+        self.assertNotIn("secondary", active["active_detail_bootstraps"])
+        self.assertEqual([row["study_doi"] for row in primary_rows], ["10.1000/primary"])
+        self.assertEqual([row["study_doi"] for row in meta_rows], ["10.1000/meta"])
+        self.assertEqual([row["study_doi"] for row in review_rows], ["10.1000/review"])
 
     def test_exports_pharmacokinetics_with_all_other_domains(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -197,7 +461,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 ]
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
 
-            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir, require_fresh_author_tables=False)
             manifest = json.loads(result["manifest_path"].read_text())
             graph = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
             detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
@@ -287,7 +551,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 ]
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
 
-            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir, require_fresh_author_tables=False)
             graph = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
             detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
             rows = detail_bootstrap_rows(detail)
@@ -362,7 +626,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 ]
             ).to_parquet(kg_dir / "papers.parquet", index=False)
 
-            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir, require_fresh_author_tables=False)
             manifest = json.loads(result["manifest_path"].read_text())
 
         self.assertEqual(manifest["summary_stats"]["default"]["study_count"], 2)
@@ -452,7 +716,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 ]
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
 
-            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir)
+            result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir, require_fresh_author_tables=False)
             detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
             rows = detail_bootstrap_rows(detail)
 

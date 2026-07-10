@@ -1,0 +1,8 @@
+{
+  "requested_doi": "10.11606/issn.1806-6976.smad.2022.183132",
+  "observed_document_doi": "10.11606/issn.1806-6976.smad.2023.183132",
+  "pdf_sha256": "63a271911b4e6c1c59a783ede48016fc3c0ce9b8bad4573d44754dcb17fa8a9a",
+  "quarantined_path": "data/raw/papers/pdf_conflicts/source_identity_versions/10.11606_issn.1806-6976.smad.2023.183132__63a271911b.pdf",
+  "reason": "The downloaded PDF is a valid publisher artifact for a distinct registered 2023 DOI with the same title. It is not accepted as the requested 2022-form DOI artifact.",
+  "reviewed_at": "2026-07-10"
+}

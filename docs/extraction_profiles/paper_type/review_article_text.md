@@ -28,13 +28,39 @@ For any status other than `extracted`, add one short reason to
 
 ## What To Extract
 
-Create one `coverage_items[]` row per high-value reviewed relationship, topic,
-or evidence cluster that fits the scope. Prefer concise coverage rows
-over exhaustive enumeration. When reported, capture:
+First build `review_assessment.substantive_coverage_inventory` as the paper-level
+inventory of relevant compound/class-topic or compound/class-entity
+relationships that the review substantially discusses in the selected scope.
+A relationship is substantially discussed when it defines the title or abstract
+scope, has its own section, table, figure, repeated discussion, major review
+question, or review-level conclusion.
+
+Create one `coverage_items[]` row for every inventory relationship that has a
+usable review-level claim. Be concise, and keep distinct substantially
+discussed relationships in separate rows.
+
+For systematic, scoping, or structured reviews with an explicit included-study
+table, trial list, or review structure, create separate rows for each
+substantially discussed compound-entity relationship or evidence cluster in the
+selected scope.
+For broad narrative reviews, create rows for all relevant topics or
+relationships that the paper substantially discusses in the selected scope.
+Reserve graph-facing rows for topics with review-level coverage; passing
+mentions, background examples, methods-only details, and briefly named topics
+without a review-level claim stay out of `coverage_items`.
+
+Use a class-level row when the review substantially discusses a compound class
+as a class. Use separate named-compound rows when named compounds have distinct
+review-level coverage.
+
+When reported, capture:
 
 - compound/class
 - focus entity or topic
-- coverage focus: main focus, substantial topic, brief context, or unclear
+- coverage focus: use `main_focus` for relationships that define the review or
+  a major included-study cluster, `substantial_topic` for relationships with
+  real review-level discussion, `brief_context` for passing or background
+  mentions, and `unclear` when the coverage focus cannot be judged
 - population/system
 - reviewed evidence type or source type
 - summary statement
@@ -56,6 +82,7 @@ not be treated as primary graph evidence.
 - Keep extracted values and locators compact. If table or PDF layout
   makes a value unreadable, use `not_reported` rather than copying broken
   fragments, repeated whitespace, line breaks, or column spacing.
-- Preserve author terminology in raw fields; normalization happens later.
+- Preserve author terminology in raw fields; normalization happens later. Still
+  keep graph-facing fields as clean and specific as the schema permits.
 - Use the most precise locator available for every assessment and coverage
   item.

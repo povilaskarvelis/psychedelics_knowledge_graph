@@ -1084,7 +1084,10 @@ def ncbi_common_params(email: str, api_key: str) -> Dict[str, object]:
 
 def pubmed_article_id(article: ET.Element, id_type: str) -> str:
     wanted = id_type.lower()
-    for item in article.findall(".//ArticleId"):
+    # Only the PubMed record's own identifiers belong to this article. A broad
+    # descendant search also sees ArticleId elements in cited references and
+    # can therefore attach a reference's PMCID to a paper that has no PMCID.
+    for item in article.findall("./PubmedData/ArticleIdList/ArticleId"):
         if normalize(item.attrib.get("IdType", "")).lower() == wanted:
             return normalize("".join(item.itertext()))
     return ""
@@ -1309,7 +1312,11 @@ def lookup_pmc_metadata(
     paper: dict,
 ) -> Optional[dict]:
     record = lookup_pmc_idconv(client, doi=doi, email=email)
-    pmcid = normalize(pmcid_hint) or normalize(record.get("pmcid", ""))
+    # `pmcid_hint` may come from previously merged metadata and is not proof
+    # that the identifier belongs to this DOI. The id-converter response is
+    # DOI-checked in lookup_pmc_idconv, so only its PMCID is safe to use. This
+    # also makes a verified id-converter result override a conflicting hint.
+    pmcid = normalize(record.get("pmcid", ""))
     if not pmcid:
         return None
     pmcid = pmcid if pmcid.upper().startswith("PMC") else f"PMC{pmcid}"
@@ -1915,6 +1922,33 @@ def file_is_valid_pdf(path: Path) -> bool:
     return looks_like_pdf_bytes(head)
 
 
+def pdf_source_identity_result(
+    path: Path,
+    study_title: object,
+    min_title_score: float = 0.86,
+    study_doi: object = "",
+) -> Tuple[bool, float, str]:
+    """Validate a PDF against the expected title before marking it available."""
+
+    try:
+        from pipeline.fulltext.pdf_alternate_sources import title_validation_result
+    except ModuleNotFoundError:  # pragma: no cover - direct script execution path
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        from pipeline.fulltext.pdf_alternate_sources import title_validation_result
+
+    try:
+        body = path.read_bytes()
+    except Exception:
+        return False, 0.0, "pdf_read_failed"
+    return title_validation_result(
+        normalize(study_title),
+        body,
+        min_title_score,
+        study_doi=normalize_doi(study_doi),
+    )
+
+
 def read_existing_json(path: Path) -> List[dict]:
     if not path.exists():
         return []
@@ -2015,7 +2049,12 @@ def row_needs_core_metadata_refresh(row: dict) -> bool:
     return False
 
 
-def row_from_existing(existing: dict, paper: dict, pdf_dir: Path) -> dict:
+def row_from_existing(
+    existing: dict,
+    paper: dict,
+    pdf_dir: Path,
+    pdf_identity_min_title_score: float = 0.86,
+) -> dict:
     row = dict(existing)
     doi = normalize_doi(paper.get("study_doi", "")) or normalize_doi(row.get("study_doi", ""))
     row["study_doi"] = doi
@@ -2032,10 +2071,23 @@ def row_from_existing(existing: dict, paper: dict, pdf_dir: Path) -> dict:
 
     pdf_path = pdf_dir / pdf_filename_for_doi(doi)
     if pdf_path.exists() and pdf_path.stat().st_size > 0 and file_is_valid_pdf(pdf_path):
-        row["pdf_local_path"] = str(pdf_path)
-        row["pdf_size_bytes"] = int(pdf_path.stat().st_size)
-        row["pdf_sha256"] = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
-        row["pdf_download_status"] = "already_present"
+        accepted, score, basis = pdf_source_identity_result(
+            pdf_path,
+            row.get("study_title", ""),
+            pdf_identity_min_title_score,
+            doi,
+        )
+        if accepted:
+            row["pdf_local_path"] = str(pdf_path)
+            row["pdf_size_bytes"] = int(pdf_path.stat().st_size)
+            row["pdf_sha256"] = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+            row["pdf_download_status"] = "already_present"
+        else:
+            row["pdf_local_path"] = ""
+            row["pdf_size_bytes"] = ""
+            row["pdf_sha256"] = ""
+            row["pdf_download_status"] = "source_identity_unverified_existing"
+            row["action_reason"] = f"source_identity_mismatch:{basis}:{score:.3f}"
     row["library_status"] = classify_library_status(row)
     return row
 
@@ -2631,11 +2683,28 @@ def download_pdf_candidates(
     rate_limit_cooldown_sec: float = 0.0,
     progress_callback: Optional[Callable[[Dict[str, object]], None]] = None,
     preserve_candidate_order: bool = False,
+    study_doi: str = "",
+    study_title: str = "",
+    min_title_score: float = 0.86,
 ) -> Tuple[str, str, int, str, str]:
     candidates = list(dict.fromkeys(pdf_urls)) if preserve_candidate_order else rank_pdf_candidates(pdf_urls)
     if target_path.exists() and target_path.stat().st_size > 0:
         if file_is_valid_pdf(target_path):
-            return "already_present", "", int(target_path.stat().st_size), "", join_candidates(candidates)
+            accepted, score, basis = pdf_source_identity_result(
+                target_path,
+                study_title,
+                min_title_score,
+                study_doi,
+            )
+            if accepted:
+                return "already_present", "", int(target_path.stat().st_size), "", join_candidates(candidates)
+            return (
+                "invalid_pdf_existing",
+                f"source_identity_mismatch:{basis}:{score:.3f}",
+                int(target_path.stat().st_size),
+                "",
+                join_candidates(candidates),
+            )
         return "invalid_pdf_existing", "local_file_is_not_pdf", int(target_path.stat().st_size), "", join_candidates(candidates)
 
     errors: List[str] = []
@@ -2684,7 +2753,19 @@ def download_pdf_candidates(
                     }
                 )
             if status in {"downloaded", "already_present"}:
-                return status, "", size, pdf_url, join_candidates(candidates)
+                accepted, score, basis = pdf_source_identity_result(
+                    target_path,
+                    study_title,
+                    min_title_score,
+                    study_doi,
+                )
+                if accepted:
+                    return status, "", size, pdf_url, join_candidates(candidates)
+                identity_error = f"source_identity_mismatch:{basis}:{score:.3f}"
+                if status == "downloaded":
+                    target_path.unlink(missing_ok=True)
+                status = "source_identity_mismatch"
+                error = identity_error
             if (
                 cooldown_until_by_host is not None
                 and rate_limit_cooldown_sec > 0
@@ -2781,6 +2862,12 @@ def main() -> int:
         help="Treat larger Retry-After delays as per-DOI failures instead of sleeping indefinitely",
     )
     parser.add_argument("--skip-download", action="store_true", help="Do not download PDFs; metadata only")
+    parser.add_argument(
+        "--pdf-identity-min-title-score",
+        type=float,
+        default=0.86,
+        help="Minimum top-of-page title score required for existing and downloaded PDFs.",
+    )
     parser.add_argument("--replace", action="store_true", help="Replace paper DB output instead of merging")
     parser.add_argument(
         "--refresh-existing",
@@ -3047,7 +3134,12 @@ def main() -> int:
             and reusable_existing_row(existing_row)
         )
         if args.skip_download and can_reuse_existing:
-            row = row_from_existing(existing_row, paper, pdf_dir)
+            row = row_from_existing(
+                existing_row,
+                paper,
+                pdf_dir,
+                pdf_identity_min_title_score=args.pdf_identity_min_title_score,
+            )
             status = normalize(row.get("library_status", ""))
             if status == "in_database":
                 running_in_database += 1
@@ -3161,10 +3253,20 @@ def main() -> int:
         had_invalid_local_pdf = False
         if pdf_path.exists() and pdf_path.stat().st_size > 0:
             if file_is_valid_pdf(pdf_path):
-                download_status = "already_present"
-                already_present += 1
-                pdf_size_bytes = int(pdf_path.stat().st_size)
-                pdf_sha256 = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+                accepted, score, basis = pdf_source_identity_result(
+                    pdf_path,
+                    study_title,
+                    args.pdf_identity_min_title_score,
+                    doi,
+                )
+                if accepted:
+                    download_status = "already_present"
+                    already_present += 1
+                    pdf_size_bytes = int(pdf_path.stat().st_size)
+                    pdf_sha256 = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+                else:
+                    download_status = "source_identity_unverified_existing"
+                    download_error = f"source_identity_mismatch:{basis}:{score:.3f}"
             else:
                 had_invalid_local_pdf = True
                 download_status = "invalid_pdf_existing"
@@ -3175,7 +3277,7 @@ def main() -> int:
                 except Exception:
                     pass
 
-        if download_status == "already_present":
+        if download_status in {"already_present", "source_identity_unverified_existing"}:
             pass
         elif args.skip_download:
             if had_invalid_local_pdf:
@@ -3192,6 +3294,9 @@ def main() -> int:
                     client=http_client,
                     pdf_urls=pdf_url_candidates,
                     target_path=pdf_path,
+                    study_doi=doi,
+                    study_title=study_title,
+                    min_title_score=args.pdf_identity_min_title_score,
                 )
                 if pdf_download_selected_url:
                     best_pdf_url = pdf_download_selected_url
@@ -3199,9 +3304,14 @@ def main() -> int:
                     downloaded_now += 1
                 elif download_status == "already_present":
                     already_present += 1
-                elif download_status in {"download_failed", "invalid_pdf_existing", "invalid_pdf_content"}:
+                elif download_status in {
+                    "download_failed",
+                    "invalid_pdf_existing",
+                    "invalid_pdf_content",
+                    "source_identity_mismatch",
+                }:
                     download_failures += 1
-                if pdf_path.exists() and pdf_path.stat().st_size > 0:
+                if download_status in {"downloaded", "already_present"} and pdf_path.exists() and pdf_path.stat().st_size > 0:
                     if file_is_valid_pdf(pdf_path):
                         pdf_sha256 = hashlib.sha256(pdf_path.read_bytes()).hexdigest()
                     else:
@@ -3274,7 +3384,10 @@ def main() -> int:
             "unpaywall_checked": normalize(metadata.get("unpaywall_checked", "")),
             "pdf_local_path": (
                 str(pdf_path)
-                if pdf_path.exists() and pdf_path.stat().st_size > 0 and file_is_valid_pdf(pdf_path)
+                if download_status in {"downloaded", "already_present"}
+                and pdf_path.exists()
+                and pdf_path.stat().st_size > 0
+                and file_is_valid_pdf(pdf_path)
                 else ""
             ),
             "pdf_size_bytes": pdf_size_bytes if pdf_size_bytes else "",

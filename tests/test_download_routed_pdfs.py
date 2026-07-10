@@ -371,25 +371,29 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
                     }
                 ]
             ).to_parquet(prescreen, engine="pyarrow", index=False)
-            payload = download_routed_pdfs(
-                route_table=routes,
-                metadata_table=metadata,
-                candidate_table=candidates,
-                pdf_dir=pdf_dir,
-                report_path=report,
-                limit=1,
-                max_retries=0,
-                rebuild_routes_after=True,
-                prescreen_table=prescreen,
-                domain_routing_table=None,
-                fulltext_dir=fulltext_dir,
-                route_summary_json=summary,
-                route_counts_csv=counts,
-                manual_route_overrides=None,
-                attempt_log_every=0,
-                candidate_log_every=0,
-                progress_every=0,
-            )
+            with patch(
+                "pipeline.fulltext.pdf_alternate_sources.title_validation_result",
+                return_value=(True, 1.0, "title_match"),
+            ):
+                payload = download_routed_pdfs(
+                    route_table=routes,
+                    metadata_table=metadata,
+                    candidate_table=candidates,
+                    pdf_dir=pdf_dir,
+                    report_path=report,
+                    limit=1,
+                    max_retries=0,
+                    rebuild_routes_after=True,
+                    prescreen_table=prescreen,
+                    domain_routing_table=None,
+                    fulltext_dir=fulltext_dir,
+                    route_summary_json=summary,
+                    route_counts_csv=counts,
+                    manual_route_overrides=None,
+                    attempt_log_every=0,
+                    candidate_log_every=0,
+                    progress_every=0,
+                )
 
             updated_candidate = pd.read_parquet(candidates)
             rebuilt_routes = pd.read_parquet(routes)
@@ -604,16 +608,21 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
             cooldowns: dict[str, float] = {}
             client = FakeClient()
 
-            status, error, size, selected_url, attempts = download_pdf_candidates(
-                client=client,  # type: ignore[arg-type]
-                pdf_urls=[
-                    "https://a-rate.example/paper.pdf",
-                    "https://b-ok.example/paper.pdf",
-                ],
-                target_path=target,
-                cooldown_until_by_host=cooldowns,
-                rate_limit_cooldown_sec=60,
-            )
+            with patch(
+                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                return_value=(True, 1.0, "front_title_match"),
+            ):
+                status, error, size, selected_url, attempts = download_pdf_candidates(
+                    client=client,  # type: ignore[arg-type]
+                    pdf_urls=[
+                        "https://a-rate.example/paper.pdf",
+                        "https://b-ok.example/paper.pdf",
+                    ],
+                    target_path=target,
+                    cooldown_until_by_host=cooldowns,
+                    rate_limit_cooldown_sec=60,
+                    study_title="Expected paper title",
+                )
 
         self.assertEqual(status, "downloaded")
         self.assertEqual(error, "")
@@ -637,15 +646,20 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "paper.pdf"
             client = FakeClient()
-            status, _error, _size, selected_url, _attempts = download_pdf_candidates(
-                client=client,  # type: ignore[arg-type]
-                pdf_urls=[
-                    "https://publisher.example/paper.pdf",
-                    "https://europepmc.org/api/getPdf?pmcid=PMC123",
-                ],
-                target_path=target,
-                preserve_candidate_order=True,
-            )
+            with patch(
+                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                return_value=(True, 1.0, "front_title_match"),
+            ):
+                status, _error, _size, selected_url, _attempts = download_pdf_candidates(
+                    client=client,  # type: ignore[arg-type]
+                    pdf_urls=[
+                        "https://publisher.example/paper.pdf",
+                        "https://europepmc.org/api/getPdf?pmcid=PMC123",
+                    ],
+                    target_path=target,
+                    preserve_candidate_order=True,
+                    study_title="Expected paper title",
+                )
 
         self.assertEqual(status, "downloaded")
         self.assertEqual(selected_url, "https://publisher.example/paper.pdf")

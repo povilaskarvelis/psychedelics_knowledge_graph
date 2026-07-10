@@ -48,6 +48,18 @@ from pipeline.ingest.sync_paper_library import (  # noqa: E402
     extract_pmcid_from_url,
     split_candidates,
 )
+from pipeline.fulltext.source_identity import (  # noqa: E402
+    evaluate_artifact_identity,
+    select_jats_article,
+)
+from pipeline.fulltext.source_identity_audit_gate import (  # noqa: E402
+    DEFAULT_IDENTITY_REGISTRY,
+    DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
+    DEFAULT_SOURCE_IDENTITY_AUDIT,
+    DEFAULT_SOURCE_IDENTITY_AUDIT_CSV,
+    DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS,
+    refresh_source_identity_audit,
+)
 
 DEFAULT_METADATA = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
 DEFAULT_ROUTES = DEFAULT_OUTPUT_TABLE
@@ -240,11 +252,17 @@ def build_xml_artifact(
     retrieval_source: str,
     retrieval_trace: list[dict],
 ) -> dict:
-    sections = sections_from_jats(xml_text)
+    # A PMCID identifies what the endpoint returned; it does not prove that the
+    # returned article belongs to the DOI requested by our corpus.  Select an
+    # exact JATS article/sub-article and reject the artifact if no exact DOI is
+    # present.  This also prevents adjacent conference abstracts from leaking
+    # into a DOI-specific artifact.
+    selected_xml, document_identity = select_jats_article(xml_text, row.get("doi", ""))
+    sections = sections_from_jats(selected_xml)
     extraction = extraction_result(
         retrieval_source,
         "ok" if sections else "failed",
-        text=xml_text,
+        text=selected_xml,
         sections=sections,
         error="" if sections else "no_sections_extracted",
         metadata={
@@ -257,14 +275,15 @@ def build_xml_artifact(
     )
     extractions = [extraction]
     best = select_best_extraction(extractions)
-    return {
+    artifact = {
         "schema_version": "0.1",
         "created_at_utc": now_utc(),
         "dataset": "articles",
         "fulltext_artifact_layout": "canonical_articles_v1",
         "study_doi": normalize_doi(row.get("doi", "")),
         "openalex_id": clean(row.get("openalex_id", "")),
-        "study_title": clean(row.get("study_title", "")) or article_title_from_xml(xml_text),
+        "study_title": clean(document_identity.get("title", "")) or article_title_from_xml(selected_xml),
+        "requested_study_title": clean(row.get("study_title", "")),
         "study_year": clean(row.get("study_year", "")),
         "pdf_local_path": "",
         "fulltext_source": retrieval_source,
@@ -276,6 +295,17 @@ def build_xml_artifact(
         "best_section_count": int(best.get("section_count", 0) or 0) if best else 0,
         "extractions": extractions,
     }
+    artifact["source_identity"] = evaluate_artifact_identity(
+        artifact,
+        requested_doi=row.get("doi", ""),
+        requested_title=row.get("study_title", "") or document_identity.get("title", ""),
+    )
+    if not artifact["source_identity"].get("verified"):
+        raise ValueError(
+            "XML source identity was not verified: "
+            f"{artifact['source_identity'].get('basis', 'unknown reason')}"
+        )
+    return artifact
 
 
 def fetch_europepmc_fulltext_xml(client: RateLimitedHttpClient, pmcid: str) -> tuple[str, str]:
@@ -351,6 +381,7 @@ def selected_rows(
     include_existing_fulltext: bool,
     include_local_pdf: bool,
     include_non_retained: bool,
+    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
 ) -> tuple[list[dict], Counter[str]]:
     metadata_map = metadata_by_doi(metadata_df)
     local_pdf_index = build_local_pdf_index(paper_root)
@@ -372,7 +403,11 @@ def selected_rows(
         if not retained and not include_non_retained:
             skipped["not_retained"] += 1
             continue
-        if not include_existing_fulltext and fulltext_status_for_doi(doi, fulltext_dir).get("has_converted_full_text"):
+        if not include_existing_fulltext and fulltext_status_for_doi(
+            doi,
+            fulltext_dir,
+            source_identity_audit=source_identity_audit,
+        ).get("has_converted_full_text"):
             skipped["existing_fulltext"] += 1
             continue
         if not include_local_pdf and local_pdf_status_for_doi(doi, local_pdf_index).get("has_local_pdf"):
@@ -398,6 +433,20 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
+    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
+    parser.add_argument(
+        "--source-identity-audit-csv",
+        default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_CSV),
+    )
+    parser.add_argument(
+        "--source-identity-unverified-dois",
+        default=str(DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS),
+    )
+    parser.add_argument("--identity-registry", default=str(DEFAULT_IDENTITY_REGISTRY))
+    parser.add_argument(
+        "--pdf-hash-attestation-registry",
+        default=str(DEFAULT_PDF_HASH_ATTESTATION_REGISTRY),
+    )
     parser.add_argument("--paper-root", default=str(DEFAULT_PAPER_ROOT))
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
     parser.add_argument("--report", default=str(DEFAULT_REPORT))
@@ -444,6 +493,7 @@ def main() -> int:
         include_existing_fulltext=bool(args.include_existing_fulltext),
         include_local_pdf=bool(args.include_local_pdf),
         include_non_retained=bool(args.include_non_retained),
+        source_identity_audit=Path(args.source_identity_audit).resolve(),
     )
     if args.limit > 0:
         skipped["deferred_by_limit"] += max(0, len(rows) - args.limit)
@@ -526,6 +576,20 @@ def main() -> int:
                 flush=True,
             )
 
+    source_identity_audit_refresh = {}
+    if not args.dry_run and counts["written"] > 0:
+        print("SOURCE_IDENTITY_AUDIT: refreshing before route rebuild", flush=True)
+        source_identity_audit_refresh = refresh_source_identity_audit(
+            artifact_dir=out_dir,
+            candidate_table=Path(args.candidate_table),
+            metadata_table=metadata_table,
+            report_json=Path(args.source_identity_audit),
+            report_csv=Path(args.source_identity_audit_csv),
+            unverified_doi_file=Path(args.source_identity_unverified_dois),
+            identity_registry_path=Path(args.identity_registry),
+            pdf_hash_attestation_registry_path=Path(args.pdf_hash_attestation_registry),
+        )
+
     route_rebuild = {}
     if not args.dry_run and counts["written"] > 0 and not args.no_rebuild_routes_after:
         print("ROUTE_REBUILD: rebuilding extraction routes after PMC XML artifacts", flush=True)
@@ -535,6 +599,7 @@ def main() -> int:
             prescreen_table=Path(args.prescreen_table).resolve(),
             domain_table=Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None,
             fulltext_dir=fulltext_dir,
+            source_identity_audit=Path(args.source_identity_audit).resolve(),
             paper_root=Path(args.paper_root).resolve(),
             output_table=routes_table,
             summary_json=Path(args.route_summary_json).resolve(),
@@ -557,6 +622,7 @@ def main() -> int:
             "metadata_table": str(metadata_table),
             "fulltext_dir": str(fulltext_dir),
             "out_dir": str(out_dir),
+            "source_identity_audit": str(Path(args.source_identity_audit).resolve()),
             "doi_file": clean(args.doi_file),
             "include_existing_fulltext": bool(args.include_existing_fulltext),
             "include_local_pdf": bool(args.include_local_pdf),
@@ -567,6 +633,7 @@ def main() -> int:
             "skipped": dict(skipped),
             "status": dict(counts),
             "route_rebuild_performed": bool(route_rebuild),
+            "source_identity_audit_refreshed": bool(source_identity_audit_refresh),
         },
         "records": records,
     }

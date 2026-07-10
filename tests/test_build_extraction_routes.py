@@ -16,6 +16,28 @@ from pipeline.extract.build_extraction_routes import (
 )
 
 
+def write_source_identity_audit(
+    root: Path,
+    rows: list[dict],
+) -> Path:
+    identity_registry = root / "source_identity_registry.json"
+    hash_registry = root / "source_identity_pdf_hash_registry.json"
+    identity_registry.write_text("{}\n", encoding="utf-8")
+    hash_registry.write_text("{}\n", encoding="utf-8")
+    audit = root / "source_identity_audit.json"
+    audit.write_text(
+        json.dumps(
+            {
+                "identity_registry": {"path": str(identity_registry)},
+                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
+                "rows": rows,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return audit
+
+
 class BuildExtractionRoutesTests(unittest.TestCase):
     def test_fulltext_status_ignores_legacy_split_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -34,12 +56,53 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             self.assertEqual(status["fulltext_artifact_paths"], "")
             self.assertEqual(status["fulltext_char_count"], 0)
 
-            canonical.write_text(json.dumps({"best_char_count": 2000}), encoding="utf-8")
-            status = fulltext_status_for_doi(doi, fulltext_dir)
+            canonical.write_text(
+                json.dumps(
+                    {
+                        "best_char_count": 2000,
+                        "source_identity": {"status": "verified_exact_doi"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            audit = write_source_identity_audit(
+                Path(tmp),
+                [
+                    {
+                        "requested_doi": doi,
+                        "artifact_path": str(canonical.resolve()),
+                        "identity_verified": True,
+                    }
+                ],
+            )
+            status = fulltext_status_for_doi(
+                doi,
+                fulltext_dir,
+                source_identity_audit=audit,
+            )
 
         self.assertTrue(status["has_converted_full_text"])
         self.assertEqual(status["fulltext_artifact_paths"], str(canonical))
         self.assertEqual(status["fulltext_char_count"], 2000)
+
+    def test_fulltext_status_rejects_unverified_canonical_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fulltext_dir = Path(tmp) / "fulltext"
+            doi = "10.1000/unverified"
+            canonical = fulltext_dir / "articles" / f"{doi_to_slug(doi)}.json"
+            canonical.parent.mkdir(parents=True)
+            canonical.write_text(json.dumps({"best_char_count": 2000}), encoding="utf-8")
+            audit = write_source_identity_audit(Path(tmp), [])
+
+            status = fulltext_status_for_doi(
+                doi,
+                fulltext_dir,
+                source_identity_audit=audit,
+            )
+
+        self.assertFalse(status["has_converted_full_text"])
+        self.assertEqual(status["fulltext_artifact_paths"], "")
+        self.assertEqual(status["fulltext_char_count"], 0)
 
     def test_primary_paper_uses_general_route_without_domain_table(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -47,7 +110,25 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             doi = "10.1000/primary"
             artifact = fulltext_dir / "articles" / f"{doi_to_slug(doi)}.json"
             artifact.parent.mkdir(parents=True)
-            artifact.write_text(json.dumps({"best_char_count": 1200}), encoding="utf-8")
+            artifact.write_text(
+                json.dumps(
+                    {
+                        "best_char_count": 1200,
+                        "source_identity": {"status": "verified_exact_doi"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            audit = write_source_identity_audit(
+                Path(tmp),
+                [
+                    {
+                        "requested_doi": doi,
+                        "artifact_path": str(artifact.resolve()),
+                        "identity_verified": True,
+                    }
+                ],
+            )
 
             metadata_df = pd.DataFrame(
                 [
@@ -93,6 +174,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 literature_df,
                 fulltext_dir=fulltext_dir,
                 generated_at_utc="2026-05-28T00:00:00+00:00",
+                source_identity_audit=audit,
             )
 
         self.assertEqual({row["domain_route"] for row in rows}, {"general_primary"})
@@ -434,6 +516,68 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual({row["open_access_status"] for row in rows}, {"closed"})
         self.assertEqual({row["best_pdf_url"] for row in rows}, {""})
         self.assertEqual({row["manual_fulltext_access_action"] for row in rows}, {"suppress_pdf_download"})
+        self.assertEqual({row["source_text_state"] for row in rows}, {"public_abstract_only"})
+        self.assertEqual({row["source_identity_verified"] for row in rows}, {False})
+
+    def test_abstract_only_override_wins_over_a_valid_local_pdf(self) -> None:
+        doi = "10.1000/non-english"
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "study_title": "A valid non-English full-text article",
+                    "study_year": "2024",
+                    "abstract": "An English abstract remains available for extraction.",
+                    "publication_type": "Journal Article",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                }
+            ]
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            paper_root = Path(tmp) / "papers"
+            paper_root.mkdir(parents=True)
+            (paper_root / f"{doi_to_slug(doi)}__reviewed.pdf").write_bytes(b"%PDF-1.4\n")
+            rows = build_route_rows(
+                metadata_df,
+                prescreen_df,
+                literature_df,
+                fulltext_dir=Path(tmp) / "fulltext",
+                generated_at_utc="2026-07-10T00:00:00+00:00",
+                paper_root=paper_root,
+                manual_fulltext_access_overrides={
+                    doi: {
+                        "manual_access_action": "abstract_only",
+                        "manual_reason": "Full text retained, but current extraction uses the English abstract.",
+                    }
+                },
+            )
+
+        self.assertEqual({row["access_tier"] for row in rows}, {"abstract_only"})
+        self.assertEqual({row["route_action"] for row in rows}, {"extract_from_abstract_only"})
+        self.assertEqual({row["source_text_state"] for row in rows}, {"public_abstract_only"})
+        self.assertEqual(
+            {row["source_text_state_reason"] for row in rows},
+            {"Full text retained, but current extraction uses the English abstract."},
+        )
 
     def test_prescreen_excluded_preprint_does_not_route(self) -> None:
         metadata_df = pd.DataFrame(
@@ -646,6 +790,8 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(article["extraction_domain_routes"], "clinical_outcome")
         self.assertEqual(article["best_extraction_access_tier"], "full_text_available")
         self.assertTrue(article["has_converted_full_text"])
+        self.assertEqual(article["source_text_state"], "public_full_text_verified")
+        self.assertTrue(article["source_identity_verified"])
 
         preprint = by_doi["10.1101/2025.04.16.649217"]
         self.assertEqual(preprint["publication_stage"], "preprint")
@@ -653,6 +799,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertFalse(preprint["prescreen_retained_for_extraction_candidate"])
         self.assertEqual(preprint["prescreen_actions"], "exclude_preprint_or_unpublished")
         self.assertEqual(preprint["extraction_route_status"], "not_retained_for_extraction")
+        self.assertEqual(preprint["source_text_state"], "excluded_from_extraction")
 
         thesis = by_doi["10.1000/thesis"]
         self.assertFalse(thesis["retained_for_extraction_candidate"])

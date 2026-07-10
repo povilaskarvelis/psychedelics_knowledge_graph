@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter, defaultdict
+from collections import Counter
 import csv
 import datetime as dt
 import json
@@ -34,6 +34,7 @@ try:
         write_jsonl,
     )
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi, write_json
+    from pipeline.fulltext.source_identity_audit_gate import SourceIdentityAuditGate
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.build_extraction_tasks import (
@@ -56,6 +57,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         write_jsonl,
     )
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi, write_json
+    from pipeline.fulltext.source_identity_audit_gate import SourceIdentityAuditGate
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -64,6 +66,7 @@ DEFAULT_OUT_JSONL = ROOT / "data" / "processed" / "extraction" / "fulltext_packe
 DEFAULT_REPORT_JSON = ROOT / "data" / "processed" / "extraction" / "article_text_inputs_report.json"
 DEFAULT_AUDIT_CSV = ROOT / "data" / "processed" / "extraction" / "article_text_inputs_audit.csv"
 DEFAULT_AUDIT_MD = ROOT / "data" / "processed" / "extraction" / "article_text_inputs_audit.md"
+DEFAULT_SOURCE_IDENTITY_AUDIT = ROOT / "data" / "processed" / "fulltext" / "source_identity_audit.json"
 SCHEMA_VERSION = "article_text_inputs_v1"
 DEFAULT_ROUTE_ACTION = "extract_from_full_text"
 DEFAULT_PRIMARY_STRATEGY = "primary_study"
@@ -94,6 +97,29 @@ def resolve_artifact_path(value: object) -> str:
         if path.exists():
             return str(path.resolve())
     return ""
+
+
+def enforce_source_identity_gate(route_rows: list[dict], audit_path: Path) -> tuple[list[dict], list[dict]]:
+    gate = SourceIdentityAuditGate(audit_path)
+    eligible: list[dict] = []
+    rejected: list[dict] = []
+    for row in route_rows:
+        doi = normalize_doi(row.get("doi", ""))
+        artifact_path = resolve_artifact_path(row.get("fulltext_artifact_paths", ""))
+        if normalize(row.get("route_action", "")) != DEFAULT_ROUTE_ACTION or not artifact_path:
+            eligible.append(row)
+            continue
+        if not gate.is_verified(doi, Path(artifact_path)):
+            rejected.append(
+                {
+                    "doi": doi,
+                    "artifact_path": artifact_path,
+                    "reason": "artifact is absent from the verified source-identity audit",
+                }
+            )
+            continue
+        eligible.append(row)
+    return eligible, rejected
 
 
 def selected_packet_profile_for_route(route_row: dict, args: argparse.Namespace) -> str:
@@ -200,7 +226,18 @@ def write_policy_csv(path: Path, rows: list[dict]) -> None:
 def build_article_text_inputs(args: argparse.Namespace) -> tuple[dict, list[dict], list[dict]]:
     route_table = Path(args.route_table).resolve()
     route_df = pd.read_parquet(route_table)
-    queue_rows = build_queue_rows(route_df.to_dict("records"), args)
+    route_rows = route_df.to_dict("records")
+    route_rows, identity_rejections = enforce_source_identity_gate(
+        route_rows,
+        Path(getattr(args, "source_identity_audit", DEFAULT_SOURCE_IDENTITY_AUDIT)).resolve(),
+    )
+    if identity_rejections:
+        sample = ", ".join(row["doi"] for row in identity_rejections[:5])
+        raise RuntimeError(
+            f"Source-identity gate rejected {len(identity_rejections)} routed artifact(s): {sample}. "
+            "No extraction packets were written."
+        )
+    queue_rows = build_queue_rows(route_rows, args)
     if args.limit > 0:
         queue_rows = queue_rows[: args.limit]
 
@@ -216,6 +253,13 @@ def build_article_text_inputs(args: argparse.Namespace) -> tuple[dict, list[dict
         "generated_at_utc": now_utc(),
         "schema_version": SCHEMA_VERSION,
         "route_table": str(route_table),
+        "source_identity_gate": {
+            "enforced": True,
+            "audit_path": str(
+                Path(getattr(args, "source_identity_audit", DEFAULT_SOURCE_IDENTITY_AUDIT)).resolve()
+            ),
+            "rejected": len(identity_rejections),
+        },
         "selection_policy": {
             "primary_studies": command_section_selection_strategy(
                 canonical_section_selection_strategy(args.primary_section_selection_strategy)
@@ -256,6 +300,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--audit-csv", default=str(DEFAULT_AUDIT_CSV))
     parser.add_argument("--audit-md", default=str(DEFAULT_AUDIT_MD))
     parser.add_argument("--policy-csv", default="")
+    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
     parser.add_argument("--primary-section-selection-strategy", default=DEFAULT_PRIMARY_STRATEGY)
     parser.add_argument("--secondary-section-selection-strategy", default=DEFAULT_SECONDARY_STRATEGY)
     parser.add_argument("--prompt-profile", action="append", default=[])

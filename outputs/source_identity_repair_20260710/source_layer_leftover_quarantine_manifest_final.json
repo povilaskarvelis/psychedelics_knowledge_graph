@@ -1,0 +1,12 @@
+{
+  "schema_version": "source_identity_residual_pdf_quarantine_manifest_v1",
+  "generated_at_utc": "2026-07-09T23:19:55.708807+00:00",
+  "apply": false,
+  "safety_note": "Read-only manifest. Move each file and clear only its exact path from the listed candidate rows in one atomic operation; re-run the audit immediately before applying.",
+  "counts": {
+    "files": 0,
+    "dois": 0,
+    "bytes": 0
+  },
+  "records": []
+}

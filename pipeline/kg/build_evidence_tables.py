@@ -3408,7 +3408,7 @@ SYMPTOM_ENDPOINT_PATTERNS = (
         "Craving & withdrawal",
     ),
     (
-        re.compile(r"\b(pain intensity|pain reduction|pain relief|pain interference|post[- ]?operative pain|postoperative pain|headache|migraine|bpi|brief pain|vas|nrs|numeric(?:al)? rating scale|visual analog(?:ue)? scale)\b", re.IGNORECASE),
+        re.compile(r"\b(pain intensity|pain reduction|pain relief|pain interference|post[- ]?operative pain|postoperative pain|headache|migraine|bpi|brief pain)\b", re.IGNORECASE),
         "Pain",
     ),
     (
@@ -3420,7 +3420,7 @@ SYMPTOM_ENDPOINT_PATTERNS = (
         "Mania/hypomania",
     ),
     (
-        re.compile(r"\b(psychosis|psychotic|psychotomimetic|schizophrenia[- ]like symptoms?|panss|bprs|catatonia|delusion|paranoia)\b", re.IGNORECASE),
+        re.compile(r"\b(psychosis|psychotic|psychotomimetic|schizophrenia[- ]like symptoms?|panss|catatonia|delusion|paranoia)\b", re.IGNORECASE),
         "Psychotic-like symptoms",
     ),
     (

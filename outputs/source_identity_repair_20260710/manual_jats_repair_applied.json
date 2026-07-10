@@ -1,0 +1,44 @@
+{
+  "generated_at_utc": "2026-07-09T21:39:39.686986+00:00",
+  "inventory": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/pmc_identity_inventory.csv",
+  "apply": true,
+  "counts": {
+    "targets": 3,
+    "replaced": 3
+  },
+  "records": [
+    {
+      "doi": "10.1002/dta.2613",
+      "title": "Return of the lysergamides. Part V: Analytical and behavioural characterization of 1-butanoyl-d-lysergic acid diethylamide (1B-LSD)",
+      "pmcid": "PMC6899222",
+      "method": "refetch_pmc_oai_jats:PMC6899222",
+      "artifact_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/articles/10_1002_dta_2613.json",
+      "status": "replaced",
+      "error": "",
+      "backup_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/source_identity_quarantine_20260710/replaced_artifacts/10_1002_dta_2613.json",
+      "source_identity_status": "verified_exact_doi"
+    },
+    {
+      "doi": "10.2196/41013",
+      "title": "Neural Correlates of the DEEPP (Anti-suicidal Response to Ketamine in Treatment-Resistant Bipolar Depression) Study: Protocol for a Pilot, Open-Label Clinical Trial",
+      "pmcid": "PMC9919457",
+      "method": "refetch_europepmc_jats:PMC9919457",
+      "artifact_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/articles/10_2196_41013.json",
+      "status": "replaced",
+      "error": "",
+      "backup_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/source_identity_quarantine_20260710/replaced_artifacts/10_2196_41013.json",
+      "source_identity_status": "verified_exact_doi"
+    },
+    {
+      "doi": "10.2196/78166",
+      "title": "Improving Outpatient Psychotherapy for Adults With Major Depressive and Anxiety Disorders Using Web-Based High-Frequency Monitoring and Feedback in Autosystemic Hypnotherapy: Protocol for a Two-Arm ABAB Crossed-Therapist Randomized Clinical Implementation Trial",
+      "pmcid": "PMC12824570",
+      "method": "refetch_europepmc_jats:PMC12824570",
+      "artifact_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/articles/10_2196_78166.json",
+      "status": "replaced",
+      "error": "",
+      "backup_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/source_identity_quarantine_20260710/replaced_artifacts/10_2196_78166.json",
+      "source_identity_status": "verified_exact_doi"
+    }
+  ]
+}

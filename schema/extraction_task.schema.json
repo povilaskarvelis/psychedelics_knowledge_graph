@@ -8,6 +8,7 @@
     "generated_at_utc",
     "task_id",
     "route_id",
+    "input_fingerprint",
     "study_doi",
     "task_status",
     "paper_metadata",
@@ -19,7 +20,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["route_extraction_task_v1"]
+      "enum": ["route_extraction_task_v2"]
     },
     "generated_at_utc": {
       "type": "string"
@@ -31,6 +32,10 @@
     "route_id": {
       "type": "string",
       "minLength": 1
+    },
+    "input_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
     },
     "study_doi": {
       "type": "string",
@@ -149,12 +154,13 @@
         "source_family",
         "source_type",
         "access_level",
-        "expected_packet_profile"
+        "expected_packet_profile",
+        "contract_assets_fingerprint"
       ],
       "properties": {
         "contract_version": {
           "type": "string",
-          "enum": ["route_extraction_task_v1"]
+          "enum": ["route_extraction_task_v2"]
         },
         "route_id": {
           "type": "string"
@@ -197,6 +203,10 @@
             "review_coverage",
             "not_applicable"
           ]
+        },
+        "contract_assets_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
         }
       }
     },
@@ -217,15 +227,17 @@
         "fulltext_artifact_paths",
         "local_pdf_paths",
         "abstract_available"
+        ,"source_fingerprint"
       ],
       "properties": {
         "mode": {
           "type": "string",
           "enum": [
-            "full_text_packet",
-            "full_text_artifact",
-            "abstract",
-            "not_ready"
+        "full_text_packet",
+        "full_text_artifact",
+        "abstract",
+        "not_applicable",
+        "not_ready"
           ]
         },
         "status": {
@@ -286,6 +298,10 @@
         },
         "abstract_available": {
           "type": "boolean"
+        },
+        "source_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
         }
       }
     },

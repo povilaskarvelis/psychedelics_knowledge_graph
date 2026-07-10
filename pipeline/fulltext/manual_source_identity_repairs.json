@@ -1,0 +1,34 @@
+[
+  {
+    "doi": "10.1002/dta.2613",
+    "requested_title": "Return of the lysergamides. Part V: Analytical and behavioural characterization of 1-butanoyl-d-lysergic acid diethylamide (1B-LSD)",
+    "artifact_backend": "grobid",
+    "correct_acquisition_method": "refetch_pmc_oai_jats:PMC6899222",
+    "artifact_path": "data/processed/fulltext/articles/10_1002_dta_2613.json",
+    "reason": "Canonical artifact contained supporting information rather than the article"
+  },
+  {
+    "doi": "10.2196/41013",
+    "requested_title": "Neural Correlates of the DEEPP (Anti-suicidal Response to Ketamine in Treatment-Resistant Bipolar Depression) Study: Protocol for a Pilot, Open-Label Clinical Trial",
+    "artifact_backend": "grobid",
+    "correct_acquisition_method": "refetch_europepmc_jats:PMC9919457",
+    "artifact_path": "data/processed/fulltext/articles/10_2196_41013.json",
+    "reason": "Canonical artifact contained a SPIRIT checklist rather than the article"
+  },
+  {
+    "doi": "10.2196/46281",
+    "requested_title": "Telehealth-Based Music Therapy Versus Cognitive Behavioral Therapy for Anxiety in Cancer Survivors: Rationale and Protocol for a Comparative Effectiveness Trial",
+    "artifact_backend": "grobid",
+    "correct_acquisition_method": "refetch_europepmc_jats:PMC10176150",
+    "artifact_path": "data/processed/fulltext/articles/10_2196_46281.json",
+    "reason": "Canonical artifact contained a PCORI merit-review summary rather than the article"
+  },
+  {
+    "doi": "10.2196/78166",
+    "requested_title": "Improving Outpatient Psychotherapy for Adults With Major Depressive and Anxiety Disorders Using Web-Based High-Frequency Monitoring and Feedback in Autosystemic Hypnotherapy: Protocol for a Two-Arm ABAB Crossed-Therapist Randomized Clinical Implementation Trial",
+    "artifact_backend": "grobid",
+    "correct_acquisition_method": "refetch_europepmc_jats:PMC12824570",
+    "artifact_path": "data/processed/fulltext/articles/10_2196_78166.json",
+    "reason": "Canonical artifact contained an ancillary review file rather than the article"
+  }
+]

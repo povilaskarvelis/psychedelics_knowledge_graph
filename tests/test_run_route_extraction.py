@@ -189,6 +189,19 @@ def minimal_review_result() -> dict:
             "population_or_system": "Adults with depression",
             "primary_compounds_or_classes": "psilocybin",
             "primary_entities": "depressive symptoms",
+            "substantive_coverage_inventory": [
+                {
+                    "inventory_id": "I1",
+                    "compound_or_class": "psilocybin",
+                    "entity_type": "not_applicable",
+                    "entity": "depressive symptoms",
+                    "coverage_focus": "substantial_topic",
+                    "evidence_basis": "review_level_conclusion",
+                    "has_coverage_item": True,
+                    "coverage_item_ids": ["C1"],
+                    "reason_if_no_coverage_item": "not_applicable",
+                }
+            ],
             "needs_human_review": False,
             "reasoning_summary": "The review discusses clinical outcomes in the selected domain.",
             "evidence_location": "abstract",
@@ -215,6 +228,8 @@ def minimal_review_result() -> dict:
                 "needs_human_review": False,
                 "domain_result": {
                     "condition_or_population": "Adults with depression",
+                    "condition_or_indication": "Depression",
+                    "population_or_subgroup": "Adults with depression",
                     "compound_or_intervention": "psilocybin-assisted therapy",
                     "clinical_topic": "efficacy",
                     "clinical_endpoint": "depressive symptoms",

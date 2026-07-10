@@ -372,3 +372,58 @@ def test_review_abstract_prompt_is_leaner_than_article_text_prompt() -> None:
     assert "domain_result" in abstract_prompt
     assert "Secondary Review Article-Text Extraction" in article_prompt
     assert len(abstract_prompt) < len(article_prompt)
+
+
+def test_review_prompts_preserve_substantially_discussed_review_relationships() -> None:
+    profile = profile_for_key("secondary_review_coverage", "review_coverage_schema")
+    schema = load_schema_for_profile(profile, "clinical_outcome")
+
+    abstract_prompt = build_system_instruction(
+        profile,
+        schema,
+        "native",
+        domain_route="clinical_outcome",
+        text_depth=TEXT_DEPTH_ABSTRACT,
+    )
+    article_prompt = build_system_instruction(
+        profile,
+        schema,
+        "native",
+        domain_route="clinical_outcome",
+        text_depth=TEXT_DEPTH_ARTICLE,
+    )
+    abstract_lower = " ".join(abstract_prompt.lower().split())
+    article_lower = " ".join(article_prompt.lower().split())
+
+    assert "substantive_coverage_inventory" in article_prompt
+    assert "substantially discusses in the selected scope" in article_lower
+    assert "keep distinct substantially discussed relationships in separate rows" in article_lower
+    assert "substantially discussed compound-entity relationship" in article_lower
+    assert "passing mentions" in article_lower
+    assert "substantive_coverage_inventory" in abstract_prompt
+    assert "substantially discussed in the title and abstract" in abstract_lower
+    assert "keep distinct substantially discussed relationships in separate rows" in abstract_lower
+    assert "review-level claim" in abstract_lower
+    assert "most important topics" not in article_lower
+    assert "most important topics" not in abstract_lower
+
+
+def test_clinical_review_prompt_names_clean_condition_fields_and_scale_guardrails() -> None:
+    profile = profile_for_key("secondary_review_coverage", "review_coverage_schema")
+    schema = load_schema_for_profile(profile, "clinical_outcome")
+
+    prompt = build_system_instruction(
+        profile,
+        schema,
+        "native",
+        domain_route="clinical_outcome",
+        text_depth=TEXT_DEPTH_ARTICLE,
+    )
+    lower = " ".join(prompt.lower().split())
+
+    assert "condition_or_indication" in prompt
+    assert "population_or_subgroup" in prompt
+    assert "condition_or_population" in prompt
+    assert "do not use a scale name as the clinical condition" in lower
+    assert "tobacco use disorder" in lower
+    assert "distress associated with life-threatening disease" in lower

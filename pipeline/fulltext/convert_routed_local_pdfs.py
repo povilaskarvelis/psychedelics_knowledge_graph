@@ -36,6 +36,14 @@ try:
         should_write_artifact,
         write_json,
     )
+    from pipeline.fulltext.source_identity_audit_gate import (
+        DEFAULT_IDENTITY_REGISTRY,
+        DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
+        DEFAULT_SOURCE_IDENTITY_AUDIT,
+        DEFAULT_SOURCE_IDENTITY_AUDIT_CSV,
+        DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS,
+        refresh_source_identity_audit,
+    )
     from pipeline.review.pdf_runtime import ensure_pdf_runtime
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -62,6 +70,14 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         now_utc,
         should_write_artifact,
         write_json,
+    )
+    from pipeline.fulltext.source_identity_audit_gate import (
+        DEFAULT_IDENTITY_REGISTRY,
+        DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
+        DEFAULT_SOURCE_IDENTITY_AUDIT,
+        DEFAULT_SOURCE_IDENTITY_AUDIT_CSV,
+        DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS,
+        refresh_source_identity_audit,
     )
     from pipeline.review.pdf_runtime import ensure_pdf_runtime
 
@@ -191,6 +207,7 @@ def rebuild_routes(
     summary_json: Path,
     counts_csv: Path,
     manual_route_overrides: Path | None,
+    source_identity_audit: Path,
 ) -> dict:
     domain_table = domain_routing_table if domain_routing_table is not None and domain_routing_table.exists() else None
     return build_extraction_routes(
@@ -200,6 +217,7 @@ def rebuild_routes(
         domain_table=domain_table,
         manual_overrides_path=manual_route_overrides if manual_route_overrides and manual_route_overrides.exists() else None,
         fulltext_dir=fulltext_dir,
+        source_identity_audit=source_identity_audit,
         paper_root=paper_root,
         output_table=route_table,
         summary_json=summary_json,
@@ -251,6 +269,11 @@ def convert_routed_local_pdfs(
     only_missing_artifacts: bool = True,
     write_failed_artifacts: bool = False,
     rebuild_routes_after: bool = True,
+    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
+    source_identity_audit_csv: Path = DEFAULT_SOURCE_IDENTITY_AUDIT_CSV,
+    source_identity_unverified_dois: Path = DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS,
+    identity_registry: Path = DEFAULT_IDENTITY_REGISTRY,
+    pdf_hash_attestation_registry: Path = DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
 ) -> dict:
     if backend == "grobid" and not grobid_is_available(grobid_url):
         raise RuntimeError(f"GROBID service is not available: {grobid_url}")
@@ -347,8 +370,19 @@ def convert_routed_local_pdfs(
             flush=True,
         )
 
+    source_identity_audit_refresh: dict | None = None
     route_rebuild_summary: dict | None = None
     if rebuild_routes_after and counts.get("written", 0) > 0:
+        source_identity_audit_refresh = refresh_source_identity_audit(
+            artifact_dir=out_dir,
+            candidate_table=candidate_table,
+            metadata_table=metadata_table,
+            report_json=source_identity_audit,
+            report_csv=source_identity_audit_csv,
+            unverified_doi_file=source_identity_unverified_dois,
+            identity_registry_path=identity_registry,
+            pdf_hash_attestation_registry_path=pdf_hash_attestation_registry,
+        )
         route_rebuild_summary = rebuild_routes(
             route_table=route_table,
             metadata_table=metadata_table,
@@ -360,6 +394,7 @@ def convert_routed_local_pdfs(
             summary_json=summary_json,
             counts_csv=counts_csv,
             manual_route_overrides=manual_route_overrides,
+            source_identity_audit=source_identity_audit,
         )
 
     report = {
@@ -383,6 +418,10 @@ def convert_routed_local_pdfs(
             "performed": route_rebuild_summary is not None,
             "summary": route_rebuild_summary or {},
         },
+        "source_identity_audit": {
+            "refreshed": source_identity_audit_refresh is not None,
+            "report_json": str(Path(source_identity_audit).resolve()),
+        },
         "records": records,
     }
     write_json(report_path, report)
@@ -398,6 +437,20 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
+    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
+    parser.add_argument(
+        "--source-identity-audit-csv",
+        default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_CSV),
+    )
+    parser.add_argument(
+        "--source-identity-unverified-dois",
+        default=str(DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS),
+    )
+    parser.add_argument("--identity-registry", default=str(DEFAULT_IDENTITY_REGISTRY))
+    parser.add_argument(
+        "--pdf-hash-attestation-registry",
+        default=str(DEFAULT_PDF_HASH_ATTESTATION_REGISTRY),
+    )
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
     parser.add_argument("--paper-root", default=str(DEFAULT_PAPER_ROOT))
     parser.add_argument("--report", default=str(DEFAULT_REPORT))
@@ -454,6 +507,11 @@ def main() -> int:
         only_missing_artifacts=not bool(args.include_existing_artifacts),
         write_failed_artifacts=bool(args.write_failed_artifacts),
         rebuild_routes_after=not bool(args.no_rebuild_routes_after),
+        source_identity_audit=Path(args.source_identity_audit).resolve(),
+        source_identity_audit_csv=Path(args.source_identity_audit_csv).resolve(),
+        source_identity_unverified_dois=Path(args.source_identity_unverified_dois).resolve(),
+        identity_registry=Path(args.identity_registry).resolve(),
+        pdf_hash_attestation_registry=Path(args.pdf_hash_attestation_registry).resolve(),
     )
     return 0
 

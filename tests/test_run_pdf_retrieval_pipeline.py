@@ -55,6 +55,7 @@ def test_pdf_retrieval_pipeline_runs_standard_recovery_after_direct_download(mon
     assert calls["download_kwargs"]["alternate_pdf_sources"] == {"pmc", "openalex", "semantic_scholar"}
     assert calls["download_kwargs"]["alternate_pdf_min_title_score"] == 0.35
     assert calls["recovery_kwargs"]["standard_recovery_only"] is True
+    assert calls["recovery_kwargs"]["min_title_score"] == 0.86
     assert calls["recovery_kwargs"]["apply"] is True
     assert report["alternate_pdf_sources"] == ["openalex", "pmc", "semantic_scholar"]
     assert report["standard_recovery"]["status"] == {"downloaded": 1}

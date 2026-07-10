@@ -82,6 +82,33 @@ explicitly takes them as input.
 
 ## Main Commands
 
+### Updating one paper or a DOI list
+
+Do not rerun all model extraction or edit KG rows directly for a correction.
+Use the three-phase scoped updater:
+
+```bash
+python pipeline/update/run_scoped_paper_update.py prepare \
+  --update-id paper_fix_YYYYMMDD \
+  --doi-file path/to/update_dois.txt \
+  --refresh-derived
+
+# Run only the generated ready_tasks*.jsonl files through extraction.
+
+python pipeline/update/run_scoped_paper_update.py finalize \
+  --update-id paper_fix_YYYYMMDD \
+  --patch-outputs path/to/scoped_route_extraction_outputs.jsonl
+
+python pipeline/update/run_scoped_paper_update.py promote \
+  --update-id paper_fix_YYYYMMDD
+```
+
+Preparation and finalization do not change the active KG. Finalization removes
+all previous output/evidence rows for the DOI scope and refuses incomplete or
+stale replacements. See
+[`docs/scoped_paper_updates.md`](../docs/scoped_paper_updates.md) for batch API
+commands, exclusion-only updates, audits, and rollback behavior.
+
 ### Search Planning
 
 Build the current search files from configured registries:

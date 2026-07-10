@@ -1,0 +1,2291 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-07-10T10:14:12.122720+00:00",
+  "apply": true,
+  "scope": "manual_pdf_inbox_only",
+  "queue_csv": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_download_queue_all.csv",
+  "inbox_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox",
+  "report_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_queue_download_remaining45_applied.json",
+  "filters": {
+    "priority_only": false,
+    "priority_tiers": [],
+    "min_priority_score": 0,
+    "doi_filter_count": 0,
+    "limit": 0
+  },
+  "queue_row_count": 45,
+  "selected_row_count": 45,
+  "counts": {
+    "download_failed": 35,
+    "downloaded_validated": 10
+  },
+  "records": [
+    {
+      "doi": "10.1192/j.eurpsy.2025.10096",
+      "title": "Esketamine use in real-world clinical practice in patients with treatment-resistant depression.",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1433,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2025.10096__6954617ba7.pdf",
+      "candidate_count": 4,
+      "candidate_urls": [
+        "https://hal.science/hal-05226459v1/document",
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/BA7E2B3A3BD1CCE77B10DE8C4A301CF5/S0924933825100965a.pdf/div-class-title-esketamine-use-in-real-world-clinical-practice-in-patients-with-treatment-resistant-depression-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12646028/",
+        "https://doi.org/10.1192/j.eurpsy.2025.10096"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://hal.science/hal-05226459v1/document",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "direct_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://hal.science/hal-05226459v1/document",
+              "bytes": 595900
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2025.10096",
+            "pdf_sha256": "42ccf834004714ed22d734059e82373969cf71fc322006921a81da75327e193c",
+            "pdf_size": 595900,
+            "front_dois": [
+              "10.1192/j.eurpsy.2025.10096"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 8,
+            "front_page_char_count": 1411,
+            "metadata_char_count": 494,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://hal.science/hal-05226459v1/document",
+      "selected_sha256": "42ccf834004714ed22d734059e82373969cf71fc322006921a81da75327e193c"
+    },
+    {
+      "doi": "10.1192/j.eurpsy.2024.1744",
+      "title": "Functional connectivity of the amygdala subregions and the antidepressant effects of repeated ketamine infusions in major depressive disorder",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1429,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2024.1744__63041fe09c.pdf",
+      "candidate_count": 5,
+      "candidate_urls": [
+        "https://europepmc.org/api/getPdf?pmcid=PMC11059247",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC11059247/pdf/S0924933824017449a.pdf",
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/8FF1D3362FB36199D15F9BAC5C313DAC/S0924933824017449a.pdf/div-class-title-functional-connectivity-of-the-amygdala-subregions-and-the-antidepressant-effects-of-repeated-ketamine-infusions-in-major-depressive-disorder-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC11059247/",
+        "https://doi.org/10.1192/j.eurpsy.2024.1744"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://europepmc.org/api/getPdf?pmcid=PMC11059247",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://europepmc.org/api/getPdf?pmcid=PMC11059247",
+              "error": "HTTPError: HTTP Error 404: "
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11059247/pdf/S0924933824017449a.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "pmc_pow",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11059247/pdf/S0924933824017449a.pdf",
+              "bytes": 1817
+            },
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11059247/pdf/S0924933824017449a.pdf",
+              "bytes": 1237524
+            },
+            {
+              "event": "pmc_pow_success",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11059247/pdf/S0924933824017449a.pdf"
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2024.1744",
+            "pdf_sha256": "285c7a5e6c2fb65c3c5b1bd82bfdfe9d5eb3dfb936a3964244ebd07750c3fcba",
+            "pdf_size": 1237524,
+            "front_dois": [
+              "10.1192/j.eurpsy.2024.1744"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 11,
+            "front_page_char_count": 5362,
+            "metadata_char_count": 54,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11059247/pdf/S0924933824017449a.pdf",
+      "selected_sha256": "285c7a5e6c2fb65c3c5b1bd82bfdfe9d5eb3dfb936a3964244ebd07750c3fcba"
+    },
+    {
+      "doi": "10.1007/s00213-026-07010-1",
+      "title": "A repeated low-dose regimen of MDMA has transient next-day effects on locomotor activity, anxiety-like behavior, and brain serotonin levels, with no effect on anhedonia-like behavior, in both female and male rats",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1310,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1007_s00213-026-07010-1__e9d2b9a0f8.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1007/s00213-026-07010-1"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1007/s00213-026-07010-1",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1007/s00213-026-07010-1",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1111/pcn.13379",
+      "title": "Different symptomatic improvement pattern revealed by factor analysis between placebo response and response to Esketamine in treatment resistant depression",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1309,
+      "final_action_category": "manual_conflicting_doi_needs_resolution",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1111_pcn.13379__b7aeb6b24f.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1111/pcn.13379"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1111/pcn.13379",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1111/pcn.13379",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1016/j.annemergmed.2006.09.018",
+      "title": "Patterns of Ecstasy-Associated Hyponatremia in California",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1308,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1016_j.annemergmed.2006.09.018__2ebea80ced.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1016/j.annemergmed.2006.09.018"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1016/j.annemergmed.2006.09.018",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1016/j.annemergmed.2006.09.018",
+              "bytes": 2621
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1523/jneurosci.16-01-00373.1996",
+      "title": "NMDA receptor antagonists impair prefrontal cortex function as assessed via spatial delayed alternation performance in rats: modulation by dopamine",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1308,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1523_jneurosci.16-01-00373.1996__4b9b34ceb8.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6578732/",
+        "https://doi.org/10.1523/jneurosci.16-01-00373.1996"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6578732/",
+          "source": "verified_pmc",
+          "reason": "verified_pmc_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6578732/",
+              "bytes": 90750
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6578732/pdf/jneuro_16_1_373.pdf",
+              "bytes": 21262
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1523/jneurosci.16-01-00373.1996",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1523/jneurosci.16-01-00373.1996",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.3758/s13415-023-01118-z",
+      "title": "Age-related impairment in fear memory extinction is restored by ketamine in middle-aged mice",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1308,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.3758_s13415-023-01118-z__142963fcec.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.3758/s13415-023-01118-z"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.3758/s13415-023-01118-z",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.3758/s13415-023-01118-z",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1007/s00213-026-07058-z",
+      "title": "Single exposure to Ayahuasca reverses chronic stress effects on sociability, anxiety, cortisol, and BDNF in zebrafish",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1306,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1007_s00213-026-07058-z__e0f9cf797b.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1007/s00213-026-07058-z"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1007/s00213-026-07058-z",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1007/s00213-026-07058-z",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1177/2045125316675578",
+      "title": "Use of repeated intravenous ketamine therapy in treatment-resistant bipolar depression with suicidal behaviour: a case report from Spain",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1306,
+      "final_action_category": "manual_conflicting_doi_needs_resolution",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1177_2045125316675578__4406281193.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC5433615/",
+        "https://doi.org/10.1177/2045125316675578"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5433615/",
+          "source": "verified_pmc",
+          "reason": "verified_pmc_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5433615/",
+              "bytes": 141121
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5433615/pdf/10.1177_2045125316675578.pdf",
+              "bytes": 1816
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1177/2045125316675578",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1177/2045125316675578",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1192/j.eurpsy.2025.10123",
+      "title": "Improvements in health-related quality of life with esketamine nasal spray versus quetiapine extended release.",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1306,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2025.10123__08d6d14c91.pdf",
+      "candidate_count": 3,
+      "candidate_urls": [
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/CDDD815D486351BB8123BFCF08418BBC/S0924933825101235a.pdf/div-class-title-improvements-in-health-related-quality-of-life-with-esketamine-nasal-spray-versus-quetiapine-extended-release-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12646121/",
+        "https://doi.org/10.1192/j.eurpsy.2025.10123"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/CDDD815D486351BB8123BFCF08418BBC/S0924933825101235a.pdf/div-class-title-improvements-in-health-related-quality-of-life-with-esketamine-nasal-spray-versus-quetiapine-extended-release-div.pdf",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "direct_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/CDDD815D486351BB8123BFCF08418BBC/S0924933825101235a.pdf/div-class-title-improvements-in-health-related-quality-of-life-with-esketamine-nasal-spray-versus-quetiapine-extended-release-div.pdf",
+              "bytes": 1425979
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2025.10123",
+            "pdf_sha256": "34293b81c31a8858363aaa14a9662edbc0e38672e38ff150e8853a6c9d17cef6",
+            "pdf_size": 1425979,
+            "front_dois": [
+              "10.1192/j.eurpsy.2025.10123"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 12,
+            "front_page_char_count": 5618,
+            "metadata_char_count": 54,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/CDDD815D486351BB8123BFCF08418BBC/S0924933825101235a.pdf/div-class-title-improvements-in-health-related-quality-of-life-with-esketamine-nasal-spray-versus-quetiapine-extended-release-div.pdf",
+      "selected_sha256": "34293b81c31a8858363aaa14a9662edbc0e38672e38ff150e8853a6c9d17cef6"
+    },
+    {
+      "doi": "10.1074/jbc.271.25.14672",
+      "title": "Mapping the Binding Site Pocket of the Serotonin 5-Hydroxytryptamine2A Receptor",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1305,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1074_jbc.271.25.14672__5979a89ac3.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1074/jbc.271.25.14672"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1074/jbc.271.25.14672",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1074/jbc.271.25.14672",
+              "bytes": 2619
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1093/sleep/32.11.1513",
+      "title": "Effects of Acute 3, 4-Methylenedioxymethamphetamine on Sleep and Daytime Sleepiness in MDMA Users: A Preliminary Study",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1305,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1093_sleep_32.11.1513__51b3f37b58.pdf",
+      "candidate_count": 3,
+      "candidate_urls": [
+        "https://academic.oup.com/sleep/article-pdf/32/11/1513/13688374/sleep-32-11-1513.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC2768958/",
+        "https://doi.org/10.1093/sleep/32.11.1513"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://academic.oup.com/sleep/article-pdf/32/11/1513/13688374/sleep-32-11-1513.pdf",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://academic.oup.com/sleep/article-pdf/32/11/1513/13688374/sleep-32-11-1513.pdf",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2768958/",
+          "source": "verified_pmc",
+          "reason": "verified_pmc_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2768958/",
+              "bytes": 173251
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2768958/pdf/aasm.32.11.1513.pdf",
+              "bytes": 1817
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1093/sleep/32.11.1513",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1093/sleep/32.11.1513",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1192/j.eurpsy.2023.19",
+      "title": "Pre-treatment functional connectivity of the cingulate cortex predicts anti-suicidal effects of serial ketamine infusions.",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1305,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2023.19__09ad145fb5.pdf",
+      "candidate_count": 5,
+      "candidate_urls": [
+        "https://europepmc.org/api/getPdf?pmcid=PMC10134448",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10134448/pdf/S0924933823000196a.pdf",
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/E218DAB81F413E9DDA4D7A81AE7D2E58/S0924933823000196a.pdf/div-class-title-pre-treatment-functional-connectivity-of-the-cingulate-cortex-predicts-anti-suicidal-effects-of-serial-ketamine-infusions-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10134448/",
+        "https://doi.org/10.1192/j.eurpsy.2023.19"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://europepmc.org/api/getPdf?pmcid=PMC10134448",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://europepmc.org/api/getPdf?pmcid=PMC10134448",
+              "error": "HTTPError: HTTP Error 404: "
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10134448/pdf/S0924933823000196a.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "pmc_pow",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10134448/pdf/S0924933823000196a.pdf",
+              "bytes": 1816
+            },
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10134448/pdf/S0924933823000196a.pdf",
+              "bytes": 1416040
+            },
+            {
+              "event": "pmc_pow_success",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10134448/pdf/S0924933823000196a.pdf"
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2023.19",
+            "pdf_sha256": "e100ba63be1be313a026687d211ab835b863fb6881a131225afd59b26cd7f860",
+            "pdf_size": 1416040,
+            "front_dois": [
+              "10.1192/j.eurpsy.2023.19"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 11,
+            "front_page_char_count": 5695,
+            "metadata_char_count": 53,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10134448/pdf/S0924933823000196a.pdf",
+      "selected_sha256": "e100ba63be1be313a026687d211ab835b863fb6881a131225afd59b26cd7f860"
+    },
+    {
+      "doi": "10.33425/2693-1516.1022",
+      "title": "Psilocybin-based mushrooms and usage",
+      "priority_tier": "P0_existing_kg_and_retained",
+      "priority_score": 1303,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.33425_2693-1516.1022__58385b2fb3.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.33425/2693-1516.1022"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.33425/2693-1516.1022",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.33425/2693-1516.1022",
+              "error": "HTTPError: HTTP Error 307: Temporary Redirect"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1002/wps.20555",
+      "title": "Serotonin, psychedelics and psychiatry",
+      "priority_tier": "P1_existing_kg_or_curated_signal",
+      "priority_score": 420,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1002_wps.20555__cb04e87ee3.pdf",
+      "candidate_count": 3,
+      "candidate_urls": [
+        "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/wps.20555",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6127802/",
+        "https://doi.org/10.1002/wps.20555"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/wps.20555",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/wps.20555",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6127802/",
+          "source": "verified_pmc",
+          "reason": "verified_pmc_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6127802/",
+              "bytes": 104501
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6127802/pdf/WPS-17-358.pdf",
+              "bytes": 1817
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1002/wps.20555",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1002/wps.20555",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1038/s41380-018-0256-5",
+      "title": "Double-blind, placebo-controlled, dose-ranging trial of intravenous ketamine as adjunctive therapy in treatment-resistant depression (TRD)",
+      "priority_tier": "P1_existing_kg_or_curated_signal",
+      "priority_score": 420,
+      "final_action_category": "manual_main_article_not_correction",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1038_s41380-018-0256-5__c39e79da12.pdf",
+      "candidate_count": 4,
+      "candidate_urls": [
+        "https://www.nature.com/articles/s41380-018-0256-5.pdf",
+        "https://www.ncbi.nlm.nih.gov/pmc/articles/8329695",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6447473/",
+        "https://doi.org/10.1038/s41380-018-0256-5"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://www.nature.com/articles/s41380-018-0256-5.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://www.nature.com/articles/s41380-018-0256-5.pdf",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/8329695",
+          "source": "queue_candidate:candidate.open_access_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.open_access_url",
+              "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/8329695",
+              "bytes": 21191
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6447473/",
+          "source": "verified_pmc",
+          "reason": "verified_pmc_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6447473/",
+              "bytes": 206290
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6447473/pdf/41380_2018_Article_256.pdf",
+              "bytes": 1816
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1038/s41380-018-0256-5",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1038/s41380-018-0256-5",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1038/s41591-022-01744-z",
+      "title": "Increased global integration in the brain after psilocybin therapy for depression",
+      "priority_tier": "P1_existing_kg_or_curated_signal",
+      "priority_score": 420,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1038_s41591-022-01744-z__6ab20aa154.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1038/s41591-022-01744-z"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1038/s41591-022-01744-z",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1038/s41591-022-01744-z",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1192/j.eurpsy.2024.1806",
+      "title": "Use of psychedelic treatments in psychiatric clinical practice: an EPA policy paper.",
+      "priority_tier": "P1_existing_kg_or_curated_signal",
+      "priority_score": 420,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2024.1806__acc26cd004.pdf",
+      "candidate_count": 5,
+      "candidate_urls": [
+        "https://europepmc.org/api/getPdf?pmcid=PMC11795445",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC11795445/pdf/S0924933824018066a.pdf",
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/340B7D729CF69904BB989B24FA0D60F7/S0924933824018066a.pdf/div-class-title-use-of-psychedelic-treatments-in-psychiatric-clinical-practice-an-epa-policy-paper-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC11795445/",
+        "https://doi.org/10.1192/j.eurpsy.2024.1806"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://europepmc.org/api/getPdf?pmcid=PMC11795445",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://europepmc.org/api/getPdf?pmcid=PMC11795445",
+              "error": "HTTPError: HTTP Error 404: "
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11795445/pdf/S0924933824018066a.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "pmc_pow",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11795445/pdf/S0924933824018066a.pdf",
+              "bytes": 1817
+            },
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11795445/pdf/S0924933824018066a.pdf",
+              "bytes": 207107
+            },
+            {
+              "event": "pmc_pow_success",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11795445/pdf/S0924933824018066a.pdf"
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2024.1806",
+            "pdf_sha256": "c57f37cab04ed950086fc1ac5e04e80421628b750f2657209bb1fa0958f8b8ce",
+            "pdf_size": 207107,
+            "front_dois": [
+              "10.1192/j.eurpsy.2024.1806"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 5,
+            "front_page_char_count": 5639,
+            "metadata_char_count": 53,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11795445/pdf/S0924933824018066a.pdf",
+      "selected_sha256": "c57f37cab04ed950086fc1ac5e04e80421628b750f2657209bb1fa0958f8b8ce"
+    },
+    {
+      "doi": "10.17992/lbl.2022.09.706",
+      "title": "The use of psilocybin for treatment-resistant depression",
+      "priority_tier": "P1_existing_kg_or_curated_signal",
+      "priority_score": 420,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.17992_lbl.2022.09.706__814c848cdf.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.17992/lbl.2022.09.706"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.17992/lbl.2022.09.706",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.17992/lbl.2022.09.706",
+              "bytes": 78374
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "http://j8g9v7z6.rocketcdn.me/wp-content/uploads/2021/11/COMP001_-_topline_data.pdf",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "http://ema.europa.eu/en/documents/product-information/spravato-epar-product-inform ation_en.pdf",
+              "error": "InvalidURL: URL can't contain control characters. '/en/documents/product-information/spravato-epar-product-inform ation_en.pdf' (found at least ' ')"
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/media/2022-09/f03.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/media/2023-04/Efnisyfirlit-2022-II-1-.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/media/2024-12/LR-Auglysing-Laeknablad-0011.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1007/s11916-025-01437-5",
+      "title": "Efficacy of Ketamine Infusion for Treatment of Opioid Use Disorder in Patients with Chronic Pain: a Narrative Review",
+      "priority_tier": "P1_existing_kg_or_curated_signal",
+      "priority_score": 380,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1007_s11916-025-01437-5__c0b429f78e.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1007/s11916-025-01437-5"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1007/s11916-025-01437-5",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1007/s11916-025-01437-5",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1016/j.jpain.2016.01.394",
+      "title": "(417) Oral ketamine for chronic pain: a 32-subject placebo-controlled trial in patients on chronic opioids.",
+      "priority_tier": "P1_existing_kg_or_curated_signal",
+      "priority_score": 380,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1016_j.jpain.2016.01.394__dfd7734bfd.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1016/j.jpain.2016.01.394"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1016/j.jpain.2016.01.394",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1016/j.jpain.2016.01.394",
+              "bytes": 2652
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1007/s002130050856",
+      "title": "Differential effects of ketamine on gating of auditory evoked potentials and prepulse inhibition in rats",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_replace_wrong_or_ancillary_document",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1007_s002130050856__27f8db93dc.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1007/s002130050856"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1007/s002130050856",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1007/s002130050856",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1016/j.cub.2012.02.033",
+      "title": "Neuroimaging: A Scanner, Colourfully",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_nested_repository_item",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1016_j.cub.2012.02.033__171fb11607.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "http://www.cell.com/article/S0960982212001844/pdf",
+        "https://doi.org/10.1016/j.cub.2012.02.033"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "http://www.cell.com/article/S0960982212001844/pdf",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "http://www.cell.com/article/S0960982212001844/pdf",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1016/j.cub.2012.02.033",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1016/j.cub.2012.02.033",
+              "bytes": 2955
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1016/j.drugpo.2014.07.004",
+      "title": "Self-reported prevalence of dependence of MDMA compared to cocaine, mephedrone and ketamine among a sample of recreational poly-drug users",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_replace_wrong_or_ancillary_document",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1016_j.drugpo.2014.07.004__1949d90567.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1016/j.drugpo.2014.07.004"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1016/j.drugpo.2014.07.004",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1016/j.drugpo.2014.07.004",
+              "bytes": 2774
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1016/j.forsciint.2005.04.019",
+      "title": "Validation of an ELISA-based screening assay for the detection of amphetamine, MDMA and MDA in blood and oral fluid",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_replace_wrong_or_ancillary_document",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1016_j.forsciint.2005.04.019__b6312f684d.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1016/j.forsciint.2005.04.019"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1016/j.forsciint.2005.04.019",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1016/j.forsciint.2005.04.019",
+              "bytes": 2729
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00006-8",
+      "title": "Excitatory Actions of NMDA Receptor Antagonists in Rat Entorhinal Cortex and Cultured Entorhinal Cortical Neurons",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_replace_wrong_or_ancillary_document",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1016_s0893-133x_99_00006-8__527b1b1c95.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1016/s0893-133x(99)00006-8"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1016/s0893-133x(99)00006-8",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1016/s0893-133x(99)00006-8",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1038/s41386-026-02450-x",
+      "title": "Psilocybin modulates social behaviour in male and female mice in a time-dependent manner",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1038_s41386-026-02450-x__24c1e0457b.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1038/s41386-026-02450-x"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1038/s41386-026-02450-x",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1038/s41386-026-02450-x",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1093/schbul/13.4.643",
+      "title": "Startle Habituation and Sensorimotor Gating in Schizophrenia and Related Animal Models",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1093_schbul_13.4.643__ff816300f4.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://academic.oup.com/schizophreniabulletin/article-pdf/13/4/643/5262315/13-4-643.pdf",
+        "https://doi.org/10.1093/schbul/13.4.643"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://academic.oup.com/schizophreniabulletin/article-pdf/13/4/643/5262315/13-4-643.pdf",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://academic.oup.com/schizophreniabulletin/article-pdf/13/4/643/5262315/13-4-643.pdf",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1093/schbul/13.4.643",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1093/schbul/13.4.643",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1093/schbul/16.1.31",
+      "title": "Prevalence of Substance Abuse in Schizophrenia: Demographic and Clinical Correlates",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1093_schbul_16.1.31__a836692f0c.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://academic.oup.com/schizophreniabulletin/article-pdf/16/1/31/5308133/16-1-31.pdf",
+        "https://doi.org/10.1093/schbul/16.1.31"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://academic.oup.com/schizophreniabulletin/article-pdf/16/1/31/5308133/16-1-31.pdf",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://academic.oup.com/schizophreniabulletin/article-pdf/16/1/31/5308133/16-1-31.pdf",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1093/schbul/16.1.31",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1093/schbul/16.1.31",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1093/schbul/9.1.73",
+      "title": "Dreams, Hallucinogenic Drug States, and Schizophrenia: A Psychological and Biological Comparison",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1093_schbul_9.1.73__c63f03f41c.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://academic.oup.com/schizophreniabulletin/article-pdf/9/1/73/5294429/9-1-73.pdf",
+        "https://doi.org/10.1093/schbul/9.1.73"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://academic.oup.com/schizophreniabulletin/article-pdf/9/1/73/5294429/9-1-73.pdf",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://academic.oup.com/schizophreniabulletin/article-pdf/9/1/73/5294429/9-1-73.pdf",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1093/schbul/9.1.73",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1093/schbul/9.1.73",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1111/bph.12692",
+      "title": "Pharmacology and anti‐addiction effects of the novel κ opioid receptor agonist<scp>M</scp>esyl<scp>S</scp>al<scp>B</scp>, a potent and long‐acting analogue of salvinorin<scp>A</scp>",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1111_bph.12692__53fa2a84be.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC4292965/",
+        "https://doi.org/10.1111/bph.12692"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4292965/",
+          "source": "verified_pmc",
+          "reason": "verified_pmc_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4292965/",
+              "bytes": 277857
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4292965/pdf/bph0172-0515.pdf",
+              "bytes": 1817
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1111/bph.12692",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1111/bph.12692",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1111/bph.15596",
+      "title": "Perspectives for therapy of treatment‐resistant depression",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_nested_repository_item",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1111_bph.15596__8b7050683d.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/bph.15596",
+        "https://doi.org/10.1111/bph.15596"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/bph.15596",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/bph.15596",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1111/bph.15596",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1111/bph.15596",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1111/pcn.13572",
+      "title": "Insights into the neurobiology of suicidality: explicating the role of glutamatergic systems through the lens of ketamine",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_conflicting_doi_needs_resolution",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1111_pcn.13572__2ec62bcf9c.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1111/pcn.13572"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1111/pcn.13572",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1111/pcn.13572",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.11606/issn.1806-6976.smad.2022.183132",
+      "title": "O uso de agentes psicodélicos no tratamento da dependência de álcool e tabaco: revisão integrativa",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_resolve_ambiguous_document_identity",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.11606_issn.1806-6976.smad.2022.183132__b2743ce8e2.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.11606/issn.1806-6976.smad.2022.183132"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.11606/issn.1806-6976.smad.2022.183132",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.11606/issn.1806-6976.smad.2022.183132",
+              "error": "URLError: <urlopen error timed out>"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1177/2045125314559539",
+      "title": "Legal highs: staying on top of the flood of novel psychoactive substances",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_conflicting_doi_needs_resolution",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1177_2045125314559539__4dffdbcc23.pdf",
+      "candidate_count": 2,
+      "candidate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC4521440/",
+        "https://doi.org/10.1177/2045125314559539"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4521440/",
+          "source": "verified_pmc",
+          "reason": "verified_pmc_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4521440/",
+              "bytes": 532017
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "verified_pmc",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4521440/pdf/10.1177_2045125314559539.pdf",
+              "bytes": 1817
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "verified_pmc",
+              "url": "http://www.maps.org/research/psilo/psilo_ib.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "verified_pmc",
+              "url": "http://www.maps.org/research/lsd/swisslsd/IB_LSD.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://doi.org/10.1177/2045125314559539",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1177/2045125314559539",
+              "error": "HTTPError: HTTP Error 403: Forbidden"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1186/s42358-024-00393-9",
+      "title": "Ketamine in fibromyalgia: a systematic review",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_identity_mismatch",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1186_s42358-024-00393-9__aef67069e2.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.1186/s42358-024-00393-9"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.1186/s42358-024-00393-9",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.1186/s42358-024-00393-9",
+              "bytes": 3038
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.1192/j.eurpsy.2024.8",
+      "title": "Effects of psychedelic microdosing versus conventional ADHD medication use on emotion regulation, empathy, and ADHD symptoms in adults with severe ADHD symptoms: A naturalistic prospective comparison study",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2024.8__5bb337fa20.pdf",
+      "candidate_count": 5,
+      "candidate_urls": [
+        "https://europepmc.org/api/getPdf?pmcid=PMC10966614",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10966614/pdf/S0924933824000087a.pdf",
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/9DEB8EA5350F5D642F7C88CAAE543889/S0924933824000087a.pdf/div-class-title-effects-of-psychedelic-microdosing-versus-conventional-adhd-medication-use-on-emotion-regulation-empathy-and-adhd-symptoms-in-adults-with-severe-adhd-symptoms-a-naturalistic-prospective-comparison-study-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10966614/",
+        "https://doi.org/10.1192/j.eurpsy.2024.8"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://europepmc.org/api/getPdf?pmcid=PMC10966614",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://europepmc.org/api/getPdf?pmcid=PMC10966614",
+              "error": "HTTPError: HTTP Error 404: "
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10966614/pdf/S0924933824000087a.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "pmc_pow",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10966614/pdf/S0924933824000087a.pdf",
+              "bytes": 1817
+            },
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10966614/pdf/S0924933824000087a.pdf",
+              "bytes": 573032
+            },
+            {
+              "event": "pmc_pow_success",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10966614/pdf/S0924933824000087a.pdf"
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2024.8",
+            "pdf_sha256": "4eb0f90379111cda0862a87029a616aadffc12a6cf12fd410d9f8680ccb6df29",
+            "pdf_size": 573032,
+            "front_dois": [
+              "10.1192/j.eurpsy.2024.8"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 18,
+            "front_page_char_count": 5304,
+            "metadata_char_count": 54,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10966614/pdf/S0924933824000087a.pdf",
+      "selected_sha256": "4eb0f90379111cda0862a87029a616aadffc12a6cf12fd410d9f8680ccb6df29"
+    },
+    {
+      "doi": "10.1192/j.eurpsy.2026.10157",
+      "title": "Is the antidepressant efficacy of ketamine and esketamine mediated via opioid mechanisms?",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2026.10157__996463cb99.pdf",
+      "candidate_count": 4,
+      "candidate_urls": [
+        "https://europepmc.org/api/getPdf?pmcid=PMC12925689",
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/BACB1E516D8391D36C306906F4749C31/S0924933826101576a.pdf/div-class-title-is-the-antidepressant-efficacy-of-ketamine-and-esketamine-mediated-via-opioid-mechanisms-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12925689/",
+        "https://doi.org/10.1192/j.eurpsy.2026.10157"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://europepmc.org/api/getPdf?pmcid=PMC12925689",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://europepmc.org/api/getPdf?pmcid=PMC12925689",
+              "error": "HTTPError: HTTP Error 404: "
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/BACB1E516D8391D36C306906F4749C31/S0924933826101576a.pdf/div-class-title-is-the-antidepressant-efficacy-of-ketamine-and-esketamine-mediated-via-opioid-mechanisms-div.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "direct_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/BACB1E516D8391D36C306906F4749C31/S0924933826101576a.pdf/div-class-title-is-the-antidepressant-efficacy-of-ketamine-and-esketamine-mediated-via-opioid-mechanisms-div.pdf",
+              "bytes": 696944
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2026.10157",
+            "pdf_sha256": "5763f123d8d5f686f4547a8aed9bb036b8d0026a239b038c22e79ab84e4d71ee",
+            "pdf_size": 696944,
+            "front_dois": [
+              "10.1192/j.eurpsy.2026.10157"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 7,
+            "front_page_char_count": 5942,
+            "metadata_char_count": 139,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/BACB1E516D8391D36C306906F4749C31/S0924933826101576a.pdf/div-class-title-is-the-antidepressant-efficacy-of-ketamine-and-esketamine-mediated-via-opioid-mechanisms-div.pdf",
+      "selected_sha256": "5763f123d8d5f686f4547a8aed9bb036b8d0026a239b038c22e79ab84e4d71ee"
+    },
+    {
+      "doi": "10.1192/j.eurpsy.2026.10164",
+      "title": "Network localization of brain functional effects of ketamine treatment for major depression.",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_exact_item_from_proceedings",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.1192_j.eurpsy.2026.10164__e35197fda5.pdf",
+      "candidate_count": 4,
+      "candidate_urls": [
+        "https://europepmc.org/api/getPdf?pmcid=PMC12978991",
+        "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/9BB7E7845703988BB755556DD54A13E0/S0924933826101643a.pdf/div-class-title-network-localization-of-brain-functional-effects-of-ketamine-treatment-for-major-depression-div.pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12978991/",
+        "https://doi.org/10.1192/j.eurpsy.2026.10164"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://europepmc.org/api/getPdf?pmcid=PMC12978991",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "download_not_pdf",
+          "download_mode": "request_error",
+          "events": [
+            {
+              "event": "candidate_error",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "https://europepmc.org/api/getPdf?pmcid=PMC12978991",
+              "error": "HTTPError: HTTP Error 404: "
+            }
+          ],
+          "validation": {}
+        },
+        {
+          "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/9BB7E7845703988BB755556DD54A13E0/S0924933826101643a.pdf/div-class-title-network-localization-of-brain-functional-effects-of-ketamine-treatment-for-major-depression-div.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "direct_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/9BB7E7845703988BB755556DD54A13E0/S0924933826101643a.pdf/div-class-title-network-localization-of-brain-functional-effects-of-ketamine-treatment-for-major-depression-div.pdf",
+              "bytes": 2353379
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.1192/j.eurpsy.2026.10164",
+            "pdf_sha256": "dcd65ddf5b52878bdf7b4447156fbcd17402b59cf620c24d08f448a6dedb653d",
+            "pdf_size": 2353379,
+            "front_dois": [
+              "10.1192/j.eurpsy.2026.10164"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 8,
+            "front_page_char_count": 5734,
+            "metadata_char_count": 131,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/9BB7E7845703988BB755556DD54A13E0/S0924933826101643a.pdf/div-class-title-network-localization-of-brain-functional-effects-of-ketamine-treatment-for-major-depression-div.pdf",
+      "selected_sha256": "dcd65ddf5b52878bdf7b4447156fbcd17402b59cf620c24d08f448a6dedb653d"
+    },
+    {
+      "doi": "10.17992/lbl.2023.11.766",
+      "title": "Psychedelics and treatment of mental disorders: A survey of attitudes and knowledge among psychiatrists, general practitioners and psychologists in Iceland",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.17992_lbl.2023.11.766__13622ebf31.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.17992/lbl.2023.11.766"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.17992/lbl.2023.11.766",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.17992/lbl.2023.11.766",
+              "bytes": 61396
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/media/2023-11/f01.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/media/2024-03/Efnisyfirlit-2023-AAA.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/media/2024-12/LR-Auglysing-Laeknablad-0011.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.22374/jmhan.v4i1.40",
+      "title": "Emerging Psychedelic-Assisted Therapies: Implications for Nursing Practice",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_replace_wrong_or_ancillary_document",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.22374_jmhan.v4i1.40__53dbf73653.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.22374/jmhan.v4i1.40"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.22374/jmhan.v4i1.40",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.22374/jmhan.v4i1.40",
+              "bytes": 145574
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.3138/jmvfh-2023-0014",
+      "title": "Mechanisms of integration in psychedelic-assisted therapy",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_replace_wrong_or_ancillary_document",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.3138_jmvfh-2023-0014__26cf962a35.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.3138/jmvfh-2023-0014"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.3138/jmvfh-2023-0014",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.3138/jmvfh-2023-0014",
+              "bytes": 45290
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.31480/2330-4871/004",
+      "title": "Salvinorin A: A Mini Review of Physical and Chemical Properties Affecting Its Translation from Research to Clinical Applications in Humans",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_identity_unverified",
+      "status": "download_failed",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.31480_2330-4871_004__0068ae0bb2.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.31480/2330-4871/004"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.31480/2330-4871/004",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "download_not_pdf",
+          "download_mode": "not_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.31480/2330-4871/004",
+              "bytes": 31148
+            },
+            {
+              "event": "landing_pdf_link_error",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.31480/2330-4871/tppm-2014-1-004.pdf",
+              "error": "HTTPError: HTTP Error 404: Not Found"
+            }
+          ],
+          "validation": {}
+        }
+      ],
+      "selected_url": "",
+      "selected_sha256": ""
+    },
+    {
+      "doi": "10.3389/fpsyt.2018.00313",
+      "title": "Outcome Evaluation of a Short-Term Hospitalization and Community Support Program for People Who Abuse Ketamine",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_main_article_not_correction",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.3389_fpsyt.2018.00313__55cba1aada.pdf",
+      "candidate_count": 5,
+      "candidate_urls": [
+        "http://bura.brunel.ac.uk/bitstream/2438/27335/1/Corrigendum.pdf",
+        "http://bura.brunel.ac.uk/bitstream/2438/27338/1/FullText.pdf",
+        "https://www.frontiersin.org/articles/10.3389/fpsyt.2018.00313/pdf",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6057144/",
+        "https://doi.org/10.3389/fpsyt.2018.00313"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "http://bura.brunel.ac.uk/bitstream/2438/27335/1/Corrigendum.pdf",
+          "source": "queue_candidate:candidate.best_pdf_url",
+          "reason": "safe_generated_queue_candidate",
+          "status": "identity_rejected",
+          "download_mode": "direct_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.best_pdf_url",
+              "url": "http://bura.brunel.ac.uk/bitstream/2438/27335/1/Corrigendum.pdf",
+              "bytes": 119183
+            }
+          ],
+          "validation": {
+            "accepted": false,
+            "basis": "document_front_doi_conflict",
+            "requested_doi": "10.3389/fpsyt.2018.00313",
+            "pdf_sha256": "76199a2ffd804c9479f868ff6231989f6508decfd085be4890ad57c9be332f9f",
+            "pdf_size": 119183,
+            "front_dois": [
+              "10.3389/fpsyt.2018.00746",
+              "10.3389/fpsyt.2018.00313"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 11,
+            "front_page_char_count": 2118,
+            "metadata_char_count": 224,
+            "ancillary_document": false
+          }
+        },
+        {
+          "url": "http://bura.brunel.ac.uk/bitstream/2438/27338/1/FullText.pdf",
+          "source": "queue_candidate:candidate.pdf_url_candidates",
+          "reason": "safe_generated_queue_candidate",
+          "status": "accepted_saved",
+          "download_mode": "direct_pdf",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "queue_candidate:candidate.pdf_url_candidates",
+              "url": "http://bura.brunel.ac.uk/bitstream/2438/27338/1/FullText.pdf",
+              "bytes": 349861
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "document_front_doi",
+            "requested_doi": "10.3389/fpsyt.2018.00313",
+            "pdf_sha256": "576b5685166637cf3d6791298d0278921db7e08ef34df3b9f22311f2568ee026",
+            "pdf_size": 349861,
+            "front_dois": [
+              "10.3389/fpsyt.2018.00313"
+            ],
+            "metadata_dois": [],
+            "title_score": 0.0,
+            "title_token_count": 11,
+            "front_page_char_count": 3586,
+            "metadata_char_count": 274,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "http://bura.brunel.ac.uk/bitstream/2438/27338/1/FullText.pdf",
+      "selected_sha256": "576b5685166637cf3d6791298d0278921db7e08ef34df3b9f22311f2568ee026"
+    },
+    {
+      "doi": "10.51731/cjht.2021.90",
+      "title": "Psychedelic-Assisted Psychotherapy for Post-Traumatic Stress Disorder, Anxiety Disorders, Mood Disorders, or Substance Use Disorders",
+      "priority_tier": "P2_retained_candidate",
+      "priority_score": 300,
+      "final_action_category": "manual_identity_unverified",
+      "status": "downloaded_validated",
+      "destination": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/10.51731_cjht.2021.90__6fb1c0b7fc.pdf",
+      "candidate_count": 1,
+      "candidate_urls": [
+        "https://doi.org/10.51731/cjht.2021.90"
+      ],
+      "excluded_candidates": [],
+      "attempts": [
+        {
+          "url": "https://doi.org/10.51731/cjht.2021.90",
+          "source": "doi_landing",
+          "reason": "canonical_doi_landing_url",
+          "status": "accepted_saved",
+          "download_mode": "landing_pdf_link",
+          "events": [
+            {
+              "event": "candidate_response",
+              "source": "doi_landing",
+              "url": "https://doi.org/10.51731/cjht.2021.90",
+              "bytes": 26350
+            },
+            {
+              "event": "landing_pdf_link_response",
+              "source": "doi_landing",
+              "url": "https://canjhealthtechnol.ca/index.php/cjht/article/download/90/rc1363",
+              "bytes": 1129223
+            }
+          ],
+          "validation": {
+            "accepted": true,
+            "basis": "bounded_page_top_title",
+            "requested_doi": "10.51731/cjht.2021.90",
+            "pdf_sha256": "ec2bad539077f92b2decb272df6d100d2aac35ac64eaa843bc63a986fae59394",
+            "pdf_size": 1129223,
+            "front_dois": [],
+            "metadata_dois": [],
+            "title_score": 1.0,
+            "title_token_count": 13,
+            "front_page_char_count": 203,
+            "metadata_char_count": 52,
+            "ancillary_document": false
+          }
+        }
+      ],
+      "selected_url": "https://doi.org/10.51731/cjht.2021.90",
+      "selected_sha256": "ec2bad539077f92b2decb272df6d100d2aac35ac64eaa843bc63a986fae59394"
+    }
+  ]
+}

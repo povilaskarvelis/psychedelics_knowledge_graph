@@ -1,6 +1,12 @@
 {
   "Distress associated with life-threatening disease": [
     "anxiety associated with life-threatening disease",
+    "anxiety associated with life-threatening diseases",
+    "psychological distress in terminal illness",
+    "terminal illness distress",
+    "advanced-stage cancer with anxiety",
+    "advanced-stage cancer with depression",
+    "advanced-stage cancer with anxiety/depression",
     "end-of-life anxiety",
     "end of life anxiety",
     "life-threatening disease anxiety",
@@ -11,5 +17,15 @@
     "cancer related anxiety",
     "cancer-related depression",
     "cancer related depression"
+  ],
+  "Tobacco use disorder": [
+    "tobacco dependence",
+    "tobacco dependency",
+    "tobacco addiction",
+    "smoking dependence",
+    "nicotine-dependent smokers",
+    "nicotine dependent smokers",
+    "nicotine-dependent smoker",
+    "nicotine dependent smoker"
   ]
 }

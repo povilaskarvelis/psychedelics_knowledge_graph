@@ -1,11 +1,15 @@
 import json
+import os
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
 
-from pipeline.fulltext.build_article_text_inputs import build_article_text_inputs
+from pipeline.fulltext.build_article_text_inputs import (
+    build_article_text_inputs,
+    enforce_source_identity_gate,
+)
 
 
 TEI = """
@@ -25,6 +29,25 @@ TEI = """
 """
 
 
+def write_source_identity_audit(root: Path, rows: list[dict]) -> tuple[Path, Path, Path]:
+    identity_registry = root / "source_identity_registry.json"
+    hash_registry = root / "source_identity_pdf_hash_registry.json"
+    identity_registry.write_text("{}\n", encoding="utf-8")
+    hash_registry.write_text("{}\n", encoding="utf-8")
+    audit_path = root / "source_identity_audit.json"
+    audit_path.write_text(
+        json.dumps(
+            {
+                "identity_registry": {"path": str(identity_registry)},
+                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
+                "rows": rows,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return audit_path, identity_registry, hash_registry
+
+
 def make_args(root: Path) -> SimpleNamespace:
     return SimpleNamespace(
         route_table=str(root / "routes.parquet"),
@@ -33,6 +56,8 @@ def make_args(root: Path) -> SimpleNamespace:
         audit_csv=str(root / "audit.csv"),
         audit_md=str(root / "audit.md"),
         policy_csv="",
+        source_identity_audit=str(root / "source_identity_audit.json"),
+        skip_source_identity_check=False,
         primary_section_selection_strategy="primary_study",
         secondary_section_selection_strategy="all_sections",
         prompt_profile=[],
@@ -75,7 +100,7 @@ def test_build_article_text_inputs_uses_primary_selection_and_secondary_full_tex
         artifact_path.write_text(
             json.dumps(
                 {
-                    "study_doi": "10.1000/article_with_slashes",
+                    "study_doi": route_doi,
                     "study_title": "Example article",
                     "best_backend": "grobid",
                     "best_char_count": len(TEI),
@@ -98,6 +123,16 @@ def test_build_article_text_inputs_uses_primary_selection_and_secondary_full_tex
                 ),
             ]
         ).to_parquet(root / "routes.parquet", engine="pyarrow", index=False)
+        write_source_identity_audit(
+            root,
+            [
+                {
+                    "requested_doi": route_doi,
+                    "artifact_path": str(artifact_path.resolve()),
+                    "identity_verified": True,
+                }
+            ],
+        )
 
         report, audit_rows, packets = build_article_text_inputs(make_args(root))
 
@@ -121,3 +156,45 @@ def test_build_article_text_inputs_uses_primary_selection_and_secondary_full_tex
     by_strategy = {row["section_selection_strategy"]: row for row in audit_rows}
     assert by_strategy["primary_study"]["status"] == "ok"
     assert by_strategy["all_sections"]["status"] == "ok"
+
+
+def test_build_article_text_inputs_refuses_unverified_artifact() -> None:
+    import pytest
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        artifact_path = root / "artifact.json"
+        artifact_path.write_text("{}", encoding="utf-8")
+        pd.DataFrame(
+            [route_row(fulltext_artifact_paths=str(artifact_path))]
+        ).to_parquet(root / "routes.parquet", engine="pyarrow", index=False)
+        write_source_identity_audit(root, [])
+
+        with pytest.raises(RuntimeError, match="Source-identity gate rejected"):
+            build_article_text_inputs(make_args(root))
+
+
+def test_source_identity_gate_refuses_stale_pdf_hash_registry() -> None:
+    import pytest
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        artifact_path = root / "artifact.json"
+        artifact_path.write_text("{}", encoding="utf-8")
+        audit_path, _identity_registry, registry_path = write_source_identity_audit(
+            root,
+            [
+                {
+                    "requested_doi": "10.1000/article",
+                    "artifact_path": str(artifact_path.resolve()),
+                    "identity_verified": True,
+                }
+            ],
+        )
+        os.utime(registry_path, (audit_path.stat().st_mtime + 5, audit_path.stat().st_mtime + 5))
+
+        with pytest.raises(RuntimeError, match="hash-attestation registry changed"):
+            enforce_source_identity_gate(
+                [route_row(fulltext_artifact_paths=str(artifact_path))],
+                audit_path,
+            )

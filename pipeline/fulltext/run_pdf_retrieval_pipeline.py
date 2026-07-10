@@ -101,7 +101,8 @@ def run_pdf_retrieval_pipeline(
     direct_skip_candidate_statuses: set[str] | None = None,
     direct_only_failure_categories: set[str] | None = None,
     alternate_pdf_sources: set[str] | None = None,
-    alternate_pdf_min_title_score: float = 0.5,
+    alternate_pdf_min_title_score: float = 0.86,
+    pdf_identity_min_title_score: float = 0.86,
     recovery_categories: set[str] | None = None,
     recovery_rps: float = 0.8,
     recovery_timeout_sec: int = 30,
@@ -132,6 +133,7 @@ def run_pdf_retrieval_pipeline(
         candidate_log_every=candidate_log_every,
         alternate_pdf_sources=alternate_pdf_sources,
         alternate_pdf_min_title_score=alternate_pdf_min_title_score,
+        pdf_identity_min_title_score=pdf_identity_min_title_score,
         rebuild_routes_after=True,
         prescreen_table=prescreen_table,
         domain_routing_table=domain_routing_table,
@@ -169,6 +171,7 @@ def run_pdf_retrieval_pipeline(
             limit=limit,
             timeout_sec=recovery_timeout_sec,
             rps=recovery_rps,
+            min_title_score=pdf_identity_min_title_score,
             apply=True,
             rebuild_routes_after=True,
             route_table=route_table,
@@ -200,6 +203,7 @@ def run_pdf_retrieval_pipeline(
         "manual_queue_csv": str(manual_queue_csv.resolve()),
         "alternate_pdf_sources": sorted(alternate_pdf_sources or set()),
         "alternate_pdf_min_title_score": alternate_pdf_min_title_score,
+        "pdf_identity_min_title_score": pdf_identity_min_title_score,
         "direct": {
             "status": direct_report.get("counts", {}).get("status", {}),
             "candidate_rows_changed": direct_report.get("counts", {}).get("candidate_rows_changed", 0),
@@ -266,8 +270,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--alternate-pdf-min-title-score",
         type=float,
-        default=0.5,
+        default=0.86,
         help="Minimum token title-match score for alternate-source PDFs when extractable text is available.",
+    )
+    parser.add_argument(
+        "--pdf-identity-min-title-score",
+        type=float,
+        default=0.86,
+        help="Minimum first-pages title score required for every downloaded PDF.",
     )
     parser.add_argument("--recovery-categories", default=DEFAULT_STANDARD_RECOVERY_CATEGORIES)
     parser.add_argument("--recovery-rps", type=float, default=0.8)
@@ -319,6 +329,7 @@ def main() -> int:
         direct_only_failure_categories=parse_csv_values(args.direct_only_failure_categories) or None,
         alternate_pdf_sources=parse_csv_values(args.alternate_pdf_sources),
         alternate_pdf_min_title_score=args.alternate_pdf_min_title_score,
+        pdf_identity_min_title_score=args.pdf_identity_min_title_score,
         recovery_categories=parse_csv_values(args.recovery_categories),
         recovery_rps=args.recovery_rps,
         recovery_timeout_sec=args.recovery_timeout_sec,

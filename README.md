@@ -180,6 +180,7 @@ type and result direction directly in the interface.
 - `pipeline/ingest/`: discovery, paper sync, DOI seeding
 - `pipeline/review/`: deterministic pre-screening, Gemini routing, and audit baselines
 - `pipeline/extract/`: route assembly, route-specific task building, and extraction runners
+- `pipeline/update/`: validated DOI-scoped replacement of extraction, KG, Methods, and site outputs
 - `pipeline/validate/`: corpus provenance and table-building audits
 - `pipeline/publish/`: export
 - `schema/`: route extraction schemas, KG mappings, and node vocabularies
@@ -212,17 +213,14 @@ python pipeline/extract/run_route_extraction.py --run-id "$RUN_ID"
 python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
   --run-id "$RUN_ID" \
   --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl"
-python pipeline/kg/build_evidence_tables.py --source-preset routed --run-id "$RUN_ID"
-python pipeline/kg/build_author_tables.py \
-  --papers "data/processed/kg_routed_runs/$RUN_ID/papers.parquet" \
-  --out-dir "data/processed/kg_routed_runs/$RUN_ID" \
-  --cache "data/processed/kg_routed_runs/$RUN_ID/openalex_author_cache.json"
-python pipeline/publish/export_evidence_payload.py \
-  --kg-dir "data/processed/kg_routed_runs/$RUN_ID" \
-  --out-dir "data/processed/graph_payload_runs/$RUN_ID" \
-  --activate-default
+scripts/build_routed_kg_payload.sh "$RUN_ID"
 python pipeline/kg/build_methods_flow.py
 ```
+
+`scripts/build_routed_kg_payload.sh` runs the routed KG table build, the author
+identity/authorship build, and the public graph/detail payload export in order.
+The exporter now expects fresh author tables by default, so use the wrapper or
+rerun `pipeline/kg/build_author_tables.py` before exporting a rebuilt KG run.
 
 The stable current KG remains under `data/processed/kg/`. Routed extraction
 reruns should use a `RUN_ID` first; write to `data/processed/kg/` only when a
@@ -230,3 +228,6 @@ reviewed run is intentionally promoted as the current graph table.
 
 For the operational walkthrough, search completeness checks, provider settings,
 PDF runtime setup, and larger search runs, see [pipeline/README.md](pipeline/README.md).
+For corrections to one paper or a DOI list, use the documented
+[scoped paper-update workflow](docs/scoped_paper_updates.md) instead of rerunning
+the whole model extraction or patching downstream rows by hand.

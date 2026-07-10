@@ -7,6 +7,7 @@ import argparse
 from collections import Counter, defaultdict
 import datetime as dt
 import hashlib
+import json
 from pathlib import Path
 import re
 import sys
@@ -38,6 +39,9 @@ DEFAULT_METADATA_TABLE = DEFAULT_CORPUS_DIR / "paper_metadata_enrichment.parquet
 DEFAULT_CONTEXTS_TABLE = DEFAULT_CORPUS_DIR / "candidate_contexts.parquet"
 DEFAULT_DECISIONS_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_decisions.parquet"
 DEFAULT_SUMMARY_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_summary.parquet"
+DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS = (
+    ROOT / "data" / "curated" / "prescreen_publication_format_exclusions.json"
+)
 TABLE_VERSION = "0.1"
 SCREENING_SCOPE = "unified_corpus"
 
@@ -72,13 +76,63 @@ NON_PAPER_CONTAINER_PUBLICATION_TYPES = {
     "report-component",
 }
 NON_SOURCE_PUBLICATION_TYPES = {
+    "book chapter",
+    "book-chapter",
+    "chapter",
     "comment",
+    "commentary",
+    "conference abstract",
+    "conference-abstract",
+    "dissertation",
+    "dispatch",
     "editorial",
+    "insight",
+    "insight article",
     "introductory journal article",
     "letter",
+    "meeting abstract",
     "news",
     "newspaper article",
+    "poster abstract",
+    "perspective",
+    "thesis",
+    "viewpoint",
+    "visual essay",
 }
+OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES = {
+    "abstract book entry": "conference_abstract",
+    "book chapter": "book_chapter",
+    "book-chapter": "book_chapter",
+    "chapter": "book_chapter",
+    "conference abstract": "conference_abstract",
+    "conference-abstract": "conference_abstract",
+    "commentary": "commentary",
+    "dissertation": "dissertation",
+    "dispatch": "commentary",
+    "insight": "commentary",
+    "insight article": "commentary",
+    "meeting abstract": "conference_abstract",
+    "perspective": "commentary",
+    "poster abstract": "conference_abstract",
+    "thesis": "dissertation",
+    "viewpoint": "commentary",
+    "visual essay": "visual_essay",
+}
+OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
+    (
+        re.compile(r"^10\.1093/ijnp/[a-z]{4}\d{3}\.\d{1,4}$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1007/7854_\d{4}_\d+$", re.IGNORECASE),
+        "book_chapter",
+    ),
+    (
+        re.compile(r"^10\.17579/abstractbook", re.IGNORECASE),
+        "conference_abstract",
+    ),
+)
+VISUAL_ESSAY_TEXT_RE = re.compile(r"\bvisual essay\b", re.IGNORECASE)
 NON_EVIDENCE_TITLE_PATTERNS = (
     re.compile(r"\bauthor correction\b", re.IGNORECASE),
     re.compile(r"\bcorrection:\b", re.IGNORECASE),
@@ -320,6 +374,21 @@ def read_table(path: Path) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
+def load_curated_publication_format_exclusions(path: Path) -> dict[str, dict]:
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    out: dict[str, dict] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        doi = normalize_doi(clean(record.get("doi", ""))).lower()
+        if doi:
+            out[doi] = record
+    return out
+
+
 def write_table(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_parquet(path, index=False)
@@ -478,6 +547,68 @@ def non_paper_container_without_title_decision(row: dict, contexts: list[dict]) 
             "and no paper title is available."
         ),
         "matched_terms": sorted(publication_types),
+        "routing_tags": context_routing_tags(contexts),
+    }
+
+
+def out_of_scope_publication_format_decision(row: dict, contexts: list[dict]) -> dict | None:
+    doi = normalize_doi(clean(row.get("study_doi", ""))).lower()
+    title = clean(row.get("study_title", ""))
+    abstract = clean(row.get("abstract", ""))
+    publication_types = {value.lower() for value in split_values(row.get("publication_type", ""))}
+    matched_formats = {
+        OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES[value]
+        for value in publication_types
+        if value in OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES
+    }
+    matched_terms = sorted(
+        value for value in publication_types if value in OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES
+    )
+    for pattern, publication_format in OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS:
+        match = pattern.search(doi)
+        if match:
+            matched_formats.add(publication_format)
+            matched_terms.append(match.group(0))
+    if VISUAL_ESSAY_TEXT_RE.search(" ".join(value for value in (title, abstract) if value)):
+        matched_formats.add("visual_essay")
+        matched_terms.append("visual essay")
+    if not matched_formats:
+        return None
+    return {
+        "action": "exclude_non_evidence_artifact",
+        "confidence": 1.0,
+        "supporting_quote": title or clean(row.get("publication_type", "")) or doi,
+        "reason": (
+            "Record is a book chapter, dissertation/thesis, conference/poster/meeting abstract, "
+            "abstract-book contribution, or visual essay rather than an eligible source article, "
+            "review, or meta-analysis."
+        ),
+        "matched_terms": [*sorted(matched_formats), *matched_terms],
+        "routing_tags": context_routing_tags(contexts),
+    }
+
+
+def curated_publication_format_exclusion_decision(
+    row: dict,
+    contexts: list[dict],
+    curated_exclusions: dict[str, dict],
+) -> dict | None:
+    doi = normalize_doi(clean(row.get("study_doi", ""))).lower()
+    record = curated_exclusions.get(doi)
+    if not record:
+        return None
+    publication_format = clean(record.get("publication_format", "")) or "out_of_scope_publication_format"
+    evidence_basis = clean(record.get("evidence_basis", ""))
+    return {
+        "action": "exclude_non_evidence_artifact",
+        "confidence": 1.0,
+        "supporting_quote": clean(row.get("study_title", "")) or evidence_basis or doi,
+        "reason": clean(record.get("reason", ""))
+        or "Curated publication-format evidence identifies this record as outside the eligible evidence sources.",
+        "matched_terms": [
+            publication_format,
+            *([evidence_basis] if evidence_basis else []),
+        ],
         "routing_tags": context_routing_tags(contexts),
     }
 
@@ -722,10 +853,21 @@ def broad_nps_background_false_positive_decision(row: dict, contexts: list[dict]
     }
 
 
-def before_model_exclusion_decision(row: dict, contexts: list[dict] | None = None) -> dict | None:
+def before_model_exclusion_decision(
+    row: dict,
+    contexts: list[dict] | None = None,
+    curated_publication_format_exclusions: dict[str, dict] | None = None,
+) -> dict | None:
     contexts = contexts or []
+    curated_publication_format_exclusions = curated_publication_format_exclusions or {}
     return (
         non_paper_container_without_title_decision(row, contexts)
+        or curated_publication_format_exclusion_decision(
+            row,
+            contexts,
+            curated_publication_format_exclusions,
+        )
+        or out_of_scope_publication_format_decision(row, contexts)
         or non_evidence_artifact_decision(row, contexts)
         or numbered_conference_abstract_decision(row, contexts)
         or preprint_or_unpublished_decision(row, contexts)
@@ -751,7 +893,12 @@ def build_prescreen_decisions(
     generated_at_utc: str,
     exclude_missing_abstract: bool = True,
     progress_every: int = 0,
+    curated_publication_format_exclusions: dict[str, dict] | None = None,
 ) -> list[dict]:
+    if curated_publication_format_exclusions is None:
+        curated_publication_format_exclusions = load_curated_publication_format_exclusions(
+            DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS
+        )
     metadata_by_doi = rows_by_doi(metadata_df)
     contexts_lookup = contexts_by_doi(contexts_df)
     rows: list[dict] = []
@@ -768,7 +915,11 @@ def build_prescreen_decisions(
         screening_row = merged_screening_row(paper, metadata_by_doi.get(doi))
         abstract_status_reason = unusable_abstract_reason(screening_row.get("abstract", ""))
         has_abstract = not bool(abstract_status_reason)
-        before_model_decision = before_model_exclusion_decision(screening_row, paper_contexts)
+        before_model_decision = before_model_exclusion_decision(
+            screening_row,
+            paper_contexts,
+            curated_publication_format_exclusions,
+        )
         if before_model_decision:
             decision = before_model_decision
         elif exclude_missing_abstract and not has_abstract:
@@ -858,6 +1009,15 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
     existing_decisions_df = read_table(decisions_table) if scoped_dois else pd.DataFrame()
     run_id = clean(args.run_id) or (existing_run_id(existing_decisions_df) if scoped_dois else "") or default_run_id()
     generated_at_utc = now_utc()
+    curated_publication_format_exclusions = load_curated_publication_format_exclusions(
+        Path(
+            getattr(
+                args,
+                "curated_publication_format_exclusions",
+                DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS,
+            )
+        ).resolve()
+    )
 
     papers_df = read_table(Path(args.papers_table).resolve())
     metadata_df = read_table(Path(args.metadata_table).resolve())
@@ -885,6 +1045,7 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         generated_at_utc=generated_at_utc,
         exclude_missing_abstract=not args.retain_missing_abstract,
         progress_every=getattr(args, "progress_every", 0),
+        curated_publication_format_exclusions=curated_publication_format_exclusions,
     )
     if scoped_dois:
         decisions, replaced_count = merge_scoped_decisions(
@@ -922,6 +1083,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--contexts-table", default=str(DEFAULT_CONTEXTS_TABLE))
     parser.add_argument("--decisions-table", default=str(DEFAULT_DECISIONS_TABLE))
     parser.add_argument("--summary-table", default=str(DEFAULT_SUMMARY_TABLE))
+    parser.add_argument(
+        "--curated-publication-format-exclusions",
+        default=str(DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS),
+        help=(
+            "Curated DOI-level publication-format exclusions used when provider metadata is "
+            "incomplete or misleading."
+        ),
+    )
     parser.add_argument("--run-id", default="")
     parser.add_argument(
         "--dataset",

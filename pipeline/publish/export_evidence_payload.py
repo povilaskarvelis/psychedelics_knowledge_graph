@@ -34,8 +34,21 @@ MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
 GRAPH_BOOTSTRAP_SCHEMA_VERSION = "route_native_graph_bootstrap_v1"
 DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v1"
 PRIMARY_SOURCE_KEY = "primary"
-SECONDARY_SOURCE_KEY = "secondary"
-UI_SOURCE_KEYS = (PRIMARY_SOURCE_KEY, SECONDARY_SOURCE_KEY)
+META_ANALYSES_SOURCE_KEY = "meta_analyses"
+REVIEWS_SOURCE_KEY = "reviews"
+UI_SOURCE_KEYS = (PRIMARY_SOURCE_KEY, META_ANALYSES_SOURCE_KEY, REVIEWS_SOURCE_KEY)
+META_ANALYSIS_SOURCE_TYPES = {
+    "meta_analysis",
+    "network_meta_analysis",
+}
+REVIEW_SOURCE_TYPES = {
+    "review",
+    "systematic_review",
+    "scoping_review",
+    "narrative_review",
+    "literature_review",
+    "umbrella_review",
+}
 GRAPH_BOOTSTRAP_ENTITY_KINDS = {
     "condition_indication",
     "safety_adverse_event",
@@ -53,6 +66,21 @@ GRAPH_BOOTSTRAP_ENTITY_KINDS = {
 }
 GRAPH_BOOTSTRAP_EXCLUDED_DOMAINS = {
     "pharmacokinetics_exposure",
+}
+AUTHOR_TABLE_FILENAMES = (
+    "authors.parquet",
+    "paper_authors.parquet",
+    "author_resolution_report.json",
+)
+UNKNOWN_AUTHOR_VALUES = {
+    "",
+    "unknown",
+    "unknown author",
+    "unknown authors",
+    "not available",
+    "n/a",
+    "na",
+    "none",
 }
 
 PAPER_FIELDS = (
@@ -321,6 +349,107 @@ def relative_path(path: Path) -> str:
         return resolved.relative_to(ROOT).as_posix()
     except ValueError:
         return resolved.as_posix()
+
+
+def author_rebuild_command(kg_dir: Path) -> str:
+    papers = kg_dir / "papers.parquet"
+    cache = kg_dir / "openalex_author_cache.json"
+    return (
+        "python pipeline/kg/build_author_tables.py "
+        f'--papers "{papers}" '
+        f'--out-dir "{kg_dir}" '
+        f'--cache "{cache}"'
+    )
+
+
+def author_check_error(kg_dir: Path, reasons: list[str]) -> RuntimeError:
+    details = "; ".join(reasons)
+    return RuntimeError(
+        "Author tables are not fresh for this KG run. "
+        f"{details}. Run `{author_rebuild_command(kg_dir)}` before exporting the public payload, "
+        "or pass --allow-stale-authors only for a deliberate diagnostic export."
+    )
+
+
+def validate_fresh_author_tables(kg_dir: Path) -> dict:
+    papers_path = kg_dir / "papers.parquet"
+    paths = {name: kg_dir / name for name in AUTHOR_TABLE_FILENAMES}
+    reasons: list[str] = []
+
+    if not papers_path.exists():
+        raise author_check_error(kg_dir, [f"missing papers.parquet in {kg_dir}"])
+
+    missing = [name for name, path in paths.items() if not path.exists()]
+    if missing:
+        raise author_check_error(kg_dir, [f"missing {', '.join(missing)}"])
+
+    papers_mtime = papers_path.stat().st_mtime
+    stale = [name for name, path in paths.items() if path.stat().st_mtime + 0.001 < papers_mtime]
+    if stale:
+        reasons.append(f"{', '.join(stale)} older than papers.parquet")
+
+    try:
+        import pandas as pd
+    except ModuleNotFoundError as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError("pandas/pyarrow are required to validate author tables") from exc
+
+    papers = pd.read_parquet(papers_path)
+    paper_authors = pd.read_parquet(paths["paper_authors.parquet"])
+    if "paper_id" not in papers.columns:
+        reasons.append("papers.parquet has no paper_id column")
+        paper_ids: set[str] = set()
+    else:
+        paper_ids = {normalize(value) for value in papers["paper_id"] if normalize(value)}
+
+    if "paper_id" not in paper_authors.columns:
+        reasons.append("paper_authors.parquet has no paper_id column")
+        paper_author_ids: set[str] = set()
+    else:
+        paper_author_ids = {normalize(value) for value in paper_authors["paper_id"] if normalize(value)}
+
+    unexpected_ids = sorted(paper_author_ids - paper_ids)
+    if unexpected_ids:
+        reasons.append(f"paper_authors.parquet contains {len(unexpected_ids)} paper_ids not in papers.parquet")
+
+    if "authors" in papers.columns and paper_ids:
+        papers_with_author_text = {
+            normalize(row.get("paper_id"))
+            for row in papers[["paper_id", "authors"]].fillna("").to_dict(orient="records")
+            if normalize(row.get("paper_id"))
+            and normalize(row.get("authors")).strip().lower() not in UNKNOWN_AUTHOR_VALUES
+        }
+        missing_author_rows = sorted(papers_with_author_text - paper_author_ids)
+        if missing_author_rows:
+            reasons.append(
+                f"paper_authors.parquet is missing {len(missing_author_rows)} papers with author strings"
+            )
+
+    try:
+        report = json.loads(paths["author_resolution_report.json"].read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise author_check_error(kg_dir, [f"invalid author_resolution_report.json: {exc}"]) from exc
+
+    report_paper_count = report.get("paper_count")
+    if report_paper_count != len(papers):
+        reasons.append(
+            f"author_resolution_report.json paper_count is {report_paper_count}, expected {len(papers)}"
+        )
+
+    report_rows = report.get("paper_author_rows")
+    if report_rows != len(paper_authors):
+        reasons.append(
+            f"author_resolution_report.json paper_author_rows is {report_rows}, expected {len(paper_authors)}"
+        )
+
+    if reasons:
+        raise author_check_error(kg_dir, reasons)
+
+    return {
+        "status": "ok",
+        "paper_count": len(papers),
+        "paper_author_rows": len(paper_authors),
+        "unique_author_papers": len(paper_author_ids),
+    }
 
 
 def parse_raw_json(value: object) -> dict:
@@ -661,9 +790,28 @@ def summary_stats(findings: list[dict], candidate_study_keys: set[str] | None = 
     return stats
 
 
+def source_type_token(value: object) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", normalize(value).lower()).strip("_")
+
+
+def secondary_literature_source_key(finding: dict) -> str:
+    tokens = {
+        source_type_token(finding.get(field))
+        for field in ("paper_type", "source_type", "publication_type")
+        if source_type_token(finding.get(field))
+    }
+    if tokens & META_ANALYSIS_SOURCE_TYPES or any("meta_analysis" in token for token in tokens):
+        return META_ANALYSES_SOURCE_KEY
+    if tokens & REVIEW_SOURCE_TYPES or any("review" in token for token in tokens):
+        return REVIEWS_SOURCE_KEY
+    return REVIEWS_SOURCE_KEY
+
+
 def ui_source_key_for_finding(finding: dict) -> str:
     evidence_type = normalize(finding.get("evidence_type") or finding.get("kg_evidence_type")).lower()
-    return SECONDARY_SOURCE_KEY if evidence_type == "secondary_literature" else PRIMARY_SOURCE_KEY
+    if evidence_type == "secondary_literature":
+        return secondary_literature_source_key(finding)
+    return PRIMARY_SOURCE_KEY
 
 
 def findings_for_ui_source(findings: list[dict], source_key: str) -> list[dict]:
@@ -841,7 +989,13 @@ def export_evidence_payload(
     out_dir: Path,
     manifest_name: str = "graph_payload_manifest.json",
     active_json: Path | None = None,
+    require_fresh_author_tables: bool = True,
 ) -> dict:
+    author_table_status = (
+        validate_fresh_author_tables(kg_dir)
+        if require_fresh_author_tables
+        else {"status": "skipped", "reason": "freshness check disabled"}
+    )
     findings = load_findings(kg_dir)
     candidate_study_keys = load_candidate_study_keys(kg_dir)
     stats = summary_stats(findings, candidate_study_keys)
@@ -880,6 +1034,7 @@ def export_evidence_payload(
         "graph_bootstraps": {source_key: relative_path(path) for source_key, path in graph_bootstrap_paths.items()},
         "detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
         "row_count": len(findings),
+        "author_tables": author_table_status,
         "summary_stats": {
             "default": stats,
             "sources": source_summary_stats,
@@ -919,6 +1074,11 @@ def main() -> int:
         default=str(DEFAULT_ACTIVE_JSON),
         help="Active payload pointer written when --activate-default is used.",
     )
+    parser.add_argument(
+        "--allow-stale-authors",
+        action="store_true",
+        help="Skip author-table freshness checks. Use only for diagnostic exports.",
+    )
     args = parser.parse_args()
 
     result = export_evidence_payload(
@@ -926,6 +1086,7 @@ def main() -> int:
         out_dir=Path(args.out_dir).resolve(),
         manifest_name=args.manifest,
         active_json=Path(args.active_json).resolve() if args.activate_default else None,
+        require_fresh_author_tables=not args.allow_stale_authors,
     )
     manifest = result["manifest"]
     print("Public evidence data: compact graph and detail bootstraps")

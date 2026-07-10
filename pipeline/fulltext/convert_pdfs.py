@@ -29,8 +29,20 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.review.pdf_runtime import ensure_pdf_runtime
 
+from pipeline.fulltext.source_identity import (
+    DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
+    augment_pdf_artifact_identity,
+    evaluate_artifact_identity,
+    identity_is_verified,
+    load_pdf_hash_attestation_registry,
+    split_dois,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_GROBID_URL = "http://localhost:8070/api/processFulltextDocument"
+PDF_HASH_ATTESTATIONS = load_pdf_hash_attestation_registry(
+    DEFAULT_PDF_HASH_ATTESTATION_REGISTRY
+)["records"]
 
 DATASET_CONFIG = {
     "mechanistic": {
@@ -488,7 +500,7 @@ def select_best_extraction(extractions: List[dict]) -> dict:
 
 def build_artifact(dataset: str, row: dict, pdf_path: Path, extractions: List[dict]) -> dict:
     best = select_best_extraction(extractions)
-    return {
+    artifact = {
         "schema_version": "0.1",
         "created_at_utc": now_utc(),
         "dataset": dataset,
@@ -502,11 +514,29 @@ def build_artifact(dataset: str, row: dict, pdf_path: Path, extractions: List[di
         "best_section_count": int(best.get("section_count", 0) or 0) if best else 0,
         "extractions": extractions,
     }
+    artifact["source_identity"] = augment_pdf_artifact_identity(
+        evaluate_artifact_identity(
+            artifact,
+            requested_doi=row.get("study_doi", ""),
+            requested_title=row.get("study_title", ""),
+            related_dois=split_dois(
+                row.get("related_dois", ""),
+                row.get("publication_relations", ""),
+                row.get("published_version_doi", ""),
+            ),
+        ),
+        artifact,
+        requested_title=row.get("study_title", ""),
+        pdf_hash_attestations=PDF_HASH_ATTESTATIONS,
+    )
+    return artifact
 
 
 def should_write_artifact(artifact_path: Path, artifact: dict, write_failed_artifacts: bool) -> tuple[bool, str]:
     if artifact.get("best_backend"):
-        return True, "successful extraction"
+        if identity_is_verified(artifact.get("source_identity", {})):
+            return True, "successful extraction with verified source identity"
+        return False, "successful extraction rejected because source identity was not verified"
     if write_failed_artifacts:
         return True, "failed artifacts explicitly enabled"
 
@@ -531,6 +561,8 @@ def report_row(row: dict, artifact_path: Path, artifact: dict) -> dict:
         "statuses": statuses,
         "errors": errors,
         "write_status": artifact.get("_write_status", ""),
+        "source_identity_status": (artifact.get("source_identity") or {}).get("status", ""),
+        "source_identity_basis": (artifact.get("source_identity") or {}).get("basis", ""),
     }
 
 

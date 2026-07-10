@@ -2364,6 +2364,202 @@
       "doi": "10.1097/00000542-199906000-00007",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual/user follow-up after local PDF conversion: available PDF is image-only/no embedded text; OCR recovery intentionally not retained; suppress PDF-download/conversion routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s00213-024-06573-1",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00406-024-01913-w",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00406-023-01735-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00213-023-06474-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s12013-024-01499-z",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1038/s41586-021-03769-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00213-022-06063-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1038/s41380-020-0793-6",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00221-025-07085-w",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00213-021-05889-6",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00213-021-05879-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00213-025-06888-7",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s12031-022-02046-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s00284-025-04379-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s12640-024-00727-x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s11916-025-01437-5",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1038/s41591-022-01744-z",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1016/j.annemergmed.2006.09.018",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1007/s002130050856",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1016/j.drugpo.2014.07.004",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1016/j.forsciint.2005.04.019",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.1016/s0893-133x(99)00006-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
+    },
+    {
+      "doi": "10.17992/lbl.2022.09.706",
+      "manual_access_action": "abstract_only",
+      "checked_at": "2026-07-10",
+      "manual_reason": "A valid public Icelandic-language full-text PDF is retained, but the active evidence source remains the public English abstract until multilingual full-text extraction is explicitly validated."
+    },
+    {
+      "doi": "10.17992/lbl.2023.11.766",
+      "manual_access_action": "abstract_only",
+      "checked_at": "2026-07-10",
+      "manual_reason": "A valid public Icelandic-language full-text PDF is retained, but the active evidence source remains the public English abstract until multilingual full-text extraction is explicitly validated."
+    },
+    {
+      "doi": "10.11606/issn.1806-6976.smad.2022.183132",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "checked_at": "2026-07-10",
+      "manual_reason": "User-confirmed source-access review found that the exact requested DOI artifact cannot be publicly accessed. Retain the paper for public-abstract extraction and do not substitute the separately registered 2023 DOI artifact."
     }
   ]
 }

@@ -1,6 +1,8 @@
 import unittest
+import xml.etree.ElementTree as ET
 from tempfile import TemporaryDirectory
 from pathlib import Path
+from unittest.mock import patch
 
 from pipeline.ingest.sync_paper_library import (
     PAPER_METADATA_SCHEMA_VERSION,
@@ -16,6 +18,7 @@ from pipeline.ingest.sync_paper_library import (
     metadata_from_unpaywall_payload,
     parse_corpus_table,
     parse_provider_order,
+    pubmed_article_id,
     row_needs_core_metadata_refresh,
     row_needs_oa_refresh,
     strip_markup,
@@ -65,6 +68,61 @@ class SequencedPdfClient:
 
 
 class SyncPaperLibraryTest(unittest.TestCase):
+    def test_pubmed_article_id_ignores_cited_reference_identifiers(self) -> None:
+        article = ET.fromstring(
+            """
+            <PubmedArticle>
+              <MedlineCitation>
+                <Article>
+                  <ReferenceList>
+                    <Reference>
+                      <ArticleIdList>
+                        <ArticleId IdType="doi">10.1000/cited</ArticleId>
+                        <ArticleId IdType="pmc">PMC111111</ArticleId>
+                      </ArticleIdList>
+                    </Reference>
+                  </ReferenceList>
+                </Article>
+              </MedlineCitation>
+              <PubmedData>
+                <ArticleIdList>
+                  <ArticleId IdType="pubmed">12345678</ArticleId>
+                  <ArticleId IdType="doi">10.1000/requested</ArticleId>
+                </ArticleIdList>
+              </PubmedData>
+            </PubmedArticle>
+            """
+        )
+
+        self.assertEqual(pubmed_article_id(article, "doi"), "10.1000/requested")
+        self.assertEqual(pubmed_article_id(article, "pmc"), "")
+
+    def test_pubmed_article_id_uses_own_pmcid_not_cited_reference(self) -> None:
+        article = ET.fromstring(
+            """
+            <PubmedArticle>
+              <MedlineCitation>
+                <Article>
+                  <ReferenceList>
+                    <Reference>
+                      <ArticleIdList>
+                        <ArticleId IdType="pmc">PMC111111</ArticleId>
+                      </ArticleIdList>
+                    </Reference>
+                  </ReferenceList>
+                </Article>
+              </MedlineCitation>
+              <PubmedData>
+                <ArticleIdList>
+                  <ArticleId IdType="pmc">PMC999999</ArticleId>
+                </ArticleIdList>
+              </PubmedData>
+            </PubmedArticle>
+            """
+        )
+
+        self.assertEqual(pubmed_article_id(article, "pmc"), "PMC999999")
+
     def test_default_order_uses_unpaywall_before_broad_fallbacks(self) -> None:
         self.assertEqual(
             parse_provider_order(""),
@@ -398,7 +456,7 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(funders, "Gordon and Betty Moore Foundation | Alfred P. Sloan Foundation")
         self.assertEqual(grant_ids, "GBMF3834")
 
-    def test_unpaywall_pmc_landing_adds_europepmc_candidate(self) -> None:
+    def test_unpaywall_pmc_landing_does_not_replace_direct_pdf_candidate(self) -> None:
         metadata = metadata_from_unpaywall_payload(
             {
                 "doi": "10.1000/example",
@@ -430,9 +488,8 @@ class SyncPaperLibraryTest(unittest.TestCase):
         )
 
         candidates = metadata["unpaywall_pdf_url_candidates"].split(" | ")
-        self.assertEqual(candidates[0], "https://europepmc.org/api/getPdf?pmcid=PMC6865516")
-        self.assertIn("https://publisher.example/paper.pdf", candidates)
-        self.assertEqual(metadata["best_pdf_url"], "https://europepmc.org/api/getPdf?pmcid=PMC6865516")
+        self.assertEqual(candidates, ["https://publisher.example/paper.pdf"])
+        self.assertEqual(metadata["best_pdf_url"], "https://publisher.example/paper.pdf")
         self.assertEqual(metadata["study_journal"], "Unpaywall Journal")
         self.assertEqual(metadata["publication_type"], "journal-article")
         self.assertEqual(metadata["publication_date"], "2024-07-08")
@@ -513,11 +570,16 @@ class SyncPaperLibraryTest(unittest.TestCase):
 
         with TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "paper.pdf"
-            status, error, size, selected, attempts = download_pdf_candidates(
-                client=client,
-                pdf_urls=["https://publisher.example/paper.pdf", "https://repository.example/paper.pdf"],
-                target_path=target,
-            )
+            with patch(
+                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                return_value=(True, 1.0, "front_title_match"),
+            ):
+                status, error, size, selected, attempts = download_pdf_candidates(
+                    client=client,
+                    pdf_urls=["https://publisher.example/paper.pdf", "https://repository.example/paper.pdf"],
+                    target_path=target,
+                    study_title="Expected paper title",
+                )
 
         self.assertEqual(status, "downloaded")
         self.assertEqual(error, "")
@@ -536,11 +598,16 @@ class SyncPaperLibraryTest(unittest.TestCase):
 
         with TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "paper.pdf"
-            status, error, size, selected, attempts = download_pdf_candidates(
-                client=client,
-                pdf_urls=["https://first.example/paper.pdf", "https://second.example/paper.pdf"],
-                target_path=target,
-            )
+            with patch(
+                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                return_value=(True, 1.0, "front_title_match"),
+            ):
+                status, error, size, selected, attempts = download_pdf_candidates(
+                    client=client,
+                    pdf_urls=["https://first.example/paper.pdf", "https://second.example/paper.pdf"],
+                    target_path=target,
+                    study_title="Expected paper title",
+                )
 
         self.assertEqual(status, "downloaded")
         self.assertEqual(error, "")
@@ -556,7 +623,32 @@ class SyncPaperLibraryTest(unittest.TestCase):
         )
         self.assertIn("https://second.example/paper.pdf", attempts)
 
-    def test_pdf_candidates_derive_europepmc_from_any_pmc_url(self) -> None:
+    def test_download_pdf_candidates_removes_new_pdf_when_identity_is_unverified(self) -> None:
+        client = FakeClient(
+            bytes_responses=[
+                (lambda url: True, b"%PDF-1.7\nwrong paper"),
+            ]
+        )
+
+        with TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir) / "paper.pdf"
+            with patch(
+                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                return_value=(False, 0.1, "front_title_match"),
+            ):
+                status, error, _size, _selected, _attempts = download_pdf_candidates(
+                    client=client,
+                    pdf_urls=["https://example.test/wrong.pdf"],
+                    target_path=target,
+                    study_title="Expected paper title",
+                )
+
+            self.assertFalse(target.exists())
+
+        self.assertEqual(status, "download_failed")
+        self.assertIn("source_identity_mismatch", error)
+
+    def test_pdf_candidates_preserve_direct_pmc_url_without_europepmc_derivation(self) -> None:
         candidates = metadata_pdf_candidates(
             {
                 "pdf_url_candidates": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6067998/pdf/",
@@ -564,8 +656,10 @@ class SyncPaperLibraryTest(unittest.TestCase):
             "",
         )
 
-        self.assertEqual(candidates[0], "https://europepmc.org/api/getPdf?pmcid=PMC6067998")
-        self.assertIn("https://pmc.ncbi.nlm.nih.gov/articles/PMC6067998/pdf/", candidates)
+        self.assertEqual(
+            candidates,
+            ["https://pmc.ncbi.nlm.nih.gov/articles/PMC6067998/pdf/"],
+        )
 
     def test_pmc_uses_oa_file_pdf_url_when_available(self) -> None:
         doi = "10.1000/pmc-example"
@@ -611,12 +705,70 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(metadata["pmc_oa_license"], "CC BY-NC-ND")
         self.assertEqual(
             metadata["pmc_oa_pdf_url"],
-            "https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/aa/bb/example.pdf",
+            "https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/oa_pdf/aa/bb/example.pdf",
         )
         self.assertEqual(
             metadata["best_pdf_url"],
-            "https://europepmc.org/api/getPdf?pmcid=PMC9540857",
+            "https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/oa_pdf/aa/bb/example.pdf",
         )
+        self.assertEqual(metadata["pmc_europepmc_pdf_url"], "")
+
+    def test_pmc_rejects_unverified_pmcid_hint(self) -> None:
+        doi = "10.1000/no-pmc-record"
+        client = FakeClient(
+            json_responses=[
+                (
+                    lambda url, params: "idconv" in url,
+                    {"records": [{"doi": doi, "pmid": "123"}]},
+                ),
+            ]
+        )
+
+        metadata = lookup_pmc_metadata(
+            client=client,
+            doi=doi,
+            email="curator@example.org",
+            pmcid_hint="PMC111111",
+            paper={"study_doi": doi},
+        )
+
+        self.assertIsNone(metadata)
+        self.assertEqual(len(client.calls), 1)
+        self.assertIn("idconv", client.calls[0]["url"])
+
+    def test_pmc_idconv_overrides_conflicting_pmcid_hint(self) -> None:
+        doi = "10.1000/verified-pmc-record"
+        verified_pmcid = "PMC999999"
+        client = FakeClient(
+            json_responses=[
+                (
+                    lambda url, params: "idconv" in url,
+                    {"records": [{"doi": doi, "pmcid": verified_pmcid, "pmid": "123"}]},
+                ),
+                (
+                    lambda url, params: url.endswith(f"/{verified_pmcid}/unicode"),
+                    {"documents": []},
+                ),
+            ],
+            bytes_responses=[
+                (
+                    lambda url: "oa.fcgi" in url and f"id={verified_pmcid}" in url,
+                    b'<OA><error code="idIsNotOpenAccess">not open</error></OA>',
+                )
+            ],
+        )
+
+        metadata = lookup_pmc_metadata(
+            client=client,
+            doi=doi,
+            email="curator@example.org",
+            pmcid_hint="PMC111111",
+            paper={"study_doi": doi, "study_title": "Verified paper"},
+        )
+
+        self.assertIsNotNone(metadata)
+        self.assertEqual(metadata["pmcid"], verified_pmcid)
+        self.assertTrue(all("PMC111111" not in call["url"] for call in client.calls))
 
 
 if __name__ == "__main__":

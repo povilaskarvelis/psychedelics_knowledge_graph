@@ -616,12 +616,141 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         for doi in ("10.1093/ijnp/pyaf052.166", "10.1017/s1092852920000589", "10.3109/15563650.2013.817658"):
             self.assertEqual(by_doi[doi]["prescreen_decision"], "exclude")
             self.assertEqual(by_doi[doi]["prescreen_action"], "exclude_non_evidence_artifact")
-            self.assertIn("numbered conference", by_doi[doi]["prescreen_reason"])
+            self.assertIn("conference", by_doi[doi]["prescreen_reason"])
             self.assertFalse(by_doi[doi]["retained_for_extraction_candidate"])
 
         for doi in ("10.example/5ht", "10.example/40hz", "10.example/years", "10.example/guideline"):
             self.assertEqual(by_doi[doi]["prescreen_decision"], "retain")
             self.assertTrue(by_doi[doi]["retained_for_extraction_candidate"])
+
+    def test_publication_format_rules_exclude_unnumbered_abstracts_chapters_and_dissertations(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1093/ijnp/pyae059.031",
+                    "study_title": "SUBGROUP ANALYSIS OF ESKETAMINE OUTCOMES",
+                    "abstract": "This conference abstract reports subgroup results.",
+                    "study_journal": "International Journal of Neuropsychopharmacology",
+                    "publication_type": "article",
+                },
+                {
+                    "doi": "10.1007/7854_2023_453",
+                    "study_title": "Ketamine for Major Depressive Disorder",
+                    "abstract": "This chapter reviews ketamine for depression.",
+                    "study_journal": "Current Topics in Behavioral Neurosciences",
+                    "publication_type": "review",
+                },
+                {
+                    "doi": "10.example/thesis",
+                    "study_title": "Psilocybin and cortical plasticity",
+                    "abstract": "This dissertation reports original experiments.",
+                    "study_journal": "Institutional repository",
+                    "publication_type": "dissertation",
+                },
+                {
+                    "doi": "10.1093/sleep/32.11.1513",
+                    "study_title": "Effects of acute MDMA on sleep and daytime sleepiness in MDMA users",
+                    "abstract": "This full journal article reports original MDMA sleep outcomes across multiple pages.",
+                    "study_journal": "SLEEP",
+                    "publication_type": "journal-article",
+                },
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-10T00:00:00+00:00",
+            curated_publication_format_exclusions={},
+        )
+        by_doi = {row["doi"]: row for row in rows}
+
+        for doi in (
+            "10.1093/ijnp/pyae059.031",
+            "10.1007/7854_2023_453",
+            "10.example/thesis",
+        ):
+            self.assertEqual(by_doi[doi]["prescreen_decision"], "exclude")
+            self.assertEqual(by_doi[doi]["prescreen_action"], "exclude_non_evidence_artifact")
+            self.assertFalse(by_doi[doi]["retained_for_extraction_candidate"])
+
+        self.assertEqual(by_doi["10.1093/sleep/32.11.1513"]["prescreen_decision"], "retain")
+
+    def test_curated_publication_format_override_is_applied_at_prescreen(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.example/repository-item",
+                    "study_title": "Endogenous psychedelic biosynthesis",
+                    "abstract": "The repository metadata incorrectly labels this thesis as an article.",
+                    "publication_type": "article",
+                }
+            ]
+        )
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-10T00:00:00+00:00",
+            curated_publication_format_exclusions={
+                "10.example/repository-item": {
+                    "publication_format": "dissertation",
+                    "evidence_basis": "DataCite resourceTypeGeneral=Dissertation",
+                    "reason": "Dissertations are outside the retained publication formats.",
+                }
+            },
+        )
+
+        self.assertEqual(rows[0]["prescreen_decision"], "exclude")
+        self.assertIn("Dissertations", rows[0]["prescreen_reason"])
+
+    def test_commentary_dispatch_insight_and_conference_abstract_formats_are_excluded(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.example/dispatch",
+                    "study_title": "Neuroimaging: a scanner, colourfully",
+                    "abstract": "A dispatch discussing two recently published studies.",
+                    "publication_type": "Dispatch",
+                },
+                {
+                    "doi": "10.example/insight",
+                    "study_title": "Serotonin, psychedelics and psychiatry",
+                    "abstract": "An expert insight article proposing a conceptual position.",
+                    "publication_type": "Insight Article",
+                },
+                {
+                    "doi": "10.example/conference",
+                    "study_title": "(417) Oral ketamine for chronic pain",
+                    "abstract": "A meeting abstract reporting preliminary results.",
+                    "publication_type": "Conference Abstract",
+                },
+                {
+                    "doi": "10.example/review",
+                    "study_title": "Ketamine and chronic pain: a systematic review",
+                    "abstract": "This systematic review searched databases and synthesized eligible studies.",
+                    "publication_type": "Journal Article | Review",
+                },
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-10T00:00:00+00:00",
+            curated_publication_format_exclusions={},
+        )
+        by_doi = {row["doi"]: row for row in rows}
+
+        for doi in ("10.example/dispatch", "10.example/insight", "10.example/conference"):
+            self.assertEqual(by_doi[doi]["prescreen_action"], "exclude_non_evidence_artifact")
+            self.assertFalse(by_doi[doi]["retained_for_extraction_candidate"])
+        self.assertTrue(by_doi["10.example/review"]["retained_for_extraction_candidate"])
 
     def test_writes_parquet_decisions_and_summary_without_json_outputs(self) -> None:
         with TemporaryDirectory() as tmpdir:

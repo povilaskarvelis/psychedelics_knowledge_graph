@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import hashlib
 import json
 import sys
 from collections import Counter
@@ -22,9 +23,25 @@ import pandas as pd
 
 try:
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi
+    from pipeline.extract.extraction_profile_matrix import text_depth_from_access
+    from pipeline.extract.route_extraction_profiles import (
+        domain_prompt_path,
+        profile_for_key,
+        prompt_path_for_depth,
+        schema_path_for_profile,
+        should_append_domain_addendum,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi
+    from pipeline.extract.extraction_profile_matrix import text_depth_from_access
+    from pipeline.extract.route_extraction_profiles import (
+        domain_prompt_path,
+        profile_for_key,
+        prompt_path_for_depth,
+        schema_path_for_profile,
+        should_append_domain_addendum,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -37,7 +54,7 @@ DEFAULT_FULLTEXT_PACKET_PATHS = (
     ROOT / "data" / "processed" / "extraction" / "fulltext_packets.jsonl",
 )
 
-TASK_SCHEMA_VERSION = "route_extraction_task_v1"
+TASK_SCHEMA_VERSION = "route_extraction_task_v2"
 PACKET_PROFILE_FULL = "full"
 PACKET_PROFILE_PRIMARY = "primary_empirical"
 PACKET_PROFILE_PRIMARY_LEGACY_ALIAS = "lean_primary"
@@ -125,6 +142,9 @@ ROUTE_CONTEXT_FIELDS = [
     "bridge_clinical_mechanism",
     "study_system_hint",
     "access_tier",
+    "source_text_state",
+    "source_text_state_reason",
+    "source_identity_verified",
     "has_abstract",
     "has_pdf_url",
     "has_converted_full_text",
@@ -164,6 +184,138 @@ def split_values(value: object) -> list[str]:
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def canonical_sha256(payload: object) -> str:
+    body = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(body).hexdigest()
+
+
+def stable_packet_payload(value: object) -> object:
+    if isinstance(value, dict):
+        return {
+            key: stable_packet_payload(item)
+            for key, item in sorted(value.items())
+            if key not in {"_packet_source_path", "generated_at_utc"}
+        }
+    if isinstance(value, list):
+        return [stable_packet_payload(item) for item in value]
+    return value
+
+
+def artifact_file_fingerprints(paths: Iterable[str]) -> list[dict]:
+    records: list[dict] = []
+    for raw_path in paths:
+        path = Path(raw_path)
+        if not path.is_file():
+            records.append({"path": str(path), "status": "missing"})
+            continue
+        records.append(
+            {
+                "path": str(path),
+                "size": path.stat().st_size,
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            }
+        )
+    return records
+
+
+def source_fingerprint_for_task(
+    *,
+    text_source: dict,
+    metadata: dict,
+    packet: dict | None,
+) -> str:
+    mode = normalize(text_source.get("mode", ""))
+    payload: dict = {"mode": mode}
+    if mode == "abstract":
+        payload.update(
+            {
+                "title": normalize(metadata.get("study_title", "")),
+                "abstract": normalize(metadata.get("abstract", "")),
+            }
+        )
+    elif mode == "full_text_packet" and packet:
+        payload["packet"] = stable_packet_payload(packet)
+    elif mode == "full_text_artifact":
+        payload["artifacts"] = artifact_file_fingerprints(
+            text_source.get("fulltext_artifact_paths", [])
+        )
+    else:
+        payload.update(
+            {
+                "title": normalize(metadata.get("study_title", "")),
+                "abstract": normalize(metadata.get("abstract", "")),
+                "route_action": normalize(text_source.get("route_action", "")),
+            }
+        )
+    return canonical_sha256(payload)
+
+
+def contract_assets_fingerprint_for_task(contract: dict) -> str:
+    """Fingerprint the prompt, domain addendum, and schema actually selected.
+
+    Task identity must change when the extraction instructions change, not
+    only when the paper text changes. Terminal routes have no model assets but
+    still receive a stable fingerprint of that empty contract.
+    """
+    prompt_profile = normalize(contract.get("prompt_profile", ""))
+    schema_profile = normalize(contract.get("schema_profile", ""))
+    domain_route = normalize(contract.get("domain_route", ""))
+    profile = profile_for_key(prompt_profile, schema_profile)
+    assets: list[dict] = []
+    if profile.has_model_contract:
+        text_depth = text_depth_from_access(normalize(contract.get("access_level", "")))
+        prompt_path = prompt_path_for_depth(profile, text_depth)
+        schema_path = schema_path_for_profile(profile, domain_route)
+        selected_paths = [("paper_type_prompt", prompt_path), ("schema", schema_path)]
+        addendum_path = domain_prompt_path(domain_route)
+        if should_append_domain_addendum(profile) and addendum_path is not None and addendum_path.exists():
+            selected_paths.append(("domain_addendum", addendum_path))
+        for role, path in selected_paths:
+            if path is None or not path.is_file():
+                raise FileNotFoundError(f"Missing {role} asset for {prompt_profile}/{schema_profile}: {path}")
+            assets.append(
+                {
+                    "role": role,
+                    "path": str(path.resolve().relative_to(ROOT.resolve())),
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+            )
+    return canonical_sha256(
+        {
+            "prompt_profile": prompt_profile,
+            "schema_profile": schema_profile,
+            "domain_route": domain_route,
+            "assets": assets,
+        }
+    )
+
+
+def input_fingerprint_for_task(
+    *,
+    route_id: str,
+    route_context: dict,
+    contract: dict,
+    source_fingerprint: str,
+) -> str:
+    return canonical_sha256(
+        {
+            "route_id": route_id,
+            "domain_route": normalize(route_context.get("domain_route", "")),
+            "route_action": normalize(route_context.get("route_action", "")),
+            "prompt_profile": normalize(contract.get("prompt_profile", "")),
+            "schema_profile": normalize(contract.get("schema_profile", "")),
+            "contract_version": normalize(contract.get("contract_version", "")),
+            "contract_assets_fingerprint": normalize(contract.get("contract_assets_fingerprint", "")),
+            "source_fingerprint": source_fingerprint,
+        }
+    )
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -357,6 +509,7 @@ def route_context_for_task(route_row: dict) -> dict:
             "has_pdf_url",
             "has_converted_full_text",
             "has_local_pdf",
+            "source_identity_verified",
         }:
             out[field] = clean_bool(value)
         elif field in {"fulltext_char_count", "local_pdf_count", "route_priority"}:
@@ -487,16 +640,33 @@ def task_from_route(
     metadata = metadata_for_task(route_row, metadata_by_doi)
     packet, packet_basis = choose_packet(route_row, packets_by_doi)
     text_source = text_source_for_task(route_row, metadata, packet, packet_basis)
+    route_context = route_context_for_task(route_row)
+    contract = extraction_contract_for_task(route_row)
+    contract["contract_assets_fingerprint"] = contract_assets_fingerprint_for_task(contract)
+    source_fingerprint = source_fingerprint_for_task(
+        text_source=text_source,
+        metadata=metadata,
+        packet=packet,
+    )
+    text_source["source_fingerprint"] = source_fingerprint
+    input_fingerprint = input_fingerprint_for_task(
+        route_id=route_id,
+        route_context=route_context,
+        contract=contract,
+        source_fingerprint=source_fingerprint,
+    )
+    task_id = hashlib.sha256(f"{route_id}\0{input_fingerprint}".encode("utf-8")).hexdigest()[:20]
     return {
         "schema_version": TASK_SCHEMA_VERSION,
         "generated_at_utc": generated_at_utc,
-        "task_id": route_id,
+        "task_id": task_id,
         "route_id": route_id,
+        "input_fingerprint": input_fingerprint,
         "study_doi": normalize_doi(route_row.get("doi", "")),
         "task_status": text_source["status"],
         "paper_metadata": metadata,
-        "route_context": route_context_for_task(route_row),
-        "extraction_contract": extraction_contract_for_task(route_row),
+        "route_context": route_context,
+        "extraction_contract": contract,
         "text_source": text_source,
         "content": content_for_task(metadata, packet, include_packet_content=include_packet_content),
     }

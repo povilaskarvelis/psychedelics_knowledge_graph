@@ -1,0 +1,37 @@
+{
+  "schema_version": "doi_update_scope_v1",
+  "doi_count": 556,
+  "inputs": {
+    "manifest": [
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/final_source_identity_repair_manifest.json"
+    ],
+    "doi_file": [
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_inbox_imported_dois.txt",
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_inbox_remaining45_imported_dois.txt",
+      "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_inbox_second_batch_imported_dois.txt"
+    ],
+    "records_field": "records",
+    "doi_field": "doi",
+    "selectors": [
+      "final_action_category=repaired_exact_jats_active",
+      "final_action_category=repaired_validated_pdf_active",
+      "final_action_category=abstract_only_no_fulltext_repair",
+      "final_action_category=excluded_prescreen_no_artifact_repair",
+      "final_action_category=not_retained_no_artifact_repair"
+    ]
+  },
+  "selected_rows_by_source": {
+    "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_inbox_imported_dois.txt": 3,
+    "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_inbox_remaining45_imported_dois.txt": 10,
+    "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/manual_inbox_second_batch_imported_dois.txt": 24,
+    "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/final_source_identity_repair_manifest.json": 521
+  },
+  "selected_rows_by_selector": {
+    "final_action_category=excluded_prescreen_no_artifact_repair": 221,
+    "final_action_category=repaired_exact_jats_active": 97,
+    "final_action_category=abstract_only_no_fulltext_repair": 162,
+    "final_action_category=repaired_validated_pdf_active": 26,
+    "final_action_category=not_retained_no_artifact_repair": 15
+  },
+  "out_doi_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/outputs/source_identity_repair_20260710/downstream_update_dois.txt"
+}

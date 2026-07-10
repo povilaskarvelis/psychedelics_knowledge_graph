@@ -1,6 +1,7 @@
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -48,7 +49,7 @@ class ImportManualPdfsTest(unittest.TestCase):
         doi, basis, candidates = select_match(
             file_path=Path("1395607.pdf"),
             known_records=known,
-            text="",
+            text="Example title\nAbstract text",
             metadata_text="",
             enable_title_match=True,
             min_title_score=0.86,
@@ -57,8 +58,8 @@ class ImportManualPdfsTest(unittest.TestCase):
         )
 
         self.assertEqual(doi, "10.1016/example")
-        self.assertEqual(basis, "source_url_filename")
-        self.assertEqual(candidates, [])
+        self.assertEqual(basis, "source_url_filename+front_title_match")
+        self.assertEqual(candidates[0]["doi"], "10.1016/example")
 
     def test_select_match_uses_embedded_pii(self) -> None:
         known = {
@@ -106,11 +107,136 @@ class ImportManualPdfsTest(unittest.TestCase):
         self.assertEqual(basis, "pdf_text_doi")
         self.assertEqual(candidates, [])
 
+    def test_filename_doi_is_rejected_when_pdf_identifies_another_known_paper(self) -> None:
+        known = {
+            "10.1001/intended": {"doi": "10.1001/intended", "study_title": "Intended ketamine trial"},
+            "10.1001/actual": {"doi": "10.1001/actual", "study_title": "Actual unrelated paper"},
+        }
+
+        doi, basis, candidates = select_match(
+            file_path=Path("10.1001_intended.pdf"),
+            known_records=known,
+            text="Actual unrelated paper. DOI: 10.1001/actual",
+            metadata_text="",
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+        )
+
+        self.assertEqual(doi, "")
+        self.assertEqual(basis, "filename_doi_content_conflict")
+        self.assertEqual(candidates[0]["doi"], "10.1001/actual")
+
+    def test_filename_doi_without_document_evidence_is_rejected(self) -> None:
+        known = {
+            "10.1001/intended": {"doi": "10.1001/intended", "study_title": "Intended ketamine trial"},
+        }
+
+        doi, basis, candidates = select_match(
+            file_path=Path("10.1001_intended.pdf"),
+            known_records=known,
+            text="Unrelated content without the expected title or DOI.",
+            metadata_text="",
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+        )
+
+        self.assertEqual(doi, "")
+        self.assertEqual(basis, "filename_doi_unverified")
+        self.assertEqual(candidates, [])
+
+    def test_filename_title_only_later_on_page_is_rejected(self) -> None:
+        expected = "Intended ketamine trial outcomes in severe depression"
+        known = {"10.1001/intended": {"doi": "10.1001/intended", "study_title": expected}}
+
+        doi, basis, _candidates = select_match(
+            file_path=Path("10.1001_intended.pdf"),
+            known_records=known,
+            text=("Adjacent abstract content " * 140) + expected,
+            metadata_text="",
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+        )
+
+        self.assertEqual(doi, "")
+        self.assertEqual(basis, "filename_doi_unverified")
+
     def test_title_match_score_accepts_high_overlap_title(self) -> None:
         title = "Psilocybin-assisted therapy for treatment-resistant depression"
         text = "Psilocybin assisted therapy for treatment resistant depression was evaluated in this article."
 
         self.assertGreaterEqual(title_match_score(title, text), 0.86)
+
+    def test_global_title_match_ignores_incidental_short_titles(self) -> None:
+        known = {
+            "10.1001/short": {"doi": "10.1001/short", "study_title": "LSD"},
+            "10.1001/actual": {
+                "doi": "10.1001/actual",
+                "study_title": "Characterization of a novel serotonin binding site in bovine brain membranes",
+            },
+        }
+
+        doi, basis, candidates = select_match(
+            file_path=Path("download.pdf"),
+            known_records=known,
+            text=(
+                "Characterization of a novel serotonin binding site in bovine brain membranes\n"
+                "The introduction mentions LSD as a comparator."
+            ),
+            metadata_text="",
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+        )
+
+        self.assertEqual(doi, "10.1001/actual")
+        self.assertEqual(basis, "title_match")
+        self.assertEqual([row["doi"] for row in candidates], ["10.1001/actual"])
+
+    def test_import_skips_pdf_for_record_not_retained_for_extraction(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            inbox = root / "manual_pdf_inbox"
+            pdf_dir = root / "pdfs"
+            candidate_table = root / "candidate_papers.parquet"
+            inbox.mkdir()
+            doi = "10.1234/excluded"
+            source_pdf = inbox / "excluded.pdf"
+            source_pdf.write_bytes(b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n")
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "study_title": "Excluded conference abstract about ketamine",
+                        "retained_for_extraction_candidate": False,
+                    }
+                ]
+            ).to_parquet(candidate_table, engine="pyarrow", index=False)
+
+            with patch(
+                "pipeline.fulltext.import_manual_pdfs.extract_pdf_text",
+                return_value="Excluded conference abstract about ketamine\nDOI 10.1234/excluded",
+            ):
+                result = import_manual_pdfs(
+                    inbox_dir=inbox,
+                    pdf_dir=pdf_dir,
+                    conflict_dir=root / "conflicts",
+                    invalid_dir=root / "invalid",
+                    manual_csv=root / "missing_manual_queue.csv",
+                    candidate_table=candidate_table,
+                    metadata_table=root / "missing_metadata.parquet",
+                    report_path=root / "report.json",
+                    review_csv=root / "review.csv",
+                    apply=True,
+                    move=True,
+                )
+
+            self.assertEqual(result["counts"]["new_imports"], 0)
+            self.assertEqual(result["skipped"][0]["status"], "skipped_not_retained_for_extraction")
+            self.assertFalse(pdf_dir.exists())
+            self.assertTrue(source_pdf.exists())
 
     def test_import_updates_candidate_pdf_status_for_manual_import(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -145,19 +271,23 @@ class ImportManualPdfsTest(unittest.TestCase):
                 ]
             ).to_parquet(candidate_table, engine="pyarrow", index=False)
 
-            result = import_manual_pdfs(
-                inbox_dir=inbox,
-                pdf_dir=pdf_dir,
-                conflict_dir=root / "conflicts",
-                invalid_dir=root / "invalid",
-                manual_csv=root / "missing_manual_queue.csv",
-                candidate_table=candidate_table,
-                metadata_table=root / "missing_metadata.parquet",
-                report_path=report,
-                review_csv=review,
-                apply=True,
-                move=True,
-            )
+            with patch(
+                "pipeline.fulltext.import_manual_pdfs.extract_pdf_text",
+                return_value="Example manual PDF import\nDOI 10.1234/example",
+            ):
+                result = import_manual_pdfs(
+                    inbox_dir=inbox,
+                    pdf_dir=pdf_dir,
+                    conflict_dir=root / "conflicts",
+                    invalid_dir=root / "invalid",
+                    manual_csv=root / "missing_manual_queue.csv",
+                    candidate_table=candidate_table,
+                    metadata_table=root / "missing_metadata.parquet",
+                    report_path=report,
+                    review_csv=review,
+                    apply=True,
+                    move=True,
+                )
 
             canonical_pdf = pdf_dir / pdf_filename_for_doi(doi)
             updated = pd.read_parquet(candidate_table).iloc[0].to_dict()
@@ -209,20 +339,24 @@ class ImportManualPdfsTest(unittest.TestCase):
                 ]
             ).to_parquet(candidate_table, engine="pyarrow", index=False)
 
-            result = import_manual_pdfs(
-                inbox_dir=inbox,
-                pdf_dir=pdf_dir,
-                conflict_dir=conflict_dir,
-                invalid_dir=root / "invalid",
-                manual_csv=root / "missing_manual_queue.csv",
-                candidate_table=candidate_table,
-                metadata_table=root / "missing_metadata.parquet",
-                report_path=report,
-                review_csv=review,
-                apply=True,
-                move=True,
-                replace_existing=True,
-            )
+            with patch(
+                "pipeline.fulltext.import_manual_pdfs.extract_pdf_text",
+                return_value="Example manual PDF import\nDOI 10.1234/example",
+            ):
+                result = import_manual_pdfs(
+                    inbox_dir=inbox,
+                    pdf_dir=pdf_dir,
+                    conflict_dir=conflict_dir,
+                    invalid_dir=root / "invalid",
+                    manual_csv=root / "missing_manual_queue.csv",
+                    candidate_table=candidate_table,
+                    metadata_table=root / "missing_metadata.parquet",
+                    report_path=report,
+                    review_csv=review,
+                    apply=True,
+                    move=True,
+                    replace_existing=True,
+                )
 
             updated = pd.read_parquet(candidate_table).iloc[0].to_dict()
             self.assertEqual(result["counts"]["replaced_existing"], 1)

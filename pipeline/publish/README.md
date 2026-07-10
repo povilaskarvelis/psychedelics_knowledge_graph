@@ -14,11 +14,16 @@ Export a routed KG run and make it the UI default:
 
 ```bash
 RUN_ID=gemini3_flash_YYYYMMDD_first_batch
-python pipeline/publish/export_evidence_payload.py \
-  --kg-dir "data/processed/kg_routed_runs/$RUN_ID" \
-  --out-dir "data/processed/graph_payload_runs/$RUN_ID" \
-  --activate-default
+scripts/build_routed_kg_payload.sh "$RUN_ID"
 ```
+
+If the KG tables have already been rebuilt and only the public payload needs to
+be regenerated, make sure `pipeline/kg/build_author_tables.py` has run after the
+last `papers.parquet` change. The exporter checks `authors.parquet`,
+`paper_authors.parquet`, and
+`author_resolution_report.json` against `papers.parquet` by default and fails
+when the author layer is missing or stale. `--allow-stale-authors` is available
+only for deliberate diagnostic exports.
 
 Build the unified methods bibliography:
 
@@ -43,6 +48,7 @@ python pipeline/kg/build_methods_flow.py
 - `evidence_source`
 - `kg_dir`
 - `row_count`
+- `author_tables`
 - `summary_stats`
 - `graph_bootstraps`
 - `detail_bootstraps`

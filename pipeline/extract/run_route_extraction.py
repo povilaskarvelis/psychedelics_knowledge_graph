@@ -711,6 +711,7 @@ def run_tasks(args: argparse.Namespace) -> dict:
             "input_row_index": input_row_index,
             "task_id": normalize(task.get("task_id", "")),
             "route_id": normalize(task.get("route_id", "")),
+            "input_fingerprint": normalize(task.get("input_fingerprint", "")),
             "study_doi": normalize(task.get("study_doi", "")),
             "prompt_profile": profile.prompt_profile,
             "schema_profile": profile.schema_profile,
@@ -762,6 +763,7 @@ def run_tasks(args: argparse.Namespace) -> dict:
                 {
                     "task_id": normalize(task.get("task_id", "")),
                     "route_id": normalize(task.get("route_id", "")),
+                    "input_fingerprint": normalize(task.get("input_fingerprint", "")),
                     "prompt_profile": profile.prompt_profile,
                     "schema_profile": profile.schema_profile,
                     "status": raw_row["status"],

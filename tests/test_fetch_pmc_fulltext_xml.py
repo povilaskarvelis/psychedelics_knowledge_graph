@@ -14,11 +14,32 @@ from pipeline.fulltext.fetch_pmc_fulltext_xml import (
 from pipeline.fulltext.convert_pdfs import doi_to_slug
 
 
+def write_source_identity_audit(root: Path, rows: list[dict]) -> Path:
+    identity_registry = root / "source_identity_registry.json"
+    hash_registry = root / "source_identity_pdf_hash_registry.json"
+    identity_registry.write_text("{}\n", encoding="utf-8")
+    hash_registry.write_text("{}\n", encoding="utf-8")
+    audit = root / "source_identity_audit.json"
+    audit.write_text(
+        json.dumps(
+            {
+                "identity_registry": {"path": str(identity_registry)},
+                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
+                "rows": rows,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return audit
+
+
 JATS_XML = """
 <article xmlns:xlink="http://www.w3.org/1999/xlink">
   <front>
     <article-meta>
-      <article-title>Example Europe PMC XML paper</article-title>
+      <article-id pub-id-type="doi">10.1000/xml</article-id>
+      <article-id pub-id-type="pmcid">PMC123456</article-id>
+      <title-group><article-title>Example Europe PMC XML paper</article-title></title-group>
       <abstract id="abs1"><p>This article studies psilocybin and brain networks.</p></abstract>
     </article-meta>
   </front>
@@ -70,6 +91,18 @@ class FetchPmcFulltextXmlTest(unittest.TestCase):
         self.assertGreater(artifact["best_char_count"], 0)
         self.assertEqual(artifact["extractions"][0]["metadata"]["format"], "jats_xml")
         self.assertEqual(artifact["retrieval_trace"][0]["source"], "pmc_oai_xml")
+        self.assertEqual(artifact["source_identity"]["status"], "verified_exact_doi")
+
+    def test_build_xml_artifact_rejects_xml_for_another_doi(self) -> None:
+        with self.assertRaisesRegex(ValueError, "JATS identity mismatch"):
+            build_xml_artifact(
+                {"doi": "10.1000/different", "study_title": "Different paper"},
+                pmcid="PMC123456",
+                endpoint="https://example.test/fulltext.xml",
+                xml_text=JATS_XML,
+                retrieval_source="pmc_oai_xml",
+                retrieval_trace=[],
+            )
 
     def test_pmcid_from_metadata_accepts_field_or_candidate_urls(self) -> None:
         self.assertEqual(pmcid_from_metadata({"pmcid": "pmc123"}), "PMC123")
@@ -89,7 +122,25 @@ class FetchPmcFulltextXmlTest(unittest.TestCase):
 
             existing_artifact = fulltext_dir / "articles" / f"{doi_to_slug(existing_doi)}.json"
             existing_artifact.parent.mkdir(parents=True)
-            existing_artifact.write_text(json.dumps({"best_char_count": 123}), encoding="utf-8")
+            existing_artifact.write_text(
+                json.dumps(
+                    {
+                        "best_char_count": 123,
+                        "source_identity": {"status": "verified_exact_doi"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            source_identity_audit = write_source_identity_audit(
+                root,
+                [
+                    {
+                        "requested_doi": existing_doi,
+                        "artifact_path": str(existing_artifact.resolve()),
+                        "identity_verified": True,
+                    }
+                ],
+            )
 
             pdf_path = pdf_root / f"{doi_to_slug(pdf_doi)}__abc123.pdf"
             pdf_path.parent.mkdir(parents=True)
@@ -121,6 +172,7 @@ class FetchPmcFulltextXmlTest(unittest.TestCase):
                 include_existing_fulltext=False,
                 include_local_pdf=False,
                 include_non_retained=False,
+                source_identity_audit=source_identity_audit,
             )
 
         self.assertEqual([row["doi"] for row in rows], [target_doi])

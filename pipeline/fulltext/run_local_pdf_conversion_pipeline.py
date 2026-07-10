@@ -23,6 +23,9 @@ FULLTEXT_DATA_DIR = ROOT / "data" / "processed" / "fulltext"
 DEFAULT_BATCH_DIR = FULLTEXT_DATA_DIR / "grobid_local_pdf_batches"
 DEFAULT_BATCH_REPORT_DIR = FULLTEXT_DATA_DIR / "grobid_local_pdf_batch_reports"
 DEFAULT_REPORT = FULLTEXT_DATA_DIR / "local_pdf_conversion_pipeline_report.json"
+DEFAULT_SOURCE_IDENTITY_AUDIT_JSON = FULLTEXT_DATA_DIR / "source_identity_audit.json"
+DEFAULT_SOURCE_IDENTITY_AUDIT_CSV = FULLTEXT_DATA_DIR / "source_identity_audit.csv"
+DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS = FULLTEXT_DATA_DIR / "source_identity_unverified_dois.txt"
 
 try:
     from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, normalize_doi
@@ -236,6 +239,8 @@ def rebuild_routes_command(args: argparse.Namespace) -> list[str]:
         str(Path(args.prescreen_table).resolve()),
         "--fulltext-dir",
         str(Path(args.fulltext_dir).resolve()),
+        "--source-identity-audit",
+        str(Path(args.source_identity_audit_json).resolve()),
         "--paper-root",
         str(Path(args.paper_root).resolve()),
         "--output-table",
@@ -254,6 +259,26 @@ def rebuild_routes_command(args: argparse.Namespace) -> list[str]:
     else:
         cmd.extend(["--manual-route-overrides", ""])
     return cmd
+
+
+def source_identity_audit_command(args: argparse.Namespace) -> list[str]:
+    return [
+        args.python,
+        str(FULLTEXT_DIR / "audit_fulltext_source_identity.py"),
+        "--artifact-dir",
+        str(Path(args.out_dir).resolve()),
+        "--candidate-table",
+        str(Path(args.candidate_table).resolve()),
+        "--metadata-table",
+        str(Path(args.metadata_table).resolve()),
+        "--report-json",
+        str(Path(args.source_identity_audit_json).resolve()),
+        "--report-csv",
+        str(Path(args.source_identity_audit_csv).resolve()),
+        "--unverified-doi-file",
+        str(Path(args.source_identity_unverified_dois).resolve()),
+        "--fail-on-unverified",
+    ]
 
 
 def failed_dois_from_report(report_path: Path) -> list[str]:
@@ -356,6 +381,7 @@ def retry_single_failures(
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--route-table", default=str(DEFAULT_OUTPUT_TABLE))
+    parser.add_argument("--candidate-table", default=str(ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
@@ -381,6 +407,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--plan-only", action="store_true")
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--skip-route-rebuild", action="store_true")
+    parser.add_argument("--skip-source-identity-audit", action="store_true")
+    parser.add_argument("--source-identity-audit-json", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_JSON))
+    parser.add_argument("--source-identity-audit-csv", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_CSV))
+    parser.add_argument(
+        "--source-identity-unverified-dois",
+        default=str(DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS),
+    )
     parser.add_argument("--retry-failures-single", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--grobid-url", default=DEFAULT_GROBID_URL)
     parser.add_argument("--grobid-timeout-sec", type=int, default=120)
@@ -424,6 +457,8 @@ def main() -> int:
             sample_report = report_dir / "local_pdf_grobid_batch_0001.json"
             print(f"[grobid_start] {shell_join(start_grobid_command(args))}", flush=True)
             print(f"[convert_batch] {shell_join(convert_batch_command(args, sample_file, sample_report))}", flush=True)
+        if not args.skip_source_identity_audit:
+            print(f"[source_identity_audit] {shell_join(source_identity_audit_command(args))}", flush=True)
         print(f"Run report: {report_path}", flush=True)
         return 0
 
@@ -459,8 +494,19 @@ def main() -> int:
         if command_failed and not args.continue_on_error:
             break
 
+    source_identity_audit = None
+    if not args.skip_source_identity_audit:
+        source_identity_audit = run_command(
+            source_identity_audit_command(args),
+            label="source_identity_audit",
+            cwd=Path(args.child_cwd).resolve(),
+            verbose=args.verbose,
+        )
+        if source_identity_audit["returncode"] != 0:
+            overall_status = "failed"
+
     route_rebuild = None
-    if not args.skip_route_rebuild:
+    if not args.skip_route_rebuild and overall_status != "failed":
         rebuild = run_command(
             rebuild_routes_command(args),
             label="route_rebuild",
@@ -478,6 +524,7 @@ def main() -> int:
         "batch_size": batch_size,
         "batch_count": len(batches),
         "final_failed_dois": sorted(final_failed),
+        "source_identity_audit": source_identity_audit,
         "route_rebuild": route_rebuild,
         "results": results,
     }

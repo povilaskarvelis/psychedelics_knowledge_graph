@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "record_count": 8,
+  "description": "Exceptional curator-reviewed PDF identities bound to exact file hashes. These records do not authorize a different download or DOI alias.",
+  "records": [
+    {
+      "requested_doi": "10.1254/fpj.97.4_209",
+      "pdf_sha256": "e45d2cfd7a5c7c86b639b3a1377dcfd5f1ced3168fcebcb00478972d0b2d1a8c",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://www.jstage.jst.go.jp/article/fpj1944/97/4/97_4_209/_pdf",
+      "expected_title": "Anxiolytic effects of lisuride and its agonistic action to central 5-HT1A receptors",
+      "review_basis": "The 12-page J-STAGE PDF is one article. Its original Japanese title is on page one and the matching English title and abstract are on the final page; the publisher URL encodes the journal volume, issue, and first page for this DOI.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1523/jneurosci.16-01-00373.1996",
+      "pdf_sha256": "b97bbd16bd19c69e10c8cc7bcaa892c9f2c80f627fc5b4955c1967159cc3124e",
+      "document_kind": "single_article_pdf",
+      "expected_title": "NMDA Receptor Antagonists Impair Prefrontal Cortex Function as Assessed via Spatial Delayed Alternation Performance in Rats: Modulation by Dopamine",
+      "review_basis": "The seven-page Journal of Neuroscience PDF identifies volume 16, issue 1, pages 373-379 and the requested article title on its first page.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1074/jbc.271.25.14672",
+      "pdf_sha256": "4aef3d1170b8d1b341ded334a19a90b64e7f3e38146b33dfad18c9afba6883ae",
+      "document_kind": "single_article_pdf",
+      "expected_title": "Mapping the Binding Site Pocket of the Serotonin 5-Hydroxytryptamine2A Receptor",
+      "review_basis": "The four-page Journal of Biological Chemistry PDF displays the requested article title and receptor-binding study content on page one; its PII filename is publisher-generated and does not encode the DOI.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1111/pcn.13379",
+      "pdf_sha256": "784e7635645b19aa339f311b234816a65852c56a70cf8736a2cd8eda0c3ba4c2",
+      "document_kind": "single_article_pdf",
+      "expected_title": "Different symptomatic improvement pattern revealed by factor analysis between placebo response and response to Esketamine in treatment resistant depression",
+      "review_basis": "The seven-page Psychiatry and Clinical Neurosciences PDF labels itself a regular article and displays the exact requested title and authors on page one.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1111/pcn.13572",
+      "pdf_sha256": "900c9a2273cd0741dca8991ec6fe1edfa82f1d167a34fd3e4c8238903450cd56",
+      "document_kind": "single_article_pdf",
+      "expected_title": "Insights into the neurobiology of suicidality: explicating the role of glutamatergic systems through the lens of ketamine",
+      "review_basis": "The 17-page Psychiatry and Clinical Neurosciences PDF labels itself a review article and displays the exact requested title and authors on page one.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.31480/2330-4871/004",
+      "pdf_sha256": "64e2b62ff01b1020e96f1fac31d1fe55fbb47b431ee89bb2398719546a097ef5",
+      "document_kind": "single_article_pdf",
+      "expected_title": "Salvinorin A: A Mini Review of Physical and Chemical Properties Affecting Its Translation from Research to Clinical Applications in Humans",
+      "review_basis": "The three-page Translational Perioperative and Pain Medicine PDF displays the exact mini-review title and article content on page one.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.17992/lbl.2023.11.766",
+      "pdf_sha256": "14727aae65b2ad5688b4695a57e797b49f868de47f371ce5a41c479cb206a2dd",
+      "document_kind": "single_article_pdf",
+      "expected_title": "Psychedelics and treatment of mental disorders: A survey of attitudes and knowledge among psychiatrists, general practitioners and psychologists in Iceland",
+      "review_basis": "The nine-page Laeknabladid PDF is a single Icelandic-language research article; the final page supplies the matching English title and structured summary and explicitly prints DOI 10.17992/lbl.2023.11.766.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.17992/lbl.2022.09.706",
+      "pdf_sha256": "d95b73c1c385988de636ba03bac65ca6633b6cdb05d3b6a215663c880ea55c21",
+      "document_kind": "single_article_pdf",
+      "expected_title": "Psilocybin for treatment-resistant depression",
+      "review_basis": "The eight-page Laeknabladid PDF is a single Icelandic-language review; its English summary identifies the requested topic and the document explicitly prints DOI 10.17992/lbl.2022.09.706.",
+      "reviewed_at": "2026-07-10"
+    }
+  ]
+}

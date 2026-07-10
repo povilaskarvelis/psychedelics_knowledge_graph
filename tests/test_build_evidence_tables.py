@@ -2081,6 +2081,162 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         )
         self.assertNotIn("Pain conditions", set(condition_edges["entity_label"]))
 
+    def test_clinical_review_condition_aliases_and_vas_not_pain(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            routed_path = root / "routed_evidence_rows.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [
+                        {"label": "Psilocybin", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "LSD", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "Ayahuasca", "aliases": [], "ids": {}, "status": "seeded"},
+                    ],
+                    "targets": [],
+                    "disorders": [
+                        {"label": "Obsessive-compulsive disorder", "aliases": ["OCD"], "ids": {}, "status": "seeded"},
+                        {
+                            "label": "Distress associated with life-threatening disease",
+                            "aliases": [
+                                "psychological distress in terminal illness",
+                                "anxiety associated with life-threatening diseases",
+                                "advanced-stage cancer with anxiety/depression",
+                                "life-threatening diseases with anxiety",
+                            ],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                        {
+                            "label": "Tobacco use disorder",
+                            "aliases": ["tobacco dependence"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                        {
+                            "label": "Alcohol use disorder",
+                            "aliases": ["alcohol dependence"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                        {"label": "Major depressive disorder", "aliases": ["MDD"], "ids": {}, "status": "seeded"},
+                    ],
+                },
+            )
+            write_json(
+                routed_path,
+                [
+                    {
+                        "study_doi": "10.1177/2045125316638008",
+                        "domain": "clinical_outcome",
+                        "compound": "Psilocybin",
+                        "kg_entity_kind_override": "condition_indication",
+                        "graph_entity_label": "obsessive-compulsive disorder",
+                        "condition_or_population": "obsessive-compulsive disorder (OCD)",
+                        "clinical_endpoint": "OCD symptom severity",
+                        "outcome_measure": "YBOCS; VAS",
+                        "source_type": "systematic_review",
+                        "paper_type": "systematic_review",
+                        "access_level": "article_text",
+                    },
+                    {
+                        "study_doi": "10.1177/2045125316638008",
+                        "domain": "clinical_outcome",
+                        "compound": "Psilocybin",
+                        "kg_entity_kind_override": "condition_indication",
+                        "graph_entity_label": "psychological distress in terminal illness",
+                        "condition_or_population": "advanced-stage cancer with anxiety/depression",
+                        "clinical_endpoint": "anxiety and depression",
+                        "outcome_measure": "STAI; BDI; POMS",
+                        "source_type": "systematic_review",
+                        "paper_type": "systematic_review",
+                        "access_level": "article_text",
+                    },
+                    {
+                        "study_doi": "10.1177/2045125316638008",
+                        "domain": "clinical_outcome",
+                        "compound": "Psilocybin",
+                        "kg_entity_kind_override": "condition_indication",
+                        "graph_entity_label": "tobacco dependence",
+                        "condition_or_population": "tobacco dependence",
+                        "clinical_endpoint": "smoking abstinence",
+                        "outcome_measure": "TLFB",
+                        "source_type": "systematic_review",
+                        "paper_type": "systematic_review",
+                        "access_level": "article_text",
+                    },
+                    {
+                        "study_doi": "10.1177/2045125316638008",
+                        "domain": "clinical_outcome",
+                        "compound": "LSD",
+                        "kg_entity_kind_override": "condition_indication",
+                        "graph_entity_label": "anxiety associated with life-threatening diseases",
+                        "condition_or_population": "life-threatening diseases with anxiety",
+                        "clinical_endpoint": "anxiety",
+                        "outcome_measure": "STAI; HADS",
+                        "source_type": "systematic_review",
+                        "paper_type": "systematic_review",
+                        "access_level": "article_text",
+                    },
+                    {
+                        "study_doi": "10.1177/2045125316638008",
+                        "domain": "clinical_outcome",
+                        "compound": "Ayahuasca",
+                        "kg_entity_kind_override": "condition_indication",
+                        "graph_entity_label": "major depressive disorder",
+                        "condition_or_population": "major depressive disorder (MDD)",
+                        "clinical_endpoint": "depressive symptoms",
+                        "outcome_measure": "HAM-D; MADRS; BPRS",
+                        "source_type": "systematic_review",
+                        "paper_type": "systematic_review",
+                        "access_level": "article_text",
+                    },
+                ],
+            )
+
+            build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "secondary_literature",
+                        "skip_audit": True,
+                    },
+                    "routed_clinical_endpoints": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "secondary_literature",
+                        "transform": "clinical_endpoints",
+                        "skip_audit": True,
+                    },
+                },
+            )
+
+            edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
+            audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
+
+        condition_edges = edges[edges["entity_kind"] == "condition_indication"]
+        self.assertEqual(
+            set(condition_edges["entity_label"]),
+            {
+                "Obsessive-compulsive disorder",
+                "Distress associated with life-threatening disease",
+                "Tobacco use disorder",
+                "Major depressive disorder",
+            },
+        )
+        self.assertNotIn("Pain", set(edges["entity_label"]))
+        self.assertNotIn("Psychotic-like symptoms", set(edges["entity_label"]))
+        if not audit.empty:
+            self.assertNotIn("entity_unmapped", set(audit["normalization_status"]))
+
     def test_broad_condition_terms_are_not_graphable_but_specific_labels_win(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

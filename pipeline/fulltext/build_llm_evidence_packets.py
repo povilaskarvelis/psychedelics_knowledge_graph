@@ -32,6 +32,10 @@ try:
         normalize,
         normalize_doi,
     )
+    from pipeline.fulltext.source_identity_audit_gate import (
+        DEFAULT_SOURCE_IDENTITY_AUDIT,
+        SourceIdentityAuditGate,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.convert_pdfs import (
@@ -44,6 +48,10 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         local_name,
         normalize,
         normalize_doi,
+    )
+    from pipeline.fulltext.source_identity_audit_gate import (
+        DEFAULT_SOURCE_IDENTITY_AUDIT,
+        SourceIdentityAuditGate,
     )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -1183,6 +1191,7 @@ def build_dataset_packets(
     include_section_text: bool,
     include_candidate_contexts: bool,
     packet_profile: str = "full",
+    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
 ) -> dict:
     requested_packet_profile = normalize(packet_profile) or PACKET_PROFILE_FULL
     packet_profile = canonical_packet_profile(requested_packet_profile)
@@ -1190,11 +1199,13 @@ def build_dataset_packets(
     artifact_paths = list(iter_artifact_paths(dataset, artifact_dir=artifact_dir, doi_filter=doi_filter))
     if limit > 0:
         artifact_paths = artifact_paths[:limit]
+    source_identity_gate = SourceIdentityAuditGate(source_identity_audit)
 
     counts = {
         "artifact_files_selected": len(artifact_paths),
         "packets_written": 0,
         "missing_paper_library_rows": 0,
+        "source_identity_unverified": 0,
         "missing_successful_extraction": 0,
         "missing_sections": 0,
         "total_chunks": 0,
@@ -1216,10 +1227,20 @@ def build_dataset_packets(
     with out_jsonl.open("w", encoding="utf-8") as handle:
         for artifact_path in artifact_paths:
             artifact = load_json_object(artifact_path)
-            extraction = best_extraction(artifact)
             doi = normalize_doi(artifact.get("study_doi", ""))
             if not doi:
                 doi = normalize_doi(artifact_path.stem.replace("_", "/"))
+            if not source_identity_gate.is_verified(doi, artifact_path):
+                counts["source_identity_unverified"] += 1
+                skipped.append(
+                    {
+                        "artifact_path": str(artifact_path),
+                        "study_doi": doi,
+                        "reason": "source_identity_unverified",
+                    }
+                )
+                continue
+            extraction = best_extraction(artifact)
             if not extraction:
                 counts["missing_successful_extraction"] += 1
                 skipped.append({"artifact_path": str(artifact_path), "study_doi": doi, "reason": "missing_successful_extraction"})
@@ -1265,6 +1286,7 @@ def build_dataset_packets(
         "inputs": {
             "paper_library": str(paper_library),
             "artifact_dir": str(artifact_dir),
+            "source_identity_audit": str(Path(source_identity_audit).resolve()),
             "doi_filter_count": len(doi_filter) if doi_filter is not None else None,
             "limit": limit,
             "max_chunk_chars": max_chunk_chars,
@@ -1301,6 +1323,7 @@ def main() -> int:
     parser.add_argument("--artifact-dir", default="", help="Override artifact directory; only valid for one dataset")
     parser.add_argument("--out-jsonl", default="", help="Override JSONL output path; only valid for one dataset")
     parser.add_argument("--report-json", default="", help="Override report JSON path; only valid for one dataset")
+    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
     parser.add_argument("--doi-file", default="", help="Optional DOI queue/list limiting packet generation")
     parser.add_argument("--limit", type=int, default=0, help="Maximum artifacts per dataset; 0 means all")
     parser.add_argument("--max-chunk-chars", type=int, default=6000)
@@ -1350,6 +1373,7 @@ def main() -> int:
             include_section_text=not args.omit_section_text,
             include_candidate_contexts=not args.omit_candidate_contexts,
             packet_profile=args.packet_profile,
+            source_identity_audit=Path(args.source_identity_audit).resolve(),
         )
         reports.append(report)
         counts = report["counts"]

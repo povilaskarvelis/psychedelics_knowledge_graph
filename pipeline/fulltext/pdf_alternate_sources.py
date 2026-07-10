@@ -21,6 +21,10 @@ from pipeline.ingest.sync_paper_library import (
     looks_like_pdf_bytes,
     normalize_doi,
 )
+from pipeline.fulltext.source_identity import (
+    load_pdf_hash_attestation_registry,
+    pdf_bytes_match_hash_attestation,
+)
 
 
 PMC_IDCONV_API = "https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/"
@@ -92,6 +96,9 @@ STOPWORDS = {
     "using",
     "with",
 }
+
+PDF_TITLE_FRONT_CHAR_LIMIT = 2000
+PDF_HASH_ATTESTATIONS = load_pdf_hash_attestation_registry()["records"]
 
 
 @dataclass(frozen=True)
@@ -181,14 +188,38 @@ def extract_pdf_text_from_bytes(body: bytes, max_pages: int = 3) -> str:
             tmp_path.unlink(missing_ok=True)
 
 
-def title_validation_result(title: str, body: bytes, min_title_score: float) -> tuple[bool, float, str]:
-    if min_title_score <= 0 or not clean(title):
-        return True, 0.0, "disabled"
+def title_validation_result(
+    title: str,
+    body: bytes,
+    min_title_score: float,
+    *,
+    study_doi: str = "",
+    pdf_hash_attestations: dict[str, dict] | None = None,
+) -> tuple[bool, float, str]:
+    if pdf_bytes_match_hash_attestation(
+        study_doi,
+        body,
+        PDF_HASH_ATTESTATIONS if pdf_hash_attestations is None else pdf_hash_attestations,
+    ):
+        return True, 1.0, "curated_pdf_hash"
+    if not clean(title):
+        return False, 0.0, "missing_expected_title"
+    if min_title_score <= 0:
+        return False, 0.0, "invalid_min_title_score"
     text = extract_pdf_text_from_bytes(body)
     if not text.strip():
-        return True, 0.0, "no_text_extracted"
-    score = title_match_score(title, text)
-    return score >= min_title_score, score, "title_match"
+        # A PDF-shaped response is not source-identity evidence. Scans or
+        # otherwise unreadable PDFs go to manual review instead of entering the
+        # canonical store without a title check.
+        return False, 0.0, "no_text_extracted"
+    # Conference books and supplements can contain many valid paper titles.
+    # A match anywhere in the first few pages therefore does not identify the
+    # PDF as the requested article. Require the title in the top region of page
+    # one; later matches must be segmented or reviewed manually.
+    first_page = text.split("\f", 1)[0]
+    front_text = normalize_for_title_match(first_page)[:PDF_TITLE_FRONT_CHAR_LIMIT]
+    score = title_match_score(title, front_text)
+    return score >= min_title_score, score, "front_title_match"
 
 
 def js_const_value(html: str, name: str) -> str:
@@ -637,13 +668,39 @@ def download_alternate_pdf_candidates(
     client: RateLimitedHttpClient,
     candidates: list[AlternatePdfCandidate],
     target_path: Path,
+    study_doi: str = "",
     study_title: str = "",
-    min_title_score: float = 0.5,
+    min_title_score: float = 0.86,
     allow_landing_resolution: bool = True,
     progress_callback=None,
 ) -> dict:
     if target_path.exists() and target_path.stat().st_size > 0:
         if file_is_valid_pdf(target_path):
+            existing_body = target_path.read_bytes()
+            valid_title, score, validation_basis = title_validation_result(
+                study_title,
+                existing_body,
+                min_title_score,
+                study_doi=study_doi,
+            )
+            if not valid_title:
+                return {
+                    "status": "invalid_pdf_existing",
+                    "error": f"source_identity_mismatch:{validation_basis}:{score:.3f}",
+                    "size": int(target_path.stat().st_size),
+                    "selected_url": "",
+                    "attempted_pdf_url_candidates": join_candidates(candidate.url for candidate in candidates),
+                    "events": [
+                        {
+                            "event": "title_validation",
+                            "source": "existing_local_pdf",
+                            "url": str(target_path),
+                            "score": round(score, 4),
+                            "basis": validation_basis,
+                            "accepted": False,
+                        }
+                    ],
+                }
             return {
                 "status": "already_present",
                 "error": "",
@@ -675,7 +732,12 @@ def download_alternate_pdf_candidates(
         if not looks_like_pdf_bytes(body):
             errors.append(f"{candidate.source}: {candidate.url} -> {mode}")
             continue
-        valid_title, score, validation_basis = title_validation_result(study_title, body, min_title_score)
+        valid_title, score, validation_basis = title_validation_result(
+            study_title,
+            body,
+            min_title_score,
+            study_doi=study_doi,
+        )
         events.append(
             {
                 "event": "title_validation",
@@ -687,7 +749,10 @@ def download_alternate_pdf_candidates(
             }
         )
         if not valid_title:
-            errors.append(f"{candidate.source}: {candidate.url} -> title_mismatch:{score:.3f}")
+            errors.append(
+                f"{candidate.source}: {candidate.url} -> "
+                f"source_identity_mismatch:{validation_basis}:{score:.3f}"
+            )
             continue
 
         target_path.parent.mkdir(parents=True, exist_ok=True)

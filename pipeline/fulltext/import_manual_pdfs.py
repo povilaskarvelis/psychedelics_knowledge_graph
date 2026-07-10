@@ -23,6 +23,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.ingest.sync_paper_library import normalize_doi, pdf_filename_for_doi  # noqa: E402
+from pipeline.fulltext.source_identity import (  # noqa: E402
+    load_pdf_hash_attestation_registry,
+    pdf_bytes_match_hash_attestation,
+)
 
 DEFAULT_INBOX_DIR = ROOT / "data" / "raw" / "papers" / "manual_pdf_inbox"
 DEFAULT_PDF_DIR = ROOT / "data" / "raw" / "papers" / "pdfs"
@@ -251,6 +255,75 @@ def title_match_score(title: str, text: str) -> float:
     return title_match_score_against_normalized_text(title, normalize_for_title_match(text))
 
 
+PDF_IDENTITY_FRONT_CHAR_LIMIT = 2000
+PDF_IDENTITY_FRONT_RAW_CHAR_LIMIT = 4000
+
+
+def document_front_identity_text(text: str, metadata_text: str) -> str:
+    first_page = clean(text).split("\f", 1)[0]
+    return f"{clean(metadata_text)}\n{first_page[:PDF_IDENTITY_FRONT_RAW_CHAR_LIMIT]}".strip()
+
+
+def document_front_title_text(text: str, metadata_text: str) -> str:
+    first_page = clean(text).split("\f", 1)[0]
+    front = normalize_for_title_match(first_page)[:PDF_IDENTITY_FRONT_CHAR_LIMIT]
+    return f"{normalize_for_title_match(metadata_text)}\n{front}".strip()
+
+
+def document_support_for_doi(
+    doi: str,
+    *,
+    known_records: dict[str, dict],
+    text: str,
+    metadata_text: str,
+    min_title_score: float,
+) -> tuple[bool, str, list[dict]]:
+    identity_text = document_front_identity_text(text, metadata_text)
+    embedded = []
+    for candidate in extract_dois_from_text(identity_text):
+        if candidate in known_records and candidate not in embedded:
+            embedded.append(candidate)
+    if doi in embedded:
+        return True, "document_doi", []
+    conflicting = [candidate for candidate in embedded if candidate != doi]
+    if conflicting:
+        return False, "document_doi_conflict", [
+            {"doi": candidate, "basis": "embedded_document_doi"} for candidate in conflicting
+        ]
+    expected_title = clean(
+        known_records.get(doi, {}).get("study_title", "")
+        or known_records.get(doi, {}).get("title", "")
+    )
+    score = title_match_score(
+        expected_title,
+        document_front_title_text(text, metadata_text),
+    )
+    if min_title_score > 0 and score >= min_title_score:
+        return True, "front_title_match", [
+            {"doi": doi, "basis": "front_title_match", "score": round(score, 4)}
+        ]
+    return False, "insufficient_document_identity", []
+
+
+def curated_pdf_hash_match(
+    file_path: Path,
+    known_dois: Iterable[str],
+    pdf_hash_attestations: dict[str, dict],
+) -> str:
+    """Return the DOI only when the PDF bytes match its curated registry row."""
+
+    try:
+        body = file_path.read_bytes()
+    except Exception:
+        return ""
+    matches = [
+        doi
+        for doi in known_dois
+        if pdf_bytes_match_hash_attestation(doi, body, pdf_hash_attestations)
+    ]
+    return matches[0] if len(matches) == 1 else ""
+
+
 def doi_slug(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", clean(value).lower()).strip("_")
 
@@ -345,11 +418,34 @@ def select_match(
     filename_slug_lookup: dict[str, list[str]] | None = None,
     source_filename_lookup: dict[str, list[str]] | None = None,
     pii_lookup: dict[str, list[str]] | None = None,
+    pdf_hash_attestations: dict[str, dict] | None = None,
 ) -> tuple[str, str, list[dict]]:
     known_dois = set(known_records)
+    attestations = (
+        load_pdf_hash_attestation_registry()["records"]
+        if pdf_hash_attestations is None
+        else pdf_hash_attestations
+    )
+    attested_doi = curated_pdf_hash_match(file_path, known_dois, attestations)
+    if attested_doi:
+        return attested_doi, "curated_pdf_hash", [
+            {"doi": attested_doi, "basis": "curated_pdf_hash"}
+        ]
+    front_identity_text = document_front_identity_text(text, metadata_text)
     filename_dois = [doi for doi in parse_doi_from_filename(file_path) if doi in known_dois]
     if len(filename_dois) == 1:
-        return filename_dois[0], "filename_doi", []
+        filename_doi = filename_dois[0]
+        accepted, support, candidates = document_support_for_doi(
+            filename_doi,
+            known_records=known_records,
+            text=text,
+            metadata_text=metadata_text,
+            min_title_score=min_title_score,
+        )
+        if accepted:
+            return filename_doi, f"filename_doi+{support}", candidates
+        reason = "filename_doi_content_conflict" if support == "document_doi_conflict" else "filename_doi_unverified"
+        return "", reason, candidates
     if len(filename_dois) > 1:
         return "", "ambiguous_filename_doi", [{"doi": doi, "basis": "filename_doi"} for doi in filename_dois]
 
@@ -357,7 +453,16 @@ def select_match(
         filename_slug = doi_slug(file_path.stem.split("__", 1)[0])
         slug_dois = filename_slug_lookup.get(filename_slug, [])
         if len(slug_dois) == 1:
-            return slug_dois[0], "filename_doi_slug", []
+            accepted, support, candidates = document_support_for_doi(
+                slug_dois[0],
+                known_records=known_records,
+                text=text,
+                metadata_text=metadata_text,
+                min_title_score=min_title_score,
+            )
+            if accepted:
+                return slug_dois[0], f"filename_doi_slug+{support}", candidates
+            return "", "filename_doi_slug_unverified", candidates
         if len(slug_dois) > 1:
             return "", "ambiguous_filename_doi_slug", [{"doi": doi, "basis": "filename_doi_slug"} for doi in slug_dois]
 
@@ -365,7 +470,16 @@ def select_match(
         source_filename_candidates: list[dict] = []
         source_filename_dois = source_filename_lookup.get(file_path.name.lower(), [])
         if len(source_filename_dois) == 1:
-            return source_filename_dois[0], "source_url_filename", []
+            accepted, support, candidates = document_support_for_doi(
+                source_filename_dois[0],
+                known_records=known_records,
+                text=text,
+                metadata_text=metadata_text,
+                min_title_score=min_title_score,
+            )
+            if accepted:
+                return source_filename_dois[0], f"source_url_filename+{support}", candidates
+            return "", "source_url_filename_unverified", candidates
         if len(source_filename_dois) > 1:
             source_filename_candidates = [{"doi": doi, "basis": "source_url_filename"} for doi in source_filename_dois]
     else:
@@ -379,7 +493,7 @@ def select_match(
 
     if pii_lookup:
         pii_matches: list[str] = []
-        for value in [file_path.name, metadata_text, text]:
+        for value in [metadata_text, front_identity_text]:
             for pii in extract_pii_candidates(value):
                 for doi in pii_lookup.get(pii, []):
                     if doi not in pii_matches:
@@ -389,7 +503,7 @@ def select_match(
         if len(pii_matches) > 1:
             return "", "ambiguous_pii", [{"doi": doi, "basis": "pii"} for doi in pii_matches]
 
-    text_dois = [doi for doi in extract_dois_from_text(text) if doi in known_dois]
+    text_dois = [doi for doi in extract_dois_from_text(front_identity_text) if doi in known_dois]
     if len(text_dois) == 1:
         return text_dois[0], "pdf_text_doi", []
     if len(text_dois) > 1:
@@ -401,10 +515,15 @@ def select_match(
         return "", "no_doi_found", []
 
     scored: list[dict] = []
-    combined_text = f"{metadata_text}\n{text}"
-    combined_text_norm = normalize_for_title_match(combined_text)
+    combined_text_norm = document_front_title_text(text, metadata_text)
     for doi, record in known_records.items():
         title = clean(record.get("study_title", "") or record.get("title", ""))
+        # Short titles such as "I", "LSD", or "Treatment" are unsafe global
+        # fuzzy-match candidates because they occur incidentally in many PDFs.
+        # They can still be accepted through an embedded DOI, a DOI-bearing
+        # filename, or another document-level identity signal.
+        if len(title_tokens(title)) < 4:
+            continue
         score = title_match_score_against_normalized_text(title, combined_text_norm)
         if score >= min_title_score:
             scored.append({"doi": doi, "score": round(score, 4), "title": title})
@@ -564,6 +683,7 @@ def import_manual_pdfs(
     filename_slug_lookup = build_filename_slug_lookup(known_records)
     source_filename_lookup = build_source_filename_lookup(known_records)
     pii_lookup = build_pii_lookup(known_records)
+    pdf_hash_attestations = load_pdf_hash_attestation_registry()["records"]
     files = sorted(path for path in inbox_dir.glob("*.pdf") if path.is_file()) if inbox_dir.exists() else []
 
     imported: list[dict] = []
@@ -605,6 +725,7 @@ def import_manual_pdfs(
             filename_slug_lookup=filename_slug_lookup,
             source_filename_lookup=source_filename_lookup,
             pii_lookup=pii_lookup,
+            pdf_hash_attestations=pdf_hash_attestations,
         )
         if not doi:
             row = {
@@ -619,6 +740,20 @@ def import_manual_pdfs(
         canonical_name = pdf_filename_for_doi(doi)
         dest = pdf_dir / canonical_name
         record = known_records.get(doi, {})
+        retained_text = clean(record.get("retained_for_extraction_candidate", "")).lower()
+        if retained_text in {"false", "0", "no"}:
+            skipped.append(
+                {
+                    **base,
+                    "status": "skipped_not_retained_for_extraction",
+                    "doi": doi,
+                    "match_basis": basis,
+                    "study_title": clean(record.get("study_title", "") or record.get("title", "")),
+                    "reason": "canonical candidate record is not retained for extraction",
+                    "candidate_matches_json": json.dumps(candidates, ensure_ascii=False),
+                }
+            )
+            continue
         row = {
             **base,
             "status": "matched",

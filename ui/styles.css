@@ -2801,11 +2801,13 @@ button.primary:hover {
   stroke: var(--node-color, rgba(73, 214, 200, 0.82));
   stroke-width: 1.4;
   cursor: pointer;
+  opacity: 0.78;
   transition: opacity 120ms ease, stroke-width 120ms ease, filter 120ms ease;
 }
 
 .node.hovered,
 .node.selected {
+  opacity: 1;
   stroke-width: 2.5;
   filter: drop-shadow(0 0 6px var(--node-glow, rgba(73, 214, 200, 0.3)));
 }
@@ -2830,6 +2832,7 @@ button.primary:hover {
 
 .node-label.hovered,
 .node-label.selected {
+  opacity: 1;
   fill: #f2f4ef;
   font-weight: 700;
 }
@@ -2842,7 +2845,7 @@ button.primary:hover {
   stroke-linecap: round;
   stroke-linejoin: round;
   cursor: pointer;
-  opacity: 0.78;
+  opacity: 0.58;
   transition: opacity 90ms ease, stroke-width 90ms ease;
 }
 
@@ -2885,6 +2888,14 @@ button.primary:hover {
 .node.focus-related,
 .node-label.focus-related {
   opacity: 1;
+}
+
+.node.focus-related {
+  stroke-width: 2;
+}
+
+.node-label.focus-related {
+  fill: #f2f4ef;
 }
 
 .filters {

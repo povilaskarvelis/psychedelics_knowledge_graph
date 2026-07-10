@@ -1,0 +1,59 @@
+{
+  "generated_at_utc": "2026-07-09T23:00:28.040646+00:00",
+  "apply": true,
+  "counts": {
+    "targets": 1,
+    "quarantined": 1
+  },
+  "candidate_table": {
+    "rows_changed": 1,
+    "missing_dois": [],
+    "changes": [
+      {
+        "doi": "10.3389/conf.fnins.2019.96.00055",
+        "before": {
+          "pdf_local_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.3389_conf.fnins.2019.96.00055__ebea58d6d0.pdf",
+          "pdf_sha256": "226c14bde09f774671e9a445501f66af82c5a6d874f644bfae843c8ae7253a8f",
+          "local_pdf_paths": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.3389_conf.fnins.2019.96.00055__ebea58d6d0.pdf",
+          "pdf_download_status": "already_present",
+          "best_extraction_access_tier": "full_text_available",
+          "has_converted_full_text": true,
+          "flag_has_local_pdf": true,
+          "fulltext_artifact_paths": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/articles/10_3389_conf_fnins_2019_96_00055.json",
+          "fulltext_char_count": 19621
+        },
+        "after": {
+          "pdf_local_path": "",
+          "pdf_sha256": "",
+          "local_pdf_paths": "",
+          "pdf_download_status": "source_identity_quarantined",
+          "best_extraction_access_tier": "",
+          "has_converted_full_text": false,
+          "flag_has_local_pdf": false,
+          "fulltext_artifact_paths": "",
+          "fulltext_char_count": 0
+        }
+      }
+    ],
+    "path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/candidate_papers.parquet",
+    "backup_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/source_identity_quarantine_20260710/table_backups/candidate_papers.pre_quarantine_20260710T020027.parquet"
+  },
+  "records": [
+    {
+      "doi": "10.3389/conf.fnins.2019.96.00055",
+      "artifact_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/articles/10_3389_conf_fnins_2019_96_00055.json",
+      "pdf_local_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.3389_conf.fnins.2019.96.00055__ebea58d6d0.pdf",
+      "reasons": [
+        "identity_unverified"
+      ],
+      "identity_status": "identity_unverified",
+      "classification": "",
+      "best_backend": "grobid",
+      "best_char_count": 19621,
+      "status": "quarantined",
+      "quarantined_artifact_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/source_identity_quarantine_20260710/quarantined_artifacts/10_3389_conf_fnins_2019_96_00055.json",
+      "quarantined_pdf_path": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/source_identity_quarantine_20260710/quarantined_pdfs/10.3389_conf.fnins.2019.96.00055__ebea58d6d0.pdf",
+      "pdf_retained_reason": ""
+    }
+  ]
+}

@@ -28,12 +28,30 @@ For any status other than `extracted`, add one short reason to
 
 ## What To Extract
 
-Create zero to a few `coverage_items[]` rows for high-value reviewed
-relationships, topics, or evidence clusters. When stated, capture:
+First build `review_assessment.substantive_coverage_inventory` from the relevant
+compound/class-topic or compound/class-entity relationships that are
+substantially discussed in the title and abstract for the selected scope. A
+relationship is substantially discussed at abstract depth when it defines the
+review's stated scope, question, included evidence structure, or review-level
+conclusion.
+
+Create zero to a few `coverage_items[]` rows for inventory relationships with a
+usable abstract-level review claim. Be concise, and keep distinct substantially
+discussed relationships in separate rows when the abstract explicitly names the
+compounds/classes and entities in the selected scope.
+
+Use `main_focus` for relationships that define the review, `substantial_topic`
+for relationships with real abstract-level discussion, `brief_context` for
+passing or background mentions, and `unclear` when the coverage focus cannot be
+judged. Reserve graph-facing rows for topics with review-level coverage;
+passing mentions, background examples, methods-only details, and briefly named
+topics without a review-level claim stay out of `coverage_items`.
+
+When stated, capture:
 
 - compound/class
 - focus entity or topic
-- coverage focus: main focus, substantial topic, brief context, or unclear
+- coverage focus
 - population/system
 - reviewed evidence type or source type when stated
 - summary statement

@@ -13,6 +13,25 @@ from pipeline.fulltext.build_llm_evidence_packets import (
 )
 
 
+def write_source_identity_audit(root: Path, rows: list[dict]) -> Path:
+    identity_registry = root / "source_identity_registry.json"
+    hash_registry = root / "source_identity_pdf_hash_registry.json"
+    identity_registry.write_text("{}\n", encoding="utf-8")
+    hash_registry.write_text("{}\n", encoding="utf-8")
+    audit = root / "source_identity_audit.json"
+    audit.write_text(
+        json.dumps(
+            {
+                "identity_registry": {"path": str(identity_registry)},
+                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
+                "rows": rows,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return audit
+
+
 TEI = """
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <text>
@@ -247,6 +266,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
                         "best_backend": "grobid",
                         "best_char_count": len(TEI),
                         "best_section_count": 3,
+                        "source_identity": {"status": "verified_exact_doi"},
                         "extractions": [{"backend": "grobid", "status": "ok", "text": TEI, "metadata": {"format": "tei_xml"}}],
                     }
                 ),
@@ -259,6 +279,16 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
             )
             out_jsonl = root / "packets.jsonl"
             report_json = root / "report.json"
+            source_identity_audit = write_source_identity_audit(
+                root,
+                [
+                    {
+                        "requested_doi": "10.1000/test",
+                        "artifact_path": str(artifact_path.resolve()),
+                        "identity_verified": True,
+                    }
+                ],
+            )
 
             report = build_dataset_packets(
                 "mechanistic",
@@ -274,6 +304,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
                 max_references=10,
                 include_section_text=True,
                 include_candidate_contexts=True,
+                source_identity_audit=source_identity_audit,
             )
 
             lines = out_jsonl.read_text(encoding="utf-8").splitlines()
@@ -283,6 +314,66 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         self.assertEqual(len(lines), 1)
         self.assertEqual(json.loads(lines[0])["study_doi"], "10.1000/test")
         self.assertEqual(saved_report["counts"]["packets_written"], 1)
+
+    def test_build_dataset_packets_refuses_nonpassing_identity_audit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            artifact_dir = root / "artifacts"
+            artifact_dir.mkdir()
+            (artifact_dir / "10_1000_test.json").write_text(
+                json.dumps(
+                    {
+                        "study_doi": "10.1000/test",
+                        "best_backend": "grobid",
+                        "best_char_count": len(TEI),
+                        "extractions": [
+                            {
+                                "backend": "grobid",
+                                "status": "ok",
+                                "text": TEI,
+                                "metadata": {"format": "tei_xml"},
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            paper_library = root / "paper_library.json"
+            paper_library.write_text(
+                json.dumps([{"study_doi": "10.1000/test"}]),
+                encoding="utf-8",
+            )
+            out_jsonl = root / "packets.jsonl"
+            source_identity_audit = write_source_identity_audit(
+                root,
+                [
+                    {
+                        "requested_doi": "10.1000/test",
+                        "artifact_path": str((artifact_dir / "10_1000_test.json").resolve()),
+                        "identity_verified": False,
+                    }
+                ],
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "audit is not passing"):
+                build_dataset_packets(
+                    "mechanistic",
+                    paper_library=paper_library,
+                    artifact_dir=artifact_dir,
+                    out_jsonl=out_jsonl,
+                    report_json=root / "report.json",
+                    doi_filter=None,
+                    limit=0,
+                    max_chunk_chars=100,
+                    overlap_chars=10,
+                    max_chunks_per_paper=0,
+                    max_references=10,
+                    include_section_text=True,
+                    include_candidate_contexts=True,
+                    source_identity_audit=source_identity_audit,
+                )
+
+            self.assertFalse(out_jsonl.exists())
 
     def test_build_packet_can_omit_candidate_context_hints(self) -> None:
         artifact = {

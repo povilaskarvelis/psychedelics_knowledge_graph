@@ -19,7 +19,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -336,6 +336,15 @@ def author_identity_from_local(row: dict[str, str]) -> dict[str, str]:
     }
 
 
+def alias_confidence_for_target(value: object) -> str:
+    confidence = normalize(value)
+    if confidence == "orcid":
+        return "name_alias_to_orcid"
+    if confidence == "openalex_author_id":
+        return "name_alias_to_openalex_author_id"
+    return "name_alias_to_structured_author_id"
+
+
 def authorships_for_paper(paper: dict[str, Any], cache: dict[str, Any]) -> tuple[list[dict[str, str]], str, str]:
     doi = normalize_doi(paper.get("doi", ""))
     cached = cache.get("works_by_doi", {}).get(doi, {}) if doi else {}
@@ -346,9 +355,111 @@ def authorships_for_paper(paper: dict[str, Any], cache: dict[str, Any]) -> tuple
     return local, f"fallback_{status or 'missing'}", normalize(cached.get("work_openalex_id", ""))
 
 
+def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
+    if paper_authors.empty:
+        return paper_authors, {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
+
+    out = paper_authors.copy()
+    local_mask = out["author_id"].astype(str).str.startswith("local_author:")
+    structured = out[~local_mask & out["canonical_name"].astype(str).str.strip().ne("")]
+    if structured.empty:
+        return out, {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
+
+    structured_ids_by_name = structured.groupby("canonical_name")["author_id"].nunique()
+    safe_names = set(structured_ids_by_name[structured_ids_by_name == 1].index)
+    alias_mask = local_mask & out["canonical_name"].isin(safe_names)
+    if not alias_mask.any():
+        return out, {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
+
+    target_rows = (
+        structured[structured["canonical_name"].isin(safe_names)]
+        .sort_values(["canonical_name", "identity_confidence", "author_id"])
+        .drop_duplicates("canonical_name")
+        .set_index("canonical_name")
+    )
+
+    aliased_author_ids = set(out.loc[alias_mask, "author_id"])
+    for idx in out.index[alias_mask]:
+        name = out.at[idx, "canonical_name"]
+        target = target_rows.loc[name]
+        out.at[idx, "author_id"] = target["author_id"]
+        if not normalize(out.at[idx, "openalex_author_id"]):
+            out.at[idx, "openalex_author_id"] = normalize(target.get("openalex_author_id", ""))
+        if not normalize(out.at[idx, "orcid"]):
+            out.at[idx, "orcid"] = normalize(target.get("orcid", ""))
+        out.at[idx, "identity_confidence"] = alias_confidence_for_target(target.get("identity_confidence", ""))
+
+    return out, {
+        "name_alias_authorship_rows": int(alias_mask.sum()),
+        "name_alias_author_ids": len(aliased_author_ids),
+        "name_alias_names": len(set(out.loc[alias_mask, "canonical_name"])),
+    }
+
+
+def first_nonempty(values: Iterable[object]) -> str:
+    for value in values:
+        text = normalize(value)
+        if text:
+            return text
+    return ""
+
+
+def best_author_source(values: Iterable[object]) -> str:
+    items = [normalize(value) for value in values if normalize(value)]
+    if "openalex" in items:
+        return "openalex"
+    if items:
+        return "local_authors_string"
+    return ""
+
+
+def best_author_identity_confidence(author_id: str, values: Iterable[object]) -> str:
+    if author_id.startswith("orcid:"):
+        return "orcid"
+    if author_id.startswith("openalex:"):
+        return "openalex_author_id"
+    items = [normalize(value) for value in values if normalize(value)]
+    for candidate in ("orcid_from_author_string", "name_alias_to_orcid", "name_alias_to_openalex_author_id", "name_only"):
+        if candidate in items:
+            return candidate
+    return items[0] if items else ""
+
+
+def build_authors_from_authorships(paper_authors: pd.DataFrame) -> pd.DataFrame:
+    if paper_authors.empty:
+        return pd.DataFrame()
+
+    author_rows = []
+    for author_id, group in paper_authors.groupby("author_id", sort=False):
+        names = Counter(normalize(value) for value in group["display_name"] if normalize(value))
+        display_name = sorted(names.items(), key=lambda item: (-item[1], item[0]))[0][0] if names else ""
+        author_rows.append(
+            {
+                "author_id": author_id,
+                "display_name": display_name,
+                "canonical_name": canonical_name(display_name),
+                "openalex_author_id": first_nonempty(group["openalex_author_id"]),
+                "orcid": first_nonempty(group["orcid"]),
+                "source": best_author_source(group["source"]),
+                "identity_confidence": best_author_identity_confidence(author_id, group["identity_confidence"]),
+                "display_names_json": json.dumps(sorted(names), ensure_ascii=False),
+            }
+        )
+
+    authors = pd.DataFrame(author_rows)
+    counts = paper_authors.groupby("author_id").agg(
+        paper_count=("paper_id", "nunique"),
+        authorship_count=("paper_id", "size"),
+        first_author_paper_count=("is_first_author", "sum"),
+        last_author_paper_count=("is_last_author", "sum"),
+    )
+    authors = authors.merge(counts, on="author_id", how="left")
+    for column in ("paper_count", "authorship_count", "first_author_paper_count", "last_author_paper_count"):
+        authors[column] = authors[column].fillna(0).astype(int)
+    return authors.sort_values(["paper_count", "display_name"], ascending=[False, True]).reset_index(drop=True)
+
+
 def build_tables(papers: pd.DataFrame, cache: dict[str, Any]) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
-    author_rows_by_id: dict[str, dict[str, Any]] = {}
-    name_counts_by_id: dict[str, Counter] = defaultdict(Counter)
     authorship_rows: list[dict[str, Any]] = []
     paper_status_counts: Counter = Counter()
 
@@ -378,18 +489,6 @@ def build_tables(papers: pd.DataFrame, cache: dict[str, Any]) -> tuple[pd.DataFr
 
         last_index = len(parsed_rows)
         for index, author_position_label, identity, source in parsed_rows:
-            existing = author_rows_by_id.get(identity["author_id"])
-            if existing is None:
-                author_rows_by_id[identity["author_id"]] = dict(identity)
-            else:
-                if not existing.get("openalex_author_id") and identity.get("openalex_author_id"):
-                    existing["openalex_author_id"] = identity["openalex_author_id"]
-                if not existing.get("orcid") and identity.get("orcid"):
-                    existing["orcid"] = identity["orcid"]
-                if existing.get("source") != "openalex" and identity.get("source") == "openalex":
-                    existing["source"] = "openalex"
-                    existing["identity_confidence"] = identity["identity_confidence"]
-            name_counts_by_id[identity["author_id"]][identity["display_name"]] += 1
             authorship_rows.append(
                 {
                     "paper_id": paper_id,
@@ -410,39 +509,15 @@ def build_tables(papers: pd.DataFrame, cache: dict[str, Any]) -> tuple[pd.DataFr
             )
 
     paper_authors = pd.DataFrame(authorship_rows)
-    author_rows = []
-    for author_id, row in author_rows_by_id.items():
-        names = name_counts_by_id[author_id]
-        display_name = sorted(names.items(), key=lambda item: (-item[1], item[0]))[0][0] if names else row["display_name"]
-        author_rows.append(
-            {
-                **row,
-                "display_name": display_name,
-                "canonical_name": canonical_name(display_name),
-                "display_names_json": json.dumps(sorted(names), ensure_ascii=False),
-            }
-        )
-
-    authors = pd.DataFrame(author_rows)
     if not paper_authors.empty:
-        counts = paper_authors.groupby("author_id").agg(
-            paper_count=("paper_id", "nunique"),
-            authorship_count=("paper_id", "size"),
-            first_author_paper_count=("is_first_author", "sum"),
-            last_author_paper_count=("is_last_author", "sum"),
-        )
-        authors = authors.merge(counts, on="author_id", how="left")
-    for column in ("paper_count", "authorship_count", "first_author_paper_count", "last_author_paper_count"):
-        if column not in authors.columns:
-            authors[column] = 0
-        authors[column] = authors[column].fillna(0).astype(int)
-
-    if not authors.empty:
-        authors = authors.sort_values(["paper_count", "display_name"], ascending=[False, True]).reset_index(drop=True)
-    if not paper_authors.empty:
+        paper_authors, alias_stats = apply_exact_name_aliases(paper_authors)
         paper_authors = paper_authors.sort_values(["paper_id", "author_position", "display_name"]).reset_index(drop=True)
+    else:
+        alias_stats = {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
+    authors = build_authors_from_authorships(paper_authors)
 
     report = build_report(papers, cache, authors, paper_authors, paper_status_counts)
+    report["name_alias_resolution_counts"] = alias_stats
     return authors, paper_authors, report
 
 

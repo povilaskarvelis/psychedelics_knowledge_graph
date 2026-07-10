@@ -11,9 +11,11 @@ import sys
 
 try:
     from pipeline.fulltext.convert_pdfs import doi_to_slug, normalize_doi, now_utc
+    from pipeline.fulltext.source_identity import identity_is_verified
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.convert_pdfs import doi_to_slug, normalize_doi, now_utc
+    from pipeline.fulltext.source_identity import identity_is_verified
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -67,6 +69,16 @@ def artifact_is_ready(artifact: dict) -> bool:
     return bool(clean(artifact.get("best_backend", ""))) and artifact_char_count(artifact) > 0
 
 
+def artifact_identity_rank(artifact: dict) -> int:
+    identity = artifact.get("source_identity")
+    if isinstance(identity, dict) and clean(identity.get("status", "")):
+        return 2 if identity_is_verified(identity) else 0
+    # Missing identity evidence is not a weaker success.  Legacy artifacts must
+    # be audited/migrated explicitly; they cannot silently repopulate the
+    # canonical store on a future consolidation run.
+    return 0
+
+
 def source_priority(source_dir: str) -> int:
     # Prefer parsed article XML when comparable, then legacy PDF-derived artifacts.
     return {
@@ -77,9 +89,10 @@ def source_priority(source_dir: str) -> int:
     }.get(source_dir, 5)
 
 
-def artifact_rank(candidate: dict) -> tuple[int, int, int, int]:
+def artifact_rank(candidate: dict) -> tuple[int, int, int, int, int]:
     artifact = candidate["artifact"]
     return (
+        artifact_identity_rank(artifact),
         1 if artifact_is_ready(artifact) else 0,
         artifact_char_count(artifact),
         artifact_section_count(artifact),
@@ -152,7 +165,15 @@ def consolidate_fulltext_artifacts(
         best = max(doi_candidates, key=artifact_rank)
         target_path = target_dir / f"{doi_to_slug(doi)}.json"
         action = "skipped_existing"
-        if overwrite or not target_path.exists():
+        existing_target = load_json(target_path) if target_path.exists() else {}
+        existing_doi = artifact_doi(target_path, existing_target) if existing_target else ""
+        if existing_doi and existing_doi != doi:
+            # Slug-only filenames can collide for punctuation variants. Never
+            # overwrite one DOI's artifact with another record.
+            action = "skipped_target_doi_collision"
+        elif artifact_identity_rank(best["artifact"]) == 0:
+            action = "skipped_identity_unverified"
+        elif overwrite or not target_path.exists():
             artifact = canonicalize_artifact(
                 best["artifact"],
                 source_path=best["source_path"],

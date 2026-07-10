@@ -10,6 +10,7 @@ from pipeline.fulltext.pdf_alternate_sources import (
     openalex_repository_candidates,
     semantic_scholar_candidates,
     solve_pmc_pow_cookie,
+    title_validation_result,
 )
 
 
@@ -205,3 +206,102 @@ def test_semantic_scholar_candidates_return_open_access_pdf_url() -> None:
     assert [candidate.url for candidate in candidates] == ["https://repo.example/example.pdf"]
     assert candidates[0].source == "semantic_scholar"
     assert events[0]["pdf_candidate_count"] == 1
+
+
+def test_title_validation_rejects_pdf_when_no_text_can_be_extracted(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "pipeline.fulltext.pdf_alternate_sources.extract_pdf_text_from_bytes",
+        lambda body: "",
+    )
+
+    accepted, score, basis = title_validation_result(
+        "A specific requested scientific paper",
+        b"%PDF-unreadable",
+        0.86,
+    )
+
+    assert accepted is False
+    assert score == 0.0
+    assert basis == "no_text_extracted"
+
+
+def test_title_validation_rejects_missing_expected_title() -> None:
+    accepted, score, basis = title_validation_result("", b"%PDF-example", 0.86)
+
+    assert accepted is False
+    assert score == 0.0
+    assert basis == "missing_expected_title"
+
+
+def test_title_validation_rejects_disabled_threshold() -> None:
+    accepted, score, basis = title_validation_result("Specific article title", b"%PDF-example", 0.0)
+
+    assert accepted is False
+    assert score == 0.0
+    assert basis == "invalid_min_title_score"
+
+
+def test_title_validation_requires_title_near_top_of_first_page(monkeypatch) -> None:
+    requested = "Psilocybin therapy outcomes in treatment resistant depression"
+    monkeypatch.setattr(
+        "pipeline.fulltext.pdf_alternate_sources.extract_pdf_text_from_bytes",
+        lambda body: ("unrelated adjacent abstract " * 140) + requested,
+    )
+
+    accepted, score, basis = title_validation_result(requested, b"%PDF-proceedings", 0.86)
+
+    assert accepted is False
+    assert score < 0.86
+    assert basis == "front_title_match"
+
+
+def test_title_validation_accepts_title_near_top_of_first_page(monkeypatch) -> None:
+    requested = "Psilocybin therapy outcomes in treatment resistant depression"
+    monkeypatch.setattr(
+        "pipeline.fulltext.pdf_alternate_sources.extract_pdf_text_from_bytes",
+        lambda body: f"Journal header\n{requested}\nAuthors and abstract",
+    )
+
+    accepted, score, basis = title_validation_result(requested, b"%PDF-article", 0.86)
+
+    assert accepted is True
+    assert score == 1.0
+    assert basis == "front_title_match"
+
+
+def test_title_validation_accepts_only_exact_doi_and_registered_pdf_hash() -> None:
+    body = b"%PDF-1.4\ncurator reviewed multilingual article\n%%EOF\n"
+    records = {
+        "10.1234/example": {
+            "requested_doi": "10.1234/example",
+            "pdf_sha256": hashlib.sha256(body).hexdigest(),
+        }
+    }
+
+    accepted, score, basis = title_validation_result(
+        "English title absent from document",
+        body,
+        0.86,
+        study_doi="10.1234/example",
+        pdf_hash_attestations=records,
+    )
+    wrong_doi, _wrong_score, _wrong_basis = title_validation_result(
+        "English title absent from document",
+        body,
+        0.86,
+        study_doi="10.1234/other",
+        pdf_hash_attestations=records,
+    )
+    wrong_bytes, _wrong_bytes_score, _wrong_bytes_basis = title_validation_result(
+        "English title absent from document",
+        body + b"changed",
+        0.86,
+        study_doi="10.1234/example",
+        pdf_hash_attestations=records,
+    )
+
+    assert accepted is True
+    assert score == 1.0
+    assert basis == "curated_pdf_hash"
+    assert wrong_doi is False
+    assert wrong_bytes is False

@@ -2,11 +2,13 @@
   "schema_version": "route_native_evidence_payload_active_v1",
   "active_graph_bootstraps": {
     "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_primary.json",
-    "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_secondary.json"
+    "meta_analyses": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_bootstrap_reviews.json"
   },
   "active_detail_bootstraps": {
     "primary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_primary.json",
-    "secondary": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_secondary.json"
+    "meta_analyses": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/detail_bootstrap_reviews.json"
   },
   "active_manifest": "data/processed/graph_payload_runs/gemini3_flash_20260628_primary_extraction/graph_payload_manifest.json",
   "evidence_source": "kg_tables",

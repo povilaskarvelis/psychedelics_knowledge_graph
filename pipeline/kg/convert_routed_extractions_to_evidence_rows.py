@@ -184,6 +184,18 @@ def resolve_output_paths(args: argparse.Namespace) -> argparse.Namespace:
     if run_dir is not None:
         args.run_dir = str(run_dir)
         args.run_id = safe_run_id(args.run_id) or run_dir.name
+        input_jsonl = Path(getattr(args, "input_jsonl", DEFAULT_INPUT_JSONL))
+        run_input_jsonl = run_dir / "route_extraction_outputs.jsonl"
+        if input_jsonl == DEFAULT_INPUT_JSONL and run_input_jsonl.exists():
+            args.input_jsonl = run_input_jsonl
+        elif not hasattr(args, "input_jsonl"):
+            args.input_jsonl = input_jsonl
+        tasks_jsonl = Path(getattr(args, "tasks_jsonl", DEFAULT_TASKS_JSONL))
+        run_tasks_jsonl = run_dir / "route_extraction_tasks.jsonl"
+        if tasks_jsonl == DEFAULT_TASKS_JSONL and run_tasks_jsonl.exists():
+            args.tasks_jsonl = run_tasks_jsonl
+        elif not hasattr(args, "tasks_jsonl"):
+            args.tasks_jsonl = tasks_jsonl
         args.out_json = Path(args.out_json) if args.out_json else run_dir / "routed_evidence_rows.json"
         args.report_json = Path(args.report_json) if args.report_json else run_dir / "routed_evidence_rows_report.json"
         return args
@@ -278,53 +290,112 @@ def apply_full_text_open_access_signal(row: dict) -> None:
 def task_lookup(tasks_jsonl: Path) -> dict[str, dict]:
     lookup: dict[str, dict] = {}
     for task in read_jsonl(tasks_jsonl):
+        task_id = normalize(task.get("task_id", ""))
+        if not task_id:
+            continue
         metadata = task.get("paper_metadata", {}) if isinstance(task.get("paper_metadata"), dict) else {}
         values = normalized_metadata(metadata)
         if meaningful(task.get("study_doi", "")):
             values.setdefault("study_doi", normalize(task.get("study_doi", "")))
-        keys = {
-            normalize(task.get("task_id", "")),
-            normalize(task.get("route_id", "")),
-            normalize(task.get("study_doi", "")),
-            normalize(metadata.get("doi", "")),
+        route_context = task.get("route_context", {}) if isinstance(task.get("route_context"), dict) else {}
+        contract = task.get("extraction_contract", {}) if isinstance(task.get("extraction_contract"), dict) else {}
+        text_source = task.get("text_source", {}) if isinstance(task.get("text_source"), dict) else {}
+        mode = normalized_status(text_source.get("mode", ""))
+        expected_text_depth = ""
+        if mode == "abstract":
+            expected_text_depth = "abstract_only"
+        elif mode in {"full_text_packet", "full_text_artifact"}:
+            expected_text_depth = "article_text"
+        lookup[task_id] = {
+            "metadata": values,
+            "task_id": task_id,
+            "route_id": normalize(task.get("route_id", "")),
+            "study_doi": normalize(task.get("study_doi", "")),
+            "domain_route": normalize(contract.get("domain_route", ""))
+            or normalize(route_context.get("domain_route", "")),
+            "input_fingerprint": normalize(task.get("input_fingerprint", "")),
+            "expected_text_depth": expected_text_depth,
         }
-        for key in keys:
-            if key:
-                lookup.setdefault(key, values)
     return lookup
 
 
 def metadata_for_output_row(output_row: dict, result: dict, tasks: dict[str, dict]) -> dict:
-    keys = (
+    keys = [
         normalize(output_row.get("task_id", "")),
-        normalize(output_row.get("route_id", "")),
         normalize(result.get("task_id", "")),
-        normalize(result.get("route_id", "")),
-        normalize(result.get("study_doi", "")),
-    )
+    ]
     for key in keys:
         if key and key in tasks:
-            return dict(tasks[key])
+            return dict(tasks[key].get("metadata", {}))
     return {}
 
 
-def output_task_keys(output_row: dict, result: dict) -> tuple[list[str], str]:
-    id_keys = [
+def output_task_ids(output_row: dict, result: dict) -> list[str]:
+    return [
         normalize(output_row.get("task_id", "")),
-        normalize(output_row.get("route_id", "")),
         normalize(result.get("task_id", "")),
-        normalize(result.get("route_id", "")),
     ]
-    id_keys = [key for key in id_keys if key]
-    doi_key = normalize(result.get("study_doi", ""))
-    return id_keys, doi_key
+
+
+def current_task_for_output(
+    output_row: dict,
+    result: dict,
+    tasks: dict[str, dict],
+) -> dict | None:
+    for task_id in output_task_ids(output_row, result):
+        if task_id and task_id in tasks:
+            return tasks[task_id]
+    return None
 
 
 def output_has_current_task(output_row: dict, result: dict, tasks: dict[str, dict]) -> bool:
-    id_keys, doi_key = output_task_keys(output_row, result)
-    if id_keys:
-        return any(key in tasks for key in id_keys)
-    return bool(doi_key and doi_key in tasks)
+    return current_task_for_output(output_row, result, tasks) is not None
+
+
+def output_matches_current_task(
+    output_row: dict,
+    result: dict,
+    task: dict,
+) -> tuple[bool, str]:
+    task_ids = {value for value in output_task_ids(output_row, result) if value}
+    if task_ids != {task["task_id"]}:
+        return False, "task_id_mismatch"
+
+    output_route_ids = {
+        normalize(output_row.get("route_id", "")),
+        normalize(result.get("route_id", "")),
+    }
+    output_route_ids.discard("")
+    if not output_route_ids or output_route_ids != {task["route_id"]}:
+        return False, "route_id_mismatch"
+
+    expected_fingerprint = normalize(task.get("input_fingerprint", ""))
+    if expected_fingerprint:
+        output_fingerprints = {
+            normalize(output_row.get("input_fingerprint", "")),
+            normalize(result.get("input_fingerprint", "")),
+        }
+        output_fingerprints.discard("")
+        if not output_fingerprints:
+            return False, "missing_input_fingerprint"
+        if output_fingerprints != {expected_fingerprint}:
+            return False, "input_fingerprint_mismatch"
+
+    expected_doi = normalize(task.get("study_doi", ""))
+    actual_doi = normalize(result.get("study_doi", ""))
+    if expected_doi and actual_doi != expected_doi:
+        return False, "study_doi_mismatch"
+
+    expected_domain = normalize(task.get("domain_route", ""))
+    actual_domain = normalize(result.get("domain_route", ""))
+    if expected_domain and actual_domain != expected_domain:
+        return False, "domain_route_mismatch"
+
+    expected_depth = normalized_status(task.get("expected_text_depth", ""))
+    actual_depth = normalized_status(result.get("text_depth", ""))
+    if expected_depth and actual_depth != expected_depth:
+        return False, "text_depth_mismatch"
+    return True, ""
 
 
 def active_route_lookup(route_table: Path | None) -> dict[str, set] | None:
@@ -332,33 +403,22 @@ def active_route_lookup(route_table: Path | None) -> dict[str, set] | None:
         return None
     df = pd.read_parquet(route_table)
     route_ids: set[str] = set()
-    doi_domains: set[tuple[str, str]] = set()
-    dois: set[str] = set()
     for row in df.to_dict("records"):
-        doi = normalize(row.get("doi", "")) or normalize(row.get("study_doi", ""))
         route_id = normalize(row.get("route_id", ""))
-        domain = normalize(row.get("domain_route", ""))
         if route_id:
             route_ids.add(route_id)
-        if doi:
-            dois.add(doi)
-            if domain:
-                doi_domains.add((doi, domain))
-    return {"route_ids": route_ids, "doi_domains": doi_domains, "dois": dois}
+    return {"route_ids": route_ids}
 
 
 def output_has_active_route(output_row: dict, result: dict, active_routes: dict[str, set] | None) -> bool:
     if active_routes is None:
         return True
-    id_keys, doi_key = output_task_keys(output_row, result)
-    domain = normalize(result.get("domain_route", ""))
-    if id_keys and any(key in active_routes["route_ids"] for key in id_keys):
-        return True
-    if doi_key and domain and (doi_key, domain) in active_routes["doi_domains"]:
-        return True
-    if doi_key and not id_keys and not domain and doi_key in active_routes["dois"]:
-        return True
-    return False
+    route_ids = {
+        normalize(output_row.get("route_id", "")),
+        normalize(result.get("route_id", "")),
+    }
+    route_ids.discard("")
+    return bool(route_ids) and route_ids.issubset(active_routes["route_ids"])
 
 
 def result_items(result: dict) -> tuple[str, list[dict]]:
@@ -405,7 +465,15 @@ def review_coverage_exclusion_reason(item: dict) -> str:
 
 
 def infer_entity_kind(row: dict, domain: str) -> str:
-    for field in ("primary_graph_anchor_kind", "kg_entity_kind_override", "graph_candidate_type", "graph_entity_type", "entity_type"):
+    for field in ("primary_graph_anchor_kind", "kg_entity_kind_override", "graph_candidate_type", "graph_entity_type"):
+        kind = normalized_entity_kind(row.get(field, ""))
+        if meaningful(kind) and kind not in {"not_applicable", "uncertain"}:
+            return kind
+    if domain == "clinical_outcome" and (
+        meaningful(row.get("condition_or_indication", "")) or meaningful(row.get("condition_or_population", ""))
+    ):
+        return "condition_indication"
+    for field in ("entity_type",):
         kind = normalized_entity_kind(row.get(field, ""))
         if meaningful(kind) and kind not in {"not_applicable", "uncertain"}:
             return kind
@@ -616,6 +684,16 @@ def convert_outputs(
         if not output_has_current_task(output_row, result, tasks):
             skipped["missing_current_task"] += 1
             continue
+        current_task = current_task_for_output(output_row, result, tasks)
+        assert current_task is not None
+        matches_task, mismatch_reason = output_matches_current_task(
+            output_row,
+            result,
+            current_task,
+        )
+        if not matches_task:
+            skipped[f"current_task_mismatch:{mismatch_reason}"] += 1
+            continue
         if not output_has_active_route(output_row, result, active_routes):
             skipped["inactive_current_route"] += 1
             continue
@@ -684,6 +762,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if not Path(args.input_jsonl).exists():
+        raise SystemExit(f"Routed extraction outputs do not exist: {args.input_jsonl}")
+    if not Path(args.tasks_jsonl).exists():
+        raise SystemExit(f"Routed extraction tasks do not exist: {args.tasks_jsonl}")
     active_route_table = args.active_route_table
     if active_route_table is None and args.use_default_active_route_table:
         active_route_table = DEFAULT_ACTIVE_ROUTE_TABLE

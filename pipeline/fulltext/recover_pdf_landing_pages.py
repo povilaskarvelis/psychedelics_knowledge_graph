@@ -25,6 +25,7 @@ try:
         rebuild_routes_after_pdf_downloads,
         sha256_file,
     )
+    from pipeline.fulltext.pdf_alternate_sources import title_validation_result
     from pipeline.ingest.sync_paper_library import (
         file_is_valid_pdf,
         is_probable_pdf_url,
@@ -43,6 +44,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         rebuild_routes_after_pdf_downloads,
         sha256_file,
     )
+    from pipeline.fulltext.pdf_alternate_sources import title_validation_result
     from pipeline.ingest.sync_paper_library import (
         file_is_valid_pdf,
         is_probable_pdf_url,
@@ -561,6 +563,7 @@ def recover_pdf_landing_pages(
     limit: int = 0,
     timeout_sec: int = 30,
     rps: float = 0.5,
+    min_title_score: float = 0.86,
     apply: bool = False,
     allow_landing_resolution: bool = True,
     rebuild_routes_after: bool = False,
@@ -620,10 +623,35 @@ def recover_pdf_landing_pages(
         selected_url = ""
         recovered_size = 0
         events: list[dict] = []
+        identity_errors: list[str] = []
+
+        def recovered_body_matches(body: bytes, source_url: str) -> bool:
+            accepted, score, basis = title_validation_result(
+                clean(row.get("study_title", "")),
+                body,
+                max(0.0, min_title_score),
+                study_doi=doi,
+            )
+            events.append(
+                {
+                    "event": "title_validation",
+                    "url": source_url,
+                    "score": round(score, 4),
+                    "basis": basis,
+                    "accepted": accepted,
+                }
+            )
+            if not accepted:
+                identity_errors.append(f"source_identity_mismatch:{basis}:{score:.3f}")
+            return accepted
 
         if target_path.exists() and file_is_valid_pdf(target_path):
-            status = "already_present"
-            selected_url = ""
+            if recovered_body_matches(target_path.read_bytes(), str(target_path)):
+                status = "already_present"
+                selected_url = ""
+            else:
+                status = "invalid_pdf_existing"
+                error = identity_errors[-1]
         else:
             selected_url, body, osf_events = try_osf_candidates(
                 session=session,
@@ -631,7 +659,7 @@ def recover_pdf_landing_pages(
                 timeout_sec=timeout_sec,
             )
             events.extend(osf_events)
-            if selected_url and body:
+            if selected_url and body and recovered_body_matches(body, selected_url):
                 recovered_size = len(body)
                 if apply:
                     tmp_path = target_path.with_suffix(".tmp")
@@ -647,7 +675,7 @@ def recover_pdf_landing_pages(
                     timeout_sec=timeout_sec,
                 )
                 events.extend(figshare_events)
-                if selected_url and body:
+                if selected_url and body and recovered_body_matches(body, selected_url):
                     recovered_size = len(body)
                     if apply:
                         tmp_path = target_path.with_suffix(".tmp")
@@ -670,7 +698,7 @@ def recover_pdf_landing_pages(
                 )
                 last_request_at = time.monotonic()
                 events.extend(candidate_events)
-                if selected_url and body:
+                if selected_url and body and recovered_body_matches(body, selected_url):
                     recovered_size = len(body)
                     if apply:
                         tmp_path = target_path.with_suffix(".tmp")
@@ -681,7 +709,9 @@ def recover_pdf_landing_pages(
                         status = "would_download"
                     break
             if status == "download_failed":
-                if any(event.get("event", "").endswith("challenge_or_access_control") for event in events):
+                if identity_errors:
+                    error = identity_errors[-1]
+                elif any(event.get("event", "").endswith("challenge_or_access_control") for event in events):
                     error = "challenge_or_access_control"
                 elif events:
                     error = "no_valid_pdf_recovered"
@@ -758,6 +788,7 @@ def recover_pdf_landing_pages(
         "standard_recovery_only": standard_recovery_only,
         "limit": limit,
         "allow_landing_resolution": allow_landing_resolution,
+        "min_title_score": min_title_score,
         "counts": {
             "tasks": len(rows),
             "status": dict(counts),
@@ -806,6 +837,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--timeout-sec", type=int, default=30)
     parser.add_argument("--rps", type=float, default=0.5)
+    parser.add_argument(
+        "--min-title-score",
+        type=float,
+        default=0.86,
+        help="Minimum extracted-title score required before a recovered PDF is saved.",
+    )
     parser.add_argument("--no-landing-resolution", action="store_true")
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--rebuild-routes-after", action="store_true")
@@ -842,6 +879,7 @@ def main() -> int:
         limit=args.limit,
         timeout_sec=args.timeout_sec,
         rps=args.rps,
+        min_title_score=args.min_title_score,
         apply=bool(args.apply),
         allow_landing_resolution=not args.no_landing_resolution,
         rebuild_routes_after=bool(args.rebuild_routes_after),

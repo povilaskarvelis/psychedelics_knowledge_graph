@@ -299,8 +299,21 @@ let claimLayer = "normalized";
 let evidenceView = "primary";
 const EVIDENCE_VIEW_KEYS = ["primary", "meta_analyses", "reviews", "secondary"];
 const SECONDARY_EVIDENCE_VIEW_KEYS = new Set(["meta_analyses", "reviews", "secondary"]);
+const META_ANALYSIS_SOURCE_KEYS = new Set(["meta_analyses"]);
+const REVIEW_SOURCE_KEYS = new Set(["reviews", "secondary"]);
+const META_ANALYSIS_SOURCE_TYPES = new Set(["meta_analysis", "network_meta_analysis"]);
+const REVIEW_SOURCE_TYPES = new Set([
+  "review",
+  "systematic_review",
+  "scoping_review",
+  "narrative_review",
+  "literature_review",
+  "umbrella_review",
+]);
 let entityViewKey = "condition_indication";
 let renderScheduled = false;
+let centerGraphAfterRender = false;
+let centerGraphFrame = 0;
 let activeDetailItems = [];
 let detailGraphFilter = null;
 const expandedChartKeys = new Set();
@@ -879,7 +892,36 @@ function isSecondaryLiteratureClaim(claim) {
   );
 }
 
-function secondaryLiteratureClaims(baseClaims) {
+function sourceTypeToken(value) {
+  return normalizeValue(value).replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function literatureSourceTypeTokens(claim) {
+  return [claim.paper_type, claim.source_type, claim.publication_type]
+    .map(sourceTypeToken)
+    .filter(Boolean);
+}
+
+function isMetaAnalysisClaim(claim) {
+  return literatureSourceTypeTokens(claim).some(
+    (token) => META_ANALYSIS_SOURCE_TYPES.has(token) || token.includes("meta_analysis")
+  );
+}
+
+function isReviewLiteratureClaim(claim) {
+  if (!isSecondaryLiteratureClaim(claim) || isMetaAnalysisClaim(claim)) return false;
+  const tokens = literatureSourceTypeTokens(claim);
+  if (!tokens.length) return true;
+  return tokens.some((token) => REVIEW_SOURCE_TYPES.has(token) || token.includes("review"));
+}
+
+function secondaryLiteratureClaims(baseClaims, view = evidenceView) {
+  if (META_ANALYSIS_SOURCE_KEYS.has(view)) {
+    return baseClaims.filter((claim) => isSecondaryLiteratureClaim(claim) && isMetaAnalysisClaim(claim));
+  }
+  if (REVIEW_SOURCE_KEYS.has(view)) {
+    return baseClaims.filter(isReviewLiteratureClaim);
+  }
   return baseClaims.filter(isSecondaryLiteratureClaim);
 }
 
@@ -888,6 +930,17 @@ function isSecondaryEvidenceView(view = evidenceView) {
 }
 
 function recordLabelsForItems(items = []) {
+  const metaAnalyses =
+    items.length > 0 ? items.every(isMetaAnalysisClaim) : META_ANALYSIS_SOURCE_KEYS.has(evidenceView);
+  if (metaAnalyses) {
+    return {
+      summary: "Meta-analytic records",
+      section: "Meta-analyses",
+      empty: "No meta-analytic records in this selection.",
+      lowerSingular: "meta-analytic record",
+      lowerPlural: "meta-analytic records",
+    };
+  }
   const secondary =
     items.length > 0 ? items.every(isSecondaryLiteratureClaim) : isSecondaryEvidenceView();
   return secondary
@@ -946,7 +999,7 @@ function dedupeClaims(items) {
 
 function graphViewClaims(baseClaims) {
   const visibleClaims = baseClaims.filter((claim) => !isHiddenMainGraphItem(claim));
-  if (isSecondaryEvidenceView()) return secondaryLiteratureClaims(visibleClaims);
+  if (isSecondaryEvidenceView()) return secondaryLiteratureClaims(visibleClaims, evidenceView);
   return primaryEvidenceClaims(visibleClaims);
 }
 
@@ -3325,8 +3378,9 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference") {
   const publicHealthEstimate = compactUniqueParts([claim.estimate_value, claim.estimate_unit]).join(" ");
   const systemSummary = compactUniqueParts([displayFieldLabel(claim.system, ""), claim.species]).join(" • ");
   const mainFinding = claimMainFindingText(claim);
-  const mainFindingLine = !secondary && mainFinding
-    ? `<div class="card-main-finding"><span class="card-field-label">Finding:</span> ${escapeHtml(mainFinding)}</div>`
+  const mainFindingLabel = secondary ? literatureMainFindingLabel(claim) : "Finding";
+  const mainFindingLine = mainFinding
+    ? `<div class="card-main-finding"><span class="card-field-label">${escapeHtml(mainFindingLabel)}:</span> ${escapeHtml(mainFinding)}</div>`
     : "";
   const referenceLine = studyReferenceHtml(claim, referenceClass);
 
@@ -3924,6 +3978,10 @@ function secondaryCoverageText(claim) {
   return "Discusses relationship";
 }
 
+function literatureMainFindingLabel(claim) {
+  return isMetaAnalysisClaim(claim) ? "Result" : "Summary";
+}
+
 function evidenceLocationText(claim) {
   const location = meaningfulText(claim.evidence_location);
   if (location) return displayFieldLabel(location);
@@ -4388,7 +4446,7 @@ function summarizeAuthorRoleEvidence(items) {
       ["last", lastAuthorFacetValue(claim, authorAliases)],
     ].forEach(([role, rawValue]) => {
       const label = rawValue && typeof rawValue === "object" ? meaningfulText(rawValue.label || rawValue.value) : "";
-      const value = authorRoleLabelFilterValue(label);
+      const value = rawValue && typeof rawValue === "object" ? meaningfulText(rawValue.value || label) : "";
       if (!label || !value) return;
       const entry =
         map.get(value) ||
@@ -5755,6 +5813,7 @@ function renderSelectedDetailFromData(data) {
 }
 
 function buildGraph(data) {
+  hideTooltip();
   graphEl.innerHTML = "";
 
   const graphHasDetailBootstrap = data.some((claim) => claim?.__detail_bootstrap);
@@ -6030,11 +6089,11 @@ function buildGraph(data) {
   }
 
   function applyFocusForNode(nodeType, nodeName) {
-    scheduleFocusState(focusClassesForNode(nodeType, nodeName), true);
+    scheduleFocusState(focusClassesForNode(nodeType, nodeName), false);
   }
 
   function applyFocusForEdge(edgeKey) {
-    scheduleFocusState(focusClassesForEdge(edgeKey), true);
+    scheduleFocusState(focusClassesForEdge(edgeKey), false);
   }
 
   function applyFocusFromSelection() {
@@ -6138,6 +6197,7 @@ function buildGraph(data) {
       if (sameSelection) {
         if (!isolateSelection) {
           isolateSelection = true;
+          requestGraphCenterAfterRender();
           scheduleRender();
           return;
         }
@@ -6146,7 +6206,8 @@ function buildGraph(data) {
       }
 
       selected = { type: "edge", compound, target };
-      isolateSelection = false;
+      isolateSelection = true;
+      requestGraphCenterAfterRender();
       clearSelectedStyles();
       path.classList.add("selected");
       renderEdgeDetail(compound, target, edge.claims);
@@ -6203,6 +6264,7 @@ function buildGraph(data) {
       if (sameSelection) {
         if (!isolateSelection) {
           isolateSelection = true;
+          requestGraphCenterAfterRender();
           scheduleRender();
           return;
         }
@@ -6211,7 +6273,8 @@ function buildGraph(data) {
       }
 
       selected = { type: "compound", name: compound };
-      isolateSelection = false;
+      isolateSelection = true;
+      requestGraphCenterAfterRender();
       clearSelectedStyles();
       node.classList.add("selected");
       label.classList.add("selected");
@@ -6275,6 +6338,7 @@ function buildGraph(data) {
       if (sameSelection) {
         if (!isolateSelection) {
           isolateSelection = true;
+          requestGraphCenterAfterRender();
           scheduleRender();
           return;
         }
@@ -6283,7 +6347,8 @@ function buildGraph(data) {
       }
 
       selected = { type: "target", name: target };
-      isolateSelection = false;
+      isolateSelection = true;
+      requestGraphCenterAfterRender();
       clearSelectedStyles();
       node.classList.add("selected");
       label.classList.add("selected");
@@ -6350,7 +6415,34 @@ function scheduleRender() {
   window.requestAnimationFrame(() => {
     renderScheduled = false;
     render();
+    runPendingGraphCenter();
   });
+}
+
+function requestGraphCenterAfterRender() {
+  centerGraphAfterRender = true;
+}
+
+function runPendingGraphCenter() {
+  if (!centerGraphAfterRender) return;
+  centerGraphAfterRender = false;
+  if (centerGraphFrame) {
+    window.cancelAnimationFrame(centerGraphFrame);
+  }
+  centerGraphFrame = window.requestAnimationFrame(() => {
+    centerGraphFrame = 0;
+    centerGraphInViewport();
+  });
+}
+
+function centerGraphInViewport() {
+  const rect = graphEl.getBoundingClientRect();
+  if (!rect.height) return;
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+  if (!viewportHeight) return;
+  const graphCenterY = window.scrollY + rect.top + rect.height / 2;
+  const targetTop = Math.max(0, graphCenterY - viewportHeight / 2);
+  window.scrollTo({ top: targetTop, behavior: "smooth" });
 }
 
 function updateSearchPlaceholder() {
@@ -6520,12 +6612,14 @@ async function loadBibliographyPayloads() {
 
 const normalizedSourceLoaded = {
   primary: false,
-  secondary: false,
+  meta_analyses: false,
+  reviews: false,
 };
 
 const normalizedSourceTasks = {
   primary: null,
-  secondary: null,
+  meta_analyses: null,
+  reviews: null,
 };
 
 function renderDataLoading() {
@@ -6558,12 +6652,17 @@ function activeDetailBootstrapPath(config, sourceKey) {
   return cleanDisplayText(bootstraps?.[sourceKey]);
 }
 
+function isSecondarySourceKey(sourceKey) {
+  return META_ANALYSIS_SOURCE_KEYS.has(sourceKey) || REVIEW_SOURCE_KEYS.has(sourceKey);
+}
+
 function graphBootstrapClaimsFromPayload(payload, sourceKey) {
   const edges = Array.isArray(payload?.edges) ? payload.edges : [];
   return edges.map((edge, index) => {
     const entityLabel = cleanDisplayText(edge.entity_label);
     const accessLevel = Number(edge.full_text_seen_count || 0) > 0 ? "full_text_seen" : "abstract_only";
-    const secondary = sourceKey === "secondary";
+    const secondary = isSecondarySourceKey(sourceKey);
+    const metaAnalysis = sourceKey === "meta_analyses";
     const item = {
       finding_id: `graph-bootstrap:${index}`,
       compound: cleanDisplayText(edge.compound),
@@ -6576,8 +6675,8 @@ function graphBootstrapClaimsFromPayload(payload, sourceKey) {
       finding_type: cleanDisplayText(edge.finding_type || edge.domain),
       kg_evidence_type: cleanDisplayText(edge.evidence_type || (secondary ? "secondary_literature" : "primary_evidence")),
       paper_assessment_route: secondary ? "secondary_literature" : "primary_evidence",
-      paper_type: secondary ? "review" : "primary_results",
-      source_type: secondary ? "review" : "primary_study",
+      paper_type: secondary ? (metaAnalysis ? "meta_analysis" : "review") : "primary_results",
+      source_type: secondary ? (metaAnalysis ? "meta_analysis" : "review") : "primary_study",
       access_level: accessLevel,
       source_access_level: accessLevel,
       graph_claim_count: Number(edge.finding_count || 0) || 1,
@@ -6638,7 +6737,8 @@ async function loadDetailBootstrapClaims(sourceKey) {
 
 function routeNativeSourceKey(finding) {
   const evidenceType = normalizeValue(finding.evidence_type || finding.kg_evidence_type);
-  return evidenceType === "secondary_literature" ? "secondary" : "primary";
+  if (evidenceType !== "secondary_literature") return "primary";
+  return isMetaAnalysisClaim(finding) ? "meta_analyses" : "reviews";
 }
 
 function routeNativeAccessLevel(finding) {
@@ -6699,7 +6799,7 @@ function routeNativeFindingForCurrentUi(finding) {
     source_family: cleanDisplayText(finding.source_family),
     paper_assessment_route:
       cleanDisplayText(finding.paper_assessment_route) ||
-      (routeNativeSourceKey(finding) === "secondary" ? "secondary_literature" : "primary_evidence"),
+      (isSecondarySourceKey(routeNativeSourceKey(finding)) ? "secondary_literature" : "primary_evidence"),
     access_level: accessLevel,
     source_access_level: accessLevel,
     evidence_location: cleanDisplayText(finding.evidence_location),
@@ -6730,7 +6830,9 @@ async function loadRouteNativeEvidenceSource(sourceKey) {
 }
 
 function currentSourceKey() {
-  return isSecondaryEvidenceView() ? "secondary" : "primary";
+  if (evidenceView === "meta_analyses") return "meta_analyses";
+  if (evidenceView === "reviews" || evidenceView === "secondary") return "reviews";
+  return "primary";
 }
 
 function normalizedCurrentSourceLoaded() {
@@ -6878,11 +6980,12 @@ function preloadNormalizedSourceInBackground(sourceKey, delay) {
 
 function preloadLikelyNextData() {
   const saveData = Boolean(window.navigator?.connection?.saveData);
+  const activeSourceKey = currentSourceKey();
   const queue = saveData
     ? []
-    : [
-        evidenceView === "primary" ? "secondary" : "primary",
-      ];
+    : activeSourceKey === "primary"
+      ? ["meta_analyses", "reviews"]
+      : ["primary"];
   const seen = new Set();
 
   queue.forEach((sourceKey, index) => {

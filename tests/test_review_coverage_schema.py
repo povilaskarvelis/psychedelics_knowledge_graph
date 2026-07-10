@@ -40,6 +40,19 @@ def valid_clinical_payload() -> dict:
             "population_or_system": "Adults with depression",
             "primary_compounds_or_classes": "ketamine",
             "primary_entities": "suicidal ideation",
+            "substantive_coverage_inventory": [
+                {
+                    "inventory_id": "I1",
+                    "compound_or_class": "ketamine",
+                    "entity_type": "not_applicable",
+                    "entity": "suicidal ideation",
+                    "coverage_focus": "substantial_topic",
+                    "evidence_basis": "review_level_conclusion",
+                    "has_coverage_item": True,
+                    "coverage_item_ids": ["C1"],
+                    "reason_if_no_coverage_item": "not_applicable",
+                }
+            ],
             "needs_human_review": False,
             "reasoning_summary": "The review discusses clinical outcomes in the selected domain.",
             "evidence_location": "abstract",
@@ -66,6 +79,8 @@ def valid_clinical_payload() -> dict:
                 "needs_human_review": False,
                 "domain_result": {
                     "condition_or_population": "Patients deemed at risk for suicide",
+                    "condition_or_indication": "Suicidality",
+                    "population_or_subgroup": "Patients deemed at risk for suicide",
                     "compound_or_intervention": "ketamine",
                     "clinical_topic": "anti-suicidal effect",
                     "clinical_endpoint": "suicidal ideation",
@@ -92,11 +107,56 @@ def test_domain_specific_clinical_review_schema_accepts_valid_payload() -> None:
     assert errors == [], [error.message for error in errors]
 
 
+def test_review_schema_requires_substantive_coverage_inventory() -> None:
+    schema = load_schema("clinical_outcome")
+    payload = valid_clinical_payload()
+    del payload["review_assessment"]["substantive_coverage_inventory"]
+    errors = sorted(Draft7Validator(schema).iter_errors(payload), key=lambda error: list(error.path))
+
+    assert any("substantive_coverage_inventory" in error.message for error in errors)
+
+
+def test_review_schema_accepts_multiple_substantive_inventory_items() -> None:
+    schema = load_schema("clinical_outcome")
+    payload = valid_clinical_payload()
+    payload["review_assessment"]["primary_compounds_or_classes"] = "psychedelics and MDMA"
+    payload["review_assessment"]["primary_entities"] = "autism spectrum disorder and social anxiety"
+    payload["review_assessment"]["substantive_coverage_inventory"] = [
+        {
+            "inventory_id": "I1",
+            "compound_or_class": "psychedelics",
+            "entity_type": "disorder",
+            "entity": "autism spectrum disorder",
+            "coverage_focus": "main_focus",
+            "evidence_basis": "title_or_abstract_scope",
+            "has_coverage_item": True,
+            "coverage_item_ids": ["C1"],
+            "reason_if_no_coverage_item": "not_applicable",
+        },
+        {
+            "inventory_id": "I2",
+            "compound_or_class": "MDMA",
+            "entity_type": "symptom_or_outcome",
+            "entity": "social anxiety in autistic adults",
+            "coverage_focus": "substantial_topic",
+            "evidence_basis": "section_or_heading",
+            "has_coverage_item": False,
+            "coverage_item_ids": [],
+            "reason_if_no_coverage_item": "source text did not provide a compact review-level claim",
+        },
+    ]
+    errors = sorted(Draft7Validator(schema).iter_errors(payload), key=lambda error: list(error.path))
+
+    assert errors == [], [error.message for error in errors]
+
+
 def test_domain_specific_clinical_review_schema_excludes_removed_low_value_fields() -> None:
     schema = load_schema("clinical_outcome")
     coverage_item = schema["definitions"]["coverage_item"]
     domain_result = schema["definitions"]["coverage_item"]["properties"]["domain_result"]["properties"]
 
+    assert "condition_or_indication" in coverage_item["properties"]["domain_result"]["required"]
+    assert "population_or_subgroup" in coverage_item["properties"]["domain_result"]["required"]
     assert "evidence_gaps" not in schema["properties"]
     assert "study_count" not in coverage_item["required"]
     assert "study_count" not in coverage_item["properties"]

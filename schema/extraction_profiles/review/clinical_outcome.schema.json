@@ -129,6 +129,7 @@
         "population_or_system",
         "primary_compounds_or_classes",
         "primary_entities",
+        "substantive_coverage_inventory",
         "needs_human_review",
         "reasoning_summary",
         "evidence_location",
@@ -168,6 +169,80 @@
         },
         "evidence_locator": {
           "type": "string"
+        },
+        "substantive_coverage_inventory": {
+          "type": "array",
+          "description": "Paper-level inventory of relevant compound/class-topic or compound/class-entity relationships substantially discussed in the selected review scope.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "inventory_id",
+              "compound_or_class",
+              "entity_type",
+              "entity",
+              "coverage_focus",
+              "evidence_basis",
+              "has_coverage_item",
+              "coverage_item_ids",
+              "reason_if_no_coverage_item"
+            ],
+            "properties": {
+              "inventory_id": {
+                "type": "string"
+              },
+              "compound_or_class": {
+                "type": "string"
+              },
+              "entity_type": {
+                "type": "string",
+                "enum": [
+                  "disorder",
+                  "symptom_or_outcome",
+                  "not_applicable",
+                  "uncertain"
+                ]
+              },
+              "entity": {
+                "type": "string"
+              },
+              "coverage_focus": {
+                "type": "string",
+                "enum": [
+                  "main_focus",
+                  "substantial_topic",
+                  "brief_context",
+                  "unclear"
+                ],
+                "description": "How prominently this coverage item is discussed in the review: main focus, substantial topic, brief context, or unclear."
+              },
+              "evidence_basis": {
+                "type": "string",
+                "enum": [
+                  "title_or_abstract_scope",
+                  "explicit_scope_statement",
+                  "section_or_heading",
+                  "table_or_figure",
+                  "included_evidence_structure",
+                  "repeated_discussion",
+                  "review_level_conclusion",
+                  "unclear"
+                ]
+              },
+              "has_coverage_item": {
+                "type": "boolean"
+              },
+              "coverage_item_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason_if_no_coverage_item": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },
@@ -223,7 +298,7 @@
             "brief_context",
             "unclear"
           ],
-          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+          "description": "How prominently this coverage item is discussed in the review: main focus, substantial topic, brief context, or unclear."
         },
         "compound_or_class": {
           "type": "string"
@@ -277,6 +352,8 @@
           "additionalProperties": false,
           "required": [
             "condition_or_population",
+            "condition_or_indication",
+            "population_or_subgroup",
             "compound_or_intervention",
             "clinical_topic",
             "clinical_endpoint",
@@ -293,7 +370,15 @@
           "properties": {
             "condition_or_population": {
               "type": "string",
-              "description": "Clinical condition, symptom area, population, or indication reviewed. Do not turn disease-model or drug-challenge phrases such as schizophrenia-like symptoms, psychosis-like effects, depression-like behavior, dissociation, or perceptual alterations into a clinical condition unless participants actually had the condition."
+              "description": "Legacy paper-facing combined clinical wording. Prefer filling condition_or_indication and population_or_subgroup separately when possible."
+            },
+            "condition_or_indication": {
+              "type": "string",
+              "description": "Clean clinical condition or treatment indication that should become the graph node, such as major depressive disorder, treatment-resistant depression, opioid use disorder, suicidality, fibromyalgia, migraine, tobacco use disorder, or distress associated with life-threatening disease. Do not include age, sex, recruitment source, treatment resistance details, or other subgroup wording unless it is part of the condition name. Do not use disease-model or drug-challenge phrases such as schizophrenia-like symptoms, psychosis-like effects, depression-like behavior, dissociation, or perceptual alterations as a condition; use not_applicable or not_reported unless participants actually had the condition."
+            },
+            "population_or_subgroup": {
+              "type": "string",
+              "description": "Participant group, demographic subgroup, clinical subgroup, or eligibility context, such as older adults, veterans, healthy volunteers, treatment-resistant subgroup, terminally ill patients, people with cancer, or participants with comorbid anxiety. Keep this separate from the condition graph label."
             },
             "compound_or_intervention": {
               "type": "string",

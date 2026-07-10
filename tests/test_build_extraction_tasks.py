@@ -7,7 +7,12 @@ from types import SimpleNamespace
 import pandas as pd
 from jsonschema import Draft7Validator
 
-from pipeline.extract.build_extraction_tasks import DEFAULT_FULLTEXT_PACKET_PATHS, TASK_SCHEMA_VERSION, build_tasks
+from pipeline.extract.build_extraction_tasks import (
+    DEFAULT_FULLTEXT_PACKET_PATHS,
+    TASK_SCHEMA_VERSION,
+    build_tasks,
+    input_fingerprint_for_task,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,6 +85,29 @@ def route_row(**overrides: object) -> dict:
 
 
 class BuildExtractionTasksTest(unittest.TestCase):
+    def test_prompt_or_schema_asset_change_invalidates_task_identity(self) -> None:
+        route_context = {"domain_route": "clinical_outcome", "route_action": "extract_from_abstract_only"}
+        contract = {
+            "prompt_profile": "primary_clinical",
+            "schema_profile": "primary_evidence_schema",
+            "contract_version": TASK_SCHEMA_VERSION,
+            "contract_assets_fingerprint": "a" * 64,
+        }
+        first = input_fingerprint_for_task(
+            route_id="route-one",
+            route_context=route_context,
+            contract=contract,
+            source_fingerprint="c" * 64,
+        )
+        second = input_fingerprint_for_task(
+            route_id="route-one",
+            route_context=route_context,
+            contract={**contract, "contract_assets_fingerprint": "b" * 64},
+            source_fingerprint="c" * 64,
+        )
+
+        self.assertNotEqual(first, second)
+
     def test_default_article_text_inputs_do_not_include_legacy_split_packet_files(self) -> None:
         names = [path.name for path in DEFAULT_FULLTEXT_PACKET_PATHS]
 
@@ -87,7 +115,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertNotIn("mechanistic_fulltext_packets.jsonl", names)
         self.assertNotIn("disorder_fulltext_packets.jsonl", names)
 
-    def test_build_tasks_preserves_route_id_as_task_identity(self) -> None:
+    def test_build_tasks_uses_source_fingerprinted_task_identity(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             routes = pd.DataFrame(
@@ -169,7 +197,10 @@ class BuildExtractionTasksTest(unittest.TestCase):
 
         self.assertEqual(report["tasks_written"], 3)
         self.assertEqual({task["schema_version"] for task in tasks}, {TASK_SCHEMA_VERSION})
-        self.assertEqual({task["task_id"] for task in tasks}, {task["route_id"] for task in tasks})
+        self.assertTrue(all(task["task_id"] != task["route_id"] for task in tasks))
+        self.assertTrue(all(len(task["task_id"]) == 20 for task in tasks))
+        self.assertTrue(all(len(task["input_fingerprint"]) == 64 for task in tasks))
+        self.assertTrue(all(len(task["text_source"]["source_fingerprint"]) == 64 for task in tasks))
         self.assertEqual(
             {task["route_id"] for task in tasks},
             {"route-primary-clinical", "route-primary-safety", "route-meta"},
@@ -199,6 +230,45 @@ class BuildExtractionTasksTest(unittest.TestCase):
         validator = Draft7Validator(schema)
         errors = [error.message for task in tasks for error in validator.iter_errors(task)]
         self.assertEqual(errors, [])
+
+    def test_abstract_change_invalidates_task_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame(
+                [
+                    route_row(
+                        route_id="route-abstract",
+                        access_tier="abstract_only",
+                        has_converted_full_text=False,
+                        fulltext_artifact_paths="",
+                        route_action="extract_from_abstract_only",
+                    )
+                ]
+            ).to_parquet(root / "routes.parquet", index=False)
+            metadata_path = root / "metadata.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/full",
+                        "study_title": "Abstract-routed study",
+                        "abstract": "First public abstract version.",
+                    }
+                ]
+            ).to_parquet(metadata_path, index=False)
+            first, _ = build_tasks(make_args(root))
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/full",
+                        "study_title": "Abstract-routed study",
+                        "abstract": "Corrected public abstract version.",
+                    }
+                ]
+            ).to_parquet(metadata_path, index=False)
+            second, _ = build_tasks(make_args(root))
+
+        self.assertNotEqual(first[0]["input_fingerprint"], second[0]["input_fingerprint"])
+        self.assertNotEqual(first[0]["task_id"], second[0]["task_id"])
 
     def test_fulltext_route_without_packet_is_kept_but_not_ready(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -252,6 +322,8 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertEqual(tasks[0]["task_status"], "not_model_ready")
         self.assertEqual(tasks[0]["text_source"]["mode"], "not_applicable")
         self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "not_applicable")
+        schema = json.loads((ROOT / "schema" / "extraction_task.schema.json").read_text(encoding="utf-8"))
+        self.assertEqual([error.message for error in Draft7Validator(schema).iter_errors(tasks[0])], [])
         self.assertEqual(report["by_task_status"], {"not_model_ready": 1})
 
     def test_primary_route_accepts_legacy_lean_primary_packet_alias(self) -> None:

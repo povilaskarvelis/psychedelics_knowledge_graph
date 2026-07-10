@@ -37,6 +37,29 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             DEFAULT_ROUTED_RUN_ROOT / "gemini_3_flash_batch" / "routed_evidence_rows_report.json",
         )
 
+    def test_run_dir_resolves_versioned_extraction_inputs_when_present(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            run_dir = Path(tmpdir) / "versioned_run"
+            run_dir.mkdir()
+            outputs = run_dir / "route_extraction_outputs.jsonl"
+            tasks = run_dir / "route_extraction_tasks.jsonl"
+            outputs.write_text("\n", encoding="utf-8")
+            tasks.write_text("\n", encoding="utf-8")
+
+            args = resolve_output_paths(
+                SimpleNamespace(
+                    run_id="versioned_run",
+                    run_dir=str(run_dir),
+                    input_jsonl=Path("data/processed/extraction/route_extraction_outputs.jsonl").resolve(),
+                    tasks_jsonl=Path("data/processed/extraction/route_extraction_tasks.jsonl").resolve(),
+                    out_json="",
+                    report_json="",
+                )
+            )
+
+        self.assertEqual(Path(args.input_jsonl), outputs)
+        self.assertEqual(Path(args.tasks_jsonl), tasks)
+
     def test_active_route_table_filters_stale_extraction_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -117,6 +140,127 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
         self.assertEqual([row["study_doi"] for row in rows], ["10.1000/active"])
         self.assertEqual(report["rows_written"], 1)
         self.assertEqual(report["skipped"]["inactive_current_route"], 1)
+
+    def test_same_doi_and_domain_do_not_rescue_changed_route_or_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            active_routes = root / "paper_extraction_routes.parquet"
+            current_fingerprint = "a" * 64
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "current-task",
+                        "route_id": "current-abstract-route",
+                        "input_fingerprint": current_fingerprint,
+                        "study_doi": "10.1000/same-paper",
+                        "paper_metadata": {"doi": "10.1000/same-paper"},
+                        "route_context": {"domain_route": "clinical_outcome"},
+                        "extraction_contract": {"domain_route": "clinical_outcome"},
+                        "text_source": {"mode": "abstract"},
+                    }
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "old-fulltext-task",
+                        "route_id": "old-fulltext-route",
+                        "input_fingerprint": "b" * 64,
+                        "status": "ok",
+                        "result": {
+                            "task_id": "old-fulltext-task",
+                            "route_id": "old-fulltext-route",
+                            "input_fingerprint": "b" * 64,
+                            "study_doi": "10.1000/same-paper",
+                            "domain_route": "clinical_outcome",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {"compound": "Ketamine", "condition_or_indication": "Depression"}
+                            ],
+                        },
+                    }
+                ],
+            )
+            pd.DataFrame(
+                [
+                    {
+                        "route_id": "current-abstract-route",
+                        "doi": "10.1000/same-paper",
+                        "domain_route": "clinical_outcome",
+                        "route_action": "extract_from_abstract_only",
+                    }
+                ]
+            ).to_parquet(active_routes, index=False)
+
+            rows, report = convert_outputs(
+                input_jsonl=outputs_jsonl,
+                tasks_jsonl=tasks_jsonl,
+                active_route_table=active_routes,
+            )
+
+        self.assertEqual(rows, [])
+        self.assertEqual(report["skipped"]["missing_current_task"], 1)
+
+    def test_current_task_rejects_mismatched_text_depth_and_fingerprint(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            fingerprint = "a" * 64
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "current-task",
+                        "route_id": "current-route",
+                        "input_fingerprint": fingerprint,
+                        "study_doi": "10.1000/current",
+                        "paper_metadata": {"doi": "10.1000/current"},
+                        "route_context": {"domain_route": "clinical_outcome"},
+                        "extraction_contract": {"domain_route": "clinical_outcome"},
+                        "text_source": {"mode": "abstract"},
+                    }
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "current-task",
+                        "route_id": "current-route",
+                        "input_fingerprint": "b" * 64,
+                        "status": "ok",
+                        "result": {
+                            "task_id": "current-task",
+                            "route_id": "current-route",
+                            "input_fingerprint": "b" * 64,
+                            "study_doi": "10.1000/current",
+                            "domain_route": "clinical_outcome",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {"compound": "Ketamine", "condition_or_indication": "Depression"}
+                            ],
+                        },
+                    }
+                ],
+            )
+
+            rows, report = convert_outputs(
+                input_jsonl=outputs_jsonl,
+                tasks_jsonl=tasks_jsonl,
+            )
+
+        self.assertEqual(rows, [])
+        self.assertEqual(
+            report["skipped"]["current_task_mismatch:input_fingerprint_mismatch"],
+            1,
+        )
 
     def test_review_coverage_filters_peripheral_mentions(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -227,6 +371,76 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                 ("Therapeutic Witnessing", "substantial_topic", "discusses"),
             ],
         )
+
+    def test_clinical_review_condition_context_wins_over_symptom_entity_type(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "review-clinical",
+                        "route_id": "review-clinical",
+                        "study_doi": "10.1000/review-clinical",
+                        "paper_metadata": {
+                            "doi": "10.1000/review-clinical",
+                            "study_title": "Clinical review",
+                            "study_year": "2026",
+                        },
+                    }
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "review-clinical",
+                        "route_id": "review-clinical",
+                        "prompt_profile": "secondary_review_coverage",
+                        "schema_profile": "review_coverage_schema",
+                        "status": "ok",
+                        "result": {
+                            "schema_version": "review_coverage_v1",
+                            "task_id": "review-clinical",
+                            "route_id": "review-clinical",
+                            "study_doi": "10.1000/review-clinical",
+                            "domain_route": "clinical_outcome",
+                            "source_type": "systematic_review",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "coverage_items": [
+                                {
+                                    "item_id": "C1",
+                                    "relationship_domain": "clinical_outcome",
+                                    "coverage_type": "reviews",
+                                    "coverage_focus": "main_focus",
+                                    "compound_or_class": "LSD",
+                                    "entity_type": "symptom_or_outcome",
+                                    "entity": "anxiety associated with life-threatening diseases",
+                                    "population_or_system": "patients with life-threatening diseases",
+                                    "summary_statement": "The review covers LSD-assisted psychotherapy for anxiety in life-threatening disease.",
+                                    "direction_or_tone": "supports",
+                                    "confidence": 0.9,
+                                    "needs_human_review": False,
+                                    "domain_result": {
+                                        "condition_or_population": "life-threatening diseases with anxiety",
+                                        "compound_or_intervention": "LSD",
+                                        "clinical_endpoint": "anxiety",
+                                    },
+                                }
+                            ],
+                        },
+                    }
+                ],
+            )
+
+            rows, report = convert_outputs(input_jsonl=outputs_jsonl, tasks_jsonl=tasks_jsonl)
+
+        self.assertEqual(report["rows_written"], 1)
+        self.assertEqual(rows[0]["kg_entity_kind_override"], "condition_indication")
+        self.assertEqual(rows[0]["graph_entity_label"], "anxiety associated with life-threatening diseases")
 
     def test_preserves_domain_specific_fields_as_ui_facing_aliases(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

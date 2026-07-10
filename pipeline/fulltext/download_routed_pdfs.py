@@ -20,6 +20,7 @@ import pandas as pd
 try:
     from pipeline.extract.build_extraction_routes import build_extraction_routes
     from pipeline.fulltext.pdf_alternate_sources import (
+        AlternatePdfCandidate,
         collect_alternate_pdf_candidates,
         download_alternate_pdf_candidates,
     )
@@ -27,6 +28,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.build_extraction_routes import build_extraction_routes
     from pipeline.fulltext.pdf_alternate_sources import (
+        AlternatePdfCandidate,
         collect_alternate_pdf_candidates,
         download_alternate_pdf_candidates,
     )
@@ -436,6 +438,8 @@ def classify_download_failure(status: str, error: str) -> dict[str, object]:
         add("access_controlled")
     if "http error 404" in lowered or "not found" in lowered:
         add("not_found")
+    if "source_identity_mismatch" in lowered or "title_mismatch" in lowered:
+        add("source_identity_mismatch")
     if status_text == "download_failed" and not categories:
         add("other_download_failure")
     if status_text.startswith("invalid_pdf") and not categories:
@@ -697,7 +701,8 @@ def download_routed_pdfs(
     write_every: int = 25,
     progress_every: int = 25,
     alternate_pdf_sources: set[str] | None = None,
-    alternate_pdf_min_title_score: float = 0.5,
+    alternate_pdf_min_title_score: float = 0.86,
+    pdf_identity_min_title_score: float = 0.86,
     rebuild_routes_after: bool = False,
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
     domain_routing_table: Path | None = DEFAULT_DOMAIN_ROUTING_TABLE,
@@ -842,15 +847,31 @@ def download_routed_pdfs(
         elif not candidates:
             status, error, size, selected_url, attempts = "no_pdf_url", "no_pdf_url", 0, "", ""
         else:
-            status, error, size, selected_url, attempts = download_pdf_candidates(
+            # Every PDF-shaped response, including primary metadata URLs, must
+            # match the requested paper before it enters the canonical store.
+            # Previously this check existed only for alternate repositories.
+            direct_result = download_alternate_pdf_candidates(
                 client=client,
-                pdf_urls=candidates,
+                candidates=[
+                    AlternatePdfCandidate(
+                        url=url,
+                        source="metadata_direct",
+                        reason="ranked_pdf_candidate",
+                    )
+                    for url in candidates
+                ],
                 target_path=target_path,
-                cooldown_until_by_host=cooldown_until_by_host if rate_limit_cooldown_sec > 0 else None,
-                rate_limit_cooldown_sec=rate_limit_cooldown_sec,
+                study_doi=doi,
+                study_title=clean(task.get("study_title", "")),
+                min_title_score=max(0.0, pdf_identity_min_title_score),
                 progress_callback=log_candidate_event if candidate_log_every > 0 else None,
-                preserve_candidate_order=bool(deprioritized_hosts),
             )
+            status = clean(direct_result.get("status", "")) or "download_failed"
+            error = clean(direct_result.get("error", ""))
+            size = int(direct_result.get("size", 0) or 0)
+            selected_url = clean(direct_result.get("selected_url", ""))
+            attempts = clean(direct_result.get("attempted_pdf_url_candidates", ""))
+            alternate_source_events.extend(direct_result.get("events", []))
 
         if (
             not dry_run
@@ -870,6 +891,7 @@ def download_routed_pdfs(
                     client=client,
                     candidates=discovery["candidates"],
                     target_path=target_path,
+                    study_doi=doi,
                     study_title=clean(task.get("study_title", "")),
                     min_title_score=max(0.0, alternate_pdf_min_title_score),
                     progress_callback=log_candidate_event if candidate_log_every > 0 else None,
@@ -914,6 +936,7 @@ def download_routed_pdfs(
             "primary_candidate_host": task_primary_host(task, deprioritized_hosts, excluded_hosts),
             "candidate_hosts": "|".join(hosts_from_candidates(attempts or task.get("pdf_url_candidates", ""))),
             "alternate_pdf_sources": "|".join(sorted(alternate_pdf_sources)),
+            "pdf_identity_min_title_score": pdf_identity_min_title_score,
             "alternate_pdf_status": alternate_source_status,
             "alternate_pdf_selected_url": alternate_source_selected,
             "alternate_pdf_candidate_count": alternate_source_candidate_count,
@@ -999,6 +1022,7 @@ def download_routed_pdfs(
         "include_weak_pdf_urls": include_weak_pdf_urls,
         "alternate_pdf_sources": sorted(alternate_pdf_sources),
         "alternate_pdf_min_title_score": alternate_pdf_min_title_score,
+        "pdf_identity_min_title_score": pdf_identity_min_title_score,
         "deprioritized_hosts": sorted(deprioritized_hosts),
         "excluded_hosts": sorted(excluded_hosts),
         "attempt_log_every": attempt_log_every,
@@ -1091,8 +1115,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--alternate-pdf-min-title-score",
         type=float,
-        default=0.5,
-        help="Minimum token title-match score for alternate-source PDFs when extractable text is available.",
+        default=0.86,
+        help="Minimum top-of-page title-match score for alternate-source PDFs.",
     )
     parser.add_argument("--write-every", type=int, default=25)
     parser.add_argument("--progress-every", type=int, default=25)

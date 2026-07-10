@@ -177,15 +177,30 @@ class FulltextConversionTest(unittest.TestCase):
         self.assertEqual(dois, {"10.1000/stale"})
 
     def test_build_artifact_records_best_backend(self) -> None:
+        tei = """
+        <TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc>
+          <titleStmt><title>Example</title></titleStmt>
+          <sourceDesc><biblStruct><analytic><idno type="DOI">10.1000/test</idno></analytic></biblStruct></sourceDesc>
+        </fileDesc></teiHeader><text><body><p>Result.</p></body></text></TEI>
+        """
         artifact = build_artifact(
             "disorder",
             {"study_doi": "10.1000/test", "study_title": "Example"},
             Path("/tmp/example.pdf"),
-            [{"backend": "docling", "status": "ok", "section_count": 2, "char_count": 120, "sections": []}],
+            [{
+                "backend": "grobid",
+                "status": "ok",
+                "section_count": 2,
+                "char_count": len(tei),
+                "sections": [],
+                "text": tei,
+                "metadata": {"format": "tei_xml"},
+            }],
         )
 
-        self.assertEqual(artifact["best_backend"], "docling")
-        self.assertEqual(artifact["best_char_count"], 120)
+        self.assertEqual(artifact["best_backend"], "grobid")
+        self.assertEqual(artifact["best_char_count"], len(tei))
+        self.assertEqual(artifact["source_identity"]["status"], "verified_exact_doi")
 
     def test_failed_artifact_does_not_overwrite_successful_existing_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -198,10 +213,24 @@ class FulltextConversionTest(unittest.TestCase):
         self.assertIn("preserved existing successful", reason)
 
     def test_successful_artifact_is_written(self) -> None:
-        write, reason = should_write_artifact(Path("/tmp/missing-artifact.json"), {"best_backend": "grobid"}, False)
+        write, reason = should_write_artifact(
+            Path("/tmp/missing-artifact.json"),
+            {"best_backend": "grobid", "source_identity": {"status": "verified_exact_doi"}},
+            False,
+        )
 
         self.assertTrue(write)
         self.assertIn("successful", reason)
+
+    def test_successful_extraction_with_wrong_identity_is_not_written(self) -> None:
+        write, reason = should_write_artifact(
+            Path("/tmp/wrong-artifact.json"),
+            {"best_backend": "grobid", "source_identity": {"status": "identity_mismatch"}},
+            False,
+        )
+
+        self.assertFalse(write)
+        self.assertIn("identity", reason)
 
 
 if __name__ == "__main__":

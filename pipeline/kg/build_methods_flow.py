@@ -719,8 +719,9 @@ def llm_supported_contexts(row: dict) -> list[dict]:
 
 
 class MethodsFlowBuilder:
-    def __init__(self, root: Path = ROOT) -> None:
+    def __init__(self, root: Path = ROOT, *, routed_kg_dir: Path | None = None) -> None:
         self.root = root
+        self.routed_kg_dir = Path(routed_kg_dir).resolve() if routed_kg_dir is not None else None
         self.nodes: dict[str, dict] = {}
         self.papers: dict[str, dict] = {}
         self.candidate_rows: list[dict] = []
@@ -758,7 +759,10 @@ class MethodsFlowBuilder:
         return self.root / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 
     def load_routed_kg_graph_status(self) -> None:
-        lookup, input_files, warnings = routed_kg_graph_status_by_doi(self.root)
+        lookup, input_files, warnings = routed_kg_graph_status_by_doi(
+            self.root,
+            kg_dir_override=self.routed_kg_dir,
+        )
         self.kg_graph_status_by_doi = lookup
         self.input_files.extend(input_files)
         self.warnings.extend(warnings)
@@ -1577,18 +1581,25 @@ def kg_status_from_audit(info: dict) -> dict:
     return {"status": status, "label": label, "note": note}
 
 
-def routed_kg_graph_status_by_doi(root: Path = ROOT) -> tuple[dict[str, dict], list[str], list[str]]:
+def routed_kg_graph_status_by_doi(
+    root: Path = ROOT,
+    *,
+    kg_dir_override: Path | None = None,
+) -> tuple[dict[str, dict], list[str], list[str]]:
     input_files: list[str] = []
     warnings: list[str] = []
     active_pointer = root / GRAPH_PAYLOAD_ACTIVE_POINTER.relative_to(ROOT)
-    kg_dir = active_routed_kg_dir(root, active_pointer)
+    kg_dir = Path(kg_dir_override).resolve() if kg_dir_override is not None else active_routed_kg_dir(root, active_pointer)
     if not kg_dir:
         warnings.append(
             "Active graph payload pointer is missing; methods bibliography cannot mark final KG graph status."
         )
         return {}, input_files, warnings
 
-    input_files.append(str(active_pointer))
+    if kg_dir_override is None:
+        input_files.append(str(active_pointer))
+    else:
+        input_files.append(str(kg_dir))
     findings_table = kg_dir / "findings.parquet"
     audit_table = kg_dir / "normalization_audit.parquet"
 
@@ -2426,6 +2437,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Build the methods-page paper-flow projection")
     parser.add_argument("--out-dir", default=str(ROOT / "data" / "kg"), help="Output directory for generated methods flow files")
     parser.add_argument(
+        "--kg-dir",
+        default="",
+        help="Explicit routed KG directory for staged builds; otherwise use graph_payload_active.json.",
+    )
+    parser.add_argument(
         "--refresh-kg-tables",
         action="store_true",
         help="Regenerate normalized KG evidence tables before building the methods flow.",
@@ -2441,7 +2457,7 @@ def main() -> int:
         build_tables()
 
     out_dir = Path(args.out_dir).resolve()
-    builder = MethodsFlowBuilder(ROOT)
+    builder = MethodsFlowBuilder(ROOT, routed_kg_dir=Path(args.kg_dir) if args.kg_dir else None)
     payloads = builder.build()
     manifest = write_outputs(payloads, out_dir)
 

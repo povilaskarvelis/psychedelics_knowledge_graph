@@ -129,6 +129,7 @@
         "population_or_system",
         "primary_compounds_or_classes",
         "primary_entities",
+        "substantive_coverage_inventory",
         "needs_human_review",
         "reasoning_summary",
         "evidence_location",
@@ -168,6 +169,79 @@
         },
         "evidence_locator": {
           "type": "string"
+        },
+        "substantive_coverage_inventory": {
+          "type": "array",
+          "description": "Paper-level inventory of relevant compound/class-topic or compound/class-entity relationships substantially discussed in the selected review scope.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "inventory_id",
+              "compound_or_class",
+              "entity_type",
+              "entity",
+              "coverage_focus",
+              "evidence_basis",
+              "has_coverage_item",
+              "coverage_item_ids",
+              "reason_if_no_coverage_item"
+            ],
+            "properties": {
+              "inventory_id": {
+                "type": "string"
+              },
+              "compound_or_class": {
+                "type": "string"
+              },
+              "entity_type": {
+                "type": "string",
+                "enum": [
+                  "public_health_measure",
+                  "not_applicable",
+                  "uncertain"
+                ]
+              },
+              "entity": {
+                "type": "string"
+              },
+              "coverage_focus": {
+                "type": "string",
+                "enum": [
+                  "main_focus",
+                  "substantial_topic",
+                  "brief_context",
+                  "unclear"
+                ],
+                "description": "How prominently this coverage item is discussed in the review: main focus, substantial topic, brief context, or unclear."
+              },
+              "evidence_basis": {
+                "type": "string",
+                "enum": [
+                  "title_or_abstract_scope",
+                  "explicit_scope_statement",
+                  "section_or_heading",
+                  "table_or_figure",
+                  "included_evidence_structure",
+                  "repeated_discussion",
+                  "review_level_conclusion",
+                  "unclear"
+                ]
+              },
+              "has_coverage_item": {
+                "type": "boolean"
+              },
+              "coverage_item_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason_if_no_coverage_item": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },
@@ -223,7 +297,7 @@
             "brief_context",
             "unclear"
           ],
-          "description": "How central this coverage item is to the review: main focus, substantial topic, brief context, or unclear."
+          "description": "How prominently this coverage item is discussed in the review: main focus, substantial topic, brief context, or unclear."
         },
         "compound_or_class": {
           "type": "string"

@@ -23,7 +23,13 @@ The runner first downloads probable PDF endpoints from the routed corpus, then
 optionally queries alternate open-access sources for rows that still fail, and
 runs the standard repository-source pass for OSF/PsyArXiv, Figshare-style
 records, and known repository redirects into Figshare (for example Sussex SRO
-handles). It validates PDF bytes before saving files, updates
+handles). It validates both PDF bytes and document identity before saving:
+the expected title must match the bounded top region of page one. A title that
+appears later on page one or elsewhere in the document is not sufficient,
+because proceedings and supplement PDFs can contain many valid paper titles.
+The only exception is an explicit DOI-plus-SHA-256 decision in
+`source_identity_pdf_hash_registry.json`; that decision applies only to the
+reviewed byte-identical PDF. The runner updates
 `candidate_papers.parquet`, rebuilds `paper_extraction_routes.parquet`, and
 exports the remaining manual-download queue to
 `data/processed/corpus/audits/manual_pdf_download_dois.csv/.txt`.
@@ -116,6 +122,11 @@ python pipeline/fulltext/import_manual_pdfs.py \
   --move
 ```
 
+The importer does not trust the DOI-like filename by itself. It requires an
+exact DOI in document-front evidence, a strong title match at the top of page
+one, or an exact DOI-plus-SHA-256 registry decision. Ambiguous and conflicting
+files stay out of the canonical PDF store.
+
 When a curator has confirmed that an existing canonical PDF is the wrong file
 for a DOI, rerun the importer with `--replace-existing`. The old canonical PDF
 is moved to `data/raw/papers/pdf_conflicts/` and the candidate row is refreshed
@@ -147,6 +158,43 @@ poster abstract, book review, or nonstandard source, record
 `manual_action=context_only` in
 `pipeline/extract/manual_extraction_route_overrides.json` instead.
 
+## Source-Identity Audit
+
+Audit the canonical article store without changing artifacts:
+
+```bash
+python pipeline/fulltext/audit_fulltext_source_identity.py --fail-on-unverified
+```
+
+The audit reads curated DOI relationships and parser-identifier overrides from
+`pipeline/fulltext/source_identity_registry.json`. A registry entry is not an
+unconditional alias: the recorded document DOI must be observed in the
+artifact and the requested paper title must independently match the extracted
+front-matter title (or occur as a normalized title phrase in front matter).
+Token coverage elsewhere in the article is not sufficient. Exact artifact DOI
+matches always take precedence over older registry relationships. Correction
+relationships are accepted only when the requested record's own title says it
+is a correction, corrigendum, or erratum; a main-article DOI whose artifact is
+only the correction remains unverified. Uncurated metadata relations such as
+`CommentOn` are reported as candidates but cannot verify an artifact.
+Title-only verification is likewise limited to parsed header/front-matter
+evidence; a target title found in the article body, references, or a neighbouring
+conference contribution is not accepted. The audit also rechecks any PDF hash
+attestation against the current file bytes.
+
+This audit is part of the normal conversion path, not only a repair utility.
+`run_local_pdf_conversion_pipeline.py` runs it before rebuilding extraction
+routes and stops if any canonical artifact is unverified. Article-text packet
+building also requires a fresh passing audit. It rejects an audit older than a
+routed artifact, the DOI relationship registry, or the PDF hash-attestation
+registry, and writes no packets when a routed artifact is absent from the
+verified audit.
+
+PMC/Europe PMC XML acquisition is DOI-selective as well. For JATS collections
+containing multiple `<article>` or `<sub-article>` records, the fetcher requires
+exactly one requested-DOI match and serializes only that node. Whole proceedings
+containers and adjacent abstracts cannot be stored under an item DOI.
+
 ## Canonical Article Text Store
 
 New full-text artifacts should be written to
@@ -160,7 +208,8 @@ python pipeline/fulltext/consolidate_fulltext_artifacts.py
 ```
 
 The consolidation keeps one best artifact per DOI, preferring the artifact with
-the largest successful text extraction. The old directories are migration
+the largest successful text extraction, but an artifact without verified
+source identity is never copied into the canonical store. The old directories are migration
 sources for this explicit consolidation command only; route building reads
 converted article text only from `fulltext/articles/`.
 

@@ -10,6 +10,12 @@ The route-native main-page graph payload is generated separately by
 `pipeline/publish/export_evidence_payload.py`. The active main-page payload uses
 the normalized KG evidence tables by default.
 
+For a correction affecting only selected papers, use
+[`docs/scoped_paper_updates.md`](../../docs/scoped_paper_updates.md). That
+workflow removes every old raw/evidence row for the DOI scope, requires complete
+current replacements, and rebuilds this KG layer without rerunning model
+extraction for unaffected papers.
+
 Run:
 
 ```bash
@@ -78,7 +84,10 @@ Author identity is resolved as a separate KG-side layer after `papers.parquet`
 exists:
 
 ```bash
-python pipeline/kg/build_author_tables.py
+python pipeline/kg/build_author_tables.py \
+  --papers "data/processed/kg_routed_runs/$RUN_ID/papers.parquet" \
+  --out-dir "data/processed/kg_routed_runs/$RUN_ID" \
+  --cache "data/processed/kg_routed_runs/$RUN_ID/openalex_author_cache.json"
 ```
 
 This writes:
@@ -91,6 +100,17 @@ This writes:
 This table layer is the preferred place to build new graph views. The browser UI
 should continue to load compact JSON payloads generated from these tables rather
 than loading the whole KG directly.
+
+For a routed run, prefer:
+
+```bash
+scripts/build_routed_kg_payload.sh "$RUN_ID"
+```
+
+That wrapper rebuilds the evidence tables, author tables, and public payload in
+the correct order. `pipeline/publish/export_evidence_payload.py` validates that
+the author layer is present and newer than `papers.parquet` before writing UI
+payloads, unless `--allow-stale-authors` is passed for a diagnostic export.
 
 The converter reads route extraction outputs plus `route_extraction_tasks.jsonl`
 and keeps one row per extracted finding or review/synthesis item. With

@@ -10,11 +10,22 @@ import hashlib
 import json
 import re
 import shutil
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from pipeline.fulltext.import_manual_pdfs import (  # noqa: E402
+    build_filename_slug_lookup,
+    extract_pdf_metadata_text,
+    extract_pdf_text,
+    looks_like_pdf,
+    select_match,
+)
 
 
 def now_utc() -> str:
@@ -133,6 +144,33 @@ def resolve_doi_for_file(path: Path, filename_to_doi: Dict[str, str], slug_to_do
     return ""
 
 
+def verify_manual_pdf_identity(
+    path: Path,
+    expected_doi: str,
+    known_records: Dict[str, dict],
+    *,
+    min_title_score: float = 0.86,
+    max_pages: int = 3,
+) -> tuple[bool, str, list[dict]]:
+    if not looks_like_pdf(path):
+        return False, "file_does_not_start_with_pdf_header", []
+    text = extract_pdf_text(path, max_pages=max_pages)
+    metadata_text = extract_pdf_metadata_text(path)
+    matched_doi, basis, candidates = select_match(
+        file_path=path,
+        known_records=known_records,
+        text=text,
+        metadata_text=metadata_text,
+        enable_title_match=True,
+        min_title_score=min_title_score,
+        min_title_margin=0.12,
+        filename_slug_lookup=build_filename_slug_lookup(known_records),
+    )
+    if normalize_doi(matched_doi).lower() != normalize_doi(expected_doi).lower():
+        return False, basis or "source_identity_unverified", candidates
+    return True, basis, candidates
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Import manually downloaded PDFs into paper library")
     parser.add_argument("--dataset", choices=["mechanistic", "disorder"], required=True)
@@ -142,6 +180,8 @@ def main() -> int:
     parser.add_argument("--pdf-dir", default="", help="Target PDF directory override")
     parser.add_argument("--move", action="store_true", help="Move files instead of copying")
     parser.add_argument("--apply", action="store_true", help="Write changes (default is dry-run)")
+    parser.add_argument("--min-title-score", type=float, default=0.86)
+    parser.add_argument("--max-pages", type=int, default=3)
     parser.add_argument(
         "--report",
         default="",
@@ -207,6 +247,24 @@ def main() -> int:
             unresolved.append({"file": str(file_path), "reason": f"doi_not_in_paper_library: {doi}"})
             continue
 
+        verified, identity_basis, identity_candidates = verify_manual_pdf_identity(
+            file_path,
+            doi,
+            row_by_doi,
+            min_title_score=args.min_title_score,
+            max_pages=max(1, args.max_pages),
+        )
+        if not verified:
+            unresolved.append(
+                {
+                    "file": str(file_path),
+                    "doi": doi,
+                    "reason": identity_basis,
+                    "candidate_matches": identity_candidates,
+                }
+            )
+            continue
+
         canonical_name = pdf_filename_for_doi(doi)
         dest_path = pdf_dir / canonical_name
 
@@ -237,6 +295,7 @@ def main() -> int:
                 "doi": doi,
                 "destination": str(dest_path),
                 "mode": "move" if args.move else "copy",
+                "source_identity_basis": identity_basis,
             }
         )
 

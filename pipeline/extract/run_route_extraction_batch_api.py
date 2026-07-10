@@ -244,6 +244,7 @@ def write_batch_requests(args: argparse.Namespace) -> dict:
                     "input_row_index": input_row_index,
                     "task_id": normalize(task.get("task_id", "")),
                     "route_id": normalize(task.get("route_id", "")),
+                    "input_fingerprint": normalize(task.get("input_fingerprint", "")),
                     "study_doi": normalize(task.get("study_doi", "")),
                     "prompt_profile": prompt_profile,
                     "schema_profile": schema_profile,
@@ -456,13 +457,24 @@ def records_by_key(manifest: dict) -> dict[str, dict]:
     }
 
 
-def existing_route_keys(path: Path) -> set[str]:
-    return {route_key(row) for row in read_jsonl(path) if route_key(row)} if path.exists() else set()
+def append_identity(row: dict) -> str:
+    """Deduplicate idempotent parses while allowing an error-to-success retry."""
+    key = normalize(row.get("task_id", "")) or route_key(row)
+    status = normalize(row.get("status", "")) or "missing"
+    return f"{key}\0{status}" if key else ""
+
+
+def existing_append_identities(path: Path) -> set[str]:
+    return (
+        {append_identity(row) for row in read_jsonl(path) if append_identity(row)}
+        if path.exists()
+        else set()
+    )
 
 
 def append_unique_jsonl(path: Path, rows: list[dict]) -> int:
-    existing = existing_route_keys(path)
-    new_rows = [row for row in rows if route_key(row) and route_key(row) not in existing]
+    existing = existing_append_identities(path)
+    new_rows = [row for row in rows if append_identity(row) and append_identity(row) not in existing]
     if not new_rows:
         return 0
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -538,6 +550,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             "input_row_index": manifest_record.get("input_row_index", line_index),
             "task_id": normalize(manifest_record.get("task_id", "")),
             "route_id": normalize(manifest_record.get("route_id", "")),
+            "input_fingerprint": normalize(manifest_record.get("input_fingerprint", "")),
             "study_doi": normalize(manifest_record.get("study_doi", "")),
             "prompt_profile": normalize(manifest_record.get("prompt_profile", "")),
             "schema_profile": normalize(manifest_record.get("schema_profile", "")),
@@ -574,6 +587,8 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             output_row = {
                 "task_id": raw_row["task_id"],
                 "route_id": raw_row["route_id"],
+                "input_fingerprint": raw_row["input_fingerprint"],
+                "study_doi": raw_row["study_doi"],
                 "prompt_profile": raw_row["prompt_profile"],
                 "schema_profile": raw_row["schema_profile"],
                 "status": raw_row["status"],
