@@ -356,6 +356,14 @@ def legacy_review_row(row: dict) -> bool:
     return item_type == "review_coverage_item" or (paper_type in REVIEW_TYPES and method != "paper_centered_one_pass_v2")
 
 
+def review_row(row: dict) -> bool:
+    """Identify every review row so a combined rebuild replaces, rather than appends, reviews."""
+
+    item_type = normalize(row.get("source_item_type", ""))
+    paper_type = normalize(row.get("paper_type", ""))
+    return item_type in {"review_coverage_item", "review_relationship"} or paper_type in REVIEW_TYPES
+
+
 def enrich_canonical_metadata(rows: list[dict], candidate_rows: list[dict]) -> int:
     candidates = {
         normalized_doi(row.get("doi", "")): row
@@ -405,16 +413,21 @@ def main() -> int:
     candidate_rows = pd.read_parquet(args.candidate_parquet).to_dict("records")
     report["counts"]["papers_with_canonical_metadata"] = enrich_canonical_metadata(review_rows, candidate_rows)
     base_rows = json_array(args.base_evidence_json) if args.base_evidence_json else []
-    kept_base = [row for row in base_rows if not legacy_review_row(row)]
-    removed = len(base_rows) - len(kept_base)
+    removed_review_rows = [row for row in base_rows if review_row(row)]
+    kept_base = [row for row in base_rows if not review_row(row)]
+    removed_legacy = sum(legacy_review_row(row) for row in removed_review_rows)
+    removed_current = len(removed_review_rows) - removed_legacy
     combined = [*kept_base, *review_rows]
     write_json_array(args.out_json, combined)
     report["replacement"] = {
         "base_rows": len(base_rows),
-        "legacy_review_rows_removed": removed,
+        "review_rows_removed": len(removed_review_rows),
+        "legacy_review_rows_removed": removed_legacy,
+        "current_method_review_rows_removed": removed_current,
         "base_rows_kept": len(kept_base),
         "paper_centered_review_rows_added": len(review_rows),
         "combined_rows": len(combined),
+        "review_rows_remaining": sum(review_row(row) for row in combined),
         "legacy_review_rows_remaining": sum(legacy_review_row(row) for row in combined),
     }
     report["outputs"] = {"evidence_json": str(args.out_json.resolve()), "report_json": str(args.report_json.resolve())}

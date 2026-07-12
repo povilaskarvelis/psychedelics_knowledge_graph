@@ -375,7 +375,7 @@
             },
             "construct_or_behavior": {
               "type": "string",
-              "description": "Cognitive construct, behavioral phenotype, social behavior, task domain, or performance outcome."
+              "description": "Cognitive construct, behavioral phenotype, social behavior, task domain, performance outcome, or transient psychotomimetic effect."
             },
             "task_or_measure": {
               "type": "string",

@@ -817,6 +817,12 @@
     ],
     "cognitive_behavioral_construct": [
       {
+        "label": "Global cognition",
+        "aliases": ["global cognitive outcome", "general cognitive performance", "cognition across all domains", "neuropsychological performance", "neurocognitive function"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
         "label": "Cognitive flexibility",
         "aliases": ["behavioral flexibility", "cognitive rigidity", "perseveration"],
         "ids": {},
@@ -1194,6 +1200,12 @@
         "status": "seed_alias"
       },
       {
+        "label": "Psychotomimetic effects",
+        "aliases": ["psychotomimetic symptoms", "psychosis-like experience", "psychosis-like effects", "psychotic-like symptoms", "schizophrenia-like symptoms", "positive symptoms", "BPRS", "PANSS"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
         "label": "Pain behavior",
         "aliases": ["nociception and pain behavior", "pain behavior", "nociceptive behavior", "antinociception", "allodynia", "hyperalgesia", "hot plate", "tail flick", "von Frey", "paw withdrawal"],
         "ids": {},
@@ -1252,12 +1264,6 @@
       {
         "label": "Near-death-like experience",
         "aliases": ["near-death experience", "NDE phenomenology", "near-death experience phenomenology", "Greyson NDE scale"],
-        "ids": {},
-        "status": "seed_alias"
-      },
-      {
-        "label": "Psychosis-like effects",
-        "aliases": ["Psychosis-like experience", "psychotomimetic symptoms", "psychotomimetic effects", "psychosis-like experience", "psychosis-like effects", "psychotic-like symptoms", "positive symptoms", "BPRS", "PANSS"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -1883,8 +1889,32 @@
         "status": "seed_alias"
       },
       {
-        "label": "Other real-world outcome",
-        "aliases": ["other real-world topic", "other public-health outcome"],
+        "label": "Ethics & governance",
+        "aliases": ["research ethics", "ethical governance", "informed consent", "participant autonomy", "cultural appropriation", "distributive justice"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Commercialization & public communication",
+        "aliases": ["commercialization", "commodification", "psychedelic industry", "venture capital", "media hype", "public advocacy", "public perception"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Environmental sustainability",
+        "aliases": ["conservation", "overharvesting", "wild population pressure", "habitat loss", "threatened species", "ecological sustainability"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Research landscape",
+        "aliases": ["research landscape", "evidence landscape", "publication patterns", "research funding", "methodological quality", "research agenda"],
+        "ids": {},
+        "status": "seed_alias"
+      },
+      {
+        "label": "Other real-world topics",
+        "aliases": ["other real-world topic", "other public-health outcome", "other real-world outcome"],
         "ids": {},
         "status": "seed_alias"
       }

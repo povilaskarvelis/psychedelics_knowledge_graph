@@ -167,8 +167,8 @@ Main outputs:
 - browser interface in `ui/`
 - normalized parquet KG tables under `data/processed/kg*/`
 - graph export payloads in `data/processed/graph_payload_*.json`
-- methods paper-flow and bibliography files in `data/kg/` when
-  `python pipeline/kg/build_methods_flow.py --refresh-kg-tables` is run locally
+- methods paper-flow and bibliography files in `data/kg/`, refreshed
+  automatically whenever the routed graph build is activated
 - the GUI defaults to primary evidence and has a `Secondary sources` checkbox
   for reviews, systematic reviews, and meta-analyses
 
@@ -214,11 +214,13 @@ python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
   --run-id "$RUN_ID" \
   --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl"
 scripts/build_routed_kg_payload.sh "$RUN_ID"
-python pipeline/kg/build_methods_flow.py
 ```
 
 `scripts/build_routed_kg_payload.sh` runs the routed KG table build, the author
-identity/authorship build, and the public graph/detail payload export in order.
+identity/authorship build, the public graph/detail payload export, and the
+Methods PRISMA/bibliography refresh in order. Methods generation is skipped for
+non-activating staged builds (`ACTIVATE_DEFAULT=0`) and is handled during their
+later promotion step.
 The exporter now expects fresh author tables by default, so use the wrapper or
 rerun `pipeline/kg/build_author_tables.py` before exporting a rebuilt KG run.
 

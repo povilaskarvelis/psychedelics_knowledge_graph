@@ -164,7 +164,7 @@
         },
         "subjective_construct": {
           "type": "string",
-          "description": "Concise Subjective effects construct. Prefer user-facing labels such as Mystical-type experience, Ego dissolution, Altered state profile, Perceptual alterations, Dissociation, Challenging experience, Psychological insight, Emotional breakthrough, Connectedness, Empathy, Personal significance, Spiritual significance, Euphoria, Positive affect, Negative affect, Somatic sensations, Subjective intensity, Near-death-like experience, or Psychosis-like effects when supported by the paper."
+          "description": "Concise Subjective effects construct. Prefer user-facing labels such as Mystical-type experience, Ego dissolution, Altered state profile, Perceptual alterations, Dissociation, Challenging experience, Psychological insight, Emotional breakthrough, Connectedness, Empathy, Personal significance, Spiritual significance, Euphoria, Positive affect, Negative affect, Somatic sensations, Subjective intensity, or Near-death-like experience when supported by the paper."
         },
         "instrument_or_measure": {
           "type": "string",

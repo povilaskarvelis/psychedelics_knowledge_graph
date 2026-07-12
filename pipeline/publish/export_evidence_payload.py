@@ -50,6 +50,7 @@ REVIEW_SOURCE_TYPES = {
     "umbrella_review",
 }
 GRAPH_BOOTSTRAP_ENTITY_KINDS = {
+    "exposure_context",
     "condition_indication",
     "safety_adverse_event",
     "cognitive_behavioral_construct",
@@ -120,6 +121,8 @@ FINDING_FIELDS = (
     "graph_overview_subject_label",
     "graph_overview_subject_kind",
     "graph_overview_subject_reason",
+    "graph_overview_subjects_json",
+    "graph_use_context_projections_json",
     "extraction_warnings",
     "raw_entity_label",
     "entity_role",
@@ -227,8 +230,43 @@ FINDING_FIELDS = (
     "effect_size",
     "p_value",
     "confidence_interval",
+    "meta_analysis_result_role",
+    "meta_analysis_primary_subject_area",
+    "meta_analysis_subject_areas",
+    "meta_analysis_study_count",
+    "meta_analysis_effect_or_experiment_count",
+    "meta_analysis_dataset_or_comparison_count",
+    "meta_analysis_overall_study_count",
+    "meta_analysis_overall_effect_or_experiment_count",
+    "meta_analysis_overall_dataset_or_comparison_count",
+    "meta_analysis_evidence_design_summary",
+    "meta_analysis_search_end_date",
+    "meta_analysis_effect_metric",
+    "meta_analysis_interval_type",
+    "meta_analysis_interval_lower",
+    "meta_analysis_interval_upper",
+    "meta_analysis_standard_error",
+    "heterogeneity_i_squared",
+    "heterogeneity_tau_squared",
+    "heterogeneity_q_statistic",
+    "heterogeneity_q_p_value",
+    "heterogeneity_prediction_interval",
+    "heterogeneity_interpretation",
+    "meta_analysis_analysis_type",
+    "meta_analysis_subgroup_or_moderator",
+    "meta_analysis_regression_coefficient",
+    "meta_analysis_sensitivity_method",
+    "network_treatment_a",
+    "network_treatment_b",
+    "network_reference_treatment",
+    "network_evidence_type",
+    "network_ranking_metric",
+    "network_ranking_value",
+    "network_inconsistency_assessment",
+    "network_transitivity_assessment",
     "adverse_events",
     "serious_adverse_events",
+    "risk_of_bias_summary",
     "evidence_level",
     "support",
     "confidence",
@@ -236,9 +274,12 @@ FINDING_FIELDS = (
     "evidence_location",
     "evidence_locator",
     "paper_assessment_route",
+    "coverage_type",
     "source_type",
     "source_family",
     "paper_type",
+    "review_contribution_type",
+    "review_design_category",
     "evidence_strength",
     "notes",
     "normalization_status",
@@ -270,6 +311,8 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "graph_overview_subject_label",
     "graph_overview_subject_kind",
     "graph_overview_subject_reason",
+    "graph_overview_subjects_json",
+    "graph_use_context_projections_json",
     "entity_label",
     "entity_kind",
     "graph_entity_label",
@@ -297,6 +340,8 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "access_level",
     "source_access_level",
     "paper_type",
+    "review_contribution_type",
+    "review_design_category",
     "source_type",
     "source_family",
     "paper_assessment_route",
@@ -305,6 +350,9 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "evidence_design",
     "population_model_category",
     "outcome_type",
+    "population",
+    "population_or_subgroup",
+    "clinical_context_condition",
     "sample_size_total",
     "sample_size_by_arm",
     "comparator",
@@ -324,11 +372,51 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "system",
     "support",
     "effect_size",
+    "p_value",
+    "confidence_interval",
+    "meta_analysis_result_role",
+    "meta_analysis_primary_subject_area",
+    "meta_analysis_subject_areas",
+    "meta_analysis_study_count",
+    "meta_analysis_effect_or_experiment_count",
+    "meta_analysis_dataset_or_comparison_count",
+    "meta_analysis_overall_study_count",
+    "meta_analysis_overall_effect_or_experiment_count",
+    "meta_analysis_overall_dataset_or_comparison_count",
+    "meta_analysis_evidence_design_summary",
+    "meta_analysis_search_end_date",
+    "meta_analysis_effect_metric",
+    "meta_analysis_interval_type",
+    "meta_analysis_interval_lower",
+    "meta_analysis_interval_upper",
+    "meta_analysis_standard_error",
+    "heterogeneity_i_squared",
+    "heterogeneity_tau_squared",
+    "heterogeneity_q_statistic",
+    "heterogeneity_q_p_value",
+    "heterogeneity_prediction_interval",
+    "heterogeneity_interpretation",
+    "meta_analysis_analysis_type",
+    "meta_analysis_subgroup_or_moderator",
+    "meta_analysis_regression_coefficient",
+    "meta_analysis_sensitivity_method",
+    "network_treatment_a",
+    "network_treatment_b",
+    "network_reference_treatment",
+    "network_evidence_type",
+    "network_ranking_metric",
+    "network_ranking_value",
+    "network_inconsistency_assessment",
+    "network_transitivity_assessment",
+    "risk_of_bias_summary",
+    "evidence_strength",
     "outcome_measure",
     "outcome_measure_normalized",
     "evidence_location",
     "evidence_locator",
     "supporting_quote",
+    "coverage_type",
+    "evidence_level",
     "result_direction_normalized",
     "graph_admission_status",
     "graph_admission_reason",
@@ -622,6 +710,10 @@ def merge_edge_metadata(rows, kg_dir: Path):
     edges = pd.read_parquet(edge_path)
     if edges.empty or join_key not in edges.columns:
         return rows
+    if "projection_type" in edges.columns:
+        # Findings remain one row each. Alternate use-context edges are carried
+        # through their structured projection field and expanded separately.
+        edges = edges[edges["projection_type"].fillna("outcome") != "use_context"].copy()
     edge_columns = [
         column
         for column in (
@@ -640,6 +732,7 @@ def merge_edge_metadata(rows, kg_dir: Path):
             "graph_overview_subject_label",
             "graph_overview_subject_kind",
             "graph_overview_subject_reason",
+            "graph_overview_subjects_json",
             "direction_normalized",
             "evidence_design",
             "graph_admission_status",
@@ -682,6 +775,7 @@ def finding_from_record(record: dict, author_roles: dict[str, dict]) -> dict:
         "compound": field_value(raw, record, "compound"),
         "entity_label": entity_label,
         "entity_kind": entity_kind,
+        "entity_aliases": [],
         "text_depth": text_depth(field_value(raw, record, "access_level")),
         "assessment_timepoint": field_value(raw, record, "assessment_timepoint", "timepoint"),
     }
@@ -827,8 +921,19 @@ def value_counts(findings: Iterable[dict], field: str) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
 
 
-def summary_stats(findings: list[dict], candidate_study_keys: set[str] | None = None) -> dict:
-    projections, _projection_counts = overview_graph_projections(findings)
+MIN_OVERVIEW_NODE_STUDIES = 2
+
+
+def summary_stats(
+    findings: list[dict],
+    candidate_study_keys: set[str] | None = None,
+    *,
+    minimum_node_studies: int = MIN_OVERVIEW_NODE_STUDIES,
+) -> dict:
+    projections, _projection_counts = overview_graph_projections(
+        findings,
+        minimum_node_studies=minimum_node_studies,
+    )
     graph_findings = [projection["finding"] for projection in projections]
     studies = {key for finding in graph_findings if (key := study_key(finding))}
     compounds = {projection["compound"] for projection in projections if projection["compound"]}
@@ -875,14 +980,20 @@ def source_type_token(value: object) -> str:
 
 
 def secondary_literature_source_key(finding: dict) -> str:
-    tokens = {
+    explicit_tokens = {
         source_type_token(finding.get(field))
-        for field in ("paper_type", "source_type", "publication_type")
+        for field in ("paper_type", "source_type")
         if source_type_token(finding.get(field))
     }
-    if tokens & META_ANALYSIS_SOURCE_TYPES or any("meta_analysis" in token for token in tokens):
+    if explicit_tokens & META_ANALYSIS_SOURCE_TYPES or any("meta_analysis" in token for token in explicit_tokens):
         return META_ANALYSES_SOURCE_KEY
-    if tokens & REVIEW_SOURCE_TYPES or any("review" in token for token in tokens):
+    if explicit_tokens & REVIEW_SOURCE_TYPES or any("review" in token for token in explicit_tokens):
+        return REVIEWS_SOURCE_KEY
+
+    publication_token = source_type_token(finding.get("publication_type"))
+    if publication_token in META_ANALYSIS_SOURCE_TYPES or "meta_analysis" in publication_token:
+        return META_ANALYSES_SOURCE_KEY
+    if publication_token in REVIEW_SOURCE_TYPES or "review" in publication_token:
         return REVIEWS_SOURCE_KEY
     return REVIEWS_SOURCE_KEY
 
@@ -918,10 +1029,38 @@ def ui_detail_bootstrap_name(source_key: str) -> str:
 
 
 OVERVIEW_PARENT_COLLAPSE_KINDS = {"pathway_process", "biomarker_readout", "intervention_component"}
-MIN_OVERVIEW_NODE_STUDIES = 2
 
 
-def overview_graph_projection(finding: dict) -> dict | None:
+def overview_graph_subjects(finding: dict) -> list[dict]:
+    raw_subjects = finding.get("graph_overview_subjects_json")
+    if isinstance(raw_subjects, str) and raw_subjects.strip():
+        try:
+            raw_subjects = json.loads(raw_subjects)
+        except json.JSONDecodeError:
+            raw_subjects = None
+    subjects: list[dict] = []
+    if isinstance(raw_subjects, list):
+        for item in raw_subjects:
+            if not isinstance(item, dict):
+                continue
+            label = normalize(item.get("label"))
+            if not label:
+                continue
+            subjects.append(
+                {
+                    "label": label,
+                    "kind": normalize(item.get("kind")) or "atomic_compound",
+                    "reason": normalize(item.get("reason")),
+                    "aliases": [
+                        normalize(alias)
+                        for alias in item.get("aliases", [])
+                        if normalize(alias)
+                    ],
+                }
+            )
+    if subjects:
+        return subjects
+
     exact_subject = normalize(finding.get("compound"))
     exact_subject_kind = normalize(finding.get("graph_subject_kind")) or "atomic_compound"
     subject = normalize(finding.get("graph_overview_subject_label"))
@@ -929,6 +1068,13 @@ def overview_graph_projection(finding: dict) -> dict | None:
     if not subject and exact_subject_kind == "atomic_compound":
         subject = exact_subject
         subject_kind = exact_subject_kind
+    if not subject:
+        return []
+    return [{"label": subject, "kind": subject_kind or exact_subject_kind, "reason": "legacy_singular_projection", "aliases": []}]
+
+
+def overview_graph_projection(finding: dict, subject: dict | None = None) -> dict | None:
+    subject = subject or next(iter(overview_graph_subjects(finding)), None)
     if not subject:
         return None
 
@@ -945,15 +1091,69 @@ def overview_graph_projection(finding: dict) -> dict | None:
 
     return {
         "finding": finding,
-        "compound": subject,
-        "graph_subject_kind": subject_kind or exact_subject_kind,
+        "projection_type": "outcome",
+        "relation_type": normalize(finding.get("relation_type")),
+        "compound": subject["label"],
+        "compound_aliases": list(subject.get("aliases", [])),
+        "graph_subject_kind": subject["kind"],
         "entity_label": entity_label,
         "entity_kind": entity_kind,
+        "graph_parent_label": normalize(finding.get("graph_parent_label")),
+        "graph_parent_kind": normalize(finding.get("graph_parent_kind")),
+        "graph_parent_entity_id": normalize(finding.get("graph_parent_entity_id")),
         "used_parent": used_parent,
     }
 
 
-def overview_graph_projections(findings: list[dict]) -> tuple[list[dict], dict[str, int]]:
+def use_context_graph_projections(finding: dict) -> list[dict]:
+    raw = finding.get("graph_use_context_projections_json")
+    if isinstance(raw, str) and raw.strip():
+        try:
+            raw = json.loads(raw)
+        except json.JSONDecodeError:
+            raw = None
+    if not isinstance(raw, list):
+        return []
+
+    projections: list[dict] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        subject_label = normalize(item.get("subject_label"))
+        context_label = normalize(item.get("context_label"))
+        if not subject_label or not context_label:
+            continue
+        projections.append(
+            {
+                "finding": finding,
+                "projection_type": "use_context",
+                "relation_type": normalize(item.get("relation_type")) or "reported_in_use_context",
+                "compound": subject_label,
+                "compound_aliases": [
+                    normalize(alias)
+                    for alias in item.get("subject_aliases", [])
+                    if normalize(alias)
+                ],
+                "graph_subject_kind": normalize(item.get("subject_kind")) or "atomic_compound",
+                "entity_label": context_label,
+                "entity_kind": normalize(item.get("context_kind")) or "exposure_context",
+                "entity_aliases": [
+                    normalize(alias)
+                    for alias in item.get("context_aliases", [])
+                    if normalize(alias)
+                ],
+                "graph_parent_label": normalize(item.get("context_parent_label")),
+                "graph_parent_kind": normalize(item.get("context_parent_kind")),
+                "graph_parent_entity_id": normalize(item.get("context_parent_entity_id")),
+                "used_parent": False,
+            }
+        )
+    return projections
+
+
+def overview_graph_projections(
+    findings: list[dict], *, minimum_node_studies: int = MIN_OVERVIEW_NODE_STUDIES
+) -> tuple[list[dict], dict[str, int]]:
     projected: list[dict] = []
     subject_studies: dict[tuple[str, str], set[str]] = {}
     entity_studies: dict[tuple[str, str], set[str]] = {}
@@ -961,17 +1161,24 @@ def overview_graph_projections(findings: list[dict]) -> tuple[list[dict], dict[s
     for finding in findings:
         if not is_graph_bootstrap_finding(finding):
             continue
-        projection = overview_graph_projection(finding)
-        if projection is None:
+        subjects = overview_graph_subjects(finding)
+        finding_projections = [
+            projection
+            for subject in subjects
+            if (projection := overview_graph_projection(finding, subject)) is not None
+        ]
+        finding_projections.extend(use_context_graph_projections(finding))
+        if not finding_projections:
             detail_only_subject_count += 1
             continue
-        projected.append(projection)
-        subject_key = (projection["graph_subject_kind"], projection["compound"])
-        entity_key = (projection["entity_kind"], projection["entity_label"])
-        study = study_key(finding)
-        if study:
-            subject_studies.setdefault(subject_key, set()).add(study)
-            entity_studies.setdefault(entity_key, set()).add(study)
+        for projection in finding_projections:
+            projected.append(projection)
+            subject_key = (projection["graph_subject_kind"], projection["compound"])
+            entity_key = (projection["entity_kind"], projection["entity_label"])
+            study = study_key(finding)
+            if study:
+                subject_studies.setdefault(subject_key, set()).add(study)
+                entity_studies.setdefault(entity_key, set()).add(study)
 
     kept: list[dict] = []
     single_study_subject_finding_count = 0
@@ -981,10 +1188,10 @@ def overview_graph_projections(findings: list[dict]) -> tuple[list[dict], dict[s
         entity_label = projection["entity_label"]
         entity_kind = projection["entity_kind"]
         entity_key = (entity_kind, entity_label)
-        if len(subject_studies.get(subject_key, set())) < MIN_OVERVIEW_NODE_STUDIES:
+        if len(subject_studies.get(subject_key, set())) < minimum_node_studies:
             single_study_subject_finding_count += 1
             continue
-        if len(entity_studies.get(entity_key, set())) < MIN_OVERVIEW_NODE_STUDIES:
+        if len(entity_studies.get(entity_key, set())) < minimum_node_studies:
             detail_only_entity_count += 1
             continue
         kept.append(projection)
@@ -998,8 +1205,11 @@ def overview_graph_projections(findings: list[dict]) -> tuple[list[dict], dict[s
 
 
 def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
-    edges: dict[tuple[str, str, str, str, str, str], dict] = {}
-    projected, projection_counts = overview_graph_projections(findings)
+    edges: dict[tuple[str, str, str, str, str, str, str, str], dict] = {}
+    minimum_node_studies = 1 if source_key == "meta_analyses" else MIN_OVERVIEW_NODE_STUDIES
+    projected, projection_counts = overview_graph_projections(
+        findings, minimum_node_studies=minimum_node_studies
+    )
     graph_finding_count = 0
     for projection in projected:
         finding = projection["finding"]
@@ -1008,22 +1218,37 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
 
         compound = projection["compound"]
         graph_subject_kind = projection["graph_subject_kind"]
-        parent_label = normalize(finding.get("graph_parent_label"))
-        parent_kind = normalize(finding.get("graph_parent_kind"))
+        projection_type = normalize(projection.get("projection_type")) or "outcome"
+        relation_type = normalize(projection.get("relation_type"))
+        parent_label = normalize(projection.get("graph_parent_label"))
+        parent_kind = normalize(projection.get("graph_parent_kind"))
 
         graph_finding_count += 1
         domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type"))
-        key = (compound, graph_subject_kind, entity_kind, entity_label, parent_kind, parent_label)
+        key = (
+            projection_type,
+            relation_type,
+            compound,
+            graph_subject_kind,
+            entity_kind,
+            entity_label,
+            parent_kind,
+            parent_label,
+        )
         entry = edges.setdefault(
             key,
             {
+                "projection_type": projection_type,
+                "relation_type": relation_type,
                 "compound": compound,
+                "compound_aliases": set(),
                 "graph_subject_kind": graph_subject_kind,
                 "entity_label": entity_label,
                 "entity_kind": entity_kind,
+                "entity_aliases": set(),
                 "graph_parent_label": parent_label,
                 "graph_parent_kind": parent_kind,
-                "graph_parent_entity_id": normalize(finding.get("graph_parent_entity_id")),
+                "graph_parent_entity_id": normalize(projection.get("graph_parent_entity_id")),
                 "domain": domain,
                 "finding_type": normalize(finding.get("finding_type")) or domain,
                 "evidence_type": normalize(finding.get("evidence_type") or finding.get("kg_evidence_type")) or "primary_evidence",
@@ -1036,6 +1261,8 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
                 "abstract_only_count": 0,
             },
         )
+        entry["compound_aliases"].update(projection.get("compound_aliases", []))
+        entry["entity_aliases"].update(projection.get("entity_aliases", []))
         entry["finding_count"] += 1
         proposition_group_id = normalize(finding.get("proposition_group_id"))
         if proposition_group_id:
@@ -1055,6 +1282,8 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
 
     edge_entries = []
     for entry in edges.values():
+        entry["compound_aliases"] = sorted(entry["compound_aliases"], key=str.casefold)
+        entry["entity_aliases"] = sorted(entry["entity_aliases"], key=str.casefold)
         proposition_group_ids = entry.pop("proposition_group_ids")
         study_keys = entry.pop("study_keys")
         full_text_study_keys = entry.pop("full_text_study_keys")
@@ -1199,7 +1428,12 @@ def export_evidence_payload(
     for source_key in UI_SOURCE_KEYS:
         source_findings = findings_for_ui_source(findings, source_key)
         source_candidate_keys = None if candidate_study_key_sets is None else candidate_study_key_sets[source_key]
-        source_stats = summary_stats(source_findings, source_candidate_keys)
+        minimum_node_studies = 1 if source_key == META_ANALYSES_SOURCE_KEY else MIN_OVERVIEW_NODE_STUDIES
+        source_stats = summary_stats(
+            source_findings,
+            source_candidate_keys,
+            minimum_node_studies=minimum_node_studies,
+        )
         source_summary_stats[source_key] = source_stats
         graph_bootstrap = graph_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
         graph_bootstrap_paths[source_key].write_text(compact_json(graph_bootstrap), encoding="utf-8")
@@ -1218,6 +1452,25 @@ def export_evidence_payload(
         "summary_stats": {
             "default": stats,
             "sources": source_summary_stats,
+            "paper_counts": {
+                "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["study_count"],
+                "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["study_count"],
+                "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["study_count"],
+                "total": sum(
+                    source_summary_stats[source_key]["study_count"]
+                    for source_key in UI_SOURCE_KEYS
+                ),
+                "awaiting_graph_inclusion": {
+                    "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["graph_study_coverage"]["not_in_graph_count"],
+                    "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["graph_study_coverage"]["not_in_graph_count"],
+                    "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["graph_study_coverage"]["not_in_graph_count"],
+                    "total": sum(
+                        source_summary_stats[source_key]["graph_study_coverage"]["not_in_graph_count"]
+                        for source_key in UI_SOURCE_KEYS
+                    ),
+                },
+                "scope": "overview_graph_represented",
+            },
         },
         "status": "ok",
     }
@@ -1274,7 +1527,11 @@ def main() -> int:
     if args.activate_default:
         print(f"Active payload pointer: {Path(args.active_json).resolve()}")
     print(f"Findings: {manifest['row_count']}")
-    print(f"Studies: {manifest['summary_stats']['default']['study_count']}")
+    paper_counts = manifest["summary_stats"]["paper_counts"]
+    print(f"Primary studies: {paper_counts['primary_studies']}")
+    print(f"Reviews: {paper_counts['reviews']}")
+    print(f"Meta-analyses: {paper_counts['meta_analyses']}")
+    print(f"Total papers: {paper_counts['total']}")
     print("Status: ok")
     return 0
 

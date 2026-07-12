@@ -6,7 +6,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline.publish.export_evidence_payload import export_evidence_payload, graph_bootstrap_payload
+from pipeline.publish.export_evidence_payload import (
+    export_evidence_payload,
+    graph_bootstrap_payload,
+    secondary_literature_source_key,
+)
 
 
 def detail_bootstrap_rows(payload: dict) -> list[dict]:
@@ -106,13 +110,86 @@ def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str
 
 
 class ExportEvidencePayloadTest(unittest.TestCase):
+    def test_graph_bootstrap_adds_substance_to_use_context_edges_as_separate_projections(self) -> None:
+        findings = []
+        for index in (1, 2):
+            findings.append(
+                {
+                    "compound": "Chemsex",
+                    "graph_subject_kind": "exposure_context",
+                    "graph_overview_subject_label": "Chemsex",
+                    "graph_overview_subject_kind": "exposure_context",
+                    "entity_label": "Population use & trends",
+                    "entity_kind": "public_health_measure",
+                    "domain": "real_world_public_health",
+                    "relation_type": "has_public_health_evidence",
+                    "study_doi": f"10.1000/chemsex-context-{index}",
+                    "graph_use_context_projections_json": json.dumps(
+                        [
+                            {
+                                "projection_type": "use_context",
+                                "subject_label": "Ketamine",
+                                "subject_kind": "atomic_compound",
+                                "subject_aliases": [],
+                                "context_label": "Chemsex",
+                                "context_kind": "exposure_context",
+                                "context_aliases": ["chem sex"],
+                                "context_parent_label": "Sexualized drug use",
+                                "context_parent_kind": "exposure_context",
+                                "context_parent_entity_id": "compound:sexualized_drug_use",
+                                "relation_type": "reported_in_use_context",
+                            },
+                            {
+                                "projection_type": "use_context",
+                                "subject_label": "MDMA",
+                                "subject_kind": "atomic_compound",
+                                "subject_aliases": ["ecstasy"],
+                                "context_label": "Chemsex",
+                                "context_kind": "exposure_context",
+                                "context_aliases": ["chem sex"],
+                                "context_parent_label": "Sexualized drug use",
+                                "context_parent_kind": "exposure_context",
+                                "context_parent_entity_id": "compound:sexualized_drug_use",
+                                "relation_type": "reported_in_use_context",
+                            },
+                        ]
+                    ),
+                }
+            )
+
+        payload = graph_bootstrap_payload(findings, "2026-07-13T00:00:00Z", Path("kg"), "primary")
+        context_edges = [edge for edge in payload["edges"] if edge["projection_type"] == "use_context"]
+        outcome_edges = [edge for edge in payload["edges"] if edge["projection_type"] == "outcome"]
+
+        self.assertEqual(len(outcome_edges), 1)
+        self.assertEqual({edge["compound"] for edge in context_edges}, {"Ketamine", "MDMA"})
+        self.assertEqual({edge["entity_label"] for edge in context_edges}, {"Chemsex"})
+        self.assertEqual({edge["relation_type"] for edge in context_edges}, {"reported_in_use_context"})
+        self.assertTrue(all(edge["graph_parent_label"] == "Sexualized drug use" for edge in context_edges))
+        self.assertEqual(next(edge for edge in context_edges if edge["compound"] == "MDMA")["compound_aliases"], ["ecstasy"])
+        self.assertEqual(context_edges[0]["entity_aliases"], ["chem sex"])
+
+    def test_explicit_umbrella_review_type_wins_over_meta_analysis_publication_tag(self) -> None:
+        finding = {
+            "paper_type": "umbrella_review",
+            "source_type": "umbrella_review",
+            "publication_type": "Journal Article | Meta-Analysis | Systematic Review",
+        }
+        self.assertEqual(secondary_literature_source_key(finding), "reviews")
+
     def test_overview_projection_uses_controlled_subjects_and_parent_families(self) -> None:
         findings = [
             {
                 "compound": "Psilocybin and MDMA at study-specific doses",
                 "graph_subject_kind": "compound_combination",
-                "graph_overview_subject_label": "Multi-compound exposure",
-                "graph_overview_subject_kind": "compound_combination",
+                "graph_overview_subject_label": "Psilocybin",
+                "graph_overview_subject_kind": "atomic_compound",
+                "graph_overview_subjects_json": json.dumps(
+                    [
+                        {"label": "Psilocybin", "kind": "atomic_compound"},
+                        {"label": "MDMA", "kind": "atomic_compound"},
+                    ]
+                ),
                 "entity_label": "Major depressive disorder",
                 "entity_kind": "condition_indication",
                 "domain": "clinical_outcome",
@@ -121,8 +198,14 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             {
                 "compound": "MDMA and Psilocybin in another regimen",
                 "graph_subject_kind": "compound_combination",
-                "graph_overview_subject_label": "Multi-compound exposure",
-                "graph_overview_subject_kind": "compound_combination",
+                "graph_overview_subject_label": "Psilocybin",
+                "graph_overview_subject_kind": "atomic_compound",
+                "graph_overview_subjects_json": json.dumps(
+                    [
+                        {"label": "Psilocybin", "kind": "atomic_compound"},
+                        {"label": "MDMA", "kind": "atomic_compound"},
+                    ]
+                ),
                 "entity_label": "Major depressive disorder",
                 "entity_kind": "condition_indication",
                 "domain": "clinical_outcome",
@@ -164,15 +247,76 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 "domain": "clinical_outcome",
                 "study_doi": "10.1000/single-study-node",
             },
+            {
+                "compound": "LSD + MDMA (candyflipping)",
+                "graph_subject_kind": "compound_combination",
+                "graph_overview_subjects_json": json.dumps(
+                    [
+                        {
+                            "label": "LSD + MDMA (candyflipping)",
+                            "kind": "compound_combination",
+                            "aliases": ["candyflip", "candy flip", "candy flipping"],
+                        }
+                    ]
+                ),
+                "entity_label": "Altered state profile",
+                "entity_kind": "subjective_experience_construct",
+                "domain": "subjective_experience",
+                "study_doi": "10.1000/candyflip-one",
+            },
+            {
+                "compound": "LSD + MDMA (candyflipping)",
+                "graph_subject_kind": "compound_combination",
+                "graph_overview_subjects_json": json.dumps(
+                    [
+                        {
+                            "label": "LSD + MDMA (candyflipping)",
+                            "kind": "compound_combination",
+                            "aliases": ["candyflipping"],
+                        }
+                    ]
+                ),
+                "entity_label": "Altered state profile",
+                "entity_kind": "subjective_experience_construct",
+                "domain": "subjective_experience",
+                "study_doi": "10.1000/candyflip-two",
+            },
         ]
 
         payload = graph_bootstrap_payload(findings, "2026-07-11T00:00:00Z", Path("kg"), "primary")
 
-        self.assertEqual(payload["finding_count"], 4)
+        self.assertEqual(payload["finding_count"], 8)
         self.assertEqual(payload["detail_only_subject_count"], 1)
         self.assertEqual(payload["single_study_subject_finding_count"], 1)
-        self.assertEqual({edge["compound"] for edge in payload["edges"]}, {"Ketamine", "Multi-compound exposure"})
+        self.assertEqual(
+            {edge["compound"] for edge in payload["edges"]},
+            {"Ketamine", "Psilocybin", "MDMA", "LSD + MDMA (candyflipping)"},
+        )
         self.assertIn("Intracellular signal transduction", {edge["entity_label"] for edge in payload["edges"]})
+        candyflip_edge = next(edge for edge in payload["edges"] if edge["compound"].startswith("LSD + MDMA"))
+        self.assertEqual(
+            candyflip_edge["compound_aliases"],
+            ["candy flip", "candy flipping", "candyflip", "candyflipping"],
+        )
+
+    def test_meta_analysis_graph_keeps_single_paper_nodes(self) -> None:
+        findings = [
+            {
+                "compound": "Salvinorin A",
+                "graph_subject_kind": "atomic_compound",
+                "entity_label": "Major depressive disorder",
+                "entity_kind": "condition_indication",
+                "domain": "clinical_outcome",
+                "study_doi": "10.1000/single-meta-analysis",
+            }
+        ]
+
+        payload = graph_bootstrap_payload(findings, "2026-07-12T00:00:00Z", Path("kg"), "meta_analyses")
+
+        self.assertEqual(payload["finding_count"], 1)
+        self.assertEqual(payload["edge_count"], 1)
+        self.assertEqual(payload["single_study_subject_finding_count"], 0)
+        self.assertEqual(payload["detail_only_entity_count"], 0)
 
     def test_requires_author_tables_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -406,6 +550,11 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "entity_label": "Major depressive disorder",
                         "paper_type": "meta_analysis",
                         "source_type": "meta_analysis",
+                        "text_depth": "article_text",
+                        "meta_analysis_result_role": "primary_synthesis",
+                        "meta_analysis_overall_study_count": "29",
+                        "heterogeneity_i_squared": "I² = 61%",
+                        "confidence_interval": "95% CI -1.20 to -0.44",
                         "support": "Pooled estimates favored ketamine over control.",
                         "raw_row_json": "{}",
                     },
@@ -421,6 +570,11 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "entity_label": "Thalamocortical circuit",
                         "paper_type": "review",
                         "source_type": "review",
+                        "coverage_type": "review_synthesis",
+                        "evidence_level": "human_and_preclinical",
+                        "result_direction": "mixed",
+                        "review_contribution_type": "mechanistic_or_conceptual_review",
+                        "review_design_category": "narrative_or_literature_review",
                         "support": "Review coverage discusses thalamocortical connectivity.",
                         "raw_row_json": "{}",
                     },
@@ -473,7 +627,31 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertNotIn("secondary", active["active_detail_bootstraps"])
         self.assertEqual([row["study_doi"] for row in primary_rows], ["10.1000/primary"])
         self.assertEqual([row["study_doi"] for row in meta_rows], ["10.1000/meta"])
+        self.assertEqual(meta_rows[0]["meta_analysis_result_role"], "primary_synthesis")
+        self.assertEqual(meta_rows[0]["meta_analysis_overall_study_count"], "29")
+        self.assertEqual(meta_rows[0]["heterogeneity_i_squared"], "I² = 61%")
+        self.assertEqual(meta_rows[0]["confidence_interval"], "95% CI -1.20 to -0.44")
         self.assertEqual([row["study_doi"] for row in review_rows], ["10.1000/review"])
+        self.assertEqual(review_rows[0]["coverage_type"], "review_synthesis")
+        self.assertEqual(review_rows[0]["evidence_level"], "human_and_preclinical")
+        self.assertEqual(review_rows[0]["review_contribution_type"], "mechanistic_or_conceptual_review")
+        self.assertEqual(review_rows[0]["review_design_category"], "narrative_or_literature_review")
+        self.assertEqual(
+            result["manifest"]["summary_stats"]["paper_counts"],
+            {
+                "primary_studies": 0,
+                "reviews": 0,
+                "meta_analyses": 1,
+                "total": 1,
+                "awaiting_graph_inclusion": {
+                    "primary_studies": 1,
+                    "reviews": 1,
+                    "meta_analyses": 0,
+                    "total": 2,
+                },
+                "scope": "overview_graph_represented",
+            },
+        )
 
     def test_exports_pharmacokinetics_with_all_other_domains(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -591,6 +769,28 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "entity_label": "Classic psychedelics",
                         "raw_row_json": "{}",
                     },
+                    {
+                        "finding_id": "finding-symptom",
+                        "paper_id": "paper-1",
+                        "source_name": "routed_extractions",
+                        "domain": "clinical_outcome",
+                        "evidence_type": "primary_evidence",
+                        "study_doi": "10.1000/condition",
+                        "compound": "Psilocybin",
+                        "entity_label": "Depressive symptoms",
+                        "raw_row_json": "{}",
+                    },
+                    {
+                        "finding_id": "finding-brain-measure",
+                        "paper_id": "paper-1",
+                        "source_name": "routed_extractions",
+                        "domain": "brain_system",
+                        "evidence_type": "primary_evidence",
+                        "study_doi": "10.1000/condition",
+                        "compound": "Psilocybin",
+                        "entity_label": "Functional connectivity",
+                        "raw_row_json": "{}",
+                    },
                 ]
             ).to_parquet(kg_dir / "findings.parquet", index=False)
             pd.DataFrame(
@@ -622,6 +822,24 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "evidence_type": "primary_evidence",
                         "relation_type": "has_compound_class",
                     },
+                    {
+                        "finding_id": "finding-symptom",
+                        "evidence_id": "evidence-symptom",
+                        "domain": "clinical_outcome",
+                        "entity_kind": "symptom_problem",
+                        "entity_label": "Depressive symptoms",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "studied_for_symptom",
+                    },
+                    {
+                        "finding_id": "finding-brain-measure",
+                        "evidence_id": "evidence-brain-measure",
+                        "domain": "brain_system",
+                        "entity_kind": "brain_measure",
+                        "entity_label": "Functional connectivity",
+                        "evidence_type": "primary_evidence",
+                        "relation_type": "measured_with",
+                    },
                 ]
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
 
@@ -630,11 +848,14 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             detail = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
             rows = detail_bootstrap_rows(detail)
 
-        self.assertEqual(detail["row_count"], 3)
-        self.assertEqual(graph["source_row_count"], 3)
+        self.assertEqual(detail["row_count"], 5)
+        self.assertEqual(graph["source_row_count"], 5)
         self.assertEqual(graph["finding_count"], 0)
         self.assertEqual(graph["edge_count"], 0)
-        self.assertEqual({row["entity_kind"] for row in rows}, {"condition_indication", "outcome_scale", "compound"})
+        self.assertEqual(
+            {row["entity_kind"] for row in rows},
+            {"condition_indication", "outcome_scale", "compound", "symptom_problem", "brain_measure"},
+        )
 
     def test_exports_graph_study_coverage_from_findings_plus_audit(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

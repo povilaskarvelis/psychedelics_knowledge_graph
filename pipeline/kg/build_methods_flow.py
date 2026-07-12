@@ -430,19 +430,112 @@ def write_compact_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def active_routed_kg_dir(root: Path = ROOT, active_pointer: Path | None = None) -> Path | None:
+def project_path(root: Path, value: object) -> Path | None:
+    raw = normalize(value)
+    if not raw:
+        return None
+    path = Path(raw)
+    return path if path.is_absolute() else root / path
+
+
+def active_routed_kg_dirs(root: Path = ROOT, active_pointer: Path | None = None) -> list[Path]:
+    """Return every routed KG run used by the active (possibly mixed) graph."""
     active_pointer = active_pointer or root / "data" / "processed" / "graph_payload_active.json"
     if not active_pointer.exists():
-        return None
+        return []
     try:
         active = read_json_object(active_pointer)
     except Exception:
-        return None
-    kg_dir = normalize(active.get("kg_dir", ""))
-    if not kg_dir:
-        return None
-    path = Path(kg_dir)
-    return path if path.is_absolute() else root / path
+        return []
+
+    kg_dirs: list[Path] = []
+    seen: set[Path] = set()
+
+    def add_kg_dir(value: object) -> None:
+        path = project_path(root, value)
+        if path is None:
+            return
+        resolved = path.resolve()
+        if resolved not in seen:
+            seen.add(resolved)
+            kg_dirs.append(resolved)
+
+    add_kg_dir(active.get("kg_dir", ""))
+
+    manifest_values = [active.get("active_manifest", "")]
+    detail_bootstraps = active.get("active_detail_bootstraps", {})
+    if isinstance(detail_bootstraps, dict):
+        for detail_value in detail_bootstraps.values():
+            detail_path = project_path(root, detail_value)
+            if detail_path is not None:
+                manifest_values.append(detail_path.parent / "graph_payload_manifest.json")
+
+    for manifest_value in manifest_values:
+        manifest_path = project_path(root, manifest_value)
+        if manifest_path is None or not manifest_path.exists():
+            continue
+        try:
+            manifest = read_json_object(manifest_path)
+        except Exception:
+            continue
+        add_kg_dir(manifest.get("kg_dir", ""))
+
+    return kg_dirs
+
+
+def active_routed_kg_dir(root: Path = ROOT, active_pointer: Path | None = None) -> Path | None:
+    """Backward-compatible accessor for callers that expect one active KG run."""
+    kg_dirs = active_routed_kg_dirs(root, active_pointer)
+    return kg_dirs[0] if kg_dirs else None
+
+
+def active_detail_study_dois(
+    root: Path = ROOT,
+    active_pointer: Path | None = None,
+) -> tuple[set[str], list[str], list[str], int]:
+    """Read the DOI set actually served by the active browser detail payloads."""
+    active_pointer = active_pointer or root / "data" / "processed" / "graph_payload_active.json"
+    input_files: list[str] = []
+    warnings: list[str] = []
+    if not active_pointer.exists():
+        return set(), input_files, warnings, 0
+    try:
+        active = read_json_object(active_pointer)
+    except Exception as exc:
+        warnings.append(f"Could not read active graph payload pointer {active_pointer}: {exc}")
+        return set(), input_files, warnings, 0
+
+    detail_bootstraps = active.get("active_detail_bootstraps", {})
+    if not isinstance(detail_bootstraps, dict):
+        return set(), input_files, warnings, 0
+
+    dois: set[str] = set()
+    loaded_sources = 0
+    for source, value in sorted(detail_bootstraps.items()):
+        path = project_path(root, value)
+        if path is None or not path.exists():
+            warnings.append(f"Active {source} detail payload is missing: {path or value}")
+            continue
+        input_files.append(str(path))
+        try:
+            payload = read_json_object(path)
+            fields = payload.get("fields", [])
+            values = payload.get("values", [])
+            rows = payload.get("rows", [])
+            doi_index = fields.index("study_doi")
+            for row in rows:
+                if not isinstance(row, list) or doi_index >= len(row):
+                    continue
+                value_index = row[doi_index]
+                if not isinstance(value_index, int) or value_index < 0 or value_index >= len(values):
+                    continue
+                doi = normalize_doi(values[value_index])
+                if doi:
+                    dois.add(doi)
+            loaded_sources += 1
+        except Exception as exc:
+            warnings.append(f"Could not read active {source} detail payload {path}: {exc}")
+    return dois, input_files, warnings, loaded_sources
 
 
 def unique_public_labels(values: Iterable[object], limit: int = 3) -> str:
@@ -1589,8 +1682,12 @@ def routed_kg_graph_status_by_doi(
     input_files: list[str] = []
     warnings: list[str] = []
     active_pointer = root / GRAPH_PAYLOAD_ACTIVE_POINTER.relative_to(ROOT)
-    kg_dir = Path(kg_dir_override).resolve() if kg_dir_override is not None else active_routed_kg_dir(root, active_pointer)
-    if not kg_dir:
+    kg_dirs = (
+        [Path(kg_dir_override).resolve()]
+        if kg_dir_override is not None
+        else active_routed_kg_dirs(root, active_pointer)
+    )
+    if not kg_dirs:
         warnings.append(
             "Active graph payload pointer is missing; methods bibliography cannot mark final KG graph status."
         )
@@ -1598,10 +1695,6 @@ def routed_kg_graph_status_by_doi(
 
     if kg_dir_override is None:
         input_files.append(str(active_pointer))
-    else:
-        input_files.append(str(kg_dir))
-    findings_table = kg_dir / "findings.parquet"
-    audit_table = kg_dir / "normalization_audit.parquet"
 
     try:
         import pandas as pd
@@ -1610,54 +1703,69 @@ def routed_kg_graph_status_by_doi(
         return {}, input_files, warnings
 
     included_dois: set[str] = set()
-    if findings_table.exists():
-        input_files.append(str(findings_table))
-        try:
-            findings = pd.read_parquet(findings_table, columns=["study_doi"])
-            included_dois = {
-                doi
-                for doi in (normalize_doi(value) for value in findings["study_doi"].tolist())
-                if doi
-            }
-        except Exception as exc:
-            warnings.append(f"Could not read routed KG findings table {findings_table}: {exc}")
-    else:
-        warnings.append(f"Routed KG findings table is missing: {findings_table}")
+    loaded_active_sources = 0
+    if kg_dir_override is None:
+        included_dois, detail_inputs, detail_warnings, loaded_active_sources = active_detail_study_dois(
+            root,
+            active_pointer,
+        )
+        input_files.extend(detail_inputs)
+        warnings.extend(detail_warnings)
 
     audit_by_doi: dict[str, dict] = defaultdict(lambda: {"statuses": set(), "compounds": []})
-    if audit_table.exists():
-        input_files.append(str(audit_table))
-        try:
-            audit = pd.read_parquet(audit_table)
-            wanted_columns = [
-                column
-                for column in (
-                    "study_doi",
-                    "normalization_status",
-                    "canonical_compound",
-                    "compound",
-                    "compound_original",
-                )
-                if column in audit.columns
-            ]
-            for record in audit[wanted_columns].where(pd.notna(audit[wanted_columns]), "").to_dict(orient="records"):
-                doi = normalize_doi(record.get("study_doi", ""))
-                status = normalize(record.get("normalization_status", "")).lower()
-                if not doi or not status:
-                    continue
-                info = audit_by_doi[doi]
-                info["statuses"].add(status)
-                compound = first_nonempty(
-                    record.get("canonical_compound", ""),
-                    record.get("compound", ""),
-                    record.get("compound_original", ""),
-                )
-                if normalize(compound):
-                    info["compounds"].append(compound)
-        except Exception as exc:
-            warnings.append(f"Could not read routed KG normalization audit table {audit_table}: {exc}")
-    else:
-        warnings.append(f"Routed KG normalization audit table is missing: {audit_table}")
+    for kg_dir in kg_dirs:
+        input_files.append(str(kg_dir))
+        findings_table = kg_dir / "findings.parquet"
+        audit_table = kg_dir / "normalization_audit.parquet"
+
+        if kg_dir_override is not None or loaded_active_sources == 0:
+            if not findings_table.exists():
+                warnings.append(f"Routed KG findings table is missing: {findings_table}")
+            else:
+                input_files.append(str(findings_table))
+                try:
+                    findings = pd.read_parquet(findings_table, columns=["study_doi"])
+                    included_dois.update(
+                        doi
+                        for doi in (normalize_doi(value) for value in findings["study_doi"].tolist())
+                        if doi
+                    )
+                except Exception as exc:
+                    warnings.append(f"Could not read routed KG findings table {findings_table}: {exc}")
+
+        if audit_table.exists():
+            input_files.append(str(audit_table))
+            try:
+                audit = pd.read_parquet(audit_table)
+                wanted_columns = [
+                    column
+                    for column in (
+                        "study_doi",
+                        "normalization_status",
+                        "canonical_compound",
+                        "compound",
+                        "compound_original",
+                    )
+                    if column in audit.columns
+                ]
+                for record in audit[wanted_columns].where(pd.notna(audit[wanted_columns]), "").to_dict(orient="records"):
+                    doi = normalize_doi(record.get("study_doi", ""))
+                    status = normalize(record.get("normalization_status", "")).lower()
+                    if not doi or not status:
+                        continue
+                    info = audit_by_doi[doi]
+                    info["statuses"].add(status)
+                    compound = first_nonempty(
+                        record.get("canonical_compound", ""),
+                        record.get("compound", ""),
+                        record.get("compound_original", ""),
+                    )
+                    if normalize(compound):
+                        info["compounds"].append(compound)
+            except Exception as exc:
+                warnings.append(f"Could not read routed KG normalization audit table {audit_table}: {exc}")
+        else:
+            warnings.append(f"Routed KG normalization audit table is missing: {audit_table}")
 
     lookup = {
         doi: {"status": "pass", "label": "In graph", "note": ""}

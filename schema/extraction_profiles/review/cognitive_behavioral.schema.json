@@ -370,7 +370,7 @@
             },
             "construct_category": {
               "type": "string",
-              "description": "Construct category such as cognition, emotion, memory, learning, social behavior, development, addiction behavior, or animal behavioral model."
+              "description": "Construct category such as cognition, emotion, memory, learning, social behavior, development, addiction behavior, psychotomimetic effects, or animal behavioral model."
             },
             "behavior_or_task": {
               "type": "string",

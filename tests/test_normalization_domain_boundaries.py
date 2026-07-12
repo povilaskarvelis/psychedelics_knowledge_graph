@@ -67,7 +67,7 @@ def test_intervention_topics_use_recognizable_researcher_facing_labels() -> None
         "At-home telehealth-supported administration": "Remote & at-home delivery",
         "Traditional Mazatec ritual structure": "Ceremonial & ritual context",
         "EMDR somatic resourcing": "Other psychotherapy models",
-        "Brief patient psychoeducation": "Other session supports",
+        "Brief patient psychoeducation": "Session components",
     }
     for raw_label, expected in cases.items():
         assert intervention_parent_label({"context_component": raw_label}, raw_label) == expected

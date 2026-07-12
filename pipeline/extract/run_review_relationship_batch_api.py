@@ -147,7 +147,8 @@ def previously_attempted_dois(args: argparse.Namespace) -> set[str]:
 def selected_tasks(args: argparse.Namespace) -> list[tuple[int, dict]]:
     tasks = read_jsonl(Path(args.tasks_jsonl).resolve())
     excluded = successful_dois(batch_paths(args)["run_bundles_jsonl"])
-    excluded.update(previously_attempted_dois(args))
+    if not args.retry_attempted:
+        excluded.update(previously_attempted_dois(args))
     for path in args.exclude_output_jsonl:
         excluded.update(successful_dois(Path(path).resolve()))
     candidates = [
@@ -537,6 +538,11 @@ def parse_args() -> argparse.Namespace:
     prepare.add_argument("--shuffle", action="store_true")
     prepare.add_argument("--seed", type=int, default=1)
     prepare.add_argument("--exclude-output-jsonl", type=Path, action="append", default=[])
+    prepare.add_argument(
+        "--retry-attempted",
+        action="store_true",
+        help="Allow previously attempted papers back into selection while still excluding successful papers.",
+    )
     prepare.add_argument("--full-text-prompt", type=Path, default=FULL_TEXT_PROMPT)
     prepare.add_argument("--abstract-prompt", type=Path, default=ABSTRACT_PROMPT)
     prepare.add_argument("--bundle-schema", type=Path, default=BUNDLE_SCHEMA)

@@ -26,16 +26,36 @@ try:
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
     from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
     from pipeline.extract.io_utils import SYSTEM_NORMALIZATION, normalize, write_json
+    from pipeline.kg.compound_combinations import (
+        aliases_for_components,
+        canonical_components,
+        named_combination_for_components,
+        named_combination_from_text,
+    )
     from pipeline.kg.convert_routed_extractions_to_evidence_rows import apply_graph_subject, evidence_design_for, normalized_result_direction
     from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_edge_relation_type, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
+    from pipeline.kg.use_contexts import (
+        use_context_definition,
+        use_context_label_from_text,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.clinical_comparator import normalize_clinical_comparator
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
     from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
     from pipeline.extract.io_utils import SYSTEM_NORMALIZATION, normalize, write_json
+    from pipeline.kg.compound_combinations import (
+        aliases_for_components,
+        canonical_components,
+        named_combination_for_components,
+        named_combination_from_text,
+    )
     from pipeline.kg.convert_routed_extractions_to_evidence_rows import apply_graph_subject, evidence_design_for, normalized_result_direction
     from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_edge_relation_type, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
+    from pipeline.kg.use_contexts import (
+        use_context_definition,
+        use_context_label_from_text,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -161,6 +181,8 @@ CLAIM_FIELDS = (
     "graph_overview_subject_label",
     "graph_overview_subject_kind",
     "graph_overview_subject_reason",
+    "graph_overview_subjects_json",
+    "graph_use_context_projections_json",
     "extraction_warnings",
     "raw_entity_label",
     "entity_role",
@@ -269,7 +291,42 @@ CLAIM_FIELDS = (
     "effect_size",
     "p_value",
     "confidence_interval",
+    "meta_analysis_result_role",
+    "meta_analysis_primary_subject_area",
+    "meta_analysis_subject_areas",
+    "meta_analysis_study_count",
+    "meta_analysis_effect_or_experiment_count",
+    "meta_analysis_dataset_or_comparison_count",
+    "meta_analysis_overall_study_count",
+    "meta_analysis_overall_effect_or_experiment_count",
+    "meta_analysis_overall_dataset_or_comparison_count",
+    "meta_analysis_evidence_design_summary",
+    "meta_analysis_search_end_date",
+    "meta_analysis_effect_metric",
+    "meta_analysis_interval_type",
+    "meta_analysis_interval_lower",
+    "meta_analysis_interval_upper",
+    "meta_analysis_standard_error",
+    "heterogeneity_i_squared",
+    "heterogeneity_tau_squared",
+    "heterogeneity_q_statistic",
+    "heterogeneity_q_p_value",
+    "heterogeneity_prediction_interval",
+    "heterogeneity_interpretation",
+    "meta_analysis_analysis_type",
+    "meta_analysis_subgroup_or_moderator",
+    "meta_analysis_regression_coefficient",
+    "meta_analysis_sensitivity_method",
+    "network_treatment_a",
+    "network_treatment_b",
+    "network_reference_treatment",
+    "network_evidence_type",
+    "network_ranking_metric",
+    "network_ranking_value",
+    "network_inconsistency_assessment",
+    "network_transitivity_assessment",
     "adverse_events",
+    "risk_of_bias_summary",
     "evidence_level",
     "support",
     "confidence",
@@ -286,6 +343,8 @@ CLAIM_FIELDS = (
     "source_type",
     "source_family",
     "paper_type",
+    "review_contribution_type",
+    "review_design_category",
     "access_level",
     "evidence_strength",
     "notes",
@@ -417,7 +476,7 @@ PUBLIC_HEALTH_USE_CONTEXT_FIELDS = (
     "supporting_quote",
 )
 PUBLIC_HEALTH_STRICT_PROBLEMATIC_USE_RE = re.compile(
-    r"\b(misuse|abuse liability|dependen\w*|addict\w*|diversion|nonmedical|non[- ]medical|"
+    r"\b(misuse|abuse liability|abuse potential|dependen\w*|addict\w*|diversion|nonmedical|non[- ]medical|"
     r"substance use disorder|use disorder|sud\b|drug abuse|drug dependence|alcohol abuse|"
     r"problematic use patterns?|compulsive use|obsessive relationship|over[- ]?eager use|"
     r"tolerance escalation|withdrawal syndrome|use despite harm)\b",
@@ -477,6 +536,7 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"\b(access barriers?|barriers? to (?:care|treatment|services?)|treatment access|service access|"
             r"treatment availability|service availability|geographic access|early[- ]access|insurance coverage|"
             r"health equity|equity|inequit\w*|disparit\w*|ethnoracial|racial inclusion|representation|"
+            r"socioeconomic(?:ally)? advantaged|"
             r"social determinants|underserved|affordability|claim approval|prior authorization|"
             r"reimbursement|coverage approval)\b",
             re.IGNORECASE,
@@ -488,7 +548,37 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"\b(implementation|service delivery|care delivery|delivery model|acceptability|appropriate(?:ness)?|"
             r"feasibility|provider attitudes?|clinician attitudes?|stakeholder attitudes?|willingness to (?:offer|"
             r"provide|participate)|prescrib\w*|certified treatment centers?|provider training|workforce training|"
-            r"social workers?|psychiatrists?|practice readiness|implementation barrier)\b",
+            r"social workers?|psychiatrists?|practice readiness|implementation barrier|clinical adoption|"
+            r"widespread adoption)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Ethics & governance",
+        re.compile(
+            r"\b(ethic\w*|governance|informed consent|research consent|autonomy|cultural appropriation|"
+            r"indigenous|distributive justice|conflicts? of interest|research subject protections?|"
+            r"participant protections?|exploitation|misconduct|sexual violations?)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Commercialization & public communication",
+        re.compile(
+            r"\b(commerciali[sz]\w*|commodification|venture capital|for[- ]profit|patents?|"
+            r"psychedelic industry|wellness (?:industry|market|sector|products?)|marketing|media hype|public hype|"
+            r"public misinterpretation|public advocacy|social media|mislead(?:ing)? (?:patients?|public|"
+            r"health professionals?)|online information|controversy|controversial|stigma|de[- ]?stigmat\w*|"
+            r"public perception)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Environmental sustainability",
+        re.compile(
+            r"\b(conservation|over[- ]?harvest\w*|wild populations?|poaching|habitat loss|climate change|"
+            r"anthropogenic pressures?|endangered|threatened species|harvesting pressure|ecological|"
+            r"environmental sustainability)\b",
             re.IGNORECASE,
         ),
     ),
@@ -496,7 +586,10 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         "Policy & legal outcomes",
         re.compile(
             r"\b(policy|regulat\w*|legal status|legalization|legalisation|decriminal\w*|criminal\w*|"
-            r"crime|arrest\w*|prison|incarcerat\w*|scheduling|drug classification|"
+            r"crime|arrest\w*|prison|incarcerat\w*|scheduling|drug classification|politic\w*|"
+            r"prohibition|international ban|un conventions?|controlled substances? act|schedule i|dea\b|"
+            r"fda approval|tga\b|rems\b|off[- ]label|legislative reform|treaty obligations?|rulemaking|"
+            r"hybrid psychedelic laws?|government agencies?|"
             r"licensed supervised use|medical treatment status|public approval of legal)\b",
             re.IGNORECASE,
         ),
@@ -506,7 +599,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         re.compile(
             r"\b(harm[- ]?reduction|safer use|risk reduction|trip[- ]?sitter|sober sitter|babysitter|"
             r"drug information source|information seeking|checking before use|behavior change after (?:testing|"
-            r"drug checking)|intended use behavior change|integration support|peer support|overdose prevention)\b",
+            r"drug checking)|intended use behavior change|integration support|peer support|overdose prevention|"
+            r"risk assessments?|control measures?)\b",
             re.IGNORECASE,
         ),
     ),
@@ -514,8 +608,9 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         "Availability & market trends",
         re.compile(
             r"\b(cryptomarket|darknet|market availability|market trend|market share|purchase|purchasing|"
-            r"easy to obtain|availability of (?:drugs?|substances?)|street price|price trend|drug supply|"
-            r"online market|retail availability)\b",
+            r"easy to obtain|availability of (?:drugs?|substances?)|perceived availability|street price|"
+            r"price trend|drug supply|drug seizures?|seized by law enforcement|online market|"
+            r"recreational drug market|clandestine distribution|retail availability)\b",
             re.IGNORECASE,
         ),
     ),
@@ -566,7 +661,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"quality of life|functioning|disability|cognitive (?:risk|outcome|function)|sleep quality|"
             r"urinary|urolog\w*|renal|morbidity|infectious complications?|health status|"
             r"symptom improvement|symptom worsening|mood change|nature relatedness|social functioning|"
-            r"relationship quality|violence|intimate partner violence)\b",
+            r"relationship quality|violence|intimate partner violence|sexual assault|public health (?:risk|harm)|"
+            r"preventive medicine|long[- ]term health)\b",
             re.IGNORECASE,
         ),
     ),
@@ -577,6 +673,17 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"administration route|dose pattern|dosing pattern|first[- ]time use|regular use|chronic use|"
             r"co[- ]?use|polysubstance|poly[- ]?drug|polydrug|co[- ]ingest\w*|concomitant use|"
             r"number of substances|user profiles?|duration of use|use practices?|consumption pattern)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Research landscape",
+        re.compile(
+            r"\b(research landscape|bibliometric|publication patterns?|publication bias|reporting bias|"
+            r"evidence base|quality of evidence|methodological (?:quality|limitations?|concerns?|weaknesses?)|"
+            r"research funding|funding patterns?|research grants?|zero grants?|national institutes of health|nih\b|"
+            r"research agenda|research priorit\w*|study design|"
+            r"clinical trial design|underreporting|research bias|scientific evidence)\b",
             re.IGNORECASE,
         ),
     ),
@@ -606,13 +713,13 @@ PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS = {
     "polysubstance use": "Use patterns & practices",
     "clinical treatment": "Treatment effectiveness & care outcomes",
     "prevalence and trends": "Population use & trends",
-    "problematic use": "Other real-world outcome",
+    "problematic use": "Problematic use & dependence",
     "drug checking and adulteration": "Drug composition & adulteration",
     "emergency toxicology reports": "Acute harms & healthcare use",
     "wastewater and market signals": "Population use & trends",
     "access to services": "Access & equity",
     "legal criminal justice": "Policy & legal outcomes",
-    "other naturalistic topic": "Other real-world outcome",
+    "other naturalistic topic": "Other real-world topics",
 }
 PUBLIC_HEALTH_RAW_TOPIC_FALLBACKS = {
     "epidemiology": "Population use & trends",
@@ -794,6 +901,25 @@ BRAIN_MEASURE_NOT_GRAPHABLE_RE = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+BRAIN_MEASURE_GRAPH_RULES = (
+    (re.compile(r"\b(functional connectivity|connectivity|coupling|connectome|within.network|between.network)\b", re.I), "Functional connectivity"),
+    (re.compile(r"\b(mismatch negativity|mmn)\b", re.I), "MMN"),
+    (re.compile(r"\b(p300|p3a|p3b|novelty p3)\b", re.I), "P300"),
+    (re.compile(r"\b(event.related potentials?|erp)\b", re.I), "ERP"),
+    (re.compile(r"\b(bold|blood oxygen.level dependent)\b", re.I), "BOLD response"),
+    (re.compile(r"\b(cbf|blood flow|perfusion|arterial spin labell?ing|asl|pcasl)\b", re.I), "Cerebral blood flow"),
+    (re.compile(r"\b(fdg|glucose metabolism|deoxyglucose|metabolic activity)\b", re.I), "Glucose metabolism"),
+    (re.compile(r"\b(oscillat\w*|spectral power|alpha power|beta power|theta power|delta power|gamma power)\b", re.I), "Oscillatory power"),
+    (re.compile(r"\b(receptor occupancy|binding potential|receptor availability|receptor binding|receptor density)\b", re.I), "Receptor occupancy"),
+    (re.compile(r"\b(white matter|fractional anisotropy|diffusion tensor|dti|tract integrity)\b", re.I), "White matter integrity"),
+    (re.compile(r"\b(grey matter|gray matter|brain volume|regional volume|cortical thickness|morphometry)\b", re.I), "Brain structure"),
+    (re.compile(r"\b(signal complexity|lempel.ziv|lzc|entropy)\b", re.I), "Neural signal complexity"),
+)
+
+
+def brain_measure_graph_label(value: object) -> str:
+    text = normalize(value)
+    return next((label for pattern, label in BRAIN_MEASURE_GRAPH_RULES if pattern.search(text)), "")
 BROAD_BRAIN_SYSTEM_NOT_GRAPHABLE_KEYS = {
     "cerebral cortex",
     "cortex",
@@ -801,6 +927,22 @@ BROAD_BRAIN_SYSTEM_NOT_GRAPHABLE_KEYS = {
     "neocortex",
 }
 COGNITIVE_BEHAVIORAL_RULES = (
+    (
+        "Global cognition",
+        re.compile(
+            r"\b(global cognitive|general cognitive|cognition \(all domains\)|cognitive outcome \(various\)|"
+            r"neurocognitive functions?|neuropsychological (?:abilities|performance)|all cognitive domains)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Psychotomimetic effects",
+        re.compile(
+            r"\b(psychotomimetic|psychosis[- ]like|psychotic[- ]like|model psychosis|psychosis model|"
+            r"schizophrenia[- ]like symptoms?|positive symptoms?|bprs|panss)\b",
+            re.IGNORECASE,
+        ),
+    ),
     (
         "Fear extinction",
         re.compile(r"\b(fear extinction|extinction learning|extinction recall|extinction retrieval)\b", re.IGNORECASE),
@@ -1098,7 +1240,7 @@ COGNITIVE_BEHAVIORAL_RULES = (
     ),
     (
         "Inhibitory control",
-        re.compile(r"\b(inhibitory control|response inhibition|impulsivity|impulsive action)\b", re.IGNORECASE),
+        re.compile(r"\b(inhibitory control|inhibitory deficits?|response inhibition|impulsivity|impulsive action)\b", re.IGNORECASE),
     ),
     (
         "Attention",
@@ -1310,10 +1452,6 @@ SUBJECTIVE_EXPERIENCE_RULES = (
         ),
     ),
     (
-        "Psychosis-like effects",
-        re.compile(r"\b(psychotomimetic|psychosis[- ]like|psychotic[- ]like|psychotic symptoms?|positive symptoms?|bprs|panss)\b", re.IGNORECASE),
-    ),
-    (
         "Challenging experience",
         re.compile(
             r"\b(challenging experience|difficult experience|bad trip|ceq\b|psychological distress|"
@@ -1438,8 +1576,6 @@ SUBJECTIVE_EXPERIENCE_LABEL_FALLBACKS = {
     "near death experience phenomenology": "Near-death-like experience",
     "oceanic boundlessness": "Mystical-type experience",
     "psychological insight": "Psychological insight",
-    "psychosis like experience": "Psychosis-like effects",
-    "psychotomimetic symptoms": "Psychosis-like effects",
     "subjective drug intensity": "Subjective intensity",
 }
 SUBJECTIVE_EXPERIENCE_SAFETY_CONTEXT_FIELDS = (
@@ -1471,6 +1607,7 @@ ROUTE_NATIVE_ENTITY_KINDS = {
     "brain_region",
     "brain_network",
     "neural_circuit",
+    "brain_measure",
     "cognitive_behavioral_construct",
     "subjective_experience_construct",
     "pharmacokinetic_parameter",
@@ -1489,6 +1626,7 @@ VOCABULARY_BACKED_ENTITY_KINDS = {
     "brain_region",
     "brain_network",
     "neural_circuit",
+    "brain_measure",
     "cognitive_behavioral_construct",
     "subjective_experience_construct",
     "pharmacokinetic_parameter",
@@ -1497,6 +1635,7 @@ VOCABULARY_BACKED_ENTITY_KINDS = {
 }
 GRAPH_ENTITY_KINDS = {
     "compound",
+    "exposure_context",
     "condition_indication",
     "symptom_problem",
     "safety_adverse_event",
@@ -1509,6 +1648,7 @@ GRAPH_ENTITY_KINDS = {
 }
 ENTITY_TYPE_BY_KIND = {
     "compound": "compound",
+    "exposure_context": "exposure_unit",
     "condition_indication": "clinical_entity",
     "symptom_problem": "clinical_entity",
     "safety_adverse_event": "clinical_entity",
@@ -1520,6 +1660,7 @@ ENTITY_TYPE_BY_KIND = {
     "brain_region": "brain_system_entity",
     "brain_network": "brain_system_entity",
     "neural_circuit": "brain_system_entity",
+    "brain_measure": "brain_system_entity",
     "cognitive_behavioral_construct": "behavioral_entity",
     "subjective_experience_construct": "subjective_experience_entity",
     "pharmacokinetic_parameter": "exposure_entity",
@@ -1625,6 +1766,14 @@ ENTITY_LABEL_FIELDS_BY_KIND = {
     "brain_region": ("brain_region", "graph_entity_label", "entity_label", "entity"),
     "brain_network": ("brain_network", "graph_entity_label", "entity_label", "entity"),
     "neural_circuit": ("neural_circuit", "connectivity_or_circuit_relationship", "graph_entity_label", "entity_label", "entity"),
+    "brain_measure": (
+        "brain_measure",
+        "readout_or_measure",
+        "outcome_measure",
+        "graph_entity_label",
+        "entity_label",
+        "entity",
+    ),
     "cognitive_behavioral_construct": (
         "graph_construct_label",
         "construct_or_behavior",
@@ -2296,8 +2445,46 @@ COMPOUND_COMBO_TEXT_RE = re.compile(
     r"\b(and|or|plus|followed by|combined with|coadministered|co-administered|sequential)\b|\s\+\s|\s/\s",
     re.IGNORECASE,
 )
+EXPLICIT_COMPOUND_COADMIN_RE = re.compile(
+    r"\b(?:coadministered|co-administered|coadministration|co-administration|"
+    r"administered (?:together|concurrently|simultaneously)|concomitant(?:ly)?|"
+    r"combined (?:administration|formulation|treatment|dose)|combined with|"
+    r"combination (?:of|containing)|dose combinations?|formulation (?:of|containing|with)|"
+    r"fixed[- ]dose combination|mixed (?:with|together))\b|\s\+\s",
+    re.IGNORECASE,
+)
+EXPLICIT_COMPOUND_SEQUENCE_RE = re.compile(
+    r"\b(?:followed by|then (?:received|administered|given)|sequential(?:ly)?(?: administered)?|"
+    r"staged (?:administration|treatment|regimen))\b",
+    re.IGNORECASE,
+)
+COMBINATION_EVIDENCE_FIELDS = (
+    "graph_subject_label",
+    "compound_or_exposure",
+    "compound_or_intervention",
+    "intervention_or_exposure",
+    "exposure_or_intervention",
+    "dose_or_exposure",
+    "dose",
+    "administration_route",
+    "route_of_administration",
+    "finding_summary",
+    "summary_statement",
+    "support",
+    "supporting_quote",
+    "study_title",
+)
+COMBINATION_ALIAS_EVIDENCE_FIELDS = tuple(
+    field for field in COMBINATION_EVIDENCE_FIELDS if field != "study_title"
+)
+PRIMARY_COMPOUND_CUE_RE = re.compile(r"\b(?:primarily|predominantly|mainly|mostly)\b", re.I)
+PRIMARY_COMPOUND_REVERSE_CUE_RE = re.compile(
+    r"\b(?:was|is|as)\s+(?:the\s+)?(?:primary|predominant|main|most common)\s+"
+    r"(?:compound|psychedelic|substance|drug)\b",
+    re.I,
+)
 COMPOUND_CONTEXT_TEXT_RE = re.compile(
-    r"\b(chemsex|sexuali[sz]ed drug use|sexual setting|poly[- ]?substance|multi[- ]?drug|"
+    r"\b(chemsex|sexuali[sz]ed drug use|sexual setting|poly[- ]?(?:substance|drug)|multi[- ]?drug|"
     r"mixed drug|as part of)\b",
     re.IGNORECASE,
 )
@@ -2324,6 +2511,10 @@ OVERVIEW_SUBJECT_CLASS_RULES = (
     (re.compile(r"\bphenethylamines?\b", re.I), "Phenethylamines"),
     (re.compile(r"\bentheogens?\b", re.I), "Entheogens"),
 )
+UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL = "Psychedelics (mixed or unspecified compounds)"
+DETAIL_ONLY_OVERVIEW_SUBJECT_REASONS = {
+    "controlled_unresolved_psychedelic_class_detail_only",
+}
 GENERIC_PSYCHEDELIC_CLASS_RE = re.compile(r"\bpsychedelics?\b", re.I)
 PSYCHEDELIC_THERAPY_RE = re.compile(r"psychedelic[- ]assisted (?:therapy|psychotherapy|treatment)", re.I)
 PSYCHEDELIC_RECREATIONAL_RE = re.compile(r"\brecreational(?:ly)?\b", re.I)
@@ -2337,7 +2528,8 @@ PSYCHEDELIC_SEROTONERGIC_CONTEXT_RE = re.compile(
     re.I,
 )
 PSYCHEDELIC_MIXED_CONTEXT_RE = re.compile(
-    r"\b(mixed|various|multiple psychedelic|multi[- ]compound|compound panel|group including)\b",
+    r"\b(?:(?:mixed|various) (?:psychedelic|compound|substance|drug)|multiple psychedelics?|"
+    r"multi[- ]compound|compound panel|group including)\b",
     re.I,
 )
 PSYCHEDELIC_OVERVIEW_CONTEXT_FIELDS = (
@@ -2359,7 +2551,7 @@ PSYCHEDELIC_OVERVIEW_CONTEXT_FIELDS = (
 OVERVIEW_SUBJECT_CONTEXT_RULES = (
     (re.compile(r"\bchemsex\b", re.I), "Chemsex"),
     (re.compile(r"\bsexuali[sz]ed drug use\b|\bSDU\b", re.I), "Sexualized drug use"),
-    (re.compile(r"\bpoly[- ]?substance\b|\bmulti[- ]?drug\b|\bmixed drug\b", re.I), "Polysubstance use"),
+    (re.compile(r"\bpoly[- ]?(?:substance|drug)\b|\bmulti[- ]?drug\b|\bmixed drug\b", re.I), "Polysubstance use"),
 )
 SPECIFIC_COMPOUND_WITH_CLASS_PARENTHETICAL_RE = re.compile(
     r"^\s*[A-Za-z0-9][A-Za-z0-9+_.-]*\s*\([^)]*\b(?:antagonist|agonist|psychedelic|hallucinogen)\b[^)]*\)\s*$",
@@ -2389,10 +2581,18 @@ def prune_compound_text_labels(raw: object, labels: set[str]) -> set[str]:
     pruned = set(labels)
     for specific, broad_labels in COMPOUND_TEXT_LABEL_SUPERSEDES.items():
         if specific in pruned:
-            pruned -= broad_labels
-    if len(pruned) == 1 and not COMPOUND_COMBO_TEXT_RE.search(ascii_fold(raw)):
-        return pruned
-    return labels
+            raw_key = label_key(raw)
+            masked = raw_key
+            if specific == "S-ketamine":
+                masked = re.sub(r"\b(?:s ketamine|esketamine)\b", " ", masked)
+            elif specific == "R-ketamine":
+                masked = re.sub(r"\b(?:r ketamine|arketamine)\b", " ", masked)
+            elif specific == "5-MeO-DMT":
+                masked = re.sub(r"\b(?:5 meo dmt|5 methoxy n n dimethyltryptamine|5 methoxy dmt)\b", " ", masked)
+            for broad in broad_labels:
+                if not re.search(rf"\b{re.escape(label_key(broad))}\b", masked):
+                    pruned.discard(broad)
+    return pruned
 
 
 def graphable_compound_match(raw_compound: object, registry: dict[tuple[str, str], dict]) -> dict:
@@ -2532,11 +2732,217 @@ def graphable_subject_match(row: dict, registry: dict[tuple[str, str], dict]) ->
     return match
 
 
-def overview_graph_subject(
+def ordered_graphable_compound_labels(
+    value: object,
+    registry: dict[tuple[str, str], dict],
+) -> list[str]:
+    """Return distinct in-scope compounds in textual order where possible."""
+
+    raw_key = label_key(value)
+    candidates = prune_compound_text_labels(value, registry_compound_labels_in_text(value, registry))
+    labels: list[str] = []
+    for candidate in candidates:
+        candidate_match = graphable_compound_match(candidate, registry)
+        label = normalize(candidate_match.get("label", "")) if candidate_match.get("matched") else ""
+        if label and label not in labels:
+            labels.append(label)
+
+    positions: dict[str, int] = {label: len(raw_key) + 1 for label in labels}
+    for (entity_type, key), item in registry.items():
+        if entity_type != "compound" or not key:
+            continue
+        canonical = normalize(item.get("label", ""))
+        if canonical not in positions:
+            continue
+        match = re.search(rf"\b{re.escape(key)}\b", raw_key)
+        if match:
+            positions[canonical] = min(positions[canonical], match.start())
+    return sorted(labels, key=lambda label: (positions[label], label.casefold()))
+
+
+def controlled_combination_labels(labels: list[str]) -> list[str]:
+    by_key = {label_key(label): label for label in labels}
+    definition = named_combination_for_components(labels)
+    if definition:
+        preferred = canonical_components(definition, labels)
+        if all(label_key(label) in by_key for label in preferred):
+            return [by_key[label_key(label)] for label in preferred]
+    return sorted(labels, key=str.casefold)
+
+
+def registry_keys_for_compound_label(
+    label: str,
+    registry: dict[tuple[str, str], dict],
+) -> list[str]:
+    keys = {
+        key
+        for (entity_type, key), item in registry.items()
+        if entity_type == "compound" and normalize(item.get("label", "")) == label
+    }
+    return sorted(keys, key=lambda key: (-len(key), key))
+
+
+def primary_named_compound_labels(
+    raw: str,
+    labels: list[str],
+    registry: dict[tuple[str, str], dict],
+) -> list[str]:
+    """Resolve an explicitly predominant compound from otherwise broad exposure text."""
+
+    raw_key = label_key(raw)
+    cue = PRIMARY_COMPOUND_CUE_RE.search(raw_key)
+    candidates: list[tuple[int, str]] = []
+    if cue:
+        cue_text = raw_key[cue.end() : cue.end() + 120]
+        stop = re.search(r"\b(?:also|but|rather than|with practitioner|during|among)\b", cue_text, re.I)
+        stop_at = stop.start() if stop else len(cue_text)
+        for label in labels:
+            for key in registry_keys_for_compound_label(label, registry):
+                match = re.search(rf"\b{re.escape(key)}\b", cue_text)
+                if match and match.start() < stop_at:
+                    candidates.append((match.start(), label))
+                    break
+    if candidates and min(position for position, _label in candidates) <= 30:
+        return list(dict.fromkeys(label for _position, label in sorted(candidates, key=lambda item: (item[0], item[1].casefold()))))
+
+    for label in labels:
+        for key in registry_keys_for_compound_label(label, registry):
+            match = re.search(
+                rf"\b{re.escape(key)}\b.{{0,40}}{PRIMARY_COMPOUND_REVERSE_CUE_RE.pattern}",
+                raw_key,
+                re.I,
+            )
+            if match:
+                return [label]
+    return []
+
+
+def specific_assisted_therapy_compound_label(
+    raw: str,
+    labels: list[str],
+    registry: dict[tuple[str, str], dict],
+) -> str:
+    """Recover the drug from a specifically named drug-assisted therapy or paradigm."""
+
+    raw_key = label_key(raw)
+    for label in labels:
+        for key in registry_keys_for_compound_label(label, registry):
+            assisted = re.search(
+                rf"\b{re.escape(key)}\b\s+(?:assisted|facilitated)\s+"
+                r"(?:psychotherapy|therapy|treatment)\b",
+                raw_key,
+                re.I,
+            )
+            route_paradigm = re.search(
+                rf"\b(?:intravenous|intranasal|oral|sublingual|injected)\s+{re.escape(key)}\b.{{0,80}}"
+                r"\bpsychedelic\s+(?:paradigm|approach|model)\b",
+                raw_key,
+                re.I,
+            )
+            if assisted or route_paradigm:
+                return label
+    return ""
+
+
+def is_secondary_literature_row(row: dict) -> bool:
+    if normalize(row.get("paper_assessment_route", "")).casefold() == "primary_evidence":
+        return False
+    markers = {
+        normalize(row.get(field, "")).casefold()
+        for field in ("paper_assessment_route", "source_type", "source_family", "paper_type", "access_level")
+    }
+    return bool(markers & SECONDARY_MARKERS or "secondary_summary" in markers)
+
+
+def explicit_combination_projection(
+    row: dict,
+    raw: str,
+    labels: list[str],
+) -> dict | None:
+    """Create a combination/regimen node only when the saved row says drugs were used together."""
+
+    exact_text = normalize(raw)
+    exact_evidence_text = " ".join(
+        normalize(value)
+        for value in (
+            exact_text,
+            row.get("dose_or_exposure", ""),
+            row.get("dose", ""),
+            row.get("administration_route", ""),
+            row.get("route_of_administration", ""),
+        )
+        if normalize(value)
+    )
+    evidence_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in COMBINATION_EVIDENCE_FIELDS
+        if normalize(row.get(field, ""))
+    )
+    alias_evidence_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in COMBINATION_ALIAS_EVIDENCE_FIELDS
+        if normalize(row.get(field, ""))
+    )
+    named_definition = named_combination_from_text(f"{exact_text} {alias_evidence_text}".strip())
+    if named_definition and len(named_definition["component_sets"]) == 1:
+        labels = list(canonical_components(named_definition))
+    sequential = bool(EXPLICIT_COMPOUND_SEQUENCE_RE.search(exact_evidence_text))
+    if not sequential and len(labels) == 2:
+        sequential = bool(
+            re.search(r"\b(?:sequential|consecutive)\b", normalize(row.get("study_title", "")), re.I)
+        )
+    simultaneous = bool(named_definition) or bool(EXPLICIT_COMPOUND_COADMIN_RE.search(exact_evidence_text))
+    if not simultaneous:
+        linked_support_cue = re.search(
+            r"\b(?:coadministered|co-administered|coadministration|co-administration|"
+            r"administered (?:together|concurrently|simultaneously)|combined with|"
+            r"formulation (?:containing|with)|concomitantly administered)\b",
+            evidence_text,
+            re.I,
+        )
+        simultaneous = bool(linked_support_cue)
+    if re.search(r"\bor\b", exact_text, re.I) and "+" not in exact_text:
+        simultaneous = False
+        sequential = False
+    label_keys = {label_key(label) for label in labels}
+    dmt_harmala_formulation = "dmt" in label_keys and bool(label_keys & {"harmine", "harmaline"}) and bool(
+        re.search(r"\b(?:dmt|n n dmt)[-/+ ]+(?:and )?harm(?:ine|aline)\b|\b(?:formulation|ayahuasca-inspired)\b", evidence_text, re.I)
+    )
+    if not (sequential or simultaneous or dmt_harmala_formulation):
+        return None
+
+    ordered = controlled_combination_labels(labels) if simultaneous else labels
+    sequential_only = sequential and not simultaneous
+    label = " + ".join(ordered)
+    inferred_definition = named_combination_for_components(labels, infer_only=True)
+    alias_definition = named_definition or inferred_definition
+    alias = "" if sequential_only or not alias_definition else alias_definition["canonical_alias"]
+    aliases = [] if sequential_only else aliases_for_components(labels)
+    if named_definition:
+        aliases = list(dict.fromkeys([*aliases, *named_definition["aliases"]]))
+    if sequential_only:
+        label = f"{label} (sequential)"
+    elif alias:
+        label = f"{label} ({alias})"
+    return {
+        "label": label,
+        "kind": "treatment_regimen" if sequential_only else "compound_combination",
+        "reason": (
+            "specific_sequential_regimen"
+            if sequential_only
+            else "specific_named_combination_alias"
+            if named_definition
+            else "specific_combined_administration"
+        ),
+        "aliases": aliases,
+    }
+
+
+def overview_graph_subjects(
     row: dict,
     compound_match: dict,
     registry: dict[tuple[str, str], dict],
-) -> dict:
+) -> list[dict]:
     """Project an exact extracted exposure onto a small overview vocabulary.
 
     The exact exposure remains on the finding.  This projection is deliberately
@@ -2546,8 +2952,9 @@ def overview_graph_subject(
 
     raw = normalize(compound_match.get("label", ""))
     kind = normalize(compound_match.get("subject_kind", "")) or "atomic_compound"
+    secondary_literature = is_secondary_literature_row(row)
     if kind == "atomic_compound":
-        return {"label": raw, "kind": kind, "reason": "controlled_atomic_compound"}
+        return [{"label": raw, "kind": kind, "reason": "controlled_atomic_compound"}]
 
     focal = normalize(row.get("atomic_compound_candidate", ""))
 
@@ -2555,23 +2962,55 @@ def overview_graph_subject(
         context_text = f"{raw} {focal}".strip()
         for pattern, label in OVERVIEW_SUBJECT_CONTEXT_RULES:
             if pattern.search(context_text):
-                return {"label": label, "kind": "exposure_context", "reason": "controlled_exposure_context"}
-        return {"label": "", "kind": "", "reason": "uncontrolled_exposure_context_detail_only"}
+                return [{"label": label, "kind": "exposure_context", "reason": "controlled_exposure_context"}]
+        return []
 
     focal_match = graphable_compound_match(focal, registry) if focal else {"matched": False}
 
     if kind == "compound_class":
         if focal_match.get("matched"):
-            return {
+            return [{
                 "label": normalize(focal_match.get("label", "")),
                 "kind": "atomic_compound",
                 "reason": "specific_compound_recovered_from_class_text",
-            }
+            }]
+        named_labels = ordered_graphable_compound_labels(raw, registry)
+        concrete_labels: list[str] = []
+        if not secondary_literature:
+            concrete_labels = primary_named_compound_labels(raw, named_labels, registry)
+            therapy_label = specific_assisted_therapy_compound_label(raw, named_labels, registry)
+            if therapy_label:
+                concrete_labels = [therapy_label]
+        if concrete_labels:
+            return [
+                {
+                    "label": concrete_label,
+                    "kind": "atomic_compound",
+                    "reason": "predominant_or_specific_therapy_compound_recovered_from_class_text",
+                }
+                for concrete_label in concrete_labels
+            ]
+        if len(named_labels) > 1 and not secondary_literature:
+            return [
+                {
+                    "label": label,
+                    "kind": "atomic_compound",
+                    "reason": "specific_compounds_recovered_from_class_text",
+                }
+                for label in named_labels
+            ]
+        if len(named_labels) == 1 and not secondary_literature and GENERIC_PSYCHEDELIC_CLASS_RE.search(raw):
+            return [{
+                "label": UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL,
+                "kind": "compound_class",
+                "reason": "controlled_unresolved_psychedelic_class_detail_only",
+            }]
         if SPECIFIC_COMPOUND_WITH_CLASS_PARENTHETICAL_RE.search(raw):
-            return {"label": "", "kind": "", "reason": "specific_unmapped_compound_detail_only"}
+            return []
         for pattern, label in OVERVIEW_SUBJECT_CLASS_RULES:
             if pattern.search(raw):
-                return {"label": label, "kind": "compound_class", "reason": "controlled_compound_class"}
+                display_label = "Classic psychedelics" if label == "Serotonergic psychedelics" and not secondary_literature else label
+                return [{"label": display_label, "kind": "compound_class", "reason": "controlled_compound_class"}]
         if GENERIC_PSYCHEDELIC_CLASS_RE.search(raw):
             context = " ".join(
                 normalize(row.get(field, ""))
@@ -2580,70 +3019,265 @@ def overview_graph_subject(
             )
             context_with_raw = f"{raw} {context}".strip()
             if PSYCHEDELIC_THERAPY_RE.search(context_with_raw):
-                return {
-                    "label": "Psychedelic-assisted therapy (unspecified compound)",
+                return [{
+                    "label": "Psychedelic-assisted therapy",
                     "kind": "treatment_regimen",
-                    "reason": "controlled_unspecified_psychedelic_therapy",
-                }
+                    "reason": "controlled_broad_psychedelic_therapy",
+                }]
             if PSYCHEDELIC_RECREATIONAL_RE.search(context_with_raw):
-                return {
+                return [{
                     "label": "Recreational psychedelic exposure",
                     "kind": "exposure_context",
                     "reason": "controlled_recreational_psychedelic_exposure",
-                }
+                }]
             if PSYCHEDELIC_NATURALISTIC_RE.search(context_with_raw):
-                return {
+                return [{
                     "label": "Naturalistic psychedelic exposure",
                     "kind": "exposure_context",
                     "reason": "controlled_naturalistic_psychedelic_exposure",
-                }
+                }]
             mentioned_compounds = registry_compound_labels_in_text(context, registry)
             if len(mentioned_compounds) > 1 or PSYCHEDELIC_MIXED_CONTEXT_RE.search(context_with_raw):
-                return {
-                    "label": "Mixed psychedelic compounds",
+                return [{
+                    "label": "Multiple psychedelic compounds"
+                    if secondary_literature
+                    else UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL,
                     "kind": "compound_class",
-                    "reason": "controlled_mixed_psychedelic_class",
-                }
+                    "reason": "controlled_multiple_psychedelic_class"
+                    if secondary_literature
+                    else "controlled_unresolved_psychedelic_class_detail_only",
+                }]
             if PSYCHEDELIC_SEROTONERGIC_CONTEXT_RE.search(context_with_raw):
-                return {
-                    "label": "Serotonergic psychedelics",
+                return [{
+                    "label": "Serotonergic psychedelics" if secondary_literature else "Classic psychedelics",
                     "kind": "compound_class",
                     "reason": "controlled_serotonergic_psychedelic_class",
-                }
-            return {
-                "label": "Unspecified psychedelic compounds",
+                }]
+            return [{
+                "label": "Psychedelic compounds"
+                if secondary_literature
+                else UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL,
                 "kind": "compound_class",
-                "reason": "controlled_unspecified_psychedelic_class",
-            }
-        return {"label": "", "kind": "", "reason": "uncontrolled_compound_class_detail_only"}
+                "reason": "controlled_broad_psychedelic_class"
+                if secondary_literature
+                else "controlled_unresolved_psychedelic_class_detail_only",
+            }]
+        return []
 
     if kind in {"compound_combination", "treatment_regimen"}:
         if focal_match.get("matched"):
-            return {
+            return [{
                 "label": normalize(focal_match.get("label", "")),
                 "kind": "atomic_compound",
                 "reason": "focal_compound_with_exposure_detail",
-            }
-        labels: set[str] = set()
-        for candidate in registry_compound_labels_in_text(raw, registry):
-            candidate_match = graphable_compound_match(candidate, registry)
-            if candidate_match.get("matched"):
-                labels.add(normalize(candidate_match.get("label", "")))
+            }]
+        labels = ordered_graphable_compound_labels(raw, registry)
+        named_context = " ".join(
+            [raw]
+            + [
+                normalize(row.get(field, ""))
+                for field in COMBINATION_ALIAS_EVIDENCE_FIELDS
+                if normalize(row.get(field, ""))
+            ]
+        )
+        named_definition = named_combination_from_text(named_context)
+        if named_definition and len(named_definition["component_sets"]) == 1:
+            labels = list(canonical_components(named_definition))
         if len(labels) == 1:
-            return {
-                "label": next(iter(labels)),
+            return [{
+                "label": labels[0],
                 "kind": "atomic_compound",
                 "reason": "single_in_scope_compound_with_exposure_detail",
-            }
+            }]
         if len(labels) > 1:
-            return {
-                "label": "Multi-compound exposure",
-                "kind": "compound_combination",
-                "reason": "controlled_multi_compound_summary",
-            }
-        return {"label": "", "kind": "", "reason": "uncontrolled_combination_or_regimen_detail_only"}
+            if secondary_literature:
+                return [{
+                    "label": "Multi-compound exposure",
+                    "kind": "compound_combination",
+                    "reason": "controlled_secondary_multi_compound_summary",
+                }]
+            combination = explicit_combination_projection(row, raw, labels)
+            if combination:
+                if re.search(r"\bor\b", raw, re.I) and "+" in raw:
+                    atomic_subjects = [
+                        {
+                            "label": label,
+                            "kind": "atomic_compound",
+                            "reason": "specific_compound_arm_alongside_combination",
+                        }
+                        for label in labels
+                    ]
+                    return [*atomic_subjects, combination]
+                return [combination]
+            return [
+                {
+                    "label": label,
+                    "kind": "atomic_compound",
+                    "reason": "specific_compounds_separated_from_multi_compound_text",
+                }
+                for label in labels
+            ]
+        return []
 
-    return {"label": "", "kind": "", "reason": "uncontrolled_subject_detail_only"}
+    return []
+
+
+USE_CONTEXT_EVIDENCE_FIELDS = (
+    "graph_subject_label",
+    "compound_or_exposure",
+    "compound_or_intervention",
+    "intervention_or_exposure",
+    "exposure_or_intervention",
+    "exposure_or_policy",
+    "co_exposure_or_modifier",
+    "atomic_compound_candidate",
+    "finding_summary",
+    "summary_statement",
+    "support",
+    "supporting_quote",
+)
+USE_CONTEXT_COMPONENT_FIELDS = (
+    "graph_subject_label",
+    "compound_or_exposure",
+    "compound_or_intervention",
+    "intervention_or_exposure",
+    "exposure_or_intervention",
+    "exposure_or_policy",
+    "co_exposure_or_modifier",
+    "atomic_compound_candidate",
+)
+
+
+def graph_use_context_projections(
+    row: dict,
+    domain: str,
+    overview_subjects: list[dict],
+    registry: dict[tuple[str, str], dict],
+) -> list[dict]:
+    """Create explicit substance -> real-world use-context projections.
+
+    Context evidence is limited to finding-level fields; titles and paper-wide
+    keywords are deliberately excluded so unrelated findings are not projected
+    merely because a paper discusses chemsex somewhere.
+    """
+
+    if normalize(domain).casefold() != "real_world_public_health":
+        return []
+
+    controlled_contexts = [
+        normalize(subject.get("label", ""))
+        for subject in overview_subjects
+        if normalize(subject.get("kind", "")).casefold() == "exposure_context"
+        and use_context_definition(subject.get("label", ""))
+    ]
+    evidence_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in USE_CONTEXT_EVIDENCE_FIELDS
+        if normalize(row.get(field, ""))
+    )
+    context_label = controlled_contexts[0] if controlled_contexts else use_context_label_from_text(evidence_text)
+    definition = use_context_definition(context_label)
+    if definition is None:
+        return []
+
+    component_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in USE_CONTEXT_COMPONENT_FIELDS
+        if normalize(row.get(field, ""))
+    )
+    components: list[dict] = []
+    seen: set[str] = set()
+
+    # If the finding already has an atomic subject, the source-level context
+    # statement applies directly to it even when the exposure field is terse.
+    for subject in overview_subjects:
+        label = normalize(subject.get("label", ""))
+        if normalize(subject.get("kind", "")).casefold() != "atomic_compound" or not label or label in seen:
+            continue
+        seen.add(label)
+        components.append(
+            {
+                "label": label,
+                "kind": "atomic_compound",
+                "aliases": [normalize(alias) for alias in subject.get("aliases", []) if normalize(alias)],
+            }
+        )
+
+    for label in sorted(registry_compound_labels_in_text(component_text, registry), key=str.casefold):
+        if not label or label in seen:
+            continue
+        seen.add(label)
+        item = registry.get(("compound", label_key(label)), {})
+        components.append(
+            {
+                "label": label,
+                "kind": "atomic_compound",
+                "aliases": [normalize(alias) for alias in item.get("aliases", []) if normalize(alias)],
+            }
+        )
+
+    scoped_components: list[dict] = []
+    scoped_seen: set[str] = set()
+    for component in components:
+        scope_match = graphable_compound_match(component.get("label", ""), registry)
+        if not scope_match.get("matched"):
+            continue
+        label = normalize(scope_match.get("label", ""))
+        if not label or label in scoped_seen:
+            continue
+        scoped_seen.add(label)
+        item = scope_match.get("item") or {}
+        scoped_components.append(
+            {
+                "label": label,
+                "kind": "atomic_compound",
+                "aliases": list(
+                    dict.fromkeys(
+                        [
+                            *[
+                                normalize(alias)
+                                for alias in item.get("aliases", [])
+                                if normalize(alias)
+                            ],
+                            *[
+                                normalize(alias)
+                                for alias in component.get("aliases", [])
+                                if normalize(alias)
+                            ],
+                        ]
+                    )
+                ),
+            }
+        )
+
+    return [
+        {
+            "projection_type": "use_context",
+            "subject_label": component["label"],
+            "subject_kind": component.get("kind", "atomic_compound"),
+            "subject_aliases": component.get("aliases", []),
+            "context_label": definition.label,
+            "context_kind": "exposure_context",
+            "context_aliases": list(definition.aliases),
+            "context_parent_label": definition.parent,
+            "context_parent_kind": "exposure_context" if definition.parent else "",
+            "context_parent_entity_id": entity_id_for("compound", definition.parent) if definition.parent else "",
+            "relation_type": "reported_in_use_context",
+            "reason": "explicit_finding_level_substance_use_context",
+        }
+        for component in scoped_components
+    ]
+
+
+def overview_graph_subject(
+    row: dict,
+    compound_match: dict,
+    registry: dict[tuple[str, str], dict],
+) -> dict:
+    """Compatibility wrapper for singular table fields; JSON carries all projections."""
+
+    subjects = overview_graph_subjects(row, compound_match, registry)
+    return subjects[0] if subjects else {"label": "", "kind": "", "reason": "uncontrolled_subject_detail_only"}
 
 
 def registry_entity_labels_in_text(value: object, entity_type: str, registry: dict[tuple[str, str], dict]) -> set[str]:
@@ -2670,7 +3304,9 @@ def registry_entity_labels_in_text(value: object, entity_type: str, registry: di
 CONDITION_LABEL_SUPERSEDES = {
     "Alcohol use disorder": {"Substance use disorder"},
     "Anorexia nervosa": {"Eating disorders"},
-    "Bipolar depression": {"Depressive disorders", "Mood disorders"},
+    "Bipolar depression": {"Bipolar disorder", "Depressive disorders", "Mood disorders"},
+    "Bipolar I disorder": {"Bipolar disorder", "Mood disorders"},
+    "Bipolar II disorder": {"Bipolar disorder", "Mood disorders"},
     "Bipolar disorder": {"Mood disorders"},
     "Cannabis use disorder": {"Substance use disorder"},
     "Chronic pain": {"Pain conditions"},
@@ -2685,12 +3321,11 @@ CONDITION_LABEL_SUPERSEDES = {
     "Methamphetamine use disorder": {"Stimulant use disorder", "Substance use disorder"},
     "Migraine": {"Headache disorders", "Pain conditions"},
     "Neuropathic pain": {"Pain conditions"},
-    "Nicotine dependence": {"Substance use disorder"},
     "Opioid use disorder": {"Substance use disorder"},
     "Persistent depressive disorder": {"Depressive disorders", "Mood disorders"},
     "Social anxiety disorder": {"Anxiety disorders"},
     "Stimulant use disorder": {"Substance use disorder"},
-    "Tobacco use disorder": {"Nicotine dependence", "Substance use disorder"},
+    "Tobacco use disorder": {"Substance use disorder"},
     "Treatment-resistant depression": {"Depressive disorders", "Major depressive disorder", "Mood disorders"},
 }
 NON_GRAPHABLE_BROAD_CONDITION_LABELS = {
@@ -2727,6 +3362,10 @@ NON_CLINICAL_MODEL_POPULATION_RE = re.compile(
     r"healthy_volunteers|mouse|mice|rat|rats|rodent|animal\s+model|preclinical|"
     r"in\s+vitro|ex\s+vivo|cell\s+model"
     r")\b",
+    re.IGNORECASE,
+)
+CONDITION_NON_INDICATION_CONTEXT_RE = re.compile(
+    r"\b(?:family history of|familial risk (?:of|for))\b",
     re.IGNORECASE,
 )
 
@@ -3592,6 +4231,13 @@ def molecular_subtopic_coverage_summary(findings: pd.DataFrame) -> dict:
     if findings.empty or "domain" not in findings.columns:
         return {"status": "ok", "threshold": MOLECULAR_SUBTOPIC_MAX_RESIDUAL_RATE, "parents": []}
     molecular = findings[findings["domain"] == "molecular_pathway_readout"].copy()
+    # This gate protects the detailed molecular categorization extracted from
+    # primary studies. Review relationships use a coarser paper-level contract
+    # and should be audited separately rather than changing this gate's result.
+    if "evidence_type" in molecular.columns:
+        primary_molecular = molecular[molecular["evidence_type"] == "primary_evidence"].copy()
+        if not primary_molecular.empty:
+            molecular = primary_molecular
     if molecular.empty:
         return {"status": "ok", "threshold": MOLECULAR_SUBTOPIC_MAX_RESIDUAL_RATE, "parents": []}
     parent_rows: list[dict] = []
@@ -3620,6 +4266,7 @@ def molecular_subtopic_coverage_summary(findings: pd.DataFrame) -> dict:
         )
     return {
         "status": "failed" if failed else "ok",
+        "evidence_scope": "primary_evidence" if "evidence_type" in findings.columns else "all",
         "threshold": MOLECULAR_SUBTOPIC_MAX_RESIDUAL_RATE,
         "min_rows": MOLECULAR_SUBTOPIC_MIN_AUDIT_ROWS,
         "failed_parents": failed,
@@ -3710,6 +4357,16 @@ def match_registry_entity(
 ) -> dict:
     entity_type = ENTITY_TYPE_BY_KIND.get(entity_kind, "")
     context_text = mechanistic_kind_context(row, raw_label)
+    if entity_kind == "condition_indication" and CONDITION_NON_INDICATION_CONTEXT_RE.search(normalize(raw_label)):
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "condition_context_not_graphable",
+            "match_type": "",
+            "notes": "family-history risk context is not promoted to a visible condition node",
+        }
     if entity_kind == "condition_indication" and condition_analog_context(row, raw_label):
         return {
             "matched": False,
@@ -3977,6 +4634,18 @@ INTERVENTION_NON_NODE_RE = re.compile(
 )
 INTERVENTION_TOPIC_RULES = (
     (
+        "Dosing & administration",
+        re.compile(r"\b(infusion method|bolus|administration route|route of administration|dose schedule|dosing method)\b", re.IGNORECASE),
+    ),
+    (
+        "Control conditions",
+        re.compile(r"\b(comparator type|control group|control condition|active placebo|inactive placebo|waitlist|waiting list)\b", re.IGNORECASE),
+    ),
+    (
+        "Treatment intensity & duration",
+        re.compile(r"\b(session count|session frequency|number of sessions|therapy hours|integration hours|treatment duration)\b", re.IGNORECASE),
+    ),
+    (
         "Preparation–integration protocols",
         re.compile(r"(?=.*\bprepar\w*\b)(?=.*\bintegrat\w*\b)", re.IGNORECASE),
     ),
@@ -4152,14 +4821,14 @@ INTERVENTION_TOPIC_RULES = (
         re.compile(r"\b(screening|informed consent|consent document|exclusion criteria|baseline diagnostic)\b", re.IGNORECASE),
     ),
     (
-        "Other session supports",
+        "Session components",
         re.compile(
             r"\b(safety monitoring|clinical monitoring|safety practice|support-seeking|close supervision|monitoring and observation)\b",
             re.IGNORECASE,
         ),
     ),
     (
-        "Other session supports",
+        "Session components",
         re.compile(r"\b(psychoeducation|educational material|educational information|patient education)\b", re.IGNORECASE),
     ),
     (
@@ -4323,6 +4992,21 @@ def graphable_entity_match(
             "match_type": "",
             "notes": "generic activity or behavior label is too broad for the cognition graph",
         }
+    if entity_kind == "brain_measure":
+        label = brain_measure_graph_label(raw)
+        return {
+            "matched": bool(label),
+            "label": label,
+            "kind": entity_kind,
+            "item": None,
+            "status": "entity_normalized" if label else "brain_measure_not_graphable",
+            "match_type": "brain_measure_pattern" if label else "",
+            "notes": (
+                "brain readout normalized to a stable measure family"
+                if label
+                else "brain measure/readout did not match a stable measure family"
+            ),
+        }
     if (domain == "brain_system" or entity_kind in {"brain_region", "brain_network", "neural_circuit"}) and BRAIN_MEASURE_NOT_GRAPHABLE_RE.search(raw):
         return {
             "matched": False,
@@ -4389,7 +5073,13 @@ def graphable_entity_match(
                 for value in (raw, row.get("context_component", ""), row.get("component_type", ""))
             )
         )
-        if INTERVENTION_NON_NODE_RE.search(context):
+        meta_analysis_context = (
+            normalize(row.get("paper_type", "")) in {"meta_analysis", "network_meta_analysis"}
+            and normalize(row.get("meta_analysis_result_role", ""))
+            in {"subgroup_analysis", "meta_regression", "dose_response", "sensitivity_analysis"}
+            and bool(intervention_topic_from_context(context))
+        )
+        if INTERVENTION_NON_NODE_RE.search(context) and not meta_analysis_context:
             return {
                 "matched": False,
                 "label": "",
@@ -4693,15 +5383,15 @@ SAFETY_ENDPOINT_PATTERNS = (
         re.compile(r"\b(seizure|convulsion|epilep|grand mal|proconvulsive)\b", re.IGNORECASE),
         "Seizure/convulsion",
     ),
-    (re.compile(r"\b(suicid\w*|c[- ]?ssrs)\b", re.IGNORECASE), "Suicidality safety signals"),
-    (re.compile(r"\b(mania|manic|hypomania|manic episode|switch|ymrs|young mania)\b", re.IGNORECASE), "Mania/hypomania switch"),
+    (re.compile(r"\b(suicid\w*|c[- ]?ssrs)\b", re.IGNORECASE), "Suicidality risk"),
+    (re.compile(r"\b(mania|manic|hypomania|manic episode|switch|ymrs|young mania)\b", re.IGNORECASE), "Mania/hypomania risk"),
     (
         re.compile(
-            r"\b(psychosis|psychotic|psychotomimetic|hallucination|delusion|paranoia|"
+            r"\b(psychosis|psychotic|psychotomimetic|hallucinat\w*|delusion|paranoia|"
             r"bprs|brief psychiatric rating)\b",
             re.IGNORECASE,
         ),
-        "Psychosis-like adverse effects",
+        "Psychosis risk",
     ),
     (re.compile(r"\b(flashbacks?|hppd|persisting perceptual)\b", re.IGNORECASE), "Flashbacks/HPPD"),
     (
@@ -4719,23 +5409,41 @@ SAFETY_ENDPOINT_PATTERNS = (
         "Respiratory safety",
     ),
     (re.compile(r"\b(?:nausea|vomit|emesis|diarrhea|gastrointestinal|gi)\b", re.IGNORECASE), "Nausea/vomiting"),
-    (re.compile(r"\b(headache|migraine)\b", re.IGNORECASE), "Headache adverse effects"),
+    (re.compile(r"\b(headache|migraine)\b", re.IGNORECASE), "Headache"),
     (
         re.compile(
             r"\b(dissociation|dissociative|derealization|derealisation|depersonalization|depersonalisation|"
             r"\bdp/dr\b|\bddd\b|cadss|clinician-administered dissociative)\b",
             re.IGNORECASE,
         ),
-        "Dissociation adverse effects",
+        "Dissociation",
     ),
     (
         re.compile(
-            r"\b(bad drug effect|bad trip|challenging experience|difficult experience|negative subjective|adverse mental states?|emergence reactions?)\b",
+            r"\b(bad drug effect|bad trip|challenging experience|difficult experience|negative subjective|adverse mental states?|"
+            r"emergence reactions?|psychedelic effects?|psychedelic manifestations?)\b",
             re.IGNORECASE,
         ),
         "Challenging subjective effects",
     ),
-    (re.compile(r"\b(anxiety|panic|distress|fear)\b", re.IGNORECASE), "Anxiety/panic adverse effects"),
+    (
+        re.compile(r"\b(visual impairment|reduced vision|blurred vision|vision changes?)\b", re.IGNORECASE),
+        "Visual impairment",
+    ),
+    (
+        re.compile(r"\b(confusion|disorientation|delirium|thought disorder|spaced out|disconnected)\b", re.IGNORECASE),
+        "Confusion/cognitive disturbance",
+    ),
+    (
+        re.compile(r"\b(muscle pain|myalgia|musculoskeletal pain)\b", re.IGNORECASE),
+        "Musculoskeletal effects",
+    ),
+    (re.compile(r"\b(dry mouth|xerostomia)\b", re.IGNORECASE), "Dry mouth"),
+    (
+        re.compile(r"\b(symptom worsening|clinical worsening|worsening symptoms?)\b", re.IGNORECASE),
+        "Symptom worsening",
+    ),
+    (re.compile(r"\b(anxiety|panic|distress|fear)\b", re.IGNORECASE), "Anxiety/panic"),
     (
         re.compile(r"\b(poisoning|poisoned|intoxication|overdose|toxic exposure|poison control)\b", re.IGNORECASE),
         "Acute intoxication/poisoning",
@@ -4830,9 +5538,10 @@ SAFETY_ENDPOINT_PATTERNS = (
     ),
     (
         re.compile(
-            r"\b(sedation|sedative|sleepiness|somnolence|drowsiness|cognitive impairment|memory impairment|"
+            r"\b(sedation|sedative|sleepiness|somnolence|drowsiness|eye.opening time|recovery time|"
+            r"cognitive impairment|memory impairment|"
             r"impaired attention|attention impairment|attention deficits?|impaired concentration|"
-            r"concentration impairment|motor coordination|ataxia|rotarod|falls?|concussion|dizziness|vertigo|gait|"
+            r"concentration impairment|motor coordination|motor functioning|ataxia|rotarod|falls?|concussion|dizziness|vertigo|gait|"
             r"tremors?|tremorigenic|impaired memory|memory impairment|"
             r"cognitive function|working memory|executive function|processing speed|moca)\b",
             re.IGNORECASE,
@@ -4841,11 +5550,10 @@ SAFETY_ENDPOINT_PATTERNS = (
     ),
     (
         re.compile(
-            r"\b(sleep disturbance|insomnia|night terrors?|sleep quality|sleep impairments?|total sleep time|"
-            r"rem sleep|slow[- ]wave sleep|stage 3/4 sleep|sleep architecture|hyperarousal)\b",
+            r"\b(sleep disturbances?|insomnia|night terrors?|sleep impairments?|hyperarousal)\b",
             re.IGNORECASE,
         ),
-        "Sleep disturbance adverse effects",
+        "Sleep disturbance",
     ),
     (
         re.compile(
@@ -4860,6 +5568,15 @@ SAFETY_ENDPOINT_PATTERNS = (
     (
         re.compile(r"\b(body weight|weight gain|weight loss|metabolic|hypoglycemia|glucose tolerance|fasting glucose)\b", re.IGNORECASE),
         "Weight/metabolic safety",
+    ),
+    (
+        re.compile(
+            r"\b(all[- ]cause discontinuation|all[- ]cause dropout|drop[- ]?out rates?|dropout rates?|"
+            r"proportion .{0,30} dropped out|leaving the study early|study withdrawal|retention in treatment|"
+            r"discontinuation due to any reason|discontinuation due to inefficacy|acceptability)\b",
+            re.IGNORECASE,
+        ),
+        "All-cause discontinuation",
     ),
     (
         re.compile(
@@ -4895,14 +5612,15 @@ SAFETY_ENDPOINT_PATTERNS = (
             r"adverse reactions?|harmful effects?|harm experiences?|harm following use)\b",
             re.IGNORECASE,
         ),
-        "Unspecified adverse events",
+        "Adverse events",
     ),
 )
 SAFETY_SUMMARY_LABELS = {
     "Overall tolerability",
     "Serious adverse events",
     "Discontinuation due to adverse events",
-    "Unspecified adverse events",
+    "Adverse events",
+    "All-cause discontinuation",
 }
 SAFETY_SPECIFIC_ENDPOINT_PATTERNS = (
     (re.compile(r"\b(pro[- ]?arrhythm|arrhythm|torsade)\b", re.IGNORECASE), "Arrhythmia risk"),
@@ -4920,7 +5638,14 @@ SAFETY_SPECIFIC_ENDPOINT_PATTERNS = (
     (re.compile(r"\b(ataxia|motor coordination|motor impairment|gait impairment)\b", re.IGNORECASE), "Motor impairment"),
     (re.compile(r"\b(anxiety|panic)\b", re.IGNORECASE), "Anxiety/panic"),
     (re.compile(r"\b(dissociation|derealization|depersonalization)\b", re.IGNORECASE), "Dissociation"),
-    (re.compile(r"\b(psychosis|psychotic|delusion|paranoia)\b", re.IGNORECASE), "Psychosis-like effects"),
+    (re.compile(r"\b(hallucinat\w*)\b", re.IGNORECASE), "Perceptual disturbances"),
+    (re.compile(r"\b(psychosis|psychotic|delusion|paranoia)\b", re.IGNORECASE), "Psychosis risk"),
+    (re.compile(r"\b(visual impairment|reduced vision|blurred vision)\b", re.IGNORECASE), "Visual impairment"),
+    (re.compile(r"\b(confusion|disorientation|delirium|thought disorder|spaced out|disconnected)\b", re.IGNORECASE), "Confusion/cognitive disturbance"),
+    (re.compile(r"\b(muscle pain|myalgia|musculoskeletal pain)\b", re.IGNORECASE), "Musculoskeletal effects"),
+    (re.compile(r"\b(dry mouth|xerostomia)\b", re.IGNORECASE), "Dry mouth"),
+    (re.compile(r"\b(symptom worsening|clinical worsening)\b", re.IGNORECASE), "Symptom worsening"),
+    (re.compile(r"\b(psychedelic effects?|psychedelic manifestations?)\b", re.IGNORECASE), "Psychedelic subjective effects"),
     (re.compile(r"\b(mania|manic|hypomania)\b", re.IGNORECASE), "Mania/hypomania"),
     (re.compile(r"\b(suicidal ideation|suicidality|suicide attempt)\b", re.IGNORECASE), "Suicidality"),
     (re.compile(r"\b(seizure|convulsion)\b", re.IGNORECASE), "Seizure/convulsion"),
@@ -4935,20 +5660,55 @@ SAFETY_SPECIFIC_PARENT_LABELS = {
     "Heart-rate reduction": "Cardiovascular safety",
     "Nausea": "Nausea/vomiting",
     "Vomiting": "Nausea/vomiting",
-    "Headache": "Headache adverse effects",
+    "Headache": "Headache",
     "Dizziness/vertigo": "Sedation/cognitive or motor impairment",
     "Sedation/somnolence": "Sedation/cognitive or motor impairment",
     "Cognitive impairment": "Sedation/cognitive or motor impairment",
     "Motor impairment": "Sedation/cognitive or motor impairment",
-    "Anxiety/panic": "Anxiety/panic adverse effects",
-    "Dissociation": "Dissociation adverse effects",
-    "Psychosis-like effects": "Psychosis-like adverse effects",
-    "Mania/hypomania": "Mania/hypomania switch",
-    "Suicidality": "Suicidality safety signals",
+    "Anxiety/panic": "Anxiety/panic",
+    "Dissociation": "Dissociation",
+    "Perceptual disturbances": "Challenging subjective effects",
+    "Psychosis risk": "Psychosis risk",
+    "Visual impairment": "Adverse events",
+    "Confusion/cognitive disturbance": "Sedation/cognitive or motor impairment",
+    "Musculoskeletal effects": "Adverse events",
+    "Dry mouth": "Adverse events",
+    "Symptom worsening": "Adverse events",
+    "Psychedelic subjective effects": "Challenging subjective effects",
+    "Mania/hypomania": "Mania/hypomania risk",
+    "Suicidality": "Suicidality risk",
     "Seizure/convulsion": "Seizure/convulsion",
     "Serotonin syndrome": "Serotonin syndrome",
 }
 SYMPTOM_ENDPOINT_PATTERNS = (
+    (
+        re.compile(r"\b(study[- ]defined )?(clinical |treatment )?response(?: rates?)?\b", re.IGNORECASE),
+        "Treatment response",
+    ),
+    (
+        re.compile(r"\b(study[- ]defined )?(clinical |treatment )?remission(?: rates?)?\b", re.IGNORECASE),
+        "Remission",
+    ),
+    (
+        re.compile(r"\b(relapse|return to (?:drug )?use|resumption of (?:drug )?use)\b", re.IGNORECASE),
+        "Relapse",
+    ),
+    (
+        re.compile(
+            r"\b(all[- ]cause discontinuation|all[- ]cause dropout|drop[- ]?out rates?|dropout rates?|"
+            r"study withdrawal|leaving the study early|retention in treatment)\b",
+            re.IGNORECASE,
+        ),
+        "Treatment discontinuation",
+    ),
+    (
+        re.compile(r"\b(acceptability|treatment acceptability|treatment completion)\b", re.IGNORECASE),
+        "Treatment acceptability",
+    ),
+    (
+        re.compile(r"\b(symptom improvement|symptom reduction|clinical improvement|efficacy for symptom reduction)\b", re.IGNORECASE),
+        "Symptom improvement",
+    ),
     (
         re.compile(
             r"\b(suicid\w*|c[- ]?ssrs|columbia suicide|beck scale for suicid|"
@@ -4994,7 +5754,7 @@ SYMPTOM_ENDPOINT_PATTERNS = (
         "Craving & withdrawal",
     ),
     (
-        re.compile(r"\b(pain intensity|pain reduction|pain relief|pain interference|post[- ]?operative pain|postoperative pain|headache|migraine|bpi|brief pain)\b", re.IGNORECASE),
+        re.compile(r"\b(pain intensity|pain reduction|pain relief|relief of allodynia|allodynia|pain interference|post[- ]?operative pain|postoperative pain|headache|migraine|bpi|brief pain)\b", re.IGNORECASE),
         "Pain",
     ),
     (
@@ -5014,7 +5774,7 @@ SYMPTOM_ENDPOINT_PATTERNS = (
         "Anxiety & panic",
     ),
     (
-        re.compile(r"\b(madrs|montgomery[- ](?:a|å)sberg|ham[- ]?d|hdrs|hamilton depression|phq[- ]?9|patient health questionnaire[- ]?9|bdi|beck depression|qids|quick inventory of depressive|hads[- ]?d|epds|edinburgh post(?:natal|partum) depression|depressive symptoms?|depression severity|depression symptom)\b", re.IGNORECASE),
+        re.compile(r"\b(madrs|montgomery[- ](?:a|å)sberg|ham[- ]?d|hdrs|hamilton depression|phq[- ]?9|patient health questionnaire[- ]?9|bdi|beck depression|qids|quick inventory of depressive|hads[- ]?d|epds|edinburgh post(?:natal|partum) depression|depressive symptoms?|depressive symptomatology|depressive scores?|depression scores?|depression severity|depression symptom)\b", re.IGNORECASE),
         "Low mood & depressive symptoms",
     ),
 )
@@ -5283,6 +6043,22 @@ def pattern_endpoint_label(row: dict, patterns: tuple[tuple[re.Pattern[str], str
 
 
 def safety_endpoint_label(row: dict) -> str:
+    explicit_endpoint = " ".join(
+        endpoint_value(row.get(field, ""))
+        for field in (
+            "graph_entity_label",
+            "entity_label",
+            "raw_entity_label",
+            "clinical_endpoint",
+            "clinical_endpoint_category",
+            "safety_event_or_measure",
+            "safety_event_or_risk",
+            "safety_category",
+        )
+    )
+    for pattern, label in SAFETY_ENDPOINT_PATTERNS:
+        if pattern.search(explicit_endpoint):
+            return label
     return pattern_endpoint_label(row, SAFETY_ENDPOINT_PATTERNS, "")
 
 
@@ -5344,6 +6120,11 @@ def row_has_safety_physiology(row: dict) -> bool:
 
 
 def row_reports_worsened_safety_risk(row: dict) -> bool:
+    outcome_orientation = normalize(
+        row.get("outcome_type", "") or row.get("outcome_orientation", "")
+    ).casefold()
+    if outcome_orientation in {"beneficial", "neutral"}:
+        return False
     if not safety_endpoint_label(row):
         return False
     direction = normalize(row.get("result_direction", "")).casefold()
@@ -5849,6 +6630,9 @@ def entity_label_for(row: dict, domain: str, entity_kind: str) -> str:
 
 
 def relation_type_for(domain: str, entity_kind: str, evidence_type: str, row: dict | None = None) -> str:
+    explicit = normalize((row or {}).get("kg_relation_type_override", ""))
+    if explicit:
+        return explicit
     if evidence_type == "secondary_literature":
         return "discusses_relationship"
     if entity_kind == "condition_indication":
@@ -6039,7 +6823,7 @@ def public_health_graph_label(row: dict) -> str:
     explicit_label = first_endpoint_value(row, ("public_health_graph_label", "public_health_topic_category"))
     explicit_key = label_key(explicit_label)
     canonical_explicit = PUBLIC_HEALTH_TOPIC_LABEL_BY_KEY.get(explicit_key)
-    if canonical_explicit:
+    if canonical_explicit and canonical_explicit not in {"Other real-world outcome", "Other real-world topics"}:
         return canonical_explicit
 
     measure_context = ascii_fold(
@@ -6066,7 +6850,7 @@ def public_health_graph_label(row: dict) -> str:
     return (
         PUBLIC_HEALTH_RAW_TOPIC_FALLBACKS.get(raw_topic_key)
         or PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS.get(explicit_key)
-        or "Other real-world outcome"
+        or "Other real-world topics"
     )
 
 
@@ -6328,6 +7112,138 @@ def subjective_experience_safety_label(row: dict) -> str:
     return safety_endpoint_label(row) or "Neuropsychiatric sequelae"
 
 
+PSYCHOSIS_FAMILY_ENTITY_RE = re.compile(
+    r"\b(psychotomimetic|psychosis(?:[- ]like)?|psychotic(?:[- ]like)? symptoms?|psychosis risk)\b",
+    re.IGNORECASE,
+)
+PSYCHOTOMIMETIC_STATEMENT_RE = re.compile(
+    r"\b(psychotomimetic|psychosis[- ]like|psychotic[- ]like|schizophrenia[- ]like symptoms?|"
+    r"model psychosis|psychosis model|model(?:s|ing|led)? (?:of )?(?:acute )?psychosis|"
+    r"mimic(?:s|king|ked)? (?:the )?(?:symptoms? of )?(?:acute )?psychosis|"
+    r"psychotic states? (?:as|that|which) (?:a )?model|bprs|panss)\b",
+    re.IGNORECASE,
+)
+
+REVIEW_DESIGN_CATEGORY_BY_PAPER_TYPE = {
+    "systematic_review": "systematic_review",
+    "scoping_review": "scoping_review",
+    "umbrella_review": "umbrella_review",
+    "narrative_review": "narrative_or_literature_review",
+    "literature_review": "narrative_or_literature_review",
+}
+
+
+def review_paper_frame(row: dict) -> dict:
+    value = row.get("paper_frame_json", "")
+    if isinstance(value, dict):
+        return value
+    text = normalize(value)
+    if not text:
+        return {}
+    try:
+        parsed = json.loads(text)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def review_design_category(row: dict, frame: dict | None = None) -> str:
+    paper_type = label_key(row.get("paper_type", "")).replace(" ", "_")
+    if paper_type in REVIEW_DESIGN_CATEGORY_BY_PAPER_TYPE:
+        return REVIEW_DESIGN_CATEGORY_BY_PAPER_TYPE[paper_type]
+
+    frame = frame or review_paper_frame(row)
+    text = ascii_fold(frame.get("review_design", "")).casefold()
+    if not text:
+        return "other_or_unclear"
+    if re.search(r"\bumbrella review\b|\breview of (?:systematic )?reviews\b|\boverview of reviews\b", text):
+        return "umbrella_review"
+    if re.search(r"\bscoping review\b|\bprisma[- ]scr\b", text):
+        return "scoping_review"
+    if re.search(r"\brapid (?:systematic )?review\b|\brapid evidence review\b", text):
+        return "rapid_review"
+    if re.search(r"\bsystematic review\b|\bsystematic literature review\b|\bprisma\b", text):
+        return "systematic_review"
+    if re.search(
+        r"\bbibliometric\w*\b|\bscientometric\w*\b|\bcitation analysis\b|\bco[- ]citation\b|"
+        r"\bco[- ]word\b|\bpublication landscape\b",
+        text,
+    ):
+        return "bibliometric_or_landscape_review"
+    if re.search(r"\bcritical review\b|\bcritical synthesis\b|\bcritical analysis\b|\bcritically evaluat\w*\b", text):
+        return "critical_review"
+    if re.search(r"\bhistorical review\b|\bhistorical analysis\b|\bhistorical overview\b", text):
+        return "historical_review"
+    if re.search(
+        r"\bconceptual\w*\b|\btheoretical\w*\b|\bphilosophical\w*\b|\bframework\b|\bperspective\b|"
+        r"\bcommentary\b|\bviewpoint\b|\bethical analysis\b|\bargument\w*\b",
+        text,
+    ):
+        return "conceptual_or_theoretical_review"
+    if re.search(
+        r"\bnarrative\b|\bliterature review\b|\breview of (?:the )?literature\b|\bcomprehensive review\b|"
+        r"\bselective review\b|\btraditional review\b|\bclinical review\b|\bpharmacological review\b|"
+        r"\bevidence review\b|\breview article\b|\bliterature overview\b",
+        text,
+    ):
+        return "narrative_or_literature_review"
+    return "other_or_unclear"
+
+
+def apply_review_context_metadata(row: dict) -> dict:
+    if normalize(row.get("review_extraction_method", "")) != "paper_centered_one_pass_v2":
+        return row
+    frame = review_paper_frame(row)
+    row["review_contribution_type"] = normalize(frame.get("review_contribution_type", ""))
+    row["review_design_category"] = review_design_category(row, frame)
+    return row
+
+
+def apply_psychosis_family_boundary(row: dict, domain: str) -> tuple[dict, str]:
+    """Separate transient psychotomimetic effects from actual psychosis risk."""
+
+    anchor = " ".join(
+        normalize(row.get(field, ""))
+        for field in (
+            "graph_entity_label",
+            "raw_entity_label",
+            "entity_label",
+            "safety_event_or_measure",
+            "subjective_construct",
+            "graph_entity_original",
+        )
+    )
+    if not PSYCHOSIS_FAMILY_ENTITY_RE.search(anchor):
+        return row, domain
+
+    statement = " ".join(
+        normalize(row.get(field, ""))
+        for field in ("finding_summary", "support", "supporting_quote", "effect_or_statistic")
+    )
+    if PSYCHOTOMIMETIC_STATEMENT_RE.search(statement):
+        domain = "cognitive_behavioral"
+        row["domain"] = domain
+        row["domain_route"] = domain
+        row["dataset"] = domain
+        row["kg_entity_kind_override"] = "cognitive_behavioral_construct"
+        row["cognitive_behavioral_graph_label"] = "Psychotomimetic effects"
+        row["graph_entity_label"] = "Psychotomimetic effects"
+        row["endpoint_label_source"] = "psychotomimetic_effect_boundary"
+        row["normalization_boundary_reason"] = "transient_psychotomimetic_effect_routed_to_cognition"
+        return row, domain
+
+    domain = "safety_tolerability"
+    row["domain"] = domain
+    row["domain_route"] = domain
+    row["dataset"] = domain
+    row["kg_entity_kind_override"] = "safety_adverse_event"
+    row["safety_event_or_measure"] = "Psychosis risk"
+    row["graph_entity_label"] = "Psychosis risk"
+    row["endpoint_label_source"] = "psychosis_risk_boundary"
+    row["normalization_boundary_reason"] = "induced_or_exacerbated_psychosis_routed_to_safety"
+    return row, domain
+
+
 def entity_row(
     entity_id: str,
     entity_type: str,
@@ -6358,9 +7274,11 @@ def entity_row(
 
 def normalize_claim_metadata(row: dict, domain: str) -> dict:
     out = dict(row)
+    out = apply_review_context_metadata(out)
     apply_graph_subject(out)
     out["result_direction_normalized"] = normalized_result_direction(out.get("result_direction", ""))
     out["evidence_design"] = evidence_design_for(out)
+    out, domain = apply_psychosis_family_boundary(out, domain)
     if domain == "molecular_pathway_readout":
         explicit_category = label_key(first_endpoint_value(out, ("molecular_effect_label", "molecular_effect_category")))
         boundary_context = ascii_fold(
@@ -6524,11 +7442,43 @@ def normalized_direction_for_row(row: dict) -> str:
     return aliases.get(raw, raw.replace(" ", "_"))
 
 
+NONBLOCKING_PROVENANCE_WARNING_RE = re.compile(r"^nonverbatim_supporting_text:[^:|]+:\d+$")
+
+
+def has_only_nonblocking_provenance_warnings(row: dict) -> bool:
+    warnings = [
+        warning.strip()
+        for warning in normalize(row.get("extraction_warnings", "")).split("|")
+        if warning.strip()
+    ]
+    return bool(warnings) and all(NONBLOCKING_PROVENANCE_WARNING_RE.fullmatch(warning) for warning in warnings)
+
+
+def quote_only_warning_is_graph_admissible(row: dict) -> bool:
+    if not has_only_nonblocking_provenance_warnings(row):
+        return False
+    source_type = normalize(row.get("source_type", "") or row.get("paper_type", "")).casefold()
+    if source_type not in {"meta_analysis", "network_meta_analysis"}:
+        return False
+    if normalized_entity_kind(row.get("kg_entity_kind_override", "")) != "condition_indication":
+        return False
+    has_effect = bool(normalize(row.get("effect_size", "") or row.get("estimate_value", "")))
+    has_uncertainty = bool(
+        normalize(row.get("confidence_interval", "") or row.get("p_value", ""))
+        or (
+            normalize(row.get("meta_analysis_interval_lower", ""))
+            and normalize(row.get("meta_analysis_interval_upper", ""))
+        )
+    )
+    return has_effect and has_uncertainty
+
+
 def graph_admission_decision(row: dict) -> tuple[str, str]:
     explicit = normalize(row.get("graph_admission_status", "")).casefold()
     if explicit == "paper_detail":
         return "paper_detail", normalize(row.get("graph_admission_reason", "")) or "source_marked_paper_detail"
-    if as_bool(row.get("needs_human_review", False)):
+    quote_warning_admissible = quote_only_warning_is_graph_admissible(row)
+    if as_bool(row.get("needs_human_review", False)) and not quote_warning_admissible:
         return "paper_detail", "extraction_marked_for_human_review"
 
     item_type = normalize(row.get("source_item_type", "")).casefold()
@@ -6539,6 +7489,8 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
     if item_type == "primary_item" and background_only:
         return "paper_detail", "primary_claim_supported_only_by_background_location"
 
+    if quote_warning_admissible:
+        return "main_graph", "semantically_complete_with_unverified_quote"
     return "main_graph", "semantically_complete"
 
 
@@ -6546,6 +7498,8 @@ def proposition_identifiers(row: dict, subject_label: str, entity_kind: str, ent
     specific_anchor = first_normalized_value(
         row,
         (
+            "raw_entity_label",
+            "graph_entity_original",
             "public_health_measure",
             "safety_event_or_measure",
             "specific_readout_or_marker",
@@ -6556,24 +7510,31 @@ def proposition_identifiers(row: dict, subject_label: str, entity_kind: str, ent
             "subjective_construct",
             "context_component",
             "pk_or_exposure_parameter",
-            "graph_entity_original",
-            "raw_entity_label",
         ),
     )
     core = (
         normalize_doi(row.get("study_doi", "")),
         label_key(subject_label),
+        label_key(row.get("graph_subject_label", "") or row.get("intervention_or_exposure", "")),
         normalized_entity_kind(entity_kind),
         label_key(entity_label),
         label_key(specific_anchor),
         label_key(row.get("population", "") or row.get("population_or_subgroup", "")),
         label_key(row.get("sample_size_total", "") or row.get("sample_size", "")),
         label_key(row.get("comparator_normalized", "") or row.get("comparator", "")),
+        label_key(row.get("comparator", "")),
         label_key(row.get("clinical_endpoint", "")),
         label_key(row.get("outcome_measure", "")),
         label_key(row.get("assessment_timepoint", "") or row.get("follow_up_duration", "") or row.get("time_window", "")),
         label_key(row.get("dose", "") or row.get("dose_or_regimen", "")),
         label_key(row.get("route", "") or row.get("administration_route", "")),
+        label_key(row.get("meta_analysis_result_role", "")),
+        label_key(row.get("meta_analysis_subgroup_or_moderator", "")),
+        label_key(row.get("meta_analysis_sensitivity_method", "")),
+        label_key(row.get("network_treatment_a", "")),
+        label_key(row.get("network_treatment_b", "")),
+        label_key(row.get("network_reference_treatment", "")),
+        label_key(row.get("meta_analysis_effect_metric", "")),
     )
     direction = normalized_direction_for_row(row)
     conflict_locator = label_key(row.get("evidence_locator", "") or row.get("evidence_location", ""))
@@ -6604,7 +7565,9 @@ def finalize_proposition_groups(findings: list[dict], evidence_edges: list[dict]
             conflict_directions.setdefault(conflict_id, set()).add(family)
     conflicts = {key for key, families in conflict_directions.items() if len(families) > 1}
 
-    edge_by_finding = {normalize(row.get(id_field, "")): row for row in evidence_edges}
+    edges_by_finding: dict[str, list[dict]] = {}
+    for edge in evidence_edges:
+        edges_by_finding.setdefault(normalize(edge.get(id_field, "")), []).append(edge)
     for row in findings:
         proposition_id = normalize(row.get("proposition_group_id", ""))
         row["proposition_duplicate_count"] = duplicate_counts.get(proposition_id, 1)
@@ -6613,17 +7576,18 @@ def finalize_proposition_groups(findings: list[dict], evidence_edges: list[dict]
         if conflict_id in conflicts:
             row["graph_admission_status"] = "paper_detail"
             row["graph_admission_reason"] = "direction_conflict_within_same_structural_proposition"
-        edge = edge_by_finding.get(normalize(row.get(id_field, "")))
-        if edge is not None:
-            for field in (
-                "proposition_group_id",
-                "proposition_conflict_group_id",
+        for edge in edges_by_finding.get(normalize(row.get(id_field, "")), []):
+            shared_fields = (
                 "proposition_duplicate_count",
                 "direction_consistency",
                 "graph_admission_status",
                 "graph_admission_reason",
-            ):
+            )
+            for field in shared_fields:
                 edge[field] = row.get(field, "")
+            if normalize(edge.get("projection_type", "")) != "use_context":
+                edge["proposition_group_id"] = row.get("proposition_group_id", "")
+                edge["proposition_conflict_group_id"] = row.get("proposition_conflict_group_id", "")
 
     return {
         "unique_proposition_groups": len({key for key in duplicate_counts if key}),
@@ -6644,6 +7608,8 @@ def finding_row(
     id_field: str,
 ) -> dict:
     row = normalize_claim_metadata(row, domain)
+    domain = normalize(row.get("domain", "")) or normalize(row.get("domain_route", "")) or domain
+    dataset = normalize(row.get("dataset", "")) or domain or dataset
     entity_kind = entity_kind_for(row, domain)
     entity_label = first_normalized_value(row, ("graph_entity_label", "canonical_entity")) or entity_label_for(
         row,
@@ -6698,6 +7664,7 @@ def evidence_edge_row(
     return {
         "evidence_id": evidence_id,
         id_field: finding_id,
+        "projection_type": normalize(row.get("projection_type", "")) or "outcome",
         "source_name": source_name,
         "domain": domain,
         "dataset": dataset,
@@ -6712,6 +7679,8 @@ def evidence_edge_row(
         "graph_overview_subject_label": normalize(row.get("graph_overview_subject_label", "")),
         "graph_overview_subject_kind": normalize(row.get("graph_overview_subject_kind", "")),
         "graph_overview_subject_reason": normalize(row.get("graph_overview_subject_reason", "")),
+        "graph_overview_subjects_json": normalize(row.get("graph_overview_subjects_json", "")),
+        "graph_use_context_projections_json": normalize(row.get("graph_use_context_projections_json", "")),
         "entity_id": entity_id,
         "entity_label": entity_label,
         "graph_parent_label": normalize(row.get("graph_parent_label", "")),
@@ -6828,8 +7797,13 @@ def build_tables(
         for source_row in source_rows:
             source_row_domain = normalize(source_row.get("domain", "")) or normalize(source_row.get("domain_route", "")) or source_domain
             normalized_source_row = normalize_claim_metadata(source_row, source_row_domain)
-            for condition_row in condition_expanded_rows(normalized_source_row, source_row_domain, registry):
-                rows.extend(entity_expanded_rows(condition_row, source_row_domain, registry, node_vocabulary))
+            normalized_source_domain = (
+                normalize(normalized_source_row.get("domain", ""))
+                or normalize(normalized_source_row.get("domain_route", ""))
+                or source_row_domain
+            )
+            for condition_row in condition_expanded_rows(normalized_source_row, normalized_source_domain, registry):
+                rows.extend(entity_expanded_rows(condition_row, normalized_source_domain, registry, node_vocabulary))
 
         for index, row in enumerate(rows):
             domain = normalize(row.get("domain", "")) or normalize(row.get("domain_route", "")) or source_domain
@@ -6837,6 +7811,8 @@ def build_tables(
             access_lookup = access_lookups.get(dataset, {})
             row = enrich_open_access_metadata(row, access_lookup)
             row = normalize_claim_metadata(row, domain)
+            domain = normalize(row.get("domain", "")) or normalize(row.get("domain_route", "")) or domain
+            dataset = normalize(row.get("dataset", "")) or domain or source_dataset
             if should_skip_evidence_row(domain, row):
                 continue
 
@@ -6856,21 +7832,95 @@ def build_tables(
             exact_subject_label = normalize(compound_match["label"])
             exact_subject_kind = normalize(compound_match.get("subject_kind", "")) or "atomic_compound"
             compound_registry = compound_match["item"]
-            overview_subject = overview_graph_subject(row, compound_match, registry)
+            overview_subjects = overview_graph_subjects(row, compound_match, registry)
+            use_context_projections = graph_use_context_projections(row, domain, overview_subjects, registry)
+            overview_subject = (
+                overview_subjects[0]
+                if overview_subjects
+                else {"label": "", "kind": "", "reason": "uncontrolled_subject_detail_only"}
+            )
             compound_label = overview_subject["label"] or "Detail-only exposure"
             graph_subject_kind = overview_subject["kind"] or "exposure_context"
             compound_id = entity_id_for("compound", compound_label)
-            entities.setdefault(
-                compound_id,
-                entity_row(
-                    compound_id,
-                    "compound" if graph_subject_kind == "atomic_compound" else "exposure_unit",
-                    "compound" if graph_subject_kind == "atomic_compound" else "exposure",
-                    compound_label,
-                    graph_subject_kind,
-                    compound_registry,
-                ),
-            )
+            entity_subjects = overview_subjects or [
+                {"label": compound_label, "kind": graph_subject_kind, "reason": overview_subject["reason"]}
+            ]
+            for entity_subject in entity_subjects:
+                subject_label = entity_subject["label"]
+                subject_kind = entity_subject["kind"]
+                subject_id = entity_id_for("compound", subject_label)
+                subject_registry_item = compound_registry
+                projection_aliases = [
+                    normalize(alias)
+                    for alias in entity_subject.get("aliases", [])
+                    if normalize(alias)
+                ]
+                if projection_aliases:
+                    subject_registry_item = dict(compound_registry or {})
+                    subject_registry_item["aliases"] = list(
+                        dict.fromkeys(
+                            [
+                                *[
+                                    normalize(alias)
+                                    for alias in subject_registry_item.get("aliases", [])
+                                    if normalize(alias)
+                                ],
+                                *projection_aliases,
+                            ]
+                        )
+                    )
+                    subject_registry_item["status"] = (
+                        normalize(subject_registry_item.get("status", ""))
+                        or "controlled_combination_alias"
+                    )
+                context_definition = use_context_definition(subject_label) if subject_kind == "exposure_context" else None
+                parent_label = context_definition.parent if context_definition else ""
+                parent_kind = "exposure_context" if parent_label else ""
+                parent_entity_id = entity_id_for("compound", parent_label) if parent_label else ""
+                if context_definition:
+                    subject_registry_item = dict(subject_registry_item or {})
+                    subject_registry_item["aliases"] = list(
+                        dict.fromkeys(
+                            [
+                                *[
+                                    normalize(alias)
+                                    for alias in subject_registry_item.get("aliases", [])
+                                    if normalize(alias)
+                                ],
+                                *context_definition.aliases,
+                            ]
+                        )
+                    )
+                    subject_registry_item["status"] = "controlled_use_context"
+                subject_record = entity_row(
+                    subject_id,
+                    "compound" if subject_kind == "atomic_compound" else "exposure_unit",
+                    "compound" if subject_kind == "atomic_compound" else "exposure",
+                    subject_label,
+                    subject_kind,
+                    subject_registry_item,
+                    parent_label=parent_label,
+                    parent_kind=parent_kind,
+                    parent_entity_id=parent_entity_id,
+                )
+                if subject_id not in entities or (parent_entity_id and not entities[subject_id].get("graph_parent_entity_id")):
+                    entities[subject_id] = subject_record
+                if parent_entity_id:
+                    parent_definition = use_context_definition(parent_label)
+                    entities.setdefault(
+                        parent_entity_id,
+                        entity_row(
+                            parent_entity_id,
+                            "exposure_unit",
+                            "exposure",
+                            parent_label,
+                            "exposure_context",
+                            {
+                                "aliases": list(parent_definition.aliases) if parent_definition else [],
+                                "status": "controlled_use_context",
+                            },
+                        ),
+                    )
 
             legacy_entity_label = normalize(row.get("target" if domain == "mechanistic" else "disorder", ""))
             legacy_entity_type = "mechanistic_entity" if domain == "mechanistic" else "clinical_entity"
@@ -6958,6 +8008,8 @@ def build_tables(
             table_row["graph_overview_subject_label"] = overview_subject["label"]
             table_row["graph_overview_subject_kind"] = overview_subject["kind"]
             table_row["graph_overview_subject_reason"] = overview_subject["reason"]
+            table_row["graph_overview_subjects_json"] = json_dumps(overview_subjects)
+            table_row["graph_use_context_projections_json"] = json_dumps(use_context_projections)
             table_row["normalization_status"] = "normalized"
             table_row["normalization_notes"] = f"{compound_match['notes']}; {entity_match['notes']}{display_label_note}"
             table_row["graph_entity_original"] = raw_entity_label
@@ -6998,6 +8050,12 @@ def build_tables(
             if admission_status == "main_graph" and not overview_subject["label"]:
                 admission_status = "paper_detail"
                 admission_reason = overview_subject["reason"] or "uncontrolled_subject_detail_only"
+            if admission_status == "main_graph" and any(
+                normalize(subject.get("reason", "")) in DETAIL_ONLY_OVERVIEW_SUBJECT_REASONS
+                for subject in overview_subjects
+            ):
+                admission_status = "paper_detail"
+                admission_reason = "unresolved_psychedelic_class_detail_only"
             table_row["graph_admission_status"] = admission_status
             table_row["graph_admission_reason"] = admission_reason
             proposition_group_id, proposition_conflict_group_id = proposition_identifiers(
@@ -7078,6 +8136,140 @@ def build_tables(
                     id_field=finding_id_field,
                 )
             )
+            for projection in use_context_projections:
+                component_label = normalize(projection.get("subject_label", ""))
+                context_label = normalize(projection.get("context_label", ""))
+                if not component_label or not context_label:
+                    continue
+                component_id = entity_id_for("compound", component_label)
+                component_item = dict(registry.get(("compound", label_key(component_label)), {}) or {})
+                component_item["aliases"] = list(
+                    dict.fromkeys(
+                        [
+                            *[
+                                normalize(alias)
+                                for alias in component_item.get("aliases", [])
+                                if normalize(alias)
+                            ],
+                            *[
+                                normalize(alias)
+                                for alias in projection.get("subject_aliases", [])
+                                if normalize(alias)
+                            ],
+                        ]
+                    )
+                )
+                component_item["status"] = normalize(component_item.get("status", "")) or "controlled_use_context_component"
+                entities.setdefault(
+                    component_id,
+                    entity_row(
+                        component_id,
+                        "compound",
+                        "compound",
+                        component_label,
+                        "atomic_compound",
+                        component_item,
+                    ),
+                )
+
+                context_definition = use_context_definition(context_label)
+                context_parent_label = normalize(projection.get("context_parent_label", ""))
+                context_parent_kind = normalize(projection.get("context_parent_kind", ""))
+                context_id = entity_id_for("compound", context_label)
+                context_parent_id = entity_id_for("compound", context_parent_label) if context_parent_label else ""
+                context_record = entity_row(
+                    context_id,
+                    "exposure_unit",
+                    "exposure",
+                    context_label,
+                    "exposure_context",
+                    {
+                        "aliases": list(context_definition.aliases) if context_definition else [],
+                        "status": "controlled_use_context",
+                    },
+                    parent_label=context_parent_label,
+                    parent_kind=context_parent_kind,
+                    parent_entity_id=context_parent_id,
+                )
+                if context_id not in entities or (context_parent_id and not entities[context_id].get("graph_parent_entity_id")):
+                    entities[context_id] = context_record
+                if context_parent_id:
+                    parent_definition = use_context_definition(context_parent_label)
+                    entities.setdefault(
+                        context_parent_id,
+                        entity_row(
+                            context_parent_id,
+                            "exposure_unit",
+                            "exposure",
+                            context_parent_label,
+                            "exposure_context",
+                            {
+                                "aliases": list(parent_definition.aliases) if parent_definition else [],
+                                "status": "controlled_use_context",
+                            },
+                        ),
+                    )
+
+                context_edge_row = dict(table_row)
+                context_edge_row.update(
+                    {
+                        "projection_type": "use_context",
+                        "compound": component_label,
+                        "canonical_compound": component_label,
+                        "graph_subject_label": component_label,
+                        "graph_subject_kind": normalize(projection.get("subject_kind", "")) or "atomic_compound",
+                        "graph_overview_subject_label": component_label,
+                        "graph_overview_subject_kind": normalize(projection.get("subject_kind", "")) or "atomic_compound",
+                        "graph_overview_subject_reason": normalize(projection.get("reason", "")),
+                        "graph_overview_subjects_json": json_dumps(
+                            [
+                                {
+                                    "label": component_label,
+                                    "kind": normalize(projection.get("subject_kind", "")) or "atomic_compound",
+                                    "reason": normalize(projection.get("reason", "")),
+                                    "aliases": projection.get("subject_aliases", []),
+                                }
+                            ]
+                        ),
+                        "graph_entity_label": context_label,
+                        "canonical_entity": context_label,
+                        "kg_entity_kind_override": "exposure_context",
+                        "graph_parent_label": context_parent_label,
+                        "graph_parent_kind": context_parent_kind,
+                        "graph_parent_entity_id": context_parent_id,
+                        "kg_relation_type_override": normalize(projection.get("relation_type", ""))
+                        or "reported_in_use_context",
+                        "proposition_group_id": stable_id(
+                            "proposition-use-context",
+                            row.get("study_doi", ""),
+                            component_label,
+                            context_label,
+                        ),
+                        "proposition_conflict_group_id": "",
+                    }
+                )
+                context_evidence_id = stable_id(
+                    "evidence-use-context",
+                    finding_id,
+                    component_label,
+                    context_label,
+                )
+                evidence_edges.append(
+                    evidence_edge_row(
+                        context_edge_row,
+                        source_name,
+                        domain,
+                        dataset,
+                        evidence_type,
+                        "exposure_context",
+                        finding_id,
+                        context_evidence_id,
+                        paper_id,
+                        component_id,
+                        context_id,
+                        id_field=finding_id_field,
+                    )
+                )
 
         if not cfg.get("skip_audit", False):
             audit_path = Path(cfg.get("audit_path", ""))

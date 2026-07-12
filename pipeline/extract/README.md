@@ -145,6 +145,75 @@ domain-specific result details. Abstract-only prompts ask the model to fill only
 what is visible in the abstract and leave unavailable fields empty.
 Meta-analysis extraction does not create primary-study graph findings.
 
+An experimental meta-analysis contract is available for the next comparison
+pilot:
+
+- `docs/extraction_profiles/meta_analysis_v2/full_text_extraction.md`
+- `docs/extraction_profiles/meta_analysis_v2/abstract_extraction.md`
+- `schema/meta_analysis_evidence_v2.schema.json`
+
+This v2 contract records the paper's main synthesis questions and results. Each
+result has explicit nullable population, intervention or exposure, comparator,
+outcome or entity, and time-window fields. It also includes reported effect
+estimates, uncertainty intervals, p values, evidence counts,
+heterogeneity, network-meta-analysis details, risk of bias, certainty, and
+publication-bias assessments. Optional fields are omitted when the supplied
+paper does not report them.
+
+The v2 pilot path is paper-level and isolated from the live routed
+meta-analysis extraction. Build one task per retained meta-analysis with:
+
+```bash
+python pipeline/extract/build_meta_analysis_v2_tasks.py
+```
+
+Prepare a reproducible 100-paper asynchronous pilot with 50 article-text and
+50 abstract-only tasks:
+
+```bash
+python pipeline/extract/run_meta_analysis_v2_batch_api.py prepare \
+  --run-id meta_analysis_v2_pilot_100 \
+  --batch-id batch_001 \
+  --batch-size 100 \
+  --full-text-count 50 \
+  --shuffle \
+  --seed 20260712
+```
+
+Submit and monitor the prepared batch:
+
+```bash
+python pipeline/extract/run_meta_analysis_v2_batch_api.py submit \
+  --run-id meta_analysis_v2_pilot_100 \
+  --batch-id batch_001
+
+python pipeline/extract/run_meta_analysis_v2_batch_api.py status \
+  --run-id meta_analysis_v2_pilot_100 \
+  --batch-id batch_001
+```
+
+Download and parse it after the job succeeds:
+
+```bash
+python pipeline/extract/run_meta_analysis_v2_batch_api.py download \
+  --run-id meta_analysis_v2_pilot_100 \
+  --batch-id batch_001
+
+python pipeline/extract/run_meta_analysis_v2_batch_api.py parse \
+  --run-id meta_analysis_v2_pilot_100 \
+  --batch-id batch_001
+```
+
+The parsed record envelope adds `schema_version`, `source_depth`, source
+fingerprint, model, and task identity deterministically. The model receives
+only the fields defined in `schema/meta_analysis_evidence_v2.schema.json`.
+Human-readable schema descriptions are removed from the API request because
+the prompt already supplies those instructions and Gemini's structured-output
+validator rejects the more verbose full-text schema. The saved schema and input
+snapshot retain the descriptions.
+The existing routed meta-analysis path remains the live production path until
+the v2 pilot has been reviewed.
+
 ## Article Text Inputs And Audits
 
 Build article text inputs from the route table and the canonical

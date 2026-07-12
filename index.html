@@ -5,6 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Psychedelics Knowledge Graph</title>
     <base href="./ui/" />
+    <script>
+      document.documentElement.classList.add("app-booting");
+      window.__appBootFallback = window.setTimeout(function () {
+        document.documentElement.classList.remove("app-booting");
+        document.documentElement.classList.add("app-ready");
+      }, 12000);
+    </script>
+    <style>
+      html {
+        background: #080a0b;
+      }
+
+      html.app-booting body {
+        overflow: hidden;
+      }
+
+      html.app-booting .bg,
+      html.app-booting .hero,
+      html.app-booting .content,
+      html.app-booting .footer {
+        visibility: hidden;
+      }
+
+      .site-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: grid;
+        place-items: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        color: #e8ece8;
+        background: #080a0b;
+      }
+
+      html:not(.app-booting) .site-loader {
+        display: none;
+      }
+    </style>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8M798XF54S"></script>
     <script>
@@ -27,9 +65,24 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260712-paper-connections-neutral" />
+    <link rel="stylesheet" href="styles.css?v=20260713-paper-findings-without-chevron" />
   </head>
   <body>
+    <div class="site-loader" role="status" aria-live="polite" aria-label="Loading the knowledge graph">
+      <div class="site-loader-layout">
+        <div class="site-loader-copy">
+          <div class="site-loader-title">
+            <span>Psychedelics</span>
+            <span>Knowledge Graph</span>
+          </div>
+        </div>
+        <div class="site-loader-indicator" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
     <div class="bg" aria-hidden="true"></div>
     <header class="hero">
       <div class="hero-inner">
@@ -47,28 +100,25 @@
         </p>
       </div>
       <div class="hero-stats" id="stats">
-        <div
-          class="stat stat-clickable"
-          id="studiesStatCard"
-          role="button"
-          tabindex="0"
-          aria-label="Open study bibliography"
-        >
-          <span class="stat-label">Studies represented</span>
-          <span class="stat-value" data-stat="studies">0</span>
-          <span class="stat-detail" data-stat-detail="studies"></span>
+        <div class="stat">
+          <span class="stat-label">Total papers</span>
+          <span class="stat-value" data-stat="total-papers">0</span>
+          <span class="stat-detail" data-stat-detail="total-papers"></span>
         </div>
         <div class="stat">
-          <span class="stat-label">Compounds</span>
-          <span class="stat-value" data-stat="compounds">0</span>
+          <span class="stat-label">Reviews</span>
+          <span class="stat-value" data-stat="reviews">0</span>
+          <span class="stat-detail" data-stat-detail="reviews"></span>
         </div>
         <div class="stat">
-          <span class="stat-label">Conditions</span>
-          <span class="stat-value" data-stat="conditions">0</span>
+          <span class="stat-label">Primary studies</span>
+          <span class="stat-value" data-stat="primary-studies">0</span>
+          <span class="stat-detail" data-stat-detail="primary-studies"></span>
         </div>
         <div class="stat">
-          <span class="stat-label">Targets</span>
-          <span class="stat-value" data-stat="targets">0</span>
+          <span class="stat-label">Meta-analyses</span>
+          <span class="stat-value" data-stat="meta-analyses">0</span>
+          <span class="stat-detail" data-stat-detail="meta-analyses"></span>
         </div>
       </div>
     </header>
@@ -89,6 +139,17 @@
                 </div>
                 <div class="toolbar-filter-row">
                   <div class="filter-center-controls">
+                    <div class="segmented-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
+                      <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
+                        Primary research
+                      </button>
+                      <button class="ghost small" data-evidence-view="meta_analyses" role="tab" aria-selected="false">
+                        Meta-analyses
+                      </button>
+                      <button class="ghost small" data-evidence-view="reviews" role="tab" aria-selected="false">
+                        Reviews
+                      </button>
+                    </div>
                     <div class="year-range-inline" aria-label="Year range">
                       <div class="year-field">
                         <input id="yearMinFilter" type="number" inputmode="numeric" placeholder="From" aria-label="From year" />
@@ -106,23 +167,6 @@
                         </div>
                       </div>
                     </div>
-                    <div class="segmented-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
-                      <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
-                        Primary research
-                      </button>
-                      <button class="ghost small" data-evidence-view="meta_analyses" role="tab" aria-selected="false">
-                        Meta-analyses
-                      </button>
-                      <button class="ghost small" data-evidence-view="reviews" role="tab" aria-selected="false">
-                        Reviews
-                      </button>
-                    </div>
-                  </div>
-                  <div class="filter-toggles" aria-label="Evidence filters">
-                    <label class="access-toggle" for="fullTextOnlyToggle">
-                      <input id="fullTextOnlyToggle" type="checkbox" checked />
-                      <span>Full text only</span>
-                    </label>
                   </div>
                 </div>
               </div>
@@ -179,6 +223,6 @@
       </div>
     </footer>
 
-    <script src="app.js?v=20260712-multistudy-paper-connections-grouped"></script>
+    <script src="app.js?v=20260713-tighter-graph-hyphenated-labels-v2"></script>
   </body>
 </html>

@@ -498,6 +498,95 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         )
         self.assertEqual(lookup["10.1000/unmapped"]["label"], "Not normalized")
 
+    def test_routed_kg_graph_status_combines_mixed_active_graph_runs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            run_a = root / "data" / "processed" / "kg_routed_runs" / "run_a"
+            run_b = root / "data" / "processed" / "kg_routed_runs" / "run_b"
+            payload_a = root / "data" / "processed" / "graph_payload_runs" / "run_a"
+            payload_b = root / "data" / "processed" / "graph_payload_runs" / "run_b"
+            for path in (run_a, run_b, payload_a, payload_b):
+                path.mkdir(parents=True)
+
+            pd.DataFrame([{"study_doi": "10.1000/from-a"}]).to_parquet(
+                run_a / "findings.parquet", index=False
+            )
+            pd.DataFrame(
+                [
+                    {"study_doi": "10.1000/from-b"},
+                    {"study_doi": "10.1000/not-published"},
+                ]
+            ).to_parquet(
+                run_b / "findings.parquet", index=False
+            )
+            audit_columns = [
+                "study_doi",
+                "normalization_status",
+                "canonical_compound",
+                "compound",
+                "compound_original",
+            ]
+            pd.DataFrame([], columns=audit_columns).to_parquet(
+                run_a / "normalization_audit.parquet", index=False
+            )
+            pd.DataFrame(
+                [
+                    {
+                        "study_doi": "10.1000/not-normalized",
+                        "normalization_status": "entity_unmapped",
+                        "canonical_compound": "Psilocybin",
+                        "compound": "Psilocybin",
+                        "compound_original": "psilocybin",
+                    }
+                ],
+                columns=audit_columns,
+            ).to_parquet(run_b / "normalization_audit.parquet", index=False)
+
+            (payload_a / "graph_payload_manifest.json").write_text(
+                json.dumps({"kg_dir": "data/processed/kg_routed_runs/run_a"}),
+                encoding="utf-8",
+            )
+            (payload_b / "graph_payload_manifest.json").write_text(
+                json.dumps({"kg_dir": "data/processed/kg_routed_runs/run_b"}),
+                encoding="utf-8",
+            )
+            detail_payload = lambda doi: {
+                "fields": ["study_doi"],
+                "values": [None, doi],
+                "rows": [[1]],
+            }
+            (payload_a / "detail_bootstrap_primary.json").write_text(
+                json.dumps(detail_payload("10.1000/from-a")),
+                encoding="utf-8",
+            )
+            (payload_b / "detail_bootstrap_reviews.json").write_text(
+                json.dumps(detail_payload("10.1000/from-b")),
+                encoding="utf-8",
+            )
+            active_pointer = root / "data" / "processed" / "graph_payload_active.json"
+            active_pointer.write_text(
+                json.dumps(
+                    {
+                        "kg_dir": "data/processed/kg_routed_runs/run_a",
+                        "active_detail_bootstraps": {
+                            "primary": "data/processed/graph_payload_runs/run_a/detail_bootstrap_primary.json",
+                            "reviews": "data/processed/graph_payload_runs/run_b/detail_bootstrap_reviews.json",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            lookup, input_files, warnings = routed_kg_graph_status_by_doi(root)
+
+        self.assertFalse(warnings)
+        self.assertEqual(lookup["10.1000/from-a"]["label"], "In graph")
+        self.assertEqual(lookup["10.1000/from-b"]["label"], "In graph")
+        self.assertNotIn("10.1000/not-published", lookup)
+        self.assertEqual(lookup["10.1000/not-normalized"]["label"], "Not normalized")
+        self.assertTrue(any("run_a/detail_bootstrap_primary.json" in path for path in input_files))
+        self.assertTrue(any("run_b/detail_bootstrap_reviews.json" in path for path in input_files))
+
     def test_kg_claim_table_marks_pipeline_rows_as_claim_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             claims_table = Path(tmpdir) / "claims.parquet"

@@ -11,7 +11,7 @@ Prioritize:
   Challenging experience, Psychological insight, Emotional breakthrough,
   Connectedness, Empathy, Personal significance, Spiritual significance, Euphoria,
   Positive affect, Negative affect, Somatic sensations, Subjective intensity,
-  Near-death-like experience, or Psychosis-like effects.
+  or Near-death-like experience.
 - timing relative to dosing/session
 - compound, dose, and route
 - population, setting, assessment context, and comparator or reference condition

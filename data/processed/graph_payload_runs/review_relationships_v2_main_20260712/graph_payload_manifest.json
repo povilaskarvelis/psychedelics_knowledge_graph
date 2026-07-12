@@ -1,6 +1,6 @@
 {
   "schema_version": "route_native_evidence_manifest_v1",
-  "generated_at": "2026-07-11T23:51:17.144820+00:00",
+  "generated_at": "2026-07-12T14:42:34.402760+00:00",
   "evidence_source": "kg_tables",
   "kg_dir": "data/processed/kg_routed_runs/review_relationships_v2_main_20260712",
   "graph_bootstraps": {
@@ -13,124 +13,122 @@
     "meta_analyses": "data/processed/graph_payload_runs/review_relationships_v2_main_20260712/detail_bootstrap_meta_analyses.json",
     "reviews": "data/processed/graph_payload_runs/review_relationships_v2_main_20260712/detail_bootstrap_reviews.json"
   },
-  "row_count": 46853,
+  "row_count": 53339,
   "author_tables": {
-    "status": "ok",
-    "paper_count": 9241,
-    "paper_author_rows": 58496,
-    "unique_author_papers": 9230
+    "status": "skipped",
+    "reason": "freshness check disabled"
   },
   "summary_stats": {
     "default": {
-      "row_count": 46853,
-      "graph_finding_count": 40273,
-      "study_count": 8575,
-      "compound_count": 76,
-      "entity_count": 468,
+      "row_count": 53339,
+      "graph_finding_count": 49331,
+      "study_count": 10975,
+      "compound_count": 87,
+      "entity_count": 475,
       "domain_count": 11,
-      "condition_count": 50,
-      "target_count": 57,
+      "condition_count": 53,
+      "target_count": 59,
       "domain_counts": {
-        "molecular_pathway_readout": 7967,
-        "clinical_outcome": 7562,
-        "cognitive_behavioral": 6713,
-        "safety_tolerability": 6199,
-        "molecular_target": 3959,
-        "brain_system": 3789,
-        "real_world_public_health": 3381,
-        "subjective_experience": 3337,
-        "pharmacokinetics_exposure": 2660,
-        "intervention_context": 1285,
-        "general_topic_coverage": 1
+        "clinical_outcome": 10223,
+        "molecular_pathway_readout": 8598,
+        "safety_tolerability": 7525,
+        "cognitive_behavioral": 7178,
+        "molecular_target": 4824,
+        "brain_system": 3959,
+        "real_world_public_health": 3505,
+        "subjective_experience": 3346,
+        "pharmacokinetics_exposure": 2768,
+        "intervention_context": 1397,
+        "general_topic_coverage": 16
       },
       "entity_kind_counts": {
-        "cognitive_behavioral_construct": 6689,
-        "safety_adverse_event": 6548,
-        "condition_indication": 4693,
-        "pathway_process": 4530,
-        "target": 4104,
-        "biomarker_readout": 3750,
-        "public_health_measure": 3382,
-        "subjective_experience_construct": 3127,
-        "symptom_problem": 2756,
-        "brain_region": 2700,
-        "pharmacokinetic_parameter": 2090,
-        "intervention_component": 1285,
-        "system_family": 511,
-        "compound": 408,
-        "brain_network": 228,
-        "neural_circuit": 52
+        "safety_adverse_event": 7879,
+        "cognitive_behavioral_construct": 7176,
+        "condition_indication": 6905,
+        "pathway_process": 4940,
+        "target": 4891,
+        "biomarker_readout": 3961,
+        "public_health_measure": 3530,
+        "subjective_experience_construct": 3167,
+        "symptom_problem": 3147,
+        "brain_region": 2794,
+        "pharmacokinetic_parameter": 2198,
+        "intervention_component": 1389,
+        "system_family": 556,
+        "compound": 449,
+        "brain_network": 295,
+        "neural_circuit": 62
       },
       "evidence_type_counts": {
-        "primary_evidence": 46311,
-        "secondary_literature": 542
+        "primary_evidence": 46286,
+        "secondary_literature": 7053
       },
       "text_depth_counts": {
-        "article_text": 30056,
-        "abstract_only": 16797
+        "article_text": 34304,
+        "abstract_only": 19035
       },
       "graph_study_coverage": {
-        "included_count": 8575,
-        "candidate_count": 9666,
-        "not_in_graph_count": 1091
+        "included_count": 10975,
+        "candidate_count": 12752,
+        "not_in_graph_count": 1777
       },
-      "graph_candidate_study_count": 9666,
-      "graph_excluded_study_count": 1091
+      "graph_candidate_study_count": 12752,
+      "graph_excluded_study_count": 1777
     },
     "sources": {
       "primary": {
-        "row_count": 46311,
-        "graph_finding_count": 39827,
-        "study_count": 8378,
-        "compound_count": 76,
-        "entity_count": 466,
+        "row_count": 46286,
+        "graph_finding_count": 43296,
+        "study_count": 8321,
+        "compound_count": 82,
+        "entity_count": 467,
         "domain_count": 10,
         "condition_count": 48,
         "target_count": 57,
         "domain_counts": {
-          "molecular_pathway_readout": 7922,
-          "clinical_outcome": 7289,
-          "cognitive_behavioral": 6696,
-          "safety_tolerability": 6109,
-          "molecular_target": 3901,
-          "brain_system": 3772,
-          "real_world_public_health": 3372,
-          "subjective_experience": 3325,
+          "molecular_pathway_readout": 7921,
+          "clinical_outcome": 7150,
+          "cognitive_behavioral": 6886,
+          "safety_tolerability": 6215,
+          "molecular_target": 3903,
+          "brain_system": 3771,
+          "real_world_public_health": 3356,
+          "subjective_experience": 3160,
           "pharmacokinetics_exposure": 2651,
-          "intervention_context": 1274
+          "intervention_context": 1273
         },
         "entity_kind_counts": {
-          "cognitive_behavioral_construct": 6672,
-          "safety_adverse_event": 6448,
-          "condition_indication": 4500,
-          "pathway_process": 4499,
-          "target": 4053,
-          "biomarker_readout": 3736,
-          "public_health_measure": 3372,
-          "subjective_experience_construct": 3115,
+          "cognitive_behavioral_construct": 6882,
+          "safety_adverse_event": 6472,
+          "pathway_process": 4496,
+          "condition_indication": 4490,
+          "target": 4054,
+          "biomarker_readout": 3738,
+          "public_health_measure": 3356,
+          "subjective_experience_construct": 2988,
           "brain_region": 2695,
-          "symptom_problem": 2686,
+          "symptom_problem": 2581,
           "pharmacokinetic_parameter": 2081,
-          "intervention_component": 1274,
+          "intervention_component": 1273,
           "system_family": 505,
           "compound": 407,
           "brain_network": 216,
           "neural_circuit": 52
         },
         "evidence_type_counts": {
-          "primary_evidence": 46311
+          "primary_evidence": 46286
         },
         "text_depth_counts": {
-          "article_text": 29698,
-          "abstract_only": 16613
+          "article_text": 29681,
+          "abstract_only": 16605
         },
         "graph_study_coverage": {
-          "included_count": 8378,
+          "included_count": 8321,
           "candidate_count": 9417,
-          "not_in_graph_count": 1039
+          "not_in_graph_count": 1096
         },
         "graph_candidate_study_count": 9417,
-        "graph_excluded_study_count": 1039
+        "graph_excluded_study_count": 1096
       },
       "meta_analyses": {
         "row_count": 0,
@@ -154,58 +152,59 @@
         "graph_excluded_study_count": 0
       },
       "reviews": {
-        "row_count": 542,
-        "graph_finding_count": 371,
-        "study_count": 173,
-        "compound_count": 17,
-        "entity_count": 58,
+        "row_count": 7053,
+        "graph_finding_count": 5928,
+        "study_count": 2629,
+        "compound_count": 42,
+        "entity_count": 224,
         "domain_count": 11,
-        "condition_count": 17,
-        "target_count": 7,
+        "condition_count": 39,
+        "target_count": 24,
         "domain_counts": {
-          "clinical_outcome": 273,
-          "safety_tolerability": 90,
-          "molecular_target": 58,
-          "molecular_pathway_readout": 45,
-          "brain_system": 17,
-          "cognitive_behavioral": 17,
-          "subjective_experience": 12,
-          "intervention_context": 11,
-          "pharmacokinetics_exposure": 9,
-          "real_world_public_health": 9,
-          "general_topic_coverage": 1
+          "clinical_outcome": 3073,
+          "safety_tolerability": 1310,
+          "molecular_target": 921,
+          "molecular_pathway_readout": 677,
+          "cognitive_behavioral": 292,
+          "brain_system": 188,
+          "subjective_experience": 186,
+          "real_world_public_health": 149,
+          "intervention_context": 124,
+          "pharmacokinetics_exposure": 117,
+          "general_topic_coverage": 16
         },
         "entity_kind_counts": {
-          "condition_indication": 193,
-          "safety_adverse_event": 100,
-          "symptom_problem": 70,
-          "target": 51,
-          "pathway_process": 31,
-          "cognitive_behavioral_construct": 17,
-          "biomarker_readout": 14,
-          "brain_network": 12,
-          "subjective_experience_construct": 12,
-          "intervention_component": 11,
-          "public_health_measure": 10,
-          "pharmacokinetic_parameter": 9,
-          "system_family": 6,
-          "brain_region": 5,
-          "compound": 1
+          "condition_indication": 2415,
+          "safety_adverse_event": 1407,
+          "target": 837,
+          "symptom_problem": 566,
+          "pathway_process": 444,
+          "cognitive_behavioral_construct": 294,
+          "biomarker_readout": 223,
+          "subjective_experience_construct": 179,
+          "public_health_measure": 174,
+          "pharmacokinetic_parameter": 117,
+          "intervention_component": 116,
+          "brain_region": 99,
+          "brain_network": 79,
+          "system_family": 51,
+          "compound": 42,
+          "neural_circuit": 10
         },
         "evidence_type_counts": {
-          "secondary_literature": 542
+          "secondary_literature": 7053
         },
         "text_depth_counts": {
-          "article_text": 358,
-          "abstract_only": 184
+          "article_text": 4623,
+          "abstract_only": 2430
         },
         "graph_study_coverage": {
-          "included_count": 173,
-          "candidate_count": 249,
-          "not_in_graph_count": 76
+          "included_count": 2629,
+          "candidate_count": 3335,
+          "not_in_graph_count": 706
         },
-        "graph_candidate_study_count": 249,
-        "graph_excluded_study_count": 76
+        "graph_candidate_study_count": 3335,
+        "graph_excluded_study_count": 706
       }
     }
   },

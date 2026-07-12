@@ -78,6 +78,69 @@ on each finding, and there are no Ketamine-subject rows for this paper. PTSD is
 therefore connected to the study exposure rather than to ketamine alone.
 
 This is one regression case, not the organizing principle of the projection.
+
+## Multi-compound follow-up (2026-07-12)
+
+The primary run was rebuilt again from the same saved extraction array, without
+model calls. Multi-valued overview projection now distinguishes three cases:
+
+- exact lists, alternatives, and separate study arms project to each registered
+  atomic compound;
+- explicit co-administration/formulations project to canonical `A + B` nodes,
+  and explicit sequences to `A + B (sequential)` nodes;
+- recognized colloquial combination names are inferred deterministically and
+  appended in parentheses, including pharmahuasca, candyflipping, and hippy
+  flipping;
+- broad classes and exposure contexts remain controlled broad nodes only when
+  the source itself is nonspecific. Chemsex remains one exposure context.
+
+The exact extraction remains in `graph_subject_label`; the controlled list is
+stored in `graph_overview_subjects_json`. This avoids duplicating finding cards
+while allowing the graph payload to emit multiple edges.
+
+Corpus-level primary results:
+
+| Projection result | Findings | Distinct papers |
+|---|---:|---:|
+| Specific compounds separated from multi-compound text | 912 | 378 |
+| Specific compounds recovered from class text | 877 | 253 |
+| Supported simultaneous combination | 104 | 29 |
+| Supported sequential regimen | 25 | 12 |
+
+`Multi-compound exposure` is no longer present in primary findings. The initial
+primary overview contains 82 subject nodes and 471 right-side nodes across
+4,333 edges; every node still requires two distinct studies. Six specific
+combination/regimen nodes survive that presentation threshold: `DMT + Harmine
+(pharmahuasca)`, `DMT + Harmaline (pharmahuasca)`, `5-MeO-DMT + Harmaline`,
+`LSD + MDMA (candyflipping)`, `Dextromethorphan + MDMA`, and `Ibogaine +
+5-MeO-DMT (sequential)`. One-paper combinations remain searchable in detail and
+cannot appear after filtering because filtered graphs use the fixed full-view
+relationship whitelist.
+
+The same pass fixed nested-name leakage: `5-MeO-DMT` no longer creates an
+additional `DMT` subject, and `S-ketamine` no longer creates an additional
+`Ketamine` subject unless the broader compound is independently named.
+
+The follow-up also audited the remaining broad psychedelic subjects. An
+explicitly predominant compound and a drug-specific assisted-therapy label now
+override a broad class projection. This affects 221 saved primary rows from 55
+papers. If several compounds are described as predominant, each is projected;
+the first is not selected arbitrarily. Examples include:
+
+- `Ketamine-assisted psychotherapy (KAPT), psychedelic approach` → `Ketamine`;
+- `Naturalistic psychedelic use (primarily psilocybin)` → `Psilocybin`;
+- `Psychedelics and ketamine` → the unresolved mixed/unspecified fallback, not
+  `Ketamine`, because the collective exposure is not ketamine-specific.
+
+The ambiguous primary labels were collapsed into one normalized fallback,
+`Psychedelics (mixed or unspecified compounds)`. Its 487 findings from 214
+papers remain searchable with their exact exposure text, but all are marked
+paper-detail-only so the fallback cannot form a visual graph hub or reappear
+after filtering. `Serotonergic psychedelics` was renamed `Classic
+psychedelics` in the primary presentation. Main finding search now searches all
+findings in the active source, independent of the graph domain currently
+selected; the graph itself remains domain-specific. The primary graph includes
+8,321 of 9,417 extracted primary papers after this presentation hold.
 The acceptance decision above is based on the full primary corpus.
 
 ## What this evaluation does not establish

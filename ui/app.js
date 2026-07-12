@@ -5,15 +5,12 @@ const yearMaxFilter = document.getElementById("yearMaxFilter");
 const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
 const bibliographySearchInput = document.getElementById("bibliographySearchInput");
-const fullTextOnlyToggle = document.getElementById("fullTextOnlyToggle");
 const tooltip = document.getElementById("tooltip");
 const detailTitle = document.querySelector("#graphDetail h3");
 const detailBody = document.getElementById("detailBody");
 const claimLayerButtons = document.querySelectorAll("[data-claim-layer]");
 const evidenceViewButtons = document.querySelectorAll("[data-evidence-view]");
 const entityKindToggle = document.querySelector("[data-entity-kind-toggle]");
-const studiesStatCard = document.getElementById("studiesStatCard");
-const bibliographyPanel = document.getElementById("bibliographyPanel");
 const studyListEl = document.getElementById("studyList");
 const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
@@ -23,18 +20,22 @@ if (tooltip && tooltip.parentElement !== document.body) {
 }
 
 const stats = {
-  compounds: document.querySelector('[data-stat="compounds"]'),
-  conditions: document.querySelector('[data-stat="conditions"]'),
-  targets: document.querySelector('[data-stat="targets"]'),
-  studies: document.querySelector('[data-stat="studies"]'),
+  primaryStudies: document.querySelector('[data-stat="primary-studies"]'),
+  reviews: document.querySelector('[data-stat="reviews"]'),
+  metaAnalyses: document.querySelector('[data-stat="meta-analyses"]'),
+  totalPapers: document.querySelector('[data-stat="total-papers"]'),
 };
 const statDetails = {
-  studies: document.querySelector('[data-stat-detail="studies"]'),
+  primaryStudies: document.querySelector('[data-stat-detail="primary-studies"]'),
+  reviews: document.querySelector('[data-stat-detail="reviews"]'),
+  metaAnalyses: document.querySelector('[data-stat-detail="meta-analyses"]'),
+  totalPapers: document.querySelector('[data-stat-detail="total-papers"]'),
 };
 
-const HERO_STAT_KEYS = ["studies", "compounds", "conditions", "targets"];
+const HERO_STAT_KEYS = ["primaryStudies", "reviews", "metaAnalyses", "totalPapers"];
 const evidenceRank = { low: 1, medium: 2, high: 3 };
 const MAIN_FINDING_MAX_CHARS = 260;
+const SAMPLE_YEAR_TARGET_BUCKET_COUNT = 14;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
 const LIST_CHUNK_SIZE = 120;
 
@@ -97,6 +98,7 @@ const COGNITION_NODE_LABELS = [
   "Executive function",
   "Fear extinction",
   "Fear memory",
+  "Global cognition",
   "Inhibitory control",
   "Memory",
   "Memory consolidation",
@@ -187,6 +189,8 @@ const ENTITY_CATEGORY_OPTIONS = [
   },
   {
     key: "public_health_measure",
+    kinds: ["public_health_measure", "exposure_context"],
+    domains: ["real_world_public_health"],
     label: "Real-world use",
     singular: "Real-world topic",
     lowerPlural: "real-world topics",
@@ -218,6 +222,23 @@ const ENTITY_CATEGORY_OPTIONS = [
     lowerSingular: "target",
   },
 ];
+const CONDITION_GRAPH_LABEL_OVERRIDES = new Map([
+  ["attention-deficit/hyperactivity disorder", "ADHD"],
+  ["distress associated with life-threatening disease", "Distress in life-threatening illness"],
+  ["nicotine dependence", "Tobacco use disorder"],
+  ["suicidality", "Suicidal ideation & behavior"],
+]);
+const CONDITION_GRAPH_CLARIFIERS = new Map([
+  ["bipolar disorder", "Umbrella or subtype-unspecified bipolar diagnosis."],
+  ["bipolar i disorder", "Bipolar subtype defined by manic episodes."],
+  ["bipolar ii disorder", "Bipolar subtype defined by hypomanic and depressive episodes."],
+  ["bipolar depression", "Depressive episode or treatment phase within bipolar disorder."],
+  ["mood disorders", "Broad category retained only when the source does not identify a more specific mood disorder."],
+  ["eating disorders", "Broad or unspecified eating-disorder evidence; specific diagnoses remain separate."],
+  ["headache disorders", "Broad or unspecified headache evidence; migraine and cluster headache remain separate."],
+  ["substance use disorder", "Broad, mixed, or substance-unspecified evidence; named use disorders remain separate."],
+  ["tobacco use disorder", "Includes literature using nicotine-dependence terminology."],
+]);
 const DETAIL_PANEL_PROFILE_DEFAULT = {
   experimentalSystem: false,
   sampleSizes: false,
@@ -317,7 +338,85 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
     brainMeasures: true,
     mechanisticRelationshipTypes: true,
   },
+  brain_measure: {
+    experimentalSystem: true,
+    assayFamilies: true,
+    brainMeasures: true,
+    mechanisticRelationshipTypes: true,
+  },
 };
+const REVIEW_DESIGN_LABELS = {
+  systematic_review: "Systematic review",
+  scoping_review: "Scoping review",
+  umbrella_review: "Umbrella review",
+  rapid_review: "Rapid review",
+  narrative_or_literature_review: "Narrative or literature review",
+  conceptual_or_theoretical_review: "Conceptual or theoretical review",
+  critical_review: "Critical review",
+  historical_review: "Historical review",
+  bibliometric_or_landscape_review: "Bibliometric or landscape review",
+  other_or_unclear: "Other review approach",
+};
+const REVIEW_CONTRIBUTION_LABELS = {
+  evidence_synthesis: "Evidence synthesis",
+  mechanistic_or_conceptual_review: "Mechanistic or conceptual",
+  methodological_framework: "Methods or framework",
+  research_landscape: "Research landscape",
+  translational_or_practice_agenda: "Translation or practice",
+  broad_topic_review: "Broad topic review",
+  mixed: "Mixed focus",
+};
+const REVIEW_EVIDENCE_STRATUM_LABELS = {
+  human: "Human evidence",
+  preclinical: "Preclinical evidence",
+  human_and_preclinical: "Human and preclinical",
+  field_or_method: "Research field or methods",
+  unclear: "Unclear evidence base",
+};
+const REVIEW_RELATIONSHIP_TYPE_LABELS = {
+  review_synthesis: "Synthesis conclusion",
+  reviewed_relationship: "Relationship reviewed",
+  methodological_contribution: "Method or framework",
+  research_landscape: "Research landscape",
+  evidence_gap: "Evidence gap",
+};
+const META_ANALYSIS_DESIGN_LABELS = {
+  pairwise_meta_analysis: "Pairwise meta-analysis",
+  network_meta_analysis: "Network meta-analysis",
+  multilevel_meta_analysis: "Multilevel meta-analysis",
+  dose_response_meta_analysis: "Dose-response meta-analysis",
+  individual_participant_data_meta_analysis: "Individual-participant-data meta-analysis",
+  umbrella_review: "Umbrella review",
+  other_quantitative_synthesis: "Other quantitative synthesis",
+};
+const META_ANALYSIS_DESIGN_ORDER = [
+  "Pairwise meta-analysis",
+  "Network meta-analysis",
+  "Multilevel meta-analysis",
+  "Dose-response meta-analysis",
+  "Individual-participant-data meta-analysis",
+  "Umbrella review",
+  "Other quantitative synthesis",
+];
+const META_ANALYSIS_RESULT_ROLE_LABELS = {
+  primary_synthesis: "Primary pooled result",
+  secondary_synthesis: "Secondary pooled result",
+  subgroup_analysis: "Subgroup analysis",
+  sensitivity_analysis: "Sensitivity analysis",
+  meta_regression: "Meta-regression",
+  dose_response: "Dose-response result",
+  network_comparison: "Network comparison",
+  network_ranking: "Network ranking",
+  publication_bias_analysis: "Publication-bias analysis",
+  other: "Other analysis",
+};
+const META_ANALYSIS_STUDY_COUNT_BINS = [
+  { label: "1-5 studies", min: 1, max: 5 },
+  { label: "6-10 studies", min: 6, max: 10 },
+  { label: "11-20 studies", min: 11, max: 20 },
+  { label: "21-50 studies", min: 21, max: 50 },
+  { label: "More than 50 studies", min: 51, max: Number.POSITIVE_INFINITY },
+];
 let claims = [];
 const claimStores = {
   normalized: { all: [] },
@@ -348,7 +447,9 @@ let renderScheduled = false;
 let centerGraphAfterRender = false;
 let centerGraphFrame = 0;
 let activeDetailItems = [];
+let activeDetailAllAccessItems = [];
 let detailGraphFilter = null;
+let accessView = "open";
 const expandedChartKeys = new Set();
 let currentDataLoadToken = 0;
 let heroStatsSnapshot = null;
@@ -393,8 +494,11 @@ const REAL_WORLD_SAMPLE_SIZE_BINS = [
   { label: "250k-1M", min: 250001, max: 1000000 },
   { label: ">1M", min: 1000001, max: Number.POSITIVE_INFINITY },
 ];
-const GRAPH_LABEL_MAX_WIDTH_PX = 190;
-const GRAPH_RIGHT_LABEL_GUTTER_PX = 42;
+const GRAPH_LEFT_LABEL_MAX_WIDTH_PX = 210;
+const GRAPH_RIGHT_LABEL_MAX_WIDTH_PX = 180;
+const GRAPH_RIGHT_LABEL_GUTTER_PX = 24;
+const GRAPH_LABEL_MARGIN_BUFFER_PX = 36;
+const GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT = 22;
 const GRAPH_BASE_HEIGHT_PX = 820;
 const GRAPH_COMPACT_BASE_HEIGHT_PX = 560;
 const GRAPH_MIN_NODE_SPACING_PX = 40;
@@ -429,6 +533,8 @@ function unique(values) {
 
 const rawSearchTextCache = new WeakMap();
 const claimSearchTextCache = new WeakMap();
+const graphOverviewSubjectsCache = new WeakMap();
+const graphUseContextProjectionsCache = new WeakMap();
 
 function normalizeSearchText(value) {
   return normalizeValue(value).replace(/\s+/g, " ").trim();
@@ -491,9 +597,23 @@ function rawSearchTextForObject(value) {
   return text;
 }
 
+function rawSearchTextForClaim(claim) {
+  if (!claim || typeof claim !== "object") return rawSearchTextForObject(claim);
+  const parts = [];
+  const seen = new WeakSet();
+  Object.entries(claim).forEach(([field, value]) => {
+    if (field === "graph_use_context_projections_json") return;
+    collectSearchTextParts(value, parts, seen);
+  });
+  return normalizeSearchText(compactSearchTextParts(parts).join(" "));
+}
+
 function claimDerivedSearchParts(claim) {
   return compactSearchTextParts([
     compoundGraphLabelForClaim(claim),
+    ...graphOverviewSubjectsForClaim(claim).map((subject) => subject.label),
+    ...graphOverviewSubjectsForClaim(claim).flatMap((subject) => subject.aliases || []),
+    ...(Array.isArray(claim?.compound_aliases) ? claim.compound_aliases : []),
     graphRightLabelForClaim(claim),
     claimMainFindingText(claim),
     paperTypeLabel(claim.paper_type),
@@ -528,7 +648,7 @@ function claimSearchHaystack(claim) {
   const cachedByContext = claimSearchTextCache.get(claim);
   if (cachedByContext?.has(contextKey)) return cachedByContext.get(contextKey);
 
-  const text = normalizeSearchText([rawSearchTextForObject(claim), ...claimDerivedSearchParts(claim)].join(" "));
+  const text = normalizeSearchText([rawSearchTextForClaim(claim), ...claimDerivedSearchParts(claim)].join(" "));
   const nextCache = cachedByContext || new Map();
   nextCache.set(contextKey, text);
   claimSearchTextCache.set(claim, nextCache);
@@ -553,6 +673,146 @@ function compoundGraphLabelForClaim(claim) {
   const overview = meaningfulText(claim?.graph_overview_subject_label);
   if (overview) return overview;
   return compoundGraphLabel(claim?.compound);
+}
+
+function graphOverviewSubjectsForClaim(claim) {
+  if (claim && typeof claim === "object") {
+    const cached = graphOverviewSubjectsCache.get(claim);
+    if (cached) return cached;
+  }
+  let raw = claim?.graph_overview_subjects_json;
+  if (typeof raw === "string" && raw.trim()) {
+    try {
+      raw = JSON.parse(raw);
+    } catch (_error) {
+      raw = null;
+    }
+  }
+  if (Array.isArray(raw)) {
+    const subjects = raw
+      .filter((item) => item && typeof item === "object")
+      .map((item) => ({
+        label: meaningfulText(item.label),
+        kind: meaningfulText(item.kind) || "atomic_compound",
+        reason: meaningfulText(item.reason),
+        aliases: Array.isArray(item.aliases)
+          ? item.aliases.map(meaningfulText).filter(Boolean)
+          : [],
+      }))
+      .filter((item) => item.label);
+    if (subjects.length) {
+      if (claim && typeof claim === "object") graphOverviewSubjectsCache.set(claim, subjects);
+      return subjects;
+    }
+  }
+  const label = compoundGraphLabelForClaim(claim);
+  const subjects = label
+    ? [{
+        label,
+        kind: meaningfulText(claim?.graph_overview_subject_kind || claim?.graph_subject_kind) || "atomic_compound",
+        reason: meaningfulText(claim?.graph_overview_subject_reason),
+        aliases: Array.isArray(claim?.compound_aliases)
+          ? claim.compound_aliases.map(meaningfulText).filter(Boolean)
+          : [],
+      }]
+    : [];
+  if (claim && typeof claim === "object") graphOverviewSubjectsCache.set(claim, subjects);
+  return subjects;
+}
+
+function graphUseContextProjectionsForClaim(claim) {
+  if (claim && typeof claim === "object") {
+    const cached = graphUseContextProjectionsCache.get(claim);
+    if (cached) return cached;
+  }
+  let raw = claim?.graph_use_context_projections_json;
+  if (typeof raw === "string" && raw.trim()) {
+    try {
+      raw = JSON.parse(raw);
+    } catch (_error) {
+      raw = null;
+    }
+  }
+  const projections = Array.isArray(raw)
+    ? raw
+        .filter((item) => item && typeof item === "object")
+        .map((item) => ({
+          projectionType: meaningfulText(item.projection_type) || "use_context",
+          subjectLabel: meaningfulText(item.subject_label),
+          subjectKind: meaningfulText(item.subject_kind) || "atomic_compound",
+          subjectAliases: Array.isArray(item.subject_aliases)
+            ? item.subject_aliases.map(meaningfulText).filter(Boolean)
+            : [],
+          contextLabel: meaningfulText(item.context_label),
+          contextKind: meaningfulText(item.context_kind) || "exposure_context",
+          contextAliases: Array.isArray(item.context_aliases)
+            ? item.context_aliases.map(meaningfulText).filter(Boolean)
+            : [],
+          contextParentLabel: meaningfulText(item.context_parent_label),
+          contextParentKind: meaningfulText(item.context_parent_kind),
+          contextParentEntityId: meaningfulText(item.context_parent_entity_id),
+          relationType: meaningfulText(item.relation_type) || "reported_in_use_context",
+          reason: meaningfulText(item.reason),
+        }))
+        .filter((item) => item.subjectLabel && item.contextLabel)
+    : [];
+  if (claim && typeof claim === "object") graphUseContextProjectionsCache.set(claim, projections);
+  return projections;
+}
+
+function expandClaimsWithUseContextProjections(data) {
+  return data.flatMap((claim) => {
+    if (meaningfulText(claim?.projection_type) === "use_context") return [claim];
+    const projections = graphUseContextProjectionsForClaim(claim);
+    return [
+      claim,
+      ...projections.map((projection) => ({
+        ...claim,
+        projection_type: "use_context",
+        relation_type: projection.relationType,
+        kg_relation_type: projection.relationType,
+        compound: projection.subjectLabel,
+        compound_aliases: projection.subjectAliases,
+        graph_subject_label: projection.subjectLabel,
+        graph_subject_kind: projection.subjectKind,
+        graph_overview_subject_label: projection.subjectLabel,
+        graph_overview_subject_kind: projection.subjectKind,
+        graph_overview_subject_reason: projection.reason,
+        graph_overview_subjects_json: JSON.stringify([
+          {
+            label: projection.subjectLabel,
+            kind: projection.subjectKind,
+            reason: projection.reason,
+            aliases: projection.subjectAliases,
+          },
+        ]),
+        entity_label: projection.contextLabel,
+        graph_entity_label: projection.contextLabel,
+        entity_kind: projection.contextKind,
+        kg_entity_kind: projection.contextKind,
+        graph_parent_label: projection.contextParentLabel,
+        graph_parent_kind: projection.contextParentKind,
+        graph_parent_entity_id: projection.contextParentEntityId,
+        use_context_aliases: projection.contextAliases,
+        __use_context_projection: true,
+      })),
+    ];
+  });
+}
+
+function expandClaimsForGraph(data) {
+  return data.flatMap((claim) => {
+    const subjects = graphOverviewSubjectsForClaim(claim);
+    if (subjects.length <= 1) return subjects.length ? [claim] : [];
+    return subjects.map((subject) => ({
+      ...claim,
+      graph_overview_subject_label: subject.label,
+      graph_overview_subject_kind: subject.kind,
+      graph_overview_subject_reason: subject.reason,
+      compound_aliases: subject.aliases || [],
+      __graph_subject_projection: true,
+    }));
+  });
 }
 
 const PATHWAY_READOUT_FAMILY_RULES = [
@@ -794,7 +1054,15 @@ function graphRightLabelForClaim(claim) {
   if (usesPathwayReadoutFamilies()) return pathwayReadoutFamilyForClaim(claim);
   if (usesBrainParentFamilies()) return graphLabel(claim?.graph_parent_label) || right;
   if (usesInterventionParentFamilies()) return graphLabel(claim?.graph_parent_label) || right;
+  if (currentEntityViewKey() === "condition_indication") {
+    return CONDITION_GRAPH_LABEL_OVERRIDES.get(normalizeValue(right)) || right;
+  }
   return right;
+}
+
+function conditionGraphClarifier(label) {
+  if (currentEntityViewKey() !== "condition_indication") return "";
+  return CONDITION_GRAPH_CLARIFIERS.get(normalizeValue(label)) || "";
 }
 
 function graphRightLabelForContextEntity(entity) {
@@ -809,7 +1077,7 @@ function sameGraphLabel(left, right) {
 }
 
 function claimMatchesGraphCompound(claim, compound) {
-  return sameGraphLabel(compoundGraphLabelForClaim(claim), compound);
+  return graphOverviewSubjectsForClaim(claim).some((subject) => sameGraphLabel(subject.label, compound));
 }
 
 function claimMatchesGraphRight(claim, right) {
@@ -818,6 +1086,23 @@ function claimMatchesGraphRight(claim, right) {
 
 function claimMatchesGraphEdge(claim, compound, right) {
   return claimMatchesGraphCompound(claim, compound) && claimMatchesGraphRight(claim, right);
+}
+
+function claimMatchesIsolatedGraphProjection(claim) {
+  if (!selected || !isolateSelection) return true;
+
+  const compound = compoundGraphLabelForClaim(claim);
+  const right = graphRightLabelForClaim(claim);
+  if (selected.type === "edge") {
+    return sameGraphLabel(compound, selected.compound) && sameGraphLabel(right, selected.target);
+  }
+  if (selected.type === "compound") {
+    return sameGraphLabel(compound, selected.name);
+  }
+  if (selected.type === "target") {
+    return sameGraphLabel(right, selected.name);
+  }
+  return true;
 }
 
 function graphRightRawLabel(claim) {
@@ -915,11 +1200,11 @@ function claimsForEntityView(baseClaims) {
 }
 
 function activeClaimsForMode() {
-  return graphViewClaims(claimsForEntityView(claims));
+  return graphViewClaims(claimsForEntityView(expandClaimsWithUseContextProjections(claims)));
 }
 
-function passesAccessAndYearFilters(claim, yearRange) {
-  if (fullTextOnlyToggle?.checked && claimSourceAccessLevel(claim) !== "full_text_seen") {
+function passesAccessAndYearFilters(claim, yearRange, options = {}) {
+  if (!options.ignoreAccess && accessView === "open" && !isOpenAccessClaim(claim)) {
     return false;
   }
   if (yearRange?.constrained) {
@@ -930,12 +1215,12 @@ function passesAccessAndYearFilters(claim, yearRange) {
   return true;
 }
 
-function activeOutcomeScaleClaims() {
+function activeOutcomeScaleClaims(options = {}) {
   if (evidenceView !== "primary") return [];
   const yearRange = activeYearRange(activeClaimsForMode());
   return graphViewClaims(claims)
     .filter((claim) => isOutcomeScaleClaim(claim))
-    .filter((claim) => passesAccessAndYearFilters(claim, yearRange));
+    .filter((claim) => passesAccessAndYearFilters(claim, yearRange, options));
 }
 
 function studyJoinKey(claim) {
@@ -956,11 +1241,11 @@ function evidenceScopeKey(claim) {
   return `${study}|compound:${compound}`;
 }
 
-function outcomeScaleClaimsForChart(items) {
+function outcomeScaleClaimsForChart(items, options = {}) {
   const scaleItems = items.filter((claim) => isOutcomeScaleClaim(claim));
   if (scaleItems.length) return scaleItems;
 
-  const activeScaleClaims = activeOutcomeScaleClaims();
+  const activeScaleClaims = activeOutcomeScaleClaims(options);
   const scopeKeys = new Set(items.map(evidenceScopeKey).filter(Boolean));
   if (!scopeKeys.size) return activeScaleClaims;
   return activeScaleClaims.filter((claim) => scopeKeys.has(evidenceScopeKey(claim)));
@@ -982,6 +1267,10 @@ function claimSourceAccessLevel(claim) {
   if (sourceAccess) return sourceAccess;
   const accessLevel = normalizeValue(claim.access_level);
   return accessLevel === "secondary_summary" ? "" : accessLevel;
+}
+
+function isOpenAccessClaim(claim) {
+  return claimSourceAccessLevel(claim) === "full_text_seen";
 }
 
 function applyClaimLayerStore() {
@@ -1056,6 +1345,10 @@ function secondaryLiteratureClaims(baseClaims, view = evidenceView) {
 
 function isSecondaryEvidenceView(view = evidenceView) {
   return SECONDARY_EVIDENCE_VIEW_KEYS.has(view);
+}
+
+function isReviewEvidenceView(view = evidenceView) {
+  return REVIEW_SOURCE_KEYS.has(view);
 }
 
 function recordLabelsForItems(items = []) {
@@ -1289,10 +1582,6 @@ function estimateLabelWidth(label) {
   return Math.max(40, Math.ceil(text.length * 6.8));
 }
 
-function estimateGraphLabelWidth(label) {
-  return Math.min(GRAPH_LABEL_MAX_WIDTH_PX, estimateLabelWidth(label));
-}
-
 function truncateLabel(label, maxChars) {
   const text = (label || "").toString();
   if (text.length <= maxChars) return text;
@@ -1335,14 +1624,48 @@ function fitLabelToWidth(label, maxWidthPx) {
   return "";
 }
 
+function wrapUnbrokenLabelToLines(label, maxWidthPx, maxLines = 2) {
+  const text = (label || "").toString();
+  if (maxLines < 2 || text.length < 4) return [fitLabelToWidth(text, maxWidthPx)];
+
+  const candidates = [];
+  for (let index = 2; index <= text.length - 2; index += 1) {
+    const prefix = text.slice(0, index);
+    const firstLine = prefix.endsWith("-") ? prefix : `${prefix}-`;
+    const secondLine = text.slice(index);
+    const firstWidth = measureLabelWidth(firstLine);
+    const secondWidth = measureLabelWidth(secondLine);
+    if (firstWidth > maxWidthPx || secondWidth > maxWidthPx) continue;
+    candidates.push({
+      lines: [firstLine, secondLine],
+      naturalBreak: prefix.endsWith("-"),
+      balance: Math.abs(firstWidth - secondWidth),
+    });
+  }
+
+  const best = candidates.sort((a, b) => {
+    if (a.naturalBreak !== b.naturalBreak) return a.naturalBreak ? -1 : 1;
+    return a.balance - b.balance;
+  })[0];
+  if (best) return best.lines;
+
+  const splitIndex = Math.ceil(text.length / 2);
+  return [
+    fitLabelToWidth(`${text.slice(0, splitIndex)}-`, maxWidthPx),
+    fitLabelToWidth(text.slice(splitIndex), maxWidthPx),
+  ];
+}
+
 function wrapLabelToLines(label, maxWidthPx, maxLines = 2) {
   const rawText = (label || "").toString().trim();
   if (!rawText) return [""];
-  if (measureLabelWidth(rawText) <= maxWidthPx) return [rawText];
-
   const words = rawText.split(/\s+/).filter(Boolean);
+  const forceUnbrokenWrap =
+    words.length === 1 && rawText.length > GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT && maxLines > 1;
+  if (!forceUnbrokenWrap && measureLabelWidth(rawText) <= maxWidthPx) return [rawText];
+
   if (words.length === 1) {
-    return [fitLabelToWidth(rawText, maxWidthPx)];
+    return wrapUnbrokenLabelToLines(rawText, maxWidthPx, maxLines);
   }
 
   const lines = [];
@@ -1627,6 +1950,23 @@ function publicationTypeFacetLabel(claim) {
   if (/dissertation|thesis/.test(normalized)) return "Dissertation";
   if (/journal article|journalarticle|article/.test(normalized)) return "Journal article";
   return displayFieldLabel(raw);
+}
+
+function reviewDesignFacetLabel(claim) {
+  return controlledCategoryLabel(claim.review_design_category, REVIEW_DESIGN_LABELS);
+}
+
+function reviewContributionFacetLabel(claim) {
+  return controlledCategoryLabel(claim.review_contribution_type, REVIEW_CONTRIBUTION_LABELS);
+}
+
+function reviewEvidenceStratumFacetLabel(claim) {
+  if (["", "not_applicable", "not applicable"].includes(normalizeValue(claim.evidence_level))) return "";
+  return controlledCategoryLabel(claim.evidence_level, REVIEW_EVIDENCE_STRATUM_LABELS);
+}
+
+function reviewRelationshipTypeFacetLabel(claim) {
+  return controlledCategoryLabel(claim.coverage_type, REVIEW_RELATIONSHIP_TYPE_LABELS);
 }
 
 function openAccessFacetLabel(claim) {
@@ -2166,8 +2506,12 @@ const PUBLIC_HEALTH_TOPIC_ORDER = [
   "Access & equity",
   "Implementation & acceptability",
   "Economic & resource impacts",
+  "Ethics & governance",
+  "Commercialization & public communication",
+  "Environmental sustainability",
   "Policy & legal outcomes",
-  "Other real-world outcome",
+  "Research landscape",
+  "Other real-world topics",
 ];
 const PUBLIC_HEALTH_CONTEXT_ORDER = [
   "Microdosing",
@@ -2203,7 +2547,7 @@ function publicHealthTopicFacetLabel(claim) {
   const canonical = PUBLIC_HEALTH_TOPIC_ORDER.find(
     (label) => normalizeValue(label) === normalizeValue(graphLabel)
   );
-  return canonical || "Other real-world outcome";
+  return canonical || "Other real-world topics";
 }
 
 function publicHealthUseContextFacetLabels(claim) {
@@ -2942,6 +3286,8 @@ function setDetailHeader(title) {
 }
 
 function renderDetailEmpty() {
+  activeDetailItems = [];
+  activeDetailAllAccessItems = [];
   detailBody.innerHTML = '<div class="detail-empty">No selection yet.</div>';
 }
 
@@ -3239,23 +3585,14 @@ function normalizedKgClaims() {
 
 function loadedHeroStats() {
   const totalClaims = normalizedKgClaims();
+  const primaryClaims = totalClaims.filter((claim) => !isSecondaryLiteratureClaim(claim));
+  const metaAnalysisClaims = totalClaims.filter(isMetaAnalysisClaim);
+  const reviewClaims = totalClaims.filter(isReviewLiteratureClaim);
   return {
-    compounds: unique(totalClaims.map((claim) => compoundGraphLabelForClaim(claim)).filter(Boolean)).length,
-    conditions: unique(
-      totalClaims
-        .filter((claim) => !isHiddenMainGraphItem(claim))
-        .filter((claim) => entityKindForClaim(claim) === "condition_indication")
-        .map((claim) => graphRightLabelForClaim(claim))
-        .filter(Boolean)
-    ).length,
-    targets: unique(
-      totalClaims
-        .filter((claim) => !isHiddenMainGraphItem(claim))
-        .filter((claim) => entityKindForClaim(claim) === "target")
-        .map((claim) => graphRightLabelForClaim(claim))
-        .filter(Boolean)
-    ).length,
-    studies: uniqueStudyCount(totalClaims),
+    primaryStudies: uniqueStudyCount(primaryClaims),
+    reviews: uniqueStudyCount(reviewClaims),
+    metaAnalyses: uniqueStudyCount(metaAnalysisClaims),
+    totalPapers: uniqueStudyCount(totalClaims),
   };
 }
 
@@ -3266,24 +3603,53 @@ function statNumber(value) {
 }
 
 function heroStatsFromGraphManifest(manifest) {
-  const summary =
-    manifest?.summary_stats?.sources?.primary ||
-    manifest?.summary_stats?.default ||
-    manifest?.summary_stats?.views?.primary_with_secondary ||
-    manifest?.summary_stats;
-  if (!summary || typeof summary !== "object") return null;
+  const summaryStats = manifest?.summary_stats;
+  const primarySummary =
+    summaryStats?.sources?.primary ||
+    summaryStats?.default ||
+    summaryStats?.views?.primary_with_secondary ||
+    summaryStats;
+  if (!primarySummary || typeof primarySummary !== "object") return null;
 
-  const coverage = summary.graph_study_coverage || {};
+  const paperCounts = summaryStats?.paper_counts || {};
+  const reviewSummary = summaryStats?.sources?.reviews || {};
+  const metaAnalysisSummary = summaryStats?.sources?.meta_analyses || {};
+  const awaitingCounts = paperCounts.awaiting_graph_inclusion || {};
+  const primaryCoverage = primarySummary.graph_study_coverage || {};
+  const reviewCoverage = reviewSummary.graph_study_coverage || {};
+  const metaAnalysisCoverage = metaAnalysisSummary.graph_study_coverage || {};
+  const primaryStudies = statNumber(
+    paperCounts.primary_studies ?? primarySummary.study_count ?? primarySummary.studies
+  );
+  const reviews = statNumber(paperCounts.reviews ?? reviewSummary.study_count ?? reviewSummary.studies);
+  const metaAnalyses = statNumber(
+    paperCounts.meta_analyses ?? metaAnalysisSummary.study_count ?? metaAnalysisSummary.studies
+  );
+  const primaryStudiesAwaiting = statNumber(
+    awaitingCounts.primary_studies ?? primaryCoverage.not_in_graph_count
+  );
+  const reviewsAwaiting = statNumber(awaitingCounts.reviews ?? reviewCoverage.not_in_graph_count);
+  const metaAnalysesAwaiting = statNumber(
+    awaitingCounts.meta_analyses ?? metaAnalysisCoverage.not_in_graph_count
+  );
   const values = {
-    studies: statNumber(summary.study_count ?? summary.studies),
-    compounds: statNumber(summary.compound_count ?? summary.compounds),
-    conditions: statNumber(summary.condition_count ?? summary.conditions),
-    targets: statNumber(summary.target_count ?? summary.targets),
-    studyCandidates: statNumber(
-      coverage.candidate_count ?? summary.graph_candidate_study_count ?? summary.candidate_study_count
+    primaryStudies,
+    reviews,
+    metaAnalyses,
+    totalPapers: statNumber(
+      paperCounts.total ??
+        (primaryStudies !== null && reviews !== null && metaAnalyses !== null
+          ? primaryStudies + reviews + metaAnalyses
+          : summaryStats?.default?.study_count)
     ),
-    studiesNotInGraph: statNumber(
-      coverage.not_in_graph_count ?? summary.graph_excluded_study_count ?? summary.studies_not_in_graph_count
+    primaryStudiesAwaiting,
+    reviewsAwaiting,
+    metaAnalysesAwaiting,
+    totalPapersAwaiting: statNumber(
+      awaitingCounts.total ??
+        (primaryStudiesAwaiting !== null && reviewsAwaiting !== null && metaAnalysesAwaiting !== null
+          ? primaryStudiesAwaiting + reviewsAwaiting + metaAnalysesAwaiting
+          : summaryStats?.default?.graph_study_coverage?.not_in_graph_count)
     ),
   };
   return HERO_STAT_KEYS.some((key) => values[key] !== null) ? values : null;
@@ -3296,8 +3662,10 @@ function completeHeroStats(values) {
     acc[key] = values?.[key] ?? fallback[key] ?? 0;
     return acc;
   }, {});
-  completed.studyCandidates = values?.studyCandidates ?? null;
-  completed.studiesNotInGraph = values?.studiesNotInGraph ?? null;
+  completed.primaryStudiesAwaiting = values?.primaryStudiesAwaiting ?? null;
+  completed.reviewsAwaiting = values?.reviewsAwaiting ?? null;
+  completed.metaAnalysesAwaiting = values?.metaAnalysesAwaiting ?? null;
+  completed.totalPapersAwaiting = values?.totalPapersAwaiting ?? null;
   return completed;
 }
 
@@ -3305,50 +3673,45 @@ function setHeroStatValues(values) {
   const completeValues = completeHeroStats(values);
   HERO_STAT_KEYS.forEach((key) => {
     if (!stats[key]) return;
-    if (key === "studies" && completeValues.studyCandidates !== null) {
-      stats[key].textContent = `${formatCompactNumber(completeValues.studies)} / ${formatCompactNumber(
-        completeValues.studyCandidates
-      )}`;
-      return;
-    }
     stats[key].textContent = formatCompactNumber(completeValues[key]);
   });
-  const studiesDetail = statDetails.studies;
-  if (studiesDetail) {
-    const notInGraph = completeValues.studiesNotInGraph;
-    studiesDetail.textContent = notInGraph !== null ? `${formatCompactNumber(notInGraph)} not in graph` : "";
-  }
-  if (studiesStatCard) {
-    const included = formatCompactNumber(completeValues.studies);
-    const candidates =
-      completeValues.studyCandidates !== null ? ` of ${formatCompactNumber(completeValues.studyCandidates)} candidate studies` : "";
-    const missing =
-      completeValues.studiesNotInGraph !== null ? `; ${formatCompactNumber(completeValues.studiesNotInGraph)} not in graph` : "";
-    studiesStatCard.setAttribute("aria-label", `Open study bibliography. ${included}${candidates} in graph${missing}.`);
-    studiesStatCard.title = completeValues.studyCandidates !== null ? `${included}${candidates} in graph${missing}` : "";
-  }
+  const awaitingByKey = {
+    primaryStudies: completeValues.primaryStudiesAwaiting,
+    reviews: completeValues.reviewsAwaiting,
+    metaAnalyses: completeValues.metaAnalysesAwaiting,
+    totalPapers: completeValues.totalPapersAwaiting,
+  };
+  HERO_STAT_KEYS.forEach((key) => {
+    const detail = statDetails[key];
+    const awaiting = awaitingByKey[key];
+    if (detail) {
+      detail.textContent = awaiting !== null ? `${formatCompactNumber(awaiting)} awaiting graph inclusion` : "";
+    }
+  });
 }
 
 function updateStats() {
-  const rightLabelEl = stats.conditions?.previousElementSibling;
-  const targetLabelEl = stats.targets?.previousElementSibling;
-  if (rightLabelEl) rightLabelEl.textContent = "Conditions";
-  if (targetLabelEl) targetLabelEl.textContent = "Targets";
-
   setHeroStatValues(heroStatsSnapshot);
 }
 
-function applyFilters() {
-  return applyFiltersToClaims(activeClaimsForMode());
+function setAccessView(nextView) {
+  if (!new Set(["all", "open"]).has(nextView) || accessView === nextView) return;
+  accessView = nextView;
+  clearDetailGraphFilter();
+  render();
 }
 
-function applyFiltersToClaims(activeClaims) {
-  const yearRange = activeYearRange(activeClaims);
-  const fullTextOnly = Boolean(fullTextOnlyToggle?.checked);
-  const searchValue = normalizeSearchText(searchInput?.value);
+function applyFilters(options = {}) {
+  return applyFiltersToClaims(activeClaimsForMode(), null, options);
+}
+
+function applyFiltersToClaims(activeClaims, yearRangeOverride = null, options = {}) {
+  const yearRange = yearRangeOverride || activeYearRange(activeClaims);
+  const openAccessOnly = !options.ignoreAccess && accessView === "open";
+  const searchValue = options.ignoreSearch ? "" : normalizeSearchText(searchInput?.value);
 
   const baseFiltered = activeClaims.filter((claim) => {
-    if (fullTextOnly && claimSourceAccessLevel(claim) !== "full_text_seen") {
+    if (openAccessOnly && !isOpenAccessClaim(claim)) {
       return false;
     }
 
@@ -3381,6 +3744,26 @@ function applyFiltersToClaims(activeClaims) {
     return detailFiltered.filter((claim) => claimMatchesGraphRight(claim, selected.name));
   }
   return detailFiltered;
+}
+
+function applyGlobalFindingSearchFilters(options = {}) {
+  const activeViewClaims = activeClaimsForMode();
+  const currentYearRange = activeYearRange(activeViewClaims);
+  return applyFiltersToClaims(
+    graphViewClaims(expandClaimsWithUseContextProjections(claims)),
+    currentYearRange,
+    options
+  );
+}
+
+function hasFindingSearchQuery() {
+  return Boolean(normalizeSearchText(searchInput?.value));
+}
+
+function findingCardResults(graphFiltered) {
+  if (!hasFindingSearchQuery()) return graphFiltered;
+  if (selected || detailGraphFilter) return applyFilters();
+  return applyGlobalFindingSearchFilters();
 }
 
 function selectionIsValid(data) {
@@ -3453,6 +3836,7 @@ function paperFindingContextListHtml(siblingClaims) {
 
 function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCount = 0) {
   const secondary = isSecondaryLiteratureClaim(claim);
+  const metaAnalysis = isMetaAnalysisClaim(claim);
   const badges = claimBadgeHtml(claim);
 
   const relation = claimRelationText(claim);
@@ -3478,8 +3862,29 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
   const paperFindingContext = paperFindingContextSummaryHtml(siblingCount);
   const referenceLine = studyReferenceHtml(claim, referenceClass);
 
+  const metaAnalysisEvidenceLines = metaAnalysis
+    ? [
+        claimFieldLineFromValue("Result role", metaAnalysisResultRoleFacetLabel(claim)),
+        claimFieldLineFromValue("Population", claim.population),
+        claimFieldLineFromValue("Comparator", claim.comparator_normalized || claim.comparator),
+        claimFieldLineFromValue("Time window", claim.follow_up_window_normalized || claim.follow_up_duration),
+        claimFieldLineFromValue("Estimate", compactUniqueParts([claim.effect_size, claim.p_value]).join(" · ")),
+        claimFieldLineFromValue(
+          "Included studies",
+          claim.meta_analysis_study_count || claim.meta_analysis_overall_study_count
+        ),
+        claimFieldLineFromValue(
+          "Heterogeneity",
+          compactUniqueParts([claim.heterogeneity_i_squared, claim.heterogeneity_tau_squared, claim.heterogeneity_interpretation]).join(" · ")
+        ),
+        claimFieldLineFromValue("Subgroup/moderator", claim.meta_analysis_subgroup_or_moderator),
+        claimFieldLineFromValue("Risk of bias", claim.risk_of_bias_summary),
+        claimFieldLineFromValue("Certainty", claim.evidence_strength),
+      ].join("")
+    : "";
+
   const evidenceLines = secondary
-    ? ""
+    ? metaAnalysisEvidenceLines
     : isRealWorldPublicHealthClaim(claim)
       ? [
           claimFieldLineFromValue("Topic", claim.public_health_graph_label || claim.graph_entity_label),
@@ -3525,8 +3930,8 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
         ${specificEntityLine}
         ${evidenceLines}
         ${secondary ? "" : claimFieldLineFromValue("Trial registry", claim.trial_registry_ids)}
-        ${paperFindingContext}
         ${referenceLine}
+        ${paperFindingContext}
       </div>
     `;
 }
@@ -3961,14 +4366,6 @@ function renderBibliography(data) {
   attachBibliographySentinelIfNeeded();
 }
 
-function focusBibliography() {
-  if (!bibliographyPanel) return;
-  loadBibliographyPayloadsInBackground();
-  bibliographyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-  bibliographyPanel.classList.add("focused");
-  setTimeout(() => bibliographyPanel.classList.remove("focused"), 700);
-}
-
 function summarizeConnections(items, key) {
   const map = new Map();
   items.forEach((item) => {
@@ -4320,7 +4717,7 @@ function uniqueStudyCount(items) {
 }
 
 function graphRecordCount(claim) {
-  if (claim?.__graph_bootstrap && fullTextOnlyToggle?.checked) {
+  if (claim?.__graph_bootstrap && accessView === "open") {
     const fullTextCount = Number(claim?.graph_full_text_claim_count);
     return Number.isFinite(fullTextCount) && fullTextCount > 0 ? fullTextCount : 1;
   }
@@ -4336,7 +4733,7 @@ function graphStudyCountForItems(items) {
   if (!items.some((claim) => claim?.__graph_bootstrap)) return uniqueStudyCount(items);
   return items.reduce((sum, claim) => {
     const count =
-      claim?.__graph_bootstrap && fullTextOnlyToggle?.checked
+      claim?.__graph_bootstrap && accessView === "open"
         ? Number(claim?.graph_full_text_study_count)
         : Number(claim?.graph_study_count ?? claim?.study_count);
     return sum + (Number.isFinite(count) && count > 0 ? count : graphRecordCount(claim));
@@ -4772,23 +5169,14 @@ function hasRegisteredTrial(items) {
   return items.some((claim) => trialRegistrationFacetLabel(claim) === "Registered trial");
 }
 
-function hasOpenAccess(items) {
-  return items.some((claim) => openAccessFacetLabel(claim) === "Open access");
-}
-
 function renderMetadataFacetCharts(items) {
   const profile = currentDetailPanelProfile();
-  const accessEntries = hasOpenAccess(items)
-    ? summarizeFacetEvidence(items, openAccessFacetLabel).filter((entry) => normalizeValue(entry.label) === "open access")
-    : [];
   const shouldShowTrialRegistration = evidenceView === "primary" && profile.trialRegistration && hasRegisteredTrial(items);
   const trialEntries = shouldShowTrialRegistration
     ? summarizeFacetEvidence(items, trialRegistrationFacetLabel).filter(
         (entry) => normalizeValue(entry.label) === "registered trial"
       )
     : [];
-  const showLiteratureTypes = isSecondaryEvidenceView();
-  const publicationEntries = showLiteratureTypes ? summarizeFacetEvidence(items, publicationTypeFacetLabel).slice(0, 8) : [];
   const trialRegistrationChart =
     trialEntries.length
       ? renderFacetChipChart(trialEntries, "Trial registration", "trial_registration_facet", {
@@ -4799,24 +5187,7 @@ function renderMetadataFacetCharts(items) {
       : "";
 
   return `
-    ${
-      accessEntries.length
-        ? renderFacetChipChart(accessEntries, "Access", "open_access_facet", {
-            order: ["Open access"],
-            extraClass: "chip-tone-teal",
-            emptyText: "No access metadata in this selection.",
-          })
-        : ""
-    }
     ${trialRegistrationChart}
-    ${
-      showLiteratureTypes
-        ? renderFacetChipChart(publicationEntries, "Literature types", "publication_type_facet", {
-            extraClass: "chip-tone-amber",
-            emptyText: "No literature-type metadata in this selection.",
-          })
-        : ""
-    }
     ${renderAuthorRoleChart(items)}
     ${renderJournalChart(items)}
   `;
@@ -4993,6 +5364,95 @@ function renderPublicHealthDataSourceChart(items) {
   });
 }
 
+function renderReviewContextCharts(items) {
+  if (!isReviewEvidenceView()) return "";
+  const designEntries = summarizeFacetEvidence(items, reviewDesignFacetLabel);
+  const contributionEntries = summarizeFacetEvidence(items, reviewContributionFacetLabel);
+  const evidenceEntries = summarizeFacetEvidence(items, reviewEvidenceStratumFacetLabel);
+  const relationshipEntries = summarizeFacetEvidence(items, reviewRelationshipTypeFacetLabel);
+
+  const chart = (entries, title, filterField, options = {}) =>
+    entries.length
+      ? renderFacetCompositionChart(entries, title, filterField, {
+          hideWhenEmpty: true,
+          maxEntries: options.maxEntries || 10,
+          aggregateOther: false,
+          palette: options.palette || CATEGORY_COLORS,
+        })
+      : "";
+
+  return `
+    ${chart(designEntries, "Review approaches", "review_design_facet")}
+    ${chart(contributionEntries, "Overall review focus", "review_contribution_facet", { maxEntries: 7 })}
+    ${chart(evidenceEntries, "Evidence base", "review_evidence_stratum_facet", { maxEntries: 5 })}
+    ${chart(relationshipEntries, "Relationship types", "review_relationship_type_facet", { maxEntries: 5 })}
+  `;
+}
+
+function isNetworkMetaAnalysisClaim(claim) {
+  return (
+    normalizeValue(claim.paper_type || claim.source_type).replace(/\s+/g, "_") === "network_meta_analysis" ||
+    /\bnetwork meta[- ]analysis\b/.test(normalizeValue(claim.publication_type || claim.study_design))
+  );
+}
+
+function metaAnalysisDesignFacetLabel(claim) {
+  const values = meaningfulText(claim.study_design)
+    .split(/\s*;\s*/)
+    .map((value) => normalizeValue(value).replace(/\s+/g, "_"))
+    .filter(Boolean);
+  if (isNetworkMetaAnalysisClaim(claim) || values.includes("network_meta_analysis")) {
+    return "Network meta-analysis";
+  }
+  const key = values.find((value) => META_ANALYSIS_DESIGN_LABELS[value]);
+  return key ? META_ANALYSIS_DESIGN_LABELS[key] : "Other quantitative synthesis";
+}
+
+function metaAnalysisResultRoleFacetLabel(claim) {
+  const key = normalizeValue(claim.meta_analysis_result_role).replace(/\s+/g, "_");
+  return META_ANALYSIS_RESULT_ROLE_LABELS[key] || "Other analysis";
+}
+
+function metaAnalysisStudyCountFacetLabel(claim) {
+  const value = claim.meta_analysis_overall_study_count || claim.meta_analysis_study_count;
+  const count = parseSampleSize(value);
+  if (count === null) return "";
+  return META_ANALYSIS_STUDY_COUNT_BINS.find((bin) => count >= bin.min && count <= bin.max)?.label || "";
+}
+
+function renderMetaAnalysisContextCharts(items) {
+  if (evidenceView !== "meta_analyses") return "";
+  const chart = (entries, title, filterField, options = {}) =>
+    entries.length
+      ? renderFacetCompositionChart(entries, title, filterField, {
+          hideWhenEmpty: true,
+          maxEntries: options.maxEntries || 12,
+          aggregateOther: false,
+          order: options.order || [],
+          palette: options.palette || CATEGORY_COLORS,
+        })
+      : "";
+
+  return `
+    ${chart(summarizeFacetEvidence(items, metaAnalysisDesignFacetLabel), "Synthesis designs", "meta_analysis_design_facet", {
+      order: META_ANALYSIS_DESIGN_ORDER,
+      palette: PALETTE_GOLD_FIRST,
+    })}
+    ${chart(summarizeFacetEvidence(items, clinicalComparatorFacetLabel), "Comparators", "comparator_facet", {
+      order: CLINICAL_COMPARATOR_ORDER,
+      palette: PALETTE_BLUE_FIRST,
+    })}
+    ${chart(summarizeFacetEvidence(items, clinicalFollowUpWindowFacetLabel), "Follow-up windows", "follow_up_window_facet", {
+      order: CLINICAL_FOLLOW_UP_WINDOW_ORDER,
+      palette: PALETTE_TEAL_FIRST,
+    })}
+    ${chart(summarizeFacetEvidence(items, metaAnalysisStudyCountFacetLabel), "Studies included", "meta_analysis_study_count_facet", {
+      order: META_ANALYSIS_STUDY_COUNT_BINS.map((bin) => bin.label),
+      palette: PALETTE_GOLD_FIRST,
+    })}
+  `;
+}
+
 function renderEvidenceCompositionFacetCharts(items) {
   if (evidenceView !== "primary") return "";
   const profile = currentDetailPanelProfile();
@@ -5157,10 +5617,7 @@ function sampleSizeStudyEntries(items) {
 
 function sampleYearBucketStep(minYear, maxYear) {
   const span = maxYear - minYear + 1;
-  if (span <= 18) return 1;
-  if (span <= 36) return 2;
-  if (span <= 80) return 5;
-  return 10;
+  return Math.max(1, Math.ceil(span / SAMPLE_YEAR_TARGET_BUCKET_COUNT));
 }
 
 function sampleYearBuckets(minYear, maxYear) {
@@ -5276,16 +5733,49 @@ function trendCardHtml(title, subtitle, body, extraClass = "") {
   `;
 }
 
+function accessSummaryLabels() {
+  if (evidenceView === "meta_analyses") {
+    return { all: "All meta-analyses", plural: "meta-analyses" };
+  }
+  if (isReviewEvidenceView()) {
+    return { all: "All reviews", plural: "reviews" };
+  }
+  return { all: "All studies", plural: "studies" };
+}
+
 function renderTrendStats(items, extraStats = []) {
-  const labels = recordLabelsForItems(items);
-  const stats = [
-    { label: labels.summary, value: formatCompactNumber(items.length) },
-    { label: "Studies", value: formatCompactNumber(uniqueStudyCount(items)) },
-    ...extraStats,
-  ];
+  const allItems = activeDetailAllAccessItems.length ? activeDetailAllAccessItems : items;
+  const allStudyCount = uniqueStudyCount(allItems);
+  const openAccessStudyCount = uniqueStudyCount(allItems.filter(isOpenAccessClaim));
+  const openAccessPercent = allStudyCount ? Math.round((openAccessStudyCount / allStudyCount) * 100) : 0;
+  const labels = accessSummaryLabels();
+  const stats = extraStats;
 
   return `
     <div class="trend-summary-grid">
+      <button
+        class="trend-stat trend-stat-access ${accessView === "all" ? "active" : ""}"
+        type="button"
+        data-access-view="all"
+        aria-pressed="${accessView === "all" ? "true" : "false"}"
+        aria-label="Show all ${escapeHtml(labels.plural)}. ${formatCompactNumber(allStudyCount)} available."
+      >
+        <span>${escapeHtml(labels.all)}</span>
+        <strong>${formatCompactNumber(allStudyCount)}</strong>
+      </button>
+      <button
+        class="trend-stat trend-stat-access ${accessView === "open" ? "active" : ""}"
+        type="button"
+        data-access-view="open"
+        aria-pressed="${accessView === "open" ? "true" : "false"}"
+        aria-label="Show open access ${escapeHtml(labels.plural)}. ${formatCompactNumber(
+          openAccessStudyCount
+        )}, ${openAccessPercent}% of ${escapeHtml(labels.plural)}."
+      >
+        <span>Open access</span>
+        <strong>${formatCompactNumber(openAccessStudyCount)}</strong>
+        <small>${openAccessPercent}% of ${escapeHtml(labels.plural)}</small>
+      </button>
       ${stats
         .map(
           (stat) => `
@@ -5554,6 +6044,8 @@ function renderEvidenceDetailGroup(items) {
     ${renderSampleSizeHeatmap(items)}
     ${renderEvidenceCompositionFacetCharts(items)}
     ${renderOutcomeMeasureChart(items)}
+    ${renderReviewContextCharts(items)}
+    ${renderMetaAnalysisContextCharts(items)}
   `;
 }
 
@@ -5620,29 +6112,29 @@ function horizontalBarTooltipHtml(target) {
   `;
 }
 
-function claimsForStudyKey(studyKeyValue) {
-  return activeDetailItems.filter((claim, index) => studyKey(claim, index) === studyKeyValue);
+function claimsForStudyKey(studyKeyValue, items = activeDetailItems) {
+  return items.filter((claim, index) => studyKey(claim, index) === studyKeyValue);
 }
 
-function claimsForFieldValue(field, value) {
+function claimsForFieldValue(field, value, items = activeDetailItems) {
   if (!field || !value) return [];
   const normalizedValue = normalizeValue(value);
   if (field === "author_role") {
     const labelValue = authorRoleLabelFromFilterValue(value);
     if (labelValue) {
-      return activeDetailItems.filter((claim) =>
+      return items.filter((claim) =>
         ["first", "last"].some((role) => authorRoleLabelKey(authorRoleIdentity(claim, role).name) === labelValue)
       );
     }
-    const authorAliases = buildAuthorRoleAliasMap(activeDetailItems);
-    return activeDetailItems.filter((claim) =>
+    const authorAliases = buildAuthorRoleAliasMap(items);
+    return items.filter((claim) =>
       ["first", "last"].some((role) => {
         const author = authorFacetValueForRole(claim, role, authorAliases);
         return normalizeValue(author.value) === normalizedValue || normalizeValue(author.label) === normalizedValue;
       })
     );
   }
-  return activeDetailItems.filter((claim) => {
+  return items.filter((claim) => {
     const value = fieldValueForClaim(claim, field);
     if (Array.isArray(value)) return value.some((item) => normalizeValue(item) === normalizedValue);
     return normalizeValue(value) === normalizedValue;
@@ -5657,7 +6149,6 @@ function fieldValueDetailTitle(field, value) {
   if (field === "last_author") return `Last author: ${value}`;
   if (field === "study_journal") return `Journal: ${value}`;
   if (field === "specific_pathway_readout") return `Specific finding: ${value}`;
-  if (field === "open_access_facet") return `Access: ${value}`;
   if (field === "trial_registration_facet") return `Trial registration: ${value}`;
   if (field === "population_model_facet") return `Population: ${value}`;
   if (field === "assay_family_facet") return `Assay family: ${value}`;
@@ -5672,11 +6163,16 @@ function fieldValueDetailTitle(field, value) {
   if (field === "public_health_context_facet") return `Use context: ${value}`;
   if (field === "public_health_data_source_facet") return `Data source: ${value}`;
   if (field === "publication_type_facet") return `Publication type: ${value}`;
+  if (field === "review_design_facet") return `Review approach: ${value}`;
+  if (field === "review_contribution_facet") return `Overall review focus: ${value}`;
+  if (field === "review_evidence_stratum_facet") return `Evidence base: ${value}`;
+  if (field === "review_relationship_type_facet") return `Relationship type: ${value}`;
+  if (field === "meta_analysis_design_facet") return `Synthesis design: ${value}`;
+  if (field === "meta_analysis_study_count_facet") return `Studies included: ${value}`;
   return `${displayFieldLabel(field)}: ${value}`;
 }
 
 function fieldValueForClaim(claim, field) {
-  if (field === "open_access_facet") return openAccessFacetLabel(claim);
   if (field === "trial_registration_facet") return trialRegistrationFacetLabel(claim);
   if (field === "population_model_facet") return populationModelFacetLabel(claim);
   if (field === "assay_family_facet") return mechanisticAssayFamilyFacetLabel(claim);
@@ -5691,6 +6187,12 @@ function fieldValueForClaim(claim, field) {
   if (field === "public_health_context_facet") return publicHealthUseContextFacetLabels(claim);
   if (field === "public_health_data_source_facet") return publicHealthDataSourceFacetLabel(claim);
   if (field === "publication_type_facet") return publicationTypeFacetLabel(claim);
+  if (field === "review_design_facet") return reviewDesignFacetLabel(claim);
+  if (field === "review_contribution_facet") return reviewContributionFacetLabel(claim);
+  if (field === "review_evidence_stratum_facet") return reviewEvidenceStratumFacetLabel(claim);
+  if (field === "review_relationship_type_facet") return reviewRelationshipTypeFacetLabel(claim);
+  if (field === "meta_analysis_design_facet") return metaAnalysisDesignFacetLabel(claim);
+  if (field === "meta_analysis_study_count_facet") return metaAnalysisStudyCountFacetLabel(claim);
   if (field === "specific_pathway_readout") return specificPathwayReadoutLabel(claim);
   if (field === "first_author") return authorRoleIdentity(claim, "first").id || firstAuthorName(claim);
   if (field === "last_author") return authorRoleIdentity(claim, "last").id || lastAuthorName(claim);
@@ -5698,17 +6200,17 @@ function fieldValueForClaim(claim, field) {
   return cleanDisplayText(claim[field]);
 }
 
-function claimsForPublicationYearRange(startValue, endValue) {
+function claimsForPublicationYearRange(startValue, endValue, items = activeDetailItems) {
   const start = Number(startValue);
   const end = Number(endValue || startValue);
   if (!Number.isFinite(start) || !Number.isFinite(end)) return [];
-  return activeDetailItems.filter((claim) => {
+  return items.filter((claim) => {
     const year = parseYearValue(claim.study_year);
     return year !== null && year >= start && year <= end;
   });
 }
 
-function claimsForSampleHeatmapCell(startValue, endValue, minValue, maxValue) {
+function claimsForSampleHeatmapCell(startValue, endValue, minValue, maxValue, items = activeDetailItems) {
   const start = Number(startValue);
   const end = Number(endValue || startValue);
   const min = Number(minValue);
@@ -5717,7 +6219,7 @@ function claimsForSampleHeatmapCell(startValue, endValue, minValue, maxValue) {
   if (!Number.isFinite(start) || !Number.isFinite(end) || !Number.isFinite(min)) return [];
 
   const matchingStudies = new Set();
-  activeDetailItems.forEach((claim, index) => {
+  items.forEach((claim, index) => {
     const year = parseYearValue(claim.study_year);
     const sampleSize = parseSampleSize(sampleSizeText(claim));
     if (year === null || sampleSize === null) return;
@@ -5725,33 +6227,39 @@ function claimsForSampleHeatmapCell(startValue, endValue, minValue, maxValue) {
     matchingStudies.add(studyKey(claim, index));
   });
   if (!matchingStudies.size) return [];
-  return activeDetailItems.filter((claim, index) => matchingStudies.has(studyKey(claim, index)));
+  return items.filter((claim, index) => matchingStudies.has(studyKey(claim, index)));
 }
 
-function claimsForOutcomeScale(scaleValue) {
+function claimsForOutcomeScale(scaleValue, items = activeDetailItems, options = {}) {
   const scaleKey = normalizeValue(scaleValue);
   if (!scaleKey) return [];
-  return outcomeScaleClaimsForChart(activeDetailItems).filter((claim) =>
+  return outcomeScaleClaimsForChart(items, options).filter((claim) =>
     outcomeScaleLabelsForClaim(claim).some((scale) => normalizeValue(scale) === scaleKey)
   );
 }
 
 function restoreCurrentDetailPanel() {
   clearDetailGraphFilter();
-  const filtered = applyFilters();
+  const filtered = applyFilters({ ignoreSearch: true });
+  const allAccessFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
   refreshMainViews();
   if (selected) {
-    renderSelectedDetailFromData(filtered);
+    renderSelectedDetailFromData(filtered, allAccessFiltered);
     return;
   }
-  renderOverviewDetail(filtered);
+  renderOverviewDetail(filtered, allAccessFiltered);
 }
 
 function renderStudyDetail(studyKeyValue) {
   const studyClaims = claimsForStudyKey(studyKeyValue);
   if (!studyClaims.length) return;
+  const allAccessStudyClaims = claimsForStudyKey(
+    studyKeyValue,
+    activeDetailAllAccessItems.length ? activeDetailAllAccessItems : activeDetailItems
+  );
 
   activeDetailItems = studyClaims;
+  activeDetailAllAccessItems = allAccessStudyClaims;
   setDetailGraphFilter(studyClaims);
   const firstClaim = studyClaims[0];
   const rightKey = rightEntityKey();
@@ -5802,8 +6310,14 @@ function renderStudyDetail(studyKeyValue) {
 function renderFieldValueDetail(field, value, labelValue = value) {
   const fieldClaims = claimsForFieldValue(field, value);
   if (!fieldClaims.length) return;
+  const allAccessFieldClaims = claimsForFieldValue(
+    field,
+    value,
+    activeDetailAllAccessItems.length ? activeDetailAllAccessItems : activeDetailItems
+  );
 
   activeDetailItems = fieldClaims;
+  activeDetailAllAccessItems = allAccessFieldClaims;
   setDetailGraphFilter(fieldClaims);
   setDetailHeader(fieldValueDetailTitle(field, labelValue));
   detailBody.innerHTML = `
@@ -5822,8 +6336,14 @@ function renderFieldValueDetail(field, value, labelValue = value) {
 function renderPublicationYearDetail(startValue, endValue, labelValue) {
   const yearClaims = claimsForPublicationYearRange(startValue, endValue);
   if (!yearClaims.length) return;
+  const allAccessYearClaims = claimsForPublicationYearRange(
+    startValue,
+    endValue,
+    activeDetailAllAccessItems.length ? activeDetailAllAccessItems : activeDetailItems
+  );
 
   activeDetailItems = yearClaims;
+  activeDetailAllAccessItems = allAccessYearClaims;
   setDetailGraphFilter(yearClaims);
   setDetailHeader(`Publications: ${labelValue}`);
   detailBody.innerHTML = `
@@ -5841,8 +6361,16 @@ function renderPublicationYearDetail(startValue, endValue, labelValue) {
 function renderSampleHeatmapDetail(startValue, endValue, minValue, maxValue, labelValue) {
   const sampleClaims = claimsForSampleHeatmapCell(startValue, endValue, minValue, maxValue);
   if (!sampleClaims.length) return;
+  const allAccessSampleClaims = claimsForSampleHeatmapCell(
+    startValue,
+    endValue,
+    minValue,
+    maxValue,
+    activeDetailAllAccessItems.length ? activeDetailAllAccessItems : activeDetailItems
+  );
 
   activeDetailItems = sampleClaims;
+  activeDetailAllAccessItems = allAccessSampleClaims;
   setDetailGraphFilter(sampleClaims);
   setDetailHeader(`Sample sizes: ${labelValue}`);
   detailBody.innerHTML = `
@@ -5860,16 +6388,31 @@ function renderSampleHeatmapDetail(startValue, endValue, minValue, maxValue, lab
 function renderOutcomeScaleDetail(scaleValue) {
   const scaleClaims = claimsForOutcomeScale(scaleValue);
   if (!scaleClaims.length) return;
+  const allAccessSourceItems = activeDetailAllAccessItems.length
+    ? activeDetailAllAccessItems
+    : applyFilters({ ignoreAccess: true, ignoreSearch: true });
+  const allAccessScaleClaims = claimsForOutcomeScale(scaleValue, allAccessSourceItems, { ignoreAccess: true });
 
   const scopeKeys = new Set(scaleClaims.map(evidenceScopeKey).filter(Boolean));
-  const sourceItems = activeDetailItems.length ? activeDetailItems : applyFilters();
+  const sourceItems = activeDetailItems.length ? activeDetailItems : applyFilters({ ignoreSearch: true });
   const scopedViewClaims =
     currentEntityViewKey() === "outcome_scale"
       ? scaleClaims
       : sourceItems.filter((claim) => !isOutcomeScaleClaim(claim) && scopeKeys.has(evidenceScopeKey(claim)));
   const detailClaims = scopedViewClaims.length ? scopedViewClaims : scaleClaims;
+  const allAccessScopeKeys = new Set(allAccessScaleClaims.map(evidenceScopeKey).filter(Boolean));
+  const allAccessScopedViewClaims =
+    currentEntityViewKey() === "outcome_scale"
+      ? allAccessScaleClaims
+      : allAccessSourceItems.filter(
+          (claim) => !isOutcomeScaleClaim(claim) && allAccessScopeKeys.has(evidenceScopeKey(claim))
+        );
+  const allAccessDetailClaims = allAccessScopedViewClaims.length
+    ? allAccessScopedViewClaims
+    : allAccessScaleClaims;
 
   activeDetailItems = detailClaims;
+  activeDetailAllAccessItems = allAccessDetailClaims;
   setDetailGraphFilter(detailClaims);
   setDetailHeader(`Outcome scale: ${scaleValue}`);
   detailBody.innerHTML = `
@@ -5884,9 +6427,10 @@ function renderOutcomeScaleDetail(scaleValue) {
   `;
 }
 
-function renderEdgeDetail(compound, target, edgeClaims) {
+function renderEdgeDetail(compound, target, edgeClaims, allAccessEdgeClaims = edgeClaims) {
   const studies = uniqueStudyCount(edgeClaims);
   activeDetailItems = edgeClaims;
+  activeDetailAllAccessItems = allAccessEdgeClaims;
   setDetailHeader(`${compound} → ${target}`);
 
   detailBody.innerHTML = `
@@ -5900,8 +6444,9 @@ function renderEdgeDetail(compound, target, edgeClaims) {
   `;
 }
 
-function renderNodeDetail(type, name, nodeClaims) {
+function renderNodeDetail(type, name, nodeClaims, allAccessNodeClaims = nodeClaims) {
   activeDetailItems = nodeClaims;
+  activeDetailAllAccessItems = allAccessNodeClaims;
   setDetailHeader(name);
 
   detailBody.innerHTML = `
@@ -5915,8 +6460,9 @@ function renderNodeDetail(type, name, nodeClaims) {
   `;
 }
 
-function renderOverviewDetail(data) {
+function renderOverviewDetail(data, allAccessData = data) {
   activeDetailItems = data;
+  activeDetailAllAccessItems = allAccessData;
   setDetailHeader(`All ${lowerRightEntityLabel(true)}`);
 
   if (!data.length) {
@@ -5934,28 +6480,35 @@ function renderOverviewDetail(data) {
   `;
 }
 
-function renderSelectedDetailFromData(data) {
+function renderSelectedDetailFromData(data, allAccessData = data) {
   if (!selected) return;
 
   if (selected.type === "edge") {
     const edgeClaims = data.filter((claim) => claimMatchesGraphEdge(claim, selected.compound, selected.target));
-    renderEdgeDetail(selected.compound, selected.target, edgeClaims);
+    const allAccessEdgeClaims = allAccessData.filter((claim) =>
+      claimMatchesGraphEdge(claim, selected.compound, selected.target)
+    );
+    renderEdgeDetail(selected.compound, selected.target, edgeClaims, allAccessEdgeClaims);
     return;
   }
 
   if (selected.type === "compound") {
     const nodeClaims = data.filter((claim) => claimMatchesGraphCompound(claim, selected.name));
-    renderNodeDetail("compound", selected.name, nodeClaims);
+    const allAccessNodeClaims = allAccessData.filter((claim) => claimMatchesGraphCompound(claim, selected.name));
+    renderNodeDetail("compound", selected.name, nodeClaims, allAccessNodeClaims);
     return;
   }
 
   if (selected.type === "target") {
     const nodeClaims = data.filter((claim) => claimMatchesGraphRight(claim, selected.name));
-    renderNodeDetail("target", selected.name, nodeClaims);
+    const allAccessNodeClaims = allAccessData.filter((claim) => claimMatchesGraphRight(claim, selected.name));
+    renderNodeDetail("target", selected.name, nodeClaims, allAccessNodeClaims);
   }
 }
 
-function findingsWithMultiStudyGraphNodes(data) {
+function findingsWithEligibleGraphNodes(data) {
+  if (evidenceView === "meta_analyses") return data;
+
   const subjectStudies = new Map();
   const entityStudies = new Map();
 
@@ -5979,13 +6532,35 @@ function findingsWithMultiStudyGraphNodes(data) {
   });
 }
 
+function graphRelationshipKeyForClaim(claim) {
+  const compound = compoundGraphLabelForClaim(claim);
+  const right = graphRightLabelForClaim(claim);
+  return compound && right ? `${compound}|${right}` : "";
+}
+
+function fullViewRelationshipKeys() {
+  let fullViewClaims = activeClaimsForMode();
+  if (accessView === "open") {
+    fullViewClaims = fullViewClaims.filter(isOpenAccessClaim);
+  }
+  return new Set(
+    findingsWithEligibleGraphNodes(expandClaimsForGraph(fullViewClaims))
+      .map(graphRelationshipKeyForClaim)
+      .filter(Boolean),
+  );
+}
+
 function buildGraph(data) {
   hideTooltip();
   graphEl.innerHTML = "";
 
   const graphHasDetailBootstrap = data.some((claim) => claim?.__detail_bootstrap);
   const graphIsAggregateBootstrap = data.some((claim) => claim?.__graph_bootstrap) && !graphHasDetailBootstrap;
-  const graphData = graphHasDetailBootstrap ? findingsWithMultiStudyGraphNodes(data) : data;
+  const allowedRelationships = graphHasDetailBootstrap ? fullViewRelationshipKeys() : null;
+  const expandedData = expandClaimsForGraph(data).filter(claimMatchesIsolatedGraphProjection);
+  const graphData = allowedRelationships
+    ? expandedData.filter((claim) => allowedRelationships.has(graphRelationshipKeyForClaim(claim)))
+    : expandedData;
   const rightKey = rightEntityKey();
   const compoundCounts = new Map();
   const rightCounts = new Map();
@@ -6044,12 +6619,13 @@ function buildGraph(data) {
     targets = targets.slice(0, maxMobileNodes);
   }
 
-  const longestLeftLabelPx = Math.max(80, ...compounds.map(estimateGraphLabelWidth));
-  const longestRightLabelPx = Math.max(80, ...targets.map(estimateGraphLabelWidth));
-  const baseSideMargin = clampNumber(Math.floor(width * 0.18), 110, 220);
-  let leftMargin = Math.max(baseSideMargin, longestLeftLabelPx + 28);
-  let rightMargin = Math.max(baseSideMargin, longestRightLabelPx + 28 + GRAPH_RIGHT_LABEL_GUTTER_PX);
-  const minCenterWidth = 120;
+  const baseSideMargin = clampNumber(Math.floor(width * 0.16), 96, 190);
+  let leftMargin = Math.max(baseSideMargin, GRAPH_LEFT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX);
+  let rightMargin = Math.max(
+    baseSideMargin,
+    GRAPH_RIGHT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX + GRAPH_RIGHT_LABEL_GUTTER_PX
+  );
+  const minCenterWidth = 48;
   const maxMarginBudget = Math.max(220, width - minCenterWidth);
   const combinedMargins = leftMargin + rightMargin;
   if (combinedMargins > maxMarginBudget) {
@@ -6073,10 +6649,13 @@ function buildGraph(data) {
   const compoundX = margin.left;
   const targetX = width - margin.right;
   const labelOffset = 22;
-  const labelMaxLines = compactGraph ? 1 : 2;
-  const leftLabelMaxWidth = Math.min(GRAPH_LABEL_MAX_WIDTH_PX, Math.max(20, compoundX - labelOffset - 10));
+  const labelMaxLines = 2;
+  const leftLabelMaxWidth = Math.min(
+    GRAPH_LEFT_LABEL_MAX_WIDTH_PX,
+    Math.max(20, compoundX - labelOffset - 10)
+  );
   const rightLabelMaxWidth = Math.min(
-    GRAPH_LABEL_MAX_WIDTH_PX,
+    GRAPH_RIGHT_LABEL_MAX_WIDTH_PX,
     Math.max(20, width - (targetX + labelOffset) - GRAPH_RIGHT_LABEL_GUTTER_PX - 10)
   );
 
@@ -6472,7 +7051,8 @@ function buildGraph(data) {
     rightNodeElements.set(target, { node, label });
 
     const nodeClaims = claimsByRight.get(target) || [];
-    const nodeTooltipHtml = `<strong>${target}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
+    const clarifier = conditionGraphClarifier(target);
+    const nodeTooltipHtml = `<strong>${target}</strong>${clarifier ? `<br/>${escapeHtml(clarifier)}` : ""}<br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
       summarizeConnections(nodeClaims, "compound").length
     }`;
     const enter = (event) => {
@@ -6529,37 +7109,41 @@ function buildGraph(data) {
 }
 
 function render() {
-  let filtered = applyFilters();
-  if (selected && !selectionIsValid(filtered)) {
+  let graphFiltered = applyFilters({ ignoreSearch: true });
+  let allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
+  if (selected && !selectionIsValid(graphFiltered)) {
     selected = null;
     isolateSelection = false;
     clearSelectedStyles();
-    filtered = applyFilters();
+    graphFiltered = applyFilters({ ignoreSearch: true });
+    allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
   }
+  const findingResults = findingCardResults(graphFiltered);
   if (detailGraphFilter) {
     // Keep the current right-panel drilldown visible while refreshing the graph.
   } else if (selected) {
-    renderSelectedDetailFromData(filtered);
+    renderSelectedDetailFromData(graphFiltered, allAccessGraphFiltered);
   } else {
-    renderOverviewDetail(filtered);
+    renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
   }
   updateStats();
-  renderCards(filtered);
-  buildGraph(filtered);
-  renderBibliography(filtered);
+  renderCards(findingResults);
+  buildGraph(graphFiltered);
+  renderBibliography(graphFiltered);
 }
 
 function refreshMainViews() {
-  const filtered = applyFilters();
-  if (selected && !selectionIsValid(filtered)) {
+  const graphFiltered = applyFilters({ ignoreSearch: true });
+  if (selected && !selectionIsValid(graphFiltered)) {
     selected = null;
     isolateSelection = false;
     clearSelectedStyles();
   }
+  const findingResults = findingCardResults(graphFiltered);
   updateStats();
-  renderCards(filtered);
-  buildGraph(filtered);
-  renderBibliography(filtered);
+  renderCards(findingResults);
+  buildGraph(graphFiltered);
+  renderBibliography(graphFiltered);
 }
 
 function scheduleRender() {
@@ -6600,7 +7184,7 @@ function centerGraphInViewport() {
 
 function updateSearchPlaceholder() {
   if (!searchInput) return;
-  searchInput.placeholder = `Search compounds, ${lowerRightEntityLabel(true)}, findings, methods, or papers`;
+  searchInput.placeholder = `Search finding cards by keyword, compound, ${lowerRightEntityLabel(false)}, method, or paper`;
 }
 
 function updateEntityKindToggle() {
@@ -6615,7 +7199,9 @@ function updateEntityKindToggle() {
   entityKindToggle.innerHTML = ENTITY_CATEGORY_OPTIONS
     .map((option) => {
       const isActive = option.key === currentEntityViewKey();
-      const count = graphViewClaims(claims).filter((claim) => claimMatchesEntityViewOption(claim, option)).length;
+      const count = graphViewClaims(expandClaimsWithUseContextProjections(claims)).filter((claim) =>
+        claimMatchesEntityViewOption(claim, option)
+      ).length;
       return `
         <button
           class="ghost small ${isActive ? "active" : ""}"
@@ -6645,8 +7231,6 @@ function updateModeUI() {
   });
   updateEntityKindToggle();
   updateSearchPlaceholder();
-  if (fullTextOnlyToggle) fullTextOnlyToggle.disabled = false;
-  fullTextOnlyToggle?.closest(".access-toggle")?.classList.remove("disabled");
 }
 
 function switchClaimLayer(nextLayer) {
@@ -6818,12 +7402,21 @@ function graphBootstrapClaimsFromPayload(payload, sourceKey) {
     const metaAnalysis = sourceKey === "meta_analyses";
     const item = {
       finding_id: `graph-bootstrap:${index}`,
+      projection_type: cleanDisplayText(edge.projection_type || "outcome"),
+      relation_type: cleanDisplayText(edge.relation_type),
+      kg_relation_type: cleanDisplayText(edge.relation_type),
       compound: cleanDisplayText(edge.compound),
+      compound_aliases: Array.isArray(edge.compound_aliases)
+        ? edge.compound_aliases.map(cleanDisplayText).filter(Boolean)
+        : [],
       graph_overview_subject_label: cleanDisplayText(edge.compound),
       graph_overview_subject_kind: cleanDisplayText(edge.graph_subject_kind),
       graph_subject_kind: cleanDisplayText(edge.graph_subject_kind),
       entity_label: entityLabel,
       graph_entity_label: entityLabel,
+      use_context_aliases: Array.isArray(edge.entity_aliases)
+        ? edge.entity_aliases.map(cleanDisplayText).filter(Boolean)
+        : [],
       graph_parent_label: cleanDisplayText(edge.graph_parent_label),
       graph_parent_kind: cleanDisplayText(edge.graph_parent_kind),
       graph_parent_entity_id: cleanDisplayText(edge.graph_parent_entity_id),
@@ -7029,6 +7622,24 @@ function waitForPaint() {
   });
 }
 
+function waitForInitialFonts() {
+  if (!document.fonts?.ready) return Promise.resolve();
+  return Promise.race([
+    document.fonts.ready.catch(() => {}),
+    new Promise((resolve) => window.setTimeout(resolve, 2200)),
+  ]);
+}
+
+function finishInitialBoot() {
+  if (document.documentElement.classList.contains("app-ready")) return;
+  if (window.__appBootFallback) {
+    window.clearTimeout(window.__appBootFallback);
+    window.__appBootFallback = 0;
+  }
+  document.documentElement.classList.remove("app-booting");
+  document.documentElement.classList.add("app-ready");
+}
+
 async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
   if (normalizedCurrentSourceLoaded()) return false;
   const sourceKey = currentSourceKey();
@@ -7042,16 +7653,21 @@ async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
   updateModeUI();
   const detailBootstrapItems = detailBootstrapClaims.length ? dedupeClaims(detailBootstrapClaims) : [];
   const detailClaims = detailBootstrapItems.length
-    ? graphViewClaims(claimsForEntityView(detailBootstrapItems))
+    ? graphViewClaims(claimsForEntityView(expandClaimsWithUseContextProjections(detailBootstrapItems)))
     : [];
-  const fallbackGraphClaims = bootstrapClaims.length ? graphViewClaims(claimsForEntityView(bootstrapClaims)) : [];
+  const fallbackGraphClaims = bootstrapClaims.length
+    ? graphViewClaims(claimsForEntityView(expandClaimsWithUseContextProjections(bootstrapClaims)))
+    : [];
   const graphClaims = detailClaims.length ? detailClaims : fallbackGraphClaims;
-  const filtered = graphClaims.length ? applyFiltersToClaims(graphClaims) : [];
+  const filtered = graphClaims.length ? applyFiltersToClaims(graphClaims, null, { ignoreSearch: true }) : [];
+  const allAccessFiltered = graphClaims.length
+    ? applyFiltersToClaims(graphClaims, null, { ignoreAccess: true, ignoreSearch: true })
+    : [];
 
   if (filtered.length) buildGraph(filtered);
   if (resetDetail) {
     if (filtered.length) {
-      renderOverviewDetail(filtered);
+      renderOverviewDetail(filtered, allAccessFiltered);
     } else {
       setDetailHeader(defaultDetail.title);
       renderDetailEmpty();
@@ -7156,9 +7772,14 @@ function preloadLikelyNextData() {
 }
 
 async function init() {
-  await loadGraphManifestStats();
-  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
-  preloadLikelyNextData();
+  try {
+    await loadGraphManifestStats();
+    await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
+    await Promise.all([waitForPaint(), waitForInitialFonts()]);
+    preloadLikelyNextData();
+  } finally {
+    await finishInitialBoot();
+  }
 }
 
 if (yearMinFilter) {
@@ -7184,28 +7805,21 @@ if (yearStepButtons.length) {
 }
 if (searchInput) {
   searchInput.addEventListener("input", () => {
-    clearDetailGraphFilter();
     scheduleRender();
   });
 }
 if (bibliographySearchInput) {
   bibliographySearchInput.addEventListener("input", () => {
-    renderBibliography(applyFilters());
-  });
-}
-if (fullTextOnlyToggle) {
-  fullTextOnlyToggle.addEventListener("change", scheduleRender);
-}
-if (studiesStatCard) {
-  studiesStatCard.addEventListener("click", focusBibliography);
-  studiesStatCard.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      focusBibliography();
-    }
+    renderBibliography(applyFilters({ ignoreSearch: true }));
   });
 }
 if (detailBody) {
+  detailBody.addEventListener("click", (event) => {
+    const accessCard = event.target.closest?.("[data-access-view]");
+    if (!accessCard || !detailBody.contains(accessCard)) return;
+    event.preventDefault();
+    setAccessView(accessCard.dataset.accessView || "");
+  });
   detailBody.addEventListener("mouseover", (event) => {
     const target = event.target.closest?.(".sample-heatmap-target");
     if (!target || !detailBody.contains(target)) return;

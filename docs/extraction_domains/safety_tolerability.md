@@ -15,13 +15,16 @@ For `safety_category`, prefer a stable family-level category when the text
 supports one. Keep the concrete paper wording in `safety_event_or_measure`.
 Useful category families include cardiovascular safety, respiratory safety,
 serious adverse events, discontinuation due to adverse events, suicidality,
-mania switch, psychosis/psychotomimetic symptoms, anxiety/panic adverse effects,
+mania or hypomania risk, induced or worsened psychosis, anxiety/panic,
 dissociation, flashbacks/HPPD, seizure/convulsion, serotonin syndrome,
 nausea/vomiting, headache, sedation/cognitive or motor impairment, sleep
 disturbance, urinary toxicity, hepatic toxicity, renal/muscle toxicity,
 neurotoxicity/cytotoxicity, weight/metabolic safety, abuse/dependence liability,
 and general tolerability/adverse events. Use the general category only when the
 text does not identify a more specific event, organ system, or risk family.
+
+Treat transient psychotomimetic effects as cognitive evidence. Keep actual
+induction, exacerbation, or persistence of psychosis in safety.
 
 The concrete event is the specific graph anchor and the stable family is its
 parent category. When one central finding reports several clinically meaningful

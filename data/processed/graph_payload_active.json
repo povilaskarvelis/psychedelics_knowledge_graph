@@ -1,16 +1,16 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
   "active_graph_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/review_relationships_v2_main_20260712/graph_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_bootstrap_reviews.json"
   },
   "active_detail_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/review_relationships_v2_main_20260712/detail_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/detail_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/detail_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/detail_bootstrap_reviews.json"
   },
-  "active_manifest": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_payload_manifest.json",
+  "active_manifest": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_payload_manifest.json",
   "evidence_source": "kg_tables",
-  "kg_dir": "data/processed/kg_routed_runs/source_identity_repair_20260710_primary_refresh"
+  "kg_dir": "data/processed/kg_routed_runs/meta_analysis_v2_complete_normalized_20260712"
 }

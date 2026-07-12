@@ -119,7 +119,9 @@ that are not part of its purpose.
 - **Cognitive, behavioral, and subjective effects:** Preserve the construct,
   behavior, or experience; how it was assessed; its context; and whether it is
   an acute effect, longer-term change, predictor, mediator, or correlate when
-  the abstract distinguishes these roles.
+  the abstract distinguishes these roles. Treat transient psychotomimetic effects
+  as cognitive or behavioral effects. Treat induced, exacerbated, or persistent
+  psychosis as a safety relationship.
 
 - **Treatment and delivery context:** Preserve psychotherapy, preparation,
   integration, setting, therapeutic support, co-interventions, and treatment

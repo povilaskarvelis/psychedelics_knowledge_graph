@@ -168,7 +168,7 @@
         },
         "graph_construct_label": {
           "type": "string",
-          "description": "Clean user-facing cognition or behavior construct for the graph node. Use the most specific supported construct: for example verbal memory rather than memory, reversal learning rather than cognitive flexibility, anhedonia rather than reward processing, craving or drug reinstatement rather than drug seeking, anxiety-like behavior rather than threat avoidance, and avoidance learning for active/passive avoidance memory tasks. Use a broad label only when the paper does not support a more specific subtype. Do not use raw assay names, generic locomotor labels, neural readouts, clinical symptoms, or molecular pathways as graph construct labels."
+          "description": "Clean user-facing cognition or behavior construct for the graph node. Use the most specific supported construct: for example verbal memory rather than memory, reversal learning rather than cognitive flexibility, anhedonia rather than reward processing, craving or drug reinstatement rather than drug seeking, anxiety-like behavior rather than threat avoidance, avoidance learning for active/passive avoidance memory tasks, and Psychotomimetic effects for transient drug-induced experiences that resemble psychosis. Use a broad label only when the paper does not support a more specific subtype. Do not use raw assay names, generic locomotor labels, neural readouts, clinical symptoms, or molecular pathways as graph construct labels."
         },
         "construct_family": {
           "type": "string",

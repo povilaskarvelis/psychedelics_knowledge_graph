@@ -11,6 +11,8 @@ Prioritize:
   episodic memory, reversal learning or set shifting, anhedonia or reward
   responsiveness, craving or drug reinstatement, anxiety-like behavior,
   avoidance learning, pain behavior, or social cognition
+- transient psychotomimetic effects, including drug-induced experiences that
+  resemble psychosis while remaining distinct from induced or worsened psychosis
 - species/population and experimental system
 - intervention/exposure, comparator, dose, and assessment timepoint
 - outcome metric, such as reaction time, accuracy, task score, false recall,

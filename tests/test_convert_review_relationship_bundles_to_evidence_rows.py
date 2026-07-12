@@ -1,4 +1,4 @@
-from pipeline.kg.convert_review_relationship_bundles_to_evidence_rows import convert_bundles, legacy_review_row
+from pipeline.kg.convert_review_relationship_bundles_to_evidence_rows import convert_bundles, legacy_review_row, review_row
 
 
 def test_converts_one_paper_centered_relationship_to_one_evidence_row() -> None:
@@ -70,3 +70,12 @@ def test_legacy_review_rows_are_identified_but_meta_analysis_is_preserved() -> N
         "source_item_type": "review_relationship", "paper_type": "review",
         "review_extraction_method": "paper_centered_one_pass_v2",
     })
+
+
+def test_all_review_rows_are_replaced_but_meta_analysis_is_preserved() -> None:
+    assert review_row({"source_item_type": "review_coverage_item", "paper_type": "review"})
+    assert review_row({
+        "source_item_type": "review_relationship", "paper_type": "review",
+        "review_extraction_method": "paper_centered_one_pass_v2",
+    })
+    assert not review_row({"source_item_type": "meta_analysis_item", "paper_type": "meta_analysis"})

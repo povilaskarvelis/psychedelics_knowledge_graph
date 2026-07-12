@@ -1,0 +1,598 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Meta-analysis evidence extraction model output",
+  "description": "Information extracted from the supplied meta-analysis.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "extraction_status",
+    "meta_analysis_overview",
+    "main_questions",
+    "synthesis_results",
+    "risk_of_bias_assessments",
+    "certainty_assessments",
+    "publication_bias_assessments",
+    "paper_conclusions",
+    "overall_limitations",
+    "warnings"
+  ],
+  "properties": {
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "extracted",
+        "no_extractable_synthesis_result",
+        "wrong_source_type",
+        "human_review",
+        "not_relevant"
+      ],
+      "description": "Outcome of extracting quantitative synthesis evidence from the supplied paper."
+    },
+    "meta_analysis_overview": {"$ref": "#/definitions/meta_analysis_overview"},
+    "main_questions": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/main_question"},
+      "description": "Questions or comparisons that define the paper's purpose and principal analyses."
+    },
+    "synthesis_results": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/synthesis_result"},
+      "description": "Distinct quantitative synthesis results extracted from the paper."
+    },
+    "risk_of_bias_assessments": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/risk_of_bias_assessment"},
+      "description": "Risk-of-bias or study-quality assessments reported in the paper."
+    },
+    "certainty_assessments": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/certainty_assessment"},
+      "description": "Evidence-certainty assessments reported in the paper."
+    },
+    "publication_bias_assessments": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/publication_bias_assessment"},
+      "description": "Publication-bias or small-study-effect assessments reported in the paper."
+    },
+    "paper_conclusions": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/paper_conclusion"},
+      "description": "Principal conclusions stated in the paper."
+    },
+    "overall_limitations": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Reported limitations that qualify more than one extracted result."
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Source ambiguities or extraction problems that require attention."
+    }
+  },
+  "definitions": {
+    "meta_analysis_overview": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "synthesis_types": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/synthesis_type"},
+          "description": "Quantitative synthesis designs used in the paper."
+        },
+        "objective_and_scope": {
+          "type": "string",
+          "description": "What the paper set out to synthesize, compare, estimate, or test."
+        },
+        "review_question": {"$ref": "#/definitions/review_question"},
+        "primary_subjects": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Compounds, interventions, exposures, or research subjects central to the paper."
+        },
+        "populations_or_systems": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Human populations, experimental systems, species, or settings covered by the synthesis."
+        },
+        "included_evidence": {"$ref": "#/definitions/included_evidence"}
+      }
+    },
+    "synthesis_type": {
+      "type": "string",
+      "enum": [
+        "pairwise_meta_analysis",
+        "network_meta_analysis",
+        "multilevel_meta_analysis",
+        "dose_response_meta_analysis",
+        "individual_participant_data_meta_analysis",
+        "diagnostic_test_accuracy_meta_analysis",
+        "prevalence_meta_analysis",
+        "umbrella_review",
+        "other_quantitative_synthesis",
+        "unclear"
+      ]
+    },
+    "review_question": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "populations_or_systems": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "interventions_or_exposures": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "comparators": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "outcomes_or_entities": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "eligible_evidence_designs": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "included_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "study_count": {
+          "type": "string",
+          "description": "Total number of included studies exactly as reported."
+        },
+        "participant_count": {
+          "type": "string",
+          "description": "Total number of participants or samples exactly as reported."
+        },
+        "effect_or_experiment_count": {
+          "type": "string",
+          "description": "Total number of effect sizes, experiments, assays, or observations exactly as reported."
+        },
+        "dataset_or_comparison_count": {
+          "type": "string",
+          "description": "Total number of datasets, treatments, or comparisons exactly as reported."
+        },
+        "evidence_design_summary": {
+          "type": "string",
+          "description": "Designs of the evidence included in the synthesis."
+        },
+        "study_year_range": {
+          "type": "string",
+          "description": "Publication-year range of the included evidence exactly as reported."
+        },
+        "search_end_date": {
+          "type": "string",
+          "description": "Last search date or search end date exactly as reported."
+        },
+        "registration_or_protocol": {
+          "type": "string",
+          "description": "Reported registration identifier or protocol reference."
+        }
+      }
+    },
+    "main_question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question_id", "description", "importance_in_paper"],
+      "properties": {
+        "question_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier used to link results to this question."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Plain-language question or comparison addressed in the paper."
+        },
+        "importance_in_paper": {
+          "type": "string",
+          "enum": ["main", "supporting"],
+          "description": "Whether the question defines the principal analysis or materially qualifies it."
+        }
+      }
+    },
+    "subject_area": {
+      "type": "string",
+      "enum": [
+        "clinical_outcome",
+        "safety_tolerability",
+        "molecular_target",
+        "molecular_pathway_readout",
+        "brain_system",
+        "cognitive_behavioral",
+        "subjective_experience",
+        "pharmacokinetics_exposure",
+        "intervention_context",
+        "real_world_public_health",
+        "general_topic_coverage"
+      ]
+    },
+    "evidence_locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location", "locator", "supporting_text"],
+      "properties": {
+        "location": {
+          "type": "string",
+          "enum": [
+            "title",
+            "abstract",
+            "objective",
+            "methods",
+            "results",
+            "table",
+            "figure",
+            "supplement",
+            "discussion",
+            "conclusion"
+          ],
+          "description": "Part of the supplied paper that supports the extraction."
+        },
+        "locator": {
+          "type": "string",
+          "description": "Section, table, figure, page, paragraph, or other precise location."
+        },
+        "supporting_text": {
+          "type": "string",
+          "description": "Short contiguous verbatim excerpt sufficient to verify the extracted claim or value."
+        }
+      }
+    },
+    "synthesis_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "result_role",
+        "importance_in_paper",
+        "relationship_statement",
+        "primary_subject_area",
+        "subject_areas",
+        "evidence_source",
+        "population_or_system",
+        "intervention_or_exposure",
+        "comparator",
+        "outcome_or_entity",
+        "timepoint_or_window",
+        "interpretation",
+        "evidence_locators"
+      ],
+      "properties": {
+        "result_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier used to link this result to questions, assessments, and conclusions."
+        },
+        "addresses_question_ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Question IDs answered or qualified by this result."
+        },
+        "result_role": {
+          "type": "string",
+          "enum": [
+            "primary_synthesis",
+            "secondary_synthesis",
+            "subgroup_analysis",
+            "sensitivity_analysis",
+            "meta_regression",
+            "dose_response",
+            "network_comparison",
+            "network_ranking",
+            "publication_bias_analysis",
+            "other"
+          ],
+          "description": "Role of the result in the paper's analyses."
+        },
+        "importance_in_paper": {
+          "type": "string",
+          "enum": ["main", "supporting", "additional"],
+          "description": "Importance of the result to the paper's principal answer."
+        },
+        "relationship_statement": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Complete statement of what was synthesized and what the analysis found."
+        },
+        "primary_subject_area": {
+          "$ref": "#/definitions/subject_area",
+          "description": "Subject area that best represents the result's principal finding."
+        },
+        "subject_areas": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/subject_area"}
+        },
+        "evidence_source": {
+          "type": "string",
+          "enum": ["human", "preclinical", "human_and_preclinical", "other", "unclear"]
+        },
+        "population_or_system": {
+          "type": ["string", "null"],
+          "description": "Population, species, experimental system, or evidence base represented by this result, or null when none is identified."
+        },
+        "intervention_or_exposure": {
+          "type": ["string", "null"],
+          "description": "Intervention, compound, regimen, or exposure represented by this result, or null when none is identified."
+        },
+        "comparator": {
+          "type": ["string", "null"],
+          "description": "Comparator or reference condition represented by this result, or null when none is identified."
+        },
+        "outcome_or_entity": {
+          "type": ["string", "null"],
+          "description": "Outcome, endpoint, biological entity, construct, or measure represented by this result, or null when none is identified."
+        },
+        "outcome_measure": {
+          "type": "string",
+          "description": "Instrument, scale, assay, task, or operational measure used for this result."
+        },
+        "timepoint_or_window": {
+          "type": ["string", "null"],
+          "description": "Assessment timepoint, follow-up period, or exposure window represented by this result, or null when none is identified."
+        },
+        "effect_estimate": {"$ref": "#/definitions/effect_estimate"},
+        "evidence_size": {"$ref": "#/definitions/evidence_size"},
+        "heterogeneity": {"$ref": "#/definitions/heterogeneity"},
+        "analysis_context": {"$ref": "#/definitions/analysis_context"},
+        "network_meta_analysis": {"$ref": "#/definitions/network_meta_analysis"},
+        "interpretation": {"$ref": "#/definitions/interpretation"},
+        "evidence_locators": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/evidence_locator"}
+        },
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Reported qualifications specific to this result."
+        },
+        "extraction_uncertainties": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Reported values or associations that could not be assigned reliably."
+        }
+      }
+    },
+    "effect_estimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "type": "string",
+          "description": "Effect metric exactly as reported."
+        },
+        "estimate": {
+          "type": "string",
+          "description": "Point estimate exactly as reported."
+        },
+        "interval_type": {
+          "type": "string",
+          "enum": ["confidence_interval", "credible_interval", "other"]
+        },
+        "interval_level": {
+          "type": "string",
+          "description": "Interval level exactly as reported."
+        },
+        "interval_lower": {
+          "type": "string",
+          "description": "Lower interval bound exactly as reported."
+        },
+        "interval_upper": {
+          "type": "string",
+          "description": "Upper interval bound exactly as reported."
+        },
+        "interval_reported": {
+          "type": "string",
+          "description": "Complete uncertainty interval exactly as reported."
+        },
+        "standard_error": {
+          "type": "string",
+          "description": "Standard error exactly as reported."
+        },
+        "p_value": {
+          "type": "string",
+          "description": "P value exactly as reported, including any inequality."
+        },
+        "model": {
+          "type": "string",
+          "description": "Statistical model reported for the estimate."
+        },
+        "analysis_scale": {
+          "type": "string",
+          "description": "Scale or transformation reported for the estimate."
+        },
+        "unit_of_analysis": {
+          "type": "string",
+          "description": "Unit analyzed for the estimate."
+        },
+        "adjustment_status": {
+          "type": "string",
+          "description": "Reported adjustment and variables used for adjustment."
+        }
+      }
+    },
+    "evidence_size": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "study_count": {"type": "string"},
+        "participant_count": {"type": "string"},
+        "effect_or_experiment_count": {"type": "string"},
+        "dataset_or_comparison_count": {"type": "string"}
+      }
+    },
+    "heterogeneity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "i_squared": {"type": "string"},
+        "tau_squared": {"type": "string"},
+        "q_statistic": {"type": "string"},
+        "q_p_value": {"type": "string"},
+        "prediction_interval": {"type": "string"},
+        "authors_interpretation": {"type": "string"}
+      }
+    },
+    "analysis_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "analysis_type": {"type": "string"},
+        "subgroup_or_moderator": {"type": "string"},
+        "meta_regression_coefficient": {"type": "string"},
+        "sensitivity_method": {"type": "string"},
+        "multiplicity_adjustment": {"type": "string"},
+        "dependency_handling": {"type": "string"}
+      }
+    },
+    "network_meta_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "treatment_a": {"type": "string"},
+        "treatment_b": {"type": "string"},
+        "reference_treatment": {"type": "string"},
+        "evidence_type": {
+          "type": "string",
+          "enum": ["direct", "indirect", "mixed", "ranking_only"]
+        },
+        "ranking_metric": {"type": "string"},
+        "ranking_value": {"type": "string"},
+        "inconsistency_assessment": {"type": "string"},
+        "transitivity_assessment": {"type": "string"}
+      }
+    },
+    "interpretation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["finding_direction"],
+      "properties": {
+        "finding_direction": {
+          "type": "string",
+          "enum": [
+            "supports",
+            "no_detected_effect",
+            "mixed",
+            "does_not_support",
+            "insufficient_evidence",
+            "descriptive_only",
+            "unclear"
+          ]
+        },
+        "favors": {
+          "type": "string",
+          "description": "Treatment, exposure, comparator, or neither favored by the reported result."
+        },
+        "outcome_orientation": {
+          "type": "string",
+          "enum": ["beneficial", "harmful", "neutral", "context_dependent", "unclear"]
+        },
+        "statistical_interpretation": {
+          "type": "string",
+          "description": "What the estimate and reported uncertainty show."
+        },
+        "authors_interpretation": {
+          "type": "string",
+          "description": "The authors' substantive interpretation and caution."
+        }
+      }
+    },
+    "risk_of_bias_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment_id", "scope", "overall_judgment", "evidence_locators"],
+      "properties": {
+        "assessment_id": {"type": "string", "minLength": 1},
+        "applies_to_result_ids": {"type": "array", "items": {"type": "string"}},
+        "tool_or_framework": {"type": "string"},
+        "scope": {"type": "string"},
+        "overall_judgment": {"type": "string"},
+        "domain_judgments": {"type": "array", "items": {"type": "string"}},
+        "main_concerns": {"type": "array", "items": {"type": "string"}},
+        "evidence_locators": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/evidence_locator"}
+        }
+      }
+    },
+    "certainty_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment_id", "rating", "evidence_locators"],
+      "properties": {
+        "assessment_id": {"type": "string", "minLength": 1},
+        "applies_to_result_ids": {"type": "array", "items": {"type": "string"}},
+        "framework": {"type": "string"},
+        "rating": {"type": "string"},
+        "downgrade_reasons": {"type": "array", "items": {"type": "string"}},
+        "upgrade_reasons": {"type": "array", "items": {"type": "string"}},
+        "interpretation": {"type": "string"},
+        "evidence_locators": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/evidence_locator"}
+        }
+      }
+    },
+    "publication_bias_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment_id", "result", "evidence_locators"],
+      "properties": {
+        "assessment_id": {"type": "string", "minLength": 1},
+        "applies_to_result_ids": {"type": "array", "items": {"type": "string"}},
+        "method": {"type": "string"},
+        "result": {"type": "string"},
+        "small_study_effects": {"type": "string"},
+        "adjustment_method": {"type": "string"},
+        "adjusted_estimate": {"type": "string"},
+        "evidence_locators": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/evidence_locator"}
+        }
+      }
+    },
+    "paper_conclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conclusion_id", "statement", "finding_direction", "evidence_locators"],
+      "properties": {
+        "conclusion_id": {"type": "string", "minLength": 1},
+        "statement": {
+          "type": "string",
+          "description": "Principal conclusion in language faithful to the paper."
+        },
+        "finding_direction": {
+          "type": "string",
+          "enum": [
+            "supports",
+            "no_detected_effect",
+            "mixed",
+            "does_not_support",
+            "insufficient_evidence",
+            "descriptive_only",
+            "unclear"
+          ]
+        },
+        "applies_to_result_ids": {"type": "array", "items": {"type": "string"}},
+        "certainty_or_caution": {"type": "string"},
+        "evidence_locators": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/evidence_locator"}
+        }
+      }
+    }
+  }
+}

@@ -21,10 +21,12 @@ import pandas as pd
 
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.kg.compound_combinations import is_named_combination_text
     from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.kg.compound_combinations import is_named_combination_text
     from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
 
 
@@ -129,7 +131,7 @@ GRAPH_SUBJECT_COMBINATION_RE = re.compile(
     re.IGNORECASE,
 )
 GRAPH_SUBJECT_CONTEXT_RE = re.compile(
-    r"\b(chemsex|sexuali[sz]ed drug use|sexual setting|poly[- ]?substance|multi[- ]?drug|"
+    r"\b(chemsex|sexuali[sz]ed drug use|sexual setting|poly[- ]?(?:substance|drug)|multi[- ]?drug|"
     r"mixed drug)\b",
     re.IGNORECASE,
 )
@@ -311,6 +313,8 @@ def graph_subject_kind(value: object) -> str:
         return ""
     if GRAPH_SUBJECT_CONTEXT_RE.search(text):
         return "exposure_context"
+    if is_named_combination_text(text):
+        return "compound_combination"
     class_match = GRAPH_SUBJECT_CLASS_RE.search(text)
     if class_match and not (
         class_match.group(0).casefold().rstrip("s") == "tryptamine"

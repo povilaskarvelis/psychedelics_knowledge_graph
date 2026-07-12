@@ -41,6 +41,27 @@ not-yet-extracted counts separately.
 
 The main KG backbone is the normalized evidence-table layer:
 
+Meta-analysis v2 outputs have a separate fail-closed conversion step. Convert
+each extraction run before combining its accepted evidence rows with the routed
+evidence input used by the KG builder:
+
+```bash
+python pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py \
+  --run-id meta_analysis_v2_remaining_168_20260712
+```
+
+The converter preserves result-level estimates, intervals, p values, evidence
+counts, heterogeneity, analysis context, network details, risk-of-bias and
+certainty summaries, and source provenance. It holds results that lack a stable
+subject or entity, bundle multiple estimates, or claim a network result without
+network structure. Paper-level population or comparator context is used only
+when exactly one value is available, and the provenance of that fallback is
+recorded. The KG builder also preserves the analysis role, exact endpoint,
+population, comparator, follow-up window, included-study count, subgroup or
+moderator, sensitivity method, network treatments, effect metric, and dose when
+grouping propositions. This prevents distinct pooled estimates from being
+collapsed or incorrectly flagged as contradictory.
+
 ```bash
 RUN_ID=gemini3_flash_YYYYMMDD_first_batch
 python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
@@ -86,13 +107,49 @@ The overview graph uses a deliberately smaller projection:
 
 - atomic compounds use the canonical registry label;
 - class and context strings must map to a controlled family such as
-  `Serotonergic psychedelics`, `Mixed psychedelic compounds`,
+  `Classic psychedelics`,
   `Recreational psychedelic exposure`, `Chemsex`, or `Polysubstance use`;
 - bare `Psychedelics` is not an overview label: generic wording is resolved
-  from the claim context, or retained as `Unspecified psychedelic compounds`
-  when the source provides no greater specificity;
-- multi-compound rows use a focal registered compound when one is explicit,
-  otherwise the controlled `Multi-compound exposure` summary;
+  from the finding context, or retained in detail as `Psychedelics (mixed or
+  unspecified compounds)` when the source provides no greater specificity;
+- broad text that explicitly says one or more compounds were predominant, or
+  names a drug-specific assisted therapy, projects to those atomic compounds;
+  partly specified and fully unspecified groups share the detail-only fallback
+  rather than being attributed to the one named drug;
+- multi-compound rows use a focal registered compound when one is explicit;
+  otherwise, exact lists or separate arms project to each registered compound,
+  while supported co-administration projects to a canonical `A + B` node and
+  supported sequences to `A + B (sequential)`;
+- controlled colloquial aliases are inferred from the canonical combination
+  and shown parenthetically, for example `LSD + MDMA (candyflipping)`;
+- named-combination aliases are defined once in
+  `pipeline/kg/compound_combinations.py` and carried into graph payloads as
+  searchable aliases. The automatically inferred set is pharmahuasca
+  (`DMT + Harmine/Harmaline`), candyflipping (`LSD + MDMA`), hippy/hippie
+  flipping (`Psilocybin + MDMA`), kitty flipping (`Ketamine + MDMA`), nexus
+  flipping (`2C-B + MDMA`), and Jedi/twilight flipping
+  (`LSD + Psilocybin + MDMA`). Less-established but chemically unambiguous
+  terms—soul bombing/wizard flipping, Ali flipping, love flipping, and Selma
+  flipping—are recognized only when the source explicitly uses the alias;
+- `graph_overview_subjects_json` carries every controlled projection for a
+  finding, so one finding can support several graph edges without duplicating
+  the finding or losing its exact exposure text;
+- broad class/context nodes are retained only when the saved exposure is truly
+  nonspecific; contextual exposures such as chemsex are never atomized;
+- real-world findings can additionally carry
+  `graph_use_context_projections_json`. These preserve the finding once while
+  adding explicit `substance -> use context` relationships such as
+  `Ketamine -> Chemsex`; they are generated only from finding-level context and
+  exposure text, never from paper titles or keywords. The substance must also
+  pass the normal psychedelic-graph compound scope check, so contextual mentions
+  of cocaine, methamphetamine, mephedrone, GHB, or GBL remain in finding detail
+  rather than becoming compound nodes;
+- `Chemsex` is a controlled child of `Sexualized drug use`. Exact chemsex
+  statements remain attached to Chemsex, while broader substance-linked-sex
+  statements attach to the parent context. The original
+  `context -> outcome/topic` projection remains separate;
+- the unresolved psychedelic fallback is searchable but not admitted to the
+  overview graph, where it would form a high-degree catch-all hub;
 - free-text subjects without a controlled projection remain paper-detail only.
 
 For open-ended right-side concepts, pathway/readout and intervention labels are
@@ -163,7 +220,8 @@ scripts/build_routed_kg_payload.sh "$RUN_ID"
 ```
 
 That wrapper rebuilds the evidence tables, author tables, and public payload in
-the correct order. `pipeline/publish/export_evidence_payload.py` validates that
+the correct order, then refreshes the Methods PRISMA flow and bibliography from
+the activated routed KG run. `pipeline/publish/export_evidence_payload.py` validates that
 the author layer is present and newer than `papers.parquet` before writing UI
 payloads, unless `--allow-stale-authors` is passed for a diagnostic export.
 
