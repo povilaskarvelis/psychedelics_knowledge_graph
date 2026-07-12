@@ -10,7 +10,10 @@ from pipeline.extract.io_utils import write_json
 from pipeline.kg.build_evidence_tables import build_tables
 from pipeline.kg.convert_routed_extractions_to_evidence_rows import (
     DEFAULT_ROUTED_RUN_ROOT,
+    apply_graph_subject,
     convert_outputs,
+    evidence_design_for,
+    normalized_result_direction,
     resolve_output_paths,
 )
 
@@ -20,6 +23,73 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
 
 
 class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
+    def test_complete_non_atomic_exposure_supersedes_focal_compound(self) -> None:
+        row = {
+            "compound": "Ketamine (as part of chemsex substances)",
+            "dose_or_regimen": "Use of methamphetamine, mephedrone, GHB/GBL, and/or ketamine in a sexual setting",
+        }
+
+        apply_graph_subject(row)
+
+        self.assertEqual(
+            row["compound"],
+            "Use of methamphetamine, mephedrone, GHB/GBL, and/or ketamine in a sexual setting",
+        )
+        self.assertEqual(row["atomic_compound_candidate"], "Ketamine (as part of chemsex substances)")
+        self.assertEqual(row["graph_subject_kind"], "exposure_context")
+        self.assertEqual(row["graph_subject_source_field"], "dose_or_regimen")
+
+    def test_atomic_compound_remains_atomic_when_regimen_is_ordinary_dosing(self) -> None:
+        row = {"compound": "Ketamine", "dose_or_regimen": "0.5 mg/kg intravenous infusion"}
+
+        apply_graph_subject(row)
+
+        self.assertEqual(row["compound"], "Ketamine")
+        self.assertEqual(row["graph_subject_kind"], "atomic_compound")
+
+        stereochemical = {"compound": "S(+)-ketamine"}
+        apply_graph_subject(stereochemical)
+        self.assertEqual(stereochemical["graph_subject_kind"], "atomic_compound")
+
+        chemical_name = {"compound": "N,N-dimethyltryptamine (DMT)"}
+        apply_graph_subject(chemical_name)
+        self.assertEqual(chemical_name["graph_subject_kind"], "atomic_compound")
+
+        hyphenated_chemical_name = {"compound": "N,N-dimethyl-tryptamine (DMT)"}
+        apply_graph_subject(hyphenated_chemical_name)
+        self.assertEqual(hyphenated_chemical_name["graph_subject_kind"], "atomic_compound")
+
+        substituted_chemical_name = {"compound": "5-methoxy-N,N-dimethyl tryptamine (5-MeO-DMT)"}
+        apply_graph_subject(substituted_chemical_name)
+        self.assertEqual(substituted_chemical_name["graph_subject_kind"], "atomic_compound")
+
+        dose_regimen = {"compound": "MDMA (75 mg and 125 mg)"}
+        apply_graph_subject(dose_regimen)
+        self.assertEqual(dose_regimen["graph_subject_kind"], "treatment_regimen")
+
+    def test_graph_subject_normalization_is_idempotent(self) -> None:
+        row = {
+            "compound": "Ketamine (as part of chemsex substances)",
+            "dose_or_regimen": "Use of methamphetamine, mephedrone, GHB/GBL, and/or ketamine in a sexual setting",
+        }
+
+        apply_graph_subject(row)
+        apply_graph_subject(row)
+
+        self.assertEqual(row["atomic_compound_candidate"], "Ketamine (as part of chemsex substances)")
+        self.assertEqual(row["graph_subject_kind"], "exposure_context")
+        self.assertEqual(
+            row["compound"],
+            "Use of methamphetamine, mephedrone, GHB/GBL, and/or ketamine in a sexual setting",
+        )
+
+    def test_direction_and_design_are_normalized_without_rewriting_raw_text(self) -> None:
+        self.assertEqual(normalized_result_direction("No significant association"), "no_association")
+        self.assertEqual(
+            evidence_design_for({"study_design": "Cross-sectional online survey"}),
+            "observational",
+        )
+
     def test_run_id_resolves_converter_outputs_to_versioned_directory(self) -> None:
         args = resolve_output_paths(
             SimpleNamespace(
@@ -689,7 +759,8 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
         self.assertEqual(cognition["construct_family"], "cognition")
 
         pathway = next(row for row in rows if row["study_doi"] == "10.1000/pathway")
-        self.assertEqual(pathway["graph_entity_label"], "Neuroplasticity")
+        self.assertEqual(pathway["graph_entity_label"], "BDNF")
+        self.assertEqual(pathway["kg_entity_kind_override"], "biomarker_readout")
         self.assertEqual(pathway["molecular_effect_label"], "Neuroplasticity")
         self.assertEqual(pathway["readout"], "BDNF")
         self.assertEqual(pathway["mechanistic_relationship_type"], "plasticity_marker")
@@ -985,8 +1056,10 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             brain_claim = findings[findings["domain"] == "brain_system"].iloc[0]
             self.assertEqual(brain_claim["assessment_timepoint"], "2 hours post-dose")
             pathway_claim = findings[findings["domain"] == "molecular_pathway_readout"].iloc[0]
-            self.assertEqual(pathway_claim["graph_entity_label"], "Neuroplasticity")
+            self.assertEqual(pathway_claim["graph_entity_label"], "BDNF protein levels")
             self.assertEqual(pathway_claim["molecular_effect_label"], "Neuroplasticity")
+            self.assertEqual(pathway_claim["graph_parent_label"], "Neuroplasticity")
+            self.assertEqual(pathway_claim["graph_parent_kind"], "pathway_process")
             self.assertEqual(pathway_claim["specific_readout_or_marker"], "BDNF")
             self.assertEqual(pathway_claim["experimental_system_category"], "clinical")
 
@@ -1002,11 +1075,13 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             self.assertEqual(pk_edge["entity_kind"], "target")
             self.assertEqual(pk_edge["relation_type"], "discusses_relationship")
             public_health_edge = edges[edges["domain"] == "real_world_public_health"].iloc[0]
-            self.assertEqual(public_health_edge["entity_label"], "Access to services")
+            self.assertEqual(public_health_edge["entity_label"], "Access & equity")
             self.assertEqual(public_health_edge["relation_type"], "discusses_relationship")
             pathway_edge = edges[edges["domain"] == "molecular_pathway_readout"].iloc[0]
-            self.assertEqual(pathway_edge["entity_label"], "Neuroplasticity")
-            self.assertEqual(pathway_edge["relation_type"], "has_mechanistic_pathway")
+            self.assertEqual(pathway_edge["entity_label"], "BDNF protein levels")
+            self.assertEqual(pathway_edge["graph_parent_label"], "Neuroplasticity")
+            self.assertEqual(pathway_edge["graph_parent_kind"], "pathway_process")
+            self.assertEqual(pathway_edge["relation_type"], "has_biomarker_readout")
 
 
 if __name__ == "__main__":

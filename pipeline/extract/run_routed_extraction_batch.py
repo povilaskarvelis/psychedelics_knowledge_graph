@@ -135,6 +135,8 @@ def task_matches_filters(task: dict, args: argparse.Namespace) -> bool:
         return False
 
     prompt_profile, schema_profile = profile_key_for_task(task)
+    if schema_profile == "review_coverage_schema" and not getattr(args, "include_legacy_review_routes", False):
+        return False
     if not value_allowed(prompt_profile, args.prompt_profile):
         return False
     if not value_allowed(schema_profile, args.schema_profile):
@@ -452,6 +454,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--retry-errors", action="store_true", help="Allow tasks with prior raw error rows to be selected again.")
     parser.add_argument("--include-not-ready", action="store_true")
     parser.add_argument("--include-scaffold-profiles", action="store_true")
+    parser.add_argument(
+        "--include-legacy-review-routes",
+        action="store_true",
+        help="Allow the older domain-by-domain review extraction path. Reviews use paper-centered extraction by default.",
+    )
     parser.add_argument("--prompt-profile", action="append", default=[])
     parser.add_argument("--schema-profile", action="append", default=[])
     parser.add_argument("--domain-route", action="append", default=[])

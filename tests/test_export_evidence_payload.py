@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline.publish.export_evidence_payload import export_evidence_payload
+from pipeline.publish.export_evidence_payload import export_evidence_payload, graph_bootstrap_payload
 
 
 def detail_bootstrap_rows(payload: dict) -> list[dict]:
@@ -106,6 +106,74 @@ def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str
 
 
 class ExportEvidencePayloadTest(unittest.TestCase):
+    def test_overview_projection_uses_controlled_subjects_and_parent_families(self) -> None:
+        findings = [
+            {
+                "compound": "Psilocybin and MDMA at study-specific doses",
+                "graph_subject_kind": "compound_combination",
+                "graph_overview_subject_label": "Multi-compound exposure",
+                "graph_overview_subject_kind": "compound_combination",
+                "entity_label": "Major depressive disorder",
+                "entity_kind": "condition_indication",
+                "domain": "clinical_outcome",
+                "study_doi": "10.1000/controlled-combo",
+            },
+            {
+                "compound": "MDMA and Psilocybin in another regimen",
+                "graph_subject_kind": "compound_combination",
+                "graph_overview_subject_label": "Multi-compound exposure",
+                "graph_overview_subject_kind": "compound_combination",
+                "entity_label": "Major depressive disorder",
+                "entity_kind": "condition_indication",
+                "domain": "clinical_outcome",
+                "study_doi": "10.1000/controlled-combo-replication",
+            },
+            {
+                "compound": "arbitrary one-off exposure prose",
+                "graph_subject_kind": "exposure_context",
+                "entity_label": "Major depressive disorder",
+                "entity_kind": "condition_indication",
+                "domain": "clinical_outcome",
+                "study_doi": "10.1000/uncontrolled-context",
+            },
+            {
+                "compound": "Ketamine",
+                "graph_subject_kind": "atomic_compound",
+                "entity_label": "study-specific phosphorylation wording",
+                "entity_kind": "pathway_process",
+                "graph_parent_label": "Intracellular signal transduction",
+                "graph_parent_kind": "pathway_process",
+                "domain": "molecular_pathway_readout",
+                "study_doi": "10.1000/parent-family",
+            },
+            {
+                "compound": "Ketamine",
+                "graph_subject_kind": "atomic_compound",
+                "entity_label": "another study-specific signaling phrase",
+                "entity_kind": "pathway_process",
+                "graph_parent_label": "Intracellular signal transduction",
+                "graph_parent_kind": "pathway_process",
+                "domain": "molecular_pathway_readout",
+                "study_doi": "10.1000/parent-family-replication",
+            },
+            {
+                "compound": "Salvinorin A",
+                "graph_subject_kind": "atomic_compound",
+                "entity_label": "Major depressive disorder",
+                "entity_kind": "condition_indication",
+                "domain": "clinical_outcome",
+                "study_doi": "10.1000/single-study-node",
+            },
+        ]
+
+        payload = graph_bootstrap_payload(findings, "2026-07-11T00:00:00Z", Path("kg"), "primary")
+
+        self.assertEqual(payload["finding_count"], 4)
+        self.assertEqual(payload["detail_only_subject_count"], 1)
+        self.assertEqual(payload["single_study_subject_finding_count"], 1)
+        self.assertEqual({edge["compound"] for edge in payload["edges"]}, {"Ketamine", "Multi-compound exposure"})
+        self.assertIn("Intracellular signal transduction", {edge["entity_label"] for edge in payload["edges"]})
+
     def test_requires_author_tables_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -200,18 +268,19 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "study_doi": "10.1000/example",
                         "study_year": 2024,
                         "compound": "Psilocybin",
-                        "entity_label": "Raw DMN label",
+                        "entity_label": "Raw CA1 label",
                         "raw_row_json": json.dumps(
                             {
                                 "compound": "Psilocybin",
-                                "graph_entity_label": "Raw DMN label",
+                                "graph_entity_label": "Raw CA1 label",
                                 "access_level": "article_text",
                                 "paper_type": "primary_study",
                                 "source_type": "primary",
                                 "source_family": "primary_study",
+                                "real_world_use_context": "Microdosing; Self-treatment",
                                 "assessment_timepoint": "2 hours post-dose",
                                 "open_access_is_oa": True,
-                                "support": "Psilocybin reduced default-mode network integrity after dosing.",
+                                "support": "Psilocybin altered activity in hippocampal CA1 after dosing.",
                                 "effect_size": "Reduced functional connectivity",
                             }
                         ),
@@ -232,8 +301,11 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "finding_id": "finding-1",
                         "evidence_id": "evidence-1",
                         "domain": "brain_system",
-                        "entity_kind": "brain_network",
-                        "entity_label": "Default mode network",
+                        "entity_kind": "brain_region",
+                        "entity_label": "Hippocampal CA1",
+                        "graph_parent_label": "Hippocampus",
+                        "graph_parent_kind": "brain_region",
+                        "graph_parent_entity_id": "brain-system-entity:hippocampus",
                         "evidence_type": "primary_evidence",
                         "relation_type": "modulates_brain_system",
                     }
@@ -261,20 +333,21 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         finding = rows[0]
         self.assertEqual(finding["domain"], "brain_system")
         self.assertEqual(finding["finding_type"], "brain_system")
-        self.assertEqual(finding["entity_label"], "Default mode network")
-        self.assertEqual(finding["entity_kind"], "brain_network")
+        self.assertEqual(finding["entity_label"], "Hippocampal CA1")
+        self.assertEqual(finding["entity_kind"], "brain_region")
+        self.assertEqual(finding["graph_parent_label"], "Hippocampus")
+        self.assertEqual(finding["graph_parent_kind"], "brain_region")
         self.assertEqual(finding["text_depth"], "article_text")
         self.assertEqual(finding["assessment_timepoint"], "2 hours post-dose")
-        self.assertEqual(finding["support"], "Psilocybin reduced default-mode network integrity after dosing.")
+        self.assertEqual(finding["real_world_use_context"], "Microdosing; Self-treatment")
+        self.assertEqual(finding["support"], "Psilocybin altered activity in hippocampal CA1 after dosing.")
         self.assertEqual(finding["effect_size"], "Reduced functional connectivity")
         self.assertIs(finding["open_access_is_oa"], True)
         self.assertNotIn("claim_type", finding)
         self.assertNotIn("target", finding)
         self.assertNotIn("disorder", finding)
-        self.assertEqual(graph_bootstrap["edge_count"], 1)
-        self.assertEqual(graph_bootstrap["edges"][0]["finding_count"], 1)
-        self.assertEqual(graph_bootstrap["edges"][0]["full_text_seen_count"], 1)
-        self.assertEqual(graph_bootstrap["edges"][0]["full_text_seen_study_count"], 1)
+        self.assertEqual(graph_bootstrap["edge_count"], 0)
+        self.assertEqual(graph_bootstrap["finding_count"], 0)
         self.assertEqual(detail_bootstrap["schema_version"], "route_native_detail_bootstrap_v1")
         self.assertEqual(detail_bootstrap["row_count"], 1)
         self.assertIn("study_year", detail_bootstrap["fields"])
@@ -282,6 +355,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertIn("support", detail_bootstrap["fields"])
         self.assertIn("effect_size", detail_bootstrap["fields"])
         self.assertIn("supporting_quote", detail_bootstrap["fields"])
+        self.assertIn("molecular_finding_subtopic", detail_bootstrap["fields"])
         self.assertEqual(len(detail_bootstrap["rows"]), 1)
         self.assertEqual(active["schema_version"], "route_native_evidence_payload_active_v1")
         self.assertNotIn("active_evidence_payload", active)
@@ -328,8 +402,8 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "evidence_type": "secondary_literature",
                         "study_doi": "10.1000/meta",
                         "study_year": 2023,
-                        "compound": "Ketamine",
-                        "entity_label": "Treatment-resistant depression",
+                        "compound": "Psilocybin",
+                        "entity_label": "Major depressive disorder",
                         "paper_type": "meta_analysis",
                         "source_type": "meta_analysis",
                         "support": "Pooled estimates favored ketamine over control.",
@@ -368,7 +442,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "evidence_id": "edge-meta",
                         "domain": "clinical_outcome",
                         "entity_kind": "condition_indication",
-                        "entity_label": "Treatment-resistant depression",
+                        "entity_label": "Major depressive disorder",
                         "evidence_type": "secondary_literature",
                         "relation_type": "meta_analyzes_relationship",
                     },
@@ -558,12 +632,11 @@ class ExportEvidencePayloadTest(unittest.TestCase):
 
         self.assertEqual(detail["row_count"], 3)
         self.assertEqual(graph["source_row_count"], 3)
-        self.assertEqual(graph["finding_count"], 1)
-        self.assertEqual(graph["edge_count"], 1)
-        self.assertEqual(graph["edges"][0]["entity_kind"], "condition_indication")
+        self.assertEqual(graph["finding_count"], 0)
+        self.assertEqual(graph["edge_count"], 0)
         self.assertEqual({row["entity_kind"] for row in rows}, {"condition_indication", "outcome_scale", "compound"})
 
-    def test_exports_graph_study_coverage_from_candidate_papers(self) -> None:
+    def test_exports_graph_study_coverage_from_findings_plus_audit(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             kg_dir = root / "kg"
@@ -590,8 +663,8 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "domain": "clinical_outcome",
                         "evidence_type": "primary_evidence",
                         "study_doi": "10.1000/included-b",
-                        "compound": "Ketamine",
-                        "entity_label": "Treatment-resistant depression",
+                        "compound": "Psilocybin",
+                        "entity_label": "Major depressive disorder",
                         "raw_row_json": "{}",
                     },
                 ]
@@ -612,7 +685,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                         "evidence_id": "evidence-b",
                         "domain": "clinical_outcome",
                         "entity_kind": "condition_indication",
-                        "entity_label": "Treatment-resistant depression",
+                        "entity_label": "Major depressive disorder",
                         "evidence_type": "primary_evidence",
                         "relation_type": "studied_for_condition",
                     },
@@ -620,11 +693,13 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
             pd.DataFrame(
                 [
-                    {"paper_id": "paper-a", "study_doi": "10.1000/included-a", "study_title": "Included A"},
-                    {"paper_id": "paper-b", "study_doi": "10.1000/included-b", "study_title": "Included B"},
-                    {"paper_id": "paper-c", "study_doi": "10.1000/not-in-graph", "study_title": "Not in graph"},
+                    {
+                        "study_doi": "10.1000/not-in-graph",
+                        "study_title": "Not in graph",
+                        "normalization_status": "compound_unmapped",
+                    },
                 ]
-            ).to_parquet(kg_dir / "papers.parquet", index=False)
+            ).to_parquet(kg_dir / "normalization_audit.parquet", index=False)
 
             result = export_evidence_payload(kg_dir=kg_dir, out_dir=out_dir, require_fresh_author_tables=False)
             manifest = json.loads(result["manifest_path"].read_text())

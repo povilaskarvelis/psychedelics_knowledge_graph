@@ -76,6 +76,61 @@ Each KG output directory contains:
 - `kg.duckdb`: optional local DuckDB database materialized when the `duckdb`
   Python package is installed.
 
+The routed table layer preserves the complete extracted graph subject before
+normalization. `graph_subject_kind` distinguishes an `atomic_compound` from a
+`compound_class`, `compound_combination`, `exposure_context`, or
+`treatment_regimen`. The exact text remains in `graph_subject_label` and is
+shown in paper detail. It is not automatically made into a graph node.
+
+The overview graph uses a deliberately smaller projection:
+
+- atomic compounds use the canonical registry label;
+- class and context strings must map to a controlled family such as
+  `Serotonergic psychedelics`, `Mixed psychedelic compounds`,
+  `Recreational psychedelic exposure`, `Chemsex`, or `Polysubstance use`;
+- bare `Psychedelics` is not an overview label: generic wording is resolved
+  from the claim context, or retained as `Unspecified psychedelic compounds`
+  when the source provides no greater specificity;
+- multi-compound rows use a focal registered compound when one is explicit,
+  otherwise the controlled `Multi-compound exposure` summary;
+- free-text subjects without a controlled projection remain paper-detail only.
+
+For open-ended right-side concepts, pathway/readout and intervention labels are
+projected to their controlled parent family. Every overview node, on either side
+of the graph, must be supported by at least two distinct studies. Multiple
+findings from one paper count once. Findings attached only to single-study nodes
+remain in the detail bootstrap and search results; only their visual projection
+is suppressed. This keeps the exact assay, marker, intervention, dose, and
+subgroup information accessible without turning every extracted phrase into a
+one-paper node.
+
+`graph_admission_status` separates information storage from visible graph
+admission. Rows marked `paper_detail` remain in `findings.parquet` but are
+excluded from the UI graph bootstrap. Current deterministic holds include
+primary-paper claims supported only by a background/introduction location,
+extraction rows explicitly marked for human review, and structurally identical
+propositions with conflicting normalized directions.
+
+To apply these rules to an existing saved routed-evidence array without any
+model call, enrich it into a new run directory and rebuild that run:
+
+```bash
+python pipeline/kg/enrich_saved_routed_evidence_rows.py \
+  --input-json path/to/existing/routed_evidence_rows.json \
+  --output-json data/processed/extraction/routed_runs/<new-run>/routed_evidence_rows.json \
+  --report-json data/processed/extraction/routed_runs/<new-run>/deterministic_enrichment_report.json
+
+python pipeline/kg/build_evidence_tables.py \
+  --source-preset routed \
+  --run-id <new-run> \
+  --skip-duckdb
+```
+
+Compare the versioned result with its baseline using
+`pipeline/validate/evaluate_deterministic_projection.py`. Its recovery counts
+measure downstream representation only and must not be reported as extraction
+recall or paper-level centrality.
+
 The legacy current KG under `data/processed/kg/` may still contain
 `claims.parquet` while the old pipeline is retained for comparison. New routed
 KG runs use `findings.parquet` and `finding_id`.

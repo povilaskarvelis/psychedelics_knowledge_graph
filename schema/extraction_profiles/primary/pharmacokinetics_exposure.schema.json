@@ -19,7 +19,7 @@
     "schema_version": {
       "type": "string",
       "enum": [
-        "primary_pharmacokinetics_exposure_v2"
+        "primary_pharmacokinetics_exposure_v3"
       ]
     },
     "task_id": {
@@ -172,7 +172,8 @@
           "type": "string"
         },
         "pk_or_exposure_parameter": {
-          "type": "string"
+          "type": "string",
+          "description": "A true pharmacokinetic or exposure metric such as Cmax, Tmax, AUC, half-life, clearance, bioavailability, concentration, volume of distribution, metabolic ratio, or Km. EC50, IC50, ED50, receptor occupancy, and dose-response metrics are pharmacodynamic unless the finding explicitly links them to measured concentration or exposure; otherwise route them to molecular target or molecular pathway/readout."
         },
         "value": {
           "type": "string"

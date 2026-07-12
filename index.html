@@ -27,7 +27,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260705-offwhite-text" />
+    <link rel="stylesheet" href="styles.css?v=20260712-paper-connections-neutral" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -54,7 +54,7 @@
           tabindex="0"
           aria-label="Open study bibliography"
         >
-          <span class="stat-label">Studies</span>
+          <span class="stat-label">Studies represented</span>
           <span class="stat-value" data-stat="studies">0</span>
           <span class="stat-detail" data-stat-detail="studies"></span>
         </div>
@@ -141,18 +141,17 @@
           </aside>
         </div>
         <div class="tooltip" id="tooltip" aria-hidden="true"></div>
-      </section>
-
-      <section class="panel cards-panel">
-        <div class="panel-header">
-          <div>
-            <h2>Findings</h2>
+        <section class="findings-section cards-panel" aria-labelledby="findingsHeading">
+          <div class="panel-header">
+            <div>
+              <h2 id="findingsHeading">Findings</h2>
+            </div>
+            <div class="search">
+              <input id="searchInput" type="search" placeholder="Search compounds, findings, methods, or papers" />
+            </div>
           </div>
-          <div class="search">
-            <input id="searchInput" type="search" placeholder="Search compounds, findings, methods, or papers" />
-          </div>
-        </div>
-        <div class="cards" id="cards"></div>
+          <div class="cards" id="cards"></div>
+        </section>
       </section>
 
       <section class="panel bibliography-panel" id="bibliographyPanel">
@@ -180,6 +179,6 @@
       </div>
     </footer>
 
-    <script src="app.js?v=20260709-review-summary-only"></script>
+    <script src="app.js?v=20260712-multistudy-paper-connections-grouped"></script>
   </body>
 </html>

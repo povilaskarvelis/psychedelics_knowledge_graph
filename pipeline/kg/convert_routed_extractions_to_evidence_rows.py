@@ -21,11 +21,11 @@ import pandas as pd
 
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
-    from pipeline.kg.pk_relationships import add_pk_relationship_fields
+    from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
-    from pipeline.kg.pk_relationships import add_pk_relationship_fields
+    from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -104,6 +104,77 @@ COMPOUND_FIELDS = (
     "exposure_or_policy",
 )
 
+GRAPH_SUBJECT_FIELDS = (
+    "exposure_or_policy",
+    "exposure_or_intervention",
+    "intervention_or_exposure",
+    "compound_or_exposure",
+    "compound_or_class",
+    "compound_or_intervention",
+    "dose_or_regimen",
+    "dose_or_exposure_context",
+    "interaction_or_potentiation_context",
+    "co_exposure_or_modifier",
+)
+
+GRAPH_SUBJECT_CLASS_RE = re.compile(
+    r"\b(classic(?:al)? psychedelics?|psychedelics?(?:[- ]assisted therapy)?|hallucinogens?|"
+    r"serotonergic psychedelics?|nmda(?: receptor)? antagonists?|dissociatives?|tryptamines?|"
+    r"phenethylamines?|entheogens?)\b",
+    re.IGNORECASE,
+)
+GRAPH_SUBJECT_COMBINATION_RE = re.compile(
+    r"\b(and/or|and|or|plus|combined with|combination|coadministered|co-administered|"
+    r"pretreatment|adjunct(?:ive)?|add-on)\b|\s\+\s",
+    re.IGNORECASE,
+)
+GRAPH_SUBJECT_CONTEXT_RE = re.compile(
+    r"\b(chemsex|sexuali[sz]ed drug use|sexual setting|poly[- ]?substance|multi[- ]?drug|"
+    r"mixed drug)\b",
+    re.IGNORECASE,
+)
+GRAPH_SUBJECT_DOSE_RE = re.compile(
+    r"\b\d+(?:\.\d+)?\s*(?:micrograms?|mcg|ug|µg|milligrams?|mg|grams?|g|mg/kg|µg/kg)\b",
+    re.IGNORECASE,
+)
+SUBSTITUTED_TRYPTAMINE_RE = re.compile(
+    r"\b(?:n\s*,\s*n[- ]?)?(?:di(?:methyl|ethyl|propyl|isopropyl|butyl)[- ]?)tryptamine\b",
+    re.IGNORECASE,
+)
+
+DIRECTION_NORMALIZATION = {
+    "positive": "positive",
+    "positive association": "positive_association",
+    "positive_association": "positive_association",
+    "increase": "increase",
+    "increased": "increase",
+    "increasing": "increase",
+    "negative": "negative",
+    "negative association": "negative_association",
+    "negative_association": "negative_association",
+    "decrease": "decrease",
+    "decreased": "decrease",
+    "decreasing": "decrease",
+    "no detected effect": "no_detected_effect",
+    "no_detected_effect": "no_detected_effect",
+    "no association": "no_association",
+    "no_association": "no_association",
+    "no significant association": "no_association",
+    "no_significant_association": "no_association",
+    "no change": "no_change",
+    "no_change": "no_change",
+    "mixed": "mixed",
+    "insufficient evidence": "insufficient_evidence",
+    "insufficient_evidence": "insufficient_evidence",
+    "descriptive only": "descriptive_only",
+    "descriptive_only": "descriptive_only",
+    "supports": "supports",
+    "does not support": "does_not_support",
+    "does_not_support": "does_not_support",
+    "not applicable": "not_applicable",
+    "not_applicable": "not_applicable",
+}
+
 ENTITY_KIND_ALIASES = {
     "condition": "condition_indication",
     "disorder": "condition_indication",
@@ -139,13 +210,23 @@ ENTITY_LABEL_FIELDS_BY_KIND = {
     "safety_adverse_event": ("entity", "safety_event_or_measure", "safety_category"),
     "outcome_scale": ("entity", "outcome_measure", "outcome_measure_or_instrument"),
     "target": ("target", "metabolic_or_transport_target", "entity"),
-    "pathway_process": ("molecular_effect_category", "pathway_or_process", "pathway_or_readout", "metabolic_or_transport_pathway", "entity"),
+    "pathway_process": (
+        "pathway_or_process",
+        "pathway_or_readout",
+        "specific_readout_or_marker",
+        "readout_or_biomarker",
+        "readout_or_measure",
+        "metabolic_or_transport_pathway",
+        "molecular_effect_category",
+        "entity",
+    ),
     "biomarker_readout": (
         "specific_readout_or_marker",
         "readout_or_biomarker",
         "readout_or_measure",
         "readout",
         "outcome_measure",
+        "pathway_or_readout",
         "entity",
     ),
     "brain_region": ("brain_region", "entity"),
@@ -222,6 +303,154 @@ def first_meaningful(row: dict, fields: Iterable[str]) -> str:
         if meaningful(value):
             return value
     return ""
+
+
+def graph_subject_kind(value: object) -> str:
+    text = normalize(value)
+    if not text:
+        return ""
+    if GRAPH_SUBJECT_CONTEXT_RE.search(text):
+        return "exposure_context"
+    class_match = GRAPH_SUBJECT_CLASS_RE.search(text)
+    if class_match and not (
+        class_match.group(0).casefold().rstrip("s") == "tryptamine"
+        and SUBSTITUTED_TRYPTAMINE_RE.search(text)
+    ):
+        return "compound_class"
+    if GRAPH_SUBJECT_COMBINATION_RE.search(text):
+        if len(GRAPH_SUBJECT_DOSE_RE.findall(text)) >= 2:
+            return "treatment_regimen"
+        return "compound_combination"
+    return "atomic_compound"
+
+
+def apply_graph_subject(row: dict) -> None:
+    """Preserve the complete extracted exposure before atomic KG projection.
+
+    Routed schemas often provide both a focal compound and a fuller regimen or
+    exposure definition.  The latter must win when it is explicitly non-atomic;
+    otherwise a chemsex group or combination can silently become one compound.
+    """
+
+    # Keep the original focal compound across repeated normalization passes.
+    # The builder deliberately reapplies this function to saved rows, so using
+    # an already-expanded `compound` value here would otherwise erase the
+    # provenance needed to show that a chemsex exposure was not just ketamine.
+    if normalize(row.get("graph_overview_subject_label", "")):
+        # This is already a normalized KG table row. Preserve the controlled
+        # overview subject while leaving the exact exposure fields untouched.
+        return
+
+    atomic_candidate = normalize(row.get("atomic_compound_candidate", "")) or normalize(row.get("compound", ""))
+    candidates: list[tuple[int, int, str, str, str]] = []
+    existing_label = normalize(row.get("graph_subject_label", ""))
+    existing_kind = graph_subject_kind(existing_label)
+    if existing_label and existing_kind != "atomic_compound":
+        # Saved routed rows may already contain the selected complete exposure.
+        # Reapplying normalization must retain it even when the originating
+        # schema field is not present in the flattened row.
+        candidates.append((50, len(existing_label), normalize(row.get("graph_subject_source_field", "")) or "graph_subject_label", existing_label, existing_kind))
+    for field in GRAPH_SUBJECT_FIELDS:
+        value = normalize(row.get(field, ""))
+        if not value:
+            continue
+        kind = graph_subject_kind(value)
+        if kind == "atomic_compound":
+            continue
+        if field.startswith("dose_or_") and kind in {"compound_combination", "treatment_regimen"}:
+            # Multiple doses or sequential administration are regimen metadata,
+            # not evidence that the graph subject contains multiple compounds.
+            continue
+        score = {
+            "exposure_context": 30,
+            "compound_combination": 20,
+            "compound_class": 10,
+            "treatment_regimen": 5,
+        }[kind]
+        if field.startswith("exposure_") or field == "intervention_or_exposure":
+            score += 4
+        candidates.append((score, len(value), field, value, kind))
+
+    if candidates:
+        _, _, source_field, label, kind = max(candidates)
+    else:
+        source_field = "compound"
+        label = atomic_candidate
+        kind = graph_subject_kind(label) or "atomic_compound"
+
+    if atomic_candidate:
+        row["atomic_compound_candidate"] = atomic_candidate
+    row["graph_subject_label"] = label
+    row["graph_subject_kind"] = kind
+    row["graph_subject_source_field"] = source_field
+    if label:
+        row["compound"] = label
+
+
+def normalized_result_direction(value: object) -> str:
+    raw = normalize(value)
+    if not raw:
+        return ""
+    key = raw.casefold().replace("-", " ").replace("_", " ")
+    key = re.sub(r"\s+", " ", key).strip()
+    if key in DIRECTION_NORMALIZATION:
+        return DIRECTION_NORMALIZATION[key]
+    if key.startswith("positive association") or key.startswith("positive correlation"):
+        return "positive_association"
+    if key.startswith("negative association") or key.startswith("negative correlation") or key.startswith("inverse association"):
+        return "negative_association"
+    if key.startswith("no significant") or key.startswith("no association") or key.startswith("no difference"):
+        return "no_association"
+    if key.startswith("increase") or key.startswith("higher"):
+        return "increase"
+    if key.startswith("decrease") or key.startswith("lower"):
+        return "decrease"
+    return "other_reported_direction"
+
+
+def evidence_design_for(row: dict) -> str:
+    explicit = normalized_status(row.get("study_design_category", ""))
+    text = " ".join(
+        normalize(row.get(field, ""))
+        for field in ("study_design_category", "study_design", "data_source_or_study_design", "model_or_system")
+    ).casefold()
+    if explicit in {"observational", "preclinical", "qualitative", "randomized_controlled_trial"}:
+        return explicit
+    explicit_aliases = {
+        "phase_2_rct": "randomized_controlled_trial",
+        "phase_3_rct": "randomized_controlled_trial",
+        "open_label": "nonrandomized_clinical_trial",
+        "single_arm_trial": "nonrandomized_clinical_trial",
+        "clinical_trial": "nonrandomized_clinical_trial",
+        "dose_finding": "nonrandomized_clinical_trial",
+        "follow_up": "observational",
+        "post_hoc": "observational",
+        "retrospective": "observational",
+        "pharmacovigilance": "observational",
+        "wastewater_surveillance": "observational",
+        "meta_analysis": "evidence_synthesis",
+        "in_vitro_assay": "in_vitro",
+        "binding_assay": "in_vitro",
+        "functional_assay": "in_vitro",
+        "ex_vivo_experiment": "ex_vivo",
+        "computational": "computational",
+    }
+    if explicit in explicit_aliases:
+        return explicit_aliases[explicit]
+    rules = (
+        ("case_report", r"\bcase report\b"),
+        ("case_series", r"\bcase series\b"),
+        ("qualitative", r"\bqualitative|interview|focus group|thematic analysis\b"),
+        ("randomized_controlled_trial", r"\brandomi[sz]ed|\brct\b|placebo[- ]controlled trial"),
+        ("observational", r"\bobservational|cross[- ]sectional|cohort|case[- ]control|survey|registry|naturalistic\b"),
+        ("preclinical", r"\bpreclinical|animal|mouse|mice|rat|rodent|in vivo\b"),
+        ("in_vitro", r"\bin vitro|cell culture|binding assay|functional assay\b"),
+        ("evidence_synthesis", r"\breview|meta[- ]analysis|evidence synthesis\b"),
+    )
+    for label, pattern in rules:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            return label
+    return "other" if explicit and explicit != "unspecified" else "unspecified"
 
 
 def normalized_entity_kind(value: object) -> str:
@@ -465,10 +694,18 @@ def review_coverage_exclusion_reason(item: dict) -> str:
 
 
 def infer_entity_kind(row: dict, domain: str) -> str:
-    for field in ("primary_graph_anchor_kind", "kg_entity_kind_override", "graph_candidate_type", "graph_entity_type"):
+    if domain == "pharmacokinetics_exposure":
+        return pk_graph_entity_kind(row)
+    for field in ("kg_entity_kind_override", "primary_graph_anchor_kind", "graph_candidate_type", "graph_entity_type"):
         kind = normalized_entity_kind(row.get(field, ""))
         if meaningful(kind) and kind not in {"not_applicable", "uncertain"}:
             return kind
+    if domain == "molecular_pathway_readout":
+        explicit_kind = normalized_entity_kind(row.get("entity_type", ""))
+        if explicit_kind in {"pathway_process", "biomarker_readout"}:
+            return explicit_kind
+        if meaningful(row.get("specific_readout_or_marker", "")):
+            return "biomarker_readout"
     if domain == "clinical_outcome" and (
         meaningful(row.get("condition_or_indication", "")) or meaningful(row.get("condition_or_population", ""))
     ):
@@ -483,6 +720,8 @@ def infer_entity_kind(row: dict, domain: str) -> str:
 
 
 def infer_entity_label(row: dict, entity_kind: str) -> str:
+    if normalize(row.get("domain", row.get("domain_route", ""))) == "pharmacokinetics_exposure":
+        return pk_graph_entity_label(row)
     label = first_meaningful(row, ("graph_entity_label", "entity_label"))
     if label:
         return label
@@ -641,11 +880,34 @@ def evidence_row_for_item(
     merge_prefer_meaningful(row, item)
     domain_result = item.get("domain_result", {}) if isinstance(item.get("domain_result"), dict) else {}
     merge_prefer_meaningful(row, domain_result)
+    warnings = result.get("warnings", []) if isinstance(result.get("warnings"), list) else []
+    if warnings:
+        row["extraction_warnings"] = " | ".join(normalize(value) for value in warnings if normalize(value))
     add_common_field_aliases(row, domain)
+    apply_graph_subject(row)
+    row["result_direction_normalized"] = normalized_result_direction(row.get("result_direction", ""))
+    row["evidence_design"] = evidence_design_for(row)
     row = add_pk_relationship_fields(row)
+    pd_target = pk_pharmacodynamic_target(row) if domain == "pharmacokinetics_exposure" else ""
+    if pd_target:
+        domain = "molecular_target"
+        row["domain"] = domain
+        row["domain_route"] = domain
+        row["dataset"] = domain
+        row["target"] = pd_target
+        row["primary_graph_anchor_kind"] = "target"
+        row["kg_entity_kind_override"] = "target"
+        row["graph_entity_label"] = pd_target
+        row["normalization_boundary_reason"] = "pharmacodynamic_target_routed_from_pk"
     apply_full_text_open_access_signal(row)
 
     entity_kind = infer_entity_kind(row, domain)
+    if domain == "molecular_target" and entity_kind in {"pathway_process", "biomarker_readout"}:
+        domain = "molecular_pathway_readout"
+        row["domain"] = domain
+        row["domain_route"] = domain
+        row["dataset"] = domain
+        row["normalization_boundary_reason"] = "molecular_target_readout_routed_to_molecular_effects"
     entity_label = infer_entity_label(row, entity_kind)
     if not meaningful(row.get("compound", "")) or not meaningful(entity_label):
         return None

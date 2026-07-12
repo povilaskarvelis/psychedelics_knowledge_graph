@@ -246,7 +246,7 @@ button.primary:hover {
 .graph-panel {
   position: relative;
   overflow: visible;
-  padding: 16px 0 16px 16px;
+  padding: 16px 0 0 16px;
   background: rgba(12, 15, 16, 0.9);
   border-color: rgba(188, 200, 201, 0.22);
 }
@@ -2653,55 +2653,6 @@ button.primary:hover {
   font-size: 0.82rem;
 }
 
-.detail-claim-cards {
-  display: grid;
-  gap: 10px;
-}
-
-.detail-claim-card {
-  display: grid;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgba(15, 19, 20, 0.7), rgba(7, 10, 10, 0.56)),
-    rgba(7, 10, 10, 0.42);
-  border: 1px solid var(--stroke-soft);
-}
-
-.detail-claim-card h5 {
-  margin: 0;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 0.86rem;
-  line-height: 1.25;
-}
-
-.detail-claim-meta {
-  display: grid;
-  gap: 3px;
-  color: var(--muted);
-  font-size: 0.76rem;
-  line-height: 1.35;
-}
-
-.detail-reference {
-  margin-top: 3px;
-  padding-top: 5px;
-  border-top: 1px solid rgba(151, 168, 175, 0.16);
-}
-
-.detail-claim-meta a {
-  color: #a9f7ef;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(169, 247, 239, 0.45);
-}
-
-.detail-claim-meta a:hover,
-.detail-claim-meta a:focus-visible {
-  color: #d8fffa;
-  border-bottom-color: rgba(216, 255, 250, 0.9);
-}
-
 .study-detail-actions {
   display: flex;
   align-items: center;
@@ -2956,7 +2907,14 @@ input[type="number"] {
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 320px;
   max-height: min(78vh, 960px);
-  background: rgba(15, 18, 20, 0.76);
+}
+
+.findings-section {
+  margin-top: 16px;
+  margin-left: -16px;
+  padding: 20px;
+  border-top: 1px solid rgba(188, 200, 201, 0.22);
+  background: rgba(15, 18, 20, 0.34);
 }
 
 .study-list {
@@ -3062,43 +3020,96 @@ input[type="number"] {
   gap: 5px;
 }
 
-.detail-claim-card.card {
-  padding: 12px;
-  gap: 10px;
-  background:
-    linear-gradient(180deg, rgba(15, 19, 20, 0.7), rgba(7, 10, 10, 0.56)),
-    rgba(7, 10, 10, 0.42);
-}
-
-.detail-claim-card.card .card-header {
-  gap: 8px;
-}
-
-.detail-claim-card.card h3 {
-  font-size: 0.9rem;
-  line-height: 1.28;
-  min-height: 0;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-}
-
-.detail-claim-card.card .meta {
-  font-size: 0.78rem;
-  gap: 4px;
-}
-
-.detail-claim-card.card .badge-row {
-  gap: 6px;
-}
-
-.detail-claim-card.card .badge {
-  font-size: 0.7rem;
-  padding: 3px 8px;
-}
-
 .card-main-finding {
   color: var(--fg);
   line-height: 1.36;
+}
+
+.paper-findings-context {
+  margin-top: 5px;
+  border: 0;
+  border-top: 1px solid rgba(151, 168, 175, 0.12);
+  border-radius: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.paper-findings-context summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 7px 2px 5px;
+  color: rgba(205, 214, 218, 0.7);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  list-style: none;
+  user-select: none;
+}
+
+.paper-findings-context summary::-webkit-details-marker {
+  display: none;
+}
+
+.paper-findings-context summary::before {
+  content: "›";
+  color: rgba(205, 214, 218, 0.48);
+  font-size: 0.9rem;
+  line-height: 1;
+  transform: rotate(0deg);
+  transition: transform 0.16s ease;
+}
+
+.paper-findings-context[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.paper-findings-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7em;
+  margin-left: auto;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(158, 169, 181, 0.08);
+  color: rgba(205, 214, 218, 0.62);
+  font-size: 0.68rem;
+}
+
+.paper-findings-list {
+  display: grid;
+  gap: 3px;
+  max-height: 280px;
+  padding: 1px 0 5px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.paper-finding-context-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  background: transparent;
+}
+
+.paper-finding-context-relation {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: rgba(238, 240, 235, 0.76);
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.28;
+}
+
+.paper-finding-context-multiplier {
+  flex: 0 0 auto;
+  color: rgba(205, 214, 218, 0.54);
+  font-size: 0.7rem;
+  font-weight: 500;
 }
 
 .card-reference {
@@ -3112,8 +3123,7 @@ input[type="number"] {
   font-style: italic;
 }
 
-.card .card-field-label,
-.detail-claim-card .card-field-label {
+.card .card-field-label {
   font-weight: 600;
 }
 

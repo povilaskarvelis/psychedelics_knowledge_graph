@@ -653,6 +653,11 @@ def add_selection_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--retry-errors", action="store_true")
     parser.add_argument("--include-not-ready", action="store_true")
     parser.add_argument("--include-scaffold-profiles", action="store_true")
+    parser.add_argument(
+        "--include-legacy-review-routes",
+        action="store_true",
+        help="Allow the older domain-by-domain review extraction path. Reviews use paper-centered extraction by default.",
+    )
     parser.add_argument("--prompt-profile", action="append", default=[])
     parser.add_argument("--schema-profile", action="append", default=[])
     parser.add_argument("--domain-route", action="append", default=[])

@@ -53,34 +53,33 @@ but the first mapping should stay compatible with the current graph.
 
 ## Planned Extensions
 
-These node kinds are useful for the new routed extraction layer but are not yet
-fully wired into the current KG projector:
+These routed node kinds are wired into the current KG projector:
 
 | Kind | Status | Domain |
 | --- | --- | --- |
-| `brain_region` | planned | Brain system |
-| `brain_network` | planned | Brain system |
-| `neural_circuit` | planned | Brain system |
-| `cognitive_behavioral_construct` | planned | Cognitive/behavioral |
-| `subjective_experience_construct` | planned | Subjective experience |
-| `pharmacokinetic_parameter` | planned | Pharmacokinetics/exposure |
-| `intervention_component` | planned | Intervention context |
-| `public_health_measure` | planned | Real-world/public health |
+| `brain_region` | current | Brain regions & networks |
+| `brain_network` | current | Brain regions & networks |
+| `neural_circuit` | current | Brain regions & networks |
+| `cognitive_behavioral_construct` | current | Cognitive/behavioral |
+| `subjective_experience_construct` | current | Subjective experience |
+| `pharmacokinetic_parameter` | current | Pharmacokinetics/exposure |
+| `intervention_component` | current | Treatment context |
+| `public_health_measure` | current | Real-world use |
 
 ## Domain Mapping
 
 | Extraction domain | Current/proposed graph node kinds |
 | --- | --- |
-| `clinical_outcome` | `condition_indication`, `symptom_problem`, `outcome_scale` |
+| `clinical_outcome` | `condition_indication`, `symptom_problem`; `outcome_scale` only for explicit instrument-focused findings |
 | `safety_tolerability` | `safety_adverse_event` |
 | `molecular_target` | `target` |
 | `molecular_pathway_readout` | `pathway_process`, `biomarker_readout` compatibility kind for molecular readouts |
 | `brain_system` | current fallback `system_family` and `biomarker_readout` compatibility kind for queryable neural readouts; planned `brain_region`, `brain_network`, `neural_circuit` |
 | `cognitive_behavioral` | planned `cognitive_behavioral_construct` |
 | `subjective_experience` | planned `subjective_experience_construct` |
-| `pharmacokinetics_exposure` | planned `pharmacokinetic_parameter` |
-| `intervention_context` | planned `intervention_component` |
-| `real_world_public_health` | planned `public_health_measure` |
+| `pharmacokinetics_exposure` | `pharmacokinetic_parameter`, plus `compound`, `target`, or `pathway_process` for metabolites, enzymes/transporters, and metabolic pathways |
+| `intervention_context` | `intervention_component` with a recognizable researcher-facing topic such as music, integration, facilitator role, therapeutic alliance, group therapy, or a named recurring psychotherapy model |
+| `real_world_public_health` | `public_health_measure` |
 
 General fallback routes are not graph-mappable until manually reassigned to
 a stable domain and node kind.
@@ -98,16 +97,16 @@ things that should later become separate graph anchors.
 
 | Domain | Review papers tend to focus on | Anchor decision |
 | --- | --- | --- |
-| `clinical_outcome` | Conditions, symptoms/problems, endpoints, outcome instruments. | Keep `condition_indication`, `symptom_problem`, `outcome_scale`. |
-| `safety_tolerability` | Adverse events, tolerability issues, risk windows, severity, monitoring, mitigation. | Keep `safety_adverse_event`; keep severity/rate/context as edge attributes. |
+| `clinical_outcome` | Conditions, symptoms/problems, endpoints, outcome instruments. | Keep conditions and symptoms as graph anchors. Keep outcome instruments as metadata/facets unless the instrument itself is the finding. |
+| `safety_tolerability` | Adverse events, tolerability issues, risk windows, severity, monitoring, mitigation. | Retain the specific event beneath a stable safety parent; keep seriousness, severity, rate, discontinuation, and context as distinct attributes or summary outcomes. |
 | `molecular_target` | Receptors, transporters, enzymes, channels, genes, proteins, binding/action/selectivity. | Keep `target`. |
 | `molecular_pathway_readout` | Signaling pathways, biological processes, molecular readouts, tissues, cell/model systems. | Keep `pathway_process` and the `biomarker_readout` compatibility kind for measured readouts. |
 | `brain_system` | Regions, networks, circuits, connectivity, activation, oscillations, imaging/PET/EEG measures. | Use separate `brain_region`, `brain_network`, and `neural_circuit` anchors; reuse the molecular-readout-compatible `biomarker_readout` kind for neural measures when they need graph queries. |
 | `cognitive_behavioral` | Cognitive constructs, behavioral constructs, tasks, task domains, animal or human behavioral models. | Keep `cognitive_behavioral_construct`. |
 | `subjective_experience` | Mystical-type experience, ego dissolution, insight, challenging experience, valence, scale dimensions. | Keep `subjective_experience_construct`; instruments/subscales are usually attributes unless we want them as `outcome_scale` nodes. |
-| `pharmacokinetics_exposure` | PK parameters, analytes, metabolites, route/formulation, matrix, enzymes/transporters, metabolic pathways, exposure-response. | Use `pharmacokinetic_parameter` for true PK/exposure parameters, and mark metabolites/analytes, enzymes/transporters, and metabolic pathways with `compound`, `target`, or `pathway_process` anchor kinds when those are the real target-side anchors. |
-| `intervention_context` | Preparation, dosing-session support, integration, psychotherapy model, setting, provider role, fidelity, delivery format, implementation, access/cultural context. | Keep `intervention_component`; use component category and implementation details as edge attributes. |
-| `real_world_public_health` | Use patterns, abuse potential, harm reduction, access/equity, policy, service delivery, epidemiology, population risks/benefits. | Keep `public_health_measure`, interpreted broadly enough to include stable public-health topics and measures. |
+| `pharmacokinetics_exposure` | PK parameters, analytes, metabolites, route/formulation, matrix, enzymes/transporters, metabolic pathways, exposure-response. | Project the extracted PK relationship itself (`metabolized_to`, `metabolized_by`, `distributed_to`, and so on). Use `pharmacokinetic_parameter` only for true exposure parameters; potency and occupancy without measured exposure belong to molecular evidence. |
+| `intervention_context` | Preparation, dosing-session support, integration, psychotherapy model, setting, provider role, fidelity, delivery format, implementation, access/cultural context. | Retain exact paper wording in the finding, but aggregate aliases under recognizable topic nodes. Keep well-represented topics separate and place sparse long-tail details in clearly named `Other ...` buckets. Keep dose, route, participant traits, subjective effects, and outcomes as metadata or in their corresponding domains. |
+| `real_world_public_health` | Population use, use patterns, motivations, health outcomes, harms, treatment effectiveness, access/equity, implementation, economics, policy, and supply composition. | Keep `public_health_measure` for graph-facing research topics/outcomes; keep use context and data source as separate facets. |
 
 ## Schema Design Rule
 
@@ -136,13 +135,22 @@ paper context:
   combined wording.
 - Cognition and behavior: use `graph_construct_label` for the graph node,
   `construct_family` for cognition versus behavior, and `raw_task_or_measure`
-  for the task, assay, or instrument.
-- Molecular pathway/readout evidence: use `molecular_effect_category` for the
-  graph node and `specific_readout_or_marker` for the exact marker or assay
-  readout.
-- Naturalistic use: use `data_source_type` for survey, poison-center,
-  wastewater, drug-checking, registry, qualitative/interview, or observational
-  cohort source classes.
+  for the task, assay, or instrument. Specific constructs remain visible nodes
+  and may retain a broader parent family—for example `Verbal memory` under
+  `Memory`, `Drug reinstatement` under `Drug seeking`, and `Reversal learning`
+  under `Cognitive flexibility`.
+- Molecular pathway/readout evidence: use `specific_readout_or_marker` or the
+  specific pathway field for the graph node, and retain
+  `molecular_effect_category` as its broad parent facet.
+- Brain-system evidence: canonical subregions remain distinct graph entities;
+  the node vocabulary records their broader anatomical parent rather than
+  treating a subregion name as an alias of that parent.
+- Real-world use: graph nodes represent the substantive research topic or
+  outcome. Use `real_world_use_context` for coexisting context tags such as
+  Microdosing, Recreational/nightlife, Self-treatment, Ceremonial/retreat,
+  Polysubstance, or Clinical care, and use `data_source_type` for survey,
+  poison-center, wastewater, drug-checking, registry, qualitative/interview,
+  or observational-cohort source classes.
 - Cross-domain context: optional `population_model_category`,
   `study_design_category`, `administration_route`, `dosing_schedule`,
   `session_context`, and `experimental_system_category` fields support cleaner

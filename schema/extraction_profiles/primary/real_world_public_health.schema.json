@@ -111,10 +111,14 @@
         },
         "public_health_topic_category": {
           "type": "string",
-          "description": "Stable public-health or naturalistic-use topic for the graph node, such as Microdosing, Recreational use, Self-treatment, Ceremonial/retreat use, Polysubstance use, Prevalence & trends, Problematic use, Drug checking & adulteration, Emergency/toxicology reports, Wastewater & market signals, Access to services, or Legal/criminal justice."
+          "description": "Stable graph-facing real-world research topic or outcome. Use one substantive axis, such as Population use & trends, Use patterns & practices, Motivations & intentions, Predictors & correlates, Perceived benefits & harms, Health & functioning outcomes, Problematic use & dependence, Acute harms & healthcare use, Treatment effectiveness & care outcomes, Harm reduction practices, Drug composition & adulteration, Availability & market trends, Access & equity, Implementation & acceptability, Economic & resource impacts, or Policy & legal outcomes. Do not put use setting, dosing pattern, co-use context, or data-source type in this field."
         },
         "public_health_measure": {
           "type": "string"
+        },
+        "real_world_use_context": {
+          "type": "string",
+          "description": "Optional semicolon-separated context tags that can coexist: Microdosing, Recreational/nightlife, Self-treatment, Ceremonial/retreat, Polysubstance, and Clinical care. These describe how or where use occurred, not the graph topic or outcome."
         },
         "data_source_type": {
           "type": "string",

@@ -157,3 +157,87 @@ def test_node_vocabulary_covers_new_planned_node_kinds() -> None:
     assert planned_node_kinds <= vocabulary_kinds
     for kind in planned_node_kinds:
         assert vocabulary["node_kinds"][kind], kind
+
+
+def test_brain_vocabulary_models_subregions_as_children_not_aliases() -> None:
+    vocabulary = json.loads(NODE_VOCABULARY_PATH.read_text(encoding="utf-8"))
+    regions = vocabulary["node_kinds"]["brain_region"]
+    by_label = {item["label"]: item for item in regions}
+
+    for item in regions:
+        parent = item.get("parent")
+        if parent:
+            assert parent in by_label, (item["label"], parent)
+
+    expected_parents = {
+        "Ventromedial prefrontal cortex": "Medial prefrontal cortex",
+        "Dorsal anterior cingulate cortex": "Anterior cingulate cortex",
+        "Hippocampal CA1": "Hippocampus",
+        "Dentate gyrus": "Hippocampus",
+        "Pulvinar": "Thalamus",
+        "Caudate nucleus": "Dorsal striatum",
+        "Substantia nigra": "Midbrain",
+        "Median raphe nucleus": "Raphe nuclei",
+    }
+    for label, parent in expected_parents.items():
+        assert by_label[label]["parent"] == parent
+        assert label.casefold() not in {alias.casefold() for alias in by_label[parent].get("aliases", [])}
+
+
+def test_cognitive_behavioral_vocabulary_models_specific_constructs_as_children() -> None:
+    vocabulary = json.loads(NODE_VOCABULARY_PATH.read_text(encoding="utf-8"))
+    constructs = vocabulary["node_kinds"]["cognitive_behavioral_construct"]
+    by_label = {item["label"]: item for item in constructs}
+
+    for item in constructs:
+        parent = item.get("parent")
+        if parent:
+            assert parent in by_label, (item["label"], parent)
+
+    expected_parents = {
+        "Anhedonia": "Reward processing",
+        "Reward responsiveness": "Reward processing",
+        "Drug reinstatement": "Drug seeking",
+        "Drug cue reactivity": "Drug seeking",
+        "Craving": "Drug seeking",
+        "Anxiety-like behavior": "Threat avoidance",
+        "Avoidance learning": "Memory",
+        "Reversal learning": "Cognitive flexibility",
+        "Set shifting": "Cognitive flexibility",
+        "Verbal memory": "Memory",
+        "Episodic memory": "Memory",
+    }
+    for label, parent in expected_parents.items():
+        assert by_label[label]["parent"] == parent
+        assert label.casefold() not in {alias.casefold() for alias in by_label[parent].get("aliases", [])}
+
+
+def test_real_world_vocabulary_uses_one_topic_axis() -> None:
+    vocabulary = json.loads(NODE_VOCABULARY_PATH.read_text(encoding="utf-8"))
+    labels = {item["label"] for item in vocabulary["node_kinds"]["public_health_measure"]}
+
+    assert {
+        "Population use & trends",
+        "Use patterns & practices",
+        "Problematic use & dependence",
+        "Acute harms & healthcare use",
+        "Drug composition & adulteration",
+        "Access & equity",
+        "Policy & legal outcomes",
+    } <= labels
+    assert labels.isdisjoint(
+        {
+            "Microdosing",
+            "Recreational use",
+            "Self-treatment",
+            "Ceremonial/retreat use",
+            "Polysubstance use",
+            "Clinical treatment",
+            "Emergency/toxicology reports",
+            "Wastewater & market signals",
+        }
+    )
+
+    mapping = load_mapping()["domain_mappings"]["real_world_public_health"]
+    assert "real_world_use_context" in mapping["anchor_fields"]["context"]
+    assert "real_world_use_context" in mapping["attribute_fields"]

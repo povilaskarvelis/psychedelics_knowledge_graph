@@ -85,7 +85,7 @@
     "pharmacokinetic_parameter": {
       "status": "planned",
       "entity_type": "exposure_entity",
-      "description": "Pharmacokinetic or exposure parameter, analyte, metabolite, route-dependent exposure measure, or exposure-response construct."
+      "description": "True pharmacokinetic or exposure parameter such as Cmax, Tmax, AUC, half-life, clearance, bioavailability, concentration, or volume of distribution. Metabolites, enzymes, transporters, and metabolic pathways use their own node kinds."
     },
     "intervention_component": {
       "status": "planned",
@@ -161,7 +161,58 @@
       "to": "subjective_experience_construct"
     },
     "has_pharmacokinetic_exposure": {
-      "status": "planned",
+      "status": "compatibility_only",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter",
+      "description": "Legacy generic PK relationship. New primary evidence uses the specific PK relationship types below."
+    },
+    "exposure_characterized": {
+      "status": "current",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter"
+    },
+    "metabolized_to": {
+      "status": "current",
+      "from": "compound",
+      "to": "compound"
+    },
+    "metabolized_by": {
+      "status": "current",
+      "from": "compound",
+      "to": "target"
+    },
+    "metabolized_via": {
+      "status": "current",
+      "from": "compound",
+      "to": "pathway_process"
+    },
+    "exposure_altered_by": {
+      "status": "current",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter|compound|target"
+    },
+    "route_or_formulation_changes_exposure": {
+      "status": "current",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter"
+    },
+    "distributed_to": {
+      "status": "current",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter"
+    },
+    "eliminated_by": {
+      "status": "current",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter|pathway_process"
+    },
+    "exposure_linked_to_effect": {
+      "status": "current",
+      "from": "compound",
+      "to": "pharmacokinetic_parameter"
+    },
+    "detected_or_monitored_in": {
+      "status": "current",
       "from": "compound",
       "to": "pharmacokinetic_parameter"
     },
@@ -460,6 +511,7 @@
           "compound_or_exposure"
         ],
         "entity": [
+          "specific_readout_or_marker",
           "pathway_or_process",
           "pathway_or_readout",
           "readout_or_biomarker"
@@ -472,6 +524,7 @@
         ]
       },
       "attribute_fields": [
+        "molecular_effect_category",
         "readout_category",
         "assay_or_method",
         "data_source_or_method",
@@ -485,7 +538,8 @@
       ],
       "schema_cleanup_notes": [
         "Map extraction value molecular_readout to KG entity_kind biomarker_readout until the internal compatibility key is renamed.",
-        "Use pathway_process for processes such as mTOR signaling or synaptogenesis, and biomarker_readout for measured molecular readouts such as BDNF expression or cytokine levels."
+        "Use pathway_process for processes such as mTOR signaling or synaptogenesis, and biomarker_readout for measured molecular readouts such as BDNF expression or cytokine levels.",
+        "Retain the specific pathway or readout as the graph entity and store molecular_effect_category as its broad parent facet."
       ]
     },
     "brain_system": {
@@ -823,10 +877,12 @@
           "population",
           "population_or_setting",
           "setting",
+          "real_world_use_context",
           "use_pattern_or_service_context"
         ]
       },
       "attribute_fields": [
+        "real_world_use_context",
         "data_source_or_study_design",
         "exposure_pattern_or_intensity",
         "estimate_value",

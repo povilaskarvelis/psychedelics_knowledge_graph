@@ -8,15 +8,21 @@ import pandas as pd
 from pipeline.extract.io_utils import write_json
 from pipeline.kg.build_evidence_tables import (
     DEFAULT_ROUTED_KG_RUN_ROOT,
+    MOLECULAR_SUBTOPIC_RULES_BY_PARENT,
     build_tables,
     canonicalize_registry_label,
     clinical_endpoint_rows,
     graphable_compound_match,
+    looks_like_compound_list,
     graph_sources_for_preset,
     match_vocabulary_entity,
     molecular_effect_label,
+    molecular_finding_subtopic,
+    molecular_parent_from_specific,
+    molecular_subtopic_coverage_summary,
     node_vocabulary_lookup,
     normalize_claim_metadata,
+    overview_graph_subject,
     registry_lookup,
     resolve_kg_output_dir,
     safety_endpoint_label,
@@ -26,6 +32,59 @@ from pipeline.kg.build_evidence_tables import (
 
 
 class BuildEvidenceTablesTest(unittest.TestCase):
+    def test_generic_psychedelic_overview_subjects_are_context_specific(self) -> None:
+        registry = {
+            ("compound", "psilocybin"): {"label": "Psilocybin"},
+            ("compound", "lsd"): {"label": "LSD"},
+            ("compound", "dmt"): {"label": "DMT"},
+            ("compound", "mdma"): {"label": "MDMA"},
+        }
+        generic_match = {
+            "label": "Psychedelics",
+            "subject_kind": "compound_class",
+        }
+        cases = [
+            (
+                {"graph_entity_label": "5-HT2A", "support": "5-HT2A receptor-mediated signalling"},
+                "Serotonergic psychedelics",
+            ),
+            (
+                {"study_title": "Recreational use of psychedelics and brain serotonin markers"},
+                "Recreational psychedelic exposure",
+            ),
+            (
+                {"compound_or_exposure": "Lifetime naturalistic psychedelic use"},
+                "Naturalistic psychedelic exposure",
+            ),
+            (
+                {"primary_compounds_or_classes": "psilocybin, LSD, DMT, MDMA"},
+                "Mixed psychedelic compounds",
+            ),
+            (
+                {"compound_or_intervention": "psychedelic-assisted psychotherapy"},
+                "Psychedelic-assisted therapy (unspecified compound)",
+            ),
+            ({"support": "Psychedelic compounds were examined."}, "Unspecified psychedelic compounds"),
+        ]
+        for row, expected in cases:
+            with self.subTest(expected=expected):
+                result = overview_graph_subject(row, generic_match, registry)
+                self.assertEqual(result["label"], expected)
+                self.assertNotEqual(result["label"], "Psychedelics")
+
+        classic = overview_graph_subject(
+            {},
+            {"label": "Classic psychedelics", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(classic["label"], "Serotonergic psychedelics")
+
+    def test_compound_list_gate_distinguishes_lists_from_chemical_locants_and_metadata(self) -> None:
+        self.assertTrue(looks_like_compound_list("Ketamine, esketamine, arketamine"))
+        self.assertTrue(looks_like_compound_list("LSD, psilocybin, mescaline, or ayahuasca"))
+        self.assertFalse(looks_like_compound_list("N,N-dimethyltryptamine (DMT)"))
+        self.assertFalse(looks_like_compound_list("Ketamine, intravenous infusion"))
+
     def test_routed_source_preset_uses_route_native_sources(self) -> None:
         self.assertEqual(set(graph_sources_for_preset("routed")), {"routed_extractions", "routed_clinical_endpoints"})
 
@@ -160,17 +219,17 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 self.assertEqual(canonicalize_registry_label("mechanistic_entity", raw_label, registry)[0], expected)
 
         brain_cases = [
-            ("ventral medial prefrontal cortex (vmPFC)", "Medial prefrontal cortex"),
-            ("primary visual area (V1)", "Occipital cortex"),
+            ("ventral medial prefrontal cortex (vmPFC)", "Ventromedial prefrontal cortex"),
+            ("primary visual area (V1)", "Primary visual cortex"),
             ("ventral tegmental area (VTA)", "Ventral tegmental area"),
-            ("caudate nucleus", "Striatum"),
-            ("primary somatosensory cortex (S1)", "Somatosensory cortex"),
+            ("caudate nucleus", "Caudate nucleus"),
+            ("primary somatosensory cortex (S1)", "Primary somatosensory cortex"),
             ("lateral habenula (LHb)", "Lateral habenula"),
             ("periaqueductal grey (PAG)", "Periaqueductal gray"),
             ("piriform cortex (PirC)", "Piriform cortex"),
             ("locus coeruleus", "Locus coeruleus"),
             ("left precuneus", "Precuneus"),
-            ("posterior parahippocampal cortex", "Parahippocampal cortex"),
+            ("posterior parahippocampal cortex", "Posterior parahippocampal cortex"),
             ("auditory cortex", "Auditory cortex"),
         ]
         for raw_label, expected in brain_cases:
@@ -342,7 +401,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "c-Fos expression",
                     "support": "Treatment increased c-Fos expression, a marker of neuronal activation.",
                 },
-                "Immediate early gene activation",
+                "Gene expression & activity markers",
             ),
             (
                 {
@@ -363,7 +422,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "CB1 receptor mRNA expression",
                     "support": "Treatment decreased Cnr1 mRNA expression in hippocampus.",
                 },
-                "Gene expression",
+                "Gene expression & activity markers",
             ),
             (
                 {
@@ -378,14 +437,14 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "Norepinephrine release",
                     "support": "Treatment increased extracellular norepinephrine efflux.",
                 },
-                "Norepinephrine signaling",
+                "Neurotransmitter release, uptake & turnover",
             ),
             (
                 {
                     "graph_entity_label": "TNF-alpha levels",
                     "support": "Treatment decreased the pro-inflammatory cytokine TNF-alpha.",
                 },
-                "Inflammation",
+                "Neuroinflammation & immune signaling",
             ),
             (
                 {
@@ -399,7 +458,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "Cellular stress",
                     "support": "The finding concerned cellular stress markers.",
                 },
-                "Cellular stress",
+                "Cellular stress & mitochondrial function",
             ),
             (
                 {
@@ -413,28 +472,28 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "GluN2B levels",
                     "support": "Treatment altered GluN2B protein levels.",
                 },
-                "Glutamate signaling",
+                "Receptor regulation & trafficking",
             ),
             (
                 {
                     "graph_entity_label": "P-glycoprotein levels",
                     "support": "Treatment changed P-glycoprotein levels at the blood-brain barrier.",
                 },
-                "Receptor regulation",
+                "Receptor regulation & trafficking",
             ),
             (
                 {
                     "graph_entity_label": "mGluR5 expression",
                     "support": "Treatment changed mGluR5 expression.",
                 },
-                "Glutamate signaling",
+                "Receptor regulation & trafficking",
             ),
             (
                 {
                     "graph_entity_label": "Rac1 activation",
                     "support": "Treatment increased Rac1 activation.",
                 },
-                "Intracellular signaling",
+                "Intracellular signal transduction",
             ),
             (
                 {
@@ -459,6 +518,171 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     expected,
                 )
 
+    def test_molecular_effect_parents_are_process_categories_not_free_text(self) -> None:
+        self.assertEqual(
+            molecular_effect_label(
+                {
+                    "molecular_effect_category": "Electrophysiology",
+                    "specific_readout_or_marker": "Spontaneous excitatory postsynaptic currents",
+                },
+                "biomarker_readout",
+                "Spontaneous excitatory postsynaptic currents",
+            ),
+            "Neuronal excitability & synaptic transmission",
+        )
+        self.assertEqual(
+            molecular_effect_label(
+                {
+                    "molecular_effect_category": "Serotonin signaling",
+                    "specific_readout_or_marker": "5-HT2A receptor density",
+                },
+                "biomarker_readout",
+                "5-HT2A receptor density",
+            ),
+            "Receptor regulation & trafficking",
+        )
+        self.assertEqual(
+            molecular_effect_label(
+                {
+                    "molecular_effect_category": "Bone metabolism",
+                    "specific_readout_or_marker": "Bone mineralization marker",
+                },
+                "biomarker_readout",
+                "Bone mineralization marker",
+            ),
+            "",
+        )
+
+    def test_molecular_specific_readouts_correct_wrong_parent_categories(self) -> None:
+        cases = [
+            ("Receptor regulation & trafficking", "Serotonin release", "Neurotransmitter release, uptake & turnover"),
+            ("Gene expression & activity markers", "5-HT2A receptor mRNA expression", "Receptor regulation & trafficking"),
+            ("Receptor regulation & trafficking", "NMDA receptor electrophysiology", "Neuronal excitability & synaptic transmission"),
+            ("Intracellular signal transduction", "ERK1/2 phosphorylation", "Intracellular signal transduction"),
+            ("Genetic moderators", "5-HT2A receptor expression", "Genetic moderators"),
+        ]
+        for current_parent, entity_label, expected in cases:
+            with self.subTest(entity_label=entity_label):
+                self.assertEqual(molecular_parent_from_specific({}, current_parent, entity_label), expected)
+
+    def test_molecular_subtopics_cover_researcher_facing_families(self) -> None:
+        cases = [
+            ("Receptor regulation & trafficking", "5-HT2A receptor density", "Serotonin receptors"),
+            ("Intracellular signal transduction", "Akt/mTOR phosphorylation", "PI3K–Akt–mTOR signaling"),
+            ("Neuroinflammation & immune signaling", "Microglial Iba1 expression", "Microglial activation"),
+            ("Neurotransmitter release, uptake & turnover", "Extracellular dopamine levels", "Dopamine release & turnover"),
+            ("Neuronal excitability & synaptic transmission", "Spontaneous IPSC frequency", "Inhibitory postsynaptic currents"),
+            ("Cellular stress & mitochondrial function", "Malondialdehyde and lipid peroxidation", "Oxidative damage & lipid peroxidation"),
+            ("Drug metabolism", "CYP2D6-mediated metabolism", "CYP-mediated metabolism"),
+            ("Endocrine response", "Cortisol and ACTH levels", "HPA-axis hormones"),
+            ("Cell injury & survival", "Cleaved caspase-3 expression", "Apoptosis & caspase signaling"),
+            ("Epigenetic regulation", "H3K27ac histone modification", "Histone acetylation"),
+            ("Genetic moderators", "CYP2D6 metabolizer genotype", "Drug-metabolism variants"),
+            ("Gut microbiome", "Gut microbiome alpha diversity", "Alpha diversity"),
+            ("Neurogenesis", "BrdU-positive progenitor proliferation", "Neural progenitor proliferation"),
+            ("Neuroplasticity", "GDNF protein levels", "Neurotrophic growth factors"),
+            ("Receptor regulation & trafficking", "Oxytocin receptor mRNA expression", "Neuropeptide & hormone receptors"),
+            ("Intracellular signal transduction", "STING/TBK pathway activation", "STING–TBK signaling"),
+            ("Neuroinflammation & immune signaling", "Serum CXCL10 levels", "Cytokines & chemokines"),
+            ("Neurotransmitter release, uptake & turnover", "Extracellular histamine release", "Histamine release & turnover"),
+            ("Drug metabolism", "CSF metabolome", "Metabolomics & endogenous metabolism"),
+            ("Genetic moderators", "OXTR gene variant", "Oxytocin & vasopressin variants"),
+            ("Receptor regulation & trafficking", "orphan receptor abundance", "Other findings"),
+        ]
+        for parent, entity_label, expected in cases:
+            with self.subTest(parent=parent, entity_label=entity_label):
+                self.assertEqual(molecular_finding_subtopic({}, parent, entity_label), expected)
+
+        specific_other_labels = {
+            subtopic
+            for rules in MOLECULAR_SUBTOPIC_RULES_BY_PARENT.values()
+            for subtopic, _ in rules
+            if subtopic.casefold().startswith("other ") and subtopic != "Other findings"
+        }
+        self.assertEqual(specific_other_labels, set())
+
+    def test_molecular_subtopic_coverage_audit_rejects_large_junk_drawers(self) -> None:
+        failing = pd.DataFrame(
+            [
+                {
+                    "domain": "molecular_pathway_readout",
+                    "graph_parent_label": "Example parent",
+                    "molecular_finding_subtopic": "Mapped" if index < 40 else "",
+                }
+                for index in range(60)
+            ]
+        )
+        passing = failing.copy()
+        passing.loc[:47, "molecular_finding_subtopic"] = "Mapped"
+        self.assertEqual(molecular_subtopic_coverage_summary(failing)["status"], "failed")
+        self.assertEqual(molecular_subtopic_coverage_summary(passing)["status"], "ok")
+
+        explicit_other = passing.copy()
+        explicit_other.loc[:15, "molecular_finding_subtopic"] = "Other findings"
+        self.assertEqual(molecular_subtopic_coverage_summary(explicit_other)["status"], "failed")
+
+    def test_molecular_safety_boundaries_route_adverse_endpoints(self) -> None:
+        neurotoxicity = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Neurotoxicity",
+                "specific_readout_or_marker": "Dopaminergic terminal loss",
+                "support": "MDMA produced dopaminergic terminal damage and neuronal loss.",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(neurotoxicity["domain"], "safety_tolerability")
+        self.assertEqual(neurotoxicity["kg_entity_kind_override"], "safety_adverse_event")
+        self.assertEqual(neurotoxicity["graph_entity_label"], "Neurotoxicity/cytotoxicity")
+        self.assertEqual(neurotoxicity["normalization_boundary_reason"], "molecular_neurotoxicity_routed_to_safety")
+
+        cardiac = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Electrophysiology",
+                "specific_readout_or_marker": "Action potential repolarization (APD90)",
+                "model_or_system": "human ventricular cardiomyocytes",
+                "support": "Ibogaine prolonged APD90 repolarization.",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(cardiac["domain"], "safety_tolerability")
+        self.assertEqual(cardiac["kg_entity_kind_override"], "safety_adverse_event")
+        self.assertEqual(cardiac["normalization_boundary_reason"], "cardiac_electrophysiology_routed_to_safety")
+
+        herg = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Ion channel activity",
+                "specific_readout_or_marker": "hERG (KCNH2) current",
+                "assay_type": "patch clamp",
+                "support": "The compound inhibited cardiac hERG currents.",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(herg["domain"], "safety_tolerability")
+        self.assertEqual(herg["normalization_boundary_reason"], "cardiac_electrophysiology_routed_to_safety")
+
+        neuronal = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Electrophysiology",
+                "specific_readout_or_marker": "Spontaneous excitatory postsynaptic currents",
+                "model_or_system": "hippocampal slices",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(neuronal.get("domain", "molecular_pathway_readout"), "molecular_pathway_readout")
+        self.assertNotEqual(neuronal.get("kg_entity_kind_override"), "safety_adverse_event")
+
+        temperature = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Endocrine response",
+                "specific_readout_or_marker": "Core body temperature",
+                "support": "The compound caused a sustained hypothermic response.",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(temperature["domain"], "safety_tolerability")
+        self.assertEqual(temperature["graph_entity_label"], "Body temperature effects")
+        self.assertEqual(temperature["normalization_boundary_reason"], "molecular_physiology_routed_to_safety")
+
     def test_real_world_public_health_metadata_uses_naturalistic_use_graph_nodes(self) -> None:
         cases = [
             (
@@ -467,7 +691,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_topic_category": "epidemiology",
                     "finding_summary": "Lifetime LSD use was reported by 1.2% of the general population.",
                 },
-                "Prevalence & trends",
+                "Population use & trends",
             ),
             (
                 {
@@ -476,7 +700,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "study_title": "Prevalence and Reasons for Microdosing Cannabis, Psilocybin, LSD, and MDMA Among US Adults",
                     "finding_summary": "The lifetime prevalence of LSD microdosing was estimated at 4.8%.",
                 },
-                "Microdosing",
+                "Population use & trends",
             ),
             (
                 {
@@ -484,56 +708,56 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_topic_category": "use patterns and administration routes",
                     "finding_summary": "Smoking was the most prevalent route among recreational DMT users.",
                 },
-                "Recreational use",
+                "Use patterns & practices",
             ),
             (
                 {
                     "public_health_measure": "Reporting Odds Ratio for substance-related adverse events",
                     "public_health_topic_category": "Abuse liability and misuse",
                 },
-                "Emergency/toxicology reports",
+                "Acute harms & healthcare use",
             ),
             (
                 {
                     "public_health_measure": "Suicidal ideation, planning, and attempts",
                     "public_health_topic_category": "Population-level safety",
                 },
-                "Emergency/toxicology reports",
+                "Acute harms & healthcare use",
             ),
             (
                 {
                     "public_health_measure": "Population-normalised daily loads in wastewater",
                     "study_design": "Wastewater-based epidemiology surveillance",
                 },
-                "Wastewater & market signals",
+                "Population use & trends",
             ),
             (
                 {
                     "public_health_measure": "ethnoracial inclusion",
                     "public_health_topic_category": "access and equity",
                 },
-                "Access to services",
+                "Access & equity",
             ),
             (
                 {
                     "public_health_measure": "Early access programme utilization and patient characteristics",
                     "public_health_topic_category": "Service delivery and access",
                 },
-                "Access to services",
+                "Access & equity",
             ),
             (
                 {
                     "public_health_measure": "Prevalence of drug type in amnesty bins",
                     "public_health_topic_category": "Harm reduction and drug adulteration",
                 },
-                "Drug checking & adulteration",
+                "Drug composition & adulteration",
             ),
             (
                 {
                     "public_health_measure": "Past year crime arrests",
                     "public_health_topic_category": "Criminality and Public Safety",
                 },
-                "Legal/criminal justice",
+                "Policy & legal outcomes",
             ),
             (
                 {
@@ -541,21 +765,21 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_measure": "Prevalence of use and preventive efficacy",
                     "population": "patients with cluster headache",
                 },
-                "Self-treatment",
+                "Perceived benefits & harms",
             ),
             (
                 {
                     "public_health_measure": "Rate of problematic use patterns",
                     "support": "A retreat center owner estimated that 1 in 10 participants develop a temporary obsessive relationship with ayahuasca.",
                 },
-                "Ceremonial/retreat use",
+                "Problematic use & dependence",
             ),
             (
                 {
                     "public_health_measure": "Polysubstance use prevalence",
                     "finding_summary": "Most first-time LSD users reported co-use with cannabis or alcohol.",
                 },
-                "Polysubstance use",
+                "Population use & trends",
             ),
             (
                 {
@@ -565,7 +789,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_topic_category": "Problematic use",
                     "support": "Seven out of 21 patients discontinued treatment because of clinical reasons, lack of benefit, or side effects.",
                 },
-                "Clinical treatment",
+                "Treatment effectiveness & care outcomes",
             ),
             (
                 {
@@ -575,7 +799,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_topic_category": "Self-treatment",
                     "support": "In a real-world inpatient cohort, patients achieved response and remission following esketamine induction.",
                 },
-                "Clinical treatment",
+                "Treatment effectiveness & care outcomes",
             ),
             (
                 {
@@ -584,7 +808,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_topic_category": "Problematic use",
                     "support": "Among recreational ketamine users, six individuals reported urinary frequency.",
                 },
-                "Recreational use",
+                "Health & functioning outcomes",
             ),
             (
                 {
@@ -593,14 +817,14 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_topic_category": "Problematic use",
                     "support": "Psilocybin was rated as having low levels of unpleasant side effects compared to alcohol or nicotine.",
                 },
-                "Self-treatment",
+                "Perceived benefits & harms",
             ),
             (
                 {
                     "public_health_measure": "Hallucinogen use disorder prevalence",
                     "public_health_topic_category": "Abuse liability and misuse",
                 },
-                "Problematic use",
+                "Problematic use & dependence",
             ),
         ]
 
@@ -610,6 +834,58 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 self.assertEqual(normalized["public_health_graph_label"], expected)
                 self.assertEqual(normalized["graph_entity_label"], expected)
 
+    def test_real_world_public_health_separates_topic_context_and_source_axes(self) -> None:
+        cases = [
+            (
+                {
+                    "exposure_or_policy": "Self-administered psilocybin microdosing for self-treatment",
+                    "public_health_measure": "Lifetime prevalence",
+                    "study_design": "Online survey",
+                },
+                "Population use & trends",
+                "Microdosing; Self-treatment",
+                "survey",
+            ),
+            (
+                {
+                    "exposure_or_policy": "Ceremonial ayahuasca with polysubstance co-use",
+                    "public_health_measure": "Emergency presentation for acute intoxication",
+                    "data_source_or_study_design": "Poison-center records",
+                },
+                "Acute harms & healthcare use",
+                "Ceremonial/retreat; Polysubstance",
+                "poison_center_toxicology",
+            ),
+            (
+                {
+                    "exposure_or_policy": "Recreational MDMA use at a festival",
+                    "public_health_measure": "Product mislabeling and unexpected drug detection",
+                    "study_design": "On-site drug checking",
+                },
+                "Drug composition & adulteration",
+                "Recreational/nightlife",
+                "drug_checking",
+            ),
+            (
+                {
+                    "compound_original": "Intranasal esketamine",
+                    "population": "Outpatients with treatment-resistant depression",
+                    "public_health_topic_category": "Self-treatment",
+                    "public_health_measure": "Treatment response and remission rates",
+                },
+                "Treatment effectiveness & care outcomes",
+                "Clinical care",
+                "other_or_unclear",
+            ),
+        ]
+
+        for row, expected_topic, expected_context, expected_source in cases:
+            with self.subTest(expected_topic=expected_topic, row=row):
+                normalized = normalize_claim_metadata(dict(row), "real_world_public_health")
+                self.assertEqual(normalized["graph_entity_label"], expected_topic)
+                self.assertEqual(normalized["real_world_use_context"], expected_context)
+                self.assertEqual(normalized["data_source_type"], expected_source)
+
     def test_cognitive_behavioral_metadata_uses_construct_graph_nodes(self) -> None:
         cases = [
             (
@@ -618,7 +894,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "task_or_measure": "Sucrose preference test",
                     "support": "Treatment reversed stress-induced anhedonia.",
                 },
-                "Reward processing",
+                "Anhedonia",
             ),
             (
                 {
@@ -648,7 +924,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "Anxiety-like behavior",
                     "task_or_measure": "Elevated plus maze",
                 },
-                "Threat avoidance",
+                "Anxiety-like behavior",
             ),
             (
                 {
@@ -663,14 +939,14 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "Addiction behavior",
                     "support": "The compound blocked reinstatement of ethanol seeking.",
                 },
-                "Drug seeking",
+                "Drug reinstatement",
             ),
             (
                 {
                     "graph_entity_label": "Addiction behavior",
                     "outcome_measure": "Opioid Craving Scale",
                 },
-                "Drug seeking",
+                "Craving",
             ),
             (
                 {
@@ -715,7 +991,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "graph_entity_label": "Memory",
                     "outcome_measure": "One-trial passive avoidance task",
                 },
-                "Threat avoidance",
+                "Avoidance learning",
             ),
             (
                 {
@@ -739,6 +1015,104 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "outcome_measure": "N-back accuracy",
                 },
                 "Working memory",
+            ),
+            (
+                {
+                    "graph_entity_label": "Memory",
+                    "task_or_measure": "Rey Auditory Verbal Learning Test",
+                },
+                "Verbal memory",
+            ),
+            (
+                {
+                    "graph_entity_label": "Memory",
+                    "construct_or_behavior": "episodic memory",
+                },
+                "Episodic memory",
+            ),
+            (
+                {
+                    "graph_entity_label": "Cognitive flexibility",
+                    "task_or_measure": "Probabilistic reversal learning task",
+                },
+                "Reversal learning",
+            ),
+            (
+                {
+                    "graph_entity_label": "Cognitive flexibility",
+                    "task_or_measure": "Wisconsin Card Sorting Test (WCST)",
+                },
+                "Set shifting",
+            ),
+            (
+                {
+                    "graph_entity_label": "Psychological flexibility",
+                    "task_or_measure": "Acceptance and Action Questionnaire-II (AAQ-II)",
+                },
+                "Psychological flexibility",
+            ),
+            (
+                {
+                    "graph_entity_label": "Threat avoidance",
+                    "construct_or_behavior": "compulsivity",
+                    "task_or_measure": "Marble burying test",
+                },
+                "Compulsivity",
+            ),
+            (
+                {
+                    "graph_entity_label": "Reward processing",
+                    "task_or_measure": "Intracranial self-stimulation (ICSS)",
+                },
+                "Reward responsiveness",
+            ),
+            (
+                {
+                    "graph_entity_label": "Drug seeking",
+                    "outcome_measure": "Alcohol deprivation effect (ADE)",
+                },
+                "Relapse",
+            ),
+            (
+                {
+                    "graph_entity_label": "Drug seeking",
+                    "construct_or_behavior": "Alcohol cue reactivity",
+                    "task_or_measure": "Alcohol-cue fMRI task",
+                },
+                "Drug cue reactivity",
+            ),
+            (
+                {
+                    "graph_entity_label": "Cognitive flexibility",
+                    "construct_or_behavior": "Mindfulness",
+                    "task_or_measure": "Five Facet Mindfulness Questionnaire (FFMQ)",
+                },
+                "Mindfulness",
+            ),
+            (
+                {
+                    "graph_entity_label": "Cognitive flexibility",
+                    "construct_or_behavior": "Decentering",
+                    "task_or_measure": "Experiences Questionnaire",
+                },
+                "Decentering",
+            ),
+            (
+                {
+                    "graph_entity_label": "Threat avoidance",
+                    "construct_or_behavior": "Anxiety",
+                    "task_or_measure": "Hamilton Anxiety Rating Scale (HAM-A)",
+                    "study_title": "Anxiety and opioid craving after treatment",
+                },
+                "Anxiety-like behavior",
+            ),
+            (
+                {
+                    "graph_entity_label": "Reward processing",
+                    "construct_or_behavior": "Anhedonia",
+                    "outcome_measure": "Sucrose consumption",
+                },
+                "Anhedonia",
             ),
             (
                 {
@@ -889,6 +1263,68 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertTrue(findings.empty)
             self.assertEqual(audit.iloc[0]["normalization_status"], "generic_behavior_not_graphable")
 
+    def test_cognitive_behavioral_specific_nodes_retain_parent_families(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            routed_path = root / "routed_evidence_rows.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [{"label": "Ketamine", "aliases": [], "ids": {}, "status": "seeded"}],
+                    "targets": [],
+                    "disorders": [],
+                },
+            )
+            write_json(
+                routed_path,
+                [
+                    {
+                        "study_doi": "10.1000/verbal-memory",
+                        "domain": "cognitive_behavioral",
+                        "compound_or_exposure": "Ketamine",
+                        "graph_construct_label": "Memory",
+                        "task_or_measure": "Rey Auditory Verbal Learning Test",
+                        "support": "Verbal recall was reduced.",
+                    },
+                    {
+                        "study_doi": "10.1000/reinstatement",
+                        "domain": "cognitive_behavioral",
+                        "compound_or_exposure": "Ketamine",
+                        "graph_construct_label": "Drug seeking",
+                        "task_or_measure": "Cue-induced reinstatement after extinction",
+                        "support": "Ketamine reduced reinstatement of drug seeking.",
+                    },
+                ],
+            )
+
+            build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    }
+                },
+            )
+
+            edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
+            by_doi = {row["study_doi"]: row for row in edges.to_dict(orient="records")}
+            self.assertEqual(by_doi["10.1000/verbal-memory"]["entity_label"], "Verbal memory")
+            self.assertEqual(by_doi["10.1000/verbal-memory"]["graph_parent_label"], "Memory")
+            self.assertEqual(by_doi["10.1000/reinstatement"]["entity_label"], "Drug reinstatement")
+            self.assertEqual(by_doi["10.1000/reinstatement"]["graph_parent_label"], "Drug seeking")
+
+            entities = pd.read_parquet(out_dir / "entities.parquet")
+            self.assertIn("Memory", set(entities["label"]))
+            self.assertIn("Drug seeking", set(entities["label"]))
+
     def test_subjective_experience_metadata_uses_experience_graph_nodes(self) -> None:
         cases = [
             (
@@ -972,16 +1408,42 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             (
                 {
                     "graph_entity_label": "Euphoria",
+                    "instrument_or_measure": "Visual Analogue Scale (VAS)",
                     "support": "Participants reported euphoria, drug liking, and good effects.",
                 },
                 "Euphoria",
             ),
             (
                 {
+                    "graph_entity_label": "Euphoria",
+                    "instrument_or_measure": "Hallucinogen Rating Scale (HRS)",
+                    "support": "The HRS affect item captured the reported euphoria.",
+                },
+                "Euphoria",
+            ),
+            (
+                {
                     "graph_entity_label": "Contentedness",
+                    "instrument_or_measure": "Bond and Lader Visual Analogue Mood Rating Scale",
                     "support": "The scale measured calmness, alertness, and contentedness.",
                 },
                 "Positive affect",
+            ),
+            (
+                {
+                    "graph_entity_label": "Subjective intensity",
+                    "instrument_or_measure": "100-mm visual analogue scale",
+                    "support": "Participants rated the subjective intensity of the drug effect.",
+                },
+                "Subjective intensity",
+            ),
+            (
+                {
+                    "graph_entity_label": "Simple and complex visual hallucinations",
+                    "instrument_or_measure": "Visual Analogue Scale (VAS)",
+                    "support": "Participants reported visual hallucinations and complex imagery.",
+                },
+                "Perceptual alterations",
             ),
             (
                 {
@@ -1181,7 +1643,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertEqual(by_doi["10.1000/pk"]["sampling_time_or_window"], "40 minutes post-dose")
             self.assertEqual(by_doi["10.1000/pk"]["model_or_method"], "noncompartmental analysis")
             self.assertEqual(by_doi["10.1000/pk"]["exposure_response_or_pk_effect"], "higher peak exposure")
-            self.assertEqual(by_doi["10.1000/pk-analyte"]["entity_label"], "Ketamine")
+            self.assertEqual(by_doi["10.1000/pk-analyte"]["entity_label"], "Concentration")
             self.assertEqual(by_doi["10.1000/pk-analyte"]["primary_graph_anchor_kind"], "compound")
             self.assertEqual(by_doi["10.1000/pk-analyte"]["pk_graph_object_label"], "Ketamine plasma exposure")
             self.assertEqual(by_doi["10.1000/pk-analyte"]["pharmacokinetic_display_label"], "Ketamine plasma exposure")
@@ -1192,11 +1654,12 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertEqual(by_doi["10.1000/pk-metabolite"]["pk_graph_object_label"], "Norketamine")
             self.assertEqual(by_doi["10.1000/pk-metabolite"]["pharmacokinetic_display_label"], "Norketamine")
             self.assertEqual(by_doi["10.1000/pk-receptor"]["entity_label"], "NMDA receptor")
+            self.assertEqual(by_doi["10.1000/pk-receptor"]["domain"], "molecular_target")
             self.assertEqual(by_doi["10.1000/pk-receptor"]["primary_graph_anchor_kind"], "target")
             self.assertEqual(by_doi["10.1000/pk-receptor"]["pk_relationship_type"], "exposure_linked_to_effect")
             self.assertEqual(by_doi["10.1000/pk-receptor"]["pk_graph_object_kind"], "effect_or_response")
             self.assertEqual(by_doi["10.1000/pk-receptor"]["pk_graph_object_label"], "NMDA receptor occupancy")
-            self.assertEqual(by_doi["10.1000/pk-receptor"]["pharmacokinetic_display_label"], "NMDA receptor occupancy")
+            self.assertEqual(by_doi["10.1000/pk-receptor"]["pharmacokinetic_display_label"], "")
 
     def test_mechanistic_postprocessing_resolves_target_pathway_and_readout_kinds(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -1463,6 +1926,16 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "support": "Treatment reduced the inflammatory cytokine TNF-alpha.",
                     },
                     {
+                        "study_doi": "10.1000/specific-readout-over-stale-canonical",
+                        "domain": "molecular_pathway_readout",
+                        "compound": "Psilocybin",
+                        "canonical_entity": "Glutamate levels",
+                        "graph_entity_label": "Glutamate levels",
+                        "molecular_effect_category": "Neuroplasticity",
+                        "specific_readout_or_marker": "Dendritic spinogenesis",
+                        "support": "Treatment increased dendritic spinogenesis.",
+                    },
+                    {
                         "study_doi": "10.1000/family",
                         "domain": "molecular_target",
                         "compound": "Psilocybin",
@@ -1623,12 +2096,16 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             labels_by_doi = edges.groupby("study_doi")["entity_label"].apply(set).to_dict()
             findings = pd.read_parquet(out_dir / "findings.parquet")
             finding_by_doi = {row["study_doi"]: row for row in findings.to_dict(orient="records")}
+            entities = pd.read_parquet(out_dir / "entities.parquet")
             self.assertEqual(by_doi["10.1000/direct-target"]["entity_kind"], "target")
             self.assertEqual(by_doi["10.1000/direct-target"]["relation_type"], "has_mechanistic_target")
             self.assertEqual(by_doi["10.1000/target-readout"]["entity_kind"], "biomarker_readout")
             self.assertEqual(by_doi["10.1000/target-readout"]["entity_label"], "SERT protein levels")
             self.assertEqual(by_doi["10.1000/target-readout"]["relation_type"], "has_biomarker_readout")
-            self.assertEqual(finding_by_doi["10.1000/target-readout"]["molecular_effect_label"], "Serotonin signaling")
+            self.assertEqual(
+                finding_by_doi["10.1000/target-readout"]["molecular_effect_label"],
+                "Receptor regulation & trafficking",
+            )
             self.assertEqual(by_doi["10.1000/direct-target-signaling-context"]["entity_kind"], "target")
             self.assertEqual(by_doi["10.1000/direct-target-signaling-context"]["entity_label"], "SERT (SLC6A4)")
             self.assertEqual(by_doi["10.1000/biomarker"]["entity_kind"], "biomarker_readout")
@@ -1636,37 +2113,72 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertEqual(by_doi["10.1000/biomarker"]["relation_type"], "has_biomarker_readout")
             self.assertEqual(finding_by_doi["10.1000/biomarker"]["molecular_effect_label"], "Neuroplasticity")
             self.assertEqual(by_doi["10.1000/c-fos"]["entity_kind"], "biomarker_readout")
-            self.assertEqual(by_doi["10.1000/c-fos"]["entity_label"], "c-Fos activation")
+            self.assertEqual(by_doi["10.1000/c-fos"]["entity_label"], "c-Fos expression")
             self.assertEqual(
                 finding_by_doi["10.1000/c-fos"]["molecular_effect_label"],
-                "Immediate early gene activation",
+                "Gene expression & activity markers",
             )
             self.assertEqual(by_doi["10.1000/pathway"]["entity_kind"], "pathway_process")
             self.assertEqual(by_doi["10.1000/pathway"]["entity_label"], "mTORC1 activation")
             self.assertEqual(by_doi["10.1000/pathway"]["relation_type"], "has_mechanistic_pathway")
-            self.assertEqual(finding_by_doi["10.1000/pathway"]["molecular_effect_label"], "Intracellular signaling")
+            self.assertEqual(
+                finding_by_doi["10.1000/pathway"]["molecular_effect_label"],
+                "Intracellular signal transduction",
+            )
             self.assertEqual(by_doi["10.1000/pathway-phosphorylation"]["entity_kind"], "pathway_process")
-            self.assertEqual(by_doi["10.1000/pathway-phosphorylation"]["entity_label"], "ERK phosphorylation")
-            self.assertEqual(finding_by_doi["10.1000/pathway-phosphorylation"]["molecular_effect_label"], "Intracellular signaling")
+            self.assertEqual(by_doi["10.1000/pathway-phosphorylation"]["entity_label"], "ERK1/2 phosphorylation")
+            self.assertEqual(
+                finding_by_doi["10.1000/pathway-phosphorylation"]["molecular_effect_label"],
+                "Intracellular signal transduction",
+            )
+            self.assertEqual(
+                finding_by_doi["10.1000/pathway-phosphorylation"]["graph_parent_label"],
+                "Intracellular signal transduction",
+            )
             self.assertEqual(by_doi["10.1000/neuroplasticity-sublabel"]["entity_kind"], "pathway_process")
             self.assertEqual(by_doi["10.1000/neuroplasticity-sublabel"]["entity_label"], "Dendritic spine density")
             self.assertEqual(finding_by_doi["10.1000/neuroplasticity-sublabel"]["molecular_effect_label"], "Neuroplasticity")
             self.assertEqual(by_doi["10.1000/dopamine-uptake"]["entity_kind"], "biomarker_readout")
-            self.assertEqual(by_doi["10.1000/dopamine-uptake"]["entity_label"], "Dopamine uptake")
-            self.assertEqual(finding_by_doi["10.1000/dopamine-uptake"]["molecular_effect_label"], "Dopamine signaling")
+            self.assertEqual(by_doi["10.1000/dopamine-uptake"]["entity_label"], "[3H]-dopamine uptake")
+            self.assertEqual(
+                finding_by_doi["10.1000/dopamine-uptake"]["molecular_effect_label"],
+                "Neurotransmitter release, uptake & turnover",
+            )
             self.assertEqual(by_doi["10.1000/perineuronal-net"]["entity_kind"], "pathway_process")
-            self.assertEqual(by_doi["10.1000/perineuronal-net"]["entity_label"], "Neuroplasticity")
+            self.assertEqual(
+                by_doi["10.1000/perineuronal-net"]["entity_label"],
+                "Perineuronal net intensity around PV neurons",
+            )
             self.assertEqual(finding_by_doi["10.1000/perineuronal-net"]["molecular_effect_label"], "Neuroplasticity")
-            self.assertEqual(by_doi["10.1000/generic-neurotransmitter-specific-readout"]["entity_kind"], "pathway_process")
-            self.assertEqual(by_doi["10.1000/generic-neurotransmitter-specific-readout"]["entity_label"], "Serotonin signaling")
+            self.assertEqual(finding_by_doi["10.1000/perineuronal-net"]["graph_parent_label"], "Neuroplasticity")
+            self.assertEqual(by_doi["10.1000/generic-neurotransmitter-specific-readout"]["entity_kind"], "biomarker_readout")
+            self.assertEqual(
+                by_doi["10.1000/generic-neurotransmitter-specific-readout"]["entity_label"],
+                "5-HT1A receptor expression",
+            )
             self.assertEqual(
                 finding_by_doi["10.1000/generic-neurotransmitter-specific-readout"]["molecular_effect_label"],
-                "Serotonin signaling",
+                "Receptor regulation & trafficking",
             )
             self.assertNotIn("10.1000/generic-neurotransmitter-unspecified", by_doi)
-            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_kind"], "pathway_process")
-            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_label"], "Inflammation")
-            self.assertEqual(finding_by_doi["10.1000/explicit-inflammation"]["molecular_effect_label"], "Inflammation")
+            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_kind"], "biomarker_readout")
+            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_label"], "TNF-alpha levels")
+            self.assertEqual(
+                finding_by_doi["10.1000/explicit-inflammation"]["molecular_effect_label"],
+                "Neuroinflammation & immune signaling",
+            )
+            self.assertEqual(
+                finding_by_doi["10.1000/explicit-inflammation"]["graph_parent_label"],
+                "Neuroinflammation & immune signaling",
+            )
+            self.assertEqual(
+                by_doi["10.1000/specific-readout-over-stale-canonical"]["entity_label"],
+                "Dendritic spinogenesis",
+            )
+            self.assertEqual(
+                finding_by_doi["10.1000/specific-readout-over-stale-canonical"]["graph_parent_label"],
+                "Neuroplasticity",
+            )
             self.assertEqual(by_doi["10.1000/family"]["entity_kind"], "system_family")
             self.assertEqual(by_doi["10.1000/family"]["relation_type"], "has_mechanistic_system")
             self.assertEqual(by_doi["10.1000/recognition-sites-family"]["entity_kind"], "system_family")
@@ -1694,8 +2206,20 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             )
             self.assertEqual(by_doi["10.1000/cross-kind-brain-region"]["entity_kind"], "brain_region")
             self.assertEqual(by_doi["10.1000/cross-kind-brain-region"]["entity_label"], "Occipital cortex")
-            self.assertEqual(by_doi["10.1000/collapsed-brain-subregions"]["entity_kind"], "brain_region")
-            self.assertEqual(by_doi["10.1000/collapsed-brain-subregions"]["entity_label"], "Occipital cortex")
+            self.assertEqual(
+                labels_by_doi["10.1000/collapsed-brain-subregions"],
+                {"Occipital cortex", "Calcarine cortex", "Cuneus", "Lingual gyrus"},
+            )
+            brain_subregion_parents = {
+                row["entity_label"]: row["graph_parent_label"]
+                for row in edges[edges["study_doi"] == "10.1000/collapsed-brain-subregions"].to_dict(orient="records")
+            }
+            self.assertEqual(brain_subregion_parents["Calcarine cortex"], "Occipital cortex")
+            self.assertEqual(brain_subregion_parents["Cuneus"], "Occipital cortex")
+            self.assertEqual(brain_subregion_parents["Lingual gyrus"], "Occipital cortex")
+            perineuronal_entity = entities[entities["label"] == "Perineuronal net intensity around PV neurons"].iloc[0]
+            self.assertEqual(perineuronal_entity["graph_parent_label"], "Neuroplasticity")
+            self.assertIn("Neuroplasticity", set(entities["label"]))
             self.assertNotIn("10.1000/unsafe-split-targets", by_doi)
             self.assertNotIn("10.1000/unsafe-brain-network-list", by_doi)
             self.assertEqual(by_doi["10.1000/composite-family"]["entity_kind"], "system_family")
@@ -1909,7 +2433,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             {"Major depressive disorder", "Post-traumatic stress disorder", "Suicidality"},
         )
         scale_edges = edges[edges["entity_kind"] == "outcome_scale"]
-        self.assertIn("MADRS", set(scale_edges["entity_label"]))
+        self.assertTrue(scale_edges.empty)
         madrs_findings = findings[findings["outcome_measure"].str.contains("Montgomery", na=False)]
         self.assertEqual(set(madrs_findings["outcome_measure_normalized"]), {"MADRS"})
 
@@ -2756,19 +3280,18 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "pathway_process",
                     "condition_indication",
                     "symptom_problem",
-                    "outcome_scale",
                     "brain_network",
                     "public_health_measure",
                 },
             )
             self.assertIn("secondary_literature", set(edges["evidence_type"]))
             self.assertNotIn("functional_outcome", set(edges["entity_kind"]))
-            scale = edges[edges["entity_kind"] == "outcome_scale"].iloc[0]
-            self.assertEqual(scale["entity_label"], "WEMWBS")
-            self.assertEqual(scale["compound"], "Psilocybin")
+            self.assertNotIn("outcome_scale", set(edges["entity_kind"]))
             self.assertNotIn("Wellbeing", set(edges["entity_label"]))
             self.assertNotIn("Patient experience", set(edges["entity_label"]))
-            self.assertNotIn("Psilocybin and MDMA", set(edges["compound"]))
+            self.assertIn("Multi-compound exposure", set(edges["compound"]))
+            combo_edge = edges[edges["compound"] == "Multi-compound exposure"].iloc[0]
+            self.assertEqual(combo_edge["graph_subject_kind"], "compound_combination")
             self.assertNotIn("Ketanserin", set(edges["compound"]))
             condition_edges = edges[edges["entity_kind"] == "condition_indication"]
             self.assertEqual(set(condition_edges["entity_label"]), {"Major depressive disorder", "Post-traumatic stress disorder"})
@@ -2785,13 +3308,13 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             pk_edge = edges[edges["domain"] == "pharmacokinetics_exposure"].iloc[0]
             self.assertEqual(pk_edge["entity_kind"], "target")
             self.assertEqual(pk_edge["entity_label"], "MAO-A")
-            self.assertEqual(pk_edge["relation_type"], "has_pharmacokinetic_exposure")
+            self.assertEqual(pk_edge["relation_type"], "metabolized_by")
             public_health_edge = edges[edges["domain"] == "real_world_public_health"].iloc[0]
             self.assertEqual(public_health_edge["entity_kind"], "public_health_measure")
-            self.assertEqual(public_health_edge["entity_label"], "Access to services")
+            self.assertEqual(public_health_edge["entity_label"], "Access & equity")
             self.assertEqual(public_health_edge["relation_type"], "has_public_health_evidence")
             audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
-            self.assertIn("compound_combo_not_graphable", set(audit["normalization_status"]))
+            self.assertNotIn("compound_combo_not_graphable", set(audit["normalization_status"]))
             self.assertIn("compound_reference_not_graphable", set(audit["normalization_status"]))
 
             papers = pd.read_parquet(out_dir / "papers.parquet")
@@ -2807,7 +3330,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "paper:10.1000/symptom",
                     "paper:10.1000/outcome-symptom",
                     "paper:10.1000/ptsd-symptoms",
-                    "paper:10.1000/function",
+                    "paper:10.1000/combo-compound",
                 },
             )
 
@@ -2818,6 +3341,131 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertTrue((out_dir / "claims.parquet").exists())
             self.assertTrue((out_dir / "normalization_audit.parquet").exists())
             self.assertEqual(json.loads((out_dir / "manifest.json").read_text())["duckdb"]["status"], "skipped")
+
+    def test_non_atomic_exposure_is_preserved_and_atomic_constituent_is_not_projected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            source_path = root / "routed.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [{"label": "Ketamine", "aliases": [], "ids": {}, "status": "seeded"}],
+                    "targets": [],
+                    "disorders": [
+                        {
+                            "label": "Post-traumatic stress disorder",
+                            "aliases": ["PTSD"],
+                            "ids": {},
+                            "status": "seeded",
+                        }
+                    ],
+                },
+            )
+            exposure = "Use of methamphetamine, mephedrone, GHB/GBL, and/or ketamine in a sexual setting"
+            write_json(
+                source_path,
+                [
+                    {
+                        "study_doi": "10.3389/fpsyt.2020.542301",
+                        "domain": "clinical_outcome",
+                        "compound": exposure,
+                        "atomic_compound_candidate": "Ketamine (as part of chemsex substances)",
+                        "graph_subject_label": exposure,
+                        "graph_subject_kind": "exposure_context",
+                        "condition_or_indication": "PTSD",
+                        "clinical_endpoint": "PTSD symptoms",
+                        "study_design_category": "observational",
+                        "evidence_design": "observational",
+                        "result_direction": "negative",
+                        "result_direction_normalized": "negative",
+                        "support": "The chemsex group reported traumatic events more often.",
+                        "evidence_location": "Results, Trauma",
+                        "source_item_type": "primary_item",
+                        "paper_assessment_route": "primary_evidence",
+                    }
+                ],
+            )
+
+            manifest = build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": source_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    }
+                },
+            )
+
+            edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
+            findings = pd.read_parquet(out_dir / "findings.parquet")
+            self.assertEqual(len(edges), 1)
+            self.assertEqual(edges.iloc[0]["compound"], "Chemsex")
+            self.assertEqual(edges.iloc[0]["graph_subject_kind"], "exposure_context")
+            self.assertEqual(edges.iloc[0]["graph_overview_subject_label"], "Chemsex")
+            self.assertEqual(edges.iloc[0]["graph_overview_subject_kind"], "exposure_context")
+            self.assertNotIn("Ketamine", set(edges["compound"]))
+            self.assertEqual(findings.iloc[0]["graph_subject_label"], exposure)
+            self.assertEqual(manifest["graph_subject_kind_counts"], {"exposure_context": 1})
+
+    def test_background_only_primary_claim_is_retained_but_not_admitted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            source_path = root / "routed.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [{"label": "Ketamine", "aliases": [], "ids": {}, "status": "seeded"}],
+                    "targets": [],
+                    "disorders": [
+                        {"label": "Major depressive disorder", "aliases": ["MDD"], "ids": {}, "status": "seeded"}
+                    ],
+                },
+            )
+            write_json(
+                source_path,
+                [
+                    {
+                        "study_doi": "10.1000/background",
+                        "domain": "clinical_outcome",
+                        "compound": "Ketamine",
+                        "condition_or_indication": "MDD",
+                        "source_item_type": "primary_item",
+                        "evidence_location": "Introduction / Background",
+                        "paper_assessment_route": "primary_evidence",
+                    }
+                ],
+            )
+
+            build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": source_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    }
+                },
+            )
+
+            findings = pd.read_parquet(out_dir / "findings.parquet")
+            self.assertEqual(findings.iloc[0]["graph_admission_status"], "paper_detail")
+            self.assertEqual(
+                findings.iloc[0]["graph_admission_reason"],
+                "primary_claim_supported_only_by_background_location",
+            )
 
 
 if __name__ == "__main__":

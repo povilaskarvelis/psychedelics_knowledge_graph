@@ -79,6 +79,22 @@ If the deterministic layers were already rebuilt and verified, omit
 `--refresh-derived`. Use `--overwrite` only to regenerate the same prepared
 update after checking that no needed batch output lives in its update directory.
 
+To run one literature family now while explicitly deferring the others, filter
+the effective DOI scope during preparation. For example, this keeps primary
+papers plus deletion-only records, while leaving review and meta-analysis DOIs
+untouched:
+
+```bash
+python pipeline/update/run_scoped_paper_update.py prepare \
+  --update-id primary_fix_YYYYMMDD \
+  --doi-file path/to/all_affected_dois.txt \
+  --only-task-group primary \
+  --include-no-runnable
+```
+
+The command refuses a DOI that has runnable tasks in both the selected family
+and another family, because replacement is DOI-wide.
+
 ## 3. Extract only the prepared tasks
 
 The synchronous runner can use `ready_tasks.jsonl` directly. For the Gemini

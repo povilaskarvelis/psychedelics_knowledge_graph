@@ -455,7 +455,13 @@
       "aliases": ["2,4,5-trimethoxyamphetamine"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
-    }
+    },
+    {"label": "HMMA", "aliases": ["4-hydroxy-3-methoxymethamphetamine", "4-hydroxy-3-methoxymethamphetamine (HMMA)"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
+    {"label": "HHMA", "aliases": ["3,4-dihydroxymethamphetamine", "3,4-dihydroxymethamphetamine (HHMA)"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Dehydronorketamine", "aliases": ["dehydronorketamine", "DHNK"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Noresketamine", "aliases": ["noresketamine", "S-norketamine"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Salvinorin B", "aliases": ["salvinorin B"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Indole-3-acetic acid", "aliases": ["indole-3-acetic acid (IAA)", "IAA", "3-IAA"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"}
   ],
   "targets": [
     {
@@ -502,7 +508,7 @@
     },
     {
       "label": "5-HT2B",
-      "aliases": ["HTR2B", "serotonin 2B receptor", "serotonin 2B receptors", "5-HT2B receptor", "5-HT2B receptors"],
+      "aliases": ["HTR2B", "h5-HT2B", "h5-HT2B receptor", "serotonin 2B receptor", "serotonin 2B receptors", "5-HT2B receptor", "5-HT2B receptors"],
       "ids": {"gene_symbol": "HTR2B", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
@@ -1041,7 +1047,7 @@
     },
     {
       "label": "TAAR1",
-      "aliases": ["TAAR1 receptor", "trace amine-associated receptor 1", "trace amine receptor 1", "Trace Amine Receptor 1"],
+      "aliases": ["hTAAR1", "TAAR1 receptor", "trace amine-associated receptor 1", "trace amine receptor 1", "Trace Amine Receptor 1"],
       "ids": {"gene_symbol": "TAAR1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
@@ -1367,9 +1373,24 @@
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "pathway_or_process"
-    }
+    },
+    {"label": "Estrogen receptor alpha (ESR1)", "aliases": ["estrogen receptor alpha", "ERα", "ERalpha", "ESR1"], "ids": {"gene_symbol": "ESR1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "Histamine H2 receptor (HRH2)", "aliases": ["H2 histamine receptor", "H2 receptor", "H2-receptor", "HRH2"], "ids": {"gene_symbol": "HRH2", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "Adenosine A1 receptor (ADORA1)", "aliases": ["adenosine A1 receptor", "A1 adenosine receptor", "ADORA1"], "ids": {"gene_symbol": "ADORA1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "Adenosine A2A receptor (ADORA2A)", "aliases": ["adenosine A2A receptor", "A2A adenosine receptor", "ADORA2A"], "ids": {"gene_symbol": "ADORA2A", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "CB2 receptor (CNR2)", "aliases": ["cannabinoid receptor 2", "CB2", "CNR2"], "ids": {"gene_symbol": "CNR2", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "CaV1.2 (CACNA1C)", "aliases": ["Cav1.2", "CaV1.2", "L-type voltage-gated calcium channel", "CACNA1C"], "ids": {"gene_symbol": "CACNA1C", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "CaV2.2 (CACNA1B)", "aliases": ["Cav2.2", "CaV2.2", "N-type voltage-gated calcium channel", "CACNA1B"], "ids": {"gene_symbol": "CACNA1B", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "Vasopressin V1A receptor (AVPR1A)", "aliases": ["vasopressin 1A receptor", "vasopressin V1A receptor", "V1A receptor", "AVPR1A"], "ids": {"gene_symbol": "AVPR1A", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "Protein kinase C family", "aliases": ["Protein Kinase C", "PKC", "protein kinase C family"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "family_target_needs_subtype_mapping"},
+    {"label": "mGluR4 (GRM4)", "aliases": ["GRM4", "metabotropic glutamate receptor 4", "mGluR4"], "ids": {"gene_symbol": "GRM4", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "SIRT2", "aliases": ["sirtuin 2"], "ids": {"gene_symbol": "SIRT2", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "FAAH", "aliases": ["fatty acid amide hydrolase", "fatty acid amide hydrolase (FAAH)"], "ids": {"gene_symbol": "FAAH", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "BK channel (KCNMA1)", "aliases": ["BK channel", "large-conductance calcium-activated potassium channel", "KCNMA1"], "ids": {"gene_symbol": "KCNMA1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "KCNQ channel family", "aliases": ["KCNQ channel", "M-current channels"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "family_target_needs_subtype_mapping"}
   ],
   "disorders": [
+    {"label": "Alzheimer's disease", "aliases": ["Alzheimer disease", "AD dementia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Alcohol use disorder", "aliases": ["AUD", "alcohol dependence", "alcohol addiction", "alcoholism"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Anorexia nervosa", "aliases": ["anorexia", "anorexic"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Anxiety disorders", "aliases": ["anxiety", "anxiety symptoms", "anxiety disorder", "anxiety spectrum disorders", "anxiety spectrum", "mixed anxiety and depressive disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
@@ -1405,15 +1426,30 @@
     {"label": "Persistent depressive disorder", "aliases": ["dysthymia", "recurrent depressive disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Post-treatment Lyme disease syndrome", "aliases": ["post-treatment Lyme disease", "post-treatment lyme disease syndrome", "PTLDS", "posttreatment lyme disease syndrome", "posttreatment lyme disease"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Post-traumatic stress disorder", "aliases": ["PTSD", "posttraumatic stress disorder", "post-traumatic stress disorder (PTSD)", "posttraumatic stress disorder (PTSD)", "treatment-resistant PTSD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Hallucinogen persisting perception disorder", "aliases": ["HPPD", "hallucinogen persisting perception disorder (HPPD)"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Psychosis", "aliases": ["psychosis", "schizophrenia-like symptoms"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "symptom_or_problem_needs_external_id_lookup"},
     {"label": "Restless legs syndrome", "aliases": ["RLS"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Schizoaffective disorder", "aliases": ["schizoaffective disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Schizophrenia", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Social anxiety disorder", "aliases": ["SAD", "social phobia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Stimulant use disorder", "aliases": ["stimulant dependence", "stimulant addiction", "amphetamine use disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
-    {"label": "Substance use disorder", "aliases": ["SUD", "Substance-Related Disorders", "addiction", "addictions", "drug addiction", "Drug addiction", "addictive disorders", "drug dependence", "substance abuse", "substance misuse", "MDMA dependence", "ecstasy use disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Substance use disorder", "aliases": ["SUD", "Substance-Related Disorders", "substance use disorders", "addiction", "addictions", "drug addiction", "Drug addiction", "addictive disorders", "drug dependence", "substance abuse", "substance misuse", "MDMA dependence", "ecstasy use disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Suicidality", "aliases": ["suicidal ideation", "suicidal ideations", "suicide ideation", "suicidal ideation or behavior", "suicide risk", "suicidal risk", "suicide crisis", "high-risk suicide crisis", "suicide attempt", "attempted suicide", "unsuccessful suicide attempt", "suicide attempt or intent", "seriously considered suicide", "suicidal symptoms", "acute suicidal ideation", "chronic suicidal ideation"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Tobacco use disorder", "aliases": ["tobacco addiction", "tobacco dependence", "tobacco dependency", "tobacco use", "smoking", "smoking cessation", "smoking dependence", "nicotine-dependent smokers", "nicotine dependent smokers", "nicotine-dependent smoker", "nicotine dependent smoker"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Rett syndrome", "aliases": ["RTT", "Rett syndrome (RTT)", "pediatric Rett syndrome"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "ADNP syndrome", "aliases": ["Helsmoortel-Van der Aa syndrome", "ADNP syndrome in children"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Ketamine use disorder", "aliases": ["ketamine dependence", "ketamine addiction", "problematic ketamine use"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Huntington's disease", "aliases": ["Huntington disease"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Parkinson's disease", "aliases": ["Parkinson disease", "PD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Multiple sclerosis", "aliases": ["MS"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Traumatic brain injury", "aliases": ["TBI"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Alcohol withdrawal syndrome", "aliases": ["AWS", "severe ethanol withdrawal", "delirium tremens"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Postoperative sleep disturbance", "aliases": ["post-operative sleep disturbance", "postoperative sleep disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Central post-stroke pain syndrome", "aliases": ["CPSP", "central poststroke pain", "central post-stroke pain"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Postherpetic neuralgia", "aliases": ["post-herpetic neuralgia", "PHN"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Bipolar I disorder", "aliases": ["bipolar type I disorder", "bipolar 1 disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Catatonia", "aliases": ["catatonic syndrome"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Attention-deficit/hyperactivity disorder", "aliases": ["ADHD", "attention deficit hyperactivity disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Treatment-resistant depression", "aliases": ["TRD", "TR-MDD", "treatment-resistant major depressive disorder", "treatment-resistant major depression", "treatment-resistant unipolar depression", "treatment resistant depression", "treatment resistant major depressive disorder", "late-life treatment-resistant depression", "late-life treatment resistant depression", "late life treatment-resistant depression", "late life treatment resistant depression", "late-life TRD", "late life TRD", "resistant depression", "refractory depression", "treatment-refractory depression", "treatment refractory depression", "treatment-refractory depressed", "treatment-refractory depressed participants", "treatment-resistant depressive episode", "treatment resistant depressive episode", "difficult-to-treat depression", "DTD", "refractory major depression"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"}
   ]
 }

@@ -53,6 +53,7 @@ def make_args(**overrides: object) -> SimpleNamespace:
     args = {
         "include_not_ready": False,
         "include_scaffold_profiles": False,
+        "include_legacy_review_routes": False,
         "prompt_profile": [],
         "schema_profile": [],
         "domain_route": [],
@@ -80,6 +81,26 @@ class RunRoutedExtractionBatchTest(unittest.TestCase):
 
         self.assertTrue(task_matches_filters(article_task, args))
         self.assertFalse(task_matches_filters(abstract_task, args))
+
+    def test_legacy_review_routes_are_opt_in(self) -> None:
+        task = make_task("review-route")
+        task["route_context"].update(
+            {
+                "source_type": "review",
+                "prompt_profile": "secondary_review_coverage",
+                "schema_profile": "review_coverage_schema",
+            }
+        )
+        task["extraction_contract"].update(
+            {
+                "source_type": "review",
+                "prompt_profile": "secondary_review_coverage",
+                "schema_profile": "review_coverage_schema",
+            }
+        )
+
+        self.assertFalse(task_matches_filters(task, make_args()))
+        self.assertTrue(task_matches_filters(task, make_args(include_legacy_review_routes=True)))
 
     def test_attempted_task_keys_skip_prior_outputs_and_raw_errors_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

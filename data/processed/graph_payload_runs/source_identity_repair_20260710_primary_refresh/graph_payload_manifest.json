@@ -1,0 +1,228 @@
+{
+  "schema_version": "route_native_evidence_manifest_v1",
+  "generated_at": "2026-07-11T23:44:31.793730+00:00",
+  "evidence_source": "kg_tables",
+  "kg_dir": "data/processed/kg_routed_runs/source_identity_repair_20260710_primary_refresh",
+  "graph_bootstraps": {
+    "primary": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_reviews.json"
+  },
+  "detail_bootstraps": {
+    "primary": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_reviews.json"
+  },
+  "row_count": 47244,
+  "author_tables": {
+    "status": "ok",
+    "paper_count": 9430,
+    "paper_author_rows": 59309,
+    "unique_author_papers": 9420
+  },
+  "summary_stats": {
+    "default": {
+      "row_count": 47244,
+      "graph_finding_count": 40589,
+      "study_count": 8754,
+      "compound_count": 76,
+      "entity_count": 467,
+      "domain_count": 10,
+      "condition_count": 49,
+      "target_count": 57,
+      "domain_counts": {
+        "molecular_pathway_readout": 8034,
+        "clinical_outcome": 7618,
+        "cognitive_behavioral": 6764,
+        "safety_tolerability": 6228,
+        "molecular_target": 3968,
+        "brain_system": 3798,
+        "real_world_public_health": 3424,
+        "subjective_experience": 3392,
+        "pharmacokinetics_exposure": 2672,
+        "intervention_context": 1346
+      },
+      "entity_kind_counts": {
+        "cognitive_behavioral_construct": 6740,
+        "safety_adverse_event": 6569,
+        "condition_indication": 4708,
+        "pathway_process": 4562,
+        "target": 4123,
+        "biomarker_readout": 3781,
+        "public_health_measure": 3424,
+        "subjective_experience_construct": 3181,
+        "symptom_problem": 2806,
+        "brain_region": 2707,
+        "pharmacokinetic_parameter": 2098,
+        "intervention_component": 1346,
+        "system_family": 511,
+        "compound": 411,
+        "brain_network": 223,
+        "neural_circuit": 54
+      },
+      "evidence_type_counts": {
+        "primary_evidence": 46311,
+        "secondary_literature": 933
+      },
+      "text_depth_counts": {
+        "article_text": 30394,
+        "abstract_only": 16850
+      },
+      "graph_study_coverage": {
+        "included_count": 8754,
+        "candidate_count": 9862,
+        "not_in_graph_count": 1108
+      },
+      "graph_candidate_study_count": 9862,
+      "graph_excluded_study_count": 1108
+    },
+    "sources": {
+      "primary": {
+        "row_count": 46311,
+        "graph_finding_count": 39827,
+        "study_count": 8378,
+        "compound_count": 76,
+        "entity_count": 466,
+        "domain_count": 10,
+        "condition_count": 48,
+        "target_count": 57,
+        "domain_counts": {
+          "molecular_pathway_readout": 7922,
+          "clinical_outcome": 7289,
+          "cognitive_behavioral": 6696,
+          "safety_tolerability": 6109,
+          "molecular_target": 3901,
+          "brain_system": 3772,
+          "real_world_public_health": 3372,
+          "subjective_experience": 3325,
+          "pharmacokinetics_exposure": 2651,
+          "intervention_context": 1274
+        },
+        "entity_kind_counts": {
+          "cognitive_behavioral_construct": 6672,
+          "safety_adverse_event": 6448,
+          "condition_indication": 4500,
+          "pathway_process": 4499,
+          "target": 4053,
+          "biomarker_readout": 3736,
+          "public_health_measure": 3372,
+          "subjective_experience_construct": 3115,
+          "brain_region": 2695,
+          "symptom_problem": 2686,
+          "pharmacokinetic_parameter": 2081,
+          "intervention_component": 1274,
+          "system_family": 505,
+          "compound": 407,
+          "brain_network": 216,
+          "neural_circuit": 52
+        },
+        "evidence_type_counts": {
+          "primary_evidence": 46311
+        },
+        "text_depth_counts": {
+          "article_text": 29698,
+          "abstract_only": 16613
+        },
+        "graph_study_coverage": {
+          "included_count": 8378,
+          "candidate_count": 9417,
+          "not_in_graph_count": 1039
+        },
+        "graph_candidate_study_count": 9417,
+        "graph_excluded_study_count": 1039
+      },
+      "meta_analyses": {
+        "row_count": 0,
+        "graph_finding_count": 0,
+        "study_count": 0,
+        "compound_count": 0,
+        "entity_count": 0,
+        "domain_count": 0,
+        "condition_count": 0,
+        "target_count": 0,
+        "domain_counts": {},
+        "entity_kind_counts": {},
+        "evidence_type_counts": {},
+        "text_depth_counts": {},
+        "graph_study_coverage": {
+          "included_count": 0,
+          "candidate_count": 0,
+          "not_in_graph_count": 0
+        },
+        "graph_candidate_study_count": 0,
+        "graph_excluded_study_count": 0
+      },
+      "reviews": {
+        "row_count": 933,
+        "graph_finding_count": 669,
+        "study_count": 354,
+        "compound_count": 22,
+        "entity_count": 110,
+        "domain_count": 10,
+        "condition_count": 18,
+        "target_count": 8,
+        "domain_counts": {
+          "clinical_outcome": 329,
+          "safety_tolerability": 119,
+          "molecular_pathway_readout": 112,
+          "intervention_context": 72,
+          "cognitive_behavioral": 68,
+          "molecular_target": 67,
+          "subjective_experience": 67,
+          "real_world_public_health": 52,
+          "brain_system": 26,
+          "pharmacokinetics_exposure": 21
+        },
+        "entity_kind_counts": {
+          "condition_indication": 208,
+          "safety_adverse_event": 121,
+          "symptom_problem": 120,
+          "intervention_component": 72,
+          "target": 70,
+          "cognitive_behavioral_construct": 68,
+          "subjective_experience_construct": 66,
+          "pathway_process": 63,
+          "public_health_measure": 52,
+          "biomarker_readout": 45,
+          "pharmacokinetic_parameter": 17,
+          "brain_region": 12,
+          "brain_network": 7,
+          "system_family": 6,
+          "compound": 4,
+          "neural_circuit": 2
+        },
+        "evidence_type_counts": {
+          "secondary_literature": 933
+        },
+        "text_depth_counts": {
+          "article_text": 696,
+          "abstract_only": 237
+        },
+        "graph_study_coverage": {
+          "included_count": 354,
+          "candidate_count": 445,
+          "not_in_graph_count": 91
+        },
+        "graph_candidate_study_count": 445,
+        "graph_excluded_study_count": 91
+      }
+    }
+  },
+  "status": "ok",
+  "active_payload_pointer": {
+    "schema_version": "route_native_evidence_payload_active_v1",
+    "active_graph_bootstraps": {
+      "primary": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_primary.json",
+      "meta_analyses": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_meta_analyses.json",
+      "reviews": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_bootstrap_reviews.json"
+    },
+    "active_detail_bootstraps": {
+      "primary": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_primary.json",
+      "meta_analyses": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_meta_analyses.json",
+      "reviews": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/detail_bootstrap_reviews.json"
+    },
+    "active_manifest": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh/graph_payload_manifest.json",
+    "evidence_source": "kg_tables",
+    "kg_dir": "data/processed/kg_routed_runs/source_identity_repair_20260710_primary_refresh"
+  }
+}

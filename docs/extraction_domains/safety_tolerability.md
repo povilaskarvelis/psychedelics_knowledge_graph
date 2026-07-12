@@ -23,6 +23,13 @@ neurotoxicity/cytotoxicity, weight/metabolic safety, abuse/dependence liability,
 and general tolerability/adverse events. Use the general category only when the
 text does not identify a more specific event, organ system, or risk family.
 
+The concrete event is the specific graph anchor and the stable family is its
+parent category. When one central finding reports several clinically meaningful
+events from different families, preserve separate event anchors rather than
+letting the first recognized event replace the others. Seriousness,
+discontinuation, frequency, and overall tolerability remain distinct safety
+summary dimensions rather than substitutes for the event type.
+
 Capture medical/psychiatric attention, duration/resolution, ascertainment
 method, management, mitigation, risk factors, or subgroup context only when it
 is central to the safety finding.

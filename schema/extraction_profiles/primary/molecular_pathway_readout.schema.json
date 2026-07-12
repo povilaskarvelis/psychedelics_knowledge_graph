@@ -106,11 +106,11 @@
         },
         "molecular_effect_category": {
           "type": "string",
-          "description": "Clean user-facing molecular effect category for the graph node, such as Neuroplasticity, Inflammation, Intracellular signaling, Immediate early gene activation, Gene expression, Epigenetic regulation, Neurotransmitter signaling, Drug metabolism, Cellular stress, Endocrine response, or Gut microbiome. Use a category-level biological effect, not a one-off assay value."
+          "description": "Biological process parent for grouping the specific molecular pathway or readout. Use one of these recognizable process categories when applicable: Neuroplasticity; Neurogenesis; Intracellular signal transduction; Neuroinflammation & immune signaling; Neuronal excitability & synaptic transmission; Gene expression & activity markers; Epigenetic regulation; Genetic moderators; Receptor regulation & trafficking; Neurotransmitter release, uptake & turnover; Cellular stress & mitochondrial function; Cell injury & survival; Endocrine response; Drug metabolism; or Gut microbiome. Do not use a neurotransmitter system, assay method, brain region, or safety outcome as the parent, and do not replace the specific pathway or marker with this category."
         },
         "specific_readout_or_marker": {
           "type": "string",
-          "description": "Specific measured marker, molecule, gene, protein, phosphorylation ratio, neurotransmitter, cytokine, metabolite, assay readout, tissue signal, or molecular endpoint, such as BDNF, c-Fos, phospho-mTOR/mTOR, IL-6, dopamine, glutamate, 5-HIAA, TrkB, or Iba1."
+          "description": "Specific measured marker, molecule, gene, protein, phosphorylation ratio, neurotransmitter, cytokine, metabolite, assay readout, tissue signal, or molecular endpoint retained as the graph entity, such as BDNF, c-Fos, phospho-mTOR/mTOR, IL-6, dopamine, glutamate, 5-HIAA, TrkB, or Iba1."
         },
         "mechanistic_relationship_type": {
           "type": "string",

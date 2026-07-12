@@ -378,13 +378,43 @@ def count_scoped_evidence(path: Path, scope: set[str]) -> tuple[int, int, int, C
 def prepare(args: argparse.Namespace) -> int:
     update_id = safe_update_id(args.update_id)
     doi_file = Path(args.doi_file).resolve()
-    scope = read_doi_file(doi_file)
+    requested_scope = read_doi_file(doi_file)
     if args.refresh_derived:
         refresh_deterministic_layers(doi_file)
 
     tasks_path = Path(args.tasks_jsonl).resolve()
     routes_path = Path(args.route_table).resolve()
     all_tasks, _ = current_task_index(tasks_path)
+    scope = set(requested_scope)
+    only_task_group = normalize(getattr(args, "only_task_group", "")).lower()
+    include_no_runnable = bool(getattr(args, "include_no_runnable", False))
+    if only_task_group:
+        requested_tasks = [task for task in all_tasks if normalize_doi(task.get("study_doi")) in requested_scope]
+        requested_ready = [task for task in requested_tasks if normalize(task.get("task_status")) == READY_STATUS]
+        selected_group_dois = {
+            normalize_doi(task.get("study_doi"))
+            for task in requested_ready
+            if task_group(task) == only_task_group
+        }
+        any_ready_dois = {normalize_doi(task.get("study_doi")) for task in requested_ready}
+        scope = set(selected_group_dois)
+        if include_no_runnable:
+            scope.update(requested_scope - any_ready_dois)
+        mixed_group_dois = sorted(
+            {
+                normalize_doi(task.get("study_doi"))
+                for task in requested_ready
+                if normalize_doi(task.get("study_doi")) in selected_group_dois
+                and task_group(task) != only_task_group
+            }
+        )
+        if mixed_group_dois:
+            raise ValueError(
+                f"Cannot make a DOI-wide {only_task_group} update because these DOIs also have runnable tasks "
+                f"in another group: {', '.join(mixed_group_dois[:10])}"
+            )
+        if not scope:
+            raise ValueError(f"No DOIs remain after applying --only-task-group {only_task_group}")
     scoped_tasks = [task for task in all_tasks if normalize_doi(task.get("study_doi")) in scope]
     ready_tasks = [task for task in scoped_tasks if normalize(task.get("task_status")) == READY_STATUS]
 
@@ -498,6 +528,9 @@ def prepare(args: argparse.Namespace) -> int:
             "source_doi_file": str(doi_file),
             "scope_dois_file": str(scope_path.resolve()),
             "doi_count": len(scope),
+            "requested_doi_count": len(requested_scope),
+            "only_task_group": only_task_group,
+            "include_no_runnable": include_no_runnable,
             "doi_sha256": hashlib.sha256("\n".join(sorted(scope)).encode("utf-8")).hexdigest(),
         },
         "base": {
@@ -871,6 +904,10 @@ def promote(args: argparse.Namespace) -> int:
 
     env = dict(os.environ)
     env["ACTIVATE_DEFAULT"] = "0"
+    base_run_id = normalize(manifest.get("base", {}).get("run_id", ""))
+    base_author_cache = PROCESSED_DIR / "kg_routed_runs" / base_run_id / "openalex_author_cache.json"
+    if base_run_id and base_author_cache.is_file():
+        env["AUTHOR_CACHE_SEED"] = str(base_author_cache.resolve())
     author_args = ["--offline"] if args.offline else []
     run_checked(
         [str(ROOT / "scripts" / "build_routed_kg_payload.sh"), update_id, *author_args],
@@ -978,6 +1015,17 @@ def parse_args() -> argparse.Namespace:
         "--refresh-derived",
         action="store_true",
         help="Run scoped prescreen plus full deterministic route/article-text/task refresh first.",
+    )
+    prepare_parser.add_argument(
+        "--only-task-group",
+        choices=("primary", "reviews", "meta_analyses"),
+        default="",
+        help="Limit the effective DOI scope to papers with ready tasks in one extraction family.",
+    )
+    prepare_parser.add_argument(
+        "--include-no-runnable",
+        action="store_true",
+        help="With --only-task-group, also include requested DOIs that have no runnable task in any family.",
     )
     prepare_parser.add_argument("--overwrite", action="store_true")
     prepare_parser.set_defaults(func=prepare)

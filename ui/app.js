@@ -34,7 +34,6 @@ const statDetails = {
 
 const HERO_STAT_KEYS = ["studies", "compounds", "conditions", "targets"];
 const evidenceRank = { low: 1, medium: 2, high: 3 };
-const MAX_GRAPH_EDGES = 500;
 const MAIN_FINDING_MAX_CHARS = 260;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
 const LIST_CHUNK_SIZE = 120;
@@ -84,32 +83,63 @@ const OTHER_CATEGORY_COLOR = "#8f9ba8";
 const PUBLICATION_YEAR_COLOR = "#3faea6";
 const SAMPLE_SIZE_HEATMAP_COLOR = "#b89a5b";
 const COGNITION_NODE_LABELS = [
+  "Anhedonia",
+  "Associative memory",
   "Attention",
+  "Autobiographical memory",
+  "Avoidance learning",
   "Cognitive flexibility",
+  "Creativity",
+  "Decentering",
+  "Declarative memory",
   "Emotional processing",
+  "Episodic memory",
   "Executive function",
   "Fear extinction",
   "Fear memory",
   "Inhibitory control",
   "Memory",
+  "Memory consolidation",
+  "Memory retrieval",
+  "Mindfulness",
+  "Motivation",
   "Perceptual processing",
   "Processing speed",
+  "Prospective memory",
+  "Psychological flexibility",
   "Recognition memory",
+  "Reversal learning",
+  "Reward learning",
   "Reward processing",
+  "Reward responsiveness",
+  "Semantic memory",
+  "Sensory memory",
+  "Set shifting",
+  "Short-term memory",
   "Social cognition",
   "Spatial memory",
   "Time perception",
+  "Verbal memory",
+  "Visual memory",
+  "Visuospatial memory",
   "Working memory",
 ];
 const BEHAVIORAL_EFFECT_NODE_LABELS = [
+  "Anxiety-like behavior",
   "Conditioned place preference",
+  "Compulsivity",
+  "Craving",
   "Drug discrimination",
+  "Drug cue reactivity",
+  "Drug motivation",
+  "Drug reinstatement",
   "Drug seeking",
   "Drug self-administration",
   "Head-twitch response",
   "Motor coordination",
   "Pain behavior",
   "Psychomotor sensitization",
+  "Relapse",
   "Sensorimotor gating",
   "Social interaction",
   "Stress-coping behavior",
@@ -120,9 +150,9 @@ const ENTITY_CATEGORY_OPTIONS = [
   {
     key: "safety_adverse_event",
     label: "Safety",
-    singular: "Safety event",
-    lowerPlural: "safety events",
-    lowerSingular: "safety event",
+    singular: "Safety outcome",
+    lowerPlural: "safety outcomes",
+    lowerSingular: "safety outcome",
   },
   {
     key: "cognitive_behavioral_construct",
@@ -150,17 +180,17 @@ const ENTITY_CATEGORY_OPTIONS = [
   },
   {
     key: "intervention_component",
-    label: "Therapy context",
-    singular: "Therapy context",
-    lowerPlural: "therapy context nodes",
-    lowerSingular: "therapy context node",
+    label: "Treatment context",
+    singular: "Treatment context",
+    lowerPlural: "treatment context factors",
+    lowerSingular: "treatment context factor",
   },
   {
     key: "public_health_measure",
-    label: "Naturalistic use",
-    singular: "Naturalistic use pattern",
-    lowerPlural: "naturalistic use patterns",
-    lowerSingular: "naturalistic use pattern",
+    label: "Real-world use",
+    singular: "Real-world topic",
+    lowerPlural: "real-world topics",
+    lowerSingular: "real-world topic",
   },
   {
     key: "brain_system",
@@ -173,6 +203,7 @@ const ENTITY_CATEGORY_OPTIONS = [
   {
     key: "pathway_readout",
     kinds: ["pathway_process", "biomarker_readout"],
+    domains: ["molecular_pathway_readout", "pharmacokinetics_exposure"],
     label: "Molecular effects",
     singular: "Molecular effect",
     lowerPlural: "molecular effects",
@@ -201,6 +232,7 @@ const DETAIL_PANEL_PROFILE_DEFAULT = {
   studyDesigns: true,
   outcomeScales: false,
   publicHealthTopics: false,
+  publicHealthContexts: false,
   publicHealthDataSources: false,
   trialRegistration: false,
 };
@@ -265,6 +297,7 @@ const DETAIL_PANEL_PROFILE_BY_VIEW = {
   },
   public_health_measure: {
     sampleSizes: true,
+    publicHealthContexts: true,
     publicHealthDataSources: true,
     trialRegistration: true,
   },
@@ -460,7 +493,7 @@ function rawSearchTextForObject(value) {
 
 function claimDerivedSearchParts(claim) {
   return compactSearchTextParts([
-    compoundGraphLabel(claim.compound),
+    compoundGraphLabelForClaim(claim),
     graphRightLabelForClaim(claim),
     claimMainFindingText(claim),
     paperTypeLabel(claim.paper_type),
@@ -478,6 +511,7 @@ function claimDerivedSearchParts(claim) {
     clinicalFollowUpWindowFacetLabel(claim),
     studyDesignFacetLabel(claim),
     publicHealthTopicFacetLabel(claim),
+    ...publicHealthUseContextFacetLabels(claim),
     publicHealthDataSourceFacetLabel(claim),
     specificPathwayReadoutLabel(claim),
     firstAuthorName(claim),
@@ -515,63 +549,63 @@ function compoundGraphLabel(value) {
   return text;
 }
 
+function compoundGraphLabelForClaim(claim) {
+  const overview = meaningfulText(claim?.graph_overview_subject_label);
+  if (overview) return overview;
+  return compoundGraphLabel(claim?.compound);
+}
+
 const PATHWAY_READOUT_FAMILY_RULES = [
   {
     label: "Gut microbiome",
     pattern: /\b(gut|microbiome|microbiota|microbial|bacteri\w*|fecal|faecal|short chain fatty acids?|scfa)\b/,
   },
   {
-    label: "Inflammation",
+    label: "Neuroinflammation & immune signaling",
     pattern:
       /\b(inflamm\w*|cytokine\w*|interleukin\w*|il[- ]?\d+\w*|tnf|nf[- ]?kappa[- ]?b|nf[- ]?kb|cox[- ]?2|prostaglandin\w*|microglia\w*|astrocyt\w*|glial|gfap|iba[- ]?1|complement|crp|hmgb1|tlr[- ]?4|tgf[- ]?beta)\b/,
   },
   {
-    label: "Cellular stress",
+    label: "Cell injury & survival",
     pattern:
-      /\b(cellular stress|oxidative stress|reactive oxygen|\bros\b|lipid peroxidation|malondialdehyde|\bmda\b|glutathione|\bgsh\b|\bsod\b|catalase|apoptosis|caspase|cell death|necrosis|hsp[- ]?70|heat shock|neurotox\w*|toxicity|toxic marker|neurofilament|\bnfl\b|s100b)\b/,
+      /\b(cell injury|cell survival|cell viability|cell death|neuronal (?:injury|damage|loss|survival)|neuroprotection|neuroaxonal injury|apoptosis|caspase|necrosis|cytotox\w*|neurotox\w*|toxicity|toxic marker|neurofilament|\bnfl\b|s100b)\b/,
+  },
+  {
+    label: "Cellular stress & mitochondrial function",
+    pattern:
+      /\b(cellular stress|oxidative stress|reactive oxygen|\bros\b|lipid peroxidation|malondialdehyde|glutathione|\bgsh\b|\bsod\b|catalase|redox|hsp[- ]?70|heat shock|mitochondri\w*|mitophagy|protein folding|endoplasmic reticulum|er stress|dna damage)\b/,
+  },
+  {
+    label: "Neurogenesis",
+    pattern: /\b(neurogenesis|doublecortin|\bdcx\b|newborn neurons?|granule cell proliferation)\b/,
   },
   {
     label: "Neuroplasticity",
     pattern:
-      /\b(neuroplasticity|bdnf|trkb|trk b|ngf|gdnf|vegf|igf[- ]?1|insulin[- ]like growth factor|neurotroph\w*|growth factor\w*|plasticity|synaptic|synapse|dendritic|spine|neurogenesis|neurite|synaptogenesis|paired[- ]pulse facilitation|ppf|long[- ]?term potentiation|ltp|long[- ]?term depression|ltd|psd[- ]?95|synaptophysin|arc|sv2a|synaptic vesicle|perineuronal net|myelin basic protein|myelination)\b/,
+      /\b(neuroplasticity|bdnf|trkb|trk b|ngf|gdnf|vegf|igf[- ]?1|insulin[- ]like growth factor|neurotroph\w*|growth factor\w*|plasticity|synaptic (?:plasticity|protein|density|remodeling)|synapse (?:formation|density)|dendritic|spine|neurite|synaptogenesis|paired[- ]pulse facilitation|ppf|long[- ]?term potentiation|ltp|long[- ]?term depression|ltd|psd[- ]?95|synaptophysin|arc|sv2a|synaptic vesicle|perineuronal net|gap[- ]?43|growth associated protein|myelin basic protein|myelination)\b/,
   },
   {
-    label: "Intracellular signaling",
+    label: "Intracellular signal transduction",
     pattern:
       /\b(intracellular signaling|erk|mapk|mtor|mtorc1|akt|camp|creb|pka|pkc|plc|pi3k|gsk[- ]?3|p70s6k|stat3|jnk|rac1|phosphorylation|phosphorylated|phospho|second messenger\w*|kinase\w*|signal(?:ing|ling)|phosphoinositide)\b/,
-  },
-  {
-    label: "Immediate early gene activation",
-    pattern:
-      /\b(c[- ]?fos|fosb|egr[- ]?1|immediate early|neuronal activation|neural activation|neural activity|neuronal activity)\b/,
-  },
-  {
-    label: "Serotonin signaling",
-    pattern: /\b(serotonin signaling|serotonin|5[- ]?hydroxytryptamine|5[- ]?hiaa|5[- ]?ht\d?[a-z]?|sert|slc6a4)\b/,
-  },
-  {
-    label: "Dopamine signaling",
-    pattern: /\b(dopamine signaling|dopamine|\bdopa\b|dopac|\bhva\b|\bdat\b|slc6a3|d[1-5][ -]?receptor)\b/,
-  },
-  {
-    label: "Glutamate signaling",
-    pattern: /\b(glutamate signaling|glutamate|glutamatergic|ampa|nmda|nmdar|ampar|mglur\d?[a-z]?|mglu\d?|glua\d?|glun\d?|vglut)\b/,
-  },
-  {
-    label: "GABA signaling",
-    pattern: /\b(gaba signaling|gaba|gabaergic|gabr|gad[- ]?65|gad[- ]?67)\b/,
-  },
-  {
-    label: "Epigenetic regulation",
-    pattern: /\b(epigen\w*|dna methylation|methylation|histone\w*|chromatin)\b/,
   },
   {
     label: "Genetic moderators",
     pattern: /\b(polymorphism\w*|genotype\w*|phenotype interaction|allele\w*|rs\d+)\b/,
   },
   {
-    label: "Gene expression",
-    pattern: /\b(gene expression|transcript\w*|transcriptom\w*|mrna|rna|mirna|microrna)\b/,
+    label: "Epigenetic regulation",
+    pattern: /\b(epigen\w*|dna methylation|methylation|histone\w*|chromatin|cpg)\b/,
+  },
+  {
+    label: "Gene expression & activity markers",
+    pattern:
+      /\b(c[- ]?fos|fosb|egr[- ]?1|immediate early|neuronal activation|neural activation|neural activity|neuronal activity|gene expression|transcript\w*|transcriptom\w*|mrna|rna|mirna|microrna)\b/,
+  },
+  {
+    label: "Receptor regulation & trafficking",
+    pattern:
+      /\b(receptor\w*|5[- ]?ht\d?[a-z]?|sert|slc6a4|\bdat\b|slc6a3|slc6a2|d[1-5][ -]?receptor|ampa|nmda|nmdar|ampar|mglur\d?[a-z]?|mglu\d?|glua\d?|glun\d?|gabr|transport(?:er|ers)|availability|binding potential|densit(?:y|ies)|occupancy|trafficking|surface expression|internalization|uptake site|p[- ]?glycoprotein|abcb1|pmat|slc29a4|vmat\d?)\b/,
   },
   {
     label: "Drug metabolism",
@@ -582,18 +616,14 @@ const PATHWAY_READOUT_FAMILY_RULES = [
     pattern: /\b(endocrine response|cortisol|corticosterone|acth|prolactin|hormone\w*|endocrine|melatonin|oxytocin|vasopressin)\b/,
   },
   {
-    label: "Norepinephrine signaling",
-    pattern: /\b(norepinephrine signaling|norepinephrine|noradrenaline|\bne\b|\bna\b|slc6a2|net\b)\b/,
+    label: "Neuronal excitability & synaptic transmission",
+    pattern:
+      /\b(neuronal excitability|excitability|firing rate|spik(?:e|ing)|calcium imaging|calcium flux|electrophysiolog\w*|oscillation\w*|gamma|theta|field potential\w*|currents?|\bepscs?\b|\bipscs?\b|\bmepscs?\b|\bmipscs?\b|action potential|membrane potential|ion channel modulation|synaptic transmission|neurotransmission)\b/,
   },
   {
-    label: "Neuronal excitability",
+    label: "Neurotransmitter release, uptake & turnover",
     pattern:
-      /\b(neuronal excitability|excitability|firing rate|spik(?:e|ing)|calcium imaging|calcium flux|electrophysiolog\w*|oscillation\w*|gamma|theta|field potential\w*|currents?|\bepscs?\b|\bipscs?\b|\bmepscs?\b|\bmipscs?\b)\b/,
-  },
-  {
-    label: "Receptor regulation",
-    pattern:
-      /\b(receptor regulation|receptor\w*|transport(?:er|ers)|availability|binding potential|densit(?:y|ies)|occupancy|trafficking|surface expression|internalization|uptake site|p[- ]?glycoprotein|abcb1|pmat|slc29a4|vmat\d?|vesicular monoamine transporter)\b/,
+      /\b(serotonin signaling|serotonin|5[- ]?hydroxytryptamine|5[- ]?hiaa|dopamine signaling|dopamine|\bdopa\b|dopac|\bhva\b|glutamate signaling|glutamate|glutamatergic|gaba signaling|gaba|gabaergic|norepinephrine signaling|norepinephrine|noradrenaline|acetylcholine|monoamine releas\w*|monoamine neurotransmission|modulat\w* monoamine|neurotransmitter\w*|transmitter releas\w*|releas\w*|uptake|reuptake|turnover|metabolite levels?|vesicular monoamine transporter|tph[- ]?2|tryptophan hydroxylase|dopaminergic system marker|choline acetyltransferase|\bchat\b|cholinergic system marker)\b/,
   },
 ];
 const PATHWAY_READOUT_FAMILY_LABELS = new Map(
@@ -602,6 +632,14 @@ const PATHWAY_READOUT_FAMILY_LABELS = new Map(
 
 function usesPathwayReadoutFamilies() {
   return claimLayer === "normalized" && currentEntityViewKey() === "pathway_readout";
+}
+
+function usesBrainParentFamilies() {
+  return claimLayer === "normalized" && currentEntityViewKey() === "brain_system";
+}
+
+function usesInterventionParentFamilies() {
+  return claimLayer === "normalized" && currentEntityViewKey() === "intervention_component";
 }
 
 function pathwayReadoutMatchText(values) {
@@ -623,17 +661,106 @@ function pathwayReadoutFamilyFromText(value) {
   return rule?.label || "";
 }
 
+const NEUROPLASTICITY_FINDING_THEME_RULES = [
+  {
+    label: "BDNF–TrkB signaling",
+    pattern: /\b(?:m|pro)?bdnf\b|\btrkb\b|\bntrk2\b|\bptrkb\b/,
+  },
+  {
+    label: "Dendritic & spine remodeling",
+    pattern: /dendrit|spine|spinogenesis|dendritogenesis|neurite|arbori[sz]|soma size|growth cone|cytoskeletal|f-actin|pruning|mossy fiber sprouting/,
+  },
+  {
+    label: "Synaptic potentiation & depression",
+    pattern: /long[- ]?term potentiation|\bltp\b|long[- ]?term depression|\bltd\b|short[- ]?term potentiation|\bstp\b|paired[- ]?pulse|\bppf\b|synaptic potentiation|synaptic depression|fepsp|synaptic efficacy|postsynaptic efficacy|synaptic scaling|ocular dominance|reconsolidation/,
+  },
+  {
+    label: "Synaptic proteins & vesicle remodeling",
+    pattern: /psd[- ]?95|dlg4|sv2a|synaptophysin|synapsin|synaptotagmin|synaptophluorin|\bsyt\d|\bsyn1\b|synaptic (?:protein|marker|vesicle|density|remodel|ultrastructure|defect|activity)|synapse (?:formation|density|number)|synaptogenesis|synaptogenic|vesicle recycling|drebrin|homer1|shank3|rims1|narp|neuronal pentraxin|presynaptic|readily releasable pool|synaptozip/,
+  },
+  {
+    label: "Glutamatergic receptor plasticity",
+    pattern: /ampa|nmda|glua|glur|gria|glun|nmdar|ampar|glutamate receptor/,
+  },
+  {
+    label: "Activity-dependent plasticity genes",
+    pattern: /\barc\b|c[- ]?fos|fosb|egr\d?|zif268|immediate early|cebp|npas4|fra1|neurod1/,
+  },
+  {
+    label: "Other neurotrophic factors",
+    pattern: /\bngf\b|\bgdnf\b|\bvegf\w*\b|vascular endothelial growth factor|\bigf[- ]?1\b|insulin[- ]like growth factor|neurotrophin|\bnt[- ]?[34]\b|\bntf3\b|\btrkc?\b|fgf[- ]?2|neurotrophic factor|\bp75\b/,
+  },
+  {
+    label: "Plasticity-related intracellular signaling",
+    pattern: /\bmtor|\berk\b|\bcreb\b|\bakt\b|gsk[- ]?3|p70s6k|rps6|mapk|rac1|camkii|pi3k|kinase|phosphoinositide|intracellular signaling/,
+  },
+  {
+    label: "Myelination & extracellular plasticity",
+    pattern: /myelin|\bmbp\b|perineuronal|extracellular matrix|chondroitin|mmp[- ]?9|nogo/,
+  },
+  {
+    label: "Neurogenesis & cell proliferation",
+    pattern: /cell(?:ular)? proliferation|progenitor proliferation|cell growth|neural progenitor|neural stem|new neurons?|neuronal maturation|\bbrdu\b|\bpcna\b|ki[- ]?67/,
+  },
+  {
+    label: "Structural imaging markers",
+    pattern: /cortical thickness|\bvolume\b|dti|diffusivity|white matter|gr[ae]y matter|neuronal volume|neuronal density/,
+  },
+  {
+    label: "Functional synaptic transmission",
+    pattern: /epsc|ipsc|fipsp|\blfp\b|field potential|local field|membrane potential|plateau potential|excitability|electrophysiolog|synaptic transmission|synaptic current|synaptic strength|action potential|calcium event|calcium response|calcium transient|gamma oscillation/,
+  },
+  {
+    label: "General neuroplasticity measures",
+    pattern: /neuroplastic|synaptic plasticity|plasticity marker|functional cellular plasticity|structural plasticity|plasticity-related|protein synthesis|gap[- ]?43|\bmap2\b|axon development/,
+  },
+  {
+    label: "Interneuron & circuit remodeling",
+    pattern: /parvalbumin|\bpv\b|interneuron|fiber density|fiber connectivity|laminar connectivity|engram|projection density|synaptic input/,
+  },
+  {
+    label: "Circuit connectivity & plasticity",
+    pattern: /functional connectivity|\bdfc\b|coherence|pathway plasticity|circuit connectivity|connection strength/,
+  },
+];
+
 function specificPathwayReadoutLabel(claim) {
-  return (
+  const normalizedSubtopic = meaningfulText(claim?.molecular_finding_subtopic);
+  if (normalizedSubtopic) return normalizedSubtopic;
+  const specific =
     graphLabel(claim?.target) ||
     meaningfulText(claim?.graph_entity_label) ||
     meaningfulText(claim?.raw_entity_label) ||
-    meaningfulText(claim?.canonical_entity)
+    meaningfulText(claim?.canonical_entity);
+  const text = pathwayReadoutMatchText([specific]);
+  if (!text) return "";
+  const parent = normalizeValue(
+    meaningfulText(claim?.graph_parent_label) ||
+      meaningfulText(claim?.molecular_effect_label) ||
+      pathwayReadoutFamilyFromText(specific),
   );
+  if (parent === normalizeValue("Neuroplasticity")) {
+    const theme = NEUROPLASTICITY_FINDING_THEME_RULES.find((item) => item.pattern.test(text));
+    if (theme) return theme.label;
+  }
+  if (/\bbdnf\b/.test(text)) return "BDNF";
+  if (/\bpsd[- ]?95\b|\bdlg4\b/.test(text)) return "PSD-95";
+  if (/\blong[- ]?term potentiation\b|\bltp\b/.test(text)) return "Long-term potentiation";
+  if (/\blong[- ]?term depression\b|\bltd\b/.test(text)) return "Long-term depression";
+  if (/\bcorticosterone\b/.test(text)) return "Corticosterone";
+  if (/\bcortisol\b/.test(text)) return "Cortisol";
+  if (/\bprolactin\b/.test(text)) return "Prolactin";
+  if (/\boxytocin\b/.test(text)) return "Oxytocin";
+  if (/\bc[- ]?fos\b/.test(text)) return "c-Fos";
+  if (/\berk\b/.test(text)) return "ERK";
+  if (/\bmtorc?1?\b/.test(text)) return text.includes("mtorc1") ? "mTORC1" : "mTOR";
+  if (/\bakt\b/.test(text)) return "Akt";
+  if (/\bcreb\b/.test(text)) return "CREB";
+  return specific;
 }
 
 function pathwayReadoutFamilyForClaim(claim) {
-  const nativeLabel = meaningfulText(claim?.molecular_effect_label);
+  const nativeLabel = meaningfulText(claim?.graph_parent_label) || meaningfulText(claim?.molecular_effect_label);
   if (nativeLabel) return nativeLabel;
   const specificLabel = specificPathwayReadoutLabel(claim);
   if (!specificLabel) return "";
@@ -665,6 +792,8 @@ function graphRightLabelForClaim(claim) {
   const right = graphLabel(graphRightRawLabel(claim));
   if (!right) return "";
   if (usesPathwayReadoutFamilies()) return pathwayReadoutFamilyForClaim(claim);
+  if (usesBrainParentFamilies()) return graphLabel(claim?.graph_parent_label) || right;
+  if (usesInterventionParentFamilies()) return graphLabel(claim?.graph_parent_label) || right;
   return right;
 }
 
@@ -680,7 +809,7 @@ function sameGraphLabel(left, right) {
 }
 
 function claimMatchesGraphCompound(claim, compound) {
-  return sameGraphLabel(compoundGraphLabel(claim?.compound), compound);
+  return sameGraphLabel(compoundGraphLabelForClaim(claim), compound);
 }
 
 function claimMatchesGraphRight(claim, right) {
@@ -822,7 +951,7 @@ function studyJoinKey(claim) {
 
 function evidenceScopeKey(claim) {
   const study = studyJoinKey(claim);
-  const compound = normalizeValue(claim.compound);
+  const compound = normalizeValue(compoundGraphLabelForClaim(claim));
   if (!study || !compound) return "";
   return `${study}|compound:${compound}`;
 }
@@ -1549,7 +1678,10 @@ function isOtherEntry(entry) {
   const label = normalizeValue(entry?.displayLabel || entry?.label || "");
   return (
     Boolean(entry?.isAggregate) ||
-    label.startsWith("other") ||
+    label === "other" ||
+    label === "other findings" ||
+    label.startsWith("other/mixed") ||
+    label.startsWith("other / mixed") ||
     label.includes("mixed_unclear")
   );
 }
@@ -2019,20 +2151,31 @@ function administrationSummaryText(claim) {
 }
 
 const PUBLIC_HEALTH_TOPIC_ORDER = [
+  "Population use & trends",
+  "Use patterns & practices",
+  "Motivations & intentions",
+  "Predictors & correlates",
+  "Perceived benefits & harms",
+  "Health & functioning outcomes",
+  "Problematic use & dependence",
+  "Acute harms & healthcare use",
+  "Treatment effectiveness & care outcomes",
+  "Harm reduction practices",
+  "Drug composition & adulteration",
+  "Availability & market trends",
+  "Access & equity",
+  "Implementation & acceptability",
+  "Economic & resource impacts",
+  "Policy & legal outcomes",
+  "Other real-world outcome",
+];
+const PUBLIC_HEALTH_CONTEXT_ORDER = [
   "Microdosing",
-  "Recreational use",
+  "Recreational/nightlife",
   "Self-treatment",
-  "Ceremonial/retreat use",
-  "Polysubstance use",
-  "Clinical treatment",
-  "Prevalence & trends",
-  "Problematic use",
-  "Drug checking & adulteration",
-  "Emergency/toxicology reports",
-  "Wastewater & market signals",
-  "Access to services",
-  "Legal/criminal justice",
-  "Other naturalistic topic",
+  "Ceremonial/retreat",
+  "Polysubstance",
+  "Clinical care",
 ];
 const PUBLIC_HEALTH_DATA_SOURCE_ORDER = [
   "Survey",
@@ -2057,124 +2200,21 @@ const PUBLIC_HEALTH_DATA_SOURCE_LABELS = {
 
 function publicHealthTopicFacetLabel(claim) {
   const graphLabel = meaningfulText(claim.public_health_graph_label || claim.graph_entity_label || claim.entity_label);
-  if (
-    PUBLIC_HEALTH_TOPIC_ORDER.some((label) => normalizeValue(label) === normalizeValue(graphLabel)) &&
-    !["problematic use", "self treatment"].includes(normalizeValue(graphLabel))
-  ) {
-    return graphLabel;
-  }
-  const text = [
-    claim.public_health_topic_category,
-    claim.public_health_measure,
-    claim.raw_entity_label,
-    claim.exposure_or_policy,
-    claim.exposure_or_intervention,
-    claim.population,
-    claim.population_or_setting,
-    claim.setting,
-    claim.study_design,
-    claim.data_source_or_study_design,
-    claim.association_or_trend,
-    claim.time_window,
-    claim.study_title,
-    claim.dose,
-    claim.support,
-    claim.supporting_quote,
-  ]
-    .map(cleanDisplayText)
-    .filter(Boolean)
-    .join(" ")
-    .replace(/[_/()+–—-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
+  const canonical = PUBLIC_HEALTH_TOPIC_ORDER.find(
+    (label) => normalizeValue(label) === normalizeValue(graphLabel)
+  );
+  return canonical || "Other real-world outcome";
+}
 
-  if (!text.trim()) return "";
-  if (/\bmicrodos\w*\b/.test(text)) return "Microdosing";
-  if (/\b(drug checking|amnesty bins?|seized samples?|adulter\w*|substitution|unexpected drug|unexpected detection|portable gc|gc[- ]?ms|festival testing|harm reduction information|information source|trip sitter|sitter|babysitter)\b/.test(text)) {
-    return "Drug checking & adulteration";
-  }
-  if (/\b(wastewater|sewage|drug load|mass load|population normalised|population normalized|pndl|pnl|population consumption|per inhabitant consumption|estimated daily consumption|consumption based on metabolic rate|cryptomarket|darknet|market|purchase|availability|easy to obtain|obtain|price)\b/.test(text)) {
-    return "Wastewater & market signals";
-  }
-  if (/\b(poison cent(?:er|re)s?|poison control|emergency|ed visit|emergency medical treatment|emt|hospitali[sz]|intensive care|icu|fatalit\w*|fatal|death|mortality|coronial|forensic|postmortem|post mortem|toxicology|toxicological|toxicosurveillance|intoxication|overdose|adverse event reports?|faers|reporting odds ratio|serum concentration|blood analysis|urine analysis|hair analysis|drug concentration in hair|suspected dfsa|suicid\w*)\b/.test(text)) {
-    return "Emergency/toxicology reports";
-  }
-  if (/\b(ceremon\w*|ritual\w*|retreat|ayahuasca shamanisms?|shamanic|intention setting|sacralization|naturalistic ceremonial)\b/.test(text)) {
-    return "Ceremonial/retreat use";
-  }
-  if (/\b(polysubstance|poly drug|polydrug|co use|concomitant|combined with|combination|cannabis taken alongside|additional substances?|one or more additional substances|mdma mda|mdma methamphetamine)\b/.test(text)) {
-    return "Polysubstance use";
-  }
-  if (/\b(real world clinical|clinical practice|clinical treatment|treatment response|response and remission|remission rate|depression severity|madrs|qids|cgi s|cgi i|treatment discontinuation|treatment continuation|intranasal esketamine|spravato)\b/.test(text)) {
-    return "Clinical treatment";
-  }
-  if (/\b(self treat\w*|self medicat\w*|perceived benefit|perceived efficacy|perceived unpleasant side effects|therapeutic benefit|psychotherapeutic benefit|medical reasons?|psychiatric improvement|symptom improvement|treatment outcomes?|cluster headache|busting|preventive efficacy|abortive efficacy|healing|trauma|cravings?|life changes|quality of life|wellbeing|well being|eating disorders?|disordered eating)\b/.test(text)) {
-    return "Self-treatment";
-  }
-  if (/\b(access|service delivery|care delivery|implementation|early access|prescrib\w*|prescription|treatment availability|certified treatment centers?|provider|social workers?|psychiatrists?|attitudes|acceptability|appropriateness|feasibility|patient characteristics|social determinants|atuc)\b/.test(text)) {
-    return "Access to services";
-  }
-  if (/\b(policy|regulat\w*|legal|criminal\w*|crime|arrest\w*|prison|incarcerat\w*|violence|intimate partner violence|classification|drug harms?|scheduling)\b/.test(text)) {
-    return "Legal/criminal justice";
-  }
-  if (/\b(misuse|abuse liability|dependen\w*|addict\w*|diversion|nonmedical|non medical|substance use disorder|use disorder|sud\b|drug abuse|drug dependence|alcohol abuse|problematic use patterns?|compulsive use|obsessive relationship|over eager use|tolerance escalation|withdrawal syndrome|use despite harm)\b/.test(text)) {
-    return "Problematic use";
-  }
-  if (/\b(recreational|first time use|club|club going|nightlife|dance event|festival|rave|party|naturalistic|pattern of use|use patterns?|route of administration|administration route|frequency|user profiles?|future use|preference|intentions to use|novelty|subjective experience themes|motivations for use|primary reason for use)\b/.test(text)) {
-    return "Recreational use";
-  }
-  if (/\b(epidemiology|prevalence|incidence|lifetime use|past year|past 12 month|use prevalence|trend|demographic|risk factors?|age of initiation|population based|survey|odds of past year|quality of life score|correlates?)\b/.test(text)) {
-    return "Prevalence & trends";
-  }
-  return "Other naturalistic topic";
+function publicHealthUseContextFacetLabels(claim) {
+  return cleanDisplayText(claim.real_world_use_context)
+    .split(/\s*[;|]\s*/)
+    .map((value) => PUBLIC_HEALTH_CONTEXT_ORDER.find((label) => normalizeValue(label) === normalizeValue(value)))
+    .filter(Boolean);
 }
 
 function publicHealthDataSourceFacetLabel(claim) {
-  const explicit = controlledCategoryLabel(claim.data_source_type, PUBLIC_HEALTH_DATA_SOURCE_LABELS);
-  if (explicit) return explicit;
-
-  const text = [
-    claim.study_design,
-    claim.setting,
-    claim.population,
-    claim.public_health_measure,
-    claim.public_health_topic_category,
-    claim.support,
-  ]
-    .map(cleanDisplayText)
-    .filter(Boolean)
-    .join(" ")
-    .replace(/[_/()+-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-
-  if (!text) return "";
-  if (/\b(wastewater|sewage|wbe|population normal(?:ised|ized)|population normalised|population normalized|mass load|daily loads?|pndl|pnl)\b/.test(text)) {
-    return "Wastewater";
-  }
-  if (/\b(drug checking|amnesty bins?|seized samples?|portable gc ms|gc ms|unexpected drug|suspected dfsa|adulterat\w*|substitution)\b/.test(text)) {
-    return "Drug checking";
-  }
-  if (
-    /\b(poison centers?|poison centres?|toxicology|toxicological|toxicosurveillance|intoxication|fatalit\w*|fatal poisoning|overdose|emergency department|hair analysis|urine analysis|blood analysis|serum concentration|drug concentration in hair)\b/.test(
-      text
-    )
-  ) {
-    return "Poison center/toxicology";
-  }
-  if (/\b(survey|questionnaire|respondents?|online panel|global drug survey|gds|nsduh|national survey|venue intercept|web based)\b/.test(text)) {
-    return "Survey";
-  }
-  if (/\b(qualitative|interview|ethnograph\w*|focus group|lived experience|narrative|self experiments?)\b/.test(text)) {
-    return "Qualitative/interview";
-  }
-  if (/\b(registry|administrative|medical records?|electronic health|claims data|hospital records?|treatment centers?|rems|certified treatment centers?|arrests?|crime records?|mortality records?)\b/.test(text)) {
-    return "Administrative/registry";
-  }
-  if (/\b(cohort|case control|case-control|longitudinal|follow up|follow-up|retrospective|prospective|observational)\b/.test(text)) {
-    return "Observational cohort";
-  }
-  return "Other/unclear source";
+  return controlledCategoryLabel(claim.data_source_type, PUBLIC_HEALTH_DATA_SOURCE_LABELS) || "Other/unclear source";
 }
 
 const MECHANISTIC_ASSAY_FAMILY_ORDER = [
@@ -3200,7 +3240,7 @@ function normalizedKgClaims() {
 function loadedHeroStats() {
   const totalClaims = normalizedKgClaims();
   return {
-    compounds: unique(totalClaims.map((claim) => compoundGraphLabel(claim.compound)).filter(Boolean)).length,
+    compounds: unique(totalClaims.map((claim) => compoundGraphLabelForClaim(claim)).filter(Boolean)).length,
     conditions: unique(
       totalClaims
         .filter((claim) => !isHiddenMainGraphItem(claim))
@@ -3227,6 +3267,7 @@ function statNumber(value) {
 
 function heroStatsFromGraphManifest(manifest) {
   const summary =
+    manifest?.summary_stats?.sources?.primary ||
     manifest?.summary_stats?.default ||
     manifest?.summary_stats?.views?.primary_with_secondary ||
     manifest?.summary_stats;
@@ -3304,9 +3345,14 @@ function applyFilters() {
 function applyFiltersToClaims(activeClaims) {
   const yearRange = activeYearRange(activeClaims);
   const fullTextOnly = Boolean(fullTextOnlyToggle?.checked);
+  const searchValue = normalizeSearchText(searchInput?.value);
 
   const baseFiltered = activeClaims.filter((claim) => {
     if (fullTextOnly && claimSourceAccessLevel(claim) !== "full_text_seen") {
+      return false;
+    }
+
+    if (searchValue && !claimSearchHaystack(claim).includes(searchValue)) {
       return false;
     }
 
@@ -3365,7 +3411,47 @@ function disconnectBibliographyLoadObserver() {
   }
 }
 
-function claimCardInnerHtml(claim, referenceClass = "card-reference") {
+function paperFindingContextSummaryHtml(siblingCount) {
+  if (!siblingCount) return "";
+  const label = siblingCount === 1 ? "Other finding from this paper" : "Other findings from this paper";
+  return `
+    <details class="paper-findings-context">
+      <summary>
+        <span>${escapeHtml(label)}</span>
+        <span class="paper-findings-count">${formatCompactNumber(siblingCount)}</span>
+      </summary>
+      <div class="paper-findings-list" aria-live="polite"></div>
+    </details>
+  `;
+}
+
+function paperFindingContextListHtml(siblingClaims) {
+  const relationshipGroups = new Map();
+  siblingClaims.forEach((sibling) => {
+    const relation = claimRelationText(sibling);
+    const key = normalizeValue(relation);
+    const entry = relationshipGroups.get(key) || { relation, count: 0 };
+    entry.count += 1;
+    relationshipGroups.set(key, entry);
+  });
+
+  return Array.from(relationshipGroups.values())
+    .map(({ relation, count }) => {
+      return `
+        <div class="paper-finding-context-item">
+          <div class="paper-finding-context-relation">${escapeHtml(relation)}</div>
+          ${
+            count > 1
+              ? `<span class="paper-finding-context-multiplier" aria-label="${formatCompactNumber(count)} findings">×${formatCompactNumber(count)}</span>`
+              : ""
+          }
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCount = 0) {
   const secondary = isSecondaryLiteratureClaim(claim);
   const badges = claimBadgeHtml(claim);
 
@@ -3382,13 +3468,23 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference") {
   const mainFindingLine = mainFinding
     ? `<div class="card-main-finding"><span class="card-field-label">${escapeHtml(mainFindingLabel)}:</span> ${escapeHtml(mainFinding)}</div>`
     : "";
+  const exactExposure = meaningfulText(claim.graph_subject_label);
+  const overviewExposure = meaningfulText(claim.graph_overview_subject_label || claim.compound);
+  const exactExposureLine =
+    exactExposure && normalizeValue(exactExposure) !== normalizeValue(overviewExposure)
+      ? claimFieldLineFromValue("Exact exposure", exactExposure)
+      : "";
+  const specificEntityLine = claimSpecificEntityLine(claim);
+  const paperFindingContext = paperFindingContextSummaryHtml(siblingCount);
   const referenceLine = studyReferenceHtml(claim, referenceClass);
 
   const evidenceLines = secondary
     ? ""
     : isRealWorldPublicHealthClaim(claim)
       ? [
-          claimFieldLineFromValue("Category", claim.public_health_topic_category),
+          claimFieldLineFromValue("Topic", claim.public_health_graph_label || claim.graph_entity_label),
+          claimFieldLineFromValue("Use context", claim.real_world_use_context),
+          claimFieldLineFromValue("Measure", claim.public_health_measure),
           claimFieldLineFromValue("Estimate", publicHealthEstimate),
           claimFieldLineFromValue("Setting", claim.setting),
           claimFieldLineFromValue("Population", claim.population),
@@ -3425,29 +3521,69 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference") {
       </div>
       <div class="meta">
         ${mainFindingLine}
+        ${exactExposureLine}
+        ${specificEntityLine}
         ${evidenceLines}
         ${secondary ? "" : claimFieldLineFromValue("Trial registry", claim.trial_registry_ids)}
+        ${paperFindingContext}
         ${referenceLine}
       </div>
     `;
 }
 
-function createClaimCardElement(claim) {
+function updateCardsMasonryColumnHeight(card) {
+  const column = card.closest(".cards-masonry-column");
+  if (!column) return;
+  const cards = Array.from(column.querySelectorAll(":scope > .card"));
+  const height = cards.reduce((sum, item) => sum + (item.getBoundingClientRect().height || item.scrollHeight || 0), 0);
+  column.dataset.masonryHeight = String(height + Math.max(0, cards.length - 1) * 16);
+}
+
+function createClaimCardElement(claim, siblingClaims = []) {
   const card = document.createElement("div");
   card.className = "card";
-  card.innerHTML = claimCardInnerHtml(claim);
+  card.innerHTML = claimCardInnerHtml(claim, "card-reference", siblingClaims.length);
+
+  const paperContext = card.querySelector(".paper-findings-context");
+  if (paperContext) {
+    paperContext.addEventListener("toggle", () => {
+      if (paperContext.open && paperContext.dataset.loaded !== "true") {
+        const list = paperContext.querySelector(".paper-findings-list");
+        if (list) list.innerHTML = paperFindingContextListHtml(siblingClaims);
+        paperContext.dataset.loaded = "true";
+      }
+      window.requestAnimationFrame(() => updateCardsMasonryColumnHeight(card));
+    });
+  }
 
   return card;
 }
 
-function cardsMasonryColumnCount(itemCount = Infinity) {
-  const width = cardsEl?.clientWidth || window.innerWidth;
-  const preferredCount = width <= 640 ? 1 : width <= 860 ? 2 : 4;
-  return Math.max(1, Math.min(preferredCount, itemCount));
+function paperContextClaimsByStudy() {
+  const contextClaims = graphViewClaims(claims);
+  const yearRange = activeYearRange(contextClaims);
+  const byStudy = new Map();
+
+  contextClaims
+    .filter((claim) => passesAccessAndYearFilters(claim, yearRange))
+    .forEach((claim) => {
+      const key = studyJoinKey(claim);
+      if (!key) return;
+      const items = byStudy.get(key) || [];
+      items.push(claim);
+      byStudy.set(key, items);
+    });
+
+  return byStudy;
 }
 
-function createCardsMasonryColumns(itemCount) {
-  const columnCount = cardsMasonryColumnCount(itemCount);
+function cardsMasonryColumnCount() {
+  const width = cardsEl?.clientWidth || window.innerWidth;
+  return width <= 640 ? 1 : width <= 860 ? 2 : 4;
+}
+
+function createCardsMasonryColumns() {
+  const columnCount = cardsMasonryColumnCount();
   cardsEl.style.setProperty("--cards-masonry-column-count", String(columnCount));
   return Array.from({ length: columnCount }, (_, index) => {
     const column = document.createElement("div");
@@ -3476,10 +3612,8 @@ function appendCardToMasonryColumn(columns, card, index) {
 }
 
 function renderCards(data) {
-  const searchValue = normalizeSearchText(searchInput?.value);
-  const cardData = !searchValue
-    ? data
-    : data.filter((claim) => claimSearchHaystack(claim).includes(searchValue));
+  const cardData = data;
+  const contextClaimsByStudy = paperContextClaimsByStudy();
 
   disconnectCardsLoadObserver();
   cardsEl.innerHTML = "";
@@ -3489,12 +3623,17 @@ function renderCards(data) {
   }
 
   let rendered = 0;
-  const cardColumns = createCardsMasonryColumns(cardData.length);
+  const cardColumns = createCardsMasonryColumns();
 
   function appendCardsChunk() {
     const end = Math.min(rendered + LIST_CHUNK_SIZE, cardData.length);
     for (let i = rendered; i < end; i += 1) {
-      appendCardToMasonryColumn(cardColumns, createClaimCardElement(cardData[i]), i);
+      const claim = cardData[i];
+      const paperKey = studyJoinKey(claim);
+      const siblingClaims = paperKey
+        ? (contextClaimsByStudy.get(paperKey) || []).filter((candidate) => candidate !== claim)
+        : [];
+      appendCardToMasonryColumn(cardColumns, createClaimCardElement(claim, siblingClaims), i);
     }
     rendered = end;
   }
@@ -3638,7 +3777,7 @@ function bibliographyRowsFromClaims(data) {
       index
     );
     baseEntry.searchText = normalizeSearchText([baseEntry.searchText, claimSearchHaystack(claim)].join(" "));
-    addBibliographyContext(baseEntry, claim.compound, graphRightLabelForClaim(claim) || claim[rightKey]);
+    addBibliographyContext(baseEntry, compoundGraphLabelForClaim(claim), graphRightLabelForClaim(claim) || claim[rightKey]);
     const id = bibliographyEntryId(baseEntry, index);
     const existing = studies.get(id);
     if (!existing) {
@@ -3835,7 +3974,7 @@ function summarizeConnections(items, key) {
   items.forEach((item) => {
     const label =
       key === "compound"
-        ? compoundGraphLabel(item[key])
+        ? compoundGraphLabelForClaim(item)
         : key === rightEntityKey()
           ? graphRightLabelForClaim(item)
           : graphLabel(item[key]);
@@ -3938,14 +4077,31 @@ function studyReferenceHtml(claim, className = "card-reference") {
 }
 
 function claimRelationText(claim) {
-  const rightKey = rightEntityKey();
   const compound = meaningfulText(claim.compound) || "Unknown compound";
   const graphEntity =
-    meaningfulText(claim[rightKey]) ||
+    meaningfulText(graphRightLabelForClaim(claim)) ||
     meaningfulText(claim.raw_entity_label) ||
     meaningfulText(claim.graph_entity_label) ||
     `Non-graph ${lowerRightEntityLabel(false)}`;
   return `${compound} → ${graphEntity}`;
+}
+
+function hierarchicalSpecificFieldLabel() {
+  if (claimLayer !== "normalized") return "";
+  const view = currentEntityViewKey();
+  if (view === "intervention_component") return "Specific context";
+  if (view === "brain_system") return "Specific brain region/network";
+  if (view === "pathway_readout") return "Specific molecular finding";
+  return "";
+}
+
+function claimSpecificEntityLine(claim) {
+  const fieldLabel = hierarchicalSpecificFieldLabel();
+  if (!fieldLabel) return "";
+  const topic = meaningfulText(graphRightLabelForClaim(claim));
+  const specific = meaningfulText(graphRightRawLabel(claim));
+  if (!topic || !specific || sameGraphLabel(topic, specific)) return "";
+  return claimFieldLineFromValue(fieldLabel, specific);
 }
 
 function isPharmacokineticsClaim(claim) {
@@ -4257,7 +4413,7 @@ function summarizeConnectionEvidence(items, key) {
   const map = new Map();
 
   items.forEach((claim, index) => {
-    const label = key === "compound" ? compoundGraphLabel(claim[key]) : graphLabel(claim[key]);
+    const label = key === "compound" ? compoundGraphLabelForClaim(claim) : graphLabel(claim[key]);
     if (!label) return;
     const entry = map.get(label) || { label, claims: 0, studies: new Set() };
     entry.claims += 1;
@@ -4550,7 +4706,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
       ? rankedEntries.slice(0, maxEntries)
       : limitCompositionEntries(rankedEntries, maxEntries);
   const limitedEntries = displayEntries.map((entry) =>
-    entry.isAggregate ? { ...entry, displayLabel: "Other" } : entry
+    entry.isAggregate ? { ...entry, displayLabel: options.aggregateLabel || "Other" } : entry
   );
   const total = limitedEntries.reduce((sum, entry) => sum + (Number(entry[valueKey]) || 0), 0);
   if (!total) {
@@ -4804,12 +4960,24 @@ function renderClinicalFollowUpWindowChart(items) {
 function renderPublicHealthTopicChart(items) {
   if (evidenceView !== "primary" || !currentDetailPanelProfile().publicHealthTopics) return "";
   const topicEntries = summarizeFacetEvidence(items, publicHealthTopicFacetLabel);
-  return renderFacetCompositionChart(topicEntries, "Naturalistic topics", "public_health_topic_facet", {
+  return renderFacetCompositionChart(topicEntries, "Real-world topics", "public_health_topic_facet", {
     hideWhenEmpty: true,
     order: PUBLIC_HEALTH_TOPIC_ORDER,
     maxEntries: 8,
     palette: CATEGORY_COLORS,
-    emptyText: "No naturalistic-use topic metadata in this selection.",
+    emptyText: "No real-world topic metadata in this selection.",
+  });
+}
+
+function renderPublicHealthContextChart(items) {
+  if (evidenceView !== "primary" || !currentDetailPanelProfile().publicHealthContexts) return "";
+  const contextEntries = summarizeMultiFacetEvidence(items, publicHealthUseContextFacetLabels);
+  return renderFacetCompositionChart(contextEntries, "Use contexts", "public_health_context_facet", {
+    hideWhenEmpty: true,
+    order: PUBLIC_HEALTH_CONTEXT_ORDER,
+    maxEntries: 8,
+    palette: PALETTE_TEAL_FIRST,
+    emptyText: "No real-world use-context metadata in this selection.",
   });
 }
 
@@ -4834,6 +5002,7 @@ function renderEvidenceCompositionFacetCharts(items) {
 
   return `
     ${renderPublicHealthDataSourceChart(items)}
+    ${renderPublicHealthContextChart(items)}
     ${renderPublicHealthTopicChart(items)}
     ${renderSafetyContextChart(items)}
     ${renderDoseRouteSessionContextChart(items)}
@@ -5405,34 +5574,13 @@ function renderExperimentalSystemChart(items) {
 
 function renderSpecificPathwayReadoutChart(items) {
   if (!usesPathwayReadoutFamilies()) return "";
-  const entries = summarizeFacetEvidence(items, specificPathwayReadoutLabel).slice(0, 20);
-  return renderFacetChipChart(entries, "Specific molecular findings", "specific_pathway_readout", {
-    extraClass: "chip-tone-teal",
+  const entries = summarizeFacetEvidence(items, specificPathwayReadoutLabel);
+  return renderFacetCompositionChart(entries, "Specific molecular findings", "specific_pathway_readout", {
+    maxEntries: 15,
+    aggregateLabel: "Other findings",
+    palette: PALETTE_TEAL_FIRST,
     emptyText: "No specific labels in this selection.",
   });
-}
-
-function renderDetailClaimCards(items) {
-  const labels = recordLabelsForItems(items);
-  if (!items.length) {
-    return trendCardHtml(labels.section, "", `<div class="trend-empty">${escapeHtml(labels.empty)}</div>`);
-  }
-
-  const sortedClaims = [...items].sort((a, b) => {
-    const yearDiff = (parseYearValue(b.study_year) || 0) - (parseYearValue(a.study_year) || 0);
-    if (yearDiff !== 0) return yearDiff;
-    return (a.study_title || "").localeCompare(b.study_title || "");
-  });
-
-  const body = `
-    <div class="detail-claim-cards">
-      ${sortedClaims
-        .map((claim) => `<article class="card detail-claim-card">${claimCardInnerHtml(claim, "card-reference detail-reference")}</article>`)
-        .join("")}
-    </div>
-  `;
-
-  return trendCardHtml(labels.section, "", body);
 }
 
 function sampleHeatmapTooltipHtml(target) {
@@ -5520,7 +5668,8 @@ function fieldValueDetailTitle(field, value) {
   if (field === "comparator_facet") return `Comparator: ${value}`;
   if (field === "follow_up_window_facet") return `Follow-up window: ${value}`;
   if (field === "study_design_facet") return `Study design: ${value}`;
-  if (field === "public_health_topic_facet") return `Naturalistic topic: ${value}`;
+  if (field === "public_health_topic_facet") return `Real-world topic: ${value}`;
+  if (field === "public_health_context_facet") return `Use context: ${value}`;
   if (field === "public_health_data_source_facet") return `Data source: ${value}`;
   if (field === "publication_type_facet") return `Publication type: ${value}`;
   return `${displayFieldLabel(field)}: ${value}`;
@@ -5539,6 +5688,7 @@ function fieldValueForClaim(claim, field) {
   if (field === "follow_up_window_facet") return clinicalFollowUpWindowFacetLabel(claim);
   if (field === "study_design_facet") return studyDesignFacetLabel(claim);
   if (field === "public_health_topic_facet") return publicHealthTopicFacetLabel(claim);
+  if (field === "public_health_context_facet") return publicHealthUseContextFacetLabels(claim);
   if (field === "public_health_data_source_facet") return publicHealthDataSourceFacetLabel(claim);
   if (field === "publication_type_facet") return publicationTypeFacetLabel(claim);
   if (field === "specific_pathway_readout") return specificPathwayReadoutLabel(claim);
@@ -5633,7 +5783,7 @@ function renderStudyDetail(studyKeyValue) {
       ${renderTrendStats(studyClaims, [
         {
           label: "Compounds",
-          value: formatCompactNumber(unique(studyClaims.map((claim) => compoundGraphLabel(claim.compound)).filter(Boolean)).length),
+          value: formatCompactNumber(unique(studyClaims.map((claim) => compoundGraphLabelForClaim(claim)).filter(Boolean)).length),
         },
         {
           label: rightEntityLabel(true),
@@ -5645,7 +5795,6 @@ function renderStudyDetail(studyKeyValue) {
         ${sample ? `<div>Sample: ${escapeHtml(sample)}</div>` : ""}
         ${source ? `<div>${source}</div>` : ""}
       </section>
-      ${renderDetailClaimCards(studyClaims)}
     </div>
   `;
 }
@@ -5666,7 +5815,6 @@ function renderFieldValueDetail(field, value, labelValue = value) {
       ${renderAnnualPublicationChart(fieldClaims)}
       ${renderEvidenceDetailGroup(fieldClaims)}
       ${renderMetadataFacetCharts(fieldClaims)}
-      ${renderDetailClaimCards(fieldClaims)}
     </div>
   `;
 }
@@ -5686,7 +5834,6 @@ function renderPublicationYearDetail(startValue, endValue, labelValue) {
       ${renderTrendStats(yearClaims)}
       ${renderEvidenceDetailGroup(yearClaims)}
       ${renderMetadataFacetCharts(yearClaims)}
-      ${renderDetailClaimCards(yearClaims)}
     </div>
   `;
 }
@@ -5706,7 +5853,6 @@ function renderSampleHeatmapDetail(startValue, endValue, minValue, maxValue, lab
       ${renderTrendStats(sampleClaims)}
       ${renderEvidenceDetailGroup(sampleClaims)}
       ${renderMetadataFacetCharts(sampleClaims)}
-      ${renderDetailClaimCards(sampleClaims)}
     </div>
   `;
 }
@@ -5734,7 +5880,6 @@ function renderOutcomeScaleDetail(scaleValue) {
       ${renderTrendStats(detailClaims)}
       ${renderEvidenceDetailGroup(detailClaims)}
       ${renderMetadataFacetCharts(detailClaims)}
-      ${renderDetailClaimCards(detailClaims)}
     </div>
   `;
 }
@@ -5751,7 +5896,6 @@ function renderEdgeDetail(compound, target, edgeClaims) {
       ${renderSpecificPathwayReadoutChart(edgeClaims)}
       ${renderEvidenceDetailGroup(edgeClaims)}
       ${renderMetadataFacetCharts(edgeClaims)}
-      ${renderDetailClaimCards(edgeClaims)}
     </div>
   `;
 }
@@ -5767,7 +5911,6 @@ function renderNodeDetail(type, name, nodeClaims) {
       ${renderSpecificPathwayReadoutChart(nodeClaims)}
       ${renderEvidenceDetailGroup(nodeClaims)}
       ${renderMetadataFacetCharts(nodeClaims)}
-      ${renderDetailClaimCards(nodeClaims)}
     </div>
   `;
 }
@@ -5812,12 +5955,37 @@ function renderSelectedDetailFromData(data) {
   }
 }
 
+function findingsWithMultiStudyGraphNodes(data) {
+  const subjectStudies = new Map();
+  const entityStudies = new Map();
+
+  data.forEach((claim) => {
+    const compound = compoundGraphLabelForClaim(claim);
+    const right = graphRightLabelForClaim(claim);
+    const study = studyJoinKey(claim);
+    if (!compound || !right || !study) return;
+    const subjectSet = subjectStudies.get(compound) || new Set();
+    subjectSet.add(study);
+    subjectStudies.set(compound, subjectSet);
+    const entitySet = entityStudies.get(right) || new Set();
+    entitySet.add(study);
+    entityStudies.set(right, entitySet);
+  });
+
+  return data.filter((claim) => {
+    const compound = compoundGraphLabelForClaim(claim);
+    const right = graphRightLabelForClaim(claim);
+    return (subjectStudies.get(compound)?.size || 0) >= 2 && (entityStudies.get(right)?.size || 0) >= 2;
+  });
+}
+
 function buildGraph(data) {
   hideTooltip();
   graphEl.innerHTML = "";
 
   const graphHasDetailBootstrap = data.some((claim) => claim?.__detail_bootstrap);
   const graphIsAggregateBootstrap = data.some((claim) => claim?.__graph_bootstrap) && !graphHasDetailBootstrap;
+  const graphData = graphHasDetailBootstrap ? findingsWithMultiStudyGraphNodes(data) : data;
   const rightKey = rightEntityKey();
   const compoundCounts = new Map();
   const rightCounts = new Map();
@@ -5826,8 +5994,8 @@ function buildGraph(data) {
   const incidentEdgeKeysByCompound = new Map();
   const incidentEdgeKeysByRight = new Map();
 
-  data.forEach((claim) => {
-    const compound = compoundGraphLabel(claim.compound);
+  graphData.forEach((claim) => {
+    const compound = compoundGraphLabelForClaim(claim);
     const right = graphRightLabelForClaim(claim);
     if (!compound || !right) return;
     const graphCount = graphRecordCount(claim);
@@ -5935,8 +6103,8 @@ function buildGraph(data) {
   const edges = new Map();
   const claimsByCompound = new Map();
   const claimsByRight = new Map();
-  data.forEach((claim) => {
-    const compound = compoundGraphLabel(claim.compound);
+  graphData.forEach((claim) => {
+    const compound = compoundGraphLabelForClaim(claim);
     const right = graphRightLabelForClaim(claim);
     if (compound) {
       const list = claimsByCompound.get(compound) || [];
@@ -5965,18 +6133,7 @@ function buildGraph(data) {
     }
     edges.set(key, existing);
   });
-  let edgeEntries = Array.from(edges.entries());
-  if (edgeEntries.length > MAX_GRAPH_EDGES) {
-    edgeEntries = edgeEntries
-      .sort((a, b) => {
-        const edgeA = a[1];
-        const edgeB = b[1];
-        const byCount = (edgeB.count || 0) - (edgeA.count || 0);
-        if (byCount !== 0) return byCount;
-        return (edgeB.rank || 0) - (edgeA.rank || 0);
-      })
-      .slice(0, MAX_GRAPH_EDGES);
-  }
+  const edgeEntries = Array.from(edges.entries());
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
@@ -6367,21 +6524,17 @@ function buildGraph(data) {
   });
 
   graphEl.appendChild(svg);
-  if (edges.size > edgeEntries.length) {
-    const note = document.createElement("div");
-    note.className = "graph-truncation-note";
-    note.textContent = `Showing top ${edgeEntries.length} of ${edges.size} edges (ranked by finding count).`;
-    graphEl.appendChild(note);
-  }
 
   applyFocusFromSelection();
 }
 
 function render() {
-  const filtered = applyFilters();
+  let filtered = applyFilters();
   if (selected && !selectionIsValid(filtered)) {
     selected = null;
     isolateSelection = false;
+    clearSelectedStyles();
+    filtered = applyFilters();
   }
   if (detailGraphFilter) {
     // Keep the current right-panel drilldown visible while refreshing the graph.
@@ -6666,8 +6819,14 @@ function graphBootstrapClaimsFromPayload(payload, sourceKey) {
     const item = {
       finding_id: `graph-bootstrap:${index}`,
       compound: cleanDisplayText(edge.compound),
+      graph_overview_subject_label: cleanDisplayText(edge.compound),
+      graph_overview_subject_kind: cleanDisplayText(edge.graph_subject_kind),
+      graph_subject_kind: cleanDisplayText(edge.graph_subject_kind),
       entity_label: entityLabel,
       graph_entity_label: entityLabel,
+      graph_parent_label: cleanDisplayText(edge.graph_parent_label),
+      graph_parent_kind: cleanDisplayText(edge.graph_parent_kind),
+      graph_parent_entity_id: cleanDisplayText(edge.graph_parent_entity_id),
       kg_entity_kind: cleanDisplayText(edge.entity_kind),
       entity_kind: cleanDisplayText(edge.entity_kind),
       kg_domain: cleanDisplayText(edge.domain),
@@ -7025,7 +7184,8 @@ if (yearStepButtons.length) {
 }
 if (searchInput) {
   searchInput.addEventListener("input", () => {
-    renderCards(applyFilters());
+    clearDetailGraphFilter();
+    scheduleRender();
   });
 }
 if (bibliographySearchInput) {

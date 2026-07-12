@@ -113,11 +113,22 @@ PAPER_FIELDS = (
 )
 
 FINDING_FIELDS = (
+    "graph_subject_label",
+    "graph_subject_kind",
+    "graph_subject_source_field",
+    "atomic_compound_candidate",
+    "graph_overview_subject_label",
+    "graph_overview_subject_kind",
+    "graph_overview_subject_reason",
+    "extraction_warnings",
     "raw_entity_label",
     "entity_role",
     "clinical_context_condition",
     "graph_entity_label",
     "graph_entity_type",
+    "graph_parent_label",
+    "graph_parent_kind",
+    "graph_parent_entity_id",
     "graph_exclusion_reason",
     "mechanism_type",
     "assay_type",
@@ -137,6 +148,7 @@ FINDING_FIELDS = (
     "outcome_type",
     "outcome_domain",
     "result_direction",
+    "result_direction_normalized",
     "outcome_measure",
     "outcome_measure_normalized",
     "population",
@@ -151,6 +163,7 @@ FINDING_FIELDS = (
     "population_or_subgroup",
     "population_model_category",
     "study_design_category",
+    "evidence_design",
     "administration_route",
     "dosing_schedule",
     "session_context",
@@ -162,10 +175,12 @@ FINDING_FIELDS = (
     "public_health_graph_label",
     "molecular_effect_label",
     "molecular_effect_category",
+    "molecular_finding_subtopic",
     "specific_readout_or_marker",
     "mechanistic_relationship_type",
     "public_health_topic_category",
     "public_health_measure",
+    "real_world_use_context",
     "data_source_type",
     "exposure_or_policy",
     "exposure_or_intervention",
@@ -235,6 +250,12 @@ FINDING_FIELDS = (
     "compound_registry_status",
     "entity_registry_status",
     "endpoint_label_source",
+    "graph_admission_status",
+    "graph_admission_reason",
+    "proposition_group_id",
+    "proposition_conflict_group_id",
+    "proposition_duplicate_count",
+    "direction_consistency",
 )
 
 DETAIL_BOOTSTRAP_FIELDS = (
@@ -243,9 +264,19 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "evidence_type",
     "relation_type",
     "compound",
+    "graph_subject_label",
+    "graph_subject_kind",
+    "atomic_compound_candidate",
+    "graph_overview_subject_label",
+    "graph_overview_subject_kind",
+    "graph_overview_subject_reason",
     "entity_label",
     "entity_kind",
     "graph_entity_label",
+    "graph_parent_label",
+    "graph_parent_kind",
+    "graph_parent_entity_id",
+    "molecular_finding_subtopic",
     "mechanism_type",
     "assay_type",
     "assay_family",
@@ -271,6 +302,7 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "paper_assessment_route",
     "study_design",
     "study_design_category",
+    "evidence_design",
     "population_model_category",
     "outcome_type",
     "sample_size_total",
@@ -297,6 +329,12 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "evidence_location",
     "evidence_locator",
     "supporting_quote",
+    "result_direction_normalized",
+    "graph_admission_status",
+    "graph_admission_reason",
+    "proposition_group_id",
+    "proposition_duplicate_count",
+    "direction_consistency",
     "first_author",
     "last_author",
     "authors",
@@ -305,6 +343,7 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "public_health_graph_label",
     "public_health_topic_category",
     "public_health_measure",
+    "real_world_use_context",
     "assay_family_normalized",
     "normalized_assay_family",
     "mechanistic_relationship_type",
@@ -592,8 +631,21 @@ def merge_edge_metadata(rows, kg_dir: Path):
             "domain",
             "entity_kind",
             "entity_label",
+            "graph_parent_label",
+            "graph_parent_kind",
+            "graph_parent_entity_id",
             "evidence_type",
             "relation_type",
+            "graph_subject_kind",
+            "graph_overview_subject_label",
+            "graph_overview_subject_kind",
+            "graph_overview_subject_reason",
+            "direction_normalized",
+            "evidence_design",
+            "graph_admission_status",
+            "graph_admission_reason",
+            "proposition_group_id",
+            "proposition_conflict_group_id",
         )
         if column in edges.columns
     ]
@@ -725,19 +777,44 @@ def candidate_study_key(record: dict) -> str:
     return f"paper:{paper_id}" if paper_id else ""
 
 
-def load_candidate_study_keys(kg_dir: Path) -> set[str] | None:
-    path = kg_dir / "papers.parquet"
-    if not path.exists():
+def candidate_source_key(record: dict) -> str:
+    raw = parse_raw_json(record.get("raw_row_json", ""))
+    combined = dict(raw)
+    combined.update({key: value for key, value in record.items() if meaningful(value)})
+    route = normalize(combined.get("paper_assessment_route")).lower()
+    evidence_type = normalize(combined.get("evidence_type") or combined.get("kg_evidence_type")).lower()
+    source_item_type = normalize(combined.get("source_item_type")).lower()
+    if route == "secondary_literature" or evidence_type == "secondary_literature" or source_item_type == "review_coverage_item":
+        return secondary_literature_source_key(combined)
+    return PRIMARY_SOURCE_KEY
+
+
+def load_candidate_study_key_sets(kg_dir: Path) -> dict[str, set[str]] | None:
+    paths = [kg_dir / "findings.parquet", kg_dir / "normalization_audit.parquet"]
+    existing_paths = [path for path in paths if path.exists()]
+    if not existing_paths:
         return None
     try:
         import pandas as pd
     except ModuleNotFoundError:
         return None
 
-    df = pd.read_parquet(path)
-    if df.empty:
-        return set()
-    return {key for record in df.to_dict(orient="records") if (key := candidate_study_key(record))}
+    keys_by_source = {source_key: set() for source_key in UI_SOURCE_KEYS}
+    for path in existing_paths:
+        df = pd.read_parquet(path)
+        if df.empty:
+            continue
+        for record in df.to_dict(orient="records"):
+            key = candidate_study_key(record)
+            if key:
+                keys_by_source[candidate_source_key(record)].add(key)
+    keys_by_source["all"] = set().union(*(keys_by_source[source_key] for source_key in UI_SOURCE_KEYS))
+    return keys_by_source
+
+
+def load_candidate_study_keys(kg_dir: Path) -> set[str] | None:
+    key_sets = load_candidate_study_key_sets(kg_dir)
+    return None if key_sets is None else key_sets["all"]
 
 
 def value_counts(findings: Iterable[dict], field: str) -> dict[str, int]:
@@ -751,21 +828,24 @@ def value_counts(findings: Iterable[dict], field: str) -> dict[str, int]:
 
 
 def summary_stats(findings: list[dict], candidate_study_keys: set[str] | None = None) -> dict:
-    studies = {key for finding in findings if (key := study_key(finding))}
-    compounds = {normalize(finding.get("compound")) for finding in findings if normalize(finding.get("compound"))}
-    entities = {normalize(finding.get("entity_label")) for finding in findings if normalize(finding.get("entity_label"))}
+    projections, _projection_counts = overview_graph_projections(findings)
+    graph_findings = [projection["finding"] for projection in projections]
+    studies = {key for finding in graph_findings if (key := study_key(finding))}
+    compounds = {projection["compound"] for projection in projections if projection["compound"]}
+    entities = {projection["entity_label"] for projection in projections if projection["entity_label"]}
     conditions = {
-        normalize(finding.get("entity_label"))
-        for finding in findings
-        if normalize(finding.get("entity_kind")) == "condition_indication" and normalize(finding.get("entity_label"))
+        projection["entity_label"]
+        for projection in projections
+        if projection["entity_kind"] == "condition_indication" and projection["entity_label"]
     }
     targets = {
-        normalize(finding.get("entity_label"))
-        for finding in findings
-        if normalize(finding.get("entity_kind")) == "target" and normalize(finding.get("entity_label"))
+        projection["entity_label"]
+        for projection in projections
+        if projection["entity_kind"] == "target" and projection["entity_label"]
     }
     stats = {
         "row_count": len(findings),
+        "graph_finding_count": len(projections),
         "study_count": len(studies),
         "compound_count": len(compounds),
         "entity_count": len(entities),
@@ -819,6 +899,9 @@ def findings_for_ui_source(findings: list[dict], source_key: str) -> list[dict]:
 
 
 def is_graph_bootstrap_finding(finding: dict) -> bool:
+    admission = normalize(finding.get("graph_admission_status")).lower()
+    if admission and admission != "main_graph":
+        return False
     domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type")).lower()
     if domain in GRAPH_BOOTSTRAP_EXCLUDED_DOMAINS:
         return False
@@ -834,31 +917,118 @@ def ui_detail_bootstrap_name(source_key: str) -> str:
     return f"detail_bootstrap_{source_key}.json"
 
 
-def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
-    edges: dict[tuple[str, str, str], dict] = {}
-    graph_finding_count = 0
+OVERVIEW_PARENT_COLLAPSE_KINDS = {"pathway_process", "biomarker_readout", "intervention_component"}
+MIN_OVERVIEW_NODE_STUDIES = 2
+
+
+def overview_graph_projection(finding: dict) -> dict | None:
+    exact_subject = normalize(finding.get("compound"))
+    exact_subject_kind = normalize(finding.get("graph_subject_kind")) or "atomic_compound"
+    subject = normalize(finding.get("graph_overview_subject_label"))
+    subject_kind = normalize(finding.get("graph_overview_subject_kind"))
+    if not subject and exact_subject_kind == "atomic_compound":
+        subject = exact_subject
+        subject_kind = exact_subject_kind
+    if not subject:
+        return None
+
+    entity_label = normalize(finding.get("entity_label") or finding.get("graph_entity_label") or finding.get("raw_entity_label"))
+    entity_kind = normalize(finding.get("entity_kind") or finding.get("kg_entity_kind"))
+    if not entity_label or not entity_kind:
+        return None
+    parent_label = normalize(finding.get("graph_parent_label"))
+    parent_kind = normalize(finding.get("graph_parent_kind"))
+    used_parent = bool(parent_label and parent_kind and entity_kind in OVERVIEW_PARENT_COLLAPSE_KINDS)
+    if used_parent:
+        entity_label = parent_label
+        entity_kind = parent_kind
+
+    return {
+        "finding": finding,
+        "compound": subject,
+        "graph_subject_kind": subject_kind or exact_subject_kind,
+        "entity_label": entity_label,
+        "entity_kind": entity_kind,
+        "used_parent": used_parent,
+    }
+
+
+def overview_graph_projections(findings: list[dict]) -> tuple[list[dict], dict[str, int]]:
+    projected: list[dict] = []
+    subject_studies: dict[tuple[str, str], set[str]] = {}
+    entity_studies: dict[tuple[str, str], set[str]] = {}
+    detail_only_subject_count = 0
     for finding in findings:
         if not is_graph_bootstrap_finding(finding):
             continue
-        compound = normalize(finding.get("compound"))
-        entity_label = normalize(finding.get("entity_label") or finding.get("graph_entity_label") or finding.get("raw_entity_label"))
-        entity_kind = normalize(finding.get("entity_kind") or finding.get("kg_entity_kind"))
-        if not compound or not entity_label or not entity_kind:
+        projection = overview_graph_projection(finding)
+        if projection is None:
+            detail_only_subject_count += 1
             continue
+        projected.append(projection)
+        subject_key = (projection["graph_subject_kind"], projection["compound"])
+        entity_key = (projection["entity_kind"], projection["entity_label"])
+        study = study_key(finding)
+        if study:
+            subject_studies.setdefault(subject_key, set()).add(study)
+            entity_studies.setdefault(entity_key, set()).add(study)
+
+    kept: list[dict] = []
+    single_study_subject_finding_count = 0
+    detail_only_entity_count = 0
+    for projection in projected:
+        subject_key = (projection["graph_subject_kind"], projection["compound"])
+        entity_label = projection["entity_label"]
+        entity_kind = projection["entity_kind"]
+        entity_key = (entity_kind, entity_label)
+        if len(subject_studies.get(subject_key, set())) < MIN_OVERVIEW_NODE_STUDIES:
+            single_study_subject_finding_count += 1
+            continue
+        if len(entity_studies.get(entity_key, set())) < MIN_OVERVIEW_NODE_STUDIES:
+            detail_only_entity_count += 1
+            continue
+        kept.append(projection)
+
+    return kept, {
+        "projection_candidate_count": len(projected),
+        "detail_only_subject_count": detail_only_subject_count,
+        "single_study_subject_finding_count": single_study_subject_finding_count,
+        "detail_only_entity_count": detail_only_entity_count,
+    }
+
+
+def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
+    edges: dict[tuple[str, str, str, str, str, str], dict] = {}
+    projected, projection_counts = overview_graph_projections(findings)
+    graph_finding_count = 0
+    for projection in projected:
+        finding = projection["finding"]
+        entity_label = projection["entity_label"]
+        entity_kind = projection["entity_kind"]
+
+        compound = projection["compound"]
+        graph_subject_kind = projection["graph_subject_kind"]
+        parent_label = normalize(finding.get("graph_parent_label"))
+        parent_kind = normalize(finding.get("graph_parent_kind"))
 
         graph_finding_count += 1
         domain = normalize(finding.get("domain") or finding.get("kg_domain") or finding.get("finding_type"))
-        key = (compound, entity_kind, entity_label)
+        key = (compound, graph_subject_kind, entity_kind, entity_label, parent_kind, parent_label)
         entry = edges.setdefault(
             key,
             {
                 "compound": compound,
+                "graph_subject_kind": graph_subject_kind,
                 "entity_label": entity_label,
                 "entity_kind": entity_kind,
+                "graph_parent_label": parent_label,
+                "graph_parent_kind": parent_kind,
+                "graph_parent_entity_id": normalize(finding.get("graph_parent_entity_id")),
                 "domain": domain,
                 "finding_type": normalize(finding.get("finding_type")) or domain,
                 "evidence_type": normalize(finding.get("evidence_type") or finding.get("kg_evidence_type")) or "primary_evidence",
                 "finding_count": 0,
+                "proposition_group_ids": set(),
                 "study_keys": set(),
                 "full_text_study_keys": set(),
                 "abstract_only_study_keys": set(),
@@ -867,6 +1037,9 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
             },
         )
         entry["finding_count"] += 1
+        proposition_group_id = normalize(finding.get("proposition_group_id"))
+        if proposition_group_id:
+            entry["proposition_group_ids"].add(proposition_group_id)
         study = study_key(finding)
         if study:
             entry["study_keys"].add(study)
@@ -882,10 +1055,14 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
 
     edge_entries = []
     for entry in edges.values():
+        proposition_group_ids = entry.pop("proposition_group_ids")
         study_keys = entry.pop("study_keys")
         full_text_study_keys = entry.pop("full_text_study_keys")
         abstract_only_study_keys = entry.pop("abstract_only_study_keys")
         entry["study_count"] = len(study_keys)
+        entry["raw_finding_count"] = entry["finding_count"]
+        if proposition_group_ids:
+            entry["finding_count"] = len(proposition_group_ids)
         entry["full_text_seen_study_count"] = len(full_text_study_keys)
         entry["abstract_only_study_count"] = len(abstract_only_study_keys)
         edge_entries.append(entry)
@@ -901,6 +1078,7 @@ def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pat
         "edge_count": len(edge_entries),
         "finding_count": graph_finding_count,
         "source_row_count": len(findings),
+        **projection_counts,
         "edges": edge_entries,
     }
 
@@ -997,7 +1175,8 @@ def export_evidence_payload(
         else {"status": "skipped", "reason": "freshness check disabled"}
     )
     findings = load_findings(kg_dir)
-    candidate_study_keys = load_candidate_study_keys(kg_dir)
+    candidate_study_key_sets = load_candidate_study_key_sets(kg_dir)
+    candidate_study_keys = None if candidate_study_key_sets is None else candidate_study_key_sets["all"]
     stats = summary_stats(findings, candidate_study_keys)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1019,7 +1198,8 @@ def export_evidence_payload(
     source_summary_stats: dict[str, dict] = {}
     for source_key in UI_SOURCE_KEYS:
         source_findings = findings_for_ui_source(findings, source_key)
-        source_stats = summary_stats(source_findings, candidate_study_keys)
+        source_candidate_keys = None if candidate_study_key_sets is None else candidate_study_key_sets[source_key]
+        source_stats = summary_stats(source_findings, source_candidate_keys)
         source_summary_stats[source_key] = source_stats
         graph_bootstrap = graph_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
         graph_bootstrap_paths[source_key].write_text(compact_json(graph_bootstrap), encoding="utf-8")

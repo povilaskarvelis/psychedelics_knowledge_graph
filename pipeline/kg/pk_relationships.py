@@ -33,6 +33,39 @@ PK_RELATIONSHIP_LABELS = {
     "uncertain": "uncertain",
 }
 
+PK_RELATIONSHIP_EDGE_TYPES = frozenset(PK_RELATIONSHIP_LABELS) - {"uncertain"}
+
+PK_OBJECT_KIND_ENTITY_KINDS = {
+    "metabolite_or_analyte": "compound",
+    "enzyme_or_transporter": "target",
+    "metabolic_or_transport_pathway": "pathway_process",
+}
+
+PK_PARAMETER_PATTERNS = (
+    (re.compile(r"\bcmax\b|maximum concentration|peak plasma concentration", re.IGNORECASE), "Cmax"),
+    (re.compile(r"\btmax\b|time to (?:maximum|peak) concentration", re.IGNORECASE), "Tmax"),
+    (re.compile(r"\bauc(?:\b|[_ 0-9-])|area under (?:the )?(?:concentration[- ]time )?curve", re.IGNORECASE), "AUC"),
+    (re.compile(r"half[- ]?life|\bt1/2\b|\bt½\b", re.IGNORECASE), "Half-life"),
+    (re.compile(r"\bclearance\b|\bcl/f\b", re.IGNORECASE), "Clearance"),
+    (re.compile(r"bioavailability", re.IGNORECASE), "Bioavailability"),
+    (re.compile(r"volume of distribution|\bvd\b", re.IGNORECASE), "Volume of distribution"),
+    (re.compile(r"metabolic ratio|metabolite ratio", re.IGNORECASE), "Metabolic ratio"),
+    (re.compile(r"michaelis|\bkm\b", re.IGNORECASE), "Km"),
+    (re.compile(r"dissolution|drug release profile|in vitro release", re.IGNORECASE), "Dissolution profile"),
+    (re.compile(r"concentration|plasma level|serum level|blood level", re.IGNORECASE), "Concentration"),
+)
+
+PHARMACODYNAMIC_PARAMETER_RE = re.compile(
+    r"\b(?:ec50|ic50|ed50|emax|receptor occupancy|target occupancy|dose[- ]response|"
+    r"concentration[- ]response|pharmacodynamic|pd parameter)\b",
+    re.IGNORECASE,
+)
+MEASURED_EXPOSURE_RE = re.compile(
+    r"\b(?:cmax|tmax|auc|half[- ]?life|clearance|bioavailability|concentration|plasma|serum|"
+    r"blood level|exposure[- ]response|measured exposure|concentration[- ]response|pk/pd)\b",
+    re.IGNORECASE,
+)
+
 METABOLIC_TARGET_RE = re.compile(
     r"\b(cyp\d|cytochrome|mao[- ]?[ab]?|monoamine oxidase|ugt|comt|aldh\d?|"
     r"aldehyde dehydrogenase|alkaline phosphatase|p[- ]?glycoprotein|p[- ]?gp|"
@@ -193,6 +226,83 @@ def exposure_label_for_matrix(matrix: str, analyte: str, compound: str) -> str:
     if analyte_label:
         return f"{analyte_label} {base}"
     return title_label(base)
+
+
+def canonical_pk_parameter(value: object) -> str:
+    text = clean_text(value)
+    if not meaningful(text):
+        return ""
+    if PHARMACODYNAMIC_PARAMETER_RE.search(text):
+        return "Exposure-response relationship"
+    for pattern, label in PK_PARAMETER_PATTERNS:
+        if pattern.search(text):
+            return label
+    return ""
+
+
+def pk_graph_entity_kind(row: dict) -> str:
+    object_kind = label_key(row.get("pk_graph_object_kind", "")).replace(" ", "_")
+    object_label = first_meaningful(row, ("pk_graph_object_label", "metabolite_or_analyte"))
+    compound = first_meaningful(row, ("compound", "compound_or_analyte", "canonical_compound"))
+    if object_kind == "metabolite_or_analyte" and not distinct_analyte(compound, object_label):
+        return "pharmacokinetic_parameter"
+    if object_kind == "enzyme_or_transporter" and re.search(
+        r"\b(genotype|phenotype|expression|levels?|availability|methylation|activation)\b",
+        object_label,
+        re.IGNORECASE,
+    ):
+        return "pharmacokinetic_parameter"
+    return PK_OBJECT_KIND_ENTITY_KINDS.get(object_kind, "pharmacokinetic_parameter")
+
+
+def pk_graph_entity_label(row: dict) -> str:
+    entity_kind = pk_graph_entity_kind(row)
+    object_kind = label_key(row.get("pk_graph_object_kind", "")).replace(" ", "_")
+    object_label = first_meaningful(row, ("pk_graph_object_label",))
+    parameter = first_meaningful(row, ("pk_or_exposure_parameter", "outcome_measure"))
+
+    if entity_kind in {"compound", "target", "pathway_process"}:
+        return title_label(object_label)
+
+    canonical_parameter = canonical_pk_parameter(parameter)
+    if object_kind == "parent_or_analyte_exposure":
+        return canonical_parameter or "Exposure measurement"
+    if object_kind == "route_or_formulation":
+        return canonical_pk_parameter(object_label) or canonical_parameter or "Route/formulation effect"
+    if object_kind == "compartment_or_tissue":
+        return "Tissue distribution"
+    if object_kind == "modifier_or_interaction":
+        return "Exposure modifier"
+    if object_kind == "enzyme_or_transporter" and entity_kind == "pharmacokinetic_parameter":
+        return "Exposure modifier"
+    if object_kind == "effect_or_response":
+        return "Exposure-response relationship"
+    if object_kind == "excretion_or_elimination":
+        return canonical_parameter or "Excretion/elimination"
+    if object_kind == "detection_or_monitoring":
+        return "Detection/monitoring"
+    return canonical_parameter or "Exposure measurement"
+
+
+def pk_edge_relation_type(row: dict) -> str:
+    relationship_type = clean_text(row.get("pk_relationship_type", ""))
+    if relationship_type in PK_RELATIONSHIP_EDGE_TYPES:
+        return relationship_type
+    return "exposure_characterized"
+
+
+def pk_pharmacodynamic_target(row: dict) -> str:
+    parameter = first_meaningful(row, ("pk_or_exposure_parameter", "outcome_measure"))
+    target = first_meaningful(row, ("metabolic_or_transport_target", "target"))
+    if not target or not PHARMACODYNAMIC_PARAMETER_RE.search(parameter):
+        return ""
+    exposure_context = " ".join(
+        clean_text(row.get(field, ""))
+        for field in ("matrix", "value", "unit", "sampling_time_or_window", "finding_summary", "support")
+    )
+    if MEASURED_EXPOSURE_RE.search(exposure_context):
+        return ""
+    return target
 
 
 def distinct_analyte(compound: str, analyte: str) -> bool:

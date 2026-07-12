@@ -35,16 +35,21 @@ shift
 
 KG_DIR="${KG_DIR:-"${ROOT_DIR}/data/processed/kg_routed_runs/${RUN_ID}"}"
 PAYLOAD_DIR="${PAYLOAD_DIR:-"${ROOT_DIR}/data/processed/graph_payload_runs/${RUN_ID}"}"
+AUTHOR_CACHE="${KG_DIR}/openalex_author_cache.json"
 
 python3 "${ROOT_DIR}/pipeline/kg/build_evidence_tables.py" \
   --source-preset routed \
   --run-id "${RUN_ID}" \
   --out-dir "${KG_DIR}"
 
+if [[ ! -f "${AUTHOR_CACHE}" && -n "${AUTHOR_CACHE_SEED:-}" && -f "${AUTHOR_CACHE_SEED}" ]]; then
+  cp "${AUTHOR_CACHE_SEED}" "${AUTHOR_CACHE}"
+fi
+
 python3 "${ROOT_DIR}/pipeline/kg/build_author_tables.py" \
   --papers "${KG_DIR}/papers.parquet" \
   --out-dir "${KG_DIR}" \
-  --cache "${KG_DIR}/openalex_author_cache.json" \
+  --cache "${AUTHOR_CACHE}" \
   "$@"
 
 export_args=(

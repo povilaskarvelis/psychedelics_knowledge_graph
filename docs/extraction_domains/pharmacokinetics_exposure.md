@@ -1,5 +1,5 @@
-Focus on pharmacokinetics and exposure evidence: PK, exposure-response,
-dose-response, plasma/serum/blood levels, metabolism, metabolites,
+Focus on pharmacokinetics and exposure evidence: PK, exposure-response linked
+to measured exposure, plasma/serum/blood levels, metabolism, metabolites,
 bioavailability, clearance, half-life, Cmax, AUC, Tmax, or PK/PD findings.
 
 Prioritize the PK story: what happens to the compound, what exposure species is
@@ -27,10 +27,17 @@ For each item, set `pk_relationship_type`, `pk_graph_object_kind`, and
 - detection/monitoring only when the paper is about forensic, hair,
   wastewater, biological monitoring, or analytical exposure detection
 
-Use `pk_or_exposure_parameter` for the metric or parameter reported, such as
-Cmax, AUC, Tmax, half-life, clearance, EC50, IC50, dose-response slope, or
-limit of detection. Do not make that metric the main `pk_graph_object_label`
+Use `pk_or_exposure_parameter` for a true exposure metric or parameter, such as
+Cmax, AUC, Tmax, half-life, clearance, bioavailability, concentration, volume
+of distribution, metabolic ratio, or Km. Do not make that metric the main `pk_graph_object_label`
 when a more meaningful object is available.
+
+EC50, IC50, ED50, receptor occupancy, and ordinary dose-response findings are
+pharmacodynamic rather than pharmacokinetic. Route them to molecular target or
+molecular pathway/readout unless the paper explicitly relates the effect to a
+measured concentration or exposure, in which case capture an
+`exposure_linked_to_effect` relationship and keep the pharmacodynamic metric as
+edge metadata.
 
 Also capture:
 
@@ -45,15 +52,15 @@ Also capture:
 - metabolic enzyme, transporter, or delivery pathway when reported; do not
   collapse these into a generic PK-parameter label when they are the actual
   target-side anchor
-- exposure-response, dose-response, or drug-interaction interpretation
+- exposure-response or drug-interaction interpretation
 
 Capture dose standardization, equivalence, co-exposures, modifiers, and model
 method only when they are central to the exposure finding.
 
 Do not extract a result merely because a dose is reported as trial context. The
-paper must measure or synthesize exposure, metabolism, or dose-response evidence.
+paper must measure or synthesize exposure, metabolism, or exposure-linked response evidence.
 
 Do not create standalone clinical outcome, safety, subjective-experience,
 brain-system, cognitive/behavioral, target, or pathway items here unless the
 reported finding is directly about pharmacokinetics, exposure, metabolism,
-dose-response, exposure-response, or drug interaction.
+exposure-response or drug interaction.

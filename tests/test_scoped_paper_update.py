@@ -134,6 +134,8 @@ class ScopedPaperUpdateTest(unittest.TestCase):
             "base_outputs": str(self.base_outputs),
             "base_evidence": str(self.base_evidence),
             "refresh_derived": False,
+            "only_task_group": "",
+            "include_no_runnable": False,
             "overwrite": False,
         }
         values.update(overrides)
@@ -166,6 +168,29 @@ class ScopedPaperUpdateTest(unittest.TestCase):
         status_rows = pd.read_csv(self.update_root / "test_update" / "scope_status.csv").set_index("doi")
         self.assertEqual(status_rows.loc["10.1000/update", "disposition"], "replace_with_current_extraction")
         self.assertEqual(status_rows.loc["10.1000/excluded", "disposition"], "remove_without_replacement")
+
+    def test_prepare_can_select_primary_plus_deletion_only_scope(self) -> None:
+        review_task = task("10.1000/review", "review")
+        review_task["extraction_contract"]["output_family"] = "review_coverage"
+        write_jsonl(self.tasks_path, [self.current_task, review_task])
+        self.scope_file.write_text(
+            "10.1000/update\n10.1000/review\n10.1000/excluded\n",
+            encoding="utf-8",
+        )
+        with patch.object(updater, "UPDATE_ROOT", self.update_root):
+            updater.prepare(
+                self.prepare_args(only_task_group="primary", include_no_runnable=True)
+            )
+
+        manifest = json.loads(
+            (self.update_root / "test_update" / "update_manifest.json").read_text(encoding="utf-8")
+        )
+        scope = set(
+            (self.update_root / "test_update" / "scope_dois.txt").read_text(encoding="utf-8").splitlines()
+        )
+        self.assertEqual(scope, {"10.1000/update", "10.1000/excluded"})
+        self.assertEqual(manifest["scope"]["requested_doi_count"], 3)
+        self.assertEqual(manifest["scope"]["only_task_group"], "primary")
 
     def test_finalize_replaces_updated_doi_removes_excluded_and_preserves_other_rows(self) -> None:
         patch_output = self.root / "patch.jsonl"

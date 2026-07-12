@@ -379,7 +379,11 @@
             },
             "public_health_topic_category": {
               "type": "string",
-              "description": "Stable public-health topic category such as use pattern, abuse potential, harm reduction, access, equity, policy, service delivery, epidemiology, implementation, or population risk/benefit."
+              "description": "Stable graph-facing real-world research topic or outcome, such as population use and trends, use patterns and practices, motivations, predictors, perceived benefits or harms, health outcomes, problematic use, acute harms, treatment effectiveness, harm reduction, drug composition, market availability, access and equity, implementation, economic impacts, or policy and legal outcomes. Keep setting, purpose, dosing pattern, co-use context, and evidence source on their separate fields."
+            },
+            "real_world_use_context": {
+              "type": "string",
+              "description": "Optional semicolon-separated context tags that can coexist: Microdosing, Recreational/nightlife, Self-treatment, Ceremonial/retreat, Polysubstance, and Clinical care."
             },
             "data_source_or_study_design": {
               "type": "string",

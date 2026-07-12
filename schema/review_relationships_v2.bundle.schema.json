@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Paper-centered review relationship bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_depth",
+    "paper_frame",
+    "relationships",
+    "bundle_summary",
+    "full_text_priority",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "review_relationship_bundle_v2"},
+    "source_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
+    "paper_frame": {"$ref": "#/definitions/paper_frame"},
+    "relationships": {"type": "array", "items": {"$ref": "#/definitions/relationship"}},
+    "bundle_summary": {"type": "string", "minLength": 1},
+    "full_text_priority": {"type": "string", "enum": ["not_applicable", "low", "medium", "high"]},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "definitions": {
+    "paper_frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_contribution_type",
+        "objective_and_scope",
+        "review_design",
+        "primary_subjects",
+        "supporting_examples_or_background",
+        "major_aspects",
+        "populations_or_systems",
+        "source_completeness"
+      ],
+      "properties": {
+        "review_contribution_type": {
+          "type": "string",
+          "enum": [
+            "evidence_synthesis",
+            "mechanistic_or_conceptual_review",
+            "methodological_framework",
+            "research_landscape",
+            "translational_or_practice_agenda",
+            "broad_topic_review",
+            "mixed"
+          ]
+        },
+        "objective_and_scope": {"type": "string", "minLength": 1},
+        "review_design": {"type": "string"},
+        "primary_subjects": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "supporting_examples_or_background": {"type": "array", "items": {"type": "string"}},
+        "major_aspects": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/major_aspect"}},
+        "populations_or_systems": {"type": "array", "items": {"type": "string"}},
+        "source_completeness": {"type": "string", "enum": ["article_text", "abstract_only"]}
+      }
+    },
+    "major_aspect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aspect_id", "aspect_type", "description", "importance", "basis"],
+      "properties": {
+        "aspect_id": {"type": "string", "minLength": 1},
+        "aspect_type": {
+          "type": "string",
+          "enum": [
+            "efficacy_or_effect", "safety", "pharmacokinetics_or_exposure", "mechanism", "population",
+            "comparison", "interaction_or_combination", "methodological_contribution", "research_landscape",
+            "practice_or_policy", "other"
+          ]
+        },
+        "description": {"type": "string", "minLength": 1},
+        "importance": {"type": "string", "enum": ["paper_defining", "major_supporting"]},
+        "basis": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/centrality_basis"}}
+      }
+    },
+    "centrality_basis": {
+      "type": "string",
+      "enum": [
+        "title_scope", "stated_objective", "abstract_result", "repeated_synthesis", "discussion_emphasis",
+        "review_conclusion", "dedicated_section", "evidence_table_or_figure", "other"
+      ]
+    },
+    "domain_label": {
+      "type": "string",
+      "enum": [
+        "clinical_outcome", "safety_tolerability", "molecular_target", "molecular_pathway_readout",
+        "brain_system", "cognitive_behavioral", "subjective_experience", "pharmacokinetics_exposure",
+        "intervention_context", "real_world_public_health", "general_topic_coverage"
+      ]
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "label", "anchor_type"],
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "compound", "compound_class", "intervention", "co_intervention", "comparator", "population",
+            "condition", "outcome", "target", "pathway_or_process", "brain_system",
+            "cognitive_or_behavioral_construct", "subjective_construct", "safety_event",
+            "exposure_or_pk_parameter", "intervention_context", "public_health_topic", "research_topic", "other"
+          ]
+        },
+        "label": {"type": "string", "minLength": 1},
+        "anchor_type": {
+          "type": "string",
+          "enum": ["named_entity", "compound_class", "combination_or_regimen", "paper_topic", "context", "other"]
+        }
+      }
+    },
+    "evidence_locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location", "locator", "supporting_text"],
+      "properties": {
+        "location": {
+          "type": "string",
+          "enum": ["title", "abstract", "objective", "text", "table", "figure", "discussion", "conclusion", "not_reported"]
+        },
+        "locator": {"type": "string"},
+        "supporting_text": {"type": "string"}
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "covers_major_aspect_ids",
+        "source_item_ids",
+        "relationship_kind",
+        "relationship_statement",
+        "anchors",
+        "relation_phrase",
+        "direction_or_tone",
+        "paper_prominence",
+        "centrality_basis",
+        "evidence_stratum",
+        "domain_labels",
+        "evidence_locators",
+        "limitations",
+        "graph_eligibility",
+        "graph_form"
+      ],
+      "properties": {
+        "item_id": {"type": "string", "minLength": 1},
+        "covers_major_aspect_ids": {"type": "array", "items": {"type": "string"}},
+        "source_item_ids": {"type": "array", "items": {"type": "string"}},
+        "relationship_kind": {
+          "type": "string",
+          "enum": ["review_synthesis", "reviewed_relationship", "methodological_contribution", "research_landscape", "evidence_gap"]
+        },
+        "relationship_statement": {"type": "string", "minLength": 1},
+        "anchors": {"type": "array", "minItems": 2, "items": {"$ref": "#/definitions/anchor"}},
+        "relation_phrase": {"type": "string", "minLength": 1},
+        "direction_or_tone": {
+          "type": "string",
+          "enum": ["supports", "mixed", "does_not_support", "insufficient_evidence", "descriptive_only", "unclear", "not_applicable"]
+        },
+        "paper_prominence": {
+          "type": "string",
+          "enum": ["paper_defining", "major_supporting", "secondary_context", "peripheral"]
+        },
+        "centrality_basis": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/centrality_basis"}},
+        "evidence_stratum": {
+          "type": "string",
+          "enum": ["human", "preclinical", "human_and_preclinical", "field_or_method", "not_applicable", "unclear"]
+        },
+        "domain_labels": {"type": "array", "items": {"$ref": "#/definitions/domain_label"}},
+        "evidence_locators": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/evidence_locator"}},
+        "limitations": {"type": "array", "items": {"type": "string"}},
+        "graph_eligibility": {
+          "type": "string",
+          "enum": ["main_graph", "paper_detail_only", "needs_full_text", "not_graph_coverage"]
+        },
+        "graph_form": {
+          "type": "string",
+          "enum": ["atomic", "class", "combination", "interaction", "context", "paper_topic", "none"]
+        }
+      }
+    }
+  }
+}

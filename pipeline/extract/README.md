@@ -247,6 +247,151 @@ calling Gemini. Outputs accumulate under:
 - `data/processed/extraction/routed_runs/<RUN_ID>/`
 - `data/processed/kg_routed_runs/<RUN_ID>/`
 
+## Main review extraction path
+
+The review pipeline extracts one final relationship bundle per paper. It does
+not create one extraction task per routed domain. The model first identifies
+the paper's purpose and major aspects, then extracts the paper-defining,
+major-supporting, and useful secondary relationships. Domain labels are added
+to those relationships afterward, inside the same model response.
+
+Full-text and abstract-only reviews use separate prompts because their evidence
+boundaries differ, but both use the same output schema and require one model
+call per paper. There is no automatic discovery pass, reconciliation pass, or
+repair call.
+
+By default, the task builder selects retained `review`, `systematic_review`,
+`scoping_review`, `narrative_review`, `literature_review`, and
+`umbrella_review` papers directly from `candidate_papers.parquet`. It includes
+papers with verified article text or an abstract and reports papers whose
+source is not ready. Meta-analyses continue to use their quantitative synthesis
+profile; guidelines and consensus statements remain separate.
+
+Build the production task list:
+
+```bash
+python pipeline/extract/build_review_relationship_tasks.py
+```
+
+Inspect the model-call plan without calling Gemini:
+
+```bash
+python pipeline/extract/run_review_relationship_extraction.py \
+  --run-id review_relationships_v2 \
+  --dry-run
+```
+
+Run extraction with a named run ID:
+
+```bash
+python pipeline/extract/run_review_relationship_extraction.py \
+  --run-id review_relationships_v2
+```
+
+For a larger asynchronous run, prepare and submit the same paper-centered
+requests through Gemini's Batch API:
+
+```bash
+python pipeline/extract/run_review_relationship_batch_api.py prepare \
+  --run-id review_relationships_v2_main \
+  --batch-id batch_001 \
+  --batch-size 250 \
+  --shuffle \
+  --seed 1
+
+python pipeline/extract/run_review_relationship_batch_api.py submit \
+  --run-id review_relationships_v2_main \
+  --batch-id batch_001
+```
+
+When the job has finished, download and parse it:
+
+```bash
+python pipeline/extract/run_review_relationship_batch_api.py status \
+  --run-id review_relationships_v2_main \
+  --batch-id batch_001
+
+python pipeline/extract/run_review_relationship_batch_api.py download \
+  --run-id review_relationships_v2_main \
+  --batch-id batch_001
+
+python pipeline/extract/run_review_relationship_batch_api.py parse \
+  --run-id review_relationships_v2_main \
+  --batch-id batch_001
+```
+
+The runner resumes a named run by skipping papers already recorded with an
+`ok` result. Use `--overwrite` only to restart that run from the beginning.
+Each run archives the exact full-text prompt, abstract prompt, schema, task
+list, model name, and generation settings under `input_snapshot/` before any
+model call.
+
+Project the bundles without dropping classes, combinations, interactions, or
+unmapped anchors:
+
+```bash
+python pipeline/kg/project_review_relationship_bundles.py
+```
+
+The extraction run and projection remain separate from the active KG until the
+results have been checked. The routed primary-study and meta-analysis paths are
+unchanged.
+
+The manually read 50-paper comparison tool remains available for evaluation:
+
+```bash
+python pipeline/validate/compare_review_relationships_to_manual_gold.py
+```
+
+The older paper-complete routed evaluation below remains a historical baseline,
+not the production review extraction design.
+
+### Routed paper-complete review baseline
+
+The normal batch runner selects paper-domain tasks independently. For an
+evaluation where every selected review must be extracted across all of its
+current routed domains, build a paper-complete cohort first:
+
+```bash
+python pipeline/extract/build_review_paper_complete_evaluation.py \
+  --cohort-id review_paper_complete_50_20260711 \
+  --cohort-size 50 \
+  --seed 20260711 \
+  --include-doi 10.3389/fphar.2021.749068
+```
+
+The cohort builder is review-only. It does not change primary-study routing or
+the active KG. It exports every ready review task for each selected DOI plus
+paper- and relationship-level annotation templates under
+`data/processed/evaluation/<cohort-id>/`.
+
+Pass the cohort's task JSONL to the existing Batch API runner. Use a separate
+run ID so parsing and KG projection remain isolated:
+
+```bash
+python pipeline/extract/run_route_extraction_batch_api.py prepare \
+  --run-id gemini3_flash_20260711_review_eval50 \
+  --batch-id batch_001 \
+  --input-jsonl data/processed/evaluation/review_paper_complete_50_20260711/route_extraction_tasks.jsonl \
+  --batch-size 500 \
+  --schema-profile review_coverage_schema \
+  --include-legacy-review-routes \
+  --model gemini-3-flash-preview
+```
+
+After downloading and parsing the batch, combine all domain outputs into one QA
+bundle per paper:
+
+```bash
+python pipeline/extract/build_review_paper_complete_bundles.py \
+  --cohort-jsonl data/processed/evaluation/review_paper_complete_50_20260711/cohort.jsonl \
+  --outputs-jsonl data/processed/extraction/routed_runs/gemini3_flash_20260711_review_eval50/route_extraction_outputs.jsonl \
+  --out-dir data/processed/evaluation/review_paper_complete_50_20260711/results
+```
+
+The bundle report checks paper/domain completeness, inventory-to-coverage-item
+links, and peripheral coverage rows before any decision to publish the results.
+
 Audit meta-analysis readiness before running extraction:
 
 ```bash
