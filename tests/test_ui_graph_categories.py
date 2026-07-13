@@ -87,6 +87,50 @@ def test_canonical_overview_svg_is_cached_across_background_detail_loading() -> 
     assert "clearGraphDomCacheForSource(sourceKey, { preserveBootstrap: true })" in loader
 
 
+def test_overview_dashboard_is_restored_from_prebuilt_dom_before_async_render() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    cache = source.split("function overviewDetailCacheKeyForContext", 1)[1].split(
+        "function renderOverviewDetail", 1
+    )[0]
+    switch = source.split("function switchEntityView", 1)[1].split(
+        "async function fetchJsonFromCandidates", 1
+    )[0]
+
+    assert "createOverviewDetailCacheEntry" in cache
+    assert "entry.container.replaceChildren" in source
+    assert "detailBody.replaceChildren(...Array.from(entry.container.childNodes))" in cache
+    assert "const detailRestored = restoreCachedOverviewDetail()" in switch
+    assert "resetDetail: !detailRestored" in switch
+
+
+def test_overview_dashboards_are_precomputed_in_idle_chunks() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    prewarm = source.split("function scheduleOverviewDetailPrewarmForSource", 1)[1].split(
+        "function normalizedCurrentSourceLoaded", 1
+    )[0]
+    init = source.split("async function init()", 1)[1].split("if (yearMinFilter)", 1)[0]
+
+    assert "ENTITY_CATEGORY_OPTIONS.forEach" in prewarm
+    assert "scheduleIdleTask(" in prewarm
+    assert "prewarmOverviewDetailEntry" in prewarm
+    assert "scheduleOverviewDetailPrewarmForSource(currentSourceKey())" in init
+
+
+def test_dashboard_paints_before_findings_and_bibliography_render() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    deferred = source.split("function scheduleDeferredSurfaceRender", 1)[1].split(
+        "function scheduleRender", 1
+    )[0]
+
+    assert deferred.count("window.requestAnimationFrame") == 2
+    assert deferred.index("renderOverviewDetail") < deferred.rindex("window.requestAnimationFrame")
+    assert deferred.rindex("window.requestAnimationFrame") < deferred.index("renderCards")
+    assert deferred.index("renderCards") < deferred.index("renderBibliography")
+
+
 def test_route_native_detail_rows_are_not_legacy_deduplicated() -> None:
     source = APP_JS.read_text(encoding="utf-8")
 
@@ -129,6 +173,36 @@ def test_full_graph_does_not_promote_detail_only_findings() -> None:
 
     assert 'admission === "main_graph"' in admission
     assert "data.filter(isMainGraphAdmitted)" in graph_build
+
+
+def test_graph_selection_details_match_the_admitted_graph_projection() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    filtering = source.split("function applyFiltersToClaims", 1)[1].split(
+        "function applyGlobalFindingSearchFilters", 1
+    )[0]
+    detail = source.split("function renderSelectedDetailFromData", 1)[1].split(
+        "function renderSelectedDetail", 1
+    )[0]
+
+    assert "detailFiltered.filter(isMainGraphAdmitted)" in filtering
+    assert "uniqueGraphPropositionClaims(" in filtering
+    assert "data.filter(isMainGraphAdmitted)" in detail
+    assert "allAccessData.filter(isMainGraphAdmitted)" in detail
+    assert detail.count("uniqueGraphPropositionClaims(") >= 2
+
+
+def test_main_browse_surfaces_exclude_detail_only_findings_but_search_can_retrieve_them() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    cards = source.split("function findingCardResults", 1)[1].split("function selectionIsValid", 1)[0]
+    render = source.split("function render()", 1)[1].split("function refreshMainViews", 1)[0]
+    global_search = source.split("function globalFindingSearchClaims", 1)[1].split(
+        "function hasFindingSearchQuery", 1
+    )[0]
+
+    assert "graphFiltered.filter(isMainGraphAdmitted)" in cards
+    assert "applyGlobalFindingSearchFilters()" in cards
+    assert "applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted)" in render
+    assert "filter(isMainGraphAdmitted)" not in global_search
 
 
 def test_findings_search_index_is_cached_and_warmed_in_small_idle_chunks() -> None:
@@ -183,6 +257,19 @@ def test_initial_page_has_no_blocking_loading_screen() -> None:
     assert "app-booting" not in html_source
     assert "finishInitialBoot" not in app_source
     assert ".site-loader" not in style_source
+
+
+def test_header_awaiting_count_uses_missing_normalized_findings_not_overview_exclusion() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    stats_source = source.split("function heroStatsFromGraphManifest", 1)[1].split(
+        "function completeHeroStats", 1
+    )[0]
+    render_source = source.split("function setHeroStatValues", 1)[1].split("function updateStats", 1)[0]
+
+    assert "awaiting_graph_inclusion" in stats_source
+    assert "graph_study_coverage" not in stats_source
+    assert "normalized_finding_coverage" in stats_source
+    assert "awaiting graph inclusion" in render_source
 
 
 def test_initial_page_reveals_only_after_required_fonts_are_ready() -> None:

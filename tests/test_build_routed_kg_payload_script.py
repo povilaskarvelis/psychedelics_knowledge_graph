@@ -10,7 +10,7 @@ SCRIPT = ROOT / "scripts" / "build_routed_kg_payload.sh"
 
 
 class BuildRoutedKgPayloadScriptTest(unittest.TestCase):
-    def run_with_fake_python(self, *, activate_default: str, fail_methods: bool = False) -> list[str]:
+    def run_with_fake_python(self, *, activate_default: str | None, fail_promotion: bool = False) -> list[str]:
         with tempfile.TemporaryDirectory() as tmpdir:
             temp = Path(tmpdir)
             bin_dir = temp / "bin"
@@ -21,24 +21,10 @@ class BuildRoutedKgPayloadScriptTest(unittest.TestCase):
                 """#!/bin/sh
 printf '%s\n' "$*" >> "$CALL_LOG"
 case "$*" in
-  *pipeline/kg/build_methods_flow.py*)
-    if [ "${FAIL_METHODS:-0}" = "1" ]; then
+  *pipeline/publish/promote_routed_run.py*)
+    if [ "${FAIL_PROMOTION:-0}" = "1" ]; then
       exit 9
     fi
-    previous=""
-    out_dir=""
-    for argument in "$@"; do
-      if [ "$previous" = "--out-dir" ]; then
-        out_dir="$argument"
-        break
-      fi
-      previous="$argument"
-    done
-    mkdir -p "$out_dir/schema" "$out_dir/views" "$out_dir/manifests"
-    : > "$out_dir/schema/methods_flow.schema.json"
-    : > "$out_dir/views/pipeline_status_graph.json"
-    : > "$out_dir/views/methods_bibliography.json"
-    : > "$out_dir/manifests/build_manifest.json"
     ;;
 esac
 """,
@@ -50,13 +36,15 @@ esac
                 {
                     "PATH": f"{bin_dir}:{env['PATH']}",
                     "CALL_LOG": str(call_log),
-                    "ACTIVATE_DEFAULT": activate_default,
-                    "FAIL_METHODS": "1" if fail_methods else "0",
+                    "FAIL_PROMOTION": "1" if fail_promotion else "0",
                     "KG_DIR": str(temp / "kg"),
                     "PAYLOAD_DIR": str(temp / "payload"),
-                    "METHODS_OUT_DIR": str(temp / "methods"),
                 }
             )
+            if activate_default is None:
+                env.pop("ACTIVATE_DEFAULT", None)
+            else:
+                env["ACTIVATE_DEFAULT"] = activate_default
             result = subprocess.run(
                 [str(SCRIPT), "test_run", "--offline"],
                 cwd=ROOT,
@@ -64,21 +52,20 @@ esac
                 capture_output=True,
                 text=True,
             )
-            if fail_methods:
+            if fail_promotion:
                 self.assertNotEqual(result.returncode, 0)
             else:
                 self.assertEqual(result.returncode, 0, result.stderr)
             return call_log.read_text(encoding="utf-8").splitlines()
 
-    def test_activating_build_stages_methods_before_payload_activation(self) -> None:
+    def test_activating_build_exports_then_uses_guarded_promotion(self) -> None:
         calls = self.run_with_fake_python(activate_default="1")
 
         self.assertEqual(len(calls), 4)
-        self.assertIn("pipeline/kg/build_methods_flow.py", calls[2])
-        self.assertIn("--kg-dir", calls[2])
-        self.assertIn("--out-dir", calls[2])
-        self.assertIn("pipeline/publish/export_evidence_payload.py", calls[3])
-        self.assertIn("--activate-default", calls[3])
+        self.assertIn("pipeline/publish/export_evidence_payload.py", calls[2])
+        self.assertNotIn("--activate-default", calls[2])
+        self.assertIn("pipeline/publish/promote_routed_run.py", calls[3])
+        self.assertIn("--run-id test_run", calls[3])
 
     def test_staged_build_leaves_live_methods_unchanged(self) -> None:
         calls = self.run_with_fake_python(activate_default="0")
@@ -87,12 +74,19 @@ esac
         self.assertNotIn("--activate-default", calls[2])
         self.assertFalse(any("build_methods_flow.py" in call for call in calls))
 
-    def test_methods_failure_prevents_graph_activation(self) -> None:
-        calls = self.run_with_fake_python(activate_default="1", fail_methods=True)
+    def test_build_is_non_activating_when_flag_is_unset(self) -> None:
+        calls = self.run_with_fake_python(activate_default=None)
 
         self.assertEqual(len(calls), 3)
-        self.assertIn("pipeline/kg/build_methods_flow.py", calls[2])
-        self.assertFalse(any("export_evidence_payload.py" in call for call in calls))
+        self.assertNotIn("--activate-default", calls[2])
+        self.assertFalse(any("build_methods_flow.py" in call for call in calls))
+
+    def test_promotion_failure_is_reported_after_versioned_export(self) -> None:
+        calls = self.run_with_fake_python(activate_default="1", fail_promotion=True)
+
+        self.assertEqual(len(calls), 4)
+        self.assertIn("pipeline/publish/export_evidence_payload.py", calls[2])
+        self.assertIn("pipeline/publish/promote_routed_run.py", calls[3])
 
 
 if __name__ == "__main__":

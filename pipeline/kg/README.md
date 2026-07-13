@@ -74,6 +74,14 @@ python pipeline/kg/build_evidence_tables.py --source-preset routed --run-id "$RU
 Routed extraction builds are versioned by default under
 `data/processed/kg_routed_runs/<RUN_ID>/`.
 
+The routed build wrapper is staging-only by default. Once a versioned KG and
+payload have been reviewed, use the guarded publisher so extraction, graph,
+Methods, and public-site state advance as one release:
+
+```bash
+python pipeline/publish/promote_routed_run.py --run-id "$RUN_ID"
+```
+
 When a reviewed routed run should replace the current KG table, make that
 promotion explicit:
 
@@ -219,9 +227,16 @@ For a routed run, prefer:
 scripts/build_routed_kg_payload.sh "$RUN_ID"
 ```
 
-That wrapper rebuilds the evidence tables, author tables, and public payload in
-the correct order, then refreshes the Methods PRISMA flow and bibliography from
-the activated routed KG run. `pipeline/publish/export_evidence_payload.py` validates that
+That wrapper rebuilds the evidence tables, author tables, and a versioned payload
+in the correct order without changing the active graph. After validating the
+versioned run, activate it explicitly with:
+
+```bash
+ACTIVATE_DEFAULT=1 scripts/build_routed_kg_payload.sh "$RUN_ID"
+```
+
+An activating build also refreshes the Methods PRISMA flow and bibliography from
+the same routed KG run. `pipeline/publish/export_evidence_payload.py` validates that
 the author layer is present and newer than `papers.parquet` before writing UI
 payloads, unless `--allow-stale-authors` is passed for a diagnostic export.
 

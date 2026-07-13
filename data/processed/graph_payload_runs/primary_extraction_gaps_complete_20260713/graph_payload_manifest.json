@@ -1,6 +1,6 @@
 {
   "schema_version": "route_native_evidence_manifest_v1",
-  "generated_at": "2026-07-13T15:02:40.163513+00:00",
+  "generated_at": "2026-07-13T20:36:02.869813+00:00",
   "evidence_source": "kg_tables",
   "kg_dir": "data/processed/kg_routed_runs/primary_extraction_gaps_complete_20260713",
   "graph_bootstraps": {
@@ -23,12 +23,12 @@
   "summary_stats": {
     "default": {
       "row_count": 62830,
-      "graph_finding_count": 48416,
-      "study_count": 11022,
+      "graph_finding_count": 48337,
+      "study_count": 11010,
       "compound_count": 84,
-      "entity_count": 500,
+      "entity_count": 497,
       "domain_count": 11,
-      "condition_count": 57,
+      "condition_count": 54,
       "target_count": 59,
       "domain_counts": {
         "clinical_outcome": 13155,
@@ -71,22 +71,22 @@
         "abstract_only": 22744
       },
       "graph_study_coverage": {
-        "included_count": 11022,
+        "included_count": 11010,
         "candidate_count": 13011,
-        "not_in_graph_count": 1989
+        "not_in_graph_count": 2001
       },
       "graph_candidate_study_count": 13011,
-      "graph_excluded_study_count": 1989
+      "graph_excluded_study_count": 2001
     },
     "sources": {
       "primary": {
         "row_count": 51909,
-        "graph_finding_count": 42024,
+        "graph_finding_count": 42004,
         "study_count": 8298,
         "compound_count": 80,
-        "entity_count": 481,
+        "entity_count": 479,
         "domain_count": 10,
-        "condition_count": 49,
+        "condition_count": 47,
         "target_count": 57,
         "domain_counts": {
           "molecular_pathway_readout": 8811,
@@ -136,12 +136,12 @@
       },
       "meta_analyses": {
         "row_count": 1466,
-        "graph_finding_count": 767,
+        "graph_finding_count": 761,
         "study_count": 189,
         "compound_count": 13,
-        "entity_count": 72,
+        "entity_count": 71,
         "domain_count": 8,
-        "condition_count": 21,
+        "condition_count": 20,
         "target_count": 0,
         "domain_counts": {
           "clinical_outcome": 1185,
@@ -183,12 +183,12 @@
       },
       "reviews": {
         "row_count": 9455,
-        "graph_finding_count": 5507,
-        "study_count": 2505,
+        "graph_finding_count": 5458,
+        "study_count": 2491,
         "compound_count": 39,
-        "entity_count": 222,
+        "entity_count": 221,
         "domain_count": 11,
-        "condition_count": 41,
+        "condition_count": 40,
         "target_count": 24,
         "domain_counts": {
           "clinical_outcome": 4261,
@@ -230,43 +230,27 @@
           "abstract_only": 3232
         },
         "graph_study_coverage": {
-          "included_count": 2505,
+          "included_count": 2491,
           "candidate_count": 3333,
-          "not_in_graph_count": 828
+          "not_in_graph_count": 842
         },
         "graph_candidate_study_count": 3333,
-        "graph_excluded_study_count": 828
+        "graph_excluded_study_count": 842
       }
     },
     "paper_counts": {
       "primary_studies": 8298,
-      "reviews": 2505,
+      "reviews": 2491,
       "meta_analyses": 189,
-      "total": 10992,
+      "total": 10978,
       "awaiting_graph_inclusion": {
         "primary_studies": 1121,
-        "reviews": 828,
+        "reviews": 842,
         "meta_analyses": 70,
-        "total": 2019
+        "total": 2033
       },
       "scope": "overview_graph_represented"
     }
   },
-  "status": "ok",
-  "active_payload_pointer": {
-    "schema_version": "route_native_evidence_payload_active_v1",
-    "active_graph_bootstraps": {
-      "primary": "data/processed/graph_payload_runs/primary_extraction_gaps_complete_20260713/graph_bootstrap_primary.json",
-      "meta_analyses": "data/processed/graph_payload_runs/primary_extraction_gaps_complete_20260713/graph_bootstrap_meta_analyses.json",
-      "reviews": "data/processed/graph_payload_runs/primary_extraction_gaps_complete_20260713/graph_bootstrap_reviews.json"
-    },
-    "active_detail_bootstraps": {
-      "primary": "data/processed/graph_payload_runs/primary_extraction_gaps_complete_20260713/detail_bootstrap_primary.json",
-      "meta_analyses": "data/processed/graph_payload_runs/primary_extraction_gaps_complete_20260713/detail_bootstrap_meta_analyses.json",
-      "reviews": "data/processed/graph_payload_runs/primary_extraction_gaps_complete_20260713/detail_bootstrap_reviews.json"
-    },
-    "active_manifest": "data/processed/graph_payload_runs/primary_extraction_gaps_complete_20260713/graph_payload_manifest.json",
-    "evidence_source": "kg_tables",
-    "kg_dir": "data/processed/kg_routed_runs/primary_extraction_gaps_complete_20260713"
-  }
+  "status": "ok"
 }

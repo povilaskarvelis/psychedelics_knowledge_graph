@@ -24,6 +24,10 @@ if [[ ! -f "${MANIFEST}" ]]; then
   exit 1
 fi
 
+# Refuse to publish a mixed release. Both files remain for compatibility, but
+# one guarded promotion must have selected the same run for both consumers.
+python3 "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" --check-active
+
 rm -rf "${DIST_DIR}"
 mkdir -p "${DIST_DIR}"
 

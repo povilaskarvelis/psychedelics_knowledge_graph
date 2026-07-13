@@ -10,12 +10,30 @@ bibliography layout. It derives its display grouping from each finding's
 
 ## Run
 
-Export a routed KG run and make it the UI default:
+Build a versioned routed KG and payload without changing the public graph:
 
 ```bash
 RUN_ID=gemini3_flash_YYYYMMDD_first_batch
 scripts/build_routed_kg_payload.sh "$RUN_ID"
 ```
+
+After reviewing that versioned run, promote it without rebuilding it:
+
+```bash
+python pipeline/publish/promote_routed_run.py --run-id "$RUN_ID"
+```
+
+The promoter validates the KG, payload, author tables, and extraction inputs;
+serializes promotions with a lock; stages the Methods and `dist/` rebuilds; and
+updates the extraction and public-graph compatibility pointers to the same
+release. `ACTIVATE_DEFAULT=1 scripts/build_routed_kg_payload.sh "$RUN_ID"`
+remains a one-command build-and-promote shorthand and uses the same guarded
+promoter.
+
+The wrapper is non-activating by default. This keeps historical or diagnostic
+rebuilds from changing the public graph by accident. `scripts/build_site.sh`
+also refuses to publish when the two compatibility pointers do not identify
+the same release.
 
 If the KG tables have already been rebuilt and only the public payload needs to
 be regenerated, make sure `pipeline/kg/build_author_tables.py` has run after the
@@ -25,13 +43,13 @@ last `papers.parquet` change. The exporter checks `authors.parquet`,
 when the author layer is missing or stale. `--allow-stale-authors` is available
 only for deliberate diagnostic exports.
 
-The wrapper also rebuilds the Methods PRISMA flow and unified bibliography from
-the same routed KG run. Do not run a separate bibliography step after an
-activating graph build.
+Promotion also rebuilds the Methods PRISMA flow and unified bibliography from
+the same routed KG run. Do not run a separate bibliography step afterward.
 
 ## Outputs
 
 - `data/processed/graph_payload_active.json`
+- `data/processed/extraction/active_routed_run.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_payload_manifest.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_bootstrap_<source>.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/detail_bootstrap_<source>.json`
@@ -39,6 +57,12 @@ activating graph build.
 - `data/kg/views/methods_bibliography.json`
 
 ## Contract
+
+The two active pointer files are compatibility views for different consumers,
+not independent release switches. Both contain the same `run_id` and
+`release_id` after guarded promotion. The extraction pointer additionally names
+the combined raw outputs and evidence rows required by the next scoped update;
+the public graph pointer names only compact browser artifacts.
 
 `graph_payload_manifest.json` contains:
 
@@ -52,14 +76,15 @@ activating graph build.
 - `detail_bootstraps`
 
 `summary_stats.paper_counts` is the generated source of truth for the four
-public header metrics: graph-represented primary studies, reviews,
-meta-analyses, and their total. These values are deduplicated by DOI, then
-OpenAlex ID, then title and year. They are regenerated whenever the routed KG
-payload is exported; meta-analysis counts use the same one-paper visibility
-rule as the meta-analysis graph, while primary studies and reviews use the
-two-paper overview-node rule. The nested `awaiting_graph_inclusion` counts use
-the corresponding relevant-paper candidate set as their denominator and report
-papers that have not yet produced a graph-represented relationship.
+public header metrics: primary studies, reviews, meta-analyses, and their total
+represented anywhere in the underlying normalized evidence graph. These values
+are deduplicated by DOI, then OpenAlex ID, then title and year, and regenerated
+whenever the routed KG payload is exported. A paper does not need to appear in
+the visual overview to count as graph-represented. The public
+`awaiting_graph_inclusion` count therefore means papers with no normalized,
+searchable finding at all. `visualized_overview_represented` retains the
+stricter visual-overview counts for diagnostics; primary studies and reviews
+use the two-paper overview-node rule, while meta-analyses use a one-paper rule.
 
 `graph_bootstrap_<source>.json` contains aggregate graph edges for
 fast initial rendering: compound, graph-anchor entity label, graph-anchor

@@ -8,18 +8,18 @@ usage() {
 Usage: scripts/build_routed_kg_payload.sh RUN_ID [build_author_tables args...]
 
 Rebuilds the routed KG tables, refreshes the author identity/authorship layer,
-exports the compact graph/detail payloads used by the browser UI, and refreshes
-the Methods PRISMA flow and full bibliography when the run is activated.
+exports the compact graph/detail payloads used by the browser UI, and promotes
+the complete release through the guarded publisher when explicitly requested.
 
 Examples:
   scripts/build_routed_kg_payload.sh gemini3_flash_20260628_primary_extraction
-  scripts/build_routed_kg_payload.sh gemini3_flash_20260628_primary_extraction --offline
+  ACTIVATE_DEFAULT=1 scripts/build_routed_kg_payload.sh gemini3_flash_20260628_primary_extraction --offline
 
 Environment overrides:
   KG_DIR=/path/to/kg-run
   PAYLOAD_DIR=/path/to/graph-payload-run
-  METHODS_OUT_DIR=/path/to/methods-output
-  ACTIVATE_DEFAULT=0  # skip rewriting data/processed/graph_payload_active.json
+  EVIDENCE_RUN_ID=existing-run  # rebuild a new release from an existing evidence snapshot
+  ACTIVATE_DEFAULT=1  # explicitly promote this run after the versioned build succeeds
 EOF
 }
 
@@ -37,12 +37,19 @@ shift
 
 KG_DIR="${KG_DIR:-"${ROOT_DIR}/data/processed/kg_routed_runs/${RUN_ID}"}"
 PAYLOAD_DIR="${PAYLOAD_DIR:-"${ROOT_DIR}/data/processed/graph_payload_runs/${RUN_ID}"}"
-METHODS_OUT_DIR="${METHODS_OUT_DIR:-"${ROOT_DIR}/data/kg"}"
 AUTHOR_CACHE="${KG_DIR}/openalex_author_cache.json"
+ACTIVATE_DEFAULT="${ACTIVATE_DEFAULT:-0}"
+EVIDENCE_RUN_ID="${EVIDENCE_RUN_ID:-${RUN_ID}}"
+
+if [[ "${ACTIVATE_DEFAULT}" != "0" && "${ACTIVATE_DEFAULT}" != "1" ]]; then
+  echo "ACTIVATE_DEFAULT must be 0 or 1" >&2
+  exit 2
+fi
 
 python3 "${ROOT_DIR}/pipeline/kg/build_evidence_tables.py" \
   --source-preset routed \
   --run-id "${RUN_ID}" \
+  --evidence-run-id "${EVIDENCE_RUN_ID}" \
   --out-dir "${KG_DIR}"
 
 if [[ ! -f "${AUTHOR_CACHE}" && -n "${AUTHOR_CACHE_SEED:-}" && -f "${AUTHOR_CACHE_SEED}" ]]; then
@@ -55,31 +62,10 @@ python3 "${ROOT_DIR}/pipeline/kg/build_author_tables.py" \
   --cache "${AUTHOR_CACHE}" \
   "$@"
 
-export_args=(
-  --kg-dir "${KG_DIR}"
+python3 "${ROOT_DIR}/pipeline/publish/export_evidence_payload.py" \
+  --kg-dir "${KG_DIR}" \
   --out-dir "${PAYLOAD_DIR}"
-)
-if [[ "${ACTIVATE_DEFAULT:-1}" != "0" ]]; then
-  export_args+=(--activate-default)
-  METHODS_STAGE="$(mktemp -d "${TMPDIR:-/tmp}/psychkg-methods.XXXXXX")"
-  trap 'rm -rf "${METHODS_STAGE}"' EXIT
-  python3 "${ROOT_DIR}/pipeline/kg/build_methods_flow.py" \
-    --kg-dir "${KG_DIR}" \
-    --out-dir "${METHODS_STAGE}"
-fi
 
-python3 "${ROOT_DIR}/pipeline/publish/export_evidence_payload.py" "${export_args[@]}"
-
-if [[ "${ACTIVATE_DEFAULT:-1}" != "0" ]]; then
-  for relative_path in \
-    schema/methods_flow.schema.json \
-    views/pipeline_status_graph.json \
-    views/methods_bibliography.json \
-    manifests/build_manifest.json
-  do
-    mkdir -p "${METHODS_OUT_DIR}/$(dirname "${relative_path}")"
-    mv "${METHODS_STAGE}/${relative_path}" "${METHODS_OUT_DIR}/${relative_path}"
-  done
-  rm -rf "${METHODS_STAGE}"
-  trap - EXIT
+if [[ "${ACTIVATE_DEFAULT}" == "1" ]]; then
+  python3 "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" --run-id "${RUN_ID}"
 fi

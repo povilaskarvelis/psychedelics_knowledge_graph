@@ -1,235 +1,89 @@
 # Psychedelics Knowledge Graph
 
-A provenance-aware literature pipeline and web interface for exploring
-structured findings about psychedelics, mechanisms, and mental health outcomes.
+A map of psychedelic research that makes findings easier to explore, audit,
+and keep up to date.
 
-[Live GUI](https://psychedelicskg.com/) |
-[Pipeline Guide](pipeline/README.md) |
-[Search Seed Strategy](docs/search_seed_strategy.md) |
-[Search Completeness](docs/search_completeness.md) |
-[Evidence Policy](docs/evidence_policy.md) |
-[Terminology](docs/terminology.md) |
-[Deployment](docs/deployment.md)
+[Explore the knowledge graph](https://psychedelicskg.com/) ·
+[Methods](https://psychedelicskg.com/ui/methods.html) ·
+[Pipeline guide](pipeline/README.md) ·
+[Evidence policy](docs/evidence_policy.md)
 
-![Interface screenshot](ui/assets/gui-screenshot.png)
+![Psychedelics Knowledge Graph interface](ui/assets/gui-screenshot.png)
 
-## Overview
+## About the project
 
-This repository explores how evidence synthesis can work in the age of
-agentic science. Expert review papers remain essential for interpretation,
-argument, and judgment. The evidence base underneath those reviews can also
-become more structured, inspectable, and reusable: a living substrate that can
-be updated as new literature appears while preserving provenance.
+Psychedelic research spans clinical outcomes, molecular mechanisms, brain and
+behavioral effects, subjective experience, safety, and real-world use. The
+evidence is growing quickly but remains scattered across papers and research
+domains.
 
-The goal is an evidence base that is useful in two directions. Humans need an
-interactive way to navigate the evidence landscape. Agents need structured
-paper, evidence, entity, and provenance records they can query, extend, and
-build upon. The pipeline is documented, transparent, and open-source, with
-community feedback treated as part of the maintenance model.
+The Psychedelics Knowledge Graph organizes that literature into structured
+findings linked to their source papers. Its public interface helps researchers
+move between broad patterns, individual findings, and the underlying studies.
 
-Psychedelics research is the case study. The project builds a knowledge graph
-of the literature across clinical indications and mechanistic targets, while
-preserving paper-level provenance, screening decisions, evidence records, and
-finding-level structure. This helps reduce evidence fragmentation, surface null,
-mixed, uncertain, and positive findings, and make the evidence base reproducible
-for both human review and agentic workflows.
+The repository also contains the tools used to find, screen, process, and add
+new papers. It records which papers were included, how they were screened, and
+where each finding came from. Primary studies, meta-analyses, and reviews are
+kept separate, and null, mixed, uncertain, and positive findings are retained
+rather than collapsed into a single conclusion.
 
-The project builds on existing traditions in biomedical knowledge graphs,
-literature mining, systematic mapping, and living evidence synthesis. Its
-contribution is the domain-specific combination: automated literature discovery,
-DOI-context screening, LLM-assisted structured evidence extraction, validation
-gates, normalized graph views, PRISMA-style auditability, and a public
-interactive interface for psychedelic research.
+## What this repository contains
 
-## Knowledge Graph Architecture
+This repository includes the full workflow behind the public graph:
 
-The project is intended to build a provenance-aware knowledge graph with a
-digestible public visualization layer. The visual graph is a readable view over
-a larger graph-shaped data model.
+1. Find and deduplicate papers while recording how they were discovered.
+2. Enrich, screen, and route papers by evidence domain and publication type.
+3. Retrieve and convert available full text.
+4. Extract structured findings and link them back to the source text.
+5. Validate and normalize papers, entities, findings, and relationships.
+6. Build the public graph, finding details, bibliography, and Methods views.
 
-The KG has several layers:
+The main data is stored in normalized tables. The browser graph presents a
+readable view of that data rather than trying to display everything at once.
 
-- `Paper` records capture literature metadata, discovery provenance, screening
-  status, PDF/full-text availability, publication type, and study context.
-- `Evidence record` rows capture extracted study findings from papers, with
-  evidence locators, source family, paper type, study design, result direction,
-  assay/outcome fields, confidence, and validation status.
-- Canonical entity nodes represent compounds, clinical indications, mechanistic
-  targets, papers, and evidence records using stable identifiers.
-- Semantic edges aggregate evidence into relationships such as
-  `compound -> indication` and `compound -> target`.
-- View payloads turn the canonical KG into readable interfaces, including the
-  main graph and the Methods paper flow.
+## Repository map
 
-This separation matters. The canonical KG can grow as more papers and evidence
-records are screened, extracted, corrected, or updated. The UI can summarize
-important KG components while preserving the underlying provenance.
+- `pipeline/` — literature discovery, screening, full-text processing,
+  extraction, validation, updates, and publishing
+- `schema/` — definitions for extracted fields, graph mappings, and standard
+  names
+- `data/` — curated inputs, processed corpus tables, graph tables, and public
+  payloads
+- `ui/` — the static browser interface and Methods page
+- `scripts/` — graph and site build entry points
+- `docs/` — scope, search, terminology, evidence, and deployment documentation
+- `tests/` — pipeline and interface regression tests
 
-The public graph payloads are built from normalized evidence tables, while the
-methods projection focuses on auditability and paper-flow status.
+For operational commands and the current end-to-end workflow, see the
+[pipeline guide](pipeline/README.md). For a targeted correction to one paper or
+a DOI list, use the [scoped paper-update workflow](docs/scoped_paper_updates.md).
 
-## Workflow
+## Local site preview
 
-### Literature Search
-
-Discovery scripts query multiple literature APIs, generate DOI-context queues,
-and build a local paper library with titles, abstracts, access metadata, and
-PDFs when available.
-
-At the conceptual level:
-
-- the literature search uses source-specific query modules in OpenAlex and
-  PubMed, combining psychedelic compound/class synonyms with target or
-  indication vocabularies and evidence terms
-- dense high-yield modules are run deeper than broad primary modules, while
-  direct compound-target and compound-indication searches include rare
-  combinations
-- search results are matched by DOI before papers are added; duplicate records
-  are logged, while new papers move forward for review
-- bibliographic details are added before abstract screening from metadata
-  providers such as PubMed/PMC, Unpaywall, Crossref, OpenAlex, and Semantic
-  Scholar; full text is checked after abstract screening
-- retrieval provenance is retained in discovery reports and ledgers
-
-Technical note: search and sync live in `pipeline/ingest/` and write to
-`data/processed/paper_library_*.json` plus local PDFs under `data/raw/papers/`.
-
-### Screening Papers
-
-Retrieved papers now move through abstract screening before PDF acquisition.
-The old rule-based triage remains available for legacy audits, but it is not
-the default gate for the live graph. Abstract screening works at the
-`(DOI, compound, target/disorder)` context level so one paper can support
-multiple graph edges while preserving DOI-context distinctions.
-
-Current source and paper-type labels separate primary empirical evidence,
-secondary literature, and non-primary context. Common paper types include:
-
-- primary results
-- systematic review, review, or meta-analysis
-- protocol
-- conference or poster abstract
-- case report, commentary, or correction
-- other
-
-Only primary results papers are admitted to the default primary-evidence graph.
-Reviews, systematic reviews, and meta-analyses are retained as secondary
-literature and can be included with the secondary-source view/checkmark.
-Protocols, conference abstracts, commentary, and corrections are retained as
-non-primary context where possible, with primary-evidence counts kept separate.
-
-Technical note: the current default path is non-destructive. It uses a
-deterministic no-signal pre-screen, then local LLM abstract screening for
-relevance and quote-supported contexts only. Full-text eligibility assessment,
-source-family labeling, evidence-strength labeling, and data extraction happen
-later from PDFs or abstract-only fallback evidence.
-
-### Structured Evidence Extraction
-
-The pipeline seeds one evidence-record stub per DOI-context and fills structured
-fields from abstracts first, then PDFs when full-text evidence is needed. The
-full-text LLM step is best described as full-text evidence assessment plus data
-extraction; use `adjudication` only for the final conflict-resolution decision
-when model/rule/curator outputs disagree.
-
-Local PDFs are converted into structured full-text artifacts with GROBID as the
-primary scholarly-article parser. GROBID preserves TEI XML with article
-sections, tables, figures, references, and other locators that downstream
-evidence packets use for auditable extraction.
-
-- mechanistic evidence records capture compound-target assay findings
-- disorder evidence records capture compound-disorder outcome findings
-- disorder evidence records include a lightweight `result_direction` label:
-  `positive`, `null`, `negative`, `mixed`, `unclear`
-- each row keeps a provenance locator back to text, table, figure, or abstract
-- bibliographic and synthesis fields include journal, publication type, trial
-  registry IDs, sample size, comparator/intervention details, outcomes, effect
-  sizes, adverse events, funding, conflicts of interest, and risk-of-bias notes
-- PDF retrieval and conversion status lives in the DOI-level
-  `candidate_papers.parquet` ledger, while detailed extraction jobs live in
-  `paper_extraction_routes.parquet`
-- manually downloaded PDFs are imported through `data/raw/papers/manual_pdf_inbox/`
-  into the canonical PDF store, then converted into
-  `data/processed/fulltext/articles/`
-- PDF-heavy conversion scripts auto-run inside the `psychkg-pdf` conda
-  environment when it exists
-
-The current extraction approach is schema-driven and conservative. The output is
-meant to be auditable and easy to improve over time.
-
-### Validation and Outputs
-
-Extracted evidence is checked against route-specific schemas and evidence-policy
-rules before graph publication.
-
-Main outputs:
-
-- browser interface in `ui/`
-- normalized parquet KG tables under `data/processed/kg*/`
-- graph export payloads in `data/processed/graph_payload_*.json`
-- methods paper-flow and bibliography files in `data/kg/`, refreshed
-  automatically whenever the routed graph build is activated
-- the GUI defaults to primary evidence and has a `Secondary sources` checkbox
-  for reviews, systematic reviews, and meta-analyses
-
-The GUI defaults to a stricter primary-results-only view and surfaces paper
-type and result direction directly in the interface.
-
-## Repository Layout
-
-- `pipeline/ingest/`: discovery, paper sync, DOI seeding
-- `pipeline/review/`: deterministic pre-screening, Gemini routing, and audit baselines
-- `pipeline/extract/`: route assembly, route-specific task building, and extraction runners
-- `pipeline/update/`: validated DOI-scoped replacement of extraction, KG, Methods, and site outputs
-- `pipeline/validate/`: corpus provenance and table-building audits
-- `pipeline/publish/`: export
-- `schema/`: route extraction schemas, KG mappings, and node vocabularies
-- `ui/`: browser interface
-- `data/curated/`: retained first-generation evidence artifacts and manual review inputs
-- `data/processed/`: corpus tables, extraction outputs, KG tables, and public payloads
-
-## Quick Start
-
-Requirements:
-
-- Python 3.10+ for the core pipeline
-- optional `psychkg-pdf` conda environment for PDF-heavy extraction
-- local credentials in `pipeline/config.local.yaml` for API keys/emails
-
-Minimal current table-native flow after credentials are configured:
+Build the curated static site and serve the same `dist/` output used for
+deployment:
 
 ```bash
-python pipeline/validate/build_context_provenance_audit.py --table-out-dir data/processed/corpus
-python pipeline/ingest/run_standard_metadata_enrichment.py --dataset all
-python pipeline/review/run_deterministic_prescreen.py
-python pipeline/review/build_gemini_domain_routing_batch_queue.py --prepare
-python pipeline/review/advance_gemini_domain_routing_batch_queue.py
-python pipeline/extract/build_extraction_routes.py
-python pipeline/fulltext/run_pdf_retrieval_pipeline.py
-python pipeline/fulltext/run_local_pdf_conversion_pipeline.py --batch-size 25
-python pipeline/extract/build_extraction_tasks.py
-RUN_ID=gemini3_flash_YYYYMMDD_first_batch
-python pipeline/extract/run_route_extraction.py --run-id "$RUN_ID"
-python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
-  --run-id "$RUN_ID" \
-  --input-jsonl "data/processed/extraction/routed_runs/$RUN_ID/route_extraction_outputs.jsonl"
-scripts/build_routed_kg_payload.sh "$RUN_ID"
+bash scripts/build_site.sh
+python3 -m http.server 8011 --bind 127.0.0.1 --directory dist
 ```
 
-`scripts/build_routed_kg_payload.sh` runs the routed KG table build, the author
-identity/authorship build, the public graph/detail payload export, and the
-Methods PRISMA/bibliography refresh in order. Methods generation is skipped for
-non-activating staged builds (`ACTIVATE_DEFAULT=0`) and is handled during their
-later promotion step.
-The exporter now expects fresh author tables by default, so use the wrapper or
-rerun `pipeline/kg/build_author_tables.py` before exporting a rebuilt KG run.
+Then open <http://127.0.0.1:8011>.
 
-The stable current KG remains under `data/processed/kg/`. Routed extraction
-reruns should use a `RUN_ID` first; write to `data/processed/kg/` only when a
-reviewed run is intentionally promoted as the current graph table.
+## Project principles
 
-For the operational walkthrough, search completeness checks, provider settings,
-PDF runtime setup, and larger search runs, see [pipeline/README.md](pipeline/README.md).
-For corrections to one paper or a DOI list, use the documented
-[scoped paper-update workflow](docs/scoped_paper_updates.md) instead of rerunning
-the whole model extraction or patching downstream rows by hand.
+- Link every public finding back to its source.
+- Keep discovery broad while making graph inclusion conservative.
+- Separate primary research, meta-analyses, reviews, and non-primary context.
+- Treat uncertainty, disagreement, and missing evidence as meaningful results.
+- Keep the evidence base reproducible, correctable, and incrementally updatable.
+
+## Licensing and citation
+
+The software is released under the [Apache License 2.0](LICENSE). Project-created
+public data is released under [CC0 1.0](DATA_LICENSE.md); third-party papers,
+abstracts, figures, tables, and provider data retain their original rights and
+terms.
+
+If you use the project or its public data exports, please cite it using
+[`CITATION.cff`](CITATION.cff).

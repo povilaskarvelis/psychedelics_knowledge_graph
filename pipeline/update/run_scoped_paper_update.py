@@ -851,45 +851,6 @@ def finalize(args: argparse.Namespace) -> int:
     return 0
 
 
-def relative_to_root(path: Path) -> str:
-    return str(path.resolve().relative_to(ROOT.resolve()))
-
-
-def swap_staged_directory(staged: Path, current: Path, previous: Path) -> None:
-    """Replace a generated directory while keeping a rollback directory."""
-    previous.parent.mkdir(parents=True, exist_ok=True)
-    moved_previous = False
-    if current.exists():
-        current.rename(previous)
-        moved_previous = True
-    try:
-        staged.rename(current)
-    except Exception:
-        if moved_previous and previous.exists():
-            previous.rename(current)
-        raise
-
-
-def expected_graph_pointer(update_id: str) -> dict:
-    payload_rel = Path("data") / "processed" / "graph_payload_runs" / update_id
-    return {
-        "schema_version": "route_native_evidence_payload_active_v1",
-        "active_graph_bootstraps": {
-            "primary": str(payload_rel / "graph_bootstrap_primary.json"),
-            "meta_analyses": str(payload_rel / "graph_bootstrap_meta_analyses.json"),
-            "reviews": str(payload_rel / "graph_bootstrap_reviews.json"),
-        },
-        "active_detail_bootstraps": {
-            "primary": str(payload_rel / "detail_bootstrap_primary.json"),
-            "meta_analyses": str(payload_rel / "detail_bootstrap_meta_analyses.json"),
-            "reviews": str(payload_rel / "detail_bootstrap_reviews.json"),
-        },
-        "active_manifest": str(payload_rel / "graph_payload_manifest.json"),
-        "evidence_source": "kg_tables",
-        "kg_dir": str(Path("data") / "processed" / "kg_routed_runs" / update_id),
-    }
-
-
 def promote(args: argparse.Namespace) -> int:
     update_id = safe_update_id(args.update_id)
     update_dir = Path(args.update_dir).resolve() if args.update_dir else UPDATE_ROOT / update_id
@@ -914,81 +875,25 @@ def promote(args: argparse.Namespace) -> int:
         env=env,
     )
 
-    new_graph_pointer = expected_graph_pointer(update_id)
-    for path_value in (
-        *new_graph_pointer["active_graph_bootstraps"].values(),
-        *new_graph_pointer["active_detail_bootstraps"].values(),
-        new_graph_pointer["active_manifest"],
-        new_graph_pointer["kg_dir"],
-    ):
-        if not (ROOT / path_value).exists():
-            raise RuntimeError(f"Downstream build did not create expected artifact: {path_value}")
-
-    stage_root = update_dir / ".promotion_stage"
-    if stage_root.exists():
-        shutil.rmtree(stage_root)
-    staged_methods = stage_root / "data_kg"
-    staged_dist = stage_root / "dist"
-    previous_methods = stage_root / "previous_data_kg"
-    previous_dist = stage_root / "previous_dist"
-    current_methods = ROOT / "data" / "kg"
-    current_dist = ROOT / "dist"
-    new_kg_dir = ROOT / new_graph_pointer["kg_dir"]
     run_checked(
         [
             sys.executable,
-            str(ROOT / "pipeline" / "kg" / "build_methods_flow.py"),
-            "--kg-dir",
-            str(new_kg_dir),
-            "--out-dir",
-            str(staged_methods),
+            str(ROOT / "pipeline" / "publish" / "promote_routed_run.py"),
+            "--run-id",
+            update_id,
+            "--outputs-jsonl",
+            str(Path(candidate["outputs"]["path"]).resolve()),
+            "--evidence-rows-json",
+            str(Path(candidate["evidence"]["path"]).resolve()),
+            "--source-update-manifest",
+            str(manifest_path.resolve()),
         ]
     )
-
-    old_graph_pointer = ACTIVE_GRAPH_POINTER.read_bytes() if ACTIVE_GRAPH_POINTER.exists() else None
-    methods_swapped = False
-    dist_swapped = False
-    try:
-        stage_root.mkdir(parents=True, exist_ok=True)
-        swap_staged_directory(staged_methods, current_methods, previous_methods)
-        methods_swapped = True
-        write_json_atomic(ACTIVE_GRAPH_POINTER, new_graph_pointer)
-        site_env = dict(os.environ)
-        site_env["DIST_DIR"] = str(staged_dist)
-        run_checked([str(ROOT / "scripts" / "build_site.sh")], env=site_env)
-        swap_staged_directory(staged_dist, current_dist, previous_dist)
-        dist_swapped = True
-    except Exception:
-        if dist_swapped:
-            shutil.rmtree(current_dist, ignore_errors=True)
-            if previous_dist.exists():
-                previous_dist.rename(current_dist)
-        if methods_swapped:
-            shutil.rmtree(current_methods, ignore_errors=True)
-            if previous_methods.exists():
-                previous_methods.rename(current_methods)
-        if old_graph_pointer is None:
-            ACTIVE_GRAPH_POINTER.unlink(missing_ok=True)
-        else:
-            ACTIVE_GRAPH_POINTER.write_bytes(old_graph_pointer)
-        raise
-
-    active_pointer = {
-        "schema_version": POINTER_SCHEMA_VERSION,
-        "updated_at_utc": now_utc(),
-        "run_id": update_id,
-        "outputs_jsonl": relative_to_root(Path(candidate["outputs"]["path"])),
-        "evidence_rows_json": relative_to_root(Path(candidate["evidence"]["path"])),
-        "kg_dir": new_graph_pointer["kg_dir"],
-        "graph_payload_manifest": new_graph_pointer["active_manifest"],
-        "source_update_manifest": relative_to_root(manifest_path),
-    }
-    write_json_atomic(ACTIVE_EXTRACTION_POINTER, active_pointer)
+    active_pointer = read_json_object(ACTIVE_EXTRACTION_POINTER)
     manifest["phase"] = "promoted"
     manifest["promoted_at_utc"] = active_pointer["updated_at_utc"]
     manifest["active_pointer"] = str(ACTIVE_EXTRACTION_POINTER.resolve())
     write_json_atomic(manifest_path, manifest)
-    shutil.rmtree(stage_root, ignore_errors=True)
     print(f"Promoted scoped update: {update_id}")
     print(f"Active extraction pointer: {ACTIVE_EXTRACTION_POINTER}")
     print(f"Active graph pointer: {ACTIVE_GRAPH_POINTER}")

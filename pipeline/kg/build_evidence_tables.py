@@ -885,8 +885,10 @@ GENERIC_BEHAVIOR_NOT_GRAPHABLE_KEYS = {
     "motor activity",
     "motor behavior",
     "open field locomotor activity",
+    "open field locomotion scores",
     "open field test",
     "open field",
+    "psychomotor stimulation",
     "serotonin syndrome behavior",
     "sexual behavior",
     "stereotyped behavior",
@@ -904,8 +906,10 @@ CONTROLLED_BEHAVIORAL_DETAIL_LABELS = {
     "motor activity": "Motor activity",
     "motor behavior": "Motor activity",
     "open field locomotor activity": "Locomotor activity",
+    "open field locomotion scores": "Locomotor activity",
     "open field test": "Locomotor activity",
     "open field": "Locomotor activity",
+    "psychomotor stimulation": "Motor activity",
     "stereotyped behavior": "Stereotyped behavior",
     "stereotypy": "Stereotyped behavior",
 }
@@ -934,6 +938,12 @@ BRAIN_MEASURE_GRAPH_RULES = (
     (re.compile(r"\b(grey matter|gray matter|brain volume|regional volume|cortical thickness|morphometry)\b", re.I), "Brain structure"),
     (re.compile(r"\b(signal complexity|lempel.ziv|lzc|entropy)\b", re.I), "Neural signal complexity"),
 )
+BRAIN_MEASURE_COMPATIBLE_ENTITY_KINDS = {
+    "biomarker_readout",
+    "brain_measure",
+    "brain_network",
+    "neural_circuit",
+}
 
 
 def brain_measure_graph_label(value: object) -> str:
@@ -5310,7 +5320,7 @@ INTERVENTION_TOPIC_RULES = (
     ),
     (
         "Palliative & end-of-life care",
-        re.compile(r"\b(palliative care|hospice care|end[- ]of[- ]life care|care of the dying)\b", re.IGNORECASE),
+        re.compile(r"\b(palliative care|hospice care|end[- ]of[- ]life care|care of the dying|dying care)\b", re.IGNORECASE),
     ),
     (
         "Emergency & acute care delivery",
@@ -5624,20 +5634,20 @@ def graphable_entity_match(
             "match_type": "",
             "notes": "generic activity or behavior label is too broad for the cognition graph",
         }
-    if (
-        domain == "brain_system"
-        and entity_kind != "brain_measure"
-        and BRAIN_MEASURE_NOT_GRAPHABLE_RE.search(raw)
-        and (label := brain_measure_graph_label(raw))
-    ):
+    brain_measure_label = brain_measure_graph_label(raw)
+    brain_measure_kind_compatible = (
+        entity_kind in BRAIN_MEASURE_COMPATIBLE_ENTITY_KINDS
+        or (entity_kind == "pathway_process" and brain_measure_label == "Brain structure")
+    )
+    if brain_measure_label and brain_measure_kind_compatible:
         return {
             "matched": True,
-            "label": label,
+            "label": brain_measure_label,
             "kind": "brain_measure",
             "item": None,
             "status": "entity_normalized",
             "match_type": "brain_measure_pattern",
-            "notes": "brain readout normalized to a stable detail-only measure family",
+            "notes": "brain readout rerouted from a compatible entity kind to a stable detail-only measure family",
         }
     if entity_kind == "brain_measure":
         label = brain_measure_graph_label(raw)
@@ -6408,11 +6418,20 @@ SYMPTOM_ENDPOINT_PATTERNS = (
     ),
     (
         re.compile(
-            r"\b(suicid\w*|c[- ]?ssrs|columbia suicide|beck scale for suicid|"
+            r"\b(suicid\w*|self[- ]injur\w*|sitb|c[- ]?ssrs|columbia suicide|beck scale for suicid|"
             r"madrs item 10|bdi item 9|hamd item 3|ham[- ]?d item 3|hdrs item 3)\b",
             re.IGNORECASE,
         ),
         "Suicidality",
+    ),
+    (
+        re.compile(
+            r"^(?:aggression|aggressive behavior|increased aggression|exacerbated aggression|"
+            r"violent aggression|interpersonal violence|intimate partner violence|violence|"
+            r"violence risk|violence prevention)$",
+            re.IGNORECASE,
+        ),
+        "Aggression/violence",
     ),
     (
         re.compile(r"\b(psychological distress|mental distress|general distress|distress scores?)\b", re.IGNORECASE),
@@ -6475,7 +6494,7 @@ SYMPTOM_ENDPOINT_PATTERNS = (
         "Anxiety & panic",
     ),
     (
-        re.compile(r"\b(madrs|montgomery[- ](?:a|å)sberg|ham[- ]?d|hdrs|hamilton depression|phq[- ]?9|patient health questionnaire[- ]?9|bdi|beck depression|qids|quick inventory of depressive|hads[- ]?d|epds|edinburgh post(?:natal|partum) depression|depressive symptoms?|depressive symptomatology|depressive scores?|depression scores?|depression severity|depression symptom)\b", re.IGNORECASE),
+        re.compile(r"\b(madrs|montgomery[- ](?:a|å)sberg|ham[- ]?d|hdrs|hamilton depression|phq[- ]?9|patient health questionnaire[- ]?9|bdi|beck depression|qids|quick inventory of depressive|hads[- ]?d|epds|edinburgh post(?:natal|partum) depression|depressive symptoms?|depressive symptomatology|depressive scores?|depression scores?|depression severity|depression symptoms?)\b", re.IGNORECASE),
         "Low mood & depressive symptoms",
     ),
 )
@@ -7944,6 +7963,20 @@ REVIEW_COVERAGE_FOCUS_LABELS = {
     "major_supporting": "Major supporting topic",
     "secondary_context": "Context only",
 }
+REVIEW_CONSTRUCT_NORMALIZATION_RULES = (
+    (
+        re.compile(
+            r"^(?:extinction of fear|fear extinction|fear extinction learning|fear memory extinction|"
+            r"aversive memory extinction|fear extinction circuitry)$",
+            re.IGNORECASE,
+        ),
+        "Fear extinction",
+    ),
+    (
+        re.compile(r"^(?:creative ideation|creative task performance)$", re.IGNORECASE),
+        "Creativity",
+    ),
+)
 REVIEW_OUTCOME_NORMALIZATION_RULES = (
     (
         re.compile(
@@ -7974,6 +8007,21 @@ REVIEW_OUTCOME_NORMALIZATION_RULES = (
         "Suicidality",
         "condition_indication",
     ),
+    (
+        re.compile(r"^anxiolytic effects?$", re.IGNORECASE),
+        "Anxiety & panic",
+        "symptom_problem",
+    ),
+    (
+        re.compile(
+            r"^(?:aggression|aggressive behavior|increased aggression|exacerbated aggression|"
+            r"violent aggression|interpersonal violence|intimate partner violence|violence|"
+            r"violence risk|violence prevention)$",
+            re.IGNORECASE,
+        ),
+        "Aggression/violence",
+        "symptom_problem",
+    ),
 )
 
 
@@ -7990,12 +8038,36 @@ def repeated_review_outcome_normalization(row: dict) -> tuple[str, str]:
     return "", ""
 
 
+def narrow_review_construct_normalization(row: dict) -> str:
+    raw = first_endpoint_value(
+        row,
+        ("graph_entity_label", "raw_entity_label", "construct_or_behavior", "outcome_measure"),
+    )
+    if not raw:
+        return ""
+    for pattern, label in REVIEW_CONSTRUCT_NORMALIZATION_RULES:
+        if pattern.search(raw):
+            return label
+    return ""
+
+
 def apply_review_context_metadata(row: dict) -> dict:
     if normalize(row.get("review_extraction_method", "")) != "paper_centered_one_pass_v2":
         return row
     frame = review_paper_frame(row)
     row["review_contribution_type"] = normalize(frame.get("review_contribution_type", ""))
     row["review_design_category"] = review_design_category(row, frame)
+    construct_label = narrow_review_construct_normalization(row)
+    if construct_label:
+        row["domain"] = "cognitive_behavioral"
+        row["domain_route"] = "cognitive_behavioral"
+        row["dataset"] = "cognitive_behavioral"
+        row["kg_entity_kind_override"] = "cognitive_behavioral_construct"
+        row["graph_entity_label"] = construct_label
+        row["cognitive_behavioral_graph_label"] = construct_label
+        row["endpoint_label_source"] = "narrow_review_construct"
+        row["normalization_boundary_reason"] = "narrow_review_construct_normalized"
+        return row
     if (
         normalize(row.get("evidence_level", "")).casefold() == "preclinical"
         and label_key(row.get("graph_entity_label", ""))
@@ -8431,10 +8503,180 @@ NONTHERAPEUTIC_HPPD_RE = re.compile(
     re.IGNORECASE,
 )
 
+SUBSTANCE_USE_DISORDER_SUFFIXES = (
+    " use disorder",
+    " dependence",
+    " dependency",
+    " addiction",
+)
+SUBSTANCE_USE_SUBJECT_FAMILY_KEYS = {
+    "arketamine": "ketamine",
+    "esketamine": "ketamine",
+    "hallucinogens": "hallucinogen",
+    "r ketamine": "ketamine",
+    "racemic ketamine": "ketamine",
+    "s ketamine": "ketamine",
+    "stimulants": "stimulant",
+}
+SUBSTANCE_USE_LIABILITY_RE = re.compile(
+    r"\b(?:can|may|could) lead to (?:the )?development of .{0,60}\b(?:addiction|dependence|use disorder)\b|"
+    r"\bdevelop(?:ed|s|ing)? (?:a |an )?(?:severe |psychological )?[^.;]{0,45}\b(?:addiction|dependence|use disorder)\b|"
+    r"\b(?:risk of|vulnerab\w* to) develop(?:ing)? .{0,45}\b(?:addiction|dependence|use disorder)\b|"
+    r"\bcompulsive patterns? of .{0,35}\buse\b|"
+    r"\b(?:exposure|use) .{0,100}\b(?:explain|underlie|contribute to) (?:the )?development of "
+    r"(?:a |an )?[^.;]{0,35}\b(?:addiction|dependence|use disorders?)\b|"
+    r"\bneuroadaptive .{0,100}\bdevelopment of (?:a |an )?[^.;]{0,35}\b(?:addiction|dependence|use disorders?)\b",
+    re.IGNORECASE,
+)
+SUBSTANCE_USE_EXPOSURE_COHORT_RE = re.compile(
+    r"\b(?:past|prior|previous|early[- ]life|lifetime|chronic|frequent|illicit|recreational)\b.{0,70}\b(?:use|users?|exposure)\b|"
+    r"\b(?:users?|people who use|initially used|index drug|drug history|use history|exposure group)\b|"
+    r"\b(?:participants?|patients?|people|individuals?|adolescents?|youths?) (?:who )?(?:used|using)\b",
+    re.IGNORECASE,
+)
+SUBSTANCE_USE_THERAPEUTIC_TEMPORAL_RE = re.compile(
+    r"\b(?:following|after|post[- ])(?:.{0,55}\b)?(?:dose|administration|infusion|treatment|therapy|"
+    r"session|experience|ceremony|retreat|psychedelic|ayahuasca|ibogaine|ketamine|lsd|mdma|psilocybin)\b|"
+    r"\b(?:attributed|ascribed) .{0,80}\b(?:reduc\w*|improv\w*|cessation|abstinence)\b .{0,60}\b(?:use|experience|treatment)\b",
+    re.IGNORECASE,
+)
+SUBSTANCE_USE_NONINTERVENTION_EXPOSURE_RE = re.compile(
+    r"\b(?:naturalistic|illicit|recreational) use prior to\b|"
+    r"\b(?:index drug|use history|drug history|exposure group)\b",
+    re.IGNORECASE,
+)
+SUBSTANCE_USE_POPULATION_ONLY_OUTCOME_RE = re.compile(
+    r"\bfamily history of .{0,180}\b(?:predict\w*|response)\b|"
+    r"\bnimodipine .{0,140}\bketamine(?:[- ]induced|.{0,20}\binduc\w*)\b|"
+    r"\bpretreatment .{0,110}\b(?:ketamine|mdma|psychedelic|hallucinogen)[- ]induced\b|"
+    r"\bpre[- ]exposed to .{0,70}\b(?:induced|conditioned place preference)\b|"
+    r"\binduced .{0,90}\bpre[- ]exposed\b",
+    re.IGNORECASE,
+)
+SUBSTANCE_USE_CONDITION_ALIASES = {
+    "alcohol": ("alcohol", "alcoholism", "ethanol"),
+    "cannabis": ("cannabis", "marijuana"),
+    "cocaine": ("cocaine",),
+    "hallucinogen": ("hallucinogen", "psychedelic"),
+    "ketamine": ("ketamine",),
+    "methamphetamine": ("methamphetamine",),
+    "nicotine": ("nicotine", "tobacco"),
+    "opioid": ("opioid", "opiate", "heroin"),
+    "stimulant": ("stimulant", "amphetamine", "methamphetamine", "cocaine"),
+    "substance": ("substance", "drug"),
+    "tobacco": ("tobacco", "nicotine"),
+}
+
+
+def substance_use_disorder_stem(value: object) -> str:
+    key = label_key(value)
+    for suffix in SUBSTANCE_USE_DISORDER_SUFFIXES:
+        if key.endswith(suffix):
+            return key[: -len(suffix)].strip()
+    return ""
+
+
+def substance_use_subject_stem(value: object) -> str:
+    key = label_key(value)
+    return SUBSTANCE_USE_SUBJECT_FAMILY_KEYS.get(key, key)
+
+
+def nontherapeutic_substance_use_condition_reason(row: dict) -> str:
+    """Keep substance-use context and abuse liability out of Conditions.
+
+    Conditions is a treatment/outcome view. A disorder may still be present in
+    the paper as the sampled population or disease model, and a finding may
+    instead describe the displayed compound's own abuse/dependence liability.
+    Those records remain available through paper detail, Safety, and Real-world
+    projections rather than becoming compound-to-indication claims.
+    """
+
+    if normalized_entity_kind(row.get("kg_entity_kind_override", "")) != "condition_indication":
+        return ""
+
+    entity_label = normalize(row.get("graph_entity_label", "") or row.get("entity_label", ""))
+    condition_stem = substance_use_disorder_stem(entity_label)
+    if not condition_stem:
+        return ""
+
+    subject_label = normalize(
+        row.get("graph_overview_subject_label", "")
+        or row.get("graph_subject_label", "")
+        or row.get("compound", "")
+    )
+    if substance_use_subject_stem(subject_label) == condition_stem:
+        return "same_compound_use_disorder_context"
+
+    statement = " ".join(
+        normalize(row.get(field, ""))
+        for field in ("support", "supporting_quote", "finding_summary")
+        if normalize(row.get(field, ""))
+    )
+    if SUBSTANCE_USE_LIABILITY_RE.search(statement):
+        return "substance_use_liability_not_therapeutic_outcome"
+    if NONTHERAPEUTIC_HPPD_RE.search(statement):
+        return "safety_or_adverse_condition_context"
+
+    design_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in ("evidence_design", "study_design_category", "study_design")
+        if normalize(row.get(field, ""))
+    )
+    population_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in ("population", "population_or_subgroup", "model_or_system")
+        if normalize(row.get(field, ""))
+    )
+    intent_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in (
+            "intervention_or_exposure",
+            "compound_or_intervention",
+            "dose",
+            "dose_or_regimen",
+            "support",
+            "supporting_quote",
+            "finding_summary",
+        )
+        if normalize(row.get(field, ""))
+    )
+
+    observational_or_case = bool(
+        NONTHERAPEUTIC_OBSERVATIONAL_DESIGN_RE.search(design_text)
+        or re.search(r"\bcase[- _]report\b", design_text, flags=re.IGNORECASE)
+    )
+    if (
+        observational_or_case
+        and SUBSTANCE_USE_EXPOSURE_COHORT_RE.search(statement)
+        and NONTHERAPEUTIC_ASSOCIATION_RE.search(statement)
+        and (
+            not THERAPEUTIC_OBSERVATIONAL_INTENT_RE.search(intent_text)
+            or SUBSTANCE_USE_NONINTERVENTION_EXPOSURE_RE.search(intent_text)
+        )
+        and not SUBSTANCE_USE_THERAPEUTIC_TEMPORAL_RE.search(intent_text)
+    ):
+        return "nontherapeutic_substance_use_exposure_association"
+
+    condition_aliases = SUBSTANCE_USE_CONDITION_ALIASES.get(condition_stem, (condition_stem,))
+    population_context_text = " ".join((statement, population_text))
+    condition_is_population_context = any(
+        re.search(rf"\b{re.escape(alias)}\w*\b", population_context_text, flags=re.IGNORECASE)
+        for alias in condition_aliases
+    )
+    if (
+        condition_is_population_context
+        and SUBSTANCE_USE_POPULATION_ONLY_OUTCOME_RE.search(statement)
+    ):
+        return "substance_use_condition_as_population_or_model_context"
+    return ""
+
 
 def nontherapeutic_clinical_context_reason(row: dict) -> str:
     """Identify clinical-looking rows that do not report therapeutic outcomes."""
 
+    substance_use_reason = nontherapeutic_substance_use_condition_reason(row)
+    if substance_use_reason:
+        return substance_use_reason
     if normalize(row.get("domain", "")).casefold() != "clinical_outcome":
         return ""
     entity_kind = normalized_entity_kind(row.get("kg_entity_kind_override", ""))
@@ -8913,6 +9155,7 @@ def build_tables(
     graph_sources: dict[str, dict] | None = None,
     source_preset: str = "routed",
     run_id: str = "",
+    evidence_run_id: str = "",
     registry_path: Path = DEFAULT_REGISTRY_PATH,
     node_vocabulary_path: Path = DEFAULT_NODE_VOCABULARY_PATH,
     out_dir: Path = DEFAULT_OUT_DIR,
@@ -8921,7 +9164,7 @@ def build_tables(
     _REGISTRY_COMPOUND_TEXT_CACHE.clear()
     _REGISTRY_ENTITY_TEXT_CACHE.clear()
     if graph_sources is None:
-        graph_sources = graph_sources_for_preset(source_preset, run_id=run_id)
+        graph_sources = graph_sources_for_preset(source_preset, run_id=evidence_run_id or run_id)
         manifest_source_preset = source_preset
     else:
         manifest_source_preset = "custom"
@@ -9487,6 +9730,7 @@ def build_tables(
         "out_dir": str(out_dir),
         "source_preset": manifest_source_preset,
         "run_id": safe_run_id(run_id),
+        "evidence_run_id": safe_run_id(evidence_run_id or run_id),
         "registry_path": str(registry_path),
         "node_vocabulary_path": str(node_vocabulary_path),
         "source_counts": source_counts,
@@ -9575,6 +9819,11 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Version label for routed KG runs. Used in the default output path for --source-preset routed.",
     )
+    parser.add_argument(
+        "--evidence-run-id",
+        default="",
+        help="Read routed evidence from a different versioned extraction run while writing this release under --run-id.",
+    )
     parser.add_argument("--out-dir", type=Path, default=None)
     parser.add_argument(
         "--allow-current-overwrite",
@@ -9603,6 +9852,7 @@ def main() -> None:
     manifest = build_tables(
         source_preset=args.source_preset,
         run_id=run_id,
+        evidence_run_id=args.evidence_run_id,
         registry_path=args.registry,
         out_dir=out_dir,
         write_duckdb=not args.skip_duckdb,

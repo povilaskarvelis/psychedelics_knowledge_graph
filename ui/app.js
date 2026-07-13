@@ -486,9 +486,13 @@ let globalFindingSearchClaimsMemo = null;
 let paperContextClaimsByStudyMemo = null;
 const graphDomCache = new Map();
 const GRAPH_DOM_CACHE_LIMIT = 4;
+const overviewDetailCache = new Map();
+const OVERVIEW_DETAIL_CACHE_LIMIT = 48;
+const overviewDetailPrewarmScheduled = new Set();
 const claimArrayIds = new WeakMap();
 let nextClaimArrayId = 1;
 let deferredSurfaceRenderToken = 0;
+let activeOverviewDetailCacheKey = "";
 let graphSwapToken = 0;
 let retainVisibleBootstrapGraph = false;
 let bibliographyPayloadsPromise = null;
@@ -560,6 +564,17 @@ function isHiddenMainGraphItem(item) {
 function isMainGraphAdmitted(item) {
   const admission = normalizeValue(item?.graph_admission_status);
   return !admission || admission === "main_graph";
+}
+
+function uniqueGraphPropositionClaims(items) {
+  const seen = new Set();
+  return items.filter((claim) => {
+    const propositionId = normalizeValue(claim?.proposition_group_id);
+    if (!propositionId) return true;
+    if (seen.has(propositionId)) return false;
+    seen.add(propositionId);
+    return true;
+  });
 }
 
 function unique(values) {
@@ -3321,15 +3336,26 @@ function claimBadgeHtml(claim) {
     .join("");
 }
 
+function stashActiveOverviewDetail() {
+  const cacheKey = activeOverviewDetailCacheKey;
+  activeOverviewDetailCacheKey = "";
+  if (!cacheKey) return;
+  const entry = overviewDetailCache.get(cacheKey);
+  if (!entry || !detailBody.childNodes.length) return;
+  entry.container.replaceChildren(...Array.from(detailBody.childNodes));
+}
+
 function setDetailHeader(title) {
+  stashActiveOverviewDetail();
   detailTitle.textContent = title;
 }
 
 function clearDetailForTransition() {
+  stashActiveOverviewDetail();
   activeDetailItems = [];
   activeDetailAllAccessItems = [];
   detailTitle.textContent = "";
-  detailBody.innerHTML = "";
+  detailBody.replaceChildren();
 }
 
 function clearSelectedStyles() {
@@ -3655,9 +3681,6 @@ function heroStatsFromGraphManifest(manifest) {
   const reviewSummary = summaryStats?.sources?.reviews || {};
   const metaAnalysisSummary = summaryStats?.sources?.meta_analyses || {};
   const awaitingCounts = paperCounts.awaiting_graph_inclusion || {};
-  const primaryCoverage = primarySummary.graph_study_coverage || {};
-  const reviewCoverage = reviewSummary.graph_study_coverage || {};
-  const metaAnalysisCoverage = metaAnalysisSummary.graph_study_coverage || {};
   const primaryStudies = statNumber(
     paperCounts.primary_studies ?? primarySummary.study_count ?? primarySummary.studies
   );
@@ -3665,13 +3688,9 @@ function heroStatsFromGraphManifest(manifest) {
   const metaAnalyses = statNumber(
     paperCounts.meta_analyses ?? metaAnalysisSummary.study_count ?? metaAnalysisSummary.studies
   );
-  const primaryStudiesAwaiting = statNumber(
-    awaitingCounts.primary_studies ?? primaryCoverage.not_in_graph_count
-  );
-  const reviewsAwaiting = statNumber(awaitingCounts.reviews ?? reviewCoverage.not_in_graph_count);
-  const metaAnalysesAwaiting = statNumber(
-    awaitingCounts.meta_analyses ?? metaAnalysisCoverage.not_in_graph_count
-  );
+  const primaryStudiesAwaiting = statNumber(awaitingCounts.primary_studies);
+  const reviewsAwaiting = statNumber(awaitingCounts.reviews);
+  const metaAnalysesAwaiting = statNumber(awaitingCounts.meta_analyses);
   const values = {
     primaryStudies,
     reviews,
@@ -3689,7 +3708,7 @@ function heroStatsFromGraphManifest(manifest) {
       awaitingCounts.total ??
         (primaryStudiesAwaiting !== null && reviewsAwaiting !== null && metaAnalysesAwaiting !== null
           ? primaryStudiesAwaiting + reviewsAwaiting + metaAnalysesAwaiting
-          : summaryStats?.default?.graph_study_coverage?.not_in_graph_count)
+          : summaryStats?.default?.normalized_finding_coverage?.without_findings_count)
     ),
   };
   return HERO_STAT_KEYS.some((key) => values[key] !== null) ? values : null;
@@ -3739,7 +3758,9 @@ function setAccessView(nextView) {
   retainVisibleBootstrapGraph = false;
   accessView = nextView;
   clearDetailGraphFilter();
+  if (!restoreCachedOverviewDetail()) clearDetailForTransition();
   scheduleRender();
+  scheduleOverviewDetailPrewarmForSource(currentSourceKey(), 300);
 }
 
 function applyFilters(options = {}) {
@@ -3775,16 +3796,25 @@ function applyFiltersToClaims(activeClaims, yearRangeOverride = null, options = 
 
   if (!selected || !isolateSelection) return detailFiltered;
 
+  // A graph selection represents the admitted graph projection. Detail-only
+  // rows may share the same normalized labels, but including them here makes
+  // the drawer/card totals disagree with the edge or node that was clicked.
+  const selectedGraphClaims = detailFiltered.filter(isMainGraphAdmitted);
+
   if (selected.type === "edge") {
-    return detailFiltered.filter((claim) => claimMatchesGraphEdge(claim, selected.compound, selected.target));
+    return uniqueGraphPropositionClaims(
+      selectedGraphClaims.filter((claim) =>
+        claimMatchesGraphEdge(claim, selected.compound, selected.target)
+      )
+    );
   }
   if (selected.type === "compound") {
-    return detailFiltered.filter((claim) => claimMatchesGraphCompound(claim, selected.name));
+    return selectedGraphClaims.filter((claim) => claimMatchesGraphCompound(claim, selected.name));
   }
   if (selected.type === "target") {
-    return detailFiltered.filter((claim) => claimMatchesGraphRight(claim, selected.name));
+    return selectedGraphClaims.filter((claim) => claimMatchesGraphRight(claim, selected.name));
   }
-  return detailFiltered;
+  return selectedGraphClaims;
 }
 
 function applyGlobalFindingSearchFilters(options = {}) {
@@ -3812,21 +3842,22 @@ function hasFindingSearchQuery() {
 }
 
 function findingCardResults(graphFiltered) {
-  if (!hasFindingSearchQuery()) return graphFiltered;
+  if (!hasFindingSearchQuery()) return graphFiltered.filter(isMainGraphAdmitted);
   if (selected || detailGraphFilter) return applyFilters();
   return applyGlobalFindingSearchFilters();
 }
 
 function selectionIsValid(data) {
   if (!selected) return true;
+  const admittedData = data.filter(isMainGraphAdmitted);
   if (selected.type === "edge") {
-    return data.some((claim) => claimMatchesGraphEdge(claim, selected.compound, selected.target));
+    return admittedData.some((claim) => claimMatchesGraphEdge(claim, selected.compound, selected.target));
   }
   if (selected.type === "compound") {
-    return data.some((claim) => claimMatchesGraphCompound(claim, selected.name));
+    return admittedData.some((claim) => claimMatchesGraphCompound(claim, selected.name));
   }
   if (selected.type === "target") {
-    return data.some((claim) => claimMatchesGraphRight(claim, selected.name));
+    return admittedData.some((claim) => claimMatchesGraphRight(claim, selected.name));
   }
   return false;
 }
@@ -5823,8 +5854,12 @@ function accessSummaryLabels() {
   return { all: "All studies", plural: "studies" };
 }
 
-function renderTrendStats(items, extraStats = []) {
-  const allItems = activeDetailAllAccessItems.length ? activeDetailAllAccessItems : items;
+function renderTrendStats(
+  items,
+  extraStats = [],
+  allAccessItems = activeDetailAllAccessItems.length ? activeDetailAllAccessItems : items
+) {
+  const allItems = allAccessItems;
   const allStudyCount = uniqueStudyCount(allItems);
   const openAccessStudyCount = uniqueStudyCount(allItems.filter(isOpenAccessClaim));
   const openAccessPercent = allStudyCount ? Math.round((openAccessStudyCount / allStudyCount) * 100) : 0;
@@ -6322,8 +6357,10 @@ function claimsForOutcomeScale(scaleValue, items = activeDetailItems, options = 
 
 function restoreCurrentDetailPanel() {
   clearDetailGraphFilter();
-  const filtered = applyFilters({ ignoreSearch: true });
-  const allAccessFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
+  const filtered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
+  const allAccessFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
+    isMainGraphAdmitted
+  );
   refreshMainViews();
   if (selected) {
     renderSelectedDetailFromData(filtered, allAccessFiltered);
@@ -6542,48 +6579,187 @@ function renderNodeDetail(type, name, nodeClaims, allAccessNodeClaims = nodeClai
   `;
 }
 
-function renderOverviewDetail(data, allAccessData = data) {
-  activeDetailItems = data;
-  activeDetailAllAccessItems = allAccessData;
-  setDetailHeader(`All ${lowerRightEntityLabel(true)}`);
+function overviewDetailCacheKeyForContext({
+  sourceKey = currentSourceKey(),
+  sourceClaims = claims,
+  evidenceKey = evidenceView,
+  viewKey = currentEntityViewKey(),
+  accessKey = accessView,
+  yearRange = activeYearRange(activeClaimsForMode()),
+} = {}) {
+  const yearKey = yearRange?.constrained ? `${yearRange.min || ""}-${yearRange.max || ""}` : "all-years";
+  const journalKey = expandedChartKeys.has("journals") ? "journals-expanded" : "journals-top";
+  return [
+    sourceKey,
+    claimArrayId(sourceClaims),
+    evidenceKey,
+    viewKey,
+    accessKey,
+    yearKey,
+    journalKey,
+  ].join("|");
+}
 
+function currentOverviewDetailCacheKey() {
+  if (claimLayer !== "normalized" || selected || detailGraphFilter) return "";
+  return overviewDetailCacheKeyForContext();
+}
+
+function overviewDetailSnapshot(data, allAccessData = data) {
+  const title = `All ${lowerRightEntityLabel(true)}`;
   if (!data.length) {
-    detailBody.innerHTML = `<div class="detail-empty">${escapeHtml(recordLabelsForItems(data).empty)}</div>`;
+    return {
+      title,
+      html: `<div class="detail-empty">${escapeHtml(recordLabelsForItems(data).empty)}</div>`,
+    };
+  }
+  return {
+    title,
+    html: `
+      <div class="trend-dashboard">
+        ${renderTrendStats(data, [], allAccessData)}
+        ${renderAnnualPublicationChart(data)}
+        ${renderEvidenceDetailGroup(data)}
+        ${renderMetadataFacetCharts(data)}
+      </div>
+    `,
+  };
+}
+
+function createOverviewDetailCacheEntry(data, allAccessData = data) {
+  const snapshot = overviewDetailSnapshot(data, allAccessData);
+  const container = document.createElement("div");
+  container.innerHTML = snapshot.html;
+  return {
+    ...snapshot,
+    container,
+    data,
+    allAccessData,
+  };
+}
+
+function rememberOverviewDetail(cacheKey, entry) {
+  if (!cacheKey || !entry) return;
+  overviewDetailCache.delete(cacheKey);
+  overviewDetailCache.set(cacheKey, entry);
+  while (overviewDetailCache.size > OVERVIEW_DETAIL_CACHE_LIMIT) {
+    const oldestKey = overviewDetailCache.keys().next().value;
+    if (oldestKey === activeOverviewDetailCacheKey) {
+      const activeEntry = overviewDetailCache.get(oldestKey);
+      overviewDetailCache.delete(oldestKey);
+      overviewDetailCache.set(oldestKey, activeEntry);
+      continue;
+    }
+    overviewDetailCache.delete(oldestKey);
+  }
+}
+
+function applyOverviewDetailEntry(cacheKey, entry) {
+  activeDetailItems = entry.data;
+  activeDetailAllAccessItems = entry.allAccessData;
+  if (activeOverviewDetailCacheKey === cacheKey && detailBody.childNodes.length) return;
+
+  stashActiveOverviewDetail();
+  detailTitle.textContent = entry.title;
+  detailBody.replaceChildren(...Array.from(entry.container.childNodes));
+  activeOverviewDetailCacheKey = cacheKey;
+  overviewDetailCache.delete(cacheKey);
+  overviewDetailCache.set(cacheKey, entry);
+}
+
+function restoreCachedOverviewDetail() {
+  const cacheKey = currentOverviewDetailCacheKey();
+  if (!cacheKey) return false;
+  const entry = overviewDetailCache.get(cacheKey);
+  if (!entry) return false;
+  applyOverviewDetailEntry(cacheKey, entry);
+  return true;
+}
+
+function clearOverviewDetailCacheForSource(sourceKey) {
+  Array.from(overviewDetailCache.keys()).forEach((key) => {
+    if (key.startsWith(`${sourceKey}|`)) overviewDetailCache.delete(key);
+  });
+  Array.from(overviewDetailPrewarmScheduled).forEach((key) => {
+    if (key.startsWith(`${sourceKey}|`)) overviewDetailPrewarmScheduled.delete(key);
+  });
+  if (activeOverviewDetailCacheKey.startsWith(`${sourceKey}|`)) activeOverviewDetailCacheKey = "";
+}
+
+function clearOverviewDetailCache() {
+  overviewDetailCache.clear();
+  overviewDetailPrewarmScheduled.clear();
+  activeOverviewDetailCacheKey = "";
+}
+
+function rekeyActiveOverviewDetail() {
+  const previousKey = activeOverviewDetailCacheKey;
+  if (!previousKey) return;
+  const entry = overviewDetailCache.get(previousKey);
+  const nextKey = currentOverviewDetailCacheKey();
+  if (!entry || !nextKey || previousKey === nextKey) return;
+  overviewDetailCache.delete(previousKey);
+  overviewDetailCache.set(nextKey, entry);
+  activeOverviewDetailCacheKey = nextKey;
+}
+
+function renderOverviewDetail(data, allAccessData = data) {
+  const cacheKey = currentOverviewDetailCacheKey();
+  if (!cacheKey) {
+    const snapshot = overviewDetailSnapshot(data, allAccessData);
+    stashActiveOverviewDetail();
+    activeDetailItems = data;
+    activeDetailAllAccessItems = allAccessData;
+    detailTitle.textContent = snapshot.title;
+    detailBody.innerHTML = snapshot.html;
     return;
   }
 
-  detailBody.innerHTML = `
-    <div class="trend-dashboard">
-      ${renderTrendStats(data)}
-      ${renderAnnualPublicationChart(data)}
-      ${renderEvidenceDetailGroup(data)}
-      ${renderMetadataFacetCharts(data)}
-    </div>
-  `;
+  let entry = overviewDetailCache.get(cacheKey);
+  if (!entry) {
+    entry = createOverviewDetailCacheEntry(data, allAccessData);
+    rememberOverviewDetail(cacheKey, entry);
+  } else {
+    entry.data = data;
+    entry.allAccessData = allAccessData;
+  }
+  applyOverviewDetailEntry(cacheKey, entry);
 }
 
 function renderSelectedDetailFromData(data, allAccessData = data) {
   if (!selected) return;
+  const admittedData = data.filter(isMainGraphAdmitted);
+  const admittedAllAccessData = allAccessData.filter(isMainGraphAdmitted);
 
   if (selected.type === "edge") {
-    const edgeClaims = data.filter((claim) => claimMatchesGraphEdge(claim, selected.compound, selected.target));
-    const allAccessEdgeClaims = allAccessData.filter((claim) =>
-      claimMatchesGraphEdge(claim, selected.compound, selected.target)
+    const edgeClaims = uniqueGraphPropositionClaims(
+      admittedData.filter((claim) =>
+        claimMatchesGraphEdge(claim, selected.compound, selected.target)
+      )
+    );
+    const allAccessEdgeClaims = uniqueGraphPropositionClaims(
+      admittedAllAccessData.filter((claim) =>
+        claimMatchesGraphEdge(claim, selected.compound, selected.target)
+      )
     );
     renderEdgeDetail(selected.compound, selected.target, edgeClaims, allAccessEdgeClaims);
     return;
   }
 
   if (selected.type === "compound") {
-    const nodeClaims = data.filter((claim) => claimMatchesGraphCompound(claim, selected.name));
-    const allAccessNodeClaims = allAccessData.filter((claim) => claimMatchesGraphCompound(claim, selected.name));
+    const nodeClaims = admittedData.filter((claim) => claimMatchesGraphCompound(claim, selected.name));
+    const allAccessNodeClaims = admittedAllAccessData.filter((claim) =>
+      claimMatchesGraphCompound(claim, selected.name)
+    );
     renderNodeDetail("compound", selected.name, nodeClaims, allAccessNodeClaims);
     return;
   }
 
   if (selected.type === "target") {
-    const nodeClaims = data.filter((claim) => claimMatchesGraphRight(claim, selected.name));
-    const allAccessNodeClaims = allAccessData.filter((claim) => claimMatchesGraphRight(claim, selected.name));
+    const nodeClaims = admittedData.filter((claim) => claimMatchesGraphRight(claim, selected.name));
+    const allAccessNodeClaims = admittedAllAccessData.filter((claim) =>
+      claimMatchesGraphRight(claim, selected.name)
+    );
     renderNodeDetail("target", selected.name, nodeClaims, allAccessNodeClaims);
   }
 }
@@ -7130,7 +7306,7 @@ function buildGraph(data) {
         ? applyFilters({ ignoreSearch: true }).filter((claim) =>
             claimMatchesGraphEdge(claim, compound, target)
           )
-        : edge.claims;
+        : uniqueGraphPropositionClaims(edge.claims);
       renderEdgeDetail(compound, target, detailClaims);
       applyFocusFromSelection();
       scheduleRender();
@@ -7325,14 +7501,18 @@ function buildGraph(data) {
 
 function render() {
   cancelPendingFindingSearchRender();
-  let graphFiltered = applyFilters({ ignoreSearch: true });
-  let allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
+  let graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
+  let allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
+    isMainGraphAdmitted
+  );
   if (selected && !selectionIsValid(graphFiltered)) {
     selected = null;
     isolateSelection = false;
     clearSelectedStyles();
-    graphFiltered = applyFilters({ ignoreSearch: true });
-    allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
+    graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
+    allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
+      isMainGraphAdmitted
+    );
   }
   updateStats();
   const canonicalBootstrap = canonicalOverviewBootstrapClaims();
@@ -7349,7 +7529,7 @@ function render() {
 }
 
 function refreshMainViews() {
-  const graphFiltered = applyFilters({ ignoreSearch: true });
+  const graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
   if (selected && !selectionIsValid(graphFiltered)) {
     selected = null;
     isolateSelection = false;
@@ -7359,7 +7539,7 @@ function refreshMainViews() {
   buildGraph(graphFiltered);
   scheduleDeferredSurfaceRender(
     graphFiltered,
-    applyFilters({ ignoreAccess: true, ignoreSearch: true }),
+    applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(isMainGraphAdmitted),
     false
   );
 }
@@ -7377,8 +7557,11 @@ function scheduleDeferredSurfaceRender(graphFiltered, allAccessGraphFiltered, up
         renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
       }
     }
-    renderCards(findingCardResults(graphFiltered));
-    renderBibliography(graphFiltered);
+    window.requestAnimationFrame(() => {
+      if (token !== deferredSurfaceRenderToken) return;
+      renderCards(findingCardResults(graphFiltered));
+      renderBibliography(graphFiltered);
+    });
   });
 }
 
@@ -7569,8 +7752,12 @@ function switchClaimLayer(nextLayer) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  clearDetailForTransition();
-  loadCurrentClaimsAndRender({ showGraphBootstrap: nextLayer === "normalized" });
+  const detailRestored = restoreCachedOverviewDetail();
+  if (!detailRestored) clearDetailForTransition();
+  loadCurrentClaimsAndRender({
+    resetDetail: !detailRestored,
+    showGraphBootstrap: nextLayer === "normalized",
+  });
 }
 
 function switchEvidenceView(nextView) {
@@ -7584,8 +7771,12 @@ function switchEvidenceView(nextView) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  clearDetailForTransition();
-  loadCurrentClaimsAndRender({ showGraphBootstrap: claimLayer === "normalized" });
+  const detailRestored = restoreCachedOverviewDetail();
+  if (!detailRestored) clearDetailForTransition();
+  loadCurrentClaimsAndRender({
+    resetDetail: !detailRestored,
+    showGraphBootstrap: claimLayer === "normalized",
+  });
 }
 
 function switchEntityView(nextView) {
@@ -7599,8 +7790,9 @@ function switchEntityView(nextView) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  clearDetailForTransition();
-  loadCurrentClaimsAndRender();
+  const detailRestored = restoreCachedOverviewDetail();
+  if (!detailRestored) clearDetailForTransition();
+  loadCurrentClaimsAndRender({ resetDetail: !detailRestored });
 }
 
 async function fetchJsonFromCandidates(candidates) {
@@ -7710,6 +7902,7 @@ function enrichAllLoadedClaimsWithBibliography() {
     }
     store.all = enrichClaimsWithBibliographyMetadata(store.all || []);
   });
+  clearOverviewDetailCache();
   activeClaimsMemo = null;
   entityCategoryCountsMemo = null;
 }
@@ -7919,6 +8112,7 @@ async function loadRouteNativeEvidenceSource(sourceKey) {
   normalizedSourceLoaded[sourceKey] = true;
   activeClaimsMemo = null;
   entityCategoryCountsMemo = null;
+  clearOverviewDetailCacheForSource(sourceKey);
   clearGraphDomCacheForSource(sourceKey, { preserveBootstrap: true });
   return true;
 }
@@ -7927,6 +8121,111 @@ function currentSourceKey() {
   if (evidenceView === "meta_analyses") return "meta_analyses";
   if (evidenceView === "reviews" || evidenceView === "secondary") return "reviews";
   return "primary";
+}
+
+function evidenceViewForSourceKey(sourceKey) {
+  if (sourceKey === "meta_analyses") return "meta_analyses";
+  if (sourceKey === "reviews") return "reviews";
+  return "primary";
+}
+
+function prewarmOverviewDetailEntry(sourceKey, viewKey, accessKey) {
+  const sourceClaims = claimStores.normalized.bySource[sourceKey] || [];
+  if (!sourceClaims.length) return;
+
+  const evidenceKey = evidenceViewForSourceKey(sourceKey);
+  const unconstrainedYearRange = { constrained: false, min: null, max: null };
+  const cacheKey = overviewDetailCacheKeyForContext({
+    sourceKey,
+    sourceClaims,
+    evidenceKey,
+    viewKey,
+    accessKey,
+    yearRange: unconstrainedYearRange,
+  });
+  if (overviewDetailCache.has(cacheKey)) return;
+
+  const previousState = {
+    claimLayer,
+    evidenceView,
+    entityViewKey,
+    accessView,
+    claims,
+    selected,
+    isolateSelection,
+    detailGraphFilter,
+    activeClaimsMemo,
+    yearMin: yearMinFilter?.value || "",
+    yearMax: yearMaxFilter?.value || "",
+    yearFilter: yearFilterState[viewKey] ? { ...yearFilterState[viewKey] } : null,
+  };
+
+  try {
+    claimLayer = "normalized";
+    evidenceView = evidenceKey;
+    entityViewKey = viewKey;
+    accessView = accessKey;
+    claims = sourceClaims;
+    selected = null;
+    isolateSelection = false;
+    detailGraphFilter = null;
+    activeClaimsMemo = null;
+
+    const modeClaims = graphViewClaims(
+      claimsForEntityView(expandedClaimsWithUseContextProjections(sourceClaims))
+    );
+    const bounds = yearBoundsFromClaims(modeClaims);
+    if (bounds && yearMinFilter && yearMaxFilter) {
+      yearMinFilter.value = String(bounds.min);
+      yearMaxFilter.value = String(bounds.max);
+    }
+    const filtered = applyFiltersToClaims(modeClaims, unconstrainedYearRange, { ignoreSearch: true }).filter(
+      isMainGraphAdmitted
+    );
+    const allAccessFiltered = applyFiltersToClaims(modeClaims, unconstrainedYearRange, {
+      ignoreAccess: true,
+      ignoreSearch: true,
+    }).filter(isMainGraphAdmitted);
+    rememberOverviewDetail(cacheKey, createOverviewDetailCacheEntry(filtered, allAccessFiltered));
+  } finally {
+    claimLayer = previousState.claimLayer;
+    evidenceView = previousState.evidenceView;
+    entityViewKey = previousState.entityViewKey;
+    accessView = previousState.accessView;
+    claims = previousState.claims;
+    selected = previousState.selected;
+    isolateSelection = previousState.isolateSelection;
+    detailGraphFilter = previousState.detailGraphFilter;
+    activeClaimsMemo = previousState.activeClaimsMemo;
+    if (yearMinFilter) yearMinFilter.value = previousState.yearMin;
+    if (yearMaxFilter) yearMaxFilter.value = previousState.yearMax;
+    if (previousState.yearFilter) {
+      yearFilterState[viewKey] = previousState.yearFilter;
+    } else {
+      delete yearFilterState[viewKey];
+    }
+  }
+}
+
+function scheduleOverviewDetailPrewarmForSource(sourceKey, startDelay = 0) {
+  const sourceClaims = claimStores.normalized.bySource[sourceKey] || [];
+  if (!sourceClaims.length) return;
+  const accessKey = accessView;
+  const scheduleKey = [
+    sourceKey,
+    claimArrayId(sourceClaims),
+    accessKey,
+    expandedChartKeys.has("journals") ? "journals-expanded" : "journals-top",
+  ].join("|");
+  if (overviewDetailPrewarmScheduled.has(scheduleKey)) return;
+  overviewDetailPrewarmScheduled.add(scheduleKey);
+
+  ENTITY_CATEGORY_OPTIONS.forEach((option, index) => {
+    scheduleIdleTask(
+      () => prewarmOverviewDetailEntry(sourceKey, option.key, accessKey),
+      startDelay + index * 140
+    );
+  });
 }
 
 function normalizedCurrentSourceLoaded() {
@@ -8074,6 +8373,7 @@ function preloadNormalizedSourceInBackground(sourceKey, delay) {
   scheduleIdleTask(() => {
     loadNormalizedClaimSource(sourceKey)
       .then(() => {
+        scheduleOverviewDetailPrewarmForSource(sourceKey, 900);
         if (currentSourceKey() === sourceKey) {
           applyClaimLayerStore();
           updateModeUI();
@@ -8105,6 +8405,7 @@ function preloadLikelyNextData() {
 async function init() {
   await loadGraphManifestStats();
   await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
+  scheduleOverviewDetailPrewarmForSource(currentSourceKey());
   preloadLikelyNextData();
 }
 
@@ -8285,6 +8586,7 @@ if (detailBody) {
     const chartCard = target.closest(".trend-card");
     if (key === "journals" && chartCard) {
       chartCard.outerHTML = renderJournalChart(activeDetailItems);
+      rekeyActiveOverviewDetail();
     }
   });
   detailBody.addEventListener("click", (event) => {

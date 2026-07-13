@@ -1,16 +1,18 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
+  "release_id": "underlying_graph_coverage_stats_20260714:957322359e9243c983f8fbc3ad1f9946",
+  "run_id": "underlying_graph_coverage_stats_20260714",
   "active_graph_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_bootstrap_reviews.json"
   },
   "active_detail_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/detail_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/detail_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/detail_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/detail_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/detail_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/detail_bootstrap_reviews.json"
   },
-  "active_manifest": "data/processed/graph_payload_runs/meta_analysis_v2_complete_normalized_20260712/graph_payload_manifest.json",
+  "active_manifest": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_payload_manifest.json",
   "evidence_source": "kg_tables",
-  "kg_dir": "data/processed/kg_routed_runs/meta_analysis_v2_complete_normalized_20260712"
+  "kg_dir": "data/processed/kg_routed_runs/underlying_graph_coverage_stats_20260714"
 }

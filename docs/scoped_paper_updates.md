@@ -19,9 +19,10 @@ are added. Therefore:
 - a failed or incomplete replacement cannot be promoted; and
 - every DOI outside the list is preserved unchanged.
 
-There is one active extraction pointer and one active graph pointer. Temporary
-batch files and the versioned candidate directory are staging artifacts, not a
-second active history layer.
+There is one active release represented by an extraction compatibility pointer
+and a public-graph compatibility pointer. Temporary batch files and the
+versioned candidate directory are staging artifacts, not a second active
+history layer.
 
 ## 1. Make the upstream correction
 
@@ -178,13 +179,15 @@ cache. Promotion:
 
 1. rebuilds the normalized KG and author tables from the candidate evidence;
 2. builds graph/detail payloads without activating them early;
-3. activates the new graph pointer;
-4. rebuilds the Methods projection and `dist/` public-site bundle; and
-5. writes `data/processed/extraction/active_routed_run.json` only after success.
+3. hands the already-built release to the guarded publisher;
+4. rebuilds the Methods projection and `dist/` public-site bundle in staging;
+   and
+5. assigns the same run and release ID to both active compatibility pointers.
 
-If a downstream build fails, the previous active graph pointer is restored and
-the active extraction pointer is not changed. Re-run the failed promotion after
-fixing the cause; do not edit candidate rows by hand.
+Promotions are serialized so two builds cannot race to become active. If a
+downstream build fails, both previous pointers and generated directories are
+restored. Re-run the failed promotion after fixing the cause; do not edit
+candidate rows by hand.
 
 ## Important operational boundaries
 
@@ -200,5 +203,7 @@ fixing the cause; do not edit candidate rows by hand.
   prompt/schema change generates new task IDs and cannot silently reuse an old
   output.
 - Raw provider response logs may remain for debugging, but they are never an
-  active pipeline input. Active outputs and evidence are determined solely by
-  `active_routed_run.json` and `graph_payload_active.json`.
+  active pipeline input. Active outputs and evidence are selected by the
+  guarded release publisher. `active_routed_run.json` and
+  `graph_payload_active.json` are generated compatibility views and must never
+  be promoted separately.

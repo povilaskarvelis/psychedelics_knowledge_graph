@@ -8,6 +8,7 @@ import pandas as pd
 from pipeline.extract.io_utils import write_json
 from pipeline.kg.convert_routed_extractions_to_evidence_rows import graph_subject_kind
 from pipeline.kg.build_evidence_tables import (
+    DEFAULT_REGISTRY_PATH,
     DEFAULT_ROUTED_KG_RUN_ROOT,
     MOLECULAR_SUBTOPIC_RULES_BY_PARENT,
     build_tables,
@@ -29,6 +30,7 @@ from pipeline.kg.build_evidence_tables import (
     node_vocabulary_lookup,
     nontherapeutic_clinical_context_reason,
     nontherapeutic_observational_exposure_association,
+    nontherapeutic_substance_use_condition_reason,
     normalize_claim_metadata,
     overview_graph_subject,
     overview_graph_subjects,
@@ -182,6 +184,101 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ("main_graph", "semantically_complete"),
         )
 
+    def test_substance_use_conditions_require_a_therapeutic_relationship(self) -> None:
+        same_compound_dependence = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_overview_subject_label": "Ketamine",
+            "graph_entity_label": "Ketamine use disorder",
+            "evidence_design": "observational",
+            "study_design": "Cross-sectional assessment during inpatient withdrawal treatment",
+            "population": "Patients undergoing inpatient ketamine withdrawal treatment",
+            "support": "High prevalence of depression was observed in ketamine-dependent patients.",
+        }
+        abuse_liability = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_overview_subject_label": "MDMA",
+            "graph_entity_label": "Substance use disorder",
+            "source_type": "review",
+            "support": "Repeated MDMA exposure may explain the development of substance use disorders.",
+        }
+        condition_as_population = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_overview_subject_label": "Ketamine",
+            "graph_entity_label": "Alcohol use disorder",
+            "evidence_design": "randomized_controlled_trial",
+            "population": "Ethanol-dependent inpatients",
+            "support": "Nimodipine attenuated ketamine-induced euphoria and sedation.",
+        }
+        nonclinical_model_context = {
+            "domain": "cognitive_behavioral",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_overview_subject_label": "MDMA",
+            "graph_entity_label": "Nicotine dependence",
+            "evidence_design": "preclinical",
+            "study_design": "Conditioned place preference following nicotine pre-exposure",
+            "support": "MDMA induced conditioned place preference only in zebrafish pre-exposed to nicotine.",
+        }
+        unrelated_exposure_association = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_overview_subject_label": "Hallucinogens",
+            "graph_entity_label": "Opioid use disorder",
+            "evidence_design": "case_report",
+            "population": "Person with a history of early-life psychedelic use",
+            "support": "Past early-life psychedelic use was associated with a less severe opioid use disorder later in life.",
+        }
+        index_drug_exposure_association = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_overview_subject_label": "Ketamine",
+            "graph_entity_label": "Substance use disorder",
+            "evidence_design": "observational",
+            "dose": "Naturalistic use prior to a family-oriented treatment program",
+            "support": "Youths using ketamine had a lower relapse rate than youths using stimulants.",
+        }
+        therapeutic_outcome = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_overview_subject_label": "Ketamine",
+            "graph_entity_label": "Alcohol use disorder",
+            "evidence_design": "randomized_controlled_trial",
+            "population": "Adults receiving treatment for alcohol use disorder",
+            "support": "Ketamine treatment significantly reduced drinking days and increased abstinence.",
+        }
+
+        self.assertEqual(
+            nontherapeutic_substance_use_condition_reason(same_compound_dependence),
+            "same_compound_use_disorder_context",
+        )
+        self.assertEqual(
+            nontherapeutic_substance_use_condition_reason(abuse_liability),
+            "substance_use_liability_not_therapeutic_outcome",
+        )
+        self.assertEqual(
+            nontherapeutic_substance_use_condition_reason(condition_as_population),
+            "substance_use_condition_as_population_or_model_context",
+        )
+        self.assertEqual(
+            nontherapeutic_substance_use_condition_reason(nonclinical_model_context),
+            "substance_use_condition_as_population_or_model_context",
+        )
+        self.assertEqual(
+            nontherapeutic_substance_use_condition_reason(unrelated_exposure_association),
+            "nontherapeutic_substance_use_exposure_association",
+        )
+        self.assertEqual(
+            nontherapeutic_substance_use_condition_reason(index_drug_exposure_association),
+            "nontherapeutic_substance_use_exposure_association",
+        )
+        self.assertEqual(nontherapeutic_substance_use_condition_reason(therapeutic_outcome), "")
+        self.assertEqual(
+            graph_admission_decision(same_compound_dependence),
+            ("paper_detail", "same_compound_use_disorder_context"),
+        )
+
     def test_brain_readout_is_preserved_as_detail_only_measure_instead_of_rejected(self) -> None:
         match = graphable_entity_match(
             row={"graph_entity_label": "theta power (4-8 Hz)"},
@@ -195,6 +292,119 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertTrue(match["matched"])
         self.assertEqual(match["kind"], "brain_measure")
         self.assertEqual(match["label"], "Oscillatory power")
+
+    def test_brain_measure_routing_accepts_compatible_kinds_without_broadening_unrelated_entities(self) -> None:
+        cases = (
+            ("molecular_pathway_readout", "pathway_process", "Grey matter volume", "Brain structure"),
+            ("brain_system", "brain_network", "brain entropy", "Neural signal complexity"),
+            ("brain_system", "neural_circuit", "V1-V3 retinotopic coupling", "Functional connectivity"),
+            ("brain_system", "biomarker_readout", "Phase lag entropy (PLE)", "Neural signal complexity"),
+        )
+        for domain, kind, raw, expected in cases:
+            with self.subTest(raw=raw):
+                match = graphable_entity_match(
+                    row={"graph_entity_label": raw},
+                    domain=domain,
+                    entity_kind=kind,
+                    raw_label=raw,
+                    registry={},
+                    node_vocabulary={},
+                )
+                self.assertTrue(match["matched"])
+                self.assertEqual(match["kind"], "brain_measure")
+                self.assertEqual(match["label"], expected)
+
+        unrelated = graphable_entity_match(
+            row={"graph_entity_label": "synaptic connectivity"},
+            domain="molecular_pathway_readout",
+            entity_kind="pathway_process",
+            raw_label="synaptic connectivity",
+            registry={},
+            node_vocabulary={},
+        )
+        self.assertFalse(unrelated["matched"])
+
+    def test_mde_names_resolve_to_mdea(self) -> None:
+        registry = registry_lookup(DEFAULT_REGISTRY_PATH)
+        for alias in (
+            "MDE",
+            "3,4-methylenedioxyethamphetamine",
+            "3,4-methylenedioxyethylamphetamine",
+            "N-ethyl-3,4-methylenedioxyamphetamine",
+        ):
+            with self.subTest(alias=alias):
+                match = graphable_compound_match(alias, registry)
+                self.assertTrue(match["matched"])
+                self.assertEqual(match["label"], "MDEA")
+
+        for raw, expected in (
+            ("open-field locomotion scores", "Locomotor activity"),
+            ("psychomotor stimulation", "Motor activity"),
+        ):
+            with self.subTest(raw=raw):
+                row = normalize_claim_metadata(
+                    {
+                        "domain": "cognitive_behavioral",
+                        "graph_entity_label": raw,
+                        "construct_or_behavior": raw,
+                        "task_or_measure": raw,
+                        "kg_entity_kind_override": "cognitive_behavioral_construct",
+                    },
+                    "cognitive_behavioral",
+                )
+                self.assertEqual(row["graph_entity_label"], expected)
+                self.assertEqual(row["endpoint_label_source"], "controlled_behavioral_detail")
+
+    def test_narrow_review_construct_and_outcome_mappings(self) -> None:
+        base = {
+            "source_type": "review",
+            "paper_type": "review",
+            "review_extraction_method": "paper_centered_one_pass_v2",
+            "evidence_level": "human",
+        }
+        cases = (
+            ("Fear memory extinction", "clinical_outcome", "Fear extinction", "cognitive_behavioral_construct"),
+            ("fear extinction circuitry", "brain_system", "Fear extinction", "cognitive_behavioral_construct"),
+            ("creative ideation", "clinical_outcome", "Creativity", "cognitive_behavioral_construct"),
+            ("Anxiolytic effect", "clinical_outcome", "Anxiety & panic", "symptom_problem"),
+            ("Violent aggression", "clinical_outcome", "Aggression/violence", "symptom_problem"),
+        )
+        for raw, domain, expected_label, expected_kind in cases:
+            with self.subTest(raw=raw):
+                row = normalize_claim_metadata(
+                    {
+                        **base,
+                        "domain": domain,
+                        "graph_entity_label": raw,
+                        "raw_entity_label": raw,
+                        "kg_entity_kind_override": "condition_indication",
+                    },
+                    domain,
+                )
+                self.assertEqual(row["graph_entity_label"], expected_label)
+                self.assertEqual(row["kg_entity_kind_override"], expected_kind)
+
+        dying_care = graphable_entity_match(
+            row={"context_component": "Dying Care"},
+            domain="intervention_context",
+            entity_kind="intervention_component",
+            raw_label="Dying Care",
+            registry={},
+            node_vocabulary={},
+        )
+        self.assertTrue(dying_care["matched"])
+        self.assertEqual(dying_care["item"]["parent"], "Palliative & end-of-life care")
+
+        dying_anxiety = graphable_entity_match(
+            row={},
+            domain="clinical_outcome",
+            entity_kind="condition_indication",
+            raw_label="Anxiety associated with dying",
+            registry=registry_lookup(DEFAULT_REGISTRY_PATH),
+            node_vocabulary={},
+        )
+        self.assertTrue(dying_anxiety["matched"])
+        self.assertEqual(dying_anxiety["label"], "Distress associated with life-threatening disease")
 
     def test_review_research_topic_uses_controlled_research_landscape_parent(self) -> None:
         match = graphable_entity_match(
@@ -725,6 +935,25 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 "data/processed/extraction/routed_runs/Gemini_3_Flash_first_batch/routed_evidence_rows.json"
             )
         )
+
+    def test_routed_release_can_reuse_an_existing_evidence_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            source = Path(tmpdir) / "evidence.json"
+            source.write_text("[]", encoding="utf-8")
+            out_dir = Path(tmpdir) / "new-release"
+            sources = graph_sources_for_preset("routed", run_id="existing-evidence")
+            for config in sources.values():
+                config["path"] = source
+            manifest = build_tables(
+                graph_sources=sources,
+                run_id="new-release",
+                evidence_run_id="existing-evidence",
+                out_dir=out_dir,
+                write_duckdb=False,
+            )
+
+        self.assertEqual(manifest["run_id"], "new-release")
+        self.assertEqual(manifest["evidence_run_id"], "existing-evidence")
 
     def test_compound_normalization_uses_shared_registry_without_stereoisomer_overwrite(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

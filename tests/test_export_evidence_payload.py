@@ -639,17 +639,24 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(
             result["manifest"]["summary_stats"]["paper_counts"],
             {
-                "primary_studies": 0,
-                "reviews": 0,
+                "primary_studies": 1,
+                "reviews": 1,
                 "meta_analyses": 1,
-                "total": 1,
+                "total": 3,
                 "awaiting_graph_inclusion": {
-                    "primary_studies": 1,
-                    "reviews": 1,
+                    "primary_studies": 0,
+                    "reviews": 0,
                     "meta_analyses": 0,
-                    "total": 2,
+                    "total": 0,
                 },
-                "scope": "overview_graph_represented",
+                "visualized_overview_represented": {
+                    "primary_studies": 0,
+                    "reviews": 0,
+                    "meta_analyses": 1,
+                    "total": 1,
+                },
+                "scope": "underlying_evidence_graph_represented",
+                "awaiting_scope": "no_normalized_finding",
             },
         )
 
@@ -933,6 +940,10 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(manifest["summary_stats"]["default"]["graph_candidate_study_count"], 3)
         self.assertEqual(manifest["summary_stats"]["default"]["graph_excluded_study_count"], 1)
         self.assertEqual(manifest["summary_stats"]["default"]["graph_study_coverage"]["not_in_graph_count"], 1)
+        self.assertEqual(
+            manifest["summary_stats"]["default"]["normalized_finding_coverage"],
+            {"included_count": 2, "candidate_count": 3, "without_findings_count": 1},
+        )
 
     def test_exports_routed_clinical_endpoint_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

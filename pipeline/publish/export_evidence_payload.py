@@ -940,6 +940,7 @@ def summary_stats(
     )
     graph_findings = [projection["finding"] for projection in projections]
     studies = {key for finding in graph_findings if (key := study_key(finding))}
+    normalized_finding_studies = {key for finding in findings if (key := study_key(finding))}
     compounds = {projection["compound"] for projection in projections if projection["compound"]}
     entities = {projection["entity_label"] for projection in projections if projection["entity_label"]}
     conditions = {
@@ -956,6 +957,7 @@ def summary_stats(
         "row_count": len(findings),
         "graph_finding_count": len(projections),
         "study_count": len(studies),
+        "normalized_finding_study_count": len(normalized_finding_studies),
         "compound_count": len(compounds),
         "entity_count": len(entities),
         "domain_count": len(value_counts(findings, "domain")),
@@ -969,10 +971,16 @@ def summary_stats(
     if candidate_study_keys is not None:
         candidate_keys = {key for key in candidate_study_keys if key}
         not_in_graph_keys = candidate_keys - studies
+        without_normalized_findings_keys = candidate_keys - normalized_finding_studies
         stats["graph_study_coverage"] = {
             "included_count": len(studies),
             "candidate_count": len(candidate_keys),
             "not_in_graph_count": len(not_in_graph_keys),
+        }
+        stats["normalized_finding_coverage"] = {
+            "included_count": len(normalized_finding_studies),
+            "candidate_count": len(candidate_keys),
+            "without_findings_count": len(without_normalized_findings_keys),
         }
         stats["graph_candidate_study_count"] = len(candidate_keys)
         stats["graph_excluded_study_count"] = len(not_in_graph_keys)
@@ -1444,6 +1452,31 @@ def export_evidence_payload(
         detail_bootstrap = detail_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
         detail_bootstrap_paths[source_key].write_text(compact_json(detail_bootstrap), encoding="utf-8")
 
+    overview_paper_counts = {
+        "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["study_count"],
+        "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["study_count"],
+        "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["study_count"],
+    }
+    overview_paper_counts["total"] = sum(overview_paper_counts.values())
+    normalized_finding_paper_counts = {
+        "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["normalized_finding_study_count"],
+        "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["normalized_finding_study_count"],
+        "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["normalized_finding_study_count"],
+    }
+    normalized_finding_paper_counts["total"] = sum(normalized_finding_paper_counts.values())
+    awaiting_graph_inclusion = {
+        "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["normalized_finding_coverage"][
+            "without_findings_count"
+        ],
+        "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["normalized_finding_coverage"][
+            "without_findings_count"
+        ],
+        "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["normalized_finding_coverage"][
+            "without_findings_count"
+        ],
+    }
+    awaiting_graph_inclusion["total"] = sum(awaiting_graph_inclusion.values())
+
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "generated_at": generated_at,
@@ -1457,23 +1490,11 @@ def export_evidence_payload(
             "default": stats,
             "sources": source_summary_stats,
             "paper_counts": {
-                "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["study_count"],
-                "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["study_count"],
-                "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["study_count"],
-                "total": sum(
-                    source_summary_stats[source_key]["study_count"]
-                    for source_key in UI_SOURCE_KEYS
-                ),
-                "awaiting_graph_inclusion": {
-                    "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["graph_study_coverage"]["not_in_graph_count"],
-                    "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["graph_study_coverage"]["not_in_graph_count"],
-                    "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["graph_study_coverage"]["not_in_graph_count"],
-                    "total": sum(
-                        source_summary_stats[source_key]["graph_study_coverage"]["not_in_graph_count"]
-                        for source_key in UI_SOURCE_KEYS
-                    ),
-                },
-                "scope": "overview_graph_represented",
+                **normalized_finding_paper_counts,
+                "awaiting_graph_inclusion": awaiting_graph_inclusion,
+                "visualized_overview_represented": overview_paper_counts,
+                "scope": "underlying_evidence_graph_represented",
+                "awaiting_scope": "no_normalized_finding",
             },
         },
         "status": "ok",

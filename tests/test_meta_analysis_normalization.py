@@ -151,6 +151,49 @@ def test_meta_analysis_context_moderator_is_graphable_when_it_is_the_analysis_fo
     assert set(edges["graph_parent_label"]) == {"Treatment intensity & duration"}
 
 
+def test_straightforward_depression_and_sitb_meta_analyses_are_retained(tmp_path: Path) -> None:
+    edges, audit = build_rows(
+        tmp_path,
+        [
+            meta_row(
+                study_doi="10.1007/s00213-025-06788-w",
+                source_item_id="R1",
+                domain="clinical_outcome",
+                compound="Psilocybin",
+                graph_entity_label="Patients with depression",
+                condition_or_indication="Patients with depression",
+                kg_entity_kind_override="condition_indication",
+                normalization_entity_source="population_condition_with_result_outcome",
+                population="Patients with depression",
+                clinical_endpoint="Depression symptoms",
+                primary_outcome="Depression symptoms",
+            ),
+            meta_row(
+                study_doi="10.1038/s41398-022-02173-9",
+                source_item_id="R2",
+                domain="clinical_outcome",
+                compound="Ketamine",
+                graph_entity_label="Human participants",
+                condition_or_indication="Human participants",
+                kg_entity_kind_override="condition_indication",
+                normalization_entity_source="population_condition_with_result_outcome",
+                population="Human participants",
+                clinical_endpoint="Aggregated binary SITB outcomes",
+                primary_outcome="Aggregated binary SITB outcomes",
+            ),
+        ],
+    )
+
+    assert audit.empty
+    assert set(edges["study_doi"]) == {
+        "10.1007/s00213-025-06788-w",
+        "10.1038/s41398-022-02173-9",
+    }
+    by_doi = edges.set_index("study_doi")
+    assert by_doi.loc["10.1007/s00213-025-06788-w", "entity_label"] == "Low mood & depressive symptoms"
+    assert by_doi.loc["10.1038/s41398-022-02173-9", "entity_label"] == "Suicidality"
+
+
 def test_beneficial_social_anxiety_response_is_not_derived_as_a_safety_event(tmp_path: Path) -> None:
     edges, audit = build_rows(
         tmp_path,
