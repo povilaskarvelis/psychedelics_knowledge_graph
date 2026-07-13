@@ -1471,6 +1471,67 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual({row["domain_screening_decision"] for row in rows}, {"manual_include_in_scope"})
         self.assertTrue(all(row["retained_for_extraction_candidate"] for row in rows))
 
+    def test_manual_source_type_override_reclassifies_qualitative_meta_review(self) -> None:
+        doi = "10.1000/qualitative-review"
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "study_title": "Integrating meta-analyses qualitatively",
+                    "abstract": "A systematic review integrated prior meta-analyses qualitatively.",
+                    "publication_type": "Systematic Review | Meta-Analysis",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        domain_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "domain_route": "clinical_outcome",
+                    "all_domain_tags": "clinical_outcome",
+                    "screening_decision": "include_in_scope",
+                    "paper_type_group": "secondary_literature",
+                    "paper_type": "meta_analysis",
+                    "primary_secondary_source_type": "meta_analysis",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            domain_df=domain_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-07-13T00:00:00+00:00",
+            manual_overrides={
+                doi: {
+                    "manual_source_family": "secondary_literature",
+                    "manual_source_type": "systematic_review",
+                    "manual_primary_secondary_source_type": "systematic_review",
+                    "manual_literature_type_confidence": "high",
+                    "manual_paper_type_reason": "The paper integrates prior meta-analyses qualitatively.",
+                }
+            },
+        )
+
+        self.assertEqual({row["source_family"] for row in rows}, {"secondary_literature"})
+        self.assertEqual({row["source_type"] for row in rows}, {"systematic_review"})
+        self.assertEqual(
+            {row["primary_secondary_source_type"] for row in rows}, {"systematic_review"}
+        )
+        self.assertEqual({row["prompt_profile"] for row in rows}, {"secondary_structured_review"})
+
     def test_prescreen_context_ignores_excluded_rows_and_source_dataset_labels(self) -> None:
         df = pd.DataFrame(
             [

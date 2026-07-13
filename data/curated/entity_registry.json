@@ -98,6 +98,13 @@
       "status": "needs_external_id_lookup"
     },
     {
+      "label": "Incilius alvarius secretion",
+      "aliases": ["Incilius alvarius secretions", "Bufo alvarius", "Bufo alvarius venom", "Sonoran Desert toad", "Colorado River toad"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "animal_source_mapped_to_primary_active_compound",
+      "graph_overview_compound": "5-MeO-DMT"
+    },
+    {
       "label": "5-MeO-AMT",
       "aliases": ["5-methoxy-alpha-methyltryptamine", "5-methoxy-α-methyltryptamine", "5-methoxy-α-methyltryptamine (5-MeO-AMT)"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
@@ -137,7 +144,8 @@
       "label": "Ayahuasca",
       "aliases": ["DMT/HAR formulation"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
-      "status": "mixture_needs_component_mapping"
+      "status": "mixture_needs_component_mapping",
+      "graph_overview_subject_kind": "compound_combination"
     },
     {
       "label": "Bromo-DragonFLY",
@@ -180,7 +188,7 @@
     },
     {
       "label": "Dextromethorphan",
-      "aliases": ["dextromethorphan"],
+      "aliases": ["dextromethorphan", "DXM"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
     },
@@ -225,6 +233,13 @@
       "aliases": ["2,5-dimethoxy-4-methylamphetamine", "STP"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Iboga",
+      "aliases": ["iboga", "Tabernanthe iboga", "iboga root", "iboga root bark", "Tabernanthe iboga root bark"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "botanical_source_mapped_to_primary_active_compound",
+      "graph_overview_compound": "Ibogaine"
     },
     {
       "label": "Ibogaine",
@@ -282,6 +297,13 @@
       "aliases": ["lysergic acid amide", "ergine"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Hawaiian baby woodrose",
+      "aliases": ["Argyreia nervosa", "Argyreia nervosa seeds", "Argyreia nervosa seed", "Argyreia speciosa", "Hawaiian baby woodrose seeds", "Hawaiian baby wood rose seed"],
+      "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
+      "status": "botanical_source_mapped_to_primary_active_compound",
+      "graph_overview_compound": "LSA"
     },
     {
       "label": "MDA",
@@ -355,7 +377,7 @@
     },
     {
       "label": "Noribogaine",
-      "aliases": ["12-hydroxyibogamine"],
+      "aliases": ["12-hydroxyibogamine", "O-desmethylibogaine", "noribogaine hydrochloride"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
     },
@@ -379,9 +401,10 @@
     },
     {
       "label": "Peyote",
-      "aliases": ["peyote"],
+      "aliases": ["peyote", "peyote cactus", "Lophophora williamsii"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
-      "status": "mixture_needs_component_mapping"
+      "status": "botanical_source_mapped_to_primary_active_compound",
+      "graph_overview_compound": "Mescaline"
     },
     {
       "label": "Psilocin",
@@ -391,7 +414,7 @@
     },
     {
       "label": "Psilocybin",
-      "aliases": ["psilocybin mushroom", "psilocybin mushrooms", "psilocybin-assisted therapy", "COMP360", "COMP360 psilocybin", "psilocibina", "Psilocybe cubensis", "Psilocybe cubensis mushroom", "Psilocybe cubensis mushrooms", "Psilocybe cubensis extract", "Psilocybe cubensis aqueous extract", "Psilocybe zapotecorum", "Psilocybe azurescens", "magic mushrooms", "magic truffles", "psilocybin-containing mushrooms", "psilocybin-containing truffles"],
+      "aliases": ["psilocybin mushroom", "psilocybin mushrooms", "psilocybin-assisted therapy", "COMP360", "COMP360 psilocybin", "psilocibina", "Psilocybe cubensis", "Psilocybe cubensis mushroom", "Psilocybe cubensis mushrooms", "Psilocybe cubensis extract", "Psilocybe cubensis aqueous extract", "Psilocybe zapotecorum", "Psilocybe azurescens", "magic mushrooms", "shrooms", "magic truffles", "psilocybin-containing mushrooms", "psilocybin-containing truffles"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
       "status": "needs_external_id_lookup"
     },
@@ -428,9 +451,10 @@
     },
     {
       "label": "Salvia divinorum",
-      "aliases": [],
+      "aliases": ["S. divinorum", "Salvia divinorum extract"],
       "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""},
-      "status": "mixture_needs_component_mapping"
+      "status": "botanical_source_mapped_to_primary_active_compound",
+      "graph_overview_compound": "Salvinorin A"
     },
     {
       "label": "Tabernanthalog",
@@ -457,6 +481,7 @@
       "status": "needs_external_id_lookup"
     },
     {"label": "HMMA", "aliases": ["4-hydroxy-3-methoxymethamphetamine", "4-hydroxy-3-methoxymethamphetamine (HMMA)"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
+    {"label": "HMA", "aliases": ["4-hydroxy-3-methoxyamphetamine", "4-hydroxy-3-methoxyamphetamine (HMA)"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
     {"label": "HHMA", "aliases": ["3,4-dihydroxymethamphetamine", "3,4-dihydroxymethamphetamine (HHMA)"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
     {"label": "Dehydronorketamine", "aliases": ["dehydronorketamine", "DHNK"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
     {"label": "Noresketamine", "aliases": ["noresketamine", "S-norketamine"], "ids": {"pubchem_cid": "", "chembl_id": "", "drugbank_id": "", "inchi_key": ""}, "status": "needs_external_id_lookup"},
@@ -1089,7 +1114,7 @@
     },
     {
       "label": "CB1 receptor (CNR1)",
-      "aliases": ["CB1", "CB1 receptor", "cannabinoid CB1 receptor", "endocannabinoid receptor CB1", "CNR1"],
+      "aliases": ["CB1", "CB1R", "CB1 receptor", "cannabinoid CB1 receptor", "endocannabinoid receptor CB1", "CNR1"],
       "ids": {"gene_symbol": "CNR1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
@@ -1395,7 +1420,7 @@
     {"label": "Anorexia nervosa", "aliases": ["anorexia", "anorexic"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Anxiety disorders", "aliases": ["anxiety", "anxiety symptoms", "anxiety disorder", "anxiety spectrum disorders", "anxiety spectrum", "mixed anxiety and depressive disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "broad_category_needs_external_id_lookup"},
     {"label": "Anhedonia", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "symptom_or_problem_needs_external_id_lookup"},
-    {"label": "Autism spectrum disorder", "aliases": ["ASD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Autism spectrum disorder", "aliases": ["ASD", "Autism"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Bipolar depression", "aliases": ["Bipolar II depression", "bipolar II depression", "bipolar 2 depression", "bipolar I/II depression", "bipolar I or II depression", "treatment-resistant bipolar depression", "treatment resistant bipolar depression", "treatment-resistant bipolar I/II depression", "treatment resistant bipolar I/II depression", "treatment-resistant bipolar I or II depression", "treatment resistant bipolar I or II depression", "treatment-refractory bipolar depression", "refractory bipolar depression", "bipolar major depressive episodes", "bipolar depressive episodes", "TRBD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Bipolar disorder", "aliases": ["bipolar disorder", "bipolar affective disorder", "BPAD"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Body dysmorphic disorder", "aliases": ["BDD", "body dysmorphia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},

@@ -129,11 +129,11 @@ the first is not selected arbitrarily. Examples include:
 
 - `Ketamine-assisted psychotherapy (KAPT), psychedelic approach` → `Ketamine`;
 - `Naturalistic psychedelic use (primarily psilocybin)` → `Psilocybin`;
-- `Psychedelics and ketamine` → the unresolved mixed/unspecified fallback, not
-  `Ketamine`, because the collective exposure is not ketamine-specific.
+- `Psychedelics and ketamine` → `Ketamine` in the overview, while the exact
+  collective exposure remains on the finding.
 
-The ambiguous primary labels were collapsed into one normalized fallback,
-`Psychedelics (mixed or unspecified compounds)`. Its 487 findings from 214
+The remaining broad primary labels are collapsed into one normalized fallback,
+`Psychedelics (unspecified compounds)`. Its 449 findings from 191
 papers remain searchable with their exact exposure text, but all are marked
 paper-detail-only so the fallback cannot form a visual graph hub or reappear
 after filtering. `Serotonergic psychedelics` was renamed `Classic

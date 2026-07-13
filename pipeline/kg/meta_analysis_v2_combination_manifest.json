@@ -1,0 +1,28 @@
+{
+  "schema_version": "meta_analysis_v2_combination_manifest_v1",
+  "policy": "Use one accepted extraction source per paper. The completed second pilot pass is the default for the pilot cohort; paper-level overrides are permitted only when the alternative output was source-checked and recovers valid results that the default pass held.",
+  "base_sources": [
+    {
+      "label": "meta_analysis_v2_pilot_100_rerun2",
+      "path": "data/processed/extraction/meta_analysis_v2_runs/meta_analysis_v2_pilot_100_rerun2/meta_analysis_v2_evidence_rows.json"
+    },
+    {
+      "label": "meta_analysis_v2_remaining_168_20260712",
+      "path": "data/processed/extraction/meta_analysis_v2_runs/meta_analysis_v2_remaining_168_20260712/meta_analysis_v2_evidence_rows.json"
+    }
+  ],
+  "paper_source_overrides": [
+    {
+      "study_doi": "10.1177/0271678x221116477",
+      "label": "meta_analysis_v2_pilot_100_source_checked",
+      "path": "data/processed/extraction/meta_analysis_v2_runs/meta_analysis_v2_pilot_100/meta_analysis_v2_evidence_rows.json",
+      "reason": "The original pass contains two source-supported ketamine/PTSD and depression estimates. The default rerun held its corresponding estimates because its rewritten numerical values were not present in the article text."
+    },
+    {
+      "study_doi": "10.1556/2054.2022.00218",
+      "label": "meta_analysis_v2_pilot_100_source_checked",
+      "path": "data/processed/extraction/meta_analysis_v2_runs/meta_analysis_v2_pilot_100/meta_analysis_v2_evidence_rows.json",
+      "reason": "The original pass contains four source-supported ayahuasca/mindfulness estimates. The default rerun held its corresponding estimates because several rewritten numerical values were not present in the article text."
+    }
+  ]
+}

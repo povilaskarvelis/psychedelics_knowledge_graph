@@ -131,6 +131,24 @@ def task_index(path: Path) -> dict[str, dict]:
     return {normalize(row.get("task_id", "")): row for row in read_jsonl(path) if normalize(row.get("task_id", ""))}
 
 
+def stable_task_fallback(output: dict, tasks: dict[str, dict]) -> dict:
+    """Return one scientifically stable current task for an old task ID.
+
+    Corpus metadata corrections can regenerate a task ID even when the paper
+    DOI and selected source depth are unchanged. The fallback is intentionally
+    narrow: exactly one current task must match both values.
+    """
+    doi = normalize(output.get("study_doi", "")).lower()
+    source_depth = normalize(output.get("source_depth", ""))
+    candidates = [
+        task
+        for task in tasks.values()
+        if normalize(task.get("study_doi", "")).lower() == doi
+        and normalize(task.get("text_depth", "")) == source_depth
+    ]
+    return candidates[0] if len(candidates) == 1 else {}
+
+
 def joined_text(*values: object) -> str:
     return " ".join(normalize(value) for value in values if normalize(value))
 
@@ -640,7 +658,12 @@ def evidence_row(
     return {key: value for key, value in row.items() if value not in {"", None, False}}, decision
 
 
-def convert_outputs(outputs: list[dict], tasks: dict[str, dict]) -> tuple[list[dict], dict]:
+def convert_outputs(
+    outputs: list[dict],
+    tasks: dict[str, dict],
+    *,
+    allow_stable_task_fallback: bool = False,
+) -> tuple[list[dict], dict]:
     rows: list[dict] = []
     decisions: list[dict] = []
     counts: Counter = Counter()
@@ -655,6 +678,10 @@ def convert_outputs(outputs: list[dict], tasks: dict[str, dict]) -> tuple[list[d
             continue
         task_id = normalize(output.get("task_id", ""))
         task = tasks.get(task_id, {})
+        if not task and allow_stable_task_fallback:
+            task = stable_task_fallback(output, tasks)
+            if task:
+                counts["stable_task_fallback"] += 1
         if not task:
             counts["missing_task"] += 1
             continue
@@ -691,6 +718,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tasks-jsonl", type=Path, default=DEFAULT_TASKS)
     parser.add_argument("--out-json", type=Path, default=None)
     parser.add_argument("--report-json", type=Path, default=None)
+    parser.add_argument(
+        "--allow-stable-task-fallback",
+        action="store_true",
+        help=(
+            "Allow an old task ID to use exactly one current task with the same DOI and text depth. "
+            "Use only when corpus metadata changes regenerated otherwise stable tasks."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -700,7 +735,11 @@ def main() -> int:
     input_jsonl = args.input_jsonl or run_dir / "meta_analysis_extractions.jsonl"
     out_json = args.out_json or run_dir / "meta_analysis_v2_evidence_rows.json"
     report_json = args.report_json or run_dir / "meta_analysis_v2_evidence_rows_report.json"
-    rows, report = convert_outputs(read_jsonl(input_jsonl), task_index(args.tasks_jsonl))
+    rows, report = convert_outputs(
+        read_jsonl(input_jsonl),
+        task_index(args.tasks_jsonl),
+        allow_stable_task_fallback=args.allow_stable_task_fallback,
+    )
     report["inputs"] = {
         "input_jsonl": str(input_jsonl.resolve()),
         "tasks_jsonl": str(args.tasks_jsonl.resolve()),

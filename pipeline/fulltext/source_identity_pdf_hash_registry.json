@@ -4,7 +4,7 @@
   "description": "Exceptional curator-reviewed PDF identities bound to exact file hashes. These records do not authorize a different download or DOI alias.",
   "records": [
     {
-      "requested_doi": "10.1254/fpj.97.4_209",
+      "requested_doi": "10.1254/fpj.97.4/209",
       "pdf_sha256": "e45d2cfd7a5c7c86b639b3a1377dcfd5f1ced3168fcebcb00478972d0b2d1a8c",
       "document_kind": "single_article_pdf",
       "source_url": "https://www.jstage.jst.go.jp/article/fpj1944/97/4/97_4_209/_pdf",

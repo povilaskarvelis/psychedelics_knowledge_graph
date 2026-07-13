@@ -245,6 +245,24 @@ def test_result_quality_flags_detects_bundled_estimates_ranges_and_derived_numbe
     assert "numeric_value_not_in_source:R1:interval_upper" in flags
 
 
+def test_result_quality_flags_accepts_middle_dot_decimal_notation() -> None:
+    result = valid_model_result()
+    item = result["synthesis_results"][0]
+    item["effect_estimate"] = {
+        "metric": "RR",
+        "estimate": "0.49",
+        "interval_lower": "0.30",
+        "interval_upper": "0.79",
+    }
+
+    flags = batch_api.result_quality_flags(
+        result,
+        "The pooled effect was RR 0•49 (95% CI 0·30 to 0·79).",
+    )
+
+    assert not any(flag.startswith("numeric_value_not_in_source:R1:") for flag in flags)
+
+
 def test_abstract_locator_normalization_is_deterministic() -> None:
     result = {
         "synthesis_results": [

@@ -202,6 +202,20 @@
       "doi": "10.1002/pu.31091",
       "manual_action": "context_only",
       "manual_reason": "Manual review: DOI appears to resolve to an approval/placeholder-style record rather than a usable article; context only."
+    },
+    {
+      "doi": "10.1080/15622975.2026.2617195",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "systematic_review",
+      "manual_primary_secondary_source_type": "systematic_review",
+      "manual_secondary_source_types": "systematic_review|review",
+      "manual_literature_type_confidence": "high",
+      "manual_paper_type_reason": "The methods describe a systematic review of head-to-head studies and explicitly say that findings from existing meta-analyses were integrated qualitatively; this paper did not perform a new quantitative meta-analysis."
+    },
+    {
+      "doi": "10.3389/fpsyg.2023.1176564",
+      "manual_action": "context_only",
+      "manual_reason": "Manual review: the pooled exposure is broad substance abuse (primarily alcohol and cannabis), and the article does not report a psychedelic-specific pooled estimate. Ecstasy appears only within a mixed evidence base that cannot support a psychedelic graph relationship."
     }
   ]
 }

@@ -139,6 +139,13 @@ GRAPH_SUBJECT_DOSE_RE = re.compile(
     r"\b\d+(?:\.\d+)?\s*(?:micrograms?|mcg|ug|µg|milligrams?|mg|grams?|g|mg/kg|µg/kg)\b",
     re.IGNORECASE,
 )
+EXPLICIT_NON_ATOMIC_GRAPH_SUBJECT_KINDS = {
+    "compound_class",
+    "compound_combination",
+    "exposure_context",
+    "paper_topic",
+    "treatment_regimen",
+}
 SUBSTITUTED_TRYPTAMINE_RE = re.compile(
     r"\b(?:n\s*,\s*n[- ]?)?(?:di(?:methyl|ethyl|propyl|isopropyl|butyl)[- ]?)tryptamine\b",
     re.IGNORECASE,
@@ -348,7 +355,12 @@ def apply_graph_subject(row: dict) -> None:
     atomic_candidate = normalize(row.get("atomic_compound_candidate", "")) or normalize(row.get("compound", ""))
     candidates: list[tuple[int, int, str, str, str]] = []
     existing_label = normalize(row.get("graph_subject_label", ""))
-    existing_kind = graph_subject_kind(existing_label)
+    explicit_existing_kind = normalize(row.get("graph_subject_kind", "")).casefold().replace("-", "_").replace(" ", "_")
+    existing_kind = (
+        explicit_existing_kind
+        if explicit_existing_kind in EXPLICIT_NON_ATOMIC_GRAPH_SUBJECT_KINDS
+        else graph_subject_kind(existing_label)
+    )
     if existing_label and existing_kind != "atomic_compound":
         # Saved routed rows may already contain the selected complete exposure.
         # Reapplying normalization must retain it even when the originating
@@ -552,6 +564,22 @@ def task_lookup(tasks_jsonl: Path) -> dict[str, dict]:
     return lookup
 
 
+def stable_task_lookup(tasks: dict[str, dict]) -> dict[tuple[str, str], dict]:
+    candidates: dict[tuple[str, str], list[dict]] = {}
+    for task in tasks.values():
+        key = (
+            normalize(task.get("study_doi", "")).casefold(),
+            normalize(task.get("domain_route", "")).casefold(),
+        )
+        if all(key):
+            candidates.setdefault(key, []).append(task)
+    return {
+        key: rows[0]
+        for key, rows in candidates.items()
+        if len(rows) == 1
+    }
+
+
 def metadata_for_output_row(output_row: dict, result: dict, tasks: dict[str, dict]) -> dict:
     keys = [
         normalize(output_row.get("task_id", "")),
@@ -574,45 +602,52 @@ def current_task_for_output(
     output_row: dict,
     result: dict,
     tasks: dict[str, dict],
+    stable_tasks: dict[tuple[str, str], dict] | None = None,
 ) -> dict | None:
     for task_id in output_task_ids(output_row, result):
         if task_id and task_id in tasks:
             return tasks[task_id]
+    if stable_tasks is not None:
+        return stable_tasks.get(
+            (
+                normalize(result.get("study_doi", "")).casefold(),
+                normalize(result.get("domain_route", "")).casefold(),
+            )
+        )
     return None
-
-
-def output_has_current_task(output_row: dict, result: dict, tasks: dict[str, dict]) -> bool:
-    return current_task_for_output(output_row, result, tasks) is not None
 
 
 def output_matches_current_task(
     output_row: dict,
     result: dict,
     task: dict,
+    *,
+    stable_fallback: bool = False,
 ) -> tuple[bool, str]:
-    task_ids = {value for value in output_task_ids(output_row, result) if value}
-    if task_ids != {task["task_id"]}:
-        return False, "task_id_mismatch"
+    if not stable_fallback:
+        task_ids = {value for value in output_task_ids(output_row, result) if value}
+        if task_ids != {task["task_id"]}:
+            return False, "task_id_mismatch"
 
-    output_route_ids = {
-        normalize(output_row.get("route_id", "")),
-        normalize(result.get("route_id", "")),
-    }
-    output_route_ids.discard("")
-    if not output_route_ids or output_route_ids != {task["route_id"]}:
-        return False, "route_id_mismatch"
-
-    expected_fingerprint = normalize(task.get("input_fingerprint", ""))
-    if expected_fingerprint:
-        output_fingerprints = {
-            normalize(output_row.get("input_fingerprint", "")),
-            normalize(result.get("input_fingerprint", "")),
+        output_route_ids = {
+            normalize(output_row.get("route_id", "")),
+            normalize(result.get("route_id", "")),
         }
-        output_fingerprints.discard("")
-        if not output_fingerprints:
-            return False, "missing_input_fingerprint"
-        if output_fingerprints != {expected_fingerprint}:
-            return False, "input_fingerprint_mismatch"
+        output_route_ids.discard("")
+        if not output_route_ids or output_route_ids != {task["route_id"]}:
+            return False, "route_id_mismatch"
+
+        expected_fingerprint = normalize(task.get("input_fingerprint", ""))
+        if expected_fingerprint:
+            output_fingerprints = {
+                normalize(output_row.get("input_fingerprint", "")),
+                normalize(result.get("input_fingerprint", "")),
+            }
+            output_fingerprints.discard("")
+            if not output_fingerprints:
+                return False, "missing_input_fingerprint"
+            if output_fingerprints != {expected_fingerprint}:
+                return False, "input_fingerprint_mismatch"
 
     expected_doi = normalize(task.get("study_doi", ""))
     actual_doi = normalize(result.get("study_doi", ""))
@@ -652,6 +687,13 @@ def output_has_active_route(output_row: dict, result: dict, active_routes: dict[
     }
     route_ids.discard("")
     return bool(route_ids) and route_ids.issubset(active_routes["route_ids"])
+
+
+def current_task_has_active_route(task: dict, active_routes: dict[str, set] | None) -> bool:
+    if active_routes is None:
+        return True
+    route_id = normalize(task.get("route_id", ""))
+    return bool(route_id) and route_id in active_routes["route_ids"]
 
 
 def result_items(result: dict) -> tuple[str, list[dict]]:
@@ -926,8 +968,10 @@ def convert_outputs(
     tasks_jsonl: Path = DEFAULT_TASKS_JSONL,
     active_route_table: Path | None = None,
     include_schema_errors: bool = False,
+    allow_stable_task_fallback: bool = False,
 ) -> tuple[list[dict], dict]:
     tasks = task_lookup(tasks_jsonl)
+    stable_tasks = stable_task_lookup(tasks) if allow_stable_task_fallback else None
     active_routes = active_route_lookup(active_route_table)
     out: list[dict] = []
     report_counts: Counter = Counter()
@@ -947,22 +991,38 @@ def convert_outputs(
         if extraction_status not in EXTRACTABLE_STATUSES:
             skipped[f"extraction_status:{extraction_status or 'missing'}"] += 1
             continue
-        if not output_has_current_task(output_row, result, tasks):
+        exact_task = current_task_for_output(output_row, result, tasks)
+        current_task = exact_task or current_task_for_output(
+            output_row,
+            result,
+            tasks,
+            stable_tasks,
+        )
+        if current_task is None:
             skipped["missing_current_task"] += 1
             continue
-        current_task = current_task_for_output(output_row, result, tasks)
-        assert current_task is not None
+        stable_fallback = exact_task is None
         matches_task, mismatch_reason = output_matches_current_task(
             output_row,
             result,
             current_task,
+            stable_fallback=stable_fallback,
         )
         if not matches_task:
             skipped[f"current_task_mismatch:{mismatch_reason}"] += 1
             continue
-        if not output_has_active_route(output_row, result, active_routes):
+        if not (
+            current_task_has_active_route(current_task, active_routes)
+            if stable_fallback
+            else output_has_active_route(output_row, result, active_routes)
+        ):
             skipped["inactive_current_route"] += 1
             continue
+        if stable_fallback:
+            report_counts["outputs_matched_by_stable_doi_domain"] += 1
+            for old_task_id in output_task_ids(output_row, result):
+                if old_task_id:
+                    tasks[old_task_id] = current_task
 
         item_kind, items = result_items(result)
         report_counts[f"{item_kind}_objects_seen"] += len(items)
@@ -993,6 +1053,7 @@ def convert_outputs(
             "tasks_jsonl": str(tasks_jsonl),
             "active_route_table": str(active_route_table) if active_route_table else "",
             "include_schema_errors": include_schema_errors,
+            "allow_stable_task_fallback": allow_stable_task_fallback,
         },
         "rows_written": len(out),
         "counts": dict(report_counts),
@@ -1023,6 +1084,15 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Also convert parsed rows whose runner status was schema_error.",
     )
+    parser.add_argument(
+        "--allow-stable-task-fallback",
+        action="store_true",
+        help=(
+            "Reuse an older output only when exactly one current task has the same DOI, "
+            "domain, and text depth. This is intended for metadata-only corpus rebuilds "
+            "that regenerate task and route identifiers."
+        ),
+    )
     return resolve_output_paths(parser.parse_args())
 
 
@@ -1040,6 +1110,7 @@ def main() -> int:
         tasks_jsonl=args.tasks_jsonl,
         active_route_table=active_route_table,
         include_schema_errors=args.include_schema_errors,
+        allow_stable_task_fallback=args.allow_stable_task_fallback,
     )
     report["run_id"] = args.run_id
     report["run_dir"] = args.run_dir

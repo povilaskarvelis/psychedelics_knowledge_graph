@@ -3,7 +3,12 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from pipeline.validate.build_context_provenance_audit import build_audit, write_corpus_tables
+from pipeline.validate.build_context_provenance_audit import (
+    apply_paper_metadata_overrides,
+    build_audit,
+    reconcile_doi_aliases,
+    write_corpus_tables,
+)
 
 
 def write_json(path: Path, payload: object) -> None:
@@ -12,6 +17,88 @@ def write_json(path: Path, payload: object) -> None:
 
 
 class BuildContextProvenanceAuditTest(unittest.TestCase):
+    def test_applies_curated_metadata_override_after_provider_metadata(self) -> None:
+        papers = {
+            "10.1000/mismatched": {
+                "doi": "10.1000/mismatched",
+                "study_title": "Correct title",
+                "study_year": "2024",
+                "authors": "A. Author",
+                "metadata": {
+                    "abstract": "Wrong abstract about MDMA.",
+                    "pmid": "123",
+                },
+                "source_types": ["metadata_enrichment"],
+                "sources": [],
+                "local_pdf_paths": [],
+                "flags": {},
+            }
+        }
+
+        report = apply_paper_metadata_overrides(
+            papers,
+            {
+                "10.1000/mismatched": {
+                    "fields": {
+                        "abstract": "Correct abstract about prostate cancer.",
+                        "pmid": "456",
+                    },
+                    "evidence_basis": "Verified against the source record.",
+                }
+            },
+            source_artifact_path="data/curated/paper_metadata_overrides.json",
+        )
+
+        paper = papers["10.1000/mismatched"]
+        self.assertEqual(paper["metadata"]["abstract"], "Correct abstract about prostate cancer.")
+        self.assertEqual(paper["metadata"]["pmid"], "456")
+        self.assertIn("metadata_override", paper["source_types"])
+        self.assertEqual(report["papers_overridden"], 1)
+
+    def test_reconciles_wrong_doi_spelling_without_overwriting_canonical_metadata(self) -> None:
+        papers = {
+            "10.1000/canonical_item": {
+                "doi": "10.1000/canonical_item",
+                "study_title": "Canonical title",
+                "study_year": "2024",
+                "authors": "A. Author",
+                "metadata": {"publication_type": "book-chapter"},
+                "source_types": ["paper_library"],
+                "sources": [],
+                "local_pdf_paths": ["/tmp/paper.pdf"],
+                "flags": {"in_paper_library": True},
+            },
+            "10.1000/canonical/item": {
+                "doi": "10.1000/canonical/item",
+                "study_title": "Canonical title.",
+                "study_year": "2024",
+                "authors": "",
+                "metadata": {"publication_type": "Journal Article | Review", "abstract": "Abstract"},
+                "source_types": ["metadata_enrichment"],
+                "sources": [],
+                "local_pdf_paths": [],
+                "flags": {"in_metadata_enrichment": True},
+            },
+        }
+        contexts = {}
+
+        report = reconcile_doi_aliases(
+            papers,
+            contexts,
+            {"10.1000/canonical/item": "10.1000/canonical_item"},
+        )
+
+        self.assertEqual(set(papers), {"10.1000/canonical_item"})
+        paper = papers["10.1000/canonical_item"]
+        self.assertEqual(paper["metadata"]["publication_type"], "book-chapter")
+        self.assertEqual(paper["metadata"]["abstract"], "Abstract")
+        self.assertEqual(
+            set(paper["source_types"]), {"paper_library", "metadata_enrichment"}
+        )
+        self.assertTrue(paper["flags"]["in_paper_library"])
+        self.assertTrue(paper["flags"]["in_metadata_enrichment"])
+        self.assertEqual(report["paper_alias_rows_merged"], 1)
+
     def test_merges_paper_sources_and_context_provenance(self) -> None:
         with TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

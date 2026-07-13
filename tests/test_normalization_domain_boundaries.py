@@ -4,7 +4,12 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.extract.io_utils import write_json
-from pipeline.kg.build_evidence_tables import INTERVENTION_NON_NODE_RE, build_tables, intervention_parent_label
+from pipeline.kg.build_evidence_tables import (
+    INTERVENTION_NON_NODE_RE,
+    apply_review_context_metadata,
+    build_tables,
+    intervention_parent_label,
+)
 from pipeline.kg.pk_relationships import (
     add_pk_relationship_fields,
     pk_edge_relation_type,
@@ -68,6 +73,12 @@ def test_intervention_topics_use_recognizable_researcher_facing_labels() -> None
         "Traditional Mazatec ritual structure": "Ceremonial & ritual context",
         "EMDR somatic resourcing": "Other psychotherapy models",
         "Brief patient psychoeducation": "Session components",
+        "Palliative care consultation": "Palliative & end-of-life care",
+        "Emergency department care": "Emergency & acute care delivery",
+        "Medical supervision during treatment": "Clinical supervision & monitoring",
+        "Routine clinical practice": "Clinical implementation",
+        "Outpatient treatment program": "Outpatient delivery",
+        "Scalability and resource requirements": "Implementation & feasibility",
     }
     for raw_label, expected in cases.items():
         assert intervention_parent_label({"context_component": raw_label}, raw_label) == expected
@@ -99,6 +110,39 @@ def test_intervention_topics_use_recognizable_researcher_facing_labels() -> None
         "Prophylactic premedication before buprenorphine",
     ):
         assert INTERVENTION_NON_NODE_RE.search(metadata_label)
+
+
+def test_repeated_human_review_outcomes_use_stable_labels_but_preclinical_effects_keep_the_boundary() -> None:
+    human = apply_review_context_metadata(
+        {
+            "review_extraction_method": "paper_centered_one_pass_v2",
+            "evidence_level": "human",
+            "graph_entity_label": "rapid antidepressant effects",
+            "domain": "clinical_outcome",
+        }
+    )
+    assert human["graph_entity_label"] == "Low mood & depressive symptoms"
+    assert human["kg_entity_kind_override"] == "symptom_problem"
+    assert human["endpoint_label_source"] == "clinical_symptom_endpoint"
+
+    generic_response = apply_review_context_metadata(
+        {
+            "review_extraction_method": "paper_centered_one_pass_v2",
+            "evidence_level": "human",
+            "graph_entity_label": "therapeutic efficacy",
+        }
+    )
+    assert generic_response["graph_entity_label"] == "Treatment response"
+
+    preclinical = apply_review_context_metadata(
+        {
+            "review_extraction_method": "paper_centered_one_pass_v2",
+            "evidence_level": "preclinical",
+            "graph_entity_label": "antidepressant effects",
+        }
+    )
+    assert preclinical["domain"] == "cognitive_behavioral"
+    assert preclinical["graph_entity_label"] == "Stress-coping behavior"
 
 
 def test_intervention_clinical_safety_and_molecular_boundaries() -> None:

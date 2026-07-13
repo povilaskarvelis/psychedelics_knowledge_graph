@@ -775,9 +775,15 @@ def secondary_source_types_for(source_type: str) -> str:
     return ""
 
 
-def source_status_from_domain_rows(domain_rows: list[dict], literature_row: dict | None = None, metadata: dict | None = None) -> dict:
+def source_status_from_domain_rows(
+    domain_rows: list[dict],
+    literature_row: dict | None = None,
+    metadata: dict | None = None,
+    manual_override: dict | None = None,
+) -> dict:
     literature_row = literature_row or {}
     metadata = metadata or {}
+    manual_override = manual_override or {}
     metadata_non_primary_flags = thesis_or_dissertation_flags(metadata)
     if metadata_non_primary_flags:
         return {
@@ -816,15 +822,37 @@ def source_status_from_domain_rows(domain_rows: list[dict], literature_row: dict
     non_primary_flags = clean(model_row.get("non_primary_flags", "")) or clean(literature_row.get("non_primary_flags", ""))
     if source_family == "non_primary_publication" and not non_primary_flags and source_type:
         non_primary_flags = source_type
+    manual_source_family = clean(manual_override.get("manual_source_family", ""))
+    manual_source_type = clean(manual_override.get("manual_source_type", ""))
+    if manual_source_family or manual_source_type:
+        source_family = manual_source_family or source_family
+        source_type = manual_source_type or source_type
+        secondary_source_types = clean(
+            manual_override.get("manual_secondary_source_types", "")
+        ) or secondary_source_types_for(source_type)
+        primary_secondary_source_type = clean(
+            manual_override.get("manual_primary_secondary_source_type", "")
+        )
+        if source_family == "secondary_literature" and not primary_secondary_source_type:
+            primary_secondary_source_type = source_type
+        non_primary_flags = (
+            clean(manual_override.get("manual_non_primary_flags", ""))
+            if source_family == "non_primary_publication"
+            else ""
+        )
     return {
         "source_family": source_family,
         "source_type": source_type,
         "secondary_source_types": secondary_source_types,
         "primary_secondary_source_type": primary_secondary_source_type,
         "non_primary_flags": non_primary_flags,
-        "literature_type_confidence": clean(model_row.get("literature_type_confidence", ""))
+        "literature_type_confidence": clean(
+            manual_override.get("manual_literature_type_confidence", "")
+        )
+        or clean(model_row.get("literature_type_confidence", ""))
         or clean(literature_row.get("literature_type_confidence", "")),
-        "paper_type_reason": clean(model_row.get("paper_type_reason", "")),
+        "paper_type_reason": clean(manual_override.get("manual_paper_type_reason", ""))
+        or clean(model_row.get("paper_type_reason", "")),
     }
 
 
@@ -998,7 +1026,13 @@ def build_route_rows(
         context = prescreen.get(doi, {})
         literature_row = literature_by_doi.get(doi, {})
         domain_rows = domain_by_doi.get(doi, [])
-        source_status = source_status_from_domain_rows(domain_rows, literature_row, metadata)
+        manual_override = manual_overrides.get(doi, {})
+        source_status = source_status_from_domain_rows(
+            domain_rows,
+            literature_row,
+            metadata,
+            manual_override,
+        )
         route_literature_row = {**literature_row, **source_status}
         if doi in prescreen_dois:
             retained = bool(context.get("retained"))
@@ -1013,7 +1047,6 @@ def build_route_rows(
         source_type = clean(source_status.get("source_type", "")) or source_type_for(route_literature_row)
 
         tags = [tag for tag in context.get("routing_tags", []) if tag != "uncertain"]
-        manual_override = manual_overrides.get(doi, {})
         fulltext_access_override = manual_fulltext_access_overrides.get(doi, {})
         access_metadata = apply_fulltext_access_override(metadata, fulltext_access_override)
         manual_fulltext_access_action = clean(fulltext_access_override.get("manual_access_action", ""))

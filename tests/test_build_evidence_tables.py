@@ -13,9 +13,13 @@ from pipeline.kg.build_evidence_tables import (
     build_tables,
     canonicalize_registry_label,
     clinical_endpoint_rows,
+    condition_expanded_rows,
+    graph_admission_decision,
     graphable_compound_match,
     looks_like_compound_list,
     graph_sources_for_preset,
+    graphable_subject_match,
+    graphable_entity_match,
     graph_use_context_projections,
     match_vocabulary_entity,
     molecular_effect_label,
@@ -23,6 +27,8 @@ from pipeline.kg.build_evidence_tables import (
     molecular_parent_from_specific,
     molecular_subtopic_coverage_summary,
     node_vocabulary_lookup,
+    nontherapeutic_clinical_context_reason,
+    nontherapeutic_observational_exposure_association,
     normalize_claim_metadata,
     overview_graph_subject,
     overview_graph_subjects,
@@ -36,6 +42,189 @@ from pipeline.kg.build_evidence_tables import (
 
 
 class BuildEvidenceTablesTest(unittest.TestCase):
+    def test_nontherapeutic_observational_exposure_associations_stay_out_of_outcome_views(self) -> None:
+        schizophrenia_history = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "evidence_design": "observational",
+            "study_design": "Cross-sectional observational study",
+            "dose": "Lifetime history of hallucinogen abuse",
+            "compound_or_intervention": "Hallucinogens (LSD, MDA, mescaline, psilocybin)",
+            "comparator": "Non-abusers within the same clinical population",
+            "comparator_normalized": "Other",
+            "session_context": "naturalistic_use",
+            "support": (
+                "There was a trend for patients who had abused hallucinogens to have lower "
+                "Anxiety-Depression scores on the BPRS."
+            ),
+        }
+        population_association = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "evidence_design": "observational",
+            "study_design": "Cross-sectional comparative online survey",
+            "dose": "At least one lifetime psychedelic experience",
+            "comparator": "Sex and age-matched non-user control group",
+            "support": (
+                "Psychedelic users scored notably higher on the DUDIT compared to non-users."
+            ),
+        }
+        hppd_comparison = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "evidence_design": "observational",
+            "study_design": "Comparative cross-sectional clinical investigation",
+            "dose": "Prior LSD use",
+            "comparator": "Patients with prior LSD use without HPPD",
+            "support": (
+                "Patients who developed HPPD after LSD use had less severe psychopathology "
+                "compared to those without HPPD."
+            ),
+        }
+        retrospective_outcome = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "evidence_design": "observational",
+            "study_design": "Retrospective online survey",
+            "dose": "Naturalistic use; single significant experience",
+            "comparator": "Baseline (pre-experience)",
+            "comparator_normalized": "Baseline",
+            "support": (
+                "The proportion meeting criteria for severe AUD significantly decreased one month "
+                "after the psychedelic experience."
+            ),
+        }
+        prospective_microdosing = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "evidence_design": "observational",
+            "study_design": "Naturalistic prospective comparison study",
+            "dose": "Self-initiated microdosing for 4 weeks",
+            "comparator": "Conventional ADHD medication",
+            "comparator_normalized": "Standard care",
+            "support": "Symptoms improved over four weeks of microdosing.",
+        }
+        self_reported_improvement = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "symptom_problem",
+            "evidence_design": "observational",
+            "study_design": "Anonymous online survey",
+            "dose": "Sub-hallucinogenic doses for at least 2 weeks",
+            "support": "A majority of microdosers reported subjective improvement in depressive symptoms.",
+        }
+        model_psychosis = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_entity_label": "Schizophrenia",
+            "source_type": "review",
+            "support": (
+                "Serotonergic hallucinogens produce a model psychosis that resembles the "
+                "positive symptoms of schizophrenia."
+            ),
+        }
+        therapeutic_schizophrenia = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_entity_label": "Schizophrenia",
+            "source_type": "review",
+            "support": "Low-dose LSD may improve negative symptoms of schizophrenia.",
+        }
+        research_history = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_entity_label": "Alcohol use disorder",
+            "source_type": "review",
+            "support": "LSD was investigated as a potential treatment aid for alcoholism.",
+        }
+        hppd_condition = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_entity_label": "Hallucinogen persisting perception disorder",
+            "source_type": "review",
+            "support": "LSD is the most common substance associated with HPPD.",
+        }
+        meta_analysis_use_association = {
+            "domain": "clinical_outcome",
+            "kg_entity_kind_override": "condition_indication",
+            "graph_entity_label": "Schizophrenia",
+            "evidence_design": "evidence_synthesis",
+            "study_design": "Pairwise meta-analysis",
+            "comparator": "Non-users",
+            "support": "LSD use was associated with a history of suicide attempts.",
+        }
+
+        self.assertTrue(nontherapeutic_observational_exposure_association(schizophrenia_history))
+        self.assertTrue(nontherapeutic_observational_exposure_association(population_association))
+        self.assertTrue(nontherapeutic_observational_exposure_association(hppd_comparison))
+        self.assertFalse(nontherapeutic_observational_exposure_association(retrospective_outcome))
+        self.assertFalse(nontherapeutic_observational_exposure_association(prospective_microdosing))
+        self.assertFalse(nontherapeutic_observational_exposure_association(self_reported_improvement))
+        self.assertEqual(
+            nontherapeutic_clinical_context_reason(model_psychosis),
+            "nontherapeutic_disease_model_context",
+        )
+        self.assertEqual(nontherapeutic_clinical_context_reason(therapeutic_schizophrenia), "")
+        self.assertEqual(
+            nontherapeutic_clinical_context_reason(research_history),
+            "research_history_without_therapeutic_outcome",
+        )
+        self.assertEqual(
+            nontherapeutic_clinical_context_reason(hppd_condition),
+            "safety_or_adverse_condition_context",
+        )
+        self.assertTrue(nontherapeutic_observational_exposure_association(meta_analysis_use_association))
+        self.assertEqual(
+            graph_admission_decision(schizophrenia_history),
+            ("paper_detail", "nontherapeutic_observational_exposure_association"),
+        )
+        self.assertEqual(
+            graph_admission_decision(retrospective_outcome),
+            ("main_graph", "semantically_complete"),
+        )
+
+    def test_brain_readout_is_preserved_as_detail_only_measure_instead_of_rejected(self) -> None:
+        match = graphable_entity_match(
+            row={"graph_entity_label": "theta power (4-8 Hz)"},
+            domain="brain_system",
+            entity_kind="biomarker_readout",
+            raw_label="theta power (4-8 Hz)",
+            registry={},
+            node_vocabulary={},
+        )
+
+        self.assertTrue(match["matched"])
+        self.assertEqual(match["kind"], "brain_measure")
+        self.assertEqual(match["label"], "Oscillatory power")
+
+    def test_review_research_topic_uses_controlled_research_landscape_parent(self) -> None:
+        match = graphable_entity_match(
+            row={"graph_entity_label": "psychedelic research"},
+            domain="general_topic_coverage",
+            entity_kind="public_health_measure",
+            raw_label="psychedelic research",
+            registry={},
+            node_vocabulary={},
+        )
+
+        self.assertTrue(match["matched"])
+        self.assertEqual(match["label"], "Research landscape")
+
+    def test_preclinical_review_antidepressant_effect_uses_behavioral_boundary(self) -> None:
+        row = normalize_claim_metadata(
+            {
+                "review_extraction_method": "paper_centered_one_pass_v2",
+                "evidence_level": "preclinical",
+                "domain": "clinical_outcome",
+                "graph_entity_label": "antidepressant effects",
+                "kg_entity_kind_override": "symptom_problem",
+            },
+            "clinical_outcome",
+        )
+
+        self.assertEqual(row["domain"], "cognitive_behavioral")
+        self.assertEqual(row["kg_entity_kind_override"], "cognitive_behavioral_construct")
+        self.assertEqual(row["graph_entity_label"], "Stress-coping behavior")
+
     def test_real_world_use_context_projection_requires_finding_level_evidence(self) -> None:
         registry = {
             ("compound", "ketamine"): {"label": "Ketamine", "aliases": []},
@@ -268,27 +457,27 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ),
             (
                 {"study_title": "Recreational use of psychedelics and brain serotonin markers"},
-                "Recreational psychedelic exposure",
+                "Psychedelics (unspecified compounds)",
             ),
             (
                 {"compound_or_exposure": "Lifetime naturalistic psychedelic use"},
-                "Naturalistic psychedelic exposure",
+                "Psychedelics (unspecified compounds)",
             ),
             (
                 {"primary_compounds_or_classes": "psilocybin, LSD, DMT, MDMA"},
-                "Psychedelics (mixed or unspecified compounds)",
+                "Psychedelics (unspecified compounds)",
             ),
             (
                 {"compound_or_intervention": "psychedelic-assisted psychotherapy"},
-                "Psychedelic-assisted therapy",
+                "Psychedelic-assisted therapy (unspecified compounds)",
             ),
             (
                 {"support": "Psychedelic compounds were examined."},
-                "Psychedelics (mixed or unspecified compounds)",
+                "Psychedelics (unspecified compounds)",
             ),
             (
                 {"support": "Studies reported mixed results for antidepressant effects."},
-                "Psychedelics (mixed or unspecified compounds)",
+                "Psychedelics (unspecified compounds)",
             ),
         ]
         for row, expected in cases:
@@ -296,6 +485,13 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 result = overview_graph_subject(row, generic_match, registry)
                 self.assertEqual(result["label"], expected)
                 self.assertNotEqual(result["label"], "Psychedelics")
+
+        specified_therapy = overview_graph_subject(
+            {"compound_or_intervention": "psilocybin-assisted psychotherapy"},
+            {"label": "Psilocybin", "subject_kind": "atomic_compound"},
+            registry,
+        )
+        self.assertEqual(specified_therapy["label"], "Psilocybin")
 
         classic = overview_graph_subject(
             {},
@@ -316,7 +512,35 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             {"label": "Classic psychedelics (primarily LSD and psilocybin)", "subject_kind": "compound_class"},
             registry,
         )
-        self.assertEqual([item["label"] for item in primarily_two_compounds], ["LSD", "Psilocybin"])
+        self.assertEqual([item["label"] for item in primarily_two_compounds], ["Classic psychedelics"])
+
+        pooled_class_with_examples = overview_graph_subjects(
+            {},
+            {
+                "label": "Classical psychedelics (LSD, psilocybin, ayahuasca, DMT, mescaline)",
+                "subject_kind": "compound_class",
+            },
+            registry,
+        )
+        self.assertEqual([item["label"] for item in pooled_class_with_examples], ["Classic psychedelics"])
+
+        naturalistic_class = overview_graph_subject(
+            {"compound_or_intervention": "Classical psychedelics"},
+            {"label": "At least one lifetime psychedelic experience", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(naturalistic_class["label"], "Classic psychedelics")
+
+        unspecified_microdosing = overview_graph_subject(
+            {"session_context": "naturalistic_use"},
+            {"label": "Psychedelic microdosing", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(unspecified_microdosing["label"], "Psychedelics (unspecified compounds)")
+        self.assertEqual(
+            unspecified_microdosing["reason"],
+            "controlled_unresolved_psychedelic_class_detail_only",
+        )
 
         ketamine_therapy = overview_graph_subject(
             {},
@@ -330,8 +554,44 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             {"label": "Psychedelics and ketamine", "subject_kind": "compound_class"},
             registry,
         )
-        self.assertEqual(partly_specified["label"], "Psychedelics (mixed or unspecified compounds)")
-        self.assertEqual(partly_specified["reason"], "controlled_unresolved_psychedelic_class_detail_only")
+        self.assertEqual(partly_specified["label"], "Ketamine")
+        self.assertEqual(partly_specified["reason"], "specific_compounds_recovered_from_class_text")
+
+        named_mixed_exposure = overview_graph_subjects(
+            {},
+            {"label": "Psychedelics and MDMA", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual([item["label"] for item in named_mixed_exposure], ["MDMA"])
+
+        hallucinogen_class = overview_graph_subject(
+            {},
+            {"label": "Hallucinogen use (e.g., LSD)", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(hallucinogen_class["label"], "Hallucinogens")
+
+        for raw_label in (
+            "Psychedelics other than LSD",
+            "Self-treating with non-ketamine psychedelics only",
+            "Non-phenethylamine psychedelics (e.g., AL-LAD, 1P-LSD, LSZ)",
+            "Psychedelics (LSD equivalents)",
+        ):
+            with self.subTest(raw_label=raw_label):
+                unresolved = overview_graph_subject(
+                    {},
+                    {"label": raw_label, "subject_kind": "compound_class"},
+                    registry,
+                )
+                self.assertEqual(unresolved["label"], "Psychedelics (unspecified compounds)")
+                self.assertEqual(unresolved["reason"], "controlled_unresolved_psychedelic_class_detail_only")
+
+        self_treatment = overview_graph_subject(
+            {"support": "The group reported lower recreational ketamine use."},
+            {"label": "Self-treating with non-ketamine psychedelics only", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(self_treatment["label"], "Psychedelics (unspecified compounds)")
 
     def test_compound_list_gate_distinguishes_lists_from_chemical_locants_and_metadata(self) -> None:
         self.assertTrue(looks_like_compound_list("Ketamine, esketamine, arketamine"))
@@ -348,7 +608,10 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             write_json(
                 registry_path,
                 {
-                    "compounds": [{"label": "Psilocybin", "aliases": [], "ids": {}, "status": "seeded"}],
+                    "compounds": [
+                        {"label": "Psilocybin", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "LSD", "aliases": [], "ids": {}, "status": "seeded"},
+                    ],
                     "targets": [],
                     "disorders": [
                         {"label": "Major depressive disorder", "aliases": ["MDD"], "ids": {}, "status": "seeded"}
@@ -374,6 +637,34 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "condition_or_indication": "MDD",
                         "paper_assessment_route": "primary_evidence",
                     },
+                    {
+                        "study_doi": "10.1000/naturalistic-unspecified",
+                        "domain": "clinical_outcome",
+                        "compound": "Naturalistic psychedelic use",
+                        "graph_subject_kind": "compound_class",
+                        "condition_or_indication": "MDD",
+                        "session_context": "naturalistic_use",
+                        "paper_assessment_route": "primary_evidence",
+                    },
+                    {
+                        "study_doi": "10.1000/naturalistic-class",
+                        "domain": "clinical_outcome",
+                        "compound": "At least one lifetime psychedelic experience",
+                        "graph_subject_kind": "compound_class",
+                        "compound_or_intervention": "Classical psychedelics",
+                        "condition_or_indication": "MDD",
+                        "session_context": "naturalistic_use",
+                        "paper_assessment_route": "primary_evidence",
+                    },
+                    {
+                        "study_doi": "10.1000/pooled-class",
+                        "domain": "clinical_outcome",
+                        "compound": "Classical psychedelics (primarily psilocybin and LSD)",
+                        "graph_subject_kind": "compound_class",
+                        "condition_or_indication": "MDD",
+                        "session_context": "naturalistic_use",
+                        "paper_assessment_route": "primary_evidence",
+                    },
                 ],
             )
             build_tables(
@@ -392,12 +683,25 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             )
             findings = pd.read_parquet(out_dir / "findings.parquet").set_index("study_doi")
             unresolved = findings.loc["10.1000/unspecified"]
-            self.assertEqual(unresolved["graph_overview_subject_label"], "Psychedelics (mixed or unspecified compounds)")
+            self.assertEqual(unresolved["graph_overview_subject_label"], "Psychedelics (unspecified compounds)")
             self.assertEqual(unresolved["graph_admission_status"], "paper_detail")
             self.assertEqual(unresolved["graph_admission_reason"], "unresolved_psychedelic_class_detail_only")
             classic = findings.loc["10.1000/classic"]
             self.assertEqual(classic["graph_overview_subject_label"], "Classic psychedelics")
             self.assertEqual(classic["graph_admission_status"], "main_graph")
+            naturalistic_unspecified = findings.loc["10.1000/naturalistic-unspecified"]
+            self.assertEqual(
+                naturalistic_unspecified["graph_overview_subject_label"],
+                "Psychedelics (unspecified compounds)",
+            )
+            self.assertEqual(naturalistic_unspecified["graph_admission_status"], "paper_detail")
+            naturalistic_class = findings.loc["10.1000/naturalistic-class"]
+            self.assertEqual(naturalistic_class["graph_overview_subject_label"], "Classic psychedelics")
+            self.assertEqual(naturalistic_class["graph_admission_status"], "main_graph")
+            pooled_class = findings.loc["10.1000/pooled-class"]
+            self.assertEqual(pooled_class["graph_overview_subject_label"], "Classic psychedelics")
+            self.assertEqual(pooled_class["graph_admission_status"], "main_graph")
+            self.assertNotIn("Naturalistic psychedelic exposure", set(findings["compound"]))
 
     def test_routed_source_preset_uses_route_native_sources(self) -> None:
         self.assertEqual(set(graph_sources_for_preset("routed")), {"routed_extractions", "routed_clinical_endpoints"})
@@ -494,10 +798,254 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertFalse(fallback_scoped_out["matched"])
         self.assertEqual(fallback_scoped_out["status"], "compound_graph_scope_not_graphable")
 
+    def test_nonpsychedelic_non_atomic_exposure_is_excluded_from_normalized_findings(self) -> None:
+        registry = {
+            ("compound", "lsd"): {"label": "LSD", "aliases": []},
+            ("compound", "psilocybin"): {"label": "Psilocybin", "aliases": []},
+        }
+
+        stimulant_only = graphable_subject_match(
+            {
+                "compound": "Stimulants (Amphetamines, Cocaine)",
+                "graph_subject_kind": "compound_combination",
+            },
+            registry,
+        )
+        self.assertFalse(stimulant_only["matched"])
+        self.assertEqual(stimulant_only["status"], "compound_out_of_scope_nonpsychedelic")
+
+        mixed_with_psychedelic = graphable_subject_match(
+            {
+                "compound": "LSD + cocaine",
+                "graph_subject_kind": "compound_combination",
+            },
+            registry,
+        )
+        self.assertTrue(mixed_with_psychedelic["matched"])
+
+        psychedelic_class_with_comedication = graphable_subject_match(
+            {
+                "compound": "Psychedelics + antipsychotics",
+                "graph_subject_kind": "treatment_regimen",
+            },
+            registry,
+        )
+        self.assertTrue(psychedelic_class_with_comedication["matched"])
+
+        unregistered_candidate_with_control = graphable_subject_match(
+            {
+                "compound": "Catharanthine sulfate + nicotine",
+                "graph_subject_kind": "compound_combination",
+            },
+            registry,
+        )
+        self.assertTrue(unregistered_candidate_with_control["matched"])
+
+        receptor_language_only = graphable_subject_match(
+            {
+                "compound": "atypical antipsychotics",
+                "graph_subject_kind": "compound_class",
+                "support": "5-HT2A inverse agonists altered cortical signaling.",
+            },
+            registry,
+        )
+        self.assertFalse(receptor_language_only["matched"])
+        self.assertEqual(receptor_language_only["status"], "compound_out_of_scope_nonpsychedelic")
+
+    def test_nonpsychedelic_exposure_is_audited_without_creating_a_finding_row(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            source_path = root / "routed.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [
+                        {"label": "LSD", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "Ketamine", "aliases": [], "ids": {}, "status": "seeded"},
+                        {
+                            "label": "Dextromethorphan",
+                            "aliases": ["DXM"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                    ],
+                    "targets": [],
+                    "disorders": [
+                        {"label": "Schizophrenia", "aliases": [], "ids": {}, "status": "seeded"}
+                    ],
+                },
+            )
+            write_json(
+                source_path,
+                [
+                    {
+                        "study_doi": "10.1093/schbul/16.1.31",
+                        "domain": "clinical_outcome",
+                        "compound": "LSD",
+                        "graph_subject_kind": "atomic_compound",
+                        "condition_or_indication": "Schizophrenia",
+                    },
+                    {
+                        "study_doi": "10.1093/schbul/16.1.31",
+                        "domain": "clinical_outcome",
+                        "compound": "Stimulants (Amphetamines, Cocaine)",
+                        "graph_subject_kind": "compound_combination",
+                        "condition_or_indication": "Schizophrenia",
+                    },
+                    {
+                        "study_doi": "10.1000/ketamine-morphine",
+                        "domain": "clinical_outcome",
+                        "compound": "morphine",
+                        "atomic_compound_candidate": "morphine",
+                        "graph_subject_label": "morphine",
+                        "graph_subject_kind": "atomic_compound",
+                        "graph_subject_source_field": "compound",
+                        "condition_or_indication": "Schizophrenia",
+                        "support": "Ketamine significantly decreased the clearance of morphine.",
+                    },
+                    {
+                        "study_doi": "10.1000/generic-psychedelic-interaction",
+                        "domain": "clinical_outcome",
+                        "compound": "antidepressants",
+                        "graph_subject_kind": "compound_class",
+                        "condition_or_indication": "Schizophrenia",
+                        "support": "Antidepressants may attenuate the acute subjective effects of psychedelics.",
+                    },
+                    {
+                        "study_doi": "10.1000/title-only-mdma",
+                        "study_title": "MDMA and benzodiazepine interactions",
+                        "domain": "clinical_outcome",
+                        "compound": "Benzodiazepines",
+                        "graph_subject_kind": "compound_class",
+                        "condition_or_indication": "Schizophrenia",
+                        "support": "Benzodiazepines reduced anxiety.",
+                    },
+                    {
+                        "study_doi": "10.1000/dxm-interaction",
+                        "study_title": "Management of dextromethorphan-induced psychosis",
+                        "domain": "clinical_outcome",
+                        "compound": "atypical antipsychotics",
+                        "graph_subject_kind": "compound_class",
+                        "condition_or_indication": "Schizophrenia",
+                        "support": "Atypical antipsychotics improved DXM-induced psychosis.",
+                    },
+                ],
+            )
+
+            build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": source_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    }
+                },
+            )
+
+            findings = pd.read_parquet(out_dir / "findings.parquet")
+            audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
+            self.assertEqual(
+                set(findings["compound"]),
+                {
+                    "LSD",
+                    "Ketamine",
+                    "Dextromethorphan",
+                    "Psychedelics (unspecified compounds)",
+                },
+            )
+            recovered = findings.set_index("study_doi")
+            ketamine = recovered.loc["10.1000/ketamine-morphine"]
+            self.assertEqual(ketamine["graph_subject_label"], "morphine")
+            self.assertEqual(ketamine["graph_overview_subject_label"], "Ketamine")
+            self.assertEqual(ketamine["graph_admission_status"], "paper_detail")
+            self.assertEqual(
+                ketamine["graph_admission_reason"],
+                "in_scope_subject_recovered_from_finding_evidence_detail_only",
+            )
+            generic = recovered.loc["10.1000/generic-psychedelic-interaction"]
+            self.assertEqual(generic["graph_subject_label"], "antidepressants")
+            self.assertEqual(generic["graph_overview_subject_label"], "Psychedelics (unspecified compounds)")
+            self.assertEqual(generic["graph_admission_status"], "paper_detail")
+            dxm = recovered.loc["10.1000/dxm-interaction"]
+            self.assertEqual(dxm["graph_subject_label"], "atypical antipsychotics")
+            self.assertEqual(dxm["graph_overview_subject_label"], "Dextromethorphan")
+            self.assertEqual(dxm["graph_admission_status"], "paper_detail")
+            self.assertEqual(len(audit), 2)
+            self.assertEqual(
+                set(audit["compound_original"]),
+                {"Stimulants (Amphetamines, Cocaine)", "Benzodiazepines"},
+            )
+            self.assertEqual(set(audit["normalization_status"]), {"compound_out_of_scope_nonpsychedelic"})
+
     def test_final_registry_and_vocabulary_aliases_cover_common_leftovers(self) -> None:
         root = Path(__file__).resolve().parents[1]
         registry = registry_lookup(root / "data" / "curated" / "entity_registry.json")
         vocabulary = node_vocabulary_lookup(root / "schema" / "kg_node_vocabularies.json")
+
+        dxm = graphable_compound_match("DXM", registry)
+        self.assertTrue(dxm["matched"])
+        self.assertEqual(dxm["label"], "Dextromethorphan")
+
+        botanical_cases = [
+            ("Argyreia nervosa (Hawaiian baby wood rose seed)", "Hawaiian baby woodrose", "LSA"),
+            ("Iboga", "Iboga", "Ibogaine"),
+            ("Tabernanthe iboga root bark extract", "Iboga", "Ibogaine"),
+            ("Incilius alvarius secretions", "Incilius alvarius secretion", "5-MeO-DMT"),
+            ("Sonoran Desert toad", "Incilius alvarius secretion", "5-MeO-DMT"),
+            ("Peyote", "Peyote", "Mescaline"),
+            ("Lophophora williamsii", "Peyote", "Mescaline"),
+            ("Salvia divinorum", "Salvia divinorum", "Salvinorin A"),
+            ("Salvia divinorum extract", "Salvia divinorum", "Salvinorin A"),
+        ]
+        for raw_label, exact_label, overview_label in botanical_cases:
+            with self.subTest(raw_label=raw_label):
+                match = graphable_compound_match(raw_label, registry)
+                self.assertTrue(match["matched"])
+                self.assertEqual(match["label"], exact_label)
+                projection = overview_graph_subjects({}, match, registry)
+                self.assertEqual(projection[0]["label"], overview_label)
+                self.assertEqual(projection[0]["reason"], "controlled_source_active_compound")
+                self.assertIn(exact_label, projection[0]["aliases"])
+
+        ayahuasca = graphable_compound_match("Ayahuasca", registry)
+        ayahuasca_projection = overview_graph_subjects({}, ayahuasca, registry)
+        self.assertEqual(ayahuasca_projection[0]["label"], "Ayahuasca")
+        self.assertEqual(ayahuasca_projection[0]["kind"], "compound_combination")
+        self.assertEqual(ayahuasca_projection[0]["reason"], "controlled_registered_exposure_kind")
+        peyote_or_mescaline = overview_graph_subjects(
+            {},
+            {"label": "Peyote or mescaline", "subject_kind": "compound_combination"},
+            registry,
+        )
+        self.assertEqual([subject["label"] for subject in peyote_or_mescaline], ["Mescaline"])
+        self.assertIn("Peyote", peyote_or_mescaline[0]["aliases"])
+        salvia_or_salvinorin = overview_graph_subjects(
+            {},
+            {"label": "Salvia divinorum extract or Salvinorin A", "subject_kind": "compound_combination"},
+            registry,
+        )
+        self.assertEqual([subject["label"] for subject in salvia_or_salvinorin], ["Salvinorin A"])
+        negated_compounds = overview_graph_subjects(
+            {},
+            {
+                "label": "Non-psilocybin/LSD psychedelics (e.g., DMT, mescaline, peyote, San Pedro)",
+                "subject_kind": "compound_class",
+            },
+            registry,
+        )
+        self.assertEqual([subject["label"] for subject in negated_compounds], ["DMT", "Mescaline"])
+        self.assertEqual(
+            canonicalize_registry_label("compound", "O-desmethylibogaine", registry)[0],
+            "Noribogaine",
+        )
+        self.assertEqual(canonicalize_registry_label("compound", "shrooms", registry)[0], "Psilocybin")
 
         target_cases = [
             ("h5-HT2A", "5-HT2A"),
@@ -531,6 +1079,11 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         for raw_label, expected in target_cases:
             with self.subTest(raw_label=raw_label):
                 self.assertEqual(canonicalize_registry_label("mechanistic_entity", raw_label, registry)[0], expected)
+
+        self.assertEqual(
+            canonicalize_registry_label("clinical_entity", "autism", registry)[0],
+            "Autism spectrum disorder",
+        )
 
         brain_cases = [
             ("ventral medial prefrontal cortex (vmPFC)", "Ventromedial prefrontal cortex"),
@@ -1550,7 +2103,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         )
         self.assertNotEqual(locomotor_control.get("kg_entity_kind_override"), "condition_indication")
 
-    def test_generic_locomotor_activity_is_not_a_cognition_graph_node(self) -> None:
+    def test_generic_locomotor_activity_is_retained_as_controlled_detail_only(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             registry_path = root / "registry.json"
@@ -1597,8 +2150,366 @@ class BuildEvidenceTablesTest(unittest.TestCase):
 
             findings = pd.read_parquet(out_dir / "findings.parquet")
             audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
-            self.assertTrue(findings.empty)
-            self.assertEqual(audit.iloc[0]["normalization_status"], "generic_behavior_not_graphable")
+            edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
+            self.assertEqual(len(findings), 1)
+            self.assertTrue(audit.empty)
+            self.assertEqual(edges.iloc[0]["entity_label"], "Locomotor activity")
+            self.assertEqual(findings.iloc[0]["graph_admission_status"], "paper_detail")
+            self.assertEqual(
+                findings.iloc[0]["graph_admission_reason"],
+                "controlled_behavioral_measure_detail_only",
+            )
+
+    def test_structured_unknown_compound_is_detail_only_but_context_prose_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            routed_path = root / "routed_evidence_rows.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [],
+                    "targets": [
+                        {"label": "BDNF", "aliases": [], "ids": {}, "status": "seeded"}
+                    ],
+                    "disorders": [
+                        {
+                            "label": "Major depressive disorder",
+                            "aliases": ["MDD"],
+                            "ids": {},
+                            "status": "seeded",
+                        }
+                    ],
+                },
+            )
+            write_json(
+                routed_path,
+                [
+                    {
+                        "study_doi": "10.1000/unknown-compound-detail",
+                        "domain": "clinical_outcome",
+                        "compound": "Lorcaserin",
+                        "atomic_compound_candidate": "Lorcaserin",
+                        "graph_subject_label": "Lorcaserin",
+                        "graph_subject_kind": "atomic_compound",
+                        "graph_subject_source_field": "compound",
+                        "condition_or_indication": "MDD",
+                        "support": "Lorcaserin was evaluated in participants with MDD.",
+                    },
+                    {
+                        "study_doi": "10.1000/context-is-not-compound",
+                        "domain": "clinical_outcome",
+                        "compound": "Chronic social defeat stress",
+                        "atomic_compound_candidate": "Chronic social defeat stress",
+                        "graph_subject_label": "Chronic social defeat stress",
+                        "graph_subject_kind": "atomic_compound",
+                        "graph_subject_source_field": "compound",
+                        "condition_or_indication": "MDD",
+                        "support": "The chronic social defeat stress model was used.",
+                    },
+                    {
+                        "study_doi": "10.1000/target-is-not-compound",
+                        "domain": "clinical_outcome",
+                        "compound": "BDNF",
+                        "atomic_compound_candidate": "BDNF",
+                        "graph_subject_label": "BDNF",
+                        "graph_subject_kind": "atomic_compound",
+                        "graph_subject_source_field": "compound",
+                        "condition_or_indication": "MDD",
+                        "support": "BDNF was measured as a biomarker.",
+                    },
+                ],
+            )
+
+            build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    }
+                },
+            )
+
+            findings = pd.read_parquet(out_dir / "findings.parquet")
+            audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
+            self.assertEqual(set(findings["study_doi"]), {"10.1000/unknown-compound-detail"})
+            finding = findings.iloc[0]
+            self.assertEqual(finding["graph_subject_label"], "Lorcaserin")
+            self.assertEqual(finding["compound"], "Lorcaserin")
+            self.assertEqual(finding["graph_overview_subject_label"], "")
+            self.assertEqual(finding["compound_match_type"], "validated_unregistered_compound_detail_only")
+            self.assertEqual(finding["graph_admission_status"], "paper_detail")
+            self.assertEqual(len(audit), 2)
+            self.assertEqual(set(audit["normalization_status"]), {"compound_unmapped"})
+
+    def test_meta_analysis_preserves_population_condition_and_normalizes_outcome_entity(self) -> None:
+        depression = normalize_claim_metadata(
+            {
+                "source_type": "meta_analysis",
+                "paper_type": "meta_analysis",
+                "domain": "clinical_outcome",
+                "kg_entity_kind_override": "condition_indication",
+                "graph_entity_label": "Patients with major depressive disorder",
+                "normalization_entity_source": "population",
+                "primary_outcome": "Depressive symptom scores",
+            },
+            "clinical_outcome",
+        )
+        self.assertEqual(depression["kg_entity_kind_override"], "condition_indication")
+        self.assertEqual(depression["graph_entity_label"], "Patients with major depressive disorder")
+
+        outcome = normalize_claim_metadata(
+            {
+                "source_type": "meta_analysis",
+                "paper_type": "meta_analysis",
+                "domain": "clinical_outcome",
+                "kg_entity_kind_override": "symptom_problem",
+                "graph_entity_label": "response rate",
+                "primary_outcome": "Depressive symptom scores",
+            },
+            "clinical_outcome",
+        )
+        self.assertEqual(outcome["kg_entity_kind_override"], "symptom_problem")
+        self.assertEqual(outcome["graph_entity_label"], "Low mood & depressive symptoms")
+        self.assertEqual(
+            outcome["normalization_boundary_reason"],
+            "meta_analysis_population_or_outcome_resolved_to_endpoint",
+        )
+
+        primary = normalize_claim_metadata(
+            {
+                "source_type": "primary_study",
+                "domain": "clinical_outcome",
+                "kg_entity_kind_override": "condition_indication",
+                "graph_entity_label": "Patients with depression",
+                "primary_outcome": "Depressive symptom scores",
+            },
+            "clinical_outcome",
+        )
+        self.assertEqual(primary["graph_entity_label"], "Patients with depression")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            registry_path = Path(tmpdir) / "registry.json"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [],
+                    "targets": [],
+                    "disorders": [
+                        {
+                            "label": "Major depressive disorder",
+                            "aliases": ["MDD", "major depression"],
+                            "ids": {},
+                            "status": "seeded",
+                        }
+                    ],
+                },
+            )
+            registry = registry_lookup(registry_path)
+            condition_match = graphable_entity_match(
+                depression,
+                "clinical_outcome",
+                "condition_indication",
+                depression["graph_entity_label"],
+                registry,
+                {},
+            )
+            self.assertTrue(condition_match["matched"])
+            self.assertEqual(condition_match["label"], "Major depressive disorder")
+            fallback_match = graphable_entity_match(
+                {
+                    "source_type": "meta_analysis",
+                    "paper_type": "meta_analysis",
+                    "domain": "clinical_outcome",
+                    "kg_entity_kind_override": "condition_indication",
+                    "graph_entity_label": "Cancer patients",
+                    "normalization_entity_source": "population",
+                    "primary_outcome": "Psychological distress",
+                },
+                "clinical_outcome",
+                "condition_indication",
+                "Cancer patients",
+                registry,
+                {},
+            )
+            self.assertTrue(fallback_match["matched"])
+            self.assertEqual(fallback_match["kind"], "symptom_problem")
+            self.assertEqual(fallback_match["label"], "Psychological distress")
+            self.assertEqual(fallback_match["match_type"], "meta_analysis_population_endpoint_fallback")
+
+            projection_registry_path = Path(tmpdir) / "projection_registry.json"
+            write_json(
+                projection_registry_path,
+                {
+                    "compounds": [
+                        {"label": "Ketamine", "aliases": [], "ids": {}, "status": "seeded"}
+                    ],
+                    "targets": [],
+                    "disorders": [
+                        {
+                            "label": "Major depressive disorder",
+                            "aliases": ["MDD", "major depression"],
+                            "ids": {},
+                            "status": "seeded",
+                        }
+                    ],
+                },
+            )
+            projection_rows = condition_expanded_rows(
+                {
+                    "source_type": "meta_analysis",
+                    "paper_type": "meta_analysis",
+                    "domain": "clinical_outcome",
+                    "compound": "Ketamine",
+                    "kg_entity_kind_override": "symptom_problem",
+                    "graph_entity_label": "Low mood & depressive symptoms",
+                    "population": "Adults with MDD",
+                },
+                "clinical_outcome",
+                registry_lookup(projection_registry_path),
+            )
+            self.assertEqual(len(projection_rows), 2)
+            self.assertEqual(projection_rows[1]["kg_entity_kind_override"], "condition_indication")
+            self.assertEqual(projection_rows[1]["graph_entity_label"], "Major depressive disorder")
+
+    def test_selective_entity_splitting_expands_lists_but_preserves_complexes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            registry_path = root / "registry.json"
+            routed_path = root / "routed_evidence_rows.json"
+            out_dir = root / "kg"
+            write_json(
+                registry_path,
+                {
+                    "compounds": [
+                        {"label": "Psilocybin", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "MDMA", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "MDA", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "HMMA", "aliases": [], "ids": {}, "status": "seeded"},
+                        {"label": "HMA", "aliases": [], "ids": {}, "status": "seeded"},
+                    ],
+                    "targets": [
+                        {
+                            "label": "mu opioid receptor (OPRM1)",
+                            "aliases": ["mu opioid receptor"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                        {
+                            "label": "kappa opioid receptor (OPRK1)",
+                            "aliases": ["kappa opioid receptor"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                        {
+                            "label": "BDNF",
+                            "aliases": [],
+                            "ids": {},
+                            "status": "biomarker_readout_needs_external_id_lookup",
+                        },
+                        {
+                            "label": "mTOR",
+                            "aliases": ["mTOR signaling complex"],
+                            "ids": {},
+                            "status": "pathway_node_needs_external_id_lookup",
+                        },
+                    ],
+                    "disorders": [
+                        {
+                            "label": "Anxiety disorders",
+                            "aliases": ["anxiety symptoms"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                        {
+                            "label": "Depressive disorders",
+                            "aliases": ["depressive symptoms"],
+                            "ids": {},
+                            "status": "seeded",
+                        },
+                    ],
+                },
+            )
+            write_json(
+                routed_path,
+                [
+                    {
+                        "study_doi": "10.1000/shared-target-name",
+                        "domain": "molecular_target",
+                        "compound": "Psilocybin",
+                        "target": "mu and kappa opioid receptors",
+                        "support": "Binding was measured at mu and kappa opioid receptors.",
+                    },
+                    {
+                        "study_doi": "10.1000/pk-analyte-list",
+                        "domain": "pharmacokinetics_exposure",
+                        "compound_or_analyte": "MDMA",
+                        "primary_graph_anchor_kind": "compound",
+                        "metabolite_or_analyte": "MDA, HMMA, HMA",
+                        "pk_graph_object_kind": "metabolite_or_analyte",
+                        "pk_graph_object_label": "MDA, HMMA, HMA",
+                        "pk_relationship_type": "metabolized_to",
+                        "support": "The analysis quantified MDA, HMMA, and HMA.",
+                    },
+                    {
+                        "study_doi": "10.1000/combined-symptoms",
+                        "domain": "clinical_outcome",
+                        "compound": "Psilocybin",
+                        "kg_entity_kind_override": "symptom_problem",
+                        "graph_entity_label": "anxiety and depression symptoms",
+                        "support": "Anxiety and depression symptoms were measured separately.",
+                    },
+                    {
+                        "study_doi": "10.1000/semantic-complex",
+                        "domain": "molecular_pathway_readout",
+                        "compound": "Psilocybin",
+                        "kg_entity_kind_override": "pathway_process",
+                        "graph_entity_label": "BDNF and mTOR signaling complex",
+                        "support": "The paper described one BDNF and mTOR signaling complex.",
+                    },
+                ],
+            )
+
+            build_tables(
+                registry_path=registry_path,
+                out_dir=out_dir,
+                write_duckdb=False,
+                graph_sources={
+                    "routed_extractions": {
+                        "path": routed_path,
+                        "domain": "routed",
+                        "dataset": "routed",
+                        "default_evidence_type": "primary_evidence",
+                        "skip_audit": True,
+                    }
+                },
+            )
+
+            edges = pd.read_parquet(out_dir / "evidence_edges.parquet")
+            labels_by_doi = edges.groupby("study_doi")["entity_label"].apply(set).to_dict()
+            self.assertEqual(
+                labels_by_doi["10.1000/shared-target-name"],
+                {"mu opioid receptor (OPRM1)", "kappa opioid receptor (OPRK1)"},
+            )
+            self.assertEqual(
+                labels_by_doi["10.1000/pk-analyte-list"],
+                {"MDA", "HMMA", "HMA"},
+            )
+            self.assertEqual(
+                labels_by_doi["10.1000/combined-symptoms"],
+                {"Anxiety & panic", "Low mood & depressive symptoms"},
+            )
+            audit = pd.read_parquet(out_dir / "normalization_audit.parquet")
+            complex_audit = audit[audit["study_doi"] == "10.1000/semantic-complex"]
+            self.assertEqual(len(complex_audit), 1)
+            self.assertNotIn("10.1000/semantic-complex", labels_by_doi)
 
     def test_cognitive_behavioral_specific_nodes_retain_parent_families(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -3269,18 +4180,29 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 },
             )
             rows = []
-            for doi_suffix, condition in (
-                ("broad-depression", "depression"),
-                ("mdd", "major depressive disorder with depression"),
-                ("mood-parenthetical-mdd", "mood disorders (predominantly major depressive disorder)"),
-                ("trd", "treatment-resistant depression"),
-                ("bipolar-depression", "treatment-resistant bipolar I/II depression"),
-                ("broad-anxiety", "anxiety"),
-                ("gad", "generalized anxiety disorder with anxiety symptoms"),
-                ("life-threatening-anxiety", "anxiety related to life-threatening illnesses"),
-                ("broad-pain", "pain"),
-                ("chronic-pain", "chronic pain with pain interference"),
-                ("neuropathic-pain", "chronic neuropathic orofacial pain"),
+            for doi_suffix, condition, context in (
+                ("broad-depression", "depression", {}),
+                ("broad-depression-context-mdd", "depression", {"clinical_context_condition": "MDD"}),
+                (
+                    "broad-depression-ambiguous",
+                    "depression",
+                    {"finding_summary": "The review covers MDD and bipolar depression."},
+                ),
+                (
+                    "broad-depression-wrong-family",
+                    "depression",
+                    {"clinical_context_condition": "generalized anxiety disorder"},
+                ),
+                ("mdd", "major depressive disorder with depression", {}),
+                ("mood-parenthetical-mdd", "mood disorders (predominantly major depressive disorder)", {}),
+                ("trd", "treatment-resistant depression", {}),
+                ("bipolar-depression", "treatment-resistant bipolar I/II depression", {}),
+                ("broad-anxiety", "anxiety", {}),
+                ("gad", "generalized anxiety disorder with anxiety symptoms", {}),
+                ("life-threatening-anxiety", "anxiety related to life-threatening illnesses", {}),
+                ("broad-pain", "pain", {}),
+                ("chronic-pain", "chronic pain with pain interference", {}),
+                ("neuropathic-pain", "chronic neuropathic orofacial pain", {}),
             ):
                 rows.append(
                     {
@@ -3294,6 +4216,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                         "source_type": "primary_study",
                         "paper_type": "primary_study",
                         "access_level": "article_text",
+                        **context,
                     }
                 )
             write_json(routed_path, rows)
@@ -3345,6 +4268,9 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             set(audit["normalization_status"]),
             {"condition_broad_placeholder_not_graphable"},
         )
+        self.assertIn("10.1000/broad-depression-context-mdd", set(edges["study_doi"]))
+        self.assertNotIn("10.1000/broad-depression-ambiguous", set(edges["study_doi"]))
+        self.assertNotIn("10.1000/broad-depression-wrong-family", set(edges["study_doi"]))
 
     def test_condition_registry_keeps_bipolar_subtypes_and_removes_contextual_duplicates(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

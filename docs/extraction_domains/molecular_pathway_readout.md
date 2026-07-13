@@ -56,7 +56,7 @@ turnover`, receptor mRNA or density is assigned to `Receptor regulation &
 trafficking`, and neuronal currents or firing are assigned to `Neuronal
 excitability & synaptic transmission`. Exact readout wording remains unchanged
 in finding cards. Large molecular parents are required to keep the residual
-unclassified share at or below 20% during the KG build.
+unclassified share at no more than 20% during the KG build.
 
 Examples:
 

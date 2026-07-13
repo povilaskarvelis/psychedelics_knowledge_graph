@@ -1199,7 +1199,7 @@ def build_dataset_packets(
     artifact_paths = list(iter_artifact_paths(dataset, artifact_dir=artifact_dir, doi_filter=doi_filter))
     if limit > 0:
         artifact_paths = artifact_paths[:limit]
-    source_identity_gate = SourceIdentityAuditGate(source_identity_audit)
+    source_identity_gate = SourceIdentityAuditGate(source_identity_audit, require_passing=True)
 
     counts = {
         "artifact_files_selected": len(artifact_paths),

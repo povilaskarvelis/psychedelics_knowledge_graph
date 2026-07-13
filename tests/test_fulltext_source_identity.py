@@ -204,7 +204,7 @@ def test_pdf_hash_attestation_registry_is_narrow_and_hash_bound() -> None:
     registry = load_pdf_hash_attestation_registry(DEFAULT_PDF_HASH_ATTESTATION_REGISTRY)
 
     assert len(registry["records"]) == 8
-    record = registry["records"]["10.1254/fpj.97.4_209"]
+    record = registry["records"]["10.1254/fpj.97.4/209"]
     assert record["document_kind"] == "single_article_pdf"
     assert len(record["pdf_sha256"]) == 64
     assert all(row["document_kind"] == "single_article_pdf" for row in registry["records"].values())

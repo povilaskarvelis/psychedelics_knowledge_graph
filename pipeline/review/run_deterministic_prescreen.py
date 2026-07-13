@@ -42,6 +42,9 @@ DEFAULT_SUMMARY_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_summary.parquet"
 DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS = (
     ROOT / "data" / "curated" / "prescreen_publication_format_exclusions.json"
 )
+DEFAULT_CURATED_PAPER_METADATA_OVERRIDES = (
+    ROOT / "data" / "curated" / "paper_metadata_overrides.json"
+)
 TABLE_VERSION = "0.1"
 SCREENING_SCOPE = "unified_corpus"
 
@@ -389,6 +392,22 @@ def load_curated_publication_format_exclusions(path: Path) -> dict[str, dict]:
     return out
 
 
+def load_curated_paper_metadata_overrides(path: Path) -> dict[str, dict]:
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    out: dict[str, dict] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        doi = normalize_doi(clean(record.get("doi", ""))).lower()
+        fields = record.get("fields", {}) if isinstance(record.get("fields"), dict) else {}
+        if doi:
+            out[doi] = {field: value for field, value in fields.items() if field in METADATA_FIELDS}
+    return out
+
+
 def write_table(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_parquet(path, index=False)
@@ -511,11 +530,19 @@ def context_routing_tags(contexts: list[dict]) -> list[str]:
     return normalize_routing_tags(tags)
 
 
-def merged_screening_row(paper: dict, metadata: dict | None) -> dict:
+def merged_screening_row(
+    paper: dict,
+    metadata: dict | None,
+    metadata_overrides: dict[str, dict] | None = None,
+) -> dict:
     metadata = metadata or {}
-    row = {"study_doi": normalize_doi(clean(paper.get("doi", "")))}
+    doi = normalize_doi(clean(paper.get("doi", "")))
+    row = {"study_doi": doi}
     for field in METADATA_FIELDS:
         row[field] = clean(metadata.get(field, "")) or clean(paper.get(field, ""))
+    for field, value in (metadata_overrides or {}).get(doi, {}).items():
+        if field in METADATA_FIELDS and clean(value):
+            row[field] = clean(value)
     return row
 
 
@@ -894,10 +921,15 @@ def build_prescreen_decisions(
     exclude_missing_abstract: bool = True,
     progress_every: int = 0,
     curated_publication_format_exclusions: dict[str, dict] | None = None,
+    curated_paper_metadata_overrides: dict[str, dict] | None = None,
 ) -> list[dict]:
     if curated_publication_format_exclusions is None:
         curated_publication_format_exclusions = load_curated_publication_format_exclusions(
             DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS
+        )
+    if curated_paper_metadata_overrides is None:
+        curated_paper_metadata_overrides = load_curated_paper_metadata_overrides(
+            DEFAULT_CURATED_PAPER_METADATA_OVERRIDES
         )
     metadata_by_doi = rows_by_doi(metadata_df)
     contexts_lookup = contexts_by_doi(contexts_df)
@@ -912,7 +944,11 @@ def build_prescreen_decisions(
             continue
         paper_contexts = compact_contexts(contexts_lookup.get(doi, []))
         context_tags = context_routing_tags(paper_contexts)
-        screening_row = merged_screening_row(paper, metadata_by_doi.get(doi))
+        screening_row = merged_screening_row(
+            paper,
+            metadata_by_doi.get(doi),
+            curated_paper_metadata_overrides,
+        )
         abstract_status_reason = unusable_abstract_reason(screening_row.get("abstract", ""))
         has_abstract = not bool(abstract_status_reason)
         before_model_decision = before_model_exclusion_decision(
@@ -1018,6 +1054,15 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
             )
         ).resolve()
     )
+    curated_paper_metadata_overrides = load_curated_paper_metadata_overrides(
+        Path(
+            getattr(
+                args,
+                "curated_paper_metadata_overrides",
+                DEFAULT_CURATED_PAPER_METADATA_OVERRIDES,
+            )
+        ).resolve()
+    )
 
     papers_df = read_table(Path(args.papers_table).resolve())
     metadata_df = read_table(Path(args.metadata_table).resolve())
@@ -1046,6 +1091,7 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         exclude_missing_abstract=not args.retain_missing_abstract,
         progress_every=getattr(args, "progress_every", 0),
         curated_publication_format_exclusions=curated_publication_format_exclusions,
+        curated_paper_metadata_overrides=curated_paper_metadata_overrides,
     )
     if scoped_dois:
         decisions, replaced_count = merge_scoped_decisions(
@@ -1090,6 +1136,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
             "Curated DOI-level publication-format exclusions used when provider metadata is "
             "incomplete or misleading."
         ),
+    )
+    parser.add_argument(
+        "--curated-paper-metadata-overrides",
+        default=str(DEFAULT_CURATED_PAPER_METADATA_OVERRIDES),
+        help="Curated DOI-level replacements for provider metadata known to belong to another paper.",
     )
     parser.add_argument("--run-id", default="")
     parser.add_argument(

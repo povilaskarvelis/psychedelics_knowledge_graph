@@ -265,6 +265,7 @@ METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER = (
 )
 
 KG_AUDIT_REASON_LABELS = {
+    "paper_scope_not_graphable": "No recognized in-scope subject in the review title or relationship",
     "compound_graph_scope_not_graphable": "Compound outside graph scope",
     "compound_class_not_graphable": "Compound class, not a graphable compound",
     "compound_reference_not_graphable": "Reference compound, not a graphable compound",
@@ -282,6 +283,7 @@ KG_AUDIT_REASON_LABELS = {
 }
 
 KG_AUDIT_REASON_ORDER = (
+    "paper_scope_not_graphable",
     "compound_graph_scope_not_graphable",
     "compound_reference_not_graphable",
     "compound_class_not_graphable",

@@ -19,6 +19,9 @@ CORPUS_TABLE_VERSION = "0.1"
 DEFAULT_TABLE_OUT_DIR = ROOT / "data" / "processed" / "corpus"
 CORPUS_METADATA_TABLE = "data/processed/corpus/paper_metadata_enrichment.parquet"
 CANONICAL_PDF_DIR = "data/raw/papers/pdfs"
+DEFAULT_DOI_ALIAS_REGISTRY = Path(__file__).with_name("doi_alias_registry.json")
+PAPER_METADATA_OVERRIDE_REGISTRY = "data/curated/paper_metadata_overrides.json"
+SOURCE_IDENTITY_AUDIT = "data/processed/fulltext/source_identity_audit.json"
 
 DATASETS = {
     "mechanistic": {
@@ -154,6 +157,198 @@ def normalize_doi(raw: object) -> str:
             text = text[len(prefix) :]
             break
     return text.strip().lower()
+
+
+def doi_slug(raw: object) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", normalize_doi(raw)).strip("_")
+
+
+def load_explicit_doi_aliases(path: Path = DEFAULT_DOI_ALIAS_REGISTRY) -> dict[str, str]:
+    payload = read_json(path)
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    aliases: dict[str, str] = {}
+    for row in records if isinstance(records, list) else []:
+        if not isinstance(row, dict):
+            continue
+        alias = normalize_doi(row.get("alias_doi", ""))
+        canonical = normalize_doi(row.get("canonical_doi", ""))
+        if not alias or not canonical or alias == canonical:
+            continue
+        previous = aliases.get(alias)
+        if previous and previous != canonical:
+            raise ValueError(f"Conflicting canonical DOIs for alias {alias}: {previous} vs {canonical}")
+        aliases[alias] = canonical
+    return aliases
+
+
+def load_paper_metadata_overrides(path: Path) -> dict[str, dict]:
+    payload = read_json(path)
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    overrides: dict[str, dict] = {}
+    for row in records if isinstance(records, list) else []:
+        if not isinstance(row, dict):
+            continue
+        doi = normalize_doi(row.get("doi", ""))
+        fields = row.get("fields", {}) if isinstance(row.get("fields"), dict) else {}
+        clean_fields = {
+            field: value
+            for field, value in fields.items()
+            if field in {*PAPER_FIELDS, "study_title", "study_year", "authors"}
+            and normalize(value)
+        }
+        if doi and clean_fields:
+            overrides[doi] = {
+                "fields": clean_fields,
+                "evidence_basis": normalize(row.get("evidence_basis", "")),
+            }
+    return overrides
+
+
+def apply_paper_metadata_overrides(
+    papers: dict[str, dict],
+    overrides: dict[str, dict],
+    *,
+    source_artifact_path: str,
+) -> dict:
+    applied = 0
+    missing_papers = 0
+    fields_replaced: Counter = Counter()
+    for doi, override in overrides.items():
+        record = papers.get(doi)
+        if record is None:
+            missing_papers += 1
+            continue
+        fields = override.get("fields", {})
+        for field, value in fields.items():
+            if field in {"study_title", "study_year", "authors"}:
+                record[field] = value
+            else:
+                record.setdefault("metadata", {})[field] = value
+            fields_replaced[field] += 1
+        if "metadata_override" not in record.setdefault("source_types", []):
+            record["source_types"].append("metadata_override")
+        unique_append(
+            record.setdefault("sources", []),
+            {
+                "source_type": "metadata_override",
+                "source_artifact": source_artifact_path,
+                "evidence_basis": override.get("evidence_basis", ""),
+            },
+        )
+        applied += 1
+    return {
+        "overrides_available": len(overrides),
+        "papers_overridden": applied,
+        "override_dois_missing_from_corpus": missing_papers,
+        "fields_replaced": dict(sorted(fields_replaced.items())),
+    }
+
+
+def verified_artifact_doi_aliases(root: Path, dois: set[str]) -> dict[str, str]:
+    """Recover aliases only from artifacts that passed the source-identity gate."""
+    payload = read_json(root / SOURCE_IDENTITY_AUDIT)
+    rows = payload.get("rows", []) if isinstance(payload, dict) else []
+    canonical_candidates: dict[str, set[str]] = {}
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict) or not bool(row.get("identity_verified")):
+            continue
+        canonical = normalize_doi(row.get("requested_doi", ""))
+        artifact_path = normalize(row.get("artifact_path", ""))
+        slug = Path(artifact_path).stem.lower() if artifact_path else doi_slug(canonical)
+        if canonical and slug and slug == doi_slug(canonical):
+            canonical_candidates.setdefault(slug, set()).add(canonical)
+    canonical_by_slug = {
+        slug: next(iter(values))
+        for slug, values in canonical_candidates.items()
+        if len(values) == 1
+    }
+    return {
+        doi: canonical_by_slug[doi_slug(doi)]
+        for doi in dois
+        if doi_slug(doi) in canonical_by_slug and canonical_by_slug[doi_slug(doi)] != doi
+    }
+
+
+def resolve_doi_alias(doi: str, aliases: dict[str, str]) -> str:
+    current = normalize_doi(doi)
+    seen: set[str] = set()
+    while current in aliases and current not in seen:
+        seen.add(current)
+        current = normalize_doi(aliases[current])
+    return current
+
+
+def merge_paper_records(target: dict, source: dict) -> None:
+    for key in ("study_title", "study_year", "authors"):
+        if not normalize(target.get(key, "")) and normalize(source.get(key, "")):
+            target[key] = source[key]
+    for key, value in (source.get("metadata", {}) or {}).items():
+        if normalize(value) and not normalize((target.get("metadata", {}) or {}).get(key, "")):
+            target.setdefault("metadata", {})[key] = value
+    for key in ("source_types", "local_pdf_paths"):
+        target.setdefault(key, [])
+        for value in source.get(key, []) or []:
+            if value not in target[key]:
+                target[key].append(value)
+    for source_row in source.get("sources", []) or []:
+        if isinstance(source_row, dict):
+            unique_append(target.setdefault("sources", []), source_row)
+    for flag, value in (source.get("flags", {}) or {}).items():
+        target.setdefault("flags", {})[flag] = bool(target["flags"].get(flag)) or bool(value)
+
+
+def reconcile_doi_aliases(
+    papers: dict[str, dict],
+    contexts: dict[str, dict],
+    aliases: dict[str, str],
+) -> dict:
+    merged_papers = 0
+    for alias in sorted(list(papers)):
+        canonical = resolve_doi_alias(alias, aliases)
+        if not canonical or canonical == alias:
+            continue
+        source = papers.pop(alias)
+        target = papers.get(canonical)
+        if target is None:
+            source["doi"] = canonical
+            papers[canonical] = source
+        else:
+            merge_paper_records(target, source)
+        merged_papers += 1
+
+    rebuilt_contexts: dict[str, dict] = {}
+    merged_contexts = 0
+    for source in contexts.values():
+        canonical = resolve_doi_alias(source.get("doi", ""), aliases)
+        key = context_id(
+            canonical,
+            source.get("compound", ""),
+            source.get("entity", ""),
+            source.get("entity_type", ""),
+        )
+        target = rebuilt_contexts.get(key)
+        if target is None:
+            source["doi"] = canonical
+            source["context_id"] = key
+            rebuilt_contexts[key] = source
+            continue
+        for field in ("context_sources",):
+            for value in source.get(field, []) or []:
+                if value not in target.setdefault(field, []):
+                    target[field].append(value)
+        for row in source.get("provenance", []) or []:
+            if isinstance(row, dict):
+                unique_append(target.setdefault("provenance", []), row)
+        for flag, value in (source.get("flags", {}) or {}).items():
+            target.setdefault("flags", {})[flag] = bool(target["flags"].get(flag)) or bool(value)
+        merged_contexts += 1
+    contexts.clear()
+    contexts.update(rebuilt_contexts)
+    return {
+        "aliases_available": len(aliases),
+        "paper_alias_rows_merged": merged_papers,
+        "context_alias_rows_merged": merged_contexts,
+    }
 
 
 def compact_text(raw: object) -> str:
@@ -1023,6 +1218,30 @@ def build_audit(root: Path = ROOT, datasets: list[str] | None = None) -> dict:
                     {"pdf_local_path": str(pdf)},
                 )
 
+    explicit_aliases = load_explicit_doi_aliases()
+    artifact_aliases = verified_artifact_doi_aliases(root, set(papers))
+    alias_reconciliation = reconcile_doi_aliases(
+        papers,
+        contexts,
+        {**artifact_aliases, **explicit_aliases},
+    )
+    alias_reconciliation.update(
+        {
+            "explicit_aliases_available": len(explicit_aliases),
+            "verified_artifact_aliases_available": len(artifact_aliases),
+        }
+    )
+
+    metadata_override_path = root / PAPER_METADATA_OVERRIDE_REGISTRY
+    metadata_overrides = load_paper_metadata_overrides(metadata_override_path)
+    metadata_override_report = apply_paper_metadata_overrides(
+        papers,
+        metadata_overrides,
+        source_artifact_path=source_artifact(root, metadata_override_path),
+    )
+    if metadata_override_path.exists():
+        input_artifacts.append(source_artifact(root, metadata_override_path))
+
     for record in papers.values():
         finalize_paper(record)
     for record in contexts.values():
@@ -1036,6 +1255,8 @@ def build_audit(root: Path = ROOT, datasets: list[str] | None = None) -> dict:
         "input_artifacts": sorted(set(input_artifacts)),
         "papers": paper_records,
         "contexts": context_records,
+        "doi_alias_reconciliation": alias_reconciliation,
+        "paper_metadata_overrides": metadata_override_report,
         "summary": build_summary(paper_records, context_records),
     }
 

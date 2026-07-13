@@ -38,7 +38,6 @@ DEFAULT_BUNDLES = (
     / "review_relationships_v2_main_20260712"
     / "paper_relationship_bundles.jsonl"
 )
-DEFAULT_TASKS = DEFAULT_BUNDLES.parent / "async_batches" / "batch_001_tasks.jsonl"
 DEFAULT_REGISTRY = ROOT / "data" / "curated" / "entity_registry.json"
 DEFAULT_CANDIDATES = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 
@@ -72,6 +71,20 @@ REVIEW_TYPES = {
     "literature_review",
     "umbrella_review",
 }
+GRAPH_EXCLUDED_COMPOUND_SCOPES = {
+    "out_of_scope",
+    "out_of_scope_comparator",
+    "out_of_scope_nonpsychedelic",
+    "reference_control",
+}
+PSYCHEDELIC_SCOPE_CLASS_RE = re.compile(
+    r"\b(?:psychedelic\w*|hallucinogen\w*|psychoplastogen\w*|entheogen\w*|microdos\w*|"
+    r"entactogen\w*|empathogen\w*|dissociative\w*|tryptamine\w*|phenethylamine\w*|"
+    r"ergoline\w*|nbome\w*|nboh\w*|iboga\w*|set and setting|chemsex|sexuali[sz]ed drug use|"
+    r"substance[- ]assisted psychotherap\w*|serotonerg\w*\s+psychoaktiv\w*|"
+    r"(?:nmda\W*|n[- ]methyl[- ]d[- ]aspartate\s+)(?:receptor\W*)?antagonist\w*)\b",
+    re.IGNORECASE,
+)
 SUBJECT_ROLES = {"compound", "compound_class", "intervention", "co_intervention"}
 OBJECT_ROLE_ORDER = {
     "safety_event": 10,
@@ -128,6 +141,12 @@ ROLE_GRAPH_MAPPING = {
     "other": ("general_topic_coverage", "public_health_measure", "public_health_measure"),
 }
 
+REVIEW_COVERAGE_FOCUS_LABELS = {
+    "paper_defining": "Main focus",
+    "major_supporting": "Major supporting topic",
+    "secondary_context": "Context only",
+}
+
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -155,6 +174,40 @@ def paper_type_for(task: dict) -> str:
     metadata = task.get("paper_metadata", {}) if isinstance(task.get("paper_metadata"), dict) else {}
     value = normalize(metadata.get("review_type", ""))
     return value if value in REVIEW_TYPES else "review"
+
+
+def in_scope_compound_keys(registry_payload: dict) -> set[str]:
+    keys: set[str] = set()
+    for item in registry_payload.get("compounds", []):
+        if not isinstance(item, dict):
+            continue
+        if normalize(item.get("graph_scope", "")).casefold() in GRAPH_EXCLUDED_COMPOUND_SCOPES:
+            continue
+        for value in [item.get("label", ""), *item.get("aliases", [])]:
+            key = label_key(value)
+            if key:
+                keys.add(key)
+    return keys
+
+
+def review_scope_for_relationship(
+    bundle_row: dict,
+    subject_label: str,
+    scoped_compound_keys: set[str],
+) -> tuple[str, str]:
+    """Admit globally scoped reviews or individually in-scope relationships."""
+
+    for source, text in (
+        ("title", normalize(bundle_row.get("study_title", ""))),
+        ("relationship_subject", normalize(subject_label)),
+    ):
+        if PSYCHEDELIC_SCOPE_CLASS_RE.search(text):
+            return "in_scope", f"{source}_has_in_scope_class_or_context"
+        text_key = label_key(text)
+        padded = f" {text_key} "
+        if any(key == text_key or f" {key} " in padded for key in scoped_compound_keys):
+            return "in_scope", f"{source}_has_in_scope_compound"
+    return "psychedelics_peripheral_or_absent", "no_in_scope_subject_in_review_title_or_relationship"
 
 
 def subject_for_relationship(
@@ -239,11 +292,23 @@ def evidence_locations(relationship: dict) -> tuple[str, str, str]:
     return locations, locator_text, support
 
 
-def relationship_row(bundle_row: dict, task: dict, relationship: dict, relationship_index: int, compound_registry: dict) -> dict:
+def relationship_row(
+    bundle_row: dict,
+    task: dict,
+    relationship: dict,
+    relationship_index: int,
+    compound_registry: dict,
+    scoped_compound_keys: set[str],
+) -> dict:
     result = bundle_row.get("result", {}) if isinstance(bundle_row.get("result"), dict) else {}
     frame = result.get("paper_frame", {}) if isinstance(result.get("paper_frame"), dict) else {}
     metadata = task.get("paper_metadata", {}) if isinstance(task.get("paper_metadata"), dict) else {}
     subject, subject_indexes = subject_for_relationship(relationship, frame, compound_registry)
+    scope_status, scope_reason = review_scope_for_relationship(
+        bundle_row,
+        subject["label"],
+        scoped_compound_keys,
+    )
     object_anchor = object_for_relationship(relationship, subject_indexes)
     object_role = normalize(object_anchor.get("role", "")) or "other"
     object_label = normalize(object_anchor.get("label", ""))
@@ -254,7 +319,13 @@ def relationship_row(bundle_row: dict, task: dict, relationship: dict, relations
     location, locator, supporting_quote = evidence_locations(relationship)
     prominence = normalize(relationship.get("paper_prominence", ""))
     requested_eligibility = normalize(relationship.get("graph_eligibility", ""))
-    admission = "main_graph" if requested_eligibility == "main_graph" and prominence in {"paper_defining", "major_supporting"} else "paper_detail"
+    admission = (
+        "main_graph"
+        if scope_status == "in_scope"
+        and requested_eligibility == "main_graph"
+        and prominence in {"paper_defining", "major_supporting"}
+        else "paper_detail"
+    )
     statement = normalize(relationship.get("relationship_statement", ""))
     limitations = [normalize(value) for value in relationship.get("limitations", []) if normalize(value)]
     anchors = [anchor for anchor in relationship.get("anchors", []) if isinstance(anchor, dict)]
@@ -282,6 +353,7 @@ def relationship_row(bundle_row: dict, task: dict, relationship: dict, relations
         "claim_type": normalize(relationship.get("relationship_kind", "")),
         "coverage_type": normalize(relationship.get("relationship_kind", "")),
         "coverage_focus": prominence,
+        "coverage_focus_normalized": REVIEW_COVERAGE_FOCUS_LABELS.get(prominence, ""),
         "finding_summary": statement,
         "support": statement,
         "notes": "; ".join(limitations),
@@ -298,8 +370,16 @@ def relationship_row(bundle_row: dict, task: dict, relationship: dict, relations
         "graph_entity_label": object_label,
         "kg_entity_kind_override": entity_kind,
         "entity_role": object_role,
+        "review_scope_status": scope_status,
+        "review_scope_reason": scope_reason,
         "graph_admission_status": admission,
-        "graph_admission_reason": "review_relationship_prominence" if admission == "main_graph" else "review_relationship_paper_detail",
+        "graph_admission_reason": (
+            "review_relationship_prominence"
+            if admission == "main_graph"
+            else "review_paper_scope_not_graphable"
+            if scope_status != "in_scope"
+            else "review_relationship_paper_detail"
+        ),
         "relationship_graph_form": normalize(relationship.get("graph_form", "")),
         "relationship_anchors_json": json.dumps(anchors, ensure_ascii=False),
         "relationship_domain_labels_json": json.dumps(model_domains, ensure_ascii=False),
@@ -313,9 +393,16 @@ def relationship_row(bundle_row: dict, task: dict, relationship: dict, relations
     return row
 
 
-def convert_bundles(bundle_rows: list[dict], task_rows: list[dict], registry_payload: dict) -> tuple[list[dict], dict]:
+def convert_bundles(
+    bundle_rows: list[dict],
+    task_rows: list[dict],
+    registry_payload: dict,
+    *,
+    allow_stale_bundles: bool = False,
+) -> tuple[list[dict], dict]:
     tasks = {normalized_doi(row.get("study_doi", "")): row for row in task_rows}
     compound_registry = registry_index(registry_payload)
+    scoped_compound_keys = in_scope_compound_keys(registry_payload)
     evidence_rows: list[dict] = []
     skipped: Counter = Counter()
     for bundle in bundle_rows:
@@ -325,12 +412,25 @@ def convert_bundles(bundle_rows: list[dict], task_rows: list[dict], registry_pay
         doi = normalized_doi(bundle.get("study_doi", ""))
         task = tasks.get(doi)
         if task is None:
-            skipped["missing_task"] += 1
+            skipped[
+                "stale_bundle_not_in_current_tasks"
+                if allow_stale_bundles
+                else "missing_task"
+            ] += 1
             continue
         result = bundle.get("result", {}) if isinstance(bundle.get("result"), dict) else {}
         for index, relationship in enumerate(result.get("relationships", []), start=1):
             if isinstance(relationship, dict):
-                evidence_rows.append(relationship_row(bundle, task, relationship, index, compound_registry))
+                evidence_rows.append(
+                    relationship_row(
+                        bundle,
+                        task,
+                        relationship,
+                        index,
+                        compound_registry,
+                        scoped_compound_keys,
+                    )
+                )
     report = {
         "schema_version": "review_relationship_evidence_conversion_v1",
         "generated_at_utc": now_utc(),
@@ -342,6 +442,7 @@ def convert_bundles(bundle_rows: list[dict], task_rows: list[dict], registry_pay
         "by_text_depth": dict(Counter(row["access_level"] for row in evidence_rows)),
         "by_prominence": dict(Counter(row["coverage_focus"] for row in evidence_rows)),
         "by_graph_admission": dict(Counter(row["graph_admission_status"] for row in evidence_rows)),
+        "by_review_scope": dict(Counter(row["review_scope_status"] for row in evidence_rows)),
         "by_subject_kind": dict(Counter(row["graph_subject_kind"] for row in evidence_rows)),
         "by_entity_kind": dict(Counter(row["kg_entity_kind_override"] for row in evidence_rows)),
         "skipped": dict(skipped),
@@ -395,10 +496,27 @@ def enrich_canonical_metadata(rows: list[dict], candidate_rows: list[dict]) -> i
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bundles-jsonl", type=Path, default=DEFAULT_BUNDLES)
-    parser.add_argument("--tasks-jsonl", type=Path, default=DEFAULT_TASKS)
+    parser.add_argument(
+        "--tasks-jsonl",
+        type=Path,
+        action="append",
+        default=[],
+        help=(
+            "Task JSONL to load; repeat for multiple batch files. By default, "
+            "all batch_*_tasks.jsonl files beside the default bundle are loaded."
+        ),
+    )
     parser.add_argument("--registry-json", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--candidate-parquet", type=Path, default=DEFAULT_CANDIDATES)
     parser.add_argument("--base-evidence-json", type=Path, default=None)
+    parser.add_argument(
+        "--allow-stale-bundles",
+        action="store_true",
+        help=(
+            "Skip and count append-only bundle outputs whose DOI is no longer in the "
+            "explicit current task set."
+        ),
+    )
     parser.add_argument("--out-json", type=Path, required=True)
     parser.add_argument("--report-json", type=Path, required=True)
     return parser.parse_args()
@@ -407,9 +525,28 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     bundles = read_jsonl(args.bundles_jsonl)
-    tasks = read_jsonl(args.tasks_jsonl)
+    task_paths = args.tasks_jsonl or sorted(
+        (args.bundles_jsonl.parent / "async_batches").glob("batch_*_tasks.jsonl")
+    )
+    if not task_paths:
+        raise SystemExit("No review task JSONL files were found")
+    tasks = [task for path in task_paths for task in read_jsonl(path)]
     registry_payload = json.loads(args.registry_json.read_text(encoding="utf-8"))
-    review_rows, report = convert_bundles(bundles, tasks, registry_payload)
+    review_rows, report = convert_bundles(
+        bundles,
+        tasks,
+        registry_payload,
+        allow_stale_bundles=args.allow_stale_bundles,
+    )
+    if report["skipped"].get("missing_task", 0):
+        raise SystemExit(
+            f"Refusing to write incomplete review evidence: "
+            f"{report['skipped']['missing_task']} bundle rows have no matching task"
+        )
+    report["inputs"] = {
+        "bundles_jsonl": str(args.bundles_jsonl.resolve()),
+        "task_jsonl_files": [str(path.resolve()) for path in task_paths],
+    }
     candidate_rows = pd.read_parquet(args.candidate_parquet).to_dict("records")
     report["counts"]["papers_with_canonical_metadata"] = enrich_canonical_metadata(review_rows, candidate_rows)
     base_rows = json_array(args.base_evidence_json) if args.base_evidence_json else []

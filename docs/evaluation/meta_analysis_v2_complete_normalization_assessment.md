@@ -1,6 +1,6 @@
 # Meta-analysis v2 extraction and normalization assessment
 
-Date: 2026-07-12
+Date: 2026-07-13
 
 ## Overall assessment
 
@@ -16,26 +16,31 @@ normalization input.
 
 ## Extraction completed
 
-- Eligible papers: 268
-- Article-text inputs: 149
-- Abstract-only inputs: 119
-- Pilot papers: 100
-- Remaining asynchronous batch: 168
-- Valid asynchronous responses in the remaining batch: 168/168
-- Extracted synthesis results across both runs: 933
-- Results accepted by the fail-closed converter: 888
-- Papers with an accepted result: 256
-- Papers represented by at least one normalized finding: 238
+- Currently eligible papers: 262
+- Article-text inputs: 147
+- Abstract-only inputs: 115
+- Results accepted by the fail-closed converter: 898
+- Papers with an accepted result: 259
+- Papers represented by at least one normalized finding: 241
 
 The remaining-batch extraction is in
 `data/processed/extraction/meta_analysis_v2_runs/meta_analysis_v2_remaining_168_20260712/`.
 The combined converter output is in
 `data/processed/extraction/meta_analysis_v2_runs/meta_analysis_v2_complete_268_20260712/`.
+The `268` in that directory is a historical run label; the current route and
+source corrections reduce the eligible cohort to 262 papers.
 
-Five papers in the remaining batch did not yield accepted results. Four
-abstracts did not report an extractable quantitative synthesis. One article
-packet contained text for a different paper and was correctly rejected as not
-relevant to the supplied metadata.
+Three current papers do not yield accepted results. They are all closed-source,
+abstract-only inputs whose abstracts do not contain enough quantitative detail
+to reconstruct a synthesis result safely:
+
+- `10.1016/j.jpsychires.2025.03.022`
+- `10.1097/coc.0000000000000998`
+- `10.2174/2666082218666220513142002`
+
+These are now recorded as source limitations rather than retry failures. They
+can be revisited if full article text or author-supplied result tables become
+available.
 
 ## Normalization changes
 
@@ -47,10 +52,10 @@ analyses, and compound aliases.
 
 The revised build produces:
 
-- 1,037 normalized meta-analysis findings;
-- 238 represented papers;
-- 745 findings admitted to the main graph;
-- 292 findings retained in paper details;
+- 1,042 normalized meta-analysis findings;
+- 241 represented papers;
+- 813 findings admitted to the main graph;
+- 229 findings retained in paper details;
 - no meta-analysis proposition-direction conflicts; and
 - 328 remaining normalization audit rows, down from 423.
 
@@ -76,24 +81,24 @@ The largest changes are:
 
 ## Completeness and usability
 
-The exported meta-analysis detail payload contains 1,037 findings. Coverage of
+The exported meta-analysis detail payload contains 1,042 findings. Coverage of
 the main structured fields is:
 
 | Field | Findings populated |
 |---|---:|
-| Synthesis design | 1,037/1,037 (100.0%) |
-| Result role | 1,037/1,037 (100.0%) |
-| Source text depth | 1,037/1,037 (100.0%) |
-| Population | 1,037/1,037 (100.0%) |
-| Normalized comparator | 979/1,037 (94.4%) |
-| Normalized follow-up window | 1,037/1,037 (100.0%) |
-| Overall included-study count | 991/1,037 (95.6%) |
-| Effect estimate | 802/1,037 (77.3%) |
-| Confidence interval | 723/1,037 (69.7%) |
-| P value | 499/1,037 (48.1%) |
-| I-squared | 385/1,037 (37.1%) |
-| Risk-of-bias summary | 528/1,037 (50.9%) |
-| Certainty or evidence-strength summary | 162/1,037 (15.6%) |
+| Synthesis design | 1,042/1,042 (100.0%) |
+| Result role | 1,042/1,042 (100.0%) |
+| Source text depth | 1,042/1,042 (100.0%) |
+| Population | 1,035/1,042 (99.3%) |
+| Normalized comparator | 779/1,042 (74.8%) |
+| Normalized follow-up window | 779/1,042 (74.8%) |
+| Overall included-study count | 996/1,042 (95.6%) |
+| Effect estimate | 807/1,042 (77.4%) |
+| Confidence interval | 730/1,042 (70.1%) |
+| P value | 502/1,042 (48.2%) |
+| I-squared | 394/1,042 (37.8%) |
+| Risk-of-bias summary | 543/1,042 (52.1%) |
+| Certainty or evidence-strength summary | 162/1,042 (15.5%) |
 
 Synthesis design, comparator, follow-up window, and included-study count are
 useful high-level stacked-bar filters. Source depth is already handled

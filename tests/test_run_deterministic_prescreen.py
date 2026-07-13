@@ -12,6 +12,29 @@ from pipeline.review.run_deterministic_prescreen import (
 
 
 class TableDeterministicPrescreenTest(unittest.TestCase):
+    def test_curated_metadata_override_wins_over_mismatched_provider_abstract(self) -> None:
+        doi = "10.example/mismatched"
+        papers = pd.DataFrame(
+            [{"doi": doi, "study_title": "Prostate cancer review", "abstract": "Correct local abstract."}]
+        )
+        metadata = pd.DataFrame(
+            [{"doi": doi, "study_title": "Prostate cancer review", "abstract": "MDMA ecstasy effects."}]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            metadata,
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-13T00:00:00+00:00",
+            curated_paper_metadata_overrides={
+                doi: {"abstract": "Correct prostate cancer biomarker abstract."}
+            },
+        )
+
+        self.assertEqual(rows[0]["prescreen_action"], "exclude_obvious_irrelevant")
+        self.assertNotIn("MDMA", rows[0]["deterministic_supporting_quote"])
+
     def test_builds_one_decision_per_doi_and_uses_metadata_abstract(self) -> None:
         papers = pd.DataFrame(
             [

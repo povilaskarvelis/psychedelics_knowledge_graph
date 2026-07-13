@@ -630,7 +630,11 @@ def source_comparison_text(value: object) -> str:
 def source_number_text(value: object) -> str:
     text = unicodedata.normalize("NFKC", normalize(value)).casefold()
     text = text.replace("−", "-").replace("–", "-").replace("—", "-")
-    text = re.sub(r"(?<=\d)\s*[,]\s*(?=\d)", ".", text)
+    # Several journal XML/PDF renderers use a middle dot as the decimal mark
+    # (for example, 0·49). Treat it like comma/period only when it occurs
+    # between digits, so source tracing does not reject a faithfully copied
+    # estimate merely because the model returned the standard decimal form.
+    text = re.sub(r"(?<=\d)\s*[,·•∙⋅]\s*(?=\d)", ".", text)
     return re.sub(r"\s+", "", text)
 
 

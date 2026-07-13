@@ -38,6 +38,7 @@ const MAIN_FINDING_MAX_CHARS = 260;
 const SAMPLE_YEAR_TARGET_BUCKET_COUNT = 14;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
 const LIST_CHUNK_SIZE = 120;
+const FINDING_SEARCH_DEBOUNCE_MS = 70;
 
 let cardsLoadObserver = null;
 let bibliographyLoadObserver = null;
@@ -222,6 +223,16 @@ const ENTITY_CATEGORY_OPTIONS = [
     lowerSingular: "target",
   },
 ];
+const ENTITY_CATEGORY_OPTION_SPECS = new Map(
+  ENTITY_CATEGORY_OPTIONS.map((option) => [
+    option.key,
+    {
+      kinds: new Set(Array.isArray(option.kinds) && option.kinds.length ? option.kinds : [option.key]),
+      domains: new Set((Array.isArray(option.domains) ? option.domains : []).map(normalizeValue).filter(Boolean)),
+      labels: new Set((Array.isArray(option.labels) ? option.labels : []).map(normalizeValue).filter(Boolean)),
+    },
+  ])
+);
 const CONDITION_GRAPH_LABEL_OVERRIDES = new Map([
   ["attention-deficit/hyperactivity disorder", "ADHD"],
   ["distress associated with life-threatening disease", "Distress in life-threatening illness"],
@@ -380,6 +391,12 @@ const REVIEW_RELATIONSHIP_TYPE_LABELS = {
   research_landscape: "Research landscape",
   evidence_gap: "Evidence gap",
 };
+const REVIEW_COVERAGE_FOCUS_LABELS = {
+  paper_defining: "Main focus",
+  major_supporting: "Major supporting topic",
+  secondary_context: "Context only",
+};
+const REVIEW_COVERAGE_FOCUS_ORDER = ["Main focus", "Major supporting topic", "Context only"];
 const META_ANALYSIS_DESIGN_LABELS = {
   pairwise_meta_analysis: "Pairwise meta-analysis",
   network_meta_analysis: "Network meta-analysis",
@@ -419,7 +436,7 @@ const META_ANALYSIS_STUDY_COUNT_BINS = [
 ];
 let claims = [];
 const claimStores = {
-  normalized: { all: [] },
+  normalized: { all: [], bySource: {} },
   extracted: { all: [] },
 };
 let bibliographyBySource = {
@@ -444,6 +461,10 @@ const REVIEW_SOURCE_TYPES = new Set([
 ]);
 let entityViewKey = "condition_indication";
 let renderScheduled = false;
+let findingSearchTimer = 0;
+let findingSearchRenderToken = 0;
+let findingSearchWarmupToken = 0;
+let findingSearchWarmupState = null;
 let centerGraphAfterRender = false;
 let centerGraphFrame = 0;
 let activeDetailItems = [];
@@ -456,17 +477,26 @@ let heroStatsSnapshot = null;
 let graphManifestPromise = null;
 let graphPayloadConfigPromise = null;
 const graphBootstrapPayloadPromises = new Map();
+const graphBootstrapClaimsBySource = new Map();
 const detailBootstrapPayloadPromises = new Map();
+const expandedUseContextClaimsCache = new WeakMap();
+let activeClaimsMemo = null;
+let entityCategoryCountsMemo = null;
+let globalFindingSearchClaimsMemo = null;
+let paperContextClaimsByStudyMemo = null;
+const graphDomCache = new Map();
+const GRAPH_DOM_CACHE_LIMIT = 4;
+const claimArrayIds = new WeakMap();
+let nextClaimArrayId = 1;
+let deferredSurfaceRenderToken = 0;
+let graphSwapToken = 0;
+let retainVisibleBootstrapGraph = false;
 let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let tooltipMeasureFrame = 0;
 let pendingTooltipPoint = null;
 let tooltipSize = { width: 240, height: 40 };
 const yearFilterState = {};
-
-const defaultDetail = {
-  title: "Graph Detail",
-};
 
 const COMPOUND_CLASS_LABEL_RE =
   /\b(classic(?:al)? psychedelics?|serotonergic psychedelics?|psychedelic(?: assisted)? (?:medicines?|drugs?|substances?|compounds?|therap(?:y|ies))|psychedelics?|hallucinogenic drugs?|hallucinogens?|arylcyclohexylamines?|synthetic cathinones?|iboga alkaloids?|nbome drugs?|5[- ]*ht2a?r? agonists?)\b/;
@@ -527,17 +557,32 @@ function isHiddenMainGraphItem(item) {
   return domain ? HIDDEN_MAIN_GRAPH_DOMAINS.has(domain) : false;
 }
 
+function isMainGraphAdmitted(item) {
+  const admission = normalizeValue(item?.graph_admission_status);
+  return !admission || admission === "main_graph";
+}
+
 function unique(values) {
   return Array.from(new Set(values)).sort();
 }
 
 const rawSearchTextCache = new WeakMap();
+const rawClaimSearchTextCache = new WeakMap();
 const claimSearchTextCache = new WeakMap();
 const graphOverviewSubjectsCache = new WeakMap();
 const graphUseContextProjectionsCache = new WeakMap();
 
 function normalizeSearchText(value) {
   return normalizeValue(value).replace(/\s+/g, " ").trim();
+}
+
+function normalizeFindingSearchText(value) {
+  return normalizeSearchText(value)
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[._/|\u2013\u2014-]+/g, " ")
+    .replace(/[{}\[\]",:]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function addSearchTextAliases(parts, value) {
@@ -599,13 +644,28 @@ function rawSearchTextForObject(value) {
 
 function rawSearchTextForClaim(claim) {
   if (!claim || typeof claim !== "object") return rawSearchTextForObject(claim);
+  const cached = rawClaimSearchTextCache.get(claim);
+  if (cached !== undefined) return cached;
+
   const parts = [];
-  const seen = new WeakSet();
   Object.entries(claim).forEach(([field, value]) => {
-    if (field === "graph_use_context_projections_json") return;
-    collectSearchTextParts(value, parts, seen);
+    if (["graph_overview_subjects_json", "graph_use_context_projections_json"].includes(field)) return;
+    if (value === null || value === undefined) return;
+    if (["string", "number", "bigint", "boolean"].includes(typeof value)) {
+      const text = String(value).trim();
+      if (text) parts.push(text);
+      return;
+    }
+    try {
+      const serialized = JSON.stringify(value);
+      if (serialized) parts.push(serialized);
+    } catch (_error) {
+      // Ignore non-serializable metadata; derived display labels are indexed below.
+    }
   });
-  return normalizeSearchText(compactSearchTextParts(parts).join(" "));
+  const text = normalizeFindingSearchText(parts.join(" "));
+  rawClaimSearchTextCache.set(claim, text);
+  return text;
 }
 
 function claimDerivedSearchParts(claim) {
@@ -618,37 +678,21 @@ function claimDerivedSearchParts(claim) {
     claimMainFindingText(claim),
     paperTypeLabel(claim.paper_type),
     publicationTypeFacetLabel(claim),
-    openAccessFacetLabel(claim),
-    meaningfulText(claim.trial_registry_ids) ? trialRegistrationFacetLabel(claim) : "",
-    populationModelFacetLabel(claim),
-    assayFamilySummaryLabel(claim),
-    mechanisticAssayFamilyFacetLabel(claim),
-    ...brainMeasureFacetLabels(claim),
-    mechanisticRelationshipTypeFacetLabel(claim),
-    safetyContextFacetLabel(claim),
-    ...doseRouteSessionFacetLabels(claim),
-    clinicalComparatorFacetLabel(claim),
-    clinicalFollowUpWindowFacetLabel(claim),
     studyDesignFacetLabel(claim),
-    publicHealthTopicFacetLabel(claim),
-    ...publicHealthUseContextFacetLabels(claim),
-    publicHealthDataSourceFacetLabel(claim),
     specificPathwayReadoutLabel(claim),
-    firstAuthorName(claim),
-    lastAuthorName(claim),
   ]);
 }
 
 function claimSearchHaystack(claim) {
   if (!claim || typeof claim !== "object") {
-    return normalizeSearchText([rawSearchTextForObject(claim), ...claimDerivedSearchParts(claim)].join(" "));
+    return normalizeFindingSearchText([rawSearchTextForObject(claim), ...claimDerivedSearchParts(claim)].join(" "));
   }
 
   const contextKey = `${claimLayer}|${currentEntityViewKey()}|${evidenceView}`;
   const cachedByContext = claimSearchTextCache.get(claim);
   if (cachedByContext?.has(contextKey)) return cachedByContext.get(contextKey);
 
-  const text = normalizeSearchText([rawSearchTextForClaim(claim), ...claimDerivedSearchParts(claim)].join(" "));
+  const text = normalizeFindingSearchText([rawSearchTextForClaim(claim), ...claimDerivedSearchParts(claim)].join(" "));
   const nextCache = cachedByContext || new Map();
   nextCache.set(contextKey, text);
   claimSearchTextCache.set(claim, nextCache);
@@ -798,6 +842,15 @@ function expandClaimsWithUseContextProjections(data) {
       })),
     ];
   });
+}
+
+function expandedClaimsWithUseContextProjections(data) {
+  if (!Array.isArray(data)) return [];
+  const cached = expandedUseContextClaimsCache.get(data);
+  if (cached) return cached;
+  const expanded = expandClaimsWithUseContextProjections(data);
+  expandedUseContextClaimsCache.set(data, expanded);
+  return expanded;
 }
 
 function expandClaimsForGraph(data) {
@@ -1161,12 +1214,16 @@ function currentEntityViewKinds() {
 }
 
 function claimMatchesEntityViewOption(claim, option) {
-  const activeKinds = new Set(entityKindsForViewOption(option));
-  if (activeKinds.size && !activeKinds.has(entityKindForClaim(claim))) return false;
-  const activeDomains = new Set(entityDomainsForViewOption(option).map(normalizeValue).filter(Boolean));
-  if (activeDomains.size && !activeDomains.has(normalizeValue(claim.kg_domain || claim.domain || claim.finding_type))) return false;
-  const activeLabels = new Set(entityLabelsForViewOption(option).map(normalizeValue).filter(Boolean));
-  if (activeLabels.size && !activeLabels.has(normalizeValue(graphRightLabelForClaim(claim)))) return false;
+  const spec = ENTITY_CATEGORY_OPTION_SPECS.get(option?.key);
+  if (!spec) return false;
+  if (spec.kinds.size && !spec.kinds.has(entityKindForClaim(claim))) return false;
+  if (
+    spec.domains.size &&
+    !spec.domains.has(normalizeValue(claim.kg_domain || claim.domain || claim.finding_type))
+  ) {
+    return false;
+  }
+  if (spec.labels.size && !spec.labels.has(normalizeValue(graphRightLabelForClaim(claim)))) return false;
   return true;
 }
 
@@ -1200,7 +1257,13 @@ function claimsForEntityView(baseClaims) {
 }
 
 function activeClaimsForMode() {
-  return graphViewClaims(claimsForEntityView(expandClaimsWithUseContextProjections(claims)));
+  const key = `${claimLayer}|${evidenceView}|${currentEntityViewKey()}`;
+  if (activeClaimsMemo?.source === claims && activeClaimsMemo.key === key) {
+    return activeClaimsMemo.value;
+  }
+  const value = graphViewClaims(claimsForEntityView(expandedClaimsWithUseContextProjections(claims)));
+  activeClaimsMemo = { source: claims, key, value };
+  return value;
 }
 
 function passesAccessAndYearFilters(claim, yearRange, options = {}) {
@@ -1252,6 +1315,7 @@ function outcomeScaleClaimsForChart(items, options = {}) {
 }
 
 function setDetailGraphFilter(items) {
+  retainVisibleBootstrapGraph = false;
   detailGraphFilter = {
     items: new Set(items),
   };
@@ -1275,7 +1339,15 @@ function isOpenAccessClaim(claim) {
 
 function applyClaimLayerStore() {
   const store = claimStores[claimLayer] || claimStores.normalized;
-  claims = store.all || [];
+  if (claimLayer === "normalized" && store.bySource) {
+    claims = store.bySource[currentSourceKey()] || [];
+  } else {
+    claims = store.all || [];
+  }
+  activeClaimsMemo = null;
+  entityCategoryCountsMemo = null;
+  globalFindingSearchClaimsMemo = null;
+  paperContextClaimsByStudyMemo = null;
 }
 
 function primaryEvidenceClaims(baseClaims) {
@@ -1380,43 +1452,6 @@ function recordLabelsForItems(items = []) {
         lowerSingular: "finding",
         lowerPlural: "findings",
       };
-}
-
-function claimIdentity(claim, index) {
-  const rightKey = claim.target !== undefined ? "target" : "disorder";
-  const parts = [
-    claim.compound || "",
-    claim[rightKey] || "",
-    claim.study_doi || "",
-    claim.openalex_id || "",
-    claim.mechanism_type || "",
-    claim.assay_type || "",
-    claim.assay_family || "",
-    claim.action_type || "",
-    claim.affinity_type || "",
-    claim.affinity_value || "",
-    claim.outcome_type || "",
-    claim.outcome_measure || "",
-    claim.sample_size_total || "",
-    claim.timepoint || "",
-    claim.comparator || "",
-    claim.evidence_locator || "",
-    claim.supporting_quote || "",
-  ];
-  const key = parts.join("|");
-  return key.replace(/\|/g, "") ? key : `claim-${index}`;
-}
-
-function dedupeClaims(items) {
-  const seen = new Set();
-  const out = [];
-  items.forEach((claim, index) => {
-    const key = claimIdentity(claim, index);
-    if (seen.has(key)) return;
-    seen.add(key);
-    out.push(claim);
-  });
-  return out;
 }
 
 function graphViewClaims(baseClaims) {
@@ -1967,6 +2002,11 @@ function reviewEvidenceStratumFacetLabel(claim) {
 
 function reviewRelationshipTypeFacetLabel(claim) {
   return controlledCategoryLabel(claim.coverage_type, REVIEW_RELATIONSHIP_TYPE_LABELS);
+}
+
+function reviewCoverageFocusFacetLabel(claim) {
+  return meaningfulText(claim.coverage_focus_normalized) ||
+    controlledCategoryLabel(claim.coverage_focus, REVIEW_COVERAGE_FOCUS_LABELS);
 }
 
 function openAccessFacetLabel(claim) {
@@ -3285,10 +3325,11 @@ function setDetailHeader(title) {
   detailTitle.textContent = title;
 }
 
-function renderDetailEmpty() {
+function clearDetailForTransition() {
   activeDetailItems = [];
   activeDetailAllAccessItems = [];
-  detailBody.innerHTML = '<div class="detail-empty">No selection yet.</div>';
+  detailTitle.textContent = "";
+  detailBody.innerHTML = "";
 }
 
 function clearSelectedStyles() {
@@ -3300,8 +3341,7 @@ function clearSelection() {
   isolateSelection = false;
   detailGraphFilter = null;
   clearSelectedStyles();
-  setDetailHeader(defaultDetail.title);
-  renderDetailEmpty();
+  clearDetailForTransition();
   hideTooltip();
   scheduleRender();
 }
@@ -3696,9 +3736,10 @@ function updateStats() {
 
 function setAccessView(nextView) {
   if (!new Set(["all", "open"]).has(nextView) || accessView === nextView) return;
+  retainVisibleBootstrapGraph = false;
   accessView = nextView;
   clearDetailGraphFilter();
-  render();
+  scheduleRender();
 }
 
 function applyFilters(options = {}) {
@@ -3708,7 +3749,7 @@ function applyFilters(options = {}) {
 function applyFiltersToClaims(activeClaims, yearRangeOverride = null, options = {}) {
   const yearRange = yearRangeOverride || activeYearRange(activeClaims);
   const openAccessOnly = !options.ignoreAccess && accessView === "open";
-  const searchValue = options.ignoreSearch ? "" : normalizeSearchText(searchInput?.value);
+  const searchValue = options.ignoreSearch ? "" : normalizeFindingSearchText(searchInput?.value);
 
   const baseFiltered = activeClaims.filter((claim) => {
     if (openAccessOnly && !isOpenAccessClaim(claim)) {
@@ -3750,14 +3791,24 @@ function applyGlobalFindingSearchFilters(options = {}) {
   const activeViewClaims = activeClaimsForMode();
   const currentYearRange = activeYearRange(activeViewClaims);
   return applyFiltersToClaims(
-    graphViewClaims(expandClaimsWithUseContextProjections(claims)),
+    globalFindingSearchClaims(),
     currentYearRange,
     options
   );
 }
 
+function globalFindingSearchClaims() {
+  const key = `${claimLayer}|${evidenceView}`;
+  if (globalFindingSearchClaimsMemo?.source === claims && globalFindingSearchClaimsMemo.key === key) {
+    return globalFindingSearchClaimsMemo.value;
+  }
+  const value = graphViewClaims(expandedClaimsWithUseContextProjections(claims));
+  globalFindingSearchClaimsMemo = { source: claims, key, value };
+  return value;
+}
+
 function hasFindingSearchQuery() {
-  return Boolean(normalizeSearchText(searchInput?.value));
+  return Boolean(normalizeFindingSearchText(searchInput?.value));
 }
 
 function findingCardResults(graphFiltered) {
@@ -3936,14 +3987,6 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
     `;
 }
 
-function updateCardsMasonryColumnHeight(card) {
-  const column = card.closest(".cards-masonry-column");
-  if (!column) return;
-  const cards = Array.from(column.querySelectorAll(":scope > .card"));
-  const height = cards.reduce((sum, item) => sum + (item.getBoundingClientRect().height || item.scrollHeight || 0), 0);
-  column.dataset.masonryHeight = String(height + Math.max(0, cards.length - 1) * 16);
-}
-
 function createClaimCardElement(claim, siblingClaims = []) {
   const card = document.createElement("div");
   card.className = "card";
@@ -3957,7 +4000,6 @@ function createClaimCardElement(claim, siblingClaims = []) {
         if (list) list.innerHTML = paperFindingContextListHtml(siblingClaims);
         paperContext.dataset.loaded = "true";
       }
-      window.requestAnimationFrame(() => updateCardsMasonryColumnHeight(card));
     });
   }
 
@@ -3967,6 +4009,16 @@ function createClaimCardElement(claim, siblingClaims = []) {
 function paperContextClaimsByStudy() {
   const contextClaims = graphViewClaims(claims);
   const yearRange = activeYearRange(contextClaims);
+  const key = [
+    claimLayer,
+    evidenceView,
+    accessView,
+    yearRange.constrained ? yearRange.min : "all",
+    yearRange.constrained ? yearRange.max : "all",
+  ].join("|");
+  if (paperContextClaimsByStudyMemo?.source === claims && paperContextClaimsByStudyMemo.key === key) {
+    return paperContextClaimsByStudyMemo.value;
+  }
   const byStudy = new Map();
 
   contextClaims
@@ -3979,6 +4031,7 @@ function paperContextClaimsByStudy() {
       byStudy.set(key, items);
     });
 
+  paperContextClaimsByStudyMemo = { source: claims, key, value: byStudy };
   return byStudy;
 }
 
@@ -3994,39 +4047,28 @@ function createCardsMasonryColumns() {
     const column = document.createElement("div");
     column.className = "cards-masonry-column";
     column.dataset.masonryColumn = String(index + 1);
-    column.dataset.masonryHeight = "0";
     cardsEl.appendChild(column);
     return column;
   });
 }
 
-function shortestCardsMasonryColumn(columns) {
-  return columns.reduce(
-    (shortest, column) =>
-      Number(column.dataset.masonryHeight || 0) < Number(shortest.dataset.masonryHeight || 0) ? column : shortest,
-    columns[0]
-  );
-}
-
 function appendCardToMasonryColumn(columns, card, index) {
-  const column = index < columns.length ? columns[index] : shortestCardsMasonryColumn(columns);
-  const previousHeight = Number(column.dataset.masonryHeight || 0);
+  const column = columns[index % columns.length];
   column.appendChild(card);
-  const cardHeight = card.getBoundingClientRect().height || card.scrollHeight || 160;
-  column.dataset.masonryHeight = String(previousHeight + cardHeight + (previousHeight ? 16 : 0));
 }
 
 function renderCards(data) {
   const cardData = data;
-  const contextClaimsByStudy = paperContextClaimsByStudy();
 
   disconnectCardsLoadObserver();
   cardsEl.innerHTML = "";
+  cardsEl.removeAttribute("aria-busy");
 
   if (!cardData.length) {
     return;
   }
 
+  const contextClaimsByStudy = paperContextClaimsByStudy();
   let rendered = 0;
   const cardColumns = createCardsMasonryColumns();
 
@@ -4137,7 +4179,7 @@ function enrichClaimsWithBibliographyMetadata(items) {
     const openAlexKey = normalizeValue(claim.openalex_id);
     const entry = (doiKey && lookup.byDoi.get(doiKey)) || (openAlexKey && lookup.byOpenAlex.get(openAlexKey));
     if (!entry) return claim;
-    return {
+    const enriched = {
       ...claim,
       study_journal: claim.study_journal || entry.journal,
       publication_type: claim.publication_type || entry.publicationType,
@@ -4146,6 +4188,37 @@ function enrichClaimsWithBibliographyMetadata(items) {
       trial_registry_ids: claim.trial_registry_ids || entry.trialRegistryIds,
       authors: claimAuthors(claim) ? claim.authors : entry.authors,
     };
+    const bibliographySearchText = normalizeFindingSearchText(
+      [
+        entry.title,
+        entry.authors,
+        entry.journal,
+        entry.publicationDate,
+        entry.publicationType,
+        entry.publisher,
+        entry.trialRegistryIds,
+        entry.keywords,
+        entry.meshTerms,
+        entry.doi,
+        entry.openAlexId,
+      ].join(" ")
+    );
+    const cachedRawSearchText = rawClaimSearchTextCache.get(claim);
+    if (cachedRawSearchText !== undefined) {
+      rawClaimSearchTextCache.set(
+        enriched,
+        bibliographySearchText ? `${cachedRawSearchText} ${bibliographySearchText}` : cachedRawSearchText
+      );
+    }
+    const cachedSearchTextByContext = claimSearchTextCache.get(claim);
+    if (cachedSearchTextByContext) {
+      const enrichedSearchTextByContext = new Map();
+      cachedSearchTextByContext.forEach((text, contextKey) => {
+        enrichedSearchTextByContext.set(contextKey, bibliographySearchText ? `${text} ${bibliographySearchText}` : text);
+      });
+      claimSearchTextCache.set(enriched, enrichedSearchTextByContext);
+    }
+    return enriched;
   });
 }
 
@@ -5370,6 +5443,7 @@ function renderReviewContextCharts(items) {
   const contributionEntries = summarizeFacetEvidence(items, reviewContributionFacetLabel);
   const evidenceEntries = summarizeFacetEvidence(items, reviewEvidenceStratumFacetLabel);
   const relationshipEntries = summarizeFacetEvidence(items, reviewRelationshipTypeFacetLabel);
+  const coverageFocusEntries = summarizeFacetEvidence(items, reviewCoverageFocusFacetLabel);
 
   const chart = (entries, title, filterField, options = {}) =>
     entries.length
@@ -5386,6 +5460,12 @@ function renderReviewContextCharts(items) {
     ${chart(contributionEntries, "Overall review focus", "review_contribution_facet", { maxEntries: 7 })}
     ${chart(evidenceEntries, "Evidence base", "review_evidence_stratum_facet", { maxEntries: 5 })}
     ${chart(relationshipEntries, "Relationship types", "review_relationship_type_facet", { maxEntries: 5 })}
+    ${coverageFocusEntries.length ? renderFacetCompositionChart(
+      orderedFacetEntries(coverageFocusEntries, REVIEW_COVERAGE_FOCUS_ORDER),
+      "Coverage within each paper",
+      "review_coverage_focus_facet",
+      { hideWhenEmpty: true, maxEntries: 3, aggregateOther: false, palette: PALETTE_TEAL_FIRST }
+    ) : ""}
   `;
 }
 
@@ -6167,6 +6247,7 @@ function fieldValueDetailTitle(field, value) {
   if (field === "review_contribution_facet") return `Overall review focus: ${value}`;
   if (field === "review_evidence_stratum_facet") return `Evidence base: ${value}`;
   if (field === "review_relationship_type_facet") return `Relationship type: ${value}`;
+  if (field === "review_coverage_focus_facet") return `Coverage within paper: ${value}`;
   if (field === "meta_analysis_design_facet") return `Synthesis design: ${value}`;
   if (field === "meta_analysis_study_count_facet") return `Studies included: ${value}`;
   return `${displayFieldLabel(field)}: ${value}`;
@@ -6191,6 +6272,7 @@ function fieldValueForClaim(claim, field) {
   if (field === "review_contribution_facet") return reviewContributionFacetLabel(claim);
   if (field === "review_evidence_stratum_facet") return reviewEvidenceStratumFacetLabel(claim);
   if (field === "review_relationship_type_facet") return reviewRelationshipTypeFacetLabel(claim);
+  if (field === "review_coverage_focus_facet") return reviewCoverageFocusFacetLabel(claim);
   if (field === "meta_analysis_design_facet") return metaAnalysisDesignFacetLabel(claim);
   if (field === "meta_analysis_study_count_facet") return metaAnalysisStudyCountFacetLabel(claim);
   if (field === "specific_pathway_readout") return specificPathwayReadoutLabel(claim);
@@ -6550,14 +6632,98 @@ function fullViewRelationshipKeys() {
   );
 }
 
+function claimArrayId(items) {
+  if (!Array.isArray(items)) return 0;
+  if (!claimArrayIds.has(items)) claimArrayIds.set(items, nextClaimArrayId++);
+  return claimArrayIds.get(items);
+}
+
+function graphDomCacheKey(width, data) {
+  if (claimLayer !== "normalized" || selected || detailGraphFilter) {
+    return "";
+  }
+  const graphStage = data.some((claim) => claim?.__graph_bootstrap) ? "bootstrap" : "full";
+  const yearMin = yearMinFilter?.value || "";
+  const yearMax = yearMaxFilter?.value || "";
+  return [
+    currentSourceKey(),
+    graphStage,
+    graphStage === "bootstrap" ? "canonical" : claimArrayId(claims),
+    evidenceView,
+    currentEntityViewKey(),
+    accessView,
+    yearMin,
+    yearMax,
+    Math.round(width),
+  ].join("|");
+}
+
+function clearGraphDomCacheForSource(sourceKey, { preserveBootstrap = false } = {}) {
+  Array.from(graphDomCache.keys()).forEach((key) => {
+    if (!key.startsWith(`${sourceKey}|`)) return;
+    if (preserveBootstrap && key.startsWith(`${sourceKey}|bootstrap|`)) return;
+    graphDomCache.delete(key);
+  });
+}
+
+function rememberGraphDom(cacheKey, entry) {
+  if (!cacheKey) return;
+  graphDomCache.delete(cacheKey);
+  graphDomCache.set(cacheKey, entry);
+  while (graphDomCache.size > GRAPH_DOM_CACHE_LIMIT) {
+    graphDomCache.delete(graphDomCache.keys().next().value);
+  }
+}
+
+function crossfadeCompleteGraph(previousSvg, nextSvg) {
+  const token = ++graphSwapToken;
+  previousSvg.classList.add("graph-swap-layer", "graph-swap-out");
+  nextSvg.classList.add("graph-swap-layer", "graph-swap-in");
+  graphEl.appendChild(nextSvg);
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      if (token !== graphSwapToken || !nextSvg.isConnected) return;
+      previousSvg.classList.add("graph-swap-active");
+      nextSvg.classList.add("graph-swap-active");
+    });
+  });
+  window.setTimeout(() => {
+    if (token !== graphSwapToken) return;
+    previousSvg.remove();
+    nextSvg.classList.remove("graph-swap-layer", "graph-swap-in", "graph-swap-active");
+  }, 220);
+}
+
 function buildGraph(data) {
   hideTooltip();
-  graphEl.innerHTML = "";
-
   const graphHasDetailBootstrap = data.some((claim) => claim?.__detail_bootstrap);
   const graphIsAggregateBootstrap = data.some((claim) => claim?.__graph_bootstrap) && !graphHasDetailBootstrap;
+  const graphStage = graphIsAggregateBootstrap ? "bootstrap" : "full";
+  const previousSvg = graphEl.querySelector("svg[data-graph-stage]");
+  const crossfadeFromBootstrap = previousSvg?.dataset.graphStage === "bootstrap" && graphStage === "full";
+  const width = graphEl.clientWidth || 800;
+  const cacheKey = graphDomCacheKey(width, data);
+  const cached = cacheKey ? graphDomCache.get(cacheKey) : null;
+  if (cached) {
+    cached.reset?.();
+    if (graphEl.firstElementChild !== cached.svg) {
+      graphEl.replaceChildren(cached.svg);
+      graphEl.style.setProperty("--kg-graph-height", `${cached.height}px`);
+      cached.graphGrid?.style.setProperty("--kg-dynamic-workspace-height", `${cached.workspaceHeight}px`);
+    }
+    graphDomCache.delete(cacheKey);
+    graphDomCache.set(cacheKey, cached);
+    return;
+  }
+  if (!crossfadeFromBootstrap) {
+    graphSwapToken += 1;
+    graphEl.innerHTML = "";
+  }
+
   const allowedRelationships = graphHasDetailBootstrap ? fullViewRelationshipKeys() : null;
-  const expandedData = expandClaimsForGraph(data).filter(claimMatchesIsolatedGraphProjection);
+  const expandedData = expandClaimsForGraph(data.filter(isMainGraphAdmitted)).filter(
+    claimMatchesIsolatedGraphProjection
+  );
   const graphData = allowedRelationships
     ? expandedData.filter((claim) => allowedRelationships.has(graphRelationshipKeyForClaim(claim)))
     : expandedData;
@@ -6611,7 +6777,6 @@ function buildGraph(data) {
     return a.localeCompare(b);
   });
 
-  const width = graphEl.clientWidth || 800;
   const compactGraph = width < 520;
   if (compactGraph) {
     const maxMobileNodes = 12;
@@ -6716,8 +6881,15 @@ function buildGraph(data) {
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.dataset.graphStage = graphStage;
   const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  edgeLayer.setAttribute("class", "graph-edge-layer");
+  const nodeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  nodeLayer.setAttribute("class", "graph-node-layer");
   svg.appendChild(defs);
+  svg.appendChild(edgeLayer);
+  svg.appendChild(nodeLayer);
   const compoundColors = new Map(compounds.map((compound, index) => [compound, graphColorForIndex(index, compounds.length)]));
   const targetColors = new Map(targets.map((target, index) => [target, graphColorForIndex(index, targets.length)]));
   const maxEdgeCount = Math.max(
@@ -6866,6 +7038,14 @@ function buildGraph(data) {
     });
   }
 
+  function prepareBootstrapInteraction() {
+    if (!graphIsAggregateBootstrap) return true;
+    if (!normalizedCurrentSourceLoaded()) return false;
+    if (cacheKey) graphDomCache.delete(cacheKey);
+    retainVisibleBootstrapGraph = false;
+    return true;
+  }
+
   edgeEntries.forEach(([key, edge], index) => {
     const [compound, target] = key.split("|");
     const cPos = compoundPositions.get(compound);
@@ -6927,7 +7107,7 @@ function buildGraph(data) {
     });
     path.addEventListener("click", (event) => {
       event.stopPropagation();
-      if (graphIsAggregateBootstrap) return;
+      if (!prepareBootstrapInteraction()) return;
       const sameSelection =
         selected?.type === "edge" && selected.compound === compound && selected.target === target;
       if (sameSelection) {
@@ -6946,11 +7126,16 @@ function buildGraph(data) {
       requestGraphCenterAfterRender();
       clearSelectedStyles();
       path.classList.add("selected");
-      renderEdgeDetail(compound, target, edge.claims);
+      const detailClaims = graphIsAggregateBootstrap
+        ? applyFilters({ ignoreSearch: true }).filter((claim) =>
+            claimMatchesGraphEdge(claim, compound, target)
+          )
+        : edge.claims;
+      renderEdgeDetail(compound, target, detailClaims);
       applyFocusFromSelection();
       scheduleRender();
     });
-    svg.appendChild(path);
+    edgeLayer.appendChild(path);
   });
 
   compoundPositions.forEach((pos, compound) => {
@@ -6963,7 +7148,7 @@ function buildGraph(data) {
     if (selected?.type === "compound" && selected.name === compound) {
       node.classList.add("selected");
     }
-    svg.appendChild(node);
+    nodeLayer.appendChild(node);
 
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", pos.x - labelOffset);
@@ -6973,7 +7158,7 @@ function buildGraph(data) {
     if (selected?.type === "compound" && selected.name === compound) {
       label.classList.add("selected");
     }
-    svg.appendChild(label);
+    nodeLayer.appendChild(label);
     compoundNodeElements.set(compound, { node, label });
 
     const nodeClaims = claimsByCompound.get(compound) || [];
@@ -6995,7 +7180,7 @@ function buildGraph(data) {
     };
     const click = (event) => {
       event.stopPropagation();
-      if (graphIsAggregateBootstrap) return;
+      if (!prepareBootstrapInteraction()) return;
       const sameSelection = selected?.type === "compound" && selected.name === compound;
       if (sameSelection) {
         if (!isolateSelection) {
@@ -7014,7 +7199,12 @@ function buildGraph(data) {
       clearSelectedStyles();
       node.classList.add("selected");
       label.classList.add("selected");
-      renderNodeDetail("compound", compound, nodeClaims);
+      const detailClaims = graphIsAggregateBootstrap
+        ? applyFilters({ ignoreSearch: true }).filter((claim) =>
+            claimMatchesGraphCompound(claim, compound)
+          )
+        : nodeClaims;
+      renderNodeDetail("compound", compound, detailClaims);
       applyFocusFromSelection();
       scheduleRender();
     };
@@ -7038,7 +7228,7 @@ function buildGraph(data) {
     if (selected?.type === "target" && selected.name === target) {
       node.classList.add("selected");
     }
-    svg.appendChild(node);
+    nodeLayer.appendChild(node);
 
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", pos.x + labelOffset);
@@ -7047,7 +7237,7 @@ function buildGraph(data) {
     if (selected?.type === "target" && selected.name === target) {
       label.classList.add("selected");
     }
-    svg.appendChild(label);
+    nodeLayer.appendChild(label);
     rightNodeElements.set(target, { node, label });
 
     const nodeClaims = claimsByRight.get(target) || [];
@@ -7070,7 +7260,7 @@ function buildGraph(data) {
     };
     const click = (event) => {
       event.stopPropagation();
-      if (graphIsAggregateBootstrap) return;
+      if (!prepareBootstrapInteraction()) return;
       const sameSelection = selected?.type === "target" && selected.name === target;
       if (sameSelection) {
         if (!isolateSelection) {
@@ -7089,7 +7279,12 @@ function buildGraph(data) {
       clearSelectedStyles();
       node.classList.add("selected");
       label.classList.add("selected");
-      renderNodeDetail("target", target, nodeClaims);
+      const detailClaims = graphIsAggregateBootstrap
+        ? applyFilters({ ignoreSearch: true }).filter((claim) =>
+            claimMatchesGraphRight(claim, target)
+          )
+        : nodeClaims;
+      renderNodeDetail("target", target, detailClaims);
       applyFocusFromSelection();
       scheduleRender();
     };
@@ -7103,12 +7298,33 @@ function buildGraph(data) {
     label.addEventListener("click", click);
   });
 
-  graphEl.appendChild(svg);
+  if (crossfadeFromBootstrap && previousSvg) {
+    crossfadeCompleteGraph(previousSvg, svg);
+  } else {
+    graphEl.appendChild(svg);
+  }
+  rememberGraphDom(cacheKey, {
+    svg,
+    height,
+    workspaceHeight,
+    graphGrid,
+    reset: () => {
+      if (focusFrame) window.cancelAnimationFrame(focusFrame);
+      focusFrame = 0;
+      pendingFocusRequest = null;
+      cancelPendingFocusRestore();
+      applyFocusState(new Map(), false);
+      svg.querySelectorAll(".selected, .hovered").forEach((element) => {
+        element.classList.remove("selected", "hovered");
+      });
+    },
+  });
 
   applyFocusFromSelection();
 }
 
 function render() {
+  cancelPendingFindingSearchRender();
   let graphFiltered = applyFilters({ ignoreSearch: true });
   let allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
   if (selected && !selectionIsValid(graphFiltered)) {
@@ -7118,18 +7334,18 @@ function render() {
     graphFiltered = applyFilters({ ignoreSearch: true });
     allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true });
   }
-  const findingResults = findingCardResults(graphFiltered);
-  if (detailGraphFilter) {
-    // Keep the current right-panel drilldown visible while refreshing the graph.
-  } else if (selected) {
-    renderSelectedDetailFromData(graphFiltered, allAccessGraphFiltered);
-  } else {
-    renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
-  }
   updateStats();
-  renderCards(findingResults);
-  buildGraph(graphFiltered);
-  renderBibliography(graphFiltered);
+  const canonicalBootstrap = canonicalOverviewBootstrapClaims();
+  if (canonicalBootstrap?.length) {
+    retainVisibleBootstrapGraph = true;
+    buildGraph(canonicalBootstrap);
+  } else {
+    const retainingBootstrap =
+      retainVisibleBootstrapGraph && Boolean(graphEl.querySelector('svg[data-graph-stage="bootstrap"]'));
+    if (!retainingBootstrap) buildGraph(graphFiltered);
+  }
+  scheduleDeferredSurfaceRender(graphFiltered, allAccessGraphFiltered, true);
+  scheduleFindingSearchIndexWarmup();
 }
 
 function refreshMainViews() {
@@ -7139,11 +7355,31 @@ function refreshMainViews() {
     isolateSelection = false;
     clearSelectedStyles();
   }
-  const findingResults = findingCardResults(graphFiltered);
   updateStats();
-  renderCards(findingResults);
   buildGraph(graphFiltered);
-  renderBibliography(graphFiltered);
+  scheduleDeferredSurfaceRender(
+    graphFiltered,
+    applyFilters({ ignoreAccess: true, ignoreSearch: true }),
+    false
+  );
+}
+
+function scheduleDeferredSurfaceRender(graphFiltered, allAccessGraphFiltered, updateDetail) {
+  const token = ++deferredSurfaceRenderToken;
+  window.requestAnimationFrame(() => {
+    if (token !== deferredSurfaceRenderToken) return;
+    if (updateDetail) {
+      if (detailGraphFilter) {
+        // Keep the current right-panel drilldown visible while refreshing the graph.
+      } else if (selected) {
+        renderSelectedDetailFromData(graphFiltered, allAccessGraphFiltered);
+      } else {
+        renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
+      }
+    }
+    renderCards(findingCardResults(graphFiltered));
+    renderBibliography(graphFiltered);
+  });
 }
 
 function scheduleRender() {
@@ -7154,6 +7390,72 @@ function scheduleRender() {
     render();
     runPendingGraphCenter();
   });
+}
+
+function cancelPendingFindingSearchRender() {
+  findingSearchRenderToken += 1;
+  if (findingSearchTimer) {
+    window.clearTimeout(findingSearchTimer);
+    findingSearchTimer = 0;
+  }
+  cardsEl.removeAttribute("aria-busy");
+}
+
+function scheduleFindingSearchRender() {
+  const token = ++findingSearchRenderToken;
+  if (findingSearchTimer) window.clearTimeout(findingSearchTimer);
+  cardsEl.setAttribute("aria-busy", "true");
+  findingSearchTimer = window.setTimeout(() => {
+    findingSearchTimer = 0;
+    window.requestAnimationFrame(() => {
+      if (token !== findingSearchRenderToken) return;
+      const graphFiltered = applyFilters({ ignoreSearch: true });
+      renderCards(findingCardResults(graphFiltered));
+    });
+  }, FINDING_SEARCH_DEBOUNCE_MS);
+}
+
+function scheduleFindingSearchIndexWarmup() {
+  if (!claims.length || hasFindingSearchQuery()) return;
+  const key = `${claimLayer}|${evidenceView}|${currentEntityViewKey()}`;
+  if (
+    findingSearchWarmupState?.source === claims &&
+    findingSearchWarmupState.key === key &&
+    ["warming", "complete"].includes(findingSearchWarmupState.status)
+  ) {
+    return;
+  }
+
+  const token = ++findingSearchWarmupToken;
+  const source = claims;
+  const items = globalFindingSearchClaims();
+  let index = 0;
+  if (!items.length) {
+    findingSearchWarmupState = { source, key, status: "complete" };
+    return;
+  }
+  findingSearchWarmupState = { source, key, status: "warming" };
+
+  function warmChunk(deadline) {
+    if (token !== findingSearchWarmupToken || source !== claims) return;
+    const started = window.performance?.now?.() ?? Date.now();
+    do {
+      claimSearchHaystack(items[index]);
+      index += 1;
+    } while (
+      index < items.length &&
+      (window.performance?.now?.() ?? Date.now()) - started < 8 &&
+      (!deadline || deadline.didTimeout || deadline.timeRemaining() > 1)
+    );
+
+    if (index < items.length) {
+      scheduleIdleTask(warmChunk);
+      return;
+    }
+    findingSearchWarmupState = { source, key, status: "complete" };
+  }
+
+  scheduleIdleTask(warmChunk, 220);
 }
 
 function requestGraphCenterAfterRender() {
@@ -7187,6 +7489,30 @@ function updateSearchPlaceholder() {
   searchInput.placeholder = `Search finding cards by keyword, compound, ${lowerRightEntityLabel(false)}, method, or paper`;
 }
 
+function entityCategoryCounts() {
+  const key = `${claimLayer}|${evidenceView}`;
+  if (entityCategoryCountsMemo?.source === claims && entityCategoryCountsMemo.key === key) {
+    return entityCategoryCountsMemo.value;
+  }
+
+  const counts = new Map(ENTITY_CATEGORY_OPTIONS.map((option) => [option.key, 0]));
+  if (claimLayer !== "normalized") {
+    entityCategoryCountsMemo = { source: claims, key, value: counts };
+    return counts;
+  }
+
+  const visibleClaims = graphViewClaims(expandedClaimsWithUseContextProjections(claims));
+  visibleClaims.forEach((claim) => {
+    ENTITY_CATEGORY_OPTIONS.forEach((option) => {
+      if (claimMatchesEntityViewOption(claim, option)) {
+        counts.set(option.key, (counts.get(option.key) || 0) + 1);
+      }
+    });
+  });
+  entityCategoryCountsMemo = { source: claims, key, value: counts };
+  return counts;
+}
+
 function updateEntityKindToggle() {
   if (!entityKindToggle) return;
   const isAvailable = claimLayer === "normalized";
@@ -7196,12 +7522,11 @@ function updateEntityKindToggle() {
     return;
   }
 
+  const counts = entityCategoryCounts();
   entityKindToggle.innerHTML = ENTITY_CATEGORY_OPTIONS
     .map((option) => {
       const isActive = option.key === currentEntityViewKey();
-      const count = graphViewClaims(expandClaimsWithUseContextProjections(claims)).filter((claim) =>
-        claimMatchesEntityViewOption(claim, option)
-      ).length;
+      const count = counts.get(option.key) || 0;
       return `
         <button
           class="ghost small ${isActive ? "active" : ""}"
@@ -7235,6 +7560,7 @@ function updateModeUI() {
 
 function switchClaimLayer(nextLayer) {
   if (!claimStores[nextLayer] || claimLayer === nextLayer) return;
+  retainVisibleBootstrapGraph = false;
   claimLayer = nextLayer;
   applyClaimLayerStore();
   selected = null;
@@ -7243,28 +7569,29 @@ function switchClaimLayer(nextLayer) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  setDetailHeader(defaultDetail.title);
-  renderDetailEmpty();
-  loadCurrentClaimsAndRender();
+  clearDetailForTransition();
+  loadCurrentClaimsAndRender({ showGraphBootstrap: nextLayer === "normalized" });
 }
 
 function switchEvidenceView(nextView) {
   if (!EVIDENCE_VIEW_KEYS.includes(nextView) || evidenceView === nextView) return;
+  retainVisibleBootstrapGraph = false;
   evidenceView = nextView;
+  applyClaimLayerStore();
   selected = null;
   isolateSelection = false;
   detailGraphFilter = null;
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  setDetailHeader(defaultDetail.title);
-  renderDetailEmpty();
-  loadCurrentClaimsAndRender();
+  clearDetailForTransition();
+  loadCurrentClaimsAndRender({ showGraphBootstrap: claimLayer === "normalized" });
 }
 
 function switchEntityView(nextView) {
   if (!ENTITY_CATEGORY_OPTIONS.some((option) => option.key === nextView)) return;
   if (currentEntityViewKey() === nextView) return;
+  retainVisibleBootstrapGraph = false;
   entityViewKey = nextView;
   selected = null;
   isolateSelection = false;
@@ -7272,8 +7599,7 @@ function switchEntityView(nextView) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  setDetailHeader(defaultDetail.title);
-  renderDetailEmpty();
+  clearDetailForTransition();
   loadCurrentClaimsAndRender();
 }
 
@@ -7360,8 +7686,7 @@ const normalizedSourceTasks = {
 };
 
 function renderDataLoading() {
-  setDetailHeader(defaultDetail.title);
-  renderDetailEmpty();
+  clearDetailForTransition();
   cardsEl.innerHTML = "";
   graphEl.innerHTML = "";
   if (studyListEl) {
@@ -7375,8 +7700,18 @@ function bibliographyPayloadsLoaded() {
 
 function enrichAllLoadedClaimsWithBibliography() {
   Object.keys(claimStores).forEach((layer) => {
-    claimStores[layer].all = enrichClaimsWithBibliographyMetadata(claimStores[layer].all || []);
+    const store = claimStores[layer];
+    if (store.bySource) {
+      Object.keys(store.bySource).forEach((sourceKey) => {
+        store.bySource[sourceKey] = enrichClaimsWithBibliographyMetadata(store.bySource[sourceKey] || []);
+      });
+      store.all = Object.values(store.bySource).flat();
+      return;
+    }
+    store.all = enrichClaimsWithBibliographyMetadata(store.all || []);
   });
+  activeClaimsMemo = null;
+  entityCategoryCountsMemo = null;
 }
 
 function activeGraphBootstrapPath(config, sourceKey) {
@@ -7468,7 +7803,11 @@ async function loadGraphBootstrapClaims(sourceKey) {
   if (graphBootstrapPayloadPromises.has(path)) return graphBootstrapPayloadPromises.get(path);
 
   const task = fetchJsonFromCandidates(dataCandidates(path))
-    .then(({ data }) => graphBootstrapClaimsFromPayload(data, sourceKey))
+    .then(({ data }) => {
+      const items = graphBootstrapClaimsFromPayload(data, sourceKey);
+      graphBootstrapClaimsBySource.set(sourceKey, items);
+      return items;
+    })
     .catch(() => []);
   graphBootstrapPayloadPromises.set(path, task);
   return task;
@@ -7573,11 +7912,14 @@ async function loadRouteNativeEvidenceSource(sourceKey) {
   const enrichedItems = bibliographyPayloadsLoaded()
     ? enrichClaimsWithBibliographyMetadata(items)
     : items;
-  claimStores.normalized.all = dedupeClaims([
-    ...(claimStores.normalized.all || []),
-    ...enrichedItems,
-  ]);
+  // The routed detail payload is already canonical. Client-side legacy deduplication
+  // collapsed distinct entities from the same paper and changed overview counts.
+  claimStores.normalized.bySource[sourceKey] = enrichedItems;
+  claimStores.normalized.all = Object.values(claimStores.normalized.bySource).flat();
   normalizedSourceLoaded[sourceKey] = true;
+  activeClaimsMemo = null;
+  entityCategoryCountsMemo = null;
+  clearGraphDomCacheForSource(sourceKey, { preserveBootstrap: true });
   return true;
 }
 
@@ -7622,56 +7964,22 @@ function waitForPaint() {
   });
 }
 
-function waitForInitialFonts() {
-  if (!document.fonts?.ready) return Promise.resolve();
-  return Promise.race([
-    document.fonts.ready.catch(() => {}),
-    new Promise((resolve) => window.setTimeout(resolve, 2200)),
-  ]);
-}
-
-function finishInitialBoot() {
-  if (document.documentElement.classList.contains("app-ready")) return;
-  if (window.__appBootFallback) {
-    window.clearTimeout(window.__appBootFallback);
-    window.__appBootFallback = 0;
-  }
-  document.documentElement.classList.remove("app-booting");
-  document.documentElement.classList.add("app-ready");
-}
-
 async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
-  if (normalizedCurrentSourceLoaded()) return false;
+  if (claimLayer !== "normalized") return false;
   const sourceKey = currentSourceKey();
-  const [bootstrapClaims, detailBootstrapClaims] = await Promise.all([
-    loadGraphBootstrapClaims(sourceKey),
-    loadDetailBootstrapClaims(sourceKey),
-  ]);
+  const bootstrapClaims = await loadGraphBootstrapClaims(sourceKey);
   if (loadToken !== currentDataLoadToken) return true;
-  if (!bootstrapClaims.length && !detailBootstrapClaims.length) return false;
+  if (!bootstrapClaims.length) return false;
 
   updateModeUI();
-  const detailBootstrapItems = detailBootstrapClaims.length ? dedupeClaims(detailBootstrapClaims) : [];
-  const detailClaims = detailBootstrapItems.length
-    ? graphViewClaims(claimsForEntityView(expandClaimsWithUseContextProjections(detailBootstrapItems)))
-    : [];
-  const fallbackGraphClaims = bootstrapClaims.length
-    ? graphViewClaims(claimsForEntityView(expandClaimsWithUseContextProjections(bootstrapClaims)))
-    : [];
-  const graphClaims = detailClaims.length ? detailClaims : fallbackGraphClaims;
+  const graphClaims = graphViewClaims(
+    claimsForEntityView(expandedClaimsWithUseContextProjections(bootstrapClaims))
+  );
   const filtered = graphClaims.length ? applyFiltersToClaims(graphClaims, null, { ignoreSearch: true }) : [];
-  const allAccessFiltered = graphClaims.length
-    ? applyFiltersToClaims(graphClaims, null, { ignoreAccess: true, ignoreSearch: true })
-    : [];
 
   if (filtered.length) buildGraph(filtered);
   if (resetDetail) {
-    if (filtered.length) {
-      renderOverviewDetail(filtered, allAccessFiltered);
-    } else {
-      setDetailHeader(defaultDetail.title);
-      renderDetailEmpty();
-    }
+    clearDetailForTransition();
     cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
     if (studyListEl) {
       studyListEl.innerHTML = "";
@@ -7680,8 +7988,29 @@ async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
   return true;
 }
 
+function canonicalOverviewBootstrapClaims() {
+  if (claimLayer !== "normalized" || selected || detailGraphFilter) return null;
+
+  const detailClaims = activeClaimsForMode();
+  const yearRange = activeYearRange(detailClaims);
+  if (yearRange.constrained) return null;
+
+  const bootstrapClaims = graphBootstrapClaimsBySource.get(currentSourceKey());
+  if (!bootstrapClaims?.length) return null;
+
+  const graphClaims = graphViewClaims(
+    claimsForEntityView(expandedClaimsWithUseContextProjections(bootstrapClaims))
+  );
+  return applyFiltersToClaims(
+    graphClaims,
+    { constrained: false, min: null, max: null },
+    { ignoreSearch: true }
+  );
+}
+
 async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true, showGraphBootstrap = false } = {}) {
   const token = ++currentDataLoadToken;
+  const sourceWasLoaded = normalizedCurrentSourceLoaded();
   let bootstrapRendered = false;
   if (showGraphBootstrap) {
     bootstrapRendered = await renderCurrentGraphBootstrap(token, resetDetail);
@@ -7692,6 +8021,7 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
     renderDataLoading();
   }
   if (bootstrapRendered) {
+    retainVisibleBootstrapGraph = true;
     await waitForPaint();
   }
   if (token !== currentDataLoadToken) return;
@@ -7708,11 +8038,10 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
   if (token !== currentDataLoadToken) return;
 
   applyClaimLayerStore();
-  updateModeUI();
+  if (!sourceWasLoaded) updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
   if (resetDetail && !bootstrapRendered) {
-    setDetailHeader(defaultDetail.title);
-    renderDetailEmpty();
+    clearDetailForTransition();
   }
   scheduleRender();
 }
@@ -7745,9 +8074,11 @@ function preloadNormalizedSourceInBackground(sourceKey, delay) {
   scheduleIdleTask(() => {
     loadNormalizedClaimSource(sourceKey)
       .then(() => {
-        applyClaimLayerStore();
-        updateModeUI();
-        updateStats();
+        if (currentSourceKey() === sourceKey) {
+          applyClaimLayerStore();
+          updateModeUI();
+          updateStats();
+        }
       })
       .catch(() => {});
   }, delay);
@@ -7772,21 +8103,22 @@ function preloadLikelyNextData() {
 }
 
 async function init() {
-  try {
-    await loadGraphManifestStats();
-    await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
-    await Promise.all([waitForPaint(), waitForInitialFonts()]);
-    preloadLikelyNextData();
-  } finally {
-    await finishInitialBoot();
-  }
+  await loadGraphManifestStats();
+  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
+  preloadLikelyNextData();
 }
 
 if (yearMinFilter) {
-  yearMinFilter.addEventListener("change", scheduleRender);
+  yearMinFilter.addEventListener("change", () => {
+    retainVisibleBootstrapGraph = false;
+    scheduleRender();
+  });
 }
 if (yearMaxFilter) {
-  yearMaxFilter.addEventListener("change", scheduleRender);
+  yearMaxFilter.addEventListener("change", () => {
+    retainVisibleBootstrapGraph = false;
+    scheduleRender();
+  });
 }
 if (yearStepButtons.length) {
   yearStepButtons.forEach((btn) => {
@@ -7805,7 +8137,7 @@ if (yearStepButtons.length) {
 }
 if (searchInput) {
   searchInput.addEventListener("input", () => {
-    scheduleRender();
+    scheduleFindingSearchRender();
   });
 }
 if (bibliographySearchInput) {

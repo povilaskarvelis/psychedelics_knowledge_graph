@@ -349,6 +349,38 @@ def test_converter_uses_only_unambiguous_overview_population_and_comparator() ->
     assert rows[0]["normalization_comparator_source"] == "single_overview_comparator"
 
 
+def test_stable_task_fallback_requires_same_doi_and_text_depth() -> None:
+    output = output_with_result(base_item())
+    output["task_id"] = "old-task-id"
+    current_task = task()
+    current_task.update(
+        {
+            "task_id": "new-task-id",
+            "study_doi": "10.1/meta",
+            "text_depth": "article_text",
+        }
+    )
+
+    rows, report = convert_outputs(
+        [output],
+        {"new-task-id": current_task},
+        allow_stable_task_fallback=True,
+    )
+
+    assert len(rows) == 1
+    assert report["counts"]["stable_task_fallback"] == 1
+
+    changed_depth = dict(current_task, text_depth="abstract_only")
+    rows, report = convert_outputs(
+        [output],
+        {"new-task-id": changed_depth},
+        allow_stable_task_fallback=True,
+    )
+
+    assert rows == []
+    assert report["counts"]["missing_task"] == 1
+
+
 def test_converter_does_not_assign_ambiguous_overview_context_to_a_result() -> None:
     item = base_item()
     item.pop("population_or_system")

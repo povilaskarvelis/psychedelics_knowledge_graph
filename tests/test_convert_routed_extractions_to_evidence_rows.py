@@ -83,6 +83,28 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
             "Use of methamphetamine, mephedrone, GHB/GBL, and/or ketamine in a sexual setting",
         )
 
+    def test_explicit_review_subject_kind_is_preserved_when_label_has_no_regex_cue(self) -> None:
+        row = {
+            "compound": "Microdosing",
+            "graph_subject_label": "Microdosing",
+            "graph_subject_kind": "exposure_context",
+            "graph_subject_source_field": "anchors",
+        }
+
+        apply_graph_subject(row)
+
+        self.assertEqual(row["compound"], "Microdosing")
+        self.assertEqual(row["graph_subject_kind"], "exposure_context")
+        self.assertEqual(row["graph_subject_source_field"], "anchors")
+
+        topic = {
+            "compound": "Research landscape",
+            "graph_subject_label": "Research landscape",
+            "graph_subject_kind": "paper_topic",
+        }
+        apply_graph_subject(topic)
+        self.assertEqual(topic["graph_subject_kind"], "paper_topic")
+
     def test_direction_and_design_are_normalized_without_rewriting_raw_text(self) -> None:
         self.assertEqual(normalized_result_direction("No significant association"), "no_association")
         self.assertEqual(
@@ -271,10 +293,84 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                 input_jsonl=outputs_jsonl,
                 tasks_jsonl=tasks_jsonl,
                 active_route_table=active_routes,
+                allow_stable_task_fallback=True,
             )
 
         self.assertEqual(rows, [])
-        self.assertEqual(report["skipped"]["missing_current_task"], 1)
+        self.assertEqual(
+            report["skipped"]["current_task_mismatch:text_depth_mismatch"],
+            1,
+        )
+
+    def test_stable_fallback_reuses_output_when_doi_domain_and_depth_are_unchanged(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            active_routes = root / "paper_extraction_routes.parquet"
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "current-task",
+                        "route_id": "current-route",
+                        "input_fingerprint": "a" * 64,
+                        "study_doi": "10.1000/stable-paper",
+                        "paper_metadata": {
+                            "doi": "10.1000/stable-paper",
+                            "study_title": "Current canonical title",
+                        },
+                        "route_context": {"domain_route": "clinical_outcome"},
+                        "extraction_contract": {"domain_route": "clinical_outcome"},
+                        "text_source": {"mode": "abstract"},
+                    }
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "old-task",
+                        "route_id": "old-route",
+                        "input_fingerprint": "b" * 64,
+                        "status": "ok",
+                        "result": {
+                            "task_id": "old-task",
+                            "route_id": "old-route",
+                            "study_doi": "10.1000/stable-paper",
+                            "domain_route": "clinical_outcome",
+                            "text_depth": "abstract_only",
+                            "extraction_status": "extracted",
+                            "items": [
+                                {
+                                    "compound": "Psilocybin",
+                                    "condition_or_indication": "Depression",
+                                }
+                            ],
+                        },
+                    }
+                ],
+            )
+            pd.DataFrame(
+                [
+                    {
+                        "route_id": "current-route",
+                        "doi": "10.1000/stable-paper",
+                        "domain_route": "clinical_outcome",
+                    }
+                ]
+            ).to_parquet(active_routes, index=False)
+
+            rows, report = convert_outputs(
+                input_jsonl=outputs_jsonl,
+                tasks_jsonl=tasks_jsonl,
+                active_route_table=active_routes,
+                allow_stable_task_fallback=True,
+            )
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["study_title"], "Current canonical title")
+        self.assertEqual(report["counts"]["outputs_matched_by_stable_doi_domain"], 1)
 
     def test_current_task_rejects_mismatched_text_depth_and_fingerprint(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
