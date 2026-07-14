@@ -317,6 +317,7 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "graph_use_context_projections_json",
     "entity_label",
     "entity_kind",
+    "entity_aliases",
     "graph_entity_label",
     "graph_parent_label",
     "graph_parent_kind",
@@ -704,6 +705,44 @@ def load_author_roles(kg_dir: Path) -> dict[str, dict]:
     return roles
 
 
+def load_entity_aliases(kg_dir: Path) -> dict[str, list[str]]:
+    path = kg_dir / "entities.parquet"
+    if not path.exists():
+        return {}
+    try:
+        import pandas as pd
+    except ModuleNotFoundError:
+        return {}
+
+    df = pd.read_parquet(path)
+    if df.empty or "entity_id" not in df.columns or "aliases_json" not in df.columns:
+        return {}
+
+    aliases_by_id: dict[str, list[str]] = {}
+    for record in df.to_dict(orient="records"):
+        entity_id = normalize(record.get("entity_id"))
+        if not entity_id:
+            continue
+        raw_aliases = record.get("aliases_json", "")
+        if isinstance(raw_aliases, str):
+            try:
+                raw_aliases = json.loads(raw_aliases)
+            except json.JSONDecodeError:
+                raw_aliases = []
+        if not isinstance(raw_aliases, list):
+            raw_aliases = []
+        label = normalize(record.get("label"))
+        aliases_by_id[entity_id] = sorted(
+            {
+                normalize(alias)
+                for alias in raw_aliases
+                if normalize(alias) and normalize(alias).casefold() != label.casefold()
+            },
+            key=str.casefold,
+        )
+    return aliases_by_id
+
+
 def merge_edge_metadata(rows, kg_dir: Path):
     edge_path = kg_dir / "evidence_edges.parquet"
     join_key = "finding_id" if "finding_id" in rows.columns else ""
@@ -723,6 +762,7 @@ def merge_edge_metadata(rows, kg_dir: Path):
         for column in (
             join_key,
             "evidence_id",
+            "entity_id",
             "source_name",
             "domain",
             "entity_kind",
@@ -750,7 +790,11 @@ def merge_edge_metadata(rows, kg_dir: Path):
     return rows.merge(edges, on=join_key, how="left", suffixes=("", "_edge"))
 
 
-def finding_from_record(record: dict, author_roles: dict[str, dict]) -> dict:
+def finding_from_record(
+    record: dict,
+    author_roles: dict[str, dict],
+    entity_aliases: dict[str, list[str]] | None = None,
+) -> dict:
     raw = parse_raw_json(record.get("raw_row_json", ""))
     domain = field_value(raw, record, "domain_edge", "domain")
     evidence_type = field_value(raw, record, "evidence_type_edge", "evidence_type") or "primary_evidence"
@@ -768,6 +812,9 @@ def finding_from_record(record: dict, author_roles: dict[str, dict]) -> dict:
         field_value(raw, record, "graph_entity_type"),
     )
 
+    entity_aliases = entity_aliases or {}
+    entity_id = field_value(raw, record, "entity_id_edge", "entity_id")
+    parent_entity_id = field_value(raw, record, "graph_parent_entity_id_edge", "graph_parent_entity_id")
     finding = {
         "finding_id": field_value(raw, record, "finding_id"),
         "evidence_id": field_value(raw, record, "evidence_id_edge", "evidence_id"),
@@ -779,7 +826,8 @@ def finding_from_record(record: dict, author_roles: dict[str, dict]) -> dict:
         "compound": field_value(raw, record, "compound"),
         "entity_label": entity_label,
         "entity_kind": entity_kind,
-        "entity_aliases": [],
+        "entity_aliases": entity_aliases.get(entity_id, []),
+        "graph_parent_aliases": entity_aliases.get(parent_entity_id, []),
         "text_depth": text_depth(field_value(raw, record, "access_level")),
         "assessment_timepoint": field_value(raw, record, "assessment_timepoint", "timepoint"),
     }
@@ -834,7 +882,11 @@ def load_findings(kg_dir: Path) -> list[dict]:
         df = df[df["source_name"].isin(ROUTED_SOURCE_NAMES)].copy()
     df = merge_edge_metadata(df, kg_dir)
     author_roles = load_author_roles(kg_dir)
-    findings = [finding_from_record(record, author_roles) for record in df.to_dict(orient="records")]
+    entity_aliases = load_entity_aliases(kg_dir)
+    findings = [
+        finding_from_record(record, author_roles, entity_aliases)
+        for record in df.to_dict(orient="records")
+    ]
     return sorted(
         findings,
         key=lambda item: (
@@ -1100,6 +1152,7 @@ def overview_graph_projection(finding: dict, subject: dict | None = None) -> dic
     if used_parent:
         entity_label = parent_label
         entity_kind = parent_kind
+    entity_aliases = finding.get("graph_parent_aliases", []) if used_parent else finding.get("entity_aliases", [])
 
     return {
         "finding": finding,
@@ -1110,6 +1163,7 @@ def overview_graph_projection(finding: dict, subject: dict | None = None) -> dic
         "graph_subject_kind": subject["kind"],
         "entity_label": entity_label,
         "entity_kind": entity_kind,
+        "entity_aliases": list(entity_aliases) if isinstance(entity_aliases, list) else [],
         "graph_parent_label": normalize(finding.get("graph_parent_label")),
         "graph_parent_kind": normalize(finding.get("graph_parent_kind")),
         "graph_parent_entity_id": normalize(finding.get("graph_parent_entity_id")),

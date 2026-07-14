@@ -286,6 +286,71 @@ def test_initial_page_reveals_only_after_required_fonts_are_ready() -> None:
     assert "setTimeout(revealStyledPage, 1600)" in head
 
 
+def test_stacked_bar_categories_keep_their_color_after_filtering() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    color_helper = source.split("function compositionCategoryColorKey", 1)[1].split(
+        "function compositionFilterAttrs", 1
+    )[0]
+    chart = source.split("function renderFacetCompositionChart", 1)[1].split(
+        "function hasRegisteredTrial", 1
+    )[0]
+
+    assert "const compositionCategoryColors = new Map();" in source
+    assert "compositionCategoryColorKey(entry, field)" in color_helper
+    assert "compositionCategoryColors.has(key)" in color_helper
+    assert "compositionCategoryColors.set(key, color)" in color_helper
+    assert "compositionCategoryColors.get(key)" in color_helper
+    assert "colorForEntry(entry, index, palette, filterField)" in chart
+
+
+def test_brain_relationship_types_use_brain_specific_assignments_and_one_other_bucket() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    relationship_source = source.split("const MECHANISTIC_RELATIONSHIP_TYPE_ORDER", 1)[1].split(
+        "function assayFamilyText", 1
+    )[0]
+
+    assert 'other_or_mixed: "Other"' in relationship_source
+    assert '"Other/mixed relationship"' not in relationship_source
+    assert '"Activity change"' in relationship_source
+    assert '"Structural change"' in relationship_source
+    assert '"Metabolic/perfusion change"' in relationship_source
+    assert '"Neurochemical change"' in relationship_source
+    assert "if (isBrainRelationshipClaim(claim))" in relationship_source
+    assert '"functional connectivity": "Connectivity change"' in relationship_source
+    assert '"brain structure": "Structural change"' in relationship_source
+    assert '"receptor occupancy": "Binding/affinity"' in relationship_source
+
+
+def test_administration_facets_are_separate_single_value_dimensions() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    administration_source = source.split("const ADMINISTRATION_ROUTE_ORDER", 1)[1].split(
+        "function normalizedAdministrationRouteText", 1
+    )[0]
+    chart_source = source.split("function renderAdministrationContextCharts", 1)[1].split(
+        "function renderClinicalComparatorChart", 1
+    )[0]
+
+    assert "function administrationRouteFacetLabel" in administration_source
+    assert "function dosingScheduleFacetLabel" in administration_source
+    assert "function sessionContextFacetLabel" in administration_source
+    assert 'return "Multiple routes"' in administration_source
+    assert '"Preclinical experiment"' in administration_source
+    assert '"Administration route", "administration_route_facet"' in chart_source
+    assert '"Dosing schedule", "dosing_schedule_facet"' in chart_source
+    assert '"Session context", "session_context_facet"' in chart_source
+    assert "dose_route_session_facet" not in source
+
+
+def test_cached_graph_reset_removes_stale_crossfade_state() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    graph_source = source.split("function buildGraph", 1)[1].split("function render()", 1)[0]
+
+    cached_branch = graph_source.split("if (cached)", 1)[1].split("if (!crossfadeFromBootstrap)", 1)[0]
+    reset_branch = graph_source.split("reset: () =>", 1)[1].split("applyFocusState", 1)[0]
+    assert "graphSwapToken += 1" in cached_branch
+    assert 'svg.classList.remove("graph-swap-layer", "graph-swap-out", "graph-swap-in", "graph-swap-active")' in reset_branch
+
+
 def test_each_edge_uses_a_gradient_between_its_endpoint_colors() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     edge_render = source.split('edgeEntries.forEach(([key, edge], index)', 1)[1].split(

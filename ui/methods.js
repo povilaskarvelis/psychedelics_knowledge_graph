@@ -23,6 +23,13 @@ const dataFetchOptions =
 const DATASET_LABELS = {
   overall: "Paper search and screening flow",
 };
+const BIBLIOGRAPHY_GRAPH_STATUS_LABELS = {
+  "In graph": "Represented in graph",
+  "Not graphable": "No suitable graph relationship",
+  "Not normalized": "Names not matched",
+  "No graph finding": "No publishable finding",
+  "Not reached": "Not reached",
+};
 const BIBLIOGRAPHY_PAGE_SIZE = 120;
 
 function escapeHtml(value) {
@@ -82,7 +89,7 @@ function renderPrismaReasons(box) {
     <ul>
       ${reasons.map((reason) => `
         <li>
-          <span>${escapeHtml(reason.label)}</span>
+          <span>${escapeHtml(BIBLIOGRAPHY_GRAPH_STATUS_LABELS[reason.label] || reason.label)}</span>
           <strong>${formatNumber(reason.count)}</strong>
         </li>
       `).join("")}
@@ -131,7 +138,7 @@ function renderNonFullTextFlow(flow = {}) {
   const pending = flow.not_extracted;
   const excluded = flow.excluded;
   const included = flow.included_total || {
-    label: "Included in KG evidence layer",
+    label: "Included in the knowledge graph",
     count: 0,
   };
   const hasPending = Number(pending?.count || 0) > 0;
@@ -343,10 +350,10 @@ function populateBibliographyKgStatusFilter(payload) {
   const currentValue = methodsBibliographyKgStatusEl.value;
   const options = Array.isArray(payload?.kg_options) ? payload.kg_options : [];
   methodsBibliographyKgStatusEl.innerHTML = `
-    <option value="">All KG statuses</option>
+    <option value="">All graph statuses</option>
     ${options.map((option) => `
       <option value="${escapeHtml(option.label)}">
-        ${escapeHtml(option.label)} (${formatNumber(option.count)})
+        ${escapeHtml(BIBLIOGRAPHY_GRAPH_STATUS_LABELS[option.label] || option.label)} (${formatNumber(option.count)})
       </option>
     `).join("")}
   `;
@@ -424,7 +431,7 @@ function bibliographyRowHtml(row) {
       <td>${bibliographyStageCellHtml(row.initial_screening_status, row.initial_screening_label, row.initial_screening_note)}</td>
       <td>${bibliographyStageCellHtml(row.llm_screening_status, row.llm_screening_label, row.llm_screening_note)}</td>
       <td>${bibliographyStageCellHtml(row.extraction_status, row.extraction_label, row.extraction_note)}</td>
-      <td>${bibliographyStageCellHtml(row.kg_status, row.kg_label, row.kg_note)}</td>
+      <td>${bibliographyStageCellHtml(row.kg_status, BIBLIOGRAPHY_GRAPH_STATUS_LABELS[row.kg_label] || row.kg_label, row.kg_note)}</td>
     </tr>
   `;
 }
@@ -435,12 +442,12 @@ function updateBibliographySummary() {
   const filtered = methodsState.bibliographyFilteredRows.length;
   const rendered = Math.min(methodsState.bibliographyRendered, filtered);
   const stage = (methodsBibliographyStageEl?.selectedOptions?.[0]?.textContent || "All stages").replace(/\s+/g, " ").trim();
-  const kgStatus = (methodsBibliographyKgStatusEl?.selectedOptions?.[0]?.textContent || "All KG statuses").replace(/\s+/g, " ").trim();
+  const kgStatus = (methodsBibliographyKgStatusEl?.selectedOptions?.[0]?.textContent || "All graph statuses").replace(/\s+/g, " ").trim();
   const query = methodsBibliographySearchEl?.value?.trim() || "";
   const filterText = query || methodsBibliographyStageEl?.value || methodsBibliographyKgStatusEl?.value
     ? `Filtered to ${formatNumber(filtered)} of ${formatNumber(total)} papers.`
     : `${formatNumber(total)} papers in the full search corpus.`;
-  methodsBibliographySummaryEl.textContent = `${filterText} Showing ${formatNumber(rendered)}. Stage: ${stage}. KG status: ${kgStatus}.`;
+  methodsBibliographySummaryEl.textContent = `${filterText} Showing ${formatNumber(rendered)}. Stage: ${stage}. Graph status: ${kgStatus}.`;
 }
 
 function appendBibliographyRows() {
@@ -493,7 +500,7 @@ function renderBibliographyError(error) {
   if (methodsBibliographyRowsEl) {
     methodsBibliographyRowsEl.innerHTML = `
       <tr>
-        <td colspan="5" class="methods-bibliography-empty">Run python pipeline/kg/build_methods_flow.py from the project root, then refresh this page.</td>
+        <td colspan="5" class="methods-bibliography-empty">Bibliography data is currently unavailable. Please try again later.</td>
       </tr>
     `;
   }
@@ -549,7 +556,7 @@ function scheduleBibliographyRender() {
 function renderMethodsError(error) {
   const message = `
     <div class="methods-error">
-      Methods data is not available yet. Run <code>python pipeline/kg/build_methods_flow.py --refresh-kg-tables</code> from the project root, then refresh this page.
+      Methods data is currently unavailable. Please try again later.
       <span>${escapeHtml(error.message)}</span>
     </div>
   `;

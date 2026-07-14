@@ -250,6 +250,14 @@ const CONDITION_GRAPH_CLARIFIERS = new Map([
   ["substance use disorder", "Broad, mixed, or substance-unspecified evidence; named use disorders remain separate."],
   ["tobacco use disorder", "Includes literature using nicotine-dependence terminology."],
 ]);
+const TARGET_GRAPH_LABEL_OVERRIDES = new Map([
+  ["alpha7 nicotinic acetylcholine receptor (chrna7)", "α7 nAChR"],
+  ["alpha3beta4 nicotinic acetylcholine receptor", "α3β4 nAChR"],
+  ["alpha4beta2 nicotinic acetylcholine receptor", "α4β2 nAChR"],
+  ["kappa opioid receptor (oprk1)", "κ-opioid receptor"],
+  ["mu opioid receptor (oprm1)", "μ-opioid receptor"],
+  ["delta opioid receptor (oprd1)", "δ-opioid receptor"],
+]);
 const DETAIL_PANEL_PROFILE_DEFAULT = {
   experimentalSystem: false,
   sampleSizes: false,
@@ -489,6 +497,7 @@ const GRAPH_DOM_CACHE_LIMIT = 4;
 const overviewDetailCache = new Map();
 const OVERVIEW_DETAIL_CACHE_LIMIT = 48;
 const overviewDetailPrewarmScheduled = new Set();
+const compositionCategoryColors = new Map();
 const claimArrayIds = new WeakMap();
 let nextClaimArrayId = 1;
 let deferredSurfaceRenderToken = 0;
@@ -689,6 +698,8 @@ function claimDerivedSearchParts(claim) {
     ...graphOverviewSubjectsForClaim(claim).map((subject) => subject.label),
     ...graphOverviewSubjectsForClaim(claim).flatMap((subject) => subject.aliases || []),
     ...(Array.isArray(claim?.compound_aliases) ? claim.compound_aliases : []),
+    ...(Array.isArray(claim?.entity_aliases) ? claim.entity_aliases : []),
+    ...(Array.isArray(claim?.use_context_aliases) ? claim.use_context_aliases : []),
     graphRightLabelForClaim(claim),
     claimMainFindingText(claim),
     paperTypeLabel(claim.paper_type),
@@ -1054,7 +1065,9 @@ const NEUROPLASTICITY_FINDING_THEME_RULES = [
 
 function specificPathwayReadoutLabel(claim) {
   const normalizedSubtopic = meaningfulText(claim?.molecular_finding_subtopic);
-  if (normalizedSubtopic) return normalizedSubtopic;
+  if (normalizedSubtopic) {
+    return ["other", "other findings"].includes(normalizeValue(normalizedSubtopic)) ? "Other" : normalizedSubtopic;
+  }
   const specific =
     graphLabel(claim?.target) ||
     meaningfulText(claim?.graph_entity_label) ||
@@ -1124,6 +1137,9 @@ function graphRightLabelForClaim(claim) {
   if (usesInterventionParentFamilies()) return graphLabel(claim?.graph_parent_label) || right;
   if (currentEntityViewKey() === "condition_indication") {
     return CONDITION_GRAPH_LABEL_OVERRIDES.get(normalizeValue(right)) || right;
+  }
+  if (currentEntityViewKey() === "target_system") {
+    return TARGET_GRAPH_LABEL_OVERRIDES.get(normalizeValue(right)) || right;
   }
   return right;
 }
@@ -2245,21 +2261,27 @@ function safetyContextFacetLabel(claim) {
   return "Other safety context";
 }
 
-const DOSE_ROUTE_SESSION_CONTEXT_ORDER = [
+const ADMINISTRATION_ROUTE_ORDER = [
   "Intravenous infusion or injection",
   "Intranasal",
   "Subcutaneous or intramuscular injection",
   "Oral or sublingual",
   "Smoked or vaporized",
-  "Therapy-assisted session",
-  "Clinical administration",
-  "Ceremony & retreat",
-  "Naturalistic use",
+  "Preclinical injection",
+  "Multiple routes",
+];
+const DOSING_SCHEDULE_ORDER = [
   "Microdosing",
   "Dose-ranging",
   "Repeated dosing",
   "Single-dose session",
-  "Preclinical injection",
+];
+const SESSION_CONTEXT_ORDER = [
+  "Therapy-assisted session",
+  "Clinical administration",
+  "Ceremony & retreat",
+  "Naturalistic use",
+  "Preclinical experiment",
 ];
 const ADMINISTRATION_ROUTE_LABELS = {
   oral_or_sublingual: "Oral or sublingual",
@@ -2358,10 +2380,10 @@ const SESSION_CONTEXT_LABELS = {
   ceremony_or_retreat: "Ceremony & retreat",
   clinical_administration: "Clinical administration",
   naturalistic_use: "Naturalistic use",
-  preclinical_experiment: "Preclinical injection",
+  preclinical_experiment: "Preclinical experiment",
 };
 
-function doseRouteSessionFacetLabels(claim) {
+function administrationFacetText(claim) {
   const doseText = [
     claim.dose,
     claim.route,
@@ -2389,8 +2411,7 @@ function doseRouteSessionFacetLabels(claim) {
     .replace(/[_/()+–—-]+/g, " ")
     .replace(/\s+/g, " ")
     .toLowerCase();
-  const text = `${doseText} ${metaText}`.trim();
-  const microdosingText = [
+  const broadText = [
     doseText,
     metaText,
     claim.study_title,
@@ -2402,23 +2423,15 @@ function doseRouteSessionFacetLabels(claim) {
     .join(" ")
     .replace(/\s+/g, " ")
     .toLowerCase();
-  const hasAdministrationSignal =
-    Boolean(doseText) ||
-    /\b(microdos\w*|assisted therapy|therapy assisted|psychotherapy|ceremon\w*|ritual\w*|retreat|ayahuasca consumption|brew|shamanic)\b/.test(
-      microdosingText
-    );
-  if (!text && !hasAdministrationSignal) return [];
+  return { doseText, metaText, broadText, text: `${doseText} ${metaText}`.trim() };
+}
 
-  const labels = [];
-  const addLabel = (label) => {
-    if (!label) return;
-    if (!labels.includes(label)) labels.push(label);
-  };
-  [
-    controlledCategoryLabel(claim.administration_route, ADMINISTRATION_ROUTE_LABELS),
-    controlledCategoryLabel(claim.dosing_schedule, DOSING_SCHEDULE_LABELS),
-    controlledCategoryLabel(claim.session_context, SESSION_CONTEXT_LABELS),
-  ].forEach(addLabel);
+function administrationRouteFacetLabel(claim) {
+  const explicit = controlledCategoryLabel(claim.administration_route, ADMINISTRATION_ROUTE_LABELS);
+  if (explicit) return explicit;
+
+  const { doseText, metaText } = administrationFacetText(claim);
+  if (!doseText) return "";
   const animalMetaPattern =
     /\b(preclinical|animal|mouse|mice|rats?|rattus|rodent|zebrafish|cell culture|cultured cells?|in vitro|ex vivo)\b/;
   const preclinicalRoutePattern =
@@ -2427,46 +2440,78 @@ function doseRouteSessionFacetLabels(claim) {
   const isPreclinicalInjection =
     preclinicalRoutePattern.test(doseText) || (animalMetaPattern.test(metaText) && injectionPattern.test(doseText));
 
-  if (/\bmicrodos\w*\b/.test(microdosingText)) addLabel("Microdosing");
+  const labels = [];
+  const addLabel = (condition, label) => {
+    if (condition && !labels.includes(label)) labels.push(label);
+  };
+  addLabel(/\b(intranasal|nasal spray|nasal|spravato|in esketamine)\b/.test(doseText), "Intranasal");
+  addLabel(
+    /(?:\bintravenous\b|\biv\b|\bi\.v\.|\binfusion\b|\binfused\b|\bbolus injection\b)/.test(doseText),
+    "Intravenous infusion or injection"
+  );
+  addLabel(
+    /(?:\bintramuscular\b|\bim\b|\bi\.m\.|\bsubcutaneous\b|\bs\.c\.|\bsc\b)/.test(doseText) &&
+      !isPreclinicalInjection,
+    "Subcutaneous or intramuscular injection"
+  );
+  addLabel(
+    /\b(smoked|smoking|vaporized|vaporised|vaporization|vaporisation|inhaled|inhalation|freebase)\b/.test(doseText),
+    "Smoked or vaporized"
+  );
+  addLabel(
+    /(?:\boral\b|\borally\b|\bp\.o\.|\bpo\b|\bcapsule\b|\btablet\b|\bingestion\b|\bingested\b|\bsublingual\b|\blingual\b|\bbuccal\b|\bbrew\b|\bdrink\b|\btea\b|\bayahuasca\b)/.test(
+      doseText
+    ),
+    "Oral or sublingual"
+  );
+  addLabel(isPreclinicalInjection, "Preclinical injection");
+  if (labels.length > 1) return "Multiple routes";
+  return labels[0] || "";
+}
+
+function dosingScheduleFacetLabel(claim) {
+  const explicit = controlledCategoryLabel(claim.dosing_schedule, DOSING_SCHEDULE_LABELS);
+  if (explicit) return explicit;
+
+  const { text, broadText } = administrationFacetText(claim);
+  if (/\bmicrodos\w*\b/.test(broadText)) return "Microdosing";
   if (
-    /\b(assisted therapy|therapy assisted|psychotherapy|pap\b|psychological support|therapeutic support|recovery based therapy|timber psychotherapy|integrative therapy|preparatory|integration sessions?)\b/.test(
-      microdosingText
-    )
-  ) {
-    addLabel("Therapy-assisted session");
-  }
-  if (/\b(ceremon\w*|ritual\w*|retreat|naturalistic setting|ayahuasca consumption|brew|shamanic)\b/.test(microdosingText)) {
-    addLabel("Ceremony & retreat");
-  }
-  if (/\b(intranasal|nasal spray|nasal|spravato|in esketamine)\b/.test(doseText)) addLabel("Intranasal");
-  if (/(?:\bintravenous\b|\biv\b|\bi\.v\.|\binfusion\b|\binfused\b|\bbolus injection\b)/.test(doseText)) {
-    addLabel("Intravenous infusion or injection");
-  }
-  if (/(?:\bintramuscular\b|\bim\b|\bi\.m\.|\bsubcutaneous\b|\bs\.c\.|\bsc\b)/.test(doseText) && !isPreclinicalInjection) {
-    addLabel("Subcutaneous or intramuscular injection");
-  }
-  if (/\b(smoked|smoking|vaporized|vaporised|vaporization|vaporisation|inhaled|inhalation|freebase)\b/.test(doseText)) {
-    addLabel("Smoked or vaporized");
-  }
-  if (/(?:\boral\b|\borally\b|\bp\.o\.|\bpo\b|\bcapsule\b|\btablet\b|\bingestion\b|\bingested\b|\bsublingual\b|\blingual\b|\bbuccal\b|\bbrew\b|\bdrink\b|\btea\b|\bayahuasca\b)/.test(doseText)) {
-    addLabel("Oral or sublingual");
-  }
-  if (isPreclinicalInjection) addLabel("Preclinical injection");
-  if (
-    /\b(dose finding|dose response|dose ranging|dose escalation|titrat\w*|flexible dose|variable dose|various doses|escalating|multiple dose levels?|\d+(?:\.\d+)?\s*(?:,|and)\s*\d+(?:\.\d+)?\s*(?:,|and)\s*\d+(?:\.\d+)?)\b/.test(
-      text
-    )
-  ) {
-    addLabel("Dose-ranging");
-  }
+    /\b(dose finding|dose response|dose ranging|dose escalation|titrat\w*|flexible dose|variable dose|various doses|escalating|multiple dose levels?|\d+(?:\.\d+)?\s*(?:,|and)\s*\d+(?:\.\d+)?\s*(?:,|and)\s*\d+(?:\.\d+)?)\b/.test(text)
+  ) return "Dose-ranging";
 
   const repeatedPattern =
     /\b(repeated|multiple|maintenance|course|series|weekly|twice weekly|twice-weekly|daily|consecutive days|over \d+ (?:days?|weeks?|months?)|\d+ sessions?|\d+ infusions?|\d+ doses?|redosing|booster|supplemental dose|2 3 times a week|separated by|once weekly|three months treatment)\b/;
   const singlePattern = /\b(single|one time|one-time|first administration|single dose|single administration|single session)\b/;
-  const isRepeated = repeatedPattern.test(text);
-  if (isRepeated) addLabel("Repeated dosing");
-  if (singlePattern.test(text) && !isRepeated) addLabel("Single-dose session");
-  return labels;
+  if (repeatedPattern.test(text)) return "Repeated dosing";
+  if (singlePattern.test(text)) return "Single-dose session";
+  return "";
+}
+
+function sessionContextFacetLabel(claim) {
+  const explicit = controlledCategoryLabel(claim.session_context, SESSION_CONTEXT_LABELS);
+  if (explicit) return explicit;
+
+  const { doseText, metaText, broadText } = administrationFacetText(claim);
+  if (/\b(ceremon\w*|ritual\w*|retreat|ayahuasca consumption|brew|shamanic)\b/.test(broadText)) {
+    return "Ceremony & retreat";
+  }
+  if (
+    /\b(assisted therapy|therapy assisted|psychotherapy|pap\b|psychological support|therapeutic support|recovery based therapy|timber psychotherapy|integrative therapy|preparatory|integration sessions?)\b/.test(
+      broadText
+    )
+  ) {
+    return "Therapy-assisted session";
+  }
+  if (/\b(naturalistic|self administered|self-administered|community use|nonclinical use|non-clinical use)\b/.test(broadText)) {
+    return "Naturalistic use";
+  }
+  if (/\b(preclinical|animal|mouse|mice|rats?|rattus|rodent|zebrafish|in vitro|ex vivo)\b/.test(`${doseText} ${metaText}`)) {
+    return "Preclinical experiment";
+  }
+  if (/\b(clinical administration|clinical trial|clinic|hospital|inpatient|outpatient|day care|day-care)\b/.test(broadText)) {
+    return "Clinical administration";
+  }
+  return "";
 }
 
 function normalizedAdministrationRouteText(value) {
@@ -2641,12 +2686,12 @@ const MECHANISTIC_ASSAY_FAMILY_ORDER = [
   "Uptake assays",
   "Signaling assays",
   "Enzyme assays",
-  "Other methods",
+  "Other",
 ];
 const ASSAY_FAMILY_DISPLAY_LABELS = {
   "binding / affinity": "Binding assays",
   "functional activity": "Receptor activity",
-  "imaging / connectivity": "Other methods",
+  "imaging / connectivity": "Other",
   electrophysiology: "Electrophysiology",
   "behavioral assay": "Behavioral assays",
   "protein expression / proteomics": "Protein assays",
@@ -2657,7 +2702,8 @@ const ASSAY_FAMILY_DISPLAY_LABELS = {
   "transporter / uptake": "Uptake assays",
   "signaling / phosphorylation": "Signaling assays",
   "enzyme / metabolism": "Enzyme assays",
-  "other / mixed method": "Other methods",
+  "other / mixed method": "Other",
+  "other methods": "Other",
 };
 for (const label of MECHANISTIC_ASSAY_FAMILY_ORDER) {
   ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(label)] = label;
@@ -2679,16 +2725,20 @@ const BRAIN_MEASURE_ORDER = [
   "White matter integrity",
 ];
 const MECHANISTIC_RELATIONSHIP_TYPE_ORDER = [
+  "Activity change",
+  "Connectivity change",
+  "Structural change",
+  "Metabolic/perfusion change",
+  "Neurochemical change",
   "Binding/affinity",
   "Agonism/antagonism",
   "Transporter uptake",
   "Metabolism/transport",
   "Neurotransmitter release",
   "Expression change",
-  "Connectivity change",
   "Plasticity marker",
   "Toxicity marker",
-  "Other/mixed relationship",
+  "Other",
 ];
 const MECHANISTIC_RELATIONSHIP_TYPE_LABELS = {
   binding_affinity: "Binding/affinity",
@@ -2700,86 +2750,177 @@ const MECHANISTIC_RELATIONSHIP_TYPE_LABELS = {
   plasticity_marker: "Plasticity marker",
   toxicity_marker: "Toxicity marker",
   metabolism_or_transport: "Metabolism/transport",
-  other_or_mixed: "Other/mixed relationship",
+  other_or_mixed: "Other",
 };
 
-function mechanisticRelationshipTypeFacetLabel(claim) {
-  const explicit = controlledCategoryLabel(claim.mechanistic_relationship_type, MECHANISTIC_RELATIONSHIP_TYPE_LABELS);
-  if (explicit) return explicit;
-
-  const text = [
+function mechanisticRelationshipText(claim, includeEntityLabel = false) {
+  return [
     claim.action_type,
     claim.affinity_type,
     claim.assay_family_normalized,
     claim.assay_type,
-    claim.entity_label,
-    claim.graph_entity_label,
+    claim.readout,
+    claim.readout_or_measure,
+    claim.outcome_measure,
+    claim.modality,
+    claim.modality_or_evidence_type,
+    includeEntityLabel ? claim.entity_label : "",
+    includeEntityLabel ? claim.graph_entity_label : "",
     claim.effect_size,
     claim.support,
   ]
     .map(cleanDisplayText)
     .filter(Boolean)
     .join(" ")
-    .replace(/[_/()+-]+/g, " ")
+    .replace(/[_/()+–—-]+/g, " ")
     .replace(/\s+/g, " ")
     .toLowerCase();
+}
+
+function isBrainRelationshipClaim(claim) {
+  const entityKind = normalizeValue(claim.entity_kind || claim.graph_entity_kind || claim.kg_entity_kind_override);
+  return (
+    graphDomainForItem(claim) === "brain_system" ||
+    ["brain_region", "brain_network", "neural_circuit", "brain_measure"].includes(entityKind)
+  );
+}
+
+function brainRelationshipTypeFacetLabel(claim) {
+  const entityKind = normalizeValue(claim.entity_kind || claim.graph_entity_kind || claim.kg_entity_kind_override);
+  const measure = entityKind === "brain_measure" ? normalizeValue(claim.graph_entity_label || claim.entity_label) : "";
+  const measureLabels = {
+    "functional connectivity": "Connectivity change",
+    "bold response": "Activity change",
+    "cerebral blood flow": "Metabolic/perfusion change",
+    "glucose metabolism": "Metabolic/perfusion change",
+    "receptor occupancy": "Binding/affinity",
+    "neurochemical levels": "Neurochemical change",
+    "oscillatory power": "Activity change",
+    mmn: "Activity change",
+    p300: "Activity change",
+    erp: "Activity change",
+    "calcium activity": "Activity change",
+    "c-fos": "Expression change",
+    "brain structure": "Structural change",
+    "white matter integrity": "Structural change",
+  };
+  if (measureLabels[measure]) return measureLabels[measure];
+
+  const text = mechanisticRelationshipText(claim);
+  const assayFamily = normalizeValue(claim.assay_family_normalized || claim.normalized_assay_family);
 
   if (!text) return "";
   if (
-    /\b(neurotox\w*|cytotox\w*|toxicity|toxic|cell viability|cell death|apoptosis|necrosis|oxidative stress|ros|dna damage|mitochondri\w*|er stress|endoplasmic reticulum stress|lesions?|neurodegener\w*)\b/.test(
+    /\b(neurotox\w*|cytotox\w*|toxicity|toxic|cell viability|cell death|apoptosis|necrosis|dna damage|neuronal damage|neurodegener\w*|oxidative (?:stress|damage)|mitochondrial (?:dysfunction|damage|impairment)|er stress|endoplasmic reticulum stress)\b/.test(
       text
     )
   ) {
     return "Toxicity marker";
   }
   if (
-    /\b(functional connectivity|connectivity|network|default mode|dmn|salience network|frontoparietal|functional coupling|bold|fmri|phmri|brain activation|regional activity|cerebral blood flow)\b/.test(
+    /\b(functional connectivity|effective connectivity|structural connectivity|resting state connectivity|rsfc|connectome|functional coupling|network coupling|within network|between network|network integration|network segregation|network modularity|network integrity|coherence|synchroni[sz]\w*|anticorrelat\w*)\b/.test(
       text
     )
   ) {
     return "Connectivity change";
   }
   if (
-    /\b(plasticity|synaptic|synapse|dendritic|spines?|neurogenesis|long term potentiation|ltp|long term depression|ltd|bdnf|trkb|trk b|arc|c fos|cfos|egr|psd 95|synaptophysin|neurite|structural remodeling)\b/.test(
+    /\b(plasticity|synaptic plasticity|dendritic|spines?|neurogenesis|long term potentiation|ltp|long term depression|ltd|bdnf|trkb|trk b|psd 95|synaptophysin|neurite|synaptogenesis|structural remodeling|metaplastic\w*)\b/.test(
       text
     )
   ) {
     return "Plasticity marker";
   }
   if (
-    /\b(transporter|transport|uptake|reuptake|efflux|sert|dat|net|slc6a|substrate|serotonin transport|dopamine transport)\b/.test(text)
-  ) {
-    return "Transporter uptake";
-  }
-  if (
-    /\b(release|releaser|extracellular|microdialysis|neurochemical levels?|serotonin levels?|dopamine levels?|noradrenaline levels?|norepinephrine levels?|5 ht levels?|5 hiaa|glutamate levels?|gaba levels?|monoamine levels?|depletion)\b/.test(
+    /\b(glucose metabolism|cmrglu|fdg|2dg|2 dg|deoxyglucose|metabolic activity|cerebral blood flow|regional cerebral blood flow|cbf|rcbf|perfusion|arterial spin labell?ing|asl|pcasl|cerebral blood volume|hemodynamic response)\b/.test(
       text
     )
   ) {
-    return "Neurotransmitter release";
+    return "Metabolic/perfusion change";
   }
   if (
-    /\b(agonis\w*|antagonis\w*|partial agonist|inverse agonist|modulat\w*|allosteric|inhibitor|inhibition|activation|efficacy|potency|functional activity|g protein|beta arrestin|arrestin|camp|ip1|calcium mobilization)\b/.test(
-      text
-    )
-  ) {
-    return "Agonism/antagonism";
-  }
-  if (
-    /\b(binding|affinity|radioligand|ki\b|kd\b|ic50|ec50|pki|occupancy|receptor density|bp nd|displacement|competition binding)\b/.test(
+    /\b(binding|affinity|radioligand|ki\b|kd\b|bmax|ic50|ec50|pki|occupancy|binding potential|receptor availability|receptor density|bp nd|bpnd|displacement|competition binding)\b/.test(
       text
     )
   ) {
     return "Binding/affinity";
   }
+  if (/\b(release|releaser|evoked release|stimulated release)\b/.test(text)) {
+    return "Neurotransmitter release";
+  }
   if (
-    /\b(expression|mrna|rna|transcript|gene expression|protein expression|protein levels?|western blot|immunoblot|qpcr|qrt pcr|rt pcr|proteomics?|elisa|immunohistochemistry|histology)\b/.test(
+    /\b(reuptake|efflux|uptake inhibition|uptake assay|transport rate|transporter activity|transporter function|substrate transport|monoamine transport)\b/.test(
       text
     )
   ) {
+    return "Transporter uptake";
+  }
+  if (
+    /\b(structural mri|cortical thickness|gray matter|grey matter|white matter|brain volume|regional volume|volume change|increased volume|decreased volume|morphometr\w*|voxel based morphometry|diffusion tensor|dti|fractional anisotropy|mean diffusivity|white matter integrity|atrophy|surface area|neuronal volume|cell density|morpholog\w*)\b/.test(
+      text
+    )
+  ) {
+    return "Structural change";
+  }
+  if (
+    /\b(expression|mrna|rna|transcript|gene expression|protein expression|protein levels?|western blot|immunoblot|qpcr|qrt pcr|rt pcr|proteomics?|elisa|immunohistochemistry|c fos|cfos|fos positive|immediate early gene)\b/.test(
+      text
+    ) || ["gene expression assays", "protein assays", "proteomics", "immunoassays", "histology"].includes(assayFamily)
+  ) {
     return "Expression change";
   }
-  return "Other/mixed relationship";
+  if (
+    /\b(neurochemical levels?|neurotransmitter levels?|extracellular (?:dopamine|serotonin|glutamate|gaba|noradrenaline|norepinephrine)|serotonin levels?|dopamine levels?|noradrenaline levels?|norepinephrine levels?|5 ht levels?|5 hiaa|glutamate levels?|gaba levels?|monoamine levels?|depletion|magnetic resonance spectroscopy|mrs)\b/.test(
+      text
+    ) || ["mrs", "neurochemical assays"].includes(assayFamily)
+  ) {
+    return "Neurochemical change";
+  }
+  if (
+    /\b(bold|blood oxygen level dependent|brain activation|regional activity|neural activity|neuronal activity|electrical activity|activation|deactivation|firing|spike|spiking|excitability|oscillation\w*|oscillatory|band power|gamma|alpha|theta|delta|beta|event related potential|erp|p300|mmn|calcium activity|gcamp|fiber photometry|field potential|epsp|ipsc|epsc|synaptic transmission)\b/.test(
+      text
+    ) || ["fmri", "electrophysiology", "eeg", "meg", "lfp", "calcium imaging", "fiber photometry"].includes(assayFamily)
+  ) {
+    return "Activity change";
+  }
+  if (assayFamily === "mri") return "Structural change";
+  return "Other";
+}
+
+function mechanisticRelationshipTypeFacetLabel(claim) {
+  if (isBrainRelationshipClaim(claim)) return brainRelationshipTypeFacetLabel(claim) || "Other";
+
+  const explicit = controlledCategoryLabel(claim.mechanistic_relationship_type, MECHANISTIC_RELATIONSHIP_TYPE_LABELS);
+  if (explicit) return explicit;
+
+  const text = mechanisticRelationshipText(claim);
+  if (!text) return "";
+  if (/\b(neurotox\w*|cytotox\w*|toxicity|toxic|cell viability|cell death|apoptosis|necrosis|dna damage|neurodegener\w*|oxidative (?:stress|damage)|er stress)\b/.test(text)) {
+    return "Toxicity marker";
+  }
+  if (/\b(functional connectivity|effective connectivity|structural connectivity|resting state connectivity|rsfc|connectome|functional coupling|network coupling)\b/.test(text)) {
+    return "Connectivity change";
+  }
+  if (/\b(plasticity|synaptic plasticity|dendritic|spines?|neurogenesis|long term potentiation|ltp|long term depression|ltd|bdnf|trkb|trk b|psd 95|synaptophysin|neurite|synaptogenesis|structural remodeling)\b/.test(text)) {
+    return "Plasticity marker";
+  }
+  if (/\b(binding|affinity|radioligand|ki\b|kd\b|bmax|ic50|ec50|pki|occupancy|binding potential|receptor availability|receptor density|bp nd|bpnd|displacement|competition binding)\b/.test(text)) {
+    return "Binding/affinity";
+  }
+  if (/\b(release|releaser|evoked release|stimulated release)\b/.test(text)) return "Neurotransmitter release";
+  if (/\b(reuptake|efflux|uptake inhibition|uptake assay|transport rate|transporter activity|transporter function|substrate transport|monoamine transport)\b/.test(text)) {
+    return "Transporter uptake";
+  }
+  if (/\b(metaboli[sz]\w*|biotransformation|clearance|enzyme activity|cyp\w*|monoamine oxidase|mao\b|comt\b)\b/.test(text)) {
+    return "Metabolism/transport";
+  }
+  if (/\b(agonis\w*|antagonis\w*|partial agonist|inverse agonist|modulat\w*|allosteric|inhibitor|inhibition|activation|efficacy|potency|functional activity|g protein|beta arrestin|arrestin|camp|ip1|calcium mobilization)\b/.test(text)) {
+    return "Agonism/antagonism";
+  }
+  if (/\b(expression|mrna|rna|transcript|gene expression|protein expression|protein levels?|western blot|immunoblot|qpcr|qrt pcr|rt pcr|proteomics?|elisa|immunohistochemistry)\b/.test(text)) {
+    return "Expression change";
+  }
+  return "Other";
 }
 
 function assayFamilyText(claim) {
@@ -2925,12 +3066,12 @@ function assayFamilyFromText(text) {
   if (/\b(enzyme|enzymatic|metabolic|metabolism|esterase|pka|pk a|chemical assay|pka determination)\b/.test(text)) {
     return "Enzyme assays";
   }
-  return "Other methods";
+  return "Other";
 }
 
 function mechanisticAssayFamilyFacetLabel(claim) {
   const refined = assayFamilyFromText(assayFamilyText(claim));
-  if (refined && refined !== "Other methods") return refined;
+  if (refined && refined !== "Other") return refined;
   const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
   if (normalized) return ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(normalized)] || normalized;
   return refined;
@@ -2938,7 +3079,7 @@ function mechanisticAssayFamilyFacetLabel(claim) {
 
 function assayFamilySummaryLabel(claim) {
   const refined = assayFamilyFromText(assayFamilyText(claim));
-  if (refined && refined !== "Other methods") return refined;
+  if (refined && refined !== "Other") return refined;
   const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
   if (normalized) return ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(normalized)] || normalized;
   const raw = meaningfulText(claim.assay_family);
@@ -5222,7 +5363,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
 
   const palette = options.palette || CATEGORY_COLORS;
   const colorsForEntry = (entry, index) => {
-    const color = colorForEntry(entry, index, palette);
+    const color = colorForEntry(entry, index, palette, filterField);
     return {
       fill: chartFillSoft(color, isOtherEntry(entry) ? 0.82 : 0.9),
       glow: chartFillSoft(color, isOtherEntry(entry) ? 0.17 : 0.3),
@@ -5378,7 +5519,7 @@ function renderMechanisticRelationshipTypeChart(items) {
   return renderFacetCompositionChart(relationshipEntries, "Relationship types", "mechanistic_relationship_type_facet", {
     hideWhenEmpty: true,
     order: MECHANISTIC_RELATIONSHIP_TYPE_ORDER,
-    maxEntries: 9,
+    maxEntries: 12,
     palette: PALETTE_TEAL_FIRST,
     emptyText: "No relationship-type metadata in this selection.",
   });
@@ -5396,16 +5537,22 @@ function renderSafetyContextChart(items) {
   });
 }
 
-function renderDoseRouteSessionContextChart(items) {
+function renderAdministrationContextCharts(items) {
   if (evidenceView !== "primary" || !currentDetailPanelProfile().doseRouteSessionContexts) return "";
-  const contextEntries = summarizeMultiFacetEvidence(items, doseRouteSessionFacetLabels);
-  return renderFacetCompositionChart(contextEntries, "Administration context", "dose_route_session_facet", {
-    hideWhenEmpty: true,
-    order: DOSE_ROUTE_SESSION_CONTEXT_ORDER,
-    maxEntries: 12,
-    palette: PALETTE_TEAL_FIRST,
-    emptyText: "No administration-context metadata in this selection.",
-  });
+  const chart = (entries, title, filterField, order) =>
+    renderFacetCompositionChart(entries, title, filterField, {
+      hideWhenEmpty: true,
+      order,
+      maxEntries: 12,
+      aggregateOther: false,
+      palette: PALETTE_TEAL_FIRST,
+      emptyText: `No ${title.toLowerCase()} metadata in this selection.`,
+    });
+  return `
+    ${chart(summarizeFacetEvidence(items, administrationRouteFacetLabel), "Administration route", "administration_route_facet", ADMINISTRATION_ROUTE_ORDER)}
+    ${chart(summarizeFacetEvidence(items, dosingScheduleFacetLabel), "Dosing schedule", "dosing_schedule_facet", DOSING_SCHEDULE_ORDER)}
+    ${chart(summarizeFacetEvidence(items, sessionContextFacetLabel), "Session context", "session_context_facet", SESSION_CONTEXT_ORDER)}
+  `;
 }
 
 function renderClinicalComparatorChart(items) {
@@ -5576,7 +5723,7 @@ function renderEvidenceCompositionFacetCharts(items) {
     ${renderPublicHealthContextChart(items)}
     ${renderPublicHealthTopicChart(items)}
     ${renderSafetyContextChart(items)}
-    ${renderDoseRouteSessionContextChart(items)}
+    ${renderAdministrationContextCharts(items)}
     ${
       profile.populationModel
         ? renderFacetCompositionChart(populationModelEntries, "Population", "population_model_facet", {
@@ -5787,8 +5934,18 @@ function limitCompositionEntries(entries, maxEntries = 5) {
   return [...visible, { label: "other", count: otherCount, studies: otherStudies, isAggregate: true }];
 }
 
-function colorForEntry(entry, index, palette = CATEGORY_COLORS) {
-  return isOtherEntry(entry) ? OTHER_CATEGORY_COLOR : palette[index % palette.length];
+function compositionCategoryColorKey(entry, field) {
+  const value = normalizeValue(entry?.value || entry?.label || "");
+  return field && value ? `${field}|${value}` : "";
+}
+
+function colorForEntry(entry, index, palette = CATEGORY_COLORS, field = "") {
+  if (isOtherEntry(entry)) return OTHER_CATEGORY_COLOR;
+  const color = palette[index % palette.length];
+  const key = compositionCategoryColorKey(entry, field);
+  if (!key) return color;
+  if (!compositionCategoryColors.has(key)) compositionCategoryColors.set(key, color);
+  return compositionCategoryColors.get(key);
 }
 
 function compositionFilterAttrs(entry, field) {
@@ -6184,7 +6341,7 @@ function renderSpecificPathwayReadoutChart(items) {
   const entries = summarizeFacetEvidence(items, specificPathwayReadoutLabel);
   return renderFacetCompositionChart(entries, "Specific molecular findings", "specific_pathway_readout", {
     maxEntries: 15,
-    aggregateLabel: "Other findings",
+    aggregateLabel: "Other",
     palette: PALETTE_TEAL_FIRST,
     emptyText: "No specific labels in this selection.",
   });
@@ -6270,7 +6427,9 @@ function fieldValueDetailTitle(field, value) {
   if (field === "brain_measure_facet") return `Measure: ${value}`;
   if (field === "mechanistic_relationship_type_facet") return `Relationship type: ${value}`;
   if (field === "safety_context_facet") return `Safety context: ${value}`;
-  if (field === "dose_route_session_facet") return `Administration context: ${value}`;
+  if (field === "administration_route_facet") return `Administration route: ${value}`;
+  if (field === "dosing_schedule_facet") return `Dosing schedule: ${value}`;
+  if (field === "session_context_facet") return `Session context: ${value}`;
   if (field === "comparator_facet") return `Comparator: ${value}`;
   if (field === "follow_up_window_facet") return `Follow-up window: ${value}`;
   if (field === "study_design_facet") return `Study design: ${value}`;
@@ -6295,7 +6454,9 @@ function fieldValueForClaim(claim, field) {
   if (field === "brain_measure_facet") return brainMeasureFacetLabels(claim);
   if (field === "mechanistic_relationship_type_facet") return mechanisticRelationshipTypeFacetLabel(claim);
   if (field === "safety_context_facet") return safetyContextFacetLabel(claim);
-  if (field === "dose_route_session_facet") return doseRouteSessionFacetLabels(claim);
+  if (field === "administration_route_facet") return administrationRouteFacetLabel(claim);
+  if (field === "dosing_schedule_facet") return dosingScheduleFacetLabel(claim);
+  if (field === "session_context_facet") return sessionContextFacetLabel(claim);
   if (field === "comparator_facet") return clinicalComparatorFacetLabel(claim);
   if (field === "follow_up_window_facet") return clinicalFollowUpWindowFacetLabel(claim);
   if (field === "study_design_facet") return studyDesignFacetLabel(claim);
@@ -6881,6 +7042,7 @@ function buildGraph(data) {
   const cacheKey = graphDomCacheKey(width, data);
   const cached = cacheKey ? graphDomCache.get(cacheKey) : null;
   if (cached) {
+    graphSwapToken += 1;
     cached.reset?.();
     if (graphEl.firstElementChild !== cached.svg) {
       graphEl.replaceChildren(cached.svg);
@@ -7418,7 +7580,15 @@ function buildGraph(data) {
 
     const nodeClaims = claimsByRight.get(target) || [];
     const clarifier = conditionGraphClarifier(target);
-    const nodeTooltipHtml = `<strong>${target}</strong>${clarifier ? `<br/>${escapeHtml(clarifier)}` : ""}<br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
+    const canonicalTarget = graphLabel(graphRightRawLabel(nodeClaims[0] || {}));
+    const targetParent = graphLabel(nodeClaims.find((claim) => graphLabel(claim?.graph_parent_label))?.graph_parent_label);
+    const canonicalLine = canonicalTarget && canonicalTarget !== target
+      ? `<br/>${escapeHtml(canonicalTarget)}`
+      : "";
+    const familyLine = currentEntityViewKey() === "target_system" && targetParent && targetParent !== canonicalTarget
+      ? `<br/>Family: ${escapeHtml(targetParent)}`
+      : "";
+    const nodeTooltipHtml = `<strong>${target}</strong>${canonicalLine}${familyLine}${clarifier ? `<br/>${escapeHtml(clarifier)}` : ""}<br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
       summarizeConnections(nodeClaims, "compound").length
     }`;
     const enter = (event) => {
@@ -7489,6 +7659,7 @@ function buildGraph(data) {
       focusFrame = 0;
       pendingFocusRequest = null;
       cancelPendingFocusRestore();
+      svg.classList.remove("graph-swap-layer", "graph-swap-out", "graph-swap-in", "graph-swap-active");
       applyFocusState(new Map(), false);
       svg.querySelectorAll(".selected, .hovered").forEach((element) => {
         element.classList.remove("selected", "hovered");
@@ -7942,7 +8113,10 @@ function graphBootstrapClaimsFromPayload(payload, sourceKey) {
       graph_subject_kind: cleanDisplayText(edge.graph_subject_kind),
       entity_label: entityLabel,
       graph_entity_label: entityLabel,
-      use_context_aliases: Array.isArray(edge.entity_aliases)
+      entity_aliases: Array.isArray(edge.entity_aliases)
+        ? edge.entity_aliases.map(cleanDisplayText).filter(Boolean)
+        : [],
+      use_context_aliases: cleanDisplayText(edge.projection_type || "outcome") === "use_context" && Array.isArray(edge.entity_aliases)
         ? edge.entity_aliases.map(cleanDisplayText).filter(Boolean)
         : [],
       graph_parent_label: cleanDisplayText(edge.graph_parent_label),

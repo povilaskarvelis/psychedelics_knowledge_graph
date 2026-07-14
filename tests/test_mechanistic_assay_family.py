@@ -38,7 +38,8 @@ def test_existing_and_legacy_assay_families_are_canonicalized() -> None:
         "Binding / affinity": "Binding assays",
         "Protein expression / proteomics": "Protein assays",
         "Immunoassay / histology": "Immunoassays",
-        "Other / mixed method": "Other methods",
+        "Other / mixed method": "Other",
+        "Other methods": "Other",
         "Protein assays": "Protein assays",
         "Gene expression assays": "Gene expression assays",
     }
@@ -47,3 +48,8 @@ def test_existing_and_legacy_assay_families_are_canonicalized() -> None:
         assert normalize_mechanistic_assay_family(raw, "") == expected
 
     assert normalize_mechanistic_assay_family("Imaging / connectivity", "resting-state fMRI") == "fMRI"
+
+
+def test_unclassified_assays_use_the_single_other_bucket() -> None:
+    assert normalize_mechanistic_assay_family("", "bespoke uncategorized procedure") == "Other"
+    assert normalize_mechanistic_assay_family("Other methods", "") == "Other"

@@ -15,6 +15,7 @@ from pipeline.kg.build_evidence_tables import (
     canonicalize_registry_label,
     clinical_endpoint_rows,
     condition_expanded_rows,
+    controlled_target_component_labels,
     graph_admission_decision,
     graphable_compound_match,
     looks_like_compound_list,
@@ -44,6 +45,26 @@ from pipeline.kg.build_evidence_tables import (
 
 
 class BuildEvidenceTablesTest(unittest.TestCase):
+    def test_controlled_target_component_labels_preserve_broad_and_split_explicit_targets(self) -> None:
+        cases = {
+            "5-HT2A/2C receptors": ["5-HT2A", "5-HT2C"],
+            "5-HT2B/C receptor": ["5-HT2B", "5-HT2C"],
+            "GABAA receptors": ["GABA-A receptor family"],
+            "D1-like dopamine receptors": ["D1-like dopamine receptor family"],
+            "D2/3 receptors": ["D2-like dopamine receptor family"],
+            "hα3β4 nicotinic acetylcholine receptor": ["alpha3beta4 nicotinic acetylcholine receptor"],
+            "α4β2 nicotinic acetylcholine receptor": ["alpha4beta2 nicotinic acetylcholine receptor"],
+            "nAChR (alpha7)": ["alpha7 nicotinic acetylcholine receptor (CHRNA7)"],
+            "GluN1/GluN2B NMDA receptor": ["GluN1 (GRIN1)", "GluN2B (GRIN2B)"],
+            "NR2B": ["GluN2B (GRIN2B)"],
+        }
+        for raw_label, expected in cases.items():
+            with self.subTest(raw_label=raw_label):
+                self.assertEqual(controlled_target_component_labels(raw_label), expected)
+        self.assertEqual(controlled_target_component_labels("5-HT2 receptor family"), [])
+        self.assertEqual(controlled_target_component_labels("GABA receptor"), [])
+        self.assertEqual(controlled_target_component_labels("cannabinoid receptor 1 (CNR1)"), [])
+
     def test_nontherapeutic_observational_exposure_associations_stay_out_of_outcome_views(self) -> None:
         schizophrenia_history = {
             "domain": "clinical_outcome",
@@ -1284,9 +1305,9 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ("Sodium-dependent noradrenaline transporter", "NET (SLC6A2)"),
             ("D2 dopamine receptor", "Dopamine D2 receptor (DRD2)"),
             ("D2Short receptor", "Dopamine D2 receptor (DRD2)"),
-            ("D1-like dopamine receptors", "Dopamine receptor family"),
-            ("D2/3 receptors", "Dopamine receptor family"),
-            ("DAR2", "Dopamine receptor family"),
+            ("D1-like dopamine receptors", "D1-like dopamine receptor family"),
+            ("D2/3 receptors", "D2-like dopamine receptor family"),
+            ("DAR2", "D2-like dopamine receptor family"),
             ("5-HT1C serotonin receptor", "5-HT2C"),
             ("h5-HT7 receptor", "5-HT7"),
             ("S2 serotonin receptor", "5-HT2 receptor family"),
@@ -1298,7 +1319,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ("phencyclidine (PCP) binding sites", "NMDA receptor"),
             ("NMDA glutamate receptors", "NMDA receptor"),
             ("GluN2A N615K NMDA receptor", "GluN2A (GRIN2A)"),
-            ("hα3β4 nicotinic acetylcholine receptor", "Nicotinic acetylcholine receptor family"),
+            ("hα3β4 nicotinic acetylcholine receptor", "alpha3beta4 nicotinic acetylcholine receptor"),
             ("P-glycoprotein", "P-glycoprotein (ABCB1)"),
             ("hOCT1", "OCT1 (SLC22A1)"),
             ("hOCT2", "OCT2 (SLC22A2)"),
@@ -1695,7 +1716,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ("Neurotransmitter release, uptake & turnover", "Extracellular histamine release", "Histamine release & turnover"),
             ("Drug metabolism", "CSF metabolome", "Metabolomics & endogenous metabolism"),
             ("Genetic moderators", "OXTR gene variant", "Oxytocin & vasopressin variants"),
-            ("Receptor regulation & trafficking", "orphan receptor abundance", "Other findings"),
+            ("Receptor regulation & trafficking", "orphan receptor abundance", "Other"),
         ]
         for parent, entity_label, expected in cases:
             with self.subTest(parent=parent, entity_label=entity_label):
@@ -1705,7 +1726,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             subtopic
             for rules in MOLECULAR_SUBTOPIC_RULES_BY_PARENT.values()
             for subtopic, _ in rules
-            if subtopic.casefold().startswith("other ") and subtopic != "Other findings"
+            if subtopic.casefold().startswith("other ")
         }
         self.assertEqual(specific_other_labels, set())
 
@@ -1726,7 +1747,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertEqual(molecular_subtopic_coverage_summary(passing)["status"], "ok")
 
         explicit_other = passing.copy()
-        explicit_other.loc[:15, "molecular_finding_subtopic"] = "Other findings"
+        explicit_other.loc[:15, "molecular_finding_subtopic"] = "Other"
         self.assertEqual(molecular_subtopic_coverage_summary(explicit_other)["status"], "failed")
 
         primary_plus_sparse_reviews = pd.concat(
@@ -1739,6 +1760,17 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         summary = molecular_subtopic_coverage_summary(primary_plus_sparse_reviews)
         self.assertEqual(summary["status"], "ok")
         self.assertEqual(summary["evidence_scope"], "primary_evidence")
+
+        targets_with_family_parents = failing.assign(
+            kg_entity_kind_override="target",
+            graph_parent_label="5-HT2 receptor family",
+        )
+        molecular_effects = passing.assign(kg_entity_kind_override="biomarker_readout")
+        summary = molecular_subtopic_coverage_summary(
+            pd.concat([molecular_effects, targets_with_family_parents], ignore_index=True)
+        )
+        self.assertEqual(summary["status"], "ok")
+        self.assertNotIn("5-HT2 receptor family", {item["parent_label"] for item in summary["parents"]})
 
     def test_molecular_safety_boundaries_route_adverse_endpoints(self) -> None:
         neurotoxicity = normalize_claim_metadata(
@@ -3788,8 +3820,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertIn("Neuroplasticity", set(entities["label"]))
             self.assertNotIn("10.1000/unsafe-split-targets", by_doi)
             self.assertNotIn("10.1000/unsafe-brain-network-list", by_doi)
-            self.assertEqual(by_doi["10.1000/composite-family"]["entity_kind"], "system_family")
-            self.assertEqual(by_doi["10.1000/composite-family"]["entity_label"], "5-HT2 receptor family")
+            self.assertEqual(labels_by_doi["10.1000/composite-family"], {"5-HT2A", "5-HT2C"})
             self.assertEqual(by_doi["10.1000/nicotinic-family"]["entity_kind"], "system_family")
             self.assertEqual(by_doi["10.1000/nicotinic-family"]["entity_label"], "Nicotinic acetylcholine receptor family")
             self.assertEqual(by_doi["10.1000/alpha7-direct"]["entity_kind"], "target")

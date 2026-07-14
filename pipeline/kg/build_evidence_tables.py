@@ -4248,7 +4248,11 @@ DIRECT_TARGET_REGISTRY_STATUSES = {
     "needs_external_id_lookup",
     "complex_target_needs_subunit_mapping",
 }
-TARGET_FAMILY_REGISTRY_STATUSES = {"broad_target_family", "composite_target_needs_split"}
+TARGET_FAMILY_REGISTRY_STATUSES = {
+    "broad_target_family",
+    "composite_target_needs_split",
+    "family_target_needs_subtype_mapping",
+}
 TARGET_FAMILY_LABEL_OVERRIDES = {
     "5-HT2A/2C receptor": "5-HT2 receptor family",
 }
@@ -4555,7 +4559,7 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Receptor binding & availability", re.compile(r"receptor binding|binding potential|binding kinetics|receptor availability|receptor occupancy", re.I)),
         ("Glutamate transporters", re.compile(r"eaat\d|glt[- ]?1|slc1a\d|glutamate transporter", re.I)),
         ("Drug-efflux transporters", re.compile(r"p[- ]?glycoprotein|abcb1|bcrp|abc transport", re.I)),
-        ("Other findings", re.compile(r"receptor|transporter|availability|occupancy|slc\d|s1r", re.I)),
+        ("Other", re.compile(r"receptor|transporter|availability|occupancy|slc\d|s1r", re.I)),
     ),
     "Intracellular signal transduction": (
         ("PI3K–Akt–mTOR signaling", re.compile(r"pi3k|\bakt\b|\bmtor|mtorc|p70s6k|\bs6k\b|\brps6\b|eif4e|eef2", re.I)),
@@ -4572,7 +4576,7 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("G-protein signaling", re.compile(r"g[- ]?protein|\bgq\b|\bgi\b|\bgs\b|gα|galpha|\bgaq\b|\bgao\b|\bgz\b|guanine nucleotide|heterotrimer", re.I)),
         ("Protein phosphorylation & kinase activity", re.compile(r"phosphorylation|phospho|kinase activity|protein kinase", re.I)),
         ("STING–TBK signaling", re.compile(r"\bsting\b|\btbk\d*\b", re.I)),
-        ("Other findings", re.compile(r"intracellular signaling|signal transduction|second messenger|pathway activation", re.I)),
+        ("Other", re.compile(r"intracellular signaling|signal transduction|second messenger|pathway activation", re.I)),
     ),
     "Gene expression & activity markers": (
         ("Immediate-early genes", re.compile(r"c[- ]?fos|fosb|\barc\b|egr[- ]?\d|zif268|homer1|npas4|immediate early", re.I)),
@@ -4618,7 +4622,7 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Neuropeptide release", re.compile(r"isotocin|neuropeptide release|peptide release", re.I)),
         ("Purinergic & ATP release", re.compile(r"atp release|purinergic release", re.I)),
         ("General monoamine dynamics", re.compile(r"monoamine|catecholamine.*(?:release|uptake|turnover|levels?)|(?:release|uptake|turnover|levels?).*catecholamine", re.I)),
-        ("Other findings", re.compile(r"neurotransmitter|metabolite|turnover|release|uptake", re.I)),
+        ("Other", re.compile(r"neurotransmitter|metabolite|turnover|release|uptake", re.I)),
     ),
     "Neuronal excitability & synaptic transmission": (
         ("Excitatory postsynaptic currents", re.compile(r"epsc|excitatory post|glutamatergic synaptic|excitatory synaptic", re.I)),
@@ -4655,7 +4659,7 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Drug exposure & tissue concentrations", re.compile(r"pharmacokinetic|\bauc\b|(?:plasma|serum|brain|tissue|csf|striatal|extracellular) .*?(?:concentration|levels?|content)|drug content|protein binding|subcellular binding|metabolite ratio|norketamine:ketamine ratio", re.I)),
         ("Metabolomics & endogenous metabolism", re.compile(r"metabolom|fatty acid metabolism|amino acid metabolism|leucine metabolism|endogenous metabolism|lactate|cholesterol|carbohydrate metabolism|tca cycle|pyrimidine metabolism|glycerophospholipid|homocysteine|cobalamin|sdha|metabolic markers", re.I)),
         ("General drug biotransformation", re.compile(r"hepatic (?:metabolism|metabolic)|peripheral metabolism|first[- ]pass metabolism|phase ii metabolism|oxidative (?:and non[- ]oxidative )?metabolism|metabolic stability|metabolic pathways|enzyme activity|metabolism of", re.I)),
-        ("Other findings", re.compile(r"metabolism|metabolic pathway", re.I)),
+        ("Other", re.compile(r"metabolism|metabolic pathway", re.I)),
     ),
     "Endocrine response": (
         ("HPA-axis hormones", re.compile(r"cortisol|corticosterone|\bacth\b|adrenocorticotropic|corticotropin|\bcrh\b|hpa axis|glucocorticoid", re.I)),
@@ -4694,7 +4698,7 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Stress & HPA-axis variants", re.compile(r"fkbp5|nr3c1|crhr1|stress.*(?:variant|genotype)", re.I)),
         ("Opioid-system variants", re.compile(r"opioid|oprm\d|oprk\d|oprd\d", re.I)),
         ("Oxytocin & vasopressin variants", re.compile(r"oxytocin|oxtr|vasopressin|avpr\d", re.I)),
-        ("Other findings", re.compile(r"genotype|polymorphism|allele|variant|rs\d+|gene interaction|phenotype interaction", re.I)),
+        ("Other", re.compile(r"genotype|polymorphism|allele|variant|rs\d+|gene interaction|phenotype interaction", re.I)),
     ),
     "Gut microbiome": (
         ("Microbiome composition & taxa", re.compile(r"composition|species abundance|genus|class level|taxa|lactobac|ruminococc|bacteroid|mucispir|sarcina|turicibacter", re.I)),
@@ -4781,6 +4785,15 @@ def molecular_subtopic_coverage_summary(findings: pd.DataFrame) -> dict:
     if findings.empty or "domain" not in findings.columns:
         return {"status": "ok", "threshold": MOLECULAR_SUBTOPIC_MAX_RESIDUAL_RATE, "parents": []}
     molecular = findings[findings["domain"] == "molecular_pathway_readout"].copy()
+    kind_column = (
+        "entity_kind"
+        if "entity_kind" in molecular.columns
+        else "kg_entity_kind_override"
+        if "kg_entity_kind_override" in molecular.columns
+        else ""
+    )
+    if kind_column:
+        molecular = molecular[molecular[kind_column].isin(MOLECULAR_EFFECT_ENTITY_KINDS)].copy()
     # This gate protects the detailed molecular categorization extracted from
     # primary studies. Review relationships use a coarser paper-level contract
     # and should be audited separately rather than changing this gate's result.
@@ -7071,6 +7084,67 @@ ENTITY_SPLIT_SEMANTIC_UNIT_RE = re.compile(
 )
 
 
+def controlled_target_component_labels(value: object) -> list[str]:
+    key = compact_key(value)
+    word_key = label_key(value)
+    if not key:
+        return []
+
+    if "5ht2a" in key:
+        if "5ht2c" in key or re.search(r"5ht2a(?:and)?2c", key) or key.startswith("5ht2ac"):
+            labels = ["5-HT2A", "5-HT2C"]
+            for token, label in (
+                ("5ht1a", "5-HT1A"),
+                ("5ht1b", "5-HT1B"),
+                ("5ht1d", "5-HT1D"),
+                ("5ht1e", "5-HT1E"),
+                ("5ht2b", "5-HT2B"),
+            ):
+                if token in key:
+                    labels.append(label)
+            return list(dict.fromkeys(labels))
+    if "5ht2b" in key:
+        if "5ht2c" in key or re.search(r"5ht2b(?:and)?2c", key) or key.startswith("5ht2bc"):
+            return ["5-HT2B", "5-HT2C"]
+
+    if "gabaa" in key or "gabatypea" in key:
+        return ["GABA-A receptor family"]
+
+    if "d1like" in key:
+        return ["D1-like dopamine receptor family"]
+    if "d2like" in key or "d23receptor" in key or key in {"dar2", "dar3"}:
+        return ["D2-like dopamine receptor family"]
+
+    if "alpha3beta4" in key and "alpha6" not in key:
+        return ["alpha3beta4 nicotinic acetylcholine receptor"]
+    if "alpha4beta2" in key:
+        return ["alpha4beta2 nicotinic acetylcholine receptor"]
+    if "alpha7" in key and ("nachr" in key or "nicotinic" in key):
+        return ["alpha7 nicotinic acetylcholine receptor (CHRNA7)"]
+
+    standalone_nr_subunit = re.search(r"\bnr(?:1|2[a-d]?)\b", word_key)
+    if "nmda" in key or "nmdar" in key or "glun" in key or standalone_nr_subunit:
+        labels: list[str] = []
+        if "glun1" in key or re.search(r"\bnr1\b", word_key):
+            labels.append("GluN1 (GRIN1)")
+        for suffix, label in (
+            ("a", "GluN2A (GRIN2A)"),
+            ("b", "GluN2B (GRIN2B)"),
+            ("c", "GluN2C (GRIN2C)"),
+            ("d", "GluN2D (GRIN2D)"),
+        ):
+            if f"glun2{suffix}" in key or re.search(rf"\bnr2{suffix}\b", word_key):
+                labels.append(label)
+            elif "glun1" in key and re.search(rf"2{suffix}(?:2[a-d])*(?:nmda|nmdar|receptor|$)", key):
+                labels.append(label)
+            elif key.startswith(f"2{suffix}nmda"):
+                labels.append(label)
+        if labels:
+            return list(dict.fromkeys(labels))
+
+    return []
+
+
 def entity_split_candidates(value: object) -> list[str]:
     text = normalize(value)
     if not text or not re.search(r"\s(?:and|or)\s|[;,/+]", text, flags=re.IGNORECASE):
@@ -7136,6 +7210,26 @@ def entity_expanded_rows(
         return [row]
 
     raw_entity_label = entity_label_for(row, domain, entity_kind)
+    controlled_targets = controlled_target_component_labels(raw_entity_label)
+    if controlled_targets and entity_kind in {"target", "system_family"}:
+        split_rows: list[dict] = []
+        normalized_targets: set[tuple[str, str]] = set()
+        context = mechanistic_kind_context(row, raw_entity_label)
+        for label in controlled_targets:
+            canonical_label, item = canonicalize_registry_label("mechanistic_entity", label, registry)
+            if not item:
+                return [row]
+            split_kind = registry_kind_for_item("target", item, context, raw_entity_label)
+            target = (split_kind, canonical_label)
+            if target in normalized_targets:
+                continue
+            normalized_targets.add(target)
+            split_row = entity_split_row(row, split_kind, canonical_label, raw_entity_label)
+            split_row["endpoint_label_source"] = "controlled_target_component_mapping"
+            split_rows.append(split_row)
+        if split_rows:
+            return split_rows
+
     if entity_kind == "safety_adverse_event":
         parts = entity_split_candidates(raw_entity_label)
         if parts:
@@ -7840,6 +7934,7 @@ def graph_parent_mapping(
     entity_kind: str,
     entity_label: str,
     registry_item: dict | None,
+    registry: dict[tuple[str, str], dict],
     node_vocabulary: dict[tuple[str, str], dict],
 ) -> tuple[str, str, str, dict | None]:
     parent_label = ""
@@ -7861,6 +7956,11 @@ def graph_parent_mapping(
     elif entity_kind == "safety_adverse_event":
         parent_label = SAFETY_SPECIFIC_PARENT_LABELS.get(entity_label) or safety_category_for_text(entity_label) or safety_endpoint_label(row)
         parent_kind = entity_kind
+    elif entity_kind in {"target", "system_family"}:
+        parent_label = normalize((registry_item or {}).get("parent", ""))
+        parent_kind = normalized_entity_kind((registry_item or {}).get("parent_kind", "")) or "system_family"
+        if parent_label:
+            parent_label, parent_item = canonicalize_registry_label("mechanistic_entity", parent_label, registry)
     elif entity_kind in MOLECULAR_EFFECT_ENTITY_KINDS:
         parent_label = molecular_effect_label(row, entity_kind, entity_label)
         parent_kind = "pathway_process"
@@ -8215,6 +8315,15 @@ def entity_row(
     parent_entity_id: str = "",
 ) -> dict:
     registry_item = registry_item or {}
+    aliases: list[str] = []
+    seen_aliases: set[str] = {label_key(label)}
+    for value in registry_item.get("aliases", []):
+        alias = normalize(value)
+        key = label_key(alias)
+        if not alias or not key or key in seen_aliases:
+            continue
+        seen_aliases.add(key)
+        aliases.append(alias)
     return {
         "entity_id": entity_id,
         "entity_type": entity_type,
@@ -8225,7 +8334,7 @@ def entity_row(
         "graph_parent_kind": normalize(parent_kind),
         "graph_parent_entity_id": normalize(parent_entity_id),
         "registry_status": normalize(registry_item.get("status", "")),
-        "aliases_json": json_dumps(registry_item.get("aliases", [])),
+        "aliases_json": json_dumps(aliases),
         "ids_json": json_dumps(registry_item.get("ids", {})),
     }
 
@@ -9431,9 +9540,14 @@ def build_tables(
                 entity_kind,
                 entity_label,
                 registry_item,
+                registry,
                 node_vocabulary,
             )
-            if domain == "molecular_pathway_readout" and parent_label:
+            if (
+                domain == "molecular_pathway_readout"
+                and entity_kind in MOLECULAR_EFFECT_ENTITY_KINDS
+                and parent_label
+            ):
                 corrected_parent = molecular_parent_from_specific(table_row, parent_label, entity_label)
                 if corrected_parent and label_key(corrected_parent) != label_key(parent_label):
                     parent_label = corrected_parent

@@ -515,14 +515,18 @@
       "aliases": ["5-HT2 receptor", "5-HT2 receptors", "5-HT2 serotonin receptor", "Serotonin 5-HT2 receptor", "5-HT2R", "5HT2R", "serotonin 2 receptor", "serotonin 2 receptors", "S2 serotonin receptor", "S-2 binding site", "5-HT2-type binding sites", "5-hydroxytryptamine2 receptor", "serotonergic (5-HT2A, 5-HT2B and 5-HT2C) receptor subtypes"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
-      "status": "broad_target_family"
+      "status": "broad_target_family",
+      "parent": "5-HT receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT2A",
       "aliases": ["HTR2A", "5-HT2AR", "5-HT2ARs", "h5-HT2A", "h5-HT2AR", "h5-HT2A receptor", "5-HT2A receptor", "5-HT2A receptors", "5-HT 2A R", "serotonergic 5-HT2A receptors", "5-HT2A serotonin receptor", "intracellular 5-HT2A receptors", "cortical 5-HT2A receptor density", "serotonin 2A receptor", "serotonin 5-HT2A receptor", "serotonin 5-HT2A receptors"],
       "ids": {"gene_symbol": "HTR2A", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT2 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT2A/2C receptor",
@@ -536,14 +540,18 @@
       "aliases": ["HTR2B", "h5-HT2B", "h5-HT2B receptor", "serotonin 2B receptor", "serotonin 2B receptors", "5-HT2B receptor", "5-HT2B receptors"],
       "ids": {"gene_symbol": "HTR2B", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT2 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT2C",
       "aliases": ["HTR2C", "5-HT1C receptor", "5HT1C receptor", "5-HT1C serotonin receptor", "5-HT2C serotonin receptor", "serotonin 2C receptor", "serotonin 2C receptors", "Serotonin 5-HT2C receptor", "5-HT2C receptor", "5-HT2C receptors", "5-HT2C-INI receptor", "5-HT2C-VGV receptor", "5-HT2CR", "5-HT2CRs"],
       "ids": {"gene_symbol": "HTR2C", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT2 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT1D",
@@ -588,11 +596,22 @@
       "status": "needs_external_id_lookup"
     },
     {
-      "label": "5-HT3",
-      "aliases": ["5-HT3 receptor", "5-HT3 receptors", "serotonin receptor 3A", "HTR3A"],
+      "label": "5-HT3 receptor family",
+      "aliases": ["5-HT3", "5-HT3 receptor", "5-HT3 receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family",
+      "parent": "5-HT receptor family",
+      "parent_kind": "system_family"
+    },
+    {
+      "label": "5-HT3A receptor (HTR3A)",
+      "aliases": ["5-HT3A", "5-HT3A receptor", "serotonin receptor 3A", "HTR3A"],
       "ids": {"gene_symbol": "HTR3A", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT3 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "AMPA receptor",
@@ -655,7 +674,7 @@
       "aliases": ["cAMP response element-binding protein"],
       "ids": {"gene_symbol": "CREB1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "pathway_node_needs_external_id_lookup"
     },
     {
       "label": "CYP1A2",
@@ -736,24 +755,46 @@
     },
     {
       "label": "Dopamine receptor family",
-      "aliases": ["dopamine receptor", "dopamine receptors", "Dopamine receptors", "dopaminergic receptor", "dopaminergic receptors", "Dopaminergic D1-5 receptors", "D1-like dopamine receptors", "D1-like receptor", "D2/3 receptor", "D2/3 receptors", "D2-like receptor", "D2-like dopamine receptors", "DAR2", "DAR3", "pituitary dopamine receptors"],
+      "aliases": ["dopamine receptor", "dopamine receptors", "Dopamine receptors", "dopaminergic receptor", "dopaminergic receptors", "Dopaminergic D1-5 receptors", "pituitary dopamine receptors"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "broad_target_family"
+    },
+    {
+      "label": "D1-like dopamine receptor family",
+      "aliases": ["D1-like dopamine receptors", "D1-like dopamine receptor", "D1-like receptors", "D1-like receptor"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family",
+      "parent": "Dopamine receptor family",
+      "parent_kind": "system_family"
+    },
+    {
+      "label": "D2-like dopamine receptor family",
+      "aliases": ["D2-like dopamine receptors", "D2-like dopamine receptor", "D2-like receptors", "D2-like receptor", "D2/3 receptor", "D2/3 receptors", "DAR2", "DAR3"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family",
+      "parent": "Dopamine receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "Dopamine D1 receptor (DRD1)",
       "aliases": ["D1 receptor", "D1 dopamine receptor", "Dopamine D1 receptor", "dopamine D1 receptor", "Dopaminergic D1 receptor", "dopaminergic D1 receptor", "DRD1"],
       "ids": {"gene_symbol": "DRD1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "D1-like dopamine receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "Dopamine D2 receptor (DRD2)",
       "aliases": ["Dopamine D2 receptor", "D2 receptor", "D2", "D2 dopamine receptor", "Dopaminergic D2 receptor", "dopaminergic D2 receptor", "Dopaminergic D2 receptors", "D2Short receptor", "D2High", "D2High dopamine D2 receptor high-affinity state", "DRD2"],
       "ids": {"gene_symbol": "DRD2", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "D2-like dopamine receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "ERK",
@@ -764,10 +805,19 @@
     },
     {
       "label": "GABA receptor family",
-      "aliases": ["GABA receptor", "GABA receptors", "GABAA receptor", "GABA-A receptor", "GABA A receptor", "GABAA receptors"],
+      "aliases": ["GABA receptor", "GABA receptors"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "broad_target_family"
+    },
+    {
+      "label": "GABA-A receptor family",
+      "aliases": ["GABAA receptor", "GABA-A receptor", "GABA A receptor", "GABAA receptors", "GABA-A receptors", "GABA(A) receptor", "GABA(A) receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family",
+      "parent": "GABA receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "GABAergic system",
@@ -802,35 +852,45 @@
       "aliases": ["GluN1", "GluN1-1a", "NR1", "NMDAR1", "NR1 subunit of NMDA receptor", "NMDA receptor NR1 subunit", "NMDA receptor subunit NR1", "NMDA receptor subunit GluN1"],
       "ids": {"gene_symbol": "GRIN1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "NMDA receptor",
+      "parent_kind": "target"
     },
     {
       "label": "GluN2A (GRIN2A)",
       "aliases": ["GluN2A", "NR2A", "GluN2A NMDA receptor", "GluN2A N615K NMDA receptor", "NMDA receptor GluN2A subunit", "NMDA receptor subunit GluN2A", "NMDA receptor subunit NR2A", "N-methyl-D-aspartate receptor subunit 2A", "NMDAR NR1/2A", "GluN1-GluN2A receptor", "GluN1/GluN2A NMDAR", "GluN1/GluN2A N-methyl-D-aspartate receptor", "GluN1/GluN2A N-methyl-D-aspartate receptor (WT)"],
       "ids": {"gene_symbol": "GRIN2A", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "NMDA receptor",
+      "parent_kind": "target"
     },
     {
       "label": "GluN2B (GRIN2B)",
       "aliases": ["GluN2B", "NR2B", "GluN2B NMDA receptor", "NMDA receptor GluN2B subunit", "NMDA receptor subunit GluN2B", "GluN2B subunit of the NMDA receptor", "NMDA receptor subunit NR2B", "N-methyl-D-aspartate receptor 2B subunit", "N-methyl-D-aspartate receptor subunit 2B", "GluN2B-containing NMDAR", "GluN2B-containing NMDARs", "GluN2B-containing NMDA receptor", "GluN2B-NMDAR", "NMDAR NR1/2B", "NMDA receptor subunit GluN1/2B", "GluN1/GluN2B N-methyl-D-aspartate receptor", "GluN1/GluN2B N-methyl-D-aspartate receptor (WT)"],
       "ids": {"gene_symbol": "GRIN2B", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "NMDA receptor",
+      "parent_kind": "target"
     },
     {
       "label": "GluN2C (GRIN2C)",
       "aliases": ["GluN2C", "NR2C", "GluN2C-containing NMDA receptor", "NMDA receptor GluN2C subunit", "NMDA receptor subunit GluN2C", "NMDA receptor subunit NR2C", "NMDAR NR1/2C"],
       "ids": {"gene_symbol": "GRIN2C", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "NMDA receptor",
+      "parent_kind": "target"
     },
     {
       "label": "GluN2D (GRIN2D)",
       "aliases": ["GluN2D", "NR2D", "GluN2D subunit", "GluN2D-containing NMDAR", "GluN2D-containing NMDA receptor", "GluN2D subunit of NMDAR", "GluN2D N-methyl-D-aspartate receptor", "NMDAR GluN2D subunit", "NMDA receptor GluN2D subunit", "NMDA receptor subunit GluN2D", "NMDA receptor subunit NR2D", "NMDAR NR1/2D"],
       "ids": {"gene_symbol": "GRIN2D", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "NMDA receptor",
+      "parent_kind": "target"
     },
     {
       "label": "Glutamatergic system",
@@ -911,21 +971,41 @@
     },
     {
       "label": "Nicotinic acetylcholine receptor family",
-      "aliases": ["nicotinic acetylcholine receptors", "nicotinic receptor family", "nicotinic receptors", "nAChR", "nAChRs", "heteromeric nAChR", "heteromeric nicotinic receptor", "heteromeric nicotinic receptors", "α3β4 nAChR", "hα3β4 nicotinic acetylcholine receptor", "alpha6/alpha3beta4 nicotinic acetylcholine receptor", "alpha6/alpha3beta2beta3 nicotinic acetylcholine receptor"],
+      "aliases": ["nicotinic acetylcholine receptors", "nicotinic receptor family", "nicotinic receptors", "nAChR", "nAChRs", "heteromeric nAChR", "heteromeric nicotinic receptor", "heteromeric nicotinic receptors", "alpha6/alpha3beta4 nicotinic acetylcholine receptor", "alpha6/alpha3beta2beta3 nicotinic acetylcholine receptor"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "broad_target_family"
+    },
+    {
+      "label": "alpha3beta4 nicotinic acetylcholine receptor",
+      "aliases": ["alpha3beta4 nicotinic receptor", "alpha3beta4 nAChR", "α3β4 nAChR", "α3β4 nicotinic acetylcholine receptor", "hα3β4 nicotinic acetylcholine receptor"],
+      "ids": {"gene_symbol": "CHRNA3;CHRNB4", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "complex_target_needs_subunit_mapping",
+      "parent": "Nicotinic acetylcholine receptor family",
+      "parent_kind": "system_family"
+    },
+    {
+      "label": "alpha4beta2 nicotinic acetylcholine receptor",
+      "aliases": ["alpha4beta2 nicotinic receptor", "alpha4beta2 nAChR", "α4β2 nAChR", "α4β2 nicotinic acetylcholine receptor"],
+      "ids": {"gene_symbol": "CHRNA4;CHRNB2", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "Homo sapiens",
+      "status": "complex_target_needs_subunit_mapping",
+      "parent": "Nicotinic acetylcholine receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "alpha7 nicotinic acetylcholine receptor (CHRNA7)",
       "aliases": ["alpha 7-nicotinic acetylcholine receptor", "alpha7 nicotinic acetylcholine receptor", "alpha7-nicotinic acetylcholine receptor", "alpha7 nAChR", "alpha 7 nAChR", "α7 nicotinic acetylcholine receptor", "α7 nAChR", "CHRNA7"],
       "ids": {"gene_symbol": "CHRNA7", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "Nicotinic acetylcholine receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "NMDA receptor",
-      "aliases": ["NMDAR", "NMDARs", "NMDA receptors", "NMDA glutamate receptor", "NMDA glutamate receptors", "glutamatergic NMDA receptor", "phencyclidine (PCP) binding sites", "PCP binding sites", "GluN1-2B NMDA receptor", "N-methyl-D-aspartate receptor", "N-methyl-D-aspartate receptors", "N-methyl-D-aspartate (NMDA) receptor", "N-methyl-D-aspartate (NMDA) receptors", "N-methyl-D-aspartate glutamate receptor", "N-methyl-D-aspartic acid receptor"],
+      "aliases": ["NMDAR", "NMDARs", "NMDA receptors", "NMDA glutamate receptor", "NMDA glutamate receptors", "glutamatergic NMDA receptor", "phencyclidine (PCP) binding sites", "PCP binding sites", "N-methyl-D-aspartate receptor", "N-methyl-D-aspartate receptors", "N-methyl-D-aspartate (NMDA) receptor", "N-methyl-D-aspartate (NMDA) receptors", "N-methyl-D-aspartate glutamate receptor", "N-methyl-D-aspartic acid receptor"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "complex_target_needs_subunit_mapping"
@@ -1057,18 +1137,29 @@
       "status": "biomarker_readout_needs_external_id_lookup"
     },
     {
+      "label": "Sigma receptor family",
+      "aliases": ["sigma receptor", "sigma receptors"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family"
+    },
+    {
       "label": "Sigma-1 receptor (SIGMAR1)",
-      "aliases": ["SIGMA-1", "sigma-1 receptor", "sigma receptor", "sigma receptors", "SIGMAR1"],
+      "aliases": ["SIGMA-1", "sigma-1 receptor", "SIGMAR1"],
       "ids": {"gene_symbol": "SIGMAR1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "Sigma receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "Sigma-2 receptor (TMEM97)",
       "aliases": ["SIGMA-2", "sigma-2 receptor", "TMEM97"],
       "ids": {"gene_symbol": "TMEM97", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "Sigma receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "TAAR1",
@@ -1313,7 +1404,7 @@
       "aliases": ["RAC1", "Rac1 expression", "Rac1 activity", "Rac1 GTPase"],
       "ids": {"gene_symbol": "RAC1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "pathway_node_needs_external_id_lookup"
     },
     {
       "label": "Glutamate",
@@ -1407,7 +1498,7 @@
     {"label": "CaV1.2 (CACNA1C)", "aliases": ["Cav1.2", "CaV1.2", "L-type voltage-gated calcium channel", "CACNA1C"], "ids": {"gene_symbol": "CACNA1C", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "CaV2.2 (CACNA1B)", "aliases": ["Cav2.2", "CaV2.2", "N-type voltage-gated calcium channel", "CACNA1B"], "ids": {"gene_symbol": "CACNA1B", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "Vasopressin V1A receptor (AVPR1A)", "aliases": ["vasopressin 1A receptor", "vasopressin V1A receptor", "V1A receptor", "AVPR1A"], "ids": {"gene_symbol": "AVPR1A", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
-    {"label": "Protein kinase C family", "aliases": ["Protein Kinase C", "PKC", "protein kinase C family"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "family_target_needs_subtype_mapping"},
+    {"label": "Protein kinase C family", "aliases": ["Protein Kinase C", "PKC", "protein kinase C family"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "pathway_node_needs_subtype_mapping"},
     {"label": "mGluR4 (GRM4)", "aliases": ["GRM4", "metabotropic glutamate receptor 4", "mGluR4"], "ids": {"gene_symbol": "GRM4", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "SIRT2", "aliases": ["sirtuin 2"], "ids": {"gene_symbol": "SIRT2", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "FAAH", "aliases": ["fatty acid amide hydrolase", "fatty acid amide hydrolase (FAAH)"], "ids": {"gene_symbol": "FAAH", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},

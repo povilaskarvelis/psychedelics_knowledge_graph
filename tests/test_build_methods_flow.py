@@ -286,6 +286,10 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
             flow["side_boxes"]["route_not_selected"]["reasons"][0]["key"],
             "excluded_during_llm_screening",
         )
+        self.assertEqual(
+            flow["side_boxes"]["route_not_selected"]["reasons"][0]["label"],
+            "Excluded during title and abstract screening",
+        )
         self.assertEqual(flow["side_boxes"]["kg_not_included"]["count"], 1)
         self.assertEqual(flow["side_boxes"]["kg_not_included"]["reasons"][0]["key"], "not_graphable")
         self.assertEqual(flow["rows"][-2]["side_box"], "kg_not_included")

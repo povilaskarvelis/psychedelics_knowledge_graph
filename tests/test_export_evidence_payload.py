@@ -7,8 +7,10 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.publish.export_evidence_payload import (
+    detail_bootstrap_payload,
     export_evidence_payload,
     graph_bootstrap_payload,
+    load_findings,
     secondary_literature_source_key,
 )
 
@@ -110,6 +112,61 @@ def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str
 
 
 class ExportEvidencePayloadTest(unittest.TestCase):
+    def test_target_aliases_flow_from_entities_into_findings_and_graph_edges(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kg_dir = Path(tmpdir)
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-1",
+                        "paper_id": "paper-1",
+                        "source_name": "routed_extractions",
+                        "compound": "Psilocybin",
+                        "entity_label": "5-HT2A",
+                        "entity_kind": "target",
+                        "domain": "molecular_target",
+                        "raw_row_json": "{}",
+                    }
+                ]
+            ).to_parquet(kg_dir / "findings.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-1",
+                        "evidence_id": "evidence-1",
+                        "entity_id": "target:5_ht2a",
+                        "source_name": "routed_extractions",
+                        "entity_label": "5-HT2A",
+                        "entity_kind": "target",
+                        "domain": "molecular_target",
+                        "relation_type": "has_mechanistic_target",
+                    }
+                ]
+            ).to_parquet(kg_dir / "evidence_edges.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "entity_id": "target:5_ht2a",
+                        "label": "5-HT2A",
+                        "aliases_json": json.dumps(["HTR2A", "5-HT2A receptor"]),
+                    }
+                ]
+            ).to_parquet(kg_dir / "entities.parquet", index=False)
+
+            findings = load_findings(kg_dir)
+            self.assertEqual(findings[0]["entity_aliases"], ["5-HT2A receptor", "HTR2A"])
+
+            graph_findings = [
+                {**findings[0], "study_doi": "10.1000/alias-1"},
+                {**findings[0], "study_doi": "10.1000/alias-2"},
+            ]
+            payload = graph_bootstrap_payload(graph_findings, "2026-07-14T00:00:00Z", kg_dir, "primary")
+            self.assertEqual(payload["edges"][0]["entity_aliases"], ["5-HT2A receptor", "HTR2A"])
+
+            detail = detail_bootstrap_payload(findings, "2026-07-14T00:00:00Z", kg_dir, "primary")
+            detail_rows = detail_bootstrap_rows(detail)
+            self.assertEqual(detail_rows[0]["entity_aliases"], ["5-HT2A receptor", "HTR2A"])
+
     def test_graph_bootstrap_adds_substance_to_use_context_edges_as_separate_projections(self) -> None:
         findings = []
         for index in (1, 2):

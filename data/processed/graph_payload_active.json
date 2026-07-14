@@ -1,18 +1,18 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
-  "release_id": "underlying_graph_coverage_stats_20260714:957322359e9243c983f8fbc3ad1f9946",
-  "run_id": "underlying_graph_coverage_stats_20260714",
+  "release_id": "facet_taxonomy_cleanup_20260714:144a2fbdd42147f780dd1e8f1db22132",
+  "run_id": "facet_taxonomy_cleanup_20260714",
   "active_graph_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/facet_taxonomy_cleanup_20260714/graph_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/facet_taxonomy_cleanup_20260714/graph_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/facet_taxonomy_cleanup_20260714/graph_bootstrap_reviews.json"
   },
   "active_detail_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/detail_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/detail_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/detail_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/facet_taxonomy_cleanup_20260714/detail_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/facet_taxonomy_cleanup_20260714/detail_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/facet_taxonomy_cleanup_20260714/detail_bootstrap_reviews.json"
   },
-  "active_manifest": "data/processed/graph_payload_runs/underlying_graph_coverage_stats_20260714/graph_payload_manifest.json",
+  "active_manifest": "data/processed/graph_payload_runs/facet_taxonomy_cleanup_20260714/graph_payload_manifest.json",
   "evidence_source": "kg_tables",
-  "kg_dir": "data/processed/kg_routed_runs/underlying_graph_coverage_stats_20260714"
+  "kg_dir": "data/processed/kg_routed_runs/facet_taxonomy_cleanup_20260714"
 }

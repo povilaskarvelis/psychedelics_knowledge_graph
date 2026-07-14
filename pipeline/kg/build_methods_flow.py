@@ -113,9 +113,9 @@ INCLUDED_SCREENING = {
 
 PRISMA_SCREENING_REASON_LABELS = {
     "excluded_deterministic_prescreen": "No in-scope title/abstract signal",
-    "excluded_llm_irrelevant": "LLM abstract screen judged irrelevant",
-    "excluded_low_signal": "Low-signal abstract screen",
-    "llm_screening_error": "LLM abstract screen failed",
+    "excluded_llm_irrelevant": "No in-scope evidence topic identified",
+    "excluded_low_signal": "Insufficient title/abstract signal",
+    "llm_screening_error": "Title and abstract screening could not be completed",
     "needs_context_review": "Possible or contextual signal only",
     "not_screened": "Not screened yet",
     "not_screened_no_abstract": "No abstract available for screening",
@@ -146,7 +146,7 @@ PRISMA_CONVERSION_REASON_LABELS = {
 }
 
 PRISMA_EXTRACTION_REASON_LABELS = {
-    "not_started": "Awaiting LLM extraction",
+    "not_started": "Awaiting evidence extraction",
     "unknown": "Extraction status not available",
 }
 
@@ -155,7 +155,7 @@ PRISMA_EXTRACTION_OUTCOME_LABELS = {
     "included_secondary_full_text": "Included as secondary evidence from a full-text report",
     "included_abstract_only": "Included from abstract-only evidence",
     "included_secondary_without_full_text": "Included from review summaries",
-    "gemini_excluded": "Excluded by Gemini extraction",
+    "gemini_excluded": "No extractable evidence identified",
     "needs_human_review": "Needs human review",
     "assessed_no_kg_record": "Assessed, no KG record promoted",
     "not_yet_extracted": "Not yet extracted",
@@ -171,17 +171,17 @@ PRISMA_CANDIDATE_PRESCREEN_LABELS = {
 }
 
 PRISMA_CANDIDATE_ROUTE_LABELS = {
-    "excluded_after_domain_screen": "Excluded during LLM-based screening",
+    "excluded_after_domain_screen": "Excluded during title and abstract screening",
     "context_only_or_skip": "Kept as background/context only",
     "not_retained_for_extraction": "Not selected for evidence extraction",
-    "unknown": "LLM-based screening status not available",
+    "unknown": "Title and abstract screening status not available",
 }
 
 PRISMA_PUBLIC_LLM_SCREENING_LABELS = {
-    "excluded_during_llm_screening": "Excluded during LLM-based screening",
+    "excluded_during_llm_screening": "Excluded during title and abstract screening",
     "background_context_only": "Kept as background/context only",
     "not_selected_for_extraction": "Not selected for evidence extraction",
-    "unknown": "LLM-based screening status not available",
+    "unknown": "Title and abstract screening status not available",
 }
 
 PRISMA_CANDIDATE_KG_LABELS = {
@@ -240,7 +240,7 @@ METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS = (
 
 METHODS_BIBLIOGRAPHY_STAGE_LABELS = {
     "selected_for_extraction": "Selected for evidence extraction",
-    "excluded_during_llm_screening": "Excluded during LLM-based screening",
+    "excluded_during_llm_screening": "Excluded during title and abstract screening",
     "background_context_only": "Kept as background/context only",
     "not_selected_for_extraction": "Not selected for evidence extraction",
     "excluded_during_initial_screening": "Excluded during initial screening",
@@ -1598,7 +1598,7 @@ def public_llm_screening_reason(row: dict) -> str:
     if route_status == "ready_for_abstract_extraction":
         return "The paper was selected for evidence extraction."
     if route_status == "excluded_after_domain_screen":
-        return "LLM-based screening did not identify an in-scope evidence area for extraction."
+        return "Title and abstract screening did not identify an in-scope evidence topic for extraction."
     if route_status == "context_only_or_skip":
         return "The paper may be useful as background, but it is not part of the extracted evidence set."
     if not candidate_prescreen_retained(row):
@@ -2366,7 +2366,7 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
             "reports_retrieved": {"label": "Full-text reports retrieved", "count": len(retrieved_rows)},
             "reports_assessed": {"label": "Full-text reports assessed", "count": len(converted_rows)},
             "fulltext_gemini_assessed": {
-                "label": "Full-text records assessed by Gemini",
+                "label": "Records assessed from article text",
                 "count": fulltext_assessed_by_gemini_count,
             },
             "fulltext_included": {"label": "Included from full-text path", "count": fulltext_included_count},
@@ -2414,7 +2414,7 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
                         "count": non_fulltext_not_yet_count,
                     },
                     "assessed": {
-                        "label": "Abstracts assessed by Gemini",
+                        "label": "Records assessed from abstracts",
                         "count": non_fulltext_assessed_by_gemini_count,
                     },
                     "excluded": {
@@ -2519,7 +2519,7 @@ def schema_payload() -> dict:
                     "counts",
                     "rows",
                 ],
-                "description": "Complete paper bibliography with sequential initial-screening, LLM-based screening, evidence-extraction, and final KG graph-projection labels.",
+                "description": "Complete paper bibliography with sequential initial-screening, title-and-abstract-screening, evidence-extraction, and knowledge-graph representation labels.",
             },
         },
     }

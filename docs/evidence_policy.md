@@ -1,129 +1,111 @@
 # Evidence and Provenance Policy
 
-This policy governs how claims are labeled and trusted.
+This policy explains what a finding in the Psychedelics Knowledge Graph means,
+what information should accompany it, and what the graph does not claim.
 
-## Required provenance fields
-Every claim must include the core schema provenance fields:
-- `paper_type`: normalized article/result category, including
-  `primary_results`, `systematic_review`, `meta_analysis`, `review`,
-  `protocol`, `conference_abstract`, `conference_or_poster_abstract`,
-  `case_report`, `commentary`, `correction`, `erratum`, `other`, or
-  `uncertain`
-- `source_type`: normalized source class, including `primary_study`,
-  `secondary_evidence`, `review`, `meta_analysis`, `commentary`,
-  `study_protocol`, `correction`, `conference_abstract`, `case_report`,
-  `registry`, `other`, or `uncertain`
-- `access_level`: `full_text_seen`, `abstract_only`, or `secondary_summary`
-- `evidence_location`: `table`, `figure`, `text`, `abstract`, `supplement`, `mixed`, or `unknown`
-- `evidence_locator`: concrete location such as `Table 1`, `Figure 2`, `Results`, `Abstract`
-- `study_design`: normalized design label
+## Core principles
 
-Claims should also preserve `source_family` when available. This broader
-legacy/source-family label includes `original_empirical`, `evidence_synthesis`,
-`opinion_or_commentary`, `protocol`, `correction`, `conference_abstract`, or
-`uncertain`, and is used alongside `source_type` and `paper_type` for secondary
-literature and non-primary context views.
+1. Every public finding should remain traceable to a source paper.
+2. Primary studies, meta-analyses, and other reviews remain separate evidence
+   types. Review statements are not presented as primary-study results.
+3. Article-text and abstract-only findings remain distinguishable.
+4. Null, mixed, negative, uncertain, and positive findings are retained rather
+   than collapsed into a single conclusion.
+5. A structured extraction is not automatically admitted to the overview
+   graph. It must also pass validation and normalization checks.
 
-Every paper record should preserve useful bibliographic/extraction fields when
-available:
-- `study_journal`, `publication_type`, `publication_date`, `journal_issn`,
-  `journal_eissn`, `publisher`, `trial_registry_ids`
-- `mesh_terms`, `keywords`, `funders`, `grant_ids`, `related_dois`,
-  `publication_relations`, `is_retracted`, `has_correction`, `language`,
-  `semantic_scholar_id`
-- `sample_size_total`, `sample_size_by_arm`, `population`
-- `intervention_or_exposure`, `comparator`, `dose`, `route`,
-  `session_count_or_duration`
-- `primary_outcome`, `outcome_measure`, `assessment_timepoint`, `effect_size`, `p_value`,
-  `confidence_interval`
-- `adverse_events`, `funding`, `conflicts_of_interest`,
-  `risk_of_bias_summary`
+## Information kept with a finding
 
-## Operational evidence labels
+When the source provides it, a finding should preserve:
 
-`evidence_level` is a required legacy/internal field retained for schema
-compatibility, older payloads, and coarse audit sorting. It is not a public
-evidence-certainty rating, not a GRADE or Cochrane assessment, and not the rule
-that decides whether a row enters the graph. Primary graph inclusion is governed
-by provenance and validation fields such as `source_type`, `paper_type`,
-`access_level`, `evidence_location`, `evidence_locator`, `study_design`, schema
-validation, and curator review queues.
+- the source paper's DOI or other identifier, title, authors, year, journal,
+  publication type, and study design;
+- whether the extraction used article text or only an abstract;
+- a source location such as the abstract, results text, a table, a figure, or a
+  supplement, plus a more specific locator when available;
+- the compound or exposure, the related entity or outcome, the evidence topic,
+  and the reported direction of the finding where that concept applies;
+- study context such as population, sample size, intervention, comparator,
+  dose, route, follow-up time, outcome measure, effect estimate, uncertainty,
+  and adverse events when reported; and
+- reported funding, conflicts of interest, risk-of-bias assessments, and
+  certainty assessments when available.
 
-`evidence_strength` is an LLM/rule proposal field used by full-text evidence
-assessment and triage. It should be treated as provisional unless it is backed
-by an explicit risk-of-bias or certainty-assessment workflow.
+These fields will be incomplete when the paper does not report them or when
+only an abstract is available. Missing fields should remain missing rather than
+being inferred as facts.
 
-The UI and methods text should prefer factual provenance labels such as
-`randomized controlled trial`, `open label`, `case report`, `preclinical`,
-`full text`, `abstract only`, `primary evidence`, `secondary literature`, and
-claim direction. Reviews, systematic reviews, and meta-analyses remain
-secondary literature even if a legacy row or triage proposal has a high
-`evidence_level` or `evidence_strength`.
+## Evidence types
 
-### Legacy fallback values
+- **Primary study:** original empirical research, including trials,
+  observational studies, case reports, and preclinical studies. Study design is
+  shown so these sources are not treated as interchangeable.
+- **Meta-analysis:** a quantitative synthesis. Pooled estimates, uncertainty,
+  heterogeneity, included-study counts, subgroups, and network-analysis details
+  are preserved when reported.
+- **Review:** a systematic, scoping, umbrella, narrative, or literature review.
+  The graph represents the review's major relationships and coverage without
+  treating them as newly observed primary results.
+- **Non-primary context:** protocols, conference abstracts, commentary,
+  corrections, and similar records can remain in the paper corpus for
+  auditability, but they do not enter the standard primary-study, meta-analysis,
+  or review graph views unless a specific reviewed use is added.
 
-The following values explain how old rows and compatibility scripts may populate
-`evidence_level`. They should not be used as visible certainty badges or graph
-promotion rules.
+## Article text and abstracts
 
-Mechanistic claims:
-- `high`: direct assay evidence from a primary study with explicit assay values and target
-- `medium`: partial direct reporting or values sourced through secondary extraction context
-- `low`: indirect mechanistic inference, unsupported secondary mention, or conservative default
+`article_text` means that extraction used converted article content. Depending
+on the paper type, this can be a selected set of relevant sections rather than
+every page of the paper. `abstract_only` means that the extraction was limited
+to the abstract. Abstract-only findings must not imply access to details that
+were not present in that abstract.
 
-Disorder claims:
-- `high`: randomized controlled trial or confirmatory phase study
-- `medium`: open-label trial, pilot interventional study, or non-randomized prospective trial
-- `low`: observational study, retrospective study, case report, preclinical-only evidence, or conservative default
+Older schemas and compatibility files may use `full_text_seen` or
+`secondary_summary`. These are not the preferred labels for the current public
+workflow.
 
-## Minimal claim direction
-- Disorder claims also include `result_direction`: `positive`, `null`, `negative`, `mixed`, or `unclear`.
-  This field records the therapeutic or functional interpretation for the
-  disorder/indication, not the raw numeric direction of the outcome measure.
-  For example, reduced symptom scores, reduced relapse/reinstatement/craving,
-  reduced pathological behavior, or improved functioning are `positive` when
-  presented as beneficial.
-- `protocol`, `review`, `systematic_review`, `meta_analysis`,
-  `conference_abstract`, `conference_or_poster_abstract`, `commentary`,
-  `correction`, and `erratum` papers are not countable primary-evidence claims
-- `evidence_level` and `evidence_strength` do not override source/provenance
-  gates for graph inclusion
-- `review`, `systematic_review`, and `meta_analysis` rows are retained as
-  secondary literature and can be included through the secondary-source graph
-  view/checkmark. They should not be treated as failed primary evidence.
-- Protocols, conference abstracts, commentary, corrections, and errata are
-  retained as non-primary context when encountered, but are excluded from the
-  default primary and secondary-source graph views unless a curator explicitly
-  promotes a special-purpose view.
-- Case reports are original empirical evidence, but they should normally be
-  low-strength and should not be pooled with trials without an explicit view
-  choice
-- Rows auto-demoted from the main curated set are kept in exploratory files
-  under `data/curated/` rather than deleted
+## Validation and graph representation
 
-## Access-level semantics
-- `full_text_seen`: curator verified claim from full paper content
-- `abstract_only`: curator verified claim from abstract only
-- `secondary_summary`: claim taken from a review, summary table, or secondary source
+Before publication, extracted records are checked for the expected structure,
+source support, and internally consistent fields. Compounds and related
+entities are then matched to controlled names where possible.
 
-## Screening and assessment terminology
-- **Discovery/search**: database/API retrieval and DOI queue generation.
-- **Deduplication**: DOI/title-level merging before screening.
-- **Abstract screening**: title/abstract relevance screening before PDF
-  acquisition.
-- **Full-text eligibility assessment**: full-text decision about whether the
-  paper is in scope and what source family it belongs to.
-- **Data extraction**: structured extraction of study design, sample, measures,
-  outcomes, effect sizes, adverse events, funding/COI, and risk-of-bias notes.
-- **Adjudication**: final conflict resolution when deterministic rules, LLM
-  proposals, and/or curator decisions disagree.
+A finding can remain available in paper details and search without becoming a
+node in the visual overview. Common reasons include:
 
-## Upgrade path
-1. Convert `secondary_summary` to `full_text_seen` with explicit locator.
-2. Replace review-derived mechanistic values with primary-study values when available.
-3. Add a second independent source for high-impact edges.
+- the compound or related entity cannot be normalized safely;
+- the text describes a class, context, or multi-part relationship that would be
+  misleading if flattened into a simple edge;
+- the finding is marked for further review;
+- the support comes only from background or introductory text; or
+- a primary-study or review node is supported by only one source paper and does
+  not meet the overview's two-paper display rule.
 
-## Retired cleanup workflow
-The old curated-claim cleanup reports and demotion scripts have been removed.
-Current evidence should move through route-native extraction outputs and parquet
-KG tables rather than patching curated JSON/CSV claim files.
+Meta-analysis findings are shown in their own view and are not subject to that
+two-paper display rule because each paper is itself a synthesis. The visual
+overview is therefore a deliberately smaller view of the underlying normalized
+findings, not the full evidence store.
+
+## Direction, certainty, and risk of bias
+
+For clinical and functional findings, `result_direction` records the reported
+interpretation: `positive`, `null`, `negative`, `mixed`, or `unclear`. It is not
+simply the mathematical sign of a score. For example, a lower symptom score can
+be positive when lower values mean improvement.
+
+The project does not currently assign a universal certainty grade or formal
+risk-of-bias judgment to every finding. Source-reported certainty and
+risk-of-bias information can be retained as context. Legacy fields such as
+`evidence_level` and provisional fields such as `evidence_strength` must not be
+presented as project-wide GRADE, Cochrane, or clinical-recommendation ratings,
+and they do not override the provenance and validation checks above.
+
+## Corrections and updates
+
+Corrections should be made at the paper, source-text, screening, or extraction
+layer rather than by editing a public graph edge directly. Updating a selected
+paper replaces all of that paper's previous extraction and evidence rows, or
+removes them when the paper is no longer eligible. A reviewed release then
+rebuilds the graph, bibliography, Methods counts, and public site together.
+
+Legacy files may still use the word `claim`. In current reader-facing text, use
+**finding**. See [`terminology.md`](terminology.md) for the preferred terms.

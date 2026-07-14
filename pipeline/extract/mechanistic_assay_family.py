@@ -47,14 +47,14 @@ ASSAY_FAMILY_ORDER = (
     "Uptake assays",
     "Signaling assays",
     "Enzyme assays",
-    "Other methods",
+    "Other",
 )
 
 ASSAY_FAMILY_ALIASES = {
     **{label.casefold(): label for label in ASSAY_FAMILY_ORDER},
     "binding / affinity": "Binding assays",
     "functional activity": "Receptor activity",
-    "imaging / connectivity": "Other methods",
+    "imaging / connectivity": "Other",
     "behavioral assay": "Behavioral assays",
     "protein expression / proteomics": "Protein assays",
     "neurochemical levels": "Neurochemical assays",
@@ -64,7 +64,8 @@ ASSAY_FAMILY_ALIASES = {
     "transporter / uptake": "Uptake assays",
     "signaling / phosphorylation": "Signaling assays",
     "enzyme / metabolism": "Enzyme assays",
-    "other / mixed method": "Other methods",
+    "other / mixed method": "Other",
+    "other methods": "Other",
 }
 
 
@@ -224,4 +225,4 @@ def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: ob
         return ASSAY_FAMILY_ALIASES[raw_family]
     if raw_type in ASSAY_FAMILY_ALIASES:
         return ASSAY_FAMILY_ALIASES[raw_type]
-    return "Other methods"
+    return "Other"

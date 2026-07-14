@@ -1,8 +1,9 @@
 # Pipeline
 
-This pipeline builds a reproducible literature corpus for the psychedelics
-knowledge graph, screens papers for relevance, retrieves available full text,
-and prepares clean inputs for structured evidence extraction.
+This pipeline builds and maintains the evidence base behind the Psychedelics
+Knowledge Graph. It records how papers were found, screens them for relevance,
+prepares the best available source text, extracts structured findings, and
+publishes reviewed releases of the graph, bibliography, and Methods page.
 
 This README is the living operational map for the current pipeline. When a
 step changes, update this file first, then update the narrower stage README if
@@ -16,24 +17,29 @@ labels for specific searches, not pipeline stages.
 
 ```mermaid
 flowchart TD
-  A["Search strategy modules"] --> B["Literature discovery"]
-  B --> C["Candidate corpus tables"]
-  C --> D["Metadata enrichment"]
-  D --> E["Rule-based pre-screen"]
-  E --> G["Gemini screening, domain routing, and paper-type routing"]
-  G --> H["Extraction route table"]
-  I["Manual route overrides"] --> H
-  H --> J["Open-access links, PDF retrieval, and PMC XML retrieval"]
-  J --> K["Full-text conversion"]
-  H --> L["Abstract-only extraction queue"]
-  K --> M["Article text inputs"]
-  L --> N["LLM evidence extraction"]
-  M --> N
-  N --> O["Validation, normalized tables, graph exports"]
+  A["Plan grouped and focused searches"] --> B["Find and deduplicate papers"]
+  B --> C["Build the paper corpus and enrich metadata"]
+  C --> D["Initial rules-based screening"]
+  D --> E["Title and abstract screening and classification"]
+  E --> F["Prepare extraction assignments"]
+  G["Reviewed exceptions"] --> F
+  F --> H["Retrieve and convert available article text"]
+  F --> I["Use abstracts when article text is unavailable"]
+  H --> J["Extract primary-study findings"]
+  H --> K["Extract meta-analysis results"]
+  H --> L["Extract review relationships"]
+  I --> J
+  I --> K
+  I --> L
+  J --> M["Validate, normalize, and assemble evidence"]
+  K --> M
+  L --> M
+  M --> N["Build a versioned graph release"]
+  N --> O["Publish graph, bibliography, Methods data, and site together"]
 ```
 
 1. **Search planning** defines grouped domain searches and targeted direct-pair
-   searches from the current compound, intervention, clinical, molecular,
+   searches from the current compound, condition, clinical, molecular,
    brain-system, cognitive-behavioral, safety, pharmacology, intervention, and
    public-health vocabularies.
 2. **Literature discovery** queries the selected literature sources and stores
@@ -47,31 +53,38 @@ flowchart TD
    candidates. Provider roles are explicit: bibliographic metadata and
    abstracts, PubMed publication types, and open-access/PDF-link discovery are
    refreshed as separate passes.
-5. **Rule-based pre-screening** removes only records that clearly lack usable
+5. **Initial screening** removes only records that clearly lack usable
    title/abstract evidence or clearly fall outside the project scope. It writes
    decisions to `paper_prescreen_decisions.parquet` and can be rerun for the
    whole corpus or a DOI subset.
-6. **Gemini screening, domain routing, and paper-type routing** uses Gemini on
-   title, abstract, and minimal supporting metadata to decide whether each
-   pre-screen-retained record is in scope, assign evidence domains, and classify
-   the paper as primary/unclear, secondary literature, or non-primary
-   publication with a more specific paper type.
-7. **Extraction route assembly** combines pre-screen decisions, Gemini routing,
-   converted full-text artifacts, valid PDFs in the canonical PDF store, PDF
-   URLs, and narrow manual overrides into
-   `paper_extraction_routes.parquet`. This table is the current extraction
-   queue source.
-8. **Full-text handling** refreshes open-access links, downloads available legal
+6. **Title and abstract screening and classification** assesses retained papers
+   for relevance, evidence topics, and paper type. Primary studies,
+   meta-analyses, other reviews, and non-primary context remain distinguishable
+   throughout extraction and publication. The current implementation uses a
+   structured model-assisted pass, with exact technical details recorded in the
+   generated corpus fields and run artifacts.
+7. **Extraction preparation** combines the screening decisions, paper type,
+   evidence topics, available source text, and narrowly reviewed exceptions in
+   `paper_extraction_routes.parquet`. Despite the filename, this is best
+   described publicly as the set of extraction assignments for each paper.
+8. **Source-text preparation** refreshes open-access links, downloads available legal
    PDFs, retrieves reusable PMC XML when available, and converts local full-text
    sources into structured artifacts. Records without usable full text remain
-   eligible for the abstract-only extraction path when the route table marks
-   them as extraction candidates.
-10. **Evidence extraction** uses route-specific LLM prompts and schemas for
-    primary studies, secondary literature, guideline/consensus records, and
-    abstract-only records.
-11. **Validation and publishing** checks extracted evidence against schemas and
-    evidence-policy rules, normalizes graph tables, and exports public graph,
-    bibliography, and methods-flow payloads.
+   eligible for abstract-only extraction when they otherwise meet the selection
+   criteria.
+9. **Structured evidence extraction** uses different paper-centered contracts
+   for primary studies, meta-analyses, and other reviews. Primary-study results,
+   pooled estimates, and review-level relationships are not flattened into one
+   evidence type. Guidelines, context-only records, and other non-extraction
+   records remain available for corpus accounting without becoming findings.
+10. **Validation and graph preparation** checks the extracted structures,
+    preserves source locations, normalizes compounds and related entities, and
+    keeps findings in paper detail when they cannot be represented safely in the
+    overview graph.
+11. **Staging and publication** builds versioned graph tables, author data, and
+    compact browser files. A guarded promotion then updates the active evidence
+    release, graph, bibliography, Methods counts, and static site as one unit so
+    users do not see a mixture of releases.
 
 Generated Parquet tables are rebuildable. Durable decisions should live in
 tracked code, configuration, search strategy files, model prompts, or small
@@ -499,35 +512,33 @@ Route-specific article text builders should use `fulltext_artifact_paths` from
 `packet_profile` internally for compatibility; new prose should use article
 text input and section selection strategy.
 
-The route-table-based meta-analysis profile uses paper-type/text-depth prompts under
-`docs/extraction_profiles/paper_type/` plus meta-analysis domain schemas under
-`schema/extraction_profiles/meta_analysis/`; the same domain schema is used for
-article-text and abstract-only meta-analysis tasks. `schema/meta_analysis_evidence.schema.json`
-is the shared base contract. Primary and secondary-review profiles also have
-schemas/prompts in the registry, but secondary-review prompts remain scaffolded
-until each domain is tuned.
-Guideline, context-only, and no-extraction routes are terminal audit routes and
-are not sent to a model.
+Primary-study extraction uses topic-specific tasks built from the extraction
+assignments. Meta-analyses and other reviews now use paper-centered extraction
+paths so a synthesis is interpreted as a whole paper rather than as unrelated
+topic fragments. The detailed commands and current contracts are documented in
+[`pipeline/extract/README.md`](extract/README.md).
 
-Not every routed paper is a KG contribution. Primary evidence routes produce KG
-candidate evidence after normalization; meta-analyses produce separate
-meta-analysis evidence; secondary reviews can produce coverage/evidence-map context; and
-guideline, context-only, or no-extraction routes are retained for
-corpus/accounting audit rather than graph edges.
+Guideline, context-only, and no-extraction assignments are retained for audit
+and corpus accounting but are not sent for evidence extraction.
 
-Inspect the registered route-aware extraction tasks without model calls:
+Not every selected paper becomes a graph finding. Primary studies,
+meta-analyses, and other reviews can each produce candidate findings, but they
+remain separate source views and still have to pass validation and
+normalization. Guidelines, context-only records, and no-extraction assignments
+are retained for corpus accounting rather than graph relationships.
+
+Inspect registered primary-study tasks without model calls:
 
 ```bash
 python pipeline/extract/run_route_extraction.py \
-  --prompt-profile secondary_meta_analysis \
-  --schema-profile meta_analysis_evidence_schema \
+  --schema-profile primary_evidence_schema \
   --dry-run
 ```
 
 ### Evidence Extraction
 
-Run route-native extraction tasks before converting results into KG evidence
-rows:
+Primary studies use topic-specific extraction tasks. Build and run those tasks,
+then convert successful results into the shared evidence-row format:
 
 ```bash
 python pipeline/extract/build_extraction_tasks.py
@@ -536,6 +547,34 @@ python pipeline/extract/run_route_extraction.py \
 python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
   --use-default-active-route-table
 ```
+
+Meta-analyses use `build_meta_analysis_v2_tasks.py`,
+`run_meta_analysis_v2_batch_api.py`, and
+`convert_meta_analysis_v2_to_evidence_rows.py`. Other reviews use
+`build_review_relationship_tasks.py`, the review relationship runner, and
+`convert_review_relationship_bundles_to_evidence_rows.py`. These paths preserve
+pooled estimates and review-level relationships separately from primary-study
+findings.
+
+Before building a graph release, assemble the complete accepted primary,
+meta-analysis, and review layers into one explicit evidence snapshot. Do not let
+a small retry or correction replace an unaffected evidence family. Then build a
+versioned release without activating it:
+
+```bash
+scripts/build_routed_kg_payload.sh "$RUN_ID"
+```
+
+After review, publish the already-built release with the guarded promoter:
+
+```bash
+python pipeline/publish/promote_routed_run.py --run-id "$RUN_ID"
+```
+
+Promotion refreshes the active graph pointers, Methods paper flow, full
+bibliography, and `dist/` site bundle together. For corrections to selected
+papers, use the scoped updater described at the start of this guide; it applies
+the same publication safeguards.
 
 ## Canonical Outputs
 
@@ -552,10 +591,16 @@ python pipeline/kg/convert_routed_extractions_to_evidence_rows.py \
 - `data/processed/fulltext/articles/*.json`
 - `data/processed/extraction/*_fulltext_packets.jsonl` compatibility files
   containing article text inputs
-- route-native extraction outputs and converted evidence rows under
+- versioned extraction outputs and assembled evidence snapshots under
   `data/processed/extraction/`
-- normalized graph and bibliography payloads under `data/kg/`,
-  `data/processed/`, and `ui/`
+- normalized graph releases under `data/processed/kg_routed_runs/<RUN_ID>/`
+- compact graph and detail files under
+  `data/processed/graph_payload_runs/<RUN_ID>/`
+- the active extraction and public-graph compatibility pointers at
+  `data/processed/extraction/active_routed_run.json` and
+  `data/processed/graph_payload_active.json`
+- generated Methods flow and bibliography files under `data/kg/views/`
+- the deployable public site under `dist/`
 
 ## Run Labels
 
@@ -617,5 +662,7 @@ Scripts that use `pipeline/config.example.yaml` automatically overlay
 
 The first-generation graph used context-level stubs, autofill scripts, and
 promotion into curated evidence-record files. The stub autofill and promotion
-scripts have been retired; new KG evidence should flow through the route table
-and route-specific article text inputs first.
+scripts have been retired. New evidence should follow the current paper-type
+extraction paths, be converted into the shared evidence-row format, and be
+published through a versioned guarded release. Do not patch generated graph
+rows or active pointer files by hand.

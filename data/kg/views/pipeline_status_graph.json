@@ -3,16 +3,16 @@
   "counts": {
     "excluded_during_initial_screening": 39566,
     "kept_after_initial_screening": 16723,
-    "not_represented_in_knowledge_graph": 634,
+    "not_represented_in_knowledge_graph": 631,
     "not_screened": 0,
     "not_selected_for_evidence_extraction": 3576,
     "papers_found_by_search": 56289,
-    "represented_in_knowledge_graph": 12513,
+    "represented_in_knowledge_graph": 12516,
     "screened_for_relevance": 56289,
     "selected_for_evidence_extraction": 13147
   },
   "current_stage": "kg_inclusion_summary",
-  "generated_at": "2026-07-13T22:01:58.794816+00:00",
+  "generated_at": "2026-07-14T07:44:26.275342+00:00",
   "prisma_flow": {
     "overall": {
       "current_stage": "kg_inclusion_summary",
@@ -20,8 +20,8 @@
       "label": "Paper search and graph-inclusion flow",
       "metrics": {
         "finding_counts_available": true,
-        "not_represented_in_knowledge_graph": 634,
-        "represented_in_knowledge_graph": 12513,
+        "not_represented_in_knowledge_graph": 631,
+        "represented_in_knowledge_graph": 12516,
         "selected_papers": 13147
       },
       "rows": [
@@ -48,11 +48,11 @@
       ],
       "side_boxes": {
         "kg_not_included": {
-          "count": 634,
+          "count": 631,
           "label": "Selected papers not represented in graph",
           "reasons": [
             {
-              "count": 345,
+              "count": 342,
               "key": "not_graphable",
               "label": "Not graphable"
             },
@@ -111,7 +111,7 @@
             {
               "count": 3278,
               "key": "excluded_during_llm_screening",
-              "label": "Excluded during LLM-based screening"
+              "label": "Excluded during title and abstract screening"
             },
             {
               "count": 298,
@@ -127,7 +127,7 @@
           "label": "Papers selected for evidence extraction"
         },
         "kg_included": {
-          "count": 12513,
+          "count": 12516,
           "label": "Papers represented in the knowledge graph"
         },
         "prescreen_retained": {
