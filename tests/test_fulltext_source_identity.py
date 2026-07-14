@@ -4,7 +4,6 @@ from pathlib import Path
 
 from pipeline.fulltext.audit_fulltext_source_identity import (
     DEFAULT_IDENTITY_REGISTRY,
-    apply_validated_pdf_repair_attestation,
     apply_identity_registry,
     audit_artifacts,
     load_identity_registry,
@@ -174,9 +173,18 @@ def test_legacy_sici_doi_is_not_truncated_at_angle_brackets() -> None:
 
 def test_persistent_identity_registry_has_all_curated_benign_classes() -> None:
     registry = load_identity_registry(DEFAULT_IDENTITY_REGISTRY)
+    raw_registry = json.loads(DEFAULT_IDENTITY_REGISTRY.read_text(encoding="utf-8"))
+    source_manifests = raw_registry["source_manifests"]
 
     assert len(registry["records"]) == 109
     assert registry["minimum_front_title_similarity"] == 0.9
+    assert source_manifests == [
+        "pipeline/fulltext/attestations/source_identity_repair_20260710.json"
+    ]
+    assert all(
+        (Path(__file__).resolve().parents[1] / path).is_file()
+        for path in source_manifests
+    )
     assert Counter(row["relationship_type"] for row in registry["records"].values()) == {
         "preprint_repository_version": 33,
         "doi_parse_truncation_or_suffix": 43,
@@ -200,16 +208,17 @@ def test_persistent_identity_registry_has_all_curated_benign_classes() -> None:
     }
 
 
-def test_pdf_hash_attestation_registry_is_narrow_and_hash_bound() -> None:
+def test_pdf_hash_attestation_registry_is_curated_and_hash_bound() -> None:
     registry = load_pdf_hash_attestation_registry(DEFAULT_PDF_HASH_ATTESTATION_REGISTRY)
 
-    assert len(registry["records"]) == 8
+    assert len(registry["records"]) == 24
     record = registry["records"]["10.1254/fpj.97.4/209"]
     assert record["document_kind"] == "single_article_pdf"
     assert len(record["pdf_sha256"]) == 64
     assert all(row["document_kind"] == "single_article_pdf" for row in registry["records"].values())
     assert all(len(row["pdf_sha256"]) == 64 for row in registry["records"].values())
     assert "10.17992/lbl.2023.11.766" in registry["records"]
+    assert "10.1002/hup.1270" in registry["records"]
 
 
 def test_doi_normalization_removes_concatenated_pubmed_identifier() -> None:
@@ -299,41 +308,6 @@ def test_registry_never_overrides_a_new_exact_artifact() -> None:
     assert result["document_doi"] == "10.1000/published"
     assert not result["registry_applied"]
     assert result["registry_disposition"] == "not_needed_exact_identity"
-
-
-def test_validated_pdf_repair_attestation_rechecks_hash(tmp_path: Path) -> None:
-    import hashlib
-
-    pdf = tmp_path / "paper.pdf"
-    pdf.write_bytes(b"%PDF-validated-content")
-    artifact = {
-        "study_doi": "10.1000/published",
-        "repair_run_id": "source_identity_repair_20260710",
-        "fulltext_source": "validated_pdf_source_identity_repair",
-        "pdf_local_path": str(pdf),
-        "pdf_sha256": hashlib.sha256(pdf.read_bytes()).hexdigest(),
-        "source_identity": {
-            "status": "verified_title_only",
-            "verified": True,
-            "requested_doi": "10.1000/published",
-            "pdf_front_page_validation": {
-                "accepted": True,
-                "reason": "verified_front_page",
-                "title_score": 0.95,
-                "front_page_char_count": 500,
-            },
-        },
-    }
-    identity = {"status": "identity_unverified", "verified": False}
-
-    accepted = apply_validated_pdf_repair_attestation(identity, artifact)
-    assert accepted["verified"] is True
-    assert accepted["repair_attestation_applied"] is True
-
-    pdf.write_bytes(b"%PDF-tampered")
-    rejected = apply_validated_pdf_repair_attestation(identity, artifact)
-    assert rejected["verified"] is False
-    assert rejected["repair_attestation_applied"] is False
 
 
 def test_curated_pdf_hash_attestation_rechecks_exact_file(tmp_path: Path) -> None:

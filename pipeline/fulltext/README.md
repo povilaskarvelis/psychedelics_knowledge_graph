@@ -182,6 +182,13 @@ evidence; a target title found in the article body, references, or a neighbourin
 conference contribution is not accepted. The audit also rechecks any PDF hash
 attestation against the current file bytes.
 
+The completed July 2026 source-identity repair campaign is retained only as a
+compact provenance record in
+`pipeline/fulltext/attestations/source_identity_repair_20260710.json`. Its
+one-off repair drivers, scratch reports, workbooks, and backups are not part of
+the operational pipeline. Durable decisions live in
+`source_identity_registry.json` and `source_identity_pdf_hash_registry.json`.
+
 This audit is part of the normal conversion path, not only a repair utility.
 `run_local_pdf_conversion_pipeline.py` runs it before rebuilding extraction
 routes and stops if any canonical artifact is unverified. Article-text packet
@@ -198,20 +205,9 @@ containers and adjacent abstracts cannot be stored under an item DOI.
 ## Canonical Article Text Store
 
 New full-text artifacts should be written to
-`data/processed/fulltext/articles/`. This neutral directory replaces the old
-`fulltext/disorder/` and `fulltext/mechanistic/` split for the route-table-based
-pipeline. Existing artifacts can be copied into the canonical store without
-re-extracting PDFs:
-
-```bash
-python pipeline/fulltext/consolidate_fulltext_artifacts.py
-```
-
-The consolidation keeps one best artifact per DOI, preferring the artifact with
-the largest successful text extraction, but an artifact without verified
-source identity is never copied into the canonical store. The old directories are migration
-sources for this explicit consolidation command only; route building reads
-converted article text only from `fulltext/articles/`.
+`data/processed/fulltext/articles/`. This is the only production article-text
+store. The retired `fulltext/disorder/` and `fulltext/mechanistic/` directories
+no longer exist and are not read as fallback sources.
 
 Convert local PDFs that are currently routed as
 `convert_local_pdf_then_extract`:

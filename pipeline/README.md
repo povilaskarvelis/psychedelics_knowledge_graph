@@ -276,15 +276,9 @@ Same-DOI alternate PDFs are preserved under `data/raw/papers/pdf_conflicts/`;
 files with `.pdf` names that are not valid PDF content are kept under
 `data/raw/papers/invalid/`.
 
-To reconcile the file store and corpus table:
-
-```bash
-python pipeline/fulltext/migrate_pdf_store.py --mode move --apply --move-conflicts
-```
-
-Run without `--apply` for a dry run. The script updates
-`candidate_papers.parquet` so `pdf_local_path`, `local_pdf_paths`, and
-`local_pdf_count` reflect only the canonical PDF store.
+PDF retrieval and manual import write directly to the canonical store and keep
+`candidate_papers.parquet` synchronized. Historical dataset-specific PDF
+directories are retired and should not be recreated.
 
 ### Open-Access Links And PDF Retrieval
 
@@ -463,17 +457,10 @@ python pipeline/fulltext/convert_routed_local_pdfs.py \
   --backend grobid
 ```
 
-Article text already converted elsewhere can be imported into the canonical
-store without converting the PDF again:
-
-```bash
-python pipeline/fulltext/consolidate_fulltext_artifacts.py
-```
-
 `paper_extraction_routes.parquet` reads converted article text only from
-`data/processed/fulltext/articles/<doi_slug>.json`. The old split directories
-are migration sources for `consolidate_fulltext_artifacts.py` only; route
-building does not use them as fallbacks.
+`data/processed/fulltext/articles/<doi_slug>.json`. The retired split
+directories no longer exist and route building does not use fallback artifact
+stores.
 
 ### Article Text Input Preparation
 

@@ -36,7 +36,7 @@ const FINDING_SEARCH_DEBOUNCE_MS = 70;
 let cardsLoadObserver = null;
 let bibliographyLoadObserver = null;
 const GRAPH_COLOR_STOPS = [
-  { r: 70, g: 197, b: 181 },
+  { r: 67, g: 187, b: 166 },
   { r: 119, g: 217, b: 141 },
   { r: 216, g: 210, b: 111 },
   { r: 241, g: 166, b: 106 },
@@ -6055,8 +6055,18 @@ function renderAnnualPublicationChart(items) {
       const x = buckets.length > 1 ? margin.left + index * step : margin.left + (plotWidth - barWidth) / 2;
       const barHeight = (bucket.count / maxCount) * plotHeight;
       const y = margin.top + plotHeight - barHeight;
-      const hitWidth = Math.max(12, Math.min(step, barWidth + 10));
-      const hitX = clampNumber(x - (hitWidth - barWidth) / 2, margin.left, width - margin.right - hitWidth);
+      const barCenter = x + barWidth / 2;
+      const hitX = buckets.length > 1
+        ? index === 0
+          ? margin.left
+          : barCenter - step / 2
+        : Math.max(margin.left, x - 5);
+      const hitRight = buckets.length > 1
+        ? index === buckets.length - 1
+          ? width - margin.right
+          : barCenter + step / 2
+        : Math.min(width - margin.right, x + barWidth + 5);
+      const hitWidth = hitRight - hitX;
       const ariaRecordLabel = bucket.claims === 1 ? recordLabels.lowerSingular : recordLabels.lowerPlural;
       const aria = `${bucket.label}. ${bucket.count} studies. Open ${bucket.claims} ${ariaRecordLabel}.`;
       return `

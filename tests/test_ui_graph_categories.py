@@ -339,8 +339,22 @@ def test_stacked_bar_palette_starts_with_blue_and_nudges_teal_toward_green() -> 
 
     assert 'const CATEGORY_COLORS = [\n  "#708aa7",\n  "#b89a5b",\n  "#a96f7e",\n  "#69a196",' in source
     assert 'const PUBLICATION_YEAR_COLOR = "#69a196";' in source
-    assert "const GRAPH_COLOR_STOPS = [\n  { r: 70, g: 197, b: 181 }," in source
+    assert "const GRAPH_COLOR_STOPS = [\n  { r: 67, g: 187, b: 166 }," in source
     assert 'node.style.setProperty("--node-glow", rgbaString(color, 0.29));' in source
+
+
+def test_publication_year_hover_regions_do_not_overlap_at_chart_edges() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    chart_source = source.split("function renderAnnualPublicationChart", 1)[1].split(
+        "function sampleSizeStudyEntries", 1
+    )[0]
+
+    assert "const barCenter = x + barWidth / 2" in chart_source
+    assert "barCenter - step / 2" in chart_source
+    assert "barCenter + step / 2" in chart_source
+    assert "index === buckets.length - 1" in chart_source
+    assert "? width - margin.right" in chart_source
+    assert "clampNumber(x - (hitWidth - barWidth) / 2" not in chart_source
 
 
 def test_in_text_and_doi_links_share_one_muted_teal_family() -> None:

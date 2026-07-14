@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 from collections import Counter, defaultdict
 import csv
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -350,71 +349,6 @@ def apply_identity_registry(identity: dict, record: dict | None, *, minimum_titl
     return result
 
 
-def file_sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def apply_validated_pdf_repair_attestation(identity: dict, artifact: dict) -> dict:
-    """Accept a PDF repair only when its stored independent checks still verify.
-
-    Normal identity evaluation remains the primary path.  This narrow fallback
-    exists for accepted manuscripts and repositories whose GROBID header omits
-    the DOI even though the requested title was independently validated on PDF
-    page one at repair time.  The PDF hash is rechecked on every audit.
-    """
-    result = dict(identity)
-    result["repair_attestation_applied"] = False
-    if bool(identity.get("verified")):
-        return result
-    attested = artifact.get("source_identity")
-    if not isinstance(attested, dict):
-        return result
-    validation = attested.get("pdf_front_page_validation")
-    if not isinstance(validation, dict):
-        return result
-    if clean(artifact.get("repair_run_id", "")) != "source_identity_repair_20260710":
-        return result
-    if clean(artifact.get("fulltext_source", "")) != "validated_pdf_source_identity_repair":
-        return result
-    if clean(attested.get("status", "")) != "verified_title_only" or not bool(attested.get("verified")):
-        return result
-    if not bool(validation.get("accepted")) or clean(validation.get("reason", "")) != "verified_front_page":
-        return result
-    if float(validation.get("title_score", 0) or 0) < 0.86:
-        return result
-    if int(validation.get("front_page_char_count", 0) or 0) < 300:
-        return result
-    requested = normalize_doi(artifact.get("study_doi", ""))
-    if normalize_doi(attested.get("requested_doi", "")) != requested:
-        return result
-    pdf_raw = clean(artifact.get("pdf_local_path", ""))
-    pdf_path = Path(pdf_raw).expanduser() if pdf_raw else None
-    if pdf_path is None or not pdf_path.exists() or not pdf_path.is_file():
-        return result
-    expected_hash = clean(artifact.get("pdf_sha256", "")).lower()
-    if not expected_hash or file_sha256(pdf_path).lower() != expected_hash:
-        return result
-
-    preserved_registry = {
-        key: value
-        for key, value in result.items()
-        if key.startswith("registry_")
-    }
-    return {
-        **result,
-        **attested,
-        **preserved_registry,
-        "status": "verified_title_only",
-        "verified": True,
-        "basis": "validated replacement PDF title matched on page one and its stored SHA-256 still matches",
-        "repair_attestation_applied": True,
-    }
-
-
 def metadata_map(*paths: Path) -> dict[str, dict]:
     out: dict[str, dict] = {}
     for path in paths:
@@ -469,25 +403,22 @@ def audit_artifacts(
         meta = metadata.get(requested, {})
         requested_title = clean(meta.get("study_title", "") or artifact.get("study_title", ""))
         identity = augment_pdf_artifact_identity(
-            apply_validated_pdf_repair_attestation(
-                apply_identity_registry(
-                    reject_correction_artifact_for_main_record(
-                        evaluate_artifact_identity(
-                            artifact,
-                            requested_doi=requested,
-                            requested_title=requested_title,
-                            # Metadata relations include CommentOn, errata, and other
-                            # records that are not interchangeable source documents.
-                            # Only the curated registry can promote a related DOI in
-                            # this audit.
-                            related_dois=(),
-                        ),
+            apply_identity_registry(
+                reject_correction_artifact_for_main_record(
+                    evaluate_artifact_identity(
                         artifact,
+                        requested_doi=requested,
+                        requested_title=requested_title,
+                        # Metadata relations include CommentOn, errata, and other
+                        # records that are not interchangeable source documents.
+                        # Only the curated registry can promote a related DOI in
+                        # this audit.
+                        related_dois=(),
                     ),
-                    registry_records.get(requested),
-                    minimum_title_similarity=minimum_title_similarity,
+                    artifact,
                 ),
-                artifact,
+                registry_records.get(requested),
+                minimum_title_similarity=minimum_title_similarity,
             ),
             artifact,
             requested_title=requested_title,
@@ -507,8 +438,6 @@ def audit_artifacts(
             ] += 1
         if identity.get("registry_applied"):
             counts["registry_applied"] += 1
-        if identity.get("repair_attestation_applied"):
-            counts["repair_attestation_applied"] += 1
         if identity.get("pdf_front_title_validation_applied"):
             counts["pdf_front_title_validation_applied"] += 1
         if identity.get("pdf_hash_attestation_applied"):
@@ -556,7 +485,6 @@ def audit_artifacts(
                 "registry_front_title_phrase_match": bool(
                     identity.get("registry_front_title_phrase_match", False)
                 ),
-                "repair_attestation_applied": bool(identity.get("repair_attestation_applied", False)),
                 "pdf_front_title_validation_applied": bool(
                     identity.get("pdf_front_title_validation_applied", False)
                 ),

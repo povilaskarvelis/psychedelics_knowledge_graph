@@ -3,8 +3,7 @@
   "record_count": 109,
   "description": "Curated source-identity relationships and identifier overrides. Entries are audit evidence, not unconditional aliases and not artifact mutations.",
   "source_manifests": [
-    "outputs/source_identity_repair_20260710/source_identity_special_classes.json",
-    "outputs/source_identity_repair_20260710/pmc_identity_inventory.json"
+    "pipeline/fulltext/attestations/source_identity_repair_20260710.json"
   ],
   "reviewed_at": "2026-07-10",
   "acceptance_policy": {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "record_count": 8,
+  "record_count": 24,
   "description": "Exceptional curator-reviewed PDF identities bound to exact file hashes. These records do not authorize a different download or DOI alias.",
   "records": [
     {
@@ -66,6 +66,150 @@
       "document_kind": "single_article_pdf",
       "expected_title": "Psilocybin for treatment-resistant depression",
       "review_basis": "The eight-page Laeknabladid PDF is a single Icelandic-language review; its English summary identifies the requested topic and the document explicitly prints DOI 10.17992/lbl.2022.09.706.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1002/hup.1270",
+      "pdf_sha256": "a750e4ab59863b21f9893f9c08f722117e59beb00c69d32cabc1046e0664224b",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://researchonline.ljmu.ac.uk/id/eprint/1085/1/Final%20HP%20Review%20V1.pdf",
+      "expected_title": "The effects of ‘ecstasy’ (MDMA) on visuospatial memory performance: findings from a systematic review with meta‐analyses",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 1173 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1016/j.bpsc.2021.10.005",
+      "pdf_sha256": "26ea4ec5996d2411223b0fd87dc9d2711ecaeb0228e787e88fdca7ceec64ff9d",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://arxiv.org/pdf/2010.06078",
+      "expected_title": "Interoception Underlies Therapeutic Effects of Mindfulness Meditation for Posttraumatic Stress Disorder: A Randomized Clinical Trial",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 0.9 across 3549 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1016/j.neuropharm.2015.09.004",
+      "pdf_sha256": "5ba5d8422d074ed9b5f038f0821a63b77a2debdc0d42d02f838ab166b4b27e22",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://researchonline.ljmu.ac.uk/id/eprint/3277/1/NEUROPHARM-D-15-00607R1.pdf",
+      "expected_title": "The new psychoactive substances 5-(2-aminopropyl)indole (5-IT) and 6-(2-aminopropyl)indole (6-IT) interact with monoamine transporters in brain tissue",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 2525 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1056/nejmc2313230",
+      "pdf_sha256": "6787d6e137bcf58e0c7e20123ca6acce1e96cc5cd60b3da0f11ff2898248dc3d",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://hal.science/hal-04424102/document",
+      "expected_title": "Esketamine Nasal Spray versus Quetiapine for Resistant Depression",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 1138 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1101/2022.05.25.22275473",
+      "pdf_sha256": "4527d7fbaf0d2e5164be7f70bfa6f23213367ed4da5edb77bc1ad9adca3ff57c",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://www.frontiersin.org/articles/10.3389/fpsyt.2022.947622/pdf",
+      "expected_title": "Altered brain activity and functional connectivity after MDMA-assisted therapy for post-traumatic stress disorder",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 4397 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1146/annurev-lawsocsci-120621-012645",
+      "pdf_sha256": "d351d9ec54f8c6ca1575defc99a1b7ed5f6baf057470264162dd46d521147fda",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://www.annualreviews.org/doi/pdf/10.1146/annurev-lawsocsci-120621-012645",
+      "expected_title": "Observations on 25 Years of Cannabis Law Reforms and Their Implications for the Psychedelic Renaissance in the United States",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 1541 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.12927/hcpol.2023.27048",
+      "pdf_sha256": "22a303e362ad14ef5b64ee908451ffb4f09268fbff36147134dd2856eb5bbac4",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10370393/pdf/policy-18-134.pdf",
+      "expected_title": "Psychedelics to Relieve Psychological Suffering Associated with a Life-Threatening Diagnosis: Time for a Canadian Policy Discussion",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 1653 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.18103/mra.v12i2.5003",
+      "pdf_sha256": "2b9d2f3129655b59253affda0e0453bdadce943333d8728e5735f597abd15386",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://esmed.org/MRA/mra/article/download/5003/99193547749",
+      "expected_title": "Effectiveness in the Long-Term Follow-Up of Brief Group Psychoanalytic Psychotherapy in Quality of Life, Symptoms, Coping, Anxiety, and Depression in Systemic Lupus Erythematosus Patients",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 3531 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.18103/mra.v14i3.7337",
+      "pdf_sha256": "a5ffc963a502ce55d3f736722d325e1e10509acb916aedc64efad222649c61b3",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://esmed.org/MRA/mra/article/download/7337/99193550030",
+      "expected_title": "Improving Outcomes in Psychedelic-Assisted Therapy for Opioid Addiction through Herbal Medicine",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 0.875 across 2041 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.22215/etd/2022-15044",
+      "pdf_sha256": "70eeda0322086133a09b0e399d7360e53a5e0783655762e88d038900387bef43",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://repository.library.carleton.ca/downloads/2227mq790",
+      "expected_title": "Psychedelic Architectures: Expanding Universal Care with the Integration of Plural Psychedelic Health Spaces",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 382 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.22541/au.170019739.91075425/v1",
+      "pdf_sha256": "782ec3e1d818e68c14487e06088f6bac2a6ecaf6b460b8bd00e02d3b2098b499",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://era.dpi.qld.gov.au/id/eprint/14712/1/s15.pdf",
+      "expected_title": "Wood-loving magic mushrooms from Australia are saprotrophic invaders in the northern hemisphere",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 4801 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.24108/preprints-3114287",
+      "pdf_sha256": "0472274ac8b368a5fb1e146c90f4b4e8317f977511c5a941801322dddba55e7a",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://preprints.ru/files/2960",
+      "expected_title": "New Serotonergics with High Intracellular Bioavailability as Potentially Neuroplastic and Geroprotective Agents",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 3228 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.31234/osf.io/jpck8",
+      "pdf_sha256": "924719a683a6e710066ab0b67191c6228e7113fde927e9c6f385a62208d65ae5",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://osf.io/jpck8/download",
+      "expected_title": "A Neurocognitive Framework for Psychedelics as Learning Opportunities",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 3141 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.32383/farmpol/215392",
+      "pdf_sha256": "332100abfbad5c8e26fbcce5c713af88c69a167a37026c805921d09bb8f1bb97",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.32383/farmpol/215392",
+      "expected_title": "Natural Hallucinogens in Clinical Studies: A Review of Therapeutic Efficacy and Methodological Limitations",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 3313 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.51473/rcmos.v1i1.2022.1562",
+      "pdf_sha256": "568a2cef37e84ce36e4c7417448ce0d8e6e0b15c6d390cfcfff291b561d2db5a",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://submissoesrevistarcmos.com.br/rcmos/article/download/1562/3702",
+      "expected_title": "O Papel Multidisciplinar do Anestesiologista na Administração da Cetamina para Depressão Resistente ao Tratamento",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 2405 extracted front-page characters; exact PDF hash is required.",
+      "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.63050/jpps.21.02.935",
+      "pdf_sha256": "03c8f939256038a432590f8cd3d3353826982ec6077c8b0e446806fff6ba3d1e",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://www.jpps.pk/index.php/journal/article/download/935/719",
+      "expected_title": "IS PSYCHEDELIC TREATMENT OF MENTAL HEALTH DISORDERS READY FOR PRIME TIME?",
+      "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 3221 extracted front-page characters; exact PDF hash is required.",
       "reviewed_at": "2026-07-10"
     }
   ]

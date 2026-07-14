@@ -1,0 +1,156 @@
+{
+  "schema_version": "source_identity_campaign_attestation_v1",
+  "campaign_id": "source_identity_repair_20260710",
+  "status": "completed_and_retired",
+  "dates": {
+    "initial_audit": "2026-07-09",
+    "repair_completed": "2026-07-10",
+    "retired": "2026-07-14"
+  },
+  "purpose": "Compact provenance for the completed one-off source-identity audit and repair campaign after removal of its large reports, backups, scratch workbooks, and campaign-specific code.",
+  "historical_evidence": [
+    {
+      "retired_path": "outputs/source_identity_audit_20260709/source_identity_summary.json",
+      "sha256": "6260bc18ae00c832ec1c011ba3ff11279d06578116c860c344245f37034a7f70",
+      "summary": {
+        "article_text_papers": 4945,
+        "candidate_count": 248,
+        "high_priority": 130,
+        "medium_priority": 98,
+        "screening_priority": 20
+      }
+    },
+    {
+      "retired_path": "outputs/source_identity_repair_20260710/source_identity_special_classes.json",
+      "sha256": "db74662a85616e11c21d775a28e9e1a84fdde9b4a6e5f37346ef4a8514b28cf3",
+      "record_count": 333,
+      "classification_counts": {
+        "benign_conflict": 73,
+        "no_header_wrong_or_ancillary": 14,
+        "repository_or_nested_document": 6,
+        "correction_or_erratum": 13,
+        "proceedings_container": 213,
+        "ambiguous_non_pmc_conflict": 13,
+        "manual_wrong_pdf": 1
+      }
+    },
+    {
+      "retired_path": "outputs/source_identity_repair_20260710/pmc_identity_inventory.json",
+      "sha256": "84882e5055e39f6f3cd74c5150a6901a903c3b549eb5f6611779f1a616513793",
+      "record_count": 6646
+    },
+    {
+      "retired_path": "outputs/source_identity_repair_20260710/final_source_identity_repair_manifest.json",
+      "sha256": "894bbd47e3d3dbaad4385f049fed1d27756e655d45d6aeb6599af20c8b4dd0db",
+      "schema_version": "source_identity_final_reporting_v1",
+      "generated_at_utc": "2026-07-10T12:23:04.424455+00:00",
+      "size_bytes": 32999761
+    },
+    {
+      "retired_path": "outputs/source_identity_repair_20260710/final_active_artifact_audit.json",
+      "sha256": "033e5dcb9a3c9ab9716964aa83eeb1f53c2ec22dade68784c29b6a62431f1013",
+      "artifact_count": 8436,
+      "verified_count": 8436
+    }
+  ],
+  "final_campaign_outcome": {
+    "original_artifact_count": 8885,
+    "current_active_artifact_count": 8487,
+    "current_active_verified_count": 8487,
+    "current_active_unverified_count": 0,
+    "quarantined_no_active_artifact_count": 398,
+    "manual_download_queue_count": 0,
+    "priority_queue_count": 0,
+    "action_category_counts": {
+      "retained_verified_active_artifact": 8233,
+      "excluded_prescreen_no_artifact_repair": 221,
+      "repaired_exact_jats_active": 97,
+      "abstract_only_no_fulltext_repair": 162,
+      "verified_curated_identifier_override": 58,
+      "verified_curated_related_document": 33,
+      "repaired_validated_pdf_active": 26,
+      "verified_after_identity_reaudit": 12,
+      "not_retained_no_artifact_repair": 15,
+      "verified_curated_correction_relationship": 12,
+      "verified_pdf_front_title_validation": 15,
+      "verified_curated_pdf_hash": 1
+    }
+  },
+  "retirement_verification": {
+    "canonical_audit_command": "python pipeline/fulltext/audit_fulltext_source_identity.py --fail-on-unverified",
+    "artifact_count": 8487,
+    "verified_count": 8487,
+    "unverified_count": 0,
+    "identity_registry_record_count": 109,
+    "pdf_hash_attestation_record_count": 24,
+    "legacy_embedded_pdf_attestations_migrated": 16
+  },
+  "durable_state": {
+    "canonical_validation": "pipeline/fulltext/source_identity.py",
+    "canonical_audit": "pipeline/fulltext/audit_fulltext_source_identity.py",
+    "fail_closed_gate": "pipeline/fulltext/source_identity_audit_gate.py",
+    "identity_registry": "pipeline/fulltext/source_identity_registry.json",
+    "pdf_hash_attestation_registry": "pipeline/fulltext/source_identity_pdf_hash_registry.json",
+    "authoritative_audit_output": "data/processed/fulltext/source_identity_audit.json",
+    "canonical_article_store": "data/processed/fulltext/articles"
+  },
+  "retired_scope": {
+    "campaign_driver_lines": 5589,
+    "campaign_test_lines": 1411,
+    "campaign_drivers": [
+      "pipeline/fulltext/apply_residual_pdf_quarantine.py",
+      "pipeline/fulltext/audit_source_identity_leftovers.py",
+      "pipeline/fulltext/build_final_source_identity_report.py",
+      "pipeline/fulltext/classify_proceedings_search_records.py",
+      "pipeline/fulltext/download_manual_source_identity_queue.py",
+      "pipeline/fulltext/quarantine_invalid_fulltext_artifacts.py",
+      "pipeline/fulltext/reconcile_quarantined_candidate_state.py",
+      "pipeline/fulltext/repair_pdf_fulltext_artifacts.py",
+      "pipeline/fulltext/repair_pmc_fulltext_artifacts.py",
+      "pipeline/fulltext/restore_validated_pdf_repairs.py",
+      "pipeline/fulltext/synchronize_post_repair_provenance.py",
+      "pipeline/ingest/reconcile_source_identity_metadata.py"
+    ],
+    "campaign_tests": [
+      "tests/test_apply_residual_pdf_quarantine.py",
+      "tests/test_build_final_source_identity_report.py",
+      "tests/test_classify_proceedings_search_records.py",
+      "tests/test_download_manual_source_identity_queue.py",
+      "tests/test_quarantine_invalid_fulltext_artifacts.py",
+      "tests/test_reconcile_quarantined_candidate_state.py",
+      "tests/test_reconcile_source_identity_metadata.py",
+      "tests/test_repair_pdf_fulltext_artifacts.py",
+      "tests/test_restore_validated_pdf_repairs.py",
+      "tests/test_synchronize_post_repair_provenance.py"
+    ],
+    "campaign_inputs": [
+      "pipeline/fulltext/manual_source_identity_repairs.json",
+      "pipeline/fulltext/manual_pdf_source_identity_repairs.json"
+    ],
+    "removed_directories": [
+      {
+        "path": "outputs/source_identity_repair_20260710",
+        "file_count": 128,
+        "size_bytes": 504028526
+      },
+      {
+        "path": "outputs/source_identity_audit_20260709",
+        "file_count": 23,
+        "symlink_count": 1,
+        "size_bytes": 7489371
+      },
+      {
+        "path": "data/processed/graph_payload_runs/source_identity_repair_20260710_primary_refresh",
+        "file_count": 7,
+        "size_bytes": 34238808
+      },
+      {
+        "path": "tmp/spreadsheets/source_identity_triage",
+        "file_count": 15,
+        "symlink_count": 1,
+        "size_bytes": 7382660
+      }
+    ]
+  },
+  "attestation": "The retired reports were historical campaign evidence, not runtime dependencies. Curated DOI relationships remain in the identity registry. Exceptional PDF decisions are bound to exact DOI and SHA-256 values in the PDF hash-attestation registry. Future full-text writes remain subject to the canonical fail-closed audit gate."
+}
