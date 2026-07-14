@@ -1279,6 +1279,56 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertFalse(rows[0]["retained_for_extraction_candidate"])
         self.assertEqual(rows[0]["domain_screening_decision"], "exclude_out_of_scope")
 
+    def test_curated_screening_exclusion_overrides_an_in_scope_model_route(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/out",
+                    "study_title": "Broad treatment guideline",
+                    "abstract": "A broad guideline that mentions ketamine only as background.",
+                    "publication_type": "Journal Article",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/out",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                }
+            ]
+        )
+        domain_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/out",
+                    "retained_for_extraction_candidate": True,
+                    "domain_route": "clinical_outcome",
+                    "screening_decision": "include_in_scope",
+                }
+            ]
+        )
+        reason = "No specific psychedelic, ketamine, or entactogen recommendation."
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            domain_df=domain_df,
+            screening_overrides={
+                "10.1000/out": {"decision": "exclude_out_of_scope", "reason": reason}
+            },
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-07-14T00:00:00+00:00",
+        )
+
+        self.assertEqual(len(rows), 1)
+        self.assertFalse(rows[0]["retained_for_extraction_candidate"])
+        self.assertEqual(rows[0]["domain_route"], "screening_excluded")
+        self.assertEqual(rows[0]["domain_screening_decision"], "exclude_out_of_scope")
+        self.assertEqual(rows[0]["domain_screening_reason"], reason)
+
     def test_non_primary_publication_collapses_to_context_route(self) -> None:
         metadata_df = pd.DataFrame(
             [

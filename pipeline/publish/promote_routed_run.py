@@ -33,6 +33,8 @@ KG_RUNS_DIR = PROCESSED_DIR / "kg_routed_runs"
 PAYLOAD_RUNS_DIR = PROCESSED_DIR / "graph_payload_runs"
 ACTIVE_EXTRACTION_POINTER = EXTRACTION_DIR / "active_routed_run.json"
 ACTIVE_GRAPH_POINTER = PROCESSED_DIR / "graph_payload_active.json"
+CANDIDATE_PAPERS_TABLE = PROCESSED_DIR / "corpus" / "candidate_papers.parquet"
+GRAPH_DISPOSITION_OVERRIDES = ROOT / "data" / "curated" / "graph_inclusion_disposition_overrides.json"
 PROMOTION_LOCK = PROCESSED_DIR / ".routed_release_promotion.lock"
 
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
@@ -244,6 +246,22 @@ def validate_active_pointer_pair() -> dict:
     if extraction_release or graph_release:
         if not extraction_release or extraction_release != graph_release:
             raise ValueError("Active release mismatch: pointer release IDs differ")
+    if not CANDIDATE_PAPERS_TABLE.is_file():
+        raise FileNotFoundError(f"Canonical corpus table is missing: {CANDIDATE_PAPERS_TABLE}")
+    import pandas as pd
+
+    corpus_release = pd.read_parquet(
+        CANDIDATE_PAPERS_TABLE,
+        columns=["graph_inclusion_run_id", "graph_inclusion_release_id"],
+    )
+    corpus_runs = {normalize(value) for value in corpus_release["graph_inclusion_run_id"] if normalize(value)}
+    corpus_releases = {
+        normalize(value) for value in corpus_release["graph_inclusion_release_id"] if normalize(value)
+    }
+    if corpus_runs != {graph_run}:
+        raise ValueError(f"Active release mismatch: canonical corpus run IDs are {sorted(corpus_runs)}")
+    if graph_release and corpus_releases != {graph_release}:
+        raise ValueError("Active release mismatch: canonical corpus release ID differs")
     return {"run_id": extraction_run, "release_id": extraction_release or "legacy"}
 
 
@@ -252,7 +270,13 @@ def run_checked(command: list[str], *, env: dict[str, str] | None = None) -> Non
     subprocess.run(command, cwd=ROOT, env=env, check=True)
 
 
-def retarget_methods_manifest(staged_methods: Path, current_methods: Path) -> None:
+def retarget_methods_manifest(
+    staged_methods: Path,
+    current_methods: Path,
+    *,
+    staged_candidate_table: Path,
+    current_candidate_table: Path,
+) -> None:
     """Replace staging-only output paths before the directory becomes live."""
     manifest_path = staged_methods / "manifests" / "build_manifest.json"
     manifest = read_json_object(manifest_path)
@@ -269,6 +293,12 @@ def retarget_methods_manifest(staged_methods: Path, current_methods: Path) -> No
         ),
         "manifest": str((current_methods / "manifests" / "build_manifest.json").resolve()),
     }
+    staged_candidate = str(staged_candidate_table.resolve())
+    current_candidate = str(current_candidate_table.resolve())
+    manifest["input_files"] = [
+        current_candidate if path == staged_candidate else path
+        for path in manifest.get("input_files", [])
+    ]
     write_json_atomic(manifest_path, manifest)
 
 
@@ -288,6 +318,23 @@ def swap_directory(staged: Path, current: Path, backup: Path) -> None:
     except Exception:
         if backup.exists():
             backup.rename(current)
+        raise
+
+
+def replace_file_atomic(source: Path, destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        dir=destination.parent,
+        prefix=f".{destination.name}.",
+        suffix=".tmp",
+        delete=False,
+    ) as handle:
+        temp_path = Path(handle.name)
+    try:
+        shutil.copy2(source, temp_path)
+        os.replace(temp_path, destination)
+    except Exception:
+        temp_path.unlink(missing_ok=True)
         raise
 
 
@@ -321,6 +368,7 @@ def promote(args: argparse.Namespace) -> dict:
         stage_root = Path(tempfile.mkdtemp(prefix=f".promote-{run_id}.", dir=PROCESSED_DIR))
         staged_methods = stage_root / "data_kg"
         staged_dist = stage_root / "dist"
+        staged_candidate = stage_root / "candidate_papers.parquet"
         previous_methods = stage_root / "previous_data_kg"
         previous_dist = stage_root / "previous_dist"
         current_methods = ROOT / "data" / "kg"
@@ -329,22 +377,50 @@ def promote(args: argparse.Namespace) -> dict:
         run_checked(
             [
                 sys.executable,
-                str(ROOT / "pipeline" / "kg" / "build_methods_flow.py"),
+                str(ROOT / "pipeline" / "kg" / "update_corpus_graph_status.py"),
+                "--candidate-table",
+                str(CANDIDATE_PAPERS_TABLE),
+                "--output-table",
+                str(staged_candidate),
                 "--kg-dir",
                 str(KG_RUNS_DIR / run_id),
+                "--disposition-overrides",
+                str(GRAPH_DISPOSITION_OVERRIDES),
+                "--run-id",
+                run_id,
+                "--release-id",
+                release_id,
+            ]
+        )
+
+        run_checked(
+            [
+                sys.executable,
+                str(ROOT / "pipeline" / "kg" / "build_methods_flow.py"),
+                "--candidate-table",
+                str(staged_candidate),
                 "--out-dir",
                 str(staged_methods),
             ]
         )
-        retarget_methods_manifest(staged_methods, current_methods)
+        retarget_methods_manifest(
+            staged_methods,
+            current_methods,
+            staged_candidate_table=staged_candidate,
+            current_candidate_table=CANDIDATE_PAPERS_TABLE,
+        )
 
         old_extraction = (
             ACTIVE_EXTRACTION_POINTER.read_bytes() if ACTIVE_EXTRACTION_POINTER.exists() else None
         )
         old_graph = ACTIVE_GRAPH_POINTER.read_bytes() if ACTIVE_GRAPH_POINTER.exists() else None
+        old_candidate = CANDIDATE_PAPERS_TABLE.read_bytes() if CANDIDATE_PAPERS_TABLE.exists() else None
         methods_swapped = False
         dist_swapped = False
+        candidate_swapped = False
         try:
+            replace_file_atomic(staged_candidate, CANDIDATE_PAPERS_TABLE)
+            candidate_swapped = True
             swap_directory(staged_methods, current_methods, previous_methods)
             methods_swapped = True
             write_json_atomic(ACTIVE_EXTRACTION_POINTER, extraction_pointer)
@@ -364,6 +440,8 @@ def promote(args: argparse.Namespace) -> dict:
                 shutil.rmtree(current_methods, ignore_errors=True)
                 if previous_methods.exists():
                     previous_methods.rename(current_methods)
+            if candidate_swapped:
+                restore_file(CANDIDATE_PAPERS_TABLE, old_candidate)
             restore_file(ACTIVE_EXTRACTION_POINTER, old_extraction)
             restore_file(ACTIVE_GRAPH_POINTER, old_graph)
             raise

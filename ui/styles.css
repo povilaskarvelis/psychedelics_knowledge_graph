@@ -6,6 +6,14 @@
   --accent: #f1b74b;
   --accent-2: #49d6c8;
   --accent-3: #ef6c9a;
+  --link-color: #65bdad;
+  --link-color-hover: #84ccbf;
+  --link-border: rgba(70, 197, 181, 0.42);
+  --link-border-hover: rgba(70, 197, 181, 0.68);
+  --doi-link-color: #91ded5;
+  --doi-link-color-hover: #b2efe8;
+  --doi-link-border: rgba(145, 222, 213, 0.48);
+  --doi-link-border-hover: rgba(145, 222, 213, 0.72);
   --card: rgba(17, 21, 22, 0.82);
   --card-soft: rgba(21, 26, 27, 0.7);
   --card-raised: rgba(25, 31, 33, 0.9);
@@ -87,16 +95,16 @@ body {
 }
 
 .hero-inner p a {
-  color: var(--accent-2);
+  color: var(--link-color);
   font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px solid rgba(73, 214, 200, 0.55);
+  border-bottom: 1px solid var(--link-border);
 }
 
 .hero-inner p a:hover,
 .hero-inner p a:focus-visible {
-  color: #a9f7ef;
-  border-bottom-color: rgba(169, 247, 239, 0.9);
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
 }
 
 .hero-version {
@@ -210,13 +218,6 @@ button.primary:hover {
   font-size: 1.8rem;
   font-weight: 600;
   font-family: "Space Grotesk", sans-serif;
-}
-
-.stat-detail {
-  min-height: 1em;
-  font-size: 0.75rem;
-  line-height: 1.25;
-  color: var(--muted);
 }
 
 .content {
@@ -619,9 +620,9 @@ button.primary:hover {
   min-height: 38px;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(110, 227, 215, 0.3);
+  border: 1px solid var(--link-border);
   background: var(--method-surface-soft);
-  color: #d8fffa;
+  color: var(--link-color);
   font-size: 0.92rem;
   font-weight: 500;
   text-decoration: none;
@@ -639,9 +640,9 @@ button.primary:hover {
 
 .back-link:hover,
 .back-link:focus-visible {
-  color: #f2f4ef;
-  background: rgba(110, 227, 215, 0.12);
-  border-color: rgba(110, 227, 215, 0.48);
+  color: var(--link-color-hover);
+  background: rgba(70, 197, 181, 0.09);
+  border-color: var(--link-border-hover);
   transform: translateY(-1px);
 }
 
@@ -698,16 +699,16 @@ button.primary:hover {
 }
 
 .about-section p a {
-  color: #b8fff7;
+  color: var(--link-color);
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 1px solid rgba(110, 227, 215, 0.5);
+  border-bottom: 1px solid var(--link-border);
 }
 
 .about-section p a:hover,
 .about-section p a:focus-visible {
-  color: #d8fffa;
-  border-bottom-color: rgba(216, 255, 250, 0.88);
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
 }
 
 .methods-summary {
@@ -1134,9 +1135,9 @@ button.primary:hover {
   min-height: 42px;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(110, 227, 215, 0.3);
-  background: rgba(110, 227, 215, 0.08);
-  color: #b8fff7;
+  border: 1px solid var(--link-border);
+  background: rgba(70, 197, 181, 0.06);
+  color: var(--link-color);
   font-weight: 600;
   text-decoration: none;
   transition:
@@ -1152,9 +1153,9 @@ button.primary:hover {
 .text-button:focus-visible,
 .text-link:hover,
 .text-link:focus-visible {
-  color: #eafffb;
-  background: rgba(110, 227, 215, 0.14);
-  border-color: rgba(110, 227, 215, 0.48);
+  color: var(--link-color-hover);
+  background: rgba(70, 197, 181, 0.1);
+  border-color: var(--link-border-hover);
   transform: translateY(-1px);
 }
 
@@ -1846,16 +1847,16 @@ button.primary:hover {
 
 .bibliography-paper-cell a {
   width: fit-content;
-  color: #b8fff7;
+  color: var(--link-color);
   text-decoration: none;
-  border-bottom: 1px solid rgba(110, 227, 215, 0.44);
+  border-bottom: 1px solid var(--link-border);
   overflow-wrap: anywhere;
 }
 
 .bibliography-paper-cell a:hover,
 .bibliography-paper-cell a:focus-visible {
-  color: #eafffb;
-  border-bottom-color: rgba(216, 255, 250, 0.88);
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
 }
 
 .methods-bibliography-row.selected td:last-child .bibliography-stage-cell strong {
@@ -2022,16 +2023,16 @@ button.primary:hover {
 }
 
 .detail-item .meta a {
-  color: #a9f7ef;
+  color: var(--link-color);
   text-decoration: none;
-  border-bottom: 1px solid rgba(169, 247, 239, 0.45);
+  border-bottom: 1px solid var(--link-border);
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .detail-item .meta a:hover,
 .detail-item .meta a:focus-visible {
-  color: #d8fffa;
-  border-bottom-color: rgba(216, 255, 250, 0.9);
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
 }
 
 .trend-dashboard {
@@ -2180,7 +2181,7 @@ button.primary:hover {
   pointer-events: none;
   transform-box: fill-box;
   transform-origin: bottom center;
-  filter: saturate(1.1) brightness(1.04);
+  filter: saturate(1.02) brightness(1.02);
   transition:
     filter 0.15s ease,
     opacity 0.15s ease,
@@ -2190,7 +2191,7 @@ button.primary:hover {
 .publication-year-target:hover .publication-year-bar,
 .publication-year-target.hovered .publication-year-bar,
 .publication-year-target:focus-visible .publication-year-bar {
-  filter: saturate(1.2) brightness(1.12) drop-shadow(0 0 9px rgba(63, 174, 166, 0.36));
+  filter: saturate(1.08) brightness(1.09) drop-shadow(0 0 9px rgba(105, 161, 150, 0.34));
   opacity: 1;
   transform: scaleY(1.06);
 }
@@ -2708,15 +2709,15 @@ button.primary:hover {
 }
 
 .study-detail-note a {
-  color: #a9f7ef;
+  color: var(--link-color);
   text-decoration: none;
-  border-bottom: 1px solid rgba(169, 247, 239, 0.45);
+  border-bottom: 1px solid var(--link-border);
 }
 
 .study-detail-note a:hover,
 .study-detail-note a:focus-visible {
-  color: #d8fffa;
-  border-bottom-color: rgba(216, 255, 250, 0.9);
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
 }
 
 .tooltip {
@@ -3016,9 +3017,16 @@ input[type="number"] {
 }
 
 .study-citation a {
-  color: #a9f7ef;
+  color: var(--link-color);
   text-decoration: none;
-  border-bottom: 1px solid rgba(169, 247, 239, 0.42);
+  border-bottom: 1px solid var(--link-border);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.study-citation a:hover,
+.study-citation a:focus-visible {
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
 }
 
 .bibliography-panel {
@@ -3171,16 +3179,39 @@ input[type="number"] {
 }
 
 .card .meta a {
-  color: #a9f7ef;
+  color: var(--link-color);
   text-decoration: none;
-  border-bottom: 1px solid rgba(169, 247, 239, 0.45);
+  border-bottom: 1px solid var(--link-border);
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .card .meta a:hover,
 .card .meta a:focus-visible {
-  color: #d8fffa;
-  border-bottom-color: rgba(216, 255, 250, 0.9);
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
+}
+
+.bibliography-paper-cell a.doi-link,
+.detail-item .meta a.doi-link,
+.study-detail-note a.doi-link,
+.study-citation a.doi-link,
+.card .meta a.doi-link {
+  color: var(--doi-link-color);
+  border-bottom-color: var(--doi-link-border);
+}
+
+.bibliography-paper-cell a.doi-link:hover,
+.bibliography-paper-cell a.doi-link:focus-visible,
+.detail-item .meta a.doi-link:hover,
+.detail-item .meta a.doi-link:focus-visible,
+.study-detail-note a.doi-link:hover,
+.study-detail-note a.doi-link:focus-visible,
+.study-citation a.doi-link:hover,
+.study-citation a.doi-link:focus-visible,
+.card .meta a.doi-link:hover,
+.card .meta a.doi-link:focus-visible {
+  color: var(--doi-link-color-hover);
+  border-bottom-color: var(--doi-link-border-hover);
 }
 
 .badge {
@@ -3230,17 +3261,17 @@ input[type="number"] {
 }
 
 .footer a {
-  color: var(--accent-2);
+  color: var(--link-color);
   font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px solid rgba(73, 214, 200, 0.55);
+  border-bottom: 1px solid var(--link-border);
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .footer a:hover,
 .footer a:focus-visible {
-  color: #a9f7ef;
-  border-bottom-color: rgba(169, 247, 239, 0.9);
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
 }
 
 @keyframes fadeUp {

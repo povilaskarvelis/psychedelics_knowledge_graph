@@ -70,6 +70,7 @@ DEFAULT_SUMMARY_JSON = ROOT / "data" / "processed" / "corpus" / "paper_extractio
 DEFAULT_COUNTS_CSV = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes_counts.csv"
 DEFAULT_MANUAL_ROUTE_OVERRIDES = ROOT / "pipeline" / "extract" / "manual_extraction_route_overrides.json"
 DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES = ROOT / "pipeline" / "fulltext" / "manual_fulltext_access_overrides.json"
+DEFAULT_SCREENING_DECISION_OVERRIDES = ROOT / "data" / "curated" / "screening_decision_overrides.json"
 
 TABLE_VERSION = "0.4"
 CANDIDATE_STATUS_DEFAULTS = {
@@ -98,6 +99,7 @@ CANDIDATE_STATUS_DEFAULTS = {
     "extraction_route_actions": "",
     "extraction_domain_routes": "",
     "extraction_domain_screening_decisions": "",
+    "extraction_domain_screening_reasons": "",
     "extraction_prompt_profiles": "",
     "extraction_schema_profiles": "",
     "best_extraction_access_tier": "",
@@ -276,6 +278,31 @@ def load_manual_route_overrides(path: Path | None) -> dict[str, dict]:
         doi = normalize_doi(row.get("doi", ""))
         if doi:
             out[doi] = row
+    return out
+
+
+def load_screening_decision_overrides(path: Path | None) -> dict[str, dict]:
+    if path is None or not path.is_file():
+        raise FileNotFoundError(f"Missing screening-decision overrides: {path}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("overrides", []) if isinstance(payload, dict) else []
+    if not isinstance(records, list):
+        raise ValueError(f"Invalid screening-decision overrides: {path}")
+    out: dict[str, dict] = {}
+    for group in records:
+        if not isinstance(group, dict):
+            raise ValueError(f"Invalid screening-decision group in {path}")
+        decision = clean(group.get("decision", ""))
+        reason = clean(group.get("reason", ""))
+        if decision != "exclude_out_of_scope" or not reason:
+            raise ValueError(f"Unsupported screening-decision group in {path}: {group}")
+        for raw_doi in group.get("dois", []):
+            doi = normalize_doi(raw_doi)
+            if not doi:
+                raise ValueError(f"Blank DOI in screening-decision overrides: {path}")
+            if doi in out:
+                raise ValueError(f"Duplicate screening-decision override for DOI {doi}")
+            out[doi] = {"decision": decision, "reason": reason}
     return out
 
 
@@ -634,8 +661,28 @@ def domain_plan_for(
     fallback_tags: list[str],
     domain_by_doi: dict[str, list[dict]],
     manual_override: dict | None = None,
+    screening_override: dict | None = None,
 ) -> list[dict]:
     manual_override = manual_override or {}
+    screening_override = screening_override or {}
+    if clean(screening_override.get("decision", "")) == "exclude_out_of_scope":
+        reason = clean(screening_override.get("reason", ""))
+        if not reason:
+            raise ValueError(f"Screening exclusion for {doi} has no reason")
+        return [
+            {
+                "domain_route": "screening_excluded",
+                "domain_tags": "",
+                "domain_route_confidence": "high",
+                "domain_route_basis": reason,
+                "domain_routing_primary_domain": "screening_excluded",
+                "methodological_validity_tags": "",
+                "domain_screening_decision": "exclude_out_of_scope",
+                "domain_screening_reason": reason,
+                "domain_routing_model": "curated_screening_decision",
+                "domain_needs_human_review": False,
+            }
+        ]
     manual_action = clean(manual_override.get("manual_action", ""))
     manual_reason = clean(manual_override.get("manual_reason", "")) or "Manual extraction-route review."
     if manual_action == "context_only":
@@ -993,6 +1040,7 @@ def build_route_rows(
     include_non_retained: bool = False,
     scoped_dois: set[str] | None = None,
     manual_overrides: dict[str, dict] | None = None,
+    screening_overrides: dict[str, dict] | None = None,
     manual_fulltext_access_overrides: dict[str, dict] | None = None,
     paper_root: Path = DEFAULT_PAPER_ROOT,
     source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
@@ -1008,6 +1056,7 @@ def build_route_rows(
     rows: list[dict] = []
     scoped_dois = scoped_dois or set()
     manual_overrides = manual_overrides or {}
+    screening_overrides = screening_overrides or {}
     manual_fulltext_access_overrides = manual_fulltext_access_overrides or {}
     local_pdf_index = build_local_pdf_index(paper_root)
     canonical_artifact_dir = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR
@@ -1027,6 +1076,7 @@ def build_route_rows(
         literature_row = literature_by_doi.get(doi, {})
         domain_rows = domain_by_doi.get(doi, [])
         manual_override = manual_overrides.get(doi, {})
+        screening_override = screening_overrides.get(doi, {})
         source_status = source_status_from_domain_rows(
             domain_rows,
             literature_row,
@@ -1057,6 +1107,7 @@ def build_route_rows(
             fallback_tags=tags,
             domain_by_doi=domain_by_doi,
             manual_override=manual_override,
+            screening_override=screening_override,
         )
         fulltext_status = fulltext_status_for_doi(
             doi,
@@ -1343,6 +1394,7 @@ def build_candidate_status_updates(
                 "extraction_route_actions": join_route_values(rows, "route_action"),
                 "extraction_domain_routes": join_route_values(rows, "domain_route"),
                 "extraction_domain_screening_decisions": join_route_values(rows, "domain_screening_decision"),
+                "extraction_domain_screening_reasons": join_route_values(rows, "domain_screening_reason"),
                 "extraction_prompt_profiles": join_route_values(rows, "prompt_profile"),
                 "extraction_schema_profiles": join_route_values(rows, "schema_profile"),
                 "best_extraction_access_tier": best_access_tier(rows),
@@ -1419,6 +1471,7 @@ def build_extraction_routes(
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
     domain_table: Path | None = None,
     manual_overrides_path: Path | None = DEFAULT_MANUAL_ROUTE_OVERRIDES,
+    screening_overrides_path: Path | None = DEFAULT_SCREENING_DECISION_OVERRIDES,
     manual_fulltext_access_overrides_path: Path | None = DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES,
     fulltext_dir: Path = DEFAULT_FULLTEXT_DIR,
     source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
@@ -1436,6 +1489,9 @@ def build_extraction_routes(
     prescreen_table = Path(prescreen_table).resolve()
     domain_table = Path(domain_table).resolve() if domain_table is not None else None
     manual_overrides_path = Path(manual_overrides_path).resolve() if manual_overrides_path is not None else None
+    screening_overrides_path = (
+        Path(screening_overrides_path).resolve() if screening_overrides_path is not None else None
+    )
     manual_fulltext_access_overrides_path = (
         Path(manual_fulltext_access_overrides_path).resolve()
         if manual_fulltext_access_overrides_path is not None
@@ -1453,6 +1509,7 @@ def build_extraction_routes(
     prescreen_df = read_table(prescreen_table)
     domain_df = read_table(domain_table) if domain_table is not None else pd.DataFrame()
     manual_overrides = load_manual_route_overrides(manual_overrides_path)
+    screening_overrides = load_screening_decision_overrides(screening_overrides_path)
     manual_fulltext_access_overrides = load_manual_fulltext_access_overrides(manual_fulltext_access_overrides_path)
     generated_at_utc = now_utc()
     rows = build_route_rows(
@@ -1464,6 +1521,7 @@ def build_extraction_routes(
         include_non_retained=include_non_retained,
         scoped_dois=scoped_dois,
         manual_overrides=manual_overrides,
+        screening_overrides=screening_overrides,
         manual_fulltext_access_overrides=manual_fulltext_access_overrides,
         paper_root=paper_root,
         source_identity_audit=source_identity_audit,
@@ -1495,6 +1553,10 @@ def build_extraction_routes(
             "domain_routing_table": str(domain_table) if domain_table is not None else "",
             "manual_route_overrides": str(manual_overrides_path) if manual_overrides_path is not None else "",
             "manual_override_dois": len(manual_overrides),
+            "screening_decision_overrides": str(screening_overrides_path)
+            if screening_overrides_path is not None
+            else "",
+            "screening_decision_override_dois": len(screening_overrides),
             "manual_fulltext_access_overrides": str(manual_fulltext_access_overrides_path)
             if manual_fulltext_access_overrides_path is not None
             else "",
@@ -1534,6 +1596,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--summary-json", default=str(DEFAULT_SUMMARY_JSON))
     parser.add_argument("--counts-csv", default=str(DEFAULT_COUNTS_CSV))
     parser.add_argument("--manual-route-overrides", default=str(DEFAULT_MANUAL_ROUTE_OVERRIDES))
+    parser.add_argument("--screening-decision-overrides", default=str(DEFAULT_SCREENING_DECISION_OVERRIDES))
     parser.add_argument("--manual-fulltext-access-overrides", default=str(DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES))
     parser.add_argument("--doi-file", default="", help="Optional DOI list for a scoped route-table build.")
     parser.add_argument("--include-non-retained", action="store_true", help="Route all metadata rows, not only retained pre-screen candidates.")
@@ -1554,6 +1617,11 @@ def main() -> int:
     if domain_table is not None and not domain_table.exists():
         domain_table = None
     manual_overrides_path = Path(args.manual_route_overrides).resolve() if clean(args.manual_route_overrides) else None
+    screening_overrides_path = (
+        Path(args.screening_decision_overrides).resolve()
+        if clean(args.screening_decision_overrides)
+        else None
+    )
     manual_fulltext_access_overrides_path = (
         Path(args.manual_fulltext_access_overrides).resolve()
         if clean(args.manual_fulltext_access_overrides)
@@ -1573,6 +1641,7 @@ def main() -> int:
         prescreen_table=prescreen_table,
         domain_table=domain_table,
         manual_overrides_path=manual_overrides_path,
+        screening_overrides_path=screening_overrides_path,
         manual_fulltext_access_overrides_path=manual_fulltext_access_overrides_path,
         fulltext_dir=fulltext_dir,
         source_identity_audit=source_identity_audit,

@@ -1,24 +1,22 @@
 # Living KG Protocol V2
 
 This protocol separates source discovery from graph-edge trust. Existing DOIs
-remain useful as a paper corpus, but each `DOI + compound + target/indication`
+remain useful as a record corpus, but each `DOI + compound + target/indication`
 context must carry explicit provenance before it is treated as evidence.
 
-## Paper Identity
+## Record and Report Identity
 
-Paper identity is DOI-level. When a new literature search finds a DOI that is
-already present in the corpus, the paper should not be added or processed again
-as a new paper. The rediscovery should be logged for provenance only.
+The current pipeline deduplicates records at the DOI level. When a new
+literature search finds a DOI that is already present in the corpus, the record
+should not be added or processed again. The rediscovery should be logged for
+provenance only. This is a corpus identity rule, not a claim that every DOI
+identifies a paper or that each DOI maps one-to-one to an underlying study.
 
 Use the DOI add gate before metadata enrichment:
 
 ```bash
 python pipeline/ingest/add_new_dois.py --dataset disorder --input data/raw/doi_queue.disorder.discovered.txt
 ```
-
-The `run_extensive_search.py` wrapper runs this gate automatically after
-discovery and passes `doi_queue.<dataset>.new.txt` into metadata enrichment. Run the
-standalone command when importing or checking a DOI queue outside the wrapper.
 
 Default outputs:
 
@@ -30,11 +28,11 @@ Default outputs:
 
 Only `doi_queue.<dataset>.new.txt` should continue to expensive metadata, PDF,
 screening, or extraction steps when the goal is to process newly discovered
-papers.
+records.
 
-The discovery ledger is not part of the default existing-paper check, because
+The discovery ledger is not part of the default existing-record check, because
 it is updated during the current discovery run. The gate checks the corpus,
-paper libraries, stubs, curated claims, exploratory claims, and known-study set
+legacy paper libraries, stubs, curated claims, exploratory claims, and known-study set
 unless an operator explicitly asks to include ledger history.
 
 ## Evidence Layers
@@ -45,7 +43,7 @@ unless an operator explicitly asks to include ledger history.
    target or indication context, but structured evidence extraction may still
    be incomplete.
 3. `verified_evidence`: a curated evidence row with provenance fields such as
-   paper type, source type, access level, evidence locator, study design, and
+   report type, source type, access level, evidence locator, study design, and
    evidence-specific fields.
 
 The public KG should prefer `verified_evidence`. Methods and audit views may
@@ -120,15 +118,18 @@ canonical derived corpus should be table-shaped so metadata enrichment,
 screening, routing, extraction, audits, and methods counts can query it
 directly.
 
-Planned internal tables:
+Canonical internal tables:
 
 - `candidate_papers.parquet`: one row per DOI, including title, abstract,
-  bibliographic metadata, metadata/PDF status, and current pipeline status.
+  bibliographic metadata, metadata/PDF status, screening and extraction
+  decisions, and the final graph-inclusion status, reason, provenance source,
+  run ID, and release ID. This is the sole input for the public PRISMA flow and
+  complete Methods bibliography.
 - `candidate_contexts.parquet`: one row per DOI plus compound/entity/domain
-  context, preserving why the paper entered the corpus.
+  context, preserving why the record entered the corpus.
 - `candidate_sources.parquet`: one row per DOI/source/provenance event,
   preserving which search, queue, screen, extraction, or graph step saw the
-  paper.
+  record or report.
 - `paper_metadata_enrichment.parquet`: one row per DOI with enriched
   bibliographic metadata, abstracts when available, provider identifiers, and
   metadata lookup status.
@@ -185,7 +186,7 @@ Longer-term serving plan:
 
 - Load the normalized corpus and KG tables into Postgres for the public website,
   API, and MCP-facing query tools.
-- Use Postgres for paper search, filters, DOI provenance trails, claim/evidence
+- Use Postgres for record and report search, filters, DOI provenance trails, claim/evidence
   queries, and agent access.
 - Generate compressed JSON or static chunks only as website delivery artifacts
   when useful; do not treat them as the canonical pipeline store.

@@ -172,7 +172,7 @@ python pipeline/ingest/discover_literature.py \
 
 The pair-grid files run direct searches for rare corners of the
 compound-entity and compound-clinical evidence space. Records already present
-in the paper library are reported but not re-added as new papers.
+in the candidate corpus are reported but not re-added as new records.
 
 The brain-system grouped modules run through the grouped-module runner
 so the module scope is explicit:
@@ -232,7 +232,7 @@ source-specific supplements:
 - BindingDB for binding-affinity cross-checks
 - ClinicalTrials.gov for registered clinical studies and linked publications
 
-These supplement outputs should be linked to papers and evidence records, but
+These supplement outputs should be linked to source reports and findings, but
 not treated as ordinary DOI search seeds.
 
 ## Quality Checks

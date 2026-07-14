@@ -546,7 +546,7 @@
     },
     {
       "label": "5-HT2C",
-      "aliases": ["HTR2C", "5-HT1C receptor", "5HT1C receptor", "5-HT1C serotonin receptor", "5-HT2C serotonin receptor", "serotonin 2C receptor", "serotonin 2C receptors", "Serotonin 5-HT2C receptor", "5-HT2C receptor", "5-HT2C receptors", "5-HT2C-INI receptor", "5-HT2C-VGV receptor", "5-HT2CR", "5-HT2CRs"],
+      "aliases": ["HTR2C", "5-HT1C receptor", "5HT1C receptor", "5-HT1C serotonin receptor", "5-HT2C serotonin receptor", "serotonin 2C receptor", "serotonin 2C receptors", "Serotonin 5-HT2C receptor", "5-HT2C receptor", "5-HT2C receptors", "h5-HT(2C) receptor", "h5-HT2C receptor", "5-HT2C-INI receptor", "5-HT2C-VGV receptor", "5-HT2CR", "5-HT2CRs"],
       "ids": {"gene_symbol": "HTR2C", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup",
@@ -1502,6 +1502,8 @@
     {"label": "mGluR4 (GRM4)", "aliases": ["GRM4", "metabotropic glutamate receptor 4", "mGluR4"], "ids": {"gene_symbol": "GRM4", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "SIRT2", "aliases": ["sirtuin 2"], "ids": {"gene_symbol": "SIRT2", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "FAAH", "aliases": ["fatty acid amide hydrolase", "fatty acid amide hydrolase (FAAH)"], "ids": {"gene_symbol": "FAAH", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "SULT1A3", "aliases": ["sulfotransferase 1A3"], "ids": {"gene_symbol": "SULT1A3", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "Extraneuronal monoamine transporter", "aliases": ["hEMT", "HEMT", "extraneuronal monoamine transporter", "organic cation transporter 3", "OCT3", "SLC22A3"], "ids": {"gene_symbol": "SLC22A3", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "BK channel (KCNMA1)", "aliases": ["BK channel", "large-conductance calcium-activated potassium channel", "KCNMA1"], "ids": {"gene_symbol": "KCNMA1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "KCNQ channel family", "aliases": ["KCNQ channel", "M-current channels"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "family_target_needs_subtype_mapping"}
   ],
@@ -1568,6 +1570,16 @@
     {"label": "Bipolar II disorder", "aliases": ["bipolar type II disorder", "bipolar 2 disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Catatonia", "aliases": ["catatonic syndrome"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Attention-deficit/hyperactivity disorder", "aliases": ["ADHD", "attention deficit hyperactivity disorder"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Developmental stuttering", "aliases": ["lifelong developmental stuttering", "developmental stuttering", "stuttering"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Anosmia", "aliases": ["loss of smell"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Microsmia", "aliases": ["reduced sense of smell", "hyposmia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Exploding head syndrome", "aliases": ["EHS"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Fatigue", "aliases": ["fatigue symptoms"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "symptom_or_problem_needs_external_id_lookup"},
+    {"label": "Amyotrophic lateral sclerosis", "aliases": ["ALS", "motor neuron disease"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Insulin resistance", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Gambling disorder", "aliases": ["problem gambling"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Charles Bonnet syndrome", "aliases": [], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
+    {"label": "Dextromethorphan use disorder", "aliases": ["dextromethorphan dependence"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},
     {"label": "Treatment-resistant depression", "aliases": ["TRD", "TR-MDD", "treatment-resistant major depressive disorder", "treatment-resistant major depression", "treatment-resistant unipolar depression", "treatment resistant depression", "treatment resistant major depressive disorder", "late-life treatment-resistant depression", "late-life treatment resistant depression", "late life treatment-resistant depression", "late life treatment resistant depression", "late-life TRD", "late life TRD", "resistant depression", "refractory depression", "treatment-refractory depression", "treatment refractory depression", "treatment-refractory depressed", "treatment-refractory depressed participants", "treatment-resistant depressive episode", "treatment resistant depressive episode", "difficult-to-treat depression", "DTD", "refractory major depression"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"}
   ]
 }

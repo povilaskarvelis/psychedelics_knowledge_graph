@@ -701,12 +701,6 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 "reviews": 1,
                 "meta_analyses": 1,
                 "total": 3,
-                "awaiting_graph_inclusion": {
-                    "primary_studies": 0,
-                    "reviews": 0,
-                    "meta_analyses": 0,
-                    "total": 0,
-                },
                 "visualized_overview_represented": {
                     "primary_studies": 0,
                     "reviews": 0,
@@ -714,7 +708,6 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                     "total": 1,
                 },
                 "scope": "underlying_evidence_graph_represented",
-                "awaiting_scope": "selected_papers_without_normalized_finding",
                 "denominator_source": "kg_artifact_fallback",
             },
         )

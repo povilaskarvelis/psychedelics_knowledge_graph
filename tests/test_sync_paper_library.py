@@ -16,6 +16,7 @@ from pipeline.ingest.sync_paper_library import (
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
+    ncbi_common_params,
     parse_corpus_table,
     parse_provider_order,
     pubmed_article_id,
@@ -45,6 +46,19 @@ class FakeClient:
             if matcher(url):
                 return payload
         raise AssertionError(f"Unexpected bytes URL: {url}")
+
+
+class NCBIParamTest(unittest.TestCase):
+    def test_empty_ncbi_credentials_are_omitted_from_request_params(self) -> None:
+        self.assertEqual(ncbi_common_params("", ""), {"tool": "psychedelics_kg"})
+        self.assertEqual(
+            ncbi_common_params("curator@example.org", "secret"),
+            {
+                "tool": "psychedelics_kg",
+                "email": "curator@example.org",
+                "api_key": "secret",
+            },
+        )
 
 
 class SequencedPdfClient:
@@ -417,6 +431,58 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(metadata["keywords"], "Medicine | Psychology | external")
         self.assertEqual(metadata["semantic_scholar_id"], "abc123")
         self.assertEqual(metadata["best_pdf_url"], "https://example.org/paper.pdf")
+
+    @patch("pipeline.ingest.sync_paper_library.metadata_from_openalex_work")
+    @patch("pipeline.ingest.sync_paper_library.lookup_openalex_work")
+    @patch("pipeline.ingest.sync_paper_library.lookup_pubmed_metadata")
+    def test_later_provider_supplements_without_overwriting_preferred_abstract(
+        self,
+        mock_pubmed,
+        mock_openalex_lookup,
+        mock_openalex_metadata,
+    ) -> None:
+        doi = "10.1000/example"
+        mock_pubmed.return_value = {
+            "metadata_provider": "pubmed",
+            "metadata_provider_chain": "pubmed",
+            "study_title": "Preferred title",
+            "abstract": "The complete PubMed abstract.",
+            "publication_type": "Journal Article",
+        }
+        mock_openalex_lookup.return_value = {"id": "W1"}
+        mock_openalex_metadata.return_value = {
+            "metadata_provider": "openalex",
+            "metadata_provider_chain": "openalex",
+            "study_title": "Later title",
+            "abstract": "A shorter or mismatched OpenAlex abstract.",
+            "study_journal": "Journal supplied by OpenAlex",
+            "openalex_id": "https://openalex.org/W1",
+            "is_oa": "true",
+            "oa_status": "green",
+        }
+
+        metadata, errors, queried = fetch_metadata_with_fallbacks(
+            doi=doi,
+            paper={"study_doi": doi},
+            provider_order=["pubmed", "openalex"],
+            clients={"pubmed": FakeClient(), "openalex": FakeClient()},
+            openalex_email="curator@example.org",
+            openalex_api_key="",
+            ncbi_email="curator@example.org",
+            ncbi_api_key="",
+            crossref_email="curator@example.org",
+            unpaywall_email="curator@example.org",
+        )
+
+        self.assertEqual(errors, [])
+        self.assertEqual(queried, ["pubmed", "openalex"])
+        self.assertEqual(metadata["metadata_provider"], "pubmed")
+        self.assertEqual(metadata["metadata_provider_chain"], "pubmed|openalex")
+        self.assertEqual(metadata["study_title"], "Preferred title")
+        self.assertEqual(metadata["abstract"], "The complete PubMed abstract.")
+        self.assertEqual(metadata["study_journal"], "Journal supplied by OpenAlex")
+        self.assertEqual(metadata["openalex_id"], "https://openalex.org/W1")
+        self.assertEqual(metadata["oa_status"], "green")
 
     def test_openalex_lookup_uses_current_select_fields(self) -> None:
         doi = "10.1000/example"

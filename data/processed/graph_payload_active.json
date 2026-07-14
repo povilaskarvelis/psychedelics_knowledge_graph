@@ -1,18 +1,18 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
-  "release_id": "guideline_consensus_recovery_20260714:1626066fd6ac481a88ae7abc7cfcd612",
-  "run_id": "guideline_consensus_recovery_20260714",
+  "release_id": "source_recovery_media_20260714:d30a48b3a84c4f8cb13212d4c8bbeac0",
+  "run_id": "source_recovery_media_20260714",
   "active_graph_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/guideline_consensus_recovery_20260714/graph_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/guideline_consensus_recovery_20260714/graph_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/guideline_consensus_recovery_20260714/graph_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_reviews.json"
   },
   "active_detail_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/guideline_consensus_recovery_20260714/detail_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/guideline_consensus_recovery_20260714/detail_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/guideline_consensus_recovery_20260714/detail_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_reviews.json"
   },
-  "active_manifest": "data/processed/graph_payload_runs/guideline_consensus_recovery_20260714/graph_payload_manifest.json",
+  "active_manifest": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_payload_manifest.json",
   "evidence_source": "kg_tables",
-  "kg_dir": "data/processed/kg_routed_runs/guideline_consensus_recovery_20260714"
+  "kg_dir": "data/processed/kg_routed_runs/source_recovery_media_20260714"
 }

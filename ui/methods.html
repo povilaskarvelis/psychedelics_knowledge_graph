@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260707-methods-records" />
+    <link rel="stylesheet" href="styles.css?v=20260714-link-teal-v5" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
@@ -72,8 +72,8 @@
         <h1>Methods</h1>
         <p>
           How the Psychedelics Knowledge Graph is assembled: what literature is
-          searched, how papers are screened, how evidence is extracted, and how
-          everything is maintained.
+          searched, how records are screened, how evidence is extracted from
+          reports, and how everything is maintained.
         </p>
       </div>
     </header>
@@ -85,7 +85,7 @@
           We are entering the era of agentic science, where AI agents can support
           many steps of knowledge generation. This creates an opportunity to address
           long-standing inefficiencies in academic workflows: findings are
-          scattered across papers, evidence is split across disciplinary silos,
+          scattered across source reports, evidence is split across disciplinary silos,
           and reviews require substantial expert labor, become static snapshots
           once published, and are difficult to query or reuse. As a result, human
           researchers struggle to see relationships, trends, gaps, and the overall
@@ -96,17 +96,18 @@
           Agentic tools make it possible to build a new type of living evidence
           system, where literature discovery, screening, evidence extraction,
           visualization, and updating are part of a continuous workflow.
-          Findings can be converted into structured, provenance-rich records
-          that remain linked to their source papers and evidence locators, so
+          Findings can be converted into structured, provenance-rich evidence
+          that remains linked to source reports and evidence locators, so
           the evidence base can be searched, corrected, reused, and extended as
           the literature changes.
         </p>
         <p>
           The Psychedelics Knowledge Graph applies this model to psychedelic
           research, where a fast-growing literature spans clinical, biological,
-          brain, behavioral, and translational work that is often read separately. Screened papers
-          are converted into structured evidence records that power an
-          interactive graph and dashboard. Human researchers can move from
+          brain, behavioral, and translational work that is often read
+          separately. Selected reports are converted into structured findings
+          that power an interactive graph and dashboard. Human researchers can
+          move from
           field-level patterns and gaps to source studies visually, while agents
           and analytic tools can query the same provenance-rich evidence
           directly.
@@ -119,9 +120,9 @@
           The workflow is designed to keep literature discovery broad while
           making graph inclusion conservative. Searches cast a wide net across
           clinical, biological, brain, behavioral, subjective, treatment-context,
-          and real-world evidence. Each paper is then interpreted according to
+          and real-world evidence. Each report is then interpreted according to
           what it actually contains and how much source text is available, so
-          the graph shows findings that can be traced back to specific papers.
+          the graph shows findings that can be traced back to specific reports.
           Automated screening and structured extraction help process the
           literature at scale, while source links, evidence locations, and
           validation rules keep the results auditable.
@@ -153,12 +154,12 @@
               </span>
             </div>
             <div>
-              <h3>Find Papers</h3>
+              <h3>Find Records</h3>
               <p>
                 PubMed and OpenAlex searches combine broad domain queries,
                 focused compound-topic queries, and supplementary direct-pair
                 checks. Results are matched by DOI and merged into a single
-                paper library. Metadata enrichment uses different sources
+                record corpus. Metadata enrichment uses different sources
                 for different needs: PubMed, PMC, OpenAlex, Crossref, and
                 Semantic Scholar for bibliographic records and abstracts;
                 PubMed for publication-type labels; and Unpaywall, OpenAlex,
@@ -173,12 +174,12 @@
               </span>
             </div>
             <div>
-              <h3>Screen and Classify Papers</h3>
+              <h3>Screen Records and Classify Reports</h3>
               <p>
-                Papers first pass an initial rules-based screen. Title and
+                Records first pass an initial rules-based screen. Title and
                 abstract screening then assesses relevance, identifies the
                 evidence topics substantially discussed, and classifies the
-                paper type. Primary studies, meta-analyses, other reviews, and
+                report type. Primary studies, meta-analyses, other reviews, and
                 non-primary context remain separate throughout the later
                 workflow.
               </p>
@@ -215,7 +216,7 @@
               <h3>Validate and Publish</h3>
               <p>
                 Before publication, extracted information is checked against
-                the source paper. Relationships that are unclear, unsupported,
+                the source report. Relationships that are unclear, unsupported,
                 or cannot be represented accurately are left out of the graph.
               </p>
             </div>
@@ -229,9 +230,10 @@
             <div>
               <h3>Maintain the Living Graph</h3>
               <p>
-                The graph is designed to evolve as the literature grows. New
-                papers, corrected metadata, improved evidence extraction, and
-                community feedback can all update the evidence base. Candidate
+                The graph is designed to evolve as the literature grows. Newly
+                discovered records, selected reports, corrected metadata,
+                improved evidence extraction, and community feedback can all
+                update the evidence base. Candidate
                 releases are built and checked before publication. The active
                 graph, bibliography, Methods counts, and public site are then
                 updated together as one reviewed release.
@@ -259,7 +261,7 @@
           terms. Terms inside each block are joined with OR; the blocks are
           joined with AND. Broad modules cover domain families, while focused
           modules target well-studied compound-topic combinations so that
-          important papers are not captured only through broad queries.
+          important reports are not captured only through broad queries.
         </p>
         <div class="method-query-details-grid">
           <details class="method-query-details">
@@ -505,18 +507,24 @@
       <section class="about-section methods-analytics methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
         <div class="methods-section-header">
           <div>
-            <h2 id="paper-bibliography-heading">Paper Selection And Audit Trail</h2>
+            <h2 id="paper-bibliography-heading">Record Selection And Audit Trail</h2>
             <p>
-              Evidence synthesis needs a visible record of every paper found by
-              the search and what happened next. The
+              Evidence synthesis needs a visible audit trail for every search
+              result and what happened next. The
               <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
-              diagram gives the high-level summary of the current paper library:
-              how many records were found, screened, selected for evidence
-              extraction, and represented in the knowledge graph. The table below
-              uses the same record set, but goes further than a typical review
-              diagram by making every paper searchable and auditable, including
-              the stage it reached and the reason it was not included when it
-              left the process.
+              diagram gives the high-level summary of the current search corpus:
+              how many records were found, screened, and kept, followed by how
+              many reports were selected for evidence extraction and represented
+              in the knowledge graph. The table below uses the same underlying
+              set, but goes further than a typical review diagram by making every
+              record searchable and auditable, including the stage it reached and
+              the reason it was not included when it left the process.
+            </p>
+            <p>
+              Here, a <strong>record</strong> is a search or index entry, a
+              <strong>report</strong> is the source document, and a
+              <strong>study</strong> is the underlying investigation. One study
+              can have several reports.
             </p>
           </div>
         </div>
@@ -525,12 +533,12 @@
           <div>
             <h3 id="evidence-base-snapshot">PRISMA Flow Diagram</h3>
             <p>
-              A high-level summary of how papers move through the search,
-              screening, evidence extraction, and knowledge-graph inclusion
-              process.
+              A high-level summary of how records move through search and
+              screening, then how reports proceed to evidence extraction and
+              knowledge-graph inclusion.
             </p>
           </div>
-          <div id="methodsPipeline" class="methods-loading">Loading paper flow.</div>
+          <div id="methodsPipeline" class="methods-loading">Loading selection flow.</div>
         </div>
 
         <div class="methods-audit-subsection" aria-labelledby="record-audit-heading">
@@ -584,7 +592,7 @@
       <section class="about-section" aria-labelledby="limitations">
         <h2 id="limitations">Limitations</h2>
         <p>
-          The graph may not include every relevant paper, and automated
+          The graph may not include every relevant report, and automated
           screening and extraction can miss or misinterpret information,
           especially when only an abstract is available because the full
           article cannot be accessed. We add new research and correct errors as
@@ -612,6 +620,6 @@
         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">source repository</a>.
       </div>
     </footer>
-    <script src="methods.js?v=20260714-public-language"></script>
+    <script src="methods.js?v=20260714-doi-links"></script>
   </body>
 </html>

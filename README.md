@@ -14,28 +14,30 @@ and keep up to date.
 
 Psychedelic research spans clinical outcomes, molecular mechanisms, brain and
 behavioral effects, subjective experience, safety, and real-world use. The
-evidence is growing quickly but remains scattered across papers and research
-domains.
+evidence is growing quickly but remains scattered across source reports and
+research domains.
 
 The Psychedelics Knowledge Graph organizes that literature into structured
-findings linked to their source papers. Its public interface helps researchers
+findings linked to their source reports. Its public interface helps researchers
 move between broad patterns, individual findings, and the underlying studies.
 
-The repository also contains the tools used to find, screen, process, and add
-new papers. It records which papers were included, how they were screened, and
-where each finding came from. Primary studies, meta-analyses, and reviews are
-kept separate, and null, mixed, uncertain, and positive findings are retained
-rather than collapsed into a single conclusion.
+The repository also contains the tools used to discover and screen records,
+process selected reports, and add new evidence. It records which reports were
+included, how their records were screened, and where each finding came from.
+Primary studies, meta-analyses, and reviews are kept separate, and null, mixed,
+uncertain, and positive findings are retained rather than collapsed into a
+single conclusion.
 
 ## What this repository contains
 
 This repository includes the full workflow behind the public graph:
 
-1. Find and deduplicate papers while recording how they were discovered.
-2. Enrich, screen, and route papers by evidence domain and publication type.
-3. Retrieve and convert available full text.
+1. Find and deduplicate records while preserving how they were discovered.
+2. Enrich and screen records, then route selected reports by evidence domain
+   and report type.
+3. Retrieve and convert available report text.
 4. Extract structured findings and link them back to the source text.
-5. Validate and normalize papers, entities, findings, and relationships.
+5. Validate and normalize source metadata, entities, findings, and relationships.
 6. Build the public graph, finding details, bibliography, and Methods views.
 
 The main data is stored in normalized tables. The browser graph presents a
@@ -55,8 +57,8 @@ readable view of that data rather than trying to display everything at once.
 - `tests/` — pipeline and interface regression tests
 
 For operational commands and the current end-to-end workflow, see the
-[pipeline guide](pipeline/README.md). For a targeted correction to one paper or
-a DOI list, use the [scoped paper-update workflow](docs/scoped_paper_updates.md).
+[pipeline guide](pipeline/README.md). For a targeted correction to one report or
+a DOI list, use the [scoped update workflow](docs/scoped_paper_updates.md).
 
 ## Local site preview
 
@@ -81,7 +83,7 @@ Then open <http://127.0.0.1:8011>.
 ## Licensing and citation
 
 The software is released under the [Apache License 2.0](LICENSE). Project-created
-public data is released under [CC0 1.0](DATA_LICENSE.md); third-party papers,
+public data is released under [CC0 1.0](DATA_LICENSE.md); third-party reports,
 abstracts, figures, tables, and provider data retain their original rights and
 terms.
 

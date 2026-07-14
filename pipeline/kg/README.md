@@ -1,41 +1,44 @@
 # Methods Flow Projection
 
 This stage builds the generated files used by the UI methods section, including
-the PRISMA-style paper flow. It does not replace the main-page graph payloads or
-the evidence files. It projects the current corpus manifest, paper libraries,
-abstract-screening reports, full-text conversion status, and the normalized KG
-evidence table into a paper-flow view.
+the PRISMA-style record and report flow. It does not replace the main-page graph
+payloads or the evidence files. It projects one canonical DOI-level corpus
+ledger, `data/processed/corpus/candidate_papers.parquet`, into the selection-flow
+and bibliography views. That ledger must already contain every screening,
+extraction-routing, graph-inclusion, final disposition, and release-provenance
+decision. Missing or contradictory decisions stop the build.
 
 The route-native main-page graph payload is generated separately by
 `pipeline/publish/export_evidence_payload.py`. The active main-page payload uses
 the normalized KG evidence tables by default.
 
-For a correction affecting only selected papers, use
+For a correction affecting only selected reports, use
 [`docs/scoped_paper_updates.md`](../../docs/scoped_paper_updates.md). That
 workflow removes every old raw/evidence row for the DOI scope, requires complete
 current replacements, and rebuilds this KG layer without rerunning model
-extraction for unaffected papers.
+extraction for unaffected reports.
 
 Run:
 
 ```bash
-python pipeline/kg/build_methods_flow.py --refresh-kg-tables
+python pipeline/kg/build_methods_flow.py \
+  --candidate-table data/processed/corpus/candidate_papers.parquet \
+  --out-dir data/kg
 ```
 
 Default outputs are written under `data/kg/`:
 
-- `views/pipeline_status_graph.json`: UI-oriented PRISMA paper-flow payload.
+- `views/pipeline_status_graph.json`: UI-oriented PRISMA record-and-report flow
+  payload.
 - `schema/methods_flow.schema.json`: minimal methods-flow payload contract.
 - `manifests/build_manifest.json`: counts, input files, and validation notes.
 
-The methods-flow payload is generated from pipeline artifacts. Human curation
-should continue to happen in `data/curated/*` or upstream review files.
-
-The final PRISMA inclusion count is derived from the normalized KG evidence table.
-The flow also reads the active extraction output named by
-`data/processed/extraction/projection_report.json`, so full-text and abstract
-branches can show Gemini-excluded, human-review, no-promoted-KG, and
-not-yet-extracted counts separately.
+The methods-flow payload and full bibliography are generated solely from the
+canonical corpus ledger. Human curation happens upstream in `data/curated/*` or
+screening records, and promotion materializes those resolved decisions into the
+ledger before this projection runs. The Methods builder never fills gaps from
+active graph payloads, normalization audits, extraction pointers, or manual
+disposition files.
 
 ## Normalized evidence tables
 
@@ -54,7 +57,7 @@ The converter preserves result-level estimates, intervals, p values, evidence
 counts, heterogeneity, analysis context, network details, risk-of-bias and
 certainty summaries, and source provenance. It holds results that lack a stable
 subject or entity, bundle multiple estimates, or claim a network result without
-network structure. Paper-level population or comparator context is used only
+network structure. Report-level population or comparator context is used only
 when exactly one value is available, and the provenance of that fallback is
 recorded. The KG builder also preserves the analysis role, exact endpoint,
 population, comparator, follow-up window, included-study count, subgroup or
@@ -95,7 +98,7 @@ python pipeline/kg/build_evidence_tables.py \
 
 Each KG output directory contains:
 
-- `papers.parquet`: one row per source paper represented in normalized evidence.
+- `papers.parquet`: one row per source report represented in normalized evidence.
 - `entities.parquet`: compounds plus normalized graph entities.
 - `findings.parquet`: one rich normalized finding row per routed evidence record.
 - `evidence_edges.parquet`: graph-oriented compound-to-entity evidence edges.
@@ -109,7 +112,7 @@ The routed table layer preserves the complete extracted graph subject before
 normalization. `graph_subject_kind` distinguishes an `atomic_compound` from a
 `compound_class`, `compound_combination`, `exposure_context`, or
 `treatment_regimen`. The exact text remains in `graph_subject_label` and is
-shown in paper detail. It is not automatically made into a graph node.
+shown in report detail. It is not automatically made into a graph node.
 
 The overview graph uses a deliberately smaller projection:
 
@@ -148,7 +151,7 @@ The overview graph uses a deliberately smaller projection:
   `graph_use_context_projections_json`. These preserve the finding once while
   adding explicit `substance -> use context` relationships such as
   `Ketamine -> Chemsex`; they are generated only from finding-level context and
-  exposure text, never from paper titles or keywords. The substance must also
+  exposure text, never from report titles or keywords. The substance must also
   pass the normal psychedelic-graph compound scope check, so contextual mentions
   of cocaine, methamphetamine, mephedrone, GHB, or GBL remain in finding detail
   rather than becoming compound nodes;
@@ -158,21 +161,21 @@ The overview graph uses a deliberately smaller projection:
   `context -> outcome/topic` projection remains separate;
 - the unresolved psychedelic fallback is searchable but not admitted to the
   overview graph, where it would form a high-degree catch-all hub;
-- free-text subjects without a controlled projection remain paper-detail only.
+- free-text subjects without a controlled projection remain report-detail only.
 
 For open-ended right-side concepts, pathway/readout and intervention labels are
 projected to their controlled parent family. Every overview node, on either side
 of the graph, must be supported by at least two distinct studies. Multiple
-findings from one paper count once. Findings attached only to single-study nodes
+findings from one report count once. Findings attached only to single-study nodes
 remain in the detail bootstrap and search results; only their visual projection
 is suppressed. This keeps the exact assay, marker, intervention, dose, and
 subgroup information accessible without turning every extracted phrase into a
-one-paper node.
+one-report node.
 
 `graph_admission_status` separates information storage from visible graph
 admission. Rows marked `paper_detail` remain in `findings.parquet` but are
 excluded from the UI graph bootstrap. Current deterministic holds include
-primary-paper claims supported only by a background/introduction location,
+primary-report findings supported only by a background/introduction location,
 extraction rows explicitly marked for human review, and structurally identical
 propositions with conflicting normalized directions.
 
@@ -194,7 +197,7 @@ python pipeline/kg/build_evidence_tables.py \
 Compare the versioned result with its baseline using
 `pipeline/validate/evaluate_deterministic_projection.py`. Its recovery counts
 measure downstream representation only and must not be reported as extraction
-recall or paper-level centrality.
+recall or report-level centrality.
 
 The legacy current KG under `data/processed/kg/` may still contain
 `claims.parquet` while the old pipeline is retained for comparison. New routed
@@ -213,7 +216,7 @@ python pipeline/kg/build_author_tables.py \
 This writes:
 
 - `authors.parquet`: one row per resolved author identity.
-- `paper_authors.parquet`: ordered paper-author rows with first/last flags.
+- `paper_authors.parquet`: ordered source-report author rows with first/last flags.
 - `author_resolution_report.json`: OpenAlex vs fallback resolution counts.
 - `openalex_author_cache.json`: cached OpenAlex authorship lookups for rebuilds.
 
@@ -292,7 +295,7 @@ migraine, remain eligible for the condition view. Endpoint-only symptom rows
 still route to symptom/problem labels rather than condition nodes.
 
 For new search runs, rebuild the corpus tables, routing tables, routed
-extraction outputs, and normalized KG tables before rerunning
-`python pipeline/kg/build_methods_flow.py --refresh-kg-tables`. The methods
-PRISMA flow should be regenerated from pipeline artifacts rather than edited in
-UI data by hand.
+extraction outputs, and normalized KG tables, then promote the routed release.
+Promotion first validates and updates the canonical corpus ledger, and only
+then regenerates the Methods PRISMA flow and bibliography. Do not edit the UI
+data by hand.

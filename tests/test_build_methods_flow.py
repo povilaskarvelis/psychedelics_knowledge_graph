@@ -19,10 +19,43 @@ from pipeline.kg.build_methods_flow import (
     prisma_flow_for_dataset,
     prisma_retrieval_reason,
     public_candidate_pipeline_counts,
-    routed_kg_graph_status_by_doi,
     slug,
     strongest_pdf_status,
 )
+
+
+def graph_fields(disposition: str) -> dict:
+    provenance = {
+        "graph_inclusion_run_id": "test_run",
+        "graph_inclusion_release_id": "test_run:release",
+        "graph_inclusion_updated_at_utc": "2026-07-14T00:00:00+00:00",
+    }
+    if disposition == "represented":
+        return {
+            "graph_inclusion_status": "represented",
+            "graph_inclusion_disposition": "represented",
+            "graph_inclusion_reason": "Represented in graph.",
+            "graph_inclusion_next_action": "No action needed.",
+            "graph_inclusion_decision_source": "test",
+            **provenance,
+        }
+    if disposition == "not_reached":
+        return {
+            "graph_inclusion_status": "not_reached",
+            "graph_inclusion_disposition": "not_reached",
+            "graph_inclusion_reason": "Not selected for extraction.",
+            "graph_inclusion_next_action": "No graph action required.",
+            "graph_inclusion_decision_source": "test",
+            **provenance,
+        }
+    return {
+        "graph_inclusion_status": "not_represented",
+        "graph_inclusion_disposition": disposition,
+        "graph_inclusion_reason": f"Final reason for {disposition}.",
+        "graph_inclusion_next_action": "Retain the decision.",
+        "graph_inclusion_decision_source": "test",
+        **provenance,
+    }
 
 
 class MethodsFlowBuilderHelpersTest(unittest.TestCase):
@@ -34,6 +67,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 "literature_source_family": "primary",
                 "literature_source_type": "primary",
                 "retained_for_extraction_candidate": True,
+                **graph_fields("represented"),
             },
             {
                 "doi": "10.1000/unmapped",
@@ -41,6 +75,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 "literature_source_family": "primary",
                 "literature_source_type": "primary",
                 "retained_for_extraction_candidate": True,
+                **graph_fields("unsupported_finding_detail"),
             },
             {
                 "doi": "10.1000/guideline",
@@ -48,27 +83,21 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 "literature_source_family": "secondary_literature",
                 "literature_source_type": "guideline",
                 "retained_for_extraction_candidate": True,
+                **graph_fields("no_extractable_finding"),
             },
         ]
-        payload = graph_inclusion_disposition_payload(
-            rows,
-            kg_status_by_doi={
-                "10.1000/included": {"status": "pass", "label": "In graph", "note": ""},
-                "10.1000/unmapped": {
-                    "status": "fail",
-                    "label": "Not normalized",
-                    "note": "Entity was not normalized",
-                },
-            },
-        )
+        payload = graph_inclusion_disposition_payload(rows)
 
         self.assertEqual(payload["counts"]["selected_papers"], 3)
+        self.assertEqual(payload["unit"], "selected reports")
         self.assertEqual(payload["counts"]["represented_papers"], 1)
         self.assertEqual(payload["counts"]["not_represented_papers"], 2)
+        self.assertTrue(payload["counts"]["final_reasons_complete"])
+        self.assertEqual(payload["counts"]["transitional_reason_papers"], 0)
         self.assertEqual(len(payload["rows"]), 2)
         by_doi = {row["doi"]: row for row in payload["rows"]}
-        self.assertEqual(by_doi["10.1000/unmapped"]["disposition"], "normalization_needed")
-        self.assertEqual(by_doi["10.1000/guideline"]["disposition"], "extraction_needed")
+        self.assertEqual(by_doi["10.1000/unmapped"]["disposition"], "unsupported_finding_detail")
+        self.assertEqual(by_doi["10.1000/guideline"]["disposition"], "no_extractable_finding")
 
     def test_normalize_doi_removes_common_prefixes(self) -> None:
         self.assertEqual(normalize_doi("https://doi.org/10.1000/ABC"), "10.1000/abc")
@@ -147,32 +176,12 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(props["relevance_suggested"], "likely_relevant")
         self.assertEqual(props["screening_status"], "included_context_match")
 
-    def test_pipeline_status_uses_dataset_row_abstract_for_unscreened_records(self) -> None:
-        builder = MethodsFlowBuilder()
-        paper_id = "paper:10.123/example"
-        builder.nodes[paper_id] = {
-            "id": paper_id,
-            "type": "Paper",
-            "label": "Cross-dataset paper",
-            "properties": {
-                "study_doi": "10.123/example",
-                "abstract_present": True,
-                "pdf_status": "skipped",
-                "fulltext_status": "not_converted",
-            },
-        }
-        builder.pipeline_rows["disorder"][paper_id] = {
-            "paper_id": paper_id,
-            "dataset": "disorder",
-            "abstract_present": False,
-            "pdf_status": "skipped",
-            "fulltext_status": "not_converted",
-            "llm_extraction_status": "not_started",
-        }
-
-        flow = builder.pipeline_status_view()["prisma_flow"]["disorder"]
-
-        self.assertEqual(flow["side_boxes"]["removed_before_screening"]["reasons"][0]["key"], "not_screened_no_abstract")
+    def test_methods_builder_has_no_legacy_input_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            missing = Path(tmpdir) / "missing_candidate_papers.parquet"
+            builder = MethodsFlowBuilder(candidate_table=missing)
+            with self.assertRaises(FileNotFoundError):
+                builder.build()
 
     def test_labeled_reason_counts_keeps_all_nonzero_reasons(self) -> None:
         reasons = labeled_reason_counts(
@@ -282,6 +291,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "retained_for_extraction_candidate": True,
                     "extraction_route_status": "ready_for_article_text_extraction",
                     "retained_extraction_route_count": 3,
+                    **graph_fields("represented"),
                 },
                 {
                     "doi": "10.1000/not-graphable",
@@ -291,6 +301,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "retained_for_extraction_candidate": True,
                     "extraction_route_status": "ready_for_abstract_extraction",
                     "retained_extraction_route_count": 1,
+                    **graph_fields("no_extractable_finding"),
                 },
                 {
                     "doi": "10.1000/screened-out",
@@ -299,6 +310,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "prescreen_retained_for_extraction_candidate": True,
                     "retained_for_extraction_candidate": False,
                     "extraction_route_status": "excluded_after_domain_screen",
+                    **graph_fields("not_reached"),
                 },
                 {
                     "doi": "10.1000/no-abstract",
@@ -307,26 +319,36 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "prescreen_retained_for_extraction_candidate": False,
                     "retained_for_extraction_candidate": False,
                     "extraction_route_status": "not_retained_for_extraction",
+                    **graph_fields("not_reached"),
                 },
-            ],
-            kg_status_by_doi={
-                "10.1000/in-graph": {"status": "pass", "label": "In graph", "note": ""},
-                "10.1000/not-graphable": {
-                    "status": "fail",
-                    "label": "Not graphable",
-                    "note": "Compound outside graph scope: Mephedrone",
-                },
-            },
+            ]
         )
 
         self.assertEqual(flow["dataset"], "overall")
+        self.assertEqual(flow["label"], "Search and graph-inclusion flow")
+        self.assertEqual(flow["unit"], "records and reports")
         self.assertEqual(flow["current_stage"], "kg_inclusion_summary")
+        self.assertEqual(flow["steps"]["records_identified"]["label"], "Records found by the search")
+        self.assertEqual(flow["steps"]["records_screened"]["label"], "Records screened for relevance")
+        self.assertEqual(flow["steps"]["prescreen_retained"]["label"], "Records kept after initial screening")
+        self.assertEqual(
+            flow["steps"]["evidence_extraction_selected"]["label"],
+            "Reports selected for evidence extraction",
+        )
+        self.assertEqual(
+            flow["steps"]["kg_included"]["label"],
+            "Reports represented in the knowledge graph",
+        )
         self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
         self.assertEqual(flow["steps"]["prescreen_retained"]["count"], 3)
         self.assertEqual(flow["steps"]["evidence_extraction_selected"]["count"], 2)
         self.assertEqual(flow["steps"]["kg_included"]["count"], 1)
         self.assertEqual(flow["side_boxes"]["records_excluded"]["reasons"][0]["key"], "exclude_missing_abstract")
         self.assertEqual(flow["side_boxes"]["route_not_selected"]["count"], 1)
+        self.assertEqual(
+            flow["side_boxes"]["route_not_selected"]["label"],
+            "Records not selected for evidence extraction",
+        )
         self.assertEqual(
             flow["side_boxes"]["route_not_selected"]["reasons"][0]["key"],
             "excluded_during_llm_screening",
@@ -336,7 +358,14 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
             "Excluded during title and abstract screening",
         )
         self.assertEqual(flow["side_boxes"]["kg_not_included"]["count"], 1)
-        self.assertEqual(flow["side_boxes"]["kg_not_included"]["reasons"][0]["key"], "not_graphable")
+        self.assertEqual(
+            flow["side_boxes"]["kg_not_included"]["label"],
+            "Selected reports not represented in graph",
+        )
+        self.assertEqual(
+            flow["side_boxes"]["kg_not_included"]["reasons"][0]["key"],
+            "no_extractable_finding",
+        )
         self.assertEqual(flow["rows"][-2]["side_box"], "kg_not_included")
         self.assertEqual(flow["rows"][-1]["step"], "kg_included")
         self.assertEqual(
@@ -371,6 +400,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "best_extraction_access_tier": "full_text_available",
                     "retained_extraction_route_count": 2,
                     "extraction_schema_profiles": "primary_evidence_schema",
+                    **graph_fields("no_extractable_finding"),
                 },
                 {
                     "doi": "10.1000/excluded",
@@ -383,15 +413,9 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "prescreen_retained_for_extraction_candidate": False,
                     "retained_for_extraction_candidate": False,
                     "extraction_route_status": "not_retained_for_extraction",
+                    **graph_fields("not_reached"),
                 },
-            ],
-            kg_status_by_doi={
-                "10.1000/selected": {
-                    "status": "fail",
-                    "label": "Not graphable",
-                    "note": "Compound outside graph scope: Mephedrone",
-                },
-            },
+            ]
         )
 
         interned = set(payload["interned_columns"])
@@ -413,9 +437,9 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
             "publication_stage",
         }
         self.assertTrue(forbidden_public_columns.isdisjoint(payload["columns"]))
-        self.assertEqual(payload["unit"], "papers")
+        self.assertEqual(payload["unit"], "records")
         self.assertIn("papers", payload["counts"])
-        self.assertEqual(payload["counts"]["by_kg_status"]["Not graphable"], 1)
+        self.assertEqual(payload["counts"]["by_kg_status"]["No specific finding to represent"], 1)
         self.assertEqual(payload["counts"]["by_kg_status"]["Not reached"], 1)
         self.assertNotIn("candidate_papers", payload["counts"])
         self.assertNotIn("mechanistic", payload["string_table"])
@@ -429,8 +453,8 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(selected["extraction_status"], "pass")
         self.assertEqual(selected["extraction_label"], "Selected")
         self.assertEqual(selected["kg_status"], "fail")
-        self.assertEqual(selected["kg_label"], "Not graphable")
-        self.assertEqual(selected["kg_note"], "Compound outside graph scope: Mephedrone")
+        self.assertEqual(selected["kg_label"], "No specific finding to represent")
+        self.assertIn("no_extractable_finding", selected["kg_note"])
         self.assertEqual(selected["stage_key"], "selected_for_extraction")
         self.assertTrue(selected["selected_for_extraction"])
 
@@ -455,6 +479,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 "prescreen_retained_for_extraction_candidate": True,
                 "retained_for_extraction_candidate": True,
                 "extraction_route_status": "ready_for_article_text_extraction",
+                **graph_fields("represented"),
             },
             {
                 "doi": "10.1000/not-graphable",
@@ -464,6 +489,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 "prescreen_retained_for_extraction_candidate": True,
                 "retained_for_extraction_candidate": True,
                 "extraction_route_status": "ready_for_article_text_extraction",
+                **graph_fields("no_extractable_finding"),
             },
             {
                 "doi": "10.1000/not-normalized",
@@ -473,6 +499,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 "prescreen_retained_for_extraction_candidate": True,
                 "retained_for_extraction_candidate": True,
                 "extraction_route_status": "ready_for_article_text_extraction",
+                **graph_fields("unsupported_finding_detail"),
             },
             {
                 "doi": "10.1000/no-finding",
@@ -482,159 +509,61 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 "prescreen_retained_for_extraction_candidate": True,
                 "retained_for_extraction_candidate": True,
                 "extraction_route_status": "ready_for_article_text_extraction",
+                **graph_fields("insufficient_source_text"),
             },
         ]
-        kg_status_by_doi = {
-            "10.1000/in-graph": {"status": "pass", "label": "In graph", "note": ""},
-            "10.1000/not-graphable": {"status": "fail", "label": "Not graphable", "note": "Out of scope"},
-            "10.1000/not-normalized": {"status": "fail", "label": "Not normalized", "note": "Unmapped entity"},
-        }
 
-        flow = prisma_flow_for_candidate_papers(rows, kg_status_by_doi=kg_status_by_doi)
-        bibliography = candidate_bibliography_payload(rows, kg_status_by_doi=kg_status_by_doi)
+        flow = prisma_flow_for_candidate_papers(rows)
+        bibliography = candidate_bibliography_payload(rows)
 
         self.assertEqual(flow["steps"]["kg_included"]["count"], bibliography["counts"]["by_kg_status"]["In graph"])
         flow_not_in_graph = {
             reason["label"]: reason["count"]
             for reason in flow["side_boxes"]["kg_not_included"]["reasons"]
         }
-        for label in ("Not graphable", "Not normalized", "No graph finding"):
+        for label in (
+            "No specific finding to represent",
+            "Finding too broad or ambiguous",
+            "Available text is too limited",
+        ):
             self.assertEqual(flow_not_in_graph[label], bibliography["counts"]["by_kg_status"][label])
 
-    def test_routed_kg_graph_status_marks_out_of_scope_compounds(self) -> None:
+    def test_methods_builder_reads_only_the_canonical_candidate_table(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
-            kg_dir = root / "data" / "processed" / "kg_routed_runs" / "test_run"
-            kg_dir.mkdir(parents=True)
-            active_pointer = root / "data" / "processed" / "graph_payload_active.json"
-            active_pointer.write_text(
-                json.dumps({"kg_dir": "data/processed/kg_routed_runs/test_run"}),
-                encoding="utf-8",
-            )
-            pd.DataFrame(
-                [
-                    {"study_doi": "10.1000/in-graph"},
-                ]
-            ).to_parquet(kg_dir / "findings.parquet", index=False)
-            pd.DataFrame(
-                [
-                    {
-                        "study_doi": "10.1000/not-graphable",
-                        "normalization_status": "compound_graph_scope_not_graphable",
-                        "canonical_compound": "Mephedrone",
-                        "compound": "Mephedrone",
-                        "compound_original": "mephedrone",
-                    },
-                    {
-                        "study_doi": "10.1000/unmapped",
-                        "normalization_status": "entity_unmapped",
-                        "canonical_compound": "Psilocybin",
-                        "compound": "Psilocybin",
-                        "compound_original": "psilocybin",
-                    },
-                ]
-            ).to_parquet(kg_dir / "normalization_audit.parquet", index=False)
-
-            lookup, input_files, warnings = routed_kg_graph_status_by_doi(root)
-
-        self.assertFalse(warnings)
-        self.assertTrue(input_files)
-        self.assertEqual(lookup["10.1000/in-graph"]["label"], "In graph")
-        self.assertEqual(lookup["10.1000/not-graphable"]["label"], "Not graphable")
-        self.assertEqual(
-            lookup["10.1000/not-graphable"]["note"],
-            "Compound outside graph scope: Mephedrone",
-        )
-        self.assertEqual(lookup["10.1000/unmapped"]["label"], "Not normalized")
-
-    def test_routed_kg_graph_status_combines_mixed_active_graph_runs(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            run_a = root / "data" / "processed" / "kg_routed_runs" / "run_a"
-            run_b = root / "data" / "processed" / "kg_routed_runs" / "run_b"
-            payload_a = root / "data" / "processed" / "graph_payload_runs" / "run_a"
-            payload_b = root / "data" / "processed" / "graph_payload_runs" / "run_b"
-            for path in (run_a, run_b, payload_a, payload_b):
-                path.mkdir(parents=True)
-
-            pd.DataFrame([{"study_doi": "10.1000/from-a"}]).to_parquet(
-                run_a / "findings.parquet", index=False
-            )
-            pd.DataFrame(
-                [
-                    {"study_doi": "10.1000/from-b"},
-                    {"study_doi": "10.1000/not-published"},
-                ]
-            ).to_parquet(
-                run_b / "findings.parquet", index=False
-            )
-            audit_columns = [
-                "study_doi",
-                "normalization_status",
-                "canonical_compound",
-                "compound",
-                "compound_original",
-            ]
-            pd.DataFrame([], columns=audit_columns).to_parquet(
-                run_a / "normalization_audit.parquet", index=False
-            )
-            pd.DataFrame(
-                [
-                    {
-                        "study_doi": "10.1000/not-normalized",
-                        "normalization_status": "entity_unmapped",
-                        "canonical_compound": "Psilocybin",
-                        "compound": "Psilocybin",
-                        "compound_original": "psilocybin",
-                    }
-                ],
-                columns=audit_columns,
-            ).to_parquet(run_b / "normalization_audit.parquet", index=False)
-
-            (payload_a / "graph_payload_manifest.json").write_text(
-                json.dumps({"kg_dir": "data/processed/kg_routed_runs/run_a"}),
-                encoding="utf-8",
-            )
-            (payload_b / "graph_payload_manifest.json").write_text(
-                json.dumps({"kg_dir": "data/processed/kg_routed_runs/run_b"}),
-                encoding="utf-8",
-            )
-            detail_payload = lambda doi: {
-                "fields": ["study_doi"],
-                "values": [None, doi],
-                "rows": [[1]],
+            table = root / "candidate_papers.parquet"
+            row = {
+                "doi": "10.1000/in-graph",
+                "prescreen_actions": "retain_for_extraction_candidate",
+                "prescreen_retained_for_extraction_candidate": True,
+                "retained_for_extraction_candidate": True,
+                "extraction_route_status": "ready_for_article_text_extraction",
+                **graph_fields("represented"),
             }
-            (payload_a / "detail_bootstrap_primary.json").write_text(
-                json.dumps(detail_payload("10.1000/from-a")),
-                encoding="utf-8",
-            )
-            (payload_b / "detail_bootstrap_reviews.json").write_text(
-                json.dumps(detail_payload("10.1000/from-b")),
-                encoding="utf-8",
-            )
-            active_pointer = root / "data" / "processed" / "graph_payload_active.json"
-            active_pointer.write_text(
-                json.dumps(
+            pd.DataFrame([row]).to_parquet(table, index=False)
+
+            builder = MethodsFlowBuilder(root, candidate_table=table)
+            payloads = builder.build()
+
+        self.assertEqual(payloads["pipeline_status"]["counts"]["papers_found_by_search"], 1)
+        self.assertEqual([Path(path).resolve() for path in builder.input_files], [table.resolve()])
+
+    def test_methods_builder_rejects_missing_final_graph_decision(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            table = Path(tmpdir) / "candidate_papers.parquet"
+            pd.DataFrame(
+                [
                     {
-                        "kg_dir": "data/processed/kg_routed_runs/run_a",
-                        "active_detail_bootstraps": {
-                            "primary": "data/processed/graph_payload_runs/run_a/detail_bootstrap_primary.json",
-                            "reviews": "data/processed/graph_payload_runs/run_b/detail_bootstrap_reviews.json",
-                        },
+                        "doi": "10.1000/missing",
+                        "prescreen_retained_for_extraction_candidate": True,
+                        "retained_for_extraction_candidate": True,
+                        "extraction_route_status": "ready_for_article_text_extraction",
                     }
-                ),
-                encoding="utf-8",
-            )
-
-            lookup, input_files, warnings = routed_kg_graph_status_by_doi(root)
-
-        self.assertFalse(warnings)
-        self.assertEqual(lookup["10.1000/from-a"]["label"], "In graph")
-        self.assertEqual(lookup["10.1000/from-b"]["label"], "In graph")
-        self.assertNotIn("10.1000/not-published", lookup)
-        self.assertEqual(lookup["10.1000/not-normalized"]["label"], "Not normalized")
-        self.assertTrue(any("run_a/detail_bootstrap_primary.json" in path for path in input_files))
-        self.assertTrue(any("run_b/detail_bootstrap_reviews.json" in path for path in input_files))
+                ]
+            ).to_parquet(table, index=False)
+            builder = MethodsFlowBuilder(candidate_table=table)
+            with self.assertRaisesRegex(ValueError, "missing required decision columns"):
+                builder.build()
 
     def test_kg_claim_table_marks_pipeline_rows_as_claim_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

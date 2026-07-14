@@ -25,13 +25,6 @@ const stats = {
   metaAnalyses: document.querySelector('[data-stat="meta-analyses"]'),
   totalPapers: document.querySelector('[data-stat="total-papers"]'),
 };
-const statDetails = {
-  primaryStudies: document.querySelector('[data-stat-detail="primary-studies"]'),
-  reviews: document.querySelector('[data-stat-detail="reviews"]'),
-  metaAnalyses: document.querySelector('[data-stat-detail="meta-analyses"]'),
-  totalPapers: document.querySelector('[data-stat-detail="total-papers"]'),
-};
-
 const HERO_STAT_KEYS = ["primaryStudies", "reviews", "metaAnalyses", "totalPapers"];
 const evidenceRank = { low: 1, medium: 2, high: 3 };
 const MAIN_FINDING_MAX_CHARS = 260;
@@ -82,7 +75,7 @@ const PALETTE_ROSE_FIRST = CATEGORY_COLORS;
 const PALETTE_SAGE_FIRST = CATEGORY_COLORS;
 const PALETTE_GOLD_FIRST = CATEGORY_COLORS;
 const OTHER_CATEGORY_COLOR = "#8f9ba8";
-const PUBLICATION_YEAR_COLOR = "#3fa393";
+const PUBLICATION_YEAR_COLOR = "#69a196";
 const SAMPLE_SIZE_HEATMAP_COLOR = "#b89a5b";
 const COGNITION_NODE_LABELS = [
   "Anhedonia",
@@ -1821,7 +1814,7 @@ function paperTypeLabel(paperType) {
     review: "Review",
   };
   if (labels[normalized]) return labels[normalized];
-  if (!normalized) return "Paper type unknown";
+  if (!normalized) return "Report type unknown";
   return displayFieldLabel(normalized);
 }
 
@@ -3821,7 +3814,6 @@ function heroStatsFromGraphManifest(manifest) {
   const paperCounts = summaryStats?.paper_counts || {};
   const reviewSummary = summaryStats?.sources?.reviews || {};
   const metaAnalysisSummary = summaryStats?.sources?.meta_analyses || {};
-  const awaitingCounts = paperCounts.awaiting_graph_inclusion || {};
   const primaryStudies = statNumber(
     paperCounts.primary_studies ?? primarySummary.study_count ?? primarySummary.studies
   );
@@ -3829,9 +3821,6 @@ function heroStatsFromGraphManifest(manifest) {
   const metaAnalyses = statNumber(
     paperCounts.meta_analyses ?? metaAnalysisSummary.study_count ?? metaAnalysisSummary.studies
   );
-  const primaryStudiesAwaiting = statNumber(awaitingCounts.primary_studies);
-  const reviewsAwaiting = statNumber(awaitingCounts.reviews);
-  const metaAnalysesAwaiting = statNumber(awaitingCounts.meta_analyses);
   const values = {
     primaryStudies,
     reviews,
@@ -3841,15 +3830,6 @@ function heroStatsFromGraphManifest(manifest) {
         (primaryStudies !== null && reviews !== null && metaAnalyses !== null
           ? primaryStudies + reviews + metaAnalyses
           : summaryStats?.default?.study_count)
-    ),
-    primaryStudiesAwaiting,
-    reviewsAwaiting,
-    metaAnalysesAwaiting,
-    totalPapersAwaiting: statNumber(
-      awaitingCounts.total ??
-        (primaryStudiesAwaiting !== null && reviewsAwaiting !== null && metaAnalysesAwaiting !== null
-          ? primaryStudiesAwaiting + reviewsAwaiting + metaAnalysesAwaiting
-          : summaryStats?.default?.normalized_finding_coverage?.without_findings_count)
     ),
   };
   return HERO_STAT_KEYS.some((key) => values[key] !== null) ? values : null;
@@ -3862,10 +3842,6 @@ function completeHeroStats(values) {
     acc[key] = values?.[key] ?? fallback[key] ?? 0;
     return acc;
   }, {});
-  completed.primaryStudiesAwaiting = values?.primaryStudiesAwaiting ?? null;
-  completed.reviewsAwaiting = values?.reviewsAwaiting ?? null;
-  completed.metaAnalysesAwaiting = values?.metaAnalysesAwaiting ?? null;
-  completed.totalPapersAwaiting = values?.totalPapersAwaiting ?? null;
   return completed;
 }
 
@@ -3874,19 +3850,6 @@ function setHeroStatValues(values) {
   HERO_STAT_KEYS.forEach((key) => {
     if (!stats[key]) return;
     stats[key].textContent = formatCompactNumber(completeValues[key]);
-  });
-  const awaitingByKey = {
-    primaryStudies: completeValues.primaryStudiesAwaiting,
-    reviews: completeValues.reviewsAwaiting,
-    metaAnalyses: completeValues.metaAnalysesAwaiting,
-    totalPapers: completeValues.totalPapersAwaiting,
-  };
-  HERO_STAT_KEYS.forEach((key) => {
-    const detail = statDetails[key];
-    const awaiting = awaitingByKey[key];
-    if (detail) {
-      detail.textContent = awaiting !== null ? `${formatCompactNumber(awaiting)} awaiting graph inclusion` : "";
-    }
   });
 }
 
@@ -4019,7 +3982,7 @@ function disconnectBibliographyLoadObserver() {
 
 function paperFindingContextSummaryHtml(siblingCount) {
   if (!siblingCount) return "";
-  const label = siblingCount === 1 ? "Other finding from this paper" : "Other findings from this paper";
+  const label = siblingCount === 1 ? "Other finding from this report" : "Other findings from this report";
   return `
     <details class="paper-findings-context">
       <summary>
@@ -4539,7 +4502,7 @@ function bibliographyCitationHtml(entry) {
       ${yearHtml}
       ${titleHtml}
       ${journal ? `<em>${escapeHtml(journal)}</em>` : ""}
-      ${doiHref ? `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(doiHref)}</a>` : ""}
+      ${doiHref ? `<a class="doi-link" href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(doiHref)}</a>` : ""}
       ${openAlexHref ? `<a href="${openAlexHref}" target="_blank" rel="noopener noreferrer">OpenAlex</a>` : ""}
     </p>
   `;
@@ -4684,7 +4647,7 @@ function linkedStudyIdentifierHtml(claim) {
   const doiValue = meaningfulText(claim.study_doi);
   const doiHref = doiUrl(doiValue);
   if (doiValue && doiHref) {
-    return `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">doi:${escapeHtml(doiValue)}</a>`;
+    return `<a class="doi-link" href="${doiHref}" target="_blank" rel="noopener noreferrer">doi:${escapeHtml(doiValue)}</a>`;
   }
 
   const openAlexId = meaningfulText(claim.openalex_id);
@@ -5641,7 +5604,7 @@ function renderReviewContextCharts(items) {
     ${chart(relationshipEntries, "Relationship types", "review_relationship_type_facet", { maxEntries: 5 })}
     ${coverageFocusEntries.length ? renderFacetCompositionChart(
       orderedFacetEntries(coverageFocusEntries, REVIEW_COVERAGE_FOCUS_ORDER),
-      "Coverage within each paper",
+      "Coverage within each report",
       "review_coverage_focus_facet",
       { hideWhenEmpty: true, maxEntries: 3, aggregateOther: false, palette: PALETTE_TEAL_FIRST }
     ) : ""}
@@ -6447,7 +6410,7 @@ function fieldValueDetailTitle(field, value) {
   if (field === "review_contribution_facet") return `Overall review focus: ${value}`;
   if (field === "review_evidence_stratum_facet") return `Evidence base: ${value}`;
   if (field === "review_relationship_type_facet") return `Relationship type: ${value}`;
-  if (field === "review_coverage_focus_facet") return `Coverage within paper: ${value}`;
+  if (field === "review_coverage_focus_facet") return `Coverage within report: ${value}`;
   if (field === "meta_analysis_design_facet") return `Synthesis design: ${value}`;
   if (field === "meta_analysis_study_count_facet") return `Studies included: ${value}`;
   return `${displayFieldLabel(field)}: ${value}`;
@@ -6553,7 +6516,7 @@ function renderStudyDetail(studyKeyValue) {
   const year = parseYearValue(firstClaim.study_year);
   const doiHref = doiUrl(firstClaim.study_doi);
   const source = doiHref
-    ? `<a href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(firstClaim.study_doi)}</a>`
+    ? `<a class="doi-link" href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(firstClaim.study_doi)}</a>`
     : firstClaim.openalex_id
       ? `<a href="${openAlexUrl(firstClaim.openalex_id)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
           firstClaim.openalex_id
@@ -7846,7 +7809,7 @@ function centerGraphInViewport() {
 
 function updateSearchPlaceholder() {
   if (!searchInput) return;
-  searchInput.placeholder = `Search finding cards by keyword, compound, ${lowerRightEntityLabel(false)}, method, or paper`;
+  searchInput.placeholder = `Search finding cards by keyword, compound, ${lowerRightEntityLabel(false)}, method, or source report`;
 }
 
 function entityCategoryCounts() {

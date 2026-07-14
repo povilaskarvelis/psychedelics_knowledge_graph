@@ -4,10 +4,23 @@ import json
 from pathlib import Path
 from unittest import mock
 
+import pandas as pd
+
 from pipeline.publish import promote_routed_run as promotion
 
 
 class PromoteRoutedRunTest(unittest.TestCase):
+    @staticmethod
+    def write_corpus_release(path: Path, run_id: str, release_id: str = "") -> None:
+        pd.DataFrame(
+            [
+                {
+                    "graph_inclusion_run_id": run_id,
+                    "graph_inclusion_release_id": release_id,
+                }
+            ]
+        ).to_parquet(path, index=False)
+
     def test_pointer_pair_requires_same_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -17,9 +30,11 @@ class PromoteRoutedRunTest(unittest.TestCase):
             graph.write_text(
                 '{"kg_dir":"data/processed/kg_routed_runs/old_run"}', encoding="utf-8"
             )
+            corpus = root / "candidate_papers.parquet"
+            self.write_corpus_release(corpus, "old_run")
             with mock.patch.object(promotion, "ACTIVE_EXTRACTION_POINTER", extraction), mock.patch.object(
                 promotion, "ACTIVE_GRAPH_POINTER", graph
-            ):
+            ), mock.patch.object(promotion, "CANDIDATE_PAPERS_TABLE", corpus):
                 with self.assertRaisesRegex(ValueError, "Active release mismatch"):
                     promotion.validate_active_pointer_pair()
 
@@ -34,9 +49,11 @@ class PromoteRoutedRunTest(unittest.TestCase):
             graph.write_text(
                 '{"run_id":"same_run","release_id":"release-b"}', encoding="utf-8"
             )
+            corpus = root / "candidate_papers.parquet"
+            self.write_corpus_release(corpus, "same_run", "release-b")
             with mock.patch.object(promotion, "ACTIVE_EXTRACTION_POINTER", extraction), mock.patch.object(
                 promotion, "ACTIVE_GRAPH_POINTER", graph
-            ):
+            ), mock.patch.object(promotion, "CANDIDATE_PAPERS_TABLE", corpus):
                 with self.assertRaisesRegex(ValueError, "release IDs differ"):
                     promotion.validate_active_pointer_pair()
 
@@ -71,11 +88,25 @@ class PromoteRoutedRunTest(unittest.TestCase):
             manifest = staged / "manifests" / "build_manifest.json"
             manifest.parent.mkdir(parents=True)
             manifest.write_text(
-                json.dumps({"outputs": {"manifest": str(manifest)}}), encoding="utf-8"
+                json.dumps(
+                    {
+                        "outputs": {"manifest": str(manifest)},
+                        "input_files": [str((root / "staged_candidate.parquet").resolve())],
+                    }
+                ),
+                encoding="utf-8",
             )
 
-            promotion.retarget_methods_manifest(staged, current)
-            outputs = json.loads(manifest.read_text(encoding="utf-8"))["outputs"]
+            staged_candidate = root / "staged_candidate.parquet"
+            current_candidate = root / "candidate_papers.parquet"
+            promotion.retarget_methods_manifest(
+                staged,
+                current,
+                staged_candidate_table=staged_candidate,
+                current_candidate_table=current_candidate,
+            )
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            outputs = payload["outputs"]
 
         self.assertEqual(outputs["manifest"], str((current / "manifests/build_manifest.json").resolve()))
         self.assertEqual(
@@ -83,6 +114,7 @@ class PromoteRoutedRunTest(unittest.TestCase):
             str((current / "views/graph_inclusion_dispositions.json").resolve()),
         )
         self.assertFalse(any("/stage/" in path for path in outputs.values()))
+        self.assertEqual(payload["input_files"], [str(current_candidate.resolve())])
 
 
 if __name__ == "__main__":

@@ -108,5 +108,5 @@ tags such as `molecular_pathway`,
 `brain_system`, `cognitive_behavioral`, `clinical_outcome`, `safety`,
 `subjective_experience`, `pharmacokinetics_exposure`, `intervention_context`,
 `real_world_use_public_health`, and `bridge_clinical_mechanism`, so these
-searches can feed later extraction tasks without forcing papers into a single
+searches can feed later extraction tasks without forcing reports into a single
 ontology bucket.

@@ -2,27 +2,27 @@
   "contract_version": "0.1",
   "counts": {
     "excluded_during_initial_screening": 39566,
-    "kept_after_initial_screening": 16723,
-    "not_represented_in_knowledge_graph": 581,
+    "kept_after_initial_screening": 16725,
+    "not_represented_in_knowledge_graph": 441,
     "not_screened": 0,
-    "not_selected_for_evidence_extraction": 3576,
-    "papers_found_by_search": 56289,
-    "represented_in_knowledge_graph": 12566,
-    "screened_for_relevance": 56289,
-    "selected_for_evidence_extraction": 13147
+    "not_selected_for_evidence_extraction": 3644,
+    "papers_found_by_search": 56291,
+    "represented_in_knowledge_graph": 12640,
+    "screened_for_relevance": 56291,
+    "selected_for_evidence_extraction": 13081
   },
   "current_stage": "kg_inclusion_summary",
-  "generated_at": "2026-07-14T11:24:56.734469+00:00",
+  "generated_at": "2026-07-14T16:22:25.097573+00:00",
   "prisma_flow": {
     "overall": {
       "current_stage": "kg_inclusion_summary",
       "dataset": "overall",
-      "label": "Paper search and graph-inclusion flow",
+      "label": "Search and graph-inclusion flow",
       "metrics": {
         "finding_counts_available": true,
-        "not_represented_in_knowledge_graph": 581,
-        "represented_in_knowledge_graph": 12566,
-        "selected_papers": 13147
+        "not_represented_in_knowledge_graph": 441,
+        "represented_in_knowledge_graph": 12640,
+        "selected_papers": 13081
       },
       "rows": [
         {
@@ -48,29 +48,34 @@
       ],
       "side_boxes": {
         "kg_not_included": {
-          "count": 581,
-          "label": "Selected papers not represented in graph",
+          "count": 441,
+          "label": "Selected reports not represented in graph",
           "reasons": [
             {
-              "count": 342,
-              "key": "not_graphable",
-              "label": "Not graphable"
+              "count": 217,
+              "key": "no_extractable_finding",
+              "label": "No specific finding to represent"
             },
             {
-              "count": 132,
-              "key": "not_normalized",
-              "label": "Not normalized"
+              "count": 27,
+              "key": "insufficient_source_text",
+              "label": "Available text is too limited"
             },
             {
-              "count": 107,
-              "key": "no_graph_finding",
-              "label": "No graph finding"
+              "count": 1,
+              "key": "source_not_verified",
+              "label": "Source document could not be verified"
+            },
+            {
+              "count": 196,
+              "key": "unsupported_finding_detail",
+              "label": "Finding too broad or ambiguous"
             }
           ]
         },
         "records_excluded": {
           "count": 39566,
-          "label": "Excluded during initial screening",
+          "label": "Records excluded during initial screening",
           "reasons": [
             {
               "count": 27687,
@@ -90,7 +95,7 @@
             {
               "count": 26,
               "key": "exclude_non_paper_container",
-              "label": "Non-paper container"
+              "label": "Non-report container"
             },
             {
               "count": 1727,
@@ -105,11 +110,11 @@
           "reasons": []
         },
         "route_not_selected": {
-          "count": 3576,
-          "label": "Not selected for evidence extraction",
+          "count": 3644,
+          "label": "Records not selected for evidence extraction",
           "reasons": [
             {
-              "count": 3278,
+              "count": 3346,
               "key": "excluded_during_llm_screening",
               "label": "Excluded during title and abstract screening"
             },
@@ -123,27 +128,27 @@
       },
       "steps": {
         "evidence_extraction_selected": {
-          "count": 13147,
-          "label": "Papers selected for evidence extraction"
+          "count": 13081,
+          "label": "Reports selected for evidence extraction"
         },
         "kg_included": {
-          "count": 12566,
-          "label": "Papers represented in the knowledge graph"
+          "count": 12640,
+          "label": "Reports represented in the knowledge graph"
         },
         "prescreen_retained": {
-          "count": 16723,
-          "label": "Papers kept after initial screening"
+          "count": 16725,
+          "label": "Records kept after initial screening"
         },
         "records_identified": {
-          "count": 56289,
-          "label": "Papers found by the search"
+          "count": 56291,
+          "label": "Records found by the search"
         },
         "records_screened": {
-          "count": 56289,
-          "label": "Papers screened for relevance"
+          "count": 56291,
+          "label": "Records screened for relevance"
         }
       },
-      "unit": "papers"
+      "unit": "records and reports"
     }
   },
   "prisma_flow_order": [

@@ -17,7 +17,7 @@ import pandas as pd
 
 try:
     from pipeline.ingest.preprint_detection import classify_publication_stage
-    from pipeline.review.run_local_llm_abstract_screening import (
+    from pipeline.review.deterministic_prescreen_rules import (
         deterministic_prescreen_decision,
         normalize_doi,
         normalize_routing_tags,
@@ -25,7 +25,7 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.ingest.preprint_detection import classify_publication_stage
-    from pipeline.review.run_local_llm_abstract_screening import (
+    from pipeline.review.deterministic_prescreen_rules import (
         deterministic_prescreen_decision,
         normalize_doi,
         normalize_routing_tags,
@@ -46,8 +46,6 @@ DEFAULT_CURATED_PAPER_METADATA_OVERRIDES = (
     ROOT / "data" / "curated" / "paper_metadata_overrides.json"
 )
 TABLE_VERSION = "0.1"
-SCREENING_SCOPE = "unified_corpus"
-
 METADATA_FIELDS = [
     "study_title",
     "study_year",
@@ -961,12 +959,7 @@ def build_prescreen_decisions(
         elif exclude_missing_abstract and not has_abstract:
             decision = missing_abstract_decision(screening_row, paper_contexts, abstract_status_reason)
         else:
-            decision = deterministic_prescreen_decision(
-                SCREENING_SCOPE,
-                screening_row,
-                heuristic={},
-                candidate_contexts=paper_contexts,
-            )
+            decision = deterministic_prescreen_decision(screening_row)
         deterministic_tags = normalize_routing_tags(decision.get("routing_tags", []))
         routing_tags = normalize_routing_tags([*deterministic_tags, *context_tags])
         prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision)

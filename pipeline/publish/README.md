@@ -24,11 +24,14 @@ python pipeline/publish/promote_routed_run.py --run-id "$RUN_ID"
 ```
 
 The promoter validates the KG, payload, author tables, and extraction inputs;
-serializes promotions with a lock; stages the Methods and `dist/` rebuilds; and
-updates the extraction and public-graph compatibility pointers to the same
-release. `ACTIVATE_DEFAULT=1 scripts/build_routed_kg_payload.sh "$RUN_ID"`
-remains a one-command build-and-promote shorthand and uses the same guarded
-promoter.
+materializes every final graph decision into the canonical
+`candidate_papers.parquet` corpus ledger; serializes promotions with a lock;
+stages the Methods and `dist/` rebuilds; and updates the extraction and
+public-graph compatibility pointers to the same release. The promotion fails if
+any selected report lacks a final disposition or if screening, routing, graph,
+or release decisions contradict one another. `ACTIVATE_DEFAULT=1
+scripts/build_routed_kg_payload.sh "$RUN_ID"` remains a one-command
+build-and-promote shorthand and uses the same guarded promoter.
 
 The wrapper is non-activating by default. This keeps historical or diagnostic
 rebuilds from changing the public graph by accident. `scripts/build_site.sh`
@@ -43,8 +46,10 @@ last `papers.parquet` change. The exporter checks `authors.parquet`,
 when the author layer is missing or stale. `--allow-stale-authors` is available
 only for deliberate diagnostic exports.
 
-Promotion also rebuilds the Methods PRISMA flow and unified bibliography from
-the same routed KG run. Do not run a separate bibliography step afterward.
+Promotion also rebuilds the Methods PRISMA flow and unified bibliography solely
+from the updated canonical corpus ledger. The Methods build has no fallback to
+the routed KG, active pointers, normalization audit, or disposition override
+file. Do not run a separate bibliography step afterward.
 
 ## Outputs
 
@@ -79,12 +84,12 @@ the public graph pointer names only compact browser artifacts.
 public header metrics: primary studies, reviews, meta-analyses, and their total
 represented anywhere in the underlying normalized evidence graph. These values
 are deduplicated by DOI, then OpenAlex ID, then title and year, and regenerated
-whenever the routed KG payload is exported. A paper does not need to appear in
-the visual overview to count as graph-represented. The public
-`awaiting_graph_inclusion` count therefore means papers with no normalized,
-searchable finding at all. `visualized_overview_represented` retains the
-stricter visual-overview counts for diagnostics; primary studies and reviews
-use the two-paper overview-node rule, while meta-analyses use a one-paper rule.
+whenever the routed KG payload is exported. A report does not need to appear in
+the visual overview to count as graph-represented. Reports that are not
+represented are explained, with final plain-language reasons, in the Methods
+page PRISMA flow. `visualized_overview_represented` retains the stricter
+visual-overview counts for diagnostics; primary studies and reviews use the
+two-report overview-node rule, while meta-analyses use a one-report rule.
 
 `graph_bootstrap_<source>.json` contains aggregate graph edges for
 fast initial rendering: compound, graph-anchor entity label, graph-anchor
@@ -109,7 +114,7 @@ The decoded rows are flat and route-native. Important fields include:
 - `entity_label`
 - `entity_kind`
 - `text_depth`
-- paper metadata such as `study_doi`, `openalex_id`, `study_title`, and `study_year`
+- report metadata such as `study_doi`, `openalex_id`, `study_title`, and `study_year`
 - domain-specific evidence fields such as `support`, `effect_size`,
   `outcome_measure`, `sample_size_total`, `mechanism_type`, `assay_type`, and
   `assessment_timepoint`
@@ -131,8 +136,8 @@ are shown in finding cards when present rather than treated as complete
 composition fields.
 
 Primary-research and review graph nodes require support from at least two source
-papers. Meta-analysis nodes are exempt from that replication threshold because
-each source paper already represents a synthesis and the meta-analysis graph is
+reports. Meta-analysis nodes are exempt from that replication threshold because
+each source report already represents a synthesis and the meta-analysis graph is
 comparatively sparse.
 
 The public export does not use the old `claim_type` field, does not split

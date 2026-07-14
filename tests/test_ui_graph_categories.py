@@ -261,17 +261,18 @@ def test_initial_page_has_no_blocking_loading_screen() -> None:
     assert ".site-loader" not in style_source
 
 
-def test_header_awaiting_count_uses_missing_normalized_findings_not_overview_exclusion() -> None:
+def test_header_uses_graph_counts_without_awaiting_queue_labels() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     stats_source = source.split("function heroStatsFromGraphManifest", 1)[1].split(
         "function completeHeroStats", 1
     )[0]
     render_source = source.split("function setHeroStatValues", 1)[1].split("function updateStats", 1)[0]
+    html_source = INDEX_HTML.read_text(encoding="utf-8")
 
-    assert "awaiting_graph_inclusion" in stats_source
-    assert "graph_study_coverage" not in stats_source
-    assert "normalized_finding_coverage" in stats_source
-    assert "awaiting graph inclusion" in render_source
+    assert "paper_counts" in stats_source
+    assert "awaiting_graph_inclusion" not in stats_source
+    assert "awaiting" not in render_source.lower()
+    assert "data-stat-detail" not in html_source
 
 
 def test_initial_page_reveals_only_after_required_fonts_are_ready() -> None:
@@ -316,9 +317,28 @@ def test_stacked_bar_palette_starts_with_blue_and_nudges_teal_toward_green() -> 
     source = APP_JS.read_text(encoding="utf-8")
 
     assert 'const CATEGORY_COLORS = [\n  "#708aa7",\n  "#b89a5b",\n  "#a96f7e",\n  "#69a196",' in source
-    assert 'const PUBLICATION_YEAR_COLOR = "#3fa393";' in source
+    assert 'const PUBLICATION_YEAR_COLOR = "#69a196";' in source
     assert "const GRAPH_COLOR_STOPS = [\n  { r: 70, g: 197, b: 181 }," in source
     assert 'node.style.setProperty("--node-glow", rgbaString(color, 0.29));' in source
+
+
+def test_in_text_and_doi_links_share_one_muted_teal_family() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    app_source = APP_JS.read_text(encoding="utf-8")
+    methods_source = (ROOT / "ui" / "methods.js").read_text(encoding="utf-8")
+
+    assert "--link-color: #65bdad;" in source
+    assert "--link-color-hover: #84ccbf;" in source
+    assert "--doi-link-color: #91ded5;" in source
+    assert "--doi-link-color-hover: #b2efe8;" in source
+    assert source.count("color: var(--link-color);") >= 9
+    assert source.count("color: var(--link-color-hover);") >= 9
+    assert "color: var(--doi-link-color);" in source
+    assert "color: var(--doi-link-color-hover);" in source
+    assert app_source.count('class="doi-link"') >= 3
+    assert 'class="doi-link"' in methods_source
+    assert "#b8fff7" not in source
+    assert "#a9f7ef" not in source
 
 
 def test_stacked_bar_palette_becomes_progressively_more_muted_after_fifth_color() -> None:

@@ -1571,19 +1571,6 @@ def export_evidence_payload(
         "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["normalized_finding_coverage"]["included_count"],
     }
     normalized_finding_paper_counts["total"] = sum(normalized_finding_paper_counts.values())
-    awaiting_graph_inclusion = {
-        "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["normalized_finding_coverage"][
-            "without_findings_count"
-        ],
-        "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["normalized_finding_coverage"][
-            "without_findings_count"
-        ],
-        "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["normalized_finding_coverage"][
-            "without_findings_count"
-        ],
-    }
-    awaiting_graph_inclusion["total"] = sum(awaiting_graph_inclusion.values())
-
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "generated_at": generated_at,
@@ -1598,10 +1585,8 @@ def export_evidence_payload(
             "sources": source_summary_stats,
             "paper_counts": {
                 **normalized_finding_paper_counts,
-                "awaiting_graph_inclusion": awaiting_graph_inclusion,
                 "visualized_overview_represented": overview_paper_counts,
                 "scope": "underlying_evidence_graph_represented",
-                "awaiting_scope": "selected_papers_without_normalized_finding",
                 "denominator_source": denominator_source,
             },
         },

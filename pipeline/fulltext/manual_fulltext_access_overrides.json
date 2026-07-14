@@ -2572,6 +2572,12 @@
       "manual_access_action": "abstract_only",
       "checked_at": "2026-07-14",
       "manual_reason": "The retained local artifact is a crystallographic supplement and omits the article's receptor and behavioral results; use the verified public abstract for evidence extraction."
+    },
+    {
+      "doi": "10.1556/2054.2018.007",
+      "manual_access_action": "abstract_only",
+      "checked_at": "2026-07-14",
+      "manual_reason": "The advertised public PDF returns an access error, while the verified abstract reports the study methods and results; use that abstract instead of leaving the paper in a download queue."
     }
   ]
 }

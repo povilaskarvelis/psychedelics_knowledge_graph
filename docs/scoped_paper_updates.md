@@ -1,13 +1,13 @@
-# Updating selected papers without rerunning the whole extraction
+# Updating selected reports without rerunning the whole extraction
 
 Use `pipeline/update/run_scoped_paper_update.py` whenever an upstream fix changes
-one paper or a DOI list. Typical reasons include:
+one report or a DOI list. Typical reasons include:
 
 - a wrong full-text artifact was replaced;
-- a paper changed from full-text to abstract-only, or the reverse;
+- a report changed from full-text to abstract-only, or the reverse;
 - a record is now excluded by prescreening;
 - metadata, an abstract, a prompt, or a schema changed; or
-- selected papers should be re-extracted after a correction.
+- selected reports should be re-extracted after a correction.
 
 The workflow has one rule: every DOI in the update list is removed from the
 previous active raw outputs and converted evidence before current replacements
@@ -82,7 +82,7 @@ update after checking that no needed batch output lives in its update directory.
 
 To run one literature family now while explicitly deferring the others, filter
 the effective DOI scope during preparation. For example, this keeps primary
-papers plus deletion-only records, while leaving review and meta-analysis DOIs
+primary-study reports plus deletion-only records, while leaving review and meta-analysis DOIs
 untouched:
 
 ```bash
@@ -194,7 +194,7 @@ candidate rows by hand.
 - Put every DOI whose old output may be stale in the update list, including
   newly excluded records. The DOI list is both the deletion and replacement
   boundary.
-- Never finalize only one domain or paper-type family for an affected paper.
+- Never finalize only one domain or internal paper-type family for an affected report.
   Finalize requires the full current runnable task set for the entire DOI scope.
 - Do not use `build_extraction_routes.py --doi-file ...` with the canonical
   route output. Its scoped mode produces a scoped table; the updater deliberately

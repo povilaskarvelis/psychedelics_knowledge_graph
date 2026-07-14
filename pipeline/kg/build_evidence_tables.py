@@ -896,6 +896,7 @@ GENERIC_BEHAVIOR_NOT_GRAPHABLE_KEYS = {
     "thermoregulation",
 }
 CONTROLLED_BEHAVIORAL_DETAIL_LABELS = {
+    "arousal": "Arousal",
     "exploratory behavior": "Exploratory behavior",
     "feeding behavior": "Feeding behavior",
     "hyperactivity": "Locomotor activity",
@@ -910,6 +911,8 @@ CONTROLLED_BEHAVIORAL_DETAIL_LABELS = {
     "open field test": "Locomotor activity",
     "open field": "Locomotor activity",
     "psychomotor stimulation": "Motor activity",
+    "sleep wake behavior": "Sleep-wake behavior",
+    "sleep-wake behavior": "Sleep-wake behavior",
     "stereotyped behavior": "Stereotyped behavior",
     "stereotypy": "Stereotyped behavior",
 }
@@ -925,18 +928,50 @@ BRAIN_MEASURE_NOT_GRAPHABLE_RE = re.compile(
     re.IGNORECASE,
 )
 BRAIN_MEASURE_GRAPH_RULES = (
-    (re.compile(r"\b(functional connectivity|connectivity|coupling|connectome|within.network|between.network)\b", re.I), "Functional connectivity"),
+    (
+        re.compile(
+            r"\b(functional connectivity|connectivity|coupling|coherence|connectome|within.network|between.network)\b",
+            re.I,
+        ),
+        "Functional connectivity",
+    ),
     (re.compile(r"\b(mismatch negativity|mmn)\b", re.I), "MMN"),
     (re.compile(r"\b(p300|p3a|p3b|novelty p3)\b", re.I), "P300"),
-    (re.compile(r"\b(event.related potentials?|erp)\b", re.I), "ERP"),
+    (
+        re.compile(
+            r"\b(event.related potentials?|evoked potentials?|erp|p20|n40|p80|transcallosally evoked)\b",
+            re.I,
+        ),
+        "ERP",
+    ),
     (re.compile(r"\b(bold|blood oxygen.level dependent)\b", re.I), "BOLD response"),
     (re.compile(r"\b(cbf|blood flow|perfusion|arterial spin labell?ing|asl|pcasl)\b", re.I), "Cerebral blood flow"),
     (re.compile(r"\b(fdg|glucose metabolism|deoxyglucose|metabolic activity)\b", re.I), "Glucose metabolism"),
-    (re.compile(r"\b(oscillat\w*|spectral power|alpha power|beta power|theta power|delta power|gamma power)\b", re.I), "Oscillatory power"),
+    (
+        re.compile(
+            r"\b(oscillat\w*|spectral power|power spectra|alpha (?:band )?power|alpha rhythm|"
+            r"beta power|theta power|delta power|gamma power|eeg desynchronization|electrical energy)\b",
+            re.I,
+        ),
+        "Oscillatory power",
+    ),
     (re.compile(r"\b(receptor occupancy|binding potential|receptor availability|receptor binding|receptor density)\b", re.I), "Receptor occupancy"),
     (re.compile(r"\b(white matter|fractional anisotropy|diffusion tensor|dti|tract integrity)\b", re.I), "White matter integrity"),
     (re.compile(r"\b(grey matter|gray matter|brain volume|regional volume|cortical thickness|morphometry)\b", re.I), "Brain structure"),
     (re.compile(r"\b(signal complexity|lempel.ziv|lzc|entropy)\b", re.I), "Neural signal complexity"),
+    (
+        re.compile(
+            r"\b(metastability|mutual information|information parity|pair correlation|hierarchical integration|"
+            r"harmonic mode energy|structure.function coupling)\b",
+            re.I,
+        ),
+        "Network dynamics",
+    ),
+    (
+        re.compile(r"\b(functional gradient|cortical gradient|graph measures?|network topology)\b", re.I),
+        "Network topology",
+    ),
+    (re.compile(r"\b(sleep architecture|sleep.wake|rem sleep|slow.wave sleep|sw sleep)\b", re.I), "Sleep architecture"),
 )
 BRAIN_MEASURE_COMPATIBLE_ENTITY_KINDS = {
     "biomarker_readout",
@@ -968,7 +1003,7 @@ COGNITIVE_BEHAVIORAL_RULES = (
         "Psychotomimetic effects",
         re.compile(
             r"\b(psychotomimetic|psychosis[- ]like|psychotic[- ]like|model psychosis|psychosis model|"
-            r"schizophrenia[- ]like symptoms?|positive symptoms?|bprs|panss)\b",
+            r"schizophrenia[- ]like symptoms?|positive symptoms?|thought disorder|bprs|panss)\b",
             re.IGNORECASE,
         ),
     ),
@@ -1084,7 +1119,7 @@ COGNITIVE_BEHAVIORAL_RULES = (
     (
         "Reward learning",
         re.compile(
-            r"\b(reward learning|appetitive learning|reward feedback learning|"
+            r"\b(reward learning|appetitive learning|reward feedback learning|sign[- ]tracking|goal[- ]tracking|"
             r"reinforcement learning from reward|reward prediction learning)\b",
             re.IGNORECASE,
         ),
@@ -1093,7 +1128,7 @@ COGNITIVE_BEHAVIORAL_RULES = (
         "Motivation",
         re.compile(
             r"\b(motivation|motivational processing|goal[- ]directed motivation|incentive motivation|"
-            r"effort[- ]based motivation|progressive[- ]ratio break ?point)\b",
+            r"effort[- ]based motivation|progressive[- ]ratio break ?point|readiness to change)\b",
             re.IGNORECASE,
         ),
     ),
@@ -1209,7 +1244,18 @@ COGNITIVE_BEHAVIORAL_RULES = (
     ),
     (
         "Associative memory",
-        re.compile(r"\b(associative memory|paired[- ]associate memory|paired associative learning)\b", re.IGNORECASE),
+        re.compile(
+            r"\b(associative memory|associative learning|paired[- ]associate memory|paired associative learning)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Conditioned taste aversion",
+        re.compile(r"\b(conditioned taste aversion|taste aversion learning)\b", re.IGNORECASE),
+    ),
+    (
+        "Self-related processing",
+        re.compile(r"\b(self[- ]compassion|self[- ]criticism|self[- ]acceptance)\b", re.IGNORECASE),
     ),
     (
         "Memory consolidation",
@@ -1326,6 +1372,7 @@ COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS = {
     "nociception and pain behavior": "Pain behavior",
     "hallucinogen like behavior": "Head-twitch response",
     "hallucinogenic like behavior": "Head-twitch response",
+    "learning": "Memory",
     "psychedelic like behavior": "Head-twitch response",
     "time perception": "Time perception",
     "temporal perception": "Time perception",
@@ -1447,7 +1494,7 @@ SUBJECTIVE_EXPERIENCE_RULES = (
         "Mystical-type experience",
         re.compile(
             r"\b(mystical|complete mystical|meq(?:[- ]?30)?|hood mysticism|oceanic boundlessness|"
-            r"\bobn\b|experience of unity|unitive|self[- ]transcendence|ineffability)\b",
+            r"\bobn\b|experience of unity|unitive|self[- ]transcendence|transcendence|noetic sense|ineffability)\b",
             re.IGNORECASE,
         ),
     ),
@@ -1457,7 +1504,7 @@ SUBJECTIVE_EXPERIENCE_RULES = (
     ),
     (
         "Ego dissolution",
-        re.compile(r"\b(ego[- ]?dissolution|ego loss|ego death|ego disintegration|ego[- ]dissolution inventory|\bedi\b)\b", re.IGNORECASE),
+        re.compile(r"\b(ego[- ]?dissolution|ego boundary dissolution|ego loss|ego death|ego disintegration|ego[- ]dissolution inventory|\bedi\b)\b", re.IGNORECASE),
     ),
     (
         "Emotional breakthrough",
@@ -1572,7 +1619,7 @@ SUBJECTIVE_EXPERIENCE_RULES = (
     ),
     (
         "Altered state profile",
-        re.compile(r"\b(altered states?|altered state of consciousness|asc\b|5d[- ]?asc|11d[- ]?asc|3d[- ]?asc|continuous subjective experience|primary process thinking|apz\b)\b", re.IGNORECASE),
+        re.compile(r"\b(altered states?|altered state of consciousness|psychedelic experience|subjective effects?|asc\b|5d[- ]?asc|11d[- ]?asc|3d[- ]?asc|continuous subjective experience|primary process thinking|apz\b)\b", re.IGNORECASE),
     ),
 )
 SUBJECTIVE_EXPERIENCE_LABEL_FALLBACKS = {
@@ -5251,7 +5298,11 @@ INTERVENTION_TOPIC_RULES = (
     ),
     (
         "Other psychotherapy models",
-        re.compile(r"\b(prolonged exposure|written exposure|exposure therapy|pet therapy|wet therapy)\b", re.IGNORECASE),
+        re.compile(
+            r"\b(prolonged exposure|written exposure|exposure therapy|pet therapy|wet therapy|"
+            r"psychoanalytic therapy|posthypnotic suggestion)\b",
+            re.IGNORECASE,
+        ),
     ),
     (
         "Other psychotherapy models",
@@ -5282,7 +5333,7 @@ INTERVENTION_TOPIC_RULES = (
         re.compile(
             r"\b(therapist training|facilitator training|provider training|practitioner training|speciali[sz]ed training|"
             r"certified training|accredited training|continuing education|training and education|provider education|"
-            r"mentorship|practicum|workforce capacity)\b",
+            r"clinical education|multicultural competence|mentorship|practicum|workforce capacity)\b",
             re.IGNORECASE,
         ),
     ),
@@ -5343,7 +5394,7 @@ INTERVENTION_TOPIC_RULES = (
         "Clinical supervision & monitoring",
         re.compile(
             r"\b(medical supervision|clinical supervision|provider supervision|supervised sessions?|"
-            r"clinical monitoring|medical monitoring|close supervision|monitor supervision)\b",
+            r"psychiatric supervision|clinical monitoring|medical monitoring|close supervision|monitor supervision)\b",
             re.IGNORECASE,
         ),
     ),
@@ -5400,7 +5451,8 @@ INTERVENTION_TOPIC_RULES = (
         "Set & setting",
         re.compile(
             r"\b(set and setting|set/setting|setting and environment|environmental setting|dosing room|physical setting|"
-            r"social environment|natural settings?|clinical setting|supportive setting|environmental safety|privacy and noise)\b",
+            r"social environment|natural settings?|clinical setting|laboratory versus therapeutic settings?|"
+            r"supportive setting|environmental safety|privacy and noise)\b",
             re.IGNORECASE,
         ),
     ),
@@ -5422,7 +5474,7 @@ INTERVENTION_TOPIC_RULES = (
     ),
     (
         "Screening & consent",
-        re.compile(r"\b(screening|informed consent|consent document|exclusion criteria|baseline diagnostic)\b", re.IGNORECASE),
+        re.compile(r"\b(screening|informed consent|consent document|exclusion criteria|baseline diagnostic|cooling[- ]off period)\b", re.IGNORECASE),
     ),
     (
         "Session components",
@@ -5457,7 +5509,7 @@ INTERVENTION_TOPIC_RULES = (
             r"\b(implementation|feasib\w*|acceptab\w*|fidelity|standardization|logistics|service establishment|"
             r"protocol development|practical barrier|therapist compensation|staff attitudes|provider attitudes|"
             r"scalab\w*|resource[- ]intensive|resource requirements?|therapist time|monitoring requirements?|"
-            r"treatment infrastructure|care model|clinical guidance)\b",
+            r"treatment infrastructure|quality management system|care model|clinical guidance)\b",
             re.IGNORECASE,
         ),
     ),
@@ -5473,7 +5525,7 @@ INTERVENTION_TOPIC_RULES = (
         "Regulation & service delivery",
         re.compile(
             r"\b(regulat\w*|policy|service oversight|drug supply|national monitoring system|public hospital|"
-            r"healthcare system|service delivery)\b",
+            r"controlled substance scheduling|healthcare system|service delivery)\b",
             re.IGNORECASE,
         ),
     ),
@@ -6096,7 +6148,7 @@ BROAD_SYMPTOM_OUTCOME_LABELS = {
 
 SAFETY_ENDPOINT_PATTERNS = (
     (
-        re.compile(r"\b(serotonin syndrome)\b", re.IGNORECASE),
+        re.compile(r"\b(serotonin(?:[- ]like)? syndrome)\b", re.IGNORECASE),
         "Serotonin syndrome",
     ),
     (
@@ -6158,6 +6210,7 @@ SAFETY_ENDPOINT_PATTERNS = (
         re.compile(r"\b(muscle pain|myalgia|musculoskeletal pain)\b", re.IGNORECASE),
         "Musculoskeletal effects",
     ),
+    (re.compile(r"\b(muscle spasms?)\b", re.IGNORECASE), "Musculoskeletal effects"),
     (re.compile(r"\b(dry mouth|xerostomia)\b", re.IGNORECASE), "Dry mouth"),
     (
         re.compile(r"\b(symptom worsening|clinical worsening|worsening symptoms?)\b", re.IGNORECASE),
@@ -6320,7 +6373,7 @@ SAFETY_ENDPOINT_PATTERNS = (
     (
         re.compile(
             r"\b(well[- ]?tolerated|tolerab\w*|safe and tolerable|safe and well tolerated|"
-            r"safety profile|safety/tolerability|safety and tolerability|acceptable safety|no safety concerns?|"
+            r"safety$|safety profile|safety/tolerability|safety and tolerability|acceptable safety|no safety concerns?|"
             r"medical screening|safety during)\b",
             re.IGNORECASE,
         ),
@@ -8103,7 +8156,11 @@ REVIEW_OUTCOME_NORMALIZATION_RULES = (
         "symptom_problem",
     ),
     (
-        re.compile(r"\b(?:clinical improvement|clinical response|treatment response|therapeutic response)\b", re.IGNORECASE),
+        re.compile(
+            r"\b(?:clinical improvement|clinical response|treatment response|treatment outcomes?|positive outcome|"
+            r"enduring therapeutic gains?|therapeutic response|therapeutic resolution|cross[- ]diagnostic clinical benefits?)\b",
+            re.IGNORECASE,
+        ),
         "Treatment response",
         "symptom_problem",
     ),
@@ -8473,6 +8530,10 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
                     label_key(out["cognitive_behavioral_graph_label"]),
                     "",
                 )
+                if not detail_label and GENERIC_LOCOMOTOR_CONTEXT_RE.search(
+                    ascii_fold(out["cognitive_behavioral_graph_label"])
+                ):
+                    detail_label = "Locomotor activity"
                 if detail_label:
                     out["cognitive_behavioral_graph_label"] = detail_label
                     out["graph_entity_label"] = detail_label

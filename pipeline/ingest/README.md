@@ -1,8 +1,9 @@
 # Ingest
 
-This stage covers literature discovery, DOI deduplication, paper metadata
-enrichment, and PDF retrieval. It should produce a transparent paper corpus before
-claim extraction begins.
+This stage covers literature discovery, DOI deduplication, corpus-table
+construction, and metadata enrichment. It should produce a transparent corpus
+before screening and extraction begin. PDF retrieval belongs to
+`pipeline/fulltext/` once extraction routes have been assigned.
 
 The ingest layer works at DOI/paper level. It does not decide final graph
 claims.
@@ -15,7 +16,7 @@ claims.
 4. Enrich metadata and abstracts for corpus rows that do not yet have complete
    paper metadata.
 5. Run deterministic screening/routing in `pipeline/review/`.
-6. Retrieve PDFs for routed full-text candidates.
+6. Hand routed full-text candidates to `pipeline/fulltext/` for retrieval.
 
 ## Search Files
 
@@ -229,36 +230,34 @@ python pipeline/ingest/enrich_paper_metadata.py \
 
 ## PDF Retrieval
 
-After abstract screening, download legal open-access PDFs only for papers in the
-LLM full-text candidate queue:
+After pre-screening and Gemini routing, use the table-native full-text runner for
+retained records that still need a local PDF:
 
 ```bash
-python pipeline/ingest/sync_paper_library.py \
-  --dataset mechanistic \
-  --doi-file data/raw/doi_queue.mechanistic.llm_fulltext_candidates.txt \
-  --metadata-provider-order pubmed,pmc,unpaywall,crossref,openalex,semantic_scholar \
-  --checkpoint-every 100 \
+python pipeline/fulltext/run_pdf_retrieval_pipeline.py \
+  --alternate-pdf-sources pmc,openalex,semantic_scholar \
   --progress-every 100
 ```
 
-The downloader uses PMC/Europe PMC, Unpaywall, OpenAlex, and publisher or
-repository URLs where available.
-
-Retry failed/no-URL PDF rows from the existing paper library:
+For a DOI-scoped retry, use the routed downloader directly:
 
 ```bash
-python pipeline/ingest/retry_pdf_downloads.py --dataset mechanistic
-python pipeline/ingest/retry_pdf_downloads.py --dataset disorder
+python pipeline/fulltext/download_routed_pdfs.py \
+  --doi-file /tmp/changed_dois.txt \
+  --alternate-pdf-sources pmc,openalex,semantic_scholar
 ```
 
-Import manually acquired PDFs by DOI-style filenames:
+Import manually acquired PDFs through the canonical inbox importer:
 
 ```bash
-python pipeline/ingest/import_manual_pdfs.py \
-  --dataset mechanistic \
-  --source-dir /absolute/path/to/manual_pdfs \
-  --apply
+python pipeline/fulltext/import_manual_pdfs.py \
+  --inbox-dir data/raw/papers/manual_pdf_inbox \
+  --apply \
+  --move
 ```
+
+See `pipeline/fulltext/README.md` for identity checks, manual recovery, and
+conversion.
 
 ## Search Completeness Checks
 
@@ -307,12 +306,6 @@ python pipeline/ingest/build_discovery_supplement_plan.py --dataset disorder
 These plans cover sources such as ChEMBL, BindingDB, and ClinicalTrials.gov.
 They should become source-specific evidence rows, not paper DOI queues.
 
-For registry enrichment tied to already found papers:
-
-```bash
-python pipeline/enrich/enrich_trial_registries.py --dataset disorder
-```
-
 ## Retired Stub Generation
 
 The old DOI-to-claim-stub generator has been removed. The canonical path now
@@ -321,13 +314,12 @@ prepares DOI-level extraction inputs in `pipeline/extract/`.
 ## Main Outputs
 
 - `data/raw/doi_queue.<dataset>.discovered.txt`
-- `data/raw/doi_queue.<dataset>.new.txt`
 - `data/processed/discovery_report_<dataset>.json`
 - `data/processed/discovery_ledger_<dataset>.json`
-- `data/processed/paper_library_<dataset>.json`
-- `data/processed/paper_inventory_<dataset>.json`
-- `data/processed/paper_inventory_<dataset>.md`
-- `data/raw/papers/<dataset>/pdfs/*.pdf`
+- `data/processed/corpus/candidate_papers.parquet`
+- `data/processed/corpus/candidate_contexts.parquet`
+- `data/processed/corpus/candidate_sources.parquet`
+- `data/processed/corpus/paper_metadata_enrichment.parquet`
 
 Grouped module runs also write a domain-aware rediscovery lane under
 `grouped_module_run/combined/domain_reprocessing/` when rediscovered DOIs need

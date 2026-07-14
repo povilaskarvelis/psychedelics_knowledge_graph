@@ -11,7 +11,7 @@ graph-payload pipeline.
 ## Scoping Check
 
 A small PubMed and OpenAlex scoping pass on 2026-05-26 was used to calibrate
-the vocabulary before freezing the strategy. The goal was not to select papers,
+the vocabulary before freezing the strategy. The goal was not to select reports,
 but to check which terms retrieve known systems-neuroscience psychedelic
 literature.
 
@@ -39,7 +39,7 @@ The scoping queries supported five high-yield discovery families:
 
 Example scoping hits included human psilocybin fMRI work, ayahuasca default
 mode network connectivity work, LSD multimodal neuroimaging work, psilocybin
-5-HT2A occupancy work, DMT EEG-fMRI work, and preclinical region/circuit papers
+5-HT2A occupancy work, DMT EEG-fMRI work, and preclinical region/circuit reports
 on ketamine and psychedelic-like compounds. These examples are search-quality
 anchors, not inclusion decisions.
 
@@ -172,7 +172,7 @@ Initial high-confidence task-domain vocabulary:
 
 Clinical symptom scales and broad treatment outcomes should not enter this
 domain solely because they measure functioning. They belong in the clinical
-evidence domain unless the paper explicitly uses a cognitive, affective,
+evidence domain unless the report explicitly uses a cognitive, affective,
 behavioral, or neurobiological task paradigm.
 
 ## Grouped Search Modules
@@ -239,7 +239,7 @@ evidence.
 
 ## Screening Rules To Add Later
 
-The abstract-screening scope for this domain should be updated so a paper is
+The abstract-screening scope for this domain should be updated so a record is
 retained when the title/abstract supports:
 
 - an in-scope compound or explicit in-scope psychedelic/entactogen/dissociative
@@ -253,16 +253,16 @@ Preserve high recall:
   compound plus brain/task terms but the relationship is underspecified
 - keep animal, ex vivo, electrophysiology, imaging, and healthy-volunteer
   studies; these are core brain-system and cognitive-behavioral evidence
-- exclude clinical efficacy papers with no brain, circuit, network,
+- exclude clinical efficacy reports with no brain, circuit, network,
   neurophysiology, or task outcome signal from this domain, even if
   they remain relevant to the clinical evidence domain
 - avoid treating broad parent systems such as `serotonergic system` as direct
-  evidence for a brain network unless the paper directly studies that network
+  evidence for a brain network unless the report directly studies that network
 
 ## Extraction Rules To Add Later
 
 The extraction prompt and schema should promote direct systems-level evidence
-into graph candidates when the paper directly studies a compound relationship
+into graph candidates when the report directly studies a compound relationship
 with:
 
 - a brain region or anatomical circuit

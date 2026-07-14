@@ -17,7 +17,7 @@ const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
 
 const DATASET_LABELS = {
-  overall: "Paper search and screening flow",
+  overall: "Search and graph-inclusion flow",
 };
 const BIBLIOGRAPHY_GRAPH_STATUS_LABELS = {
   "In graph": "Represented in graph",
@@ -271,7 +271,7 @@ function renderPrismaPanel(status) {
   const gridClasses = ["prisma-grid"];
   if (flowOrder.length === 1) gridClasses.push("single");
   return `
-    <section class="prisma-panel" aria-label="PRISMA-style paper flow">
+    <section class="prisma-panel" aria-label="PRISMA-style record and report flow">
       <div class="${gridClasses.join(" ")}">
         ${flowOrder.map((dataset) => renderPrismaDiagram(dataset, flows[dataset])).join("")}
       </div>
@@ -345,7 +345,7 @@ function bibliographyPaperHtml(row) {
       <strong>${escapeHtml(title)}</strong>
       <span class="bibliography-authors">${escapeHtml(authors)}</span>
       ${meta ? `<span>${escapeHtml(meta)}</span>` : ""}
-      ${href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(doi)}</a>` : ""}
+      ${href ? `<a class="doi-link" href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(doi)}</a>` : ""}
     </div>
   `;
 }

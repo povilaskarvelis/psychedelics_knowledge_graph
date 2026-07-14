@@ -1,0 +1,108 @@
+{
+  "schema_version": "screening_decision_overrides_v1",
+  "notes": [
+    "These are final report-level scope decisions made from title, abstract, publication type, or corrected source review.",
+    "They are applied before extraction routing and written into the canonical corpus ledger."
+  ],
+  "overrides": [
+    {
+      "dois": [
+        "10.1002/mpr.6",
+        "10.1002/npr2.12456",
+        "10.1007/978-1-0716-3307-6_5",
+        "10.1016/j.mehy.2020.110268",
+        "10.1016/j.nsa.2022.100104",
+        "10.1016/s0893-6080(00)00069-1",
+        "10.1080/02791072.2011.587708",
+        "10.1080/03080188.2023.2266322",
+        "10.1093/nc/niaa024",
+        "10.1093/nc/niae005",
+        "10.1158/1538-7445.panca2023-c001",
+        "10.1176/appi.ajp.20230884",
+        "10.1177/0022167816673493",
+        "10.1177/00221678211011013",
+        "10.1177/00221678211021204",
+        "10.17590/asr.0000411",
+        "10.21236/ada562114",
+        "10.3389/fpsyg.2023.1119115",
+        "10.3390/ani16010003",
+        "10.4000/pontourbe.1345",
+        "10.5281/zenodo.19635075",
+        "10.5281/zenodo.19635076",
+        "10.55277/researchhub.oce0foc7",
+        "10.64239/pi-qt6202",
+        "10.64239/pi-vl1406",
+        "10.64239/pi-vl4809",
+        "10.70423/0001.19",
+        "10.70423/0001.20",
+        "10.7551/mitpress/12017.001.0001"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The record describes a protocol, method, model, framework, proposal, historical account, or analysis code rather than a completed evidence report."
+    },
+    {
+      "dois": [
+        "10.1002/dta.2213",
+        "10.1002/dta.2889",
+        "10.1002/hlca.19590420638",
+        "10.1002/jlcr.3669",
+        "10.1002/jlcr.4155",
+        "10.1002/jms.483",
+        "10.1007/s00213-018-5103-5",
+        "10.1007/s00414-012-0796-1",
+        "10.1016/0014-2999(85)90658-2",
+        "10.1016/j.jad.2024.08.050",
+        "10.1016/j.jchromb.2007.06.034",
+        "10.1016/j.jpba.2008.05.008",
+        "10.1016/j.nucmedbio.2004.10.001",
+        "10.1016/j.tetlet.2010.07.144",
+        "10.1016/s1570-0232(03)00420-3",
+        "10.1021/acschemneuro.3c00677",
+        "10.1055/s-0042-1759062",
+        "10.1055/s-1999-3490",
+        "10.1107/s1600536812043449",
+        "10.33263/lianbs124.105",
+        "10.3389/ffunb.2023.1295223"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The report contains chemistry, assay-development, psychometric, or non-psychedelic reference material without an in-scope psychedelic, ketamine, or entactogen finding."
+    },
+    {
+      "dois": [
+        "10.64239/pi-vl2413",
+        "10.47626/1516-4446-2026-4911",
+        "10.1016/j.encep.2023.11.029",
+        "10.23785/tu.2026.01.003",
+        "10.1001/jamapsychiatry.2022.4020",
+        "10.1016/j.ajp.2023.103480",
+        "10.1097/hrp.0000000000000197",
+        "10.1186/s12991-023-00478-7",
+        "10.1111/head.70016",
+        "10.2147/jpr.s315585",
+        "10.47626/1516-4446-2022-2891",
+        "10.4088/jcp.25cs16066",
+        "10.4103/0973-1075.285694",
+        "10.1080/08039488.2021.1952303",
+        "10.1016/j.ijgo.2011.06.001"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The guideline or consensus statement does not make a recommendation specifically about psychedelics, ketamine, or entactogens."
+    },
+    {
+      "dois": [
+        "10.1016/j.concog.2023.103474",
+        "10.1177/0333102421996355",
+        "10.3389/fnins.2023.1267611"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The report concerns construct validation or symptom description without an identifiable psychedelic, ketamine, or entactogen exposure."
+    },
+    {
+      "dois": [
+        "10.3390/brainsci12030366"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The meta-analysis compares substance-use outcomes by demographic group and contains no psychedelic, ketamine, or entactogen exposure."
+    }
+  ]
+}

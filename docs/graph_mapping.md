@@ -36,12 +36,12 @@ Use templates such as:
 - `Psychedelics: Mechanistic Targets`
 - `Psychedelics: Disorder Outcomes`
 
-Template fields mirror the properties above. Each new paper adds one or more
-contributions using the relevant template. If a paper reports multiple targets
+Template fields mirror the properties above. Each new report adds one or more
+contributions using the relevant template. If a report describes multiple targets
 or outcomes, create one contribution per claim.
 
 ## Provenance
-- Use DOI/openalex_id in the `source` field and retain paper title, journal,
+- Use DOI/openalex_id in the `source` field and retain report title, journal,
   year, and provider metadata where available.
 - Primary and secondary graph views are controlled by source/provenance fields
   such as `source_type`, `paper_type`, `source_family`, and `access_level`, not

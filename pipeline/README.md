@@ -1,9 +1,9 @@
 # Pipeline
 
 This pipeline builds and maintains the evidence base behind the Psychedelics
-Knowledge Graph. It records how papers were found, screens them for relevance,
-prepares the best available source text, extracts structured findings, and
-publishes reviewed releases of the graph, bibliography, and Methods page.
+Knowledge Graph. It records how records were found, screens them for relevance,
+prepares the best available report text, extracts structured findings, and
+publishes reviewed releases of the graph, record audit, and Methods page.
 
 This README is the living operational map for the current pipeline. When a
 step changes, update this file first, then update the narrower stage README if
@@ -13,11 +13,11 @@ the change affects a specific script family.
 
 ```mermaid
 flowchart TD
-  A["Plan grouped and focused searches"] --> B["Find and deduplicate papers"]
-  B --> C["Build the paper corpus and enrich metadata"]
-  C --> D["Initial rules-based screening"]
-  D --> E["Title and abstract screening and classification"]
-  E --> F["Prepare extraction assignments"]
+  A["Plan grouped and focused searches"] --> B["Find and deduplicate records"]
+  B --> C["Build the record corpus and enrich metadata"]
+  C --> D["Initial rules-based record screening"]
+  D --> E["Title and abstract screening and report classification"]
+  E --> F["Prepare report extraction assignments"]
   G["Reviewed exceptions"] --> F
   F --> H["Retrieve and convert available article text"]
   F --> I["Use abstracts when article text is unavailable"]
@@ -53,45 +53,52 @@ flowchart TD
    title/abstract evidence or clearly fall outside the project scope. It writes
    decisions to `paper_prescreen_decisions.parquet` and can be rerun for the
    whole corpus or a DOI subset.
-6. **Title and abstract screening and classification** assesses retained papers
-   for relevance, evidence topics, and paper type. Primary studies,
+6. **Title and abstract screening and classification** assesses retained records
+   for relevance, evidence topics, and report type. Primary studies,
    meta-analyses, other reviews, and non-primary context remain distinguishable
    throughout extraction and publication. The current implementation uses a
    structured model-assisted pass, with exact technical details recorded in the
    generated corpus fields and run artifacts.
-7. **Extraction preparation** combines the screening decisions, paper type,
+7. **Extraction preparation** combines the screening decisions, report type,
    evidence topics, available source text, and narrowly reviewed exceptions in
    `paper_extraction_routes.parquet`. Despite the filename, this is best
-   described publicly as the set of extraction assignments for each paper.
+   described publicly as the set of extraction assignments for each report.
 8. **Source-text preparation** refreshes open-access links, downloads available legal
    PDFs, retrieves reusable PMC XML when available, and converts local full-text
    sources into structured artifacts. Records without usable full text remain
    eligible for abstract-only extraction when they otherwise meet the selection
    criteria.
-9. **Structured evidence extraction** uses different paper-centered contracts
+9. **Structured evidence extraction** uses different report-centered contracts
    for primary studies, meta-analyses, and other reviews. Primary-study results,
    pooled estimates, and review-level relationships are not flattened into one
    evidence type. Guidelines, context-only records, and other non-extraction
    records remain available for corpus accounting without becoming findings.
 10. **Validation and graph preparation** checks extracted information against
     its source, preserves source locations, uses consistent names for compounds
-    and related topics, and excludes relationships that cannot be represented
-    accurately.
+    and related topics, and writes one final graph-inclusion decision, reason,
+    and provenance record back to `candidate_papers.parquet` for every DOI.
 11. **Staging and publication** builds versioned graph tables, author data, and
-    compact browser files. A guarded promotion then updates the active evidence
-    release, graph, bibliography, Methods counts, and static site as one unit so
-    users do not see a mixture of releases.
+    compact browser files. A guarded promotion first materializes and validates
+    the release's final decisions in the canonical corpus ledger, then generates
+    the bibliography and PRISMA flow from that ledger alone. It updates the
+    ledger, active evidence release, graph, Methods outputs, and static site as
+    one atomic unit.
 
 Generated Parquet tables are rebuildable. Durable decisions should live in
 tracked code, configuration, search strategy files, model prompts, or small
 manual-review files such as `pipeline/extract/manual_extraction_route_overrides.json`
-and `pipeline/fulltext/manual_fulltext_access_overrides.json`.
+and `pipeline/fulltext/manual_fulltext_access_overrides.json`. Curated screening
+decisions in `data/curated/screening_decision_overrides.json` are applied before
+extraction. Final post-extraction exceptions may be staged in
+`data/curated/graph_inclusion_disposition_overrides.json`, but public outputs do
+not read that file directly; promotion writes the resolved decision into the
+canonical corpus first.
 CSV audit files are human-readable inspection artifacts unless a script
 explicitly takes them as input.
 
 ## Main Commands
 
-### Updating one paper or a DOI list
+### Updating one report or a DOI list
 
 Do not rerun all model extraction or edit KG rows directly for a correction.
 Use the three-phase scoped updater:
@@ -155,7 +162,7 @@ python pipeline/validate/build_context_provenance_audit.py \
 
 This writes `candidate_papers.parquet`, `candidate_contexts.parquet`,
 `candidate_sources.parquet`, and `candidate_corpus_manifest.parquet`.
-Rediscovered papers are deduplicated by DOI at the paper level while keeping
+Rediscovered records are deduplicated by DOI while keeping
 their source/query provenance in the context and source tables.
 
 ### Metadata Enrichment
@@ -210,7 +217,7 @@ This writes `paper_domain_routing_gemini.parquet`,
 `paper_domain_routing_gemini_summary.json`, and
 `paper_domain_routing_gemini_counts.csv`. The Gemini response includes
 `screening_decision`, `domain_tags`, `primary_domain`, `paper_type_group`, and
-`paper_type`; this table is the source of paper type for new extraction routes.
+`paper_type`; this table is the source of report type for new extraction routes.
 
 ### Extraction Routes
 
@@ -232,14 +239,19 @@ applies two narrow DOI-level manual review files:
 - `pipeline/fulltext/manual_fulltext_access_overrides.json` for access
   decisions such as suppressing a misleading probable-PDF URL after manual
   review confirms there is no usable open article PDF.
+- `data/curated/screening_decision_overrides.json` for reviewed report-level
+  exclusions that must prevent extraction tasks.
 
 The build also updates `candidate_papers.parquet` as the DOI-level pipeline
 ledger. It backfills publication-stage fields, pre-screen summaries, Gemini
-paper-type/domain summaries, extraction-route status, route counts, prompt and
+report-type/domain summaries, extraction-route status, route counts, prompt and
 schema profiles, manual full-text access decisions, and the best available text
-tier. The detailed many-row route assignments stay in
+tier. Promotion then adds the final graph status, disposition, reason, decision
+source, run ID, and release ID. The detailed many-row route assignments stay in
 `paper_extraction_routes.parquet`; `candidate_papers.parquet` keeps one row per
-DOI for corpus accounting and PRISMA-style counts.
+DOI and is the sole input for the public PRISMA flow and complete bibliography.
+The Methods build fails when this ledger is missing a decision or contains a
+contradictory screening, extraction-selection, or graph status.
 
 Access tiers are intentionally operational:
 
@@ -299,7 +311,7 @@ python pipeline/fulltext/run_pdf_retrieval_pipeline.py \
   --write-every 25
 ```
 
-This step targets retained `download_pdf_then_extract` papers, deduplicates by
+This step targets retained `download_pdf_then_extract` reports, deduplicates by
 DOI, writes successful downloads to `data/raw/papers/pdfs/`, and updates
 `candidate_papers.parquet` with the canonical local PDF path and checksum. It
 then runs the standard repository recovery pass for OSF/PsyArXiv and
@@ -320,10 +332,10 @@ default; weaker links stay visible as `other_url_candidates` for refreshed link
 discovery or manual download. Use `--include-weak-pdf-urls` only for diagnostic
 or manually supervised recovery runs.
 
-By default, the downloader interleaves queued papers by primary PDF host instead
+By default, the downloader interleaves queued reports by primary PDF host instead
 of processing table order. This avoids sending long consecutive runs of requests
 to one repository or publisher, which reduces avoidable rate limiting while
-still keeping all papers in the same first-pass retrieval stage. If a host
+still keeping all reports in the same first-pass retrieval stage. If a host
 returns a temporary failure such as a rate-limit response, timeout, or 5xx
 provider error, only that host is cooled down; alternative PDF candidate URLs
 for the same DOI can still be tried. Use `--preserve-task-order` only for
@@ -406,7 +418,7 @@ When manual review confirms a record is not an extractable article, add
 `manual_action=context_only` in
 `pipeline/extract/manual_extraction_route_overrides.json` and rebuild routes.
 
-Rebuild failure categories from recorded download reports and paper records:
+Rebuild failure categories from recorded download reports and corpus records:
 
 ```bash
 python pipeline/fulltext/backfill_pdf_failure_categories.py
@@ -425,7 +437,7 @@ python pipeline/fulltext/download_routed_pdfs.py \
 
 ### Full-Text Conversion
 
-For retained papers with a PMCID but no converted full text and no local PDF,
+For retained reports with a PMCID but no converted full text and no local PDF,
 retrieve reusable PMC XML before treating the record as abstract-only:
 
 ```bash
@@ -499,15 +511,15 @@ Route-specific article text builders should use `fulltext_artifact_paths` from
 extraction assignments and article text inputs.
 
 Primary-study extraction uses topic-specific tasks built from the extraction
-assignments. Meta-analyses and other reviews now use paper-centered extraction
-paths so a synthesis is interpreted as a whole paper rather than as unrelated
+assignments. Meta-analyses and other reviews now use report-centered extraction
+paths so a synthesis is interpreted as a whole report rather than as unrelated
 topic fragments. The detailed commands and current contracts are documented in
 [`pipeline/extract/README.md`](extract/README.md).
 
 Guideline, context-only, and no-extraction assignments are retained for audit
 and corpus accounting but are not sent for evidence extraction.
 
-Not every selected paper becomes a graph finding. Primary studies,
+Not every selected report becomes a graph finding. Primary studies,
 meta-analyses, and other reviews can each produce candidate findings, but they
 remain separate source views and still have to pass validation and
 normalization. Guidelines, context-only records, and no-extraction assignments
@@ -557,10 +569,12 @@ After review, publish the already-built release with the guarded promoter:
 python pipeline/publish/promote_routed_run.py --run-id "$RUN_ID"
 ```
 
-Promotion refreshes the active graph pointers, Methods paper flow, full
-bibliography, and `dist/` site bundle together. For corrections to selected
-papers, use the scoped updater described at the start of this guide; it applies
-the same publication safeguards.
+Promotion stages the release's final decisions into `candidate_papers.parquet`,
+validates the complete ledger, generates the Methods selection flow and full
+bibliography only from that staged ledger, and then refreshes the corpus, active
+graph pointers, Methods outputs, and `dist/` site bundle together. For
+corrections to selected reports, use the scoped updater described at the start
+of this guide; it applies the same publication safeguards.
 
 ## Canonical Outputs
 
@@ -604,10 +618,10 @@ The raw run reports remain append-only provenance. The files under
 `data/processed/extraction/` are current views regenerated from corpus tables
 and full-text artifacts.
 
-Current corpus storage direction: use structured Parquet tables for papers,
+Current corpus storage direction: use structured Parquet tables for records,
 contexts, source/provenance events, and metadata enrichment. Later, load those
 tables into Postgres for website search, API queries, and MCP-facing
-paper/KG access.
+record, report, and KG access.
 
 Build the current candidate corpus tables:
 

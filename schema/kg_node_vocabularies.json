@@ -710,6 +710,19 @@
         "status": "seed_hierarchy"
       },
       {
+        "label": "Corpus callosum",
+        "aliases": ["corpus callosum isthmus", "isthmus of corpus callosum", "rostral body of corpus callosum"],
+        "ids": {},
+        "status": "controlled_detail"
+      },
+      {
+        "label": "Paracentral lobule",
+        "aliases": [],
+        "parent": "Parietal cortex",
+        "ids": {},
+        "status": "controlled_detail"
+      },
+      {
         "label": "Spinal cord",
         "aliases": [],
         "ids": {},
@@ -827,6 +840,24 @@
         "aliases": ["Schaffer Collateral-CA1 synapse", "Schaffer collateral-commissural pathway", "CA3-CA1 circuit"],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Hippocampal trisynaptic circuit",
+        "aliases": ["hippocampal trisynaptic circuitry", "HTC"],
+        "ids": {},
+        "status": "controlled_detail"
+      },
+      {
+        "label": "Frontal-limbic circuit",
+        "aliases": ["frontal limbic circuit"],
+        "ids": {},
+        "status": "controlled_detail"
+      },
+      {
+        "label": "Mossy fiber pathway",
+        "aliases": ["mossy fibre projections", "mossy fiber projections"],
+        "ids": {},
+        "status": "controlled_detail"
       }
     ],
     "cognitive_behavioral_construct": [
@@ -908,14 +939,14 @@
       },
       {
         "label": "Reward learning",
-        "aliases": ["appetitive learning", "reward feedback learning", "reinforcement learning from reward"],
+        "aliases": ["appetitive learning", "reward feedback learning", "reinforcement learning from reward", "sign-tracking", "goal-tracking"],
         "parent": "Reward processing",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Motivation",
-        "aliases": ["goal-directed motivation", "incentive motivation", "effort-based motivation", "motivational processing"],
+        "aliases": ["goal-directed motivation", "incentive motivation", "effort-based motivation", "motivational processing", "readiness to change"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -1049,10 +1080,23 @@
       },
       {
         "label": "Associative memory",
-        "aliases": ["paired-associate memory", "paired associative learning"],
+        "aliases": ["associative learning", "paired-associate memory", "paired associative learning"],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
+      },
+      {
+        "label": "Conditioned taste aversion",
+        "aliases": ["taste aversion learning"],
+        "parent": "Memory",
+        "ids": {},
+        "status": "controlled_detail"
+      },
+      {
+        "label": "Self-related processing",
+        "aliases": ["self-compassion", "self-criticism", "self-acceptance"],
+        "ids": {},
+        "status": "controlled_detail"
       },
       {
         "label": "Memory consolidation",
@@ -1215,7 +1259,7 @@
       },
       {
         "label": "Psychotomimetic effects",
-        "aliases": ["psychotomimetic symptoms", "psychosis-like experience", "psychosis-like effects", "psychotic-like symptoms", "schizophrenia-like symptoms", "positive symptoms", "BPRS", "PANSS"],
+        "aliases": ["psychotomimetic symptoms", "psychosis-like experience", "psychosis-like effects", "psychotic-like symptoms", "schizophrenia-like symptoms", "positive symptoms", "thought disorder", "BPRS", "PANSS"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -1229,13 +1273,13 @@
     "subjective_experience_construct": [
       {
         "label": "Mystical-type experience",
-        "aliases": ["mystical experience", "complete mystical experience", "oceanic boundlessness", "OBN", "experience of unity", "self-transcendence", "ineffability"],
+        "aliases": ["mystical experience", "complete mystical experience", "oceanic boundlessness", "OBN", "experience of unity", "self-transcendence", "transcendence", "noetic sense", "ineffability"],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Ego dissolution",
-        "aliases": ["ego-dissolution", "ego loss", "ego death", "ego disintegration"],
+        "aliases": ["ego-dissolution", "ego boundary dissolution", "ego loss", "ego death", "ego disintegration"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -1265,7 +1309,7 @@
       },
       {
         "label": "Altered state profile",
-        "aliases": ["Altered states of consciousness", "altered state of consciousness", "altered states", "ASC", "5D-ASC", "11D-ASC", "3D-ASC", "APZ", "continuous subjective experience", "primary process thinking"],
+        "aliases": ["Altered states of consciousness", "altered state of consciousness", "altered states", "psychedelic experience", "subjective effects", "ASC", "5D-ASC", "11D-ASC", "3D-ASC", "APZ", "continuous subjective experience", "primary process thinking"],
         "ids": {},
         "status": "seed_alias"
       },

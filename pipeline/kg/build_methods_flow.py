@@ -21,8 +21,6 @@ KG_CLAIMS_TABLE = ROOT / "data" / "processed" / "kg" / "claims.parquet"
 KG_TABLE_MANIFEST = ROOT / "data" / "processed" / "kg" / "manifest.json"
 EXTRACTION_PROJECTION_REPORT = ROOT / "data" / "processed" / "extraction" / "projection_report.json"
 CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
-GRAPH_PAYLOAD_ACTIVE_POINTER = ROOT / "data" / "processed" / "graph_payload_active.json"
-GRAPH_DISPOSITION_OVERRIDES = ROOT / "data" / "curated" / "graph_inclusion_disposition_overrides.json"
 
 DATASETS = {
     "mechanistic": {
@@ -166,7 +164,7 @@ PRISMA_CANDIDATE_PRESCREEN_LABELS = {
     "exclude_obvious_irrelevant": "No in-scope title/abstract signal",
     "exclude_missing_abstract": "No abstract available",
     "exclude_non_evidence_artifact": "Non-evidence artifact",
-    "exclude_non_paper_container": "Non-paper container",
+    "exclude_non_paper_container": "Non-report container",
     "exclude_preprint_or_unpublished": "Preprint or unpublished posted content",
     "unknown": "Screening status not available",
 }
@@ -183,13 +181,6 @@ PRISMA_PUBLIC_LLM_SCREENING_LABELS = {
     "background_context_only": "Kept as background/context only",
     "not_selected_for_extraction": "Not selected for evidence extraction",
     "unknown": "Title and abstract screening status not available",
-}
-
-PRISMA_CANDIDATE_KG_LABELS = {
-    "not_graphable": "Not graphable",
-    "not_normalized": "Not normalized",
-    "no_graph_finding": "No graph finding",
-    "unknown": "Knowledge-graph status not available",
 }
 
 PRISMA_CANDIDATE_INPUT_LABELS = {
@@ -241,20 +232,47 @@ METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS = (
 
 GRAPH_DISPOSITION_LABELS = {
     "represented": "Represented in the evidence graph",
+    "adjudicated_outside_scope": "Outside the evidence scope",
+    "no_extractable_finding": "No specific finding to represent",
+    "insufficient_source_text": "Available text is too limited",
+    "source_not_verified": "Source document could not be verified",
+    "not_results_report": "Not a results report",
+    "unsupported_finding_detail": "Finding too broad or ambiguous",
+    # Transitional values remain readable for older override files, but a
+    # completed release should not contain them.
     "extraction_needed": "Extraction needs correction",
     "normalization_needed": "Normalization or assembly needs correction",
     "source_recovery_needed": "Better source text needed",
     "manual_review_needed": "Manual evidence review needed",
-    "adjudicated_outside_scope": "Adjudicated outside graph scope",
 }
 
 GRAPH_DISPOSITION_DEFAULT_ACTIONS = {
     "represented": "No action needed.",
+    "adjudicated_outside_scope": "Retain the report in the corpus with its scope rationale.",
+    "no_extractable_finding": "Retain the report and its final evidence-assessment reason.",
+    "insufficient_source_text": "Revisit only if a more complete source becomes available.",
+    "source_not_verified": "Revisit only if the correct source document can be verified.",
+    "not_results_report": "Retain the record in the corpus without treating it as a results report.",
+    "unsupported_finding_detail": "Retain the extraction for audit without adding an unstable graph concept.",
     "extraction_needed": "Regenerate or rerun the routed extraction task.",
     "normalization_needed": "Audit conversion, normalization, and graph admission for the extracted row.",
     "source_recovery_needed": "Recover and verify a better source before extraction.",
     "manual_review_needed": "Review the source and current output, then assign a more specific disposition.",
-    "adjudicated_outside_scope": "Retain the paper in the corpus with its scope rationale.",
+}
+
+FINAL_GRAPH_EXCLUSION_ORDER = (
+    "adjudicated_outside_scope",
+    "no_extractable_finding",
+    "insufficient_source_text",
+    "source_not_verified",
+    "not_results_report",
+    "unsupported_finding_detail",
+)
+TRANSITIONAL_GRAPH_DISPOSITIONS = {
+    "extraction_needed",
+    "normalization_needed",
+    "source_recovery_needed",
+    "manual_review_needed",
 }
 
 METHODS_BIBLIOGRAPHY_STAGE_LABELS = {
@@ -277,46 +295,13 @@ METHODS_BIBLIOGRAPHY_STAGE_ORDER = (
 
 METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER = (
     "In graph",
-    "Not graphable",
-    "Not normalized",
-    "No graph finding",
+    "Outside the evidence scope",
+    "No specific finding to represent",
+    "Available text is too limited",
+    "Source document could not be verified",
+    "Not a results report",
+    "Finding too broad or ambiguous",
     "Not reached",
-)
-
-KG_AUDIT_REASON_LABELS = {
-    "paper_scope_not_graphable": "No recognized in-scope subject in the review title or relationship",
-    "compound_graph_scope_not_graphable": "Compound outside graph scope",
-    "compound_class_not_graphable": "Compound class, not a graphable compound",
-    "compound_reference_not_graphable": "Reference compound, not a graphable compound",
-    "compound_combo_not_graphable": "Compound combination not split into a graphable compound",
-    "condition_analog_not_graphable": "Condition analogue not graphable",
-    "condition_broad_placeholder_not_graphable": "Condition label too broad for the graph",
-    "brain_measure_not_graphable": "Brain measure not mapped to a graph node",
-    "broad_brain_system_not_graphable": "Brain-system label too broad for the graph",
-    "molecular_effect_placeholder_not_graphable": "Molecular-effect label too broad for the graph",
-    "generic_behavior_not_graphable": "Behavior label too generic for the graph",
-    "entity_combo_not_graphable": "Combined entity label not split into a graph node",
-    "entity_reference_not_graphable": "Reference entity, not a graphable node",
-    "compound_unmapped": "Compound was not normalized",
-    "entity_unmapped": "Entity was not normalized",
-}
-
-KG_AUDIT_REASON_ORDER = (
-    "paper_scope_not_graphable",
-    "compound_graph_scope_not_graphable",
-    "compound_reference_not_graphable",
-    "compound_class_not_graphable",
-    "compound_combo_not_graphable",
-    "compound_unmapped",
-    "entity_unmapped",
-    "condition_broad_placeholder_not_graphable",
-    "condition_analog_not_graphable",
-    "brain_measure_not_graphable",
-    "broad_brain_system_not_graphable",
-    "molecular_effect_placeholder_not_graphable",
-    "generic_behavior_not_graphable",
-    "entity_combo_not_graphable",
-    "entity_reference_not_graphable",
 )
 
 METHODS_BIBLIOGRAPHY_PROFILE_LABELS = {
@@ -331,7 +316,7 @@ METHODS_BIBLIOGRAPHY_PROFILE_LABELS = {
 METHODS_BIBLIOGRAPHY_SCREENING_REASONS = {
     "exclude_obvious_irrelevant": "No in-scope signal",
     "exclude_missing_abstract": "No abstract",
-    "exclude_non_evidence_artifact": "Not an evidence paper",
+    "exclude_non_evidence_artifact": "Not an evidence report",
     "exclude_non_paper_container": "Journal/container record",
     "exclude_preprint_or_unpublished": "Preprint/unpublished",
     "retain_for_extraction_candidate": "",
@@ -449,130 +434,6 @@ def write_json(path: Path, payload: object) -> None:
 def write_compact_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
-
-
-def project_path(root: Path, value: object) -> Path | None:
-    raw = normalize(value)
-    if not raw:
-        return None
-    path = Path(raw)
-    return path if path.is_absolute() else root / path
-
-
-def active_routed_kg_dirs(root: Path = ROOT, active_pointer: Path | None = None) -> list[Path]:
-    """Return every routed KG run used by the active (possibly mixed) graph."""
-    active_pointer = active_pointer or root / "data" / "processed" / "graph_payload_active.json"
-    if not active_pointer.exists():
-        return []
-    try:
-        active = read_json_object(active_pointer)
-    except Exception:
-        return []
-
-    kg_dirs: list[Path] = []
-    seen: set[Path] = set()
-
-    def add_kg_dir(value: object) -> None:
-        path = project_path(root, value)
-        if path is None:
-            return
-        resolved = path.resolve()
-        if resolved not in seen:
-            seen.add(resolved)
-            kg_dirs.append(resolved)
-
-    add_kg_dir(active.get("kg_dir", ""))
-
-    manifest_values = [active.get("active_manifest", "")]
-    detail_bootstraps = active.get("active_detail_bootstraps", {})
-    if isinstance(detail_bootstraps, dict):
-        for detail_value in detail_bootstraps.values():
-            detail_path = project_path(root, detail_value)
-            if detail_path is not None:
-                manifest_values.append(detail_path.parent / "graph_payload_manifest.json")
-
-    for manifest_value in manifest_values:
-        manifest_path = project_path(root, manifest_value)
-        if manifest_path is None or not manifest_path.exists():
-            continue
-        try:
-            manifest = read_json_object(manifest_path)
-        except Exception:
-            continue
-        add_kg_dir(manifest.get("kg_dir", ""))
-
-    return kg_dirs
-
-
-def active_routed_kg_dir(root: Path = ROOT, active_pointer: Path | None = None) -> Path | None:
-    """Backward-compatible accessor for callers that expect one active KG run."""
-    kg_dirs = active_routed_kg_dirs(root, active_pointer)
-    return kg_dirs[0] if kg_dirs else None
-
-
-def active_detail_study_dois(
-    root: Path = ROOT,
-    active_pointer: Path | None = None,
-) -> tuple[set[str], list[str], list[str], int]:
-    """Read the DOI set actually served by the active browser detail payloads."""
-    active_pointer = active_pointer or root / "data" / "processed" / "graph_payload_active.json"
-    input_files: list[str] = []
-    warnings: list[str] = []
-    if not active_pointer.exists():
-        return set(), input_files, warnings, 0
-    try:
-        active = read_json_object(active_pointer)
-    except Exception as exc:
-        warnings.append(f"Could not read active graph payload pointer {active_pointer}: {exc}")
-        return set(), input_files, warnings, 0
-
-    detail_bootstraps = active.get("active_detail_bootstraps", {})
-    if not isinstance(detail_bootstraps, dict):
-        return set(), input_files, warnings, 0
-
-    dois: set[str] = set()
-    loaded_sources = 0
-    for source, value in sorted(detail_bootstraps.items()):
-        path = project_path(root, value)
-        if path is None or not path.exists():
-            warnings.append(f"Active {source} detail payload is missing: {path or value}")
-            continue
-        input_files.append(str(path))
-        try:
-            payload = read_json_object(path)
-            fields = payload.get("fields", [])
-            values = payload.get("values", [])
-            rows = payload.get("rows", [])
-            doi_index = fields.index("study_doi")
-            for row in rows:
-                if not isinstance(row, list) or doi_index >= len(row):
-                    continue
-                value_index = row[doi_index]
-                if not isinstance(value_index, int) or value_index < 0 or value_index >= len(values):
-                    continue
-                doi = normalize_doi(values[value_index])
-                if doi:
-                    dois.add(doi)
-            loaded_sources += 1
-        except Exception as exc:
-            warnings.append(f"Could not read active {source} detail payload {path}: {exc}")
-    return dois, input_files, warnings, loaded_sources
-
-
-def unique_public_labels(values: Iterable[object], limit: int = 3) -> str:
-    labels = []
-    seen = set()
-    for value in values:
-        label = strip_markup(value)
-        if not label or label in seen:
-            continue
-        labels.append(label)
-        seen.add(label)
-    if not labels:
-        return ""
-    shown = labels[:limit]
-    suffix = f" +{len(labels) - limit} more" if len(labels) > limit else ""
-    return ", ".join(shown) + suffix
 
 
 def first_nonempty(*values: object) -> object:
@@ -832,15 +693,28 @@ def llm_supported_contexts(row: dict) -> list[dict]:
     return out
 
 
+def validate_canonical_candidate_rows(rows: list[dict]) -> None:
+    try:
+        from pipeline.kg.update_corpus_graph_status import validate_candidate_ledger
+    except ModuleNotFoundError:  # pragma: no cover - direct script execution path
+        sys.path.insert(0, str(ROOT))
+        from pipeline.kg.update_corpus_graph_status import validate_candidate_ledger
+    import pandas as pd
+
+    validate_candidate_ledger(pd.DataFrame(rows))
+
+
 class MethodsFlowBuilder:
-    def __init__(self, root: Path = ROOT, *, routed_kg_dir: Path | None = None) -> None:
+    def __init__(self, root: Path = ROOT, *, candidate_table: Path | None = None) -> None:
         self.root = root
-        self.routed_kg_dir = Path(routed_kg_dir).resolve() if routed_kg_dir is not None else None
+        self.candidate_table = (
+            Path(candidate_table).resolve()
+            if candidate_table is not None
+            else (root / "data" / "processed" / "corpus" / "candidate_papers.parquet").resolve()
+        )
         self.nodes: dict[str, dict] = {}
         self.papers: dict[str, dict] = {}
         self.candidate_rows: list[dict] = []
-        self.kg_graph_status_by_doi: dict[str, dict] = {}
-        self.graph_disposition_overrides: dict[str, dict] = {}
         self.fulltext_by_doi: dict[str, dict] = {}
         self.doi_to_paper_id: dict[str, str] = {}
         self.pipeline_rows: dict[str, dict[str, dict]] = defaultdict(dict)
@@ -858,38 +732,13 @@ class MethodsFlowBuilder:
         self.warnings: list[str] = []
 
     def build(self) -> dict:
-        loaded_candidate_table = self.load_candidate_papers()
-        self.load_routed_kg_graph_status()
-        self.load_graph_disposition_overrides()
-        if not loaded_candidate_table:
-            self.load_fulltext_status()
-            self.load_paper_libraries()
-            self.load_corpus_screening_reports()
-            self.load_triage_reports()
-            self.finalize_paper_nodes()
-            self.load_kg_claim_status()
-            self.load_extraction_outcomes()
+        if not self.load_candidate_papers():
+            raise FileNotFoundError(f"Canonical corpus table is required: {self.candidate_table}")
+        validate_canonical_candidate_rows(self.candidate_rows)
         return self.payloads()
 
-    def load_graph_disposition_overrides(self) -> None:
-        path = self.root / GRAPH_DISPOSITION_OVERRIDES.relative_to(ROOT)
-        overrides, warnings = load_graph_disposition_overrides(path)
-        self.graph_disposition_overrides = overrides
-        if path.exists():
-            self.input_files.append(str(path))
-        self.warnings.extend(warnings)
-
     def candidate_table_path(self) -> Path:
-        return self.root / "data" / "processed" / "corpus" / "candidate_papers.parquet"
-
-    def load_routed_kg_graph_status(self) -> None:
-        lookup, input_files, warnings = routed_kg_graph_status_by_doi(
-            self.root,
-            kg_dir_override=self.routed_kg_dir,
-        )
-        self.kg_graph_status_by_doi = lookup
-        self.input_files.extend(input_files)
-        self.warnings.extend(warnings)
+        return self.candidate_table
 
     def load_candidate_papers(self, candidate_table: Path | None = None) -> bool:
         candidate_table = Path(candidate_table) if candidate_table is not None else self.candidate_table_path()
@@ -1409,10 +1258,7 @@ class MethodsFlowBuilder:
         }
 
     def candidate_pipeline_status_view(self) -> dict:
-        flow = prisma_flow_for_candidate_papers(
-            self.candidate_rows,
-            kg_status_by_doi=self.kg_graph_status_by_doi,
-        )
+        flow = prisma_flow_for_candidate_papers(self.candidate_rows)
         return {
             "contract_version": KG_VERSION,
             "view": "pipeline_status",
@@ -1426,44 +1272,7 @@ class MethodsFlowBuilder:
         }
 
     def pipeline_status_view(self) -> dict:
-        if self.candidate_rows:
-            return self.candidate_pipeline_status_view()
-
-        counters: dict[str, Counter] = defaultdict(Counter)
-        prisma_rows: dict[str, list[dict]] = defaultdict(list)
-        for dataset, rows_by_paper in sorted(self.pipeline_rows.items()):
-            for row_props in rows_by_paper.values():
-                paper_props = self.nodes.get(row_props.get("paper_id", ""), {}).get("properties", {})
-                props = pipeline_row_with_paper_artifacts(
-                    row_props,
-                    paper_props,
-                )
-                if not paper_has_screening_record(props):
-                    props["relevance_suggested"] = "unknown"
-                    props["screening_status"] = (
-                        "not_screened_no_abstract" if not boolish(props.get("abstract_present", False)) else "not_screened"
-                    )
-                counters[f"{dataset}:relevance"][normalize(props.get("relevance_suggested", "")) or "unknown"] += 1
-                counters[f"{dataset}:screening"][normalize(props.get("screening_status", "")) or "unknown"] += 1
-                counters[f"{dataset}:pdf"][normalize(props.get("pdf_status", "")) or "unknown"] += 1
-                counters[f"{dataset}:fulltext"][normalize(props.get("fulltext_status", "")) or "unknown"] += 1
-                counters[f"{dataset}:llm_extraction"][normalize(props.get("llm_extraction_status", "")) or "unknown"] += 1
-                prisma_rows[dataset].append(props)
-        return {
-            "contract_version": KG_VERSION,
-            "view": "pipeline_status",
-            "generated_at": now_utc(),
-            "current_stage": "kg_inclusion_summary",
-            "counts": {key: dict(counter) for key, counter in sorted(counters.items())},
-            "kg_claim_status": self.kg_claim_status_summary(),
-            "extraction_status": self.extraction_status_summary(),
-            "metadata_quality": self.metadata_quality_summary(),
-            "prisma_flow_order": sorted(prisma_rows),
-            "prisma_flow": {
-                dataset: prisma_flow_for_dataset(dataset, rows)
-                for dataset, rows in sorted(prisma_rows.items())
-            },
-        }
+        return self.candidate_pipeline_status_view()
 
     def metadata_quality_summary(self) -> dict:
         conflicts = []
@@ -1488,15 +1297,8 @@ class MethodsFlowBuilder:
         bibliography_rows = self.candidate_rows if self.candidate_rows else []
         return {
             "pipeline_status": self.pipeline_status_view(),
-            "methods_bibliography": candidate_bibliography_payload(
-                bibliography_rows,
-                kg_status_by_doi=self.kg_graph_status_by_doi,
-            ),
-            "graph_inclusion_dispositions": graph_inclusion_disposition_payload(
-                bibliography_rows,
-                kg_status_by_doi=self.kg_graph_status_by_doi,
-                overrides_by_doi=self.graph_disposition_overrides,
-            ),
+            "methods_bibliography": candidate_bibliography_payload(bibliography_rows),
+            "graph_inclusion_dispositions": graph_inclusion_disposition_payload(bibliography_rows),
             "manifest": {
                 "contract_version": KG_VERSION,
                 "generated_at": now_utc(),
@@ -1628,16 +1430,18 @@ def public_profile_labels(value: object) -> str:
 def public_llm_screening_reason(row: dict) -> str:
     route_status = normalize(row.get("extraction_route_status", "")).lower()
     if route_status == "ready_for_article_text_extraction":
-        return "The paper was selected for evidence extraction."
+        return "The report was selected for evidence extraction."
     if route_status == "ready_for_abstract_extraction":
-        return "The paper was selected for evidence extraction."
+        return "The report was selected for evidence extraction."
     if route_status == "excluded_after_domain_screen":
-        return "Title and abstract screening did not identify an in-scope evidence topic for extraction."
+        return strip_markup(row.get("extraction_domain_screening_reasons", "")) or (
+            "Title and abstract screening did not identify an in-scope evidence topic for extraction."
+        )
     if route_status == "context_only_or_skip":
-        return "The paper may be useful as background, but it is not part of the extracted evidence set."
+        return "The report may be useful as background, but it is not part of the extracted evidence set."
     if not candidate_prescreen_retained(row):
-        return "The paper did not pass initial screening."
-    return "No current evidence extraction assignment is stored for this paper."
+        return "The record did not pass initial screening."
+    return "No current evidence extraction assignment is stored for this record."
 
 
 def public_screening_reason(row: dict, action: str = "") -> str:
@@ -1669,7 +1473,7 @@ def candidate_llm_screening_cell(row: dict) -> tuple[str, str, str]:
     if route_status == "context_only_or_skip":
         return "fail", "Background/context only", ""
     if route_status == "excluded_after_domain_screen":
-        return "fail", "Did not pass", "No in-scope evidence area"
+        return "fail", "Did not pass", public_llm_screening_reason(row)
     return "fail", "Did not pass", ""
 
 
@@ -1681,184 +1485,20 @@ def candidate_extraction_cell(row: dict) -> tuple[str, str, str]:
     return "pass", "Selected", ""
 
 
-def kg_audit_reason_label(statuses: Iterable[str]) -> str:
-    normalized_statuses = {normalize(status).lower() for status in statuses if normalize(status)}
-    for status in KG_AUDIT_REASON_ORDER:
-        if status in normalized_statuses:
-            return KG_AUDIT_REASON_LABELS[status]
-    if normalized_statuses:
-        return status_label(sorted(normalized_statuses)[0])
-    return "No normalized graph finding"
-
-
-def kg_public_status_for_audit(statuses: Iterable[str]) -> tuple[str, str]:
-    normalized_statuses = {normalize(status).lower() for status in statuses if normalize(status)}
-    if any(status.endswith("_not_graphable") for status in normalized_statuses):
-        return "fail", "Not graphable"
-    if any(status.endswith("_unmapped") for status in normalized_statuses):
-        return "fail", "Not normalized"
-    return "fail", "No graph finding"
-
-
-def kg_status_from_audit(info: dict) -> dict:
-    statuses = info.get("statuses", set())
-    status, label = kg_public_status_for_audit(statuses)
-    note = kg_audit_reason_label(statuses)
-    compounds = unique_public_labels(info.get("compounds", []))
-    if compounds and any(normalize(status).lower().startswith("compound_") for status in statuses):
-        note = f"{note}: {compounds}"
-    return {"status": status, "label": label, "note": note}
-
-
-def routed_kg_graph_status_by_doi(
-    root: Path = ROOT,
-    *,
-    kg_dir_override: Path | None = None,
-) -> tuple[dict[str, dict], list[str], list[str]]:
-    input_files: list[str] = []
-    warnings: list[str] = []
-    active_pointer = root / GRAPH_PAYLOAD_ACTIVE_POINTER.relative_to(ROOT)
-    kg_dirs = (
-        [Path(kg_dir_override).resolve()]
-        if kg_dir_override is not None
-        else active_routed_kg_dirs(root, active_pointer)
-    )
-    if not kg_dirs:
-        warnings.append(
-            "Active graph payload pointer is missing; methods bibliography cannot mark final KG graph status."
-        )
-        return {}, input_files, warnings
-
-    if kg_dir_override is None:
-        input_files.append(str(active_pointer))
-
-    try:
-        import pandas as pd
-    except ModuleNotFoundError as exc:  # pragma: no cover - dependency failure path
-        warnings.append(f"Could not load routed KG graph status because pandas is unavailable: {exc}")
-        return {}, input_files, warnings
-
-    included_dois: set[str] = set()
-    loaded_active_sources = 0
-    if kg_dir_override is None:
-        included_dois, detail_inputs, detail_warnings, loaded_active_sources = active_detail_study_dois(
-            root,
-            active_pointer,
-        )
-        input_files.extend(detail_inputs)
-        warnings.extend(detail_warnings)
-
-    audit_by_doi: dict[str, dict] = defaultdict(lambda: {"statuses": set(), "compounds": []})
-    for kg_dir in kg_dirs:
-        input_files.append(str(kg_dir))
-        findings_table = kg_dir / "findings.parquet"
-        audit_table = kg_dir / "normalization_audit.parquet"
-
-        if kg_dir_override is not None or loaded_active_sources == 0:
-            if not findings_table.exists():
-                warnings.append(f"Routed KG findings table is missing: {findings_table}")
-            else:
-                input_files.append(str(findings_table))
-                try:
-                    findings = pd.read_parquet(findings_table, columns=["study_doi"])
-                    included_dois.update(
-                        doi
-                        for doi in (normalize_doi(value) for value in findings["study_doi"].tolist())
-                        if doi
-                    )
-                except Exception as exc:
-                    warnings.append(f"Could not read routed KG findings table {findings_table}: {exc}")
-
-        if audit_table.exists():
-            input_files.append(str(audit_table))
-            try:
-                audit = pd.read_parquet(audit_table)
-                wanted_columns = [
-                    column
-                    for column in (
-                        "study_doi",
-                        "normalization_status",
-                        "canonical_compound",
-                        "compound",
-                        "compound_original",
-                    )
-                    if column in audit.columns
-                ]
-                for record in audit[wanted_columns].where(pd.notna(audit[wanted_columns]), "").to_dict(orient="records"):
-                    doi = normalize_doi(record.get("study_doi", ""))
-                    status = normalize(record.get("normalization_status", "")).lower()
-                    if not doi or not status:
-                        continue
-                    info = audit_by_doi[doi]
-                    info["statuses"].add(status)
-                    compound = first_nonempty(
-                        record.get("canonical_compound", ""),
-                        record.get("compound", ""),
-                        record.get("compound_original", ""),
-                    )
-                    if normalize(compound):
-                        info["compounds"].append(compound)
-            except Exception as exc:
-                warnings.append(f"Could not read routed KG normalization audit table {audit_table}: {exc}")
-        else:
-            warnings.append(f"Routed KG normalization audit table is missing: {audit_table}")
-
-    lookup = {
-        doi: {"status": "pass", "label": "In graph", "note": ""}
-        for doi in included_dois
-    }
-    for doi, info in audit_by_doi.items():
-        if doi in lookup:
-            continue
-        lookup[doi] = kg_status_from_audit(info)
-    return lookup, input_files, warnings
-
-
-def candidate_kg_cell(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> tuple[str, str, str]:
+def candidate_kg_cell(row: dict) -> tuple[str, str, str]:
     if not boolish(row.get("retained_for_extraction_candidate", False)):
         return "not_reached", "Not reached", ""
-    doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
-    if not doi:
-        return "fail", "No graph finding", "No DOI available for graph matching"
-    status = (kg_status_by_doi or {}).get(doi)
-    if status:
-        return (
-            normalize(status.get("status", "")) or "fail",
-            normalize(status.get("label", "")) or "No graph finding",
-            strip_markup(status.get("note", "")),
-        )
-    return "fail", "No graph finding", "No normalized graph finding"
-
-
-def load_graph_disposition_overrides(path: Path) -> tuple[dict[str, dict], list[str]]:
-    if not path.exists():
-        return {}, [f"Graph disposition override file is missing: {path}"]
-    try:
-        payload = read_json_object(path)
-    except Exception as exc:
-        return {}, [f"Could not read graph disposition overrides {path}: {exc}"]
-    out: dict[str, dict] = {}
-    warnings: list[str] = []
-    for group in payload.get("overrides", []):
-        if not isinstance(group, dict):
-            continue
-        disposition = normalize(group.get("disposition", ""))
-        if disposition not in GRAPH_DISPOSITION_LABELS or disposition == "represented":
-            warnings.append(f"Unsupported graph disposition override: {disposition or 'missing'}")
-            continue
-        for raw_doi in group.get("dois", []):
-            doi = normalize_doi(raw_doi)
-            if not doi:
-                continue
-            if doi in out:
-                warnings.append(f"Duplicate graph disposition override for DOI {doi}")
-                continue
-            out[doi] = {
-                "disposition": disposition,
-                "reason": strip_markup(group.get("reason", "")),
-                "next_action": strip_markup(group.get("next_action", "")),
-            }
-    return out, warnings
+    status = normalize(row.get("graph_inclusion_status", ""))
+    disposition = normalize(row.get("graph_inclusion_disposition", ""))
+    reason = strip_markup(row.get("graph_inclusion_reason", ""))
+    if status == "represented" and disposition == "represented":
+        return "pass", "In graph", reason
+    if status == "not_represented" and disposition in GRAPH_DISPOSITION_LABELS:
+        return "fail", GRAPH_DISPOSITION_LABELS[disposition], reason
+    raise ValueError(
+        "Canonical corpus has an invalid graph decision for "
+        f"{normalize_doi(first_nonempty(row.get('doi', ''), row.get('study_doi', '')))}"
+    )
 
 
 def candidate_source_bucket(row: dict) -> str:
@@ -1878,37 +1518,15 @@ def candidate_source_bucket(row: dict) -> str:
 
 def candidate_graph_disposition(
     row: dict,
-    *,
-    kg_status_by_doi: dict[str, dict] | None = None,
-    overrides_by_doi: dict[str, dict] | None = None,
 ) -> dict:
-    doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
-    _status, kg_label, kg_note = candidate_kg_cell(row, kg_status_by_doi)
-    if kg_label == "In graph":
-        disposition = "represented"
-        reason = "At least one normalized finding from this paper is present in the underlying evidence graph."
-        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
-    elif doi and doi in (overrides_by_doi or {}):
-        override = (overrides_by_doi or {})[doi]
-        disposition = override["disposition"]
-        reason = override.get("reason", "") or kg_note
-        next_action = override.get("next_action", "") or GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
-    elif kg_label == "Not normalized":
-        disposition = "normalization_needed"
-        reason = kg_note or "An extracted subject or entity has not been mapped to a stable graph concept."
-        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
-    elif kg_label == "Not graphable":
-        disposition = "adjudicated_outside_scope"
-        reason = kg_note or "The extracted subject or entity is outside the current graph representation policy."
-        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
-    elif normalize(row.get("literature_source_type", "")).lower() in {"guideline", "consensus_statement"}:
-        disposition = "extraction_needed"
-        reason = "This guideline or consensus paper has no normalized recommendation row yet."
-        next_action = "Run the recommendation/consensus extraction route and normalize the resulting recommendation items."
-    else:
-        disposition = "manual_review_needed"
-        reason = kg_note or "No normalized finding or sufficiently specific automated exclusion reason is available."
-        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
+    disposition = normalize(row.get("graph_inclusion_disposition", ""))
+    if disposition not in GRAPH_DISPOSITION_LABELS:
+        raise ValueError(f"Canonical corpus has invalid graph disposition {disposition!r}")
+    _status, kg_label, kg_note = candidate_kg_cell(row)
+    reason = strip_markup(row.get("graph_inclusion_reason", ""))
+    next_action = strip_markup(row.get("graph_inclusion_next_action", ""))
+    if not reason or not next_action:
+        raise ValueError("Canonical corpus graph disposition lacks a reason or next action")
     return {
         "disposition": disposition,
         "disposition_label": GRAPH_DISPOSITION_LABELS[disposition],
@@ -1921,9 +1539,6 @@ def candidate_graph_disposition(
 
 def graph_inclusion_disposition_payload(
     rows: Iterable[dict],
-    *,
-    kg_status_by_doi: dict[str, dict] | None = None,
-    overrides_by_doi: dict[str, dict] | None = None,
 ) -> dict:
     selected_rows = [row for row in rows if boolish(row.get("retained_for_extraction_candidate", False))]
     missing_rows: list[dict] = []
@@ -1932,11 +1547,7 @@ def graph_inclusion_disposition_payload(
     source_disposition_counts: dict[str, Counter] = defaultdict(Counter)
     represented_count = 0
     for row in selected_rows:
-        disposition = candidate_graph_disposition(
-            row,
-            kg_status_by_doi=kg_status_by_doi,
-            overrides_by_doi=overrides_by_doi,
-        )
+        disposition = candidate_graph_disposition(row)
         source_bucket = candidate_source_bucket(row)
         source_counts[source_bucket] += 1
         disposition_counts[disposition["disposition"]] += 1
@@ -1965,16 +1576,19 @@ def graph_inclusion_disposition_payload(
             }
         )
     missing_rows.sort(key=lambda row: (row["source_bucket"], row["disposition"], row["doi"], row["title"]))
+    transitional_count = sum(disposition_counts[key] for key in TRANSITIONAL_GRAPH_DISPOSITIONS)
     return {
         "contract_version": KG_VERSION,
         "view": "graph_inclusion_dispositions",
         "generated_at": now_utc(),
-        "unit": "selected papers",
+        "unit": "selected reports",
         "scope": "underlying evidence graph",
         "counts": {
             "selected_papers": len(selected_rows),
             "represented_papers": represented_count,
             "not_represented_papers": len(missing_rows),
+            "final_reasons_complete": transitional_count == 0,
+            "transitional_reason_papers": transitional_count,
             "by_disposition": dict(sorted(disposition_counts.items())),
             "by_source": dict(sorted(source_counts.items())),
             "by_source_and_disposition": {
@@ -1986,11 +1600,11 @@ def graph_inclusion_disposition_payload(
     }
 
 
-def candidate_audit_decision(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> dict:
+def candidate_audit_decision(row: dict) -> dict:
     screening_status, screening_label, screening_note = candidate_screening_cell(row)
     llm_screening_status, llm_screening_label, llm_screening_note = candidate_llm_screening_cell(row)
     extraction_status, extraction_label, extraction_note = candidate_extraction_cell(row)
-    kg_status, kg_label, kg_note = candidate_kg_cell(row, kg_status_by_doi)
+    kg_status, kg_label, kg_note = candidate_kg_cell(row)
     stage_key, stage_label = candidate_bibliography_stage(row)
     return {
         "initial_screening_status": screening_status,
@@ -2013,19 +1627,10 @@ def candidate_audit_decision(row: dict, kg_status_by_doi: dict[str, dict] | None
     }
 
 
-def candidate_kg_reason_key(decision: dict) -> str:
-    label = normalize(decision.get("kg_label", ""))
-    if label == "Not graphable":
-        return "not_graphable"
-    if label == "Not normalized":
-        return "not_normalized"
-    if label == "No graph finding":
-        return "no_graph_finding"
-    return "unknown"
-
-
-def candidate_bibliography_row(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> list:
-    decision = candidate_audit_decision(row, kg_status_by_doi)
+def candidate_bibliography_row(
+    row: dict,
+) -> list:
+    decision = candidate_audit_decision(row)
     doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
     metadata_row = {
         "study_doi": doi,
@@ -2094,10 +1699,9 @@ def intern_bibliography_rows(rows: list[list]) -> tuple[list[list], list[str]]:
 
 def candidate_bibliography_payload(
     rows: Iterable[dict],
-    kg_status_by_doi: dict[str, dict] | None = None,
 ) -> dict:
     bibliography_rows = sorted(
-        (candidate_bibliography_row(row, kg_status_by_doi=kg_status_by_doi) for row in rows),
+        (candidate_bibliography_row(row) for row in rows),
         key=candidate_bibliography_sort_key,
     )
     stage_index = METHODS_BIBLIOGRAPHY_COLUMNS.index("stage_key")
@@ -2145,7 +1749,7 @@ def candidate_bibliography_payload(
         "contract_version": KG_VERSION,
         "view": "methods_bibliography",
         "generated_at": now_utc(),
-        "unit": "papers",
+        "unit": "records",
         "columns": list(METHODS_BIBLIOGRAPHY_COLUMNS),
         "interned_columns": list(METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS),
         "string_table": string_table,
@@ -2189,11 +1793,10 @@ def public_llm_screening_reason_key(row: dict) -> str:
 
 def prisma_flow_for_candidate_papers(
     props_rows: Iterable[dict],
-    kg_status_by_doi: dict[str, dict] | None = None,
 ) -> dict:
     rows = list(props_rows)
     decisions = [
-        (row, candidate_audit_decision(row, kg_status_by_doi))
+        (row, candidate_audit_decision(row))
         for row in rows
     ]
     screened_rows = [row for row, decision in decisions if decision["screened"]]
@@ -2220,13 +1823,17 @@ def prisma_flow_for_candidate_papers(
     ]
     prescreen_reasons = Counter(candidate_field(row, "prescreen_actions") for row in prescreen_excluded_rows)
     route_not_selected_reasons = Counter(public_llm_screening_reason_key(row) for row in route_not_selected_rows)
-    kg_not_included_reasons = Counter(candidate_kg_reason_key(decision) for _, decision in kg_not_included)
+    kg_not_included_dispositions = [
+        candidate_graph_disposition(row)
+        for row, _decision in kg_not_included
+    ]
+    kg_not_included_reasons = Counter(item["disposition"] for item in kg_not_included_dispositions)
     not_screened_reasons = Counter({"no_prescreen_status": len(not_screened_rows)}) if not_screened_rows else Counter()
 
     return {
         "dataset": "overall",
-        "label": "Paper search and graph-inclusion flow",
-        "unit": "papers",
+        "label": "Search and graph-inclusion flow",
+        "unit": "records and reports",
         "current_stage": "kg_inclusion_summary",
         "metrics": {
             "selected_papers": len(extraction_selected),
@@ -2236,23 +1843,23 @@ def prisma_flow_for_candidate_papers(
         },
         "steps": {
             "records_identified": {
-                "label": "Papers found by the search",
+                "label": "Records found by the search",
                 "count": len(rows),
             },
             "records_screened": {
-                "label": "Papers screened for relevance",
+                "label": "Records screened for relevance",
                 "count": len(screened_rows),
             },
             "prescreen_retained": {
-                "label": "Papers kept after initial screening",
+                "label": "Records kept after initial screening",
                 "count": len(prescreen_retained_rows),
             },
             "evidence_extraction_selected": {
-                "label": "Papers selected for evidence extraction",
+                "label": "Reports selected for evidence extraction",
                 "count": len(extraction_selected),
             },
             "kg_included": {
-                "label": "Papers represented in the knowledge graph",
+                "label": "Reports represented in the knowledge graph",
                 "count": len(kg_included_rows),
             },
         },
@@ -2267,7 +1874,7 @@ def prisma_flow_for_candidate_papers(
                 ),
             },
             "records_excluded": {
-                "label": "Excluded during initial screening",
+                "label": "Records excluded during initial screening",
                 "count": len(prescreen_excluded_rows),
                 "reasons": labeled_reason_counts(
                     prescreen_reasons,
@@ -2283,7 +1890,7 @@ def prisma_flow_for_candidate_papers(
                 ),
             },
             "route_not_selected": {
-                "label": "Not selected for evidence extraction",
+                "label": "Records not selected for evidence extraction",
                 "count": len(route_not_selected_rows),
                 "reasons": labeled_reason_counts(
                     route_not_selected_reasons,
@@ -2297,17 +1904,12 @@ def prisma_flow_for_candidate_papers(
                 ),
             },
             "kg_not_included": {
-                "label": "Selected papers not represented in graph",
+                "label": "Selected reports not represented in graph",
                 "count": len(kg_not_included),
                 "reasons": labeled_reason_counts(
                     kg_not_included_reasons,
-                    PRISMA_CANDIDATE_KG_LABELS,
-                    (
-                        "not_graphable",
-                        "not_normalized",
-                        "no_graph_finding",
-                        "unknown",
-                    ),
+                    GRAPH_DISPOSITION_LABELS,
+                    FINAL_GRAPH_EXCLUSION_ORDER,
                 ),
             },
         },
@@ -2548,7 +2150,7 @@ def prisma_flow_for_dataset(dataset: str, props_rows: Iterable[dict]) -> dict:
 
     return {
         "dataset": dataset,
-        "unit": "paper-context records",
+        "unit": "record and report contexts",
         "steps": {
             "records_identified": {"label": "Records identified", "count": len(rows)},
             "records_screened": {"label": "Records screened", "count": len(screened_rows)},
@@ -2693,7 +2295,7 @@ def schema_payload() -> dict:
                     "prisma_flow_order",
                     "prisma_flow",
                 ],
-                "description": "Methods-page PRISMA-style paper search and screening flow with public status summary.",
+                "description": "Methods-page PRISMA-style record search and report-selection flow with public status summary.",
             },
             "methods_bibliography": {
                 "required": [
@@ -2709,7 +2311,7 @@ def schema_payload() -> dict:
                     "counts",
                     "rows",
                 ],
-                "description": "Complete paper bibliography with sequential initial-screening, title-and-abstract-screening, evidence-extraction, and knowledge-graph representation labels.",
+                "description": "Complete record audit with sequential initial-screening, title-and-abstract-screening, report extraction, and knowledge-graph representation labels.",
             },
             "graph_inclusion_dispositions": {
                 "required": [
@@ -2721,7 +2323,7 @@ def schema_payload() -> dict:
                     "counts",
                     "rows",
                 ],
-                "description": "Actionable ledger for every selected paper that does not yet have a normalized finding in the underlying evidence graph.",
+                "description": "Final, plain-language reason for every selected report that is not represented in the underlying evidence graph.",
             },
         },
     }
@@ -2749,30 +2351,17 @@ def write_outputs(payloads: dict, out_dir: Path) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build the methods-page paper-flow projection")
+    parser = argparse.ArgumentParser(description="Build the methods-page record-and-report flow projection")
     parser.add_argument("--out-dir", default=str(ROOT / "data" / "kg"), help="Output directory for generated methods flow files")
     parser.add_argument(
-        "--kg-dir",
-        default="",
-        help="Explicit routed KG directory for staged builds; otherwise use graph_payload_active.json.",
-    )
-    parser.add_argument(
-        "--refresh-kg-tables",
-        action="store_true",
-        help="Regenerate normalized KG evidence tables before building the methods flow.",
+        "--candidate-table",
+        default=str(CANDIDATE_PAPERS_TABLE),
+        help="Canonical one-row-per-DOI corpus ledger. No alternate inputs are accepted.",
     )
     args = parser.parse_args()
 
-    if args.refresh_kg_tables:
-        try:
-            from pipeline.kg.build_evidence_tables import build_tables
-        except ModuleNotFoundError:  # pragma: no cover - direct script execution path
-            sys.path.insert(0, str(ROOT))
-            from pipeline.kg.build_evidence_tables import build_tables
-        build_tables()
-
     out_dir = Path(args.out_dir).resolve()
-    builder = MethodsFlowBuilder(ROOT, routed_kg_dir=Path(args.kg_dir) if args.kg_dir else None)
+    builder = MethodsFlowBuilder(ROOT, candidate_table=Path(args.candidate_table))
     payloads = builder.build()
     manifest = write_outputs(payloads, out_dir)
 

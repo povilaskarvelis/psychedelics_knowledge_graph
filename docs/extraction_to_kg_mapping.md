@@ -95,7 +95,7 @@ The current/planned anchor list looks broadly right. The main issue is not that
 we need many more broad node kinds; it is that some schemas still combine
 things that should later become separate graph anchors.
 
-| Domain | Review papers tend to focus on | Anchor decision |
+| Domain | Review reports tend to focus on | Anchor decision |
 | --- | --- | --- |
 | `clinical_outcome` | Conditions, symptoms/problems, endpoints, outcome instruments. | Keep conditions and symptoms as graph anchors. Keep outcome instruments as metadata/facets unless the instrument itself is the finding. |
 | `safety_tolerability` | Adverse events, tolerability issues, risk windows, severity, monitoring, mitigation. | Retain the specific event beneath a stable safety parent; keep seriousness, severity, rate, discontinuation, and context as distinct attributes or summary outcomes. |
@@ -105,7 +105,7 @@ things that should later become separate graph anchors.
 | `cognitive_behavioral` | Cognitive constructs, behavioral constructs, tasks, task domains, animal or human behavioral models. | Keep `cognitive_behavioral_construct`. |
 | `subjective_experience` | Mystical-type experience, ego dissolution, insight, challenging experience, valence, scale dimensions. | Keep `subjective_experience_construct`; instruments/subscales are usually attributes unless we want them as `outcome_scale` nodes. |
 | `pharmacokinetics_exposure` | PK parameters, analytes, metabolites, route/formulation, matrix, enzymes/transporters, metabolic pathways, exposure-response. | Project the extracted PK relationship itself (`metabolized_to`, `metabolized_by`, `distributed_to`, and so on). Use `pharmacokinetic_parameter` only for true exposure parameters; potency and occupancy without measured exposure belong to molecular evidence. |
-| `intervention_context` | Preparation, dosing-session support, integration, psychotherapy model, setting, provider role, fidelity, delivery format, implementation, access/cultural context. | Retain exact paper wording in the finding, but aggregate aliases under recognizable topic nodes. Keep well-represented topics separate and place sparse long-tail details in clearly named `Other ...` buckets. Keep dose, route, participant traits, subjective effects, and outcomes as metadata or in their corresponding domains. |
+| `intervention_context` | Preparation, dosing-session support, integration, psychotherapy model, setting, provider role, fidelity, delivery format, implementation, access/cultural context. | Retain exact report wording in the finding, but aggregate aliases under recognizable topic nodes. Keep well-represented topics separate and place sparse long-tail details in clearly named `Other ...` buckets. Keep dose, route, participant traits, subjective effects, and outcomes as metadata or in their corresponding domains. |
 | `real_world_public_health` | Population use, use patterns, motivations, health outcomes, harms, treatment effectiveness, access/equity, implementation, economics, policy, and supply composition. | Keep `public_health_measure` for graph-facing research topics/outcomes; keep use context and data source as separate facets. |
 
 ## Schema Design Rule
@@ -127,7 +127,7 @@ usually not be required.
 
 Primary extraction schemas keep existing required fields, but newer runs may
 also emit optional normalized fields that separate graph-facing labels from raw
-paper context:
+report context:
 
 - Clinical outcomes: use `condition_or_indication` for the condition node and
   `population_or_subgroup` for age, subgroup, eligibility, comorbidity, or

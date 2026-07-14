@@ -1075,11 +1075,12 @@ def metadata_from_openalex_work(work: dict, paper: dict) -> dict:
 
 
 def ncbi_common_params(email: str, api_key: str) -> Dict[str, object]:
-    return {
-        "tool": "psychedelics_kg",
-        "email": email or None,
-        "api_key": api_key or None,
-    }
+    params: Dict[str, object] = {"tool": "psychedelics_kg"}
+    if email:
+        params["email"] = email
+    if api_key:
+        params["api_key"] = api_key
+    return params
 
 
 def pubmed_article_id(article: ET.Element, id_type: str) -> str:
@@ -2409,15 +2410,23 @@ def fetch_metadata_with_fallbacks(
             if value
         ]
         previous_provider = normalize(metadata.get("metadata_provider", ""))
-        metadata = merge_metadata_values(current, metadata)
+        had_abstract = bool(normalize(metadata.get("abstract", "")))
+        # ``provider_order`` is a priority order. Once a preferred provider has
+        # supplied a field, later providers should supplement the record rather
+        # than replace it. This is especially important for abstracts: a later
+        # OpenAlex record must not overwrite a PubMed abstract merely because we
+        # also queried OpenAlex for venue or open-access metadata.
+        metadata = merge_metadata_values(metadata, current)
         chain = previous_chain
         if provider not in chain:
             chain.append(provider)
         metadata["metadata_provider_chain"] = "|".join(chain)
-        if normalize(current.get("abstract", "")) or not normalize(metadata.get("metadata_provider", "")):
+        if not had_abstract and normalize(current.get("abstract", "")):
             metadata["metadata_provider"] = provider
         elif previous_provider:
             metadata["metadata_provider"] = previous_provider
+        elif not normalize(metadata.get("metadata_provider", "")):
+            metadata["metadata_provider"] = provider
 
     if metadata:
         metadata["metadata_providers_queried"] = "|".join(queried)
