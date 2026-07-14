@@ -2560,6 +2560,18 @@
       "open_access_is_oa": false,
       "checked_at": "2026-07-10",
       "manual_reason": "User-confirmed source-access review found that the exact requested DOI artifact cannot be publicly accessed. Retain the paper for public-abstract extraction and do not substitute the separately registered 2023 DOI artifact."
+    },
+    {
+      "doi": "10.1002/dta.1985",
+      "manual_access_action": "abstract_only",
+      "checked_at": "2026-07-14",
+      "manual_reason": "The retained local artifact is supplementary analytical material and omits the article's pharmacological and behavioral results; use the verified public abstract for evidence extraction."
+    },
+    {
+      "doi": "10.1002/dta.2222",
+      "manual_access_action": "abstract_only",
+      "checked_at": "2026-07-14",
+      "manual_reason": "The retained local artifact is a crystallographic supplement and omits the article's receptor and behavioral results; use the verified public abstract for evidence extraction."
     }
   ]
 }

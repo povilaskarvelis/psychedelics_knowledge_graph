@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Psychedelics KG Guideline and Consensus Extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "route_id",
+    "study_doi",
+    "domain_route",
+    "source_type",
+    "text_depth",
+    "source_text_provenance",
+    "extraction_status",
+    "recommendation_assessment",
+    "recommendation_items",
+    "extraction_warnings"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["recommendation_consensus_v1"]},
+    "task_id": {"type": "string", "minLength": 1},
+    "route_id": {"type": "string", "minLength": 1},
+    "study_doi": {"type": "string", "minLength": 1},
+    "domain_route": {"$ref": "#/definitions/domain_route"},
+    "source_type": {
+      "type": "string",
+      "enum": ["guideline", "consensus_statement", "position_statement", "expert_recommendation", "uncertain"]
+    },
+    "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
+    "source_text_provenance": {"$ref": "#/definitions/source_text_provenance"},
+    "extraction_status": {
+      "type": "string",
+      "enum": ["extracted", "no_extractable_scoped_recommendation", "not_relevant", "wrong_source_type", "human_review"]
+    },
+    "recommendation_assessment": {"$ref": "#/definitions/recommendation_assessment"},
+    "recommendation_items": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/recommendation_item"}
+    },
+    "extraction_warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "definitions": {
+    "domain_route": {
+      "type": "string",
+      "enum": [
+        "clinical_outcome", "safety_tolerability", "molecular_target",
+        "molecular_pathway_readout", "brain_system", "cognitive_behavioral",
+        "subjective_experience", "pharmacokinetics_exposure",
+        "intervention_context", "real_world_public_health",
+        "general_topic_coverage", "general_topic", "uncertain"
+      ]
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "brain_region", "brain_network", "neural_circuit", "biomarker_readout",
+        "disorder", "symptom_or_outcome", "safety_event", "target",
+        "pathway_process", "molecular_readout", "cognitive_behavioral_construct",
+        "subjective_experience_construct", "pharmacokinetic_parameter", "compound",
+        "intervention_component", "public_health_measure", "general_topic",
+        "not_applicable", "uncertain"
+      ]
+    },
+    "source_text_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text_depth", "source_text_kind", "source_text_scope"],
+      "properties": {
+        "text_depth": {"type": "string", "enum": ["article_text", "abstract_only"]},
+        "source_text_kind": {"type": "string", "enum": ["article_text", "abstract_only"]},
+        "source_text_scope": {"type": "string"}
+      }
+    },
+    "recommendation_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_in_scope", "source_document_type", "has_extractable_scoped_recommendation",
+        "relationship_domain", "primary_compounds_or_classes", "population_or_system",
+        "needs_human_review", "reasoning_summary", "evidence_location", "evidence_locator"
+      ],
+      "properties": {
+        "is_in_scope": {"type": "boolean"},
+        "source_document_type": {"type": "string"},
+        "has_extractable_scoped_recommendation": {"type": "boolean"},
+        "relationship_domain": {"$ref": "#/definitions/domain_route"},
+        "primary_compounds_or_classes": {"type": "string"},
+        "population_or_system": {"type": "string"},
+        "needs_human_review": {"type": "boolean"},
+        "reasoning_summary": {"type": "string"},
+        "evidence_location": {"type": "string", "enum": ["abstract", "text", "table", "figure", "supplement", "metadata", "not_reported"]},
+        "evidence_locator": {"type": "string"}
+      }
+    },
+    "recommendation_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id", "relationship_domain", "recommendation_type", "recommendation_strength",
+        "compound_or_class", "entity_type", "entity", "population_or_system",
+        "recommendation_statement", "rationale_or_evidence_basis", "direction_or_tone",
+        "evidence_location", "evidence_locator", "confidence", "needs_human_review"
+      ],
+      "properties": {
+        "item_id": {"type": "string"},
+        "relationship_domain": {"$ref": "#/definitions/domain_route"},
+        "recommendation_type": {
+          "type": "string",
+          "enum": [
+            "clinical_practice", "eligibility_or_selection", "dosing_or_administration",
+            "safety_precaution", "monitoring", "care_or_setting_component",
+            "training_or_competency", "reporting_standard", "policy_or_ethics",
+            "consensus_position", "evidence_gap", "uncertain"
+          ]
+        },
+        "recommendation_strength": {
+          "type": "string",
+          "enum": ["required", "recommended", "suggested", "consensus", "conditional", "insufficient_evidence", "not_reported", "uncertain"]
+        },
+        "compound_or_class": {"type": "string"},
+        "entity_type": {"$ref": "#/definitions/entity_type"},
+        "entity": {"type": "string"},
+        "population_or_system": {"type": "string"},
+        "recommendation_statement": {"type": "string"},
+        "rationale_or_evidence_basis": {"type": "string"},
+        "direction_or_tone": {
+          "type": "string",
+          "enum": ["supports", "cautions", "recommends_against", "mixed", "insufficient_evidence", "descriptive_only", "unclear", "not_applicable"]
+        },
+        "evidence_location": {"type": "string", "enum": ["abstract", "text", "table", "figure", "supplement", "metadata", "not_reported"]},
+        "evidence_locator": {"type": "string"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "needs_human_review": {"type": "boolean"}
+      }
+    }
+  }
+}

@@ -1,4 +1,6 @@
+from colorsys import rgb_to_hls
 from pathlib import Path
+import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -286,7 +288,7 @@ def test_initial_page_reveals_only_after_required_fonts_are_ready() -> None:
     assert "setTimeout(revealStyledPage, 1600)" in head
 
 
-def test_stacked_bar_categories_keep_their_color_after_filtering() -> None:
+def test_stacked_bar_full_views_restart_palette_and_filtered_categories_keep_their_color() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     color_helper = source.split("function compositionCategoryColorKey", 1)[1].split(
         "function compositionFilterAttrs", 1
@@ -294,13 +296,70 @@ def test_stacked_bar_categories_keep_their_color_after_filtering() -> None:
     chart = source.split("function renderFacetCompositionChart", 1)[1].split(
         "function hasRegisteredTrial", 1
     )[0]
+    detail = source.split("function renderFieldValueDetail", 1)[1].split(
+        "function renderPublicationYearDetail", 1
+    )[0]
 
-    assert "const compositionCategoryColors = new Map();" in source
+    assert "compositionCategoryColors" not in source
     assert "compositionCategoryColorKey(entry, field)" in color_helper
-    assert "compositionCategoryColors.has(key)" in color_helper
-    assert "compositionCategoryColors.set(key, color)" in color_helper
-    assert "compositionCategoryColors.get(key)" in color_helper
+    assert "const color = palette[index % palette.length]" in color_helper
+    assert "detailGraphFilter?.compositionColor" in color_helper
+    assert "filteredColor?.key === key ? filteredColor.color : color" in color_helper
     assert "colorForEntry(entry, index, palette, filterField)" in chart
+    assert 'data-palette-color="${escapeHtml(colors.color)}"' in chart
+    assert 'paletteColor = ""' in detail
+    assert "compositionFilterColor(field, value, paletteColor)" in detail
+    assert source.count('target.dataset.paletteColor || ""') >= 2
+
+
+def test_stacked_bar_palette_starts_with_blue_and_nudges_teal_toward_green() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    assert 'const CATEGORY_COLORS = [\n  "#708aa7",\n  "#b89a5b",\n  "#a96f7e",\n  "#69a196",' in source
+    assert 'const PUBLICATION_YEAR_COLOR = "#3fa393";' in source
+    assert "const GRAPH_COLOR_STOPS = [\n  { r: 70, g: 197, b: 181 }," in source
+    assert 'node.style.setProperty("--node-glow", rgbaString(color, 0.29));' in source
+
+
+def test_stacked_bar_palette_becomes_progressively_more_muted_after_fifth_color() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    palette_source = source.split("const CATEGORY_COLORS = [", 1)[1].split("];", 1)[0]
+    colors = re.findall(r'"(#[0-9a-f]{6})"', palette_source)
+
+    def saturation(hex_color: str) -> float:
+        channels = [int(hex_color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+        return rgb_to_hls(*channels)[2]
+
+    def lightness(hex_color: str) -> float:
+        channels = [int(hex_color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+        return rgb_to_hls(*channels)[1]
+
+    tail_saturations = [saturation(color) for color in colors[5:]]
+    tail_lightness = [lightness(color) for color in colors[5:]]
+    assert len(colors) == 25
+    assert tail_saturations[0] <= 0.21
+    assert tail_saturations[-1] <= 0.07
+    assert all(current > following for current, following in zip(tail_saturations, tail_saturations[1:]))
+    assert all(current > following for current, following in zip(tail_lightness, tail_lightness[1:]))
+
+
+def test_early_stacked_bar_colors_do_not_repeat_the_same_hue_families() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    palette_source = source.split("const CATEGORY_COLORS = [", 1)[1].split("];", 1)[0]
+    colors = re.findall(r'"(#[0-9a-f]{6})"', palette_source)
+
+    def hue(hex_color: str) -> float:
+        channels = [int(hex_color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+        return rgb_to_hls(*channels)[0] * 360
+
+    def hue_distance(first: str, second: str) -> float:
+        difference = abs(hue(first) - hue(second))
+        return min(difference, 360 - difference)
+
+    assert hue_distance(colors[6], colors[0]) > 45
+    assert hue_distance(colors[6], colors[9]) > 45
+    assert hue_distance(colors[8], colors[2]) > 45
+    assert hue_distance(colors[10], colors[2]) > 45
 
 
 def test_brain_relationship_types_use_brain_specific_assignments_and_one_other_bucket() -> None:

@@ -9,10 +9,6 @@ This README is the living operational map for the current pipeline. When a
 step changes, update this file first, then update the narrower stage README if
 the change affects a specific script family.
 
-The pipeline should be described by its actions, not by historical run labels.
-Run labels such as `boolean_full_v1` or `pairwise_direct_v1` are provenance
-labels for specific searches, not pipeline stages.
-
 ## Current Workflow
 
 ```mermaid
@@ -31,7 +27,7 @@ flowchart TD
   I --> J
   I --> K
   I --> L
-  J --> M["Validate, normalize, and assemble evidence"]
+  J --> M["Check source support, align names, and assemble evidence"]
   K --> M
   L --> M
   M --> N["Build a versioned graph release"]
@@ -77,10 +73,10 @@ flowchart TD
    pooled estimates, and review-level relationships are not flattened into one
    evidence type. Guidelines, context-only records, and other non-extraction
    records remain available for corpus accounting without becoming findings.
-10. **Validation and graph preparation** checks the extracted structures,
-    preserves source locations, normalizes compounds and related entities, and
-    keeps findings in paper detail when they cannot be represented safely in the
-    overview graph.
+10. **Validation and graph preparation** checks extracted information against
+    its source, preserves source locations, uses consistent names for compounds
+    and related topics, and excludes relationships that cannot be represented
+    accurately.
 11. **Staging and publication** builds versioned graph tables, author data, and
     compact browser files. A guarded promotion then updates the active evidence
     release, graph, bibliography, Methods counts, and static site as one unit so
@@ -131,8 +127,6 @@ python pipeline/ingest/build_boolean_search_modules.py --dataset all --run-id se
 python pipeline/ingest/build_comprehensive_search_plan.py --dataset all --profile standard --run-id search_2026_05
 ```
 
-The script names still contain some older implementation wording. In methods
-text, describe these as **grouped search modules** and **direct pair searches**.
 If `--run-id` is omitted, scripts write to the neutral
 `data/raw/search_strategies/literature_search/` run directory.
 
@@ -197,9 +191,6 @@ This writes `paper_prescreen_decisions.parquet` and
 no-signal records, unusable abstract artifacts, and records that are clearly
 outside scope. Use `--doi-file <doi_list>` or repeated `--doi <doi>` for scoped
 updates.
-
-The older local LLM abstract-screening scripts remain in `pipeline/review/` for
-audit and comparison, but they are not the current extraction gate.
 
 ### Gemini Domain Routing
 
@@ -269,11 +260,9 @@ The current pipeline stores active source PDFs in one canonical directory:
 data/raw/papers/pdfs/
 ```
 
-The old `data/raw/papers/mechanistic/pdfs/` and
-`data/raw/papers/disorder/pdfs/` folders are legacy scaffolding and should stay
-empty for the table-native pipeline. Same-DOI alternate PDFs are preserved under
-`data/raw/papers/pdf_conflicts/`; files with `.pdf` names that are not valid PDF
-content are kept under `data/raw/papers/invalid/`.
+Same-DOI alternate PDFs are preserved under `data/raw/papers/pdf_conflicts/`;
+files with `.pdf` names that are not valid PDF content are kept under
+`data/raw/papers/invalid/`.
 
 To reconcile the file store and corpus table:
 
@@ -417,8 +406,7 @@ When manual review confirms a record is not an extractable article, add
 `manual_action=context_only` in
 `pipeline/extract/manual_extraction_route_overrides.json` and rebuild routes.
 
-Backfill failure categories from existing routed download reports and legacy
-paper-library failure text:
+Rebuild failure categories from recorded download reports and paper records:
 
 ```bash
 python pipeline/fulltext/backfill_pdf_failure_categories.py
@@ -463,9 +451,8 @@ python pipeline/fulltext/convert_routed_local_pdfs.py \
   --backend grobid
 ```
 
-Existing legacy artifacts from `fulltext/disorder/`, `fulltext/mechanistic/`,
-and `fulltext/pmc_xml/` can be copied once into the canonical store without
-re-extracting PDFs:
+Article text already converted elsewhere can be imported into the canonical
+store without converting the PDF again:
 
 ```bash
 python pipeline/fulltext/consolidate_fulltext_artifacts.py
@@ -506,11 +493,10 @@ python pipeline/fulltext/audit_article_text_inputs.py \
 ```
 
 Route-specific article text builders should use `fulltext_artifact_paths` from
-`paper_extraction_routes.parquet` and preserve route fields such as
+`paper_extraction_routes.parquet` and preserve fields such as
 `source_family`, `source_type`, `domain_route`, `access_tier`, `route_action`,
-`prompt_profile`, and `schema_profile`. Current JSON fields may still use
-`packet_profile` internally for compatibility; new prose should use article
-text input and section selection strategy.
+`prompt_profile`, and `schema_profile`. In public explanations, call these
+extraction assignments and article text inputs.
 
 Primary-study extraction uses topic-specific tasks built from the extraction
 assignments. Meta-analyses and other reviews now use paper-centered extraction
@@ -589,14 +575,13 @@ the same publication safeguards.
 - `data/processed/corpus/paper_domain_routing_gemini.parquet`
 - `data/processed/corpus/paper_extraction_routes.parquet`
 - `data/processed/fulltext/articles/*.json`
-- `data/processed/extraction/*_fulltext_packets.jsonl` compatibility files
-  containing article text inputs
+- article text inputs under `data/processed/extraction/`
 - versioned extraction outputs and assembled evidence snapshots under
   `data/processed/extraction/`
-- normalized graph releases under `data/processed/kg_routed_runs/<RUN_ID>/`
+- checked graph releases under `data/processed/kg_routed_runs/<RUN_ID>/`
 - compact graph and detail files under
   `data/processed/graph_payload_runs/<RUN_ID>/`
-- the active extraction and public-graph compatibility pointers at
+- the active extraction and public-graph release records at
   `data/processed/extraction/active_routed_run.json` and
   `data/processed/graph_payload_active.json`
 - generated Methods flow and bibliography files under `data/kg/views/`
@@ -608,9 +593,6 @@ Use run labels to separate artifacts from different searches or batches:
 
 - Good labels describe the run: `grouped_search_2026_05`,
   `direct_pairs_2026_05`, `monthly_update_2026_06`.
-- Historical labels such as `boolean_full_v1`, `pairwise_direct_v1`, and
-  `comprehensive_baseline_v1` are retained only so existing outputs remain
-  reproducible.
 - Do not use run labels as public method names.
 
 ## Corpus Tables
@@ -622,12 +604,12 @@ The raw run reports remain append-only provenance. The files under
 `data/processed/extraction/` are current views regenerated from corpus tables
 and full-text artifacts.
 
-Current corpus storage direction: use normalized Parquet tables for papers,
+Current corpus storage direction: use structured Parquet tables for papers,
 contexts, source/provenance events, and metadata enrichment. Later, load those
-normalized tables into Postgres for website search, API queries, and MCP-facing
+tables into Postgres for website search, API queries, and MCP-facing
 paper/KG access.
 
-Build the current normalized candidate corpus tables:
+Build the current candidate corpus tables:
 
 ```bash
 python pipeline/validate/build_context_provenance_audit.py \
@@ -657,12 +639,3 @@ Common settings:
 
 Scripts that use `pipeline/config.example.yaml` automatically overlay
 `pipeline/config.local.yaml` when it exists.
-
-## Legacy Maintenance Path
-
-The first-generation graph used context-level stubs, autofill scripts, and
-promotion into curated evidence-record files. The stub autofill and promotion
-scripts have been retired. New evidence should follow the current paper-type
-extraction paths, be converted into the shared evidence-row format, and be
-published through a versioned guarded release. Do not patch generated graph
-rows or active pointer files by hand.

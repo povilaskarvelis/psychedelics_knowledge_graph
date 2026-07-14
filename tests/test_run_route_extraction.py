@@ -10,6 +10,7 @@ from pipeline.extract.route_extraction_profiles import (
     build_system_instruction,
     load_schema_for_profile,
     profile_for_key,
+    schema_path_for_profile,
     schema_for_assigned_domain,
     schema_for_native,
     supported_profile_keys,
@@ -301,7 +302,7 @@ class RouteExtractionRunnerTest(unittest.TestCase):
 
         self.assertEqual(profile.output_schema_version, "meta_analysis_evidence_v1")
         self.assertTrue(profile.prompt_path.exists())
-        self.assertTrue(profile.schema_path.exists())
+        self.assertTrue(schema_path_for_profile(profile, "clinical_outcome").exists())
         self.assertTrue(
             any(
                 row["prompt_profile"] == "secondary_meta_analysis"

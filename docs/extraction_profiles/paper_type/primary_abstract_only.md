@@ -6,6 +6,10 @@ study. Extract original empirical findings that match the scope; do not infer
 omitted methods, sample sizes, doses, timepoints, secondary details, or
 statistics.
 
+Descriptive, qualitative, observational, negative, and null findings are still
+original empirical evidence when the abstract explicitly reports them. Do not
+require a p-value or effect size when the result itself is stated.
+
 ## Extraction Outcome
 
 Set `extraction_status` to describe what could be extracted from the supplied
@@ -24,6 +28,9 @@ text:
 
 For any status other than `extracted`, add one short reason to `warnings`. If no
 scoped finding is extractable, keep `items` empty.
+
+Do not use `no_extractable_scoped_evidence` merely because the abstract gives a
+compact conclusion without detailed statistics.
 
 ## What To Extract
 

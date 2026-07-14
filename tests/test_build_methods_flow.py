@@ -9,6 +9,7 @@ import pandas as pd
 from pipeline.kg.build_methods_flow import (
     MethodsFlowBuilder,
     candidate_bibliography_payload,
+    graph_inclusion_disposition_payload,
     labeled_reason_counts,
     normalize_doi,
     paper_id_for,
@@ -25,6 +26,50 @@ from pipeline.kg.build_methods_flow import (
 
 
 class MethodsFlowBuilderHelpersTest(unittest.TestCase):
+    def test_graph_disposition_ledger_reconciles_selected_papers(self) -> None:
+        rows = [
+            {
+                "doi": "10.1000/included",
+                "study_title": "Included",
+                "literature_source_family": "primary",
+                "literature_source_type": "primary",
+                "retained_for_extraction_candidate": True,
+            },
+            {
+                "doi": "10.1000/unmapped",
+                "study_title": "Unmapped",
+                "literature_source_family": "primary",
+                "literature_source_type": "primary",
+                "retained_for_extraction_candidate": True,
+            },
+            {
+                "doi": "10.1000/guideline",
+                "study_title": "Guideline",
+                "literature_source_family": "secondary_literature",
+                "literature_source_type": "guideline",
+                "retained_for_extraction_candidate": True,
+            },
+        ]
+        payload = graph_inclusion_disposition_payload(
+            rows,
+            kg_status_by_doi={
+                "10.1000/included": {"status": "pass", "label": "In graph", "note": ""},
+                "10.1000/unmapped": {
+                    "status": "fail",
+                    "label": "Not normalized",
+                    "note": "Entity was not normalized",
+                },
+            },
+        )
+
+        self.assertEqual(payload["counts"]["selected_papers"], 3)
+        self.assertEqual(payload["counts"]["represented_papers"], 1)
+        self.assertEqual(payload["counts"]["not_represented_papers"], 2)
+        self.assertEqual(len(payload["rows"]), 2)
+        by_doi = {row["doi"]: row for row in payload["rows"]}
+        self.assertEqual(by_doi["10.1000/unmapped"]["disposition"], "normalization_needed")
+        self.assertEqual(by_doi["10.1000/guideline"]["disposition"], "extraction_needed")
+
     def test_normalize_doi_removes_common_prefixes(self) -> None:
         self.assertEqual(normalize_doi("https://doi.org/10.1000/ABC"), "10.1000/abc")
         self.assertEqual(normalize_doi("doi:10.1000/Example"), "10.1000/example")

@@ -43,38 +43,38 @@ const FINDING_SEARCH_DEBOUNCE_MS = 70;
 let cardsLoadObserver = null;
 let bibliographyLoadObserver = null;
 const GRAPH_COLOR_STOPS = [
-  { r: 73, g: 214, b: 200 },
+  { r: 70, g: 197, b: 181 },
   { r: 119, g: 217, b: 141 },
   { r: 216, g: 210, b: 111 },
   { r: 241, g: 166, b: 106 },
   { r: 232, g: 117, b: 141 },
 ];
 const CATEGORY_COLORS = [
-  "#6fa79f",
-  "#c0a160",
-  "#b96c8b",
-  "#7893b6",
+  "#708aa7",
+  "#b89a5b",
+  "#a96f7e",
+  "#69a196",
   "#b98278",
-  "#9ac5ae",
-  "#a393b1",
-  "#98ad8e",
-  "#b29599",
-  "#99a3c1",
-  "#b397c5",
-  "#72b899",
-  "#c8807c",
-  "#80a6c1",
-  "#b2ab77",
-  "#d698ae",
-  "#9cb272",
-  "#8eabd5",
-  "#9c8ea9",
-  "#8d939f",
-  "#7da7a0",
-  "#9b88b7",
-  "#86abcb",
-  "#b2be80",
-  "#b49c84",
+  "#7e72a1",
+  "#9f9872",
+  "#719d96",
+  "#9c8670",
+  "#70819a",
+  "#87986f",
+  "#896e96",
+  "#947a6e",
+  "#6d8f92",
+  "#90876d",
+  "#8d6d7a",
+  "#6c8b79",
+  "#6f6c89",
+  "#86776c",
+  "#6c7a84",
+  "#826b7a",
+  "#7c806b",
+  "#6b7d79",
+  "#766a7b",
+  "#79716a",
 ];
 const PALETTE_BLUE_FIRST = CATEGORY_COLORS;
 const PALETTE_TEAL_FIRST = CATEGORY_COLORS;
@@ -82,7 +82,7 @@ const PALETTE_ROSE_FIRST = CATEGORY_COLORS;
 const PALETTE_SAGE_FIRST = CATEGORY_COLORS;
 const PALETTE_GOLD_FIRST = CATEGORY_COLORS;
 const OTHER_CATEGORY_COLOR = "#8f9ba8";
-const PUBLICATION_YEAR_COLOR = "#3faea6";
+const PUBLICATION_YEAR_COLOR = "#3fa393";
 const SAMPLE_SIZE_HEATMAP_COLOR = "#b89a5b";
 const COGNITION_NODE_LABELS = [
   "Anhedonia",
@@ -497,7 +497,6 @@ const GRAPH_DOM_CACHE_LIMIT = 4;
 const overviewDetailCache = new Map();
 const OVERVIEW_DETAIL_CACHE_LIMIT = 48;
 const overviewDetailPrewarmScheduled = new Set();
-const compositionCategoryColors = new Map();
 const claimArrayIds = new WeakMap();
 let nextClaimArrayId = 1;
 let deferredSurfaceRenderToken = 0;
@@ -1345,10 +1344,11 @@ function outcomeScaleClaimsForChart(items, options = {}) {
   return activeScaleClaims.filter((claim) => scopeKeys.has(evidenceScopeKey(claim)));
 }
 
-function setDetailGraphFilter(items) {
+function setDetailGraphFilter(items, compositionColor = null) {
   retainVisibleBootstrapGraph = false;
   detailGraphFilter = {
     items: new Set(items),
+    compositionColor,
   };
   refreshMainViews();
 }
@@ -1640,7 +1640,7 @@ function rgbaString(color, alpha) {
 function applyGraphNodeColor(node, color) {
   node.style.setProperty("--node-color", rgbString(color));
   node.style.setProperty("--node-fill", rgbaString(color, 0.2));
-  node.style.setProperty("--node-glow", rgbaString(color, 0.34));
+  node.style.setProperty("--node-glow", rgbaString(color, 0.29));
 }
 
 function estimateLabelWidth(label) {
@@ -5365,6 +5365,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
   const colorsForEntry = (entry, index) => {
     const color = colorForEntry(entry, index, palette, filterField);
     return {
+      color,
       fill: chartFillSoft(color, isOtherEntry(entry) ? 0.82 : 0.9),
       glow: chartFillSoft(color, isOtherEntry(entry) ? 0.17 : 0.3),
     };
@@ -5378,7 +5379,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
       return `<span class="trend-stack-segment${compositionTargetClass(entry)}" ${compositionFilterAttrs(
         entry,
         filterField
-      )} style="width: ${width.toFixed(2)}%; --bar-fill: ${colors.fill}; --bar-glow: ${colors.glow}; background: var(--bar-fill)" title="${escapeHtml(
+      )} data-palette-color="${escapeHtml(colors.color)}" style="width: ${width.toFixed(2)}%; --bar-fill: ${colors.fill}; --bar-glow: ${colors.glow}; background: var(--bar-fill)" title="${escapeHtml(
         `${label}: ${formatCompactNumber(entry.studies)} studies, ${formatCompactNumber(entry.count)} findings`
       )}"></span>`;
     })
@@ -5389,7 +5390,7 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
       const label = entry.displayLabel || entry.label;
       const colors = colorsForEntry(entry, index);
       return `
-        <span class="trend-legend-item${compositionTargetClass(entry)}" ${compositionFilterAttrs(entry, filterField)}>
+        <span class="trend-legend-item${compositionTargetClass(entry)}" ${compositionFilterAttrs(entry, filterField)} data-palette-color="${escapeHtml(colors.color)}">
           <i style="--bar-fill: ${colors.fill}; --bar-glow: ${colors.glow}; background: var(--bar-fill)"></i>
           ${escapeHtml(label)} <strong>${formatCompactNumber(value)}</strong>
         </span>
@@ -5939,13 +5940,18 @@ function compositionCategoryColorKey(entry, field) {
   return field && value ? `${field}|${value}` : "";
 }
 
+function compositionFilterColor(field, value, paletteColor) {
+  const color = meaningfulText(paletteColor).toLowerCase();
+  const key = compositionCategoryColorKey({ value }, field);
+  return key && /^#[0-9a-f]{6}$/.test(color) ? { key, color } : null;
+}
+
 function colorForEntry(entry, index, palette = CATEGORY_COLORS, field = "") {
   if (isOtherEntry(entry)) return OTHER_CATEGORY_COLOR;
   const color = palette[index % palette.length];
   const key = compositionCategoryColorKey(entry, field);
-  if (!key) return color;
-  if (!compositionCategoryColors.has(key)) compositionCategoryColors.set(key, color);
-  return compositionCategoryColors.get(key);
+  const filteredColor = detailGraphFilter?.compositionColor;
+  return key && filteredColor?.key === key ? filteredColor.color : color;
 }
 
 function compositionFilterAttrs(entry, field) {
@@ -6587,7 +6593,7 @@ function renderStudyDetail(studyKeyValue) {
   `;
 }
 
-function renderFieldValueDetail(field, value, labelValue = value) {
+function renderFieldValueDetail(field, value, labelValue = value, paletteColor = "") {
   const fieldClaims = claimsForFieldValue(field, value);
   if (!fieldClaims.length) return;
   const allAccessFieldClaims = claimsForFieldValue(
@@ -6598,7 +6604,7 @@ function renderFieldValueDetail(field, value, labelValue = value) {
 
   activeDetailItems = fieldClaims;
   activeDetailAllAccessItems = allAccessFieldClaims;
-  setDetailGraphFilter(fieldClaims);
+  setDetailGraphFilter(fieldClaims, compositionFilterColor(field, value, paletteColor));
   setDetailHeader(fieldValueDetailTitle(field, labelValue));
   detailBody.innerHTML = `
     <div class="trend-dashboard">
@@ -8772,7 +8778,12 @@ if (detailBody) {
       renderOutcomeScaleDetail(target.dataset.filterValue || target.dataset.filterLabel || "");
       return;
     }
-    renderFieldValueDetail(target.dataset.filterField || "", target.dataset.filterValue || "", target.dataset.filterLabel || "");
+    renderFieldValueDetail(
+      target.dataset.filterField || "",
+      target.dataset.filterValue || "",
+      target.dataset.filterLabel || "",
+      target.dataset.paletteColor || ""
+    );
   });
   detailBody.addEventListener("keydown", (event) => {
     const target = event.target.closest?.(".sample-heatmap-target");
@@ -8806,7 +8817,12 @@ if (detailBody) {
       renderOutcomeScaleDetail(target.dataset.filterValue || target.dataset.filterLabel || "");
       return;
     }
-    renderFieldValueDetail(target.dataset.filterField || "", target.dataset.filterValue || "", target.dataset.filterLabel || "");
+    renderFieldValueDetail(
+      target.dataset.filterField || "",
+      target.dataset.filterValue || "",
+      target.dataset.filterLabel || "",
+      target.dataset.paletteColor || ""
+    );
   });
   detailBody.addEventListener("click", (event) => {
     const target = event.target.closest?.(".scale-chip[data-outcome-scale]");

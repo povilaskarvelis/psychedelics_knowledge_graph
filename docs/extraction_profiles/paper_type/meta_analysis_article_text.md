@@ -63,6 +63,12 @@ population/system, intervention/exposure, comparator, outcome/measure,
 assessment timepoint or window, effect metric, effect size, study count,
 participant count, interpretation, and locator when reported.
 
+`compound_or_class` must contain the psychedelic, ketamine, entactogen, or
+explicitly studied drug class. Never place a dosing schedule, number of
+sessions, psychotherapy component, condition, outcome, moderator, or behavioral
+construct in that field. Put those concepts in their corresponding intervention,
+entity, outcome, population, or domain-specific fields.
+
 For network meta-analyses, record the treatment comparison in the comparator,
 outcome, effect, and interpretation fields. Do not reconstruct network
 geometry, ranking scores, or inconsistency diagnostics as separate fields.

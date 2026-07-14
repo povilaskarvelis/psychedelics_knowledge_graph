@@ -129,7 +129,8 @@
           "description": "Coarse population/model bucket for filtering and UI facets. Use the closest allowed value."
         },
         "compound_or_intervention": {
-          "type": "string"
+          "type": "string",
+          "description": "Psychedelic, ketamine, entactogen, or other explicitly studied graph exposure. Do not put an addiction service, psychotherapy component, comparator, condition, or outcome here; preserve those in their corresponding fields."
         },
         "comparator": {
           "type": "string"

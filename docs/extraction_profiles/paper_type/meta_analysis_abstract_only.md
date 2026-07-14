@@ -37,6 +37,10 @@ test, or other clear quantitative synthesis result.
 
 ## What To Extract
 
+`compound_or_class` must contain the psychedelic, ketamine, entactogen, or
+explicitly studied drug class. Never use dosing sessions, psychotherapy,
+conditions, outcomes, moderators, or behavioral constructs as compounds.
+
 When stated, capture:
 
 - source type and relationship domain

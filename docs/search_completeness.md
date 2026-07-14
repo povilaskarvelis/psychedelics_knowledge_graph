@@ -4,9 +4,8 @@ No literature search can prove that it found every relevant paper. This project
 therefore keeps a reviewed set of known relevant studies and uses it to test
 whether the search is retrieving papers that should reasonably be found.
 
-The canonical file is `data/raw/benchmark_manifest.json`. The filename is kept
-for compatibility with older code. In documentation and public-facing text,
-call it the **known relevant study set** or **search completeness set**.
+This reviewed collection is called the **known relevant study set**. It is a
+quality check for the search, not the source of papers included in the graph.
 
 ## What this check does
 
@@ -21,17 +20,11 @@ call it the **known relevant study set** or **search completeness set**.
 - **Explains misses.** A missing study should lead to a search revision or a
   documented explanation about scope, indexing, or identifier quality.
 
-The current paper corpus then tracks these studies through initial screening,
-title and abstract screening, source-text preparation, evidence extraction, and
-graph representation. Those later stages answer different questions. A paper
-can be successfully found but later excluded, retained only as background, or
-kept out of the graph because no finding can be represented reliably.
-
-The older `pipeline/ingest/recall_audit.py` command still reports several legacy
-queue and paper-library stages for reproducibility. Do not describe those legacy
-stage names as the current end-to-end workflow. For a current release, compare
-the known DOI set with the corpus tables and the active graph release as well as
-the discovery report.
+The project tracks these studies through screening, preparation of available
+article text, evidence extraction, and publication. Those stages answer
+different questions. A paper can be found successfully but later excluded,
+kept only as background, or left out of the graph because no relationship can
+be represented reliably.
 
 ## Adding studies to the set
 
@@ -42,9 +35,7 @@ discovery followed by review.
 
 Keep enough information to explain the decision, including the source,
 selection method, review status, related review DOI where relevant, rationale,
-and the study's role in the completeness set. The manifest's machine-readable
-field names remain part of the audit trail; they do not need to appear in
-reader-facing Methods text.
+and the study's role in the completeness set.
 
 ## Interpreting a miss
 

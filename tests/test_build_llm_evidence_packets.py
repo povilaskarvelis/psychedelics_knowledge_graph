@@ -545,6 +545,41 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
             "secondary_or_context_abstract_only",
         )
 
+    def test_explicit_primary_route_wins_over_commentary_like_title_word(self) -> None:
+        artifact = {
+            "study_doi": "10.1000/primary-perspectives",
+            "study_title": "Patient perspectives on treatment",
+            "best_backend": "grobid",
+            "best_char_count": len(LEAN_TEI),
+            "best_section_count": 5,
+            "extractions": [{"backend": "grobid", "status": "ok", "text": LEAN_TEI, "metadata": {"format": "tei_xml"}}],
+        }
+        row = {
+            "study_doi": "10.1000/primary-perspectives",
+            "study_title": "Patient perspectives on treatment",
+            "publication_type": "Journal Article",
+            "source_family": "primary",
+            "prompt_profiles": "primary_clinical|primary_safety",
+        }
+
+        packet = build_packet(
+            "disorder",
+            Path("/tmp/primary-perspectives.json"),
+            artifact,
+            row,
+            max_chunk_chars=500,
+            overlap_chars=0,
+            max_chunks_per_paper=0,
+            max_references=50,
+            packet_profile="primary_empirical",
+        )
+
+        self.assertNotEqual(
+            packet["document_summary"]["profile_summary"]["section_selection"],
+            "secondary_or_context_abstract_only",
+        )
+        self.assertIn("Results", [section["heading"] for section in packet["sections"]])
+
     def test_secondary_synthesis_profile_keeps_meta_analysis_details_and_references(self) -> None:
         artifact = {
             "study_doi": "10.1000/meta",

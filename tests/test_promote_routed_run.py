@@ -78,6 +78,10 @@ class PromoteRoutedRunTest(unittest.TestCase):
             outputs = json.loads(manifest.read_text(encoding="utf-8"))["outputs"]
 
         self.assertEqual(outputs["manifest"], str((current / "manifests/build_manifest.json").resolve()))
+        self.assertEqual(
+            outputs["graph_inclusion_dispositions"],
+            str((current / "views/graph_inclusion_dispositions.json").resolve()),
+        )
         self.assertFalse(any("/stage/" in path for path in outputs.values()))
 
 

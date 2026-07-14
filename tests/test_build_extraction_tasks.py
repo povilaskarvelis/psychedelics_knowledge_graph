@@ -294,7 +294,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertEqual(ready_tasks, [])
         self.assertEqual(ready_report["tasks_written"], 0)
 
-    def test_terminal_guideline_profile_is_not_reported_as_missing_article_text(self) -> None:
+    def test_runnable_guideline_profile_requires_compatible_article_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             pd.DataFrame(
@@ -319,12 +319,13 @@ class BuildExtractionTasksTest(unittest.TestCase):
             tasks, report = build_tasks(make_args(root))
 
         self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks[0]["task_status"], "not_model_ready")
-        self.assertEqual(tasks[0]["text_source"]["mode"], "not_applicable")
-        self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "not_applicable")
+        self.assertEqual(tasks[0]["task_status"], "needs_fulltext_packet")
+        self.assertEqual(tasks[0]["text_source"]["mode"], "full_text_artifact")
+        self.assertEqual(tasks[0]["text_source"]["expected_packet_profile"], "full")
+        self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "no_packet")
         schema = json.loads((ROOT / "schema" / "extraction_task.schema.json").read_text(encoding="utf-8"))
         self.assertEqual([error.message for error in Draft7Validator(schema).iter_errors(tasks[0])], [])
-        self.assertEqual(report["by_task_status"], {"not_model_ready": 1})
+        self.assertEqual(report["by_task_status"], {"needs_fulltext_packet": 1})
 
     def test_primary_route_accepts_legacy_lean_primary_packet_alias(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

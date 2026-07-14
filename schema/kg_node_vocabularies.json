@@ -46,14 +46,14 @@
       },
       {
         "label": "Anterior cingulate cortex",
-        "aliases": ["ACC", "anterior cingulate", "anterior cingulate gyrus"],
+        "aliases": ["ACC", "anterior cingulate", "anterior cingulate gyrus", "rostral ACC", "rostral anterior cingulate cortex"],
         "parent": "Cingulate cortex",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dorsal anterior cingulate cortex",
-        "aliases": ["dACC"],
+        "aliases": ["dACC", "dorsal ACC"],
         "parent": "Anterior cingulate cortex",
         "ids": {},
         "status": "seed_hierarchy"
@@ -299,7 +299,7 @@
       },
       {
         "label": "Insula",
-        "aliases": ["insular cortex"],
+        "aliases": ["insular cortex", "left insula", "right insula"],
         "ids": {},
         "status": "seed_alias"
       },
@@ -583,10 +583,24 @@
         "status": "seed_hierarchy"
       },
       {
+        "label": "Fusiform gyrus",
+        "aliases": ["left fusiform gyrus", "right fusiform gyrus", "right-fusiform gyrus"],
+        "parent": "Temporal cortex",
+        "ids": {},
+        "status": "seed_hierarchy"
+      },
+      {
         "label": "Auditory cortex",
         "aliases": ["auditory cortex", "auditory cortical region"],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Heschl's gyrus",
+        "aliases": ["Heschl gyrus", "left Heschl's gyrus", "right Heschl's gyrus"],
+        "parent": "Auditory cortex",
+        "ids": {},
+        "status": "seed_hierarchy"
       },
       {
         "label": "Medial temporal lobe",

@@ -1,0 +1,114 @@
+{
+  "schema_version": "graph_inclusion_disposition_overrides_v1",
+  "overrides": [
+    {
+      "dois": [
+        "10.1016/j.pnpbp.2023.110871",
+        "10.1002/dta.1985",
+        "10.1002/dta.2222",
+        "10.1111/add.70073",
+        "10.1177/20451253251377191",
+        "10.1177/2050324515578080"
+      ],
+      "disposition": "extraction_needed",
+      "reason": "The available source contains scoped evidence, but the current extraction output incorrectly reports no extractable evidence.",
+      "next_action": "Rerun the routed task with the corrected extraction contract and review any repeated false negative."
+    },
+    {
+      "dois": [
+        "10.2174/2666082218666220513142002",
+        "10.1097/coc.0000000000000998",
+        "10.1016/j.jpsychires.2025.03.022",
+        "10.1016/j.jad.2025.120732",
+        "10.1111/j.1360-0443.2007.02041.x"
+      ],
+      "disposition": "extraction_needed",
+      "reason": "The meta-analysis output is missing from assembly or places a non-compound concept in the compound field.",
+      "next_action": "Rerun with the corrected meta-analysis contract and reconvert the synthesis results."
+    },
+    {
+      "dois": [
+        "10.1001/archneurpsyc.1956.02330240017002",
+        "10.1001/archneurpsyc.1957.02330340026002",
+        "10.1055/a-2524-6277",
+        "10.1055/s-0032-1307601",
+        "10.1055/s-0033-1336483",
+        "10.1055/s-0033-1336485",
+        "10.1055/s-0033-1336486",
+        "10.1055/s-0042-1747662",
+        "10.1080/02791072.2022.2112788",
+        "10.1080/02791072.2024.2401977",
+        "10.1089/jicm.2024.0713",
+        "10.1093/oxfordjournals.bmb.a070352",
+        "10.1097/00005053-195607000-00010",
+        "10.1097/mjt.0000000000000886",
+        "10.1097/yct.0000000000000878",
+        "10.1111/j.2042-7158.1976.tb02779.x",
+        "10.1159/000467979",
+        "10.1192/bjp.86.360.29",
+        "10.1210/jcem-17-5-608",
+        "10.1212/wnl.0000000000210945",
+        "10.1556/2054.2018.007",
+        "10.17615/6zw1-n365",
+        "10.17615/xwfg-s242",
+        "10.2399/ana.15.027",
+        "10.26402/jpp.2020.4.09",
+        "10.26402/jpp.2026.1.07",
+        "10.4000/pontourbe.1345",
+        "10.46998/ijcmcr.2023.32.000787"
+      ],
+      "disposition": "source_recovery_needed",
+      "reason": "The currently available text is incomplete, mismatched, or too limited to support a reliable extraction decision.",
+      "next_action": "Recover and verify a better abstract or article-text source before rerunning extraction."
+    },
+    {
+      "dois": [
+        "10.64239/pi-vl2413",
+        "10.47626/1516-4446-2026-4911",
+        "10.1016/j.encep.2023.11.029",
+        "10.23785/tu.2026.01.003",
+        "10.1001/jamapsychiatry.2022.4020",
+        "10.1016/j.ajp.2023.103480",
+        "10.1097/hrp.0000000000000197",
+        "10.1186/s12991-023-00478-7",
+        "10.1111/head.70016",
+        "10.2147/jpr.s315585",
+        "10.47626/1516-4446-2022-2891",
+        "10.4088/jcp.25cs16066",
+        "10.4103/0973-1075.285694",
+        "10.1080/08039488.2021.1952303",
+        "10.1016/j.ijgo.2011.06.001"
+      ],
+      "disposition": "adjudicated_outside_scope",
+      "reason": "The document is a guideline or consensus source, but its recommendation scope is not specific enough to the graph's psychedelic, ketamine, or entactogen evidence model.",
+      "next_action": "Retain the paper in the selected corpus; reconsider only if the recommendation scope policy expands."
+    },
+    {
+      "dois": [
+        "10.1016/j.concog.2023.103474",
+        "10.1177/0333102421996355",
+        "10.3389/fnins.2023.1267611"
+      ],
+      "disposition": "adjudicated_outside_scope",
+      "reason": "The corrected primary extraction found only construct validation or symptom-description evidence without an identifiable psychedelic exposure to anchor a graph finding.",
+      "next_action": "Retain the paper in the selected corpus; reconsider only if exposure-free methodological or descriptive evidence becomes part of the graph model."
+    },
+    {
+      "dois": [
+        "10.1016/j.jad.2025.119866",
+        "10.1177/00048674251333577"
+      ],
+      "disposition": "adjudicated_outside_scope",
+      "reason": "The available abstract describes guideline development or the existence of guidance but does not state a concrete recommendation that can be represented reliably.",
+      "next_action": "Retain the paper in the selected corpus and revisit if recommendation-bearing full text becomes available."
+    },
+    {
+      "dois": [
+        "10.3390/brainsci12030366"
+      ],
+      "disposition": "adjudicated_outside_scope",
+      "reason": "This meta-analysis compares substance-use outcomes by transgender identity and contains no psychedelic, ketamine, or entactogen exposure to anchor a graph finding.",
+      "next_action": "Retain the paper in the selected corpus; do not normalize demographic identity as a compound or exposure."
+    }
+  ]
+}

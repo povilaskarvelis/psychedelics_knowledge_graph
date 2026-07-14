@@ -68,6 +68,98 @@ def test_brain_measure_is_normalized_to_a_stable_measure_family(tmp_path: Path) 
     assert set(edges["entity_label"]) == {"Functional connectivity"}
 
 
+def test_broad_meta_analysis_endpoints_are_retained_as_searchable_detail(tmp_path: Path) -> None:
+    edges, audit = build_rows(
+        tmp_path,
+        [
+            meta_row(
+                study_doi="10.1016/j.psychres.2024.115886",
+                source_item_id="R1",
+                domain="clinical_outcome",
+                graph_entity_label="symptoms of mental disorders",
+                clinical_endpoint="symptoms of mental disorders",
+                primary_outcome="symptoms of mental disorders",
+                kg_entity_kind_override="symptom_problem",
+            ),
+            meta_row(
+                study_doi="10.1038/s44220-023-00048-6",
+                source_item_id="R2",
+                domain="clinical_outcome",
+                graph_entity_label="Adults with mental health disorders",
+                condition_or_indication="Adults with mental health disorders",
+                population="Adults with mental health disorders",
+                clinical_endpoint="Psychiatric symptom severity",
+                primary_outcome="Psychiatric symptom severity",
+                normalization_entity_source="population_for_generic_clinical_outcome",
+                kg_entity_kind_override="condition_indication",
+            ),
+            meta_row(
+                study_doi="10.1097/jcp.0000000000001946",
+                source_item_id="R3",
+                domain="clinical_outcome",
+                graph_entity_label="Clinical outcomes and psychoactive effects",
+                clinical_endpoint="Clinical outcomes and psychoactive effects",
+                primary_outcome="Clinical outcomes and psychoactive effects",
+                kg_entity_kind_override="symptom_problem",
+            ),
+        ],
+    )
+
+    assert audit.empty
+    by_doi = edges.set_index("study_doi")
+    assert by_doi.loc["10.1016/j.psychres.2024.115886", "entity_label"] == "Mental health symptoms"
+    assert by_doi.loc["10.1038/s44220-023-00048-6", "entity_label"] == "Mental health symptoms"
+    assert (
+        by_doi.loc["10.1097/jcp.0000000000001946", "entity_label"]
+        == "Psychoactive effects-clinical outcome association"
+    )
+
+
+def test_meta_analysis_brain_activation_labels_resolve_to_precise_regions(tmp_path: Path) -> None:
+    edges, audit = build_rows(
+        tmp_path,
+        [
+            meta_row(
+                source_item_id="R1",
+                domain="brain_system",
+                compound="Ketamine",
+                graph_entity_label="Brain activation (dorsal ACC)",
+                kg_entity_kind_override="brain_network",
+            ),
+            meta_row(
+                source_item_id="R2",
+                domain="brain_system",
+                compound="Ketamine",
+                graph_entity_label="Brain activation (right Heschl's gyrus)",
+                kg_entity_kind_override="brain_network",
+            ),
+            meta_row(
+                source_item_id="R3",
+                domain="brain_system",
+                compound="Ketamine",
+                graph_entity_label="Brain activation (right insula, right-fusiform gyrus)",
+                kg_entity_kind_override="brain_network",
+            ),
+            meta_row(
+                source_item_id="R4",
+                domain="brain_system",
+                compound="Ketamine",
+                graph_entity_label="Brain activation (rostral ACC)",
+                kg_entity_kind_override="brain_network",
+            ),
+        ],
+    )
+
+    assert audit.empty
+    assert set(edges["entity_label"]) == {
+        "Anterior cingulate cortex",
+        "Dorsal anterior cingulate cortex",
+        "Fusiform gyrus",
+        "Heschl's gyrus",
+        "Insula",
+    }
+
+
 def test_meta_analysis_safety_events_cover_perceptual_and_discontinuation_outcomes(tmp_path: Path) -> None:
     edges, audit = build_rows(
         tmp_path,

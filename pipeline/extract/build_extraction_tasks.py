@@ -73,12 +73,10 @@ SKIP_ROUTE_ACTIONS = {
     "convert_local_pdf_then_extract",
 }
 TERMINAL_SCHEMA_PROFILES = {
-    "recommendation_consensus_schema",
     "context_only_schema",
     "no_extraction_schema",
 }
 TERMINAL_PROMPT_PROFILES = {
-    "guideline_consensus",
     "context_only_or_skip",
     "no_extraction",
 }

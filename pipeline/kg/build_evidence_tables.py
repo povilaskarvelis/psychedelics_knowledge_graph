@@ -6451,6 +6451,21 @@ SYMPTOM_ENDPOINT_PATTERNS = (
         "Psychological distress",
     ),
     (
+        re.compile(
+            r"\b(symptoms? of (?:mental|psychiatric) disorders?|psychiatric symptom severity|"
+            r"mental health symptoms?(?: severity)?)\b",
+            re.IGNORECASE,
+        ),
+        "Mental health symptoms",
+    ),
+    (
+        re.compile(
+            r"\b(clinical outcomes? and psychoactive effects?|psychoactive effects? and clinical outcomes?)\b",
+            re.IGNORECASE,
+        ),
+        "Psychoactive effects-clinical outcome association",
+    ),
+    (
         re.compile(r"\b(anhedonia|shaps|snaith[- ]hamilton pleasure|teps|temporal experience of pleasure)\b", re.IGNORECASE),
         "Anhedonia",
     ),

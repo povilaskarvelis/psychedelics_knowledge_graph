@@ -23,6 +23,69 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
 
 
 class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
+    def test_converts_guideline_recommendation_without_treating_care_component_as_compound(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            tasks_jsonl = root / "tasks.jsonl"
+            outputs_jsonl = root / "outputs.jsonl"
+            write_jsonl(
+                tasks_jsonl,
+                [
+                    {
+                        "task_id": "guideline-task",
+                        "route_id": "guideline-route",
+                        "study_doi": "10.1000/guideline",
+                        "paper_metadata": {
+                            "doi": "10.1000/guideline",
+                            "study_title": "Guideline for psychedelic care",
+                        },
+                    }
+                ],
+            )
+            write_jsonl(
+                outputs_jsonl,
+                [
+                    {
+                        "task_id": "guideline-task",
+                        "route_id": "guideline-route",
+                        "status": "ok",
+                        "result": {
+                            "task_id": "guideline-task",
+                            "route_id": "guideline-route",
+                            "study_doi": "10.1000/guideline",
+                            "domain_route": "intervention_context",
+                            "source_type": "guideline",
+                            "text_depth": "article_text",
+                            "extraction_status": "extracted",
+                            "recommendation_assessment": {
+                                "relationship_domain": "intervention_context",
+                                "population_or_system": "clinical services",
+                            },
+                            "recommendation_items": [
+                                {
+                                    "compound_or_class": "Psilocybin",
+                                    "entity_type": "intervention_component",
+                                    "entity": "Adverse event monitoring",
+                                    "recommendation_type": "monitoring",
+                                    "recommendation_strength": "recommended",
+                                    "recommendation_statement": "Services should monitor adverse events.",
+                                    "direction_or_tone": "supports",
+                                }
+                            ],
+                        },
+                    }
+                ],
+            )
+
+            rows, report = convert_outputs(input_jsonl=outputs_jsonl, tasks_jsonl=tasks_jsonl)
+
+        self.assertEqual(report["rows_written"], 1)
+        self.assertEqual(rows[0]["source_item_type"], "recommendation_item")
+        self.assertEqual(rows[0]["paper_type"], "guideline")
+        self.assertEqual(rows[0]["compound"], "Psilocybin")
+        self.assertEqual(rows[0]["graph_entity_label"], "Adverse event monitoring")
+        self.assertEqual(rows[0]["kg_entity_kind_override"], "intervention_component")
+
     def test_complete_non_atomic_exposure_supersedes_focal_compound(self) -> None:
         row = {
             "compound": "Ketamine (as part of chemsex substances)",
@@ -66,6 +129,18 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
         dose_regimen = {"compound": "MDMA (75 mg and 125 mg)"}
         apply_graph_subject(dose_regimen)
         self.assertEqual(dose_regimen["graph_subject_kind"], "treatment_regimen")
+
+    def test_predictor_phrase_does_not_replace_extracted_atomic_compound(self) -> None:
+        row = {
+            "compound": "ecstasy",
+            "exposure_or_policy": "Perceived control over obtaining and using ecstasy",
+        }
+
+        apply_graph_subject(row)
+
+        self.assertEqual(row["compound"], "ecstasy")
+        self.assertEqual(row["graph_subject_label"], "ecstasy")
+        self.assertEqual(row["graph_subject_kind"], "atomic_compound")
 
     def test_graph_subject_normalization_is_idempotent(self) -> None:
         row = {

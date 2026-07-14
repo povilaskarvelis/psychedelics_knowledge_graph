@@ -10,7 +10,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_schema() -> dict:
-    return json.loads((ROOT / "schema" / "meta_analysis_evidence.schema.json").read_text(encoding="utf-8"))
+    return json.loads(
+        (ROOT / "schema" / "extraction_profiles" / "meta_analysis" / "clinical_outcome.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
 
 
 def valid_payload() -> dict:
@@ -76,6 +80,18 @@ def valid_payload() -> dict:
                 "evidence_locator": "Figure 2",
                 "confidence": 0.95,
                 "needs_human_review": False,
+                "domain_result": {
+                    "condition_or_population": "Adults with depressive symptoms",
+                    "compound_or_intervention": "psilocybin-assisted therapy",
+                    "comparator": "placebo or active control",
+                    "dose_or_regimen": "not_reported",
+                    "outcome_measure": "standardized depression scales",
+                    "clinical_endpoint": "depressive symptom severity",
+                    "assessment_timepoint": "primary endpoint",
+                    "clinical_endpoint_category": "depression severity",
+                    "effect_or_statistic": "SMD -0.82",
+                    "synthesis_interpretation": "Psilocybin was associated with reduced depressive symptoms.",
+                },
             }
         ],
         "extraction_warnings": [],

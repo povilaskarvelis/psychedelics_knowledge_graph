@@ -132,7 +132,6 @@ The route-specific meta-analysis contract is also runnable, but it is a
 secondary layer:
 
 - domain schemas under `schema/extraction_profiles/meta_analysis/`
-- shared base schema at `schema/meta_analysis_evidence.schema.json`
 - `docs/extraction_profiles/paper_type/meta_analysis_article_text.md`
 - `docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md`
 
@@ -145,8 +144,7 @@ domain-specific result details. Abstract-only prompts ask the model to fill only
 what is visible in the abstract and leave unavailable fields empty.
 Meta-analysis extraction does not create primary-study graph findings.
 
-An experimental meta-analysis contract is available for the next comparison
-pilot:
+The current paper-level meta-analysis contract is:
 
 - `docs/extraction_profiles/meta_analysis_v2/full_text_extraction.md`
 - `docs/extraction_profiles/meta_analysis_v2/abstract_extraction.md`

@@ -89,16 +89,16 @@ def primary_schema_path(domain_route: str) -> Path:
 
 def meta_analysis_schema_path(domain_route: str) -> Path:
     path = ROOT / "schema" / "extraction_profiles" / "meta_analysis" / f"{domain_route}.schema.json"
-    if path.exists():
-        return path
-    return ROOT / "schema" / "meta_analysis_evidence.schema.json"
+    if not path.exists():
+        raise ValueError(f"No meta-analysis extraction schema for domain `{domain_route}`")
+    return path
 
 
 def review_schema_path(domain_route: str) -> Path:
     path = ROOT / "schema" / "extraction_profiles" / "review" / f"{domain_route}.schema.json"
-    if path.exists():
-        return path
-    return ROOT / "schema" / "review_coverage.schema.json"
+    if not path.exists():
+        raise ValueError(f"No review extraction schema for domain `{domain_route}`")
+    return path
 
 
 def paper_type_prompt_path(paper_type: str, text_depth: str) -> Path:

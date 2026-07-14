@@ -27,6 +27,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 DEFAULT_KG_DIR = ROOT / "data" / "processed" / "kg"
 DEFAULT_OUT_DIR = ROOT / "data" / "processed"
 DEFAULT_ACTIVE_JSON = ROOT / "data" / "processed" / "graph_payload_active.json"
+DEFAULT_CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 ROUTED_SOURCE_NAME = "routed_extractions"
 ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
@@ -962,6 +963,46 @@ def load_candidate_study_key_sets(kg_dir: Path) -> dict[str, set[str]] | None:
     return keys_by_source
 
 
+def load_selected_candidate_study_key_sets(candidate_papers_table: Path) -> dict[str, set[str]] | None:
+    """Load the selected-paper denominator independently of extraction output.
+
+    The KG tables only contain papers that reached extraction or normalization.
+    Using them as the candidate denominator therefore hides genuine missing
+    papers.  The canonical corpus table is the upstream source of truth for
+    papers retained for extraction.
+    """
+    if not candidate_papers_table.exists():
+        return None
+    try:
+        import pandas as pd
+    except ModuleNotFoundError:
+        return None
+
+    df = pd.read_parquet(candidate_papers_table)
+    if df.empty or "retained_for_extraction_candidate" not in df.columns:
+        return None
+    selected = df[df["retained_for_extraction_candidate"].fillna(False).astype(bool)]
+    keys_by_source = {source_key: set() for source_key in UI_SOURCE_KEYS}
+    for record in selected.to_dict(orient="records"):
+        key = candidate_study_key(record)
+        if not key:
+            continue
+        source_type = source_type_token(
+            record.get("literature_source_type")
+            or record.get("primary_secondary_source_type")
+        )
+        source_family = source_type_token(record.get("literature_source_family"))
+        if source_type in META_ANALYSIS_SOURCE_TYPES or "meta_analysis" in source_type:
+            source_key = META_ANALYSES_SOURCE_KEY
+        elif source_family == "secondary_literature" or source_type != "primary":
+            source_key = REVIEWS_SOURCE_KEY
+        else:
+            source_key = PRIMARY_SOURCE_KEY
+        keys_by_source[source_key].add(key)
+    keys_by_source["all"] = set().union(*(keys_by_source[source_key] for source_key in UI_SOURCE_KEYS))
+    return keys_by_source
+
+
 def load_candidate_study_keys(kg_dir: Path) -> set[str] | None:
     key_sets = load_candidate_study_key_sets(kg_dir)
     return None if key_sets is None else key_sets["all"]
@@ -1022,15 +1063,17 @@ def summary_stats(
     }
     if candidate_study_keys is not None:
         candidate_keys = {key for key in candidate_study_keys if key}
-        not_in_graph_keys = candidate_keys - studies
-        without_normalized_findings_keys = candidate_keys - normalized_finding_studies
+        represented_graph_keys = candidate_keys & studies
+        represented_normalized_keys = candidate_keys & normalized_finding_studies
+        not_in_graph_keys = candidate_keys - represented_graph_keys
+        without_normalized_findings_keys = candidate_keys - represented_normalized_keys
         stats["graph_study_coverage"] = {
-            "included_count": len(studies),
+            "included_count": len(represented_graph_keys),
             "candidate_count": len(candidate_keys),
             "not_in_graph_count": len(not_in_graph_keys),
         }
         stats["normalized_finding_coverage"] = {
-            "included_count": len(normalized_finding_studies),
+            "included_count": len(represented_normalized_keys),
             "candidate_count": len(candidate_keys),
             "without_findings_count": len(without_normalized_findings_keys),
         }
@@ -1463,6 +1506,7 @@ def export_evidence_payload(
     manifest_name: str = "graph_payload_manifest.json",
     active_json: Path | None = None,
     require_fresh_author_tables: bool = True,
+    candidate_papers_table: Path | None = None,
 ) -> dict:
     author_table_status = (
         validate_fresh_author_tables(kg_dir)
@@ -1470,7 +1514,16 @@ def export_evidence_payload(
         else {"status": "skipped", "reason": "freshness check disabled"}
     )
     findings = load_findings(kg_dir)
-    candidate_study_key_sets = load_candidate_study_key_sets(kg_dir)
+    candidate_study_key_sets = (
+        load_selected_candidate_study_key_sets(candidate_papers_table)
+        if candidate_papers_table is not None
+        else load_candidate_study_key_sets(kg_dir)
+    )
+    denominator_source = (
+        "selected_candidate_corpus"
+        if candidate_papers_table is not None and candidate_study_key_sets is not None
+        else "kg_artifact_fallback"
+    )
     candidate_study_keys = None if candidate_study_key_sets is None else candidate_study_key_sets["all"]
     stats = summary_stats(findings, candidate_study_keys)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1513,9 +1566,9 @@ def export_evidence_payload(
     }
     overview_paper_counts["total"] = sum(overview_paper_counts.values())
     normalized_finding_paper_counts = {
-        "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["normalized_finding_study_count"],
-        "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["normalized_finding_study_count"],
-        "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["normalized_finding_study_count"],
+        "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["normalized_finding_coverage"]["included_count"],
+        "reviews": source_summary_stats[REVIEWS_SOURCE_KEY]["normalized_finding_coverage"]["included_count"],
+        "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["normalized_finding_coverage"]["included_count"],
     }
     normalized_finding_paper_counts["total"] = sum(normalized_finding_paper_counts.values())
     awaiting_graph_inclusion = {
@@ -1548,7 +1601,8 @@ def export_evidence_payload(
                 "awaiting_graph_inclusion": awaiting_graph_inclusion,
                 "visualized_overview_represented": overview_paper_counts,
                 "scope": "underlying_evidence_graph_represented",
-                "awaiting_scope": "no_normalized_finding",
+                "awaiting_scope": "selected_papers_without_normalized_finding",
+                "denominator_source": denominator_source,
             },
         },
         "status": "ok",
@@ -1577,6 +1631,11 @@ def main() -> int:
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR), help="Output directory for web payload files.")
     parser.add_argument("--manifest", default="graph_payload_manifest.json", help="Manifest filename.")
     parser.add_argument(
+        "--candidate-papers",
+        default=str(DEFAULT_CANDIDATE_PAPERS_TABLE),
+        help="Canonical selected-paper table used as the coverage denominator.",
+    )
+    parser.add_argument(
         "--activate-default",
         action="store_true",
         help="Write data/processed/graph_payload_active.json so the browser UI loads this evidence payload by default.",
@@ -1599,6 +1658,7 @@ def main() -> int:
         manifest_name=args.manifest,
         active_json=Path(args.active_json).resolve() if args.activate_default else None,
         require_fresh_author_tables=not args.allow_stale_authors,
+        candidate_papers_table=Path(args.candidate_papers).resolve(),
     )
     manifest = result["manifest"]
     print("Public evidence data: compact graph and detail bootstraps")

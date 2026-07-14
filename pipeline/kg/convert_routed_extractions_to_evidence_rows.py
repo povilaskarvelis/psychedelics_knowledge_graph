@@ -373,6 +373,16 @@ def apply_graph_subject(row: dict) -> None:
         kind = graph_subject_kind(value)
         if kind == "atomic_compound":
             continue
+        if (
+            field in {"exposure_or_policy", "exposure_or_intervention"}
+            and kind == "compound_combination"
+            and not is_named_combination_text(value)
+        ):
+            # Ordinary prose such as "perceived control over obtaining and
+            # using ecstasy" contains the word "and" but is a predictor or
+            # policy construct, not a multi-compound graph subject. Preserve
+            # the separately extracted atomic compound in these cases.
+            continue
         if field.startswith("dose_or_") and kind in {"compound_combination", "treatment_regimen"}:
             # Multiple doses or sequential administration are regimen metadata,
             # not evidence that the graph subject contains multiple compounds.
@@ -703,6 +713,8 @@ def result_items(result: dict) -> tuple[str, list[dict]]:
         return "synthesis_result", [item for item in result["synthesis_results"] if isinstance(item, dict)]
     if isinstance(result.get("coverage_items"), list):
         return "review_coverage_item", [item for item in result["coverage_items"] if isinstance(item, dict)]
+    if isinstance(result.get("recommendation_items"), list):
+        return "recommendation_item", [item for item in result["recommendation_items"] if isinstance(item, dict)]
     if isinstance(result.get("evidence_items"), list):
         return "primary_item", [item for item in result["evidence_items"] if isinstance(item, dict)]
     return "unknown", []
@@ -726,6 +738,8 @@ def paper_type_for(result: dict, item_kind: str) -> str:
     source_type = normalize(result.get("source_type", ""))
     if item_kind == "synthesis_result":
         return source_type or "meta_analysis"
+    if item_kind == "recommendation_item":
+        return source_type or "guideline"
     return source_type or "review"
 
 
@@ -919,6 +933,7 @@ def evidence_row_for_item(
         "synthesis_assessment",
         "included_evidence_summary",
         "review_assessment",
+        "recommendation_assessment",
         "source_text_provenance",
     ):
         parent = result.get(parent_key, {}) if isinstance(result.get(parent_key), dict) else {}

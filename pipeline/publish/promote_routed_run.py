@@ -264,6 +264,9 @@ def retarget_methods_manifest(staged_methods: Path, current_methods: Path) -> No
         "methods_bibliography": str(
             (current_methods / "views" / "methods_bibliography.json").resolve()
         ),
+        "graph_inclusion_dispositions": str(
+            (current_methods / "views" / "graph_inclusion_dispositions.json").resolve()
+        ),
         "manifest": str((current_methods / "manifests" / "build_manifest.json").resolve()),
     }
     write_json_atomic(manifest_path, manifest)

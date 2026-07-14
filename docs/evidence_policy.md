@@ -9,10 +9,10 @@ what information should accompany it, and what the graph does not claim.
 2. Primary studies, meta-analyses, and other reviews remain separate evidence
    types. Review statements are not presented as primary-study results.
 3. Article-text and abstract-only findings remain distinguishable.
-4. Null, mixed, negative, uncertain, and positive findings are retained rather
-   than collapsed into a single conclusion.
-5. A structured extraction is not automatically admitted to the overview
-   graph. It must also pass validation and normalization checks.
+4. Positive, negative, mixed, unclear, and no-detected-effect findings are
+   retained rather than collapsed into a single conclusion.
+5. Information is added to the graph only when it is supported by the source
+   and can be represented accurately.
 
 ## Information kept with a finding
 
@@ -53,59 +53,45 @@ being inferred as facts.
 
 ## Article text and abstracts
 
-`article_text` means that extraction used converted article content. Depending
+**Article text** means that extraction used converted article content. Depending
 on the paper type, this can be a selected set of relevant sections rather than
-every page of the paper. `abstract_only` means that the extraction was limited
-to the abstract. Abstract-only findings must not imply access to details that
-were not present in that abstract.
-
-Older schemas and compatibility files may use `full_text_seen` or
-`secondary_summary`. These are not the preferred labels for the current public
-workflow.
+every page of the paper. **Abstract only** means that extraction was limited to
+the abstract. Abstract-only findings must not imply access to details that were
+not present in that abstract.
 
 ## Validation and graph representation
 
-Before publication, extracted records are checked for the expected structure,
-source support, and internally consistent fields. Compounds and related
-entities are then matched to controlled names where possible.
+Before publication, extracted information is checked against the source paper,
+and names for compounds, conditions, outcomes, and other topics are made
+consistent. A paper can appear in the bibliography without adding a
+relationship to the graph. This happens when the source does not support a
+clear relationship, the relationship would be misleading if simplified, or it
+still needs review. Primary-study and review relationships also need support
+from at least two papers before they appear in the overview. Meta-analyses are
+shown separately because each paper already combines results from multiple
+studies.
 
-A finding can remain available in paper details and search without becoming a
-node in the visual overview. Common reasons include:
-
-- the compound or related entity cannot be normalized safely;
-- the text describes a class, context, or multi-part relationship that would be
-  misleading if flattened into a simple edge;
-- the finding is marked for further review;
-- the support comes only from background or introductory text; or
-- a primary-study or review node is supported by only one source paper and does
-  not meet the overview's two-paper display rule.
-
-Meta-analysis findings are shown in their own view and are not subject to that
-two-paper display rule because each paper is itself a synthesis. The visual
-overview is therefore a deliberately smaller view of the underlying normalized
-findings, not the full evidence store.
+The graph is therefore a selected view of relationships that can be shown
+clearly. A missing relationship does not show that no relevant research exists.
 
 ## Direction, certainty, and risk of bias
 
-For clinical and functional findings, `result_direction` records the reported
-interpretation: `positive`, `null`, `negative`, `mixed`, or `unclear`. It is not
-simply the mathematical sign of a score. For example, a lower symptom score can
-be positive when lower values mean improvement.
+Where a direction is meaningful, the graph preserves the paper's reported
+interpretation: positive, negative, mixed, unclear, or no detected effect. This
+is not simply the mathematical sign of a score. For example, a lower symptom
+score can be positive when lower values mean improvement.
 
 The project does not currently assign a universal certainty grade or formal
-risk-of-bias judgment to every finding. Source-reported certainty and
-risk-of-bias information can be retained as context. Legacy fields such as
-`evidence_level` and provisional fields such as `evidence_strength` must not be
-presented as project-wide GRADE, Cochrane, or clinical-recommendation ratings,
-and they do not override the provenance and validation checks above.
+risk-of-bias judgment to every finding. When a paper reports certainty or
+risk-of-bias information, it can be shown as part of that paper's information,
+but it is not a project-wide GRADE, Cochrane, or clinical-recommendation rating.
 
 ## Corrections and updates
 
-Corrections should be made at the paper, source-text, screening, or extraction
-layer rather than by editing a public graph edge directly. Updating a selected
-paper replaces all of that paper's previous extraction and evidence rows, or
-removes them when the paper is no longer eligible. A reviewed release then
-rebuilds the graph, bibliography, Methods counts, and public site together.
+Corrections are made from the source paper forward rather than by editing a
+published relationship directly. When a paper is updated, its previous
+findings are replaced or removed. A reviewed release then updates the graph,
+bibliography, Methods counts, and public site together.
 
-Legacy files may still use the word `claim`. In current reader-facing text, use
-**finding**. See [`terminology.md`](terminology.md) for the preferred terms.
+See [`terminology.md`](terminology.md) for the terms used throughout the
+project.

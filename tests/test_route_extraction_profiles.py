@@ -54,10 +54,30 @@ def test_profile_statuses_and_files_are_consistent() -> None:
             assert profile.default_max_output_tokens == 0
         else:
             assert profile.prompt_path is not None
-            assert profile.schema_path is not None
             assert profile.prompt_path.exists()
-            assert profile.schema_path.exists()
+            assert profile.has_model_contract
+            if profile.schema_path is not None:
+                assert profile.schema_path.exists()
+            elif profile.schema_profile == "meta_analysis_evidence_schema":
+                assert all(path.exists() for path in META_ANALYSIS_SCHEMA_PATHS.values())
+            elif profile.schema_profile == "review_coverage_schema":
+                assert all(path.exists() for path in REVIEW_SCHEMA_PATHS.values())
+            else:
+                raise AssertionError(f"Runnable profile has no schema: {profile.key}")
             assert profile.default_max_output_tokens > 0
+
+
+def test_secondary_profiles_require_a_current_domain_schema() -> None:
+    meta = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
+    review = profile_for_key("secondary_review_coverage", "review_coverage_schema")
+
+    for profile in (meta, review):
+        try:
+            schema_path_for_profile(profile, "")
+        except ValueError as exc:
+            assert "<missing>" in str(exc)
+        else:
+            raise AssertionError("A secondary extraction profile accepted a missing domain")
 
 
 def test_current_runnable_profiles_include_primary_meta_analysis_and_reviews() -> None:
@@ -71,6 +91,7 @@ def test_current_runnable_profiles_include_primary_meta_analysis_and_reviews() -
     assert ("primary_clinical", "primary_evidence_schema") in runnable
     assert ("primary_molecular_target", "primary_evidence_schema") in runnable
     assert {(prompt, "review_coverage_schema") for prompt in REVIEW_COVERAGE_PROMPT_PROFILES}.issubset(runnable)
+    assert ("guideline_consensus", "recommendation_consensus_schema") in runnable
 
 
 def test_domain_prompt_addenda_exist() -> None:

@@ -993,6 +993,16 @@ def select_tables_figures_references_for_profile(
 
 
 def source_hints(row: dict) -> dict:
+    routed_source_family = normalize(row.get("source_family", "")).lower()
+    prompt_profiles = normalize(row.get("prompt_profiles", row.get("prompt_profile", ""))).lower()
+    if routed_source_family in {"primary", "primary_study"} or any(
+        token.strip().startswith("primary_") for token in prompt_profiles.split("|")
+    ):
+        return {
+            "source_family_hint": "original_empirical",
+            "paper_type_hint": "primary_study",
+            "source_hint_reason": "explicit extraction route classifies the paper as primary evidence",
+        }
     publication_type = normalize(row.get("publication_type", ""))
     title = normalize(row.get("study_title", ""))
     text = f"{publication_type} {title}".lower()
@@ -1069,7 +1079,14 @@ def build_packet(
     source_tables, source_figures = extract_tables_and_figures(raw_text)
     source_references = extract_references(raw_text, max_references=max_references)
     metadata = paper_metadata(paper_row, artifact)
-    hints = source_hints(metadata)
+    hints = source_hints(
+        {
+            **metadata,
+            "source_family": paper_row.get("source_family", ""),
+            "prompt_profile": paper_row.get("prompt_profile", ""),
+            "prompt_profiles": paper_row.get("prompt_profiles", ""),
+        }
+    )
     sections, section_profile_summary = select_sections_for_profile(
         source_sections,
         dataset=dataset,

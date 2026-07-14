@@ -10,6 +10,7 @@ from pipeline.publish.export_evidence_payload import (
     detail_bootstrap_payload,
     export_evidence_payload,
     graph_bootstrap_payload,
+    load_selected_candidate_study_key_sets,
     load_findings,
     secondary_literature_source_key,
 )
@@ -713,9 +714,51 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                     "total": 1,
                 },
                 "scope": "underlying_evidence_graph_represented",
-                "awaiting_scope": "no_normalized_finding",
+                "awaiting_scope": "selected_papers_without_normalized_finding",
+                "denominator_source": "kg_artifact_fallback",
             },
         )
+
+    def test_selected_candidate_table_sets_the_upstream_denominator(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            table = Path(tmpdir) / "candidate_papers.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/primary",
+                        "literature_source_family": "primary",
+                        "literature_source_type": "primary",
+                        "retained_for_extraction_candidate": True,
+                    },
+                    {
+                        "doi": "10.1000/review",
+                        "literature_source_family": "secondary_literature",
+                        "literature_source_type": "systematic_review",
+                        "retained_for_extraction_candidate": True,
+                    },
+                    {
+                        "doi": "10.1000/meta",
+                        "literature_source_family": "secondary_literature",
+                        "literature_source_type": "network_meta_analysis",
+                        "retained_for_extraction_candidate": True,
+                    },
+                    {
+                        "doi": "10.1000/excluded",
+                        "literature_source_family": "primary",
+                        "literature_source_type": "primary",
+                        "retained_for_extraction_candidate": False,
+                    },
+                ]
+            ).to_parquet(table, index=False)
+
+            keys = load_selected_candidate_study_key_sets(table)
+
+        self.assertIsNotNone(keys)
+        assert keys is not None
+        self.assertEqual(keys["primary"], {"doi:10.1000/primary"})
+        self.assertEqual(keys["reviews"], {"doi:10.1000/review"})
+        self.assertEqual(keys["meta_analyses"], {"doi:10.1000/meta"})
+        self.assertEqual(len(keys["all"]), 3)
 
     def test_exports_pharmacokinetics_with_all_other_domains(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

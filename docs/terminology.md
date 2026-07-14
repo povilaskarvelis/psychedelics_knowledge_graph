@@ -1,8 +1,8 @@
 # Terminology
 
 Public-facing text should describe what readers can see and what the workflow
-does. Exact filenames, model names, run labels, and compatibility fields belong
-in technical instructions, not in the public explanation of the method.
+does. Exact filenames, model names, and run labels belong in technical
+instructions, not in the public explanation of the method.
 
 ## Reader-facing terms
 
@@ -10,20 +10,18 @@ in technical instructions, not in the public explanation of the method.
 | --- | --- |
 | **search result** | A record returned by a literature source before screening. |
 | **paper** | A DOI-level article, preprint, report, or other publication record. A paper is not always the same as a study; one study can have several papers. |
-| **initial screening** | Rules-based removal of records that clearly lack usable title or abstract evidence or clearly fall outside scope. |
+| **initial screening** | Rules-based removal of records that clearly lack usable title or abstract information or clearly fall outside scope. |
 | **title and abstract screening** | Review of the title, abstract, and basic metadata to assess relevance, evidence topics, and paper type. |
 | **paper type** | The source category, such as primary study, meta-analysis, systematic review, scoping review, narrative review, protocol, or commentary. |
 | **evidence topic** | The part of the evidence base discussed by a paper, such as clinical outcomes, safety, molecular targets, brain systems, cognition, subjective experience, pharmacokinetics, intervention context, or real-world use. |
 | **article text** | Converted article content used for extraction. This may be selected relevant sections rather than every page. |
 | **abstract only** | Evidence extraction limited to the abstract. |
 | **finding** | One structured, interpretable result or relationship that remains linked to its source paper. |
-| **evidence-supported relationship** | A graph relationship derived from one or more normalized findings. |
-| **paper details** | The fuller finding-level view, including information that is searchable but not shown as a node in the overview. |
-| **overview graph** | The smaller visual summary of normalized relationships that meet the display rules. |
-| **graph release** | A reviewed version of the evidence tables and public browser files published together with the bibliography and Methods data. |
+| **evidence-supported relationship** | A graph relationship supported by one or more findings. |
+| **graph** | The public view of relationships that are clearly supported and can be represented accurately. |
+| **release** | A reviewed update to the graph, bibliography, and Methods information published together. |
 
 Use **finding** rather than **claim** in the interface and reader-facing prose.
-Older schemas, fields, and files may still use `claim` for compatibility.
 
 ## Technical workflow terms
 
@@ -35,16 +33,11 @@ The repository uses the following terms in operational documentation and code:
 | `candidate_context` | A DOI plus the compound, topic, or search context in which it was found. |
 | `extraction route` | A stored extraction assignment for one paper and evidence topic. A paper can have more than one. In public prose, say **extraction assignment**. |
 | `extraction task` | One executable extraction job with a paper type, evidence topic, available text, instructions, and expected output structure. |
-| `evidence_record` | The normalized backend representation of a finding. |
-| `evidence_edge` | A graph relationship derived from a normalized finding. |
-| `graph projection` | The deterministic conversion of stored findings into overview relationships and paper-detail records. |
+| `evidence_record` | The stored representation of a finding. |
+| `evidence_edge` | A graph relationship created from a finding. |
+| `graph projection` | The rule-based conversion of stored findings into public graph relationships. |
 | `staged build` | A versioned graph build that has not changed the active public release. |
-| `promotion` | The guarded publication step that makes one staged build active and refreshes the graph, bibliography, Methods data, and site together. In public prose, say **publish a reviewed release**. |
-
-Current JSON may still use `packet` for an article text input and
-`packet_profile` for the rule used to select article sections. Treat these as
-compatibility names. Use **article text input** and **section selection
-strategy** in new documentation.
+| `promotion` | The publication step that makes one checked build public and refreshes the graph, bibliography, Methods data, and site together. In public prose, say **publish a reviewed release**. |
 
 ## Practical writing rule
 

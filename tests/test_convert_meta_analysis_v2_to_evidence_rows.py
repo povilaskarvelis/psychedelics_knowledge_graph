@@ -79,6 +79,20 @@ def test_converter_preserves_meta_analysis_statistics_and_condition_anchor() -> 
     assert row["p_value"] == "p < 0.001"
 
 
+def test_converter_uses_reported_endpoint_for_broad_transdiagnostic_population() -> None:
+    item = base_item()
+    item["population_or_system"] = "Adults with mental health disorders"
+    item["outcome_or_entity"] = "Psychiatric symptom severity"
+    item["relationship_statement"] = "The augmentation reduced psychiatric symptom severity."
+
+    rows, report = convert_outputs([output_with_result(item)], {"task-1": task()})
+
+    assert report["counts"]["rows_written"] == 1
+    assert rows[0]["kg_entity_kind_override"] == "symptom_problem"
+    assert rows[0]["graph_entity_label"] == "Psychiatric symptom severity"
+    assert rows[0]["normalization_entity_source"] == "result_outcome_or_entity"
+
+
 def test_converter_uses_safe_single_paper_subject_fallback() -> None:
     item = base_item()
     item.pop("intervention_or_exposure")

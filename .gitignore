@@ -23,6 +23,9 @@ data/*
 !data/curated/
 data/curated/*
 !data/curated/entity_registry.json
+!data/curated/graph_inclusion_disposition_overrides.json
+!data/curated/direct_graph_recovery_dois.txt
+!data/curated/central_guideline_consensus_dois.txt
 !data/processed/
 data/processed/*
 !data/processed/bibliography_payload_*.json
@@ -38,6 +41,7 @@ data/kg/*
 data/kg/views/*
 !data/kg/views/pipeline_status_graph.json
 !data/kg/views/methods_bibliography.json
+!data/kg/views/graph_inclusion_dispositions.json
 
 # Local paper library downloads (large binary assets)
 data/raw/papers/

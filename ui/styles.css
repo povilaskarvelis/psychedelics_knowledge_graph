@@ -1727,7 +1727,7 @@ button.primary:hover {
 
 .methods-bibliography-controls {
   display: grid;
-  grid-template-columns: minmax(260px, 1.8fr) minmax(180px, 1fr) minmax(170px, 0.75fr);
+  grid-template-columns: minmax(260px, 620px);
   gap: 12px;
   align-items: end;
 }
@@ -1736,8 +1736,7 @@ button.primary:hover {
   font-size: 0.84rem;
 }
 
-.methods-bibliography-controls input[type="search"],
-.methods-bibliography-controls select {
+.methods-bibliography-controls input[type="search"] {
   width: 100%;
   border-radius: 8px;
   border-color: rgba(188, 200, 201, 0.18);
@@ -2801,8 +2800,8 @@ button.primary:hover {
 }
 
 .node {
-  fill: var(--node-fill, rgba(73, 214, 200, 0.16));
-  stroke: var(--node-color, rgba(73, 214, 200, 0.82));
+  fill: var(--node-fill, rgba(70, 197, 181, 0.16));
+  stroke: var(--node-color, rgba(70, 197, 181, 0.82));
   stroke-width: 1.4;
   cursor: pointer;
   opacity: 0.78;
@@ -2813,17 +2812,17 @@ button.primary:hover {
 .node.selected {
   opacity: 1;
   stroke-width: 2.5;
-  filter: drop-shadow(0 0 6px var(--node-glow, rgba(73, 214, 200, 0.3)));
+  filter: drop-shadow(0 0 6px var(--node-glow, rgba(70, 197, 181, 0.29)));
 }
 
 .node.compound {
-  fill: var(--node-fill, rgba(73, 214, 200, 0.16));
-  stroke: var(--node-color, rgba(73, 214, 200, 0.82));
+  fill: var(--node-fill, rgba(70, 197, 181, 0.16));
+  stroke: var(--node-color, rgba(70, 197, 181, 0.82));
 }
 
 .node.target {
-  fill: var(--node-fill, rgba(73, 214, 200, 0.16));
-  stroke: var(--node-color, rgba(73, 214, 200, 0.82));
+  fill: var(--node-fill, rgba(70, 197, 181, 0.16));
+  stroke: var(--node-color, rgba(70, 197, 181, 0.82));
 }
 
 .node-label {
@@ -2844,7 +2843,7 @@ button.primary:hover {
 .edge {
   --edge-width: 3px;
   fill: none;
-  stroke: rgba(73, 214, 200, 0.32);
+  stroke: rgba(70, 197, 181, 0.32);
   stroke-width: var(--edge-width);
   stroke-linecap: round;
   stroke-linejoin: round;

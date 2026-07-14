@@ -22,6 +22,7 @@ KG_TABLE_MANIFEST = ROOT / "data" / "processed" / "kg" / "manifest.json"
 EXTRACTION_PROJECTION_REPORT = ROOT / "data" / "processed" / "extraction" / "projection_report.json"
 CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 GRAPH_PAYLOAD_ACTIVE_POINTER = ROOT / "data" / "processed" / "graph_payload_active.json"
+GRAPH_DISPOSITION_OVERRIDES = ROOT / "data" / "curated" / "graph_inclusion_disposition_overrides.json"
 
 DATASETS = {
     "mechanistic": {
@@ -237,6 +238,24 @@ METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS = (
     "stage_key",
     "stage_label",
 )
+
+GRAPH_DISPOSITION_LABELS = {
+    "represented": "Represented in the evidence graph",
+    "extraction_needed": "Extraction needs correction",
+    "normalization_needed": "Normalization or assembly needs correction",
+    "source_recovery_needed": "Better source text needed",
+    "manual_review_needed": "Manual evidence review needed",
+    "adjudicated_outside_scope": "Adjudicated outside graph scope",
+}
+
+GRAPH_DISPOSITION_DEFAULT_ACTIONS = {
+    "represented": "No action needed.",
+    "extraction_needed": "Regenerate or rerun the routed extraction task.",
+    "normalization_needed": "Audit conversion, normalization, and graph admission for the extracted row.",
+    "source_recovery_needed": "Recover and verify a better source before extraction.",
+    "manual_review_needed": "Review the source and current output, then assign a more specific disposition.",
+    "adjudicated_outside_scope": "Retain the paper in the corpus with its scope rationale.",
+}
 
 METHODS_BIBLIOGRAPHY_STAGE_LABELS = {
     "selected_for_extraction": "Selected for evidence extraction",
@@ -821,6 +840,7 @@ class MethodsFlowBuilder:
         self.papers: dict[str, dict] = {}
         self.candidate_rows: list[dict] = []
         self.kg_graph_status_by_doi: dict[str, dict] = {}
+        self.graph_disposition_overrides: dict[str, dict] = {}
         self.fulltext_by_doi: dict[str, dict] = {}
         self.doi_to_paper_id: dict[str, str] = {}
         self.pipeline_rows: dict[str, dict[str, dict]] = defaultdict(dict)
@@ -840,6 +860,7 @@ class MethodsFlowBuilder:
     def build(self) -> dict:
         loaded_candidate_table = self.load_candidate_papers()
         self.load_routed_kg_graph_status()
+        self.load_graph_disposition_overrides()
         if not loaded_candidate_table:
             self.load_fulltext_status()
             self.load_paper_libraries()
@@ -849,6 +870,14 @@ class MethodsFlowBuilder:
             self.load_kg_claim_status()
             self.load_extraction_outcomes()
         return self.payloads()
+
+    def load_graph_disposition_overrides(self) -> None:
+        path = self.root / GRAPH_DISPOSITION_OVERRIDES.relative_to(ROOT)
+        overrides, warnings = load_graph_disposition_overrides(path)
+        self.graph_disposition_overrides = overrides
+        if path.exists():
+            self.input_files.append(str(path))
+        self.warnings.extend(warnings)
 
     def candidate_table_path(self) -> Path:
         return self.root / "data" / "processed" / "corpus" / "candidate_papers.parquet"
@@ -1463,6 +1492,11 @@ class MethodsFlowBuilder:
                 bibliography_rows,
                 kg_status_by_doi=self.kg_graph_status_by_doi,
             ),
+            "graph_inclusion_dispositions": graph_inclusion_disposition_payload(
+                bibliography_rows,
+                kg_status_by_doi=self.kg_graph_status_by_doi,
+                overrides_by_doi=self.graph_disposition_overrides,
+            ),
             "manifest": {
                 "contract_version": KG_VERSION,
                 "generated_at": now_utc(),
@@ -1794,6 +1828,162 @@ def candidate_kg_cell(row: dict, kg_status_by_doi: dict[str, dict] | None = None
             strip_markup(status.get("note", "")),
         )
     return "fail", "No graph finding", "No normalized graph finding"
+
+
+def load_graph_disposition_overrides(path: Path) -> tuple[dict[str, dict], list[str]]:
+    if not path.exists():
+        return {}, [f"Graph disposition override file is missing: {path}"]
+    try:
+        payload = read_json_object(path)
+    except Exception as exc:
+        return {}, [f"Could not read graph disposition overrides {path}: {exc}"]
+    out: dict[str, dict] = {}
+    warnings: list[str] = []
+    for group in payload.get("overrides", []):
+        if not isinstance(group, dict):
+            continue
+        disposition = normalize(group.get("disposition", ""))
+        if disposition not in GRAPH_DISPOSITION_LABELS or disposition == "represented":
+            warnings.append(f"Unsupported graph disposition override: {disposition or 'missing'}")
+            continue
+        for raw_doi in group.get("dois", []):
+            doi = normalize_doi(raw_doi)
+            if not doi:
+                continue
+            if doi in out:
+                warnings.append(f"Duplicate graph disposition override for DOI {doi}")
+                continue
+            out[doi] = {
+                "disposition": disposition,
+                "reason": strip_markup(group.get("reason", "")),
+                "next_action": strip_markup(group.get("next_action", "")),
+            }
+    return out, warnings
+
+
+def candidate_source_bucket(row: dict) -> str:
+    source_type = normalize(
+        first_nonempty(
+            row.get("literature_source_type", ""),
+            row.get("primary_secondary_source_type", ""),
+        )
+    ).lower()
+    source_family = normalize(row.get("literature_source_family", "")).lower()
+    if source_type in {"meta_analysis", "network_meta_analysis"} or "meta_analysis" in source_type:
+        return "meta_analyses"
+    if source_family == "secondary_literature" or (source_type and source_type != "primary"):
+        return "reviews"
+    return "primary_studies"
+
+
+def candidate_graph_disposition(
+    row: dict,
+    *,
+    kg_status_by_doi: dict[str, dict] | None = None,
+    overrides_by_doi: dict[str, dict] | None = None,
+) -> dict:
+    doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
+    _status, kg_label, kg_note = candidate_kg_cell(row, kg_status_by_doi)
+    if kg_label == "In graph":
+        disposition = "represented"
+        reason = "At least one normalized finding from this paper is present in the underlying evidence graph."
+        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
+    elif doi and doi in (overrides_by_doi or {}):
+        override = (overrides_by_doi or {})[doi]
+        disposition = override["disposition"]
+        reason = override.get("reason", "") or kg_note
+        next_action = override.get("next_action", "") or GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
+    elif kg_label == "Not normalized":
+        disposition = "normalization_needed"
+        reason = kg_note or "An extracted subject or entity has not been mapped to a stable graph concept."
+        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
+    elif kg_label == "Not graphable":
+        disposition = "adjudicated_outside_scope"
+        reason = kg_note or "The extracted subject or entity is outside the current graph representation policy."
+        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
+    elif normalize(row.get("literature_source_type", "")).lower() in {"guideline", "consensus_statement"}:
+        disposition = "extraction_needed"
+        reason = "This guideline or consensus paper has no normalized recommendation row yet."
+        next_action = "Run the recommendation/consensus extraction route and normalize the resulting recommendation items."
+    else:
+        disposition = "manual_review_needed"
+        reason = kg_note or "No normalized finding or sufficiently specific automated exclusion reason is available."
+        next_action = GRAPH_DISPOSITION_DEFAULT_ACTIONS[disposition]
+    return {
+        "disposition": disposition,
+        "disposition_label": GRAPH_DISPOSITION_LABELS[disposition],
+        "reason": reason,
+        "next_action": next_action,
+        "kg_label": kg_label,
+        "kg_note": kg_note,
+    }
+
+
+def graph_inclusion_disposition_payload(
+    rows: Iterable[dict],
+    *,
+    kg_status_by_doi: dict[str, dict] | None = None,
+    overrides_by_doi: dict[str, dict] | None = None,
+) -> dict:
+    selected_rows = [row for row in rows if boolish(row.get("retained_for_extraction_candidate", False))]
+    missing_rows: list[dict] = []
+    disposition_counts: Counter = Counter()
+    source_counts: Counter = Counter()
+    source_disposition_counts: dict[str, Counter] = defaultdict(Counter)
+    represented_count = 0
+    for row in selected_rows:
+        disposition = candidate_graph_disposition(
+            row,
+            kg_status_by_doi=kg_status_by_doi,
+            overrides_by_doi=overrides_by_doi,
+        )
+        source_bucket = candidate_source_bucket(row)
+        source_counts[source_bucket] += 1
+        disposition_counts[disposition["disposition"]] += 1
+        source_disposition_counts[source_bucket][disposition["disposition"]] += 1
+        if disposition["disposition"] == "represented":
+            represented_count += 1
+            continue
+        doi = normalize_doi(first_nonempty(row.get("doi", ""), row.get("study_doi", "")))
+        missing_rows.append(
+            {
+                "id": paper_id_for(
+                    {
+                        "study_doi": doi,
+                        "openalex_id": row.get("openalex_id", ""),
+                        "study_title": row.get("study_title", ""),
+                        "study_year": row.get("study_year", ""),
+                    }
+                ),
+                "doi": doi,
+                "title": strip_markup(row.get("study_title", "")),
+                "year": as_int(row.get("study_year", "")),
+                "source_bucket": source_bucket,
+                "source_type": normalize(row.get("literature_source_type", "")) or "primary",
+                "source_text_state": normalize(row.get("source_text_state", "")),
+                **disposition,
+            }
+        )
+    missing_rows.sort(key=lambda row: (row["source_bucket"], row["disposition"], row["doi"], row["title"]))
+    return {
+        "contract_version": KG_VERSION,
+        "view": "graph_inclusion_dispositions",
+        "generated_at": now_utc(),
+        "unit": "selected papers",
+        "scope": "underlying evidence graph",
+        "counts": {
+            "selected_papers": len(selected_rows),
+            "represented_papers": represented_count,
+            "not_represented_papers": len(missing_rows),
+            "by_disposition": dict(sorted(disposition_counts.items())),
+            "by_source": dict(sorted(source_counts.items())),
+            "by_source_and_disposition": {
+                source: dict(sorted(counts.items()))
+                for source, counts in sorted(source_disposition_counts.items())
+            },
+        },
+        "rows": missing_rows,
+    }
 
 
 def candidate_audit_decision(row: dict, kg_status_by_doi: dict[str, dict] | None = None) -> dict:
@@ -2521,6 +2711,18 @@ def schema_payload() -> dict:
                 ],
                 "description": "Complete paper bibliography with sequential initial-screening, title-and-abstract-screening, evidence-extraction, and knowledge-graph representation labels.",
             },
+            "graph_inclusion_dispositions": {
+                "required": [
+                    "contract_version",
+                    "view",
+                    "generated_at",
+                    "unit",
+                    "scope",
+                    "counts",
+                    "rows",
+                ],
+                "description": "Actionable ledger for every selected paper that does not yet have a normalized finding in the underlying evidence graph.",
+            },
         },
     }
 
@@ -2535,6 +2737,9 @@ def write_outputs(payloads: dict, out_dir: Path) -> dict:
 
     outputs["methods_bibliography"] = str(out_dir / "views" / "methods_bibliography.json")
     write_compact_json(Path(outputs["methods_bibliography"]), payloads["methods_bibliography"])
+
+    outputs["graph_inclusion_dispositions"] = str(out_dir / "views" / "graph_inclusion_dispositions.json")
+    write_json(Path(outputs["graph_inclusion_dispositions"]), payloads["graph_inclusion_dispositions"])
 
     manifest = dict(payloads["manifest"])
     manifest["outputs"] = outputs

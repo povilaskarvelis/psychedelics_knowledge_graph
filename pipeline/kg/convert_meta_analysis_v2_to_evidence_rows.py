@@ -81,6 +81,11 @@ CLINICAL_POPULATION_CONDITION_RE = re.compile(
     r"substance use|alcohol use disorder|bipolar|suicid|palliative|migraine|cluster headache)\b",
     re.IGNORECASE,
 )
+BROAD_CLINICAL_POPULATION_RE = re.compile(
+    r"\b(?:mental health|psychiatric|psychological) (?:conditions?|disorders?|problems?)\b|"
+    r"\btransdiagnostic\b|\bmixed (?:clinical|psychiatric|mental health) populations?\b",
+    re.IGNORECASE,
+)
 GENERIC_CLINICAL_OUTCOME_RE = re.compile(
     r"^(?:(?:study[- ]defined|overall|pooled|clinical|treatment|antidepressant|therapeutic) )?"
     r"(?:response|remission|relapse|efficacy|effectiveness|acceptability|tolerability|"
@@ -278,7 +283,12 @@ def entity_for_result(item: dict, domain: str, overview: dict) -> tuple[str, str
         if explicit_context and INTERVENTION_CONTEXT_FACTOR_RE.search(explicit_context):
             return explicit_context, "intervention_component", "result_context_factor"
     if outcome:
-        if domain == "clinical_outcome" and population and CLINICAL_POPULATION_CONDITION_RE.search(population):
+        if (
+            domain == "clinical_outcome"
+            and population
+            and CLINICAL_POPULATION_CONDITION_RE.search(population)
+            and not BROAD_CLINICAL_POPULATION_RE.search(population)
+        ):
             source = (
                 "population_for_generic_clinical_outcome"
                 if GENERIC_CLINICAL_OUTCOME_RE.match(outcome)

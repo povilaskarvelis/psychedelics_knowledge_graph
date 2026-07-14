@@ -1,16 +1,12 @@
 const methodsPipelineEl = document.getElementById("methodsPipeline");
 const methodsBibliographySectionEl = document.getElementById("paper-bibliography");
 const methodsBibliographySearchEl = document.getElementById("methodsBibliographySearch");
-const methodsBibliographyStageEl = document.getElementById("methodsBibliographyStage");
-const methodsBibliographyKgStatusEl = document.getElementById("methodsBibliographyKgStatus");
-const methodsBibliographySortEl = document.getElementById("methodsBibliographySort");
 const methodsBibliographySummaryEl = document.getElementById("methodsBibliographySummary");
 const methodsBibliographyRowsEl = document.getElementById("methodsBibliographyRows");
 const methodsBibliographyLoadMoreEl = document.getElementById("methodsBibliographyLoadMore");
 
 const methodsState = {
   pipelineStatus: null,
-  bibliographyPayload: null,
   bibliographyRows: [],
   bibliographyFilteredRows: [],
   bibliographyRendered: 0,
@@ -321,75 +317,6 @@ function bibliographyRowsFromPayload(payload) {
   });
 }
 
-function bibliographyStageRankMap(payload) {
-  const entries = Array.isArray(payload?.stage_options) ? payload.stage_options : [];
-  const rank = {};
-  entries.forEach((entry, index) => {
-    rank[entry.key] = index;
-  });
-  return rank;
-}
-
-function populateBibliographyStageFilter(payload) {
-  if (!methodsBibliographyStageEl) return;
-  const currentValue = methodsBibliographyStageEl.value;
-  const options = Array.isArray(payload?.stage_options) ? payload.stage_options : [];
-  methodsBibliographyStageEl.innerHTML = `
-    <option value="">All stages</option>
-    ${options.map((option) => `
-      <option value="${escapeHtml(option.key)}">
-        ${escapeHtml(option.label)} (${formatNumber(option.count)})
-      </option>
-    `).join("")}
-  `;
-  methodsBibliographyStageEl.value = options.some((option) => option.key === currentValue) ? currentValue : "";
-}
-
-function populateBibliographyKgStatusFilter(payload) {
-  if (!methodsBibliographyKgStatusEl) return;
-  const currentValue = methodsBibliographyKgStatusEl.value;
-  const options = Array.isArray(payload?.kg_options) ? payload.kg_options : [];
-  methodsBibliographyKgStatusEl.innerHTML = `
-    <option value="">All graph statuses</option>
-    ${options.map((option) => `
-      <option value="${escapeHtml(option.label)}">
-        ${escapeHtml(BIBLIOGRAPHY_GRAPH_STATUS_LABELS[option.label] || option.label)} (${formatNumber(option.count)})
-      </option>
-    `).join("")}
-  `;
-  methodsBibliographyKgStatusEl.value = options.some((option) => option.label === currentValue) ? currentValue : "";
-}
-
-function bibliographySortValue(row, field) {
-  const value = normalizeText(row[field] || "");
-  return value || "\uffff";
-}
-
-function sortBibliographyRows(rows) {
-  const sortKey = methodsBibliographySortEl?.value || "author";
-  const stageRank = bibliographyStageRankMap(methodsState.bibliographyPayload);
-  const sorted = [...rows];
-  sorted.sort((left, right) => {
-    if (sortKey === "year-desc") {
-      const leftYear = Number(left.year || 0);
-      const rightYear = Number(right.year || 0);
-      if (leftYear !== rightYear) return rightYear - leftYear;
-    } else if (sortKey === "title") {
-      const value = bibliographySortValue(left, "title").localeCompare(bibliographySortValue(right, "title"));
-      if (value !== 0) return value;
-    } else if (sortKey === "stage") {
-      const value = (stageRank[left.stage_key] ?? 999) - (stageRank[right.stage_key] ?? 999);
-      if (value !== 0) return value;
-    } else {
-      const value = bibliographySortValue(left, "authors").localeCompare(bibliographySortValue(right, "authors"));
-      if (value !== 0) return value;
-    }
-    return bibliographySortValue(left, "title").localeCompare(bibliographySortValue(right, "title"))
-      || bibliographySortValue(left, "doi").localeCompare(bibliographySortValue(right, "doi"));
-  });
-  return sorted;
-}
-
 function bibliographyStageCellHtml(status, label, note) {
   const statusKey = status || "not_reached";
   const symbols = {
@@ -441,13 +368,11 @@ function updateBibliographySummary() {
   const total = methodsState.bibliographyRows.length;
   const filtered = methodsState.bibliographyFilteredRows.length;
   const rendered = Math.min(methodsState.bibliographyRendered, filtered);
-  const stage = (methodsBibliographyStageEl?.selectedOptions?.[0]?.textContent || "All stages").replace(/\s+/g, " ").trim();
-  const kgStatus = (methodsBibliographyKgStatusEl?.selectedOptions?.[0]?.textContent || "All graph statuses").replace(/\s+/g, " ").trim();
   const query = methodsBibliographySearchEl?.value?.trim() || "";
-  const filterText = query || methodsBibliographyStageEl?.value || methodsBibliographyKgStatusEl?.value
-    ? `Filtered to ${formatNumber(filtered)} of ${formatNumber(total)} papers.`
-    : `${formatNumber(total)} papers in the full search corpus.`;
-  methodsBibliographySummaryEl.textContent = `${filterText} Showing ${formatNumber(rendered)}. Stage: ${stage}. Graph status: ${kgStatus}.`;
+  const filterText = query
+    ? `Filtered to ${formatNumber(filtered)} of ${formatNumber(total)} records.`
+    : `${formatNumber(total)} records in the full search corpus.`;
+  methodsBibliographySummaryEl.textContent = `${filterText} Showing ${formatNumber(rendered)}.`;
 }
 
 function appendBibliographyRows() {
@@ -468,22 +393,17 @@ function renderBibliography() {
   if (!methodsBibliographyRowsEl) return;
   const query = normalizeText(methodsBibliographySearchEl?.value || "");
   const queryTerms = query.split(" ").filter(Boolean);
-  const stage = methodsBibliographyStageEl?.value || "";
-  const kgStatus = methodsBibliographyKgStatusEl?.value || "";
-  let rows = methodsState.bibliographyRows.filter((row) => {
-    if (stage && row.stage_key !== stage) return false;
-    if (kgStatus && row.kg_label !== kgStatus) return false;
+  const rows = methodsState.bibliographyRows.filter((row) => {
     if (queryTerms.length && !queryTerms.every((term) => row.search_text.includes(term))) return false;
     return true;
   });
-  rows = sortBibliographyRows(rows);
   methodsState.bibliographyFilteredRows = rows;
   methodsState.bibliographyRendered = 0;
   methodsBibliographyRowsEl.innerHTML = "";
   if (!rows.length) {
     methodsBibliographyRowsEl.innerHTML = `
       <tr>
-        <td colspan="5" class="methods-bibliography-empty">No bibliography rows match the current filters.</td>
+        <td colspan="5" class="methods-bibliography-empty">No records match your search.</td>
       </tr>
     `;
     if (methodsBibliographyLoadMoreEl) methodsBibliographyLoadMoreEl.hidden = true;
@@ -495,12 +415,12 @@ function renderBibliography() {
 
 function renderBibliographyError(error) {
   if (methodsBibliographySummaryEl) {
-    methodsBibliographySummaryEl.textContent = `Bibliography is not available yet. ${error.message}`;
+    methodsBibliographySummaryEl.textContent = `The full record audit is not available yet. ${error.message}`;
   }
   if (methodsBibliographyRowsEl) {
     methodsBibliographyRowsEl.innerHTML = `
       <tr>
-        <td colspan="5" class="methods-bibliography-empty">Bibliography data is currently unavailable. Please try again later.</td>
+        <td colspan="5" class="methods-bibliography-empty">Record data is currently unavailable. Please try again later.</td>
       </tr>
     `;
   }
@@ -515,10 +435,7 @@ async function loadMethodsBibliography() {
     "data/kg/views/methods_bibliography.json",
   ])
     .then((payload) => {
-      methodsState.bibliographyPayload = payload;
       methodsState.bibliographyRows = bibliographyRowsFromPayload(payload);
-      populateBibliographyStageFilter(payload);
-      populateBibliographyKgStatusFilter(payload);
       renderBibliography();
     })
     .catch((error) => {
@@ -582,7 +499,4 @@ initMethods();
 initMethodsBibliography();
 
 methodsBibliographySearchEl?.addEventListener("input", scheduleBibliographyRender);
-methodsBibliographyStageEl?.addEventListener("change", scheduleBibliographyRender);
-methodsBibliographyKgStatusEl?.addEventListener("change", scheduleBibliographyRender);
-methodsBibliographySortEl?.addEventListener("change", scheduleBibliographyRender);
 methodsBibliographyLoadMoreEl?.addEventListener("click", appendBibliographyRows);

@@ -455,6 +455,12 @@ def inject_route_identity_fields(result: dict, task: dict, profile: RouteExtract
         out["text_depth"] = depth
         out["source_text_provenance"] = source_text_provenance_for_depth(depth)
         enforce_secondary_domain_fields(out, assigned_domain, result_list_key="coverage_items")
+    elif profile.schema_profile == "recommendation_consensus_schema":
+        out["source_type"] = normalize(contract.get("source_type", "")) or normalize(route_context.get("source_type", "")) or "uncertain"
+        depth = text_depth_for_task(task)
+        out["text_depth"] = depth
+        out["source_text_provenance"] = source_text_provenance_for_depth(depth)
+        enforce_recommendation_domain_fields(out, assigned_domain)
     elif profile.schema_profile == "primary_evidence_schema":
         out["paper_type"] = "primary_study"
         out["text_depth"] = text_depth_for_task(task)
@@ -481,6 +487,20 @@ def enforce_secondary_domain_fields(out: dict, assigned_domain: str, *, result_l
         item["relationship_domain"] = assigned_domain
         if result_list_key == "synthesis_results" and assigned_domain in RESULT_DIRECTION_NOT_APPLICABLE_DOMAINS:
             item["result_direction"] = "not_applicable"
+
+
+def enforce_recommendation_domain_fields(out: dict, assigned_domain: str) -> None:
+    if not assigned_domain:
+        return
+    assessment = out.get("recommendation_assessment")
+    if isinstance(assessment, dict):
+        assessment["relationship_domain"] = assigned_domain
+    items = out.get("recommendation_items")
+    if not isinstance(items, list):
+        return
+    for item in items:
+        if isinstance(item, dict):
+            item["relationship_domain"] = assigned_domain
 
 
 def schema_error_messages(validator: Draft7Validator, result: dict) -> list[str]:

@@ -214,12 +214,9 @@
             <div>
               <h3>Validate and Publish</h3>
               <p>
-                Extracted findings are checked for structure, consistency, and
-                source support, then compounds and related entities are matched
-                to controlled names. The public overview shows relationships
-                that can be represented clearly and meet its display rules.
-                More specific or less easily normalized findings can remain
-                searchable in paper details without becoming overview nodes.
+                Before publication, extracted information is checked against
+                the source paper. Relationships that are unclear, unsupported,
+                or cannot be represented accurately are left out of the graph.
               </p>
             </div>
           </article>
@@ -540,15 +537,15 @@
           <div>
             <h3 id="record-audit-heading">Full Record Audit</h3>
             <p>
-              The complete paper list can be searched by author, title, journal,
+              The complete record list can be searched by author, title, journal,
               year, or DOI. Each row shows whether the record passed each stage
               and, where needed, why it was excluded.
             </p>
           </div>
         </div>
-        <div class="methods-bibliography-controls" aria-label="Bibliography controls">
+        <div class="methods-bibliography-controls" aria-label="Full record audit search">
           <label>
-            Search papers
+            Search records
             <input
               id="methodsBibliographySearch"
               type="search"
@@ -556,29 +553,8 @@
               autocomplete="off"
             />
           </label>
-          <label>
-            Stage
-            <select id="methodsBibliographyStage">
-              <option value="">All stages</option>
-            </select>
-          </label>
-          <label>
-            Graph status
-            <select id="methodsBibliographyKgStatus">
-              <option value="">All graph statuses</option>
-            </select>
-          </label>
-          <label>
-            Sort
-            <select id="methodsBibliographySort">
-              <option value="author">Author A-Z</option>
-              <option value="title">Title A-Z</option>
-              <option value="year-desc">Newest first</option>
-              <option value="stage">Decision stage</option>
-            </select>
-          </label>
         </div>
-        <div id="methodsBibliographySummary" class="methods-bibliography-summary">Loading bibliography.</div>
+        <div id="methodsBibliographySummary" class="methods-bibliography-summary">Loading records.</div>
         <div class="methods-bibliography-table-wrap">
           <table class="methods-bibliography-table">
             <colgroup>
@@ -605,96 +581,26 @@
         </button>
       </section>
 
-      <section class="about-section method-quality-section" aria-labelledby="quality-control">
-        <div>
-          <h2 id="quality-control">Limits, updates, and reuse</h2>
-          <p>
-            This is a living map of the available evidence, not a complete or
-            final systematic review and not clinical guidance. Coverage depends
-            on the search, source indexing, record quality, and access to source
-            text. Findings remain linked to their papers, and primary studies,
-            meta-analyses, and other reviews are kept separate. The project does
-            not currently assign a formal certainty grade or risk-of-bias
-            judgment to every finding.
-          </p>
-        </div>
-        <div class="method-quality-grid">
-          <article id="validation">
-            <h3>Quality checks</h3>
-            <p>
-              Findings are checked for the expected structure, source support,
-              and consistent names. A finding can remain in paper details even
-              when it cannot be shown safely in the overview graph.
-            </p>
-          </article>
-          <article id="limits">
-            <h3>Coverage limits</h3>
-            <p>
-              Search terms, database indexing, missing identifiers or
-              abstracts, access restrictions, and article conversion all shape
-              coverage. A missing graph node is not proof that no evidence exists.
-            </p>
-          </article>
-          <article id="updates">
-            <h3>Ongoing updates</h3>
-            <p>
-              New papers and corrections are processed at the paper, screening,
-              or extraction stage. A reviewed release refreshes the graph,
-              bibliography, Methods counts, and public site together.
-            </p>
-          </article>
-          <article id="reuse">
-            <h3>Reuse and licensing</h3>
-            <p>
-              Project-created public data is released under CC0, and the code
-              is licensed under Apache 2.0. Articles, abstracts, excerpts, and
-              provider records remain subject to their original terms.
-            </p>
-          </article>
-        </div>
-        <div class="method-link-grid" aria-label="Method documents">
-          <a
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >How the evidence pipeline works</a>
-          <a
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >How search coverage is checked</a>
-          <a
-            href="#search-seed-words"
-          >Search terms and structure</a>
-          <a
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/evidence_policy.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >How findings are labeled</a>
-          <a
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/terminology.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Terms used in this project</a>
-          <a
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Data, code, and source-material licenses</a>
-        </div>
-        <div class="method-feedback" id="feedback">
-          <p>
-            Corrections are part of the method. Missing papers, incorrect
-            relationships, extraction errors, unclear labels, and scope
-            suggestions all help improve the graph.
-          </p>
-          <a
-            class="text-button"
-            href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/issues/new/choose"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Open a GitHub issue</a>
-        </div>
+      <section class="about-section" aria-labelledby="limitations">
+        <h2 id="limitations">Limitations</h2>
+        <p>
+          The graph may not include every relevant paper, and automated
+          screening and extraction can miss or misinterpret information,
+          especially when only an abstract is available because the full
+          article cannot be accessed. We add new research and correct errors as
+          they are reviewed, updating the public graph and bibliography
+          together. Project data can be reused under CC0 and the code under
+          Apache 2.0; articles, abstracts, and quoted text remain subject to
+          their original licenses. The graph is intended for exploring the
+          research, not as a complete systematic review or as clinical guidance.
+          Further detail is available in the
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md" target="_blank" rel="noopener noreferrer">workflow guide</a>,
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md" target="_blank" rel="noopener noreferrer">search coverage guide</a>,
+          <a href="#search-seed-words">search strategy</a>,
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/evidence_policy.md" target="_blank" rel="noopener noreferrer">evidence policy</a>,
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/terminology.md" target="_blank" rel="noopener noreferrer">terminology guide</a>, and
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">licensing information</a>.
+        </p>
       </section>
     </main>
 

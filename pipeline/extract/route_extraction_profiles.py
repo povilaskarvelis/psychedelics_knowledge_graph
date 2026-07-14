@@ -82,7 +82,11 @@ class RouteExtractionProfile:
 
     @property
     def has_model_contract(self) -> bool:
-        return self.status in MODEL_PROFILE_STATUSES and self.prompt_path is not None and self.schema_path is not None
+        has_schema = self.schema_path is not None or self.schema_profile in {
+            "meta_analysis_evidence_schema",
+            "review_coverage_schema",
+        }
+        return self.status in MODEL_PROFILE_STATUSES and self.prompt_path is not None and has_schema
 
 
 PRIMARY_PROMPT_PROFILES = (
@@ -184,7 +188,7 @@ def review_coverage_profile(prompt_profile: str) -> RouteExtractionProfile:
         output_schema_version="review_coverage_v1",
         status=PROFILE_STATUS_RUNNABLE,
         prompt_path=PAPER_TYPE_PROMPT_PATHS[("review", TEXT_DEPTH_ARTICLE)],
-        schema_path=ROOT / "schema" / "review_coverage.schema.json",
+        schema_path=None,
         default_max_output_tokens=16384,
         description="Extract domain-specific secondary review coverage.",
     )
@@ -198,7 +202,7 @@ ROUTE_EXTRACTION_PROFILES: dict[tuple[str, str], RouteExtractionProfile] = {
         output_schema_version="meta_analysis_evidence_v1",
         status=PROFILE_STATUS_RUNNABLE,
         prompt_path=PAPER_TYPE_PROMPT_PATHS[("meta_analysis", TEXT_DEPTH_ARTICLE)],
-        schema_path=ROOT / "schema" / "meta_analysis_evidence.schema.json",
+        schema_path=None,
         default_max_output_tokens=24576,
         description="Extract structured quantitative synthesis results from meta-analyses.",
     ),
@@ -208,12 +212,12 @@ ROUTE_EXTRACTION_PROFILES: dict[tuple[str, str], RouteExtractionProfile] = {
         prompt_profile="guideline_consensus",
         schema_profile="recommendation_consensus_schema",
         output_family="recommendation_consensus",
-        output_schema_version="",
-        status=PROFILE_STATUS_TERMINAL_NO_MODEL,
-        prompt_path=None,
-        schema_path=None,
-        default_max_output_tokens=0,
-        description="Terminal route for guideline/consensus papers; no model extraction yet.",
+        output_schema_version="recommendation_consensus_v1",
+        status=PROFILE_STATUS_RUNNABLE,
+        prompt_path=ROOT / "docs" / "extraction_profiles" / "paper_type" / "guideline_consensus.md",
+        schema_path=ROOT / "schema" / "recommendation_consensus.schema.json",
+        default_max_output_tokens=16384,
+        description="Extract graphable recommendations and consensus positions from guideline/consensus papers.",
     ),
     ("context_only_or_skip", "context_only_schema"): RouteExtractionProfile(
         prompt_profile="context_only_or_skip",
@@ -309,11 +313,13 @@ def schema_path_for_profile(profile: RouteExtractionProfile, domain_route: str =
         path = META_ANALYSIS_SCHEMA_PATHS.get(domain)
         if path is not None and path.exists():
             return path
+        raise ValueError(f"No meta-analysis extraction schema for domain `{domain or '<missing>'}`")
     if profile.prompt_profile in REVIEW_COVERAGE_PROMPT_PROFILES:
         domain = domain_route.strip()
         path = REVIEW_SCHEMA_PATHS.get(domain)
         if path is not None and path.exists():
             return path
+        raise ValueError(f"No review extraction schema for domain `{domain or '<missing>'}`")
     return profile.schema_path
 
 
@@ -430,6 +436,7 @@ def should_append_domain_addendum(profile: RouteExtractionProfile) -> bool:
         profile.prompt_profile in PRIMARY_PROMPT_PROFILES
         or profile.prompt_profile == "secondary_meta_analysis"
         or profile.prompt_profile in REVIEW_COVERAGE_PROMPT_PROFILES
+        or profile.prompt_profile == "guideline_consensus"
     )
 
 
