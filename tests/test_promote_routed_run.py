@@ -21,6 +21,63 @@ class PromoteRoutedRunTest(unittest.TestCase):
             ]
         ).to_parquet(path, index=False)
 
+    @staticmethod
+    def write_public_release(root: Path, run_id: str, release_id: str) -> Path:
+        pointer = promotion.graph_pointer_for_run(run_id, release_id)
+        pointer_path = root / "data/processed/graph_payload_active.json"
+        pointer_path.parent.mkdir(parents=True)
+        pointer_path.write_text(json.dumps(pointer), encoding="utf-8")
+
+        manifest_path = root / pointer["active_manifest"]
+        manifest_path.parent.mkdir(parents=True)
+        manifest_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": promotion.PAYLOAD_MANIFEST_SCHEMA,
+                    "kg_dir": pointer["kg_dir"],
+                    "row_count": 3,
+                    "author_tables": {"status": "ok"},
+                    "graph_bootstraps": pointer["active_graph_bootstraps"],
+                    "detail_bootstraps": pointer["active_detail_bootstraps"],
+                }
+            ),
+            encoding="utf-8",
+        )
+        for mapping in ("active_graph_bootstraps", "active_detail_bootstraps"):
+            for path_value in pointer[mapping].values():
+                payload_path = root / path_value
+                payload_path.write_text("{}", encoding="utf-8")
+        return pointer_path
+
+    def test_public_release_check_needs_only_committed_site_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pointer = self.write_public_release(root, "public_run", "public_run:release")
+            with mock.patch.object(promotion, "ROOT", root), mock.patch.object(
+                promotion, "ACTIVE_GRAPH_POINTER", pointer
+            ):
+                result = promotion.validate_active_public_release()
+
+        self.assertEqual(result["run_id"], "public_run")
+        self.assertEqual(result["release_id"], "public_run:release")
+        self.assertEqual(result["row_count"], 3)
+
+    def test_public_release_check_rejects_manifest_path_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pointer_path = self.write_public_release(root, "public_run", "public_run:release")
+            pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+            manifest_path = root / pointer["active_manifest"]
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["graph_bootstraps"]["primary"] = "data/wrong.json"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+            with mock.patch.object(promotion, "ROOT", root), mock.patch.object(
+                promotion, "ACTIVE_GRAPH_POINTER", pointer_path
+            ):
+                with self.assertRaisesRegex(ValueError, "does not match"):
+                    promotion.validate_active_public_release()
+
     def test_pointer_pair_requires_same_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

@@ -40,6 +40,7 @@ PROMOTION_LOCK = PROCESSED_DIR / ".routed_release_promotion.lock"
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 EXTRACTION_POINTER_SCHEMA = "active_routed_extraction_run_v1"
 GRAPH_POINTER_SCHEMA = "route_native_evidence_payload_active_v1"
+PAYLOAD_MANIFEST_SCHEMA = "route_native_evidence_manifest_v1"
 
 
 def now_utc() -> str:
@@ -187,31 +188,27 @@ def resolve_extraction_inputs(args: argparse.Namespace, run_id: str) -> tuple[Pa
     return outputs.resolve(), evidence.resolve(), source_manifest.resolve() if source_manifest else None
 
 
-def validate_built_release(run_id: str, graph_pointer: dict) -> dict:
-    kg_dir = KG_RUNS_DIR / run_id
-    payload_dir = PAYLOAD_RUNS_DIR / run_id
-    kg_manifest_path = kg_dir / "manifest.json"
-    payload_manifest_path = payload_dir / "graph_payload_manifest.json"
-    if not kg_manifest_path.is_file():
-        raise FileNotFoundError(f"Missing versioned KG manifest: {kg_manifest_path}")
+def validate_public_payload(run_id: str, graph_pointer: dict) -> dict:
+    """Validate the committed files required to build and serve the public site."""
+    release_id = normalize(graph_pointer.get("release_id"))
+    if not release_id:
+        raise ValueError("Active public graph pointer is missing its release_id")
+
+    expected_pointer = graph_pointer_for_run(run_id, release_id)
+    for key, expected in expected_pointer.items():
+        if graph_pointer.get(key) != expected:
+            raise ValueError(f"Active public graph pointer has an unexpected {key}")
+
+    payload_manifest_path = ROOT / expected_pointer["active_manifest"]
     if not payload_manifest_path.is_file():
         raise FileNotFoundError(f"Missing versioned payload manifest: {payload_manifest_path}")
-
-    kg_manifest = read_json_object(kg_manifest_path)
     payload_manifest = read_json_object(payload_manifest_path)
-    if normalize(kg_manifest.get("run_id")) != run_id:
-        raise ValueError(f"KG manifest run_id does not match {run_id}: {kg_manifest_path}")
-    if normalize(kg_manifest.get("source_preset")) != "routed":
-        raise ValueError(f"KG manifest is not a routed build: {kg_manifest_path}")
+    if normalize(payload_manifest.get("schema_version")) != PAYLOAD_MANIFEST_SCHEMA:
+        raise ValueError(f"Unexpected payload manifest schema: {payload_manifest_path}")
     if normalize(payload_manifest.get("kg_dir")) != graph_pointer["kg_dir"]:
         raise ValueError(f"Payload manifest points at a different KG: {payload_manifest_path}")
-
-    findings_rows = int(((kg_manifest.get("tables") or {}).get("findings") or {}).get("rows", -1))
-    payload_rows = int(payload_manifest.get("row_count", -2))
-    if findings_rows < 0 or payload_rows != findings_rows:
-        raise ValueError(
-            f"Payload/KG row-count mismatch for {run_id}: payload={payload_rows}, findings={findings_rows}"
-        )
+    if int(payload_manifest.get("row_count", -1)) < 0:
+        raise ValueError(f"Payload manifest has an invalid row count: {payload_manifest_path}")
     if normalize((payload_manifest.get("author_tables") or {}).get("status")) != "ok":
         raise ValueError(f"Author tables are missing or stale: {payload_manifest_path}")
 
@@ -226,6 +223,42 @@ def validate_built_release(run_id: str, graph_pointer: dict) -> dict:
         for path_value in expected.values():
             if not (ROOT / path_value).is_file():
                 raise FileNotFoundError(f"Missing payload file: {path_value}")
+    return payload_manifest
+
+
+def validate_active_public_release() -> dict:
+    """Validate only committed public-release artifacts; safe in a clean checkout."""
+    graph_pointer = read_json_object(ACTIVE_GRAPH_POINTER)
+    if normalize(graph_pointer.get("schema_version")) != GRAPH_POINTER_SCHEMA:
+        raise ValueError(f"Unexpected active graph pointer schema: {ACTIVE_GRAPH_POINTER}")
+    run_id = safe_run_id(graph_pointer.get("run_id"))
+    payload_manifest = validate_public_payload(run_id, graph_pointer)
+    return {
+        "run_id": run_id,
+        "release_id": normalize(graph_pointer.get("release_id")),
+        "row_count": int(payload_manifest["row_count"]),
+    }
+
+
+def validate_built_release(run_id: str, graph_pointer: dict) -> dict:
+    kg_dir = KG_RUNS_DIR / run_id
+    kg_manifest_path = kg_dir / "manifest.json"
+    if not kg_manifest_path.is_file():
+        raise FileNotFoundError(f"Missing versioned KG manifest: {kg_manifest_path}")
+
+    kg_manifest = read_json_object(kg_manifest_path)
+    if normalize(kg_manifest.get("run_id")) != run_id:
+        raise ValueError(f"KG manifest run_id does not match {run_id}: {kg_manifest_path}")
+    if normalize(kg_manifest.get("source_preset")) != "routed":
+        raise ValueError(f"KG manifest is not a routed build: {kg_manifest_path}")
+
+    payload_manifest = validate_public_payload(run_id, graph_pointer)
+    findings_rows = int(((kg_manifest.get("tables") or {}).get("findings") or {}).get("rows", -1))
+    payload_rows = int(payload_manifest.get("row_count", -2))
+    if findings_rows < 0 or payload_rows != findings_rows:
+        raise ValueError(
+            f"Payload/KG row-count mismatch for {run_id}: payload={payload_rows}, findings={findings_rows}"
+        )
     return payload_manifest
 
 
@@ -426,6 +459,10 @@ def promote(args: argparse.Namespace) -> dict:
             write_json_atomic(ACTIVE_EXTRACTION_POINTER, extraction_pointer)
             write_json_atomic(ACTIVE_GRAPH_POINTER, graph_pointer)
 
+            # The full promotion contract depends on local extraction and corpus
+            # state, so keep it here rather than imposing it on clean deploys.
+            validate_active_pointer_pair()
+
             site_env = dict(os.environ)
             site_env["DIST_DIR"] = str(staged_dist)
             run_checked([str(ROOT / "scripts" / "build_site.sh")], env=site_env)
@@ -463,7 +500,9 @@ def promote(args: argparse.Namespace) -> dict:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", default="")
-    parser.add_argument("--check-active", action="store_true")
+    checks = parser.add_mutually_exclusive_group()
+    checks.add_argument("--check-active", action="store_true")
+    checks.add_argument("--check-public", action="store_true")
     parser.add_argument("--outputs-jsonl", default="")
     parser.add_argument("--evidence-rows-json", default="")
     parser.add_argument("--source-update-manifest", default="")
@@ -476,8 +515,12 @@ def main() -> int:
         result = validate_active_pointer_pair()
         print(f"Active release pointers agree: {result['run_id']}")
         return 0
+    if args.check_public:
+        result = validate_active_public_release()
+        print(f"Active public release is complete: {result['run_id']}")
+        return 0
     if not args.run_id:
-        raise SystemExit("--run-id is required unless --check-active is used")
+        raise SystemExit("--run-id is required unless a check mode is used")
     result = promote(args)
     print(f"Promoted routed release: {result['run_id']}")
     print(f"Release ID: {result['release_id']}")

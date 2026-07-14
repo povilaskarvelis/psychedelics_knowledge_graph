@@ -21,6 +21,11 @@ Use the settings in `netlify.toml`:
 The public file list lives in `scripts/public_site_files.txt`. Add files there
 only when the browser app needs to fetch or serve them publicly.
 
+The build validates only committed public-release artifacts: the active graph
+pointer, its payload manifest, and the referenced browser JSON files. Full
+extraction-pointer and canonical-corpus parity is enforced during guarded
+promotion, where those intentionally untracked working datasets are available.
+
 ## Custom Domain
 
 After the Netlify site exists, add both domains in Netlify:

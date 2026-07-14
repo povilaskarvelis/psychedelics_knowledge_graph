@@ -35,8 +35,11 @@ build-and-promote shorthand and uses the same guarded promoter.
 
 The wrapper is non-activating by default. This keeps historical or diagnostic
 rebuilds from changing the public graph by accident. `scripts/build_site.sh`
-also refuses to publish when the two compatibility pointers do not identify
-the same release.
+validates the committed public pointer, manifest, and browser payloads before
+building. The promoter separately checks that the extraction pointer, public
+pointer, and canonical corpus identify the same release; that deeper check
+stays in promotion because its extraction and Parquet inputs are intentionally
+not part of a clean deployment checkout.
 
 If the KG tables have already been rebuilt and only the public payload needs to
 be regenerated, make sure `pipeline/kg/build_author_tables.py` has run after the
