@@ -1,8 +1,9 @@
 # Publish Prep: Evidence Payload Export
 
 This step exports compact route-native evidence files for the web UI. The
-public site reads a manifest plus graph and detail bootstrap files keyed by the
-actual routed extraction domains, not by the old two-dataset UI split.
+public site reads a manifest plus graph, dashboard, and detail bootstrap files
+keyed by the actual routed extraction domains, not by the old two-dataset UI
+split.
 
 The browser can still render the existing graph, cards, filters, and
 bibliography layout. It derives its display grouping from each finding's
@@ -60,6 +61,7 @@ file. Do not run a separate bibliography step afterward.
 - `data/processed/extraction/active_routed_run.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_payload_manifest.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/graph_bootstrap_<source>.json`
+- `data/processed/graph_payload_runs/<RUN_ID>/dashboard_bootstrap_<source>.json`
 - `data/processed/graph_payload_runs/<RUN_ID>/detail_bootstrap_<source>.json`
 - `data/kg/views/pipeline_status_graph.json`
 - `data/kg/views/methods_bibliography.json`
@@ -81,6 +83,7 @@ the public graph pointer names only compact browser artifacts.
 - `author_tables`
 - `summary_stats`
 - `graph_bootstraps`
+- `dashboard_bootstraps`
 - `detail_bootstraps`
 
 `summary_stats.paper_counts` is the generated source of truth for the four
@@ -100,6 +103,13 @@ entity kind, finding count, study count, and full-text-seen counts. It is
 intentionally limited to graph-visible anchor kinds. Metadata/detail kinds such
 as outcome scales, compound classes, symptoms and outcomes, brain measures, and
 pharmacokinetic parameters stay out of this aggregate graph file.
+
+`dashboard_bootstrap_<source>.json` contains the complete condition rows and
+supporting outcome-scale rows needed for the initial right-hand dashboard and
+year bounds. It uses the same compact columnar encoding as the detail payload,
+but excludes unrelated entity views so the graph and default dashboard can
+paint together before the full corpus is downloaded. The full detail payload
+replaces this provisional working set without changing the rendered summaries.
 
 `detail_bootstrap_<source>.json` contains the row-level public UI
 data in a compact field/value/row representation:

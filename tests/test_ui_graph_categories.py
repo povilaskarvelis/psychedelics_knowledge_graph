@@ -41,6 +41,27 @@ def test_initial_load_shows_the_fast_graph_bootstrap() -> None:
     assert "showGraphBootstrap: true" in init
 
 
+def test_initial_dashboard_bootstrap_renders_before_full_detail_payload() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    dashboard = source.split("async function renderCurrentDashboardBootstrap", 1)[1].split(
+        "function canonicalOverviewBootstrapClaims", 1
+    )[0]
+    loader = source.split("async function loadCurrentClaimsAndRender", 1)[1].split(
+        "function loadBibliographyPayloadsInBackground", 1
+    )[0]
+
+    assert 'currentEntityViewKey() !== "condition_indication"' in dashboard
+    assert "syncYearFilterControls(activeClaimsForMode(), true)" in dashboard
+    assert "renderOverviewDetail(graphFiltered, allAccessGraphFiltered)" in dashboard
+    assert loader.index("loadDashboardBootstrapClaims(sourceKey)") < loader.index(
+        "renderCurrentGraphBootstrap"
+    )
+    assert loader.index("renderCurrentDashboardBootstrap") < loader.index(
+        "ensureClaimsForCurrentView"
+    )
+
+
 def test_unfiltered_overview_always_uses_the_canonical_graph_bootstrap() -> None:
     source = APP_JS.read_text(encoding="utf-8")
 

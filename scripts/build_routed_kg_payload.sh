@@ -8,8 +8,8 @@ usage() {
 Usage: scripts/build_routed_kg_payload.sh RUN_ID [build_author_tables args...]
 
 Rebuilds the routed KG tables, refreshes the author identity/authorship layer,
-exports the compact graph/detail payloads used by the browser UI, and promotes
-the complete release through the guarded publisher when explicitly requested.
+exports the compact graph/dashboard/detail payloads used by the browser UI,
+and promotes the complete release through the guarded publisher when explicitly requested.
 
 Examples:
   scripts/build_routed_kg_payload.sh gemini3_flash_20260628_primary_extraction

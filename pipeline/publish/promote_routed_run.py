@@ -115,6 +115,11 @@ def graph_pointer_for_run(run_id: str, release_id: str) -> dict:
             "meta_analyses": (payload_rel / "graph_bootstrap_meta_analyses.json").as_posix(),
             "reviews": (payload_rel / "graph_bootstrap_reviews.json").as_posix(),
         },
+        "active_dashboard_bootstraps": {
+            "primary": (payload_rel / "dashboard_bootstrap_primary.json").as_posix(),
+            "meta_analyses": (payload_rel / "dashboard_bootstrap_meta_analyses.json").as_posix(),
+            "reviews": (payload_rel / "dashboard_bootstrap_reviews.json").as_posix(),
+        },
         "active_detail_bootstraps": {
             "primary": (payload_rel / "detail_bootstrap_primary.json").as_posix(),
             "meta_analyses": (payload_rel / "detail_bootstrap_meta_analyses.json").as_posix(),
@@ -214,6 +219,7 @@ def validate_public_payload(run_id: str, graph_pointer: dict) -> dict:
 
     for mapping_key, manifest_key in (
         ("active_graph_bootstraps", "graph_bootstraps"),
+        ("active_dashboard_bootstraps", "dashboard_bootstraps"),
         ("active_detail_bootstraps", "detail_bootstraps"),
     ):
         expected = graph_pointer[mapping_key]

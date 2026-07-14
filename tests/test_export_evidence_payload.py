@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.publish.export_evidence_payload import (
+    dashboard_bootstrap_payload,
     detail_bootstrap_payload,
     export_evidence_payload,
     graph_bootstrap_payload,
@@ -522,6 +523,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             )
 
             graph_bootstrap = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
+            dashboard_bootstrap = json.loads(result["dashboard_bootstrap_paths"]["primary"].read_text())
             detail_bootstrap = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
             active = json.loads(active_json.read_text())
             manifest = json.loads(result["manifest_path"].read_text())
@@ -550,6 +552,9 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertNotIn("disorder", finding)
         self.assertEqual(graph_bootstrap["edge_count"], 0)
         self.assertEqual(graph_bootstrap["finding_count"], 0)
+        self.assertEqual(dashboard_bootstrap["schema_version"], "route_native_dashboard_bootstrap_v1")
+        self.assertEqual(dashboard_bootstrap["default_entity_view"], "condition_indication")
+        self.assertEqual(dashboard_bootstrap["row_count"], 0)
         self.assertEqual(detail_bootstrap["schema_version"], "route_native_detail_bootstrap_v1")
         self.assertEqual(detail_bootstrap["row_count"], 1)
         self.assertIn("study_year", detail_bootstrap["fields"])
@@ -565,9 +570,12 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertNotIn("active_evidence_preview", active)
         self.assertIn("active_graph_bootstraps", active)
         self.assertIn("primary", active["active_graph_bootstraps"])
+        self.assertIn("active_dashboard_bootstraps", active)
+        self.assertIn("primary", active["active_dashboard_bootstraps"])
         self.assertIn("active_detail_bootstraps", active)
         self.assertIn("primary", active["active_detail_bootstraps"])
         self.assertEqual(set(active["active_graph_bootstraps"]), {"primary", "meta_analyses", "reviews"})
+        self.assertEqual(set(active["active_dashboard_bootstraps"]), {"primary", "meta_analyses", "reviews"})
         self.assertEqual(set(active["active_detail_bootstraps"]), {"primary", "meta_analyses", "reviews"})
         self.assertNotIn("active_payload_dir", active)
         self.assertNotIn("claim_source", active)
@@ -677,12 +685,17 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 require_fresh_author_tables=False,
             )
             active = json.loads(active_json.read_text())
+            primary_dashboard_rows = detail_bootstrap_rows(
+                json.loads(result["dashboard_bootstrap_paths"]["primary"].read_text())
+            )
             primary_rows = detail_bootstrap_rows(json.loads(result["detail_bootstrap_paths"]["primary"].read_text()))
             meta_rows = detail_bootstrap_rows(json.loads(result["detail_bootstrap_paths"]["meta_analyses"].read_text()))
             review_rows = detail_bootstrap_rows(json.loads(result["detail_bootstrap_paths"]["reviews"].read_text()))
 
+        self.assertEqual(set(active["active_dashboard_bootstraps"]), {"primary", "meta_analyses", "reviews"})
         self.assertEqual(set(active["active_detail_bootstraps"]), {"primary", "meta_analyses", "reviews"})
         self.assertNotIn("secondary", active["active_detail_bootstraps"])
+        self.assertEqual([row["study_doi"] for row in primary_dashboard_rows], ["10.1000/primary"])
         self.assertEqual([row["study_doi"] for row in primary_rows], ["10.1000/primary"])
         self.assertEqual([row["study_doi"] for row in meta_rows], ["10.1000/meta"])
         self.assertEqual(meta_rows[0]["meta_analysis_result_role"], "primary_synthesis")
@@ -710,6 +723,44 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 "scope": "underlying_evidence_graph_represented",
                 "denominator_source": "kg_artifact_fallback",
             },
+        )
+
+    def test_dashboard_bootstrap_contains_only_initial_dashboard_rows(self) -> None:
+        findings = [
+            {
+                "study_doi": "10.1000/condition",
+                "entity_kind": "condition_indication",
+                "entity_label": "Major depressive disorder",
+                "study_year": 2024,
+            },
+            {
+                "study_doi": "10.1000/scale",
+                "entity_kind": "outcome_scale",
+                "entity_label": "MADRS",
+                "study_year": 2024,
+            },
+            {
+                "study_doi": "10.1000/target",
+                "entity_kind": "target",
+                "entity_label": "5-HT2A",
+                "study_year": 2023,
+            },
+        ]
+
+        payload = dashboard_bootstrap_payload(
+            findings,
+            "2026-07-14T00:00:00Z",
+            Path("kg"),
+            "primary",
+        )
+        rows = detail_bootstrap_rows(payload)
+
+        self.assertEqual(payload["payload_scope"], "initial_condition_dashboard")
+        self.assertEqual(payload["source_row_count"], 3)
+        self.assertEqual(payload["row_count"], 2)
+        self.assertEqual(
+            {row["entity_kind"] for row in rows},
+            {"condition_indication", "outcome_scale"},
         )
 
     def test_selected_candidate_table_sets_the_upstream_denominator(self) -> None:

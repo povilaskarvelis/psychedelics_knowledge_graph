@@ -38,12 +38,17 @@ class PromoteRoutedRunTest(unittest.TestCase):
                     "row_count": 3,
                     "author_tables": {"status": "ok"},
                     "graph_bootstraps": pointer["active_graph_bootstraps"],
+                    "dashboard_bootstraps": pointer["active_dashboard_bootstraps"],
                     "detail_bootstraps": pointer["active_detail_bootstraps"],
                 }
             ),
             encoding="utf-8",
         )
-        for mapping in ("active_graph_bootstraps", "active_detail_bootstraps"):
+        for mapping in (
+            "active_graph_bootstraps",
+            "active_dashboard_bootstraps",
+            "active_detail_bootstraps",
+        ):
             for path_value in pointer[mapping].values():
                 payload_path = root / path_value
                 payload_path.write_text("{}", encoding="utf-8")

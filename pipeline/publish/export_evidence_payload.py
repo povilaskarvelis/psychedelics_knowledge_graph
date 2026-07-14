@@ -33,11 +33,13 @@ ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
 GRAPH_BOOTSTRAP_SCHEMA_VERSION = "route_native_graph_bootstrap_v1"
+DASHBOARD_BOOTSTRAP_SCHEMA_VERSION = "route_native_dashboard_bootstrap_v1"
 DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v1"
 PRIMARY_SOURCE_KEY = "primary"
 META_ANALYSES_SOURCE_KEY = "meta_analyses"
 REVIEWS_SOURCE_KEY = "reviews"
 UI_SOURCE_KEYS = (PRIMARY_SOURCE_KEY, META_ANALYSES_SOURCE_KEY, REVIEWS_SOURCE_KEY)
+DASHBOARD_BOOTSTRAP_ENTITY_KINDS = {"condition_indication", "outcome_scale"}
 META_ANALYSIS_SOURCE_TYPES = {
     "meta_analysis",
     "network_meta_analysis",
@@ -1131,6 +1133,10 @@ def ui_graph_bootstrap_name(source_key: str) -> str:
     return f"graph_bootstrap_{source_key}.json"
 
 
+def ui_dashboard_bootstrap_name(source_key: str) -> str:
+    return f"dashboard_bootstrap_{source_key}.json"
+
+
 def ui_detail_bootstrap_name(source_key: str) -> str:
     return f"detail_bootstrap_{source_key}.json"
 
@@ -1440,7 +1446,15 @@ def detail_bootstrap_value(value: object) -> object:
     return value
 
 
-def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
+def columnar_bootstrap_payload(
+    findings: list[dict],
+    generated_at: str,
+    kg_dir: Path,
+    source_key: str,
+    *,
+    schema_version: str,
+    payload_scope: str | None = None,
+) -> dict:
     values: list[object] = [None]
     value_indexes = {json.dumps(None): 0}
     rows: list[list[int]] = []
@@ -1456,8 +1470,8 @@ def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pa
     for finding in findings:
         rows.append([value_index(finding.get(field)) for field in DETAIL_BOOTSTRAP_FIELDS])
 
-    return {
-        "schema_version": DETAIL_BOOTSTRAP_SCHEMA_VERSION,
+    payload = {
+        "schema_version": schema_version,
         "generated_at": generated_at,
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
@@ -1468,10 +1482,49 @@ def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pa
         "values": values,
         "rows": rows,
     }
+    if payload_scope:
+        payload["payload_scope"] = payload_scope
+    return payload
+
+
+def dashboard_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
+    dashboard_findings = [
+        finding
+        for finding in findings
+        if normalize(finding.get("entity_kind") or finding.get("kg_entity_kind")).lower()
+        in DASHBOARD_BOOTSTRAP_ENTITY_KINDS
+    ]
+    payload = columnar_bootstrap_payload(
+        dashboard_findings,
+        generated_at,
+        kg_dir,
+        source_key,
+        schema_version=DASHBOARD_BOOTSTRAP_SCHEMA_VERSION,
+        payload_scope="initial_condition_dashboard",
+    )
+    payload["default_entity_view"] = "condition_indication"
+    payload["source_row_count"] = len(findings)
+    return payload
+
+
+def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
+    return columnar_bootstrap_payload(
+        findings,
+        generated_at,
+        kg_dir,
+        source_key,
+        schema_version=DETAIL_BOOTSTRAP_SCHEMA_VERSION,
+    )
 
 
 def remove_stale_payload_files(out_dir: Path, keep_names: set[str]) -> None:
-    for pattern in ("graph_payload_*.json", "graph_preview_*.json", "graph_bootstrap_*.json", "detail_bootstrap_*.json"):
+    for pattern in (
+        "graph_payload_*.json",
+        "graph_preview_*.json",
+        "graph_bootstrap_*.json",
+        "dashboard_bootstrap_*.json",
+        "detail_bootstrap_*.json",
+    ):
         for path in out_dir.glob(pattern):
             if path.name in keep_names:
                 continue
@@ -1483,12 +1536,16 @@ def write_active_pointer(
     out_dir: Path,
     manifest_path: Path,
     graph_bootstrap_paths: dict[str, Path],
+    dashboard_bootstrap_paths: dict[str, Path],
     detail_bootstrap_paths: dict[str, Path],
     kg_dir: Path,
 ) -> dict:
     payload = {
         "schema_version": ACTIVE_SCHEMA_VERSION,
         "active_graph_bootstraps": {source_key: relative_path(path) for source_key, path in graph_bootstrap_paths.items()},
+        "active_dashboard_bootstraps": {
+            source_key: relative_path(path) for source_key, path in dashboard_bootstrap_paths.items()
+        },
         "active_detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
         "active_manifest": relative_path(manifest_path),
         "evidence_source": "kg_tables",
@@ -1507,6 +1564,7 @@ def export_evidence_payload(
     active_json: Path | None = None,
     require_fresh_author_tables: bool = True,
     candidate_papers_table: Path | None = None,
+    generated_at: str | None = None,
 ) -> dict:
     author_table_status = (
         validate_fresh_author_tables(kg_dir)
@@ -1533,16 +1591,21 @@ def export_evidence_payload(
         source_key: out_dir / ui_graph_bootstrap_name(source_key)
         for source_key in UI_SOURCE_KEYS
     }
+    dashboard_bootstrap_paths = {
+        source_key: out_dir / ui_dashboard_bootstrap_name(source_key)
+        for source_key in UI_SOURCE_KEYS
+    }
     detail_bootstrap_paths = {
         source_key: out_dir / ui_detail_bootstrap_name(source_key)
         for source_key in UI_SOURCE_KEYS
     }
     keep_names = {manifest_path.name}
     keep_names.update(path.name for path in graph_bootstrap_paths.values())
+    keep_names.update(path.name for path in dashboard_bootstrap_paths.values())
     keep_names.update(path.name for path in detail_bootstrap_paths.values())
     remove_stale_payload_files(out_dir, keep_names)
 
-    generated_at = now_utc()
+    generated_at = generated_at or now_utc()
     source_summary_stats: dict[str, dict] = {}
     for source_key in UI_SOURCE_KEYS:
         source_findings = findings_for_ui_source(findings, source_key)
@@ -1556,6 +1619,8 @@ def export_evidence_payload(
         source_summary_stats[source_key] = source_stats
         graph_bootstrap = graph_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
         graph_bootstrap_paths[source_key].write_text(compact_json(graph_bootstrap), encoding="utf-8")
+        dashboard_bootstrap = dashboard_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
+        dashboard_bootstrap_paths[source_key].write_text(compact_json(dashboard_bootstrap), encoding="utf-8")
         detail_bootstrap = detail_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
         detail_bootstrap_paths[source_key].write_text(compact_json(detail_bootstrap), encoding="utf-8")
 
@@ -1577,6 +1642,9 @@ def export_evidence_payload(
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
         "graph_bootstraps": {source_key: relative_path(path) for source_key, path in graph_bootstrap_paths.items()},
+        "dashboard_bootstraps": {
+            source_key: relative_path(path) for source_key, path in dashboard_bootstrap_paths.items()
+        },
         "detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
         "row_count": len(findings),
         "author_tables": author_table_status,
@@ -1598,12 +1666,14 @@ def export_evidence_payload(
             out_dir=out_dir,
             manifest_path=manifest_path,
             graph_bootstrap_paths=graph_bootstrap_paths,
+            dashboard_bootstrap_paths=dashboard_bootstrap_paths,
             detail_bootstrap_paths=detail_bootstrap_paths,
             kg_dir=kg_dir,
         )
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return {
         "graph_bootstrap_paths": graph_bootstrap_paths,
+        "dashboard_bootstrap_paths": dashboard_bootstrap_paths,
         "detail_bootstrap_paths": detail_bootstrap_paths,
         "manifest_path": manifest_path,
         "manifest": manifest,
@@ -1635,6 +1705,11 @@ def main() -> int:
         action="store_true",
         help="Skip author-table freshness checks. Use only for diagnostic exports.",
     )
+    parser.add_argument(
+        "--generated-at",
+        default=None,
+        help="Optional fixed ISO timestamp for reproducible release migrations.",
+    )
     args = parser.parse_args()
 
     result = export_evidence_payload(
@@ -1644,9 +1719,10 @@ def main() -> int:
         active_json=Path(args.active_json).resolve() if args.activate_default else None,
         require_fresh_author_tables=not args.allow_stale_authors,
         candidate_papers_table=Path(args.candidate_papers).resolve(),
+        generated_at=args.generated_at,
     )
     manifest = result["manifest"]
-    print("Public evidence data: compact graph and detail bootstraps")
+    print("Public evidence data: compact graph, dashboard, and detail bootstraps")
     print(f"Manifest: {result['manifest_path']}")
     if args.activate_default:
         print(f"Active payload pointer: {Path(args.active_json).resolve()}")

@@ -12,7 +12,7 @@
     "selected_for_evidence_extraction": 13081
   },
   "current_stage": "kg_inclusion_summary",
-  "generated_at": "2026-07-14T16:22:25.097573+00:00",
+  "generated_at": "2026-07-14T19:29:27.144403+00:00",
   "prisma_flow": {
     "overall": {
       "current_stage": "kg_inclusion_summary",

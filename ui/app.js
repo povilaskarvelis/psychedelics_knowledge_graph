@@ -479,6 +479,7 @@ let graphManifestPromise = null;
 let graphPayloadConfigPromise = null;
 const graphBootstrapPayloadPromises = new Map();
 const graphBootstrapClaimsBySource = new Map();
+const dashboardBootstrapPayloadPromises = new Map();
 const detailBootstrapPayloadPromises = new Map();
 const expandedUseContextClaimsCache = new WeakMap();
 let activeClaimsMemo = null;
@@ -1802,7 +1803,7 @@ function labelFromSlug(value) {
 function paperTypeLabel(paperType) {
   const normalized = normalizeValue(paperType);
   const labels = {
-    primary_results: "Primary research",
+    primary_results: "Primary studies",
     conference_or_poster_abstract: "Conference/poster",
     journal_article: "Journal article",
     journalarticle: "Journal article",
@@ -3489,6 +3490,7 @@ function clearDetailForTransition() {
   activeDetailItems = [];
   activeDetailAllAccessItems = [];
   detailTitle.textContent = "";
+  delete detailBody.dataset.renderStage;
   detailBody.replaceChildren();
 }
 
@@ -7692,8 +7694,10 @@ function scheduleDeferredSurfaceRender(graphFiltered, allAccessGraphFiltered, up
       if (detailGraphFilter) {
         // Keep the current right-panel drilldown visible while refreshing the graph.
       } else if (selected) {
+        detailBody.dataset.renderStage = normalizedCurrentSourceLoaded() ? "full-detail" : "dashboard-bootstrap";
         renderSelectedDetailFromData(graphFiltered, allAccessGraphFiltered);
       } else {
+        detailBody.dataset.renderStage = normalizedCurrentSourceLoaded() ? "full-detail" : "dashboard-bootstrap";
         renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
       }
     }
@@ -8052,6 +8056,11 @@ function activeGraphBootstrapPath(config, sourceKey) {
   return cleanDisplayText(bootstraps?.[sourceKey]);
 }
 
+function activeDashboardBootstrapPath(config, sourceKey) {
+  const bootstraps = config?.active_dashboard_bootstraps || {};
+  return cleanDisplayText(bootstraps?.[sourceKey]);
+}
+
 function activeDetailBootstrapPath(config, sourceKey) {
   const bootstraps = config?.active_detail_bootstraps || {};
   return cleanDisplayText(bootstraps?.[sourceKey]);
@@ -8112,7 +8121,7 @@ function graphBootstrapClaimsFromPayload(payload, sourceKey) {
   });
 }
 
-function detailBootstrapClaimsFromPayload(payload) {
+function columnarBootstrapClaimsFromPayload(payload, bootstrapMarker) {
   const fields = Array.isArray(payload?.fields) ? payload.fields : [];
   const values = Array.isArray(payload?.values) ? payload.values : [];
   const rows = Array.isArray(payload?.rows) ? payload.rows : [];
@@ -8127,9 +8136,17 @@ function detailBootstrapClaimsFromPayload(payload) {
     });
     return {
       ...routeNativeFindingForCurrentUi(raw),
-      __detail_bootstrap: true,
+      [bootstrapMarker]: true,
     };
   });
+}
+
+function dashboardBootstrapClaimsFromPayload(payload) {
+  return columnarBootstrapClaimsFromPayload(payload, "__dashboard_bootstrap");
+}
+
+function detailBootstrapClaimsFromPayload(payload) {
+  return columnarBootstrapClaimsFromPayload(payload, "__detail_bootstrap");
 }
 
 async function loadGraphBootstrapClaims(sourceKey) {
@@ -8159,6 +8176,25 @@ async function loadDetailBootstrapClaims(sourceKey) {
     .then(({ data }) => detailBootstrapClaimsFromPayload(data))
     .catch(() => []);
   detailBootstrapPayloadPromises.set(path, task);
+  return task;
+}
+
+async function loadDashboardBootstrapClaims(sourceKey) {
+  const config = await loadGraphPayloadConfig();
+  const path = activeDashboardBootstrapPath(config, sourceKey);
+  if (!path) return [];
+  if (dashboardBootstrapPayloadPromises.has(path)) return dashboardBootstrapPayloadPromises.get(path);
+
+  const task = fetchJsonFromCandidates(dataCandidates(path))
+    .then(({ data }) => {
+      const items = dashboardBootstrapClaimsFromPayload(data)
+        .filter((finding) => !isHiddenMainGraphItem(finding))
+        .filter((finding) => routeNativeSourceKey(finding) === sourceKey)
+        .map((finding) => routeNativeFindingForCurrentUi(finding));
+      return items;
+    })
+    .catch(() => []);
+  dashboardBootstrapPayloadPromises.set(path, task);
   return task;
 }
 
@@ -8430,6 +8466,35 @@ async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
   return true;
 }
 
+async function renderCurrentDashboardBootstrap(loadToken, sourceKey, dashboardClaims) {
+  if (
+    claimLayer !== "normalized" ||
+    normalizedSourceLoaded[sourceKey] ||
+    currentSourceKey() !== sourceKey ||
+    currentEntityViewKey() !== "condition_indication" ||
+    loadToken !== currentDataLoadToken ||
+    !dashboardClaims.length
+  ) {
+    return false;
+  }
+
+  claimStores.normalized.bySource[sourceKey] = dashboardClaims;
+  claimStores.normalized.all = Object.values(claimStores.normalized.bySource).flat();
+  clearOverviewDetailCacheForSource(sourceKey);
+  applyClaimLayerStore();
+  syncYearFilterControls(activeClaimsForMode(), true);
+
+  const graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
+  const allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
+    isMainGraphAdmitted
+  );
+  if (!graphFiltered.length && !allAccessGraphFiltered.length) return false;
+
+  detailBody.dataset.renderStage = "dashboard-bootstrap";
+  renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
+  return true;
+}
+
 function canonicalOverviewBootstrapClaims() {
   if (claimLayer !== "normalized" || selected || detailGraphFilter) return null;
 
@@ -8453,6 +8518,11 @@ function canonicalOverviewBootstrapClaims() {
 async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true, showGraphBootstrap = false } = {}) {
   const token = ++currentDataLoadToken;
   const sourceWasLoaded = normalizedCurrentSourceLoaded();
+  const sourceKey = currentSourceKey();
+  const dashboardTask =
+    showGraphBootstrap && claimLayer === "normalized" && !sourceWasLoaded
+      ? loadDashboardBootstrapClaims(sourceKey)
+      : null;
   let bootstrapRendered = false;
   if (showGraphBootstrap) {
     bootstrapRendered = await renderCurrentGraphBootstrap(token, resetDetail);
@@ -8465,6 +8535,13 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
   if (bootstrapRendered) {
     retainVisibleBootstrapGraph = true;
     await waitForPaint();
+  }
+  if (token !== currentDataLoadToken) return;
+
+  if (dashboardTask) {
+    const dashboardClaims = await dashboardTask;
+    const dashboardRendered = await renderCurrentDashboardBootstrap(token, sourceKey, dashboardClaims);
+    if (dashboardRendered) await waitForPaint();
   }
   if (token !== currentDataLoadToken) return;
 

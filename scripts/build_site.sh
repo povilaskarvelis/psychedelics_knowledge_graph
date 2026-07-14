@@ -77,6 +77,7 @@ import sys
 config = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
 references = [config.get("active_manifest", "")]
 references.extend((config.get("active_graph_bootstraps") or {}).values())
+references.extend((config.get("active_dashboard_bootstraps") or {}).values())
 references.extend((config.get("active_detail_bootstraps") or {}).values())
 runs = set()
 for reference in references:

@@ -8,6 +8,11 @@
     "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_meta_analyses.json",
     "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_reviews.json"
   },
+  "dashboard_bootstraps": {
+    "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_reviews.json"
+  },
   "detail_bootstraps": {
     "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_primary.json",
     "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_meta_analyses.json",
@@ -73,16 +78,16 @@
       },
       "graph_study_coverage": {
         "included_count": 11076,
-        "candidate_count": 13150,
-        "not_in_graph_count": 2074
+        "candidate_count": 13081,
+        "not_in_graph_count": 2005
       },
       "normalized_finding_coverage": {
         "included_count": 12640,
-        "candidate_count": 13150,
-        "without_findings_count": 510
+        "candidate_count": 13081,
+        "without_findings_count": 441
       },
-      "graph_candidate_study_count": 13150,
-      "graph_excluded_study_count": 2074
+      "graph_candidate_study_count": 13081,
+      "graph_excluded_study_count": 2005
     },
     "sources": {
       "primary": {
@@ -135,16 +140,16 @@
         },
         "graph_study_coverage": {
           "included_count": 8312,
-          "candidate_count": 9503,
-          "not_in_graph_count": 1191
+          "candidate_count": 9450,
+          "not_in_graph_count": 1138
         },
         "normalized_finding_coverage": {
           "included_count": 9256,
-          "candidate_count": 9503,
-          "without_findings_count": 247
+          "candidate_count": 9450,
+          "without_findings_count": 194
         },
-        "graph_candidate_study_count": 9503,
-        "graph_excluded_study_count": 1191
+        "graph_candidate_study_count": 9450,
+        "graph_excluded_study_count": 1138
       },
       "meta_analyses": {
         "row_count": 1522,
@@ -188,16 +193,16 @@
         },
         "graph_study_coverage": {
           "included_count": 194,
-          "candidate_count": 262,
-          "not_in_graph_count": 68
+          "candidate_count": 261,
+          "not_in_graph_count": 67
         },
         "normalized_finding_coverage": {
           "included_count": 260,
-          "candidate_count": 262,
-          "without_findings_count": 2
+          "candidate_count": 261,
+          "without_findings_count": 1
         },
-        "graph_candidate_study_count": 262,
-        "graph_excluded_study_count": 68
+        "graph_candidate_study_count": 261,
+        "graph_excluded_study_count": 67
       },
       "reviews": {
         "row_count": 9890,
@@ -250,16 +255,16 @@
         },
         "graph_study_coverage": {
           "included_count": 2541,
-          "candidate_count": 3385,
-          "not_in_graph_count": 844
+          "candidate_count": 3370,
+          "not_in_graph_count": 829
         },
         "normalized_finding_coverage": {
           "included_count": 3124,
-          "candidate_count": 3385,
-          "without_findings_count": 261
+          "candidate_count": 3370,
+          "without_findings_count": 246
         },
-        "graph_candidate_study_count": 3385,
-        "graph_excluded_study_count": 844
+        "graph_candidate_study_count": 3370,
+        "graph_excluded_study_count": 829
       }
     },
     "paper_counts": {

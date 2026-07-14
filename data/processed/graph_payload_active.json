@@ -1,11 +1,16 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
-  "release_id": "source_recovery_media_20260714:d30a48b3a84c4f8cb13212d4c8bbeac0",
+  "release_id": "source_recovery_media_20260714:85b9f8a521804c1e8a0f14edcf2d0c01",
   "run_id": "source_recovery_media_20260714",
   "active_graph_bootstraps": {
     "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_primary.json",
     "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_meta_analyses.json",
     "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_reviews.json"
+  },
+  "active_dashboard_bootstraps": {
+    "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_reviews.json"
   },
   "active_detail_bootstraps": {
     "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_primary.json",
