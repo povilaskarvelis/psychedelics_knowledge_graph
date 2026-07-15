@@ -228,7 +228,6 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "authors": "Ada Lovelace; Grace Hopper",
                     "study_year": 2024,
                     "study_journal": "Example Journal",
-                    "datasets": "mechanistic",
                     "literature_source_family": "primary",
                     "publication_stage": "published",
                     "prescreen_actions": "retain_for_extraction_candidate",
@@ -270,8 +269,6 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         by_doi = {row["doi"]: row for row in rows}
 
         forbidden_public_columns = {
-            "datasets",
-            "dataset",
             "source_table",
             "search_source",
             "literature_source_family",
@@ -283,9 +280,6 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(payload["counts"]["by_kg_status"]["No specific finding to represent"], 1)
         self.assertEqual(payload["counts"]["by_kg_status"]["Not reached"], 1)
         self.assertNotIn("candidate_papers", payload["counts"])
-        self.assertNotIn("mechanistic", payload["string_table"])
-        self.assertNotIn("disorder", payload["string_table"])
-
         selected = by_doi["10.1000/selected"]
         self.assertEqual(selected["initial_screening_status"], "pass")
         self.assertEqual(selected["initial_screening_label"], "Passed")

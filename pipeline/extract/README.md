@@ -101,10 +101,9 @@ Section selection strategies are route-specific:
 - structured/narrative review routes -> review article text
 - terminal no-model routes -> no article text input
 
-Internally, current JSON files still call these `packet_profile` values:
+Current JSON files use these `packet_profile` values:
 `primary_empirical`, `secondary_synthesis`, `review_coverage`, and
-`not_applicable`. Treat those as compatibility field values. `lean_primary` is
-accepted only as a deprecated alias for `primary_empirical`.
+`not_applicable`.
 
 ## Route-Specific Extraction Schemas
 

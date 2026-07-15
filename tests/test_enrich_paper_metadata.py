@@ -22,7 +22,6 @@ class EnrichPaperMetadataTest(unittest.TestCase):
         row = candidate_metadata_row(
             {
                 "doi": "https://doi.org/10.1000/example",
-                "datasets": "mechanistic | disorder",
                 "study_title": "Example paper",
                 "abstract": "Example abstract.",
                 "publication_type": "journal-article",
@@ -34,7 +33,6 @@ class EnrichPaperMetadataTest(unittest.TestCase):
         )
 
         self.assertEqual(row["doi"], "10.1000/example")
-        self.assertNotIn("datasets", row)
         self.assertEqual(row["study_title"], "Example paper")
         self.assertEqual(row["abstract"], "Example abstract.")
         self.assertEqual(row["publication_type"], "journal-article")

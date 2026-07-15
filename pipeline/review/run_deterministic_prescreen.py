@@ -464,16 +464,8 @@ def merge_scoped_decisions(
         if doi in scoped_dois:
             replaced += 1
             continue
-        retained_existing.append(strip_legacy_dataset_fields(row))
+        retained_existing.append(row)
     return [*retained_existing, *updated_rows], replaced
-
-
-def strip_legacy_dataset_fields(row: dict) -> dict:
-    return {
-        key: value
-        for key, value in row.items()
-        if key not in {"dataset", "datasets", "dataset_count"}
-    }
 
 
 def rows_by_doi(df: pd.DataFrame) -> dict[str, dict]:
@@ -1136,11 +1128,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Curated DOI-level replacements for provider metadata known to belong to another paper.",
     )
     parser.add_argument("--run-id", default="")
-    parser.add_argument(
-        "--dataset",
-        default="all",
-        help="Deprecated compatibility option; unified corpus screening no longer uses split search labels.",
-    )
     parser.add_argument("--doi-file", default="", help="Optional newline-delimited DOI list for a scoped update.")
     parser.add_argument("--doi", action="append", default=[], help="Single DOI for a scoped update; can be repeated.")
     parser.add_argument(

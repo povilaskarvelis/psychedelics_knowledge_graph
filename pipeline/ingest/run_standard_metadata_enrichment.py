@@ -14,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_WORK_DIR = ROOT / "data" / "processed" / "corpus" / "metadata_enrichment_runs"
 DEFAULT_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 DEFAULT_METADATA_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
-DEFAULT_TABLE_OUT_DIR = ROOT / "data" / "processed" / "corpus"
 DEFAULT_CONFIG = ROOT / "pipeline" / "config.example.yaml"
 
 CORE_METADATA_PROVIDER_ORDER = "pubmed,pmc,openalex,crossref,semantic_scholar"
@@ -88,21 +87,6 @@ def add_if_value(command: list[str], flag: str, value: str | int | float | None)
 def build_commands(args: argparse.Namespace, doi_file: Path | None) -> list[tuple[str, list[str]]]:
     commands: list[tuple[str, list[str]]] = []
     python = sys.executable
-
-    if not args.skip_corpus_rebuild:
-        commands.append(
-            (
-                "rebuild unified corpus tables",
-                [
-                    python,
-                    str(ROOT / "pipeline" / "validate" / "build_context_provenance_audit.py"),
-                    "--dataset",
-                    args.dataset,
-                    "--table-out-dir",
-                    str(Path(args.table_out_dir).resolve()),
-                ],
-            )
-        )
 
     if not args.skip_core_metadata:
         command = [
@@ -202,17 +186,14 @@ def run_command(label: str, command: list[str], *, dry_run: bool) -> None:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run role-aware corpus metadata enrichment.")
-    parser.add_argument("--dataset", choices=["all", "mechanistic", "disorder"], default="all")
     parser.add_argument("--run-id", default=now_run_id())
     parser.add_argument("--doi-file", action="append", default=[], help="DOI scope file. Can be supplied more than once.")
     parser.add_argument("--work-dir", default=str(DEFAULT_WORK_DIR))
     parser.add_argument("--papers-table", default=str(DEFAULT_PAPERS_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
-    parser.add_argument("--table-out-dir", default=str(DEFAULT_TABLE_OUT_DIR))
     parser.add_argument("--config", default=str(DEFAULT_CONFIG))
     parser.add_argument("--core-provider-order", default=CORE_METADATA_PROVIDER_ORDER)
     parser.add_argument("--open-access-provider-order", default=OPEN_ACCESS_PROVIDER_ORDER)
-    parser.add_argument("--skip-corpus-rebuild", action="store_true")
     parser.add_argument("--skip-core-metadata", action="store_true")
     parser.add_argument("--skip-publication-types", action="store_true")
     parser.add_argument("--skip-open-access", action="store_true")

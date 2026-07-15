@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from pipeline.ingest.sync_paper_library import pdf_filename_for_doi
+from pipeline.ingest.metadata_utils import pdf_filename_for_doi
 from pipeline.fulltext.import_manual_pdfs import (
     build_pii_lookup,
     build_source_filename_lookup,

@@ -2,18 +2,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import pipeline.fulltext.convert_pdfs as convert_pdfs
 from pipeline.fulltext.convert_pdfs import (
     backend_sequence,
     build_artifact,
     doi_to_slug,
     grobid_alive_url,
-    iter_pdf_rows,
     multipart_body,
     pdf_filename_prefix_for_doi,
-    resolve_pdf_path,
     should_write_artifact,
-    stale_fulltext_locator_dois,
     sections_from_markdown,
     sections_from_tei,
     select_best_extraction,
@@ -90,92 +86,6 @@ class FulltextConversionTest(unittest.TestCase):
         self.assertIn(b'name="consolidateHeader"', body)
         self.assertIn(b"\r\n\r\n0\r\n", body)
 
-    def test_iter_pdf_rows_skips_missing_and_existing_artifacts_when_requested(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            pdf = root / "paper.pdf"
-            pdf.write_bytes(b"%PDF-1.4")
-            out_dir = root / "out"
-            out_dir.mkdir()
-            existing = out_dir / "10_1000_existing.json"
-            existing.write_text("{}\n", encoding="utf-8")
-            rows = [
-                {"study_doi": "10.1000/existing", "pdf_local_path": str(pdf)},
-                {"study_doi": "10.1000/new", "pdf_local_path": str(pdf)},
-                {"study_doi": "10.1000/missing", "pdf_local_path": str(root / "missing.pdf")},
-            ]
-
-            found = list(iter_pdf_rows(rows, only_missing_artifacts=True, out_dir=out_dir))
-
-        self.assertEqual(len(found), 1)
-        self.assertEqual(found[0][0]["study_doi"], "10.1000/new")
-
-    def test_iter_pdf_rows_can_filter_to_target_dois(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            pdf = root / "paper.pdf"
-            pdf.write_bytes(b"%PDF-1.4")
-            rows = [
-                {"study_doi": "10.1000/keep", "pdf_local_path": str(pdf)},
-                {"study_doi": "10.1000/skip", "pdf_local_path": str(pdf)},
-            ]
-
-            found = list(
-                iter_pdf_rows(
-                    rows,
-                    only_missing_artifacts=False,
-                    out_dir=root / "out",
-                    doi_filter={"10.1000/keep"},
-                )
-            )
-
-        self.assertEqual(len(found), 1)
-        self.assertEqual(found[0][0]["study_doi"], "10.1000/keep")
-
-    def test_resolve_pdf_path_falls_back_to_current_repo_paper_tree(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            pdf_dir = root / "data" / "raw" / "papers" / "disorder" / "excluded"
-            pdf_dir.mkdir(parents=True)
-            pdf = pdf_dir / "10.1000_example__deadbeef00.pdf"
-            pdf.write_bytes(b"%PDF-1.4")
-            row = {
-                "study_doi": "10.1000/example",
-                "pdf_local_path": "/old/repo/data/raw/papers/disorder/pdfs/10.1000_example__deadbeef00.pdf",
-            }
-
-            old_root = convert_pdfs.ROOT
-            convert_pdfs.ROOT = root
-            try:
-                found = resolve_pdf_path(row)
-            finally:
-                convert_pdfs.ROOT = old_root
-
-        self.assertEqual(found, pdf)
-
-    def test_stale_fulltext_locator_dois_selects_only_fulltext_abstract_snippets(self) -> None:
-        dois = stale_fulltext_locator_dois(
-            [
-                {
-                    "study_doi": "10.1000/stale",
-                    "access_level": "full_text_seen",
-                    "evidence_locator": "Abstract snippet: result",
-                },
-                {
-                    "study_doi": "10.1000/abstract-only",
-                    "access_level": "abstract_only",
-                    "evidence_locator": "Abstract snippet: result",
-                },
-                {
-                    "study_doi": "10.1000/section",
-                    "access_level": "full_text_seen",
-                    "evidence_locator": "Results section",
-                },
-            ]
-        )
-
-        self.assertEqual(dois, {"10.1000/stale"})
-
     def test_build_artifact_records_best_backend(self) -> None:
         tei = """
         <TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc>
@@ -184,7 +94,7 @@ class FulltextConversionTest(unittest.TestCase):
         </fileDesc></teiHeader><text><body><p>Result.</p></body></text></TEI>
         """
         artifact = build_artifact(
-            "disorder",
+            "articles",
             {"study_doi": "10.1000/test", "study_title": "Example"},
             Path("/tmp/example.pdf"),
             [{

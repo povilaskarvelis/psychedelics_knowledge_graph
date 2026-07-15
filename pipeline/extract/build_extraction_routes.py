@@ -34,7 +34,7 @@ try:
         SourceIdentityAuditGate,
     )
     from pipeline.ingest.candidate_status import apply_candidate_updates
-    from pipeline.ingest.sync_paper_library import (
+    from pipeline.ingest.metadata_utils import (
         is_probable_pdf_url,
         join_candidates,
         rank_pdf_candidates,
@@ -50,7 +50,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     )
     from pipeline.ingest.candidate_status import apply_candidate_updates
     from pipeline.ingest.preprint_detection import classify_publication_stage
-    from pipeline.ingest.sync_paper_library import (
+    from pipeline.ingest.metadata_utils import (
         is_probable_pdf_url,
         join_candidates,
         rank_pdf_candidates,

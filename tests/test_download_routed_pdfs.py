@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 import pandas as pd
 
 from pipeline.fulltext.pdf_alternate_sources import AlternatePdfCandidate
-from pipeline.ingest.sync_paper_library import (
+from pipeline.ingest.metadata_utils import (
     download_pdf_candidates,
     ftp_to_https,
     is_probable_pdf_url,
@@ -363,7 +363,6 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
                 [
                     {
                         "doi": doi,
-                        "dataset": "clinical",
                         "prescreen_decision": "retain",
                         "retained_for_extraction_candidate": True,
                         "prescreen_action": "retain_for_extraction_candidate",
@@ -609,7 +608,7 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
             client = FakeClient()
 
             with patch(
-                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                "pipeline.ingest.metadata_utils.pdf_source_identity_result",
                 return_value=(True, 1.0, "front_title_match"),
             ):
                 status, error, size, selected_url, attempts = download_pdf_candidates(
@@ -647,7 +646,7 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
             target = Path(tmpdir) / "paper.pdf"
             client = FakeClient()
             with patch(
-                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                "pipeline.ingest.metadata_utils.pdf_source_identity_result",
                 return_value=(True, 1.0, "front_title_match"),
             ):
                 status, _error, _size, selected_url, _attempts = download_pdf_candidates(

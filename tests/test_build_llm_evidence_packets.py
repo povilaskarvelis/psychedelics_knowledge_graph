@@ -1,35 +1,13 @@
-import json
-import tempfile
 import unittest
 from pathlib import Path
 
 from pipeline.fulltext.build_llm_evidence_packets import (
-    build_dataset_packets,
     build_llm_chunks,
     build_packet,
     extract_references,
     extract_tables_and_figures,
     sections_from_tei_full,
 )
-
-
-def write_source_identity_audit(root: Path, rows: list[dict]) -> Path:
-    identity_registry = root / "source_identity_registry.json"
-    hash_registry = root / "source_identity_pdf_hash_registry.json"
-    identity_registry.write_text("{}\n", encoding="utf-8")
-    hash_registry.write_text("{}\n", encoding="utf-8")
-    audit = root / "source_identity_audit.json"
-    audit.write_text(
-        json.dumps(
-            {
-                "identity_registry": {"path": str(identity_registry)},
-                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
-                "rows": rows,
-            }
-        ),
-        encoding="utf-8",
-    )
-    return audit
 
 
 TEI = """
@@ -235,7 +213,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         }
 
         packet = build_packet(
-            "disorder",
+            "article",
             Path("/tmp/artifact.json"),
             artifact,
             row,
@@ -251,129 +229,6 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         self.assertEqual(packet["candidate_contexts"][0]["compound"], "Psilocybin")
         self.assertEqual(packet["document_summary"]["table_count"], 1)
         self.assertGreater(packet["document_summary"]["chunk_count"], 0)
-
-    def test_build_dataset_packets_writes_jsonl_and_report(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            artifact_dir = root / "artifacts"
-            artifact_dir.mkdir()
-            artifact_path = artifact_dir / "10_1000_test.json"
-            artifact_path.write_text(
-                json.dumps(
-                    {
-                        "study_doi": "10.1000/test",
-                        "study_title": "Example",
-                        "best_backend": "grobid",
-                        "best_char_count": len(TEI),
-                        "best_section_count": 3,
-                        "source_identity": {"status": "verified_exact_doi"},
-                        "extractions": [{"backend": "grobid", "status": "ok", "text": TEI, "metadata": {"format": "tei_xml"}}],
-                    }
-                ),
-                encoding="utf-8",
-            )
-            paper_library = root / "paper_library.json"
-            paper_library.write_text(
-                json.dumps([{"study_doi": "10.1000/test", "study_title": "Example", "publication_type": "journal-article"}]),
-                encoding="utf-8",
-            )
-            out_jsonl = root / "packets.jsonl"
-            report_json = root / "report.json"
-            source_identity_audit = write_source_identity_audit(
-                root,
-                [
-                    {
-                        "requested_doi": "10.1000/test",
-                        "artifact_path": str(artifact_path.resolve()),
-                        "identity_verified": True,
-                    }
-                ],
-            )
-
-            report = build_dataset_packets(
-                "mechanistic",
-                paper_library=paper_library,
-                artifact_dir=artifact_dir,
-                out_jsonl=out_jsonl,
-                report_json=report_json,
-                doi_filter=None,
-                limit=0,
-                max_chunk_chars=100,
-                overlap_chars=10,
-                max_chunks_per_paper=0,
-                max_references=10,
-                include_section_text=True,
-                include_candidate_contexts=True,
-                source_identity_audit=source_identity_audit,
-            )
-
-            lines = out_jsonl.read_text(encoding="utf-8").splitlines()
-            saved_report = json.loads(report_json.read_text(encoding="utf-8"))
-
-        self.assertEqual(report["counts"]["packets_written"], 1)
-        self.assertEqual(len(lines), 1)
-        self.assertEqual(json.loads(lines[0])["study_doi"], "10.1000/test")
-        self.assertEqual(saved_report["counts"]["packets_written"], 1)
-
-    def test_build_dataset_packets_refuses_nonpassing_identity_audit(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            artifact_dir = root / "artifacts"
-            artifact_dir.mkdir()
-            (artifact_dir / "10_1000_test.json").write_text(
-                json.dumps(
-                    {
-                        "study_doi": "10.1000/test",
-                        "best_backend": "grobid",
-                        "best_char_count": len(TEI),
-                        "extractions": [
-                            {
-                                "backend": "grobid",
-                                "status": "ok",
-                                "text": TEI,
-                                "metadata": {"format": "tei_xml"},
-                            }
-                        ],
-                    }
-                ),
-                encoding="utf-8",
-            )
-            paper_library = root / "paper_library.json"
-            paper_library.write_text(
-                json.dumps([{"study_doi": "10.1000/test"}]),
-                encoding="utf-8",
-            )
-            out_jsonl = root / "packets.jsonl"
-            source_identity_audit = write_source_identity_audit(
-                root,
-                [
-                    {
-                        "requested_doi": "10.1000/test",
-                        "artifact_path": str((artifact_dir / "10_1000_test.json").resolve()),
-                        "identity_verified": False,
-                    }
-                ],
-            )
-
-            with self.assertRaisesRegex(RuntimeError, "audit is not passing"):
-                build_dataset_packets(
-                    "mechanistic",
-                    paper_library=paper_library,
-                    artifact_dir=artifact_dir,
-                    out_jsonl=out_jsonl,
-                    report_json=root / "report.json",
-                    doi_filter=None,
-                    limit=0,
-                    max_chunk_chars=100,
-                    overlap_chars=10,
-                    max_chunks_per_paper=0,
-                    max_references=10,
-                    include_section_text=True,
-                    include_candidate_contexts=True,
-                    source_identity_audit=source_identity_audit,
-                )
-
-            self.assertFalse(out_jsonl.exists())
 
     def test_build_packet_can_omit_candidate_context_hints(self) -> None:
         artifact = {
@@ -399,7 +254,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         }
 
         packet = build_packet(
-            "mechanistic",
+            "article",
             Path("/tmp/artifact.json"),
             artifact,
             row,
@@ -413,19 +268,19 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
 
         self.assertEqual(packet["candidate_contexts"], [])
 
-    def test_primary_empirical_profile_keeps_methods_results_tables_and_mechanistic_other_sections(self) -> None:
+    def test_primary_empirical_profile_keeps_methods_results_tables_and_relevant_other_sections(self) -> None:
         artifact = {
             "study_doi": "10.1000/lean",
-            "study_title": "Mechanistic example",
+            "study_title": "Molecular evidence example",
             "best_backend": "grobid",
             "best_char_count": len(LEAN_TEI),
             "best_section_count": 5,
             "extractions": [{"backend": "grobid", "status": "ok", "text": LEAN_TEI, "metadata": {"format": "tei_xml"}}],
         }
-        row = {"study_doi": "10.1000/lean", "study_title": "Mechanistic example", "publication_type": "Journal Article"}
+        row = {"study_doi": "10.1000/lean", "study_title": "Molecular evidence example", "publication_type": "Journal Article"}
 
         packet = build_packet(
-            "mechanistic",
+            "article",
             Path("/tmp/lean.json"),
             artifact,
             row,
@@ -451,37 +306,10 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         self.assertGreater(summary["source_section_count"], summary["section_count"])
         self.assertGreater(summary["chunk_token_reduction_estimate"], 0)
 
-    def test_primary_empirical_legacy_alias_normalizes_to_canonical_profile(self) -> None:
-        artifact = {
-            "study_doi": "10.1000/legacy-lean",
-            "study_title": "Mechanistic example",
-            "best_backend": "grobid",
-            "best_char_count": len(LEAN_TEI),
-            "best_section_count": 5,
-            "extractions": [{"backend": "grobid", "status": "ok", "text": LEAN_TEI, "metadata": {"format": "tei_xml"}}],
-        }
-        row = {"study_doi": "10.1000/legacy-lean", "study_title": "Mechanistic example", "publication_type": "Journal Article"}
-
-        packet = build_packet(
-            "mechanistic",
-            Path("/tmp/legacy_lean.json"),
-            artifact,
-            row,
-            max_chunk_chars=500,
-            overlap_chars=0,
-            max_chunks_per_paper=0,
-            max_references=50,
-            packet_profile="lean_primary",
-        )
-
-        self.assertEqual(packet["packet_profile"], "primary_empirical")
-        self.assertEqual(packet["requested_packet_profile"], "lean_primary")
-        self.assertEqual(packet["document_summary"]["packet_profile"], "primary_empirical")
-
     def test_primary_study_section_selection_alias_normalizes_to_canonical_profile(self) -> None:
         artifact = {
             "study_doi": "10.1000/primary-strategy",
-            "study_title": "Mechanistic example",
+            "study_title": "Molecular evidence example",
             "best_backend": "grobid",
             "best_char_count": len(LEAN_TEI),
             "best_section_count": 5,
@@ -489,12 +317,12 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         }
         row = {
             "study_doi": "10.1000/primary-strategy",
-            "study_title": "Mechanistic example",
+            "study_title": "Molecular evidence example",
             "publication_type": "Journal Article",
         }
 
         packet = build_packet(
-            "mechanistic",
+            "article",
             Path("/tmp/primary_strategy.json"),
             artifact,
             row,
@@ -525,7 +353,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         }
 
         packet = build_packet(
-            "disorder",
+            "article",
             Path("/tmp/review.json"),
             artifact,
             row,
@@ -563,7 +391,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         }
 
         packet = build_packet(
-            "disorder",
+            "article",
             Path("/tmp/primary-perspectives.json"),
             artifact,
             row,
@@ -596,7 +424,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         }
 
         packet = build_packet(
-            "disorder",
+            "article",
             Path("/tmp/meta.json"),
             artifact,
             row,
@@ -635,7 +463,7 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         }
 
         packet = build_packet(
-            "mechanistic",
+            "article",
             Path("/tmp/review_coverage.json"),
             artifact,
             row,

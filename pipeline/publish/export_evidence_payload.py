@@ -16,12 +16,12 @@ ROOT = Path(__file__).resolve().parents[2]
 try:
     from pipeline.extract.clinical_comparator import normalize_clinical_comparator
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
-    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
+    from pipeline.extract.assay_family import normalize_assay_family
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
     from pipeline.extract.clinical_comparator import normalize_clinical_comparator
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
-    from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
+    from pipeline.extract.assay_family import normalize_assay_family
 
 
 DEFAULT_KG_DIR = ROOT / "data" / "processed" / "kg"
@@ -653,7 +653,7 @@ def normalized_source_family(value: object) -> str:
 
 def normalized_assay_family(raw: dict, record: dict) -> str:
     existing = field_value(raw, record, "assay_family_normalized", "normalized_assay_family")
-    return normalize_mechanistic_assay_family(
+    return normalize_assay_family(
         existing or field_value(raw, record, "assay_family"),
         field_value(raw, record, "assay_type"),
     )

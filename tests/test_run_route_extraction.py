@@ -56,8 +56,7 @@ def make_task(
         "route_context": {
             "route_id": route_id,
             "doi": "10.1000/meta",
-            "datasets": "disorder",
-            "source_family": "secondary_literature",
+                        "source_family": "secondary_literature",
             "source_type": source_type,
             "primary_secondary_source_type": source_type,
             "domain_route": "clinical_outcome",
@@ -83,9 +82,9 @@ def make_task(
             "status": task_status,
             "access_level": "full_text_seen",
             "route_action": "extract_from_full_text",
-            "packet_id": "disorder:10.1000/meta",
+            "packet_id": "article:10.1000/meta",
             "packet_source_path": "/tmp/packets.jsonl",
-            "packet_selection_basis": "matched_route_dataset:disorder",
+            "packet_selection_basis": "matched_doi_and_packet_profile",
             "fulltext_artifact_paths": ["/tmp/meta.json"],
             "local_pdf_paths": [],
             "abstract_available": True,
@@ -404,8 +403,8 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             packet_path.write_text(
                 json.dumps(
                     {
-                        "packet_id": "disorder:10.1000/meta",
-                        "dataset": "disorder",
+                        "packet_id": "article:10.1000/meta",
+                        "dataset": "article",
                         "study_doi": "10.1000/meta",
                         "paper_metadata": {
                             "study_title": "A meta-analysis of psilocybin trials",
@@ -427,7 +426,7 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             )
             task = make_task()
             task["text_source"]["packet_source_path"] = str(packet_path)
-            task["text_source"]["packet_id"] = "disorder:10.1000/meta"
+            task["text_source"]["packet_id"] = "article:10.1000/meta"
 
             contents = build_contents(task)
 
@@ -440,8 +439,8 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             packet_path.write_text(
                 json.dumps(
                     {
-                        "packet_id": "disorder:10.1000/meta",
-                        "dataset": "disorder",
+                        "packet_id": "article:10.1000/meta",
+                        "dataset": "article",
                         "study_doi": "10.1000/meta",
                         "llm_chunks": [
                             {
@@ -457,7 +456,7 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             )
             task = make_task()
             task["text_source"]["packet_source_path"] = str(packet_path)
-            task["text_source"]["packet_id"] = "disorder:10.1000/meta"
+            task["text_source"]["packet_id"] = "article:10.1000/meta"
 
             contents = build_contents(task)
 

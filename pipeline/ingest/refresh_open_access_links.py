@@ -16,7 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.ingest.enrich_paper_metadata import DEFAULT_OUTPUT_TABLE, clean
-from pipeline.ingest.sync_paper_library import (
+from pipeline.ingest.metadata_utils import (
     RateLimitedHttpClient,
     extract_pmcid_from_url,
     join_candidates,

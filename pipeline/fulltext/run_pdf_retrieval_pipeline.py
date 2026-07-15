@@ -30,7 +30,7 @@ try:
         export_manual_pdf_queue,
     )
     from pipeline.fulltext.recover_pdf_landing_pages import recover_pdf_landing_pages
-    from pipeline.ingest.sync_paper_library import normalize_doi
+    from pipeline.ingest.metadata_utils import normalize_doi
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.download_routed_pdfs import (
@@ -53,7 +53,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         export_manual_pdf_queue,
     )
     from pipeline.fulltext.recover_pdf_landing_pages import recover_pdf_landing_pages
-    from pipeline.ingest.sync_paper_library import normalize_doi
+    from pipeline.ingest.metadata_utils import normalize_doi
 
 
 ROOT = Path(__file__).resolve().parents[2]

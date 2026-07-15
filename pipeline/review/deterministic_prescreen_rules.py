@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from typing import Dict, Iterable, List, Set
 
-from pipeline.ingest.build_boolean_search_modules import (
+from pipeline.review.prescreen_term_sets import (
     CLINICAL_BRIDGE_TERMS,
     CLINICAL_FUNCTION_SYMPTOM_TERMS,
     CLINICAL_SAFETY_TERMS,

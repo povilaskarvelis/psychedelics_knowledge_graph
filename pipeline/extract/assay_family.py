@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize mechanistic assay labels into stable method-family buckets."""
+"""Normalize assay labels into stable method-family buckets."""
 
 from __future__ import annotations
 
@@ -81,8 +81,8 @@ def has(pattern: str, text: str) -> bool:
     return re.search(pattern, text, flags=re.IGNORECASE) is not None
 
 
-def normalize_mechanistic_assay_family(assay_family: object = "", assay_type: object = "") -> str:
-    """Return a compact, stable assay-family label for mechanistic evidence.
+def normalize_assay_family(assay_family: object = "", assay_type: object = "") -> str:
+    """Return a compact, stable assay-family label for routed evidence.
 
     The raw extraction field is intentionally free text. This mapper keeps the
     UI and KG tables readable while preserving the original raw labels.

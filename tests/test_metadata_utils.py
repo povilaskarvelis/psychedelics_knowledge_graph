@@ -4,20 +4,18 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from unittest.mock import patch
 
-from pipeline.ingest.sync_paper_library import (
+from pipeline.ingest.metadata_utils import (
     PAPER_METADATA_SCHEMA_VERSION,
     crossref_title_with_subtitle,
     download_pdf_candidates,
     fetch_metadata_with_fallbacks,
     funding_from_openalex_work,
-    include_existing_metadata_refresh_rows,
     lookup_crossref_metadata,
     lookup_openalex_work,
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
     ncbi_common_params,
-    parse_corpus_table,
     parse_provider_order,
     pubmed_article_id,
     row_needs_core_metadata_refresh,
@@ -81,7 +79,7 @@ class SequencedPdfClient:
         return self.get_bytes_once(url, headers=headers)
 
 
-class SyncPaperLibraryTest(unittest.TestCase):
+class MetadataUtilsTest(unittest.TestCase):
     def test_pubmed_article_id_ignores_cited_reference_identifiers(self) -> None:
         article = ET.fromstring(
             """
@@ -171,91 +169,6 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertTrue(row_needs_core_metadata_refresh({"metadata_lookup_error": "failed"}))
         self.assertTrue(row_needs_core_metadata_refresh({"study_title": "", "abstract": "Has abstract"}))
         self.assertFalse(row_needs_core_metadata_refresh({"study_title": "Known title", "abstract": ""}))
-
-    def test_refresh_missing_metadata_includes_existing_rows_absent_from_queue(self) -> None:
-        papers = [{"study_doi": "10.1000/in-queue", "study_title": "Queued"}]
-        existing_rows = [
-            {
-                "study_doi": "10.1000/in-queue",
-                "study_title": "Queued",
-                "abstract": "",
-            },
-            {
-                "study_doi": "10.1000/missing-abstract",
-                "study_title": "Existing missing abstract",
-                "abstract": "",
-                "contexts": [{"compound": "psilocybin", "entity": "5-HT2A"}],
-            },
-            {
-                "study_doi": "10.1000/complete",
-                "study_title": "Complete",
-                "abstract": "Already complete.",
-                "study_journal": "Journal",
-                "publication_type": "Journal Article",
-                "publication_date": "2024",
-                "paper_metadata_schema_version": PAPER_METADATA_SCHEMA_VERSION,
-            },
-        ]
-
-        out = include_existing_metadata_refresh_rows(papers, existing_rows)
-
-        self.assertEqual([row["study_doi"] for row in out], ["10.1000/in-queue", "10.1000/missing-abstract"])
-        self.assertEqual(out[1]["study_title"], "Existing missing abstract")
-        self.assertEqual(out[1]["contexts"], [{"compound": "psilocybin", "entity": "5-HT2A"}])
-
-    def test_parse_corpus_table_selects_only_missing_metadata_rows(self) -> None:
-        import pandas as pd
-
-        with TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            papers_path = root / "candidate_papers.parquet"
-            contexts_path = root / "candidate_contexts.parquet"
-            pd.DataFrame(
-                [
-                    {
-                        "doi": "10.1000/missing",
-                        "datasets": "mechanistic",
-                        "study_title": "Missing metadata paper",
-                        "study_year": "2026",
-                        "authors": "A. Author",
-                        "flag_in_paper_library": False,
-                    },
-                    {
-                        "doi": "10.1000/synced",
-                        "datasets": "disorder",
-                        "study_title": "Already synced",
-                        "flag_in_paper_library": True,
-                    },
-                ]
-            ).to_parquet(papers_path, index=False)
-            pd.DataFrame(
-                [
-                    {
-                        "doi": "10.1000/missing",
-                        "dataset": "mechanistic",
-                        "compound": "Psilocybin",
-                        "entity": "default mode network",
-                        "entity_type": "target",
-                    }
-                ]
-            ).to_parquet(contexts_path, index=False)
-
-            rows = parse_corpus_table(papers_path, contexts_path, missing_metadata_only=True)
-
-        self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["study_doi"], "10.1000/missing")
-        self.assertEqual(rows[0]["study_title"], "Missing metadata paper")
-        self.assertEqual(
-            rows[0]["contexts"],
-            [
-                {
-                    "compound": "Psilocybin",
-                    "entity": "default mode network",
-                    "dataset": "mechanistic",
-                    "entity_type": "target",
-                }
-            ],
-        )
 
     def test_unpaywall_adds_pdf_without_overriding_pubmed_abstract_provider(self) -> None:
         doi = "10.1000/example"
@@ -432,9 +345,9 @@ class SyncPaperLibraryTest(unittest.TestCase):
         self.assertEqual(metadata["semantic_scholar_id"], "abc123")
         self.assertEqual(metadata["best_pdf_url"], "https://example.org/paper.pdf")
 
-    @patch("pipeline.ingest.sync_paper_library.metadata_from_openalex_work")
-    @patch("pipeline.ingest.sync_paper_library.lookup_openalex_work")
-    @patch("pipeline.ingest.sync_paper_library.lookup_pubmed_metadata")
+    @patch("pipeline.ingest.metadata_utils.metadata_from_openalex_work")
+    @patch("pipeline.ingest.metadata_utils.lookup_openalex_work")
+    @patch("pipeline.ingest.metadata_utils.lookup_pubmed_metadata")
     def test_later_provider_supplements_without_overwriting_preferred_abstract(
         self,
         mock_pubmed,
@@ -637,7 +550,7 @@ class SyncPaperLibraryTest(unittest.TestCase):
         with TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "paper.pdf"
             with patch(
-                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                "pipeline.ingest.metadata_utils.pdf_source_identity_result",
                 return_value=(True, 1.0, "front_title_match"),
             ):
                 status, error, size, selected, attempts = download_pdf_candidates(
@@ -665,7 +578,7 @@ class SyncPaperLibraryTest(unittest.TestCase):
         with TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "paper.pdf"
             with patch(
-                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                "pipeline.ingest.metadata_utils.pdf_source_identity_result",
                 return_value=(True, 1.0, "front_title_match"),
             ):
                 status, error, size, selected, attempts = download_pdf_candidates(
@@ -699,7 +612,7 @@ class SyncPaperLibraryTest(unittest.TestCase):
         with TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "paper.pdf"
             with patch(
-                "pipeline.ingest.sync_paper_library.pdf_source_identity_result",
+                "pipeline.ingest.metadata_utils.pdf_source_identity_result",
                 return_value=(False, 0.1, "front_title_match"),
             ):
                 status, error, _size, _selected, _attempts = download_pdf_candidates(

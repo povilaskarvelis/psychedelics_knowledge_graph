@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pipeline.ingest.sync_paper_library import normalize_doi, pdf_filename_for_doi  # noqa: E402
+from pipeline.ingest.metadata_utils import normalize_doi, pdf_filename_for_doi  # noqa: E402
 from pipeline.fulltext.source_identity import (  # noqa: E402
     load_pdf_hash_attestation_registry,
     pdf_bytes_match_hash_attestation,

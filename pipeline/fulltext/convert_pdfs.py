@@ -1,33 +1,21 @@
 #!/usr/bin/env python3
-"""Convert local PDFs into structured full-text artifacts.
-
-The converter is intentionally non-destructive: it writes artifacts and a report
-under data/processed/fulltext, but it does not update curated claims or stubs.
-"""
+"""Shared conversion helpers for canonical routed PDF artifacts."""
 
 from __future__ import annotations
 
-import argparse
 import datetime as dt
 import hashlib
 import json
 import re
 import shutil
 import subprocess
-import sys
 import time
 import urllib.error
 import urllib.request
 import uuid
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Iterable, List
-
-try:
-    from pipeline.review.pdf_runtime import ensure_pdf_runtime
-except ModuleNotFoundError:  # pragma: no cover - direct script execution path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.review.pdf_runtime import ensure_pdf_runtime
+from typing import List
 
 from pipeline.fulltext.source_identity import (
     DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
@@ -38,27 +26,10 @@ from pipeline.fulltext.source_identity import (
     split_dois,
 )
 
-ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_GROBID_URL = "http://localhost:8070/api/processFulltextDocument"
 PDF_HASH_ATTESTATIONS = load_pdf_hash_attestation_registry(
     DEFAULT_PDF_HASH_ATTESTATION_REGISTRY
 )["records"]
-
-DATASET_CONFIG = {
-    "mechanistic": {
-        "paper_db_json": ROOT / "data" / "processed" / "paper_library_mechanistic.json",
-        "curated_json": ROOT / "data" / "curated" / "claims.json",
-        "out_dir": ROOT / "data" / "processed" / "fulltext" / "mechanistic",
-        "report": ROOT / "data" / "processed" / "fulltext" / "fulltext_report_mechanistic.json",
-    },
-    "disorder": {
-        "paper_db_json": ROOT / "data" / "processed" / "paper_library_disorder.json",
-        "curated_json": ROOT / "data" / "curated" / "disorder_claims.json",
-        "out_dir": ROOT / "data" / "processed" / "fulltext" / "disorder",
-        "report": ROOT / "data" / "processed" / "fulltext" / "fulltext_report_disorder.json",
-    },
-}
-
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -95,15 +66,6 @@ def pdf_filename_prefix_for_doi(raw: object) -> str:
     return (slug or "paper")[:90]
 
 
-def load_json_array(path: Path) -> List[dict]:
-    if not path.exists():
-        return []
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, list):
-        raise ValueError(f"Expected JSON array at {path}")
-    return [row for row in data if isinstance(row, dict)]
-
-
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -119,51 +81,6 @@ def load_json_object(path: Path) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def resolve_pdf_path(row: dict) -> Path | None:
-    raw_path = normalize(row.get("pdf_local_path", ""))
-    if not raw_path:
-        raw_path = ""
-    path = Path(raw_path).expanduser() if raw_path else None
-    if path is not None and not path.is_absolute():
-        path = ROOT / path
-    if path is not None and path.exists() and path.is_file():
-        return path
-
-    paper_root = ROOT / "data" / "raw" / "papers"
-    if path is not None and path.name:
-        for candidate in sorted(paper_root.glob(f"**/{path.name}")):
-            if candidate.exists() and candidate.is_file():
-                return candidate
-
-    doi = normalize_doi(row.get("study_doi", ""))
-    if not doi:
-        return None
-    expected_prefix = pdf_filename_prefix_for_doi(doi)
-    digest = hashlib.sha1(doi.encode("utf-8")).hexdigest()[:10]
-    expected_name = f"{expected_prefix}__{digest}.pdf"
-    for candidate in sorted(paper_root.glob(f"**/{expected_name}")):
-        if candidate.exists() and candidate.is_file():
-            return candidate
-    for candidate in sorted(paper_root.glob(f"**/{expected_prefix}__*.pdf")):
-        if candidate.exists() and candidate.is_file():
-            return candidate
-    return None
-
-
-def read_doi_file(path: Path) -> set[str]:
-    if not path.exists():
-        raise FileNotFoundError(f"DOI file not found: {path}")
-    out = set()
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        doi = normalize_doi(line.split(",", 1)[0])
-        if doi:
-            out.add(doi)
-    return out
-
-
 def grobid_alive_url(grobid_url: str) -> str:
     if grobid_url.endswith("/processFulltextDocument"):
         return grobid_url[: -len("/processFulltextDocument")] + "/isalive"
@@ -177,40 +94,6 @@ def grobid_is_available(grobid_url: str, timeout_sec: int = 2) -> bool:
             return response.status == 200 and normalize(response.read().decode("utf-8", errors="replace")) == "true"
     except Exception:
         return False
-
-
-def stale_fulltext_locator_dois(curated_rows: Iterable[dict]) -> set[str]:
-    out = set()
-    for row in curated_rows:
-        if normalize(row.get("access_level", "")) != "full_text_seen":
-            continue
-        if not normalize(row.get("evidence_locator", "")).lower().startswith("abstract snippet:"):
-            continue
-        doi = normalize_doi(row.get("study_doi", ""))
-        if doi:
-            out.add(doi)
-    return out
-
-
-def iter_pdf_rows(
-    rows: Iterable[dict],
-    only_missing_artifacts: bool,
-    out_dir: Path,
-    doi_filter: set[str] | None = None,
-) -> Iterable[tuple[dict, Path, Path]]:
-    for row in rows:
-        doi = normalize_doi(row.get("study_doi", ""))
-        if not doi:
-            continue
-        if doi_filter is not None and doi not in doi_filter:
-            continue
-        pdf_path = resolve_pdf_path(row)
-        if not pdf_path:
-            continue
-        artifact_path = out_dir / f"{doi_to_slug(doi)}.json"
-        if only_missing_artifacts and artifact_path.exists():
-            continue
-        yield row, pdf_path, artifact_path
 
 
 def compact_text(raw: str) -> str:
@@ -546,159 +429,3 @@ def should_write_artifact(artifact_path: Path, artifact: dict, write_failed_arti
     if artifact_path.exists():
         return False, "left existing failed/unknown artifact unchanged"
     return False, "no successful extraction; artifact not written"
-
-
-def report_row(row: dict, artifact_path: Path, artifact: dict) -> dict:
-    statuses = {entry.get("backend", ""): entry.get("status", "") for entry in artifact.get("extractions", [])}
-    errors = {entry.get("backend", ""): entry.get("error", "") for entry in artifact.get("extractions", []) if entry.get("error")}
-    return {
-        "study_doi": normalize_doi(row.get("study_doi", "")),
-        "study_title": normalize(row.get("study_title", "")),
-        "artifact_path": str(artifact_path),
-        "best_backend": artifact.get("best_backend", ""),
-        "best_char_count": artifact.get("best_char_count", 0),
-        "best_section_count": artifact.get("best_section_count", 0),
-        "statuses": statuses,
-        "errors": errors,
-        "write_status": artifact.get("_write_status", ""),
-        "source_identity_status": (artifact.get("source_identity") or {}).get("status", ""),
-        "source_identity_basis": (artifact.get("source_identity") or {}).get("basis", ""),
-    }
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Convert local PDFs into full-text artifacts")
-    parser.add_argument("--dataset", choices=sorted(DATASET_CONFIG), required=True)
-    parser.add_argument("--paper-library", default="", help="Override paper-library JSON path")
-    parser.add_argument("--curated-json", default="", help="Override curated claims JSON path")
-    parser.add_argument("--out-dir", default="", help="Override artifact output directory")
-    parser.add_argument("--report", default="", help="Override report JSON path")
-    parser.add_argument("--backend", choices=["auto", "all", "docling", "grobid", "pdftotext"], default="auto")
-    parser.add_argument("--doi-file", default="", help="Optional DOI list to restrict conversion candidates")
-    parser.add_argument(
-        "--stale-fulltext-locators",
-        action="store_true",
-        help="Restrict to curated full_text_seen rows whose evidence locator still starts with `Abstract snippet:`",
-    )
-    parser.add_argument("--grobid-url", default=DEFAULT_GROBID_URL)
-    parser.add_argument("--grobid-retries", type=int, default=2)
-    parser.add_argument("--grobid-retry-wait-sec", type=int, default=5)
-    parser.add_argument("--grobid-consolidate-header", choices=["0", "1", "2", "3"], default="0")
-    parser.add_argument("--grobid-consolidate-citations", choices=["0", "1", "2"], default="0")
-    parser.add_argument("--timeout-sec", type=int, default=120)
-    parser.add_argument("--limit", type=int, default=0, help="Maximum PDFs to process; 0 means all")
-    parser.add_argument("--only-missing-artifacts", action="store_true")
-    parser.add_argument(
-        "--write-failed-artifacts",
-        action="store_true",
-        help="Write artifact JSON even when no backend succeeds. By default failed-only artifacts are not written.",
-    )
-    parser.add_argument("--no-pdf-env-bootstrap", action="store_true", help="Do not re-run inside psychkg-pdf")
-    args = parser.parse_args()
-
-    if not args.no_pdf_env_bootstrap:
-        ensure_pdf_runtime()
-
-    cfg = DATASET_CONFIG[args.dataset]
-    paper_library = Path(args.paper_library).resolve() if args.paper_library else cfg["paper_db_json"]
-    curated_json = Path(args.curated_json).resolve() if args.curated_json else cfg["curated_json"]
-    out_dir = Path(args.out_dir).resolve() if args.out_dir else cfg["out_dir"]
-    report_path = Path(args.report).resolve() if args.report else cfg["report"]
-
-    if args.backend == "grobid" and not grobid_is_available(args.grobid_url):
-        print(f"GROBID service is not available: {grobid_alive_url(args.grobid_url)}", file=sys.stderr)
-        return 2
-
-    rows = load_json_array(paper_library)
-    doi_filter = None
-    filter_sources = []
-    if args.doi_file:
-        doi_filter = read_doi_file(Path(args.doi_file).resolve())
-        filter_sources.append({"source": "doi_file", "path": str(Path(args.doi_file).resolve()), "doi_count": len(doi_filter)})
-    if args.stale_fulltext_locators:
-        stale_dois = stale_fulltext_locator_dois(load_json_array(curated_json))
-        doi_filter = stale_dois if doi_filter is None else doi_filter & stale_dois
-        filter_sources.append(
-            {"source": "stale_fulltext_locators", "path": str(curated_json), "doi_count": len(stale_dois)}
-        )
-
-    all_candidates = list(
-        iter_pdf_rows(
-            rows,
-            only_missing_artifacts=args.only_missing_artifacts,
-            out_dir=out_dir,
-            doi_filter=doi_filter,
-        )
-    )
-    candidates = all_candidates
-    if args.limit > 0:
-        candidates = all_candidates[: args.limit]
-
-    report_rows = []
-    counts = {
-        "paper_library_rows": len(rows),
-        "pdf_rows_available": len(all_candidates),
-        "pdf_rows_selected": len(candidates),
-        "processed": 0,
-        "with_success": 0,
-        "without_success": 0,
-    }
-
-    for row, pdf_path, artifact_path in candidates:
-        extractions = convert_pdf(
-            pdf_path=pdf_path,
-            backend=args.backend,
-            grobid_url=args.grobid_url,
-            timeout_sec=max(1, args.timeout_sec),
-            grobid_retries=max(0, args.grobid_retries),
-            grobid_retry_wait_sec=max(0, args.grobid_retry_wait_sec),
-            grobid_consolidate_header=args.grobid_consolidate_header,
-            grobid_consolidate_citations=args.grobid_consolidate_citations,
-        )
-        artifact = build_artifact(args.dataset, row, pdf_path, extractions)
-        write_artifact, write_reason = should_write_artifact(
-            artifact_path,
-            artifact,
-            write_failed_artifacts=args.write_failed_artifacts,
-        )
-        artifact["_write_status"] = write_reason
-        if write_artifact:
-            write_json(artifact_path, artifact)
-        report_rows.append(report_row(row, artifact_path, artifact))
-        counts["processed"] += 1
-        if artifact.get("best_backend"):
-            counts["with_success"] += 1
-        else:
-            counts["without_success"] += 1
-
-    report = {
-        "generated_at_utc": now_utc(),
-        "dataset": args.dataset,
-        "inputs": {
-            "paper_library": str(paper_library),
-            "curated_json": str(curated_json),
-            "out_dir": str(out_dir),
-            "backend": args.backend,
-            "grobid_url": args.grobid_url,
-            "grobid_retries": args.grobid_retries,
-            "grobid_retry_wait_sec": args.grobid_retry_wait_sec,
-            "grobid_consolidate_header": args.grobid_consolidate_header,
-            "grobid_consolidate_citations": args.grobid_consolidate_citations,
-            "filter_sources": filter_sources,
-            "only_missing_artifacts": args.only_missing_artifacts,
-            "limit": args.limit,
-        },
-        "counts": counts,
-        "rows": report_rows,
-    }
-    write_json(report_path, report)
-
-    print(f"Dataset: {args.dataset}")
-    print(f"Processed PDFs: {counts['processed']}")
-    print(f"Successful artifacts: {counts['with_success']}")
-    print(f"Report: {report_path}")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

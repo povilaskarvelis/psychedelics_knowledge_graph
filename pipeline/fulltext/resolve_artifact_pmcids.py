@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.fulltext.source_identity import clean, normalize_doi, normalize_pmcid  # noqa: E402
-from pipeline.ingest.sync_paper_library import RateLimitedHttpClient  # noqa: E402
+from pipeline.ingest.metadata_utils import RateLimitedHttpClient  # noqa: E402
 
 
 IDCONV_URL = "https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/"

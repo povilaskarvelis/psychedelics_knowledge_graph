@@ -34,7 +34,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     )
 
 try:
-    from pipeline.ingest.sync_paper_library import (
+    from pipeline.ingest.metadata_utils import (
         RateLimitedHttpClient,
         download_pdf_candidates,
         is_probable_pdf_url,
@@ -47,7 +47,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.ingest.sync_paper_library import (
+    from pipeline.ingest.metadata_utils import (
         RateLimitedHttpClient,
         download_pdf_candidates,
         is_probable_pdf_url,

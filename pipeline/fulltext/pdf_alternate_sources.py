@@ -14,7 +14,7 @@ import tempfile
 from typing import Iterable
 from urllib.parse import quote, urljoin, urlparse
 
-from pipeline.ingest.sync_paper_library import (
+from pipeline.ingest.metadata_utils import (
     RateLimitedHttpClient,
     file_is_valid_pdf,
     join_candidates,

@@ -264,9 +264,9 @@ pilot outputs reveal which aliases need to be added next.
 
 The current main UI views are driven by `evidence_edges.entity_kind`:
 
-- clinical: conditions, symptoms, safety/adverse events, and outcome scales
+- clinical outcomes: conditions, symptoms, safety/adverse events, and outcome scales
   currently have graph rows.
-- mechanistic: targets, pathways/processes, molecular readouts, and
+- molecular and biological: targets, pathways/processes, molecular readouts, and
   systems/families currently have canonical graph rows.
 - routed extension domains: brain regions/networks/circuits, cognitive or
   behavioral constructs, subjective-experience constructs, PK/exposure
@@ -274,7 +274,7 @@ The current main UI views are driven by `evidence_edges.entity_kind`:
   by the normalized table layer before they are promoted into dedicated UI
   views.
 
-Clinical endpoint rows are derived from raw disorder extraction rows plus the
+Clinical endpoint rows are derived from routed clinical-outcome rows plus the
 normalization audit. They keep only rows with canonicalized compounds and label
 the endpoint separately from the condition field, so endpoint views do not
 pollute the default condition graph.
@@ -294,7 +294,7 @@ bipolar depression, social anxiety disorder, chronic pain, neuropathic pain, or
 migraine, remain eligible for the condition view. Endpoint-only symptom rows
 still route to symptom/problem labels rather than condition nodes.
 
-For new search runs, rebuild the corpus tables, routing tables, routed
+For new routed runs, rebuild the corpus tables, routing tables, routed
 extraction outputs, and normalized KG tables, then promote the routed release.
 Promotion first validates and updates the canonical corpus ledger, and only
 then regenerates the Methods PRISMA flow and bibliography. Do not edit the UI

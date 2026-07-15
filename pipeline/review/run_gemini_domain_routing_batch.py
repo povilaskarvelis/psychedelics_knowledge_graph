@@ -46,7 +46,6 @@ try:
         read_table,
         route_rows_from_parsed,
         selected_records,
-        split_values,
         write_counts_csv,
         write_json,
         write_table,
@@ -76,7 +75,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         read_table,
         route_rows_from_parsed,
         selected_records,
-        split_values,
         write_counts_csv,
         write_json,
         write_table,
@@ -200,7 +198,6 @@ def write_batch_requests(args: argparse.Namespace) -> dict:
                     "key": key,
                     "input_row_index": input_row_index,
                     "doi": normalize_doi(record.get("doi", "")),
-                    "datasets": clean(record.get("datasets", "")),
                     "study_title": clean(record.get("study_title", "")),
                     "prompt_chars": len(prompt_for_record(record)),
                 }
@@ -229,7 +226,6 @@ def write_batch_requests(args: argparse.Namespace) -> dict:
         },
         "summary": {
             "prepared_requests": len(manifest_records),
-            "by_dataset": dict(Counter(tag for record in manifest_records for tag in split_values(record["datasets"]))),
         },
         "records": manifest_records,
     }

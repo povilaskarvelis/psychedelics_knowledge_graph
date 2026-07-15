@@ -26,7 +26,7 @@ try:
         sha256_file,
     )
     from pipeline.fulltext.pdf_alternate_sources import title_validation_result
-    from pipeline.ingest.sync_paper_library import (
+    from pipeline.ingest.metadata_utils import (
         file_is_valid_pdf,
         is_probable_pdf_url,
         join_candidates,
@@ -45,7 +45,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         sha256_file,
     )
     from pipeline.fulltext.pdf_alternate_sources import title_validation_result
-    from pipeline.ingest.sync_paper_library import (
+    from pipeline.ingest.metadata_utils import (
         file_is_valid_pdf,
         is_probable_pdf_url,
         join_candidates,

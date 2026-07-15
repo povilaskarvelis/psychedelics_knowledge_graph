@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pipeline.ingest.sync_paper_library import (
+from pipeline.ingest.metadata_utils import (
     DEFAULT_METADATA_PROVIDER_ORDER,
     PAPER_METADATA_FIELDS,
     PAPER_METADATA_SCHEMA_VERSION,

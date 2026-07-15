@@ -32,7 +32,7 @@ Current graph node kinds:
 | `target` | current | Receptor, transporter, enzyme, channel, gene, protein, or target complex. |
 | `pathway_process` | current | Pathway, signaling process, cellular process, or biological process. |
 | `biomarker_readout` | current | Internal compatibility kind for molecular readouts: measured molecular, biochemical, ligand, or assay readouts; true biomarkers are a subset. |
-| `system_family` | current | Broad mechanistic system or family. |
+| `system_family` | current | Broad biological system or family. |
 
 Current primary relation types:
 

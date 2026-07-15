@@ -10,10 +10,10 @@ import sys
 import pandas as pd
 
 try:
-    from pipeline.ingest.sync_paper_library import normalize_doi, pdf_filename_for_doi
+    from pipeline.ingest.metadata_utils import normalize_doi, pdf_filename_for_doi
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.ingest.sync_paper_library import normalize_doi, pdf_filename_for_doi
+    from pipeline.ingest.metadata_utils import normalize_doi, pdf_filename_for_doi
 
 
 ROOT = Path(__file__).resolve().parents[2]

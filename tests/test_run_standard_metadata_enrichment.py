@@ -14,15 +14,12 @@ from pipeline.ingest.run_standard_metadata_enrichment import (
 
 def args(**overrides):
     defaults = {
-        "dataset": "all",
         "run_id": "test_run",
         "papers_table": "data/processed/corpus/candidate_papers.parquet",
         "metadata_table": "data/processed/corpus/paper_metadata_enrichment.parquet",
-        "table_out_dir": "data/processed/corpus",
         "config": "pipeline/config.example.yaml",
         "core_provider_order": CORE_METADATA_PROVIDER_ORDER,
         "open_access_provider_order": OPEN_ACCESS_PROVIDER_ORDER,
-        "skip_corpus_rebuild": False,
         "skip_core_metadata": False,
         "skip_publication_types": False,
         "skip_open_access": False,
@@ -71,7 +68,6 @@ class StandardMetadataEnrichmentTest(unittest.TestCase):
 
         by_label = {label: command for label, command in commands}
 
-        self.assertIn("rebuild unified corpus tables", by_label)
         core = by_label["enrich core bibliographic metadata and abstracts"]
         self.assertIn("--metadata-provider-order", core)
         self.assertIn(CORE_METADATA_PROVIDER_ORDER, core)

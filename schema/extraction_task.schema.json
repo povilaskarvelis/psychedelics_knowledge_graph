@@ -198,7 +198,6 @@
           "enum": [
             "full",
             "primary_empirical",
-            "lean_primary",
             "secondary_synthesis",
             "review_coverage",
             "not_applicable"
@@ -263,7 +262,6 @@
           "enum": [
             "full",
             "primary_empirical",
-            "lean_primary",
             "secondary_synthesis",
             "review_coverage",
             "not_applicable"

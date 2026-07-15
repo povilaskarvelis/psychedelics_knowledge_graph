@@ -1,4 +1,4 @@
-from pipeline.extract.mechanistic_assay_family import normalize_mechanistic_assay_family
+from pipeline.extract.assay_family import normalize_assay_family
 
 
 def test_neural_assay_families_keep_familiar_acronyms() -> None:
@@ -17,7 +17,7 @@ def test_neural_assay_families_keep_familiar_acronyms() -> None:
     }
 
     for raw, expected in examples.items():
-        assert normalize_mechanistic_assay_family("", raw) == expected
+        assert normalize_assay_family("", raw) == expected
 
 
 def test_non_neural_assay_families_stay_stable() -> None:
@@ -30,7 +30,7 @@ def test_non_neural_assay_families_stay_stable() -> None:
     }
 
     for raw, expected in examples.items():
-        assert normalize_mechanistic_assay_family("", raw) == expected
+        assert normalize_assay_family("", raw) == expected
 
 
 def test_existing_and_legacy_assay_families_are_canonicalized() -> None:
@@ -45,11 +45,11 @@ def test_existing_and_legacy_assay_families_are_canonicalized() -> None:
     }
 
     for raw, expected in examples.items():
-        assert normalize_mechanistic_assay_family(raw, "") == expected
+        assert normalize_assay_family(raw, "") == expected
 
-    assert normalize_mechanistic_assay_family("Imaging / connectivity", "resting-state fMRI") == "fMRI"
+    assert normalize_assay_family("Imaging / connectivity", "resting-state fMRI") == "fMRI"
 
 
 def test_unclassified_assays_use_the_single_other_bucket() -> None:
-    assert normalize_mechanistic_assay_family("", "bespoke uncategorized procedure") == "Other"
-    assert normalize_mechanistic_assay_family("Other methods", "") == "Other"
+    assert normalize_assay_family("", "bespoke uncategorized procedure") == "Other"
+    assert normalize_assay_family("Other methods", "") == "Other"

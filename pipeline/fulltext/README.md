@@ -206,8 +206,7 @@ containers and adjacent abstracts cannot be stored under an item DOI.
 
 New full-text artifacts should be written to
 `data/processed/fulltext/articles/`. This is the only production article-text
-store. The retired `fulltext/disorder/` and `fulltext/mechanistic/` directories
-no longer exist and are not read as fallback sources.
+store; no split-source fallback directories are read.
 
 Convert local PDFs that are currently routed as
 `convert_local_pdf_then_extract`:
@@ -252,8 +251,8 @@ python pipeline/fulltext/convert_routed_local_pdfs.py \
   --backend grobid
 ```
 
-The lower-level parser backends remain available through `convert_pdfs.py`,
-but new production runs should enter through the route-table command.
+`convert_pdfs.py` now contains only the shared parser and artifact helpers used
+by the route-table command; it is not a separate production entry point.
 
 ## PMC XML Recovery
 
@@ -313,10 +312,8 @@ For compatibility, the JSON output still stores the corresponding internal
 `packet_profile` values: `primary_empirical` for primary studies and `full` for
 secondary literature.
 
-The older builder CLI still exposes `--dataset` for compatibility with
-pre-route migration inputs. Do not use that split-source mode for new
-route-table extraction runs; use `build_article_text_inputs.py` and the
-canonical `fulltext/articles/` store instead.
+Use `build_article_text_inputs.py` with the canonical `fulltext/articles/`
+store for route-table extraction runs.
 
 For a small route-table section-selection audit:
 
@@ -325,5 +322,4 @@ python pipeline/fulltext/audit_article_text_inputs.py \
   --per-strategy 3
 ```
 
-`lean_primary` remains accepted as a deprecated compatibility alias, but new
-commands should use `primary_study`.
+Use `primary_study` for primary-study section selection.

@@ -321,7 +321,7 @@
   "domain_mappings": {
     "clinical_outcome": {
       "maps_to_graph": true,
-      "graph_domain": "clinical",
+      "graph_domain": "clinical_outcome",
       "description": "Compound or intervention evidence for clinical conditions, symptoms, endpoints, and outcome measures.",
       "extraction_entity_types": [
         "disorder",
@@ -389,7 +389,7 @@
     },
     "safety_tolerability": {
       "maps_to_graph": true,
-      "graph_domain": "clinical",
+      "graph_domain": "safety_tolerability",
       "description": "Compound or exposure evidence for adverse events, tolerability, complications, and safety risks.",
       "extraction_entity_types": [
         "safety_event",
@@ -438,7 +438,7 @@
     },
     "molecular_target": {
       "maps_to_graph": true,
-      "graph_domain": "mechanistic",
+      "graph_domain": "molecular_target",
       "description": "Compound evidence for molecular targets with binding, action, target-engagement, or target-pharmacology evidence.",
       "extraction_entity_types": [
         "target",
@@ -484,7 +484,7 @@
     },
     "molecular_pathway_readout": {
       "maps_to_graph": true,
-      "graph_domain": "mechanistic",
+      "graph_domain": "molecular_pathway_readout",
       "description": "Compound evidence for pathways, processes, and measured molecular readouts.",
       "extraction_entity_types": [
         "pathway_process",
@@ -544,7 +544,7 @@
     },
     "brain_system": {
       "maps_to_graph": true,
-      "graph_domain": "mechanistic",
+      "graph_domain": "brain_system",
       "description": "Compound evidence for brain regions, functional networks, neural circuits, and brain-system readouts.",
       "extraction_entity_types": [
         "brain_region",
@@ -558,7 +558,7 @@
         {
           "kind": "system_family",
           "status": "current",
-          "primary_relation_type": "has_mechanistic_system",
+          "primary_relation_type": "has_brain_system_effect",
           "secondary_relation_type": "discusses_relationship"
         },
         {
@@ -582,7 +582,7 @@
         {
           "kind": "biomarker_readout",
           "status": "current",
-          "primary_relation_type": "has_biomarker_readout",
+          "primary_relation_type": "has_brain_system_effect",
           "secondary_relation_type": "discusses_relationship"
         }
       ],

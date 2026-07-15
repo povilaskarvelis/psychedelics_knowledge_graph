@@ -43,7 +43,7 @@ from pipeline.fulltext.convert_pdfs import (  # noqa: E402
     select_best_extraction,
     should_write_artifact,
 )
-from pipeline.ingest.sync_paper_library import (  # noqa: E402
+from pipeline.ingest.metadata_utils import (  # noqa: E402
     RateLimitedHttpClient,
     extract_pmcid_from_url,
     split_candidates,

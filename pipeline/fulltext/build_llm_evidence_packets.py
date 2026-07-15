@@ -1,67 +1,44 @@
 #!/usr/bin/env python3
 """Build article text inputs for model extraction from extracted text artifacts.
 
-The PDF conversion stage preserves raw GROBID TEI. This script turns that raw
-TEI plus paper-library metadata into stable JSONL records containing the article
-text sections, tables, figures, and references needed for downstream model
-extraction.
+The PDF conversion stage preserves raw GROBID TEI. The helpers in this module
+turn those artifacts and routed paper metadata into stable records containing
+the sections, tables, figures, and references needed for downstream extraction.
 """
 
 from __future__ import annotations
 
-import argparse
-import csv
 import datetime as dt
 import hashlib
-import json
 import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Iterable, List
+from typing import List
 
 try:
     from pipeline.fulltext.convert_pdfs import (
-        DATASET_CONFIG,
         compact_text,
-        doi_to_slug,
         element_text,
-        load_json_array,
-        load_json_object,
         local_name,
         normalize,
         normalize_doi,
-    )
-    from pipeline.fulltext.source_identity_audit_gate import (
-        DEFAULT_SOURCE_IDENTITY_AUDIT,
-        SourceIdentityAuditGate,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.convert_pdfs import (
-        DATASET_CONFIG,
         compact_text,
-        doi_to_slug,
         element_text,
-        load_json_array,
-        load_json_object,
         local_name,
         normalize,
         normalize_doi,
     )
-    from pipeline.fulltext.source_identity_audit_gate import (
-        DEFAULT_SOURCE_IDENTITY_AUDIT,
-        SourceIdentityAuditGate,
-    )
 
-ROOT = Path(__file__).resolve().parents[2]
-FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 PACKET_SCHEMA_VERSION = "llm_evidence_packet_v1"
 RECONSTRUCTED_TEXT_SEPARATOR = "\n\n"
 XML_ID_ATTR = "{http://www.w3.org/XML/1998/namespace}id"
 PACKET_PROFILE_FULL = "full"
 PACKET_PROFILE_PRIMARY_EMPIRICAL = "primary_empirical"
-PACKET_PROFILE_PRIMARY_EMPIRICAL_LEGACY_ALIAS = "lean_primary"
 PACKET_PROFILE_SECONDARY_SYNTHESIS = "secondary_synthesis"
 PACKET_PROFILE_REVIEW_COVERAGE = "review_coverage"
 SECTION_STRATEGY_ALL_SECTIONS_ALIAS = "all_sections"
@@ -74,18 +51,6 @@ SECTION_SELECTION_STRATEGY_ALIASES = {
     SECTION_STRATEGY_META_ANALYSIS_ALIAS: PACKET_PROFILE_SECONDARY_SYNTHESIS,
     SECTION_STRATEGY_REVIEW_ALIAS: PACKET_PROFILE_REVIEW_COVERAGE,
 }
-PACKET_PROFILES = (
-    PACKET_PROFILE_FULL,
-    PACKET_PROFILE_PRIMARY_EMPIRICAL,
-    PACKET_PROFILE_SECONDARY_SYNTHESIS,
-    PACKET_PROFILE_REVIEW_COVERAGE,
-    PACKET_PROFILE_PRIMARY_EMPIRICAL_LEGACY_ALIAS,
-    SECTION_STRATEGY_ALL_SECTIONS_ALIAS,
-    SECTION_STRATEGY_PRIMARY_STUDY_ALIAS,
-    SECTION_STRATEGY_META_ANALYSIS_ALIAS,
-    SECTION_STRATEGY_REVIEW_ALIAS,
-)
-
 PRIMARY_EMPIRICAL_EXCLUDED_SECTION_TYPES = {
     "introduction",
     "discussion",
@@ -148,7 +113,7 @@ PRIMARY_EMPIRICAL_COMMON_MARKERS = (
     "table",
 )
 
-PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS = (
+PRIMARY_EMPIRICAL_TOPIC_MARKERS = (
     "assay",
     "binding",
     "affinity",
@@ -172,9 +137,6 @@ PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS = (
     "electrophysiolog",
     "western blot",
     "pcr",
-)
-
-PRIMARY_EMPIRICAL_DISORDER_MARKERS = (
     "clinical",
     "symptom",
     "depression",
@@ -345,20 +307,6 @@ def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
-def write_json(path: Path, payload: object) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
-def rows_by_doi(rows: Iterable[dict]) -> dict[str, dict]:
-    out: dict[str, dict] = {}
-    for row in rows:
-        doi = normalize_doi(row.get("study_doi", ""))
-        if doi:
-            out[doi] = row
-    return out
-
-
 def best_extraction(artifact: dict) -> dict:
     backend = normalize(artifact.get("best_backend", ""))
     for extraction in artifact.get("extractions", []):
@@ -368,21 +316,6 @@ def best_extraction(artifact: dict) -> dict:
         if isinstance(extraction, dict) and extraction.get("status") == "ok":
             return extraction
     return {}
-
-
-def parse_doi_file(path: Path) -> set[str]:
-    dois: set[str] = set()
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        for row in csv.reader(handle):
-            if not row:
-                continue
-            first = normalize(row[0])
-            if not first or first.startswith("#"):
-                continue
-            doi = normalize_doi(first)
-            if doi:
-                dois.add(doi)
-    return dois
 
 
 def parse_tei(raw: str) -> ET.Element | None:
@@ -656,8 +589,6 @@ def canonical_packet_profile(profile: str) -> str:
     profile = normalize(profile) or PACKET_PROFILE_FULL
     if profile in SECTION_SELECTION_STRATEGY_ALIASES:
         return SECTION_SELECTION_STRATEGY_ALIASES[profile]
-    if profile == PACKET_PROFILE_PRIMARY_EMPIRICAL_LEGACY_ALIAS:
-        return PACKET_PROFILE_PRIMARY_EMPIRICAL
     return profile
 
 
@@ -718,7 +649,7 @@ def text_matches_any_marker(text: str, markers: tuple[str, ...]) -> bool:
     return any(marker in norm for marker in markers)
 
 
-def section_matches_primary_empirical_profile(dataset: str, section: dict) -> bool:
+def section_matches_primary_empirical_profile(section: dict) -> bool:
     section_type = normalize(section.get("section_type", ""))
     if section_type == "abstract":
         return True
@@ -736,13 +667,7 @@ def section_matches_primary_empirical_profile(dataset: str, section: dict) -> bo
             normalize(section.get("text", ""))[:2500],
         ]
     )
-    if dataset == "mechanistic":
-        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS
-    elif dataset == "disorder":
-        dataset_markers = PRIMARY_EMPIRICAL_DISORDER_MARKERS
-    else:
-        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS + PRIMARY_EMPIRICAL_DISORDER_MARKERS
-    return text_matches_any_marker(haystack, PRIMARY_EMPIRICAL_COMMON_MARKERS + dataset_markers)
+    return text_matches_any_marker(haystack, PRIMARY_EMPIRICAL_COMMON_MARKERS + PRIMARY_EMPIRICAL_TOPIC_MARKERS)
 
 
 def section_matches_secondary_synthesis_profile(section: dict) -> bool:
@@ -861,7 +786,6 @@ def select_secondary_sections(
 def select_sections_for_profile(
     sections: list[dict],
     *,
-    dataset: str,
     profile: str,
     hints: dict,
 ) -> tuple[list[dict], dict]:
@@ -892,7 +816,7 @@ def select_sections_for_profile(
             "fallback_used": not bool(abstracts),
         }
 
-    selected = [section for section in sections if section_matches_primary_empirical_profile(dataset, section)]
+    selected = [section for section in sections if section_matches_primary_empirical_profile(section)]
     selected_ids = {id(section) for section in selected}
     body_selected = any(normalize(section.get("section_type", "")) != "abstract" for section in selected)
     fallback_used = False
@@ -911,7 +835,7 @@ def select_sections_for_profile(
     )
 
 
-def table_or_figure_matches_primary_empirical_profile(item: dict, dataset: str) -> bool:
+def table_or_figure_matches_primary_empirical_profile(item: dict) -> bool:
     haystack = " ".join(
         [
             normalize(item.get("caption", "")),
@@ -919,13 +843,7 @@ def table_or_figure_matches_primary_empirical_profile(item: dict, dataset: str) 
             normalize(item.get("text", ""))[:2000],
         ]
     )
-    if dataset == "mechanistic":
-        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS
-    elif dataset == "disorder":
-        dataset_markers = PRIMARY_EMPIRICAL_DISORDER_MARKERS
-    else:
-        dataset_markers = PRIMARY_EMPIRICAL_MECHANISTIC_MARKERS + PRIMARY_EMPIRICAL_DISORDER_MARKERS
-    return text_matches_any_marker(haystack, PRIMARY_EMPIRICAL_COMMON_MARKERS + dataset_markers)
+    return text_matches_any_marker(haystack, PRIMARY_EMPIRICAL_COMMON_MARKERS + PRIMARY_EMPIRICAL_TOPIC_MARKERS)
 
 
 def select_tables_figures_references_for_profile(
@@ -933,7 +851,6 @@ def select_tables_figures_references_for_profile(
     figures: list[dict],
     references: list[dict],
     *,
-    dataset: str,
     profile: str,
     hints: dict,
 ) -> tuple[list[dict], list[dict], list[dict], dict]:
@@ -982,7 +899,7 @@ def select_tables_figures_references_for_profile(
             "figure_selection": "secondary_or_context_omitted",
             "reference_selection": "omitted",
         }
-    selected_figures = [figure for figure in figures if table_or_figure_matches_primary_empirical_profile(figure, dataset)]
+    selected_figures = [figure for figure in figures if table_or_figure_matches_primary_empirical_profile(figure)]
     return tables, selected_figures, [], {
         "table_selection": "all_tables",
         "figure_selection": "lean_marker_filtered",
@@ -1089,7 +1006,6 @@ def build_packet(
     )
     sections, section_profile_summary = select_sections_for_profile(
         source_sections,
-        dataset=dataset,
         profile=packet_profile,
         hints=hints,
     )
@@ -1097,7 +1013,6 @@ def build_packet(
         source_tables,
         source_figures,
         source_references,
-        dataset=dataset,
         profile=packet_profile,
         hints=hints,
     )
@@ -1171,251 +1086,3 @@ def build_packet(
         "references": references,
         "llm_chunks": chunks,
     }
-
-
-def default_out_jsonl(dataset: str) -> Path:
-    return FULLTEXT_DIR / f"llm_packets_{dataset}.jsonl"
-
-
-def default_report_json(dataset: str) -> Path:
-    return FULLTEXT_DIR / f"llm_packets_{dataset}_report.json"
-
-
-def iter_artifact_paths(dataset: str, artifact_dir: Path, doi_filter: set[str] | None = None) -> Iterable[Path]:
-    for path in sorted(artifact_dir.glob("*.json")):
-        if doi_filter is not None:
-            doi = normalize_doi(path.stem.replace("_", "/"))
-            artifact = load_json_object(path)
-            doi = normalize_doi(artifact.get("study_doi", "")) or doi
-            if doi not in doi_filter:
-                continue
-        yield path
-
-
-def build_dataset_packets(
-    dataset: str,
-    *,
-    paper_library: Path,
-    artifact_dir: Path,
-    out_jsonl: Path,
-    report_json: Path,
-    doi_filter: set[str] | None,
-    limit: int,
-    max_chunk_chars: int,
-    overlap_chars: int,
-    max_chunks_per_paper: int,
-    max_references: int,
-    include_section_text: bool,
-    include_candidate_contexts: bool,
-    packet_profile: str = "full",
-    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
-) -> dict:
-    requested_packet_profile = normalize(packet_profile) or PACKET_PROFILE_FULL
-    packet_profile = canonical_packet_profile(requested_packet_profile)
-    paper_rows = rows_by_doi(load_json_array(paper_library))
-    artifact_paths = list(iter_artifact_paths(dataset, artifact_dir=artifact_dir, doi_filter=doi_filter))
-    if limit > 0:
-        artifact_paths = artifact_paths[:limit]
-    source_identity_gate = SourceIdentityAuditGate(source_identity_audit, require_passing=True)
-
-    counts = {
-        "artifact_files_selected": len(artifact_paths),
-        "packets_written": 0,
-        "missing_paper_library_rows": 0,
-        "source_identity_unverified": 0,
-        "missing_successful_extraction": 0,
-        "missing_sections": 0,
-        "total_chunks": 0,
-        "total_source_chunks": 0,
-        "total_chunk_token_estimate": 0,
-        "total_source_chunk_token_estimate": 0,
-        "total_chunk_token_reduction_estimate": 0,
-        "total_tables": 0,
-        "total_source_tables": 0,
-        "total_figures": 0,
-        "total_source_figures": 0,
-        "total_references": 0,
-        "total_source_references": 0,
-    }
-    missing_library_dois = []
-    skipped = []
-
-    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
-    with out_jsonl.open("w", encoding="utf-8") as handle:
-        for artifact_path in artifact_paths:
-            artifact = load_json_object(artifact_path)
-            doi = normalize_doi(artifact.get("study_doi", ""))
-            if not doi:
-                doi = normalize_doi(artifact_path.stem.replace("_", "/"))
-            if not source_identity_gate.is_verified(doi, artifact_path):
-                counts["source_identity_unverified"] += 1
-                skipped.append(
-                    {
-                        "artifact_path": str(artifact_path),
-                        "study_doi": doi,
-                        "reason": "source_identity_unverified",
-                    }
-                )
-                continue
-            extraction = best_extraction(artifact)
-            if not extraction:
-                counts["missing_successful_extraction"] += 1
-                skipped.append({"artifact_path": str(artifact_path), "study_doi": doi, "reason": "missing_successful_extraction"})
-                continue
-            paper_row = paper_rows.get(doi, {})
-            if not paper_row:
-                counts["missing_paper_library_rows"] += 1
-                missing_library_dois.append(doi)
-            packet = build_packet(
-                dataset,
-                artifact_path=artifact_path,
-                artifact=artifact,
-                paper_row=paper_row,
-                max_chunk_chars=max_chunk_chars,
-                overlap_chars=overlap_chars,
-                max_chunks_per_paper=max_chunks_per_paper,
-                max_references=max_references,
-                include_section_text=include_section_text,
-                include_candidate_contexts=include_candidate_contexts,
-                packet_profile=packet_profile,
-            )
-            if not packet["sections"]:
-                counts["missing_sections"] += 1
-            counts["packets_written"] += 1
-            summary = packet.get("document_summary", {})
-            counts["total_chunks"] += len(packet["llm_chunks"])
-            counts["total_source_chunks"] += int(summary.get("source_chunk_count", 0) or 0)
-            counts["total_chunk_token_estimate"] += int(summary.get("chunk_token_estimate", 0) or 0)
-            counts["total_source_chunk_token_estimate"] += int(summary.get("source_chunk_token_estimate", 0) or 0)
-            counts["total_chunk_token_reduction_estimate"] += int(summary.get("chunk_token_reduction_estimate", 0) or 0)
-            counts["total_tables"] += len(packet["tables"])
-            counts["total_source_tables"] += int(summary.get("source_table_count", 0) or 0)
-            counts["total_figures"] += len(packet["figures"])
-            counts["total_source_figures"] += int(summary.get("source_figure_count", 0) or 0)
-            counts["total_references"] += len(packet["references"])
-            counts["total_source_references"] += int(summary.get("source_reference_count", 0) or 0)
-            handle.write(json.dumps(packet, ensure_ascii=False) + "\n")
-
-    report = {
-        "generated_at_utc": now_utc(),
-        "schema_version": PACKET_SCHEMA_VERSION,
-        "dataset": dataset,
-        "inputs": {
-            "paper_library": str(paper_library),
-            "artifact_dir": str(artifact_dir),
-            "source_identity_audit": str(Path(source_identity_audit).resolve()),
-            "doi_filter_count": len(doi_filter) if doi_filter is not None else None,
-            "limit": limit,
-            "max_chunk_chars": max_chunk_chars,
-            "overlap_chars": overlap_chars,
-            "max_chunks_per_paper": max_chunks_per_paper,
-            "max_references": max_references,
-            "include_section_text": include_section_text,
-            "include_candidate_contexts": include_candidate_contexts,
-            "packet_profile": packet_profile,
-            "requested_packet_profile": requested_packet_profile,
-        },
-        "outputs": {
-            "jsonl": str(out_jsonl),
-            "report_json": str(report_json),
-        },
-        "counts": counts,
-        "missing_paper_library_dois": missing_library_dois[:200],
-        "skipped": skipped[:200],
-    }
-    write_json(report_json, report)
-    return report
-
-
-def dataset_names(raw: str) -> list[str]:
-    if raw == "all":
-        return ["disorder", "mechanistic"]
-    return [raw]
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Build JSONL article text inputs for model extraction")
-    parser.add_argument("--dataset", choices=["all", "disorder", "mechanistic"], default="all")
-    parser.add_argument("--paper-library", default="", help="Override paper library JSON path; only valid for one dataset")
-    parser.add_argument("--artifact-dir", default="", help="Override artifact directory; only valid for one dataset")
-    parser.add_argument("--out-jsonl", default="", help="Override JSONL output path; only valid for one dataset")
-    parser.add_argument("--report-json", default="", help="Override report JSON path; only valid for one dataset")
-    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
-    parser.add_argument("--doi-file", default="", help="Optional DOI queue/list limiting packet generation")
-    parser.add_argument("--limit", type=int, default=0, help="Maximum artifacts per dataset; 0 means all")
-    parser.add_argument("--max-chunk-chars", type=int, default=6000)
-    parser.add_argument("--chunk-overlap-chars", type=int, default=300)
-    parser.add_argument("--max-chunks-per-paper", type=int, default=0, help="0 means all chunks")
-    parser.add_argument("--max-references", type=int, default=200, help="Maximum references per article text input; negative means all")
-    parser.add_argument(
-        "--section-selection-strategy",
-        "--packet-profile",
-        dest="packet_profile",
-        choices=PACKET_PROFILES,
-        default="full",
-        help=(
-            "Which article sections to include. Standard aliases: all_sections, primary_study, meta_analysis, review. "
-            "Compatibility names also accepted: full, primary_empirical, secondary_synthesis, review_coverage. "
-            "lean_primary is a deprecated alias for primary_empirical."
-        ),
-    )
-    parser.add_argument("--omit-section-text", action="store_true", help="Keep chunk text but omit full section text from article text inputs")
-    parser.add_argument("--omit-candidate-contexts", action="store_true", help="Do not include paper-library candidate contexts in article text inputs")
-    args = parser.parse_args()
-
-    selected_datasets = dataset_names(args.dataset)
-    if len(selected_datasets) > 1 and any([args.paper_library, args.artifact_dir, args.out_jsonl, args.report_json]):
-        raise SystemExit("--paper-library/--artifact-dir/--out-jsonl/--report-json overrides require a single dataset")
-
-    doi_filter = parse_doi_file(Path(args.doi_file).resolve()) if args.doi_file else None
-    reports = []
-    for dataset in selected_datasets:
-        cfg = DATASET_CONFIG[dataset]
-        paper_library = Path(args.paper_library).resolve() if args.paper_library else cfg["paper_db_json"]
-        artifact_dir = Path(args.artifact_dir).resolve() if args.artifact_dir else cfg["out_dir"]
-        out_jsonl = Path(args.out_jsonl).resolve() if args.out_jsonl else default_out_jsonl(dataset)
-        report_json = Path(args.report_json).resolve() if args.report_json else default_report_json(dataset)
-        report = build_dataset_packets(
-            dataset,
-            paper_library=paper_library,
-            artifact_dir=artifact_dir,
-            out_jsonl=out_jsonl,
-            report_json=report_json,
-            doi_filter=doi_filter,
-            limit=max(0, args.limit),
-            max_chunk_chars=max(500, args.max_chunk_chars),
-            overlap_chars=max(0, args.chunk_overlap_chars),
-            max_chunks_per_paper=max(0, args.max_chunks_per_paper),
-            max_references=args.max_references,
-            include_section_text=not args.omit_section_text,
-            include_candidate_contexts=not args.omit_candidate_contexts,
-            packet_profile=args.packet_profile,
-            source_identity_audit=Path(args.source_identity_audit).resolve(),
-        )
-        reports.append(report)
-        counts = report["counts"]
-        print(f"Dataset: {dataset}")
-        print(f"Artifacts selected: {counts['artifact_files_selected']}")
-        print(f"Article text inputs written: {counts['packets_written']}")
-        print(f"Total chunks: {counts['total_chunks']}")
-        print(f"Section selection strategy: {report['inputs']['packet_profile']}")
-        print(f"Estimated chunk tokens: {counts['total_chunk_token_estimate']} / {counts['total_source_chunk_token_estimate']}")
-        print(f"JSONL: {report['outputs']['jsonl']}")
-        print(f"Report: {report['outputs']['report_json']}")
-
-    if len(reports) > 1:
-        run_report = {
-            "generated_at_utc": now_utc(),
-            "schema_version": PACKET_SCHEMA_VERSION,
-            "status": "ok",
-            "datasets": selected_datasets,
-            "reports": reports,
-        }
-        run_report_path = FULLTEXT_DIR / "llm_packets_run_report.json"
-        write_json(run_report_path, run_report)
-        print(f"Run report: {run_report_path}")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

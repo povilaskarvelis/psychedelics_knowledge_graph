@@ -1,9 +1,10 @@
 # Pipeline
 
 This pipeline builds and maintains the evidence base behind the Psychedelics
-Knowledge Graph. It records how records were found, screens them for relevance,
-prepares the best available report text, extracts structured findings, and
-publishes reviewed releases of the graph, record audit, and Methods page.
+Knowledge Graph. It starts from the canonical candidate corpus, screens records
+for relevance, prepares the best available report text, extracts structured
+findings, and publishes reviewed releases of the graph, record audit, and
+Methods page.
 
 This README is the living operational map for the current pipeline. When a
 step changes, update this file first, then update the narrower stage README if
@@ -13,8 +14,7 @@ the change affects a specific script family.
 
 ```mermaid
 flowchart TD
-  A["Plan grouped and focused searches"] --> B["Find and deduplicate records"]
-  B --> C["Build the record corpus and enrich metadata"]
+  C["Canonical candidate corpus and metadata"]
   C --> D["Initial rules-based record screening"]
   D --> E["Title and abstract screening and report classification"]
   E --> F["Prepare report extraction assignments"]
@@ -34,58 +34,49 @@ flowchart TD
   N --> O["Publish graph, bibliography, Methods data, and site together"]
 ```
 
-1. **Search planning** defines grouped domain searches and targeted direct-pair
-   searches from the current compound, condition, clinical, molecular,
-   brain-system, cognitive-behavioral, safety, pharmacology, intervention, and
-   public-health vocabularies.
-2. **Literature discovery** queries the selected literature sources and stores
-   source/run provenance for every retrieved DOI. Duplicate DOIs are deduplicated
-   at the corpus level, but their search-source provenance is retained.
-3. **Corpus table build** normalizes discovered records into the table-native
-   corpus under `data/processed/corpus/`, especially `candidate_papers.parquet`,
-   `candidate_contexts.parquet`, and `candidate_sources.parquet`.
-4. **Metadata enrichment** adds titles, abstracts, publication metadata,
+1. **Canonical corpus and metadata enrichment** starts from
+   `candidate_papers.parquet` and adds titles, abstracts, publication metadata,
    publication-type labels, identifiers, open-access status, and PDF URL
    candidates. Provider roles are explicit: bibliographic metadata and
    abstracts, PubMed publication types, and open-access/PDF-link discovery are
    refreshed as separate passes.
-5. **Initial screening** removes only records that clearly lack usable
+2. **Initial screening** removes only records that clearly lack usable
    title/abstract evidence or clearly fall outside the project scope. It writes
    decisions to `paper_prescreen_decisions.parquet` and can be rerun for the
    whole corpus or a DOI subset.
-6. **Title and abstract screening and classification** assesses retained records
+3. **Title and abstract screening and classification** assesses retained records
    for relevance, evidence topics, and report type. Primary studies,
    meta-analyses, other reviews, and non-primary context remain distinguishable
    throughout extraction and publication. The current implementation uses a
    structured model-assisted pass, with exact technical details recorded in the
    generated corpus fields and run artifacts.
-7. **Extraction preparation** combines the screening decisions, report type,
+4. **Extraction preparation** combines the screening decisions, report type,
    evidence topics, available source text, and narrowly reviewed exceptions in
    `paper_extraction_routes.parquet`. Despite the filename, this is best
    described publicly as the set of extraction assignments for each report.
-8. **Source-text preparation** refreshes open-access links, downloads available legal
+5. **Source-text preparation** refreshes open-access links, downloads available legal
    PDFs, retrieves reusable PMC XML when available, and converts local full-text
    sources into structured artifacts. Records without usable full text remain
    eligible for abstract-only extraction when they otherwise meet the selection
    criteria.
-9. **Structured evidence extraction** uses different report-centered contracts
+6. **Structured evidence extraction** uses different report-centered contracts
    for primary studies, meta-analyses, and other reviews. Primary-study results,
    pooled estimates, and review-level relationships are not flattened into one
    evidence type. Guidelines, context-only records, and other non-extraction
    records remain available for corpus accounting without becoming findings.
-10. **Validation and graph preparation** checks extracted information against
-    its source, preserves source locations, uses consistent names for compounds
-    and related topics, and writes one final graph-inclusion decision, reason,
-    and provenance record back to `candidate_papers.parquet` for every DOI.
-11. **Staging and publication** builds versioned graph tables, author data, and
-    compact browser files. A guarded promotion first materializes and validates
-    the release's final decisions in the canonical corpus ledger, then generates
-    the bibliography and PRISMA flow from that ledger alone. It updates the
-    ledger, active evidence release, graph, Methods outputs, and static site as
-    one atomic unit.
+7. **Validation and graph preparation** checks extracted information against
+   its source, preserves source locations, uses consistent names for compounds
+   and related topics, and writes one final graph-inclusion decision, reason,
+   and provenance record back to `candidate_papers.parquet` for every DOI.
+8. **Staging and publication** builds versioned graph tables, author data, and
+   compact browser files. A guarded promotion first materializes and validates
+   the release's final decisions in the canonical corpus ledger, then generates
+   the bibliography and PRISMA flow from that ledger alone. It updates the
+   ledger, active evidence release, graph, Methods outputs, and static site as
+   one atomic unit.
 
-Generated Parquet tables are rebuildable. Durable decisions should live in
-tracked code, configuration, search strategy files, model prompts, or small
+Derived Parquet tables are rebuildable. Durable decisions should live in
+tracked code, configuration, model prompts, or small
 manual-review files such as `pipeline/extract/manual_extraction_route_overrides.json`
 and `pipeline/fulltext/manual_fulltext_access_overrides.json`. Curated screening
 decisions in `data/curated/screening_decision_overrides.json` are applied before
@@ -125,53 +116,12 @@ stale replacements. See
 [`docs/scoped_paper_updates.md`](../docs/scoped_paper_updates.md) for batch API
 commands, exclusion-only updates, audits, and rollback behavior.
 
-### Search Planning
-
-Build the current search files from configured registries:
-
-```bash
-python pipeline/ingest/build_boolean_search_modules.py --dataset all --run-id search_2026_05
-python pipeline/ingest/build_comprehensive_search_plan.py --dataset all --profile standard --run-id search_2026_05
-```
-
-If `--run-id` is omitted, scripts write to the neutral
-`data/raw/search_strategies/literature_search/` run directory.
-
-### Literature Discovery
-
-Run grouped search modules or direct pair-search files through
-`discover_literature.py` or the batch runners in `pipeline/ingest/`.
-
-Example:
-
-```bash
-python pipeline/ingest/discover_literature.py \
-  --dataset mechanistic \
-  --provider pubmed \
-  --seed-file data/raw/search_strategies/search_2026_05/grouped_modules/mechanistic_grouped_pubmed_seeds.csv \
-  --max-results-per-seed 500 \
-  --max-results 0
-```
-
-### Corpus Table Build
-
-```bash
-python pipeline/validate/build_context_provenance_audit.py \
-  --table-out-dir data/processed/corpus
-```
-
-This writes `candidate_papers.parquet`, `candidate_contexts.parquet`,
-`candidate_sources.parquet`, and `candidate_corpus_manifest.parquet`.
-Rediscovered records are deduplicated by DOI while keeping
-their source/query provenance in the context and source tables.
-
 ### Metadata Enrichment
 
 Run role-aware metadata enrichment on the corpus table:
 
 ```bash
 python pipeline/ingest/run_standard_metadata_enrichment.py \
-  --dataset all \
   --write-every 100 \
   --progress-every 100
 ```
@@ -412,12 +362,6 @@ When manual review confirms a record is not an extractable article, add
 `manual_action=context_only` in
 `pipeline/extract/manual_extraction_route_overrides.json` and rebuild routes.
 
-Rebuild failure categories from recorded download reports and corpus records:
-
-```bash
-python pipeline/fulltext/backfill_pdf_failure_categories.py
-```
-
 Example recovery pass:
 
 ```bash
@@ -565,9 +509,6 @@ of this guide; it applies the same publication safeguards.
 
 ## Canonical Outputs
 
-- `data/raw/doi_queue.<dataset>.discovered.txt`
-- source/provider discovery reports under `data/raw/search_strategies/` and
-  `data/processed/`
 - `data/processed/corpus/candidate_papers.parquet`
 - `data/processed/corpus/candidate_contexts.parquet`
 - `data/processed/corpus/candidate_sources.parquet`
@@ -590,10 +531,10 @@ of this guide; it applies the same publication safeguards.
 
 ## Run Labels
 
-Use run labels to separate artifacts from different searches or batches:
+Use run labels to separate artifacts from different update or extraction batches:
 
-- Good labels describe the run: `grouped_search_2026_05`,
-  `direct_pairs_2026_05`, `monthly_update_2026_06`.
+- Good labels describe the run: `monthly_update_2026_06` or
+  `paper_fix_2026_07_14`.
 - Do not use run labels as public method names.
 
 ## Corpus Tables
@@ -601,7 +542,7 @@ Use run labels to separate artifacts from different searches or batches:
 `data/processed/corpus/` contains the current table-based corpus. Downstream
 steps should query these tables instead of large JSON snapshots.
 
-The raw run reports remain append-only provenance. The files under
+Run reports remain append-only provenance. The files under
 `data/processed/extraction/` are current views regenerated from corpus tables
 and full-text artifacts.
 
@@ -610,15 +551,8 @@ contexts, source/provenance events, and metadata enrichment. Later, load those
 tables into Postgres for website search, API queries, and MCP-facing
 record, report, and KG access.
 
-Build the current candidate corpus tables:
-
-```bash
-python pipeline/validate/build_context_provenance_audit.py \
-  --table-out-dir data/processed/corpus
-```
-
-This writes `candidate_papers.parquet`, `candidate_contexts.parquet`,
-`candidate_sources.parquet`, and `candidate_corpus_manifest.parquet`.
+`candidate_papers.parquet` is the canonical corpus input. Historical
+dataset-specific acquisition builders are not part of the operational pipeline.
 
 ## Local Config
 

@@ -57,7 +57,6 @@ DEFAULT_FULLTEXT_PACKET_PATHS = (
 TASK_SCHEMA_VERSION = "route_extraction_task_v2"
 PACKET_PROFILE_FULL = "full"
 PACKET_PROFILE_PRIMARY = "primary_empirical"
-PACKET_PROFILE_PRIMARY_LEGACY_ALIAS = "lean_primary"
 PACKET_PROFILE_SECONDARY_SYNTHESIS = "secondary_synthesis"
 PACKET_PROFILE_REVIEW_COVERAGE = "review_coverage"
 PACKET_PROFILE_NOT_APPLICABLE = "not_applicable"
@@ -81,7 +80,7 @@ TERMINAL_PROMPT_PROFILES = {
     "no_extraction",
 }
 COMPATIBLE_PACKET_PROFILES = {
-    PACKET_PROFILE_PRIMARY: {PACKET_PROFILE_PRIMARY, PACKET_PROFILE_PRIMARY_LEGACY_ALIAS, PACKET_PROFILE_FULL, ""},
+    PACKET_PROFILE_PRIMARY: {PACKET_PROFILE_PRIMARY, PACKET_PROFILE_FULL, ""},
     PACKET_PROFILE_SECONDARY_SYNTHESIS: {PACKET_PROFILE_SECONDARY_SYNTHESIS, PACKET_PROFILE_FULL, ""},
     PACKET_PROFILE_REVIEW_COVERAGE: {PACKET_PROFILE_REVIEW_COVERAGE, PACKET_PROFILE_FULL, ""},
     PACKET_PROFILE_FULL: {PACKET_PROFILE_FULL, ""},
@@ -424,8 +423,6 @@ def packet_profile_status(expected_profile: str, actual_profile: str, has_packet
         return "no_packet"
     if actual == expected:
         return "matches_expected"
-    if expected == PACKET_PROFILE_PRIMARY and actual == PACKET_PROFILE_PRIMARY_LEGACY_ALIAS:
-        return "compatible_legacy_alias"
     if actual == PACKET_PROFILE_FULL and expected in {
         PACKET_PROFILE_PRIMARY,
         PACKET_PROFILE_SECONDARY_SYNTHESIS,
@@ -453,8 +450,6 @@ def choose_packet(route_row: dict, packets_by_doi: dict[str, list[dict]]) -> tup
     expected_profile = expected_packet_profile_for_route(route_row)
     preferred_profiles = [expected_profile]
     if expected_profile != PACKET_PROFILE_FULL:
-        if expected_profile == PACKET_PROFILE_PRIMARY:
-            preferred_profiles.append(PACKET_PROFILE_PRIMARY_LEGACY_ALIAS)
         preferred_profiles.append(PACKET_PROFILE_FULL)
     preferred_profiles.append("")
 

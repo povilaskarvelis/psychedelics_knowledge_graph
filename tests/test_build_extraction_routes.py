@@ -39,52 +39,6 @@ def write_source_identity_audit(
 
 
 class BuildExtractionRoutesTests(unittest.TestCase):
-    def test_fulltext_status_ignores_legacy_split_artifact(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            fulltext_dir = Path(tmp) / "fulltext"
-            doi = "10.1000/canonical"
-            slug = doi_to_slug(doi)
-            legacy = fulltext_dir / "mechanistic" / f"{slug}.json"
-            canonical = fulltext_dir / "articles" / f"{slug}.json"
-            legacy.parent.mkdir(parents=True)
-            canonical.parent.mkdir(parents=True)
-            legacy.write_text(json.dumps({"best_char_count": 1000}), encoding="utf-8")
-
-            status = fulltext_status_for_doi(doi, fulltext_dir)
-
-            self.assertFalse(status["has_converted_full_text"])
-            self.assertEqual(status["fulltext_artifact_paths"], "")
-            self.assertEqual(status["fulltext_char_count"], 0)
-
-            canonical.write_text(
-                json.dumps(
-                    {
-                        "best_char_count": 2000,
-                        "source_identity": {"status": "verified_exact_doi"},
-                    }
-                ),
-                encoding="utf-8",
-            )
-            audit = write_source_identity_audit(
-                Path(tmp),
-                [
-                    {
-                        "requested_doi": doi,
-                        "artifact_path": str(canonical.resolve()),
-                        "identity_verified": True,
-                    }
-                ],
-            )
-            status = fulltext_status_for_doi(
-                doi,
-                fulltext_dir,
-                source_identity_audit=audit,
-            )
-
-        self.assertTrue(status["has_converted_full_text"])
-        self.assertEqual(status["fulltext_artifact_paths"], str(canonical))
-        self.assertEqual(status["fulltext_char_count"], 2000)
-
     def test_fulltext_status_rejects_unverified_canonical_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fulltext_dir = Path(tmp) / "fulltext"
@@ -134,7 +88,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 [
                     {
                         "doi": doi,
-                        "datasets": "mechanistic|clinical",
                         "study_title": "Psilocybin trial with imaging outcomes",
                         "study_year": "2024",
                         "abstract": "Patients were randomized and brain network outcomes were measured.",
@@ -149,7 +102,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 [
                     {
                         "doi": doi,
-                        "dataset": "clinical",
                         "prescreen_decision": "retain",
                         "retained_for_extraction_candidate": True,
                         "prescreen_action": "retain_for_extraction_candidate",
@@ -183,7 +135,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertTrue(all(row["has_converted_full_text"] for row in rows))
         self.assertTrue(all(row["bridge_clinical_mechanism"] for row in rows))
         self.assertTrue(all(row["route_action"] == "extract_from_full_text" for row in rows))
-        self.assertTrue(all("datasets" not in row for row in rows))
 
     def test_build_extraction_routes_uses_gemini_domain_table_for_paper_type_and_domain(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -422,7 +373,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/meta",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -861,7 +811,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             paper_root = root / "papers"
-            pdf_path = paper_root / "disorder" / "excluded" / "10.1000_local_pdf__abc123.pdf"
+            pdf_path = paper_root / "archive" / "excluded" / "10.1000_local_pdf__abc123.pdf"
             pdf_path.parent.mkdir(parents=True)
             pdf_path.write_bytes(b"%PDF-1.7\nvalid enough for the route audit")
             metadata_df = pd.DataFrame(
@@ -879,7 +829,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 [
                     {
                         "doi": "10.1000/local-pdf",
-                        "dataset": "clinical",
                         "prescreen_decision": "retain",
                         "retained_for_extraction_candidate": True,
                         "prescreen_action": "retain_for_extraction_candidate",
@@ -933,7 +882,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/probable-pdf",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -983,7 +931,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/landing-url",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1034,7 +981,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/gaps",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1082,7 +1028,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/domain-table",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1156,7 +1101,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/methods",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1224,7 +1168,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/out",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1345,7 +1288,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/editorial",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1396,7 +1338,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/bibliometric",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1466,7 +1407,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             [
                 {
                     "doi": "10.1000/ibogaine-review",
-                    "dataset": "clinical",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "prescreen_action": "retain_for_extraction_candidate",
@@ -1582,19 +1522,17 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         )
         self.assertEqual({row["prompt_profile"] for row in rows}, {"secondary_structured_review"})
 
-    def test_prescreen_context_ignores_excluded_rows_and_source_dataset_labels(self) -> None:
+    def test_prescreen_context_ignores_excluded_rows(self) -> None:
         df = pd.DataFrame(
             [
                 {
                     "doi": "10.1000/a",
-                    "dataset": "clinical",
                     "prescreen_decision": "exclude",
                     "retained_for_extraction_candidate": False,
                     "routing_tags": "clinical_outcome",
                 },
                 {
                     "doi": "10.1000/a",
-                    "dataset": "mechanistic",
                     "prescreen_decision": "retain",
                     "retained_for_extraction_candidate": True,
                     "routing_tags": "molecular_target",
@@ -1605,7 +1543,6 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         context = prescreen_context_by_doi(df)
 
         self.assertEqual(context["10.1000/a"]["routing_tags"], ["molecular_target"])
-        self.assertNotIn("datasets", context["10.1000/a"])
 
 
 if __name__ == "__main__":

@@ -209,22 +209,8 @@ def test_secondary_schema_is_specialized_to_single_assigned_domain() -> None:
     )
 
 
-def test_mechanistic_prompts_do_not_force_valenced_result_direction() -> None:
-    mechanistic_domains = {"molecular_target", "molecular_pathway_readout"}
-    for family, domain, depth, prompt in assembled_prompt_scenarios():
-        if domain not in mechanistic_domains:
-            continue
-        lower = " ".join(prompt.lower().split())
-        assert "## result direction" not in lower, (family, domain, depth)
-        assert "result_direction" not in lower, (family, domain, depth)
-        assert "positive" not in lower, (family, domain, depth)
-        assert "negative" not in lower, (family, domain, depth)
-        assert "therapeutic benefit or harm" in lower, (family, domain, depth)
-
-
-def test_mechanistic_meta_schema_constrains_result_direction_to_not_applicable() -> None:
+def test_non_valenced_meta_schemas_constrain_result_direction_to_not_applicable() -> None:
     profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
-    schema = load_schema_for_profile(profile, "molecular_target")
 
     non_valenced_domains = set(SECONDARY_DOMAINS) - {"clinical_outcome", "safety_tolerability"}
     for domain in non_valenced_domains:

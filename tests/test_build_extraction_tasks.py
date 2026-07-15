@@ -8,7 +8,6 @@ import pandas as pd
 from jsonschema import Draft7Validator
 
 from pipeline.extract.build_extraction_tasks import (
-    DEFAULT_FULLTEXT_PACKET_PATHS,
     TASK_SCHEMA_VERSION,
     build_tasks,
     input_fingerprint_for_task,
@@ -107,13 +106,6 @@ class BuildExtractionTasksTest(unittest.TestCase):
         )
 
         self.assertNotEqual(first, second)
-
-    def test_default_article_text_inputs_do_not_include_legacy_split_packet_files(self) -> None:
-        names = [path.name for path in DEFAULT_FULLTEXT_PACKET_PATHS]
-
-        self.assertEqual(names, ["fulltext_packets.jsonl"])
-        self.assertNotIn("mechanistic_fulltext_packets.jsonl", names)
-        self.assertNotIn("disorder_fulltext_packets.jsonl", names)
 
     def test_build_tasks_uses_source_fingerprinted_task_identity(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -327,41 +319,6 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertEqual([error.message for error in Draft7Validator(schema).iter_errors(tasks[0])], [])
         self.assertEqual(report["by_task_status"], {"needs_fulltext_packet": 1})
 
-    def test_primary_route_accepts_legacy_lean_primary_packet_alias(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            pd.DataFrame([route_row()]).to_parquet(root / "routes.parquet", index=False)
-            pd.DataFrame(
-                [
-                    {
-                        "doi": "10.1000/full",
-                        "study_title": "Full text psilocybin trial",
-                        "abstract": "Participants received psilocybin.",
-                    }
-                ]
-            ).to_parquet(root / "metadata.parquet", index=False)
-            packets = root / "packets.jsonl"
-            packets.write_text(
-                json.dumps(
-                    {
-                        "packet_id": "article:10.1000/full:legacy",
-                        "packet_profile": "lean_primary",
-                        "study_doi": "10.1000/full",
-                        "document_summary": {"packet_profile": "lean_primary"},
-                    }
-                )
-                + "\n",
-                encoding="utf-8",
-            )
-
-            tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
-
-        self.assertEqual(tasks[0]["task_status"], "ready_for_model")
-        self.assertEqual(tasks[0]["text_source"]["expected_packet_profile"], "primary_empirical")
-        self.assertEqual(tasks[0]["text_source"]["packet_profile"], "lean_primary")
-        self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "compatible_legacy_alias")
-        self.assertEqual(report["by_packet_profile_status"], {"compatible_legacy_alias": 1})
-
     def test_fulltext_meta_analysis_selects_expected_packet_profile(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -462,9 +419,9 @@ class BuildExtractionTasksTest(unittest.TestCase):
                 json.dumps(
                     {
                         "packet_id": "article:10.1000/meta-mismatch",
-                        "packet_profile": "lean_primary",
+                        "packet_profile": "primary_empirical",
                         "study_doi": "10.1000/meta-mismatch",
-                        "document_summary": {"packet_profile": "lean_primary"},
+                        "document_summary": {"packet_profile": "primary_empirical"},
                     }
                 )
                 + "\n",

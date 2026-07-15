@@ -35,7 +35,6 @@ def write_test_tables(root: Path) -> tuple[Path, Path]:
         [
             {
                 "doi": "10.1000/domain",
-                "dataset": "disorder",
                 "run_id": "test_prescreen",
                 "prescreen_decision": "retain",
                 "retained_for_extraction_candidate": True,

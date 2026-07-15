@@ -4,7 +4,7 @@ import tempfile
 import pandas as pd
 
 from pipeline.fulltext.export_manual_pdf_queue import export_manual_pdf_queue
-from pipeline.ingest.sync_paper_library import pdf_filename_for_doi
+from pipeline.ingest.metadata_utils import pdf_filename_for_doi
 
 
 def test_export_manual_pdf_queue_deduplicates_routed_download_dois() -> None:
