@@ -8,8 +8,9 @@ DOI queues, claim stubs, or curated claim files.
 ## Table-native deterministic pre-screen
 
 The corpus-first path reads the unified Parquet corpus tables and writes
-screening decisions back as Parquet tables. It does not edit candidate papers
-or delete older decisions.
+screening decisions back as Parquet tables. It also promotes the current
+decision into `candidate_papers.parquet` and reconciles downstream active state;
+historical decision and raw-run artifacts remain provenance.
 
 Run:
 
@@ -28,12 +29,10 @@ title/abstract screening, or exclude it for a specific high-confidence reason.
 It does not assign evidence-domain or report-type routing tags.
 
 After the configured metadata-enrichment attempts have run, records without a
-usable abstract are handled conservatively. An explicit in-scope compound or
-intervention in the title is enough to retain the record as
-`retain_for_screening`; otherwise it is marked
-`exclude_no_usable_abstract`. Records with an abstract but no title are screened
-normally from the abstract. Placeholder and citation-only abstract fields count
-as unusable abstracts.
+usable abstract are marked `exclude_no_usable_abstract`; title-only records are
+not sent to model-assisted screening. Records with an abstract but no title are
+screened normally from the abstract. Placeholder and citation-only abstract
+fields count as unusable abstracts.
 
 For records with usable abstracts, title, abstract, keywords, and MeSH terms
 can provide an in-scope signal. Publication-format exclusions, such as
@@ -59,6 +58,14 @@ The reusable title/abstract rules live in
 the command so scoped-update and audit code can use the same rules without
 depending on a legacy screening implementation.
 
+Decision changes use the shared stage-aware reconciler in
+`pipeline/workflow/decision_state.py`. Only records included by both the
+previous and current decision at a stage retain downstream projections. New
+includes and current excludes have later-stage candidate fields reset, and
+declared active derived views are filtered. Bibliographic metadata, discovery
+provenance, PDFs, converted text, raw model responses, and published run
+archives are not deleted.
+
 ## Gemini screening, domain routing, and report-type routing
 
 Scope, domain, and report type for extraction are assigned together from
@@ -66,11 +73,21 @@ title/abstract metadata by the Gemini routing stage. This is the sole owner of
 domain and report-type routing; the deterministic pre-screen only decides which
 records proceed to it.
 
+The model screen is binary: plausibly in-scope records are included and only
+clearly out-of-scope records are excluded. There is no `unclear` state because
+it had no distinct downstream workflow. Validated abstracts are sent in full;
+the metadata repair stage must run before queue preparation so reconstructed
+full text or multi-record container text is never passed as an abstract.
+
 Prepare and advance the current batch queue with:
 
 ```bash
-python pipeline/review/build_gemini_domain_routing_batch_queue.py --prepare
-python pipeline/review/advance_gemini_domain_routing_batch_queue.py
+python pipeline/review/build_gemini_domain_routing_batch_queue.py \
+  --previous-candidate-table path/to/pre-promotion-candidate_papers.parquet \
+  --prepare
+
+# Submission requires explicit authorization.
+python pipeline/review/advance_gemini_domain_routing_batch_queue.py --submit
 ```
 
 The canonical routing output is

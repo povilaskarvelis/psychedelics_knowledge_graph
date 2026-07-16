@@ -138,16 +138,13 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         for doi in by_doi:
             self.assertFalse(by_doi[doi]["has_abstract"])
 
-        for doi in ("10.example/placeholder", "10.example/citation-journal"):
-            self.assertEqual(by_doi[doi]["prescreen_action"], "retain_for_screening")
-            self.assertEqual(by_doi[doi]["deterministic_action"], "retain_title_only_for_screening")
-            self.assertTrue(by_doi[doi]["retained_for_screening"])
-
-        excluded = by_doi["10.example/citation-parenthetical"]
-        self.assertEqual(excluded["prescreen_decision"], "exclude")
-        self.assertEqual(excluded["prescreen_action"], "exclude_no_usable_abstract")
-        self.assertFalse(excluded["retained_for_extraction_candidate"])
-        self.assertIn("title alone", excluded["prescreen_reason"])
+        for doi, row in by_doi.items():
+            self.assertEqual(row["prescreen_decision"], "exclude", doi)
+            self.assertEqual(row["prescreen_action"], "exclude_no_usable_abstract", doi)
+            self.assertEqual(row["deterministic_action"], "exclude_no_usable_abstract", doi)
+            self.assertFalse(row["retained_for_screening"], doi)
+            self.assertFalse(row["retained_for_extraction_candidate"], doi)
+            self.assertIn("title alone", row["prescreen_reason"], doi)
 
     def test_no_title_container_record_excluded_even_with_matching_abstract(self) -> None:
         papers = pd.DataFrame(
@@ -1030,6 +1027,94 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(keyed[("all_papers", "prescreen_action", "exclude_no_usable_abstract")], 1)
         self.assertFalse(any(metric == "routing_tag" for _, metric, _ in keyed))
         self.assertEqual(keyed[("all_papers", "abstract", "missing")], 1)
+
+    def test_run_reconciles_candidate_and_declared_active_downstream_views(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            papers_path = root / "candidate_papers.parquet"
+            metadata_path = root / "paper_metadata_enrichment.parquet"
+            contexts_path = root / "candidate_contexts.parquet"
+            decisions_path = root / "paper_prescreen_decisions.parquet"
+            summary_path = root / "paper_prescreen_summary.parquet"
+            routing_path = root / "paper_domain_routing_gemini.parquet"
+            extraction_path = root / "paper_extraction_routes.parquet"
+            tasks_path = root / "route_extraction_tasks.jsonl"
+            report_path = root / "reconciliation.json"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.example/retain",
+                        "study_title": "Psilocybin trial",
+                        "abstract": "Psilocybin therapy reduced depression symptoms.",
+                        "prescreen_retained_for_extraction_candidate": True,
+                        "extraction_route_status": "ready",
+                        "graph_inclusion_status": "represented",
+                    },
+                    {
+                        "doi": "10.example/exclude",
+                        "study_title": "Exercise intervention",
+                        "abstract": "This randomized trial evaluated exercise for depression symptoms.",
+                        "prescreen_retained_for_extraction_candidate": True,
+                        "extraction_route_status": "ready",
+                        "graph_inclusion_status": "represented",
+                    },
+                ]
+            ).to_parquet(papers_path, index=False)
+            pd.DataFrame([]).to_parquet(metadata_path, index=False)
+            pd.DataFrame([]).to_parquet(contexts_path, index=False)
+            pd.DataFrame(
+                [
+                    {"doi": "10.example/retain", "screening_decision": "include_in_scope"},
+                    {"doi": "10.example/exclude", "screening_decision": "include_in_scope"},
+                ]
+            ).to_parquet(routing_path, index=False)
+            pd.DataFrame(
+                [
+                    {"doi": "10.example/retain", "route_action": "extract"},
+                    {"doi": "10.example/exclude", "route_action": "extract"},
+                ]
+            ).to_parquet(extraction_path, index=False)
+            tasks_path.write_text(
+                '{"study_doi":"10.example/retain"}\n'
+                '{"study_doi":"10.example/exclude"}\n',
+                encoding="utf-8",
+            )
+            args = type(
+                "Args",
+                (),
+                {
+                    "papers_table": str(papers_path),
+                    "metadata_table": str(metadata_path),
+                    "contexts_table": str(contexts_path),
+                    "decisions_table": str(decisions_path),
+                    "summary_table": str(summary_path),
+                    "previous_candidate_table": "",
+                    "domain_routing_table": str(routing_path),
+                    "extraction_routes_table": str(extraction_path),
+                    "extraction_tasks_jsonl": str(tasks_path),
+                    "reconciliation_report": str(report_path),
+                    "run_id": "test_reconciliation",
+                    "doi_file": "",
+                    "doi": [],
+                    "progress_every": 0,
+                },
+            )()
+
+            run(args)
+            candidates = pd.read_parquet(papers_path).set_index("doi")
+            routes = pd.read_parquet(routing_path)
+            extraction = pd.read_parquet(extraction_path)
+            tasks_text = tasks_path.read_text(encoding="utf-8")
+            report_exists = report_path.exists()
+
+        self.assertEqual(candidates.loc["10.example/retain", "extraction_route_status"], "ready")
+        self.assertEqual(candidates.loc["10.example/retain", "graph_inclusion_status"], "represented")
+        self.assertEqual(candidates.loc["10.example/exclude", "extraction_route_status"], "")
+        self.assertEqual(candidates.loc["10.example/exclude", "graph_inclusion_status"], "")
+        self.assertEqual(routes["doi"].tolist(), ["10.example/retain"])
+        self.assertEqual(extraction["doi"].tolist(), ["10.example/retain"])
+        self.assertEqual(tasks_text, '{"study_doi":"10.example/retain"}\n')
+        self.assertTrue(report_exists)
 
 
 if __name__ == "__main__":

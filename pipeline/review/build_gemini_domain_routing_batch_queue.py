@@ -5,29 +5,47 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
+import tempfile
+
+import pandas as pd
 
 try:
-    from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, write_json
+    from pipeline.review.run_gemini_domain_routing import (
+        DEFAULT_OUTPUT_TABLE,
+        clean,
+        normalize_doi,
+        prompt_for_record,
+        write_json,
+    )
     from pipeline.review.run_gemini_domain_routing_batch import (
         DEFAULT_ENV,
+        DEFAULT_CANDIDATE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_PRESCREEN_TABLE,
         DEFAULT_RAW_JSONL,
         selected_routing_records,
-        write_batch_requests,
+        write_batch_requests_for_records,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.review.run_gemini_domain_routing import clean, prompt_for_record, write_json
+    from pipeline.review.run_gemini_domain_routing import (
+        DEFAULT_OUTPUT_TABLE,
+        clean,
+        normalize_doi,
+        prompt_for_record,
+        write_json,
+    )
     from pipeline.review.run_gemini_domain_routing_batch import (
         DEFAULT_ENV,
+        DEFAULT_CANDIDATE_TABLE,
         DEFAULT_METADATA_TABLE,
         DEFAULT_PRESCREEN_TABLE,
         DEFAULT_RAW_JSONL,
         selected_routing_records,
-        write_batch_requests,
+        write_batch_requests_for_records,
     )
 
 
@@ -74,12 +92,54 @@ def part_paths(tag: str, part_number: int, out_dir: Path) -> dict[str, str]:
     }
 
 
-def prepare_part(*, start_index: int, limit: int, paths: dict[str, str], args: argparse.Namespace) -> dict:
+def previously_prescreen_retained_dois(path: Path) -> set[str]:
+    """Return the DOI set retained by the immediately preceding prescreen run."""
+    if not path.is_file():
+        raise FileNotFoundError(f"Previous candidate table not found: {path}")
+    retained_column = "prescreen_retained_for_extraction_candidate"
+    frame = pd.read_parquet(path, columns=["doi", retained_column])
+    if frame.empty:
+        return set()
+    frame = frame.copy()
+    frame["_doi"] = frame["doi"].map(normalize_doi)
+    frame["_retained"] = frame[retained_column].map(
+        lambda value: clean(value).lower() in {"true", "1", "yes"}
+    )
+    return set(frame.loc[frame["_doi"].astype(bool) & frame["_retained"], "_doi"])
+
+
+def write_doi_file_atomic(path: Path, records: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    file_descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+    )
+    os.close(file_descriptor)
+    temporary_path = Path(temporary_name)
+    try:
+        temporary_path.write_text(
+            "".join(f"{normalize_doi(record.get('doi', ''))}\n" for record in records),
+            encoding="utf-8",
+        )
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+
+def prepare_part(
+    *,
+    start_index: int,
+    limit: int,
+    paths: dict[str, str],
+    args: argparse.Namespace,
+    effective_doi_file: Path,
+    records: list[dict],
+) -> dict:
     prepare_args = argparse.Namespace(
         metadata_table=str(Path(args.metadata_table).resolve()),
+        candidate_table=str(Path(args.candidate_table).resolve()),
         prescreen_decisions_table=str(Path(args.prescreen_decisions_table).resolve()),
         raw_jsonl=paths["raw_jsonl"],
-        doi_file=args.doi_file,
+        doi_file=str(effective_doi_file),
         env_file=str(Path(args.env_file).resolve()),
         model=args.model,
         limit=limit,
@@ -91,13 +151,29 @@ def prepare_part(*, start_index: int, limit: int, paths: dict[str, str], args: a
         batch_input_jsonl=paths["batch_requests_jsonl"],
         manifest_json=paths["manifest_json"],
     )
-    return write_batch_requests(prepare_args)
+    return write_batch_requests_for_records(prepare_args, records)
 
 
 def build_queue(args: argparse.Namespace) -> dict:
     out_dir = Path(args.out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
-    records = selected_routing_records(args)
+    eligible_records = selected_routing_records(args)
+    existing_routing_table = Path(args.existing_routing_table).resolve()
+    previous_candidate_table = Path(args.previous_candidate_table).resolve()
+    previously_retained = previously_prescreen_retained_dois(previous_candidate_table)
+    eligible_dois = {normalize_doi(record.get("doi", "")) for record in eligible_records}
+    unchanged_both_retained = eligible_dois.intersection(previously_retained)
+    records = [
+        record
+        for record in eligible_records
+        if normalize_doi(record.get("doi", "")) not in previously_retained
+    ]
+    effective_doi_file = (
+        Path(args.delta_doi_file).resolve()
+        if clean(args.delta_doi_file)
+        else out_dir / f"paper_domain_routing_gemini_delta_dois.{args.tag}.txt"
+    )
+    write_doi_file_atomic(effective_doi_file, records)
     split = split_records(
         records,
         max_requests=max(1, args.max_requests),
@@ -115,7 +191,14 @@ def build_queue(args: argparse.Namespace) -> dict:
             **paths,
         }
         if args.prepare:
-            manifest = prepare_part(start_index=start_index, limit=limit, paths=paths, args=args)
+            manifest = prepare_part(
+                start_index=start_index,
+                limit=limit,
+                paths=paths,
+                args=args,
+                effective_doi_file=effective_doi_file,
+                records=rows,
+            )
             part["prepared_requests"] = manifest.get("summary", {}).get("prepared_requests", 0)
         parts.append(part)
 
@@ -125,6 +208,9 @@ def build_queue(args: argparse.Namespace) -> dict:
         "python": args.python,
         "notes": args.notes,
         "summary": {
+            "eligible_records": len(eligible_records),
+            "previous_prescreen_retained_dois": len(previously_retained),
+            "unchanged_both_prescreens_retained": len(unchanged_both_retained),
             "records": len(records),
             "parts": len(parts),
             "max_requests": max(1, args.max_requests),
@@ -132,9 +218,15 @@ def build_queue(args: argparse.Namespace) -> dict:
             "prepared": bool(args.prepare),
         },
         "inputs": {
+            "candidate_table": str(Path(args.candidate_table).resolve()),
             "metadata_table": str(Path(args.metadata_table).resolve()),
             "prescreen_decisions_table": str(Path(args.prescreen_decisions_table).resolve()),
-            "doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
+            "scope_doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
+            "delta_doi_file": str(effective_doi_file),
+            "previous_candidate_table": str(previous_candidate_table),
+            "existing_routing_table": str(existing_routing_table),
+            "existing_raw_jsonl": str(Path(args.raw_jsonl).resolve()),
+            "queue_selection_rule": "current_prescreen_retain_except_previous_prescreen_retain",
             "model": args.model,
             "temperature": args.temperature,
             "max_output_tokens": args.max_output_tokens,
@@ -146,8 +238,9 @@ def build_queue(args: argparse.Namespace) -> dict:
     return queue
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--doi-file", default="")
@@ -165,10 +258,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--start-index", type=int, default=1)
     parser.add_argument("--raw-jsonl", default=str(DEFAULT_RAW_JSONL))
+    parser.add_argument("--existing-routing-table", default=str(DEFAULT_OUTPUT_TABLE))
+    parser.add_argument(
+        "--previous-candidate-table",
+        required=True,
+        help=(
+            "Candidate-table snapshot from the immediately preceding prescreen run. "
+            "DOIs retained in both that snapshot and the current prescreen are left out of the queue."
+        ),
+    )
+    parser.add_argument("--delta-doi-file", default="")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--notes", default="")
     parser.add_argument("--prepare", action="store_true", help="Also write Batch API request JSONLs/manifests.")
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def main() -> int:

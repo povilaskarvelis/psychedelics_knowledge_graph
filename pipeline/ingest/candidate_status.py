@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import datetime as dt
+import os
 from pathlib import Path
+import tempfile
 from typing import Mapping
 
 import pandas as pd
@@ -108,22 +110,33 @@ def apply_candidate_updates(
     changed = False
     for column in columns:
         mapped = df["_doi_key"].map(update_df[column])
-        mask = matched_mask
-        for index in df.index[mask]:
-            new_value = mapped.at[index]
-            if pd.isna(new_value):
-                new_value = defaults.get(column, "")
-            old_value = df.at[index, column]
-            if values_equal(old_value, new_value):
-                continue
-            df.at[index, column] = new_value
-            summary["updated_cells"] += 1
-            changed_rows.add(int(index))
-            changed = True
+        mapped = mapped.where(mapped.notna(), defaults.get(column, ""))
+        equal = df[column].eq(mapped)
+        if hasattr(equal, "fillna"):
+            equal = equal.fillna(False)
+        equal = equal | (df[column].isna() & mapped.isna())
+        column_changed = matched_mask & ~equal
+        if not column_changed.any():
+            continue
+        df.loc[column_changed, column] = mapped.loc[column_changed].to_numpy()
+        summary["updated_cells"] += int(column_changed.sum())
+        changed_rows.update(int(index) for index in df.index[column_changed])
+        changed = True
 
     summary["updated_candidate_rows"] = len(changed_rows)
     df = df.drop(columns=["_doi_key"])
     if changed and not dry_run:
         candidate_table.parent.mkdir(parents=True, exist_ok=True)
-        df.to_parquet(candidate_table, engine="pyarrow", index=False)
+        file_descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{candidate_table.name}.",
+            suffix=".tmp",
+            dir=candidate_table.parent,
+        )
+        os.close(file_descriptor)
+        temporary_path = Path(temporary_name)
+        try:
+            df.to_parquet(temporary_path, engine="pyarrow", index=False)
+            os.replace(temporary_path, candidate_table)
+        finally:
+            temporary_path.unlink(missing_ok=True)
     return summary

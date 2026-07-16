@@ -14,9 +14,11 @@ from pipeline.ingest.run_batch_abstract_enrichment import (
     build_missing_abstract_scope,
     fetch_crossref_work,
     fetch_pmc_batch_with_isolation,
+    fetch_semantic_scholar_batch_with_isolation,
     load_checkpoint,
     merge_recovered_abstracts,
     parse_pmc_batch,
+    parse_pubmed_batch,
     parse_crossref_work,
     parse_semantic_scholar_batch,
     save_checkpoint,
@@ -147,6 +149,31 @@ class BatchAbstractEnrichmentTest(unittest.TestCase):
         self.assertEqual(rows[0]["abstract"], "Background This is the longer structured abstract.")
         self.assertEqual(rows[0]["provider_doi"], "10.1000/one")
 
+    def test_parse_pubmed_batch_maps_by_pmid_and_checks_doi(self) -> None:
+        body = b"""<PubmedArticleSet>
+          <PubmedArticle>
+            <MedlineCitation><PMID>123</PMID><Article>
+              <ArticleTitle>Paper</ArticleTitle>
+              <Abstract><AbstractText Label='BACKGROUND'>Recovered text.</AbstractText></Abstract>
+            </Article></MedlineCitation>
+            <PubmedData><ArticleIdList><ArticleId IdType='doi'>10.1000/one</ArticleId></ArticleIdList></PubmedData>
+          </PubmedArticle>
+        </PubmedArticleSet>"""
+
+        rows = parse_pubmed_batch(
+            body,
+            [
+                {"doi": "10.1000/one", "pmid": "123"},
+                {"doi": "10.1000/missing", "pmid": "999"},
+            ],
+            run_id="test_run",
+            batch_id="pubmed_000001",
+        )
+
+        self.assertEqual([row["status"] for row in rows], ["recovered", "not_found"])
+        self.assertIn("Recovered text.", rows[0]["abstract"])
+        self.assertEqual(rows[0]["provider_doi"], "10.1000/one")
+
     def test_parse_semantic_scholar_batch_preserves_input_identity(self) -> None:
         rows = parse_semantic_scholar_batch(
             [
@@ -174,6 +201,60 @@ class BatchAbstractEnrichmentTest(unittest.TestCase):
         self.assertEqual([row["status"] for row in rows], ["recovered", "not_found", "identifier_mismatch"])
         self.assertEqual(rows[0]["abstract"], "A recovered abstract.")
         self.assertEqual(rows[2]["abstract"], "")
+
+    def test_semantic_scholar_short_response_is_realigned_by_doi(self) -> None:
+        rows = parse_semantic_scholar_batch(
+            [
+                {"paperId": "one", "externalIds": {"DOI": "10.1000/one"}, "abstract": "First."},
+                {"paperId": "three", "externalIds": {"DOI": "10.1000/three"}, "abstract": "Third."},
+            ],
+            [
+                {"doi": "10.1000/one"},
+                {"doi": "10.1000/two"},
+                {"doi": "10.1000/three"},
+            ],
+            run_id="test_run",
+            batch_id="semantic_scholar_000001",
+        )
+
+        self.assertEqual([row["status"] for row in rows], ["recovered", "not_found", "recovered"])
+        self.assertEqual(rows[2]["abstract"], "Third.")
+
+    def test_semantic_scholar_http_400_batch_is_split_and_continues(self) -> None:
+        error = HTTPError("https://example.org", 400, "bad request", {}, None)
+        client = MagicMock()
+        client.post_json.side_effect = [
+            error,
+            [{"paperId": "one", "externalIds": {"DOI": "10.1000/one"}, "abstract": "First."}],
+            error,
+        ]
+
+        rows = fetch_semantic_scholar_batch_with_isolation(
+            [{"doi": "10.1000/one"}, {"doi": "10.1000/bad"}],
+            client=client,
+            endpoint="https://example.org/batch",
+            api_key="",
+            run_id="test_run",
+            batch_id="semantic_scholar_000001",
+        )
+
+        self.assertEqual([row["status"] for row in rows], ["recovered", "request_error"])
+        self.assertEqual(client.post_json.call_count, 3)
+
+    def test_semantic_scholar_skips_gbif_dataset_download_dois(self) -> None:
+        client = MagicMock()
+
+        rows = fetch_semantic_scholar_batch_with_isolation(
+            [{"doi": "10.15468/dl.example"}],
+            client=client,
+            endpoint="https://example.org/batch",
+            api_key="",
+            run_id="test_run",
+            batch_id="semantic_scholar_000001",
+        )
+
+        self.assertEqual(rows[0]["status"], "provider_ineligible")
+        client.post_json.assert_not_called()
 
     def test_scope_uses_existing_metadata_and_only_keeps_missing_abstracts(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -317,6 +398,16 @@ class BatchAbstractEnrichmentTest(unittest.TestCase):
         )
 
         self.assertEqual(selected["10.1000/one"]["abstract"], "PMC")
+
+    def test_best_recovered_rows_prefers_pubmed_over_pmc(self) -> None:
+        selected = best_recovered_rows(
+            [
+                {"doi": "10.1000/one", "provider": "pmc", "status": "recovered", "abstract": "PMC"},
+                {"doi": "10.1000/one", "provider": "pubmed", "status": "recovered", "abstract": "PubMed"},
+            ]
+        )
+
+        self.assertEqual(selected["10.1000/one"]["abstract"], "PubMed")
 
 
 if __name__ == "__main__":

@@ -7,10 +7,12 @@ import pandas as pd
 
 from pipeline.fulltext.fetch_pmc_fulltext_xml import (
     build_xml_artifact,
+    pmc_rows_from_selection,
     pmcid_from_metadata,
     sections_from_jats,
     selected_rows,
 )
+from pipeline.extract.build_extraction_routes import merged_extraction_metadata
 from pipeline.fulltext.convert_pdfs import doi_to_slug
 
 
@@ -58,6 +60,29 @@ JATS_XML = """
 
 
 class FetchPmcFulltextXmlTest(unittest.TestCase):
+    def test_pmc_rows_from_postscreen_selection(self) -> None:
+        selection = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/pmc",
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": True,
+                    "fulltext_enrichment_action": "fetch_pmc_xml",
+                },
+                {
+                    "doi": "10.1000/pdf",
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": True,
+                    "fulltext_enrichment_action": "download_known_pdf",
+                },
+            ]
+        )
+
+        rows = pmc_rows_from_selection(selection)
+
+        self.assertEqual(rows["doi"].tolist(), ["10.1000/pmc"])
+        self.assertTrue(rows["retained_for_extraction_candidate"].all())
+
     def test_sections_from_jats_extracts_abstract_and_nested_sections(self) -> None:
         sections = sections_from_jats(JATS_XML)
 
@@ -110,6 +135,24 @@ class FetchPmcFulltextXmlTest(unittest.TestCase):
             pmcid_from_metadata({"pdf_url_candidates": "https://pmc.ncbi.nlm.nih.gov/articles/PMC456/pdf/example.pdf"}),
             "PMC456",
         )
+
+    def test_candidate_pmcid_survives_blank_sparse_enrichment(self) -> None:
+        candidate = pd.DataFrame(
+            {
+                "doi": pd.Series(["10.1000/candidate-pmcid"], dtype="string"),
+                "pmcid": pd.Series(["PMC123456"], dtype="string"),
+            }
+        )
+        enrichment = pd.DataFrame(
+            {
+                "doi": pd.Series(["10.1000/candidate-pmcid"], dtype="string"),
+                "pmcid": pd.Series([""], dtype="string"),
+            }
+        )
+
+        merged = merged_extraction_metadata(candidate, enrichment)
+
+        self.assertEqual(pmcid_from_metadata(merged.iloc[0].to_dict()), "PMC123456")
 
     def test_selected_rows_skips_existing_fulltext_and_local_pdf_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

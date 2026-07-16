@@ -35,6 +35,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 
 DEFAULT_ENV = ROOT / ".env"
+DEFAULT_CANDIDATE_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 DEFAULT_METADATA_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
 DEFAULT_PRESCREEN_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_prescreen_decisions.parquet"
 DEFAULT_OUTPUT_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
@@ -66,7 +67,6 @@ METHODOLOGICAL_VALIDITY_TAGS = (
 SCREENING_DECISIONS = (
     "include_in_scope",
     "exclude_out_of_scope",
-    "unclear",
 )
 PAPER_TYPE_GROUPS = (
     "primary",
@@ -136,8 +136,6 @@ METHODOLOGICAL_VALIDITY_DEFINITIONS = {
     "measurement_psychometric_validity": "The paper substantively validates, critiques, or compares scales, questionnaires, outcome measures, factor structure, reliability, validity, or psychometric interpretation.",
     "evidence_quality_bias": "The paper substantively evaluates risk of bias, certainty/quality of evidence, heterogeneity, small-study effects, GRADE-style certainty, or other evidence-quality concerns.",
 }
-MAX_ABSTRACT_CHARS = 5000
-
 DOMAIN_DEFINITION_TEXT = "\n".join(f"- {domain}: {description}" for domain, description in DOMAIN_DEFINITIONS.items())
 METHODOLOGICAL_VALIDITY_TEXT = "\n".join(
     f"- {tag}: {description}" for tag, description in METHODOLOGICAL_VALIDITY_DEFINITIONS.items()
@@ -205,8 +203,6 @@ Set domain_tags and primary_domain as follows:
   cross-domain synthesis, or methodological context relevant to the domains
   above.
 - "general_topic" is not a catch-all for out-of-scope records.
-- For unclear, assign supported domains if possible; otherwise use no
-  domain_tags and primary_domain "general_topic".
 - An empty domain_tags list is not by itself an exclusion signal.
 
 Special domain rules:
@@ -316,8 +312,10 @@ Set screening_decision after domain and paper-type assignment:
   evidence domain and does not support in-scope "general_topic" relevance. Also
   use this for records that are only container/citation/issue records or contain
   only a passing/background mention of an in-scope topic.
-- unclear: use when the title/abstract suggests possible relevance, but the
-  information provided is too thin or ambiguous to decide confidently.
+- When relevance is plausible but the title/abstract is thin or ambiguous,
+  use include_in_scope. Exclude only when the available evidence clearly
+  establishes that the record is out of scope; this preserves recall without
+  creating a third decision state that has no distinct downstream workflow.
 - For exclude_out_of_scope, return no domain_tags and primary_domain
   "general_topic".
 - For non_primary_publication records that are excluded, return no domain_tags
@@ -386,6 +384,34 @@ def read_doi_file(path: Path) -> set[str]:
         if doi:
             out.add(doi)
     return out
+
+
+ROUTING_METADATA_FIELDS = (
+    "study_title",
+    "study_year",
+    "abstract",
+    "publication_type",
+    "mesh_terms",
+    "keywords",
+)
+
+
+def merged_routing_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataFrame) -> pd.DataFrame:
+    """Return one DOI row using enrichment values over the complete candidate ledger."""
+    by_doi: dict[str, dict] = {}
+    for frame in (candidate_df, metadata_df):
+        if frame.empty or "doi" not in frame.columns:
+            continue
+        for row in frame.to_dict("records"):
+            doi = normalize_doi(row.get("doi", ""))
+            if not doi:
+                continue
+            merged = by_doi.setdefault(doi, {"doi": doi})
+            for field in ROUTING_METADATA_FIELDS:
+                value = clean(row.get(field, ""))
+                if value:
+                    merged[field] = value
+    return pd.DataFrame(by_doi.values())
 
 
 def truthy(value: object) -> bool:
@@ -496,8 +522,6 @@ def completed_dois(raw_jsonl: Path) -> set[str]:
 
 def prompt_for_record(record: dict) -> str:
     abstract = clean(record.get("abstract", ""))
-    if len(abstract) > MAX_ABSTRACT_CHARS:
-        abstract = abstract[:MAX_ABSTRACT_CHARS] + " [truncated]"
     return f"""Paper record:
 DOI: {record['doi']}
 Title: {record['study_title']}
@@ -529,54 +553,44 @@ def parse_response_text(text: str) -> dict:
     if stripped.startswith("```"):
         stripped = re.sub(r"^```(?:json)?\s*", "", stripped)
         stripped = re.sub(r"\s*```$", "", stripped)
-    try:
-        payload = json.loads(stripped)
-    except json.JSONDecodeError as exc:
-        payload = salvage_partial_json_response(stripped)
-        if not payload:
-            raise exc
+    payload = json.loads(stripped)
     if not isinstance(payload, dict):
         raise ValueError("Gemini domain routing response was not a JSON object")
+    validate_response_payload(payload)
     return payload
 
 
-def json_string_field(text: str, field: str) -> str:
-    match = re.search(rf'"{re.escape(field)}"\s*:\s*"((?:\\.|[^"\\])*)"', text, flags=re.DOTALL)
-    if not match:
-        return ""
-    try:
-        return json.loads(f'"{match.group(1)}"')
-    except json.JSONDecodeError:
-        return match.group(1)
+def validate_response_payload(payload: dict) -> None:
+    """Reject partial or off-schema model output before normalization."""
+    properties = DOMAIN_RESPONSE_SCHEMA["properties"]
+    required = set(DOMAIN_RESPONSE_SCHEMA["required"])
+    missing = sorted(required.difference(payload))
+    if missing:
+        raise ValueError(f"Gemini domain routing response is missing required fields: {', '.join(missing)}")
+    unexpected = sorted(set(payload).difference(properties))
+    if unexpected:
+        raise ValueError(f"Gemini domain routing response has unexpected fields: {', '.join(unexpected)}")
 
-
-def json_array_field(text: str, field: str) -> list:
-    match = re.search(rf'"{re.escape(field)}"\s*:\s*(\[[^\]]*\])', text, flags=re.DOTALL)
-    if not match:
-        return []
-    try:
-        value = json.loads(match.group(1))
-    except json.JSONDecodeError:
-        return []
-    return value if isinstance(value, list) else []
-
-
-def salvage_partial_json_response(text: str) -> dict:
-    payload = {
-        "domain_tags": json_array_field(text, "domain_tags"),
-        "primary_domain": json_string_field(text, "primary_domain"),
-        "screening_decision": json_string_field(text, "screening_decision"),
-        "screening_reason": json_string_field(text, "screening_reason"),
-        "paper_type_group": json_string_field(text, "paper_type_group"),
-        "paper_type": json_string_field(text, "paper_type"),
-        "paper_type_labels": json_array_field(text, "paper_type_labels"),
-        "paper_type_reason": json_string_field(text, "paper_type_reason"),
-        "methodological_validity_tags": json_array_field(text, "methodological_validity_tags"),
-        "rationale": json_string_field(text, "rationale"),
-    }
-    if payload["domain_tags"] or payload["primary_domain"] or payload["screening_decision"] or payload["paper_type"]:
-        return payload
-    return {}
+    for field, specification in properties.items():
+        value = payload[field]
+        expected_type = specification.get("type")
+        if expected_type == "string":
+            if not isinstance(value, str):
+                raise ValueError(f"Gemini domain routing field `{field}` must be a string")
+            allowed = specification.get("enum")
+            if allowed is not None and value not in allowed:
+                raise ValueError(f"Gemini domain routing field `{field}` has an invalid value: {value}")
+            continue
+        if expected_type == "array":
+            if not isinstance(value, list):
+                raise ValueError(f"Gemini domain routing field `{field}` must be an array")
+            item_specification = specification.get("items", {})
+            allowed = item_specification.get("enum")
+            for item in value:
+                if not isinstance(item, str):
+                    raise ValueError(f"Gemini domain routing field `{field}` must contain only strings")
+                if allowed is not None and item not in allowed:
+                    raise ValueError(f"Gemini domain routing field `{field}` has an invalid value: {item}")
 
 
 def paper_type_group_for(paper_type: str) -> str:
@@ -621,11 +635,10 @@ def normalize_payload(payload: dict) -> dict:
     if primary != GENERAL_DOMAIN_ROUTE and primary not in tags:
         tags.insert(0, primary)
     screening_decision = clean(payload.get("screening_decision", "")).lower()
+    if screening_decision == "include_for_extraction":
+        screening_decision = "include_in_scope"
     if screening_decision not in SCREENING_DECISIONS:
-        if screening_decision == "include_for_extraction":
-            screening_decision = "include_in_scope"
-        else:
-            screening_decision = "include_in_scope" if tags else "unclear"
+        raise ValueError(f"Unsupported screening decision: {screening_decision or 'missing'}")
     if screening_decision == "exclude_out_of_scope":
         tags = []
         validity_tags = []
@@ -679,8 +692,13 @@ def run_gemini(args: argparse.Namespace) -> list[dict]:
 
     scoped_dois = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else set()
     completed = completed_dois(Path(args.raw_jsonl).resolve()) if args.resume else set()
-    records = selected_records(
+    candidate_table = clean(getattr(args, "candidate_table", ""))
+    routing_metadata = merged_routing_metadata(
+        read_table(Path(candidate_table).resolve()) if candidate_table else pd.DataFrame(),
         read_table(Path(args.metadata_table).resolve()),
+    )
+    records = selected_records(
+        routing_metadata,
         read_table(Path(args.prescreen_decisions_table).resolve()),
         scoped_dois=scoped_dois,
         limit=args.limit,
@@ -812,11 +830,14 @@ def route_rows_from_parsed(parsed_rows: list[dict], generated_at_utc: str) -> li
         validity_tags = [
             tag for tag in row.get("methodological_validity_tags", []) if tag in METHODOLOGICAL_VALIDITY_TAGS
         ]
-        screening_decision = clean(row.get("screening_decision", "")) or "include_in_scope"
+        screening_decision = clean(row.get("screening_decision", ""))
         if screening_decision == "include_for_extraction":
             screening_decision = "include_in_scope"
         if screening_decision not in SCREENING_DECISIONS:
-            screening_decision = "include_in_scope" if tags else "unclear"
+            raise ValueError(
+                f"Unsupported screening decision for {clean(row.get('doi', 'unknown DOI'))}: "
+                f"{screening_decision or 'missing'}"
+            )
         paper_type = clean(row.get("paper_type", ""))
         if paper_type not in PAPER_TYPES:
             paper_type = "primary"
@@ -897,7 +918,7 @@ def build_summary(rows: list[dict], *, inputs: dict) -> tuple[dict, list[dict]]:
         if not doi:
             continue
         if doi not in screening_by_doi:
-            screening_by_doi[doi] = clean(row.get("screening_decision", "")) or "unclear"
+            screening_by_doi[doi] = clean(row.get("screening_decision", ""))
         for tag in split_values(row.get("methodological_validity_tags", "")):
             if tag in METHODOLOGICAL_VALIDITY_TAGS:
                 methodological_tag_by_doi[doi].add(tag)
@@ -936,6 +957,7 @@ def build_summary(rows: list[dict], *, inputs: dict) -> tuple[dict, list[dict]]:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Assign paper domain routes from title/abstract metadata with Gemini.")
+    parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--output-table", default=str(DEFAULT_OUTPUT_TABLE))
@@ -964,7 +986,10 @@ def main() -> int:
     raw_jsonl = Path(args.raw_jsonl).resolve()
     if not args.parse_only:
         run_gemini(args)
-    metadata_df = read_table(metadata_table)
+    metadata_df = merged_routing_metadata(
+        read_table(Path(args.candidate_table).resolve()),
+        read_table(metadata_table),
+    )
     prescreen_df = read_table(prescreen_table)
     parsed_rows = parsed_rows_from_raw(raw_jsonl, metadata_df, prescreen_df)
     generated_at_utc = now_utc()

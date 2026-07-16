@@ -46,7 +46,9 @@ from pipeline.ingest.enrich_paper_metadata import (  # noqa: E402
 from pipeline.ingest.metadata_utils import (  # noqa: E402
     PAPER_METADATA_SCHEMA_VERSION,
     load_config,
+    metadata_from_pubmed_article,
     normalize_doi,
+    pubmed_article_id,
     read_float,
     read_int,
     strip_markup,
@@ -299,6 +301,61 @@ def parse_pmc_batch(body: bytes, requested: Sequence[dict], *, run_id: str, batc
     return rows
 
 
+def parse_pubmed_batch(body: bytes, requested: Sequence[dict], *, run_id: str, batch_id: str) -> list[dict]:
+    root = ET.fromstring(body)
+    articles_by_pmid: dict[str, tuple[str, str]] = {}
+    for article in root.findall(".//PubmedArticle"):
+        pmid = clean(article.findtext(".//MedlineCitation/PMID"))
+        if not pmid:
+            continue
+        metadata = metadata_from_pubmed_article(article, {})
+        articles_by_pmid[pmid] = (
+            normalized_doi(pubmed_article_id(article, "doi")),
+            normalized_text(metadata.get("abstract", "")),
+        )
+
+    timestamp = now_utc()
+    rows: list[dict] = []
+    for item in requested:
+        doi = normalized_doi(item.get("doi"))
+        pmid = clean(item.get("pmid", ""))
+        match = articles_by_pmid.get(pmid)
+        if not match:
+            rows.append(result_row(run_id, "pubmed", batch_id, doi, pmid, "", "not_found", "", timestamp))
+            continue
+        provider_doi, abstract = match
+        if provider_doi and provider_doi != doi:
+            rows.append(
+                result_row(
+                    run_id,
+                    "pubmed",
+                    batch_id,
+                    doi,
+                    pmid,
+                    provider_doi,
+                    "identifier_mismatch",
+                    "",
+                    timestamp,
+                    error=f"requested={doi};returned={provider_doi}",
+                )
+            )
+            continue
+        rows.append(
+            result_row(
+                run_id,
+                "pubmed",
+                batch_id,
+                doi,
+                pmid,
+                provider_doi,
+                "recovered" if abstract else "no_abstract",
+                abstract,
+                timestamp,
+            )
+        )
+    return rows
+
+
 def parse_semantic_scholar_batch(
     payload: Any,
     requested: Sequence[dict],
@@ -308,13 +365,25 @@ def parse_semantic_scholar_batch(
 ) -> list[dict]:
     if not isinstance(payload, list):
         raise ValueError("Semantic Scholar batch response must be a list")
-    if len(payload) != len(requested):
-        raise ValueError(
-            f"Semantic Scholar returned {len(payload)} rows for {len(requested)} requested identifiers"
-        )
+    responses: list[Any]
+    if len(payload) == len(requested):
+        responses = payload
+    else:
+        # The API occasionally omits an unsupported identifier instead of
+        # returning a null placeholder.  Positional zipping would then attach
+        # every later abstract to the wrong DOI, so realign by returned DOI.
+        by_doi: dict[str, dict] = {}
+        for response in payload:
+            if not isinstance(response, dict):
+                continue
+            external = response.get("externalIds", {}) if isinstance(response.get("externalIds"), dict) else {}
+            doi = normalized_doi(external.get("DOI", ""))
+            if doi:
+                by_doi[doi] = response
+        responses = [by_doi.get(normalized_doi(item.get("doi"))) for item in requested]
     timestamp = now_utc()
     rows: list[dict] = []
-    for item, response in zip(requested, payload):
+    for item, response in zip(requested, responses):
         doi = normalized_doi(item.get("doi"))
         if not isinstance(response, dict):
             rows.append(result_row(run_id, "semantic_scholar", batch_id, doi, "", "", "not_found", "", timestamp))
@@ -484,6 +553,8 @@ def build_missing_abstract_scope(
 def batch_input_hash(rows: Sequence[dict], provider: str) -> str:
     if provider == "pmc":
         values = [f"{normalized_doi(row.get('doi'))}\t{normalized_pmcid(row.get('pmcid'))}" for row in rows]
+    elif provider == "pubmed":
+        values = [f"{normalized_doi(row.get('doi'))}\t{clean(row.get('pmid', ''))}" for row in rows]
     else:
         values = [normalized_doi(row.get("doi")) for row in rows]
     return sha256_bytes("\n".join(values).encode("utf-8"))
@@ -590,6 +661,116 @@ def fetch_pmc_batch_with_isolation(
         ]
 
 
+def fetch_pubmed_batch_with_isolation(
+    rows: Sequence[dict],
+    *,
+    client: BatchHttpClient,
+    run_id: str,
+    batch_id: str,
+    email: str,
+    api_key: str,
+) -> list[dict]:
+    """Fetch PubMed records by PMID, splitting HTTP-400 batches if needed."""
+    try:
+        body = client.post_form(
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+            {
+                "db": "pubmed",
+                "id": ",".join(clean(row.get("pmid", "")) for row in rows),
+                "retmode": "xml",
+                "tool": "psychedelics_kg",
+                "email": email,
+                "api_key": api_key,
+            },
+        )
+        return parse_pubmed_batch(body, rows, run_id=run_id, batch_id=batch_id)
+    except HTTPError as error:
+        if error.code != 400:
+            raise
+        if len(rows) > 1:
+            midpoint = max(1, len(rows) // 2)
+            return [
+                *fetch_pubmed_batch_with_isolation(
+                    rows[:midpoint],
+                    client=client,
+                    run_id=run_id,
+                    batch_id=batch_id,
+                    email=email,
+                    api_key=api_key,
+                ),
+                *fetch_pubmed_batch_with_isolation(
+                    rows[midpoint:],
+                    client=client,
+                    run_id=run_id,
+                    batch_id=batch_id,
+                    email=email,
+                    api_key=api_key,
+                ),
+            ]
+        row = rows[0]
+        return [
+            result_row(
+                run_id,
+                "pubmed",
+                batch_id,
+                normalized_doi(row.get("doi")),
+                clean(row.get("pmid", "")),
+                "",
+                "request_error",
+                "",
+                now_utc(),
+                error="HTTP 400 for single PubMed identifier",
+            )
+        ]
+
+
+def run_pubmed_batches(
+    rows: Sequence[dict],
+    *,
+    run_id: str,
+    run_dir: Path,
+    client: BatchHttpClient,
+    batch_size: int,
+    email: str,
+    api_key: str,
+    manifest: dict,
+    manifest_path: Path,
+) -> list[dict]:
+    eligible = [row for row in rows if clean(row.get("pmid", ""))]
+    all_results: list[dict] = []
+    batches = list(chunks(eligible, batch_size))
+    for batch_index, batch in enumerate(batches, start=1):
+        batch_id = f"pubmed_{batch_index:06d}"
+        input_hash = batch_input_hash(batch, "pubmed")
+        path = checkpoint_path(run_dir, "pubmed", batch_index)
+        if path.exists():
+            records = load_checkpoint(path, expected_hash=input_hash)
+        else:
+            records = fetch_pubmed_batch_with_isolation(
+                batch,
+                client=client,
+                run_id=run_id,
+                batch_id=batch_id,
+                email=email,
+                api_key=api_key,
+            )
+            save_checkpoint(
+                path,
+                provider="pubmed",
+                batch_id=batch_id,
+                input_hash=input_hash,
+                records=records,
+            )
+        all_results.extend(records)
+        update_live_manifest(manifest, manifest_path, "pubmed", batch_index, len(batches), all_results)
+        print(
+            f"PubMed batches {batch_index:,}/{len(batches):,}: "
+            f"recovered={sum(row['status'] == 'recovered' for row in all_results):,}",
+            flush=True,
+        )
+    return all_results
+
+
 def run_pmc_batches(
     rows: Sequence[dict],
     *,
@@ -661,12 +842,14 @@ def run_semantic_scholar_batches(
         if path.exists():
             records = load_checkpoint(path, expected_hash=input_hash)
         else:
-            payload = client.post_json(
-                endpoint,
-                {"ids": [f"DOI:{normalized_doi(row['doi'])}" for row in batch]},
-                headers={"x-api-key": api_key} if api_key else {},
+            records = fetch_semantic_scholar_batch_with_isolation(
+                batch,
+                client=client,
+                endpoint=endpoint,
+                api_key=api_key,
+                run_id=run_id,
+                batch_id=batch_id,
             )
-            records = parse_semantic_scholar_batch(payload, batch, run_id=run_id, batch_id=batch_id)
             save_checkpoint(
                 path,
                 provider="semantic_scholar",
@@ -682,6 +865,101 @@ def run_semantic_scholar_batches(
             flush=True,
         )
     return all_results
+
+
+def fetch_semantic_scholar_batch_with_isolation(
+    rows: Sequence[dict],
+    *,
+    client: BatchHttpClient,
+    endpoint: str,
+    api_key: str,
+    run_id: str,
+    batch_id: str,
+) -> list[dict]:
+    """Fetch an S2 batch, isolating a DOI that causes a batch-level HTTP 400."""
+    eligible = [row for row in rows if semantic_scholar_identifier_eligible(row.get("doi", ""))]
+    if len(eligible) != len(rows):
+        eligible_dois = {normalized_doi(row.get("doi")) for row in eligible}
+        fetched = (
+            fetch_semantic_scholar_batch_with_isolation(
+                eligible,
+                client=client,
+                endpoint=endpoint,
+                api_key=api_key,
+                run_id=run_id,
+                batch_id=batch_id,
+            )
+            if eligible
+            else []
+        )
+        fetched_by_doi = {normalized_doi(row.get("doi")): row for row in fetched}
+        timestamp = now_utc()
+        return [
+            fetched_by_doi[normalized_doi(row.get("doi"))]
+            if normalized_doi(row.get("doi")) in eligible_dois
+            else result_row(
+                run_id,
+                "semantic_scholar",
+                batch_id,
+                normalized_doi(row.get("doi")),
+                "",
+                "",
+                "provider_ineligible",
+                "",
+                timestamp,
+                error="Semantic Scholar does not index GBIF dataset-download DOIs",
+            )
+            for row in rows
+        ]
+    try:
+        payload = client.post_json(
+            endpoint,
+            {"ids": [f"DOI:{normalized_doi(row['doi'])}" for row in rows]},
+            headers={"x-api-key": api_key} if api_key else {},
+        )
+        return parse_semantic_scholar_batch(payload, rows, run_id=run_id, batch_id=batch_id)
+    except HTTPError as error:
+        if error.code != 400:
+            raise
+        if len(rows) > 1:
+            midpoint = max(1, len(rows) // 2)
+            return [
+                *fetch_semantic_scholar_batch_with_isolation(
+                    rows[:midpoint],
+                    client=client,
+                    endpoint=endpoint,
+                    api_key=api_key,
+                    run_id=run_id,
+                    batch_id=batch_id,
+                ),
+                *fetch_semantic_scholar_batch_with_isolation(
+                    rows[midpoint:],
+                    client=client,
+                    endpoint=endpoint,
+                    api_key=api_key,
+                    run_id=run_id,
+                    batch_id=batch_id,
+                ),
+            ]
+        row = rows[0]
+        return [
+            result_row(
+                run_id,
+                "semantic_scholar",
+                batch_id,
+                normalized_doi(row.get("doi")),
+                "",
+                "",
+                "request_error",
+                "",
+                now_utc(),
+                error="HTTP 400 for single Semantic Scholar DOI",
+            )
+        ]
+
+
+def semantic_scholar_identifier_eligible(doi: object) -> bool:
+    return not normalized_doi(doi).startswith("10.15468/dl.")
 
 
 def fetch_crossref_work(
@@ -807,7 +1085,7 @@ def update_live_manifest(
 
 
 def best_recovered_rows(results: Sequence[dict]) -> dict[str, dict]:
-    priority = {"pmc": 0, "semantic_scholar": 1, "crossref": 2}
+    priority = {"pubmed": 0, "pmc": 1, "crossref": 2, "semantic_scholar": 3}
     recovered = [
         row
         for row in results
@@ -903,6 +1181,7 @@ def configuration_for(args: argparse.Namespace) -> dict:
         "doi_file": str(doi_path) if doi_path else "",
         "doi_file_sha256": sha256_file(doi_path) if doi_path and doi_path.exists() else "",
         "providers": [provider for provider in args.providers.split(",") if provider],
+        "pubmed_batch_size": int(args.pubmed_batch_size),
         "pmc_batch_size": int(args.pmc_batch_size),
         "semantic_scholar_batch_size": min(500, int(args.semantic_scholar_batch_size)),
         "crossref_batch_size": int(args.crossref_batch_size),
@@ -951,10 +1230,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA))
     parser.add_argument("--doi-file", default="", help="Optional DOI scope, normally discovery new_candidate_dois.txt")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG))
-    parser.add_argument("--providers", default="pmc,semantic_scholar")
+    parser.add_argument("--providers", default="pubmed,pmc,semantic_scholar")
+    parser.add_argument("--pubmed-batch-size", type=int, default=200)
     parser.add_argument("--pmc-batch-size", type=int, default=50)
     parser.add_argument("--semantic-scholar-batch-size", type=int, default=500)
     parser.add_argument("--crossref-batch-size", type=int, default=100)
+    parser.add_argument("--pubmed-rps", type=float, default=None)
     parser.add_argument("--pmc-rps", type=float, default=None)
     parser.add_argument("--semantic-scholar-rps", type=float, default=None)
     parser.add_argument("--crossref-rps", type=float, default=None)
@@ -971,7 +1252,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     providers = [part.strip() for part in args.providers.split(",") if part.strip()]
-    unknown = set(providers) - {"pmc", "semantic_scholar", "crossref"}
+    unknown = set(providers) - {"pubmed", "pmc", "semantic_scholar", "crossref"}
     if unknown:
         raise SystemExit(f"Unsupported providers: {', '.join(sorted(unknown))}")
     args.providers = ",".join(providers)
@@ -994,7 +1275,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
 
     pmc_eligible = int(scope["pmcid"].fillna("").astype(str).str.strip().ne("").sum()) if not scope.empty else 0
+    pubmed_eligible = int(scope["pmid"].fillna("").astype(str).str.strip().ne("").sum()) if not scope.empty else 0
     print(f"Missing-abstract scope: {len(scope):,}", flush=True)
+    print(f"PubMed-eligible: {pubmed_eligible:,}", flush=True)
     print(f"PMC-eligible: {pmc_eligible:,}", flush=True)
     print(f"Semantic Scholar-eligible: {len(scope):,}", flush=True)
     print(f"Crossref-eligible: {len(scope):,}", flush=True)
@@ -1027,6 +1310,33 @@ def main(argv: Sequence[str] | None = None) -> int:
     results: list[dict] = []
 
     try:
+        if "pubmed" in providers:
+            pubmed_client = BatchHttpClient(
+                rps=(
+                    args.pubmed_rps
+                    if args.pubmed_rps is not None
+                    else read_float(pubmed_config.get("rate_limit_per_sec"), 3.0)
+                ),
+                max_retries=max_retries,
+                timeout_sec=args.timeout_sec,
+                max_retry_after_sec=args.max_retry_after_sec,
+                user_agent="kg-pipeline/batch-abstract-pubmed",
+            )
+            results.extend(
+                run_pubmed_batches(
+                    scope_rows,
+                    run_id=args.run_id,
+                    run_dir=run_dir,
+                    client=pubmed_client,
+                    batch_size=args.pubmed_batch_size,
+                    email=clean(pubmed_config.get("email", "")),
+                    api_key=clean(pubmed_config.get("api_key", "")),
+                    manifest=manifest,
+                    manifest_path=manifest_path,
+                )
+            )
+        recovered_dois = set(best_recovered_rows(results))
+        pmc_scope = [row for row in scope_rows if normalized_doi(row.get("doi")) not in recovered_dois]
         if "pmc" in providers:
             pmc_client = BatchHttpClient(
                 rps=args.pmc_rps if args.pmc_rps is not None else read_float(pmc_config.get("rate_limit_per_sec"), 3.0),
@@ -1037,7 +1347,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             results.extend(
                 run_pmc_batches(
-                    scope_rows,
+                    pmc_scope,
                     run_id=args.run_id,
                     run_dir=run_dir,
                     client=pmc_client,

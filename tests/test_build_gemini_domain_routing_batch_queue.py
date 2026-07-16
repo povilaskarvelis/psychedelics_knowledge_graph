@@ -1,6 +1,13 @@
 import unittest
+from pathlib import Path
+import tempfile
 
-from pipeline.review.build_gemini_domain_routing_batch_queue import split_records
+import pandas as pd
+
+from pipeline.review.build_gemini_domain_routing_batch_queue import (
+    previously_prescreen_retained_dois,
+    split_records,
+)
 
 
 class BuildGeminiDomainRoutingBatchQueueTests(unittest.TestCase):
@@ -29,6 +36,22 @@ class BuildGeminiDomainRoutingBatchQueueTests(unittest.TestCase):
         parts = split_records(records, max_requests=2, max_approx_input_tokens=10_000_000)
 
         self.assertEqual([(start, limit) for start, limit, _ in parts], [(1, 2), (3, 2), (5, 1)])
+
+    def test_previously_prescreen_retained_dois_uses_previous_prescreen_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "previous_candidates.parquet"
+            pd.DataFrame(
+                [
+                    {"doi": "https://doi.org/10.1000/retained", "prescreen_retained_for_extraction_candidate": True},
+                    {"doi": "10.1000/excluded", "prescreen_retained_for_extraction_candidate": False},
+                    {"doi": "10.1000/second-retained", "prescreen_retained_for_extraction_candidate": True},
+                    {"doi": "", "prescreen_retained_for_extraction_candidate": True},
+                ]
+            ).to_parquet(path, index=False)
+
+            reusable = previously_prescreen_retained_dois(path)
+
+        self.assertEqual(reusable, {"10.1000/retained", "10.1000/second-retained"})
 
 
 if __name__ == "__main__":

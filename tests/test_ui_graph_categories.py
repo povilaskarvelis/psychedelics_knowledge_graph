@@ -492,6 +492,36 @@ def test_selected_graph_skips_the_bootstrap_completion_crossfade() -> None:
     assert "!detailGraphFilter" in graph_source
 
 
+def test_graph_allocates_more_label_space_to_the_right_side() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    assert "const GRAPH_LEFT_LABEL_MAX_WIDTH_PX = 180;" in source
+    assert "const GRAPH_RIGHT_LABEL_MAX_WIDTH_PX = 210;" in source
+    assert "GRAPH_LEFT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX" in source
+    assert "GRAPH_RIGHT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX + GRAPH_RIGHT_LABEL_GUTTER_PX" in source
+
+
+def test_unspecified_psychedelic_assisted_therapy_label_can_use_three_lines() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    helper = source.split("function graphLabelMaxLines", 1)[1].split("function studyId", 1)[0]
+
+    assert '"psychedelic-assisted therapy (unspecified compounds)"' in source
+    assert "GRAPH_THREE_LINE_LABELS.has(normalizeValue(label)) ? 3 : 2" in helper
+    assert "graphLabelMaxLines(compound)" in source
+    assert "graphLabelMaxLines(target)" in source
+
+
+def test_slash_separated_graph_labels_wrap_without_an_inserted_hyphen() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    helper = source.split("function wrapUnbrokenLabelToLines", 1)[1].split(
+        "function wrapLabelToLines", 1
+    )[0]
+
+    assert "const naturalBreak = /[-/]$/.test(prefix);" in helper
+    assert "const firstLine = naturalBreak ? prefix : `${prefix}-`;" in helper
+    assert "naturalBreak," in helper
+
+
 def test_each_edge_uses_a_gradient_between_its_endpoint_colors() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     edge_render = source.split('edgeEntries.forEach(([key, edge], index)', 1)[1].split(

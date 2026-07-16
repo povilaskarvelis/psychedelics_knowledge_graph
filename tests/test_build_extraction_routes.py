@@ -11,6 +11,7 @@ from pipeline.extract.build_extraction_routes import (
     build_route_rows,
     doi_to_slug,
     fulltext_status_for_doi,
+    merged_extraction_metadata,
     prescreen_context_by_doi,
     thesis_or_dissertation_flags,
 )
@@ -39,6 +40,97 @@ def write_source_identity_audit(
 
 
 class BuildExtractionRoutesTests(unittest.TestCase):
+    def test_blank_string_enrichment_does_not_erase_candidate_abstract(self) -> None:
+        candidate = pd.DataFrame(
+            {
+                "doi": pd.Series(["10.1000/blank-enrichment"], dtype="string"),
+                "study_title": pd.Series(["Candidate title"], dtype="string"),
+                "abstract": pd.Series(["A usable candidate abstract."], dtype="string"),
+            }
+        )
+        enrichment = pd.DataFrame(
+            {
+                "doi": pd.Series(["10.1000/blank-enrichment"], dtype="string"),
+                "study_title": pd.Series([""], dtype="string"),
+                "abstract": pd.Series([""], dtype="string"),
+            }
+        )
+
+        merged = merged_extraction_metadata(candidate, enrichment)
+
+        self.assertEqual(merged.iloc[0]["study_title"], "Candidate title")
+        self.assertEqual(merged.iloc[0]["abstract"], "A usable candidate abstract.")
+
+    def test_candidate_ledger_supplies_metadata_when_enrichment_row_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            candidate_table = root / "candidate.parquet"
+            metadata_table = root / "metadata.parquet"
+            prescreen_table = root / "prescreen.parquet"
+            domain_table = root / "domain.parquet"
+            output_table = root / "routes.parquet"
+            summary_json = root / "summary.json"
+            counts_csv = root / "counts.csv"
+            doi = "10.1000/candidate-only-metadata"
+
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "study_title": "Candidate-ledger psychedelic trial",
+                        "abstract": "A retained trial with metadata already present in the ledger.",
+                        "publication_type": "Journal Article",
+                    }
+                ]
+            ).to_parquet(candidate_table, index=False)
+            pd.DataFrame(
+                [{"doi": "10.1000/different", "study_title": "Different enriched record"}]
+            ).to_parquet(metadata_table, index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "prescreen_decision": "retain",
+                        "retained_for_extraction_candidate": True,
+                    }
+                ]
+            ).to_parquet(prescreen_table, index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "retained_for_extraction_candidate": True,
+                        "screening_decision": "include_in_scope",
+                        "domain_route": "clinical_outcome",
+                        "all_domain_tags": "clinical_outcome",
+                        "paper_type_group": "primary",
+                        "paper_type": "primary",
+                    }
+                ]
+            ).to_parquet(domain_table, index=False)
+
+            build_extraction_routes(
+                metadata_table=metadata_table,
+                candidate_table=candidate_table,
+                prescreen_table=prescreen_table,
+                domain_table=domain_table,
+                manual_overrides_path=None,
+                manual_fulltext_access_overrides_path=None,
+                fulltext_dir=root / "fulltext",
+                paper_root=root / "papers",
+                output_table=output_table,
+                summary_json=summary_json,
+                counts_csv=counts_csv,
+                update_candidate_table=False,
+            )
+
+            routes = pd.read_parquet(output_table)
+
+        self.assertEqual(len(routes), 1)
+        self.assertEqual(routes.loc[0, "doi"], doi)
+        self.assertEqual(routes.loc[0, "study_title"], "Candidate-ledger psychedelic trial")
+        self.assertEqual(routes.loc[0, "domain_route"], "clinical_outcome")
+
     def test_fulltext_status_rejects_unverified_canonical_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fulltext_dir = Path(tmp) / "fulltext"
@@ -406,7 +498,75 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual({row["schema_profile"] for row in rows}, {"meta_analysis_evidence_schema"})
         self.assertEqual({row["access_tier"] for row in rows}, {"abstract_only"})
         self.assertEqual({row["route_confidence"] for row in rows}, {"low"})
-        self.assertIn("no model-assigned domain table supplied", rows[0]["route_basis"])
+        self.assertIn("report-type driven", rows[0]["route_basis"])
+
+    def test_secondary_literature_ignores_model_topic_routes(self) -> None:
+        doi = "10.1000/secondary-topic-collapse"
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "study_title": "Systematic review of psychedelic outcomes",
+                    "abstract": "A systematic review covering clinical and safety outcomes.",
+                    "publication_type": "Systematic Review",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "secondary_literature",
+                    "primary_secondary_source_type": "systematic_review",
+                    "secondary_source_types": "systematic_review|review",
+                    "literature_type_confidence": "high",
+                }
+            ]
+        )
+        domain_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "domain_route": route,
+                    "all_domain_tags": "clinical_outcome|safety_tolerability",
+                    "primary_domain": "clinical_outcome",
+                    "screening_decision": "include_in_scope",
+                    "screening_reason": "In-scope secondary literature.",
+                    "methodological_validity_tags": "evidence_quality_bias",
+                    "model": "gemini-3-flash-preview",
+                }
+                for route in ("clinical_outcome", "safety_tolerability")
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            domain_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-07-17T00:00:00+00:00",
+        )
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["domain_route"], "general_topic_coverage")
+        self.assertEqual(rows[0]["domain_tags"], "")
+        self.assertEqual(rows[0]["domain_routing_primary_domain"], "")
+        self.assertEqual(rows[0]["prompt_profile"], "secondary_structured_review")
+        self.assertEqual(rows[0]["schema_profile"], "review_coverage_schema")
+        self.assertEqual(rows[0]["methodological_validity_tags"], "evidence_quality_bias")
+        self.assertIn("report-type driven", rows[0]["route_basis"])
 
     def test_manual_fulltext_access_override_suppresses_pdf_download_route(self) -> None:
         metadata_df = pd.DataFrame(
@@ -1456,9 +1616,9 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             },
         )
 
-        self.assertEqual({row["domain_route"] for row in rows}, {"clinical_outcome", "safety_tolerability"})
+        self.assertEqual({row["domain_route"] for row in rows}, {"general_topic_coverage"})
         self.assertEqual({row["prompt_profile"] for row in rows}, {"secondary_narrative_review"})
-        self.assertEqual({row["domain_screening_decision"] for row in rows}, {"manual_include_in_scope"})
+        self.assertEqual({row["domain_screening_decision"] for row in rows}, {"include_in_scope"})
         self.assertTrue(all(row["retained_for_extraction_candidate"] for row in rows))
 
     def test_manual_source_type_override_reclassifies_qualitative_meta_review(self) -> None:

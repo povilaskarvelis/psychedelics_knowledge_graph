@@ -665,6 +665,7 @@ def domain_plan_for(
 ) -> list[dict]:
     manual_override = manual_override or {}
     screening_override = screening_override or {}
+    domain_rows = domain_by_doi.get(doi, [])
     if clean(screening_override.get("decision", "")) == "exclude_out_of_scope":
         reason = clean(screening_override.get("reason", ""))
         if not reason:
@@ -701,6 +702,54 @@ def domain_plan_for(
                 "manual_action": manual_action,
             }
         ]
+
+    # Secondary-literature extraction is selected by report type (for example,
+    # meta-analysis, structured review, narrative review, or guideline), not by
+    # the topical domains used for primary-study extraction.  Keep one neutral
+    # route row for the route-table contract and preserve the model's binary
+    # screen/provenance, but intentionally discard topic tags and topic-specific
+    # route multiplication.
+    if source_family == "secondary_literature":
+        model_row = domain_rows[0] if domain_rows else {}
+        screening_decision = clean(model_row.get("screening_decision", ""))
+        if screening_decision == "exclude_out_of_scope":
+            return [
+                {
+                    "domain_route": "screening_excluded",
+                    "domain_tags": "",
+                    "domain_route_confidence": clean(model_row.get("domain_route_confidence", "")),
+                    "domain_route_basis": clean(model_row.get("domain_route_basis", "")),
+                    "domain_routing_primary_domain": clean(model_row.get("primary_domain", "")),
+                    "methodological_validity_tags": "",
+                    "domain_screening_decision": screening_decision,
+                    "domain_screening_reason": clean(model_row.get("screening_reason", "")),
+                    "domain_routing_model": clean(model_row.get("model", "")),
+                    "domain_needs_human_review": truthy(model_row.get("needs_human_review", False)),
+                }
+            ]
+        validity_tags = join_values(
+            tag
+            for row in domain_rows
+            for tag in split_values(row.get("methodological_validity_tags", ""))
+        )
+        return [
+            {
+                "domain_route": "general_topic_coverage",
+                "domain_tags": "",
+                "domain_route_confidence": "",
+                "domain_route_basis": (
+                    "secondary literature extraction is report-type driven; "
+                    "topic-domain routing intentionally not applied"
+                ),
+                "domain_routing_primary_domain": "",
+                "methodological_validity_tags": validity_tags,
+                "domain_screening_decision": screening_decision,
+                "domain_screening_reason": clean(model_row.get("screening_reason", "")),
+                "domain_routing_model": clean(model_row.get("model", "")),
+                "domain_needs_human_review": truthy(model_row.get("needs_human_review", False)),
+            }
+        ]
+
     if manual_action == "route_domains":
         manual_routes = split_values(manual_override.get("manual_domain_routes", ""))
         if manual_routes:
@@ -738,7 +787,6 @@ def domain_plan_for(
             }
         ]
 
-    domain_rows = domain_by_doi.get(doi, [])
     if domain_rows:
         screening_decision = clean(domain_rows[0].get("screening_decision", ""))
         if screening_decision == "exclude_out_of_scope":
@@ -1464,6 +1512,54 @@ def write_route_table(path: Path, rows: list[dict]) -> None:
     pd.DataFrame(rows).to_parquet(path, engine="pyarrow", index=False)
 
 
+def merged_extraction_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataFrame) -> pd.DataFrame:
+    """Return complete candidate-ledger coverage with enrichment values preferred.
+
+    The standalone enrichment table is intentionally sparse: a candidate may
+    already have a usable title, abstract, and access metadata from discovery
+    without having a separate enrichment row. Extraction routing must therefore
+    iterate the union, not the enrichment table alone.
+    """
+    frames: list[pd.DataFrame] = []
+    for frame in (candidate_df, metadata_df):
+        if frame.empty or "doi" not in frame.columns:
+            frames.append(pd.DataFrame())
+            continue
+        normalized = frame.copy()
+        normalized["_doi_key"] = normalized["doi"].map(normalize_doi)
+        normalized = normalized[normalized["_doi_key"].astype(bool)].drop_duplicates(
+            "_doi_key", keep="last"
+        )
+        frames.append(normalized.set_index("_doi_key", drop=True))
+
+    candidate, enrichment = frames
+    if candidate.empty:
+        out = enrichment.copy()
+    elif enrichment.empty:
+        out = candidate.copy()
+    else:
+        index = candidate.index.union(enrichment.index)
+        out = candidate.reindex(index).copy()
+        for column in enrichment.columns:
+            values = enrichment[column].reindex(index)
+            present = values.notna()
+            # Parquet commonly restores text as pandas' dedicated string dtype,
+            # not ``object``. Empty enrichment strings must never overwrite a
+            # usable value already present in the candidate ledger.
+            if pd.api.types.is_string_dtype(values.dtype) or values.dtype == object:
+                present &= values.map(
+                    lambda value: bool(clean(value)) if value is not None and not pd.isna(value) else False
+                )
+            if column not in out.columns:
+                out[column] = values
+            else:
+                out.loc[present, column] = values.loc[present]
+    if out.empty:
+        return pd.DataFrame()
+    out["doi"] = out.index
+    return out.reset_index(drop=True)
+
+
 def build_extraction_routes(
     *,
     metadata_table: Path = DEFAULT_METADATA_TABLE,
@@ -1505,7 +1601,10 @@ def build_extraction_routes(
     counts_csv = Path(counts_csv).resolve()
     scoped_dois = scoped_dois or set()
 
-    metadata_df = read_table(metadata_table)
+    metadata_df = merged_extraction_metadata(
+        read_table(candidate_table),
+        read_table(metadata_table),
+    )
     prescreen_df = read_table(prescreen_table)
     domain_df = read_table(domain_table) if domain_table is not None else pd.DataFrame()
     manual_overrides = load_manual_route_overrides(manual_overrides_path)

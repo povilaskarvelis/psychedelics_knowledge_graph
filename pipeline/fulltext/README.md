@@ -9,30 +9,39 @@ all operate on the unified corpus rather than dataset-specific claim files.
 
 ## PDF Retrieval
 
-Use the table-native retrieval runner for retained papers that still need local
-PDFs:
+Immediately after screening, build the route-independent full-text worklist:
 
 ```bash
-python pipeline/fulltext/run_pdf_retrieval_pipeline.py \
+python pipeline/fulltext/build_fulltext_enrichment_worklist.py
+```
+
+The worklist is one row per newly selected, unprocessed DOI. It assigns only a
+full-text handling action; it does not construct extraction domains, prompt
+profiles, schemas, or model tasks.
+
+Retrieve PMC XML first, then PDFs:
+
+```bash
+python pipeline/fulltext/fetch_pmc_fulltext_xml.py \
+  --selection-table data/processed/corpus/fulltext_enrichment_worklist.parquet
+
+python pipeline/fulltext/download_fulltext_worklist_pdfs.py \
   --alternate-pdf-sources pmc,openalex,semantic_scholar \
   --progress-every 25 \
   --write-every 25
 ```
 
-The runner first downloads probable PDF endpoints from the routed corpus, then
-optionally queries alternate open-access sources for rows that still fail, and
-runs the standard repository-source pass for OSF/PsyArXiv, Figshare-style
-records, and known repository redirects into Figshare (for example Sussex SRO
-handles). It validates both PDF bytes and document identity before saving:
+The downloader first uses probable PDF endpoints from the worklist, then
+optionally queries alternate open-access sources for rows that still need
+discovery. It validates both PDF bytes and document identity before saving:
 the expected title must match the bounded top region of page one. A title that
 appears later on page one or elsewhere in the document is not sufficient,
 because proceedings and supplement PDFs can contain many valid paper titles.
 The only exception is an explicit DOI-plus-SHA-256 decision in
 `source_identity_pdf_hash_registry.json`; that decision applies only to the
-reviewed byte-identical PDF. The runner updates
-`candidate_papers.parquet`, rebuilds `paper_extraction_routes.parquet`, and
-exports the remaining manual-download queue to
-`data/processed/corpus/audits/manual_pdf_download_dois.csv/.txt`.
+reviewed byte-identical PDF. The downloader updates `candidate_papers.parquet`
+but does not build extraction routes when a selection table is supplied. Build
+routes once after retrieval and conversion are finished.
 
 For lower-level retry runs, `download_routed_pdfs.py` can also query alternate
 open-access sources before giving up on a DOI:
@@ -241,18 +250,17 @@ python pipeline/fulltext/run_local_pdf_conversion_pipeline.py \
 backend. Managed batching is currently only enabled for explicit
 `--backend grobid` runs.
 
-## Route-native conversion
+## Post-screen Local-PDF Conversion
 
-Convert a scoped routed DOI set with:
+Convert locally available PDFs from the post-screen worklist with:
 
 ```bash
-python pipeline/fulltext/convert_routed_local_pdfs.py \
-  --doi-file /tmp/changed_dois.txt \
+python pipeline/fulltext/convert_fulltext_worklist_pdfs.py \
   --backend grobid
 ```
 
-`convert_pdfs.py` now contains only the shared parser and artifact helpers used
-by the route-table command; it is not a separate production entry point.
+`convert_pdfs.py` contains only shared parser and artifact helpers used by the
+full-text conversion entry points; it is not a separate production command.
 
 ## PMC XML Recovery
 
@@ -262,18 +270,21 @@ routes:
 
 ```bash
 python pipeline/fulltext/fetch_pmc_fulltext_xml.py \
+  --selection-table data/processed/corpus/fulltext_enrichment_worklist.parquet \
   --progress-every 25 \
   --rps 1.5
 ```
 
-By default, the script targets retained routed papers with a PMCID and skips
-papers that already have a converted full-text artifact or a valid local PDF.
+With `--selection-table`, the script targets post-screen `fetch_pmc_xml` rows
+and skips papers that already have a converted full-text artifact or valid
+local PDF.
 It tries the Europe PMC XML endpoint first and falls back to PMC OAI/JATS. Each
 successful XML record is written to `data/processed/fulltext/articles/` with
 the same artifact shape as PDF conversion, including section summaries and raw
-XML for article text input building. After successful writes, the script
-rebuilds `paper_extraction_routes.parquet` so those papers move to
-`full_text_available` and are no longer treated as PDF-download candidates.
+XML for article text input building. It refreshes the source-identity audit but
+does not build extraction routes in selection-table mode. Regenerate the
+full-text worklist after retrieval to refresh remaining actions, then build
+final extraction routes after all enrichment passes are complete.
 
 ## Article Text Inputs For Extraction
 

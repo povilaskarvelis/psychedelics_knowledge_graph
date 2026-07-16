@@ -5,9 +5,8 @@ promotes curated-ready extracted evidence into the graph inputs.
 
 ## Routing-Aware Extraction Routes
 
-The table-native extraction handoff starts from the retained corpus rather than
-the older dataset-specific extraction files. Build one row per DOI plus
-extraction task:
+The table-native extraction handoff starts after post-screen full-text
+enrichment. Build one row per DOI plus extraction task:
 
 ```bash
 python pipeline/extract/build_extraction_routes.py
@@ -58,6 +57,32 @@ python pipeline/extract/build_extraction_routes.py \
 Use this table to audit extraction queues before model calls. The prompt and
 schema profile labels are route assignments; route-specific model inputs and
 schemas are built downstream from this table.
+
+## Incremental Extraction Handoff
+
+The route-independent full-text stage produces the stable DOI selection before
+any extraction routes are built:
+
+```bash
+python pipeline/fulltext/build_fulltext_enrichment_worklist.py
+```
+
+After PMC/PDF retrieval and conversion, build the canonical routes once and
+scope extraction tasks with the post-screen DOI list:
+
+```bash
+python pipeline/extract/build_extraction_routes.py \
+  --domain-routing-table data/processed/corpus/paper_domain_routing_gemini.parquet
+
+python pipeline/extract/build_extraction_tasks.py \
+  --route-table data/processed/corpus/paper_extraction_routes.parquet \
+  --doi-file data/processed/corpus/postscreen_selected_dois.txt
+```
+
+The canonical route table remains all-history for reproducibility, while the
+DOI filter prevents completed papers from being resubmitted. Metadata and
+abstract enrichment belongs before screening; full-text enrichment belongs
+after screening; extraction routing belongs after full-text enrichment.
 
 ## Route Extraction Tasks
 

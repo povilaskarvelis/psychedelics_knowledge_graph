@@ -30,6 +30,7 @@ from pipeline.extract.build_extraction_routes import (  # noqa: E402
     build_local_pdf_index,
     fulltext_status_for_doi,
     local_pdf_status_for_doi,
+    merged_extraction_metadata,
 )
 from pipeline.fulltext.convert_pdfs import (  # noqa: E402
     compact_text,
@@ -128,6 +129,23 @@ def metadata_by_doi(metadata_df: pd.DataFrame) -> dict[str, dict]:
         if doi and doi not in out:
             out[doi] = row
     return out
+
+
+def pmc_rows_from_selection(selection_df: pd.DataFrame) -> pd.DataFrame:
+    """Project a post-screen full-text worklist into PMC retrieval rows."""
+    if selection_df.empty:
+        return pd.DataFrame(columns=["doi", "retained_for_extraction_candidate"])
+    selected = selection_df[
+        selection_df["selected_for_downstream"].map(truthy)
+        & selection_df["fulltext_enrichment_needed"].map(truthy)
+        & selection_df["fulltext_enrichment_action"].fillna("").astype(str).eq("fetch_pmc_xml")
+    ].copy()
+    return pd.DataFrame(
+        {
+            "doi": selected["doi"],
+            "retained_for_extraction_candidate": True,
+        }
+    )
 
 
 def direct_title(element: ET.Element, default: str = "Section") -> str:
@@ -430,6 +448,14 @@ def write_json(path: Path, payload: object) -> None:
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch PMC full-text XML into full-text artifacts.")
     parser.add_argument("--routes-table", default=str(DEFAULT_ROUTES))
+    parser.add_argument(
+        "--selection-table",
+        default="",
+        help=(
+            "Route-independent post-screen full-text worklist. When supplied, "
+            "only fetch_pmc_xml rows are selected and extraction routes are not rebuilt."
+        ),
+    )
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
@@ -479,14 +505,23 @@ def main() -> int:
     args = build_arg_parser().parse_args()
     routes_table = Path(args.routes_table).resolve()
     metadata_table = Path(args.metadata_table).resolve()
+    candidate_table = Path(args.candidate_table).resolve()
     fulltext_dir = Path(args.fulltext_dir).resolve()
     out_dir = Path(args.out_dir).resolve()
     report_path = Path(args.report).resolve()
     doi_filter = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else None
+    selection_table = Path(args.selection_table).resolve() if clean(args.selection_table) else None
+    if selection_table is not None:
+        source_rows = pmc_rows_from_selection(pd.read_parquet(selection_table))
+    else:
+        source_rows = pd.read_parquet(routes_table)
 
     rows, skipped = selected_rows(
-        routes_df=pd.read_parquet(routes_table),
-        metadata_df=pd.read_parquet(metadata_table),
+        routes_df=source_rows,
+        metadata_df=merged_extraction_metadata(
+            pd.read_parquet(candidate_table),
+            pd.read_parquet(metadata_table),
+        ),
         fulltext_dir=fulltext_dir,
         paper_root=Path(args.paper_root).resolve(),
         doi_filter=doi_filter,
@@ -591,7 +626,12 @@ def main() -> int:
         )
 
     route_rebuild = {}
-    if not args.dry_run and counts["written"] > 0 and not args.no_rebuild_routes_after:
+    if (
+        selection_table is None
+        and not args.dry_run
+        and counts["written"] > 0
+        and not args.no_rebuild_routes_after
+    ):
         print("ROUTE_REBUILD: rebuilding extraction routes after PMC XML artifacts", flush=True)
         route_rebuild = build_extraction_routes(
             metadata_table=metadata_table,
@@ -619,6 +659,7 @@ def main() -> int:
         "generated_at_utc": now_utc(),
         "inputs": {
             "routes_table": str(routes_table),
+            "selection_table": str(selection_table) if selection_table is not None else "",
             "metadata_table": str(metadata_table),
             "fulltext_dir": str(fulltext_dir),
             "out_dir": str(out_dir),

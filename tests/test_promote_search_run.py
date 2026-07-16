@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pipeline.discovery.promote_search_run import promote
+from pipeline.discovery.promote_search_run import canonicalize_records, promote
 
 
 def write_complete_run(run_dir: Path, *, complete: bool = True) -> None:
@@ -191,3 +191,51 @@ def test_promotion_refuses_composite_component(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeError, match="composite baseline"):
         promote(run_dir=run_dir, candidates_path=candidates)
+
+
+def test_canonicalization_prefers_pubmed_abstract_over_long_openalex_text() -> None:
+    long_openalex_text = "Introduction Methods Results Discussion References " + ("article text " * 500)
+    records = pd.DataFrame(
+        [
+            {
+                "provider": "openalex",
+                "provider_record_id": "openalex:W1",
+                "doi": "10.1000/shared",
+                "openalex_id": "W1",
+                "title": "Shared paper",
+                "abstract": long_openalex_text,
+            },
+            {
+                "provider": "pubmed",
+                "provider_record_id": "pmid:1",
+                "doi": "10.1000/shared",
+                "pmid": "1",
+                "title": "Shared paper",
+                "abstract": "The actual bibliographic abstract.",
+            },
+        ]
+    )
+
+    canonical = canonicalize_records(records)
+
+    assert len(canonical) == 1
+    assert canonical[0]["abstract"] == "The actual bibliographic abstract."
+
+
+def test_canonicalization_drops_contaminated_openalex_only_abstract() -> None:
+    records = pd.DataFrame(
+        [
+            {
+                "provider": "openalex",
+                "provider_record_id": "openalex:W1",
+                "doi": "10.1000/fulltext",
+                "openalex_id": "W1",
+                "title": "A paper",
+                "abstract": "Introduction Methods Results Discussion References " + ("article text " * 500),
+            }
+        ]
+    )
+
+    canonical = canonicalize_records(records)
+
+    assert canonical[0]["abstract"] == ""

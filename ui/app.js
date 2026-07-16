@@ -530,11 +530,14 @@ const REAL_WORLD_SAMPLE_SIZE_BINS = [
   { label: "250k-1M", min: 250001, max: 1000000 },
   { label: ">1M", min: 1000001, max: Number.POSITIVE_INFINITY },
 ];
-const GRAPH_LEFT_LABEL_MAX_WIDTH_PX = 210;
-const GRAPH_RIGHT_LABEL_MAX_WIDTH_PX = 180;
+const GRAPH_LEFT_LABEL_MAX_WIDTH_PX = 180;
+const GRAPH_RIGHT_LABEL_MAX_WIDTH_PX = 210;
 const GRAPH_RIGHT_LABEL_GUTTER_PX = 24;
 const GRAPH_LABEL_MARGIN_BUFFER_PX = 36;
 const GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT = 22;
+const GRAPH_THREE_LINE_LABELS = new Set([
+  "psychedelic-assisted therapy (unspecified compounds)",
+]);
 const GRAPH_BASE_HEIGHT_PX = 820;
 const GRAPH_COMPACT_BASE_HEIGHT_PX = 560;
 const GRAPH_MIN_NODE_SPACING_PX = 40;
@@ -1691,14 +1694,15 @@ function wrapUnbrokenLabelToLines(label, maxWidthPx, maxLines = 2) {
   const candidates = [];
   for (let index = 2; index <= text.length - 2; index += 1) {
     const prefix = text.slice(0, index);
-    const firstLine = prefix.endsWith("-") ? prefix : `${prefix}-`;
+    const naturalBreak = /[-/]$/.test(prefix);
+    const firstLine = naturalBreak ? prefix : `${prefix}-`;
     const secondLine = text.slice(index);
     const firstWidth = measureLabelWidth(firstLine);
     const secondWidth = measureLabelWidth(secondLine);
     if (firstWidth > maxWidthPx || secondWidth > maxWidthPx) continue;
     candidates.push({
       lines: [firstLine, secondLine],
-      naturalBreak: prefix.endsWith("-"),
+      naturalBreak,
       balance: Math.abs(firstWidth - secondWidth),
     });
   }
@@ -1781,6 +1785,10 @@ function setWrappedSvgLabel(textNode, fullLabel, maxWidthPx, x, centerY, maxLine
     tspan.textContent = line;
     textNode.appendChild(tspan);
   });
+}
+
+function graphLabelMaxLines(label) {
+  return GRAPH_THREE_LINE_LABELS.has(normalizeValue(label)) ? 3 : 2;
 }
 
 function studyId(claim) {
@@ -7134,7 +7142,6 @@ function buildGraph(data) {
   const compoundX = margin.left;
   const targetX = width - margin.right;
   const labelOffset = 22;
-  const labelMaxLines = 2;
   const leftLabelMaxWidth = Math.min(
     GRAPH_LEFT_LABEL_MAX_WIDTH_PX,
     Math.max(20, compoundX - labelOffset - 10)
@@ -7474,7 +7481,7 @@ function buildGraph(data) {
     label.setAttribute("x", pos.x - labelOffset);
     label.setAttribute("class", "node-label");
     label.setAttribute("text-anchor", "end");
-    setWrappedSvgLabel(label, compound, leftLabelMaxWidth, pos.x - labelOffset, pos.y, labelMaxLines);
+    setWrappedSvgLabel(label, compound, leftLabelMaxWidth, pos.x - labelOffset, pos.y, graphLabelMaxLines(compound));
     if (selected?.type === "compound" && selected.name === compound) {
       label.classList.add("selected");
     }
@@ -7553,7 +7560,7 @@ function buildGraph(data) {
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", pos.x + labelOffset);
     label.setAttribute("class", "node-label");
-    setWrappedSvgLabel(label, target, rightLabelMaxWidth, pos.x + labelOffset, pos.y, labelMaxLines);
+    setWrappedSvgLabel(label, target, rightLabelMaxWidth, pos.x + labelOffset, pos.y, graphLabelMaxLines(target));
     if (selected?.type === "target" && selected.name === target) {
       label.classList.add("selected");
     }

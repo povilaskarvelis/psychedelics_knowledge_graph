@@ -22,6 +22,7 @@ from pipeline.discovery.artifacts import contexts_from_hits_parquet
 from pipeline.discovery.providers import normalize_doi, utc_now
 from pipeline.discovery.runner import atomic_write_json, read_json
 from pipeline.discovery.strategy import DEFAULT_HISTORY_PATH, clean, normalized_key
+from pipeline.ingest.abstract_quality import best_valid_abstract
 
 
 DEFAULT_RUN_ROOT = ROOT / "data" / "processed" / "discovery" / "runs"
@@ -119,10 +120,11 @@ def canonicalize_records(records: pd.DataFrame) -> list[dict]:
         "journal",
         "publication_type",
         "language",
-        "abstract",
     )
     for group_rows in groups.values():
         row = {field: first_best(group_rows, field) for field in scalar_fields}
+        abstract_row = best_valid_abstract(group_rows)
+        row["abstract"] = clean(abstract_row.get("abstract", "")) if abstract_row else ""
         row["doi"] = normalize_doi(row["doi"])
         row["providers"] = join_values({item.get("provider", "") for item in group_rows})
         row["provider_record_ids"] = join_values({item.get("provider_record_id", "") for item in group_rows})

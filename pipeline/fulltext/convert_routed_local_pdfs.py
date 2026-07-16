@@ -23,6 +23,7 @@ try:
         DEFAULT_PRESCREEN_TABLE,
         build_extraction_routes,
         file_is_valid_pdf,
+        merged_extraction_metadata,
     )
     from pipeline.fulltext.convert_pdfs import (
         DEFAULT_GROBID_URL,
@@ -58,6 +59,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_PRESCREEN_TABLE,
         build_extraction_routes,
         file_is_valid_pdf,
+        merged_extraction_metadata,
     )
     from pipeline.fulltext.convert_pdfs import (
         DEFAULT_GROBID_URL,
@@ -195,6 +197,20 @@ def selected_pdf_rows(
     return rows, skipped
 
 
+def conversion_rows_from_selection(selection_df: pd.DataFrame) -> pd.DataFrame:
+    """Project a post-screen full-text worklist into local-PDF conversion rows."""
+    if selection_df.empty:
+        return selection_df.copy()
+    selected = selection_df[
+        selection_df["selected_for_downstream"].map(truthy)
+        & selection_df["fulltext_enrichment_needed"].map(truthy)
+        & selection_df["fulltext_enrichment_action"].fillna("").astype(str).eq("convert_local_pdf")
+    ].copy()
+    selected["retained_for_extraction_candidate"] = True
+    selected["route_action"] = DEFAULT_ROUTE_ACTION
+    return selected
+
+
 def rebuild_routes(
     *,
     route_table: Path,
@@ -245,6 +261,7 @@ def failed_record(row: dict, pdf_path: Path, artifact_path: Path, write_status: 
 def convert_routed_local_pdfs(
     *,
     route_table: Path = DEFAULT_OUTPUT_TABLE,
+    selection_table: Path | None = None,
     metadata_table: Path = DEFAULT_METADATA_TABLE,
     candidate_table: Path = DEFAULT_CANDIDATE_TABLE,
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
@@ -278,8 +295,14 @@ def convert_routed_local_pdfs(
     if backend == "grobid" and not grobid_is_available(grobid_url):
         raise RuntimeError(f"GROBID service is not available: {grobid_url}")
 
-    routes_df = pd.read_parquet(route_table)
+    routes_df = (
+        conversion_rows_from_selection(pd.read_parquet(selection_table))
+        if selection_table is not None
+        else pd.read_parquet(route_table)
+    )
     metadata_df = pd.read_parquet(metadata_table) if metadata_table.exists() else pd.DataFrame()
+    candidate_df = pd.read_parquet(candidate_table) if candidate_table.exists() else pd.DataFrame()
+    metadata_df = merged_extraction_metadata(candidate_df, metadata_df)
     rows, skipped = selected_pdf_rows(
         routes_df=routes_df,
         metadata_df=metadata_df,
@@ -372,7 +395,7 @@ def convert_routed_local_pdfs(
 
     source_identity_audit_refresh: dict | None = None
     route_rebuild_summary: dict | None = None
-    if rebuild_routes_after and counts.get("written", 0) > 0:
+    if selection_table is None and rebuild_routes_after and counts.get("written", 0) > 0:
         source_identity_audit_refresh = refresh_source_identity_audit(
             artifact_dir=out_dir,
             candidate_table=candidate_table,
@@ -400,6 +423,7 @@ def convert_routed_local_pdfs(
     report = {
         "generated_at_utc": now_utc(),
         "route_table": str(route_table.resolve()),
+        "selection_table": str(selection_table.resolve()) if selection_table is not None else "",
         "metadata_table": str(metadata_table.resolve()),
         "candidate_table": str(candidate_table.resolve()),
         "fulltext_dir": str(fulltext_dir.resolve()),
@@ -432,6 +456,11 @@ def convert_routed_local_pdfs(
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--route-table", default=str(DEFAULT_OUTPUT_TABLE))
+    parser.add_argument(
+        "--selection-table",
+        default="",
+        help="Route-independent post-screen full-text worklist; selects convert_local_pdf rows directly.",
+    )
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
@@ -481,6 +510,7 @@ def main() -> int:
     doi_filter = read_doi_file(Path(args.doi_file).resolve()) if args.doi_file.strip() else None
     convert_routed_local_pdfs(
         route_table=Path(args.route_table).resolve(),
+        selection_table=Path(args.selection_table).resolve() if args.selection_table.strip() else None,
         metadata_table=Path(args.metadata_table).resolve(),
         candidate_table=Path(args.candidate_table).resolve(),
         prescreen_table=Path(args.prescreen_table).resolve(),
@@ -506,7 +536,7 @@ def main() -> int:
         limit=max(0, args.limit),
         only_missing_artifacts=not bool(args.include_existing_artifacts),
         write_failed_artifacts=bool(args.write_failed_artifacts),
-        rebuild_routes_after=not bool(args.no_rebuild_routes_after),
+        rebuild_routes_after=not bool(args.no_rebuild_routes_after) and not bool(args.selection_table.strip()),
         source_identity_audit=Path(args.source_identity_audit).resolve(),
         source_identity_audit_csv=Path(args.source_identity_audit_csv).resolve(),
         source_identity_unverified_dois=Path(args.source_identity_unverified_dois).resolve(),

@@ -12,6 +12,8 @@ from pathlib import Path
 import sys
 import time
 
+import pandas as pd
+
 try:
     from google import genai
     from google.genai import models as genai_models
@@ -26,6 +28,7 @@ if str(ROOT) not in sys.path:
 try:
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
+        DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -36,6 +39,7 @@ try:
         clean,
         completed_dois,
         generation_config,
+        merged_routing_metadata,
         load_dotenv,
         normalize_payload,
         parse_response_text,
@@ -55,6 +59,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
+        DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -65,6 +70,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         clean,
         completed_dois,
         generation_config,
+        merged_routing_metadata,
         load_dotenv,
         normalize_payload,
         parse_response_text,
@@ -143,8 +149,13 @@ def model_from_env(args: argparse.Namespace) -> str:
 def selected_routing_records(args: argparse.Namespace) -> list[dict]:
     scoped_dois = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else set()
     completed = completed_dois(Path(args.raw_jsonl).resolve()) if getattr(args, "resume", False) else set()
-    records = selected_records(
+    candidate_table = clean(getattr(args, "candidate_table", ""))
+    routing_metadata = merged_routing_metadata(
+        read_table(Path(candidate_table).resolve()) if candidate_table else pd.DataFrame(),
         read_table(Path(args.metadata_table).resolve()),
+    )
+    records = selected_records(
+        routing_metadata,
         read_table(Path(args.prescreen_decisions_table).resolve()),
         scoped_dois=scoped_dois,
         limit=0,
@@ -180,11 +191,14 @@ def jsonable(value: object) -> object:
 
 
 def write_batch_requests(args: argparse.Namespace) -> dict:
+    return write_batch_requests_for_records(args, selected_routing_records(args))
+
+
+def write_batch_requests_for_records(args: argparse.Namespace, records: list[dict]) -> dict:
     batch_input_jsonl = Path(args.batch_input_jsonl).resolve()
     manifest_json = Path(args.manifest_json).resolve()
     client = genai.Client(api_key=api_key_from_env(args, required=False))
     model = model_from_env(args)
-    records = selected_routing_records(args)
 
     manifest_records = []
     batch_input_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -450,19 +464,37 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
     report_json = Path(args.report_json).resolve()
     with manifest_json.open("r", encoding="utf-8") as handle:
         manifest = json.load(handle)
+    manifest_records = manifest.get("records", []) if isinstance(manifest.get("records", []), list) else []
+    manifest_keys = [clean(record.get("key", "")) for record in manifest_records if clean(record.get("key", ""))]
+    manifest_key_counts = Counter(manifest_keys)
+    duplicate_manifest_keys = sorted(key for key, count in manifest_key_counts.items() if count > 1)
     manifest_by_key = records_by_key(manifest)
     model = clean(manifest.get("inputs", {}).get("model", "")) or model_from_env(args)
     metadata_table = Path(args.metadata_table).resolve()
     prescreen_table = Path(args.prescreen_decisions_table).resolve()
-    metadata_df = read_table(metadata_table)
+    candidate_table = clean(getattr(args, "candidate_table", ""))
+    metadata_df = merged_routing_metadata(
+        read_table(Path(candidate_table).resolve()) if candidate_table else pd.DataFrame(),
+        read_table(metadata_table),
+    )
     prescreen_df = read_table(prescreen_table)
     retained_dois = retained_prescreen_dois(prescreen_df)
     prescreen_dois = all_prescreen_dois(prescreen_df)
 
+    batch_rows = read_jsonl(batch_output_jsonl)
+    returned_keys = [batch_line_key(row, line_index) for line_index, row in enumerate(batch_rows, start=1)]
+    returned_key_counts = Counter(returned_keys)
+    duplicate_keys = sorted(key for key, count in returned_key_counts.items() if count > 1)
+    expected_keys = set(manifest_by_key)
+    returned_key_set = set(returned_keys)
+    missing_keys = sorted(expected_keys.difference(returned_key_set))
+    unexpected_keys = sorted(returned_key_set.difference(expected_keys))
+    integrity_issues = bool(missing_keys or duplicate_keys or unexpected_keys or duplicate_manifest_keys)
+
     raw_rows = []
     status_counts: Counter = Counter()
     total_usage: Counter = Counter()
-    for line_index, row in enumerate(read_jsonl(batch_output_jsonl), start=1):
+    for line_index, row in enumerate(batch_rows, start=1):
         key = batch_line_key(row, line_index)
         manifest_record = manifest_by_key.get(key, {})
         doi = normalize_doi(manifest_record.get("doi", ""))
@@ -485,6 +517,8 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
         try:
             if error:
                 raise RuntimeError(error)
+            if returned_key_counts[key] != 1:
+                raise RuntimeError(f"Batch key `{key}` appeared {returned_key_counts[key]} times; expected exactly once")
             if not manifest_record:
                 raise RuntimeError(f"No manifest record found for batch key `{key}`")
             if not doi:
@@ -498,6 +532,25 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             status = "skipped_prescreen_excluded" if doi and doi in prescreen_dois and doi not in retained_dois else "error"
             raw_row.update({"status": status, "error_type": type(exc).__name__, "error": str(exc)})
         status_counts[raw_row["status"]] += 1
+        raw_rows.append(raw_row)
+
+    for key in missing_keys:
+        manifest_record = manifest_by_key[key]
+        raw_row = {
+            "generated_at_utc": now_utc(),
+            "doi": normalize_doi(manifest_record.get("doi", "")),
+            "model": model,
+            "status": "error",
+            "response_text": "",
+            "parsed": {},
+            "usage": {},
+            "batch_key": key,
+            "batch_line_index": None,
+            "batch_error": "",
+            "error_type": "MissingBatchResultError",
+            "error": f"No batch result was returned for manifest key `{key}`",
+        }
+        status_counts["error"] += 1
         raw_rows.append(raw_row)
 
     raw_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -524,7 +577,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
     report = {
         "generated_at_utc": now_utc(),
         "schema_version": "domain_routing_gemini_batch_parse_report",
-        "status": "ok" if not status_counts.get("error") else "issues_found",
+        "status": "ok" if not status_counts.get("error") and not integrity_issues else "issues_found",
         "inputs": {
             "batch_output_jsonl": str(batch_output_jsonl),
             "manifest_json": str(manifest_json),
@@ -541,6 +594,18 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
         "summary": {
             "status_counts": dict(status_counts),
             "usage": dict(total_usage),
+            "manifest_request_rows": len(manifest_records),
+            "unique_manifest_keys": len(manifest_by_key),
+            "duplicate_manifest_keys": len(duplicate_manifest_keys),
+            "duplicate_manifest_key_examples": duplicate_manifest_keys[:20],
+            "returned_result_rows": len(batch_rows),
+            "unique_returned_keys": len(returned_key_set),
+            "missing_result_keys": len(missing_keys),
+            "missing_result_key_examples": missing_keys[:20],
+            "duplicate_result_keys": len(duplicate_keys),
+            "duplicate_result_key_examples": duplicate_keys[:20],
+            "unexpected_result_keys": len(unexpected_keys),
+            "unexpected_result_key_examples": unexpected_keys[:20],
             "raw_outputs": len(raw_rows),
             "parsed_outputs": sum(1 for row in raw_rows if row.get("status") == "ok"),
             "route_rows": len(route_rows),
@@ -552,6 +617,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
 
 
 def add_common_generation_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--raw-jsonl", default=str(DEFAULT_RAW_JSONL))
@@ -567,6 +633,7 @@ def add_common_generation_args(parser: argparse.ArgumentParser) -> None:
 
 
 def add_parse_output_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--batch-output-jsonl", default=str(default_batch_output_jsonl()))

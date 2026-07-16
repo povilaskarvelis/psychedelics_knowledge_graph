@@ -6,13 +6,16 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import json
+import os
 import sys
+import tempfile
 
 import pandas as pd
 
 try:
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
+        DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -39,6 +42,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_COUNTS_CSV,
+        DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
         DEFAULT_METADATA_TABLE,
         DEFAULT_OUTPUT_TABLE,
@@ -138,6 +142,7 @@ def parse_part(queue: dict, part: dict, args: argparse.Namespace) -> dict:
     model = clean(args.model) or clean(queue.get("inputs", {}).get("model", ""))
     return parse_batch_results(
         argparse.Namespace(
+            candidate_table=str(Path(args.candidate_table).resolve()),
             metadata_table=str(Path(args.metadata_table).resolve()),
             prescreen_decisions_table=str(Path(args.prescreen_decisions_table).resolve()),
             batch_output_jsonl=str(Path(part["batch_results_jsonl"]).resolve()),
@@ -153,22 +158,70 @@ def parse_part(queue: dict, part: dict, args: argparse.Namespace) -> dict:
     )
 
 
-def write_combined_raw_jsonl(queue: dict, output: Path) -> int:
-    rows = 0
-    output.parent.mkdir(parents=True, exist_ok=True)
-    with output.open("w", encoding="utf-8") as out:
-        for part in queue.get("parts", []):
-            if not part_is_parsed(queue, part):
+def read_jsonl_rows(path: Path) -> list[dict]:
+    if not path.is_file():
+        return []
+    rows: list[dict] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
                 continue
-            raw_jsonl = Path(part["raw_jsonl"]).resolve()
-            if not raw_jsonl.exists():
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
                 continue
-            with raw_jsonl.open("r", encoding="utf-8") as handle:
-                for line in handle:
-                    if line.strip():
-                        out.write(line)
-                        rows += 1
+            if isinstance(row, dict):
+                rows.append(row)
     return rows
+
+
+def write_combined_raw_jsonl(queue: dict, output: Path, *, candidate_dois: set[str]) -> int:
+    new_rows: list[dict] = []
+    for part in queue.get("parts", []):
+        if part_is_parsed(queue, part):
+            new_rows.extend(read_jsonl_rows(Path(part["raw_jsonl"]).resolve()))
+    new_dois = {normalize_doi(row.get("doi", "")) for row in new_rows if normalize_doi(row.get("doi", ""))}
+
+    existing_raw = clean(queue.get("inputs", {}).get("existing_raw_jsonl", ""))
+    base_rows = read_jsonl_rows(Path(existing_raw).resolve()) if existing_raw else []
+    combined = [
+        row
+        for row in base_rows
+        if normalize_doi(row.get("doi", "")) in candidate_dois
+        and normalize_doi(row.get("doi", "")) not in new_dois
+    ]
+    combined.extend(
+        row for row in new_rows if normalize_doi(row.get("doi", "")) in candidate_dois
+    )
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    file_descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{output.name}.", suffix=".tmp", dir=output.parent
+    )
+    os.close(file_descriptor)
+    temporary_path = Path(temporary_name)
+    try:
+        with temporary_path.open("w", encoding="utf-8") as handle:
+            for row in combined:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        os.replace(temporary_path, output)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+    return len(combined)
+
+
+def write_parquet_atomic(frame: pd.DataFrame, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    file_descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+    )
+    os.close(file_descriptor)
+    temporary_path = Path(temporary_name)
+    try:
+        frame.to_parquet(temporary_path, engine="pyarrow", index=False)
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def current_prescreen_candidate_dois(path: Path) -> set[str]:
@@ -248,13 +301,13 @@ def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
             "written": False,
         }
 
-    combined = pd.concat(frames, ignore_index=True)
+    new_combined = pd.concat(frames, ignore_index=True)
     if len(parsed_parts) < parts_total:
         return {
             "parsed_parts": len(parsed_parts),
             "parts_total": parts_total,
-            "route_rows": len(combined),
-            "routed_dois": len(set(combined["doi"].map(normalize_doi))) if "doi" in combined.columns else 0,
+            "route_rows": len(new_combined),
+            "routed_dois": len(set(new_combined["doi"].map(normalize_doi))) if "doi" in new_combined.columns else 0,
             "raw_rows": 0,
             "output_table": str(output_table),
             "summary_json": str(summary_json),
@@ -262,6 +315,16 @@ def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
             "write_policy": "canonical_outputs_wait_for_all_parts",
         }
 
+    new_dois = set(new_combined["doi"].map(normalize_doi)) if "doi" in new_combined.columns else set()
+    existing_routing = clean(queue.get("inputs", {}).get("existing_routing_table", ""))
+    base = read_table(Path(existing_routing).resolve()) if existing_routing else pd.DataFrame()
+    base_dois: set[str] = set()
+    if not base.empty and "doi" in base.columns:
+        base_dois = set(base["doi"].map(normalize_doi))
+        base = base[~base["doi"].map(normalize_doi).isin(new_dois)].copy()
+        combined = pd.concat([base, new_combined], ignore_index=True)
+    else:
+        combined = new_combined
     input_dois = set(combined["doi"].map(normalize_doi)) if "doi" in combined.columns else set()
     candidate_dois = current_prescreen_candidate_dois(Path(args.prescreen_decisions_table).resolve())
     if candidate_dois and "doi" in combined.columns:
@@ -271,11 +334,10 @@ def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
     manual_reviews = load_manual_reviews(Path(args.manual_review_json).resolve()) if clean(args.manual_review_json) else {}
     combined, manual_reviewed_rows = apply_manual_reviews(combined, manual_reviews)
     combined = combined.sort_values(["doi", "domain_route"]).reset_index(drop=True)
-    output_table.parent.mkdir(parents=True, exist_ok=True)
-    combined.to_parquet(output_table, engine="pyarrow", index=False)
+    write_parquet_atomic(combined, output_table)
     route_rows = combined.to_dict("records")
 
-    raw_rows = write_combined_raw_jsonl(queue, raw_jsonl)
+    raw_rows = write_combined_raw_jsonl(queue, raw_jsonl, candidate_dois=candidate_dois)
     summary, counts = build_summary(
         route_rows,
         inputs={
@@ -292,6 +354,9 @@ def rebuild_combined_outputs(queue: dict, args: argparse.Namespace) -> dict:
         "parts_parsed": len(parsed_parts),
         "parsed_part_numbers": parsed_parts,
         "combined_raw_rows": raw_rows,
+        "newly_routed_dois": len(new_dois),
+        "base_routing_dois": len(base_dois),
+        "reused_base_dois_after_current_prescreen": len((base_dois - new_dois).intersection(output_dois)),
         "prescreen_filtered_dois": len(prescreen_filtered_dois),
         "prescreen_filtered_doi_examples": prescreen_filtered_dois[:20],
     }
@@ -325,42 +390,25 @@ def advance_queue(args: argparse.Namespace) -> dict:
     if not parts:
         raise SystemExit(f"Queue has no parts: {queue_path}")
 
+    parsed_now: list[int] = []
+    active: list[dict] = []
+    pending: list[dict] = []
     for part in parts:
         part_number = int(part["part"])
         if part_is_parsed(queue, part):
             continue
-
         job_json = Path(part["job_json"]).resolve()
         if not job_json.exists():
-            if args.no_submit:
-                combined = rebuild_combined_outputs(queue, args)
-                return {"action": "ready_to_submit", "part": part_number, "combined": combined}
-            try:
-                payload = submit_part(queue, part, args)
-            except Exception as exc:  # pragma: no cover - API quota/transient behavior
-                combined = rebuild_combined_outputs(queue, args)
-                return {
-                    "action": "submit_deferred",
-                    "part": part_number,
-                    "error_type": type(exc).__name__,
-                    "error": clean(exc),
-                    "combined": combined,
-                }
-            combined = rebuild_combined_outputs(queue, args)
-            return {
-                "action": "submitted",
-                "part": part_number,
-                "job_name": payload.get("job_name", ""),
-                "combined": combined,
-            }
+            pending.append(part)
+            continue
 
         state = submitted_part_state(part, args)
         if state == "JOB_STATE_SUCCEEDED":
             if not Path(part["batch_results_jsonl"]).resolve().exists():
                 download_part(part, args)
             report = parse_part(queue, part, args)
-            combined = rebuild_combined_outputs(queue, args)
             if report.get("status") != "ok":
+                combined = rebuild_combined_outputs(queue, args)
                 return {
                     "action": "parse_issues",
                     "part": part_number,
@@ -368,40 +416,65 @@ def advance_queue(args: argparse.Namespace) -> dict:
                     "report": report,
                     "combined": combined,
                 }
-            next_unparsed = next((later for later in parts if not part_is_parsed(queue, later)), None)
-            if next_unparsed and not Path(next_unparsed["job_json"]).resolve().exists() and not args.no_submit:
-                try:
-                    payload = submit_part(queue, next_unparsed, args)
-                except Exception as exc:  # pragma: no cover - API quota/transient behavior
-                    return {
-                        "action": "parsed_submit_deferred",
-                        "part": part_number,
-                        "next_part": int(next_unparsed["part"]),
-                        "error_type": type(exc).__name__,
-                        "error": clean(exc),
-                        "combined": combined,
-                    }
-                return {
-                    "action": "parsed_and_submitted_next",
-                    "part": part_number,
-                    "next_part": int(next_unparsed["part"]),
-                    "next_job_name": payload.get("job_name", ""),
-                    "combined": combined,
-                }
-            return {"action": "parsed", "part": part_number, "combined": combined}
+            parsed_now.append(part_number)
+            continue
         if state in TERMINAL_STATES:
             combined = rebuild_combined_outputs(queue, args)
             return {"action": "terminal_failure", "part": part_number, "state": state, "combined": combined}
-        combined = rebuild_combined_outputs(queue, args)
-        return {"action": "waiting", "part": part_number, "state": state, "combined": combined}
+        active.append({"part": part_number, "state": state, "tokens": int(part.get("approx_input_tokens_char4", 0) or 0)})
+
+    max_active = max(1, int(getattr(args, "max_active", 4)))
+    max_enqueued_tokens = max(0, int(getattr(args, "max_enqueued_approx_tokens", 2_000_000)))
+    active_tokens = sum(item["tokens"] for item in active)
+    submitted_now: list[dict] = []
+    deferred: dict = {}
+    if not args.no_submit:
+        for part in pending:
+            if len(active) + len(submitted_now) >= max_active:
+                break
+            part_tokens = int(part.get("approx_input_tokens_char4", 0) or 0)
+            if max_enqueued_tokens and active_tokens + part_tokens > max_enqueued_tokens and (active or submitted_now):
+                break
+            try:
+                payload = submit_part(queue, part, args)
+            except Exception as exc:  # pragma: no cover - API quota/transient behavior
+                deferred = {
+                    "part": int(part["part"]),
+                    "error_type": type(exc).__name__,
+                    "error": clean(exc),
+                }
+                break
+            submitted_now.append({"part": int(part["part"]), "job_name": payload.get("job_name", "")})
+            active_tokens += part_tokens
 
     combined = rebuild_combined_outputs(queue, args)
-    return {"action": "complete", "combined": combined}
+    parsed_total = sum(part_is_parsed(queue, part) for part in parts)
+    if parsed_total == len(parts):
+        action = "complete"
+    elif deferred:
+        action = "submit_deferred"
+    elif parsed_now or submitted_now:
+        action = "advanced"
+    elif pending and args.no_submit and not active:
+        action = "ready_to_submit"
+    else:
+        action = "waiting"
+    return {
+        "action": action,
+        "parsed_now": parsed_now,
+        "submitted_now": submitted_now,
+        "active": active,
+        "pending_parts": len(pending) - len(submitted_now),
+        "active_approx_input_tokens": active_tokens,
+        "deferred": deferred,
+        "combined": combined,
+    }
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--queue-json", default=str(DEFAULT_QUEUE_JSON))
+    parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--output-table", default=str(DEFAULT_OUTPUT_TABLE))
@@ -411,8 +484,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
     parser.add_argument("--model", default="")
     parser.add_argument("--manual-review-json", default=str(DEFAULT_MANUAL_REVIEW_JSON))
-    parser.add_argument("--no-submit", action="store_true")
-    return parser.parse_args()
+    submission = parser.add_mutually_exclusive_group()
+    submission.add_argument(
+        "--submit",
+        dest="no_submit",
+        action="store_false",
+        help="Explicitly authorize submission of pending queue parts.",
+    )
+    submission.add_argument(
+        "--no-submit",
+        dest="no_submit",
+        action="store_true",
+        help="Inspect or advance existing jobs without submitting pending parts (default).",
+    )
+    parser.set_defaults(no_submit=True)
+    parser.add_argument("--max-active", type=int, default=4)
+    parser.add_argument("--max-enqueued-approx-tokens", type=int, default=2_000_000)
+    return parser.parse_args(argv)
 
 
 def main() -> int:

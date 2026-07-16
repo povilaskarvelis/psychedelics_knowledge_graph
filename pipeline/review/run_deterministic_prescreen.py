@@ -21,12 +21,22 @@ try:
         deterministic_prescreen_decision,
         normalize_doi,
     )
+    from pipeline.workflow.decision_state import (
+        ActiveArtifact,
+        included_dois_from_candidate,
+        reconcile_workflow_decision,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.ingest.preprint_detection import classify_publication_stage
     from pipeline.review.deterministic_prescreen_rules import (
         deterministic_prescreen_decision,
         normalize_doi,
+    )
+    from pipeline.workflow.decision_state import (
+        ActiveArtifact,
+        included_dois_from_candidate,
+        reconcile_workflow_decision,
     )
 
 
@@ -37,6 +47,12 @@ DEFAULT_METADATA_TABLE = DEFAULT_CORPUS_DIR / "paper_metadata_enrichment.parquet
 DEFAULT_CONTEXTS_TABLE = DEFAULT_CORPUS_DIR / "candidate_contexts.parquet"
 DEFAULT_DECISIONS_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_decisions.parquet"
 DEFAULT_SUMMARY_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_summary.parquet"
+DEFAULT_DOMAIN_ROUTING_TABLE = DEFAULT_CORPUS_DIR / "paper_domain_routing_gemini.parquet"
+DEFAULT_EXTRACTION_ROUTES_TABLE = DEFAULT_CORPUS_DIR / "paper_extraction_routes.parquet"
+DEFAULT_EXTRACTION_TASKS_JSONL = (
+    ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
+)
+DEFAULT_RECONCILIATION_REPORT = DEFAULT_CORPUS_DIR / "prescreen_workflow_reconciliation.json"
 DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS = (
     ROOT / "data" / "curated" / "prescreen_publication_format_exclusions.json"
 )
@@ -44,7 +60,19 @@ DEFAULT_CURATED_PAPER_METADATA_OVERRIDES = (
     ROOT / "data" / "curated" / "paper_metadata_overrides.json"
 )
 TABLE_VERSION = "0.2"
-RULE_VERSION = "deterministic_prescreen_v2_20260716"
+RULE_VERSION = "deterministic_prescreen_v2_1_20260716"
+CANDIDATE_PRESCREEN_DEFAULTS = {
+    "prescreen_retained_for_extraction_candidate": False,
+    "prescreen_decisions": "",
+    "prescreen_actions": "",
+    "prescreen_reasons": "",
+    "prescreen_routing_tags": "",
+    "prescreen_table_version": "",
+    "prescreen_rule_version": "",
+    "prescreen_run_id": "",
+    "prescreen_updated_at_utc": "",
+    "prescreen_has_abstract": False,
+}
 METADATA_FIELDS = [
     "study_title",
     "study_year",
@@ -541,27 +569,6 @@ def no_usable_abstract_decision(row: dict, reason: str = "") -> dict:
     }
 
 
-def clear_title_scope_decision(row: dict) -> dict | None:
-    title = clean(row.get("study_title", ""))
-    if not title:
-        return None
-    title_row = {"study_title": title, "abstract": "", "keywords": "", "mesh_terms": ""}
-    decision = deterministic_prescreen_decision(title_row)
-    matched_terms = decision.get("matched_terms", [])
-    if clean(decision.get("action", "")) != "escalate" or not matched_terms:
-        return None
-    return {
-        "action": "retain_title_only_for_screening",
-        "confidence": 1.0,
-        "supporting_quote": title,
-        "reason": (
-            "No usable abstract is available, but an in-scope compound or intervention is explicitly "
-            "identified in the title; retain for LLM screening."
-        ),
-        "matched_terms": matched_terms,
-    }
-
-
 def has_substantive_evidence_signal(row: dict) -> bool:
     publication_type = clean(row.get("publication_type", ""))
     title_abstract = " ".join(
@@ -967,10 +974,7 @@ def build_prescreen_decisions(
         if before_model_decision:
             decision = before_model_decision
         elif not has_abstract:
-            decision = clear_title_scope_decision(screening_row) or no_usable_abstract_decision(
-                screening_row,
-                abstract_status_reason,
-            )
+            decision = no_usable_abstract_decision(screening_row, abstract_status_reason)
         else:
             decision = deterministic_prescreen_decision(screening_row)
         prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision)
@@ -1009,6 +1013,75 @@ def build_prescreen_decisions(
             }
         )
     return rows
+
+
+def validate_prescreen_decisions(decisions: list[dict], *, expected_dois: set[str] | None = None) -> None:
+    errors: list[str] = []
+    dois = [normalize_doi(row.get("doi", "")) for row in decisions]
+    blank_dois = sum(not doi for doi in dois)
+    doi_counts = Counter(doi for doi in dois if doi)
+    duplicate_dois = sorted(doi for doi, count in doi_counts.items() if count > 1)
+    if blank_dois:
+        errors.append(f"{blank_dois} decision rows have blank DOIs")
+    if duplicate_dois:
+        errors.append(f"duplicate decision DOIs: {duplicate_dois[:10]}")
+    if expected_dois is not None and set(dois) != expected_dois:
+        missing = sorted(expected_dois - set(dois))
+        extra = sorted(set(dois) - expected_dois)
+        errors.append(f"DOI coverage mismatch: missing={missing[:10]} extra={extra[:10]}")
+
+    for row in decisions:
+        doi = normalize_doi(row.get("doi", "")) or "<blank>"
+        decision = clean(row.get("prescreen_decision", ""))
+        action = clean(row.get("prescreen_action", ""))
+        retained = bool(row.get("retained_for_screening", False))
+        extraction_candidate = bool(row.get("retained_for_extraction_candidate", False))
+        if decision not in {"retain", "exclude"}:
+            errors.append(f"{doi}: unsupported prescreen decision {decision!r}")
+        if decision == "retain" and action != "retain_for_screening":
+            errors.append(f"{doi}: retained decision has action {action!r}")
+        if decision == "exclude" and not action.startswith("exclude_"):
+            errors.append(f"{doi}: excluded decision has action {action!r}")
+        expected_retained = decision == "retain"
+        if "retained_for_screening" in row and retained != expected_retained:
+            errors.append(f"{doi}: retained flags conflict with decision {decision!r}")
+        if "retained_for_extraction_candidate" in row and extraction_candidate != expected_retained:
+            errors.append(f"{doi}: extraction-candidate flag conflicts with decision {decision!r}")
+        if (
+            clean(row.get("rule_version", "")) == RULE_VERSION
+            and expected_retained
+            and not bool(row.get("has_abstract", False))
+        ):
+            errors.append(f"{doi}: title-only record was retained despite the no-abstract exclusion policy")
+
+    if errors:
+        preview = "\n".join(errors[:25])
+        suffix = f"\n... and {len(errors) - 25} more" if len(errors) > 25 else ""
+        raise ValueError(f"Deterministic prescreen validation failed:\n{preview}{suffix}")
+
+
+def candidate_prescreen_updates(decisions: list[dict]) -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "doi": normalize_doi(row.get("doi", "")),
+                "prescreen_retained_for_extraction_candidate": bool(
+                    row.get("retained_for_extraction_candidate", False)
+                ),
+                "prescreen_decisions": clean(row.get("prescreen_decision", "")),
+                "prescreen_actions": clean(row.get("prescreen_action", "")),
+                "prescreen_reasons": clean(row.get("prescreen_reason", "")),
+                "prescreen_routing_tags": "",
+                "prescreen_table_version": clean(row.get("table_version", "")),
+                "prescreen_rule_version": clean(row.get("rule_version", "")),
+                "prescreen_run_id": clean(row.get("run_id", "")),
+                "prescreen_updated_at_utc": clean(row.get("generated_at_utc", "")),
+                "prescreen_has_abstract": bool(row.get("has_abstract", False)),
+            }
+            for row in decisions
+            if normalize_doi(row.get("doi", ""))
+        ]
+    )
 
 
 def build_summary_rows(decisions: list[dict], *, run_id: str, generated_at_utc: str) -> list[dict]:
@@ -1069,6 +1142,22 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
 
     if papers_df.empty:
         raise SystemExit(f"No rows found in papers table: {args.papers_table}")
+    previous_candidate_path = clean(getattr(args, "previous_candidate_table", ""))
+    if previous_candidate_path:
+        previous_candidate_df = read_table(Path(previous_candidate_path).resolve())
+        if previous_candidate_df.empty:
+            raise SystemExit(f"No rows found in previous candidate table: {previous_candidate_path}")
+    else:
+        previous_candidate_df = papers_df
+    previous_included_dois = included_dois_from_candidate(
+        previous_candidate_df,
+        column="prescreen_retained_for_extraction_candidate",
+    )
+    all_paper_dois = {
+        normalize_doi(value)
+        for value in papers_df.get("doi", pd.Series(dtype=str)).tolist()
+        if normalize_doi(value)
+    }
     if scoped_dois:
         if existing_decisions_df.empty:
             raise SystemExit(
@@ -1111,9 +1200,51 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
     else:
         decisions = updated_decisions
         replaced_count = 0
+    validate_prescreen_decisions(
+        decisions,
+        expected_dois=None if scoped_dois else all_paper_dois,
+    )
     summary = build_summary_rows(decisions, run_id=run_id, generated_at_utc=generated_at_utc)
     write_table(decisions_table, decisions)
     write_table(summary_table, summary)
+
+    candidate_update: dict = {}
+    if not getattr(args, "no_update_candidate_table", False):
+        current_included_dois = {
+            normalize_doi(row.get("doi", ""))
+            for row in decisions
+            if clean(row.get("prescreen_decision", "")) == "retain"
+            and normalize_doi(row.get("doi", ""))
+        }
+        active_artifacts: list[ActiveArtifact] = []
+        for attribute, kind in (
+            ("domain_routing_table", "parquet"),
+            ("extraction_routes_table", "parquet"),
+            ("extraction_tasks_jsonl", "jsonl"),
+        ):
+            value = clean(getattr(args, attribute, ""))
+            if value:
+                active_artifacts.append(ActiveArtifact(Path(value), kind=kind))
+        report_value = clean(getattr(args, "reconciliation_report", ""))
+        candidate_update = reconcile_workflow_decision(
+            candidate_table=Path(args.papers_table).resolve(),
+            decision_updates=candidate_prescreen_updates(decisions),
+            update_defaults=CANDIDATE_PRESCREEN_DEFAULTS,
+            stage="prescreen",
+            previous_included_dois=previous_included_dois,
+            current_included_dois=current_included_dois,
+            active_artifacts=active_artifacts,
+            pending_status="prescreen_retained_pending_model_screen",
+            excluded_status="prescreen_excluded",
+            report_path=Path(report_value) if report_value else None,
+            context={
+                "prescreen_decisions_table": str(decisions_table),
+                "prescreen_run_id": run_id,
+                "previous_candidate_table": str(Path(previous_candidate_path).resolve())
+                if previous_candidate_path
+                else str(Path(args.papers_table).resolve()),
+            },
+        )
 
     by_action = Counter(row["prescreen_action"] for row in decisions)
     print(f"Run ID: {run_id}")
@@ -1126,6 +1257,14 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
     print(f"Retained: {sum(row['prescreen_decision'] == 'retain' for row in decisions):,}")
     print(f"Excluded: {sum(row['prescreen_decision'] == 'exclude' for row in decisions):,}")
     print(f"Actions: {dict(by_action)}")
+    if candidate_update:
+        candidate_summary = candidate_update.get("candidate", {})
+        print(
+            "Candidate workflow reconciliation: "
+            f"stable_includes={candidate_summary.get('stable_included_dois', 0):,} "
+            f"reset={candidate_summary.get('downstream_reset_dois', 0):,} "
+            f"updated={candidate_summary.get('updated_candidate_rows', 0):,}"
+        )
     print(f"Decisions table: {decisions_table}")
     print(f"Summary table: {summary_table}")
     return decisions, summary
@@ -1138,6 +1277,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--contexts-table", default=str(DEFAULT_CONTEXTS_TABLE))
     parser.add_argument("--decisions-table", default=str(DEFAULT_DECISIONS_TABLE))
     parser.add_argument("--summary-table", default=str(DEFAULT_SUMMARY_TABLE))
+    parser.add_argument(
+        "--previous-candidate-table",
+        default="",
+        help=(
+            "Optional pre-promotion candidate snapshot used to identify stable include-to-include "
+            "records. Normally the current candidate table is captured automatically before updating."
+        ),
+    )
+    parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
+    parser.add_argument("--extraction-routes-table", default=str(DEFAULT_EXTRACTION_ROUTES_TABLE))
+    parser.add_argument("--extraction-tasks-jsonl", default=str(DEFAULT_EXTRACTION_TASKS_JSONL))
+    parser.add_argument("--reconciliation-report", default=str(DEFAULT_RECONCILIATION_REPORT))
     parser.add_argument(
         "--curated-publication-format-exclusions",
         default=str(DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS),
@@ -1154,6 +1305,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--run-id", default="")
     parser.add_argument("--doi-file", default="", help="Optional newline-delimited DOI list for a scoped update.")
     parser.add_argument("--doi", action="append", default=[], help="Single DOI for a scoped update; can be repeated.")
+    parser.add_argument(
+        "--no-update-candidate-table",
+        action="store_true",
+        help=(
+            "Write prescreen artifacts without reconciling candidate_papers or downstream active views."
+        ),
+    )
     parser.add_argument("--progress-every", type=int, default=5000, help="Print progress every N candidate papers; 0 disables progress.")
     return parser
 

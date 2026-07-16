@@ -19,6 +19,7 @@ from pipeline.fulltext.download_routed_pdfs import (
     build_download_tasks,
     classify_download_failure,
     deprioritize_candidates_by_host,
+    download_rows_from_selection,
     download_routed_pdfs,
     filter_tasks_by_candidate_status,
     interleave_tasks_by_host,
@@ -29,6 +30,38 @@ from pipeline.fulltext.download_routed_pdfs import (
 
 
 class TestDownloadRoutedPdfs(unittest.TestCase):
+    def test_download_rows_from_postscreen_selection(self) -> None:
+        selection = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/known",
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": True,
+                    "fulltext_enrichment_action": "download_known_pdf",
+                },
+                {
+                    "doi": "10.1000/discover",
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": True,
+                    "fulltext_enrichment_action": "discover_fulltext",
+                },
+                {
+                    "doi": "10.1000/reuse",
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": False,
+                    "fulltext_enrichment_action": "reuse_existing_fulltext",
+                },
+            ]
+        )
+
+        direct = download_rows_from_selection(selection, include_discovery=False)
+        discovery = download_rows_from_selection(selection, include_discovery=True)
+
+        self.assertEqual(direct["doi"].tolist(), ["10.1000/known"])
+        self.assertEqual(set(discovery["doi"]), {"10.1000/known", "10.1000/discover"})
+        self.assertTrue(discovery["retained_for_extraction_candidate"].all())
+        self.assertTrue(discovery["route_action"].eq("download_pdf_then_extract").all())
+
     def test_probable_pdf_url_classifier_accepts_common_pdf_patterns(self) -> None:
         positives = [
             "https://example.org/article.pdf",

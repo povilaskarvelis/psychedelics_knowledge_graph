@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 import pandas as pd
 
 try:
-    from pipeline.extract.build_extraction_routes import build_extraction_routes
+    from pipeline.extract.build_extraction_routes import build_extraction_routes, merged_extraction_metadata
     from pipeline.fulltext.pdf_alternate_sources import (
         AlternatePdfCandidate,
         collect_alternate_pdf_candidates,
@@ -26,7 +26,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.build_extraction_routes import build_extraction_routes
+    from pipeline.extract.build_extraction_routes import build_extraction_routes, merged_extraction_metadata
     from pipeline.fulltext.pdf_alternate_sources import (
         AlternatePdfCandidate,
         collect_alternate_pdf_candidates,
@@ -247,6 +247,27 @@ def build_download_tasks(
         if limit > 0 and len(tasks) >= limit:
             break
     return tasks
+
+
+def download_rows_from_selection(
+    selection_df: pd.DataFrame,
+    *,
+    include_discovery: bool,
+) -> pd.DataFrame:
+    """Project a post-screen full-text worklist into downloader task rows."""
+    if selection_df.empty:
+        return selection_df.copy()
+    selected = selection_df[
+        selection_df["selected_for_downstream"].map(truthy)
+        & selection_df["fulltext_enrichment_needed"].map(truthy)
+    ].copy()
+    actions = {"download_known_pdf"}
+    if include_discovery:
+        actions.update({"discover_fulltext", "fetch_pmc_xml"})
+    selected = selected[selected["fulltext_enrichment_action"].fillna("").astype(str).isin(actions)].copy()
+    selected["retained_for_extraction_candidate"] = True
+    selected["route_action"] = DEFAULT_ROUTE_ACTION
+    return selected
 
 
 def candidate_pdf_status_by_doi(candidate_df: pd.DataFrame) -> dict[str, dict]:
@@ -677,6 +698,7 @@ def rebuild_routes_after_pdf_downloads(
 def download_routed_pdfs(
     *,
     route_table: Path = DEFAULT_ROUTE_TABLE,
+    selection_table: Path | None = None,
     metadata_table: Path = DEFAULT_METADATA_TABLE,
     candidate_table: Path = DEFAULT_CANDIDATE_TABLE,
     pdf_dir: Path = DEFAULT_PDF_DIR,
@@ -711,9 +733,18 @@ def download_routed_pdfs(
     route_counts_csv: Path = DEFAULT_ROUTE_COUNTS_CSV,
     manual_route_overrides: Path | None = DEFAULT_MANUAL_ROUTE_OVERRIDES,
 ) -> dict:
-    routes_df = pd.read_parquet(route_table)
+    stage_label = "full-text worklist PDF download" if selection_table is not None else "routed PDF download"
+    alternate_pdf_sources = {clean(source).lower() for source in (alternate_pdf_sources or set()) if clean(source)}
+    if selection_table is not None:
+        routes_df = download_rows_from_selection(
+            pd.read_parquet(selection_table),
+            include_discovery=bool(alternate_pdf_sources),
+        )
+    else:
+        routes_df = pd.read_parquet(route_table)
     metadata_df = pd.read_parquet(metadata_table) if metadata_table.exists() else pd.DataFrame()
     candidate_df = pd.read_parquet(candidate_table) if candidate_table.exists() else pd.DataFrame()
+    metadata_df = merged_extraction_metadata(candidate_df, metadata_df)
     candidate_df = ensure_candidate_columns(candidate_df)
 
     all_tasks = build_download_tasks(
@@ -731,7 +762,6 @@ def download_routed_pdfs(
     )
     deprioritized_hosts = deprioritized_hosts or set()
     excluded_hosts = excluded_hosts or set()
-    alternate_pdf_sources = {clean(source).lower() for source in (alternate_pdf_sources or set()) if clean(source)}
     if excluded_hosts:
         host_filtered_tasks: list[dict] = []
         for task in tasks:
@@ -756,7 +786,7 @@ def download_routed_pdfs(
         max_retries=max(0, max_retries),
         timeout_sec=max(1, timeout_sec),
         max_retry_after_sec=max(0, max_retry_after_sec),
-        user_agent="kg-pipeline/routed-pdf-download",
+        user_agent="kg-pipeline/fulltext-pdf-download",
     )
 
     records: list[dict] = []
@@ -770,7 +800,7 @@ def download_routed_pdfs(
 
     if progress_every > 0 or attempt_log_every > 0:
         print(
-            "QUEUE: routed PDF download "
+            f"QUEUE: {stage_label} "
             f"tasks={len(tasks):,} "
             f"skipped={len(skipped_tasks):,} "
             f"deferred={deferred_by_limit:,} "
@@ -958,7 +988,7 @@ def download_routed_pdfs(
             position == 1 or position % attempt_log_every == 0 or position == len(tasks)
         ):
             print(
-                "RESULT: routed PDF download "
+                f"RESULT: {stage_label} "
                 f"{position:,}/{len(tasks):,} "
                 f"doi={doi} "
                 f"status={status} "
@@ -981,7 +1011,7 @@ def download_routed_pdfs(
 
         if progress_every > 0 and (position % progress_every == 0 or position == len(tasks)):
             print(
-                "PROGRESS: routed PDF download "
+                f"PROGRESS: {stage_label} "
                 f"{position:,}/{len(tasks):,} "
                 f"downloaded={counts.get('downloaded', 0):,} "
                 f"already_present={counts.get('already_present', 0):,} "
@@ -1014,6 +1044,7 @@ def download_routed_pdfs(
         "generated_at_utc": now_utc(),
         "dry_run": dry_run,
         "route_table": str(route_table.resolve()),
+        "selection_table": str(selection_table.resolve()) if selection_table is not None else "",
         "metadata_table": str(metadata_table.resolve()),
         "candidate_table": str(candidate_table.resolve()),
         "pdf_dir": str(pdf_dir.resolve()),
@@ -1057,6 +1088,14 @@ def download_routed_pdfs(
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Download PDFs for routed extraction candidates.")
     parser.add_argument("--route-table", default=str(DEFAULT_ROUTE_TABLE))
+    parser.add_argument(
+        "--selection-table",
+        default="",
+        help=(
+            "Route-independent post-screen full-text worklist. Known-PDF rows are selected directly; "
+            "discovery rows are also selected when alternate PDF sources are enabled."
+        ),
+    )
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--pdf-dir", default=str(DEFAULT_PDF_DIR))
@@ -1152,6 +1191,7 @@ def main() -> int:
     doi_filter = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else None
     report = download_routed_pdfs(
         route_table=Path(args.route_table).resolve(),
+        selection_table=Path(args.selection_table).resolve() if clean(args.selection_table) else None,
         metadata_table=Path(args.metadata_table).resolve(),
         candidate_table=Path(args.candidate_table).resolve(),
         pdf_dir=Path(args.pdf_dir).resolve(),
@@ -1177,7 +1217,7 @@ def main() -> int:
         progress_every=args.progress_every,
         attempt_log_every=args.attempt_log_every,
         candidate_log_every=args.candidate_log_every,
-        rebuild_routes_after=not bool(args.no_rebuild_routes_after),
+        rebuild_routes_after=not bool(args.no_rebuild_routes_after) and not bool(clean(args.selection_table)),
         prescreen_table=Path(args.prescreen_table).resolve(),
         domain_routing_table=Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None,
         fulltext_dir=Path(args.fulltext_dir).resolve(),

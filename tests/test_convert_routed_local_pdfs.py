@@ -4,7 +4,32 @@ import tempfile
 import pandas as pd
 
 from pipeline.fulltext.convert_pdfs import doi_to_slug
-from pipeline.fulltext.convert_routed_local_pdfs import selected_pdf_rows
+from pipeline.fulltext.convert_routed_local_pdfs import conversion_rows_from_selection, selected_pdf_rows
+
+
+def test_conversion_rows_from_postscreen_selection() -> None:
+    selection = pd.DataFrame(
+        [
+            {
+                "doi": "10.1000/local",
+                "selected_for_downstream": True,
+                "fulltext_enrichment_needed": True,
+                "fulltext_enrichment_action": "convert_local_pdf",
+            },
+            {
+                "doi": "10.1000/pmc",
+                "selected_for_downstream": True,
+                "fulltext_enrichment_needed": True,
+                "fulltext_enrichment_action": "fetch_pmc_xml",
+            },
+        ]
+    )
+
+    rows = conversion_rows_from_selection(selection)
+
+    assert rows["doi"].tolist() == ["10.1000/local"]
+    assert rows["retained_for_extraction_candidate"].all()
+    assert rows["route_action"].eq("convert_local_pdf_then_extract").all()
 
 
 def test_selected_pdf_rows_reads_route_table_and_targets_articles_dir() -> None:

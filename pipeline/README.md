@@ -49,12 +49,15 @@ flowchart TD
    publication-type labels, identifiers, open-access status, and PDF URL
    candidates. Provider roles are explicit: bibliographic metadata and
    abstracts, PubMed publication types, and open-access/PDF-link discovery are
-   refreshed as separate passes.
+   refreshed as separate passes. A resumable abstract-quality repair pass
+   rejects reconstructed full text, publisher-page text, and multi-record
+   containers; it recovers a clean provider abstract where possible and blanks
+   unresolved contaminated fields before screening.
 3. **Initial screening** removes only records that clearly fall outside the
    project scope or are non-evidence artifacts. After metadata enrichment,
-   records without usable abstracts are retained only when the title explicitly
-   identifies an in-scope compound/intervention; otherwise they receive the
-   auditable reason `exclude_no_usable_abstract`. It writes
+   records without usable abstracts receive the auditable reason
+   `exclude_no_usable_abstract`; title-only records are not sent to model
+   screening. It writes
    decisions to `paper_prescreen_decisions.parquet` and can be rerun for the
    whole corpus or a DOI subset. It does not assign evidence-domain routes.
 4. **Title and abstract screening and classification** assesses retained records
@@ -62,7 +65,9 @@ flowchart TD
    meta-analyses, other reviews, and non-primary context remain distinguishable
    throughout extraction and publication. The current implementation uses a
    structured model-assisted pass, with exact technical details recorded in the
-   generated corpus fields and run artifacts.
+   generated corpus fields and run artifacts. Its screening decision is binary:
+   plausible relevance is included to preserve recall, while only clearly
+   out-of-scope records are excluded. Validated abstracts are supplied in full.
 5. **Extraction preparation** combines the screening decisions, report type,
    evidence topics, available source text, and narrowly reviewed exceptions in
    `paper_extraction_routes.parquet`. Despite the filename, this is best
@@ -202,10 +207,12 @@ python pipeline/review/run_deterministic_prescreen.py \
 This writes `paper_prescreen_decisions.parquet` and
 `paper_prescreen_summary.parquet`. It excludes clear non-evidence artifacts and
 records that are clearly outside scope. Missing or unusable abstracts receive a
-conservative title-only check: explicit in-scope titles are retained for LLM
-screening, while insufficient titles receive `exclude_no_usable_abstract`.
-Abstract-only records are screened normally. This stage does not generate
-domain-routing tags; those belong to the LLM screening stage. Use
+uniform `exclude_no_usable_abstract` decision; title-only records are not sent
+to LLM screening. Abstract-only records are screened normally. This stage does
+not generate domain-routing tags; those belong to the LLM screening stage. The
+validated decisions are written into `candidate_papers.parquet`, and the shared
+stage-aware decision reconciler clears superseded downstream active state while
+preserving metadata, source artifacts, and historical run provenance. Use
 `--doi-file <doi_list>` or repeated `--doi <doi>` for scoped updates.
 
 ### Gemini Domain Routing
@@ -213,14 +220,19 @@ domain-routing tags; those belong to the LLM screening stage. Use
 Prepare batch requests:
 
 ```bash
-python pipeline/review/build_gemini_domain_routing_batch_queue.py --prepare
+python pipeline/review/build_gemini_domain_routing_batch_queue.py \
+  --previous-candidate-table path/to/pre-promotion-candidate_papers.parquet \
+  --prepare
 ```
 
 Advance the queue one submitted part at a time:
 
 ```bash
-python pipeline/review/advance_gemini_domain_routing_batch_queue.py
+python pipeline/review/advance_gemini_domain_routing_batch_queue.py --submit
 ```
+
+Without `--submit`, the queue-advance command is inspection-only and cannot
+submit pending jobs.
 
 This writes `paper_domain_routing_gemini.parquet`,
 `paper_domain_routing_gemini_summary.json`, and
@@ -228,7 +240,26 @@ This writes `paper_domain_routing_gemini.parquet`,
 `screening_decision`, `domain_tags`, `primary_domain`, `paper_type_group`, and
 `paper_type`; this table is the source of report type for new extraction routes.
 
-### Extraction Routes
+### Post-screen Full-text Worklist
+
+Build the new/unprocessed DOI selection directly from screening state before
+any extraction routes exist:
+
+```bash
+python pipeline/fulltext/build_fulltext_enrichment_worklist.py
+```
+
+This is the standard incremental handoff after screening. It applies
+report-level and non-primary/context-only eligibility decisions, subtracts the
+prior processed ledger and active graph, and writes a selected DOI list, the
+subset still needing full-text enrichment, a one-row-per-DOI worklist with the
+next full-text action, and a provenance report. It does not construct topic
+routes, prompts, schemas, extraction tasks, or model jobs.
+
+PMC retrieval, PDF retrieval, and conversion consume this worklist directly.
+Use explicit versioned output paths when retaining multiple update runs.
+
+### Extraction Routes (after Full-text Enrichment)
 
 ```bash
 python pipeline/extract/build_extraction_routes.py \
@@ -250,6 +281,13 @@ applies two narrow DOI-level manual review files:
   review confirms there is no usable open article PDF.
 - `data/curated/screening_decision_overrides.json` for reviewed report-level
   exclusions that must prevent extraction tasks.
+
+The canonical route table is built across the full corpus after full-text work
+so current decisions and access states remain reproducible. Rebuilding it is
+deterministic and does not itself download PDFs, convert files, build model
+tasks, or submit model jobs. Incremental task construction scopes the canonical
+table with `postscreen_selected_dois.txt`, so existing papers are not
+resubmitted.
 
 The build also updates `candidate_papers.parquet` as the DOI-level pipeline
 ledger. It backfills publication-stage fields, pre-screen summaries, Gemini
@@ -291,41 +329,35 @@ directories are retired and should not be recreated.
 
 ### Open-Access Links And PDF Retrieval
 
-Refresh PDF URL candidates for routed extraction candidates:
+Refresh PDF URL candidates for the post-screen full-text worklist:
 
 ```bash
 python pipeline/ingest/refresh_open_access_links.py \
-  --routing-table data/processed/corpus/paper_extraction_routes.parquet \
+  --doi-file data/processed/corpus/fulltext_enrichment_dois.txt \
   --only-missing-pdf-url \
   --provider-order unpaywall,openalex,pmc \
   --progress-every 100
 ```
 
-Use the route table to keep PDF download attempts scoped to retained extraction
-candidates and to avoid retrying known closed-access or already-downloaded
-records.
+Use the full-text worklist to keep attempts scoped to newly selected,
+unprocessed records and to avoid retrying existing corpus papers.
 
-Run the standard routed PDF retrieval stage:
+Run PMC recovery first, then PDF retrieval directly from the worklist:
 
 ```bash
-python pipeline/fulltext/run_pdf_retrieval_pipeline.py \
-  --route-table data/processed/corpus/paper_extraction_routes.parquet \
+python pipeline/fulltext/fetch_pmc_fulltext_xml.py \
+  --selection-table data/processed/corpus/fulltext_enrichment_worklist.parquet
+
+python pipeline/fulltext/download_fulltext_worklist_pdfs.py \
   --progress-every 25 \
   --write-every 25
 ```
 
-This step targets retained `download_pdf_then_extract` reports, deduplicates by
-DOI, writes successful downloads to `data/raw/papers/pdfs/`, and updates
-`candidate_papers.parquet` with the canonical local PDF path and checksum. It
-then runs the standard repository recovery pass for OSF/PsyArXiv and
-Figshare-style records, rebuilds `paper_extraction_routes.parquet`, and exports
-the remaining manual-download queue to
-`data/processed/corpus/audits/manual_pdf_download_dois.csv/.txt`. Use
-`--dry-run` to inspect the direct-download queue before network calls, and
-`--limit <N>` for a small pilot. Use `--skip-standard-recovery` for debugging
-when only the direct downloader should run. The runner prints an immediate
-queue summary, logs each DOI before and after its direct download attempt, and
-logs candidate-URL attempts/results by default. For
+These steps use only the selected full-text actions, write successful downloads
+to `data/raw/papers/pdfs/`, and update `candidate_papers.parquet`. They do not
+build extraction routes in selection-table mode. Use `--dry-run` to inspect the
+queue before network calls and `--limit <N>` for a pilot. The downloader logs
+each DOI and candidate-URL attempt/result by default. For
 quieter supervised runs, set `--attempt-log-every <N>`,
 `--candidate-log-every <N>`, or use `0` for either option; use
 `--progress-every <N>` for aggregate progress summaries.

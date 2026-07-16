@@ -12,7 +12,10 @@ from pipeline.review.run_gemini_domain_routing_batch import (
     response_text,
     write_batch_requests,
 )
-from pipeline.review.advance_gemini_domain_routing_batch_queue import rebuild_combined_outputs
+from pipeline.review.advance_gemini_domain_routing_batch_queue import (
+    parse_args as parse_advance_queue_args,
+    rebuild_combined_outputs,
+)
 
 
 def write_test_tables(root: Path) -> tuple[Path, Path]:
@@ -45,6 +48,11 @@ def write_test_tables(root: Path) -> tuple[Path, Path]:
 
 
 class GeminiDomainRoutingBatchTests(unittest.TestCase):
+    def test_queue_submission_requires_explicit_submit_flag(self) -> None:
+        self.assertTrue(parse_advance_queue_args([]).no_submit)
+        self.assertFalse(parse_advance_queue_args(["--submit"]).no_submit)
+        self.assertTrue(parse_advance_queue_args(["--no-submit"]).no_submit)
+
     def test_batch_line_helpers_accept_common_result_shapes(self) -> None:
         self.assertEqual(batch_line_key({"metadata": {"key": "request-1"}}, 9), "request-1")
         self.assertEqual(batch_line_key({}, 9), "row-9")
@@ -226,6 +234,90 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             self.assertEqual(raw_row["status"], "skipped_prescreen_excluded")
             self.assertEqual(len(routes), 0)
 
+    def test_parse_batch_results_reports_missing_manifest_result(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            metadata_table, prescreen_table = write_test_tables(tmp)
+            manifest_json = tmp / "manifest.json"
+            batch_output_jsonl = tmp / "batch_output.jsonl"
+            raw_jsonl = tmp / "raw.jsonl"
+            output_table = tmp / "routes.parquet"
+            report_json = tmp / "report.json"
+            manifest_json.write_text(
+                json.dumps(
+                    {
+                        "inputs": {"model": "gemini-3-flash-preview"},
+                        "records": [{"key": "domain-routing-000001", "doi": "10.1000/domain"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            batch_output_jsonl.write_text("", encoding="utf-8")
+            args = argparse.Namespace(
+                batch_output_jsonl=str(batch_output_jsonl),
+                manifest_json=str(manifest_json),
+                raw_jsonl=str(raw_jsonl),
+                output_table=str(output_table),
+                summary_json=str(tmp / "summary.json"),
+                counts_csv=str(tmp / "counts.csv"),
+                report_json=str(report_json),
+                metadata_table=str(metadata_table),
+                prescreen_decisions_table=str(prescreen_table),
+                env_file=str(tmp / ".env"),
+                model="",
+            )
+
+            report = parse_batch_results(args)
+            raw_row = json.loads(raw_jsonl.read_text(encoding="utf-8").splitlines()[0])
+
+            self.assertEqual(report["status"], "issues_found")
+            self.assertEqual(report["summary"]["missing_result_keys"], 1)
+            self.assertEqual(report["summary"]["status_counts"], {"error": 1})
+            self.assertEqual(raw_row["error_type"], "MissingBatchResultError")
+
+    def test_parse_batch_results_reports_duplicate_result_key(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            metadata_table, prescreen_table = write_test_tables(tmp)
+            manifest_json = tmp / "manifest.json"
+            batch_output_jsonl = tmp / "batch_output.jsonl"
+            raw_jsonl = tmp / "raw.jsonl"
+            output_table = tmp / "routes.parquet"
+            report_json = tmp / "report.json"
+            manifest_json.write_text(
+                json.dumps(
+                    {
+                        "inputs": {"model": "gemini-3-flash-preview"},
+                        "records": [{"key": "domain-routing-000001", "doi": "10.1000/domain"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            duplicate = {"key": "domain-routing-000001", "response": {}}
+            batch_output_jsonl.write_text(
+                json.dumps(duplicate) + "\n" + json.dumps(duplicate) + "\n",
+                encoding="utf-8",
+            )
+            args = argparse.Namespace(
+                batch_output_jsonl=str(batch_output_jsonl),
+                manifest_json=str(manifest_json),
+                raw_jsonl=str(raw_jsonl),
+                output_table=str(output_table),
+                summary_json=str(tmp / "summary.json"),
+                counts_csv=str(tmp / "counts.csv"),
+                report_json=str(report_json),
+                metadata_table=str(metadata_table),
+                prescreen_decisions_table=str(prescreen_table),
+                env_file=str(tmp / ".env"),
+                model="",
+            )
+
+            report = parse_batch_results(args)
+
+            self.assertEqual(report["status"], "issues_found")
+            self.assertEqual(report["summary"]["duplicate_result_keys"], 1)
+            self.assertEqual(report["summary"]["status_counts"], {"error": 2})
+
     def test_rebuild_combined_outputs_waits_for_all_parts_before_canonical_write(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
@@ -278,6 +370,77 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             self.assertEqual(result["parsed_parts"], 1)
             self.assertEqual(result["parts_total"], 2)
             self.assertEqual(result["write_policy"], "canonical_outputs_wait_for_all_parts")
+
+    def test_rebuild_combined_outputs_merges_delta_with_reusable_canonical_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            output_table = tmp / "canonical.parquet"
+            raw_jsonl = tmp / "canonical_raw.jsonl"
+            prescreen = tmp / "prescreen.parquet"
+            part_report = tmp / "part_report.json"
+            part_raw = tmp / "part_raw.jsonl"
+            part_output = tmp / "paper_domain_routing_gemini.test_delta_part001.parquet"
+            base_row = {
+                "doi": "10.1000/base",
+                "domain_route": "clinical_outcome",
+                "screening_decision": "include_in_scope",
+                "retained_for_extraction_candidate": True,
+            }
+            new_row = {
+                "doi": "10.1000/new",
+                "domain_route": "molecular_target",
+                "screening_decision": "include_in_scope",
+                "retained_for_extraction_candidate": True,
+            }
+            pd.DataFrame([base_row]).to_parquet(output_table, index=False)
+            pd.DataFrame([new_row]).to_parquet(part_output, index=False)
+            pd.DataFrame(
+                [
+                    {"doi": "10.1000/base", "prescreen_decision": "retain"},
+                    {"doi": "10.1000/new", "prescreen_decision": "retain"},
+                ]
+            ).to_parquet(prescreen, index=False)
+            raw_jsonl.write_text(
+                json.dumps({"doi": "10.1000/base", "status": "ok"}) + "\n",
+                encoding="utf-8",
+            )
+            part_raw.write_text(
+                json.dumps({"doi": "10.1000/new", "status": "ok"}) + "\n",
+                encoding="utf-8",
+            )
+            part_report.write_text(json.dumps({"status": "ok"}), encoding="utf-8")
+            queue = {
+                "name": "test_delta",
+                "inputs": {
+                    "existing_routing_table": str(output_table),
+                    "existing_raw_jsonl": str(raw_jsonl),
+                },
+                "parts": [
+                    {
+                        "part": 1,
+                        "raw_jsonl": str(part_raw),
+                        "report_json": str(part_report),
+                    }
+                ],
+            }
+            args = argparse.Namespace(
+                output_table=str(output_table),
+                summary_json=str(tmp / "summary.json"),
+                counts_csv=str(tmp / "counts.csv"),
+                raw_jsonl=str(raw_jsonl),
+                prescreen_decisions_table=str(prescreen),
+                metadata_table=str(tmp / "metadata.parquet"),
+                queue_json=str(tmp / "queue.json"),
+                manual_review_json="",
+            )
+
+            result = rebuild_combined_outputs(queue, args)
+            combined = pd.read_parquet(output_table)
+            combined_raw = [json.loads(line) for line in raw_jsonl.read_text(encoding="utf-8").splitlines()]
+
+        self.assertTrue(result["written"])
+        self.assertEqual(set(combined["doi"]), {"10.1000/base", "10.1000/new"})
+        self.assertEqual({row["doi"] for row in combined_raw}, {"10.1000/base", "10.1000/new"})
 
 
 if __name__ == "__main__":

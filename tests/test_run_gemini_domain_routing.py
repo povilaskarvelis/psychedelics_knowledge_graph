@@ -117,28 +117,55 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertEqual(parsed["primary_domain"], "clinical_outcome")
         self.assertEqual(parsed["domain_tags"], ["clinical_outcome", "intervention_context"])
 
-    def test_parse_response_text_salvages_truncated_rationale_json(self) -> None:
-        parsed = parse_response_text(
-            '{"domain_tags":["molecular_pathway_readout","brain_system"],'
-            '"primary_domain":"brain_system",'
-            '"screening_decision":"include_in_scope",'
-            '"screening_reason":"The abstract reports neural and molecular readouts.",'
-            '"paper_type_group":"primary",'
-            '"paper_type":"primary",'
-            '"paper_type_labels":["primary"],'
-            '"paper_type_reason":"The abstract reports original readouts.",'
-            '"methodological_validity_tags":[],'
-            '"rationale":"The model started repeating and was truncated'
+    def test_parse_response_text_rejects_truncated_json(self) -> None:
+        with self.assertRaises(ValueError):
+            parse_response_text(
+                '{"domain_tags":["molecular_pathway_readout","brain_system"],'
+                '"primary_domain":"brain_system",'
+                '"screening_decision":"include_in_scope",'
+                '"screening_reason":"The abstract reports neural and molecular readouts.",'
+                '"paper_type_group":"primary",'
+                '"paper_type":"primary",'
+                '"paper_type_labels":["primary"],'
+                '"paper_type_reason":"The abstract reports original readouts.",'
+                '"methodological_validity_tags":[],'
+                '"rationale":"The model started repeating and was truncated'
+            )
+
+    def test_parse_response_text_rejects_missing_required_fields(self) -> None:
+        with self.assertRaisesRegex(ValueError, "missing required fields"):
+            parse_response_text('{"domain_tags": [], "primary_domain": "general_topic"}')
+
+    def test_prompt_preserves_complete_validated_abstract(self) -> None:
+        abstract = "BEGINNING " + ("middle " * 1000) + " FINAL CONCLUSION"
+        prompt = prompt_for_record(
+            {
+                "doi": "10.example/long",
+                "study_title": "A long structured abstract",
+                "study_year": "2026",
+                "publication_type": "Journal Article",
+                "mesh_terms": "",
+                "keywords": "",
+                "abstract": abstract,
+            }
         )
 
-        self.assertEqual(parsed["domain_tags"], ["molecular_pathway_readout", "brain_system"])
-        self.assertEqual(parsed["primary_domain"], "brain_system")
-        self.assertEqual(parsed["screening_decision"], "include_in_scope")
-        self.assertEqual(parsed["paper_type_group"], "primary")
-        self.assertEqual(parsed["paper_type"], "primary")
-        self.assertEqual(parsed["paper_type_labels"], ["primary"])
-        self.assertEqual(parsed["methodological_validity_tags"], [])
-        self.assertEqual(parsed["rationale"], "")
+        self.assertIn("Abstract: BEGINNING", prompt)
+        self.assertNotIn("[middle truncated]", prompt)
+        self.assertIn("middle middle middle", prompt)
+        self.assertIn("FINAL CONCLUSION", prompt)
+
+    def test_invalid_screening_decision_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "Unsupported screening decision"):
+            normalize_payload(
+                {
+                    "domain_tags": ["clinical_outcome"],
+                    "primary_domain": "clinical_outcome",
+                    "screening_decision": "",
+                    "paper_type_group": "primary",
+                    "paper_type": "primary",
+                }
+            )
 
     def test_route_rows_preserve_model_routing_metadata(self) -> None:
         rows = route_rows_from_parsed(

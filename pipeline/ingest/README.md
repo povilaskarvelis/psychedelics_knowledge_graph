@@ -30,7 +30,7 @@ python pipeline/ingest/run_batch_abstract_enrichment.py \
 The command:
 
 - freezes the DOI-scoped missing-abstract cohort in the run directory;
-- retrieves PMC records in batches, then queries Semantic Scholar in batches
+- retrieves PubMed and PMC records in batches, then queries Semantic Scholar in batches
   of at most 500 for records still lacking an abstract;
 - supports a resumable Crossref DOI pass with `--providers crossref`; Crossref
   requests use the configured polite-pool rate and at most three coordinated
@@ -46,8 +46,8 @@ The command:
 Use `--dry-run` to inspect the eligible scope without network requests, or
 `--no-merge` for a retrieval-only pilot. Reusing a run ID with different
 inputs or batch settings is refused; choose a new run ID instead. Records that
-remain abstractless are not excluded automatically and continue to title
-review or later full-text recovery.
+remain abstractless are handled by the following deterministic pre-screen as
+`exclude_no_usable_abstract` rather than being sent to model screening.
 
 To run a measured Crossref recovery stage after the default providers, use a
 new run ID. The command freezes only records still missing abstracts at the
@@ -58,6 +58,26 @@ python pipeline/ingest/run_batch_abstract_enrichment.py \
   --run-id batch_abstract_enrichment_crossref_YYYYMMDD \
   --providers crossref
 ```
+
+### Abstract contamination repair
+
+After a discovery promotion—or before rebuilding a model-screening queue—run
+the resumable quality repair over the corpus:
+
+```bash
+python pipeline/ingest/repair_abstract_contamination.py \
+  --run-id abstract_contamination_repair_YYYYMMDD
+```
+
+Use `--doi-file` to restrict the audit to an update cohort and `--audit-only`
+to materialize the suspect set without provider calls. The repair applies a
+provider-aware quality policy shared with discovery promotion, preserves the
+affected pre-repair rows, queries PubMed/PMC/Semantic Scholar/Crossref with
+checkpoints, rejects contaminated recovery values, and atomically synchronizes
+the candidate and metadata tables. Clean recovered abstracts replace bad
+values; unresolved full text or container text is blanked so it cannot reach
+screening. The detailed scope, provider outcomes, rejected recovery fields,
+actions, backups, and checksums remain under the run directory.
 
 Publication-type and open-access/PDF enrichment should normally wait until
 after screening for a very large discovery update. The promoted discovery
