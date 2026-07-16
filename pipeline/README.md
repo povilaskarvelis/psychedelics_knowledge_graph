@@ -1,10 +1,10 @@
 # Pipeline
 
 This pipeline builds and maintains the evidence base behind the Psychedelics
-Knowledge Graph. It starts from the canonical candidate corpus, screens records
-for relevance, prepares the best available report text, extracts structured
-findings, and publishes reviewed releases of the graph, record audit, and
-Methods page.
+Knowledge Graph. It discovers literature into the canonical candidate corpus,
+screens records for relevance, prepares the best available report text,
+extracts structured findings, and publishes reviewed releases of the graph,
+record audit, and Methods page.
 
 This README is the living operational map for the current pipeline. When a
 step changes, update this file first, then update the narrower stage README if
@@ -14,7 +14,9 @@ the change affects a specific script family.
 
 ```mermaid
 flowchart TD
+  S["Versioned full or elapsed-period literature search"]
   C["Canonical candidate corpus and metadata"]
+  S --> C
   C --> D["Initial rules-based record screening"]
   D --> E["Title and abstract screening and report classification"]
   E --> F["Prepare report extraction assignments"]
@@ -34,41 +36,52 @@ flowchart TD
   N --> O["Publish graph, bibliography, Methods data, and site together"]
 ```
 
-1. **Canonical corpus and metadata enrichment** starts from
+1. **Living literature discovery** runs versioned PubMed and OpenAlex searches
+   either over the elapsed period or over the full historical period. It counts
+   before retrieval, partitions large results by date, resumes across provider
+   budgets, preserves provider IDs and query provenance, reports query yield,
+   and refuses to promote mechanically incomplete runs. Known-record coverage
+   is optional rather than a recall claim or default promotion gate. Graph entity
+   allowlists are not expanded into a provider-side Cartesian query grid. See
+   `pipeline/discovery/README.md`.
+2. **Canonical corpus and metadata enrichment** starts from
    `candidate_papers.parquet` and adds titles, abstracts, publication metadata,
    publication-type labels, identifiers, open-access status, and PDF URL
    candidates. Provider roles are explicit: bibliographic metadata and
    abstracts, PubMed publication types, and open-access/PDF-link discovery are
    refreshed as separate passes.
-2. **Initial screening** removes only records that clearly lack usable
-   title/abstract evidence or clearly fall outside the project scope. It writes
+3. **Initial screening** removes only records that clearly fall outside the
+   project scope or are non-evidence artifacts. After metadata enrichment,
+   records without usable abstracts are retained only when the title explicitly
+   identifies an in-scope compound/intervention; otherwise they receive the
+   auditable reason `exclude_no_usable_abstract`. It writes
    decisions to `paper_prescreen_decisions.parquet` and can be rerun for the
-   whole corpus or a DOI subset.
-3. **Title and abstract screening and classification** assesses retained records
+   whole corpus or a DOI subset. It does not assign evidence-domain routes.
+4. **Title and abstract screening and classification** assesses retained records
    for relevance, evidence topics, and report type. Primary studies,
    meta-analyses, other reviews, and non-primary context remain distinguishable
    throughout extraction and publication. The current implementation uses a
    structured model-assisted pass, with exact technical details recorded in the
    generated corpus fields and run artifacts.
-4. **Extraction preparation** combines the screening decisions, report type,
+5. **Extraction preparation** combines the screening decisions, report type,
    evidence topics, available source text, and narrowly reviewed exceptions in
    `paper_extraction_routes.parquet`. Despite the filename, this is best
    described publicly as the set of extraction assignments for each report.
-5. **Source-text preparation** refreshes open-access links, downloads available legal
+6. **Source-text preparation** refreshes open-access links, downloads available legal
    PDFs, retrieves reusable PMC XML when available, and converts local full-text
    sources into structured artifacts. Records without usable full text remain
    eligible for abstract-only extraction when they otherwise meet the selection
    criteria.
-6. **Structured evidence extraction** uses different report-centered contracts
+7. **Structured evidence extraction** uses different report-centered contracts
    for primary studies, meta-analyses, and other reviews. Primary-study results,
    pooled estimates, and review-level relationships are not flattened into one
    evidence type. Guidelines, context-only records, and other non-extraction
    records remain available for corpus accounting without becoming findings.
-7. **Validation and graph preparation** checks extracted information against
+8. **Validation and graph preparation** checks extracted information against
    its source, preserves source locations, uses consistent names for compounds
    and related topics, and writes one final graph-inclusion decision, reason,
    and provenance record back to `candidate_papers.parquet` for every DOI.
-8. **Staging and publication** builds versioned graph tables, author data, and
+9. **Staging and publication** builds versioned graph tables, author data, and
    compact browser files. A guarded promotion first materializes and validates
    the release's final decisions in the canonical corpus ledger, then generates
    the bibliography and PRISMA flow from that ledger alone. It updates the
@@ -116,9 +129,51 @@ stale replacements. See
 [`docs/scoped_paper_updates.md`](../docs/scoped_paper_updates.md) for batch API
 commands, exclusion-only updates, audits, and rollback behavior.
 
+### Literature Discovery And Corpus Updates
+
+Plan or run an elapsed-period update:
+
+```bash
+python pipeline/discovery/run_literature_search.py \
+  --mode update \
+  --run-id living_update_v3_YYYYMMDD \
+  --config pipeline/config.local.yaml \
+  --scope-config pipeline/config.example.yaml \
+  --layers core,scope
+```
+
+Resume paused runs with `--resume --run-id ...`. Promote only after the run's
+completion gate passes:
+
+```bash
+python pipeline/discovery/promote_search_run.py \
+  --run-id living_update_v3_YYYYMMDD
+```
+
+See [`pipeline/discovery/README.md`](discovery/README.md) for full reruns,
+request budgets, scope-delta recovery, artifacts, and downstream handoff.
+
 ### Metadata Enrichment
 
-Run role-aware metadata enrichment on the corpus table:
+For a large promoted discovery run, recover abstracts through resumable batch
+endpoints before deterministic pre-screening:
+
+```bash
+python pipeline/ingest/run_batch_abstract_enrichment.py \
+  --run-id batch_abstract_enrichment_YYYYMMDD \
+  --doi-file data/processed/discovery/runs/<discovery_run_id>/new_candidate_dois.txt
+```
+
+This queries PMC in identifier batches and Semantic Scholar in DOI batches,
+checkpoints every completed batch, preserves existing abstracts, and backs up
+the metadata table before merging. A subsequent residual-only Crossref stage
+can be run with a new run ID and `--providers crossref`; it uses the configured
+polite-pool rate, no more than three workers, and resumable checkpoints. The
+pipeline intentionally defers open-access/PDF lookups until after screening so
+those calls are spent on retained records.
+
+For small updates or per-record fallback enrichment, run the role-aware
+metadata sequence:
 
 ```bash
 python pipeline/ingest/run_standard_metadata_enrichment.py \
@@ -133,8 +188,9 @@ candidates. The default provider roles are controlled in
 PubMed/PMC/OpenAlex/Crossref/Semantic Scholar fallbacks, publication types come
 from PubMed, and open-access/PDF links use Unpaywall/OpenAlex/PMC.
 
-Scope a small update with `--doi-file <doi_list>` rather than rerunning the
-whole table.
+Scope it with `--doi-file <doi_list>` rather than rerunning the whole table.
+See [`pipeline/ingest/README.md`](ingest/README.md) for batch run artifacts,
+dry-run and retrieval-only modes, and resume behavior.
 
 ### Rule-Based Pre-Screen
 
@@ -144,10 +200,13 @@ python pipeline/review/run_deterministic_prescreen.py \
 ```
 
 This writes `paper_prescreen_decisions.parquet` and
-`paper_prescreen_summary.parquet`. It excludes only clear title/abstract
-no-signal records, unusable abstract artifacts, and records that are clearly
-outside scope. Use `--doi-file <doi_list>` or repeated `--doi <doi>` for scoped
-updates.
+`paper_prescreen_summary.parquet`. It excludes clear non-evidence artifacts and
+records that are clearly outside scope. Missing or unusable abstracts receive a
+conservative title-only check: explicit in-scope titles are retained for LLM
+screening, while insufficient titles receive `exclude_no_usable_abstract`.
+Abstract-only records are screened normally. This stage does not generate
+domain-routing tags; those belong to the LLM screening stage. Use
+`--doi-file <doi_list>` or repeated `--doi <doi>` for scoped updates.
 
 ### Gemini Domain Routing
 

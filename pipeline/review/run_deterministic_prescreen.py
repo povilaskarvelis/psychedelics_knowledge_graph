@@ -20,7 +20,6 @@ try:
     from pipeline.review.deterministic_prescreen_rules import (
         deterministic_prescreen_decision,
         normalize_doi,
-        normalize_routing_tags,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -28,7 +27,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.review.deterministic_prescreen_rules import (
         deterministic_prescreen_decision,
         normalize_doi,
-        normalize_routing_tags,
     )
 
 
@@ -45,7 +43,8 @@ DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS = (
 DEFAULT_CURATED_PAPER_METADATA_OVERRIDES = (
     ROOT / "data" / "curated" / "paper_metadata_overrides.json"
 )
-TABLE_VERSION = "0.1"
+TABLE_VERSION = "0.2"
+RULE_VERSION = "deterministic_prescreen_v2_20260716"
 METADATA_FIELDS = [
     "study_title",
     "study_year",
@@ -100,6 +99,35 @@ NON_SOURCE_PUBLICATION_TYPES = {
     "viewpoint",
     "visual essay",
 }
+AMBIGUOUS_NARRATIVE_PUBLICATION_TYPES = {
+    "comment",
+    "commentary",
+    "dispatch",
+    "editorial",
+    "insight",
+    "insight article",
+    "letter",
+    "perspective",
+    "viewpoint",
+}
+EVIDENCE_BEARING_PUBLICATION_PATTERNS = (
+    re.compile(r"\bcase reports?\b", re.IGNORECASE),
+    re.compile(r"\bclinical trial\b", re.IGNORECASE),
+    re.compile(r"\brandomi[sz]ed controlled trial\b", re.IGNORECASE),
+    re.compile(r"\bobservational study\b", re.IGNORECASE),
+    re.compile(r"\bcomparative study\b", re.IGNORECASE),
+    re.compile(r"\bmeta-analysis\b", re.IGNORECASE),
+    re.compile(r"\bsystematic review\b", re.IGNORECASE),
+    re.compile(r"\bresearch article\b", re.IGNORECASE),
+)
+EVIDENCE_BEARING_TEXT_PATTERNS = (
+    re.compile(r"\bcase (?:report|series)\b", re.IGNORECASE),
+    re.compile(r"\bwe (?:report|describe|present) (?:a|an|the|two|three|four|five) case\b", re.IGNORECASE),
+    re.compile(r"\bwe (?:enrolled|randomi[sz]ed|recruited|analysed|analyzed)\b", re.IGNORECASE),
+    re.compile(r"\bparticipants? (?:received|were assigned|were randomi[sz]ed|completed)\b", re.IGNORECASE),
+    re.compile(r"\bpatients? (?:received|were treated|were assigned|were randomi[sz]ed)\b", re.IGNORECASE),
+    re.compile(r"\b(?:results?|findings?)\s*:\s*", re.IGNORECASE),
+)
 OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES = {
     "abstract book entry": "conference_abstract",
     "book chapter": "book_chapter",
@@ -267,35 +295,6 @@ CITATION_ONLY_ABSTRACT_PATTERNS = (
         re.IGNORECASE,
     ),
 )
-CONTEXT_ENTITY_TYPE_TAGS = {
-    "target": "molecular_target",
-    "molecular_target": "molecular_target",
-    "brain_region_or_network": "brain_system",
-    "brain_system": "brain_system",
-    "network": "brain_system",
-    "circuit": "brain_system",
-    "cognitive_behavioral_task": "cognitive_behavioral",
-    "cognitive_behavioral": "cognitive_behavioral",
-    "molecular_pathway": "molecular_pathway",
-    "pathway": "molecular_pathway",
-    "subjective_experience": "subjective_experience",
-    "acute_subjective_effect": "subjective_experience",
-    "pharmacokinetics_exposure": "pharmacokinetics_exposure",
-    "pharmacokinetics": "pharmacokinetics_exposure",
-    "exposure": "pharmacokinetics_exposure",
-    "intervention_context": "intervention_context",
-    "psychotherapy_context": "intervention_context",
-    "real_world_use_public_health": "real_world_use_public_health",
-    "public_health": "real_world_use_public_health",
-    "naturalistic_use": "real_world_use_public_health",
-    "clinical_symptom_function": "clinical_outcome",
-    "clinical_safety": "safety",
-    "clinical_mechanism_overlap": "bridge_clinical_mechanism",
-    "indication": "clinical_outcome",
-    "clinical": "clinical_outcome",
-}
-
-
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
@@ -510,16 +509,6 @@ def compact_contexts(contexts: list[dict]) -> list[dict]:
     return out
 
 
-def context_routing_tags(contexts: list[dict]) -> list[str]:
-    tags: list[str] = []
-    for context in contexts:
-        entity_type = clean(context.get("entity_type", "")).lower().replace("-", "_").replace(" ", "_")
-        tag = CONTEXT_ENTITY_TYPE_TAGS.get(entity_type)
-        if tag:
-            tags.append(tag)
-    return normalize_routing_tags(tags)
-
-
 def merged_screening_row(
     paper: dict,
     metadata: dict | None,
@@ -536,18 +525,54 @@ def merged_screening_row(
     return row
 
 
-def missing_abstract_decision(row: dict, contexts: list[dict], reason: str = "") -> dict:
+def no_usable_abstract_decision(row: dict, reason: str = "") -> dict:
+    title = clean(row.get("study_title", ""))
+    detail = reason or "No usable abstract is available."
+    if title:
+        detail += " The title alone did not clearly establish that the record was in scope."
+    else:
+        detail += " No usable title or abstract was available for screening."
     return {
-        "action": "exclude_missing_abstract",
+        "action": "exclude_no_usable_abstract",
         "confidence": 1.0,
-        "supporting_quote": clean(row.get("abstract", "")) or clean(row.get("study_title", "")) or "not_found",
-        "reason": reason or "No abstract available for title/abstract screening.",
+        "supporting_quote": title or "not_found",
+        "reason": detail,
         "matched_terms": [],
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
-def non_paper_container_without_title_decision(row: dict, contexts: list[dict]) -> dict | None:
+def clear_title_scope_decision(row: dict) -> dict | None:
+    title = clean(row.get("study_title", ""))
+    if not title:
+        return None
+    title_row = {"study_title": title, "abstract": "", "keywords": "", "mesh_terms": ""}
+    decision = deterministic_prescreen_decision(title_row)
+    matched_terms = decision.get("matched_terms", [])
+    if clean(decision.get("action", "")) != "escalate" or not matched_terms:
+        return None
+    return {
+        "action": "retain_title_only_for_screening",
+        "confidence": 1.0,
+        "supporting_quote": title,
+        "reason": (
+            "No usable abstract is available, but an in-scope compound or intervention is explicitly "
+            "identified in the title; retain for LLM screening."
+        ),
+        "matched_terms": matched_terms,
+    }
+
+
+def has_substantive_evidence_signal(row: dict) -> bool:
+    publication_type = clean(row.get("publication_type", ""))
+    title_abstract = " ".join(
+        value for value in (clean(row.get("study_title", "")), clean(row.get("abstract", ""))) if value
+    )
+    return any(pattern.search(publication_type) for pattern in EVIDENCE_BEARING_PUBLICATION_PATTERNS) or any(
+        pattern.search(title_abstract) for pattern in EVIDENCE_BEARING_TEXT_PATTERNS
+    )
+
+
+def non_paper_container_without_title_decision(row: dict) -> dict | None:
     title = clean(row.get("study_title", ""))
     if title:
         return None
@@ -564,11 +589,10 @@ def non_paper_container_without_title_decision(row: dict, contexts: list[dict]) 
             "and no paper title is available."
         ),
         "matched_terms": sorted(publication_types),
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
-def out_of_scope_publication_format_decision(row: dict, contexts: list[dict]) -> dict | None:
+def out_of_scope_publication_format_decision(row: dict) -> dict | None:
     doi = normalize_doi(clean(row.get("study_doi", ""))).lower()
     title = clean(row.get("study_title", ""))
     abstract = clean(row.get("abstract", ""))
@@ -581,6 +605,15 @@ def out_of_scope_publication_format_decision(row: dict, contexts: list[dict]) ->
     matched_terms = sorted(
         value for value in publication_types if value in OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES
     )
+    if has_substantive_evidence_signal(row):
+        protected_types = {
+            value
+            for value in publication_types
+            if OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES.get(value) == "commentary"
+        }
+        if protected_types:
+            matched_formats.discard("commentary")
+            matched_terms = [value for value in matched_terms if value not in protected_types]
     for pattern, publication_format in OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS:
         match = pattern.search(doi)
         if match:
@@ -601,13 +634,11 @@ def out_of_scope_publication_format_decision(row: dict, contexts: list[dict]) ->
             "review, or meta-analysis."
         ),
         "matched_terms": [*sorted(matched_formats), *matched_terms],
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
 def curated_publication_format_exclusion_decision(
     row: dict,
-    contexts: list[dict],
     curated_exclusions: dict[str, dict],
 ) -> dict | None:
     doi = normalize_doi(clean(row.get("study_doi", ""))).lower()
@@ -626,11 +657,10 @@ def curated_publication_format_exclusion_decision(
             publication_format,
             *([evidence_basis] if evidence_basis else []),
         ],
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
-def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | None:
+def non_evidence_artifact_decision(row: dict) -> dict | None:
     doi = normalize_doi(clean(row.get("study_doi", "")))
     title = clean(row.get("study_title", ""))
     abstract = clean(row.get("abstract", ""))
@@ -660,6 +690,8 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
         if match:
             matched_terms.append(match.group(0))
     non_source_publication_types = publication_types.intersection(NON_SOURCE_PUBLICATION_TYPES)
+    if has_substantive_evidence_signal(row):
+        non_source_publication_types -= AMBIGUOUS_NARRATIVE_PUBLICATION_TYPES
     if non_source_publication_types:
         matched_terms.extend(sorted(non_source_publication_types))
     if not matched_terms:
@@ -674,7 +706,6 @@ def non_evidence_artifact_decision(row: dict, contexts: list[dict]) -> dict | No
             "figure/table/data deposit, retraction, or citation artifact rather than source evidence."
         ),
         "matched_terms": matched_terms,
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
@@ -716,7 +747,7 @@ def mostly_uppercase(text: str) -> bool:
     return uppercase / len(letters) >= 0.75
 
 
-def numbered_conference_abstract_decision(row: dict, contexts: list[dict]) -> dict | None:
+def numbered_conference_abstract_decision(row: dict) -> dict | None:
     metadata = numbered_title_metadata(row)
     if not metadata or numbered_title_is_protected(metadata):
         return None
@@ -766,7 +797,6 @@ def numbered_conference_abstract_decision(row: dict, contexts: list[dict]) -> di
             "rather than a source article or review."
         ),
         "matched_terms": matched_terms,
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
@@ -777,7 +807,7 @@ def publication_stage_row(row: dict) -> dict:
     return out
 
 
-def preprint_or_unpublished_decision(row: dict, contexts: list[dict]) -> dict | None:
+def preprint_or_unpublished_decision(row: dict) -> dict | None:
     classification = classify_publication_stage(publication_stage_row(row))
     if clean(classification.get("publication_stage", "")) != "preprint":
         return None
@@ -788,11 +818,10 @@ def preprint_or_unpublished_decision(row: dict, contexts: list[dict]) -> dict | 
         "supporting_quote": clean(row.get("publication_type", "")) or clean(row.get("study_title", "")) or basis,
         "reason": f"Record appears to be a preprint or unpublished posted-content record: {basis}.",
         "matched_terms": split_values(basis),
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
-def acronym_false_positive_decision(row: dict, contexts: list[dict]) -> dict | None:
+def acronym_false_positive_decision(row: dict) -> dict | None:
     text = " ".join(
         clean(row.get(field, ""))
         for field in ("study_title", "abstract", "keywords", "mesh_terms")
@@ -813,23 +842,19 @@ def acronym_false_positive_decision(row: dict, contexts: list[dict]) -> dict | N
             "not as psychedelic evidence."
         ),
         "matched_terms": matched_terms,
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
-def production_method_false_positive_decision(row: dict, contexts: list[dict]) -> dict | None:
-    text = " ".join(
-        clean(row.get(field, ""))
-        for field in ("study_title", "abstract", "keywords", "mesh_terms")
-    )
+def production_method_false_positive_decision(row: dict) -> dict | None:
+    title = clean(row.get("study_title", ""))
     focus_matches: list[str] = []
     context_matches: list[str] = []
     for pattern in OUT_OF_SCOPE_PRODUCTION_METHOD_FOCUS_PATTERNS:
-        match = pattern.search(text)
+        match = pattern.search(title)
         if match:
             focus_matches.append(match.group(0))
     for pattern in OUT_OF_SCOPE_PRODUCTION_METHOD_CONTEXT_PATTERNS:
-        match = pattern.search(text)
+        match = pattern.search(title)
         if match:
             context_matches.append(match.group(0))
     if not focus_matches or not context_matches:
@@ -837,17 +862,17 @@ def production_method_false_positive_decision(row: dict, contexts: list[dict]) -
     return {
         "action": "exclude_obvious_irrelevant",
         "confidence": 1.0,
-        "supporting_quote": clean(row.get("study_title", "")) or focus_matches[0],
+        "supporting_quote": title or focus_matches[0],
         "reason": (
-            "Record is focused on compound biosynthesis, bioproduction, or manufacturing methods "
-            "rather than biological, clinical, pharmacological, or public-health evidence."
+            "The title explicitly identifies both compound production and a microbial/engineered-production "
+            "context, making this a high-confidence bioproduction or manufacturing-method record rather than "
+            "biological, clinical, pharmacological, or public-health evidence."
         ),
         "matched_terms": [*focus_matches, *context_matches],
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
-def broad_nps_background_false_positive_decision(row: dict, contexts: list[dict]) -> dict | None:
+def broad_nps_background_false_positive_decision(row: dict) -> dict | None:
     title = clean(row.get("study_title", ""))
     publication_type = clean(row.get("publication_type", ""))
     matched_terms: list[str] = []
@@ -866,31 +891,27 @@ def broad_nps_background_false_positive_decision(row: dict, contexts: list[dict]
             "rather than source evidence or a domain-specific evidence synthesis for the knowledge graph."
         ),
         "matched_terms": [*matched_terms, publication_type] if publication_type else matched_terms,
-        "routing_tags": context_routing_tags(contexts),
     }
 
 
 def before_model_exclusion_decision(
     row: dict,
-    contexts: list[dict] | None = None,
     curated_publication_format_exclusions: dict[str, dict] | None = None,
 ) -> dict | None:
-    contexts = contexts or []
     curated_publication_format_exclusions = curated_publication_format_exclusions or {}
     return (
-        non_paper_container_without_title_decision(row, contexts)
+        non_paper_container_without_title_decision(row)
         or curated_publication_format_exclusion_decision(
             row,
-            contexts,
             curated_publication_format_exclusions,
         )
-        or out_of_scope_publication_format_decision(row, contexts)
-        or non_evidence_artifact_decision(row, contexts)
-        or numbered_conference_abstract_decision(row, contexts)
-        or preprint_or_unpublished_decision(row, contexts)
-        or acronym_false_positive_decision(row, contexts)
-        or production_method_false_positive_decision(row, contexts)
-        or broad_nps_background_false_positive_decision(row, contexts)
+        or out_of_scope_publication_format_decision(row)
+        or non_evidence_artifact_decision(row)
+        or numbered_conference_abstract_decision(row)
+        or preprint_or_unpublished_decision(row)
+        or acronym_false_positive_decision(row)
+        or production_method_false_positive_decision(row)
+        or broad_nps_background_false_positive_decision(row)
     )
 
 
@@ -898,7 +919,7 @@ def final_prescreen_fields(decision: dict) -> tuple[str, str, str]:
     action = clean(decision.get("action", ""))
     if action.startswith("exclude"):
         return ("exclude", action, clean(decision.get("reason", "")))
-    return ("retain", "retain_for_extraction_candidate", clean(decision.get("reason", "")))
+    return ("retain", "retain_for_screening", clean(decision.get("reason", "")))
 
 
 def build_prescreen_decisions(
@@ -908,7 +929,6 @@ def build_prescreen_decisions(
     *,
     run_id: str,
     generated_at_utc: str,
-    exclude_missing_abstract: bool = True,
     progress_every: int = 0,
     curated_publication_format_exclusions: dict[str, dict] | None = None,
     curated_paper_metadata_overrides: dict[str, dict] | None = None,
@@ -933,7 +953,6 @@ def build_prescreen_decisions(
         if not doi:
             continue
         paper_contexts = compact_contexts(contexts_lookup.get(doi, []))
-        context_tags = context_routing_tags(paper_contexts)
         screening_row = merged_screening_row(
             paper,
             metadata_by_doi.get(doi),
@@ -943,24 +962,25 @@ def build_prescreen_decisions(
         has_abstract = not bool(abstract_status_reason)
         before_model_decision = before_model_exclusion_decision(
             screening_row,
-            paper_contexts,
             curated_publication_format_exclusions,
         )
         if before_model_decision:
             decision = before_model_decision
-        elif exclude_missing_abstract and not has_abstract:
-            decision = missing_abstract_decision(screening_row, paper_contexts, abstract_status_reason)
+        elif not has_abstract:
+            decision = clear_title_scope_decision(screening_row) or no_usable_abstract_decision(
+                screening_row,
+                abstract_status_reason,
+            )
         else:
             decision = deterministic_prescreen_decision(screening_row)
-        deterministic_tags = normalize_routing_tags(decision.get("routing_tags", []))
-        routing_tags = normalize_routing_tags([*deterministic_tags, *context_tags])
         prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision)
-        retained_for_extraction_candidate = prescreen_decision == "retain" and not clean(
+        retained_for_screening = prescreen_decision == "retain" and not clean(
             decision.get("action", "")
         ).startswith("exclude")
         rows.append(
             {
                 "table_version": TABLE_VERSION,
+                "rule_version": RULE_VERSION,
                 "run_id": run_id,
                 "generated_at_utc": generated_at_utc,
                 "prescreen_decision_id": stable_id(run_id, doi),
@@ -973,18 +993,17 @@ def build_prescreen_decisions(
                 "context_compounds": join_values(context.get("compound", "") for context in paper_contexts),
                 "context_entities": join_values(context.get("entity", "") for context in paper_contexts),
                 "context_entity_types": join_values(context.get("entity_type", "") for context in paper_contexts),
-                "context_routing_tags": "|".join(context_tags),
                 "deterministic_action": clean(decision.get("action", "")),
                 "deterministic_reason": clean(decision.get("reason", "")),
                 "deterministic_confidence": float(decision.get("confidence", 0) or 0),
                 "deterministic_matched_terms": join_values(decision.get("matched_terms", [])),
                 "deterministic_supporting_quote": clean(decision.get("supporting_quote", "")),
-                "deterministic_routing_tags": "|".join(deterministic_tags),
-                "routing_tags": "|".join(routing_tags),
                 "prescreen_decision": prescreen_decision,
                 "prescreen_action": prescreen_action,
                 "prescreen_reason": prescreen_reason,
-                "retained_for_extraction_candidate": retained_for_extraction_candidate,
+                "retained_for_screening": retained_for_screening,
+                # Compatibility alias used by existing downstream queue builders.
+                "retained_for_extraction_candidate": retained_for_screening,
                 "metadata_enrichment_status": clean(screening_row.get("metadata_enrichment_status", "")),
                 "metadata_enrichment_run_id": clean(screening_row.get("metadata_enrichment_run_id", "")),
             }
@@ -999,6 +1018,7 @@ def build_summary_rows(decisions: list[dict], *, run_id: str, generated_at_utc: 
         rows.append(
             {
                 "table_version": TABLE_VERSION,
+                "rule_version": RULE_VERSION,
                 "run_id": run_id,
                 "generated_at_utc": generated_at_utc,
                 "scope": "all_papers",
@@ -1014,12 +1034,6 @@ def build_summary_rows(decisions: list[dict], *, run_id: str, generated_at_utc: 
     for field in ("prescreen_decision", "prescreen_action", "deterministic_action"):
         for label, count in Counter(clean(row.get(field, "")) for row in decisions).items():
             add(field, label, count)
-    tag_counts: Counter = Counter()
-    for row in decisions:
-        for tag in normalize_routing_tags(row.get("routing_tags", "")):
-            tag_counts[tag] += 1
-    for tag, count in tag_counts.items():
-        add("routing_tag", tag, count)
     return rows
 
 
@@ -1061,6 +1075,17 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
                 "Scoped deterministic pre-screen updates require an existing decisions table. "
                 "Run a full pass first, or omit --doi/--doi-file."
             )
+        existing_versions = {
+            clean(value)
+            for value in existing_decisions_df.get("table_version", pd.Series(dtype=str)).tolist()
+            if clean(value)
+        }
+        if existing_versions != {TABLE_VERSION}:
+            raise SystemExit(
+                "Scoped deterministic pre-screen updates cannot be merged into an older decision schema. "
+                f"Expected table_version={TABLE_VERSION}; found {sorted(existing_versions) or ['missing']}. "
+                "Run one full deterministic pre-screen pass first."
+            )
         papers_df = filter_table_to_dois(papers_df, scoped_dois)
         metadata_df = filter_table_to_dois(metadata_df, scoped_dois)
         contexts_df = filter_table_to_dois(contexts_df, scoped_dois)
@@ -1073,7 +1098,6 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         contexts_df,
         run_id=run_id,
         generated_at_utc=generated_at_utc,
-        exclude_missing_abstract=not args.retain_missing_abstract,
         progress_every=getattr(args, "progress_every", 0),
         curated_publication_format_exclusions=curated_publication_format_exclusions,
         curated_paper_metadata_overrides=curated_paper_metadata_overrides,
@@ -1130,11 +1154,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--run-id", default="")
     parser.add_argument("--doi-file", default="", help="Optional newline-delimited DOI list for a scoped update.")
     parser.add_argument("--doi", action="append", default=[], help="Single DOI for a scoped update; can be repeated.")
-    parser.add_argument(
-        "--retain-missing-abstract",
-        action="store_true",
-        help="Run title-only deterministic rules when abstracts are missing instead of excluding missing-abstract records.",
-    )
     parser.add_argument("--progress-every", type=int, default=5000, help="Print progress every N candidate papers; 0 disables progress.")
     return parser
 

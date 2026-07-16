@@ -12,7 +12,7 @@ instructions, not in the public explanation of the method.
 | **report** | A document that supplies information about a study, such as a journal article, preprint, conference abstract, registry entry, dissertation, or government report. A report may or may not have a DOI. |
 | **study** | The underlying investigation. One study can have several reports, and one report can describe more than one study. |
 | **paper** | Use only for a source that is actually a paper, or when referring to a legacy technical name such as `candidate_papers.parquet` or `paper_id`. Do not use **paper** as the public umbrella term for all records or reports. |
-| **initial screening** | Rules-based removal of records that clearly lack usable title or abstract information or clearly fall outside scope. |
+| **initial screening** | Rules-based removal of clear non-evidence artifacts and records clearly outside scope. Missing abstracts trigger title review and metadata/full-text recovery rather than exclusion. |
 | **title and abstract screening** | Review of a record's title, abstract, and basic metadata to assess relevance, evidence topics, and report type. |
 | **report type** | The source category, such as a primary-study report, meta-analysis, systematic review, scoping review, narrative review, protocol, or commentary. The internal field remains `paper_type`. |
 | **evidence topic** | The part of the evidence base discussed by a report, such as clinical outcomes, safety, molecular targets, brain systems, cognition, subjective experience, pharmacokinetics, intervention context, or real-world use. |

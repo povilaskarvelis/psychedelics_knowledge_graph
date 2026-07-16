@@ -3,34 +3,12 @@
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
-from typing import Dict, Iterable, List, Set
-
-from pipeline.review.prescreen_term_sets import (
-    CLINICAL_BRIDGE_TERMS,
-    CLINICAL_FUNCTION_SYMPTOM_TERMS,
-    CLINICAL_SAFETY_TERMS,
-    COGNITIVE_AFFECTIVE_TASK_TERMS,
-    EEG_MEG_NEUROPHYS_TERMS,
-    INTERVENTION_CONTEXT_TERMS,
-    MOLECULAR_PATHWAY_TERMS,
-    PET_OCCUPANCY_TERMS,
-    PHARMACOKINETICS_EXPOSURE_TERMS,
-    REAL_WORLD_PUBLIC_HEALTH_TERMS,
-    SUBJECTIVE_EXPERIENCE_MEASURE_TERMS,
-    SUBJECTIVE_EXPERIENCE_TERMS,
-    SYSTEMS_CIRCUIT_TERMS,
-    SYSTEMS_NETWORK_TERMS,
-    SYSTEMS_NEUROIMAGING_TERMS,
-    SYSTEMS_REGION_TERMS,
-    TRANSLATIONAL_BEHAVIOR_TERMS,
-)
+from typing import Dict, Iterable, List
 
 ROOT = Path(__file__).resolve().parents[2]
 PIPELINE_CONFIG_PATH = ROOT / "pipeline" / "config.example.yaml"
-CLINICAL_OUTCOME_CANON_PATH = ROOT / "schema" / "disorder_canonicalization.json"
 
 COMPOUND_SYNONYMS = {
     "psilocybin": {
@@ -208,89 +186,6 @@ CLINICAL_OUTCOME_SYNONYMS = {
     "chronic pain": {"chronic pain", "neuropathic pain"},
 }
 
-TARGET_SYNONYMS = {
-    "5-ht2a": {"5-ht2a", "5ht2a", "serotonin 2a", "htr2a", "5 hydroxytryptamine 2a"},
-    "5-ht2b": {"5-ht2b", "5ht2b", "serotonin 2b", "htr2b", "5 hydroxytryptamine 2b"},
-    "5-ht2c": {"5-ht2c", "5ht2c", "serotonin 2c", "htr2c", "5 hydroxytryptamine 2c"},
-    "5-ht1a": {"5-ht1a", "5ht1a", "serotonin 1a", "htr1a", "5 hydroxytryptamine 1a"},
-    "5-ht1b": {"5-ht1b", "5ht1b", "serotonin 1b", "htr1b", "5 hydroxytryptamine 1b"},
-    "5-ht1d": {"5-ht1d", "5ht1d", "serotonin 1d", "htr1d", "5 hydroxytryptamine 1d"},
-    "5-ht1e": {"5-ht1e", "5ht1e", "serotonin 1e", "htr1e", "5 hydroxytryptamine 1e"},
-    "5-ht1f": {"5-ht1f", "5ht1f", "serotonin 1f", "htr1f", "5 hydroxytryptamine 1f"},
-    "5-ht5a": {"5-ht5a", "5ht5a", "serotonin 5a", "htr5a", "5 hydroxytryptamine 5a"},
-    "5-ht6": {"5-ht6", "5ht6", "serotonin 6", "htr6", "5 hydroxytryptamine 6"},
-    "5-ht7": {"5-ht7", "5ht7", "serotonin 7", "htr7", "5 hydroxytryptamine 7"},
-    "mglur2 (grm2)": {"mglur2", "grm2", "metabotropic glutamate receptor 2"},
-    "taar1": {"taar1", "trace amine associated receptor 1"},
-    "sert (slc6a4)": {"sert", "slc6a4", "serotonin transporter", "5-htt", "5htt"},
-    "net (slc6a2)": {"net", "slc6a2", "norepinephrine transporter", "noradrenaline transporter"},
-    "dat (slc6a3)": {"dat", "slc6a3", "dopamine transporter"},
-    "vmat2 (slc18a2)": {"vmat2", "slc18a2", "vesicular monoamine transporter 2"},
-    "d1 receptor (drd1)": {"d1 receptor", "drd1", "dopamine d1 receptor"},
-    "d2 receptor (drd2)": {"d2 receptor", "drd2", "dopamine d2 receptor"},
-    "d3 receptor (drd3)": {"d3 receptor", "drd3", "dopamine d3 receptor"},
-    "d4 receptor (drd4)": {"d4 receptor", "drd4", "dopamine d4 receptor"},
-    "d5 receptor (drd5)": {"d5 receptor", "drd5", "dopamine d5 receptor"},
-    "alpha1a adrenergic receptor (adra1a)": {
-        "alpha1a adrenergic receptor",
-        "alpha 1a adrenergic receptor",
-        "alpha1a adrenoceptor",
-        "adra1a",
-    },
-    "alpha1b adrenergic receptor (adra1b)": {
-        "alpha1b adrenergic receptor",
-        "alpha 1b adrenergic receptor",
-        "alpha1b adrenoceptor",
-        "adra1b",
-    },
-    "alpha2a adrenergic receptor (adra2a)": {
-        "alpha2a adrenergic receptor",
-        "alpha 2a adrenergic receptor",
-        "alpha2a adrenoceptor",
-        "adra2a",
-    },
-    "alpha2b adrenergic receptor (adra2b)": {
-        "alpha2b adrenergic receptor",
-        "alpha 2b adrenergic receptor",
-        "alpha2b adrenoceptor",
-        "adra2b",
-    },
-    "alpha2c adrenergic receptor (adra2c)": {
-        "alpha2c adrenergic receptor",
-        "alpha 2c adrenergic receptor",
-        "alpha2c adrenoceptor",
-        "adra2c",
-    },
-    "beta1 adrenergic receptor (adrb1)": {
-        "beta1 adrenergic receptor",
-        "beta 1 adrenergic receptor",
-        "beta1 adrenoceptor",
-        "adrb1",
-    },
-    "beta2 adrenergic receptor (adrb2)": {
-        "beta2 adrenergic receptor",
-        "beta 2 adrenergic receptor",
-        "beta2 adrenoceptor",
-        "adrb2",
-    },
-    "m1 muscarinic receptor (chrm1)": {"m1 muscarinic receptor", "m1 receptor", "chrm1"},
-    "m2 muscarinic receptor (chrm2)": {"m2 muscarinic receptor", "m2 receptor", "chrm2"},
-    "m3 muscarinic receptor (chrm3)": {"m3 muscarinic receptor", "m3 receptor", "chrm3"},
-    "m4 muscarinic receptor (chrm4)": {"m4 muscarinic receptor", "m4 receptor", "chrm4"},
-    "m5 muscarinic receptor (chrm5)": {"m5 muscarinic receptor", "m5 receptor", "chrm5"},
-    "h1 receptor (hrh1)": {"h1 receptor", "histamine h1 receptor", "hrh1"},
-    "h2 receptor (hrh2)": {"h2 receptor", "histamine h2 receptor", "hrh2"},
-    "sigma-1 receptor (sigmar1)": {"sigma-1", "sigma 1", "sigmar1", "sigma-1 receptor"},
-    "sigma-2 receptor (tmem97)": {"sigma-2", "sigma 2", "tmem97", "sigma-2 receptor"},
-    "kappa opioid receptor (oprk1)": {"kappa opioid receptor", "kor", "oprk1"},
-    "mu opioid receptor (oprm1)": {"mu opioid receptor", "mor", "oprm1"},
-    "delta opioid receptor (oprd1)": {"delta opioid receptor", "dor", "oprd1"},
-    "nmda receptor": {"nmda receptor", "nmda", "n-methyl-d-aspartate receptor", "nmdar"},
-    "ampa receptor": {"ampa receptor", "ampa", "ampar"},
-    "cb1 receptor (cnr1)": {"cb1 receptor", "cb1", "cnr1", "cannabinoid receptor 1"},
-    "cb2 receptor (cnr2)": {"cb2 receptor", "cb2", "cnr2", "cannabinoid receptor 2"},
-}
-
 def normalize(value) -> str:
     if value is None:
         return ""
@@ -339,50 +234,6 @@ def parse_allowlists(path: Path) -> Dict[str, List[str]]:
         current_key = None
 
     return allowlists
-
-def load_clinical_outcome_synonyms(path: Path = CLINICAL_OUTCOME_CANON_PATH) -> Dict[str, Set[str]]:
-    if not path.exists():
-        return {}
-    with path.open("r", encoding="utf-8") as handle:
-        data = json.load(handle)
-    if not isinstance(data, dict):
-        return {}
-
-    out: Dict[str, Set[str]] = {}
-    for canonical, aliases in data.items():
-        key = normalize(canonical).lower()
-        if not key:
-            continue
-        bucket: Set[str] = set()
-        bucket.add(normalize(canonical))
-        if isinstance(aliases, list):
-            for alias in aliases:
-                value = normalize(alias)
-                if value:
-                    bucket.add(value)
-        out[key] = bucket
-    return out
-
-FILE_CLINICAL_OUTCOME_SYNONYMS = load_clinical_outcome_synonyms()
-
-ROUTING_TAGS = [
-    "clinical_outcome",
-    "molecular_target",
-    "molecular_pathway",
-    "brain_system",
-    "cognitive_behavioral",
-    "safety",
-    "subjective_experience",
-    "pharmacokinetics_exposure",
-    "intervention_context",
-    "real_world_use_public_health",
-    "bridge_clinical_mechanism",
-    "uncertain",
-]
-
-ROUTING_TAG_ALIASES = {
-    "pathway_biomarker": "molecular_pathway",
-}
 
 IN_SCOPE_INTERVENTION_CLASS_TERMS = {
     "atypical psychedelic",
@@ -675,6 +526,12 @@ MDA_PSYCH_SUPPORT_RE = re.compile(
     re.IGNORECASE,
 )
 
+SAN_PEDRO_SUPPORT_RE = re.compile(
+    r"\b(?:cact(?:us|i)|mescaline|echinopsis|trichocereus|pachanoi|peruvianus|"
+    r"huachuma|wachuma|peyote|psychedelic|hallucinogen|entheogen|ceremon\w*|alkaloid)\b",
+    re.IGNORECASE,
+)
+
 KETAMINE_ONLY_INTERVENTION_TERMS = {
     "arketamine",
     "esketamine",
@@ -763,332 +620,17 @@ DOI_COMPOUND_CONTEXT_RE = re.compile(
     re.IGNORECASE,
 )
 
-MOLECULAR_TARGET_SIGNAL_TERMS = {
-    "affinity",
-    "agonist",
-    "antagonist",
-    "binding",
-    "ec50",
-    "functional assay",
-    "ic50",
-    "ki",
-    "kd",
-    "pharmacology",
-    "radioligand",
-    "receptor",
-    "serotonin receptor",
-    "transporter",
-}
-
-MOLECULAR_PATHWAY_SIGNAL_TERMS = {
-    *MOLECULAR_PATHWAY_TERMS,
-    "arc",
-    "bdnf",
-    "biomarker",
-    "c-fos",
-    "cfos",
-    "cytokine",
-    "dendritic spine",
-    "erk",
-    "gene expression",
-    "inflammation",
-    "inflammatory",
-    "mtor",
-    "neuroplasticity",
-    "plasticity",
-    "synaptic plasticity",
-    "synaptogenesis",
-    "transcriptomic",
-    "trkb",
-}
-
-BRAIN_SYSTEM_SIGNAL_TERMS = {
-    *SYSTEMS_NEUROIMAGING_TERMS,
-    *SYSTEMS_NETWORK_TERMS,
-    *SYSTEMS_REGION_TERMS,
-    *SYSTEMS_CIRCUIT_TERMS,
-    *PET_OCCUPANCY_TERMS,
-    *EEG_MEG_NEUROPHYS_TERMS,
-    "amygdala",
-    "anterior cingulate",
-    "bold",
-    "brain circuit",
-    "brain connectivity",
-    "brain network",
-    "brain region",
-    "central executive network",
-    "circuit",
-    "connectivity",
-    "default mode network",
-    "dmn",
-    "eeg",
-    "fmri",
-    "frontoparietal network",
-    "functional connectivity",
-    "hippocampus",
-    "limbic network",
-    "meg",
-    "neural dynamics",
-    "neuroimaging",
-    "neurophysiology",
-    "pet",
-    "prefrontal cortex",
-    "salience network",
-    "striatum",
-    "thalamocortical",
-    "thalamus",
-}
-
-COGNITIVE_BEHAVIORAL_SIGNAL_TERMS = {
-    *COGNITIVE_AFFECTIVE_TASK_TERMS,
-    *TRANSLATIONAL_BEHAVIOR_TERMS,
-    "attention",
-    "behavior",
-    "behaviour",
-    "behavioral assay",
-    "behavioural assay",
-    "cognitive flexibility",
-    "cognitive task",
-    "emotion recognition",
-    "emotional processing",
-    "empathy",
-    "extinction learning",
-    "fear conditioning",
-    "fear extinction",
-    "forced swim",
-    "learning",
-    "prepulse inhibition",
-    "reversal learning",
-    "reward learning",
-    "social cognition",
-    "social reward",
-    "tail suspension",
-    "task",
-    "working memory",
-}
-
-CLINICAL_OUTCOME_SIGNAL_TERMS = {
-    *CLINICAL_BRIDGE_TERMS,
-    *CLINICAL_FUNCTION_SYMPTOM_TERMS,
-    "clinical outcome",
-    "clinical trial",
-    "depression",
-    "efficacy",
-    "functioning",
-    "patient",
-    "patients",
-    "ptsd",
-    "quality of life",
-    "randomized",
-    "randomised",
-    "symptom",
-    "symptoms",
-    "treatment",
-    "therapeutic",
-}
-
-CLINICAL_BRIDGE_SIGNAL_TERMS = {
-    *CLINICAL_BRIDGE_TERMS,
-    "clinical outcome",
-    "depression",
-    "functioning",
-    "patient",
-    "patients",
-    "ptsd",
-    "quality of life",
-    "symptom",
-    "symptoms",
-    "treatment",
-    "therapeutic",
-}
-
-SAFETY_SIGNAL_TERMS = {
-    *CLINICAL_SAFETY_TERMS,
-    "adverse event",
-    "adverse events",
-    "safety",
-    "side effect",
-    "side effects",
-    "tolerability",
-    "tolerated",
-}
-
-SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS = {
-    *SUBJECTIVE_EXPERIENCE_TERMS,
-    *SUBJECTIVE_EXPERIENCE_MEASURE_TERMS,
-    "5d-asc",
-    "5d-oav",
-    "11d-asc",
-    "apz",
-    "altered state",
-    "altered states of consciousness",
-    "challenging experience",
-    "connectedness",
-    "drug effects questionnaire",
-    "emotional breakthrough inventory",
-    "ego dissolution",
-    "ego loss",
-    "ego-dissolution inventory",
-    "emotional breakthrough",
-    "hallucinogen rating scale",
-    "meq-30",
-    "mystical experience",
-    "mystical-type experience",
-    "mystical experience questionnaire",
-    "oceanic boundlessness",
-    "peak experience",
-    "persisting effects questionnaire",
-    "phenomenology",
-    "phenomenological",
-    "perceptual effects",
-    "psychological insight questionnaire",
-    "psychedelic experience",
-    "self-dissolution",
-    "self-transcendence",
-    "subjective drug effects",
-    "subjective effects",
-    "visual effects",
-}
-
-PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS = {
-    *PHARMACOKINETICS_EXPOSURE_TERMS,
-    "adme",
-    "absorption",
-    "auc",
-    "bioavailability",
-    "blood concentration",
-    "blood level",
-    "clearance",
-    "cmax",
-    "concentration-time",
-    "cytochrome p450",
-    "distribution",
-    "dose-response",
-    "elimination",
-    "excretion",
-    "exposure-response",
-    "glucuronidation",
-    "glucuronide",
-    "half-life",
-    "lc-ms",
-    "mao-a",
-    "metabolism",
-    "metabolite",
-    "monoamine oxidase",
-    "pk/pd",
-    "pharmacodynamic",
-    "pharmacodynamics",
-    "pharmacokinetic",
-    "pharmacokinetic-pharmacodynamic",
-    "pharmacokinetics",
-    "plasma concentration",
-    "plasma level",
-    "protein binding",
-    "route of administration",
-    "serum concentration",
-    "serum level",
-    "tmax",
-    "ugt",
-    "urinary excretion",
-}
-
-INTERVENTION_CONTEXT_SIGNAL_TERMS = {
-    *INTERVENTION_CONTEXT_TERMS,
-    "acceptability",
-    "aftercare",
-    "blinding",
-    "dosing session",
-    "eye shades",
-    "eyeshades",
-    "facilitator",
-    "facilitator training",
-    "inner-directed",
-    "integration",
-    "integration session",
-    "integration therapy",
-    "manualized therapy",
-    "music",
-    "music playlist",
-    "non-directive support",
-    "nondirective support",
-    "preparation",
-    "preparation and integration",
-    "preparation session",
-    "psychological support",
-    "psychotherapy",
-    "set and setting",
-    "supportive therapy",
-    "therapeutic alliance",
-    "therapeutic relationship",
-    "therapist",
-    "therapist training",
-    "treatment manual",
-}
-
-REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS = {
-    *REAL_WORLD_PUBLIC_HEALTH_TERMS,
-    "adverse experiences",
-    "community",
-    "diversion",
-    "drug checking",
-    "ed visit",
-    "emergency department",
-    "emergency room",
-    "epidemiology",
-    "harm reduction",
-    "hospitalization",
-    "lifetime use",
-    "microdosing",
-    "misuse",
-    "non-medical use",
-    "naturalistic",
-    "nonmedical use",
-    "past-year use",
-    "poison center",
-    "poison control",
-    "population",
-    "prevalence",
-    "public health",
-    "real world",
-    "real-world",
-    "recreational use",
-    "retreat",
-    "self-medication",
-    "survey",
-    "toxicity",
-    "use patterns",
-}
-
-MOLECULAR_TARGET_SIGNAL_TERMS = frozenset(MOLECULAR_TARGET_SIGNAL_TERMS)
-
-MOLECULAR_PATHWAY_SIGNAL_TERMS = frozenset(MOLECULAR_PATHWAY_SIGNAL_TERMS)
-
-BRAIN_SYSTEM_SIGNAL_TERMS = frozenset(BRAIN_SYSTEM_SIGNAL_TERMS)
-
-COGNITIVE_BEHAVIORAL_SIGNAL_TERMS = frozenset(COGNITIVE_BEHAVIORAL_SIGNAL_TERMS)
-
-CLINICAL_OUTCOME_SIGNAL_TERMS = frozenset(CLINICAL_OUTCOME_SIGNAL_TERMS)
-
-CLINICAL_BRIDGE_SIGNAL_TERMS = frozenset(CLINICAL_BRIDGE_SIGNAL_TERMS)
-
-SAFETY_SIGNAL_TERMS = frozenset(SAFETY_SIGNAL_TERMS)
-
-SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS = frozenset(SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS)
-
-PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS = frozenset(PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS)
-
-INTERVENTION_CONTEXT_SIGNAL_TERMS = frozenset(INTERVENTION_CONTEXT_SIGNAL_TERMS)
-
-REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS = frozenset(REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS)
-
 def abstract_context(row: dict) -> str:
-    title = normalize(row.get("study_title", ""))
-    abstract = normalize(row.get("abstract", ""))
     parts = []
-    if title:
-        parts.append(f"Title: {title}")
-    if abstract:
-        parts.append(f"Abstract: {abstract}")
+    for field, label in (
+        ("study_title", "Title"),
+        ("abstract", "Abstract"),
+        ("keywords", "Keywords"),
+        ("mesh_terms", "MeSH"),
+    ):
+        value = normalize(row.get(field, ""))
+        if value:
+            parts.append(f"{label}: {value}")
     return "\n".join(parts)
 
 def synonym_map_terms(*mappings: dict) -> set[str]:
@@ -1104,39 +646,6 @@ def synonym_map_terms(*mappings: dict) -> set[str]:
                     if alias_norm:
                         terms.add(alias_norm)
     return {term for term in terms if len(term) >= 3}
-
-def target_synonym_terms() -> frozenset[str]:
-    return frozenset(synonym_map_terms(TARGET_SYNONYMS))
-
-def clinical_outcome_synonym_terms() -> frozenset[str]:
-    return frozenset(
-        synonym_map_terms(CLINICAL_OUTCOME_SYNONYMS, FILE_CLINICAL_OUTCOME_SYNONYMS)
-    )
-
-def molecular_target_terms() -> frozenset[str]:
-    return frozenset(set(target_synonym_terms()) | MOLECULAR_TARGET_SIGNAL_TERMS)
-
-def clinical_outcome_terms() -> frozenset[str]:
-    return frozenset(set(clinical_outcome_synonym_terms()) | CLINICAL_OUTCOME_SIGNAL_TERMS)
-
-def clinical_bridge_terms() -> frozenset[str]:
-    return frozenset(set(clinical_outcome_synonym_terms()) | CLINICAL_BRIDGE_SIGNAL_TERMS)
-
-def all_entity_terms() -> frozenset[str]:
-    return frozenset(
-        set(target_synonym_terms())
-        | set(clinical_outcome_synonym_terms())
-        | MOLECULAR_TARGET_SIGNAL_TERMS
-        | MOLECULAR_PATHWAY_SIGNAL_TERMS
-        | BRAIN_SYSTEM_SIGNAL_TERMS
-        | COGNITIVE_BEHAVIORAL_SIGNAL_TERMS
-        | CLINICAL_OUTCOME_SIGNAL_TERMS
-        | SAFETY_SIGNAL_TERMS
-        | SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS
-        | PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS
-        | INTERVENTION_CONTEXT_SIGNAL_TERMS
-        | REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS
-    )
 
 def configured_allowed_compound_terms(config_path: Path = PIPELINE_CONFIG_PATH) -> set[str]:
     terms: set[str] = set()
@@ -1197,70 +706,14 @@ def any_term_found_in_context(terms: Iterable[str], context: str) -> bool:
     pattern = term_pattern_for_terms(terms)
     return bool(pattern and pattern.search(normalized_context))
 
-def normalize_routing_tags(value: object) -> List[str]:
-    if isinstance(value, str):
-        raw_values = re.split(r"[|,;]\s*", value)
-    elif isinstance(value, list):
-        raw_values = value
-    else:
-        raw_values = []
-    allowed = set(ROUTING_TAGS)
-    out: List[str] = []
-    seen: set[str] = set()
-    for raw in raw_values:
-        tag = normalize(raw).lower().replace("-", "_").replace(" ", "_")
-        tag = ROUTING_TAG_ALIASES.get(tag, tag)
-        if tag not in allowed or tag in seen:
-            continue
-        seen.add(tag)
-        out.append(tag)
-    return out
-
-def evidence_domain_tags_for_context(context: str) -> List[str]:
-    tags: List[str] = []
-    if any_term_found_in_context(molecular_target_terms(), context):
-        tags.append("molecular_target")
-    if any_term_found_in_context(MOLECULAR_PATHWAY_SIGNAL_TERMS, context):
-        tags.append("molecular_pathway")
-    if any_term_found_in_context(BRAIN_SYSTEM_SIGNAL_TERMS, context):
-        tags.append("brain_system")
-    if any_term_found_in_context(COGNITIVE_BEHAVIORAL_SIGNAL_TERMS, context):
-        tags.append("cognitive_behavioral")
-    if any_term_found_in_context(clinical_outcome_terms(), context):
-        tags.append("clinical_outcome")
-    if any_term_found_in_context(SAFETY_SIGNAL_TERMS, context):
-        tags.append("safety")
-    if any_term_found_in_context(SUBJECTIVE_EXPERIENCE_SIGNAL_TERMS, context):
-        tags.append("subjective_experience")
-    if any_term_found_in_context(PHARMACOKINETICS_EXPOSURE_SIGNAL_TERMS, context):
-        tags.append("pharmacokinetics_exposure")
-    if any_term_found_in_context(INTERVENTION_CONTEXT_SIGNAL_TERMS, context):
-        tags.append("intervention_context")
-    if any_term_found_in_context(REAL_WORLD_PUBLIC_HEALTH_SIGNAL_TERMS, context):
-        tags.append("real_world_use_public_health")
-    has_clinical = "clinical_outcome" in tags or any_term_found_in_context(
-        clinical_bridge_terms(), context
-    )
-    has_mechanistic = any(
-        tag in tags
-        for tag in {
-            "molecular_target",
-            "molecular_pathway",
-            "brain_system",
-            "cognitive_behavioral",
-            "subjective_experience",
-            "pharmacokinetics_exposure",
-        }
-    )
-    if has_clinical and has_mechanistic:
-        tags.append("bridge_clinical_mechanism")
-    return normalize_routing_tags(tags)
-
 def ambiguous_intervention_acronym_supported(context: str) -> bool:
     return any_term_found_in_context(AMBIGUOUS_ACRONYM_SUPPORT_TERMS, context)
 
 def ambiguous_intervention_class_supported(context: str) -> bool:
     return any_term_found_in_context(AMBIGUOUS_CLASS_SUPPORT_TERMS, context)
+
+def san_pedro_intervention_supported(context: str) -> bool:
+    return bool(SAN_PEDRO_SUPPORT_RE.search(normalize(context)))
 
 def class_chemistry_intervention_supported(context: str) -> bool:
     normalized_context = normalize(context)
@@ -1305,6 +758,7 @@ def matched_in_scope_intervention_terms(context: str) -> List[str]:
     seen: set[str] = set()
     acronym_supported = ambiguous_intervention_acronym_supported(normalized_context)
     class_supported = ambiguous_intervention_class_supported(normalized_context)
+    san_pedro_supported = san_pedro_intervention_supported(normalized_context)
     for match in IN_SCOPE_INTERVENTION_RE.finditer(normalized_context):
         term = IN_SCOPE_INTERVENTION_TERM_BY_LOWER.get(match.group(0).lower(), match.group(0))
         term_lower = term.lower()
@@ -1323,6 +777,8 @@ def matched_in_scope_intervention_terms(context: str) -> List[str]:
         if term_lower in AMBIGUOUS_INTERVENTION_ACRONYMS and not acronym_supported:
             continue
         if term_lower in AMBIGUOUS_INTERVENTION_CLASS_TERMS and not class_supported:
+            continue
+        if term_lower == "san pedro" and not san_pedro_supported:
             continue
         key = term_lower
         if key in seen:
@@ -1375,14 +831,11 @@ def is_ketamine_only_acute_care_anesthesia_context(
 
     title_has_ketamine = bool(KETAMINE_TITLE_TERM_RE.search(title_text))
     title_has_acute_care = bool(KETAMINE_ACUTE_CARE_TITLE_RE.search(title_text))
-    if title_has_ketamine:
-        return title_has_acute_care
-    return True
+    return title_has_ketamine and title_has_acute_care
 
 def deterministic_prescreen_decision(row: dict) -> dict:
     context = abstract_context(row)
     matched_intervention_terms = matched_in_scope_intervention_terms(context)
-    matched_domain_tags = evidence_domain_tags_for_context(context)
     if matched_intervention_terms:
         if is_ketamine_only_acute_care_anesthesia_context(
             context,
@@ -1398,32 +851,26 @@ def deterministic_prescreen_decision(row: dict) -> dict:
                     "context, without psychiatric, chronic pain, brain/cognition, safety, or biological evidence signals."
                 ),
                 "matched_terms": matched_intervention_terms[:20],
-                "routing_tags": matched_domain_tags,
             }
         return {
             "action": "escalate",
-            "reason": "in-scope compound/intervention term appears in title or abstract",
+            "reason": "in-scope compound/intervention term appears in title, abstract, keywords, or MeSH terms",
             "matched_terms": matched_intervention_terms[:20],
-            "routing_tags": matched_domain_tags,
         }
     if any_term_found_in_context(AMBIGUOUS_PSYCHIATRIC_TREATMENT_TERMS, context):
         return {
             "action": "escalate",
             "reason": "broad psychiatric treatment language needs LLM review",
-            "routing_tags": matched_domain_tags or ["uncertain"],
         }
 
-    entity_terms = all_entity_terms()
-    entity_reason = "context entity terms present" if any_term_found_in_context(entity_terms, context) else "no context entity terms found"
     return {
         "action": "exclude_obvious_irrelevant",
         "confidence": 1.0,
         "supporting_quote": deterministic_supporting_quote(row),
         "reason": (
             "No in-scope psychedelic/ketamine/entactogen/dissociative compound or intervention term appears "
-            f"in the title/abstract; {entity_reason}."
+            "in the title, abstract, keywords, or MeSH terms."
         ),
-        "routing_tags": matched_domain_tags,
     }
 
 def deterministic_supporting_quote(row: dict) -> str:

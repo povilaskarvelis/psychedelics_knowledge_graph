@@ -155,7 +155,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                 },
                 {
                     "doi": "10.1000/no-abstract",
-                    "prescreen_actions": "exclude_missing_abstract",
+                    "prescreen_actions": "exclude_no_usable_abstract",
                     "prescreen_decisions": "exclude",
                     "prescreen_retained_for_extraction_candidate": False,
                     "retained_for_extraction_candidate": False,
@@ -184,7 +184,10 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(flow["steps"]["prescreen_retained"]["count"], 3)
         self.assertEqual(flow["steps"]["evidence_extraction_selected"]["count"], 2)
         self.assertEqual(flow["steps"]["kg_included"]["count"], 1)
-        self.assertEqual(flow["side_boxes"]["records_excluded"]["reasons"][0]["key"], "exclude_missing_abstract")
+        self.assertEqual(
+            flow["side_boxes"]["records_excluded"]["reasons"][0]["key"],
+            "exclude_no_usable_abstract",
+        )
         self.assertEqual(flow["side_boxes"]["route_not_selected"]["count"], 1)
         self.assertEqual(
             flow["side_boxes"]["route_not_selected"]["label"],
@@ -247,9 +250,9 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
                     "study_title": "Excluded Paper",
                     "authors": "Barbara McClintock",
                     "study_year": 2023,
-                    "prescreen_actions": "exclude_missing_abstract",
+                    "prescreen_actions": "exclude_no_usable_abstract",
                     "prescreen_decisions": "exclude",
-                    "prescreen_reasons": "No abstract available for screening.",
+                    "prescreen_reasons": "No usable abstract was available and the title was insufficient.",
                     "prescreen_retained_for_extraction_candidate": False,
                     "retained_for_extraction_candidate": False,
                     "extraction_route_status": "not_retained_for_extraction",
@@ -296,7 +299,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         excluded = by_doi["10.1000/excluded"]
         self.assertEqual(excluded["initial_screening_status"], "fail")
         self.assertEqual(excluded["initial_screening_label"], "Did not pass")
-        self.assertEqual(excluded["initial_screening_note"], "No abstract")
+        self.assertEqual(excluded["initial_screening_note"], "No usable abstract; title insufficient")
         self.assertEqual(excluded["llm_screening_status"], "not_reached")
         self.assertEqual(excluded["extraction_status"], "not_reached")
         self.assertEqual(excluded["kg_status"], "not_reached")

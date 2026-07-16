@@ -93,7 +93,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertFalse(by_doi["10.example/exercise"]["retained_for_extraction_candidate"])
 
 
-    def test_placeholder_and_citation_only_abstracts_are_treated_as_missing(self) -> None:
+    def test_unusable_abstracts_use_conservative_title_only_rescue(self) -> None:
         papers = pd.DataFrame(
             [
                 {
@@ -136,10 +136,18 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         by_doi = {row["doi"]: row for row in rows}
 
         for doi in by_doi:
-            self.assertEqual(by_doi[doi]["prescreen_action"], "exclude_missing_abstract")
-            self.assertEqual(by_doi[doi]["prescreen_decision"], "exclude")
             self.assertFalse(by_doi[doi]["has_abstract"])
-            self.assertFalse(by_doi[doi]["retained_for_extraction_candidate"])
+
+        for doi in ("10.example/placeholder", "10.example/citation-journal"):
+            self.assertEqual(by_doi[doi]["prescreen_action"], "retain_for_screening")
+            self.assertEqual(by_doi[doi]["deterministic_action"], "retain_title_only_for_screening")
+            self.assertTrue(by_doi[doi]["retained_for_screening"])
+
+        excluded = by_doi["10.example/citation-parenthetical"]
+        self.assertEqual(excluded["prescreen_decision"], "exclude")
+        self.assertEqual(excluded["prescreen_action"], "exclude_no_usable_abstract")
+        self.assertFalse(excluded["retained_for_extraction_candidate"])
+        self.assertIn("title alone", excluded["prescreen_reason"])
 
     def test_no_title_container_record_excluded_even_with_matching_abstract(self) -> None:
         papers = pd.DataFrame(
@@ -164,6 +172,46 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(rows[0]["prescreen_decision"], "exclude")
         self.assertEqual(rows[0]["prescreen_action"], "exclude_non_paper_container")
         self.assertFalse(rows[0]["retained_for_extraction_candidate"])
+
+    def test_abstract_only_paper_is_screened_normally(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.example/abstract-only",
+                    "study_title": "",
+                    "abstract": "This study examined psilocybin effects in healthy participants.",
+                    "publication_type": "Journal Article",
+                }
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-16T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["prescreen_action"], "retain_for_screening")
+        self.assertTrue(rows[0]["has_abstract"])
+        self.assertTrue(rows[0]["retained_for_screening"])
+
+    def test_record_with_neither_title_nor_abstract_uses_no_usable_abstract_reason(self) -> None:
+        papers = pd.DataFrame(
+            [{"doi": "10.example/no-text", "study_title": "", "abstract": ""}]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            run_id="test_run",
+            generated_at_utc="2026-07-16T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["prescreen_action"], "exclude_no_usable_abstract")
+        self.assertIn("No usable title or abstract", rows[0]["prescreen_reason"])
 
     def test_non_evidence_artifacts_are_excluded_before_routing(self) -> None:
         papers = pd.DataFrame(
@@ -269,9 +317,9 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertFalse(by_doi["10.31219/osf.io/dy5cu_v1"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.3389/fnins.2025.1554049.s002"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.64898/2026.04.16.718915"]["retained_for_extraction_candidate"])
-        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_decision"], "exclude")
-        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_action"], "exclude_non_evidence_artifact")
-        self.assertFalse(by_doi["10.example/case-letter"]["retained_for_extraction_candidate"])
+        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_decision"], "retain")
+        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_action"], "retain_for_screening")
+        self.assertTrue(by_doi["10.example/case-letter"]["retained_for_extraction_candidate"])
 
     def test_lumpy_skin_disease_lsd_acronym_is_excluded(self) -> None:
         papers = pd.DataFrame(
@@ -328,6 +376,15 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     ),
                     "publication_type": "Journal Article",
                 },
+                {
+                    "doi": "10.example/production-mentioned-in-abstract",
+                    "study_title": "Receptor pharmacology of biosynthesized psilocybin derivatives",
+                    "abstract": (
+                        "Compounds produced in engineered Escherichia coli were tested for 5-HT2A "
+                        "binding affinity and functional signaling."
+                    ),
+                    "publication_type": "Journal Article",
+                },
             ]
         )
 
@@ -346,6 +403,10 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertIn("bioproduction", by_doi["10.1002/bit.28480"]["prescreen_reason"])
         self.assertEqual(by_doi["10.example/receptor-pharmacology"]["prescreen_decision"], "retain")
         self.assertTrue(by_doi["10.example/receptor-pharmacology"]["retained_for_extraction_candidate"])
+        self.assertEqual(
+            by_doi["10.example/production-mentioned-in-abstract"]["prescreen_action"],
+            "retain_for_screening",
+        )
 
     def test_broad_nps_history_background_is_excluded_without_dropping_nps_pharmacology(self) -> None:
         papers = pd.DataFrame(
@@ -776,7 +837,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             pd.DataFrame(
                 [
                     {
-                        "table_version": "0.1",
+                        "table_version": "0.2",
                         "run_id": "existing_prescreen_run",
                         "generated_at_utc": "old",
                         "prescreen_decision_id": "old-psilo",
@@ -788,14 +849,14 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                         "routing_tags": "",
                     },
                     {
-                        "table_version": "0.1",
+                        "table_version": "0.2",
                         "run_id": "existing_prescreen_run",
                         "generated_at_utc": "old",
                         "prescreen_decision_id": "old-exercise",
                         "doi": "10.example/exercise",
                         "has_abstract": True,
                         "prescreen_decision": "retain",
-                        "prescreen_action": "retain_for_extraction_candidate",
+                        "prescreen_action": "retain_for_screening",
                         "deterministic_action": "escalate",
                         "routing_tags": "",
                     },
@@ -826,9 +887,9 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(len(decisions), 2)
         self.assertTrue(summary)
         self.assertEqual(by_doi["10.example/psilo"]["run_id"], "existing_prescreen_run")
-        self.assertEqual(by_doi["10.example/psilo"]["prescreen_action"], "retain_for_extraction_candidate")
+        self.assertEqual(by_doi["10.example/psilo"]["prescreen_action"], "retain_for_screening")
         self.assertEqual(by_doi["10.example/exercise"]["prescreen_decision_id"], "old-exercise")
-        self.assertEqual(by_doi["10.example/exercise"]["prescreen_action"], "retain_for_extraction_candidate")
+        self.assertEqual(by_doi["10.example/exercise"]["prescreen_action"], "retain_for_screening")
 
     def test_scoped_update_adds_new_doi_rows(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -859,14 +920,14 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             pd.DataFrame(
                 [
                     {
-                        "table_version": "0.1",
+                        "table_version": "0.2",
                         "run_id": "existing_prescreen_run",
                         "generated_at_utc": "old",
                         "prescreen_decision_id": "old-existing",
                         "doi": "10.example/existing",
                         "has_abstract": True,
                         "prescreen_decision": "retain",
-                        "prescreen_action": "retain_for_extraction_candidate",
+                        "prescreen_action": "retain_for_screening",
                         "deterministic_action": "escalate",
                         "routing_tags": "",
                     },
@@ -898,25 +959,67 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertTrue(summary)
         self.assertEqual(by_doi["10.example/existing"]["prescreen_decision_id"], "old-existing")
         self.assertEqual(by_doi["10.example/new"]["run_id"], "existing_prescreen_run")
-        self.assertEqual(by_doi["10.example/new"]["prescreen_action"], "retain_for_extraction_candidate")
+        self.assertEqual(by_doi["10.example/new"]["prescreen_action"], "retain_for_screening")
 
-    def test_summary_counts_actions_and_routing_tags(self) -> None:
+    def test_scoped_update_rejects_an_older_prescreen_schema(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            papers_path = root / "candidate_papers.parquet"
+            metadata_path = root / "paper_metadata_enrichment.parquet"
+            contexts_path = root / "candidate_contexts.parquet"
+            decisions_path = root / "paper_prescreen_decisions.parquet"
+            summary_path = root / "paper_prescreen_summary.parquet"
+
+            pd.DataFrame(
+                [{"doi": "10.example/paper", "study_title": "Psilocybin study", "abstract": ""}]
+            ).to_parquet(papers_path, index=False)
+            pd.DataFrame([]).to_parquet(metadata_path, index=False)
+            pd.DataFrame([]).to_parquet(contexts_path, index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "table_version": "0.1",
+                        "run_id": "old_run",
+                        "doi": "10.example/paper",
+                        "prescreen_decision": "exclude",
+                    }
+                ]
+            ).to_parquet(decisions_path, index=False)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "papers_table": str(papers_path),
+                    "metadata_table": str(metadata_path),
+                    "contexts_table": str(contexts_path),
+                    "decisions_table": str(decisions_path),
+                    "summary_table": str(summary_path),
+                    "run_id": "",
+                    "doi_file": "",
+                    "doi": ["10.example/paper"],
+                    "progress_every": 0,
+                },
+            )()
+
+            with self.assertRaisesRegex(SystemExit, "Run one full deterministic pre-screen pass first"):
+                run(args)
+
+    def test_summary_counts_screening_actions_without_routing_metrics(self) -> None:
         decisions = [
             {
                 "doi": "10.example/a",
                 "has_abstract": True,
                 "prescreen_decision": "retain",
-                "prescreen_action": "retain_for_extraction_candidate",
+                "prescreen_action": "retain_for_screening",
                 "deterministic_action": "escalate",
-                "routing_tags": "brain_system|molecular_target",
             },
             {
                 "doi": "10.example/b",
                 "has_abstract": False,
                 "prescreen_decision": "exclude",
-                "prescreen_action": "exclude_missing_abstract",
-                "deterministic_action": "exclude_missing_abstract",
-                "routing_tags": "",
+                "prescreen_action": "exclude_no_usable_abstract",
+                "deterministic_action": "exclude_no_usable_abstract",
             },
         ]
 
@@ -924,8 +1027,8 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         keyed = {(row["scope"], row["metric"], row["label"]): row["count"] for row in summary}
 
         self.assertEqual(keyed[("all_papers", "prescreen_decision", "retain")], 1)
-        self.assertEqual(keyed[("all_papers", "prescreen_action", "exclude_missing_abstract")], 1)
-        self.assertEqual(keyed[("all_papers", "routing_tag", "brain_system")], 1)
+        self.assertEqual(keyed[("all_papers", "prescreen_action", "exclude_no_usable_abstract")], 1)
+        self.assertFalse(any(metric == "routing_tag" for _, metric, _ in keyed))
         self.assertEqual(keyed[("all_papers", "abstract", "missing")], 1)
 
 

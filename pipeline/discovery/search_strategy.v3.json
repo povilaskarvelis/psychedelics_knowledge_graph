@@ -1,0 +1,189 @@
+{
+  "schema_version": "living_search_strategy_v3",
+  "protocol_id": "psychedelics_kg_living_search_v3",
+  "description": "Scalable provider-specific living search with compact two-block core modules, cross-domain compound identity coverage, explicit targeted pairs, and automatic all-time recovery only for newly added compounds.",
+  "legacy_coverage_end_date": "2026-05-28",
+  "full_search_start_date": "1800-01-01",
+  "update_overlap_days": 14,
+  "planning": {
+    "max_query_executions": 1000,
+    "max_targeted_pairs": 100
+  },
+  "calibration": {
+    "required_for_promotion": true,
+    "known_relevant_source": "data/processed/corpus/candidate_papers.parquet",
+    "known_relevant_flag_column": "flag_in_known_study_set",
+    "exceptions_path": "pipeline/discovery/known_relevant_exceptions.json"
+  },
+  "providers": {
+    "pubmed": {
+      "publication_date_basis": "publication",
+      "index_date_basis": "entrez",
+      "partition_max_records": 9000,
+      "page_size": 1000
+    },
+    "openalex": {
+      "publication_date_basis": "publication",
+      "index_date_basis": "created",
+      "index_date_access": "paid_plan",
+      "partition_max_records": 5000,
+      "page_size": 100,
+      "max_search_query_chars": 1400,
+      "core_search_surface": "title_and_abstract",
+      "scope_search_surface": "title_and_abstract",
+      "pair_search_surface": "title_and_abstract",
+      "field_search_compatibility": "title_and_abstract.search is supported but deprecated by OpenAlex; provider tests must fail visibly if it is removed"
+    }
+  },
+  "legacy_scope_snapshot": {
+    "allowed_compounds": [
+      "1P-LSD",
+      "25B-NBOMe",
+      "25C-NBOMe",
+      "25I-NBOMe",
+      "2C-B",
+      "2C-E",
+      "2C-I",
+      "2C-T-2",
+      "2C-T-7",
+      "5-MeO-DMT",
+      "5-MeO-DiPT",
+      "AL-LAD",
+      "Ayahuasca",
+      "Bromo-DragonFLY",
+      "Bufotenin",
+      "DMT",
+      "DOB",
+      "DOET",
+      "DOI",
+      "DOM",
+      "DPT",
+      "DiPT",
+      "ETH-LAD",
+      "Ibogaine",
+      "Ketamine",
+      "LSA",
+      "LSD",
+      "Lisuride",
+      "MDA",
+      "MDMA",
+      "Mescaline",
+      "Noribogaine",
+      "PRO-LAD",
+      "Psilocin",
+      "Psilocybin",
+      "R-ketamine",
+      "S-ketamine",
+      "Salvinorin A",
+      "TMA",
+      "TMA-2"
+    ],
+    "allowed_targets": [],
+    "allowed_disorders": []
+  },
+  "compound_class_terms": [
+    "psychedelic",
+    "psychedelics",
+    "classical psychedelic",
+    "serotonergic psychedelic",
+    "hallucinogen",
+    "entheogen",
+    "entactogen",
+    "empathogen",
+    "psychoplastogen",
+    "dissociative anesthetic",
+    "psychedelic-assisted therapy"
+  ],
+  "compound_class_controlled_terms": [
+    "Hallucinogens",
+    "Psychotropic Drugs"
+  ],
+  "openalex_ambiguous_compound_contexts": {
+    "2C-B": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "2C-C": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "2C-D": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "2C-E": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "2C-I": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "2C-P": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "2C-T-2": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "2C-T-7": ["psychedelic", "hallucinogen", "designer drug", "phenethylamine", "5-HT2A"],
+    "DMT": ["psychedelic", "hallucinogen", "tryptamine", "5-HT2A"],
+    "DOB": ["psychedelic", "hallucinogen", "phenethylamine", "5-HT2A"],
+    "DOET": ["psychedelic", "hallucinogen", "phenethylamine", "5-HT2A"],
+    "DOI": ["psychedelic", "hallucinogen", "phenethylamine", "5-HT2A"],
+    "DOC": ["psychedelic", "hallucinogen", "5-HT2A", "chloroamphetamine", "dimethoxyamphetamine"],
+    "DOM": ["psychedelic", "hallucinogen", "phenethylamine", "5-HT2A"],
+    "DPT": ["psychedelic", "hallucinogen", "tryptamine", "5-HT2A"],
+    "DiPT": ["psychedelic", "hallucinogen", "tryptamine", "5-HT2A"],
+    "LSA": ["psychedelic", "hallucinogen", "ergine", "lysergic"],
+    "LSD": ["psychedelic", "hallucinogen", "lysergic", "serotonin"],
+    "MDA": ["psychedelic", "hallucinogen", "entactogen", "phenethylamine"],
+    "TMA": ["psychedelic", "hallucinogen", "phenethylamine", "trimethoxyamphetamine"]
+  },
+  "targeted_pairs": [],
+  "modules": [
+    {
+      "module_id": "molecular_target",
+      "dataset": "mechanistic",
+      "terms": ["receptor", "transporter", "binding", "affinity", "agonist", "antagonist", "radioligand", "functional assay", "5-HT2A", "HTR2A", "SERT", "SLC6A4", "NMDA receptor", "TrkB", "NTRK2"],
+      "controlled_terms": ["Receptors, Serotonin", "Receptors, N-Methyl-D-Aspartate", "Neurotransmitter Transport Proteins"]
+    },
+    {
+      "module_id": "molecular_pathway",
+      "dataset": "mechanistic",
+      "terms": ["BDNF", "TrkB", "mTOR", "ERK", "MAPK", "CREB", "Akt", "synaptogenesis", "synaptic plasticity", "dendritic spine", "neuritogenesis", "neuroplasticity", "c-Fos", "Arc", "gene expression", "transcriptomic", "epigenetic", "cytokine", "inflammation", "cortisol", "HPA axis"]
+    },
+    {
+      "module_id": "systems_neuroscience",
+      "dataset": "mechanistic",
+      "terms": ["fMRI", "functional MRI", "BOLD", "resting state", "functional connectivity", "effective connectivity", "connectome", "default mode network", "salience network", "prefrontal cortex", "cingulate cortex", "hippocampus", "amygdala", "thalamus", "claustrum", "PET", "positron emission tomography", "receptor occupancy", "EEG", "MEG", "electroencephalography", "neural oscillations", "entropy"]
+    },
+    {
+      "module_id": "cognitive_behavioral",
+      "dataset": "mechanistic",
+      "terms": ["cognitive flexibility", "reversal learning", "set shifting", "fear conditioning", "fear extinction", "reward learning", "reinforcement learning", "emotional processing", "social cognition", "attention", "impulsivity", "prepulse inhibition", "forced swim test", "open field", "self-administration", "drug seeking"]
+    },
+    {
+      "module_id": "subjective_experience",
+      "dataset": "mechanistic",
+      "terms": ["subjective effects", "psychedelic experience", "phenomenology", "mystical experience", "ego dissolution", "altered state of consciousness", "oceanic boundlessness", "visual effects", "emotional breakthrough", "challenging experience", "psychological insight", "MEQ", "5D-ASC", "Hallucinogen Rating Scale"]
+    },
+    {
+      "module_id": "pharmacokinetics_exposure",
+      "dataset": "mechanistic",
+      "terms": ["pharmacokinetics", "pharmacodynamics", "plasma concentration", "serum concentration", "bioavailability", "metabolite", "metabolism", "clearance", "half-life", "Cmax", "Tmax", "AUC", "dose response", "exposure response"]
+    },
+    {
+      "module_id": "clinical_mechanism_bridge",
+      "dataset": "mechanistic",
+      "terms": ["biomarker", "clinical outcome", "symptom change", "treatment response", "functional connectivity", "receptor occupancy", "cortisol", "BDNF", "inflammation", "emotional processing", "cognitive flexibility"]
+    },
+    {
+      "module_id": "clinical_indication",
+      "dataset": "disorder",
+      "use_allowed_disorders": true,
+      "terms": ["depression", "anxiety", "post-traumatic stress disorder", "substance use disorder", "addiction", "obsessive-compulsive disorder", "eating disorder", "autism spectrum disorder", "cluster headache", "migraine", "chronic pain"],
+      "controlled_terms": ["Depressive Disorder", "Anxiety Disorders", "Stress Disorders, Post-Traumatic", "Substance-Related Disorders"]
+    },
+    {
+      "module_id": "clinical_symptom_function",
+      "dataset": "disorder",
+      "terms": ["suicidal ideation", "anhedonia", "craving", "withdrawal", "relapse", "sleep", "insomnia", "pain intensity", "quality of life", "wellbeing", "social functioning", "occupational functioning", "functional impairment", "distress", "response", "remission", "follow-up"]
+    },
+    {
+      "module_id": "clinical_safety",
+      "dataset": "disorder",
+      "terms": ["safety", "tolerability", "adverse event", "serious adverse event", "side effect", "toxicity", "overdose", "serotonin syndrome", "case report", "blood pressure", "heart rate", "hypertension", "mania", "psychosis", "dissociation", "hallucinogen persisting perception disorder", "flashback"]
+    },
+    {
+      "module_id": "intervention_context",
+      "dataset": "disorder",
+      "terms": ["psychotherapy", "therapeutic alliance", "preparation session", "integration session", "set and setting", "music", "therapist", "facilitator", "psychological support", "group therapy", "dose session"]
+    },
+    {
+      "module_id": "real_world_public_health",
+      "dataset": "disorder",
+      "terms": ["naturalistic", "observational", "survey", "registry", "population", "epidemiology", "prevalence", "utilization", "health services", "public health", "community", "ceremonial use", "retreat", "adverse event reporting"]
+    }
+  ]
+}

@@ -1,53 +1,39 @@
 # Checking Search Completeness
 
-No literature search can prove that it found every relevant report. This project
-therefore keeps a reviewed set of known relevant studies and uses it to test
-whether the search is retrieving records for reports that should reasonably be
-found.
+No literature search can prove that it found every relevant report. The
+current expanding-corpus search therefore treats completeness as an operational
+retrieval property, not an estimate of recall: every configured query must be
+fully paginated and reconciled, but promotion does not depend on a small sample
+of known papers.
 
-This reviewed collection is called the **known relevant study set**. It is a
-quality check for the search, not the source of reports included in the graph.
+The repository still contains the historical **known relevant study set** for
+provenance, but the living-search pipeline no longer reads it, tests it, uses it
+as a promotion gate, or uses it as an implicit citation-search seed cohort.
+The pilot was useful while the strategy was being formed; at the current corpus
+scale it is neither a recall estimate nor a useful acceptance test.
 
-## What this check does
+## Operational completeness gates
 
-- **Improves the search vocabulary.** Known studies can reveal missing compound,
-  target, condition, outcome, or study-design terms.
-- **Tests retrieval.** After a search, the check asks whether the known studies
-  were found and records which source, query, and search run found them.
-- **Supports citation searching.** Relevant reviews and primary studies can seed
-  bounded reference and citation searches.
-- **Protects known records.** Records for known relevant reports are kept from
-  silently disappearing when a provider limits the number of returned results.
-- **Explains misses.** A missing study should lead to a search revision or a
-  documented explanation about scope, indexing, or identifier quality.
+The current living-search runner adds retrieval checks that are separate from
+known-study coverage. For every query and date partition it records the
+provider's total, every retrieved provider ID, pagination state, errors, and
+the exact query and search surface. A query is incomplete when counts do not
+reconcile, a provider returns an error, or a request budget pauses the run.
 
-The project tracks these studies through screening, preparation of available
-article text, evidence extraction, and publication. Those stages answer
-different questions. A record can be found successfully but later excluded. A
-selected report can be kept only as background or left out of the graph because
-no relationship can be represented reliably.
+V3 separates retrieval completeness from descriptive search diagnostics. A run
+can be promoted when every selected execution is mechanically complete. The
+initial small known-record pilot has been retired. Provider-ID records without
+DOIs remain in an identifier resolution queue and do not disappear during DOI
+enrichment. See
+[`pipeline/discovery/README.md`](../pipeline/discovery/README.md) for the full
+operating procedure.
 
-## Adding studies to the set
+These gates establish that the configured search was retrieved completely;
+they do not prove that the configured concepts and information sources capture
+all relevant literature. Source overlap, citation searching, and later strategy
+review remain separate activities rather than promotion requirements.
 
-Add a study only after it has been judged relevant and its source is known.
-Acceptable sources include prior systematic or narrative reviews, reference
-lists, citation searching, trial records, expert searching, or automated
-discovery followed by review.
-
-Keep enough information to explain the decision, including the source,
-selection method, review status, related review DOI where relevant, rationale,
-and the study's role in the completeness set.
-
-## Interpreting a miss
-
-A missed known relevant study is not automatically a pipeline failure. It
-should lead to one of three outcomes:
-
-- revise the search with better synonyms, source coverage, citation searching,
-  or source-specific query variants;
-- document that the study falls outside the current scope; or
-- document that the selected sources cannot retrieve it reliably, for example
-  because it lacks usable indexing or identifier metadata.
-
-Coverage of this set is a transparent quality check, not an estimate of total
-recall and not a rule for inclusion in the graph.
+OpenAlex publication-date updates do not identify every older work newly added
+to its index. Created-date filtering is a paid-plan feature, so standard
+free-plan operations use periodic all-time OpenAlex reruns for that recovery;
+the run manifest records whether a created-date stream was included.

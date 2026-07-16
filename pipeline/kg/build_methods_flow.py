@@ -20,6 +20,7 @@ CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_pap
 
 PRISMA_CANDIDATE_PRESCREEN_LABELS = {
     "exclude_obvious_irrelevant": "No in-scope title/abstract signal",
+    "exclude_no_usable_abstract": "No usable abstract and title alone insufficient",
     "exclude_missing_abstract": "No abstract available",
     "exclude_non_evidence_artifact": "Non-evidence artifact",
     "exclude_non_paper_container": "Non-report container",
@@ -137,10 +138,12 @@ METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER = (
 
 METHODS_BIBLIOGRAPHY_SCREENING_REASONS = {
     "exclude_obvious_irrelevant": "No in-scope signal",
+    "exclude_no_usable_abstract": "No usable abstract; title insufficient",
     "exclude_missing_abstract": "No abstract",
     "exclude_non_evidence_artifact": "Not an evidence report",
     "exclude_non_paper_container": "Journal/container record",
     "exclude_preprint_or_unpublished": "Preprint/unpublished",
+    "retain_for_screening": "",
     "retain_for_extraction_candidate": "",
 }
 
@@ -832,6 +835,7 @@ def prisma_flow_for_candidate_papers(
                     PRISMA_CANDIDATE_PRESCREEN_LABELS,
                     (
                         "exclude_obvious_irrelevant",
+                        "exclude_no_usable_abstract",
                         "exclude_missing_abstract",
                         "exclude_non_evidence_artifact",
                         "exclude_non_paper_container",

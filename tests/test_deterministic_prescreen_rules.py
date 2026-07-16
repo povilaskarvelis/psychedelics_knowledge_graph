@@ -1,5 +1,10 @@
 import unittest
-from pipeline.review.deterministic_prescreen_rules import configured_allowed_compound_terms, deterministic_prescreen_decision, evidence_domain_tags_for_context, matched_in_scope_intervention_terms, normalize_routing_tags
+
+from pipeline.review.deterministic_prescreen_rules import (
+    configured_allowed_compound_terms,
+    deterministic_prescreen_decision,
+    matched_in_scope_intervention_terms,
+)
 
 class DeterministicPrescreenRulesTest(unittest.TestCase):
 
@@ -19,46 +24,42 @@ class DeterministicPrescreenRulesTest(unittest.TestCase):
                 self.assertEqual(decision['action'], 'exclude_obvious_irrelevant')
                 self.assertIn('acute procedural anesthesia or sedation', decision['reason'])
 
-    def test_deterministic_prescreen_tags_brain_cognition_and_bridge_scope(self) -> None:
-        row = {'study_title': 'Psilocybin therapy and default mode network connectivity in depression', 'abstract': 'Patients with depression received psilocybin and completed fMRI and cognitive flexibility tasks.', 'contexts': []}
-        decision = deterministic_prescreen_decision(row)
-        self.assertEqual(decision['action'], 'escalate')
-        self.assertIn('brain_system', decision['routing_tags'])
-        self.assertIn('cognitive_behavioral', decision['routing_tags'])
-        self.assertIn('clinical_outcome', decision['routing_tags'])
-        self.assertIn('bridge_clinical_mechanism', decision['routing_tags'])
-
-    def test_evidence_domain_tags_cover_new_systems_scope(self) -> None:
-        context = 'Title: MDMA social reward and amygdala-prefrontal circuit function\nAbstract: The study measured BDNF, fMRI connectivity, empathy, safety, and PTSD symptoms.'
-        tags = evidence_domain_tags_for_context(context)
-        self.assertEqual(tags, ['molecular_pathway', 'brain_system', 'cognitive_behavioral', 'clinical_outcome', 'safety', 'bridge_clinical_mechanism'])
-
-    def test_evidence_domain_tags_cover_gap_domain_scope(self) -> None:
-        context = 'Title: Psilocybin pharmacokinetics and mystical experience in a retreat setting\nAbstract: Plasma concentration, depression symptoms, preparation, integration, and naturalistic survey outcomes were measured.'
-        tags = evidence_domain_tags_for_context(context)
-        self.assertEqual(tags, ['clinical_outcome', 'subjective_experience', 'pharmacokinetics_exposure', 'intervention_context', 'real_world_use_public_health', 'bridge_clinical_mechanism'])
-
-    def test_evidence_domain_tags_cover_expanded_search_terms(self) -> None:
-        context = 'Title: Ayahuasca retreat, subjective effects, and global brain connectivity\nAbstract: The cohort survey measured Challenging Experience Questionnaire scores, visual analog scale ratings, psilocin glucuronide, AUC, CYP2D6, set setting, group therapy, ceremonial use, microdose patterns, and arterial spin labeling.'
-        tags = evidence_domain_tags_for_context(context)
-        self.assertIn('brain_system', tags)
-        self.assertIn('subjective_experience', tags)
-        self.assertIn('pharmacokinetics_exposure', tags)
-        self.assertIn('intervention_context', tags)
-        self.assertIn('real_world_use_public_health', tags)
-
-    def test_normalize_routing_tags_filters_unknown_values(self) -> None:
-        self.assertEqual(normalize_routing_tags('brain-system|clinical outcome|not_a_tag|brain_system'), ['brain_system', 'clinical_outcome'])
-
-    def test_normalize_routing_tags_maps_old_pathway_biomarker_alias(self) -> None:
-        self.assertEqual(normalize_routing_tags('pathway-biomarker|molecular_pathway'), ['molecular_pathway'])
-
     def test_deterministic_prescreen_uses_config_allowed_compounds(self) -> None:
         self.assertIn('Mescaline', configured_allowed_compound_terms())
         row = {'study_title': 'Mescaline treatment and perception', 'abstract': 'This paper discusses mescaline administration and long-term changes in perception among adult participants.', 'contexts': []}
         decision = deterministic_prescreen_decision(row)
         self.assertEqual(decision['action'], 'escalate')
-        self.assertEqual(decision['reason'], 'in-scope compound/intervention term appears in title or abstract')
+        self.assertIn('title, abstract, keywords, or MeSH terms', decision['reason'])
+
+    def test_controlled_vocabulary_can_rescue_an_in_scope_record(self) -> None:
+        row = {
+            'study_title': 'Long-term outcomes after an experimental intervention',
+            'abstract': 'Participants completed follow-up assessments.',
+            'keywords': 'psilocybin | psychedelic-assisted therapy',
+            'mesh_terms': 'Hallucinogens',
+        }
+        decision = deterministic_prescreen_decision(row)
+        self.assertEqual(decision['action'], 'escalate')
+        self.assertIn('psilocybin', {term.lower() for term in decision['matched_terms']})
+
+    def test_bare_san_pedro_is_ambiguous_but_cactus_context_is_retained(self) -> None:
+        city_record = {
+            'study_title': 'Community health services in San Pedro',
+            'abstract': 'A municipal survey of primary care access in the city.',
+        }
+        cactus_record = {
+            'study_title': 'San Pedro cactus use in ceremonial settings',
+            'abstract': 'The mescaline-containing cactus was used as an entheogen.',
+        }
+        self.assertEqual(deterministic_prescreen_decision(city_record)['action'], 'exclude_obvious_irrelevant')
+        self.assertEqual(deterministic_prescreen_decision(cactus_record)['action'], 'escalate')
+
+    def test_abstract_acute_care_mention_does_not_override_nonprocedural_title(self) -> None:
+        row = {
+            'study_title': 'Ketamine and the neural correlates of consciousness',
+            'abstract': 'Participants received ketamine during monitored anesthesia care and completed EEG measures.',
+        }
+        self.assertEqual(deterministic_prescreen_decision(row)['action'], 'escalate')
 
     def test_deterministic_prescreen_retains_disorder_variant_intervention_terms(self) -> None:
         rows = [{'study_title': 'Efeitos do uso de psilocibina em pacientes adultos com ansiedade e depressão', 'abstract': 'Tratamento: uso da psilocibina para ansiedade e depressão.', 'contexts': []}, {'study_title': 'Plant based assisted therapy for substance use disorders', 'abstract': 'Natural medicines are described including psychoactive derivatives of Tabernanthe iboga and Bufo alvarius.', 'contexts': []}, {'study_title': 'Dreams, Hallucinogenic Drug States, and Schizophrenia', 'abstract': 'This review compares dreams, hallucinogenic drug states, and schizophrenia.', 'contexts': []}, {'study_title': 'The Supreme Court versus Peyote', 'abstract': 'Peyote is discussed as a culturally relevant therapeutic modality.', 'contexts': []}, {'study_title': 'Metabolism of the tryptamine 5-MeO-MiPT', 'abstract': '5-methoxy-N-methyl-N-isopropyltryptamine was detected after intoxication.', 'contexts': []}, {'study_title': 'Psychedeilc Assisted Therapy for post-traumatic stress', 'abstract': 'This article discusses MDMA, psilocybin, and ketamine-assisted approaches.', 'contexts': []}]
