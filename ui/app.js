@@ -7018,7 +7018,11 @@ function buildGraph(data) {
   const graphIsAggregateBootstrap = data.some((claim) => claim?.__graph_bootstrap) && !graphHasDetailBootstrap;
   const graphStage = graphIsAggregateBootstrap ? "bootstrap" : "full";
   const previousSvg = graphEl.querySelector("svg[data-graph-stage]");
-  const crossfadeFromBootstrap = previousSvg?.dataset.graphStage === "bootstrap" && graphStage === "full";
+  const crossfadeFromBootstrap =
+    previousSvg?.dataset.graphStage === "bootstrap" &&
+    graphStage === "full" &&
+    !selected &&
+    !detailGraphFilter;
   const width = graphEl.clientWidth || 800;
   const cacheKey = graphDomCacheKey(width, data);
   const cached = cacheKey ? graphDomCache.get(cacheKey) : null;
@@ -7036,7 +7040,6 @@ function buildGraph(data) {
   }
   if (!crossfadeFromBootstrap) {
     graphSwapToken += 1;
-    graphEl.innerHTML = "";
   }
 
   const allowedRelationships = graphHasDetailBootstrap ? fullViewRelationshipKeys() : null;
@@ -7123,13 +7126,11 @@ function buildGraph(data) {
   const baseHeight = compactGraph ? GRAPH_COMPACT_BASE_HEIGHT_PX : GRAPH_BASE_HEIGHT_PX;
   const maxNodeCount = Math.max(compounds.length, targets.length, 1);
   const height = Math.ceil(Math.max(baseHeight, margin.top + margin.bottom + maxNodeCount * minNodeSpacing));
-  graphEl.style.setProperty("--kg-graph-height", `${height}px`);
   const graphGrid = graphEl.closest(".graph-grid");
   const graphToolbar = graphEl.closest(".graph-column")?.querySelector(".graph-toolbar");
   const defaultWorkspaceHeight =
     Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--kg-workspace-height")) || 1030;
   const workspaceHeight = Math.ceil(Math.max(defaultWorkspaceHeight, height + (graphToolbar?.offsetHeight || 0)));
-  graphGrid?.style.setProperty("--kg-dynamic-workspace-height", `${workspaceHeight}px`);
   const compoundX = margin.left;
   const targetX = width - margin.right;
   const labelOffset = 22;
@@ -7628,8 +7629,10 @@ function buildGraph(data) {
   if (crossfadeFromBootstrap && previousSvg) {
     crossfadeCompleteGraph(previousSvg, svg);
   } else {
-    graphEl.appendChild(svg);
+    graphEl.replaceChildren(svg);
   }
+  graphEl.style.setProperty("--kg-graph-height", `${height}px`);
+  graphGrid?.style.setProperty("--kg-dynamic-workspace-height", `${workspaceHeight}px`);
   rememberGraphDom(cacheKey, {
     svg,
     height,

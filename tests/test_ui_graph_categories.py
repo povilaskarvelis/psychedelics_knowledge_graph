@@ -465,6 +465,33 @@ def test_cached_graph_reset_removes_stale_crossfade_state() -> None:
     assert 'svg.classList.remove("graph-swap-layer", "graph-swap-out", "graph-swap-in", "graph-swap-active")' in reset_branch
 
 
+def test_filtered_graph_is_committed_without_resizing_the_full_graph_first() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    graph_source = source.split("function buildGraph", 1)[1].split("function render()", 1)[0]
+    uncached_setup = graph_source.split("if (!crossfadeFromBootstrap)", 1)[1].split(
+        "const allowedRelationships", 1
+    )[0]
+    commit = graph_source.rsplit("if (crossfadeFromBootstrap && previousSvg)", 1)[1].split(
+        "rememberGraphDom", 1
+    )[0]
+
+    assert 'graphEl.innerHTML = ""' not in uncached_setup
+    assert "graphEl.replaceChildren(svg)" in commit
+    assert commit.index("graphEl.replaceChildren(svg)") < commit.index(
+        'graphEl.style.setProperty("--kg-graph-height"'
+    )
+
+
+def test_selected_graph_skips_the_bootstrap_completion_crossfade() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    graph_source = source.split("function buildGraph", 1)[1].split("const width", 1)[0]
+
+    assert 'previousSvg?.dataset.graphStage === "bootstrap"' in graph_source
+    assert 'graphStage === "full"' in graph_source
+    assert "!selected" in graph_source
+    assert "!detailGraphFilter" in graph_source
+
+
 def test_each_edge_uses_a_gradient_between_its_endpoint_colors() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     edge_render = source.split('edgeEntries.forEach(([key, edge], index)', 1)[1].split(
