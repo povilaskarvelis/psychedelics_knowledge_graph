@@ -43,6 +43,12 @@ This repository includes the full workflow behind the public graph:
 The main data is stored in normalized tables. The browser graph presents a
 readable view of that data rather than trying to display everything at once.
 
+For machine use, every promoted release can also produce a sanitized DuckDB
+database and Parquet downloads, a read-only REST/OpenAPI service, and MCP tools
+for AI agents. These interfaces follow the same active release pointer as the
+browser; see the [API and agent access guide](docs/agent_access.md).
+Production setup is covered by the [R2 deployment checklist](docs/r2_deployment.md).
+
 ## Repository map
 
 - `pipeline/` — literature discovery, screening, full-text processing,

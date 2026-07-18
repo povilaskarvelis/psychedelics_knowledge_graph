@@ -178,6 +178,33 @@ class PromoteRoutedRunTest(unittest.TestCase):
         self.assertFalse(any("/stage/" in path for path in outputs.values()))
         self.assertEqual(payload["input_files"], [str(current_candidate.resolve())])
 
+    def test_public_query_artifact_must_match_run_and_finding_count(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            kg_dir = root / "kg_routed_runs" / "candidate"
+            kg_dir.mkdir(parents=True)
+            query_dir = root / "query_api_runs" / "candidate"
+            query_dir.mkdir(parents=True)
+            (query_dir / "public_api.duckdb").touch()
+            (query_dir / "schema.json").write_text("{}", encoding="utf-8")
+            (query_dir / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": promotion.PUBLIC_QUERY_MANIFEST_SCHEMA,
+                        "run_id": "candidate",
+                        "kg_dir": str(kg_dir),
+                        "row_counts": {"findings": 7},
+                        "database": "public_api.duckdb",
+                        "schema": "schema.json",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with mock.patch.object(promotion, "QUERY_RUNS_DIR", root / "query_api_runs"):
+                result = promotion.validate_public_query_artifact("candidate", kg_dir, 7)
+
+        self.assertEqual(result["row_counts"]["findings"], 7)
+
 
 if __name__ == "__main__":
     unittest.main()

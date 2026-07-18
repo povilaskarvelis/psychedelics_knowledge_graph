@@ -26,6 +26,13 @@ pointer, its payload manifest, and the referenced browser JSON files. Full
 extraction-pointer and canonical-corpus parity is enforced during guarded
 promotion, where those intentionally untracked working datasets are available.
 
+## Agent API and MCP
+
+The REST/OpenAPI and MCP service is deployed separately from the static Netlify
+site. GitHub contains only its code; sanitized DuckDB and Parquet releases are
+published to Cloudflare R2. See [R2 query API deployment](r2_deployment.md) for
+the Cloudflare, Render, DNS, first-publish, and recurring-update checklist.
+
 ## Custom Domain
 
 After the Netlify site exists, add both domains in Netlify:

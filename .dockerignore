@@ -1,0 +1,6 @@
+**
+!services/
+!services/query_api/
+!services/query_api/**
+services/**/__pycache__/
+services/**/*.pyc

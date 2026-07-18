@@ -31,6 +31,7 @@ EXTRACTION_DIR = PROCESSED_DIR / "extraction"
 ROUTED_RUNS_DIR = EXTRACTION_DIR / "routed_runs"
 KG_RUNS_DIR = PROCESSED_DIR / "kg_routed_runs"
 PAYLOAD_RUNS_DIR = PROCESSED_DIR / "graph_payload_runs"
+QUERY_RUNS_DIR = PROCESSED_DIR / "query_api_runs"
 ACTIVE_EXTRACTION_POINTER = EXTRACTION_DIR / "active_routed_run.json"
 ACTIVE_GRAPH_POINTER = PROCESSED_DIR / "graph_payload_active.json"
 CANDIDATE_PAPERS_TABLE = PROCESSED_DIR / "corpus" / "candidate_papers.parquet"
@@ -41,6 +42,7 @@ RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 EXTRACTION_POINTER_SCHEMA = "active_routed_extraction_run_v1"
 GRAPH_POINTER_SCHEMA = "route_native_evidence_payload_active_v1"
 PAYLOAD_MANIFEST_SCHEMA = "route_native_evidence_manifest_v1"
+PUBLIC_QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_query_manifest_v1"
 
 
 def now_utc() -> str:
@@ -265,7 +267,36 @@ def validate_built_release(run_id: str, graph_pointer: dict) -> dict:
         raise ValueError(
             f"Payload/KG row-count mismatch for {run_id}: payload={payload_rows}, findings={findings_rows}"
         )
+    validate_public_query_artifact(run_id, kg_dir, findings_rows)
     return payload_manifest
+
+
+def validate_public_query_artifact(run_id: str, kg_dir: Path, findings_rows: int) -> dict:
+    query_dir = QUERY_RUNS_DIR / run_id
+    manifest_path = query_dir / "manifest.json"
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            f"Missing public query artifact for {run_id}: {manifest_path}. "
+            "Re-run scripts/build_routed_kg_payload.sh before promotion."
+        )
+    manifest = read_json_object(manifest_path)
+    if normalize(manifest.get("schema_version")) != PUBLIC_QUERY_MANIFEST_SCHEMA:
+        raise ValueError(f"Unexpected public query manifest schema: {manifest_path}")
+    if normalize(manifest.get("run_id")) != run_id:
+        raise ValueError(f"Public query manifest run_id does not match {run_id}: {manifest_path}")
+    if Path(normalize(manifest.get("kg_dir"))).name != kg_dir.name:
+        raise ValueError(f"Public query manifest points at a different KG: {manifest_path}")
+    public_rows = int((manifest.get("row_counts") or {}).get("findings", -1))
+    if public_rows != findings_rows:
+        raise ValueError(
+            f"Public query/KG row-count mismatch for {run_id}: "
+            f"public={public_rows}, findings={findings_rows}"
+        )
+    for key in ("database", "schema"):
+        relative_path = normalize(manifest.get(key))
+        if not relative_path or not (query_dir / relative_path).is_file():
+            raise FileNotFoundError(f"Public query artifact is missing {key}: {query_dir}")
+    return manifest
 
 
 def validate_active_pointer_pair() -> dict:
@@ -499,6 +530,7 @@ def promote(args: argparse.Namespace) -> dict:
             "run_id": run_id,
             "release_id": release_id,
             "row_count": payload_manifest.get("row_count"),
+            "query_artifact": str(QUERY_RUNS_DIR / run_id),
             "paper_counts": (payload_manifest.get("summary_stats") or {}).get("paper_counts", {}),
         }
 
@@ -533,6 +565,7 @@ def main() -> int:
     print(f"Normalized findings: {result['row_count']}")
     print(f"Active extraction pointer: {ACTIVE_EXTRACTION_POINTER}")
     print(f"Active graph pointer: {ACTIVE_GRAPH_POINTER}")
+    print(f"Public query artifact: {result['query_artifact']}")
     print(f"Public site bundle refreshed: {ROOT / 'dist'}")
     return 0
 
