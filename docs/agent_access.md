@@ -7,6 +7,18 @@ interfaces:
 - a Model Context Protocol (MCP) server for agent clients;
 - sanitized DuckDB and Parquet downloads for larger analyses.
 
+The public entry points are:
+
+- human documentation: `https://psychedelicskg.com/developers/`;
+- machine guide: `https://psychedelicskg.com/developers/agent-guide.md`;
+- LLM-oriented site index: `https://psychedelicskg.com/llms.txt`;
+- REST/OpenAPI service: `https://psychedelics-kg-api.onrender.com`;
+- remote Streamable HTTP MCP: `https://psychedelics-kg-api.onrender.com/mcp`.
+
+The API root and OpenAPI schema link back to the public documentation. The
+`llms.txt` file is a lightweight discovery aid, not an access-control mechanism
+or a guarantee that a particular model vendor will consume it.
+
 The browser remains a static Netlify site. The query service reads the existing
 `data/processed/graph_payload_active.json` pointer, so the UI, API, MCP tools,
 and downloads identify the same promoted run and release.

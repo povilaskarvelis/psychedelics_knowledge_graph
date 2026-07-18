@@ -122,6 +122,12 @@ class QueryApiTest(unittest.TestCase):
         )
         app = create_app(self.service, settings=settings)
         with TestClient(app) as client:
+            service_index = client.get("/api/v1")
+            self.assertEqual(service_index.status_code, 200)
+            self.assertEqual(
+                service_index.json()["agent_guide"],
+                "https://psychedelicskg.com/developers/agent-guide.md",
+            )
             response = client.post(
                 "/api/v1/findings/query",
                 json={
@@ -132,9 +138,16 @@ class QueryApiTest(unittest.TestCase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["meta"]["total"], 2)
-            self.assertIn(
-                "/api/v1/findings/query", client.get("/openapi.json").json()["paths"]
+            openapi = client.get("/openapi.json").json()
+            self.assertIn("/api/v1/findings/query", openapi["paths"])
+            self.assertEqual(openapi["servers"][0]["url"], "https://api.example.test")
+            self.assertEqual(
+                openapi["externalDocs"]["url"],
+                "https://psychedelicskg.com/developers/",
             )
+            llms = client.get("/llms.txt", follow_redirects=False)
+            self.assertEqual(llms.status_code, 307)
+            self.assertEqual(llms.headers["location"], "https://psychedelicskg.com/llms.txt")
             download = client.get("/api/v1/downloads/tables/findings")
             self.assertEqual(download.status_code, 200)
             self.assertEqual(download.headers["x-release-id"], "test_run:r1")

@@ -48,6 +48,17 @@ A      @      75.2.60.5
 CNAME  www    <netlify-site-name>.netlify.app
 ```
 
+## Feedback Form
+
+The private visitor feedback form is defined in `feedback/index.html` and
+submitted through Netlify Forms under the name `site-feedback`. Keep form
+detection enabled in the Netlify Forms settings. To receive each verified
+submission by email, add a form submission notification under **Project
+configuration > Notifications** in Netlify.
+
+Test the form on a deploy preview or the production site. A local static server
+can verify the page layout, but it does not process Netlify form submissions.
+
 ## Data Tracking Cleanup
 
 The `.gitignore` rules keep generated data out of future commits while allowing

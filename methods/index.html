@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Methods | Psychedelics Knowledge Graph</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8M798XF54S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag("js", new Date());
+
+      gtag("config", "G-8M798XF54S");
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260717-site-nav-v6" />
+  </head>
+  <body class="methods-page">
+    <div class="bg" aria-hidden="true"></div>
+    <header class="site-header" data-site-header>
+      <div class="site-header-inner">
+        <button
+          class="site-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="siteNav"
+          data-site-nav-toggle
+        >
+          <span class="site-nav-toggle-icon" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
+        <nav class="site-nav" id="siteNav" aria-label="Primary" data-site-nav>
+          <a class="site-nav-link site-nav-back" href="/"><span aria-hidden="true">←</span> Back to graph</a>
+          <a class="site-nav-link" href="/about/">About</a>
+          <a class="site-nav-link" href="/methods/" aria-current="page">Methods</a>
+          <a class="site-nav-link" href="/developers/">Data &amp; API</a>
+          <a class="site-nav-link" href="/feedback/?source=methods">Leave feedback</a>
+        </nav>
+      </div>
+    </header>
+    <svg class="method-workflow-symbols" aria-hidden="true" focusable="false">
+      <symbol id="method-icon-scope" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="16" />
+        <circle cx="32" cy="32" r="5" />
+        <path d="M32 8v9M32 47v9M8 32h9M47 32h9" />
+        <path d="M45 19l-7 7M26 38l-7 7M19 19l7 7M38 38l7 7" />
+      </symbol>
+      <symbol id="method-icon-discover" viewBox="0 0 64 64">
+        <path d="M18 10h20l8 8v21H18z" />
+        <path d="M38 10v9h8M24 25h16M24 32h12" />
+        <circle cx="40" cy="40" r="9" />
+        <path d="M47 47l7 7" />
+      </symbol>
+      <symbol id="method-icon-screen" viewBox="0 0 64 64">
+        <path d="M13 12h38L36 31v15l-8 5V31z" />
+        <path d="M42 43h13M49 36l7 7-7 7" />
+        <path d="M16 51h17" />
+      </symbol>
+      <symbol id="method-icon-extract" viewBox="0 0 64 64">
+        <rect x="12" y="13" width="40" height="32" rx="4" />
+        <path d="M12 24h40M25 13v32M38 13v32" />
+        <circle cx="20" cy="54" r="4" />
+        <circle cx="32" cy="54" r="4" />
+        <circle cx="44" cy="54" r="4" />
+        <path d="M20 45v5M32 45v5M44 45v5M24 54h4M36 54h4" />
+      </symbol>
+      <symbol id="method-icon-validate" viewBox="0 0 64 64">
+        <path d="M32 8l20 8v13c0 13-8 23-20 27-12-4-20-14-20-27V16z" />
+        <path d="M22 33l7 7 15-17" />
+        <path d="M22 50h20" />
+      </symbol>
+      <symbol id="method-icon-update" viewBox="0 0 64 64">
+        <path d="M49 25a18 18 0 0 0-31-8l-5 5" />
+        <path d="M13 11v11h11" />
+        <path d="M15 39a18 18 0 0 0 31 8l5-5" />
+        <path d="M51 53V42H40" />
+        <circle cx="32" cy="32" r="5" />
+      </symbol>
+    </svg>
+
+    <header class="about-hero">
+      <div class="about-hero-copy">
+        <h1>Methods</h1>
+        <p>
+          How the Psychedelics Knowledge Graph is assembled: what literature is
+          searched, how records are screened, how evidence is extracted from
+          reports, and how everything is maintained.
+        </p>
+      </div>
+    </header>
+
+    <aside class="page-toc" aria-label="Methods contents">
+      <p class="page-toc-label">On this page</p>
+      <nav>
+        <a href="#pipeline-overview">Pipeline</a>
+        <a href="#search-seed-words">Search strategy</a>
+        <a href="#paper-bibliography">Selection &amp; audit</a>
+        <a href="#limitations">Limitations</a>
+      </nav>
+    </aside>
+
+    <main class="about-content">
+      <section class="about-section method-workflow-section" aria-labelledby="pipeline-overview">
+        <h2 id="pipeline-overview">Pipeline Overview</h2>
+        <p>
+          The workflow is designed to keep literature discovery broad while
+          making graph inclusion conservative. Searches cast a wide net across
+          clinical, biological, brain, behavioral, subjective, treatment-context,
+          and real-world evidence. Each report is then interpreted according to
+          what it actually contains and how much source text is available, so
+          the graph shows findings that can be traced back to specific reports.
+          Automated screening and structured extraction help process the
+          literature at scale, while source links, evidence locations, and
+          validation rules keep the results auditable.
+        </p>
+        <div class="method-workflow-list">
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-scope"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Define the Evidence Scope</h3>
+              <p>
+                The project starts with explicit vocabularies for psychedelic
+                compounds and evidence domains: targets, pathways and
+                readouts, brain systems, cognitive and
+                behavioral function, subjective experience, pharmacokinetics and
+                exposure, intervention context, real-world use, clinical
+                outcomes, functioning, and safety. These vocabularies define
+                what the graph can represent and what the search needs to cover.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-discover"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Find Records</h3>
+              <p>
+                PubMed and OpenAlex searches combine broad domain queries,
+                focused compound-topic queries, and supplementary direct-pair
+                checks. Results are matched by DOI and merged into a single
+                record corpus. Metadata enrichment uses different sources
+                for different needs: PubMed, PMC, OpenAlex, Crossref, and
+                Semantic Scholar for bibliographic records and abstracts;
+                PubMed for publication-type labels; and Unpaywall, OpenAlex,
+                and PMC for open-access full-text or PDF links.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-screen"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Screen Records and Classify Reports</h3>
+              <p>
+                Records first pass an initial rules-based screen. Title and
+                abstract screening then assesses relevance, identifies the
+                evidence topics substantially discussed, and classifies the
+                report type. Primary studies, meta-analyses, other reviews, and
+                non-primary context remain separate throughout the later
+                workflow.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-extract"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Extract Structured Evidence</h3>
+              <p>
+                Primary studies, meta-analyses, and other reviews use different
+                extraction instructions and data structures so their evidence
+                is not flattened into one type. The resulting findings retain
+                compounds or exposures, related entities or outcomes, study
+                context, reported direction, and source locations. When article
+                text is available, PDFs or PMC text are converted into
+                structured content that preserves sections, tables, figures,
+                and references. Otherwise, extraction is limited to what the
+                abstract reports.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-validate"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Validate and Publish</h3>
+              <p>
+                Before publication, extracted information is checked against
+                the source report. Relationships that are unclear, unsupported,
+                or cannot be represented accurately are left out of the graph.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-update"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Maintain the Living Graph</h3>
+              <p>
+                The graph is designed to evolve as the literature grows. Newly
+                discovered records, selected reports, corrected metadata,
+                improved evidence extraction, and community feedback can all
+                update the evidence base. Candidate
+                releases are built and checked before publication. The active
+                graph, bibliography, Methods counts, and public site are then
+                updated together as one reviewed release.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section method-seeds-section" aria-labelledby="search-seed-words">
+        <h2 id="search-seed-words">Literature Search Strategy</h2>
+        <p>
+          The search is organized around evidence domains: targets, pathways
+          and readouts, brain systems, cognitive
+          and behavioral functions, subjective experience, pharmacokinetics and
+          exposure, intervention delivery context, real-world use and public
+          health, clinical outcomes and safety, and clinical studies that
+          measure biological or behavioral endpoints.
+        </p>
+        <p>
+          PubMed was used for curated biomedical indexing, and OpenAlex was
+          used for broader scholarly coverage across journals, books, and
+          preprints. Searches use the same three-block structure: compound
+          terms, domain-specific entity or outcome terms, and evidence-context
+          terms. Terms inside each block are joined with OR; the blocks are
+          joined with AND. Broad modules cover domain families, while focused
+          modules target well-studied compound-topic combinations so that
+          important reports are not captured only through broad queries.
+        </p>
+        <div class="method-query-details-grid">
+          <details class="method-query-details">
+            <summary>Targets <span>10 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad target-family modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>serotonin receptors; monoamine transporters; glutamate/NMDA/AMPA/mGluR2 targets; opioid, sigma, and TAAR targets; TrkB and target-linked plasticity evidence</dd></div>
+                  <div><dt>Compound block</dt><dd>classic psychedelic, entactogen, dissociative, psychoplastogen, and compound-specific terms including psilocybin, psilocin, LSD, DMT, 5-MeO-DMT, mescaline, MDMA, ketamine, salvinorin A, ibogaine, and noribogaine</dd></div>
+                  <div><dt>Entity block</dt><dd>5-HT receptor families; SERT, DAT, NET, and VMAT2; NMDA, AMPA, and mGluR2 receptors; kappa and mu opioid receptors; sigma-1 receptor; TAAR1; TrkB and target-linked plasticity terms</dd></div>
+                  <div><dt>Evidence block</dt><dd>binding; affinity; Ki; Kd; IC50; EC50; radioligand; functional assay; agonist; antagonist; partial agonist; signaling</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused compound-target modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>LSD-5-HT2A; psilocin/psilocybin-5-HT2A; MDMA transporters; ketamine-NMDA; salvinorin A-kappa opioid receptor</dd></div>
+                  <div><dt>Query emphasis</dt><dd>narrower compound and target names paired with binding, receptor pharmacology, transporter, channel-blocker, functional-assay, beta-arrestin, and G-protein terms</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Pathways & readouts <span>5 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad molecular/pathway modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>molecular pathway plasticity; gene expression and transcriptomics; inflammatory and neuroendocrine molecular readouts</dd></div>
+                  <div><dt>Entity block</dt><dd>BDNF; TrkB; NTRK2; mTOR; ERK; MAPK; CREB; Akt; synaptogenesis; dendritic spine; synaptic plasticity; c-Fos; Arc; immediate early genes; transcriptome; epigenetic terms; cytokines; inflammation; cortisol; HPA axis</dd></div>
+                  <div><dt>Evidence block</dt><dd>signaling; phosphorylation; expression; protein expression; gene expression; transcriptomics; western blot; qPCR; RNA-seq; immunohistochemistry; ELISA; molecular readout; plasticity; synaptic; neuronal</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused molecular/pathway modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>ketamine/psychedelic mTOR-synaptogenesis; psychedelic immediate early genes</dd></div>
+                  <div><dt>Query emphasis</dt><dd>specific compound-pathway combinations involving ketamine, psilocybin, LSD, DMT, MDMA, DOI, mTOR, BDNF, TrkB, ERK, Akt, c-Fos, Fos, Arc, Egr1, and gene-expression assays</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Brain systems, circuits, and neurophysiology <span>10 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad brain-system modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>systems neuroimaging and connectivity; brain regions and named circuits; PET, receptor occupancy, and metabolism; EEG, MEG, and neurophysiology</dd></div>
+                  <div><dt>Entity block</dt><dd>default mode, salience, frontoparietal, central executive, limbic, visual, and sensorimotor networks; prefrontal cortex; anterior and posterior cingulate; hippocampus; amygdala; thalamus; claustrum; striatum; nucleus accumbens; insula; thalamo-cortical, cortico-striatal, fronto-limbic, hippocampal-prefrontal, amygdala-prefrontal, and mesolimbic reward circuits</dd></div>
+                  <div><dt>Evidence block</dt><dd>fMRI; BOLD; resting-state; functional connectivity; effective connectivity; PET; receptor occupancy; FDG; cerebral blood flow; EEG; MEG; neural oscillations; ERP; entropy; electrophysiology; c-Fos; neuronal activity</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused brain-system modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>psilocybin-default mode connectivity; LSD-thalamocortical connectivity; DMT EEG/fMRI dynamics; ayahuasca-default mode connectivity; psilocybin PET/5-HT2A occupancy; ketamine prefrontal-hippocampal circuitry</dd></div>
+                  <div><dt>Query emphasis</dt><dd>compound-specific network, circuit, imaging, receptor-occupancy, neural-dynamics, and electrophysiology terms</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Cognitive and behavioral function <span>4 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad task and translational behavior modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>cognitive and affective task domains; translational behavioral assays</dd></div>
+                  <div><dt>Entity block</dt><dd>cognitive flexibility; reversal learning; set shifting; fear conditioning; fear extinction; reward learning; social reward; social cognition; empathy; emotion recognition; attention; impulsivity; prepulse inhibition; working memory; forced swim; tail suspension; sucrose preference; social defeat; elevated plus maze; conditioned place preference; self-administration; relapse; head-twitch response</dd></div>
+                  <div><dt>Evidence block</dt><dd>task; behavior; behavioural; learning; conditioning; performance; paradigm; mouse; rat; rodent; animal model; behavioral assay; in vivo; c-Fos</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused cognitive-behavioral modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>MDMA social reward and cognition; psychedelic fear extinction and flexibility</dd></div>
+                  <div><dt>Query emphasis</dt><dd>compound-specific social reward, social cognition, empathy, emotion recognition, fear extinction, reversal learning, learning, conditioning, and performance terms</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Subjective experience and pharmacokinetics <span>4 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Subjective experience and acute-effect modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>acute subjective effects and phenomenology; subjective-effect measures</dd></div>
+                  <div><dt>Entity block</dt><dd>subjective effects; phenomenology; mystical experience; ego dissolution; altered state; oceanic boundlessness; challenging experience; anxiety; insight; emotional breakthrough; intensity; time perception; visual effects; questionnaire and rating-scale terms</dd></div>
+                  <div><dt>Evidence block</dt><dd>acute effect; subjective rating; questionnaire; scale; psychometric; dose-response; controlled administration; human laboratory; experience report; outcome measure</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Pharmacokinetics and exposure modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>pharmacokinetics and exposure; metabolite and exposure measurement</dd></div>
+                  <div><dt>Entity block</dt><dd>pharmacokinetics; ADME; absorption; distribution; metabolism; elimination; clearance; half-life; bioavailability; plasma concentration; blood concentration; serum concentration; metabolite; psilocin; noribogaine; route of administration; dose; protein binding</dd></div>
+                  <div><dt>Evidence block</dt><dd>LC-MS; mass spectrometry; plasma; serum; blood; urine; sampling; concentration-time curve; Cmax; Tmax; AUC; pharmacokinetic model; analytical measurement</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Intervention context and real-world use <span>4 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Intervention delivery-context modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>psychotherapy, preparation, integration, set and setting, session structure, psychological support, aftercare, blinding, training, and manualized-delivery terms; focused set/setting and therapeutic-support details</dd></div>
+                  <div><dt>Context block</dt><dd>psychotherapy; psychological support; preparation; integration; set and setting; therapeutic alliance; music; guide; facilitator; therapist; session structure; dosing session; aftercare; manual; training; expectancy; blinding</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical; feasibility; acceptability; qualitative; protocol; trial design; outcome; safety; adverse experience; implementation detail; supportive therapy</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Real-world use and public-health modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>epidemiology, surveys, naturalistic use, lifetime or past-year use, drug checking, poison-control and emergency records, toxicity, harm reduction; focused naturalistic, community, retreat, and microdosing use</dd></div>
+                  <div><dt>Context block</dt><dd>naturalistic use; community use; retreat; ceremony; microdosing; epidemiology; prevalence; survey; lifetime use; past-year use; poison control; emergency department; toxicity; adverse experience; harm reduction; drug checking</dd></div>
+                  <div><dt>Evidence block</dt><dd>observational; population; survey; cohort; registry; case series; risk; safety; mental health; wellbeing; adverse event; intoxication; exposure; public health</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Clinical outcomes, symptoms, functioning, and safety <span>17 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad clinical outcome modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>clinical class core; depression spectrum; PTSD and trauma; substance use and addiction; anxiety, distress, and palliative care; pain, headache, and migraine; OCD, eating disorders, and autism</dd></div>
+                  <div><dt>Clinical block</dt><dd>depression; major depressive disorder; treatment-resistant depression; PTSD; substance use disorder; alcohol, tobacco, opioid, cocaine, methamphetamine, stimulant, and cannabis use disorders; generalized and social anxiety; distress associated with life-threatening disease; OCD; eating disorders; autism spectrum disorder; headache disorders; migraine; chronic pain; fibromyalgia</dd></div>
+                  <div><dt>Evidence block</dt><dd>clinical trial; randomized; randomised; placebo; open-label; treatment; therapy; efficacy; safety; tolerability; outcome; follow-up</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused clinical outcome modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>psilocybin-depression; MDMA-PTSD; ketamine-depression-suicidality; ibogaine-opioid/substance use disorder; LSD-alcohol/anxiety</dd></div>
+                  <div><dt>Query emphasis</dt><dd>narrow compound-condition combinations paired with clinical trial, treatment, psychotherapy, abstinence, detoxification, withdrawal, craving, relapse, safety, and outcome terms</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Symptom and functioning modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>symptoms, functioning, and quality of life; suicidality, anhedonia, sleep, and function; craving, relapse, and functioning</dd></div>
+                  <div><dt>Outcome block</dt><dd>suicidal ideation; suicidality; anhedonia; craving; withdrawal; relapse; sleep; insomnia; pain intensity; quality of life; wellbeing; social, occupational, emotional, and functional impairment terms</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Safety modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>safety, tolerability, and adverse events; cardiovascular, mania, psychosis, and HPPD safety</dd></div>
+                  <div><dt>Outcome block</dt><dd>safety; tolerability; adverse events; serious adverse events; side effects; cardiovascular; blood pressure; heart rate; hypertension; mania; psychosis; dissociation; hallucinogen persisting perception disorder; flashback</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Clinical studies with biological and behavioral endpoints <span>6 grouped term combinations</span></summary>
+            <ol class="method-query-list">
+              <li>
+                <h3>Broad clinical endpoint modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>clinical population modules with brain, molecular, cognitive, and behavioral endpoints; clinical outcome endpoint modules</dd></div>
+                  <div><dt>Clinical block</dt><dd>depression; major depressive disorder; treatment-resistant depression; PTSD; anxiety; substance use disorder; addiction; alcohol use disorder; opioid use disorder; craving; suicidal ideation; anhedonia; quality of life; patient populations; clinical outcomes</dd></div>
+                  <div><dt>Endpoint block</dt><dd>fMRI; BOLD; functional connectivity; default mode network; amygdala; prefrontal cortex; PET; receptor occupancy; EEG; neural oscillations; cognitive task; cognitive flexibility; emotional processing; BDNF; cortisol; cytokines; molecular readouts</dd></div>
+                </dl>
+              </li>
+              <li>
+                <h3>Focused clinical endpoint modules</h3>
+                <dl>
+                  <div><dt>Modules</dt><dd>psilocybin depression brain and molecular endpoints; ketamine depression molecular endpoints; psilocybin depression brain/molecular endpoints; MDMA PTSD social-brain endpoints</dd></div>
+                  <div><dt>Query emphasis</dt><dd>compound-condition combinations paired with imaging, connectivity, BDNF, cortisol, inflammation, cytokines, EEG, cognitive function, social cognition, emotion recognition, and brain-region terms</dd></div>
+                </dl>
+              </li>
+            </ol>
+          </details>
+          <details class="method-query-details">
+            <summary>Supplementary targeted direct-pair searches <span>very many pair combinations</span></summary>
+            <div class="method-query-note">
+              <p>
+                The grouped domain searches are the primary discovery
+                instrument. Direct-pair searches are used as a supplementary
+                layer for selected compound-entity and compound-outcome
+                combinations: larger generated grids were run for bounded target
+                and clinical vocabularies, while later domain additions used
+                targeted pair checks rather than an exhaustive cross-product of
+                every possible compound and concept.
+              </p>
+              <div class="method-pair-table-wrap">
+                <table class="method-pair-table">
+                  <thead>
+                    <tr>
+                      <th>Pair layer</th>
+                      <th>Pair space</th>
+                      <th>How it was used</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Molecular target grid</td>
+                      <td>Canonical compounds paired with the molecular target vocabulary</td>
+                      <td>1,840 compound-target pairs were run as 5,520 binding, receptor-pharmacology, and functional-assay searches.</td>
+                    </tr>
+                    <tr>
+                      <td>Clinical evidence grid</td>
+                      <td>Canonical compounds paired with the clinical evidence vocabulary</td>
+                      <td>1,240 compound-clinical evidence pairs were run as 3,717 clinical-trial, randomized/placebo, and treatment-outcome searches.</td>
+                    </tr>
+                    <tr>
+                      <td>Brain, network, and task pair files</td>
+                      <td>Canonical compounds paired with brain-region/network, circuit, and cognitive-behavioral task concepts</td>
+                      <td>Generated as versioned search artifacts for 3,600 newly added brain/network/task pairs, but not run as a complete direct-pair discovery search in this build.</td>
+                    </tr>
+                    <tr>
+                      <td>Additional direct-pair check</td>
+                      <td>Selected sparse molecular, brain/network, cognitive-behavioral, symptom, functioning, and safety combinations</td>
+                      <td>62 selected pair searches were run after the additional domain searches: 41 molecular/brain/cognitive/pathway searches and 21 clinical symptom/function/safety searches.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <dl>
+                <div><dt>Compound vocabulary</dt><dd>LSD; psilocybin; psilocin; mescaline; DMT; 5-MeO-DMT; bufotenin; ayahuasca; ibogaine; noribogaine; MDMA; MDA; ketamine; esketamine; arketamine; DOI; DOB; DOM; DOET; 2C-B; 2C-E; 2C-I; 2C-T-2; 2C-T-7; 5-MeO-DiPT; DiPT; DPT; LSA; AL-LAD; ETH-LAD; PRO-LAD; 1P-LSD; salvinorin A; lisuride; Bromo-DragonFLY; 25I-NBOMe; 25B-NBOMe; 25C-NBOMe; TMA; TMA-2</dd></div>
+                <div><dt>Target vocabulary</dt><dd>5-HT2A; 5-HT2B; 5-HT2C; 5-HT1A; 5-HT1B; 5-HT1D; 5-HT1E; 5-HT1F; 5-HT5A; 5-HT6; 5-HT7; mGluR2 (GRM2); TAAR1; SERT (SLC6A4); NET (SLC6A2); DAT (SLC6A3); VMAT2 (SLC18A2); D1 receptor (DRD1); D2 receptor (DRD2); D3 receptor (DRD3); D4 receptor (DRD4); D5 receptor (DRD5); Alpha1A adrenergic receptor (ADRA1A); Alpha1B adrenergic receptor (ADRA1B); Alpha2A adrenergic receptor (ADRA2A); Alpha2B adrenergic receptor (ADRA2B); Alpha2C adrenergic receptor (ADRA2C); Beta1 adrenergic receptor (ADRB1); Beta2 adrenergic receptor (ADRB2); M1 muscarinic receptor (CHRM1); M2 muscarinic receptor (CHRM2); M3 muscarinic receptor (CHRM3); M4 muscarinic receptor (CHRM4); M5 muscarinic receptor (CHRM5); H1 receptor (HRH1); H2 receptor (HRH2); Sigma-1 receptor (SIGMAR1); Sigma-2 receptor (TMEM97); kappa opioid receptor (OPRK1); mu opioid receptor (OPRM1); delta opioid receptor (OPRD1); NMDA receptor; AMPA receptor; TrkB (NTRK2); CB1 receptor (CNR1); CB2 receptor (CNR2)</dd></div>
+                <div><dt>Brain region and network vocabulary</dt><dd>Prefrontal cortex; medial prefrontal cortex; orbitofrontal cortex; anterior cingulate cortex; posterior cingulate cortex; cingulate cortex; visual cortex; somatosensory cortex; insula; hippocampus; ventral hippocampus; dorsal hippocampus; amygdala; basolateral amygdala; central amygdala; striatum; ventral striatum; dorsal striatum; nucleus accumbens; caudate; putamen; thalamus; mediodorsal thalamus; reticular thalamus; claustrum; habenula; lateral habenula; dorsal raphe nucleus; raphe nucleus; ventral tegmental area; locus coeruleus; periaqueductal gray; default mode network; salience network; frontoparietal network; central executive network; limbic network; visual network; sensorimotor network; thalamo-cortical circuit; cortico-striatal circuit; cortical-subcortical circuit; fronto-limbic circuit; hippocampal-prefrontal circuit; amygdala-prefrontal circuit; mesolimbic reward circuit</dd></div>
+                <div><dt>Cognitive and behavioral vocabulary</dt><dd>Cognitive flexibility; reversal learning; probabilistic reversal learning; set shifting; attentional set shifting; Wisconsin Card Sorting Test; go/no-go task; stop-signal task; delay discounting; fear conditioning; fear extinction; extinction learning; threat processing; startle response; prepulse inhibition; conditioned freezing; reward learning; reinforcement learning; social reward learning; monetary incentive delay task; sucrose preference; conditioned place preference; self-administration; drug seeking; relapse behavior; emotional processing; emotion recognition; facial emotion recognition; social cognition; empathy; theory of mind; social behavior; social interaction; attention; continuous performance task; working memory; novel object recognition; spatial memory; forced swim test; tail suspension test; learned helplessness; chronic social defeat; open field test; elevated plus maze</dd></div>
+                <div><dt>Clinical vocabulary</dt><dd>Treatment-resistant depression; major depressive disorder; bipolar depression; persistent depressive disorder; post-traumatic stress disorder; complex post-traumatic stress disorder; alcohol use disorder; tobacco use disorder; nicotine dependence; opioid use disorder; cannabis use disorder; cocaine use disorder; methamphetamine use disorder; stimulant use disorder; substance use disorder; generalized anxiety disorder; social anxiety disorder; distress associated with life-threatening disease; obsessive-compulsive disorder; eating disorders; anorexia nervosa; bulimia nervosa; binge-eating disorder; autism spectrum disorder; demoralization; suicidal ideation; cluster headache; headache disorders; migraine; chronic pain; fibromyalgia</dd></div>
+              </dl>
+              <dl>
+                <div><dt>Molecular target query forms</dt><dd>{compound} {target} binding affinity Ki; {compound} {target} receptor pharmacology assay; {compound} {target} functional assay agonist antagonist</dd></div>
+                <div><dt>Brain/network query forms</dt><dd>{compound} {entity} functional connectivity; {compound} {entity} neuroimaging; {compound} {entity} circuit behavior</dd></div>
+                <div><dt>Cognitive-behavioral query forms</dt><dd>{compound} {entity} cognitive task; {compound} {entity} behavioral task; {compound} {entity} learning conditioning</dd></div>
+                <div><dt>Clinical query forms</dt><dd>{compound} {condition or outcome} randomized placebo; {compound} {condition or outcome} treatment outcome; {compound} {condition or outcome} clinical trial</dd></div>
+              </dl>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="about-section methods-analytics methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
+        <div class="methods-section-header">
+          <div>
+            <h2 id="paper-bibliography-heading">Record Selection And Audit Trail</h2>
+            <p>
+              Evidence synthesis needs a visible audit trail for every search
+              result and what happened next. The
+              <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
+              diagram gives the high-level summary of the current search corpus:
+              how many records were found, screened, and kept, followed by how
+              many reports were selected for evidence extraction and represented
+              in the knowledge graph. The table below uses the same underlying
+              set, but goes further than a typical review diagram by making every
+              record searchable and auditable, including the stage it reached and
+              the reason it was not included when it left the process.
+            </p>
+            <p>
+              Here, a <strong>record</strong> is a search or index entry, a
+              <strong>report</strong> is the source document, and a
+              <strong>study</strong> is the underlying investigation. One study
+              can have several reports.
+            </p>
+          </div>
+        </div>
+
+        <div class="methods-audit-subsection" aria-labelledby="evidence-base-snapshot">
+          <div>
+            <h3 id="evidence-base-snapshot">PRISMA Flow Diagram</h3>
+            <p>
+              A high-level summary of how records move through search and
+              screening, then how reports proceed to evidence extraction and
+              knowledge-graph inclusion.
+            </p>
+          </div>
+          <div id="methodsPipeline" class="methods-loading">Loading selection flow.</div>
+        </div>
+
+        <div class="methods-audit-subsection" aria-labelledby="record-audit-heading">
+          <div>
+            <h3 id="record-audit-heading">Full Record Audit</h3>
+            <p>
+              The complete record list can be searched by author, title, journal,
+              year, or DOI. Each row shows whether the record passed each stage
+              and, where needed, why it was excluded.
+            </p>
+          </div>
+        </div>
+        <div class="methods-bibliography-controls" aria-label="Full record audit search">
+          <label>
+            Search records
+            <input
+              id="methodsBibliographySearch"
+              type="search"
+              placeholder="Author, title, journal, year, or DOI"
+              autocomplete="off"
+            />
+          </label>
+        </div>
+        <div id="methodsBibliographySummary" class="methods-bibliography-summary">Loading records.</div>
+        <div class="methods-bibliography-table-wrap">
+          <table class="methods-bibliography-table">
+            <colgroup>
+              <col class="methods-bibliography-records-col" />
+              <col class="methods-bibliography-stage-col" />
+              <col class="methods-bibliography-stage-col" />
+              <col class="methods-bibliography-stage-col" />
+              <col class="methods-bibliography-stage-col" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">Records</th>
+                <th scope="col">Initial screening</th>
+                <th scope="col">Title &amp; abstract screening</th>
+                <th scope="col">Evidence extraction</th>
+                <th scope="col">Knowledge graph</th>
+              </tr>
+            </thead>
+            <tbody id="methodsBibliographyRows"></tbody>
+          </table>
+        </div>
+        <button id="methodsBibliographyLoadMore" class="ghost methods-bibliography-load-more" type="button" hidden>
+          Load more
+        </button>
+      </section>
+
+      <section class="about-section" aria-labelledby="limitations">
+        <h2 id="limitations">Limitations</h2>
+        <p>
+          The graph may not include every relevant report, and automated
+          screening and extraction can miss or misinterpret information,
+          especially when only an abstract is available because the full
+          article cannot be accessed. We add new research and correct errors as
+          they are reviewed, updating the public graph and bibliography
+          together. Project data can be reused under CC0 and the code under
+          Apache 2.0; articles, abstracts, and quoted text remain subject to
+          their original licenses. The graph is intended for exploring the
+          research, not as a complete systematic review or as clinical guidance.
+          Further detail is available in the
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md" target="_blank" rel="noopener noreferrer">workflow guide</a>,
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md" target="_blank" rel="noopener noreferrer">search coverage guide</a>,
+          <a href="#search-seed-words">search strategy</a>,
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/evidence_policy.md" target="_blank" rel="noopener noreferrer">evidence policy</a>,
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/terminology.md" target="_blank" rel="noopener noreferrer">terminology guide</a>, and
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">licensing information</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        Developed by
+        <a href="https://povilaskarvelis.github.io/" target="_blank" rel="noopener noreferrer">Povilas Karvelis</a>.
+        Return to the <a href="/">interactive graph</a>, learn more
+        <a href="/about/">about the project</a>, use the
+        <a href="/developers/">data and agent interfaces</a>, or inspect the
+        <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">source repository</a>.
+        You can also <a href="/feedback/?source=methods-footer">leave private feedback</a>.
+      </div>
+    </footer>
+    <script src="/ui/site-nav.js?v=20260717-site-nav"></script>
+    <script src="/ui/methods.js?v=20260714-doi-links"></script>
+  </body>
+</html>

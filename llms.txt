@@ -1,0 +1,29 @@
+# Psychedelics Knowledge Graph
+
+> A living, provenance-rich map of psychedelic research for human exploration and read-only use by applications and AI agents.
+
+The project separates primary studies, meta-analyses, and reviews. Finding rows
+are not independent studies; use distinct study counts for evidence-volume
+comparisons. Cite DOI, evidence location, result direction, and active release ID
+when using evidence from the graph.
+
+## Agent and data access
+
+- [Agent access guide](https://psychedelicskg.com/developers/agent-guide.md): Concise machine-readable instructions, endpoints, tool inventory, and evidence semantics.
+- [Human data and API guide](https://psychedelicskg.com/developers/): REST, MCP, and bulk-download documentation with live release status.
+- [OpenAPI schema](https://psychedelics-kg-api.onrender.com/openapi.json): Machine-readable REST contract.
+- [Interactive API reference](https://psychedelics-kg-api.onrender.com/docs): Browser-based endpoint documentation.
+- [MCP server](https://psychedelics-kg-api.onrender.com/mcp): Public read-only Streamable HTTP Model Context Protocol endpoint.
+- [Active release metadata](https://psychedelics-kg-api.onrender.com/api/v1/meta): Release ID, row counts, scopes, and counting warnings.
+- [Public query schema](https://psychedelics-kg-api.onrender.com/api/v1/schema): Tables, fields, and interpretation metadata.
+
+## Human-facing project documentation
+
+- [Interactive graph](https://psychedelicskg.com/): Navigate evidence by compound, domain, and canonical entity.
+- [About](https://psychedelicskg.com/about/): Purpose and intended use of the project.
+- [Methods](https://psychedelicskg.com/methods/): Literature discovery, screening, extraction, validation, and updating methods.
+- [Source repository](https://github.com/povilaskarvelis/psychedelics_knowledge_graph): Open-source pipeline and technical documentation.
+
+## Optional
+
+- [Feedback](https://psychedelicskg.com/feedback/): Report missing evidence, errors, access problems, or suggestions privately.

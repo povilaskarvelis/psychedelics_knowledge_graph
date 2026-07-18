@@ -1,10 +1,18 @@
 # Files and directories copied into dist/ for Netlify.
 index.html
+about
+developers
+feedback
+methods
+llms.txt
+robots.txt
+sitemap.xml
 ui/index.html
 ui/app.js
 ui/styles.css
 ui/methods.html
 ui/methods.js
+ui/site-nav.js
 ui/assets/gui-screenshot.png
 data/kg/views/pipeline_status_graph.json
 data/kg/views/methods_bibliography.json

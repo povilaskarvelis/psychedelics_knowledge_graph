@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Send private feedback about the Psychedelics Knowledge Graph." />
+    <title>Leave feedback | Psychedelics Knowledge Graph</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8M798XF54S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-8M798XF54S");
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260717-site-nav-v6" />
+  </head>
+  <body class="methods-page feedback-page">
+    <div class="bg" aria-hidden="true"></div>
+    <header class="site-header" data-site-header>
+      <div class="site-header-inner">
+        <button
+          class="site-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="siteNav"
+          data-site-nav-toggle
+        >
+          <span class="site-nav-toggle-icon" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
+        <nav class="site-nav" id="siteNav" aria-label="Primary" data-site-nav>
+          <a class="site-nav-link site-nav-back" href="/"><span aria-hidden="true">←</span> Back to graph</a>
+          <a class="site-nav-link" href="/about/">About</a>
+          <a class="site-nav-link" href="/methods/">Methods</a>
+          <a class="site-nav-link" href="/developers/">Data &amp; API</a>
+          <a class="site-nav-link" href="/feedback/" aria-current="page">Leave feedback</a>
+        </nav>
+      </div>
+    </header>
+
+    <header class="feedback-hero">
+      <h1>Leave feedback</h1>
+      <p>
+        Found something missing, incorrect, unclear, or difficult to use? Send a
+        private note to help improve the graph and its evidence pipeline.
+      </p>
+    </header>
+
+    <main class="feedback-content">
+      <section class="feedback-panel" aria-label="Feedback form">
+        <form
+          class="feedback-form"
+          name="site-feedback"
+          method="POST"
+          action="/feedback/sent/"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+        >
+          <input type="hidden" name="form-name" value="site-feedback" />
+          <input type="hidden" name="subject" value="Psychedelics Knowledge Graph feedback" />
+          <input id="feedbackSource" type="hidden" name="source" value="Direct visit" />
+          <input id="feedbackSourceUrl" type="hidden" name="source_url" value="" />
+
+          <p class="feedback-honeypot" aria-hidden="true" hidden>
+            <label>
+              Do not fill this out if you are human:
+              <input name="bot-field" tabindex="-1" autocomplete="off" />
+            </label>
+          </p>
+
+          <label class="feedback-field">
+            <span>What is this about?</span>
+            <select name="feedback_type" required>
+              <option value="" selected disabled>Choose one</option>
+              <option value="Incorrect or unclear information">Incorrect or unclear information</option>
+              <option value="Missing publication or evidence">Missing publication or evidence</option>
+              <option value="Website problem">Website problem</option>
+              <option value="Methods or pipeline">Methods or pipeline</option>
+              <option value="General suggestion">General suggestion</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label class="feedback-field">
+            <span>Your feedback</span>
+            <textarea
+              id="feedbackMessage"
+              name="message"
+              required
+              maxlength="5000"
+              aria-describedby="feedbackMessageNote"
+              placeholder="Please describe what you noticed and where you saw it."
+            ></textarea>
+            <span id="feedbackMessageNote" class="feedback-field-note">
+              Include any relevant page, publication title, or DOI in this message. If
+              relevant, you may also mention your research, clinical, technical, or lived
+              experience. This helps us understand the context of your feedback.
+            </span>
+          </label>
+
+          <label class="feedback-field">
+            <span>Email <span class="optional">(optional)</span></span>
+            <input type="email" name="email" maxlength="320" autocomplete="email" />
+            <span class="feedback-field-note">Include this only if you would like a reply.</span>
+          </label>
+
+          <p class="feedback-privacy">
+            Your feedback is sent privately and will not be published on this
+            website. Please do not include sensitive personal or clinical information.
+          </p>
+
+          <button class="primary feedback-submit" type="submit">Send feedback</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        Return to the <a href="/">interactive graph</a> or read the
+        <a href="/about/">About</a>, <a href="/methods/">Methods</a>, and
+        <a href="/developers/">Data &amp; API</a> pages.
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        const sourceLabels = {
+          graph: "Interactive graph",
+          "graph-footer": "Interactive graph footer",
+          methods: "Methods page",
+          "methods-footer": "Methods page footer",
+          about: "About page",
+          developers: "Data and API page",
+        };
+        const source = new URLSearchParams(window.location.search).get("source");
+        const sourceInput = document.getElementById("feedbackSource");
+        const sourceUrlInput = document.getElementById("feedbackSourceUrl");
+
+        if (sourceInput && sourceLabels[source]) {
+          sourceInput.value = sourceLabels[source];
+        }
+
+        if (sourceUrlInput && document.referrer) {
+          try {
+            const referrer = new URL(document.referrer);
+            if (referrer.origin === window.location.origin) {
+              sourceUrlInput.value = referrer.pathname + referrer.search + referrer.hash;
+            }
+          } catch (_error) {
+            sourceUrlInput.value = "";
+          }
+        }
+      })();
+    </script>
+    <script src="/ui/site-nav.js?v=20260717-site-nav"></script>
+  </body>
+</html>

@@ -3,6 +3,31 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/ui/methods.html"
+  to = "/methods/"
+  status = 301
+
+[[redirects]]
+  from = "/methods.html"
+  to = "/methods/"
+  status = 301
+
+[[redirects]]
+  from = "/api"
+  to = "/developers/"
+  status = 301
+
+[[redirects]]
+  from = "/agents"
+  to = "/developers/"
+  status = 301
+
+[[redirects]]
+  from = "/openapi.json"
+  to = "https://psychedelics-kg-api.onrender.com/openapi.json"
+  status = 302
+
+[[redirects]]
   from = "/ui/"
   to = "/"
   status = 301
@@ -21,3 +46,15 @@
   for = "/data/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/developers/*.md"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+    Cache-Control = "public, max-age=3600"

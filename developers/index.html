@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Query the Psychedelics Knowledge Graph through its REST API, OpenAPI schema, MCP server, or versioned bulk data downloads."
+    />
+    <title>Data, API &amp; Agent Access | Psychedelics Knowledge Graph</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8M798XF54S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-8M798XF54S");
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="alternate" type="text/markdown" href="/developers/agent-guide.md" title="Agent access guide" />
+    <link rel="service-desc" type="application/vnd.oai.openapi+json" href="https://psychedelics-kg-api.onrender.com/openapi.json" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260718-data-access-v1" />
+  </head>
+  <body class="methods-page access-page">
+    <div class="bg" aria-hidden="true"></div>
+    <header class="site-header" data-site-header>
+      <div class="site-header-inner">
+        <button
+          class="site-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="siteNav"
+          data-site-nav-toggle
+        >
+          <span class="site-nav-toggle-icon" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
+        <nav class="site-nav" id="siteNav" aria-label="Primary" data-site-nav>
+          <a class="site-nav-link site-nav-back" href="/"><span aria-hidden="true">←</span> Back to graph</a>
+          <a class="site-nav-link" href="/about/">About</a>
+          <a class="site-nav-link" href="/methods/">Methods</a>
+          <a class="site-nav-link" href="/developers/" aria-current="page">Data &amp; API</a>
+          <a class="site-nav-link" href="/feedback/?source=developers">Leave feedback</a>
+        </nav>
+      </div>
+    </header>
+
+    <header class="access-hero">
+      <div class="access-hero-copy">
+        <p class="access-kicker">Open, read-only research infrastructure</p>
+        <h1>Data, API &amp; Agent Access</h1>
+        <p>
+          Query the same promoted evidence release that powers the interactive
+          graph. Use REST and OpenAPI for applications, MCP for AI agents, or
+          versioned DuckDB and Parquet files for larger analyses.
+        </p>
+        <div class="hero-actions">
+          <a class="site-button primary" href="https://psychedelics-kg-api.onrender.com/docs" target="_blank" rel="noopener noreferrer">Explore API docs</a>
+          <a class="site-button secondary" href="/developers/agent-guide.md">Read the machine guide</a>
+        </div>
+      </div>
+      <aside class="access-status" aria-live="polite">
+        <span class="access-status-label">API status</span>
+        <strong data-api-status>Checking…</strong>
+        <dl>
+          <div>
+            <dt>Release</dt>
+            <dd data-api-release>Loading</dd>
+          </div>
+          <div>
+            <dt>Papers</dt>
+            <dd data-api-papers>—</dd>
+          </div>
+          <div>
+            <dt>Findings</dt>
+            <dd data-api-findings>—</dd>
+          </div>
+        </dl>
+      </aside>
+    </header>
+
+    <aside class="page-toc" aria-label="Data access contents">
+      <p class="page-toc-label">Choose an interface</p>
+      <nav>
+        <a href="#rest-api">REST API</a>
+        <a href="#agent-access">MCP for agents</a>
+        <a href="#bulk-data">Bulk data</a>
+        <a href="#evidence-semantics">Interpretation</a>
+      </nav>
+    </aside>
+
+    <main class="about-content access-content">
+      <section class="access-choice-grid" aria-label="Available data interfaces">
+        <article>
+          <span class="access-choice-number" aria-hidden="true">01</span>
+          <h2>REST &amp; OpenAPI</h2>
+          <p>For websites, notebooks, scripts, and generated API clients.</p>
+          <a href="#rest-api">View examples <span aria-hidden="true">→</span></a>
+        </article>
+        <article>
+          <span class="access-choice-number" aria-hidden="true">02</span>
+          <h2>MCP for agents</h2>
+          <p>Eight bounded tools for entity resolution, evidence retrieval, and aggregation.</p>
+          <a href="#agent-access">Connect an agent <span aria-hidden="true">→</span></a>
+        </article>
+        <article>
+          <span class="access-choice-number" aria-hidden="true">03</span>
+          <h2>Bulk releases</h2>
+          <p>Sanitized DuckDB and Parquet tables for local or reproducible analysis.</p>
+          <a href="#bulk-data">Download data <span aria-hidden="true">→</span></a>
+        </article>
+      </section>
+
+      <section class="about-section access-section" id="rest-api" aria-labelledby="rest-api-heading">
+        <div class="access-section-heading">
+          <div>
+            <p class="access-eyebrow">Applications and scripts</p>
+            <h2 id="rest-api-heading">REST API</h2>
+          </div>
+          <div class="access-inline-links">
+            <a href="https://psychedelics-kg-api.onrender.com/docs" target="_blank" rel="noopener noreferrer">Interactive docs</a>
+            <a href="https://psychedelics-kg-api.onrender.com/openapi.json" target="_blank" rel="noopener noreferrer">OpenAPI JSON</a>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/meta" target="_blank" rel="noopener noreferrer">Release metadata</a>
+          </div>
+        </div>
+        <p>
+          No API key is required. The service is public and read-only. Start by
+          resolving a human label to a canonical entity ID, then use that ID for
+          repeatable evidence queries.
+        </p>
+
+        <div class="access-endpoint" aria-label="REST API base URL">
+          <span>Base URL</span>
+          <code id="restBaseUrl">https://psychedelics-kg-api.onrender.com/api/v1</code>
+          <button type="button" data-copy-target="restBaseUrl">Copy</button>
+        </div>
+
+        <div class="access-example-grid">
+          <article class="access-code-card">
+            <div>
+              <span>1. Resolve an entity</span>
+              <button type="button" data-copy-target="entitySearchExample">Copy</button>
+            </div>
+            <pre id="entitySearchExample"><code>curl -sS \
+  "https://psychedelics-kg-api.onrender.com/api/v1/entities/search?q=psilocybin&amp;limit=5"</code></pre>
+          </article>
+          <article class="access-code-card">
+            <div>
+              <span>2. Query evidence</span>
+              <button type="button" data-copy-target="evidenceQueryExample">Copy</button>
+            </div>
+            <pre id="evidenceQueryExample"><code>curl -sS \
+  "https://psychedelics-kg-api.onrender.com/api/v1/findings/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filters": {
+      "compound_ids": ["compound:psilocybin"],
+      "literature_sources": ["primary"]
+    },
+    "scope": "all_normalized",
+    "detail_level": "summary",
+    "limit": 25
+  }'</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section access-section" id="agent-access" aria-labelledby="agent-access-heading">
+        <div class="access-section-heading">
+          <div>
+            <p class="access-eyebrow">AI agents</p>
+            <h2 id="agent-access-heading">Model Context Protocol</h2>
+          </div>
+          <span class="access-verified">Verified with MCP SDK 1.26</span>
+        </div>
+        <p>
+          Connect any client that supports remote Streamable HTTP MCP. Client
+          configuration formats differ, but the server URL is always the same.
+          Authentication is not required because every exposed operation is read-only.
+        </p>
+
+        <div class="access-endpoint" aria-label="MCP server URL">
+          <span>MCP server</span>
+          <code id="mcpUrl">https://psychedelics-kg-api.onrender.com/mcp</code>
+          <button type="button" data-copy-target="mcpUrl">Copy</button>
+        </div>
+
+        <div class="access-agent-layout">
+          <article class="access-code-card">
+            <div>
+              <span>Typical client configuration</span>
+              <button type="button" data-copy-target="mcpConfigExample">Copy</button>
+            </div>
+            <pre id="mcpConfigExample"><code>{
+  "mcpServers": {
+    "psychedelics-knowledge-graph": {
+      "url": "https://psychedelics-kg-api.onrender.com/mcp"
+    }
+  }
+}</code></pre>
+            <p class="access-code-note">Use your client’s own field names if they differ.</p>
+          </article>
+
+          <div class="access-tool-list">
+            <h3>Available tools</h3>
+            <ul>
+              <li><code>get_release_info</code><span>Release and evidence semantics</span></li>
+              <li><code>search_entities</code><span>Resolve labels and aliases</span></li>
+              <li><code>get_entity</code><span>Inspect a canonical entity</span></li>
+              <li><code>find_evidence</code><span>Filter normalized findings</span></li>
+              <li><code>get_finding</code><span>Retrieve complete provenance</span></li>
+              <li><code>get_paper</code><span>Look up a report or DOI</span></li>
+              <li><code>aggregate_evidence</code><span>Count studies and findings safely</span></li>
+              <li><code>get_neighborhood</code><span>Traverse a bounded one-hop neighborhood</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section access-section" id="bulk-data" aria-labelledby="bulk-data-heading">
+        <div class="access-section-heading">
+          <div>
+            <p class="access-eyebrow">Local and reproducible analysis</p>
+            <h2 id="bulk-data-heading">Bulk data releases</h2>
+          </div>
+        </div>
+        <p>
+          Downloads always resolve to the currently promoted release and include
+          release identifiers and checksums. Files are sanitized public projections;
+          internal extraction and normalization audit fields are not included.
+        </p>
+        <div class="access-download-grid">
+          <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/database">
+            <strong>DuckDB database</strong>
+            <span>All public query tables in one portable file</span>
+          </a>
+          <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/schema">
+            <strong>Schema JSON</strong>
+            <span>Table, field, release, and interpretation metadata</span>
+          </a>
+          <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/findings">
+            <strong>Findings Parquet</strong>
+            <span>Normalized public finding records</span>
+          </a>
+          <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/evidence_edges">
+            <strong>Evidence edges Parquet</strong>
+            <span>Graph-ready public evidence relationships</span>
+          </a>
+          <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/entities">
+            <strong>Entities Parquet</strong>
+            <span>Canonical entities, aliases, and hierarchy</span>
+          </a>
+          <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/papers">
+            <strong>Papers Parquet</strong>
+            <span>Public report and provenance metadata</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="about-section access-section access-semantics" id="evidence-semantics" aria-labelledby="evidence-semantics-heading">
+        <div class="access-section-heading">
+          <div>
+            <p class="access-eyebrow">Use evidence responsibly</p>
+            <h2 id="evidence-semantics-heading">Interpretation rules</h2>
+          </div>
+        </div>
+        <div class="access-rule-grid">
+          <article>
+            <strong>Keep evidence layers separate</strong>
+            <p>Primary studies, meta-analyses, and reviews have distinct <code>literature_source</code> values. Do not merge them as independent studies.</p>
+          </article>
+          <article>
+            <strong>Count studies, not rows</strong>
+            <p>One paper can contribute multiple findings. Use <code>study_count</code> for evidence-volume comparisons.</p>
+          </article>
+          <article>
+            <strong>Resolve canonical entities</strong>
+            <p>Use entity search before repeated queries so aliases and spelling variants map consistently.</p>
+          </article>
+          <article>
+            <strong>Return provenance</strong>
+            <p>Include DOI, evidence location, result direction, and active release ID when supporting an answer.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="access-availability" aria-labelledby="availability-heading">
+        <div>
+          <p class="access-eyebrow">Service availability</p>
+          <h2 id="availability-heading">Public preview</h2>
+          <p>
+            The API currently runs on a free preview instance. After 15 minutes
+            without traffic it may sleep, and the first request can take about a
+            minute while the verified database reloads from object storage.
+          </p>
+        </div>
+        <a class="site-button secondary feedback-accent" href="/feedback/?source=developers">Report an access problem</a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        Explore the <a href="/">interactive graph</a>, read the
+        <a href="/methods/">Methods</a>, inspect the
+        <a href="/llms.txt">LLM index</a>, or view the
+        <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">source repository</a>.
+      </div>
+    </footer>
+    <script src="/ui/site-nav.js?v=20260717-site-nav"></script>
+    <script src="/developers/access.js?v=20260718-data-access-v1"></script>
+  </body>
+</html>

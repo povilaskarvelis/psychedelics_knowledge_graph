@@ -4,9 +4,12 @@ A map of psychedelic research that makes findings easier to explore, audit,
 and keep up to date.
 
 [Explore the knowledge graph](https://psychedelicskg.com/) ·
-[Methods](https://psychedelicskg.com/ui/methods.html) ·
+[About](https://psychedelicskg.com/about/) ·
+[Methods](https://psychedelicskg.com/methods/) ·
+[Data & API](https://psychedelicskg.com/developers/) ·
 [Pipeline guide](pipeline/README.md) ·
-[Evidence policy](docs/evidence_policy.md)
+[Evidence policy](docs/evidence_policy.md) ·
+[API and agent access](docs/agent_access.md)
 
 ![Psychedelics Knowledge Graph interface](ui/assets/gui-screenshot.png)
 
@@ -57,7 +60,8 @@ Production setup is covered by the [R2 deployment checklist](docs/r2_deployment.
   names
 - `data/` — curated inputs, processed corpus tables, graph tables, and public
   payloads
-- `ui/` — the static browser interface and Methods page
+- `about/`, `methods/`, and `feedback/` — public project pages
+- `ui/` — shared static browser assets and interface scripts
 - `scripts/` — graph and site build entry points
 - `docs/` — scope, search, terminology, evidence, and deployment documentation
 - `tests/` — pipeline and interface regression tests

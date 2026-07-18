@@ -76,23 +76,39 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260714-link-teal-v5" />
+    <link rel="stylesheet" href="styles.css?v=20260717-site-nav-v6" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
+    <header class="site-header" data-site-header>
+      <div class="site-header-inner">
+        <button
+          class="site-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="siteNav"
+          data-site-nav-toggle
+        >
+          <span class="site-nav-toggle-icon" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
+        <nav class="site-nav" id="siteNav" aria-label="Primary" data-site-nav>
+          <a class="site-nav-link" href="/about/">About</a>
+          <a class="site-nav-link" href="/methods/">Methods</a>
+          <a class="site-nav-link" href="/developers/">Data &amp; API</a>
+          <a class="site-nav-link" href="/feedback/?source=graph">Leave feedback</a>
+        </nav>
+      </div>
+    </header>
     <header class="hero">
       <div class="hero-inner">
         <h1>Psychedelics Knowledge Graph</h1>
         <p>
           A living map of psychedelic research, built for a future where scientific evidence synthesis is accessible, auditable, and always up to date.
-          <br />
-          <br />
-          See <a href="methods.html">Methods</a> page for more details.
           <span class="hero-version">
             <span>Graph version: v0.0.1</span>
             <span class="hero-version-date">Literature search through: 2026-05-28</span>
           </span>
-
         </p>
       </div>
       <div class="hero-stats" id="stats">
@@ -210,9 +226,12 @@
         Developed by
         <a href="https://povilaskarvelis.github.io/" target="_blank" rel="noopener noreferrer">Povilas Karvelis</a>. The code for literature search and knowledge graph construction is open source and available
         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">here</a>.
+        Data and agent access are documented <a href="/developers/">here</a>.
+        You can also <a href="/feedback/?source=graph-footer">leave private feedback</a>.
       </div>
     </footer>
 
+    <script src="/ui/site-nav.js?v=20260717-site-nav"></script>
     <script src="app.js?v=20260716-graph-label-wrap-v2"></script>
   </body>
 </html>

@@ -43,6 +43,16 @@ def create_app(
             "main_graph scope returns overview-admitted findings; all_normalized also "
             "returns findings retained as paper detail. Finding rows are not independent studies."
         ),
+        servers=[
+            {
+                "url": settings.public_base_url,
+                "description": "Configured service endpoint",
+            }
+        ],
+        openapi_external_docs={
+            "description": "Data, API, and agent access guide",
+            "url": "https://psychedelicskg.com/developers/",
+        },
         lifespan=lifespan,
     )
     app.state.query_service = service
@@ -84,15 +94,28 @@ def create_app(
             status_code=400, content={"error": "invalid_query", "detail": str(exc)}
         )
 
-    @app.get("/", tags=["service"])
-    def root() -> dict[str, Any]:
+    def service_index() -> dict[str, Any]:
         return {
             "name": "Psychedelics Knowledge Graph API",
-            "api": "/api/v1",
-            "docs": "/docs",
-            "openapi": "/openapi.json",
-            "mcp": "/mcp",
+            "api": f"{settings.public_base_url}/api/v1",
+            "docs": f"{settings.public_base_url}/docs",
+            "openapi": f"{settings.public_base_url}/openapi.json",
+            "mcp": f"{settings.public_base_url}/mcp",
+            "website_documentation": "https://psychedelicskg.com/developers/",
+            "agent_guide": "https://psychedelicskg.com/developers/agent-guide.md",
         }
+
+    @app.get("/", tags=["service"])
+    def root() -> dict[str, Any]:
+        return service_index()
+
+    @app.get("/api/v1", tags=["service"])
+    def api_index() -> dict[str, Any]:
+        return service_index()
+
+    @app.get("/llms.txt", include_in_schema=False)
+    def llms_index() -> RedirectResponse:
+        return RedirectResponse("https://psychedelicskg.com/llms.txt", status_code=307)
 
     @app.get("/healthz", tags=["service"])
     def health() -> dict[str, Any]:
