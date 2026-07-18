@@ -2,6 +2,7 @@ services:
   - type: web
     name: psychedelics-kg-api
     runtime: docker
+    plan: free
     branch: main
     dockerfilePath: ./services/query_api/Dockerfile
     dockerContext: .
