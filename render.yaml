@@ -9,7 +9,7 @@ services:
     healthCheckPath: /healthz
     envVars:
       - key: PKG_PUBLIC_BASE_URL
-        value: https://api.psychedelicskg.com
+        value: https://psychedelics-kg-api.onrender.com
       - key: PKG_CORS_ORIGINS
         value: https://psychedelicskg.com,https://www.psychedelicskg.com
       - key: PKG_MCP_ALLOWED_HOSTS
