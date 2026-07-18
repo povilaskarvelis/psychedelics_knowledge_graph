@@ -45,8 +45,8 @@ def create_app(
         ),
         servers=[
             {
-                "url": settings.public_base_url,
-                "description": "Configured service endpoint",
+                "url": "/",
+                "description": "Current service origin",
             }
         ],
         openapi_external_docs={
@@ -97,10 +97,10 @@ def create_app(
     def service_index() -> dict[str, Any]:
         return {
             "name": "Psychedelics Knowledge Graph API",
-            "api": f"{settings.public_base_url}/api/v1",
-            "docs": f"{settings.public_base_url}/docs",
-            "openapi": f"{settings.public_base_url}/openapi.json",
-            "mcp": f"{settings.public_base_url}/mcp",
+            "api": "/api/v1",
+            "docs": "/docs",
+            "openapi": "/openapi.json",
+            "mcp": "/mcp",
             "website_documentation": "https://psychedelicskg.com/developers/",
             "agent_guide": "https://psychedelicskg.com/developers/agent-guide.md",
         }

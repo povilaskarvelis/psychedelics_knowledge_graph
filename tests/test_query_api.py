@@ -140,7 +140,7 @@ class QueryApiTest(unittest.TestCase):
             self.assertEqual(response.json()["meta"]["total"], 2)
             openapi = client.get("/openapi.json").json()
             self.assertIn("/api/v1/findings/query", openapi["paths"])
-            self.assertEqual(openapi["servers"][0]["url"], "https://api.example.test")
+            self.assertEqual(openapi["servers"][0]["url"], "/")
             self.assertEqual(
                 openapi["externalDocs"]["url"],
                 "https://psychedelicskg.com/developers/",
