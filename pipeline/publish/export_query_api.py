@@ -708,6 +708,8 @@ def materialize_query_artifacts(
             "public_schema_version": PUBLIC_QUERY_SCHEMA_VERSION,
             "generated_at": generated_at,
             "run_id": run_id,
+            "release_id": "",
+            "evidence_release_id": "",
             "kg_dir": root_relative_or_absolute(kg_dir),
             "source_kg_table_version": normalize(kg_manifest.get("kg_table_version")),
             "database": PUBLIC_DB_NAME,

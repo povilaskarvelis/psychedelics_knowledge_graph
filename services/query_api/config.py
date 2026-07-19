@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+PUBLIC_QUERY_CONTRACT_KEY = "catalogue-v2"
 
 
 def csv_env(name: str) -> tuple[str, ...]:
@@ -48,6 +49,10 @@ class R2Settings:
 
     @property
     def active_key(self) -> str:
+        return f"{self.prefix}/active/{PUBLIC_QUERY_CONTRACT_KEY}.json"
+
+    @property
+    def legacy_active_key(self) -> str:
         return f"{self.prefix}/active.json"
 
     @classmethod

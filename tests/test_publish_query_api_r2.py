@@ -49,6 +49,11 @@ class PublishQueryApiR2Test(unittest.TestCase):
             self.assertNotIn("table:findings", active["files"])
             self.assertTrue(active["manifest"]["key"].endswith("/manifest.json"))
             self.assertEqual(result["uploaded_count"], len(active["files"]) + 1)
+            self.assertEqual(active["contract_key"], "catalogue-v2")
+            self.assertEqual(
+                active["query_manifest_schema"],
+                "psychedelics_kg_public_catalogue_manifest_v2",
+            )
 
             second = publish_active_query_release(
                 store=store,

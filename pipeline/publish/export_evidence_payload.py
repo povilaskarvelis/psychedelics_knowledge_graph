@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import re
 import sys
@@ -33,8 +34,8 @@ ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
 GRAPH_BOOTSTRAP_SCHEMA_VERSION = "route_native_graph_bootstrap_v1"
-DASHBOARD_BOOTSTRAP_SCHEMA_VERSION = "route_native_dashboard_bootstrap_v1"
-DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v1"
+DASHBOARD_BOOTSTRAP_SCHEMA_VERSION = "route_native_dashboard_bootstrap_v2"
+DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v2"
 PRIMARY_SOURCE_KEY = "primary"
 META_ANALYSES_SOURCE_KEY = "meta_analyses"
 REVIEWS_SOURCE_KEY = "reviews"
@@ -433,6 +434,7 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "direction_consistency",
     "first_author",
     "last_author",
+    "author_identities",
     "authors",
     "trial_registry_ids",
     "data_source_type",
@@ -676,36 +678,99 @@ def normalized_follow_up_window(raw: dict, record: dict) -> str:
     )
 
 
-def load_author_roles(kg_dir: Path) -> dict[str, dict]:
-    path = kg_dir / "paper_authors.parquet"
-    if not path.exists():
-        return {}
+def json_string_list(value: object) -> list[str]:
+    if isinstance(value, list):
+        return [normalize(item) for item in value if normalize(item)]
+    text = normalize(value)
+    if not text:
+        return []
+    try:
+        decoded = json.loads(text)
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(decoded, list):
+        return []
+    return [normalize(item) for item in decoded if normalize(item)]
+
+
+def public_author_row(record: dict) -> bool:
+    author_id = normalize(record.get("author_id"))
+    confidence = normalize(record.get("identity_confidence"))
+    return author_id.startswith(("openalex:", "orcid:")) and confidence != (
+        "openalex_author_id_orcid_conflict"
+    )
+
+
+def load_author_identities(kg_dir: Path) -> dict[str, dict]:
+    paper_authors_path = kg_dir / "paper_authors.parquet"
+    authors_path = kg_dir / "authors.parquet"
+    missing = [
+        path.name
+        for path in (paper_authors_path, authors_path)
+        if not path.exists()
+    ]
+    if missing:
+        raise FileNotFoundError(
+            f"Missing required author identity tables in {kg_dir}: {', '.join(missing)}"
+        )
     try:
         import pandas as pd
-    except ModuleNotFoundError:
+    except ModuleNotFoundError as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError("pandas/pyarrow are required to load author identities") from exc
+
+    paper_authors = pd.read_parquet(paper_authors_path)
+    authors = pd.read_parquet(authors_path)
+    if paper_authors.empty:
         return {}
 
-    df = pd.read_parquet(path)
-    if df.empty:
-        return {}
-    roles: dict[str, dict] = {}
-    for record in df.to_dict(orient="records"):
+    author_lookup: dict[str, dict] = {}
+    for record in authors.to_dict(orient="records"):
+        author_id = normalize(record.get("author_id"))
+        if not author_id:
+            continue
+        author_lookup[author_id] = {
+            "name": normalize(record.get("display_name")),
+            "aliases": json_string_list(record.get("display_names_json")),
+            "openalex_author_ids": json_string_list(
+                record.get("openalex_author_ids_json")
+            ),
+        }
+
+    identities: dict[str, dict] = {}
+    ordered = paper_authors.sort_values(
+        [column for column in ("paper_id", "author_position") if column in paper_authors.columns]
+    )
+    for record in ordered.to_dict(orient="records"):
+        if not public_author_row(record):
+            continue
         paper_id = normalize(record.get("paper_id"))
         if not paper_id:
             continue
-        entry = roles.setdefault(paper_id, {})
+        entry = identities.setdefault(paper_id, {"author_identities": []})
+        author_id = normalize(record.get("author_id"))
+        author = author_lookup.get(author_id, {})
+        credited_name = normalize(record.get("display_name"))
+        preferred_name = normalize(author.get("name")) or credited_name
         payload = {
-            "id": normalize(record.get("author_id")),
-            "name": normalize(record.get("display_name")),
+            "id": author_id,
+            "name": preferred_name,
+            "credited_name": credited_name,
+            "aliases": author.get("aliases", []),
             "openalex_author_id": normalize(record.get("openalex_author_id")),
+            "openalex_author_ids": author.get("openalex_author_ids", []),
             "orcid": normalize(record.get("orcid")),
         }
-        payload = {key: value for key, value in payload.items() if value}
+        payload = {
+            key: value
+            for key, value in payload.items()
+            if value not in (None, "", [])
+        }
+        entry["author_identities"].append(payload)
         if record.get("is_first_author") is True and payload:
             entry["first_author"] = payload
         if record.get("is_last_author") is True and payload:
             entry["last_author"] = payload
-    return roles
+    return identities
 
 
 def load_entity_aliases(kg_dir: Path) -> dict[str, list[str]]:
@@ -795,7 +860,7 @@ def merge_edge_metadata(rows, kg_dir: Path):
 
 def finding_from_record(
     record: dict,
-    author_roles: dict[str, dict],
+    author_identities: dict[str, dict],
     entity_aliases: dict[str, list[str]] | None = None,
 ) -> dict:
     raw = parse_raw_json(record.get("raw_row_json", ""))
@@ -860,16 +925,22 @@ def finding_from_record(
         if value != "":
             finding[field] = value
 
-    roles = author_roles.get(finding.get("paper_id", ""), {})
-    if roles.get("first_author"):
-        finding["first_author"] = roles["first_author"]
-    if roles.get("last_author"):
-        finding["last_author"] = roles["last_author"]
+    paper_authors = author_identities.get(finding.get("paper_id", ""), {})
+    if paper_authors.get("first_author"):
+        finding["first_author"] = paper_authors["first_author"]
+    if paper_authors.get("last_author"):
+        finding["last_author"] = paper_authors["last_author"]
+    if paper_authors.get("author_identities"):
+        finding["author_identities"] = paper_authors["author_identities"]
 
     return {key: value for key, value in finding.items() if value != ""}
 
 
-def load_findings(kg_dir: Path) -> list[dict]:
+def load_findings(
+    kg_dir: Path,
+    *,
+    require_author_identities: bool = True,
+) -> list[dict]:
     evidence_table = kg_dir / "findings.parquet"
     if not evidence_table.exists():
         raise FileNotFoundError(f"Missing findings table: {evidence_table}")
@@ -884,10 +955,12 @@ def load_findings(kg_dir: Path) -> list[dict]:
     if "source_name" in df.columns:
         df = df[df["source_name"].isin(ROUTED_SOURCE_NAMES)].copy()
     df = merge_edge_metadata(df, kg_dir)
-    author_roles = load_author_roles(kg_dir)
+    author_identities = (
+        load_author_identities(kg_dir) if require_author_identities else {}
+    )
     entity_aliases = load_entity_aliases(kg_dir)
     findings = [
-        finding_from_record(record, author_roles, entity_aliases)
+        finding_from_record(record, author_identities, entity_aliases)
         for record in df.to_dict(orient="records")
     ]
     return sorted(
@@ -1433,7 +1506,15 @@ def detail_bootstrap_value(value: object) -> object:
     if isinstance(value, dict):
         slim = {
             key: value[key]
-            for key in ("id", "name", "openalex_author_id", "orcid")
+            for key in (
+                "id",
+                "name",
+                "credited_name",
+                "aliases",
+                "openalex_author_id",
+                "openalex_author_ids",
+                "orcid",
+            )
             if meaningful(value.get(key))
         }
         return slim or None
@@ -1531,6 +1612,18 @@ def remove_stale_payload_files(out_dir: Path, keep_names: set[str]) -> None:
             path.unlink()
 
 
+def payload_file_entry(path: Path) -> dict[str, object]:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return {
+        "path": relative_path(path),
+        "bytes": path.stat().st_size,
+        "sha256": digest.hexdigest(),
+    }
+
+
 def write_active_pointer(
     active_json: Path,
     out_dir: Path,
@@ -1571,7 +1664,10 @@ def export_evidence_payload(
         if require_fresh_author_tables
         else {"status": "skipped", "reason": "freshness check disabled"}
     )
-    findings = load_findings(kg_dir)
+    findings = load_findings(
+        kg_dir,
+        require_author_identities=require_fresh_author_tables,
+    )
     candidate_study_key_sets = (
         load_selected_candidate_study_key_sets(candidate_papers_table)
         if candidate_papers_table is not None
@@ -1636,6 +1732,20 @@ def export_evidence_payload(
         "meta_analyses": source_summary_stats[META_ANALYSES_SOURCE_KEY]["normalized_finding_coverage"]["included_count"],
     }
     normalized_finding_paper_counts["total"] = sum(normalized_finding_paper_counts.values())
+    payload_files = {
+        **{
+            f"graph:{source_key}": payload_file_entry(path)
+            for source_key, path in graph_bootstrap_paths.items()
+        },
+        **{
+            f"dashboard:{source_key}": payload_file_entry(path)
+            for source_key, path in dashboard_bootstrap_paths.items()
+        },
+        **{
+            f"detail:{source_key}": payload_file_entry(path)
+            for source_key, path in detail_bootstrap_paths.items()
+        },
+    }
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "generated_at": generated_at,
@@ -1646,6 +1756,9 @@ def export_evidence_payload(
             source_key: relative_path(path) for source_key, path in dashboard_bootstrap_paths.items()
         },
         "detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
+        "release_id": "",
+        "evidence_release_id": "",
+        "files": payload_files,
         "row_count": len(findings),
         "author_tables": author_table_status,
         "summary_stats": {

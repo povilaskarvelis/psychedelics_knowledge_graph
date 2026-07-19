@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import fcntl
+import hashlib
 import json
 import os
 import re
@@ -98,6 +99,14 @@ def write_json_atomic(path: Path, value: object) -> None:
         raise
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def root_relative(path: Path) -> str:
     try:
         return path.resolve().relative_to(ROOT.resolve()).as_posix()
@@ -113,11 +122,17 @@ def resolve_repo_path(value: object) -> Path:
     return path.resolve() if path.is_absolute() else (ROOT / path).resolve()
 
 
-def graph_pointer_for_run(run_id: str, release_id: str) -> dict:
+def graph_pointer_for_run(
+    run_id: str,
+    release_id: str,
+    *,
+    public_release_id: str = "",
+) -> dict:
     payload_rel = Path("data") / "processed" / "graph_payload_runs" / run_id
     return {
         "schema_version": GRAPH_POINTER_SCHEMA,
         "release_id": release_id,
+        "public_release_id": public_release_id or release_id,
         "run_id": run_id,
         "active_graph_bootstraps": {
             "primary": (payload_rel / "graph_bootstrap_primary.json").as_posix(),
@@ -202,13 +217,25 @@ def resolve_extraction_inputs(args: argparse.Namespace, run_id: str) -> tuple[Pa
     return outputs.resolve(), evidence.resolve(), source_manifest.resolve() if source_manifest else None
 
 
-def validate_public_payload(run_id: str, graph_pointer: dict) -> dict:
+def validate_public_payload(
+    run_id: str,
+    graph_pointer: dict,
+    *,
+    require_release_binding: bool = True,
+) -> dict:
     """Validate the committed files required to build and serve the public site."""
-    release_id = normalize(graph_pointer.get("release_id"))
-    if not release_id:
+    evidence_release_id = normalize(graph_pointer.get("release_id"))
+    public_release_id = normalize(
+        graph_pointer.get("public_release_id") or evidence_release_id
+    )
+    if not evidence_release_id or not public_release_id:
         raise ValueError("Active public graph pointer is missing its release_id")
 
-    expected_pointer = graph_pointer_for_run(run_id, release_id)
+    expected_pointer = graph_pointer_for_run(
+        run_id,
+        evidence_release_id,
+        public_release_id=public_release_id,
+    )
     for key, expected in expected_pointer.items():
         if graph_pointer.get(key) != expected:
             raise ValueError(f"Active public graph pointer has an unexpected {key}")
@@ -223,21 +250,39 @@ def validate_public_payload(run_id: str, graph_pointer: dict) -> dict:
         raise ValueError(f"Payload manifest points at a different KG: {payload_manifest_path}")
     if int(payload_manifest.get("row_count", -1)) < 0:
         raise ValueError(f"Payload manifest has an invalid row count: {payload_manifest_path}")
+    if require_release_binding:
+        if normalize(payload_manifest.get("release_id")) != public_release_id:
+            raise ValueError("Payload manifest release_id does not match the public release")
+        if normalize(payload_manifest.get("evidence_release_id")) != evidence_release_id:
+            raise ValueError("Payload manifest evidence_release_id does not match the graph pointer")
     if normalize((payload_manifest.get("author_tables") or {}).get("status")) != "ok":
         raise ValueError(f"Author tables are missing or stale: {payload_manifest_path}")
 
-    for mapping_key, manifest_key in (
-        ("active_graph_bootstraps", "graph_bootstraps"),
-        ("active_dashboard_bootstraps", "dashboard_bootstraps"),
-        ("active_detail_bootstraps", "detail_bootstraps"),
+    expected_file_keys: set[str] = set()
+    for mapping_key, manifest_key, file_prefix in (
+        ("active_graph_bootstraps", "graph_bootstraps", "graph"),
+        ("active_dashboard_bootstraps", "dashboard_bootstraps", "dashboard"),
+        ("active_detail_bootstraps", "detail_bootstraps", "detail"),
     ):
         expected = graph_pointer[mapping_key]
         actual = payload_manifest.get(manifest_key) or {}
         if actual != expected:
             raise ValueError(f"Payload manifest {manifest_key} does not match the expected run files")
-        for path_value in expected.values():
-            if not (ROOT / path_value).is_file():
+        for source_key, path_value in expected.items():
+            path = ROOT / path_value
+            if not path.is_file():
                 raise FileNotFoundError(f"Missing payload file: {path_value}")
+            logical_name = f"{file_prefix}:{source_key}"
+            expected_file_keys.add(logical_name)
+            entry = (payload_manifest.get("files") or {}).get(logical_name) or {}
+            if entry.get("path") != path_value:
+                raise ValueError(f"Payload manifest file path mismatch for {logical_name}")
+            if int(entry.get("bytes", -1)) != path.stat().st_size:
+                raise ValueError(f"Payload manifest file size mismatch for {logical_name}")
+            if normalize(entry.get("sha256")).casefold() != sha256_file(path):
+                raise ValueError(f"Payload manifest checksum mismatch for {logical_name}")
+    if set(payload_manifest.get("files") or {}) != expected_file_keys:
+        raise ValueError("Payload manifest contains an unexpected file set")
     return payload_manifest
 
 
@@ -250,7 +295,10 @@ def validate_active_public_release() -> dict:
     payload_manifest = validate_public_payload(run_id, graph_pointer)
     return {
         "run_id": run_id,
-        "release_id": normalize(graph_pointer.get("release_id")),
+        "release_id": normalize(
+            graph_pointer.get("public_release_id") or graph_pointer.get("release_id")
+        ),
+        "evidence_release_id": normalize(graph_pointer.get("release_id")),
         "row_count": int(payload_manifest["row_count"]),
     }
 
@@ -267,7 +315,11 @@ def validate_built_release(run_id: str, graph_pointer: dict) -> dict:
     if normalize(kg_manifest.get("source_preset")) != "routed":
         raise ValueError(f"KG manifest is not a routed build: {kg_manifest_path}")
 
-    payload_manifest = validate_public_payload(run_id, graph_pointer)
+    payload_manifest = validate_public_payload(
+        run_id,
+        graph_pointer,
+        require_release_binding=False,
+    )
     findings_rows = int(((kg_manifest.get("tables") or {}).get("findings") or {}).get("rows", -1))
     payload_rows = int(payload_manifest.get("row_count", -2))
     if findings_rows < 0 or payload_rows != findings_rows:
@@ -279,7 +331,14 @@ def validate_built_release(run_id: str, graph_pointer: dict) -> dict:
     return payload_manifest
 
 
-def validate_public_query_artifact(run_id: str, kg_dir: Path, paper_rows: int) -> dict:
+def validate_public_query_artifact(
+    run_id: str,
+    kg_dir: Path,
+    paper_rows: int,
+    *,
+    expected_release_id: str = "",
+    expected_evidence_release_id: str = "",
+) -> dict:
     query_dir = QUERY_RUNS_DIR / run_id
     manifest_path = query_dir / "manifest.json"
     if not manifest_path.is_file():
@@ -294,6 +353,13 @@ def validate_public_query_artifact(run_id: str, kg_dir: Path, paper_rows: int) -
         raise ValueError(f"Public query manifest run_id does not match {run_id}: {manifest_path}")
     if Path(normalize(manifest.get("kg_dir"))).name != kg_dir.name:
         raise ValueError(f"Public query manifest points at a different KG: {manifest_path}")
+    if expected_release_id and normalize(manifest.get("release_id")) != expected_release_id:
+        raise ValueError("Public query manifest release_id does not match the active graph release")
+    if (
+        expected_evidence_release_id
+        and normalize(manifest.get("evidence_release_id")) != expected_evidence_release_id
+    ):
+        raise ValueError("Public query manifest evidence_release_id does not match the graph pointer")
     row_counts = manifest.get("row_counts") or {}
     if set(row_counts) != PUBLIC_QUERY_TABLES:
         raise ValueError(
@@ -310,6 +376,25 @@ def validate_public_query_artifact(run_id: str, kg_dir: Path, paper_rows: int) -
         if not relative_path or not (query_dir / relative_path).is_file():
             raise FileNotFoundError(f"Public query artifact is missing {key}: {query_dir}")
     return manifest
+
+
+def bind_public_release_manifests(
+    run_id: str,
+    *,
+    evidence_release_id: str,
+    public_release_id: str,
+) -> tuple[Path, Path]:
+    graph_manifest_path = PAYLOAD_RUNS_DIR / run_id / "graph_payload_manifest.json"
+    query_manifest_path = QUERY_RUNS_DIR / run_id / "manifest.json"
+    graph_manifest = read_json_object(graph_manifest_path)
+    query_manifest = read_json_object(query_manifest_path)
+    graph_manifest["release_id"] = public_release_id
+    graph_manifest["evidence_release_id"] = evidence_release_id
+    query_manifest["release_id"] = public_release_id
+    query_manifest["evidence_release_id"] = evidence_release_id
+    write_json_atomic(graph_manifest_path, graph_manifest)
+    write_json_atomic(query_manifest_path, query_manifest)
+    return graph_manifest_path, query_manifest_path
 
 
 def validate_active_pointer_pair() -> dict:
@@ -432,6 +517,83 @@ def promotion_lock() -> Iterator[None]:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
+def refresh_public_artifacts(requested_run_id: str = "") -> dict:
+    """Publish a new graph/API artifact revision without changing evidence decisions."""
+
+    with promotion_lock():
+        active = validate_active_pointer_pair()
+        run_id = safe_run_id(requested_run_id or active["run_id"])
+        if run_id != active["run_id"]:
+            raise ValueError(
+                f"Active evidence run is {active['run_id']}, not requested run {run_id}"
+            )
+        evidence_release_id = normalize(active["release_id"])
+        if not evidence_release_id or evidence_release_id == "legacy":
+            raise ValueError("A versioned evidence release is required for a public refresh")
+        public_release_id = f"{run_id}:public:{uuid.uuid4().hex}"
+        graph_pointer = graph_pointer_for_run(
+            run_id,
+            evidence_release_id,
+            public_release_id=public_release_id,
+        )
+        validate_built_release(run_id, graph_pointer)
+
+        graph_manifest_path = PAYLOAD_RUNS_DIR / run_id / "graph_payload_manifest.json"
+        query_manifest_path = QUERY_RUNS_DIR / run_id / "manifest.json"
+        old_graph_pointer = ACTIVE_GRAPH_POINTER.read_bytes()
+        old_graph_manifest = graph_manifest_path.read_bytes()
+        old_query_manifest = query_manifest_path.read_bytes()
+        stage_root = Path(
+            tempfile.mkdtemp(prefix=f".refresh-public-{run_id}.", dir=PROCESSED_DIR)
+        )
+        staged_dist = stage_root / "dist"
+        previous_dist = stage_root / "previous_dist"
+        current_dist = ROOT / "dist"
+        dist_swapped = False
+        try:
+            bind_public_release_manifests(
+                run_id,
+                evidence_release_id=evidence_release_id,
+                public_release_id=public_release_id,
+            )
+            validate_public_payload(run_id, graph_pointer)
+            kg_manifest = read_json_object(KG_RUNS_DIR / run_id / "manifest.json")
+            paper_rows = int(
+                ((kg_manifest.get("tables") or {}).get("papers") or {}).get("rows", -1)
+            )
+            validate_public_query_artifact(
+                run_id,
+                KG_RUNS_DIR / run_id,
+                paper_rows,
+                expected_release_id=public_release_id,
+                expected_evidence_release_id=evidence_release_id,
+            )
+            write_json_atomic(ACTIVE_GRAPH_POINTER, graph_pointer)
+            validate_active_pointer_pair()
+            site_env = dict(os.environ)
+            site_env["DIST_DIR"] = str(staged_dist)
+            run_checked([str(ROOT / "scripts" / "build_site.sh")], env=site_env)
+            swap_directory(staged_dist, current_dist, previous_dist)
+            dist_swapped = True
+        except BaseException:
+            if dist_swapped:
+                shutil.rmtree(current_dist, ignore_errors=True)
+                if previous_dist.exists():
+                    previous_dist.rename(current_dist)
+            restore_file(ACTIVE_GRAPH_POINTER, old_graph_pointer)
+            restore_file(graph_manifest_path, old_graph_manifest)
+            restore_file(query_manifest_path, old_query_manifest)
+            raise
+        finally:
+            shutil.rmtree(stage_root, ignore_errors=True)
+        return {
+            "run_id": run_id,
+            "release_id": public_release_id,
+            "evidence_release_id": evidence_release_id,
+            "query_artifact": str(QUERY_RUNS_DIR / run_id),
+        }
+
+
 def promote(args: argparse.Namespace) -> dict:
     run_id = safe_run_id(args.run_id)
     with promotion_lock():
@@ -498,10 +660,35 @@ def promote(args: argparse.Namespace) -> dict:
         )
         old_graph = ACTIVE_GRAPH_POINTER.read_bytes() if ACTIVE_GRAPH_POINTER.exists() else None
         old_candidate = CANDIDATE_PAPERS_TABLE.read_bytes() if CANDIDATE_PAPERS_TABLE.exists() else None
+        graph_manifest_path = PAYLOAD_RUNS_DIR / run_id / "graph_payload_manifest.json"
+        query_manifest_path = QUERY_RUNS_DIR / run_id / "manifest.json"
+        old_graph_manifest = graph_manifest_path.read_bytes()
+        old_query_manifest = query_manifest_path.read_bytes()
         methods_swapped = False
         dist_swapped = False
         candidate_swapped = False
         try:
+            public_release_id = normalize(graph_pointer.get("public_release_id"))
+            bind_public_release_manifests(
+                run_id,
+                evidence_release_id=release_id,
+                public_release_id=public_release_id,
+            )
+            validate_public_payload(run_id, graph_pointer)
+            paper_rows = int(
+                (
+                    (read_json_object(KG_RUNS_DIR / run_id / "manifest.json").get("tables") or {})
+                    .get("papers", {})
+                    .get("rows", -1)
+                )
+            )
+            validate_public_query_artifact(
+                run_id,
+                KG_RUNS_DIR / run_id,
+                paper_rows,
+                expected_release_id=public_release_id,
+                expected_evidence_release_id=release_id,
+            )
             replace_file_atomic(staged_candidate, CANDIDATE_PAPERS_TABLE)
             candidate_swapped = True
             swap_directory(staged_methods, current_methods, previous_methods)
@@ -531,6 +718,8 @@ def promote(args: argparse.Namespace) -> dict:
                 restore_file(CANDIDATE_PAPERS_TABLE, old_candidate)
             restore_file(ACTIVE_EXTRACTION_POINTER, old_extraction)
             restore_file(ACTIVE_GRAPH_POINTER, old_graph)
+            restore_file(graph_manifest_path, old_graph_manifest)
+            restore_file(query_manifest_path, old_query_manifest)
             raise
         finally:
             if not dist_swapped:
@@ -551,6 +740,11 @@ def promote(args: argparse.Namespace) -> dict:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", default="")
+    parser.add_argument(
+        "--refresh-public",
+        action="store_true",
+        help="Create a synchronized graph/API artifact revision without changing evidence decisions.",
+    )
     checks = parser.add_mutually_exclusive_group()
     checks.add_argument("--check-active", action="store_true")
     checks.add_argument("--check-public", action="store_true")
@@ -569,6 +763,15 @@ def main() -> int:
     if args.check_public:
         result = validate_active_public_release()
         print(f"Active public release is complete: {result['run_id']}")
+        return 0
+    if args.refresh_public:
+        result = refresh_public_artifacts(args.run_id)
+        print(f"Refreshed public artifacts: {result['run_id']}")
+        print(f"Public release ID: {result['release_id']}")
+        print(f"Evidence release ID: {result['evidence_release_id']}")
+        print(f"Active graph pointer: {ACTIVE_GRAPH_POINTER}")
+        print(f"Public query artifact: {result['query_artifact']}")
+        print(f"Public site bundle refreshed: {ROOT / 'dist'}")
         return 0
     if not args.run_id:
         raise SystemExit("--run-id is required unless a check mode is used")

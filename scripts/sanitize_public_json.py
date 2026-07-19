@@ -72,10 +72,20 @@ def write_json_preserving_style(path: Path, payload: object, original_text: str)
 
 def sanitize_files(files: Iterable[Path], root: Path) -> list[Path]:
     changed_files: list[Path] = []
+    root_markers = {
+        root.as_posix().rstrip("/").encode("utf-8"),
+        str(root).rstrip("/").encode("utf-8"),
+    }
     for path in files:
         if not path.exists():
             continue
-        original_text = path.read_text(encoding="utf-8")
+        original_bytes = path.read_bytes()
+        # Generated graph payloads can be tens of megabytes. Avoid expanding
+        # them into a second recursive object tree unless the machine-local
+        # project root is actually present in the file.
+        if not any(marker and marker in original_bytes for marker in root_markers):
+            continue
+        original_text = original_bytes.decode("utf-8")
         payload = json.loads(original_text)
         scrubbed, changed = scrub_paths(payload, root)
         if changed:

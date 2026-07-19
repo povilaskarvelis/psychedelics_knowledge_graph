@@ -141,7 +141,8 @@ class QueryApiR2SyncTest(unittest.TestCase):
         self.assertEqual(
             settings.endpoint_url, "https://abc.eu.r2.cloudflarestorage.com"
         )
-        self.assertEqual(settings.active_key, "query-api/active.json")
+        self.assertEqual(settings.active_key, "query-api/active/catalogue-v2.json")
+        self.assertEqual(settings.legacy_active_key, "query-api/active.json")
 
     def test_remote_pointer_rejects_path_traversal_run_id(self) -> None:
         with self.assertRaisesRegex(ValueError, "unsafe run_id"):
@@ -150,6 +151,9 @@ class QueryApiR2SyncTest(unittest.TestCase):
                     "schema_version": "psychedelics_kg_r2_active_release_v1",
                     "run_id": "../escape",
                     "release_id": "release",
+                    "evidence_release_id": "evidence-release",
+                    "contract_key": "catalogue-v2",
+                    "query_manifest_schema": "psychedelics_kg_public_catalogue_manifest_v2",
                     "manifest": {
                         "key": "query-api/releases/manifest.json",
                         "path": "manifest.json",

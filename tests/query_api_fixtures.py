@@ -370,6 +370,11 @@ def build_active_query_release(root: Path, *, run_id: str = "test_run", release_
         run_id=run_id,
         generated_at="2026-07-17T00:00:00+00:00",
     )
+    manifest_path = query_runs / run_id / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["release_id"] = release_id
+    manifest["evidence_release_id"] = release_id
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     pointer = root / "graph_payload_active.json"
     pointer.write_text(
         json.dumps({"run_id": run_id, "release_id": release_id}),

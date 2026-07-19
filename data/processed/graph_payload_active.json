@@ -1,6 +1,7 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
   "release_id": "source_recovery_media_20260714:85b9f8a521804c1e8a0f14edcf2d0c01",
+  "public_release_id": "source_recovery_media_20260714:public:8cee3c05540c4d45bbe70e9a03dec73e",
   "run_id": "source_recovery_media_20260714",
   "active_graph_bootstraps": {
     "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_primary.json",

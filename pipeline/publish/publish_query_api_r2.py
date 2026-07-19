@@ -23,7 +23,10 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from services.query_api.config import R2Settings  # noqa: E402
+from services.query_api.config import (  # noqa: E402
+    PUBLIC_QUERY_CONTRACT_KEY,
+    R2Settings,
+)
 from services.query_api.r2_store import (  # noqa: E402
     R2_ACTIVE_SCHEMA_VERSION,
     ObjectStore,
@@ -189,11 +192,13 @@ def publish_active_query_release(
     query_runs_dir: Path = DEFAULT_QUERY_RUNS_DIR,
     expected_run_id: str = "",
     published_at: str | None = None,
+    write_legacy_active_alias: bool = False,
 ) -> dict:
     pointer = read_json_object(active_pointer_path)
     run_id = str(pointer.get("run_id") or "").strip()
-    release_id = str(pointer.get("release_id") or "").strip()
-    if not run_id or not release_id:
+    evidence_release_id = str(pointer.get("release_id") or "").strip()
+    release_id = str(pointer.get("public_release_id") or evidence_release_id).strip()
+    if not run_id or not release_id or not evidence_release_id:
         raise ValueError(
             f"Active graph pointer lacks run_id or release_id: {active_pointer_path}"
         )
@@ -206,6 +211,15 @@ def publish_active_query_release(
         raise ValueError(f"Unexpected public query manifest schema: {artifact_dir}")
     if manifest.get("run_id") != run_id:
         raise ValueError("Active graph and public query artifact run IDs differ")
+    if manifest.get("release_id") != release_id:
+        raise ValueError(
+            "Active graph pointer and public query manifest release IDs differ. "
+            "Promote the complete release before publishing to R2."
+        )
+    if manifest.get("evidence_release_id") != evidence_release_id:
+        raise ValueError(
+            "Active graph pointer and public query manifest evidence release IDs differ."
+        )
 
     release_files = collect_release_files(artifact_dir, manifest)
     object_prefix = release_object_prefix(
@@ -238,9 +252,12 @@ def publish_active_query_release(
 
     active = {
         "schema_version": R2_ACTIVE_SCHEMA_VERSION,
+        "contract_key": PUBLIC_QUERY_CONTRACT_KEY,
+        "query_manifest_schema": QUERY_MANIFEST_SCHEMA,
         "published_at": published_at or now_utc(),
         "run_id": run_id,
         "release_id": release_id,
+        "evidence_release_id": evidence_release_id,
         "object_prefix": object_prefix,
         "manifest": remote_manifest,
         "files": remote_files,
@@ -260,6 +277,16 @@ def publish_active_query_release(
         raise RuntimeError(
             "R2 active release pointer failed read-after-write verification"
         )
+    if write_legacy_active_alias:
+        store.put_bytes(
+            settings.legacy_active_key,
+            active_bytes,
+            sha256=active_sha,
+            content_type="application/json",
+            cache_control=ACTIVE_CACHE_CONTROL,
+        )
+        if store.get_bytes(settings.legacy_active_key) != active_bytes:
+            raise RuntimeError("Legacy R2 active release alias failed verification")
     return {
         **active,
         "active_key": settings.active_key,
@@ -286,6 +313,11 @@ def parse_args() -> argparse.Namespace:
         help="Optional container-platform deploy hook called after activation",
     )
     parser.add_argument("--no-deploy-hook", action="store_true")
+    parser.add_argument(
+        "--write-legacy-active-alias",
+        action="store_true",
+        help="Also update query-api/active.json during the catalogue-v2 migration.",
+    )
     return parser.parse_args()
 
 
@@ -299,6 +331,7 @@ def main() -> int:
         active_pointer_path=args.active_pointer.resolve(),
         query_runs_dir=args.query_runs_dir.resolve(),
         expected_run_id=args.run_id.strip(),
+        write_legacy_active_alias=args.write_legacy_active_alias,
     )
     print(f"Published R2 query release: {result['release_id']}")
     print(f"Active object: {result['active_key']}")

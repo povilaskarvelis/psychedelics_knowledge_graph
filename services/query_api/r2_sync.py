@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from .config import R2Settings, Settings
+from .config import PUBLIC_QUERY_CONTRACT_KEY, R2Settings, Settings
 from .r2_store import (
     R2_ACTIVE_SCHEMA_VERSION,
     R2_RELEASE_SIDECAR_NAME,
@@ -75,10 +75,17 @@ def validate_remote_active(value: object) -> dict:
         )
     run_id = str(value.get("run_id") or "").strip()
     release_id = str(value.get("release_id") or "").strip()
-    if not run_id or not release_id:
+    evidence_release_id = str(value.get("evidence_release_id") or "").strip()
+    if not run_id or not release_id or not evidence_release_id:
         raise ValueError("R2 active release pointer lacks run_id or release_id")
     if not RUN_ID_RE.fullmatch(run_id):
         raise ValueError("R2 active release pointer has an unsafe run_id")
+    if value.get("contract_key") != PUBLIC_QUERY_CONTRACT_KEY:
+        raise ValueError(
+            f"R2 active release is for an incompatible contract: {value.get('contract_key')}"
+        )
+    if value.get("query_manifest_schema") != QUERY_MANIFEST_SCHEMA:
+        raise ValueError("R2 active release names an unsupported query manifest schema")
     manifest = validate_remote_entry(value.get("manifest"), label="manifest")
     files = value.get("files")
     if not isinstance(files, dict):
@@ -94,6 +101,7 @@ def validate_remote_active(value: object) -> dict:
         **value,
         "run_id": run_id,
         "release_id": release_id,
+        "evidence_release_id": evidence_release_id,
         "manifest": manifest,
         "files": validated_files,
     }
@@ -188,6 +196,8 @@ class R2ReleaseSynchronizer:
                     )
                 if manifest.get("run_id") != run_id:
                     raise ValueError("Downloaded query manifest belongs to another run")
+                if manifest.get("release_id") != release_id:
+                    raise ValueError("Downloaded query manifest belongs to another release")
                 for logical_name in ("database", "schema"):
                     manifest_entry = (manifest.get("files") or {}).get(
                         logical_name
@@ -216,6 +226,7 @@ class R2ReleaseSynchronizer:
             "schema_version": LOCAL_POINTER_SCHEMA,
             "run_id": run_id,
             "release_id": release_id,
+            "evidence_release_id": active["evidence_release_id"],
             "query_api_r2": {
                 "active_key": self.r2_settings.active_key,
                 "object_prefix": active.get("object_prefix") or "",

@@ -51,6 +51,8 @@ def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str
                 "orcid": "",
                 "source": "openalex",
                 "identity_confidence": "openalex_author_id",
+                "display_names_json": json.dumps(["Ada Example", "A. Example"]),
+                "openalex_author_ids_json": json.dumps(["https://openalex.org/A1"]),
                 "paper_count": 1,
                 "authorship_count": 1,
                 "first_author_paper_count": 1,
@@ -64,6 +66,8 @@ def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str
                 "orcid": "",
                 "source": "openalex",
                 "identity_confidence": "openalex_author_id",
+                "display_names_json": json.dumps(["Grace Example"]),
+                "openalex_author_ids_json": json.dumps(["https://openalex.org/A2"]),
                 "paper_count": 1,
                 "authorship_count": 1,
                 "first_author_paper_count": 0,
@@ -155,7 +159,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
                 ]
             ).to_parquet(kg_dir / "entities.parquet", index=False)
 
-            findings = load_findings(kg_dir)
+            findings = load_findings(kg_dir, require_author_identities=False)
             self.assertEqual(findings[0]["entity_aliases"], ["5-HT2A receptor", "HTR2A"])
 
             graph_findings = [
@@ -451,6 +455,27 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(rows[0]["first_author"]["id"], "openalex:A1")
         self.assertEqual(rows[0]["last_author"]["name"], "Grace Example")
         self.assertEqual(rows[0]["last_author"]["id"], "openalex:A2")
+        self.assertEqual(
+            rows[0]["author_identities"],
+            [
+                {
+                    "id": "openalex:A1",
+                    "name": "Ada Example",
+                    "credited_name": "Ada Example",
+                    "aliases": ["Ada Example", "A. Example"],
+                    "openalex_author_id": "https://openalex.org/A1",
+                    "openalex_author_ids": ["https://openalex.org/A1"],
+                },
+                {
+                    "id": "openalex:A2",
+                    "name": "Grace Example",
+                    "credited_name": "Grace Example",
+                    "aliases": ["Grace Example"],
+                    "openalex_author_id": "https://openalex.org/A2",
+                    "openalex_author_ids": ["https://openalex.org/A2"],
+                },
+            ],
+        )
 
     def test_exports_route_native_findings_without_legacy_split_or_claim_type(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -552,10 +577,10 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertNotIn("disorder", finding)
         self.assertEqual(graph_bootstrap["edge_count"], 0)
         self.assertEqual(graph_bootstrap["finding_count"], 0)
-        self.assertEqual(dashboard_bootstrap["schema_version"], "route_native_dashboard_bootstrap_v1")
+        self.assertEqual(dashboard_bootstrap["schema_version"], "route_native_dashboard_bootstrap_v2")
         self.assertEqual(dashboard_bootstrap["default_entity_view"], "condition_indication")
         self.assertEqual(dashboard_bootstrap["row_count"], 0)
-        self.assertEqual(detail_bootstrap["schema_version"], "route_native_detail_bootstrap_v1")
+        self.assertEqual(detail_bootstrap["schema_version"], "route_native_detail_bootstrap_v2")
         self.assertEqual(detail_bootstrap["row_count"], 1)
         self.assertIn("study_year", detail_bootstrap["fields"])
         self.assertIn("evidence_locator", detail_bootstrap["fields"])

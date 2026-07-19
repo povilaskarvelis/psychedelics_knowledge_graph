@@ -30,28 +30,38 @@ class PromoteRoutedRunTest(unittest.TestCase):
 
         manifest_path = root / pointer["active_manifest"]
         manifest_path.parent.mkdir(parents=True)
+        files = {}
+        for mapping in (
+            "active_graph_bootstraps",
+            "active_dashboard_bootstraps",
+            "active_detail_bootstraps",
+        ):
+            prefix = mapping.removeprefix("active_").removesuffix("_bootstraps")
+            for source_key, path_value in pointer[mapping].items():
+                payload_path = root / path_value
+                payload_path.write_text("{}", encoding="utf-8")
+                files[f"{prefix}:{source_key}"] = {
+                    "path": path_value,
+                    "bytes": payload_path.stat().st_size,
+                    "sha256": promotion.sha256_file(payload_path),
+                }
         manifest_path.write_text(
             json.dumps(
                 {
                     "schema_version": promotion.PAYLOAD_MANIFEST_SCHEMA,
+                    "release_id": release_id,
+                    "evidence_release_id": release_id,
                     "kg_dir": pointer["kg_dir"],
                     "row_count": 3,
                     "author_tables": {"status": "ok"},
                     "graph_bootstraps": pointer["active_graph_bootstraps"],
                     "dashboard_bootstraps": pointer["active_dashboard_bootstraps"],
                     "detail_bootstraps": pointer["active_detail_bootstraps"],
+                    "files": files,
                 }
             ),
             encoding="utf-8",
         )
-        for mapping in (
-            "active_graph_bootstraps",
-            "active_dashboard_bootstraps",
-            "active_detail_bootstraps",
-        ):
-            for path_value in pointer[mapping].values():
-                payload_path = root / path_value
-                payload_path.write_text("{}", encoding="utf-8")
         return pointer_path
 
     def test_public_release_check_needs_only_committed_site_artifacts(self) -> None:
@@ -81,6 +91,20 @@ class PromoteRoutedRunTest(unittest.TestCase):
                 promotion, "ACTIVE_GRAPH_POINTER", pointer_path
             ):
                 with self.assertRaisesRegex(ValueError, "does not match"):
+                    promotion.validate_active_public_release()
+
+    def test_public_release_check_rejects_payload_checksum_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pointer_path = self.write_public_release(root, "public_run", "public_run:release")
+            pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+            payload_path = root / pointer["active_detail_bootstraps"]["primary"]
+            payload_path.write_text('{"changed":true}', encoding="utf-8")
+
+            with mock.patch.object(promotion, "ROOT", root), mock.patch.object(
+                promotion, "ACTIVE_GRAPH_POINTER", pointer_path
+            ):
+                with self.assertRaisesRegex(ValueError, "size mismatch|checksum mismatch"):
                     promotion.validate_active_public_release()
 
     def test_pointer_pair_requires_same_run(self) -> None:
@@ -141,6 +165,16 @@ class PromoteRoutedRunTest(unittest.TestCase):
         self.assertEqual(extraction["release_id"], graph["release_id"])
         self.assertEqual(extraction["kg_dir"], graph["kg_dir"])
         self.assertEqual(extraction["graph_payload_manifest"], graph["active_manifest"])
+
+    def test_public_artifact_revision_is_separate_from_evidence_release(self) -> None:
+        graph = promotion.graph_pointer_for_run(
+            "candidate",
+            "candidate:evidence",
+            public_release_id="candidate:public:one",
+        )
+
+        self.assertEqual(graph["release_id"], "candidate:evidence")
+        self.assertEqual(graph["public_release_id"], "candidate:public:one")
 
     def test_methods_manifest_does_not_retain_staging_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -57,8 +57,10 @@ python3 pipeline/publish/publish_query_api_r2.py
 
 The publisher verifies every local file against its manifest, uploads objects
 under an immutable release prefix, verifies R2 object size and SHA-256 metadata,
-and writes `query-api/active.json` last. Re-running it is safe: matching release
-objects are reused, while a conflicting immutable object stops activation.
+and writes `query-api/active/catalogue-v2.json` last. Re-running it is safe:
+matching release objects are reused, while a conflicting immutable object stops
+activation. The contract-specific pointer prevents a new API deployment from
+silently loading an older, incompatible data format.
 
 ## Deploy the API from GitHub
 
@@ -130,7 +132,7 @@ in the local `.env` file:
 PKG_DEPLOY_HOOK_URL=<render-deploy-hook-url>
 ```
 
-For every future data release, run:
+For a new evidence/data release, run:
 
 ```bash
 set -a
@@ -149,12 +151,26 @@ The sequence is:
 5. trigger a zero-downtime container deployment;
 6. download and verify the new core database before the new instance is healthy.
 
+For a change limited to authors, public fields, API code, or browser payloads,
+keep the current evidence snapshot and run:
+
+```bash
+bash scripts/refresh_public_release.sh
+```
+
+This command loads the ignored `.env`, rebuilds both public outputs, gives them
+one shared public release ID, validates every referenced browser file by size
+and SHA-256, builds the static site, publishes the matching API data to the
+versioned R2 pointer, and then triggers the deploy hook when configured. It
+must finish before committing and pushing related code or generated browser
+files. Use `NO_R2_PUBLISH=1` only for a local dry run.
+
 If no deploy hook is configured, publishing still succeeds; manually redeploy or
 restart the API service so it synchronizes the new active release.
 
 ## Failure and rollback behavior
 
-- An upload or checksum failure leaves the previous R2 `active.json` untouched.
+- An upload or checksum failure leaves the previous versioned R2 active pointer untouched.
 - A failed container sync leaves `/readyz` unavailable and catalogue requests
   return 503 while documentation and process health checks remain reachable.
 - API pagination cursors remain bound to their release and return HTTP 409 after
@@ -167,6 +183,6 @@ restart the API service so it synchronizes the new active release.
 
 This deployment removes the API database and bulk tables from GitHub. The
 existing browser-detail JSON remains on the current Netlify path for now. Moving
-that 41 MB detail payload to R2 requires enabling a public R2 data domain (or an
+that browser-detail payload to R2 requires enabling a public R2 data domain (or an
 API-backed signed-URL loader) before removing it from Git, so that migration is
 intentionally not activated until the R2 account and domain exist.

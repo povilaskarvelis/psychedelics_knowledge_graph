@@ -24,6 +24,19 @@ After reviewing that versioned run, promote it without rebuilding it:
 python pipeline/publish/promote_routed_run.py --run-id "$RUN_ID"
 ```
 
+If the evidence snapshot is unchanged and only authors, public export logic,
+API fields, or browser payloads changed, use the synchronized public refresh:
+
+```bash
+bash scripts/refresh_public_release.sh
+```
+
+It regenerates the graph and API from the current KG run, binds both manifests
+to one new public release ID, validates and rebuilds the site, publishes the API
+artifact to its contract-specific R2 pointer, and triggers the configured deploy
+hook. Run it before committing and pushing the related code and generated graph
+payloads. It never changes extraction or evidence decisions.
+
 The promoter validates the KG, payload, author tables, and extraction inputs;
 materializes every final graph decision into the canonical
 `candidate_papers.parquet` corpus ledger; serializes promotions with a lock;
@@ -68,9 +81,11 @@ file. Do not run a separate bibliography step afterward.
 
 ## Contract
 
-The two active pointer files are compatibility views for different consumers,
-not independent release switches. Both contain the same `run_id` and
-`release_id` after guarded promotion. The extraction pointer additionally names
+The extraction and public graph pointers are compatibility views for different
+consumers, not independent evidence switches. They contain the same evidence
+`release_id` after guarded promotion. The public graph pointer also has a
+`public_release_id`, shared by its graph manifest and the API manifest whenever
+either public representation is regenerated. The extraction pointer additionally names
 the combined raw outputs and evidence rows required by the next scoped update;
 the public graph pointer names only compact browser artifacts.
 
@@ -80,6 +95,9 @@ the public graph pointer names only compact browser artifacts.
 - `evidence_source`
 - `kg_dir`
 - `row_count`
+- `release_id` (the synchronized public graph/API revision)
+- `evidence_release_id` (the unchanged underlying evidence snapshot)
+- `files` (path, byte size, and SHA-256 for every browser payload)
 - `author_tables`
 - `summary_stats`
 - `graph_bootstraps`
