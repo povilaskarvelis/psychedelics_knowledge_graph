@@ -1,6 +1,13 @@
 import pandas as pd
+import pytest
+from pathlib import Path
 
-from pipeline.kg.build_author_tables import build_tables
+from pipeline.kg.build_author_tables import (
+    apply_orcid_identities,
+    build_tables,
+    require_offline_cache_coverage,
+    require_structured_authorship_coverage,
+)
 
 
 def test_exact_name_local_author_aliases_to_single_structured_identity() -> None:
@@ -109,3 +116,91 @@ def test_exact_name_local_author_does_not_alias_when_structured_name_is_ambiguou
         "name_alias_author_ids": 0,
         "name_alias_names": 0,
     }
+
+
+def test_offline_build_rejects_an_empty_cache() -> None:
+    papers = pd.DataFrame([{"paper_id": "paper:a", "doi": "10.1000/a", "authors": "Ada Example"}])
+
+    with pytest.raises(RuntimeError, match="Offline author resolution refused"):
+        require_offline_cache_coverage(papers, {"works_by_doi": {}}, Path("missing-cache.json"))
+
+
+def test_release_build_rejects_name_only_authorships() -> None:
+    paper_authors = pd.DataFrame([{"author_id": "local_author:ada"}])
+
+    with pytest.raises(RuntimeError, match="Author table build refused"):
+        require_structured_authorship_coverage(paper_authors)
+
+
+def test_release_build_accepts_structured_authorships_above_threshold() -> None:
+    paper_authors = pd.DataFrame(
+        [{"author_id": "openalex:A1"}] * 19 + [{"author_id": "local_author:unresolved"}]
+    )
+
+    assert require_structured_authorship_coverage(paper_authors) == (19, 20, 0.95)
+
+
+def test_orcid_canonicalizes_and_merges_openalex_profiles() -> None:
+    paper_authors = pd.DataFrame(
+        [
+            {
+                "author_id": "openalex:A1",
+                "openalex_author_id": "https://openalex.org/A1",
+                "orcid": "0000-0001-2345-6789",
+                "canonical_name": "ada example",
+                "identity_confidence": "openalex_author_id",
+            },
+            {
+                "author_id": "openalex:A1",
+                "openalex_author_id": "https://openalex.org/A1",
+                "orcid": "",
+                "canonical_name": "a example",
+                "identity_confidence": "openalex_author_id",
+            },
+            {
+                "author_id": "openalex:A2",
+                "openalex_author_id": "https://openalex.org/A2",
+                "orcid": "0000-0001-2345-6789",
+                "canonical_name": "ada example",
+                "identity_confidence": "openalex_author_id",
+            },
+        ]
+    )
+
+    resolved, stats = apply_orcid_identities(paper_authors)
+
+    assert set(resolved["author_id"]) == {"orcid:0000-0001-2345-6789"}
+    assert stats["openalex_profiles_linked_to_orcid"] == 2
+    assert stats["openalex_profiles_merged_by_shared_orcid"] == 1
+    assert stats["authorship_rows_canonicalized_to_orcid"] == 3
+
+
+def test_conflicting_orcids_do_not_canonicalize_an_openalex_profile() -> None:
+    paper_authors = pd.DataFrame(
+        [
+            {
+                "author_id": "openalex:A1",
+                "openalex_author_id": "https://openalex.org/A1",
+                "orcid": "0000-0001-2345-6789",
+                "canonical_name": "ada example",
+                "identity_confidence": "openalex_author_id",
+            },
+            {
+                "author_id": "openalex:A1",
+                "openalex_author_id": "https://openalex.org/A1",
+                "orcid": "0000-0002-2345-6789",
+                "canonical_name": "ada example",
+                "identity_confidence": "openalex_author_id",
+            },
+        ]
+    )
+
+    resolved, stats = apply_orcid_identities(paper_authors)
+
+    assert set(resolved["author_id"]) == {"openalex:A1"}
+    assert set(resolved["orcid"]) == {""}
+    assert set(resolved["identity_confidence"]) == {"openalex_author_id_orcid_conflict"}
+    assert stats["openalex_profiles_with_conflicting_orcids"] == 1
+
+    with pytest.raises(RuntimeError, match="Author table build refused"):
+        require_structured_authorship_coverage(resolved)

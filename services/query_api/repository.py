@@ -12,70 +12,20 @@ from typing import Any, Iterator, Sequence
 import duckdb
 
 from .config import Settings
-from .models import AggregateQuery, FindingFilters, FindingQuery, NeighborQuery
+from .models import PaperFilters, PaperQuery, RelationshipFilters, RelationshipQuery
 from .r2_store import R2_RELEASE_SIDECAR_NAME, ObjectStore, R2ObjectStore
 
 
 PUBLIC_DB_NAME = "public_api.duckdb"
 PUBLIC_MANIFEST_NAME = "manifest.json"
 PUBLIC_SCHEMA_NAME = "schema.json"
-PUBLIC_QUERY_MANIFEST_VERSION = "psychedelics_kg_public_query_manifest_v1"
-
-
-SUMMARY_FINDING_FIELDS = (
-    "finding_id",
-    "evidence_id",
-    "paper_id",
-    "entity_id",
-    "compound_id",
-    "literature_source",
-    "domain",
-    "evidence_type",
-    "relation_type",
-    "compound",
-    "entity_label",
-    "entity_kind",
-    "study_doi",
-    "study_title",
-    "study_year",
-    "study_journal",
-    "result_direction_normalized",
-    "text_depth",
-    "graph_admission_status",
-    "evidence_level",
-    "support",
-    "effect_size",
-    "sample_size_total",
-    "population",
-    "comparator_normalized",
-    "follow_up_window_normalized",
-    "evidence_locator",
-)
-
-AGGREGATE_GROUP_FIELDS = {
-    "compound",
-    "compound_id",
-    "entity_label",
-    "entity_id",
-    "entity_kind",
-    "domain",
-    "evidence_type",
-    "literature_source",
-    "relation_type",
-    "result_direction_normalized",
-    "study_year",
-    "text_depth",
-}
+PUBLIC_QUERY_MANIFEST_VERSION = "psychedelics_kg_public_catalogue_manifest_v2"
 
 JSON_VALUE_FIELDS = {
     "aliases_json",
-    "ids_json",
-    "entity_aliases",
-    "graph_parent_aliases",
-    "first_author",
-    "last_author",
-    "graph_overview_subjects_json",
-    "graph_use_context_projections_json",
+    "external_ids_json",
+    "name_variants_json",
+    "openalex_profile_ids_json",
 }
 
 
@@ -117,14 +67,9 @@ class DownloadTarget:
 
 
 class ReleaseResolver:
-    """Resolve every request through the graph's atomically promoted pointer."""
+    """Resolve every request through the current graph release pointer."""
 
-    def __init__(
-        self,
-        *,
-        active_pointer: Path,
-        query_runs_dir: Path,
-    ) -> None:
+    def __init__(self, *, active_pointer: Path, query_runs_dir: Path) -> None:
         self.active_pointer = active_pointer.resolve()
         self.query_runs_dir = query_runs_dir.resolve()
 
@@ -146,6 +91,7 @@ class ReleaseResolver:
             raise QueryArtifactUnavailable(
                 f"Active graph pointer is invalid JSON: {self.active_pointer}"
             ) from exc
+
         run_id = str(pointer.get("run_id") or "").strip()
         release_id = str(pointer.get("release_id") or "").strip()
         if not run_id or not release_id:
@@ -159,26 +105,26 @@ class ReleaseResolver:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         except FileNotFoundError as exc:
             raise QueryArtifactUnavailable(
-                "The active release has no public query artifact. Rebuild the routed KG "
-                f"or run export_query_api.py for {run_id}."
+                f"The current release has no public catalogue artifact: {run_id}"
             ) from exc
         except json.JSONDecodeError as exc:
             raise QueryArtifactUnavailable(
-                f"Public query manifest is invalid JSON: {manifest_path}"
+                f"Public catalogue manifest is invalid JSON: {manifest_path}"
             ) from exc
         if manifest.get("schema_version") != PUBLIC_QUERY_MANIFEST_VERSION:
             raise QueryArtifactUnavailable(
-                f"Unsupported public query manifest schema: {manifest.get('schema_version')}"
+                f"Unsupported public catalogue schema: {manifest.get('schema_version')}"
             )
         if manifest.get("run_id") != run_id:
             raise QueryArtifactUnavailable(
-                f"Active release/query artifact mismatch: {run_id} vs {manifest.get('run_id')}"
+                f"Current release/catalogue mismatch: {run_id} vs {manifest.get('run_id')}"
             )
+
         db_path = artifact_dir / str(manifest.get("database") or PUBLIC_DB_NAME)
         schema_path = artifact_dir / str(manifest.get("schema") or PUBLIC_SCHEMA_NAME)
         if not db_path.is_file() or not schema_path.is_file():
             raise QueryArtifactUnavailable(
-                f"Public query artifact is incomplete: {artifact_dir}"
+                f"Public catalogue artifact is incomplete: {artifact_dir}"
             )
         return ReleaseInfo(
             run_id=run_id,
@@ -196,10 +142,6 @@ class ReleaseResolver:
         )
 
 
-def quote_identifier(value: str) -> str:
-    return '"' + value.replace('"', '""') + '"'
-
-
 def json_value(value: Any) -> Any:
     if value is None:
         return None
@@ -214,7 +156,8 @@ def json_value(value: Any) -> Any:
 
 def decode_row(columns: Sequence[str], values: Sequence[Any]) -> dict[str, Any]:
     row = {
-        column: json_value(value) for column, value in zip(columns, values, strict=True)
+        column: json_value(value)
+        for column, value in zip(columns, values, strict=True)
     }
     for field in JSON_VALUE_FIELDS:
         value = row.get(field)
@@ -252,7 +195,7 @@ def decode_cursor(value: str | None, *, release_id: str) -> int:
         raise InvalidQuery("Invalid pagination cursor") from exc
     if payload.get("release_id") != release_id:
         raise ReleaseChanged(
-            "This cursor belongs to a different data release; restart pagination on the current release."
+            "This cursor belongs to a different data release; restart pagination."
         )
     if offset < 0:
         raise InvalidQuery("Invalid pagination cursor offset")
@@ -303,16 +246,24 @@ class QueryService:
             "api_version": "v1",
             **self.release_meta(info),
             "row_counts": info.row_counts,
-            "default_scope": "main_graph",
-            "available_scopes": ["main_graph", "all_normalized"],
-            "literature_sources": ["primary", "meta_analyses", "reviews"],
-            "id_stability": {
-                "finding_id": "release_scoped",
-                "paper_id": "stable_when_doi_or_openalex_id_is_stable",
-                "entity_id": "stable_until_canonical_label_changes",
-            },
-            "counting_warning": (
-                "Finding rows are not independent studies. Use study_count, which counts distinct paper_id."
+            "public_data": [
+                "papers",
+                "concepts",
+                "OpenAlex/ORCID-backed authors",
+                "paper-level relationships",
+            ],
+            "excluded_data": [
+                "granular findings",
+                "statistics",
+                "quotes",
+                "result direction",
+                "internal curation fields",
+            ],
+            "author_identity_note": (
+                "ORCID is canonical when available, including across OpenAlex profiles "
+                "carrying the same ORCID. Otherwise the OpenAlex profile remains the "
+                "identifier. Unresolved name-only rows and profiles with conflicting "
+                "ORCID evidence are excluded."
             ),
             "links": {
                 "openapi": f"{self.public_base_url}/openapi.json"
@@ -337,12 +288,6 @@ class QueryService:
             con.execute("SELECT 1").fetchone()
         return {"status": "ok", **self.release_meta(info)}
 
-    def table_columns(self, con: duckdb.DuckDBPyConnection, table: str) -> list[str]:
-        return [
-            row[0]
-            for row in con.execute(f"DESCRIBE {quote_identifier(table)}").fetchall()
-        ]
-
     @staticmethod
     def add_in_filter(
         clauses: list[str],
@@ -363,140 +308,398 @@ class QueryService:
             clauses.append(f"{expression} IN ({placeholders})")
             params.extend(cleaned)
 
-    def finding_where(
-        self, filters: FindingFilters, *, scope: str
+    @staticmethod
+    def add_year_filter(
+        clauses: list[str], params: list[Any], year_from: int | None, year_to: int | None
+    ) -> None:
+        if year_from is not None:
+            clauses.append("p.year >= ?")
+            params.append(year_from)
+        if year_to is not None:
+            clauses.append("p.year <= ?")
+            params.append(year_to)
+
+    def paper_where(self, filters: PaperFilters) -> tuple[str, list[Any]]:
+        clauses: list[str] = []
+        params: list[Any] = []
+        for expression, values, casefold in (
+            ("p.paper_id", filters.paper_ids, False),
+            ("p.doi", filters.dois, True),
+            ("p.paper_type", filters.paper_types, True),
+            ("p.paper_subtype", filters.paper_subtypes, True),
+        ):
+            self.add_in_filter(
+                clauses, params, expression=expression, values=values, casefold=casefold
+            )
+        if filters.author_ids:
+            placeholders = ",".join("?" for _ in filters.author_ids)
+            clauses.append(
+                "EXISTS (SELECT 1 FROM paper_authors pa WHERE pa.paper_id = p.paper_id "
+                f"AND pa.author_id IN ({placeholders}))"
+            )
+            params.extend(filters.author_ids)
+        if filters.author_names:
+            cleaned = [value.strip().casefold() for value in filters.author_names if value.strip()]
+            if cleaned:
+                placeholders = ",".join("?" for _ in cleaned)
+                clauses.append(
+                    "EXISTS (SELECT 1 FROM paper_authors pa WHERE pa.paper_id = p.paper_id "
+                    f"AND lower(pa.normalized_name) IN ({placeholders}))"
+                )
+                params.extend(cleaned)
+        relationship_filters = (
+            filters.concept_ids or filters.domains or filters.relation_types
+        )
+        if relationship_filters:
+            rel_clauses = ["r.paper_id = p.paper_id"]
+            if filters.concept_ids:
+                placeholders = ",".join("?" for _ in filters.concept_ids)
+                rel_clauses.append(
+                    f"(r.subject_id IN ({placeholders}) OR r.object_id IN ({placeholders}))"
+                )
+                params.extend(filters.concept_ids)
+                params.extend(filters.concept_ids)
+            self.add_in_filter(
+                rel_clauses,
+                params,
+                expression="r.domain",
+                values=filters.domains,
+                casefold=True,
+            )
+            self.add_in_filter(
+                rel_clauses,
+                params,
+                expression="r.relation_type",
+                values=filters.relation_types,
+                casefold=True,
+            )
+            clauses.append(
+                f"EXISTS (SELECT 1 FROM relationships r WHERE {' AND '.join(rel_clauses)})"
+            )
+        self.add_year_filter(clauses, params, filters.year_from, filters.year_to)
+        if filters.query:
+            value = f"%{filters.query.casefold()}%"
+            clauses.append(
+                "(lower(concat_ws(' ', p.title, p.doi, p.journal)) LIKE ? OR "
+                "EXISTS (SELECT 1 FROM paper_authors pa WHERE pa.paper_id = p.paper_id "
+                "AND lower(pa.author_name) LIKE ?))"
+            )
+            params.extend([value, value])
+        return (" WHERE " + " AND ".join(clauses) if clauses else ""), params
+
+    def relationship_where(
+        self, filters: RelationshipFilters
     ) -> tuple[str, list[Any]]:
         clauses: list[str] = []
         params: list[Any] = []
-        if scope == "main_graph":
-            clauses.append("graph_admission_status = 'main_graph'")
-        elif scope != "all_normalized":
-            raise InvalidQuery(f"Unsupported query scope: {scope}")
-
         for expression, values, casefold in (
-            ("compound_id", filters.compound_ids, False),
-            ("compound", filters.compounds, True),
-            ("entity_id", filters.entity_ids, False),
-            ("entity_label", filters.entity_labels, True),
-            ("entity_kind", filters.entity_kinds, True),
-            ("domain", filters.domains, True),
-            ("evidence_type", filters.evidence_types, True),
-            ("literature_source", filters.literature_sources, False),
-            ("relation_type", filters.relation_types, True),
-            ("text_depth", filters.text_depth, True),
-            ("paper_id", filters.paper_ids, False),
-            ("study_doi", filters.study_dois, True),
+            ("r.paper_id", filters.paper_ids, False),
+            ("p.doi", filters.dois, True),
+            ("r.paper_type", filters.paper_types, True),
+            ("r.paper_subtype", filters.paper_subtypes, True),
+            ("r.subject_id", filters.subject_ids, False),
+            ("r.object_id", filters.object_ids, False),
+            ("r.domain", filters.domains, True),
+            ("r.relation_type", filters.relation_types, True),
         ):
             self.add_in_filter(
-                clauses,
-                params,
-                expression=expression,
-                values=values,
-                casefold=casefold,
+                clauses, params, expression=expression, values=values, casefold=casefold
             )
-        self.add_in_filter(
-            clauses,
-            params,
-            expression="coalesce(nullif(result_direction_normalized, ''), direction_normalized)",
-            values=filters.directions,
-            casefold=True,
-        )
-        if filters.year_from is not None:
-            clauses.append("try_cast(study_year AS INTEGER) >= ?")
-            params.append(filters.year_from)
-        if filters.year_to is not None:
-            clauses.append("try_cast(study_year AS INTEGER) <= ?")
-            params.append(filters.year_to)
-        if filters.query:
+        if filters.concept_ids:
+            placeholders = ",".join("?" for _ in filters.concept_ids)
             clauses.append(
-                "lower(concat_ws(' ', compound, entity_label, study_title, study_doi, "
-                "outcome_measure, population)) LIKE ?"
+                f"(r.subject_id IN ({placeholders}) OR r.object_id IN ({placeholders}))"
             )
-            params.append(f"%{filters.query.casefold()}%")
+            params.extend(filters.concept_ids)
+            params.extend(filters.concept_ids)
+        if filters.author_ids:
+            placeholders = ",".join("?" for _ in filters.author_ids)
+            clauses.append(
+                "EXISTS (SELECT 1 FROM paper_authors pa WHERE pa.paper_id = p.paper_id "
+                f"AND pa.author_id IN ({placeholders}))"
+            )
+            params.extend(filters.author_ids)
+        if filters.author_names:
+            cleaned = [value.strip().casefold() for value in filters.author_names if value.strip()]
+            if cleaned:
+                placeholders = ",".join("?" for _ in cleaned)
+                clauses.append(
+                    "EXISTS (SELECT 1 FROM paper_authors pa WHERE pa.paper_id = p.paper_id "
+                    f"AND lower(pa.normalized_name) IN ({placeholders}))"
+                )
+                params.extend(cleaned)
+        self.add_year_filter(clauses, params, filters.year_from, filters.year_to)
         return (" WHERE " + " AND ".join(clauses) if clauses else ""), params
 
-    def search_entities(
+    def attach_authors(
+        self,
+        con: duckdb.DuckDBPyConnection,
+        papers: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        if not papers:
+            return papers
+        paper_ids = [paper["paper_id"] for paper in papers]
+        placeholders = ",".join("?" for _ in paper_ids)
+        authors = fetch_rows(
+            con.execute(
+                f"""
+                SELECT paper_id, author_id, author_name, author_position,
+                       is_first_author, is_last_author
+                FROM paper_authors
+                WHERE paper_id IN ({placeholders})
+                ORDER BY paper_id, author_position, author_name
+                """,
+                paper_ids,
+            )
+        )
+        by_paper: dict[str, list[dict[str, Any]]] = {}
+        for author in authors:
+            by_paper.setdefault(author.pop("paper_id"), []).append(author)
+        for paper in papers:
+            paper["authors"] = by_paper.get(paper["paper_id"], [])
+        return papers
+
+    def paged_meta(
+        self,
+        info: ReleaseInfo,
+        *,
+        total: int,
+        returned: int,
+        offset: int,
+    ) -> dict[str, Any]:
+        next_offset = offset + returned
+        return {
+            **self.release_meta(info),
+            "total": total,
+            "returned": returned,
+            "next_cursor": (
+                encode_cursor(release_id=info.release_id, offset=next_offset)
+                if next_offset < total
+                else None
+            ),
+        }
+
+    def facets(self) -> dict[str, Any]:
+        info = self.resolver.resolve()
+        with self.connection(info) as con:
+            def values(sql: str) -> list[dict[str, Any]]:
+                return fetch_rows(con.execute(sql))
+
+            facets = {
+                "paper_types": values(
+                    "SELECT paper_type AS value, count(*) AS paper_count FROM papers "
+                    "WHERE paper_type IS NOT NULL GROUP BY 1 ORDER BY 1"
+                ),
+                "paper_subtypes": values(
+                    "SELECT paper_subtype AS value, count(*) AS paper_count FROM papers "
+                    "WHERE paper_subtype IS NOT NULL GROUP BY 1 ORDER BY 1"
+                ),
+                "domains": values(
+                    "SELECT domain AS value, count(DISTINCT paper_id) AS paper_count "
+                    "FROM relationships GROUP BY 1 ORDER BY 1"
+                ),
+                "relation_types": values(
+                    "SELECT relation_type AS value, count(DISTINCT paper_id) AS paper_count "
+                    "FROM relationships GROUP BY 1 ORDER BY 1"
+                ),
+                "concept_kinds": values(
+                    "SELECT concept_kind AS value, count(*) AS concept_count "
+                    "FROM concepts GROUP BY 1 ORDER BY 1"
+                ),
+            }
+            year_range = fetch_rows(
+                con.execute("SELECT min(year) AS minimum, max(year) AS maximum FROM papers")
+            )[0]
+            unclassified_paper_count = int(
+                con.execute(
+                    "SELECT count(*) FROM papers WHERE paper_type IS NULL"
+                ).fetchone()[0]
+            )
+        return {
+            "meta": self.release_meta(info),
+            "paper_years": year_range,
+            "unclassified_paper_count": unclassified_paper_count,
+            **facets,
+        }
+
+    def search_concepts(
         self,
         query: str,
         *,
-        entity_kinds: Sequence[str] = (),
+        concept_kinds: Sequence[str] = (),
+        domains: Sequence[str] = (),
         limit: int = 15,
     ) -> dict[str, Any]:
         query = query.strip()
         if not query:
-            raise InvalidQuery("Entity search query must not be empty")
+            raise InvalidQuery("Concept search query must not be empty")
         limit = max(1, min(int(limit), 50))
         info = self.resolver.resolve()
-        clauses = ["(lower(label) LIKE ? OR lower(coalesce(aliases_json, '')) LIKE ?)"]
+        clauses = ["(lower(c.label) LIKE ? OR lower(coalesce(c.aliases_json, '')) LIKE ?)"]
         params: list[Any] = [f"%{query.casefold()}%", f"%{query.casefold()}%"]
         self.add_in_filter(
             clauses,
             params,
-            expression="entity_kind",
-            values=entity_kinds,
+            expression="c.concept_kind",
+            values=concept_kinds,
             casefold=True,
         )
-        sql = f"""
-            SELECT entity_id, entity_type, entity_kind, domain, label,
-                   graph_parent_label, graph_parent_kind, graph_parent_entity_id,
-                   registry_status, aliases_json, ids_json
-            FROM entities
-            WHERE {" AND ".join(clauses)}
-            ORDER BY
-              CASE
-                WHEN lower(label) = ? THEN 0
-                WHEN lower(label) LIKE ? THEN 1
-                ELSE 2
-              END,
-              label
-            LIMIT ?
-        """
+        self.add_in_filter(
+            clauses, params, expression="c.domain", values=domains, casefold=True
+        )
         params.extend([query.casefold(), f"{query.casefold()}%", limit])
         with self.connection(info) as con:
-            results = fetch_rows(con.execute(sql, params))
+            results = fetch_rows(
+                con.execute(
+                    f"""
+                    SELECT c.*,
+                           (SELECT count(DISTINCT r.paper_id)
+                            FROM relationships r
+                            WHERE c.concept_id = r.subject_id OR c.concept_id = r.object_id)
+                            AS paper_count,
+                           (SELECT count(DISTINCT r.relationship_id)
+                            FROM relationships r
+                            WHERE c.concept_id = r.subject_id OR c.concept_id = r.object_id)
+                            AS relationship_count
+                    FROM concepts c
+                    WHERE {' AND '.join(clauses)}
+                    ORDER BY CASE
+                        WHEN lower(c.label) = ? THEN 0
+                        WHEN lower(c.label) LIKE ? THEN 1
+                        ELSE 2
+                    END, c.label
+                    LIMIT ?
+                    """,
+                    params,
+                )
+            )
         return {"meta": self.release_meta(info), "results": results}
 
-    def get_entity(self, entity_id: str) -> dict[str, Any]:
+    def get_concept(self, concept_id: str) -> dict[str, Any]:
         info = self.resolver.resolve()
         with self.connection(info) as con:
             rows = fetch_rows(
-                con.execute("SELECT * FROM entities WHERE entity_id = ?", [entity_id])
+                con.execute("SELECT * FROM concepts WHERE concept_id = ?", [concept_id])
             )
             if not rows:
-                raise QueryNotFound(f"Unknown entity_id: {entity_id}")
+                raise QueryNotFound(f"Unknown concept_id: {concept_id}")
             counts = fetch_rows(
                 con.execute(
                     """
-                    SELECT
-                      count(DISTINCT CASE WHEN entity_id = ? THEN finding_id END) AS object_finding_count,
-                      count(DISTINCT CASE WHEN compound_id = ? THEN finding_id END) AS subject_finding_count,
-                      count(DISTINCT CASE WHEN entity_id = ? OR compound_id = ? THEN paper_id END) AS study_count
-                    FROM evidence_edges
+                    SELECT count(DISTINCT paper_id) AS paper_count,
+                           count(DISTINCT relationship_id) AS relationship_count
+                    FROM relationships
+                    WHERE subject_id = ? OR object_id = ?
                     """,
-                    [entity_id, entity_id, entity_id, entity_id],
+                    [concept_id, concept_id],
                 )
             )[0]
-        return {"meta": self.release_meta(info), "data": {**rows[0], "counts": counts}}
+        return {"meta": self.release_meta(info), "data": {**rows[0], **counts}}
 
-    def get_finding(self, finding_id: str) -> dict[str, Any]:
+    def search_authors(self, query: str, *, limit: int = 15) -> dict[str, Any]:
+        query = query.strip()
+        if not query:
+            raise InvalidQuery("Author search query must not be empty")
+        limit = max(1, min(int(limit), 50))
+        info = self.resolver.resolve()
+        value = query.casefold()
+        with self.connection(info) as con:
+            results = fetch_rows(
+                con.execute(
+                    """
+                    SELECT * FROM authors
+                    WHERE lower(author_name) LIKE ? OR lower(normalized_name) LIKE ?
+                       OR lower(coalesce(name_variants_json, '')) LIKE ?
+                    ORDER BY CASE
+                        WHEN lower(author_name) = ? OR lower(normalized_name) = ? THEN 0
+                        WHEN lower(author_name) LIKE ? THEN 1
+                        ELSE 2
+                    END, paper_count DESC, author_name
+                    LIMIT ?
+                    """,
+                    [
+                        f"%{value}%",
+                        f"%{value}%",
+                        f"%{value}%",
+                        value,
+                        value,
+                        f"{value}%",
+                        limit,
+                    ],
+                )
+            )
+        return {
+            "meta": {
+                **self.release_meta(info),
+                "identity_note": "ORCID is canonical when available; otherwise records use an OpenAlex profile ID.",
+            },
+            "results": results,
+        }
+
+    def get_author(self, author_id: str) -> dict[str, Any]:
         info = self.resolver.resolve()
         with self.connection(info) as con:
             rows = fetch_rows(
-                con.execute("SELECT * FROM findings WHERE finding_id = ?", [finding_id])
+                con.execute("SELECT * FROM authors WHERE author_id = ?", [author_id])
             )
         if not rows:
-            raise QueryNotFound(f"Unknown finding_id: {finding_id}")
-        return {"meta": self.release_meta(info), "data": rows[0]}
+            raise QueryNotFound(f"Unknown author_id: {author_id}")
+        return {
+            "meta": {
+                **self.release_meta(info),
+                "identity_note": "This record uses an ORCID when available; otherwise it uses an OpenAlex profile ID.",
+            },
+            "data": rows[0],
+        }
+
+    def query_papers(self, request: PaperQuery) -> dict[str, Any]:
+        info = self.resolver.resolve()
+        offset = decode_cursor(request.cursor, release_id=info.release_id)
+        where, params = self.paper_where(request.filters)
+        with self.connection(info) as con:
+            total = int(
+                con.execute(f"SELECT count(*) FROM papers p{where}", params).fetchone()[0]
+            )
+            results = fetch_rows(
+                con.execute(
+                    f"""
+                    SELECT p.* FROM papers p
+                    {where}
+                    ORDER BY p.year DESC NULLS LAST, p.title, p.paper_id
+                    LIMIT ? OFFSET ?
+                    """,
+                    [*params, request.limit, offset],
+                )
+            )
+            self.attach_authors(con, results)
+        return {
+            "meta": self.paged_meta(
+                info, total=total, returned=len(results), offset=offset
+            ),
+            "results": results,
+        }
+
+    def get_author_papers(
+        self, author_id: str, *, limit: int = 25, cursor: str | None = None
+    ) -> dict[str, Any]:
+        self.get_author(author_id)
+        return self.query_papers(
+            PaperQuery(
+                filters=PaperFilters(author_ids=[author_id]),
+                limit=limit,
+                cursor=cursor,
+            )
+        )
 
     def get_paper(
         self,
         paper_id_or_doi: str,
         *,
-        include_findings: bool = True,
-        finding_limit: int = 50,
+        include_relationships: bool = True,
+        relationship_limit: int = 50,
     ) -> dict[str, Any]:
         info = self.resolver.resolve()
-        finding_limit = max(1, min(int(finding_limit), 100))
+        relationship_limit = max(1, min(int(relationship_limit), 100))
         normalized_doi = paper_id_or_doi.removeprefix("https://doi.org/").removeprefix(
             "doi:"
         )
@@ -505,178 +708,72 @@ class QueryService:
                 con.execute(
                     """
                     SELECT * FROM papers
-                    WHERE paper_id = ? OR lower(doi) = lower(?) OR lower(study_doi) = lower(?)
+                    WHERE paper_id = ? OR lower(doi) = lower(?)
                     LIMIT 1
                     """,
-                    [paper_id_or_doi, normalized_doi, normalized_doi],
+                    [paper_id_or_doi, normalized_doi],
                 )
             )
             if not papers:
                 raise QueryNotFound(f"Unknown paper identifier: {paper_id_or_doi}")
-            paper = papers[0]
-            findings: list[dict[str, Any]] = []
-            if include_findings:
-                fields = ", ".join(
-                    quote_identifier(field) for field in SUMMARY_FINDING_FIELDS
-                )
-                findings = fetch_rows(
+            paper = self.attach_authors(con, papers)[0]
+            relationship_count = int(
+                con.execute(
+                    "SELECT count(*) FROM relationships WHERE paper_id = ?",
+                    [paper["paper_id"]],
+                ).fetchone()[0]
+            )
+            relationships: list[dict[str, Any]] = []
+            if include_relationships:
+                relationships = fetch_rows(
                     con.execute(
-                        f"""
-                        SELECT {fields} FROM findings
+                        """
+                        SELECT * FROM relationships
                         WHERE paper_id = ?
-                        ORDER BY domain, entity_label, finding_id
+                        ORDER BY domain, subject_label, object_label, relation_type
                         LIMIT ?
                         """,
-                        [paper["paper_id"], finding_limit],
+                        [paper["paper_id"], relationship_limit],
                     )
                 )
         return {
             "meta": self.release_meta(info),
             "data": paper,
-            **({"findings": findings} if include_findings else {}),
+            "relationship_count": relationship_count,
+            "relationships_truncated": relationship_count > len(relationships)
+            if include_relationships
+            else None,
+            **({"relationships": relationships} if include_relationships else {}),
         }
 
-    def query_findings(self, request: FindingQuery) -> dict[str, Any]:
+    def query_relationships(self, request: RelationshipQuery) -> dict[str, Any]:
         info = self.resolver.resolve()
         offset = decode_cursor(request.cursor, release_id=info.release_id)
-        where, params = self.finding_where(request.filters, scope=request.scope)
+        where, params = self.relationship_where(request.filters)
         with self.connection(info) as con:
-            available = self.table_columns(con, "findings")
-            if request.fields:
-                unknown = set(request.fields) - set(available)
-                if unknown:
-                    raise InvalidQuery(
-                        f"Unknown public finding fields: {sorted(unknown)}"
-                    )
-                selected = list(dict.fromkeys(["finding_id", *request.fields]))
-            elif request.detail_level == "full":
-                selected = available
-            else:
-                selected = [
-                    field for field in SUMMARY_FINDING_FIELDS if field in available
-                ]
-            field_sql = ", ".join(quote_identifier(field) for field in selected)
             total = int(
-                con.execute(f"SELECT count(*) FROM findings{where}", params).fetchone()[
-                    0
-                ]
+                con.execute(
+                    f"SELECT count(*) FROM relationships r JOIN papers p USING (paper_id){where}",
+                    params,
+                ).fetchone()[0]
             )
             results = fetch_rows(
                 con.execute(
                     f"""
-                    SELECT {field_sql}
-                    FROM findings
+                    SELECT r.*, p.doi, p.title, p.year, p.journal
+                    FROM relationships r
+                    JOIN papers p USING (paper_id)
                     {where}
-                    ORDER BY try_cast(study_year AS INTEGER) DESC NULLS LAST, finding_id
+                    ORDER BY p.year DESC NULLS LAST, r.paper_id, r.relationship_id
                     LIMIT ? OFFSET ?
                     """,
                     [*params, request.limit, offset],
                 )
             )
-        next_offset = offset + len(results)
         return {
-            "meta": {
-                **self.release_meta(info),
-                "scope": request.scope,
-                "total": total,
-                "returned": len(results),
-                "next_cursor": (
-                    encode_cursor(release_id=info.release_id, offset=next_offset)
-                    if next_offset < total
-                    else None
-                ),
-            },
-            "results": results,
-        }
-
-    def aggregate(self, request: AggregateQuery) -> dict[str, Any]:
-        unknown = set(request.group_by) - AGGREGATE_GROUP_FIELDS
-        if unknown:
-            raise InvalidQuery(f"Unsupported aggregate fields: {sorted(unknown)}")
-        info = self.resolver.resolve()
-        where, params = self.finding_where(request.filters, scope=request.scope)
-        fields = list(dict.fromkeys(request.group_by))
-        field_sql = ", ".join(quote_identifier(field) for field in fields)
-        with self.connection(info) as con:
-            results = fetch_rows(
-                con.execute(
-                    f"""
-                    SELECT {field_sql},
-                           count(*) AS finding_count,
-                           count(DISTINCT paper_id) AS study_count,
-                           count(DISTINCT nullif(proposition_group_id, '')) AS proposition_count
-                    FROM findings
-                    {where}
-                    GROUP BY {field_sql}
-                    ORDER BY study_count DESC, finding_count DESC, {field_sql}
-                    LIMIT ?
-                    """,
-                    [*params, request.limit],
-                )
-            )
-        return {
-            "meta": {
-                **self.release_meta(info),
-                "scope": request.scope,
-                "group_by": fields,
-                "returned": len(results),
-            },
-            "results": results,
-        }
-
-    def neighbors(self, entity_id: str, request: NeighborQuery) -> dict[str, Any]:
-        info = self.resolver.resolve()
-        clauses = ["(compound_id = ? OR entity_id = ?)"]
-        params: list[Any] = [entity_id, entity_id]
-        if request.scope == "main_graph":
-            clauses.append("graph_admission_status = 'main_graph'")
-        elif request.scope != "all_normalized":
-            raise InvalidQuery(f"Unsupported query scope: {request.scope}")
-        self.add_in_filter(
-            clauses,
-            params,
-            expression="literature_source",
-            values=request.literature_sources,
-        )
-        self.add_in_filter(
-            clauses,
-            params,
-            expression="relation_type",
-            values=request.relation_types,
-            casefold=True,
-        )
-        with self.connection(info) as con:
-            entity_exists = con.execute(
-                "SELECT 1 FROM entities WHERE entity_id = ?", [entity_id]
-            ).fetchone()
-            if entity_exists is None:
-                raise QueryNotFound(f"Unknown entity_id: {entity_id}")
-            results = fetch_rows(
-                con.execute(
-                    f"""
-                    SELECT compound_id, compound, graph_subject_kind,
-                           entity_id, entity_label, entity_kind,
-                           relation_type, domain, literature_source,
-                           count(DISTINCT paper_id) AS study_count,
-                           count(DISTINCT finding_id) AS finding_count
-                    FROM evidence_edges
-                    WHERE {" AND ".join(clauses)}
-                    GROUP BY compound_id, compound, graph_subject_kind,
-                             entity_id, entity_label, entity_kind,
-                             relation_type, domain, literature_source
-                    ORDER BY study_count DESC, finding_count DESC, compound, entity_label
-                    LIMIT ?
-                    """,
-                    [*params, request.limit],
-                )
-            )
-        return {
-            "meta": {
-                **self.release_meta(info),
-                "scope": request.scope,
-                "entity_id": entity_id,
-                "returned": len(results),
-            },
+            "meta": self.paged_meta(
+                info, total=total, returned=len(results), offset=offset
+            ),
             "results": results,
         }
 

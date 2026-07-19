@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import contextlib
+import logging
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -10,7 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 
 from .config import Settings
 from .mcp_server import create_mcp_server
-from .models import AggregateQuery, FindingQuery, NeighborQuery
+from .models import PaperQuery, RelationshipQuery
 from .repository import (
     InvalidQuery,
     QueryArtifactUnavailable,
@@ -18,6 +20,10 @@ from .repository import (
     QueryService,
     ReleaseChanged,
 )
+from .r2_sync import sync_from_settings
+
+
+LOGGER = logging.getLogger("uvicorn.error")
 
 
 def create_app(
@@ -29,19 +35,45 @@ def create_app(
     service = service or QueryService.from_settings(settings)
     mcp = create_mcp_server(service, settings)
 
+    def load_remote_data(target_app: FastAPI) -> None:
+        LOGGER.info("Starting R2 data synchronization")
+        try:
+            result = sync_from_settings(settings)
+        except Exception as exc:
+            target_app.state.data_status = "error"
+            target_app.state.data_error = type(exc).__name__
+            LOGGER.exception("R2 data synchronization failed")
+            return
+        target_app.state.data_status = "ready"
+        target_app.state.data_error = ""
+        if result is not None:
+            LOGGER.info(
+                "R2 data synchronization complete: release=%s source=%s",
+                result["release_id"],
+                "downloaded" if result["downloaded"] else "cached",
+            )
+
     @contextlib.asynccontextmanager
-    async def lifespan(_app: FastAPI):
+    async def lifespan(target_app: FastAPI):
+        if settings.r2 is not None:
+            threading.Thread(
+                target=load_remote_data,
+                args=(target_app,),
+                name="r2-data-sync",
+                daemon=True,
+            ).start()
         async with mcp.session_manager.run():
             yield
 
     app = FastAPI(
         title="Psychedelics Knowledge Graph API",
         version="1.0.0",
-        summary="Read-only, release-aware access to normalized psychedelic research evidence.",
+        summary="Read-only access to a curated psychedelic-research catalogue.",
         description=(
-            "Primary studies, meta-analyses, and reviews remain separate. The default "
-            "main_graph scope returns overview-admitted findings; all_normalized also "
-            "returns findings retained as paper detail. Finding rows are not independent studies."
+            "Search papers, concepts, externally identified authors, and deduplicated "
+            "paper-level relationships. Primary studies, meta-analyses, and reviews "
+            "are classified separately. Granular extracted findings, statistics, "
+            "quotes, and internal curation fields are intentionally not public."
         ),
         servers=[
             {
@@ -50,13 +82,23 @@ def create_app(
             }
         ],
         openapi_external_docs={
-            "description": "Data, API, and agent access guide",
-            "url": "https://psychedelicskg.com/developers/",
+            "description": "API guide",
+            "url": "https://psychedelicskg.com/api/",
         },
         lifespan=lifespan,
     )
     app.state.query_service = service
     app.state.mcp = mcp
+    if settings.r2 is not None:
+        app.state.data_status = "loading"
+    else:
+        try:
+            service.health()
+        except QueryArtifactUnavailable:
+            app.state.data_status = "error"
+        else:
+            app.state.data_status = "ready"
+    app.state.data_error = ""
 
     if settings.cors_origins:
         app.add_middleware(
@@ -71,9 +113,21 @@ def create_app(
     async def artifact_unavailable(
         _request: Request, exc: QueryArtifactUnavailable
     ) -> JSONResponse:
+        data_status = app.state.data_status
+        if data_status == "loading":
+            detail = "The research database is still loading. Retry shortly."
+        elif data_status == "error":
+            detail = "The research database could not be loaded; see service logs."
+        else:
+            detail = str(exc)
         return JSONResponse(
             status_code=503,
-            content={"error": "artifact_unavailable", "detail": str(exc)},
+            content={
+                "error": "artifact_unavailable",
+                "data_status": data_status,
+                "detail": detail,
+            },
+            headers={"Retry-After": "10"} if data_status == "loading" else None,
         )
 
     @app.exception_handler(QueryNotFound)
@@ -101,8 +155,17 @@ def create_app(
             "docs": "/docs",
             "openapi": "/openapi.json",
             "mcp": "/mcp",
-            "website_documentation": "https://psychedelicskg.com/developers/",
-            "agent_guide": "https://psychedelicskg.com/developers/agent-guide.md",
+            "data_status": app.state.data_status,
+            "readiness": "/readyz",
+            "website_documentation": "https://psychedelicskg.com/api/",
+            "agent_guide": "https://psychedelicskg.com/api/agent-guide.md",
+            "endpoints": {
+                "filters": "/api/v1/facets",
+                "concept_search": "/api/v1/concepts/search",
+                "author_search": "/api/v1/authors/search",
+                "paper_search": "/api/v1/papers/query",
+                "relationship_search": "/api/v1/relationships/query",
+            },
         }
 
     @app.get("/", tags=["service"])
@@ -119,7 +182,37 @@ def create_app(
 
     @app.get("/healthz", tags=["service"])
     def health() -> dict[str, Any]:
-        return service.health()
+        """Confirm that the web process can accept requests."""
+        return {
+            "status": "ok",
+            "data_status": app.state.data_status,
+        }
+
+    @app.get("/readyz", tags=["service"])
+    def readiness() -> Response:
+        """Confirm that the research database is ready for queries."""
+        try:
+            detail = service.health()
+        except QueryArtifactUnavailable:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "not_ready",
+                    "data_status": app.state.data_status,
+                    "detail": (
+                        "The research database is still loading."
+                        if app.state.data_status == "loading"
+                        else "The research database could not be loaded; see service logs."
+                    ),
+                },
+            )
+        return JSONResponse(
+            content={
+                **detail,
+                "status": "ready",
+                "data_status": app.state.data_status,
+            }
+        )
 
     @app.get("/api/v1/meta", tags=["release"])
     def meta() -> dict[str, Any]:
@@ -129,45 +222,66 @@ def create_app(
     def schema() -> dict[str, Any]:
         return service.schema()
 
-    @app.get("/api/v1/entities/search", tags=["entities"])
-    def search_entities(
+    @app.get("/api/v1/facets", tags=["catalogue"])
+    def facets() -> dict[str, Any]:
+        return service.facets()
+
+    @app.get("/api/v1/concepts/search", tags=["concepts"])
+    def search_concepts(
         q: str = Query(min_length=1, max_length=200),
-        entity_kind: list[str] | None = Query(default=None),
+        concept_kind: list[str] | None = Query(default=None),
+        domain: list[str] | None = Query(default=None),
         limit: int = Query(default=15, ge=1, le=50),
     ) -> dict[str, Any]:
-        return service.search_entities(q, entity_kinds=entity_kind or [], limit=limit)
+        return service.search_concepts(
+            q,
+            concept_kinds=concept_kind or [],
+            domains=domain or [],
+            limit=limit,
+        )
 
-    @app.get("/api/v1/entities/{entity_id}", tags=["entities"])
-    def get_entity(entity_id: str) -> dict[str, Any]:
-        return service.get_entity(entity_id)
+    @app.get("/api/v1/concepts/{concept_id}", tags=["concepts"])
+    def get_concept(concept_id: str) -> dict[str, Any]:
+        return service.get_concept(concept_id)
 
-    @app.post("/api/v1/entities/{entity_id}/neighbors", tags=["entities"])
-    def neighbors(entity_id: str, request: NeighborQuery) -> dict[str, Any]:
-        return service.neighbors(entity_id, request)
+    @app.get("/api/v1/authors/search", tags=["authors"])
+    def search_authors(
+        q: str = Query(min_length=1, max_length=200),
+        limit: int = Query(default=15, ge=1, le=50),
+    ) -> dict[str, Any]:
+        return service.search_authors(q, limit=limit)
 
-    @app.post("/api/v1/findings/query", tags=["findings"])
-    def query_findings(request: FindingQuery) -> dict[str, Any]:
-        return service.query_findings(request)
+    @app.get("/api/v1/authors/{author_id}", tags=["authors"])
+    def get_author(author_id: str) -> dict[str, Any]:
+        return service.get_author(author_id)
 
-    @app.get("/api/v1/findings/{finding_id}", tags=["findings"])
-    def get_finding(finding_id: str) -> dict[str, Any]:
-        return service.get_finding(finding_id)
+    @app.get("/api/v1/authors/{author_id}/papers", tags=["authors", "papers"])
+    def get_author_papers(
+        author_id: str,
+        limit: int = Query(default=25, ge=1, le=100),
+        cursor: str | None = Query(default=None),
+    ) -> dict[str, Any]:
+        return service.get_author_papers(author_id, limit=limit, cursor=cursor)
+
+    @app.post("/api/v1/papers/query", tags=["papers"])
+    def query_papers(request: PaperQuery) -> dict[str, Any]:
+        return service.query_papers(request)
 
     @app.get("/api/v1/papers/{paper_id_or_doi:path}", tags=["papers"])
     def get_paper(
         paper_id_or_doi: str,
-        include_findings: bool = True,
-        finding_limit: int = Query(default=50, ge=1, le=100),
+        include_relationships: bool = True,
+        relationship_limit: int = Query(default=50, ge=1, le=100),
     ) -> dict[str, Any]:
         return service.get_paper(
             paper_id_or_doi,
-            include_findings=include_findings,
-            finding_limit=finding_limit,
+            include_relationships=include_relationships,
+            relationship_limit=relationship_limit,
         )
 
-    @app.post("/api/v1/aggregate", tags=["findings"])
-    def aggregate(request: AggregateQuery) -> dict[str, Any]:
-        return service.aggregate(request)
+    @app.post("/api/v1/relationships/query", tags=["relationships"])
+    def query_relationships(request: RelationshipQuery) -> dict[str, Any]:
+        return service.query_relationships(request)
 
     def download(logical_name: str) -> Response:
         target = service.download_target(logical_name)

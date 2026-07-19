@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Query the Psychedelics Knowledge Graph and retrieve structured research data."
+    />
+    <title>API | Psychedelics Knowledge Graph</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8M798XF54S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-8M798XF54S");
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="alternate" type="text/markdown" href="/api/agent-guide.md" title="Agent access guide" />
+    <link rel="service-desc" type="application/vnd.oai.openapi+json" href="https://psychedelics-kg-api.onrender.com/openapi.json" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260718-footer-v1" />
+  </head>
+  <body class="methods-page access-page">
+    <div class="bg" aria-hidden="true"></div>
+    <header class="site-header" data-site-header>
+      <div class="site-header-inner">
+        <button
+          class="site-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="siteNav"
+          data-site-nav-toggle
+        >
+          <span class="site-nav-toggle-icon" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
+        <nav class="site-nav" id="siteNav" aria-label="Primary" data-site-nav>
+          <a class="site-nav-link site-nav-back" href="/"><span aria-hidden="true">←</span> Back to graph</a>
+          <a class="site-nav-link" href="/about/">About</a>
+          <a class="site-nav-link" href="/methods/">Methods</a>
+          <a class="site-nav-link" href="/api/" aria-current="page">API</a>
+          <a class="site-nav-link" href="/feedback/?source=api">Leave feedback</a>
+        </nav>
+      </div>
+    </header>
+
+    <header class="about-hero">
+      <div class="about-hero-copy">
+        <h1>API</h1>
+        <p>
+          Query the Psychedelics Knowledge Graph and retrieve structured
+          research data.
+        </p>
+      </div>
+    </header>
+
+    <main class="about-content access-content">
+      <section class="about-section" id="rest-api" aria-labelledby="rest-api-heading">
+        <h2 id="rest-api-heading">Using the API</h2>
+        <p>
+          No API key is required. The service is public and read-only. It
+          provides papers, concepts, externally identified authors, and paper-level
+          relationships. Searches can be filtered by paper type, subtype,
+          author, concept, domain, relationship type, or year.
+        </p>
+        <p>
+          ORCID is used as the author ID when available, including across split
+          OpenAlex profiles. Otherwise, the OpenAlex profile ID is retained.
+          Unresolved name-only records are left out instead of being merged
+          speculatively, as are profiles carrying conflicting ORCID evidence.
+        </p>
+        <div class="access-endpoint" aria-label="REST API base URL">
+          <span>Base URL</span>
+          <code id="restBaseUrl">https://psychedelics-kg-api.onrender.com/api/v1</code>
+          <button type="button" data-copy-target="restBaseUrl">Copy</button>
+        </div>
+
+        <div class="access-example-grid">
+          <article class="access-code-card">
+            <div>
+              <span>Find a concept ID</span>
+              <button type="button" data-copy-target="conceptSearchExample">Copy</button>
+            </div>
+            <pre id="conceptSearchExample"><code>curl -sS \
+  "https://psychedelics-kg-api.onrender.com/api/v1/concepts/search?q=psilocybin&amp;limit=5"</code></pre>
+          </article>
+          <article class="access-code-card">
+            <div>
+              <span>Search papers</span>
+              <button type="button" data-copy-target="paperQueryExample">Copy</button>
+            </div>
+            <pre id="paperQueryExample"><code>curl -sS \
+  "https://psychedelics-kg-api.onrender.com/api/v1/papers/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filters": {
+      "concept_ids": ["compound:psilocybin"],
+      "paper_types": ["primary_study"],
+      "domains": ["clinical_outcome"]
+    },
+    "limit": 25
+  }'</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section" id="agent-access" aria-labelledby="agent-access-heading">
+        <h2 id="agent-access-heading">AI agents</h2>
+        <p>
+          AI agents can connect through Model Context Protocol (MCP), a standard
+          way for them to use external tools. Give an MCP-compatible agent the
+          URL below. No login is required because every available operation is
+          read-only.
+        </p>
+        <div class="access-inline-links">
+          <a href="/api/agent-guide.md">Machine-readable guide</a>
+        </div>
+
+        <div class="access-endpoint" aria-label="MCP server URL">
+          <span>MCP server</span>
+          <code id="mcpUrl">https://psychedelics-kg-api.onrender.com/mcp</code>
+          <button type="button" data-copy-target="mcpUrl">Copy</button>
+        </div>
+
+        <div class="access-agent-layout">
+          <article class="access-code-card">
+            <div>
+              <span>Typical client configuration</span>
+              <button type="button" data-copy-target="mcpConfigExample">Copy</button>
+            </div>
+            <pre id="mcpConfigExample"><code>{
+  "mcpServers": {
+    "psychedelics-knowledge-graph": {
+      "url": "https://psychedelics-kg-api.onrender.com/mcp"
+    }
+  }
+}</code></pre>
+            <p class="access-code-note">Use your client’s own field names if they differ.</p>
+          </article>
+
+          <div class="access-tool-list">
+            <h3>Available tools</h3>
+            <ul>
+              <li><code>get_release_info</code><span>Current version, scope, and record counts</span></li>
+              <li><code>list_available_filters</code><span>See valid categories and values</span></li>
+              <li><code>search_concepts</code><span>Resolve labels and aliases</span></li>
+              <li><code>get_concept</code><span>Inspect one standardized concept</span></li>
+              <li><code>search_authors</code><span>Find externally identified authors and name variants</span></li>
+              <li><code>get_author_papers</code><span>Retrieve papers linked to an author</span></li>
+              <li><code>search_papers</code><span>Filter and paginate the literature catalogue</span></li>
+              <li><code>get_paper</code><span>Look up one paper or DOI</span></li>
+              <li><code>find_relationships</code><span>Search paper-level concept relationships</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section" id="bulk-data" aria-labelledby="bulk-data-heading">
+        <h2 id="bulk-data-heading">Download the data</h2>
+        <p>
+          Download the complete public catalogue or individual documented tables.
+        </p>
+        <p class="access-download-note">
+          A download may take up to a minute to begin if the service has been idle.
+        </p>
+        <div class="access-download-list">
+          <article>
+            <div>
+              <strong>Full database</strong>
+              <span>All public tables in one DuckDB file</span>
+            </div>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/database" data-download-link>Download .duckdb</a>
+          </article>
+          <article>
+            <div>
+              <strong>Data dictionary</strong>
+              <span>Column definitions and data-version information</span>
+            </div>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/schema" target="_blank" rel="noopener noreferrer">View JSON</a>
+          </article>
+          <article>
+            <div>
+              <strong>Papers</strong>
+              <span>Publication metadata and controlled paper classifications</span>
+            </div>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/papers" data-download-link>Download .parquet</a>
+          </article>
+          <article>
+            <div>
+              <strong>Relationships</strong>
+              <span>Deduplicated concept relationships reported by papers</span>
+            </div>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/relationships" data-download-link>Download .parquet</a>
+          </article>
+          <article>
+            <div>
+              <strong>Concepts</strong>
+              <span>Standard names, aliases, and categories in Parquet format</span>
+            </div>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/concepts" data-download-link>Download .parquet</a>
+          </article>
+          <article>
+            <div>
+              <strong>Authors</strong>
+              <span>OpenAlex/ORCID-backed identities and known name variants</span>
+            </div>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/authors" data-download-link>Download .parquet</a>
+          </article>
+          <article>
+            <div>
+              <strong>Paper authors</strong>
+              <span>Links between papers and ORCID/OpenAlex author identities</span>
+            </div>
+            <a href="https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/paper_authors" data-download-link>Download .parquet</a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-identity">
+          <span>
+            Developed by
+            <a href="https://povilaskarvelis.github.io/" target="_blank" rel="noopener noreferrer">Povilas Karvelis</a>.
+          </span>
+        </div>
+        <nav class="footer-links" aria-label="Project information">
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite this project</a>
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">Licenses</a>
+        </nav>
+      </div>
+    </footer>
+    <script src="/ui/site-nav.js?v=20260717-site-nav"></script>
+    <script src="/api/access.js?v=20260718-data-access-v3"></script>
+  </body>
+</html>

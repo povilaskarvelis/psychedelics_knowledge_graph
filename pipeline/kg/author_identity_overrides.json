@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "description": "Reviewed author identity corrections. OpenAlex profiles are merged only through a shared ORCID or an explicit record in this file.",
+  "overrides": [
+    {
+      "orcid": "0000-0002-6062-7150",
+      "preferred_name": "Robin Carhart-Harris",
+      "openalex_author_ids": [
+        "https://openalex.org/A5038609897",
+        "https://openalex.org/A5072682798",
+        "https://openalex.org/A5109246392",
+        "https://openalex.org/A5114622968",
+        "https://openalex.org/A5126144213",
+        "https://openalex.org/A5126650456",
+        "https://openalex.org/A5130294512",
+        "https://openalex.org/A5130387358",
+        "https://openalex.org/A5133045443",
+        "https://openalex.org/A5135058125"
+      ],
+      "local_name_aliases": [
+        "Carhart-Harris RL"
+      ],
+      "reason": "OpenAlex split this researcher across multiple profiles; ORCID public record identifies Robin Carhart-Harris as 0000-0002-6062-7150."
+    }
+  ]
+}

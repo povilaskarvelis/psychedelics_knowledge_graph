@@ -1,7 +1,7 @@
 # Files and directories copied into dist/ for Netlify.
 index.html
 about
-developers
+api
 feedback
 methods
 llms.txt

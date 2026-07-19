@@ -37,7 +37,7 @@ from services.query_api.r2_store import (  # noqa: E402
 
 DEFAULT_ACTIVE_POINTER = ROOT / "data" / "processed" / "graph_payload_active.json"
 DEFAULT_QUERY_RUNS_DIR = ROOT / "data" / "processed" / "query_api_runs"
-QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_query_manifest_v1"
+QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_catalogue_manifest_v2"
 IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable"
 ACTIVE_CACHE_CONTROL = "no-cache, max-age=0, must-revalidate"
 

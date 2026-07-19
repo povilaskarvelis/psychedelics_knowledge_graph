@@ -22,6 +22,10 @@ class BuildRoutedKgPayloadScriptTest(unittest.TestCase):
             temp = Path(tmpdir)
             bin_dir = temp / "bin"
             bin_dir.mkdir()
+            kg_dir = temp / "kg"
+            kg_dir.mkdir()
+            author_cache_seed = temp / "author-cache-seed.json"
+            author_cache_seed.write_text('{"works_by_doi": {}}\n', encoding="utf-8")
             call_log = temp / "calls.log"
             fake_python = bin_dir / "python3"
             fake_python.write_text(
@@ -44,10 +48,11 @@ esac
                     "PATH": f"{bin_dir}:{env['PATH']}",
                     "CALL_LOG": str(call_log),
                     "FAIL_PROMOTION": "1" if fail_promotion else "0",
-                    "KG_DIR": str(temp / "kg"),
+                    "KG_DIR": str(kg_dir),
                     "PAYLOAD_DIR": str(temp / "payload"),
                     "QUERY_DIR": str(temp / "query"),
                     "PUBLISH_QUERY_API_R2": publish_r2,
+                    "AUTHOR_CACHE_SEED": str(author_cache_seed),
                 }
             )
             if activate_default is None:

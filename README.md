@@ -6,7 +6,7 @@ and keep up to date.
 [Explore the knowledge graph](https://psychedelicskg.com/) ·
 [About](https://psychedelicskg.com/about/) ·
 [Methods](https://psychedelicskg.com/methods/) ·
-[Data & API](https://psychedelicskg.com/developers/) ·
+[API](https://psychedelicskg.com/api/) ·
 [Pipeline guide](pipeline/README.md) ·
 [Evidence policy](docs/evidence_policy.md) ·
 [API and agent access](docs/agent_access.md)
@@ -46,10 +46,11 @@ This repository includes the full workflow behind the public graph:
 The main data is stored in normalized tables. The browser graph presents a
 readable view of that data rather than trying to display everything at once.
 
-For machine use, every promoted release can also produce a sanitized DuckDB
-database and Parquet downloads, a read-only REST/OpenAPI service, and MCP tools
-for AI agents. These interfaces follow the same active release pointer as the
-browser; see the [API and agent access guide](docs/agent_access.md).
+For machine use, every release can also produce a narrow public catalogue of
+papers, concepts, OpenAlex/ORCID-backed authors, and paper-level relationships. It is
+available through DuckDB and Parquet downloads, a read-only REST/OpenAPI
+service, and MCP tools for AI agents. Granular extraction data remains internal;
+see the [API and agent access guide](docs/agent_access.md).
 Production setup is covered by the [R2 deployment checklist](docs/r2_deployment.md).
 
 ## Repository map

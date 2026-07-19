@@ -76,7 +76,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260717-site-nav-v6" />
+    <link rel="stylesheet" href="styles.css?v=20260718-footer-v1" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -95,7 +95,7 @@
         <nav class="site-nav" id="siteNav" aria-label="Primary" data-site-nav>
           <a class="site-nav-link" href="/about/">About</a>
           <a class="site-nav-link" href="/methods/">Methods</a>
-          <a class="site-nav-link" href="/developers/">Data &amp; API</a>
+          <a class="site-nav-link" href="/api/">API</a>
           <a class="site-nav-link" href="/feedback/?source=graph">Leave feedback</a>
         </nav>
       </div>
@@ -222,12 +222,18 @@
     </main>
 
     <footer class="footer">
-      <div>
-        Developed by
-        <a href="https://povilaskarvelis.github.io/" target="_blank" rel="noopener noreferrer">Povilas Karvelis</a>. The code for literature search and knowledge graph construction is open source and available
-        <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">here</a>.
-        Data and agent access are documented <a href="/developers/">here</a>.
-        You can also <a href="/feedback/?source=graph-footer">leave private feedback</a>.
+      <div class="footer-inner">
+        <div class="footer-identity">
+          <span>
+            Developed by
+            <a href="https://povilaskarvelis.github.io/" target="_blank" rel="noopener noreferrer">Povilas Karvelis</a>.
+          </span>
+        </div>
+        <nav class="footer-links" aria-label="Project information">
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite this project</a>
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">Licenses</a>
+        </nav>
       </div>
     </footer>
 

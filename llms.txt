@@ -1,25 +1,25 @@
 # Psychedelics Knowledge Graph
 
-> A living, provenance-rich map of psychedelic research for human exploration and read-only use by applications and AI agents.
+> A living map of psychedelic research with links from structured findings back to their source reports, available to people, applications, and AI agents.
 
-The project separates primary studies, meta-analyses, and reviews. Finding rows
-are not independent studies; use distinct study counts for evidence-volume
-comparisons. Cite DOI, evidence location, result direction, and active release ID
-when using evidence from the graph.
+The public API provides a curated catalogue of papers, concepts,
+OpenAlex/ORCID-backed authors, and deduplicated paper-level relationships. It intentionally does
+not expose granular findings, statistics, quotes, or internal curation data.
+Record the data version ID when using API results.
 
 ## Agent and data access
 
-- [Agent access guide](https://psychedelicskg.com/developers/agent-guide.md): Concise machine-readable instructions, endpoints, tool inventory, and evidence semantics.
-- [Human data and API guide](https://psychedelicskg.com/developers/): REST, MCP, and bulk-download documentation with live release status.
+- [Agent access guide](https://psychedelicskg.com/api/agent-guide.md): Concise machine-readable instructions, endpoints, available tools, and interpretation guidance.
+- [API guide](https://psychedelicskg.com/api/): REST, MCP, and download documentation.
 - [OpenAPI schema](https://psychedelics-kg-api.onrender.com/openapi.json): Machine-readable REST contract.
 - [Interactive API reference](https://psychedelics-kg-api.onrender.com/docs): Browser-based endpoint documentation.
-- [MCP server](https://psychedelics-kg-api.onrender.com/mcp): Public read-only Streamable HTTP Model Context Protocol endpoint.
-- [Active release metadata](https://psychedelics-kg-api.onrender.com/api/v1/meta): Release ID, row counts, scopes, and counting warnings.
-- [Public query schema](https://psychedelics-kg-api.onrender.com/api/v1/schema): Tables, fields, and interpretation metadata.
+- [MCP server](https://psychedelics-kg-api.onrender.com/mcp): Public read-only Model Context Protocol endpoint for remote clients.
+- [Data version and counts](https://psychedelics-kg-api.onrender.com/api/v1/meta): Version ID, public scope, and record counts.
+- [Database structure](https://psychedelics-kg-api.onrender.com/api/v1/schema): Documented tables, fields, keys, and limitations.
 
 ## Human-facing project documentation
 
-- [Interactive graph](https://psychedelicskg.com/): Navigate evidence by compound, domain, and canonical entity.
+- [Interactive graph](https://psychedelicskg.com/): Navigate evidence by compound, research area, and standardized concept.
 - [About](https://psychedelicskg.com/about/): Purpose and intended use of the project.
 - [Methods](https://psychedelicskg.com/methods/): Literature discovery, screening, extraction, validation, and updating methods.
 - [Source repository](https://github.com/povilaskarvelis/psychedelics_knowledge_graph): Open-source pipeline and technical documentation.

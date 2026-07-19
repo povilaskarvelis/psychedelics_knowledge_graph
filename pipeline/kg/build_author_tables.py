@@ -3,8 +3,9 @@
 
 The graph payloads should group author facets by stable IDs rather than display
 names. This stage resolves authorships for the exact paper set in
-`data/processed/kg/papers.parquet`, using OpenAlex when possible and falling
-back to local name-only IDs when needed.
+`data/processed/kg/papers.parquet`. It may retain unresolved names in memory for
+auditing, but it refuses to write release author tables unless at least 95% of
+authorship rows have an OpenAlex or ORCID identity.
 """
 
 from __future__ import annotations
@@ -44,7 +45,10 @@ DEFAULT_CACHE = DEFAULT_KG_DIR / "openalex_author_cache.json"
 DEFAULT_AUTHORS = DEFAULT_KG_DIR / "authors.parquet"
 DEFAULT_PAPER_AUTHORS = DEFAULT_KG_DIR / "paper_authors.parquet"
 DEFAULT_REPORT = DEFAULT_KG_DIR / "author_resolution_report.json"
-KG_AUTHOR_TABLE_VERSION = "0.1"
+DEFAULT_IDENTITY_OVERRIDES = ROOT / "pipeline" / "kg" / "author_identity_overrides.json"
+KG_AUTHOR_TABLE_VERSION = "0.2"
+MIN_STRUCTURED_AUTHORSHIP_RATE = 0.95
+MIN_OFFLINE_CACHE_COVERAGE = 0.95
 
 UNKNOWN_AUTHOR_VALUES = {
     "",
@@ -57,6 +61,7 @@ UNKNOWN_AUTHOR_VALUES = {
     "none",
 }
 ORCID_RE = re.compile(r"(?:https?://orcid\.org/|orcid[:\s]+|id_orcid\s+)?(\d{4}-\d{4}-\d{4}-[\dXx]{4})")
+NON_IDENTITY_OPENALEX_AUTHOR_IDS = {"A9999999999", "A5317838346"}
 
 
 def now_utc() -> str:
@@ -128,6 +133,121 @@ def read_json(path: Path) -> dict[str, Any]:
     data.setdefault("version", KG_AUTHOR_TABLE_VERSION)
     data.setdefault("works_by_doi", {})
     return data
+
+
+def load_identity_overrides(path: Path) -> dict[str, dict[str, str]]:
+    """Load explicit, reviewed mappings without inferring identity from names."""
+
+    if not path.is_file():
+        return {
+            "openalex_to_orcid": {},
+            "local_name_to_orcid": {},
+            "preferred_name_by_orcid": {},
+        }
+    payload = read_json(path)
+    records = payload.get("overrides", [])
+    if not isinstance(records, list):
+        raise ValueError(f"Identity overrides must contain an overrides array: {path}")
+
+    openalex_to_orcid: dict[str, str] = {}
+    local_name_to_orcid: dict[str, str] = {}
+    preferred_name_by_orcid: dict[str, str] = {}
+    for index, record in enumerate(records, start=1):
+        if not isinstance(record, dict):
+            raise ValueError(f"Identity override {index} is not an object: {path}")
+        orcid = normalize_orcid(record.get("orcid", ""))
+        preferred_name = normalize(record.get("preferred_name", ""))
+        reason = normalize(record.get("reason", ""))
+        if not orcid or not preferred_name or not reason:
+            raise ValueError(
+                f"Identity override {index} requires a valid ORCID, preferred_name, and reason: {path}"
+            )
+        preferred_name_by_orcid[orcid] = preferred_name
+        for value in record.get("openalex_author_ids", []):
+            openalex_id = normalize_openalex_id(value)
+            previous = openalex_to_orcid.get(openalex_id)
+            if previous and previous != orcid:
+                raise ValueError(f"OpenAlex author {openalex_id} maps to multiple ORCIDs in {path}")
+            openalex_to_orcid[openalex_id] = orcid
+        for value in record.get("local_name_aliases", []):
+            name = canonical_name(value)
+            previous = local_name_to_orcid.get(name)
+            if previous and previous != orcid:
+                raise ValueError(f"Author name {value!r} maps to multiple ORCIDs in {path}")
+            local_name_to_orcid[name] = orcid
+    return {
+        "openalex_to_orcid": openalex_to_orcid,
+        "local_name_to_orcid": local_name_to_orcid,
+        "preferred_name_by_orcid": preferred_name_by_orcid,
+    }
+
+
+def paper_dois(papers: pd.DataFrame) -> set[str]:
+    return {
+        doi
+        for value in papers.get("doi", [])
+        if (doi := normalize_doi(value))
+    }
+
+
+def successful_cache_coverage(papers: pd.DataFrame, cache: dict[str, Any]) -> tuple[int, int, float]:
+    """Return successful OpenAlex cache entries for the DOI-bearing paper set."""
+
+    dois = paper_dois(papers)
+    works_by_doi = cache.get("works_by_doi", {})
+    successful = sum(
+        1
+        for doi in dois
+        if isinstance(works_by_doi.get(doi), dict)
+        and normalize(works_by_doi[doi].get("status", "")) == "ok"
+        and bool(works_by_doi[doi].get("authorships"))
+    )
+    rate = successful / len(dois) if dois else 0.0
+    return successful, len(dois), rate
+
+
+def structured_authorship_coverage(paper_authors: pd.DataFrame) -> tuple[int, int, float]:
+    """Return authorship rows backed by stable OpenAlex or ORCID identities."""
+
+    total = len(paper_authors)
+    if not total or "author_id" not in paper_authors.columns:
+        return 0, total, 0.0
+    structured_mask = (
+        paper_authors["author_id"]
+        .fillna("")
+        .astype(str)
+        .str.startswith(("openalex:", "orcid:"))
+    )
+    if "identity_confidence" in paper_authors.columns:
+        structured_mask &= paper_authors["identity_confidence"].ne(
+            "openalex_author_id_orcid_conflict"
+        )
+    structured = int(structured_mask.sum())
+    return structured, total, structured / total
+
+
+def require_offline_cache_coverage(papers: pd.DataFrame, cache: dict[str, Any], cache_path: Path) -> None:
+    successful, total, rate = successful_cache_coverage(papers, cache)
+    if rate < MIN_OFFLINE_CACHE_COVERAGE:
+        raise RuntimeError(
+            "Offline author resolution refused: OpenAlex cache "
+            f"{cache_path} contains successful authorships for {successful}/{total} "
+            f"DOI-bearing papers ({rate:.1%}); at least {MIN_OFFLINE_CACHE_COVERAGE:.0%} "
+            "is required. Seed this run with an explicit AUTHOR_CACHE_SEED or run "
+            "without --offline to refresh the cache. Existing author tables were not changed."
+        )
+
+
+def require_structured_authorship_coverage(paper_authors: pd.DataFrame) -> tuple[int, int, float]:
+    structured, total, rate = structured_authorship_coverage(paper_authors)
+    if rate < MIN_STRUCTURED_AUTHORSHIP_RATE:
+        raise RuntimeError(
+            "Author table build refused: only "
+            f"{structured}/{total} authorship rows ({rate:.1%}) have an OpenAlex or "
+            f"ORCID identity; at least {MIN_STRUCTURED_AUTHORSHIP_RATE:.0%} is required. "
+            "Existing author tables were not changed."
+        )
+    return structured, total, rate
 
 
 def write_cache(path: Path, cache: dict[str, Any]) -> None:
@@ -295,6 +415,8 @@ def split_local_author_string(authors: object) -> list[dict[str, str]]:
 def author_identity_from_openalex(row: dict[str, str]) -> dict[str, str]:
     name = normalize(row.get("display_name", "")) or normalize(row.get("raw_author_name", ""))
     openalex_author_id = normalize_openalex_id(row.get("openalex_author_id", ""))
+    if openalex_short_id(openalex_author_id) in NON_IDENTITY_OPENALEX_AUTHOR_IDS:
+        openalex_author_id = ""
     orcid = normalize_orcid(row.get("orcid", ""))
     if openalex_author_id:
         author_id = f"openalex:{openalex_short_id(openalex_author_id)}"
@@ -396,6 +518,92 @@ def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame,
     }
 
 
+def apply_orcid_identities(
+    paper_authors: pd.DataFrame,
+    identity_overrides: dict[str, dict[str, str]] | None = None,
+) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Canonicalize identities by ORCID only when the evidence is unambiguous."""
+
+    empty_stats = {
+        "openalex_profiles_linked_to_orcid": 0,
+        "openalex_profiles_with_conflicting_orcids": 0,
+        "openalex_profiles_merged_by_shared_orcid": 0,
+        "authorship_rows_canonicalized_to_orcid": 0,
+        "curated_openalex_profile_mappings": 0,
+        "curated_local_name_mappings": 0,
+    }
+    if paper_authors.empty:
+        return paper_authors, empty_stats
+
+    out = paper_authors.copy()
+    overrides = identity_overrides or {}
+    openalex_overrides = overrides.get("openalex_to_orcid", {})
+    local_name_overrides = overrides.get("local_name_to_orcid", {})
+
+    curated_openalex_rows = 0
+    for index in out.index:
+        openalex_id = normalize_openalex_id(out.at[index, "openalex_author_id"])
+        curated_orcid = openalex_overrides.get(openalex_id, "")
+        observed_orcid = normalize_orcid(out.at[index, "orcid"])
+        if curated_orcid:
+            if observed_orcid and observed_orcid != curated_orcid:
+                raise ValueError(
+                    f"Curated ORCID {curated_orcid} conflicts with observed ORCID "
+                    f"{observed_orcid} for {openalex_id}"
+                )
+            out.at[index, "orcid"] = curated_orcid
+            curated_openalex_rows += 1
+
+    local_mask = out["author_id"].astype(str).str.startswith("local_author:")
+    curated_local_mask = local_mask & out["canonical_name"].map(
+        lambda value: canonical_name(value) in local_name_overrides
+    )
+    for index in out.index[curated_local_mask]:
+        orcid = local_name_overrides[canonical_name(out.at[index, "canonical_name"])]
+        out.at[index, "author_id"] = f"orcid:{orcid}"
+        out.at[index, "orcid"] = orcid
+        out.at[index, "identity_confidence"] = "curated_name_to_orcid"
+
+    openalex_rows = out[out["openalex_author_id"].fillna("").astype(str).str.strip().ne("")]
+    observed = openalex_rows[openalex_rows["orcid"].fillna("").astype(str).str.strip().ne("")]
+    orcids_by_openalex = observed.groupby("openalex_author_id")["orcid"].agg(
+        lambda values: sorted({normalize_orcid(value) for value in values if normalize_orcid(value)})
+    )
+    conflicts = {openalex_id for openalex_id, values in orcids_by_openalex.items() if len(values) > 1}
+    safe_mapping = {
+        normalize_openalex_id(openalex_id): values[0]
+        for openalex_id, values in orcids_by_openalex.items()
+        if len(values) == 1
+    }
+
+    canonicalized_rows = 0
+    if conflicts:
+        conflict_mask = out["openalex_author_id"].isin(conflicts)
+        out.loc[conflict_mask, "orcid"] = ""
+        out.loc[conflict_mask, "identity_confidence"] = "openalex_author_id_orcid_conflict"
+    for index in out.index:
+        openalex_id = normalize_openalex_id(out.at[index, "openalex_author_id"])
+        orcid = safe_mapping.get(openalex_id, "")
+        if not orcid:
+            continue
+        out.at[index, "author_id"] = f"orcid:{orcid}"
+        out.at[index, "orcid"] = orcid
+        out.at[index, "identity_confidence"] = "orcid"
+        canonicalized_rows += 1
+
+    profiles_per_orcid: Counter[str] = Counter(safe_mapping.values())
+    return out, {
+        "openalex_profiles_linked_to_orcid": len(safe_mapping),
+        "openalex_profiles_with_conflicting_orcids": len(conflicts),
+        "openalex_profiles_merged_by_shared_orcid": sum(
+            count - 1 for count in profiles_per_orcid.values() if count > 1
+        ),
+        "authorship_rows_canonicalized_to_orcid": canonicalized_rows,
+        "curated_openalex_profile_mappings": len(openalex_overrides),
+        "curated_local_name_mappings": int(curated_local_mask.sum()),
+    }
+
+
 def first_nonempty(values: Iterable[object]) -> str:
     for value in values:
         text = normalize(value)
@@ -439,6 +647,16 @@ def build_authors_from_authorships(paper_authors: pd.DataFrame) -> pd.DataFrame:
                 "display_name": display_name,
                 "canonical_name": canonical_name(display_name),
                 "openalex_author_id": first_nonempty(group["openalex_author_id"]),
+                "openalex_author_ids_json": json.dumps(
+                    sorted(
+                        {
+                            normalize_openalex_id(value)
+                            for value in group["openalex_author_id"]
+                            if normalize_openalex_id(value)
+                        }
+                    ),
+                    ensure_ascii=False,
+                ),
                 "orcid": first_nonempty(group["orcid"]),
                 "source": best_author_source(group["source"]),
                 "identity_confidence": best_author_identity_confidence(author_id, group["identity_confidence"]),
@@ -459,7 +677,11 @@ def build_authors_from_authorships(paper_authors: pd.DataFrame) -> pd.DataFrame:
     return authors.sort_values(["paper_count", "display_name"], ascending=[False, True]).reset_index(drop=True)
 
 
-def build_tables(papers: pd.DataFrame, cache: dict[str, Any]) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+def build_tables(
+    papers: pd.DataFrame,
+    cache: dict[str, Any],
+    identity_overrides: dict[str, dict[str, str]] | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     authorship_rows: list[dict[str, Any]] = []
     paper_status_counts: Counter = Counter()
 
@@ -510,14 +732,28 @@ def build_tables(papers: pd.DataFrame, cache: dict[str, Any]) -> tuple[pd.DataFr
 
     paper_authors = pd.DataFrame(authorship_rows)
     if not paper_authors.empty:
+        paper_authors, orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)
         paper_authors, alias_stats = apply_exact_name_aliases(paper_authors)
         paper_authors = paper_authors.sort_values(["paper_id", "author_position", "display_name"]).reset_index(drop=True)
     else:
+        orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)[1]
         alias_stats = {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
     authors = build_authors_from_authorships(paper_authors)
 
     report = build_report(papers, cache, authors, paper_authors, paper_status_counts)
+    report["orcid_identity_resolution_counts"] = orcid_stats
     report["name_alias_resolution_counts"] = alias_stats
+
+    preferred_names = (identity_overrides or {}).get("preferred_name_by_orcid", {})
+    if not authors.empty and preferred_names:
+        for index in authors.index:
+            author_id = normalize(authors.at[index, "author_id"])
+            if not author_id.startswith("orcid:"):
+                continue
+            preferred_name = preferred_names.get(author_id.removeprefix("orcid:"), "")
+            if preferred_name:
+                authors.at[index, "display_name"] = preferred_name
+                authors.at[index, "canonical_name"] = canonical_name(preferred_name)
     return authors, paper_authors, report
 
 
@@ -555,6 +791,7 @@ def build_report(
     source_counts = paper_authors["source"].value_counts().to_dict() if not paper_authors.empty else {}
     author_confidence_counts = authors["identity_confidence"].value_counts().to_dict() if not authors.empty else {}
     author_source_counts = authors["source"].value_counts().to_dict() if not authors.empty else {}
+    structured_rows, total_rows, structured_rate = structured_authorship_coverage(paper_authors)
     capped_input_author_strings = 0
     if "authors" in papers.columns:
         capped_input_author_strings = int(
@@ -568,6 +805,10 @@ def build_report(
         "paper_status_counts": dict(sorted(paper_status_counts.items())),
         "openalex_cache_status_counts": dict(sorted(cache_status.items())),
         "paper_author_rows": int(len(paper_authors)),
+        "structured_authorship_rows": structured_rows,
+        "unresolved_authorship_rows": total_rows - structured_rows,
+        "structured_authorship_rate": structured_rate,
+        "minimum_structured_authorship_rate": MIN_STRUCTURED_AUTHORSHIP_RATE,
         "unique_authors": int(len(authors)),
         "authorship_identity_confidence_counts": {str(k): int(v) for k, v in sorted(confidence_counts.items())},
         "authorship_source_counts": {str(k): int(v) for k, v in sorted(source_counts.items())},
@@ -584,6 +825,11 @@ def main() -> int:
     parser.add_argument("--papers", default=str(DEFAULT_PAPERS), help="Input kg/papers.parquet")
     parser.add_argument("--out-dir", default=str(DEFAULT_KG_DIR), help="Output KG directory")
     parser.add_argument("--cache", default=str(DEFAULT_CACHE), help="OpenAlex author cache JSON")
+    parser.add_argument(
+        "--identity-overrides",
+        default=str(DEFAULT_IDENTITY_OVERRIDES),
+        help="Reviewed OpenAlex/ORCID identity correction registry",
+    )
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.local.yaml"), help="Optional local config YAML")
     parser.add_argument("--openalex-email", default=os.getenv("OPENALEX_EMAIL", ""))
     parser.add_argument("--openalex-api-key", default=os.getenv("OPENALEX_API_KEY", ""))
@@ -592,7 +838,14 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=10)
     parser.add_argument("--checkpoint-every", type=int, default=20)
     parser.add_argument("--refresh", action="store_true", help="Refresh cached OpenAlex lookups")
-    parser.add_argument("--offline", action="store_true", help="Do not query OpenAlex; use cache/local author strings only")
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help=(
+            "Do not query OpenAlex. Requires the existing cache to resolve at least "
+            f"{MIN_OFFLINE_CACHE_COVERAGE:.0%} of DOI-bearing papers."
+        ),
+    )
     args = parser.parse_args()
 
     papers_path = Path(args.papers)
@@ -609,7 +862,10 @@ def main() -> int:
 
     papers = pd.read_parquet(papers_path)
     cache = read_json(cache_path)
-    if not args.offline:
+    identity_overrides = load_identity_overrides(Path(args.identity_overrides))
+    if args.offline:
+        require_offline_cache_coverage(papers, cache, cache_path)
+    else:
         client = OpenAlexClient(api_key=api_key, email=email, rps=rps, timeout=args.openalex_timeout)
         cache = refresh_cache_for_papers(
             papers,
@@ -622,7 +878,8 @@ def main() -> int:
         )
         write_cache(cache_path, cache)
 
-    authors, paper_authors, report = build_tables(papers, cache)
+    authors, paper_authors, report = build_tables(papers, cache, identity_overrides)
+    require_structured_authorship_coverage(paper_authors)
     out_dir.mkdir(parents=True, exist_ok=True)
     authors.to_parquet(out_dir / "authors.parquet", index=False)
     paper_authors.to_parquet(out_dir / "paper_authors.parquet", index=False)

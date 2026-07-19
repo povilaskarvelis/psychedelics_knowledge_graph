@@ -217,8 +217,18 @@ This writes:
 
 - `authors.parquet`: one row per resolved author identity.
 - `paper_authors.parquet`: ordered source-report author rows with first/last flags.
-- `author_resolution_report.json`: OpenAlex vs fallback resolution counts.
+- `author_resolution_report.json`: structured identity coverage and unresolved-row counts.
 - `openalex_author_cache.json`: cached OpenAlex authorship lookups for rebuilds.
+
+The command refuses to replace the author tables unless at least 95% of
+authorship rows have an OpenAlex or ORCID identity. Offline builds also require
+successful cached authorships for at least 95% of the DOI-bearing paper set. For
+a new offline routed run, provide the cache explicitly:
+
+```bash
+AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json \
+  scripts/build_routed_kg_payload.sh "$RUN_ID" --offline
+```
 
 This table layer is the preferred place to build new graph views. The browser UI
 should continue to load compact JSON payloads generated from these tables rather

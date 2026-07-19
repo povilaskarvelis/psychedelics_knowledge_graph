@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from pipeline.publish.publish_query_api_r2 import publish_active_query_release
 from services.query_api.app import create_app
 from services.query_api.config import R2Settings, Settings
-from services.query_api.models import FindingQuery
+from services.query_api.models import PaperQuery
 from services.query_api.r2_sync import R2ReleaseSynchronizer, validate_remote_active
 from services.query_api.repository import QueryService, ReleaseResolver
 from tests.query_api_fixtures import build_active_query_release
@@ -68,17 +68,15 @@ class QueryApiR2SyncTest(unittest.TestCase):
                 public_base_url=settings.public_base_url,
                 remote_store=store,
             )
-            query = service.query_findings(
-                FindingQuery(scope="all_normalized", limit=10)
-            )
+            query = service.query_papers(PaperQuery(limit=10))
             self.assertEqual(query["meta"]["total"], 3)
-            target = service.download_target("table:findings")
+            target = service.download_target("table:papers")
             self.assertIsNone(target.path)
             self.assertTrue(target.url.startswith("https://r2.example.test/"))
             app = create_app(service, settings=settings)
             with TestClient(app) as client:
                 response = client.get(
-                    "/api/v1/downloads/tables/findings",
+                    "/api/v1/downloads/tables/papers",
                     follow_redirects=False,
                 )
             self.assertEqual(response.status_code, 307)

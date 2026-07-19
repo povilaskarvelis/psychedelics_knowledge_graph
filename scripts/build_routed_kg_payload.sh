@@ -14,13 +14,15 @@ release through the guarded publisher when explicitly requested.
 
 Examples:
   scripts/build_routed_kg_payload.sh gemini3_flash_20260628_primary_extraction
-  ACTIVATE_DEFAULT=1 scripts/build_routed_kg_payload.sh gemini3_flash_20260628_primary_extraction --offline
+  AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json \
+    scripts/build_routed_kg_payload.sh gemini3_flash_20260628_primary_extraction --offline
 
 Environment overrides:
   KG_DIR=/path/to/kg-run
   PAYLOAD_DIR=/path/to/graph-payload-run
   QUERY_DIR=/path/to/query-api-run
   EVIDENCE_RUN_ID=existing-run  # rebuild a new release from an existing evidence snapshot
+  AUTHOR_CACHE_SEED=/path/to/cache  # required for a new run built with --offline
   ACTIVATE_DEFAULT=1  # explicitly promote this run after the versioned build succeeds
   PUBLISH_QUERY_API_R2=1  # publish the promoted query release and trigger its deploy hook
 EOF
@@ -45,6 +47,13 @@ AUTHOR_CACHE="${KG_DIR}/openalex_author_cache.json"
 ACTIVATE_DEFAULT="${ACTIVATE_DEFAULT:-0}"
 PUBLISH_QUERY_API_R2="${PUBLISH_QUERY_API_R2:-0}"
 EVIDENCE_RUN_ID="${EVIDENCE_RUN_ID:-${RUN_ID}}"
+OFFLINE_REQUESTED=0
+
+for argument in "$@"; do
+  if [[ "${argument}" == "--offline" ]]; then
+    OFFLINE_REQUESTED=1
+  fi
+done
 
 if [[ "${ACTIVATE_DEFAULT}" != "0" && "${ACTIVATE_DEFAULT}" != "1" ]]; then
   echo "ACTIVATE_DEFAULT must be 0 or 1" >&2
@@ -67,8 +76,19 @@ python3 "${ROOT_DIR}/pipeline/kg/build_evidence_tables.py" \
   --evidence-run-id "${EVIDENCE_RUN_ID}" \
   --out-dir "${KG_DIR}"
 
-if [[ ! -f "${AUTHOR_CACHE}" && -n "${AUTHOR_CACHE_SEED:-}" && -f "${AUTHOR_CACHE_SEED}" ]]; then
+if [[ ! -f "${AUTHOR_CACHE}" && -n "${AUTHOR_CACHE_SEED:-}" ]]; then
+  if [[ ! -f "${AUTHOR_CACHE_SEED}" ]]; then
+    echo "AUTHOR_CACHE_SEED does not exist: ${AUTHOR_CACHE_SEED}" >&2
+    exit 2
+  fi
   cp "${AUTHOR_CACHE_SEED}" "${AUTHOR_CACHE}"
+  echo "Seeded author cache explicitly from ${AUTHOR_CACHE_SEED}"
+fi
+
+if [[ "${OFFLINE_REQUESTED}" == "1" && ! -f "${AUTHOR_CACHE}" ]]; then
+  echo "Offline author build refused: ${AUTHOR_CACHE} does not exist." >&2
+  echo "Set AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json or omit --offline." >&2
+  exit 2
 fi
 
 python3 "${ROOT_DIR}/pipeline/kg/build_author_tables.py" \

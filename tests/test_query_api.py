@@ -9,10 +9,10 @@ from services.query_api.app import create_app
 from services.query_api.config import Settings
 from services.query_api.mcp_server import create_mcp_server
 from services.query_api.models import (
-    AggregateQuery,
-    FindingFilters,
-    FindingQuery,
-    NeighborQuery,
+    PaperFilters,
+    PaperQuery,
+    RelationshipFilters,
+    RelationshipQuery,
 )
 from services.query_api.repository import QueryService, ReleaseChanged, ReleaseResolver
 from tests.query_api_fixtures import build_active_query_release
@@ -33,83 +33,76 @@ class QueryApiTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.tempdir.cleanup()
 
-    def test_release_search_query_and_aggregate(self) -> None:
-        self.assertEqual(self.service.meta()["row_counts"]["findings"], 3)
-        search = self.service.search_entities("depression")
+    def test_catalogue_search_filters_and_relationships(self) -> None:
+        self.assertEqual(self.service.meta()["row_counts"]["papers"], 3)
+        self.assertNotIn("findings", self.service.meta()["row_counts"])
+
+        facets = self.service.facets()
         self.assertEqual(
-            search["results"][0]["entity_id"],
+            {row["value"] for row in facets["paper_types"]},
+            {"primary_study", "review"},
+        )
+
+        concepts = self.service.search_concepts("depression")
+        self.assertEqual(
+            concepts["results"][0]["concept_id"],
             "clinical_entity:major_depressive_disorder",
         )
-        self.assertIn("MDD", search["results"][0]["aliases_json"])
+        self.assertIn("MDD", concepts["results"][0]["aliases_json"])
 
-        primary = self.service.query_findings(
-            FindingQuery(
-                filters=FindingFilters(
-                    compounds=["Psilocybin"],
+        authors = self.service.search_authors("Ada")
+        self.assertEqual(authors["results"][0]["author_name"], "Ada Example")
+        author_id = authors["results"][0]["author_id"]
+        author_papers = self.service.get_author_papers(author_id)
+        self.assertEqual(author_papers["meta"]["total"], 1)
+        self.assertEqual(
+            author_papers["results"][0]["paper_id"], "paper:10.1000/primary"
+        )
+
+        papers = self.service.query_papers(
+            PaperQuery(
+                filters=PaperFilters(
+                    paper_types=["primary_study"],
                     domains=["clinical_outcome"],
-                ),
-                limit=1,
+                    concept_ids=["compound:psilocybin"],
+                )
             )
         )
-        self.assertEqual(primary["meta"]["total"], 1)
-        self.assertEqual(primary["results"][0]["finding_id"], "finding:primary")
+        self.assertEqual(papers["meta"]["total"], 1)
+        self.assertEqual(papers["results"][0]["doi"], "10.1000/primary")
+        self.assertEqual(papers["results"][0]["authors"][0]["author_name"], "Ada Example")
 
-        all_findings = self.service.query_findings(
-            FindingQuery(
-                filters=FindingFilters(compounds=["Psilocybin"]),
-                scope="all_normalized",
-                limit=10,
+        relationships = self.service.query_relationships(
+            RelationshipQuery(
+                filters=RelationshipFilters(
+                    concept_ids=["compound:psilocybin"],
+                    domains=["clinical_outcome"],
+                )
             )
         )
-        self.assertEqual(all_findings["meta"]["total"], 2)
+        self.assertEqual(relationships["meta"]["total"], 1)
         self.assertEqual(
-            {row["literature_source"] for row in all_findings["results"]},
-            {"primary", "reviews"},
-        )
-
-        aggregate = self.service.aggregate(
-            AggregateQuery(
-                filters=FindingFilters(compounds=["Psilocybin"]),
-                scope="all_normalized",
-                group_by=["literature_source"],
-            )
-        )
-        self.assertEqual(
-            {
-                row["literature_source"]: row["study_count"]
-                for row in aggregate["results"]
-            },
-            {"primary": 1, "reviews": 1},
+            relationships["results"][0]["object_id"],
+            "clinical_entity:major_depressive_disorder",
         )
 
     def test_cursor_is_bound_to_release(self) -> None:
-        first = self.service.query_findings(
-            FindingQuery(scope="all_normalized", limit=1)
-        )
+        first = self.service.query_papers(PaperQuery(limit=1))
         pointer = self.resolver.active_pointer
         pointer.write_text(
             json.dumps({"run_id": "test_run", "release_id": "test_run:r2"}),
             encoding="utf-8",
         )
         with self.assertRaises(ReleaseChanged):
-            self.service.query_findings(
-                FindingQuery(
-                    scope="all_normalized",
-                    limit=1,
-                    cursor=first["meta"]["next_cursor"],
-                )
+            self.service.query_papers(
+                PaperQuery(limit=1, cursor=first["meta"]["next_cursor"])
             )
 
-    def test_paper_neighborhood_download_and_http_contract(self) -> None:
+    def test_paper_download_and_http_contract(self) -> None:
         paper = self.service.get_paper("10.1000/primary")
         self.assertEqual(paper["data"]["paper_id"], "paper:10.1000/primary")
-        self.assertEqual(paper["findings"][0]["finding_id"], "finding:primary")
-
-        neighbors = self.service.neighbors(
-            "compound:psilocybin",
-            NeighborQuery(scope="all_normalized"),
-        )
-        self.assertEqual(len(neighbors["results"]), 2)
+        self.assertEqual(paper["relationships"][0]["relation_type"], "studied_for_condition")
+        self.assertNotIn("findings", paper)
 
         settings = Settings(
             data_dir=self.root,
@@ -126,35 +119,72 @@ class QueryApiTest(unittest.TestCase):
             self.assertEqual(service_index.status_code, 200)
             self.assertEqual(
                 service_index.json()["agent_guide"],
-                "https://psychedelicskg.com/developers/agent-guide.md",
+                "https://psychedelicskg.com/api/agent-guide.md",
             )
+            self.assertEqual(service_index.json()["data_status"], "ready")
+            self.assertEqual(client.get("/healthz").status_code, 200)
+            self.assertEqual(client.get("/readyz").json()["status"], "ready")
+
             response = client.post(
-                "/api/v1/findings/query",
+                "/api/v1/papers/query",
                 json={
-                    "filters": {"compounds": ["Psilocybin"]},
-                    "scope": "all_normalized",
+                    "filters": {"paper_types": ["review"]},
                     "limit": 10,
                 },
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.json()["meta"]["total"], 2)
+            self.assertEqual(response.json()["meta"]["total"], 1)
+
             openapi = client.get("/openapi.json").json()
-            self.assertIn("/api/v1/findings/query", openapi["paths"])
+            self.assertIn("/api/v1/papers/query", openapi["paths"])
+            self.assertIn("/api/v1/relationships/query", openapi["paths"])
+            self.assertNotIn("/api/v1/findings/query", openapi["paths"])
             self.assertEqual(openapi["servers"][0]["url"], "/")
             self.assertEqual(
                 openapi["externalDocs"]["url"],
-                "https://psychedelicskg.com/developers/",
+                "https://psychedelicskg.com/api/",
             )
             llms = client.get("/llms.txt", follow_redirects=False)
             self.assertEqual(llms.status_code, 307)
-            self.assertEqual(llms.headers["location"], "https://psychedelicskg.com/llms.txt")
-            download = client.get("/api/v1/downloads/tables/findings")
+            self.assertEqual(
+                llms.headers["location"], "https://psychedelicskg.com/llms.txt"
+            )
+            download = client.get("/api/v1/downloads/tables/papers")
             self.assertEqual(download.status_code, 200)
             self.assertEqual(download.headers["x-release-id"], "test_run:r1")
+            missing = client.get("/api/v1/downloads/tables/findings")
+            self.assertEqual(missing.status_code, 404)
+
+    def test_docs_remain_available_while_data_loads(self) -> None:
+        missing_root = self.root / "missing"
+        settings = Settings(
+            data_dir=missing_root,
+            active_pointer=missing_root / "graph_payload_active.json",
+            query_runs_dir=missing_root / "query_api_runs",
+            public_base_url="https://api.example.test",
+            cors_origins=(),
+            mcp_allowed_hosts=(),
+            mcp_allowed_origins=(),
+        )
+        service = QueryService.from_settings(settings)
+        app = create_app(service, settings=settings)
+        app.state.data_status = "loading"
+
+        with TestClient(app) as client:
+            self.assertEqual(client.get("/docs").status_code, 200)
+            self.assertEqual(client.get("/healthz").json()["data_status"], "loading")
+            readiness = client.get("/readyz")
+            self.assertEqual(readiness.status_code, 503)
+            query = client.post(
+                "/api/v1/papers/query",
+                json={"filters": {}, "limit": 10},
+            )
+            self.assertEqual(query.status_code, 503)
+            self.assertEqual(query.headers["retry-after"], "10")
 
 
 class QueryMcpTest(unittest.IsolatedAsyncioTestCase):
-    async def test_mcp_exposes_structured_read_only_tools(self) -> None:
+    async def test_mcp_exposes_narrow_read_only_tools(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             pointer, query_runs = build_active_query_release(root)
@@ -167,24 +197,21 @@ class QueryMcpTest(unittest.IsolatedAsyncioTestCase):
                 tools,
                 {
                     "get_release_info",
-                    "search_entities",
-                    "get_entity",
-                    "find_evidence",
-                    "get_finding",
+                    "list_available_filters",
+                    "search_concepts",
+                    "get_concept",
+                    "search_authors",
+                    "get_author_papers",
+                    "search_papers",
                     "get_paper",
-                    "aggregate_evidence",
-                    "get_neighborhood",
+                    "find_relationships",
                 },
             )
             _content, structured = await mcp.call_tool(
-                "find_evidence",
-                {
-                    "compounds": ["Psilocybin"],
-                    "scope": "all_normalized",
-                    "limit": 10,
-                },
+                "search_papers",
+                {"paper_types": ["review"], "limit": 10},
             )
-            self.assertEqual(structured["meta"]["total"], 2)
+            self.assertEqual(structured["meta"]["total"], 1)
 
 
 if __name__ == "__main__":

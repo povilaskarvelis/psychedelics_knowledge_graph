@@ -174,8 +174,10 @@ python pipeline/update/run_scoped_paper_update.py promote \
   --update-id "$UPDATE_ID"
 ```
 
-Use `--offline` if author resolution should use only the existing OpenAlex
-cache. Promotion:
+Use `--offline` if author resolution should use only the explicitly seeded
+OpenAlex cache. An offline promotion stops if that cache resolves fewer than
+95% of DOI-bearing papers; it does not generate a name-only author layer.
+Promotion:
 
 1. rebuilds the normalized KG and author tables from the candidate evidence;
 2. builds graph/detail payloads without activating them early;

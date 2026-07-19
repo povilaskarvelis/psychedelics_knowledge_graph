@@ -1,31 +1,43 @@
-# API and Agent Access
+# API and agent access
 
-The project exposes the same promoted evidence release through three machine
-interfaces:
+The project provides three read-only machine interfaces:
 
-- a read-only REST API with an OpenAPI schema;
-- a Model Context Protocol (MCP) server for agent clients;
-- sanitized DuckDB and Parquet downloads for larger analyses.
+- REST with an OpenAPI schema;
+- Model Context Protocol (MCP) for AI agents;
+- a DuckDB database and individual Parquet tables.
 
-The public entry points are:
+Public entry points:
 
-- human documentation: `https://psychedelicskg.com/developers/`;
-- machine guide: `https://psychedelicskg.com/developers/agent-guide.md`;
-- LLM-oriented site index: `https://psychedelicskg.com/llms.txt`;
-- REST/OpenAPI service: `https://psychedelics-kg-api.onrender.com`;
-- remote Streamable HTTP MCP: `https://psychedelics-kg-api.onrender.com/mcp`.
+- `https://psychedelicskg.com/api/`
+- `https://psychedelicskg.com/api/agent-guide.md`
+- `https://psychedelics-kg-api.onrender.com`
+- `https://psychedelics-kg-api.onrender.com/mcp`
 
-The API root and OpenAPI schema link back to the public documentation. The
-`llms.txt` file is a lightweight discovery aid, not an access-control mechanism
-or a guarantee that a particular model vendor will consume it.
+## Public data contract
 
-The browser remains a static Netlify site. The query service reads the existing
-`data/processed/graph_payload_active.json` pointer, so the UI, API, MCP tools,
-and downloads identify the same promoted run and release.
+The API is deliberately narrower than the internal knowledge graph. It exposes:
+
+- `papers`: publication metadata plus controlled broad type and subtype;
+- `concepts`: standardized labels, aliases, categories, and hierarchy;
+- `authors`: OpenAlex/ORCID-backed identities, name variants, and paper counts;
+- `paper_authors`: links between papers and ORCID/OpenAlex author identities;
+- `relationships`: deduplicated paper-level concept relationships.
+
+It does not expose granular findings, effect or statistical fields, source
+quotes, result direction, confidence, extraction warnings, human-review state,
+or other internal curation detail.
+
+Public author records require an OpenAlex or ORCID identity. ORCID is canonical
+when available, including when it links multiple OpenAlex profiles. Profiles
+without an ORCID remain separate unless a reviewed correction explicitly links
+them. Name-only rows are kept out of the public catalogue rather than merged
+without external evidence. The export fails if fewer than 95% of authorship
+rows have a structured, non-conflicting identity. Profiles carrying conflicting
+ORCID evidence are excluded from the public catalogue.
 
 ## Release and update lifecycle
 
-Public query artifacts are versioned under:
+Public catalogue artifacts are versioned under:
 
 ```text
 data/processed/query_api_runs/<run_id>/
@@ -33,50 +45,39 @@ data/processed/query_api_runs/<run_id>/
   schema.json
   public_api.duckdb
   tables/
-    findings.parquet
-    evidence_edges.parquet
-    entities.parquet
     papers.parquet
+    concepts.parquet
     authors.parquet
     paper_authors.parquet
+    relationships.parquet
 ```
 
-Use the normal routed release command after adding papers or extracting new
-findings:
+After adding papers or rebuilding the graph, run the normal routed release
+command:
 
 ```bash
 ACTIVATE_DEFAULT=1 bash scripts/build_routed_kg_payload.sh <new-run-id>
 ```
 
-The command now performs these operations in order:
+The build creates the internal graph, refreshes authorship, creates and validates
+the public catalogue, builds the website payloads, and then updates the current
+release pointer. The public export fails when keys are null or duplicated, joins
+are broken, fields are undocumented, paper classification conflicts within one
+paper, the generated tables do not match the manifest, or structured author
+coverage falls below 95%.
 
-1. build the normalized KG tables and internal DuckDB database;
-2. refresh author identity and authorship tables;
-3. build a sanitized public query database and bulk Parquet tables;
-4. build the browser graph, dashboard, and detail payloads;
-5. validate all artifacts and atomically promote the release.
+Pagination cursors contain the release ID. A cursor from an older release is
+rejected so results from two versions are not accidentally combined.
 
-Promotion fails if the query artifact is absent, belongs to another run, or has
-a different finding count from the normalized KG. The service resolves the
-active pointer on every request, so no service restart or database migration is
-needed after a new artifact is mounted. Pagination cursors include the release
-ID and are rejected after a release change, preventing mixed-release result
-pages.
+## Local service
 
-Use a new run ID for each published dataset. Rebuilding an already-active run
-directory in place is discouraged because immutable run directories make
-rollback and reproducibility much simpler.
-
-## Local REST and remote MCP service
-
-Install the service dependencies, if they are not already available:
+Install dependencies:
 
 ```bash
 python3 -m pip install -r services/query_api/requirements.txt
 ```
 
-If the active run predates the API implementation, build its query artifact
-once:
+Build a catalogue for an existing run when needed:
 
 ```bash
 python3 pipeline/publish/export_query_api.py \
@@ -85,126 +86,88 @@ python3 pipeline/publish/export_query_api.py \
   --run-id <run-id>
 ```
 
-Start the combined service:
+Start REST and remote MCP together:
 
 ```bash
 python3 -m services.query_api
 ```
 
-The default endpoints are:
+Local endpoints:
 
-- API documentation: `http://127.0.0.1:8000/docs`
-- OpenAPI schema: `http://127.0.0.1:8000/openapi.json`
-- REST API: `http://127.0.0.1:8000/api/v1`
-- Streamable HTTP MCP: `http://127.0.0.1:8000/mcp`
+- `http://127.0.0.1:8000/docs`
+- `http://127.0.0.1:8000/openapi.json`
+- `http://127.0.0.1:8000/api/v1`
+- `http://127.0.0.1:8000/mcp`
 
-Example evidence query:
+Example paper query:
 
 ```bash
-curl -sS http://127.0.0.1:8000/api/v1/findings/query \
+curl -sS http://127.0.0.1:8000/api/v1/papers/query \
   -H 'Content-Type: application/json' \
   -d '{
     "filters": {
-      "compounds": ["Psilocybin"],
+      "paper_types": ["primary_study"],
+      "concept_ids": ["compound:psilocybin"],
       "domains": ["clinical_outcome"],
-      "literature_sources": ["primary"],
       "year_from": 2018
     },
-    "scope": "all_normalized",
-    "detail_level": "summary",
     "limit": 25
   }'
 ```
 
-Resolve names and aliases with `/api/v1/entities/search` before using canonical
-entity IDs in repeated queries. The API defaults to `main_graph`; request
-`all_normalized` to include findings retained as paper detail.
+Use `/api/v1/facets` to discover valid controlled values and
+`/api/v1/concepts/search` or `/api/v1/authors/search` to resolve IDs.
 
-## Local stdio MCP
+## MCP tools
 
-Agent clients that launch local MCP processes can use:
+The local stdio server is available with:
 
 ```bash
 python3 -m services.query_api.stdio
 ```
 
-The server exposes these read-only tools:
+Both MCP transports expose:
 
 - `get_release_info`
-- `search_entities`
-- `get_entity`
-- `find_evidence`
-- `get_finding`
+- `list_available_filters`
+- `search_concepts`
+- `get_concept`
+- `search_authors`
+- `get_author_papers`
+- `search_papers`
 - `get_paper`
-- `aggregate_evidence`
-- `get_neighborhood`
-
-It also exposes release and public-schema resources. Tool descriptions remind
-agents not to merge primary studies, meta-analyses, and reviews, and not to
-interpret finding counts as independent study counts.
+- `find_relationships`
 
 ## Bulk downloads
 
-The REST service streams the active sanitized artifacts at:
+The REST service provides:
 
 - `/api/v1/downloads/database`
 - `/api/v1/downloads/schema`
-- `/api/v1/downloads/tables/findings`
-- `/api/v1/downloads/tables/evidence_edges`
-- `/api/v1/downloads/tables/entities`
 - `/api/v1/downloads/tables/papers`
+- `/api/v1/downloads/tables/concepts`
+- `/api/v1/downloads/tables/authors`
+- `/api/v1/downloads/tables/paper_authors`
+- `/api/v1/downloads/tables/relationships`
 
-Responses include the active release ID and a SHA-256-based ETag. The API never
-serves the internal `kg.duckdb`, raw extraction rows, or normalization audit.
+Responses include the current release ID and a SHA-256-based ETag. The API never
+serves the internal database, extraction rows, detailed findings, or
+normalization audit.
 
-## Container deployment
+## Deployment
 
-Production uses Cloudflare R2 rather than embedding generated data in Git or in
-the container image. Follow the complete one-time and recurring operator
-checklist in [R2 query API deployment](r2_deployment.md).
+Production stores generated data in Cloudflare R2 rather than Git or the
+container image. See [R2 query API deployment](r2_deployment.md) for the setup
+and release checklist.
 
-Build the application image from the repository root:
+Build the image from the repository root:
 
 ```bash
 docker build -f services/query_api/Dockerfile -t psychedelics-kg-api .
 ```
 
-For an offline or manually mounted container, create a bundle containing only
-the active pointer and sanitized active artifact:
-
-```bash
-python3 pipeline/publish/build_query_api_bundle.py
-```
-
-Run it locally with the bundle mounted read-only:
-
-```bash
-docker run --rm -p 8000:8000 \
-  -v "$PWD/dist/query-api-bundle/data:/data:ro" \
-  -e PKG_DATA_DIR=/data \
-  -e PKG_PUBLIC_BASE_URL=https://api.psychedelicskg.com \
-  -e PKG_MCP_ALLOWED_HOSTS=api.psychedelicskg.com \
-  -e PKG_MCP_ALLOWED_ORIGINS=https://psychedelicskg.com \
-  psychedelics-kg-api
-```
-
-For production, the R2 publisher uploads a newly generated release only after
-guarded promotion succeeds. The code-only container synchronizes the active
-database before starting, and bulk downloads redirect directly to R2.
-Apply public rate limits at the reverse proxy or container platform. The MCP
-SDK keeps DNS-rebinding protection enabled; production host and origin
-allowlists must be supplied with the environment variables above.
-
-Optional API browser access is controlled with `PKG_CORS_ORIGINS`, a
-comma-separated origin allowlist. The public service is read-only and does not
-need user authorization; add OAuth before exposing any private or write
-operations.
-
-## Public-data boundary
-
-The exporter uses the same public finding projection as the browser payload and
-adds only canonical join identifiers and literature-source classification. It
-does not export `raw_row_json`, extraction warnings, human-review flags,
-normalization notes, or the normalization audit. Short supporting excerpts
-remain third-party material under their original rights and terms; see
-`DATA_LICENSE.md`.
+The code-only service starts immediately, loads the current database from R2 in
+the background, and redirects bulk downloads directly to R2. Apply public rate
+limits at the hosting layer. The API is read-only and does not require user
+authorization; authentication must be added before any private or write
+operation is introduced.

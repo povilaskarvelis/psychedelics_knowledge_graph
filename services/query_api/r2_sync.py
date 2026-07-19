@@ -18,7 +18,7 @@ from .r2_store import (
 )
 
 
-QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_query_manifest_v1"
+QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_catalogue_manifest_v2"
 LOCAL_POINTER_SCHEMA = "route_native_evidence_payload_active_v1"
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 

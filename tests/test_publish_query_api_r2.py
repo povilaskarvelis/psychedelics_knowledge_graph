@@ -44,7 +44,9 @@ class PublishQueryApiR2Test(unittest.TestCase):
             self.assertEqual(store.operations[-1], ("get_bytes", settings.active_key))
             active = json.loads(store.objects[settings.active_key])
             self.assertIn("database", active["files"])
-            self.assertIn("table:findings", active["files"])
+            self.assertIn("table:papers", active["files"])
+            self.assertIn("table:relationships", active["files"])
+            self.assertNotIn("table:findings", active["files"])
             self.assertTrue(active["manifest"]["key"].endswith("/manifest.json"))
             self.assertEqual(result["uploaded_count"], len(active["files"]) + 1)
 

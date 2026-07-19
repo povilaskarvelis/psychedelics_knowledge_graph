@@ -42,7 +42,14 @@ RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 EXTRACTION_POINTER_SCHEMA = "active_routed_extraction_run_v1"
 GRAPH_POINTER_SCHEMA = "route_native_evidence_payload_active_v1"
 PAYLOAD_MANIFEST_SCHEMA = "route_native_evidence_manifest_v1"
-PUBLIC_QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_query_manifest_v1"
+PUBLIC_QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_catalogue_manifest_v2"
+PUBLIC_QUERY_TABLES = {
+    "papers",
+    "concepts",
+    "authors",
+    "paper_authors",
+    "relationships",
+}
 
 
 def now_utc() -> str:
@@ -267,11 +274,12 @@ def validate_built_release(run_id: str, graph_pointer: dict) -> dict:
         raise ValueError(
             f"Payload/KG row-count mismatch for {run_id}: payload={payload_rows}, findings={findings_rows}"
         )
-    validate_public_query_artifact(run_id, kg_dir, findings_rows)
+    paper_rows = int(((kg_manifest.get("tables") or {}).get("papers") or {}).get("rows", -1))
+    validate_public_query_artifact(run_id, kg_dir, paper_rows)
     return payload_manifest
 
 
-def validate_public_query_artifact(run_id: str, kg_dir: Path, findings_rows: int) -> dict:
+def validate_public_query_artifact(run_id: str, kg_dir: Path, paper_rows: int) -> dict:
     query_dir = QUERY_RUNS_DIR / run_id
     manifest_path = query_dir / "manifest.json"
     if not manifest_path.is_file():
@@ -286,11 +294,16 @@ def validate_public_query_artifact(run_id: str, kg_dir: Path, findings_rows: int
         raise ValueError(f"Public query manifest run_id does not match {run_id}: {manifest_path}")
     if Path(normalize(manifest.get("kg_dir"))).name != kg_dir.name:
         raise ValueError(f"Public query manifest points at a different KG: {manifest_path}")
-    public_rows = int((manifest.get("row_counts") or {}).get("findings", -1))
-    if public_rows != findings_rows:
+    row_counts = manifest.get("row_counts") or {}
+    if set(row_counts) != PUBLIC_QUERY_TABLES:
         raise ValueError(
-            f"Public query/KG row-count mismatch for {run_id}: "
-            f"public={public_rows}, findings={findings_rows}"
+            f"Unexpected public catalogue tables for {run_id}: {sorted(row_counts)}"
+        )
+    public_papers = int(row_counts.get("papers", -1))
+    if paper_rows < 0 or public_papers != paper_rows:
+        raise ValueError(
+            f"Public catalogue/KG paper-count mismatch for {run_id}: "
+            f"public={public_papers}, kg={paper_rows}"
         )
     for key in ("database", "schema"):
         relative_path = normalize(manifest.get(key))

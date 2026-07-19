@@ -16,7 +16,7 @@ DEFAULT_ACTIVE_POINTER = ROOT / "data" / "processed" / "graph_payload_active.jso
 DEFAULT_QUERY_RUNS_DIR = ROOT / "data" / "processed" / "query_api_runs"
 DEFAULT_OUT_DIR = ROOT / "dist" / "query-api-bundle"
 MANIFEST_SCHEMA = "psychedelics_kg_query_api_deploy_bundle_v1"
-QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_query_manifest_v1"
+QUERY_MANIFEST_SCHEMA = "psychedelics_kg_public_catalogue_manifest_v2"
 
 
 def read_json_object(path: Path) -> dict:
@@ -105,7 +105,8 @@ def main() -> int:
     )
     print(f"Built query API deployment bundle: {args.out_dir.resolve()}")
     print(f"Release ID: {result['release_id']}")
-    print(f"Findings: {result['row_counts'].get('findings', 0)}")
+    print(f"Papers: {result['row_counts'].get('papers', 0)}")
+    print(f"Relationships: {result['row_counts'].get('relationships', 0)}")
     return 0
 
 

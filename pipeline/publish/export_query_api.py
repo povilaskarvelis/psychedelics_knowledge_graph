@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Build sanitized, versioned query artifacts for REST, MCP, and bulk access.
+"""Build the narrow, versioned public catalogue for REST, MCP, and downloads.
 
-The normalized KG tables contain internal columns that must not be exposed as a
-public database.  This exporter reuses the browser payload's public finding
-projection, adds stable join identifiers, and writes a compact DuckDB database
-plus Parquet tables.  Outputs are versioned by routed run and are built before
-that run can be promoted.
+The internal knowledge graph contains extraction detail that is useful to the
+website but is not a stable public data contract. This exporter publishes only
+papers, concepts, OpenAlex/ORCID-backed authors, and deduplicated paper-level
+relationships. Granular findings and unfinished curation fields remain private.
 """
 
 from __future__ import annotations
@@ -25,7 +24,6 @@ import pandas as pd
 
 try:
     from pipeline.publish.export_evidence_payload import (
-        DETAIL_BOOTSTRAP_FIELDS,
         load_findings,
         ui_source_key_for_finding,
     )
@@ -35,7 +33,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     ROOT_FOR_IMPORT = Path(__file__).resolve().parents[2]
     sys.path.insert(0, str(ROOT_FOR_IMPORT))
     from pipeline.publish.export_evidence_payload import (
-        DETAIL_BOOTSTRAP_FIELDS,
         load_findings,
         ui_source_key_for_finding,
     )
@@ -45,84 +42,27 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_KG_DIR = ROOT / "data" / "processed" / "kg"
 DEFAULT_OUT_ROOT = ROOT / "data" / "processed" / "query_api_runs"
 
-PUBLIC_QUERY_SCHEMA_VERSION = "psychedelics_kg_public_query_v1"
-PUBLIC_QUERY_MANIFEST_VERSION = "psychedelics_kg_public_query_manifest_v1"
+PUBLIC_QUERY_SCHEMA_VERSION = "psychedelics_kg_public_catalogue_v2"
+PUBLIC_QUERY_MANIFEST_VERSION = "psychedelics_kg_public_catalogue_manifest_v2"
 PUBLIC_DB_NAME = "public_api.duckdb"
 PUBLIC_SCHEMA_NAME = "schema.json"
 PUBLIC_MANIFEST_NAME = "manifest.json"
 PUBLIC_TABLE_DIR = "tables"
 
-PUBLIC_FINDING_FIELDS = tuple(
-    dict.fromkeys(
-        (
-            "finding_id",
-            "evidence_id",
-            "paper_id",
-            "entity_id",
-            "compound_id",
-            "projection_type",
-            "literature_source",
-            "direction_normalized",
-            *DETAIL_BOOTSTRAP_FIELDS,
-        )
-    )
-)
-
-PUBLIC_EDGE_FIELDS = (
-    "evidence_id",
-    "finding_id",
-    "projection_type",
-    "source_name",
+PUBLIC_RELATIONSHIP_SOURCE_FIELDS = (
     "domain",
-    "dataset",
     "entity_kind",
-    "evidence_type",
     "relation_type",
     "compound_id",
     "compound",
     "graph_subject_kind",
-    "graph_overview_subject_label",
-    "graph_overview_subject_kind",
-    "graph_overview_subject_reason",
-    "graph_overview_subjects_json",
-    "graph_use_context_projections_json",
     "entity_id",
     "entity_label",
-    "graph_parent_label",
-    "graph_parent_kind",
-    "graph_parent_entity_id",
     "paper_id",
-    "study_doi",
-    "study_year",
-    "direction",
-    "direction_normalized",
-    "evidence_design",
     "graph_admission_status",
-    "graph_admission_reason",
-    "proposition_group_id",
-    "proposition_conflict_group_id",
-    "support",
-    "confidence",
-    "evidence_level",
-    "source_type",
-    "source_family",
-    "paper_type",
-    "access_level",
-    "sample_size_total",
-    "outcome_measure",
-    "outcome_measure_normalized",
-    "effect_size",
-    "p_value",
-    "confidence_interval",
-    "evidence_location",
-    "evidence_locator",
-    "supporting_quote",
-    "proposition_duplicate_count",
-    "direction_consistency",
-    "literature_source",
 )
 
-PUBLIC_ENTITY_FIELDS = (
+PUBLIC_CONCEPT_SOURCE_FIELDS = (
     "entity_id",
     "entity_type",
     "domain",
@@ -131,12 +71,11 @@ PUBLIC_ENTITY_FIELDS = (
     "graph_parent_label",
     "graph_parent_kind",
     "graph_parent_entity_id",
-    "registry_status",
     "aliases_json",
     "ids_json",
 )
 
-PUBLIC_PAPER_FIELDS = (
+PUBLIC_PAPER_SOURCE_FIELDS = (
     "paper_id",
     "doi",
     "openalex_id",
@@ -144,32 +83,15 @@ PUBLIC_PAPER_FIELDS = (
     "authors",
     "year",
     "journal",
-    "study_doi",
-    "study_title",
-    "study_year",
-    "study_journal",
     "publication_type",
     "publication_date",
     "publisher",
     "journal_issn",
     "journal_eissn",
     "language",
-    "mesh_terms",
-    "keywords",
-    "funders",
-    "grant_ids",
-    "trial_registry_ids",
-    "study_design",
-    "funding",
-    "conflicts_of_interest",
-    "risk_of_bias_summary",
-    "source_access_level",
     "open_access_is_oa",
     "open_access_status",
     "open_access_url",
-    "unpaywall_is_oa",
-    "unpaywall_oa_status",
-    "unpaywall_license",
 )
 
 PUBLIC_AUTHOR_FIELDS = (
@@ -177,65 +99,150 @@ PUBLIC_AUTHOR_FIELDS = (
     "display_name",
     "canonical_name",
     "openalex_author_id",
+    "openalex_author_ids_json",
     "orcid",
-    "source",
     "identity_confidence",
     "display_names_json",
     "paper_count",
-    "authorship_count",
-    "first_author_paper_count",
-    "last_author_paper_count",
 )
 
 PUBLIC_PAPER_AUTHOR_FIELDS = (
     "paper_id",
-    "doi",
-    "paper_openalex_id",
     "author_id",
     "display_name",
     "canonical_name",
-    "openalex_author_id",
-    "orcid",
+    "identity_confidence",
     "author_position",
-    "author_position_label",
     "is_first_author",
     "is_last_author",
-    "source",
-    "identity_confidence",
 )
 
-FORBIDDEN_PUBLIC_COLUMNS = {
-    "raw_row_json",
-    "normalization_notes",
-    "extraction_warnings",
-    "needs_human_review",
-}
-
-NUMERIC_FINDING_FIELDS = {
-    "study_year",
-    "meta_analysis_study_count",
-    "meta_analysis_effect_or_experiment_count",
-    "meta_analysis_dataset_or_comparison_count",
-    "meta_analysis_overall_study_count",
-    "meta_analysis_overall_effect_or_experiment_count",
-    "meta_analysis_overall_dataset_or_comparison_count",
-    "proposition_duplicate_count",
-}
-
 FIELD_DESCRIPTIONS = {
-    "finding_id": "Release-scoped identifier for one normalized finding.",
-    "evidence_id": "Identifier for the graph evidence projection associated with a finding.",
-    "paper_id": "Canonical report identifier, normally DOI-based when a DOI is available.",
-    "entity_id": "Canonical identifier for the finding object entity.",
-    "compound_id": "Canonical identifier for the graph subject compound or exposure.",
-    "literature_source": "One of primary, meta_analyses, or reviews; these layers should not be conflated.",
-    "graph_admission_status": "Whether the finding is admitted to the overview graph or retained as paper detail.",
-    "graph_admission_reason": "Reason for the overview/detail admission decision.",
-    "result_direction_normalized": "Normalized positive, negative, null, mixed, or uncertain result direction when available.",
-    "text_depth": "Whether extraction used article text or abstract-only evidence.",
-    "supporting_quote": "Short third-party source excerpt retained for provenance; not relicensed as CC0.",
-    "evidence_locator": "Location of the supporting evidence in the source report.",
-    "proposition_group_id": "Identifier grouping duplicate expressions of the same normalized proposition.",
+    "paper_id": "Stable paper identifier, normally DOI-based when a DOI is available.",
+    "doi": "Digital Object Identifier without a URL prefix.",
+    "openalex_id": "OpenAlex work identifier when available.",
+    "title": "Paper or report title.",
+    "year": "Publication year.",
+    "journal": "Journal or publication venue.",
+    "publication_type": "Publication type supplied by the bibliographic source.",
+    "publication_date": "Publication date when available.",
+    "publisher": "Publisher when available.",
+    "journal_issn": "Print ISSN when available.",
+    "journal_eissn": "Electronic ISSN when available.",
+    "language": "Publication language when available.",
+    "open_access_is_oa": "Whether an open-access copy is known to be available.",
+    "open_access_status": "Open-access category when available.",
+    "open_access_url": "URL of a known open-access copy when available.",
+    "paper_type": "Broad controlled type: primary_study, meta_analysis, or review.",
+    "paper_subtype": "More specific controlled paper classification when available.",
+    "concept_id": "Stable identifier for a standardized concept.",
+    "concept_type": "Broad concept family used by the knowledge graph.",
+    "concept_kind": "Controlled concept category.",
+    "domain": "Research domain associated with a concept or relationship.",
+    "label": "Preferred human-readable concept label.",
+    "parent_label": "Preferred label of the broader parent concept when available.",
+    "parent_kind": "Category of the broader parent concept when available.",
+    "parent_concept_id": "Identifier of the broader parent concept when available.",
+    "aliases_json": "JSON array of alternative labels.",
+    "external_ids_json": "JSON object of external identifiers when available.",
+    "author_id": "Canonical ORCID identifier when available; otherwise an OpenAlex author-profile identifier.",
+    "author_name": "Preferred author name from structured authorship metadata.",
+    "normalized_name": "Normalized preferred author name used for matching.",
+    "openalex_author_id": "OpenAlex author identifier when available.",
+    "openalex_author_ids_json": "JSON array of OpenAlex author profiles linked to this identity.",
+    "orcid": "ORCID identifier when available.",
+    "identity_source": "External identifier used for the public author identity.",
+    "name_variants_json": "JSON array of credited name variants linked to this identity.",
+    "openalex_profile_ids_json": "JSON array of OpenAlex author profiles linked to this identity.",
+    "paper_count": "Number of catalogue papers linked to this ORCID/OpenAlex author identity.",
+    "author_position": "Position in the paper's credited author list.",
+    "is_first_author": "Whether this is the first credited author.",
+    "is_last_author": "Whether this is the last credited author.",
+    "relationship_id": "Stable identifier for one deduplicated paper-level relationship.",
+    "subject_id": "Concept identifier at the subject end of the relationship.",
+    "subject_label": "Preferred label at the subject end of the relationship.",
+    "subject_kind": "Concept category at the subject end of the relationship.",
+    "object_id": "Concept identifier at the object end of the relationship.",
+    "object_label": "Preferred label at the object end of the relationship.",
+    "object_kind": "Concept category at the object end of the relationship.",
+    "relation_type": "Controlled type describing the paper-level relationship.",
+}
+
+TABLE_METADATA = {
+    "papers": {
+        "description": "One row per paper or report in the public catalogue.",
+        "grain": "paper",
+        "primary_key": ["paper_id"],
+        "foreign_keys": [],
+    },
+    "concepts": {
+        "description": "One row per standardized concept used in public relationships.",
+        "grain": "concept",
+        "primary_key": ["concept_id"],
+        "foreign_keys": [{"fields": ["parent_concept_id"], "references": "concepts.concept_id"}],
+    },
+    "authors": {
+        "description": "One row per OpenAlex- or ORCID-backed author identity.",
+        "grain": "ORCID/OpenAlex author identity",
+        "primary_key": ["author_id"],
+        "foreign_keys": [],
+    },
+    "paper_authors": {
+        "description": "One row per OpenAlex/ORCID-backed authorship on a paper.",
+        "grain": "paper-author credit",
+        "primary_key": ["paper_id", "author_id", "author_position"],
+        "foreign_keys": [
+            {"fields": ["paper_id"], "references": "papers.paper_id"},
+            {"fields": ["author_id"], "references": "authors.author_id"},
+        ],
+    },
+    "relationships": {
+        "description": "One deduplicated relationship between two concepts reported by one paper.",
+        "grain": "paper-subject-object-relation",
+        "primary_key": ["relationship_id"],
+        "foreign_keys": [
+            {"fields": ["paper_id"], "references": "papers.paper_id"},
+            {"fields": ["subject_id"], "references": "concepts.concept_id"},
+            {"fields": ["object_id"], "references": "concepts.concept_id"},
+        ],
+    },
+}
+
+PUBLIC_PAPER_TYPES = {"primary_study", "meta_analysis", "review"}
+MIN_STRUCTURED_AUTHORSHIP_RATE = 0.95
+PUBLIC_PAPER_SUBTYPES = {
+    "primary_study",
+    "meta_analysis",
+    "network_meta_analysis",
+    "review",
+    "systematic_review",
+    "narrative_review",
+    "scoping_review",
+    "literature_review",
+    "umbrella_review",
+    "guideline",
+    "consensus_statement",
+}
+
+REQUIRED_NONEMPTY_FIELDS = {
+    "papers": ["paper_id", "title"],
+    "concepts": ["concept_id", "concept_type", "concept_kind", "domain", "label"],
+    "authors": ["author_id", "author_name", "normalized_name", "identity_source"],
+    "paper_authors": ["paper_id", "author_id", "author_name", "normalized_name"],
+    "relationships": [
+        "relationship_id",
+        "paper_id",
+        "subject_id",
+        "subject_label",
+        "subject_kind",
+        "object_id",
+        "object_label",
+        "object_kind",
+        "domain",
+        "relation_type",
+        "paper_type",
+        "paper_subtype",
+    ],
 }
 
 
@@ -275,78 +282,15 @@ def json_safe_scalar(value: object) -> object:
     return value
 
 
-def normalize_finding_dataframe_types(df: pd.DataFrame) -> pd.DataFrame:
-    for column in df.columns:
-        if column in NUMERIC_FINDING_FIELDS:
-            df[column] = pd.to_numeric(df[column], errors="coerce").astype("Int64")
-            continue
-        if column in {"open_access_is_oa", "unpaywall_is_oa"}:
-            df[column] = df[column].astype("boolean")
-            continue
-        df[column] = df[column].map(json_safe_scalar)
-        if df[column].dtype == object:
-            df[column] = df[column].map(lambda value: None if value is None else str(value))
-    return df
-
-
-def outcome_edge_lookup(edges: pd.DataFrame) -> dict[str, dict]:
-    base = edges.copy()
-    if "projection_type" in base.columns:
-        base = base[base["projection_type"].fillna("outcome") != "use_context"]
-    keep = [
-        column
-        for column in (
-            "finding_id",
-            "evidence_id",
-            "entity_id",
-            "compound_id",
-            "projection_type",
-            "direction_normalized",
-        )
-        if column in base.columns
-    ]
-    if "finding_id" not in keep:
-        return {}
-    base = base[keep].drop_duplicates("finding_id", keep="first")
-    return {
-        normalize(record.get("finding_id")): record
-        for record in base.to_dict(orient="records")
-        if normalize(record.get("finding_id"))
-    }
-
-
-def build_public_findings(kg_dir: Path, edges: pd.DataFrame) -> pd.DataFrame:
-    edge_by_finding = outcome_edge_lookup(edges)
-    records: list[dict] = []
-    for finding in load_findings(kg_dir):
-        finding_id = normalize(finding.get("finding_id"))
-        edge = edge_by_finding.get(finding_id, {})
-        record = {field: finding.get(field) for field in PUBLIC_FINDING_FIELDS}
-        record.update(
-            {
-                "finding_id": finding_id,
-                "evidence_id": normalize(finding.get("evidence_id") or edge.get("evidence_id")),
-                "paper_id": normalize(finding.get("paper_id")),
-                "entity_id": normalize(edge.get("entity_id")),
-                "compound_id": normalize(edge.get("compound_id")),
-                "projection_type": normalize(edge.get("projection_type")) or "outcome",
-                "literature_source": ui_source_key_for_finding(finding),
-                "direction_normalized": normalize(edge.get("direction_normalized")),
-            }
-        )
-        records.append(record)
-    return normalize_finding_dataframe_types(
-        pd.DataFrame.from_records(records, columns=PUBLIC_FINDING_FIELDS)
-    )
-
-
 def selected_columns(df: pd.DataFrame, fields: Iterable[str], *, table_name: str) -> pd.DataFrame:
     fields = tuple(fields)
     columns = [field for field in fields if field in df.columns]
     missing_required = {
         "entities": {"entity_id", "label"},
         "papers": {"paper_id"},
-        "evidence_edges": {"evidence_id", "finding_id", "paper_id"},
+        "evidence_edges": {"paper_id", "compound_id", "entity_id", "relation_type"},
+        "authors": {"author_id", "display_name"},
+        "paper_authors": {"paper_id", "author_id", "display_name"},
     }.get(table_name, set()) - set(columns)
     if missing_required:
         raise ValueError(f"{table_name} is missing required public columns: {sorted(missing_required)}")
@@ -357,10 +301,113 @@ def selected_columns(df: pd.DataFrame, fields: Iterable[str], *, table_name: str
         if field not in selected.columns:
             selected[field] = None
     selected = selected[list(fields)]
-    forbidden = FORBIDDEN_PUBLIC_COLUMNS & set(selected.columns)
-    if forbidden:
-        raise ValueError(f"Refusing to publish forbidden {table_name} columns: {sorted(forbidden)}")
     return selected
+
+
+def paper_classifications(kg_dir: Path) -> dict[str, tuple[str, str]]:
+    broad_by_source = {
+        "primary": "primary_study",
+        "meta_analyses": "meta_analysis",
+        "reviews": "review",
+    }
+    values: dict[str, set[tuple[str, str]]] = {}
+    for finding in load_findings(kg_dir):
+        paper_id = normalize(finding.get("paper_id"))
+        source = ui_source_key_for_finding(finding)
+        if not paper_id or source not in broad_by_source:
+            continue
+        broad = broad_by_source[source]
+        subtype = normalize(finding.get("paper_type")) or broad
+        values.setdefault(paper_id, set()).add((broad, subtype))
+
+    conflicting = {paper_id: sorted(items) for paper_id, items in values.items() if len(items) > 1}
+    if conflicting:
+        samples = dict(list(conflicting.items())[:5])
+        raise ValueError(f"Conflicting public paper classifications: {samples}")
+    return {paper_id: next(iter(items)) for paper_id, items in values.items()}
+
+
+def normalize_public_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    out = frame.copy()
+    for column in out.columns:
+        if column in {"year", "author_position", "paper_count"}:
+            out[column] = pd.to_numeric(out[column], errors="coerce").astype("Int64")
+        elif column in {"open_access_is_oa", "is_first_author", "is_last_author"}:
+            out[column] = out[column].map(
+                lambda value: (
+                    True
+                    if normalize(value).casefold() in {"true", "1", "yes"}
+                    else False
+                    if normalize(value).casefold() in {"false", "0", "no"}
+                    else pd.NA
+                )
+            ).astype("boolean")
+        else:
+            out[column] = out[column].map(json_safe_scalar)
+            if out[column].dtype == object:
+                out[column] = out[column].map(
+                    lambda value: None if value is None else str(value)
+                )
+    return out
+
+
+def relationship_id(record: dict[str, object]) -> str:
+    key = "|".join(
+        normalize(record.get(field))
+        for field in ("paper_id", "subject_id", "object_id", "relation_type", "domain")
+    )
+    return f"relationship:{hashlib.sha256(key.encode('utf-8')).hexdigest()[:20]}"
+
+
+def validate_public_tables(tables: dict[str, pd.DataFrame]) -> None:
+    keys = {
+        "papers": ["paper_id"],
+        "concepts": ["concept_id"],
+        "authors": ["author_id"],
+        "paper_authors": ["paper_id", "author_id", "author_position"],
+        "relationships": ["relationship_id"],
+    }
+    for table_name, key_fields in keys.items():
+        frame = tables[table_name]
+        if frame[key_fields].isna().any().any():
+            raise ValueError(f"Public {table_name} contains a null key")
+        if frame.duplicated(key_fields).any():
+            raise ValueError(f"Public {table_name} contains duplicate keys")
+        undocumented = set(frame.columns) - set(FIELD_DESCRIPTIONS)
+        if undocumented:
+            raise ValueError(
+                f"Public {table_name} has undocumented fields: {sorted(undocumented)}"
+            )
+        for field in REQUIRED_NONEMPTY_FIELDS[table_name]:
+            missing = frame[field].isna() | frame[field].astype(str).str.strip().eq("")
+            if missing.any():
+                raise ValueError(
+                    f"Public {table_name}.{field} contains {int(missing.sum())} empty values"
+                )
+
+    paper_ids = set(tables["papers"]["paper_id"])
+    concept_ids = set(tables["concepts"]["concept_id"])
+    author_ids = set(tables["authors"]["author_id"])
+    if set(tables["paper_authors"]["paper_id"]) - paper_ids:
+        raise ValueError("Public paper_authors contains unknown paper IDs")
+    if set(tables["paper_authors"]["author_id"]) - author_ids:
+        raise ValueError("Public paper_authors contains unknown author IDs")
+    if set(tables["relationships"]["paper_id"]) - paper_ids:
+        raise ValueError("Public relationships contains unknown paper IDs")
+    related_concepts = set(tables["relationships"]["subject_id"]) | set(
+        tables["relationships"]["object_id"]
+    )
+    if related_concepts - concept_ids:
+        raise ValueError("Public relationships contains unknown concept IDs")
+    parent_ids = set(tables["concepts"]["parent_concept_id"].dropna()) - {""}
+    if parent_ids - concept_ids:
+        raise ValueError("Public concepts contains unknown parent concept IDs")
+
+    classified_papers = tables["papers"].dropna(subset=["paper_type"])
+    if set(classified_papers["paper_type"]) - PUBLIC_PAPER_TYPES:
+        raise ValueError("Public papers contains unsupported paper types")
+    if set(classified_papers["paper_subtype"]) - PUBLIC_PAPER_SUBTYPES:
+        raise ValueError("Public papers contains unsupported paper subtypes")
 
 
 def build_public_tables(kg_dir: Path) -> dict[str, pd.DataFrame]:
@@ -369,46 +416,159 @@ def build_public_tables(kg_dir: Path) -> dict[str, pd.DataFrame]:
         "papers": kg_dir / "papers.parquet",
         "evidence_edges": kg_dir / "evidence_edges.parquet",
         "findings": kg_dir / "findings.parquet",
+        "authors": kg_dir / "authors.parquet",
+        "paper_authors": kg_dir / "paper_authors.parquet",
     }
     for name, path in required.items():
         if not path.is_file():
             raise FileNotFoundError(f"Missing {name} table: {path}")
 
-    raw_edges = pd.read_parquet(required["evidence_edges"])
-    findings = build_public_findings(kg_dir, raw_edges)
-    source_by_finding = dict(
-        zip(findings["finding_id"], findings["literature_source"], strict=False)
+    classifications = paper_classifications(kg_dir)
+
+    papers = selected_columns(
+        pd.read_parquet(required["papers"]),
+        PUBLIC_PAPER_SOURCE_FIELDS,
+        table_name="papers",
+    )
+    papers["paper_type"] = papers["paper_id"].map(
+        lambda value: classifications.get(normalize(value), (None, None))[0]
+    )
+    papers["paper_subtype"] = papers["paper_id"].map(
+        lambda value: classifications.get(normalize(value), (None, None))[1]
+    )
+    papers = papers.drop(columns=["authors"])
+
+    raw_edges = selected_columns(
+        pd.read_parquet(required["evidence_edges"]),
+        PUBLIC_RELATIONSHIP_SOURCE_FIELDS,
+        table_name="evidence_edges",
+    )
+    raw_edges = raw_edges[raw_edges["graph_admission_status"] == "main_graph"].copy()
+    relationships = raw_edges.rename(
+        columns={
+            "compound_id": "subject_id",
+            "compound": "subject_label",
+            "graph_subject_kind": "subject_kind",
+            "entity_id": "object_id",
+            "entity_label": "object_label",
+            "entity_kind": "object_kind",
+        }
+    )
+    relationship_fields = [
+        "paper_id",
+        "subject_id",
+        "subject_label",
+        "subject_kind",
+        "object_id",
+        "object_label",
+        "object_kind",
+        "domain",
+        "relation_type",
+    ]
+    relationships = relationships[relationship_fields].drop_duplicates(
+        ["paper_id", "subject_id", "object_id", "relation_type", "domain"]
+    )
+    relationships.insert(
+        0,
+        "relationship_id",
+        [relationship_id(record) for record in relationships.to_dict(orient="records")],
+    )
+    relationships["paper_type"] = relationships["paper_id"].map(
+        lambda value: classifications.get(normalize(value), (None, None))[0]
+    )
+    relationships["paper_subtype"] = relationships["paper_id"].map(
+        lambda value: classifications.get(normalize(value), (None, None))[1]
     )
 
-    edges = selected_columns(raw_edges, PUBLIC_EDGE_FIELDS, table_name="evidence_edges")
-    edges["literature_source"] = edges["finding_id"].map(source_by_finding).fillna("primary")
-    ordered_edge_fields = [field for field in PUBLIC_EDGE_FIELDS if field in edges.columns]
-    edges = edges[ordered_edge_fields]
+    entities = selected_columns(
+        pd.read_parquet(required["entities"]),
+        PUBLIC_CONCEPT_SOURCE_FIELDS,
+        table_name="entities",
+    ).rename(
+        columns={
+            "entity_id": "concept_id",
+            "entity_type": "concept_type",
+            "entity_kind": "concept_kind",
+            "graph_parent_label": "parent_label",
+            "graph_parent_kind": "parent_kind",
+            "graph_parent_entity_id": "parent_concept_id",
+            "ids_json": "external_ids_json",
+        }
+    )
+    used_concepts = set(relationships["subject_id"]) | set(relationships["object_id"])
+    parent_ids = set(
+        entities.loc[entities["concept_id"].isin(used_concepts), "parent_concept_id"]
+        .dropna()
+        .astype(str)
+    ) - {""}
+    concepts = entities[entities["concept_id"].isin(used_concepts | parent_ids)].copy()
+
+    source_paper_authors = selected_columns(
+        pd.read_parquet(required["paper_authors"]),
+        PUBLIC_PAPER_AUTHOR_FIELDS,
+        table_name="paper_authors",
+    )
+    structured_authorship = source_paper_authors["author_id"].fillna("").astype(str).str.startswith(
+        ("openalex:", "orcid:")
+    )
+    structured_authorship &= source_paper_authors["identity_confidence"].ne(
+        "openalex_author_id_orcid_conflict"
+    )
+    structured_rate = (
+        float(structured_authorship.mean()) if len(source_paper_authors) else 0.0
+    )
+    if structured_rate < MIN_STRUCTURED_AUTHORSHIP_RATE:
+        raise ValueError(
+            "Structured author identity coverage is "
+            f"{structured_rate:.1%}; at least {MIN_STRUCTURED_AUTHORSHIP_RATE:.0%} is required. "
+            "Refusing to publish unresolved or conflicting author identities. Seed or "
+            "refresh the OpenAlex author cache, review identity conflicts, and rebuild "
+            "author tables."
+        )
+
+    paper_authors = source_paper_authors[structured_authorship].copy().rename(
+        columns={"display_name": "author_name", "canonical_name": "normalized_name"}
+    )
+    paper_authors = paper_authors.drop(columns=["identity_confidence"])
+    paper_authors = paper_authors[paper_authors["paper_id"].isin(set(papers["paper_id"]))]
+    paper_authors = paper_authors.drop_duplicates(
+        ["paper_id", "author_id", "author_position"]
+    )
+
+    source_authors = selected_columns(
+        pd.read_parquet(required["authors"]),
+        PUBLIC_AUTHOR_FIELDS,
+        table_name="authors",
+    ).rename(
+        columns={
+            "display_name": "author_name",
+            "canonical_name": "normalized_name",
+            "identity_confidence": "identity_source",
+            "display_names_json": "name_variants_json",
+            "openalex_author_ids_json": "openalex_profile_ids_json",
+        }
+    )
+    source_authors = source_authors[
+        source_authors["author_id"].fillna("").astype(str).str.startswith(
+            ("openalex:", "orcid:")
+        )
+    ].copy()
+    author_counts = paper_authors.groupby("author_id")["paper_id"].nunique()
+    source_authors["paper_count"] = source_authors["author_id"].map(author_counts).fillna(0)
+    authors = source_authors[source_authors["paper_count"] > 0].copy()
 
     tables = {
-        "findings": findings,
-        "evidence_edges": edges,
-        "entities": selected_columns(
-            pd.read_parquet(required["entities"]),
-            PUBLIC_ENTITY_FIELDS,
-            table_name="entities",
-        ),
-        "papers": selected_columns(
-            pd.read_parquet(required["papers"]),
-            PUBLIC_PAPER_FIELDS,
-            table_name="papers",
-        ),
+        "papers": normalize_public_frame(papers),
+        "concepts": normalize_public_frame(concepts),
+        "authors": normalize_public_frame(authors),
+        "paper_authors": normalize_public_frame(paper_authors),
+        "relationships": normalize_public_frame(relationships),
     }
-
-    optional = {
-        "authors": (kg_dir / "authors.parquet", PUBLIC_AUTHOR_FIELDS),
-        "paper_authors": (kg_dir / "paper_authors.parquet", PUBLIC_PAPER_AUTHOR_FIELDS),
-    }
-    for table_name, (path, fields) in optional.items():
-        if path.is_file():
-            tables[table_name] = selected_columns(
-                pd.read_parquet(path), fields, table_name=table_name
-            )
+    tables["paper_authors"].attrs["source_authorship_rows"] = int(
+        len(source_paper_authors)
+    )
+    tables["paper_authors"].attrs["structured_authorship_rate"] = structured_rate
+    validate_public_tables(tables)
     return tables
 
 
@@ -485,6 +645,7 @@ def materialize_query_artifacts(
             con.execute("CHECKPOINT")
             schemas = {
                 table_name: {
+                    **TABLE_METADATA[table_name],
                     "row_count": int(
                         con.execute(
                             f"SELECT count(*) FROM {quote_identifier(table_name)}"
@@ -504,11 +665,27 @@ def materialize_query_artifacts(
             "run_id": run_id,
             "tables": schemas,
             "semantics": {
-                "literature_source": ["primary", "meta_analyses", "reviews"],
-                "default_query_scope": "main_graph",
-                "alternative_query_scope": "all_normalized",
-                "counting_warning": "Finding rows are not independent studies; use distinct paper_id for study counts.",
-                "finding_id_stability": "finding_id is release-scoped; paper and canonical entity IDs are more stable across releases.",
+                "paper_type": ["primary_study", "meta_analysis", "review"],
+                "relationship_scope": (
+                    "Relationships are deduplicated at paper-subject-object-relation-domain "
+                    "grain and include only relationships admitted to the public graph."
+                ),
+                "author_identity": (
+                    "Public author records require an OpenAlex or ORCID identity. ORCID is "
+                    "canonical when available, including across OpenAlex profiles carrying "
+                    "the same ORCID. OpenAlex profiles without ORCID remain separate unless "
+                    "a reviewed correction links them. Name-only authorship rows and profiles "
+                    "with conflicting ORCID evidence are excluded."
+                ),
+                "excluded_data": [
+                    "granular findings",
+                    "effect estimates and statistical fields",
+                    "supporting quotes",
+                    "result direction and confidence",
+                    "internal curation and review fields",
+                    "unresolved name-only author records",
+                    "author profiles with conflicting ORCID evidence",
+                ],
             },
         }
         schema_path = stage_dir / PUBLIC_SCHEMA_NAME
@@ -526,17 +703,6 @@ def materialize_query_artifacts(
                 "sha256": sha256_file(path),
             }
 
-        source_finding_count = int(
-            ((kg_manifest.get("tables") or {}).get("findings") or {}).get(
-                "rows", len(tables["findings"])
-            )
-        )
-        if len(tables["findings"]) != source_finding_count:
-            raise ValueError(
-                "Public finding count does not match the normalized KG: "
-                f"public={len(tables['findings'])}, kg={source_finding_count}"
-            )
-
         manifest = {
             "schema_version": PUBLIC_QUERY_MANIFEST_VERSION,
             "public_schema_version": PUBLIC_QUERY_SCHEMA_VERSION,
@@ -548,11 +714,28 @@ def materialize_query_artifacts(
             "schema": PUBLIC_SCHEMA_NAME,
             "row_counts": {name: int(len(frame)) for name, frame in tables.items()},
             "files": files,
+            "quality": {
+                "contract": "narrow_public_catalogue",
+                "all_fields_documented": True,
+                "relationships_deduplicated": True,
+                "granular_findings_excluded": True,
+                "name_only_authors_excluded": True,
+                "conflicting_orcid_profiles_excluded": True,
+                "minimum_structured_authorship_rate": MIN_STRUCTURED_AUTHORSHIP_RATE,
+                "structured_authorship_rate": tables["paper_authors"].attrs[
+                    "structured_authorship_rate"
+                ],
+                "source_authorship_rows": tables["paper_authors"].attrs[
+                    "source_authorship_rows"
+                ],
+                "published_authorship_rows": len(tables["paper_authors"]),
+                "validated_tables": list(tables),
+            },
             "license": {
-                "structured_data": "CC0-1.0",
+                "project_created_structured_data": "CC0-1.0",
                 "source_material_boundary": (
-                    "Third-party reports, bibliographic provider data, and supporting excerpts "
-                    "retain their original rights and terms."
+                    "Third-party reports and bibliographic provider data retain their "
+                    "original rights and terms. The public catalogue contains no source quotes."
                 ),
                 "project_license_file": "DATA_LICENSE.md",
             },
@@ -590,13 +773,32 @@ def validate_query_artifact(*, kg_dir: Path, out_dir: Path, run_id: str) -> dict
     schema_path = out_dir / normalize(manifest.get("schema"))
     if not db_path.is_file() or not schema_path.is_file():
         raise FileNotFoundError(f"Public query artifact is incomplete: {out_dir}")
-    kg_manifest = read_json_object(kg_dir / "manifest.json")
-    kg_rows = int(((kg_manifest.get("tables") or {}).get("findings") or {}).get("rows", -1))
-    public_rows = int((manifest.get("row_counts") or {}).get("findings", -2))
-    if kg_rows < 0 or public_rows != kg_rows:
+    expected_tables = set(TABLE_METADATA)
+    public_counts = manifest.get("row_counts") or {}
+    if set(public_counts) != expected_tables:
         raise ValueError(
-            f"Public query/KG row-count mismatch for {run_id}: public={public_rows}, kg={kg_rows}"
+            f"Unexpected public tables for {run_id}: {sorted(public_counts)}"
         )
+    con = duckdb.connect(str(db_path), read_only=True)
+    try:
+        actual_tables = {row[0] for row in con.execute("SHOW TABLES").fetchall()}
+        if actual_tables != expected_tables:
+            raise ValueError(
+                f"Public database table mismatch for {run_id}: {sorted(actual_tables)}"
+            )
+        for table_name, expected_count in public_counts.items():
+            actual_count = int(
+                con.execute(
+                    f"SELECT count(*) FROM {quote_identifier(table_name)}"
+                ).fetchone()[0]
+            )
+            if actual_count != int(expected_count):
+                raise ValueError(
+                    f"Public {table_name} row-count mismatch for {run_id}: "
+                    f"manifest={expected_count}, database={actual_count}"
+                )
+    finally:
+        con.close()
     return manifest
 
 
@@ -628,7 +830,8 @@ def main() -> int:
         run_id=run_id,
     )
     print(f"Built public query artifacts: {out_dir}")
-    print(f"Public findings: {manifest['row_counts']['findings']}")
+    print(f"Public papers: {manifest['row_counts']['papers']}")
+    print(f"Public relationships: {manifest['row_counts']['relationships']}")
     print(f"Public database: {out_dir / PUBLIC_DB_NAME}")
     return 0
 

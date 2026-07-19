@@ -106,7 +106,9 @@ class R2ObjectStore:
                 aws_secret_access_key=settings.secret_access_key,
                 config=Config(
                     signature_version="s3v4",
-                    retries={"max_attempts": 5, "mode": "standard"},
+                    connect_timeout=10,
+                    read_timeout=60,
+                    retries={"max_attempts": 3, "mode": "standard"},
                     s3={"addressing_style": "path"},
                 ),
             )

@@ -33,7 +33,7 @@ def write_minimal_kg(kg_dir: Path, *, run_id: str = "test_run") -> None:
                 "result_direction_normalized": "positive",
                 "access_level": "article_text",
                 "source_type": "primary_study",
-                "paper_type": "primary_results",
+                "paper_type": "primary_study",
                 "supporting_quote": "Symptoms improved in the treatment group.",
                 "evidence_locator": "Results, paragraph 2",
                 "proposition_group_id": "proposition:primary",
@@ -87,7 +87,7 @@ def write_minimal_kg(kg_dir: Path, *, run_id: str = "test_run") -> None:
                 "result_direction_normalized": "positive",
                 "access_level": "article_text",
                 "source_type": "primary_study",
-                "paper_type": "primary_results",
+                "paper_type": "primary_study",
                 "supporting_quote": "Ketamine interacted with the NMDA receptor.",
                 "evidence_locator": "Results",
                 "proposition_group_id": "proposition:target",
@@ -270,10 +270,83 @@ def write_minimal_kg(kg_dir: Path, *, run_id: str = "test_run") -> None:
             },
         ]
     )
+    authors = pd.DataFrame(
+        [
+            {
+                "author_id": "openalex:A1001",
+                "display_name": "Ada Example",
+                "canonical_name": "ada example",
+                "openalex_author_id": "https://openalex.org/A1001",
+                "openalex_author_ids_json": json.dumps(["https://openalex.org/A1001"]),
+                "orcid": "",
+                "identity_confidence": "openalex_author_id",
+                "display_names_json": json.dumps(["Ada Example"]),
+                "paper_count": 1,
+            },
+            {
+                "author_id": "openalex:A1002",
+                "display_name": "Grace Example",
+                "canonical_name": "grace example",
+                "openalex_author_id": "https://openalex.org/A1002",
+                "openalex_author_ids_json": json.dumps(["https://openalex.org/A1002"]),
+                "orcid": "",
+                "identity_confidence": "openalex_author_id",
+                "display_names_json": json.dumps(["Grace Example"]),
+                "paper_count": 1,
+            },
+            {
+                "author_id": "orcid:0000-0001-2345-6789",
+                "display_name": "Lin Example",
+                "canonical_name": "lin example",
+                "openalex_author_id": "",
+                "openalex_author_ids_json": "[]",
+                "orcid": "0000-0001-2345-6789",
+                "identity_confidence": "orcid",
+                "display_names_json": json.dumps(["Lin Example"]),
+                "paper_count": 1,
+            },
+        ]
+    )
+    paper_authors = pd.DataFrame(
+        [
+            {
+                "paper_id": "paper:10.1000/primary",
+                "author_id": "openalex:A1001",
+                "display_name": "Ada Example",
+                "canonical_name": "ada example",
+                "identity_confidence": "openalex_author_id",
+                "author_position": 1,
+                "is_first_author": True,
+                "is_last_author": True,
+            },
+            {
+                "paper_id": "paper:10.1000/review",
+                "author_id": "openalex:A1002",
+                "display_name": "Grace Example",
+                "canonical_name": "grace example",
+                "identity_confidence": "openalex_author_id",
+                "author_position": 1,
+                "is_first_author": True,
+                "is_last_author": True,
+            },
+            {
+                "paper_id": "paper:10.1000/target",
+                "author_id": "orcid:0000-0001-2345-6789",
+                "display_name": "Lin Example",
+                "canonical_name": "lin example",
+                "identity_confidence": "orcid",
+                "author_position": 1,
+                "is_first_author": True,
+                "is_last_author": True,
+            },
+        ]
+    )
     findings.to_parquet(kg_dir / "findings.parquet", index=False)
     edges.to_parquet(kg_dir / "evidence_edges.parquet", index=False)
     entities.to_parquet(kg_dir / "entities.parquet", index=False)
     papers.to_parquet(kg_dir / "papers.parquet", index=False)
+    authors.to_parquet(kg_dir / "authors.parquet", index=False)
+    paper_authors.to_parquet(kg_dir / "paper_authors.parquet", index=False)
     (kg_dir / "manifest.json").write_text(
         json.dumps(
             {

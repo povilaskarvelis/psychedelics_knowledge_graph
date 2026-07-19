@@ -78,9 +78,11 @@ startup correctly fails because no active remote database exists.
    `PKG_MCP_ALLOWED_HOSTS`.
 6. Deploy and verify `/healthz`, `/docs`, and `/mcp` on the Render hostname.
 
-The Blueprint uses `/healthz` as its readiness check. The HTTP server does not
-start until the active R2 database has downloaded and passed checksum validation,
-so a bad release cannot receive traffic.
+The Blueprint uses `/healthz` as its process health check. The HTTP server starts
+immediately so documentation and health checks remain available while the active
+R2 database loads. `/readyz` returns 503 until the database has downloaded and
+passed checksum validation; catalogue requests return a retryable 503 while it
+is loading.
 
 ## Domain and browser access
 
@@ -128,7 +130,7 @@ in the local `.env` file:
 PKG_DEPLOY_HOOK_URL=<render-deploy-hook-url>
 ```
 
-For every future promoted data release, run:
+For every future data release, run:
 
 ```bash
 set -a
@@ -140,8 +142,8 @@ ACTIVATE_DEFAULT=1 PUBLISH_QUERY_API_R2=1 \
 
 The sequence is:
 
-1. build and validate the normalized KG and public query artifacts;
-2. atomically promote the local/UI release;
+1. build and validate the normalized KG and narrow public catalogue;
+2. make the local/UI release current;
 3. upload and verify the immutable R2 release;
 4. switch the remote active pointer;
 5. trigger a zero-downtime container deployment;
@@ -153,8 +155,8 @@ restart the API service so it synchronizes the new active release.
 ## Failure and rollback behavior
 
 - An upload or checksum failure leaves the previous R2 `active.json` untouched.
-- A failed container sync never starts the HTTP server, so Render retains the
-  previously healthy deployment.
+- A failed container sync leaves `/readyz` unavailable and catalogue requests
+  return 503 while documentation and process health checks remain reachable.
 - API pagination cursors remain bound to their release and return HTTP 409 after
   a release change.
 - To roll back, promote the desired older local run and publish it again. The

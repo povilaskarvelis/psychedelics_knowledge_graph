@@ -7,17 +7,17 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from .config import Settings
-from .models import AggregateQuery, FindingFilters, FindingQuery, NeighborQuery
+from .models import PaperFilters, PaperQuery, RelationshipFilters, RelationshipQuery
 from .repository import QueryService
 
 
 MCP_INSTRUCTIONS = """
-Query the public Psychedelics Knowledge Graph without merging distinct evidence layers.
-Primary studies, meta-analyses, and reviews are separate literature_source values.
-The default main_graph scope returns findings admitted to the overview graph;
-all_normalized also includes findings retained as paper detail. Finding counts are not
-independent study counts, so prefer study_count for evidence-volume comparisons. Return
-DOIs, evidence locators, and result direction when supporting an answer.
+Search the curated public Psychedelics Knowledge Graph catalogue. The public
+contract contains papers, concepts, OpenAlex/ORCID-backed authors, and deduplicated
+paper-level relationships. It intentionally excludes granular findings,
+statistics, quotes, result direction, and internal curation data. Use
+list_available_filters to discover controlled values. Public author identities
+are backed by OpenAlex or ORCID; unresolved name-only records are excluded.
 """.strip()
 
 
@@ -42,155 +42,149 @@ def create_mcp_server(
 
     @mcp.tool()
     def get_release_info() -> dict[str, Any]:
-        """Get the active data release, row counts, evidence semantics, and API links."""
+        """Get the current data version, table counts, scope, and limitations."""
         return service.meta()
 
     @mcp.tool()
-    def search_entities(
+    def list_available_filters() -> dict[str, Any]:
+        """List valid paper types, subtypes, domains, concept kinds, and relationship types."""
+        return service.facets()
+
+    @mcp.tool()
+    def search_concepts(
         query: str,
-        entity_kinds: list[str] | None = None,
+        concept_kinds: list[str] | None = None,
+        domains: list[str] | None = None,
         limit: int = 15,
     ) -> dict[str, Any]:
-        """Resolve a compound, condition, target, outcome, or alias to canonical entity IDs."""
-        return service.search_entities(
+        """Resolve a compound, condition, target, outcome, or alias to a concept ID."""
+        return service.search_concepts(
             query,
-            entity_kinds=entity_kinds or [],
+            concept_kinds=concept_kinds or [],
+            domains=domains or [],
             limit=limit,
         )
 
     @mcp.tool()
-    def get_entity(entity_id: str) -> dict[str, Any]:
-        """Get one canonical entity, aliases, parent mapping, and evidence counts."""
-        return service.get_entity(entity_id)
+    def get_concept(concept_id: str) -> dict[str, Any]:
+        """Get one standardized concept with aliases, category, hierarchy, and paper count."""
+        return service.get_concept(concept_id)
 
     @mcp.tool()
-    def find_evidence(
-        compounds: list[str] | None = None,
-        compound_ids: list[str] | None = None,
-        entity_ids: list[str] | None = None,
-        entity_labels: list[str] | None = None,
-        entity_kinds: list[str] | None = None,
-        domains: list[str] | None = None,
-        evidence_types: list[str] | None = None,
-        literature_sources: list[str] | None = None,
-        relation_types: list[str] | None = None,
-        directions: list[str] | None = None,
-        text_depth: list[str] | None = None,
-        year_from: int | None = None,
-        year_to: int | None = None,
-        query: str | None = None,
-        scope: str = "main_graph",
-        detail_level: str = "summary",
+    def search_authors(query: str, limit: int = 15) -> dict[str, Any]:
+        """Search OpenAlex/ORCID-backed authors by preferred name or known name variant."""
+        return service.search_authors(query, limit=limit)
+
+    @mcp.tool()
+    def get_author_papers(
+        author_id: str,
         limit: int = 25,
         cursor: str | None = None,
     ) -> dict[str, Any]:
-        """Find normalized evidence with bounded filters and release-safe pagination.
-
-        Use canonical IDs from search_entities where possible. Set scope to all_normalized
-        to include findings retained as paper detail. Keep literature_sources separate when
-        interpreting primary studies, meta-analyses, and reviews.
-        """
-        request = FindingQuery(
-            filters=FindingFilters(
-                compounds=compounds or [],
-                compound_ids=compound_ids or [],
-                entity_ids=entity_ids or [],
-                entity_labels=entity_labels or [],
-                entity_kinds=entity_kinds or [],
-                domains=domains or [],
-                evidence_types=evidence_types or [],
-                literature_sources=literature_sources or [],
-                relation_types=relation_types or [],
-                directions=directions or [],
-                text_depth=text_depth or [],
-                year_from=year_from,
-                year_to=year_to,
-                query=query,
-            ),
-            scope=scope,
-            detail_level=detail_level,
-            limit=limit,
-            cursor=cursor,
-        )
-        return service.query_findings(request)
+        """Get papers across all paper types linked to one ORCID/OpenAlex author identity."""
+        return service.get_author_papers(author_id, limit=limit, cursor=cursor)
 
     @mcp.tool()
-    def get_finding(finding_id: str) -> dict[str, Any]:
-        """Get a complete public finding record, including provenance when available."""
-        return service.get_finding(finding_id)
+    def search_papers(
+        query: str | None = None,
+        paper_ids: list[str] | None = None,
+        dois: list[str] | None = None,
+        paper_types: list[str] | None = None,
+        paper_subtypes: list[str] | None = None,
+        author_ids: list[str] | None = None,
+        author_names: list[str] | None = None,
+        concept_ids: list[str] | None = None,
+        domains: list[str] | None = None,
+        relation_types: list[str] | None = None,
+        year_from: int | None = None,
+        year_to: int | None = None,
+        limit: int = 25,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """Search and paginate papers using reliable catalogue metadata and relationships."""
+        return service.query_papers(
+            PaperQuery(
+                filters=PaperFilters(
+                    query=query,
+                    paper_ids=paper_ids or [],
+                    dois=dois or [],
+                    paper_types=paper_types or [],
+                    paper_subtypes=paper_subtypes or [],
+                    author_ids=author_ids or [],
+                    author_names=author_names or [],
+                    concept_ids=concept_ids or [],
+                    domains=domains or [],
+                    relation_types=relation_types or [],
+                    year_from=year_from,
+                    year_to=year_to,
+                ),
+                limit=limit,
+                cursor=cursor,
+            )
+        )
 
     @mcp.tool()
     def get_paper(
         paper_id_or_doi: str,
-        include_findings: bool = True,
-        finding_limit: int = 50,
+        include_relationships: bool = True,
+        relationship_limit: int = 50,
     ) -> dict[str, Any]:
-        """Get a paper or report by canonical paper ID or DOI and optionally its findings."""
+        """Get one paper, its credited authors, and its public relationships."""
         return service.get_paper(
             paper_id_or_doi,
-            include_findings=include_findings,
-            finding_limit=finding_limit,
+            include_relationships=include_relationships,
+            relationship_limit=relationship_limit,
         )
 
     @mcp.tool()
-    def aggregate_evidence(
-        group_by: list[str] | None = None,
-        compounds: list[str] | None = None,
-        entity_ids: list[str] | None = None,
-        entity_kinds: list[str] | None = None,
+    def find_relationships(
+        paper_ids: list[str] | None = None,
+        dois: list[str] | None = None,
+        paper_types: list[str] | None = None,
+        paper_subtypes: list[str] | None = None,
+        author_ids: list[str] | None = None,
+        author_names: list[str] | None = None,
+        concept_ids: list[str] | None = None,
+        subject_ids: list[str] | None = None,
+        object_ids: list[str] | None = None,
         domains: list[str] | None = None,
-        literature_sources: list[str] | None = None,
-        directions: list[str] | None = None,
+        relation_types: list[str] | None = None,
         year_from: int | None = None,
         year_to: int | None = None,
-        scope: str = "main_graph",
-        limit: int = 50,
+        limit: int = 25,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
-        """Count distinct studies, findings, and proposition groups by safe public fields."""
-        request = AggregateQuery(
-            filters=FindingFilters(
-                compounds=compounds or [],
-                entity_ids=entity_ids or [],
-                entity_kinds=entity_kinds or [],
-                domains=domains or [],
-                literature_sources=literature_sources or [],
-                directions=directions or [],
-                year_from=year_from,
-                year_to=year_to,
-            ),
-            scope=scope,
-            group_by=group_by or ["compound", "entity_label"],
-            limit=limit,
-        )
-        return service.aggregate(request)
-
-    @mcp.tool()
-    def get_neighborhood(
-        entity_id: str,
-        literature_sources: list[str] | None = None,
-        relation_types: list[str] | None = None,
-        scope: str = "main_graph",
-        limit: int = 50,
-    ) -> dict[str, Any]:
-        """Get a bounded one-hop evidence neighborhood around a canonical entity ID."""
-        return service.neighbors(
-            entity_id,
-            NeighborQuery(
-                scope=scope,
-                literature_sources=literature_sources or [],
-                relation_types=relation_types or [],
+        """Search deduplicated paper-level concept relationships."""
+        return service.query_relationships(
+            RelationshipQuery(
+                filters=RelationshipFilters(
+                    paper_ids=paper_ids or [],
+                    dois=dois or [],
+                    paper_types=paper_types or [],
+                    paper_subtypes=paper_subtypes or [],
+                    author_ids=author_ids or [],
+                    author_names=author_names or [],
+                    concept_ids=concept_ids or [],
+                    subject_ids=subject_ids or [],
+                    object_ids=object_ids or [],
+                    domains=domains or [],
+                    relation_types=relation_types or [],
+                    year_from=year_from,
+                    year_to=year_to,
+                ),
                 limit=limit,
-            ),
+                cursor=cursor,
+            )
         )
 
     @mcp.resource("psychedelics-kg://release/current", mime_type="application/json")
     def release_resource() -> str:
-        """Active release metadata and evidence semantics."""
+        """Current data version, scope, and record counts."""
         return json.dumps(service.meta(), ensure_ascii=False, sort_keys=True)
 
     @mcp.resource("psychedelics-kg://schema/public-query", mime_type="application/json")
     def schema_resource() -> str:
-        """Public DuckDB table schema and query semantics."""
+        """Public catalogue tables, fields, keys, and definitions."""
         return json.dumps(service.schema(), ensure_ascii=False, sort_keys=True)
 
     return mcp
