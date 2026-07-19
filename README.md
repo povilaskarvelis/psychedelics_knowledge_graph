@@ -51,7 +51,7 @@ papers, concepts, OpenAlex/ORCID-backed authors, and paper-level relationships. 
 available through DuckDB and Parquet downloads, a read-only REST/OpenAPI
 service, and MCP tools for AI agents. Granular extraction data remains internal;
 see the [API and agent access guide](docs/agent_access.md).
-Production setup is covered by the [R2 deployment checklist](docs/r2_deployment.md).
+Production setup is covered by the [R2 browser and API deployment checklist](docs/r2_deployment.md).
 
 ## Repository map
 

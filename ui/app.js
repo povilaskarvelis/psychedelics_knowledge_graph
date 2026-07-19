@@ -14,6 +14,8 @@ const entityKindToggle = document.querySelector("[data-entity-kind-toggle]");
 const studyListEl = document.getElementById("studyList");
 const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
+const GRAPH_PAYLOAD_REMOTE_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json";
+const LOCAL_GRAPH_DATA_HOSTS = new Set(["", "localhost", "127.0.0.1", "::1"]);
 
 if (tooltip && tooltip.parentElement !== document.body) {
   document.body.appendChild(tooltip);
@@ -397,7 +399,6 @@ const REVIEW_COVERAGE_FOCUS_LABELS = {
   major_supporting: "Major supporting topic",
   secondary_context: "Context only",
 };
-const REVIEW_COVERAGE_FOCUS_ORDER = ["Main focus", "Major supporting topic", "Context only"];
 const META_ANALYSIS_DESIGN_LABELS = {
   pairwise_meta_analysis: "Pairwise meta-analysis",
   network_meta_analysis: "Network meta-analysis",
@@ -5594,8 +5595,6 @@ function renderReviewContextCharts(items) {
   const designEntries = summarizeFacetEvidence(items, reviewDesignFacetLabel);
   const contributionEntries = summarizeFacetEvidence(items, reviewContributionFacetLabel);
   const evidenceEntries = summarizeFacetEvidence(items, reviewEvidenceStratumFacetLabel);
-  const relationshipEntries = summarizeFacetEvidence(items, reviewRelationshipTypeFacetLabel);
-  const coverageFocusEntries = summarizeFacetEvidence(items, reviewCoverageFocusFacetLabel);
 
   const chart = (entries, title, filterField, options = {}) =>
     entries.length
@@ -5611,13 +5610,6 @@ function renderReviewContextCharts(items) {
     ${chart(designEntries, "Review approaches", "review_design_facet")}
     ${chart(contributionEntries, "Overall review focus", "review_contribution_facet", { maxEntries: 7 })}
     ${chart(evidenceEntries, "Evidence base", "review_evidence_stratum_facet", { maxEntries: 5 })}
-    ${chart(relationshipEntries, "Relationship types", "review_relationship_type_facet", { maxEntries: 5 })}
-    ${coverageFocusEntries.length ? renderFacetCompositionChart(
-      orderedFacetEntries(coverageFocusEntries, REVIEW_COVERAGE_FOCUS_ORDER),
-      "Coverage within each report",
-      "review_coverage_focus_facet",
-      { hideWhenEmpty: true, maxEntries: 3, aggregateOther: false, palette: PALETTE_TEAL_FIRST }
-    ) : ""}
   `;
 }
 
@@ -7981,11 +7973,57 @@ function dataCandidates(path) {
   return [`../${path}`, `/${path}`, path];
 }
 
+function graphPayloadPointerCandidates() {
+  if (LOCAL_GRAPH_DATA_HOSTS.has(window.location.hostname)) {
+    return dataCandidates("data/processed/graph_payload_active.json");
+  }
+  return [GRAPH_PAYLOAD_REMOTE_POINTER_URL];
+}
+
+function graphPayloadCandidates(config, path) {
+  if (/^https:\/\//i.test(path)) return [path];
+  const pointerUrl = cleanDisplayText(config?.__pointer_url || "");
+  if (/^https:\/\//i.test(pointerUrl)) {
+    const origin = new URL(pointerUrl).origin;
+    return [new URL(path.replace(/^\/+/, ""), `${origin}/`).href];
+  }
+  return dataCandidates(path);
+}
+
+function validatedGraphPayloadConfig(data, url) {
+  const schemaVersion = cleanDisplayText(data?.schema_version || "");
+  const supportedSchemas = new Set([
+    "route_native_evidence_payload_active_v1",
+    "psychedelics_kg_browser_r2_active_v1",
+  ]);
+  if (!supportedSchemas.has(schemaVersion)) {
+    throw new Error(`Unsupported graph data pointer from ${url}`);
+  }
+  const requiredMappings = [
+    "active_graph_bootstraps",
+    "active_dashboard_bootstraps",
+    "active_detail_bootstraps",
+  ];
+  requiredMappings.forEach((key) => {
+    if (!data?.[key] || typeof data[key] !== "object") {
+      throw new Error(`Graph data pointer is missing ${key}`);
+    }
+    ["primary", "meta_analyses", "reviews"].forEach((sourceKey) => {
+      if (!cleanDisplayText(data[key][sourceKey] || "")) {
+        throw new Error(`Graph data pointer is missing ${key}.${sourceKey}`);
+      }
+    });
+  });
+  if (!cleanDisplayText(data?.active_manifest || "")) {
+    throw new Error("Graph data pointer is missing active_manifest");
+  }
+  return { ...data, __pointer_url: url };
+}
+
 async function loadGraphPayloadConfig() {
   if (graphPayloadConfigPromise) return graphPayloadConfigPromise;
-  graphPayloadConfigPromise = fetchJsonFromCandidates(dataCandidates("data/processed/graph_payload_active.json"))
-    .then(({ data }) => data || {})
-    .catch(() => ({}));
+  graphPayloadConfigPromise = fetchJsonFromCandidates(graphPayloadPointerCandidates())
+    .then(({ data, url }) => validatedGraphPayloadConfig(data, url));
   return graphPayloadConfigPromise;
 }
 
@@ -7995,7 +8033,7 @@ function loadGraphManifestStats() {
     const config = await loadGraphPayloadConfig();
     const activeManifest = cleanDisplayText(config?.active_manifest || "");
     if (!activeManifest) return null;
-    return fetchJsonFromCandidates(dataCandidates(activeManifest)).then(({ data }) => {
+    return fetchJsonFromCandidates(graphPayloadCandidates(config, activeManifest)).then(({ data }) => {
       const snapshot = heroStatsFromGraphManifest(data);
       if (snapshot) {
         heroStatsSnapshot = snapshot;
@@ -8175,13 +8213,12 @@ async function loadGraphBootstrapClaims(sourceKey) {
   if (!path) return [];
   if (graphBootstrapPayloadPromises.has(path)) return graphBootstrapPayloadPromises.get(path);
 
-  const task = fetchJsonFromCandidates(dataCandidates(path))
+  const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
     .then(({ data }) => {
       const items = graphBootstrapClaimsFromPayload(data, sourceKey);
       graphBootstrapClaimsBySource.set(sourceKey, items);
       return items;
-    })
-    .catch(() => []);
+    });
   graphBootstrapPayloadPromises.set(path, task);
   return task;
 }
@@ -8192,9 +8229,8 @@ async function loadDetailBootstrapClaims(sourceKey) {
   if (!path) return [];
   if (detailBootstrapPayloadPromises.has(path)) return detailBootstrapPayloadPromises.get(path);
 
-  const task = fetchJsonFromCandidates(dataCandidates(path))
-    .then(({ data }) => detailBootstrapClaimsFromPayload(data))
-    .catch(() => []);
+  const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
+    .then(({ data }) => detailBootstrapClaimsFromPayload(data));
   detailBootstrapPayloadPromises.set(path, task);
   return task;
 }
@@ -8205,15 +8241,14 @@ async function loadDashboardBootstrapClaims(sourceKey) {
   if (!path) return [];
   if (dashboardBootstrapPayloadPromises.has(path)) return dashboardBootstrapPayloadPromises.get(path);
 
-  const task = fetchJsonFromCandidates(dataCandidates(path))
+  const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
     .then(({ data }) => {
       const items = dashboardBootstrapClaimsFromPayload(data)
         .filter((finding) => !isHiddenMainGraphItem(finding))
         .filter((finding) => routeNativeSourceKey(finding) === sourceKey)
         .map((finding) => routeNativeFindingForCurrentUi(finding));
       return items;
-    })
-    .catch(() => []);
+    });
   dashboardBootstrapPayloadPromises.set(path, task);
   return task;
 }

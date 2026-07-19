@@ -73,9 +73,10 @@ schema, API behavior, or browser payload changed, run:
 bash scripts/refresh_public_release.sh
 ```
 
-The refresh gives the graph and API one shared public release ID, validates the
-browser files, and switches R2 only after the matching API files have uploaded
-and passed checksum verification. Complete it before pushing the related code.
+The refresh gives the graph and API one shared public release ID, validates and
+uploads both releases, and switches each R2 pointer only after its immutable
+files pass checksum verification. Data-only updates do not require a Git or
+Netlify deployment.
 
 Pagination cursors contain the release ID. A cursor from an older release is
 rejected so results from two versions are not accidentally combined.
@@ -167,8 +168,8 @@ normalization audit.
 
 ## Deployment
 
-Production stores generated data in Cloudflare R2 rather than Git or the
-container image. See [R2 query API deployment](r2_deployment.md) for the setup
+Production stores generated browser and API data in Cloudflare R2 rather than
+Git or the container image. See [R2 deployment](r2_deployment.md) for the setup
 and release checklist.
 
 Build the image from the repository root:

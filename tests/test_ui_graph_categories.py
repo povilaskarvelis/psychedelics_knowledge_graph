@@ -56,6 +56,31 @@ def test_graph_bootstrap_does_not_wait_for_detail_payload() -> None:
     assert "loadDetailBootstrapClaims" not in bootstrap
 
 
+def test_production_graph_payload_uses_r2_without_silent_local_fallback() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    loader = source.split("function graphPayloadPointerCandidates", 1)[1].split(
+        "function graphPayloadCandidates", 1
+    )[0]
+    config_loader = source.split("async function loadGraphPayloadConfig", 1)[1].split(
+        "function loadGraphManifestStats", 1
+    )[0]
+
+    assert "https://data.psychedelicskg.com/browser/active.json" in source
+    assert "LOCAL_GRAPH_DATA_HOSTS.has(window.location.hostname)" in loader
+    assert "return [GRAPH_PAYLOAD_REMOTE_POINTER_URL]" in loader
+    assert ".catch(() => ({}))" not in config_loader
+
+
+def test_graph_payload_failures_are_not_converted_to_empty_datasets() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    loaders = source.split("async function loadGraphBootstrapClaims", 1)[1].split(
+        "function routeNativeSourceKey", 1
+    )[0]
+
+    assert ".catch(() => [])" not in loaders
+    assert "graphPayloadCandidates(config, path)" in loaders
+
+
 def test_initial_load_shows_the_fast_graph_bootstrap() -> None:
     source = APP_JS.read_text(encoding="utf-8")
 
@@ -248,6 +273,23 @@ def test_main_browse_surfaces_exclude_detail_only_findings_but_search_can_retrie
     assert "applyGlobalFindingSearchFilters()" in cards
     assert "applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted)" in render
     assert "filter(isMainGraphAdmitted)" not in global_search
+
+
+def test_review_panel_omits_report_coverage_summary() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    review_panel = source.split("function renderReviewContextCharts", 1)[1].split(
+        "function isNetworkMetaAnalysisClaim", 1
+    )[0]
+
+    assert '"Review approaches"' in review_panel
+    assert '"Overall review focus"' in review_panel
+    assert '"Evidence base"' in review_panel
+    assert "Relationship types" not in review_panel
+    assert "Coverage within each report" not in review_panel
+    assert "relationshipEntries" not in review_panel
+    assert "review_relationship_type_facet" not in review_panel
+    assert "coverageFocusEntries" not in review_panel
+    assert "review_coverage_focus_facet" not in review_panel
 
 
 def test_findings_search_index_is_cached_and_warmed_in_small_idle_chunks() -> None:

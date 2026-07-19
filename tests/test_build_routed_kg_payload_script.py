@@ -119,10 +119,12 @@ esac
             publish_r2="1",
         )
 
-        self.assertEqual(len(calls), 6)
+        self.assertEqual(len(calls), 7)
         self.assertIn("pipeline/publish/promote_routed_run.py", calls[4])
-        self.assertIn("pipeline/publish/publish_query_api_r2.py", calls[5])
+        self.assertIn("pipeline/publish/publish_browser_payload_r2.py", calls[5])
+        self.assertIn("pipeline/publish/publish_query_api_r2.py", calls[6])
         self.assertIn("--run-id test_run", calls[5])
+        self.assertIn("--run-id test_run", calls[6])
 
     def test_r2_publish_requires_promotion(self) -> None:
         calls, result = self.run_with_fake_python(

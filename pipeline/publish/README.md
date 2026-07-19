@@ -33,9 +33,9 @@ bash scripts/refresh_public_release.sh
 
 It regenerates the graph and API from the current KG run, binds both manifests
 to one new public release ID, validates and rebuilds the site, publishes the API
-artifact to its contract-specific R2 pointer, and triggers the configured deploy
-hook. Run it before committing and pushing the related code and generated graph
-payloads. It never changes extraction or evidence decisions.
+and browser artifacts to their R2 pointers, and triggers the configured API
+deploy hook. Generated graph payloads are no longer committed to Git. It never
+changes extraction or evidence decisions.
 
 The promoter validates the KG, payload, author tables, and extraction inputs;
 materializes every final graph decision into the canonical
@@ -48,9 +48,9 @@ scripts/build_routed_kg_payload.sh "$RUN_ID"` remains a one-command
 build-and-promote shorthand and uses the same guarded promoter.
 
 The wrapper is non-activating by default. This keeps historical or diagnostic
-rebuilds from changing the public graph by accident. `scripts/build_site.sh`
-validates the committed public pointer, manifest, and browser payloads before
-building. The promoter separately checks that the extraction pointer, public
+rebuilds from changing the public graph by accident. The publisher validates
+the local pointer, manifest, and every browser payload before switching the R2
+pointer. The promoter separately checks that the extraction pointer, public
 pointer, and canonical corpus identify the same release; that deeper check
 stays in promotion because its extraction and Parquet inputs are intentionally
 not part of a clean deployment checkout.

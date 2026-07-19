@@ -31,8 +31,7 @@ data/curated/*
 data/processed/*
 !data/processed/bibliography_payload_*.json
 !data/processed/graph_payload_active.json
-!data/processed/graph_payload_runs/
-!data/processed/graph_payload_runs/**
+data/processed/graph_payload_runs/
 !data/processed/extraction/
 data/processed/extraction/*
 !data/processed/extraction/extraction_readiness_report.json

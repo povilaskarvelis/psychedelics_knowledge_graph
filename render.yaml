@@ -26,5 +26,7 @@ services:
         sync: false
       - key: PKG_R2_PREFIX
         value: query-api
+      - key: PKG_R2_PUBLIC_BASE_URL
+        value: https://data.psychedelicskg.com
       - key: PKG_R2_SIGNED_URL_TTL_SECONDS
         value: "900"

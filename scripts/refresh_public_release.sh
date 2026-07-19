@@ -9,7 +9,8 @@ Usage: scripts/refresh_public_release.sh [RUN_ID]
 
 Regenerates the browser graph and public API from an already-built KG run,
 binds them to one new public release ID, validates the static site, and
-publishes the API release to R2. RUN_ID defaults to the current graph run.
+publishes both browser and API releases to R2. RUN_ID defaults to the current
+graph run.
 
 Use this for public-export, author-identity, API, or browser-payload changes
 that do not change the underlying evidence decisions. For a new evidence run,
@@ -82,13 +83,14 @@ python3 "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" \
   --run-id "${RUN_ID}"
 
 if [[ "${NO_R2_PUBLISH}" == "0" ]]; then
+  python3 "${ROOT_DIR}/pipeline/publish/publish_browser_payload_r2.py" --run-id "${RUN_ID}"
   publish_args=(--run-id "${RUN_ID}")
   if [[ "${WRITE_LEGACY_R2_ALIAS}" == "1" ]]; then
     publish_args+=(--write-legacy-active-alias)
   fi
   python3 "${ROOT_DIR}/pipeline/publish/publish_query_api_r2.py" "${publish_args[@]}"
 else
-  echo "Skipped R2 publication because NO_R2_PUBLISH=1"
+  echo "Skipped browser and API R2 publication because NO_R2_PUBLISH=1"
 fi
 
 python3 "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" --check-public

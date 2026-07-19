@@ -24,7 +24,7 @@ Environment overrides:
   EVIDENCE_RUN_ID=existing-run  # rebuild a new release from an existing evidence snapshot
   AUTHOR_CACHE_SEED=/path/to/cache  # required for a new run built with --offline
   ACTIVATE_DEFAULT=1  # explicitly promote this run after the versioned build succeeds
-  PUBLISH_QUERY_API_R2=1  # publish the promoted query release and trigger its deploy hook
+  PUBLISH_QUERY_API_R2=1  # publish the promoted browser/API release and trigger the API deploy hook
 EOF
 }
 
@@ -111,5 +111,6 @@ if [[ "${ACTIVATE_DEFAULT}" == "1" ]]; then
 fi
 
 if [[ "${PUBLISH_QUERY_API_R2}" == "1" ]]; then
+  python3 "${ROOT_DIR}/pipeline/publish/publish_browser_payload_r2.py" --run-id "${RUN_ID}"
   python3 "${ROOT_DIR}/pipeline/publish/publish_query_api_r2.py" --run-id "${RUN_ID}"
 fi

@@ -24,10 +24,6 @@ if [[ ! -f "${MANIFEST}" ]]; then
   exit 1
 fi
 
-# Netlify builds from a clean checkout, so validate the committed public
-# pointer, manifest, and browser payloads without requiring local corpus data.
-python3 "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" --check-public
-
 rm -rf "${DIST_DIR}"
 mkdir -p "${DIST_DIR}"
 
@@ -47,50 +43,6 @@ while IFS= read -r raw_line || [[ -n "${raw_line}" ]]; do
   if [[ ! -e "${src}" ]]; then
     echo "Missing public site file: ${item}" >&2
     missing=1
-    continue
-  fi
-
-  if [[ "${item}" == "data/processed/graph_payload_runs" ]]; then
-    active_config="${ROOT_DIR}/data/processed/graph_payload_active.json"
-    if [[ ! -f "${active_config}" ]]; then
-      echo "Missing active graph payload config: data/processed/graph_payload_active.json" >&2
-      missing=1
-      continue
-    fi
-    while IFS= read -r run_dir; do
-      [[ -z "${run_dir}" ]] && continue
-      run_src="${ROOT_DIR}/${run_dir}"
-      run_dest="${DIST_DIR}/${run_dir}"
-      if [[ ! -d "${run_src}" ]]; then
-        echo "Missing active graph payload run: ${run_dir}" >&2
-        missing=1
-        continue
-      fi
-      mkdir -p "${run_dest}"
-      cp -R "${run_src}/." "${run_dest}/"
-    done < <(
-      python3 - "${active_config}" <<'PY'
-import json
-import pathlib
-import sys
-
-config = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
-references = [config.get("active_manifest", "")]
-references.extend((config.get("active_graph_bootstraps") or {}).values())
-references.extend((config.get("active_dashboard_bootstraps") or {}).values())
-references.extend((config.get("active_detail_bootstraps") or {}).values())
-runs = set()
-for reference in references:
-    parts = pathlib.PurePosixPath(str(reference)).parts
-    if "graph_payload_runs" not in parts:
-        continue
-    index = parts.index("graph_payload_runs")
-    if len(parts) > index + 1:
-        runs.add(pathlib.PurePosixPath(*parts[: index + 2]).as_posix())
-for run in sorted(runs):
-    print(run)
-PY
-    )
     continue
   fi
 

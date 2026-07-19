@@ -17,5 +17,3 @@ ui/assets/gui-screenshot.png
 data/kg/views/pipeline_status_graph.json
 data/kg/views/methods_bibliography.json
 data/kg/views/graph_inclusion_dispositions.json
-data/processed/graph_payload_active.json
-data/processed/graph_payload_runs
