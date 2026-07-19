@@ -121,7 +121,7 @@ class QueryApiTest(unittest.TestCase):
         with self.assertRaises(InvalidQuery):
             self.service.search_concepts("test", concept_kinds=["kind"] * 101)
 
-    def test_paper_download_and_http_contract(self) -> None:
+    def test_paper_query_and_http_contract(self) -> None:
         paper = self.service.get_paper("10.1000/primary")
         self.assertEqual(paper["data"]["paper_id"], "paper:10.1000/primary")
         self.assertEqual(paper["relationships"][0]["relation_type"], "studied_for_condition")
@@ -169,6 +169,9 @@ class QueryApiTest(unittest.TestCase):
             self.assertIn("/api/v1/papers/query", openapi["paths"])
             self.assertIn("/api/v1/relationships/query", openapi["paths"])
             self.assertNotIn("/api/v1/findings/query", openapi["paths"])
+            self.assertFalse(
+                any(path.startswith("/api/v1/downloads") for path in openapi["paths"])
+            )
             self.assertEqual(openapi["servers"][0]["url"], "/")
             self.assertEqual(
                 openapi["externalDocs"]["url"],
@@ -179,11 +182,11 @@ class QueryApiTest(unittest.TestCase):
             self.assertEqual(
                 llms.headers["location"], "https://psychedelicskg.com/llms.txt"
             )
-            download = client.get("/api/v1/downloads/tables/papers")
-            self.assertEqual(download.status_code, 200)
-            self.assertEqual(download.headers["x-release-id"], "test_run:r1")
-            missing = client.get("/api/v1/downloads/tables/findings")
-            self.assertEqual(missing.status_code, 404)
+            self.assertEqual(
+                client.get("/api/v1/downloads/tables/papers").status_code,
+                404,
+            )
+            self.assertEqual(client.get("/api/v1/downloads/database").status_code, 404)
 
     def test_docs_remain_available_while_data_loads(self) -> None:
         missing_root = self.root / "missing"

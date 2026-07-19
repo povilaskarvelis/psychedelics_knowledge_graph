@@ -16,17 +16,13 @@ services:
         value: api.psychedelicskg.com,psychedelics-kg-api.onrender.com
       - key: PKG_MCP_ALLOWED_ORIGINS
         value: https://psychedelicskg.com,https://www.psychedelicskg.com
-      - key: PKG_R2_ACCOUNT_ID
+      - key: PKG_API_R2_ACCOUNT_ID
         sync: false
-      - key: PKG_R2_BUCKET
+      - key: PKG_API_R2_BUCKET
         sync: false
-      - key: PKG_R2_ACCESS_KEY_ID
+      - key: PKG_API_R2_ACCESS_KEY_ID
         sync: false
-      - key: PKG_R2_SECRET_ACCESS_KEY
+      - key: PKG_API_R2_SECRET_ACCESS_KEY
         sync: false
-      - key: PKG_R2_PREFIX
+      - key: PKG_API_R2_PREFIX
         value: query-api
-      - key: PKG_R2_PUBLIC_BASE_URL
-        value: https://data.psychedelicskg.com
-      - key: PKG_R2_SIGNED_URL_TTL_SECONDS
-        value: "900"

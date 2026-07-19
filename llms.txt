@@ -10,7 +10,7 @@ Record the data version ID when using API results.
 ## Agent and data access
 
 - [Agent access guide](https://psychedelicskg.com/api/agent-guide.md): Concise machine-readable instructions, endpoints, available tools, and interpretation guidance.
-- [API guide](https://psychedelicskg.com/api/): REST, MCP, and download documentation.
+- [API guide](https://psychedelicskg.com/api/): REST and MCP documentation.
 - [OpenAPI schema](https://psychedelics-kg-api.onrender.com/openapi.json): Machine-readable REST contract.
 - [Interactive API reference](https://psychedelics-kg-api.onrender.com/docs): Browser-based endpoint documentation.
 - [MCP server](https://psychedelics-kg-api.onrender.com/mcp): Public read-only Model Context Protocol endpoint for remote clients.

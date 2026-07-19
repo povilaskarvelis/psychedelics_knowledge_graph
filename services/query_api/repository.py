@@ -21,9 +21,6 @@ from .models import (
     RelationshipFilters,
     RelationshipQuery,
 )
-from .r2_store import R2_RELEASE_SIDECAR_NAME, ObjectStore, R2ObjectStore
-
-
 PUBLIC_DB_NAME = "public_api.duckdb"
 PUBLIC_MANIFEST_NAME = "manifest.json"
 PUBLIC_SCHEMA_NAME = "schema.json"
@@ -67,14 +64,6 @@ class ReleaseInfo:
     manifest: dict[str, Any]
 
 
-@dataclass(frozen=True)
-class DownloadTarget:
-    info: ReleaseInfo
-    entry: dict[str, Any]
-    path: Path | None = None
-    url: str = ""
-
-
 class ReleaseResolver:
     """Resolve every request through the current graph release pointer."""
 
@@ -114,7 +103,7 @@ class ReleaseResolver:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         except FileNotFoundError as exc:
             raise QueryArtifactUnavailable(
-                f"The current release has no public catalogue artifact: {run_id}"
+                f"The current release has no query runtime artifact: {run_id}"
             ) from exc
         except json.JSONDecodeError as exc:
             raise QueryArtifactUnavailable(
@@ -221,20 +210,15 @@ class QueryService:
         resolver: ReleaseResolver,
         *,
         public_base_url: str = "",
-        remote_store: ObjectStore | None = None,
     ) -> None:
         self.resolver = resolver
         self.public_base_url = public_base_url.rstrip("/")
-        self.remote_store = remote_store
 
     @classmethod
     def from_settings(cls, settings: Settings) -> "QueryService":
         return cls(
             ReleaseResolver.from_settings(settings),
             public_base_url=settings.public_base_url,
-            remote_store=R2ObjectStore(settings.r2)
-            if settings.r2 is not None
-            else None,
         )
 
     @contextlib.contextmanager
@@ -801,46 +785,3 @@ class QueryService:
             ),
             "results": results,
         }
-
-    def download_target(self, logical_name: str) -> DownloadTarget:
-        info = self.resolver.resolve()
-        file_entry = (info.manifest.get("files") or {}).get(logical_name)
-        if not isinstance(file_entry, dict) or not file_entry.get("path"):
-            raise QueryNotFound(f"Unknown public download: {logical_name}")
-
-        if self.remote_store is not None:
-            sidecar_path = info.artifact_dir / R2_RELEASE_SIDECAR_NAME
-            if sidecar_path.is_file():
-                try:
-                    sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
-                except json.JSONDecodeError as exc:
-                    raise QueryArtifactUnavailable(
-                        f"R2 release sidecar is invalid: {sidecar_path}"
-                    ) from exc
-                remote_entry = (sidecar.get("files") or {}).get(logical_name)
-                if not isinstance(remote_entry, dict) or not remote_entry.get("key"):
-                    raise QueryArtifactUnavailable(
-                        f"R2 release has no download object for {logical_name}"
-                    )
-                for field in ("path", "sha256", "bytes"):
-                    if remote_entry.get(field) != file_entry.get(field):
-                        raise QueryArtifactUnavailable(
-                            f"R2 release metadata disagrees about {logical_name}"
-                        )
-                return DownloadTarget(
-                    info=info,
-                    entry=file_entry,
-                    url=self.remote_store.download_url(str(remote_entry["key"])),
-                )
-
-        path = (info.artifact_dir / str(file_entry["path"])).resolve()
-        if info.artifact_dir not in path.parents or not path.is_file():
-            raise QueryArtifactUnavailable("Public download path is invalid or missing")
-        return DownloadTarget(info=info, entry=file_entry, path=path)
-
-    def download_path(self, logical_name: str) -> tuple[ReleaseInfo, Path]:
-        """Backward-compatible local download helper used by older callers."""
-        target = self.download_target(logical_name)
-        if target.path is None:
-            raise QueryArtifactUnavailable("Public download is stored remotely")
-        return target.info, target.path

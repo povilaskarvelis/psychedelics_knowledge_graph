@@ -90,18 +90,12 @@ curl -sS \
   "https://psychedelics-kg-api.onrender.com/api/v1/authors/AUTHOR_ID/papers"
 ```
 
-## Bulk downloads
+## Access policy
 
-- DuckDB: https://psychedelics-kg-api.onrender.com/api/v1/downloads/database
-- Schema: https://psychedelics-kg-api.onrender.com/api/v1/downloads/schema
-- Papers: https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/papers
-- Concepts: https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/concepts
-- Relationships: https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/relationships
-- Authors: https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/authors
-- Paper-author links: https://psychedelics-kg-api.onrender.com/api/v1/downloads/tables/paper_authors
-
-Record the release ID and checksums before combining results from separate
-sessions.
+Bulk database and table downloads are not currently published. Use the scoped
+REST or MCP operations above. The `/api/v1/schema` endpoint documents the query
+contract; it is not a bulk dataset. Record the release ID before combining
+paginated results from separate sessions.
 
 ## Availability
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the narrow, versioned public catalogue for REST, MCP, and downloads.
+"""Build the narrow, versioned query catalogue for REST and MCP.
 
 The internal knowledge graph contains extraction detail that is useful to the
 website but is not a stable public data contract. This exporter publishes only
@@ -47,7 +47,6 @@ PUBLIC_QUERY_MANIFEST_VERSION = "psychedelics_kg_public_catalogue_manifest_v2"
 PUBLIC_DB_NAME = "public_api.duckdb"
 PUBLIC_SCHEMA_NAME = "schema.json"
 PUBLIC_MANIFEST_NAME = "manifest.json"
-PUBLIC_TABLE_DIR = "tables"
 
 PUBLIC_RELATIONSHIP_SOURCE_FIELDS = (
     "domain",
@@ -618,30 +617,28 @@ def materialize_query_artifacts(
     kg_manifest = read_json_object(kg_manifest_path) if kg_manifest_path.is_file() else {}
     run_id = normalize(run_id or kg_manifest.get("run_id") or kg_dir.name)
     if not run_id:
-        raise ValueError("A non-empty run_id is required for public query artifacts")
+        raise ValueError("A non-empty run_id is required for query runtime artifacts")
 
     out_dir.parent.mkdir(parents=True, exist_ok=True)
     stage_dir = Path(
         tempfile.mkdtemp(prefix=f".{out_dir.name}.query-build.", dir=out_dir.parent)
     )
     try:
-        table_dir = stage_dir / PUBLIC_TABLE_DIR
-        table_dir.mkdir(parents=True)
         tables = build_public_tables(kg_dir)
-        table_paths: dict[str, Path] = {}
-        for table_name, frame in tables.items():
-            path = table_dir / f"{table_name}.parquet"
-            frame.to_parquet(path, index=False)
-            table_paths[table_name] = path
 
         db_path = stage_dir / PUBLIC_DB_NAME
         con = duckdb.connect(str(db_path))
         try:
-            for table_name, path in table_paths.items():
-                con.execute(
-                    f"CREATE TABLE {quote_identifier(table_name)} AS SELECT * FROM read_parquet(?)",
-                    [path.as_posix()],
-                )
+            for table_name, frame in tables.items():
+                source_name = f"_source_{table_name}"
+                con.register(source_name, frame)
+                try:
+                    con.execute(
+                        f"CREATE TABLE {quote_identifier(table_name)} AS "
+                        f"SELECT * FROM {quote_identifier(source_name)}"
+                    )
+                finally:
+                    con.unregister(source_name)
             con.execute("CHECKPOINT")
             schemas = {
                 table_name: {
@@ -653,7 +650,7 @@ def materialize_query_artifacts(
                     ),
                     "fields": table_schema(con, table_name),
                 }
-                for table_name in table_paths
+                for table_name in tables
             }
         finally:
             con.close()
@@ -692,11 +689,7 @@ def materialize_query_artifacts(
         write_json(schema_path, schema_payload)
 
         files: dict[str, dict] = {}
-        for logical_name, path in {
-            "database": db_path,
-            "schema": schema_path,
-            **{f"table:{name}": path for name, path in table_paths.items()},
-        }.items():
+        for logical_name, path in {"database": db_path, "schema": schema_path}.items():
             files[logical_name] = {
                 "path": path.relative_to(stage_dir).as_posix(),
                 "bytes": path.stat().st_size,
@@ -718,6 +711,8 @@ def materialize_query_artifacts(
             "files": files,
             "quality": {
                 "contract": "narrow_public_catalogue",
+                "query_only": True,
+                "bulk_artifacts_excluded": True,
                 "all_fields_documented": True,
                 "relationships_deduplicated": True,
                 "granular_findings_excluded": True,
@@ -763,10 +758,10 @@ def materialize_query_artifacts(
 def validate_query_artifact(*, kg_dir: Path, out_dir: Path, run_id: str) -> dict:
     manifest_path = out_dir / PUBLIC_MANIFEST_NAME
     if not manifest_path.is_file():
-        raise FileNotFoundError(f"Missing public query manifest: {manifest_path}")
+        raise FileNotFoundError(f"Missing query runtime manifest: {manifest_path}")
     manifest = read_json_object(manifest_path)
     if normalize(manifest.get("schema_version")) != PUBLIC_QUERY_MANIFEST_VERSION:
-        raise ValueError(f"Unexpected public query manifest schema: {manifest_path}")
+        raise ValueError(f"Unexpected query runtime manifest schema: {manifest_path}")
     if normalize(manifest.get("run_id")) != normalize(run_id):
         raise ValueError(f"Public query artifact run_id does not match {run_id}: {manifest_path}")
     if Path(normalize(manifest.get("kg_dir"))).name != kg_dir.name:
@@ -775,6 +770,13 @@ def validate_query_artifact(*, kg_dir: Path, out_dir: Path, run_id: str) -> dict
     schema_path = out_dir / normalize(manifest.get("schema"))
     if not db_path.is_file() or not schema_path.is_file():
         raise FileNotFoundError(f"Public query artifact is incomplete: {out_dir}")
+    files = manifest.get("files") or {}
+    if set(files) != {"database", "schema"}:
+        raise ValueError(
+            f"Query artifacts must not contain bulk release files: {sorted(files)}"
+        )
+    if (out_dir / "tables").exists():
+        raise ValueError(f"Query artifact contains a bulk tables directory: {out_dir}")
     expected_tables = set(TABLE_METADATA)
     public_counts = manifest.get("row_counts") or {}
     if set(public_counts) != expected_tables:
@@ -831,7 +833,7 @@ def main() -> int:
         out_dir=out_dir,
         run_id=run_id,
     )
-    print(f"Built public query artifacts: {out_dir}")
+    print(f"Built query runtime artifacts: {out_dir}")
     print(f"Public papers: {manifest['row_counts']['papers']}")
     print(f"Public relationships: {manifest['row_counts']['relationships']}")
     print(f"Public database: {out_dir / PUBLIC_DB_NAME}")

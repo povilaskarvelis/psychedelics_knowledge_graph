@@ -1,27 +1,34 @@
-# R2 browser and API deployment
+# R2 browser and private API deployment
 
 The public website remains a static Netlify project. The REST and MCP service is
-a separate code-only container deployed from the same GitHub repository. Both
-the browser graph payload and API data are versioned in Cloudflare R2 and are
-never committed to Git.
+a separate code-only container deployed from the same GitHub repository. Browser
+payloads and API runtime data are both versioned in Cloudflare R2, but they live
+in different buckets: the browser bucket is public and the API bucket is private.
+Neither is committed to Git.
 
 The checked-in `render.yaml` configures the container deployment. At startup,
-the container downloads and verifies only `public_api.duckdb`, `schema.json`,
-and `manifest.json`. Database and Parquet download endpoints redirect clients to
-R2, using short-lived signed URLs unless a public R2 custom domain is configured.
+the container privately downloads and verifies only `public_api.duckdb`,
+`schema.json`, and `manifest.json`. The service has no bulk-download routes and
+the build produces no public Parquet copies.
 
 ## One-time Cloudflare setup
 
-1. In **Cloudflare > Storage & databases > R2**, enable R2 and create a bucket.
-   `psychedelics-kg-releases` is a suitable name. Use the Standard storage class.
-2. Decide whether this is a normal bucket or an EU-jurisdiction bucket. A normal
+1. Use the existing `psychedelics-kg-releases` bucket as the public browser
+   bucket. It remains connected to `data.psychedelicskg.com`; no browser-data
+   migration is required.
+2. Create a separate private API bucket, for example
+   `psychedelics-kg-api-private`. Do not connect a custom domain and do not enable
+   its `r2.dev` URL.
+3. Decide whether these are normal buckets or EU-jurisdiction buckets. A normal
    bucket with a European location hint still uses the normal endpoint. Set
-   `PKG_R2_JURISDICTION=eu` only if Cloudflare explicitly identifies the bucket
-   as an EU-jurisdiction bucket.
-3. Create a bucket-scoped **Object Read & Write** S3 API token for the local
-   release publisher. Save its Access Key ID and Secret Access Key immediately.
-4. Create a separate bucket-scoped **Object Read only** S3 API token for the
-   deployed API. The Render service must not receive the write token.
+   the corresponding jurisdiction variable to `eu` only when Cloudflare
+   explicitly identifies the bucket as an EU-jurisdiction bucket.
+4. Create bucket-scoped **Object Read & Write** credentials for the local
+   publisher. They must cover the browser and API buckets; separate tokens are
+   preferable when convenient.
+5. Create a separate **Object Read only** token scoped only to the private API
+   bucket for Render. Render must not receive a write token or browser-bucket
+   credentials.
 
 No Admin token is required by the application or publisher.
 
@@ -40,14 +47,20 @@ PKG_R2_ACCOUNT_ID=<cloudflare-account-id>
 PKG_R2_BUCKET=psychedelics-kg-releases
 PKG_R2_ACCESS_KEY_ID=<publisher-access-key-id>
 PKG_R2_SECRET_ACCESS_KEY=<publisher-secret-access-key>
-PKG_R2_PREFIX=query-api
 PKG_R2_BROWSER_PREFIX=browser
-PKG_R2_PUBLIC_BASE_URL=https://data.psychedelicskg.com
 PKG_R2_JURISDICTION=
+
+PKG_API_R2_ACCOUNT_ID=<cloudflare-account-id>
+PKG_API_R2_BUCKET=psychedelics-kg-api-private
+PKG_API_R2_ACCESS_KEY_ID=<private-api-publisher-access-key-id>
+PKG_API_R2_SECRET_ACCESS_KEY=<private-api-publisher-secret-access-key>
+PKG_API_R2_PREFIX=query-api
+PKG_API_R2_JURISDICTION=
 ```
 
-Use `PKG_R2_JURISDICTION=eu` for an EU-jurisdiction bucket. Alternatively, set
-`PKG_R2_ENDPOINT_URL` to the exact S3 endpoint Cloudflare shows for the bucket.
+Use the matching jurisdiction variable for an EU-jurisdiction bucket.
+Alternatively, set `PKG_R2_ENDPOINT_URL` or `PKG_API_R2_ENDPOINT_URL` to the
+exact S3 endpoint Cloudflare shows for that bucket.
 
 Load those variables into the shell and publish the already-active release:
 
@@ -61,7 +74,7 @@ python3 pipeline/publish/publish_query_api_r2.py
 
 The publishers verify every local file against its manifest, upload objects
 under immutable release prefixes, verify R2 object size and SHA-256 metadata,
-and replace the small `browser/active.json` and
+and replace the small public `browser/active.json` and private
 `query-api/active/catalogue-v2.json` pointers only after their release files are
 complete. Re-running them is safe: matching objects are reused, while a
 conflicting immutable object stops activation.
@@ -74,11 +87,11 @@ startup correctly fails because no active remote database exists.
 1. Commit and push the API code and `render.yaml` to GitHub.
 2. In Render, choose **New > Blueprint**, connect the GitHub repository, and use
    the root `render.yaml` Blueprint.
-3. When prompted, enter the deployed API's separate read-only values for:
-   `PKG_R2_ACCOUNT_ID`, `PKG_R2_BUCKET`, `PKG_R2_ACCESS_KEY_ID`, and
-   `PKG_R2_SECRET_ACCESS_KEY`.
+3. When prompted, enter the deployed API's private-bucket read-only values for:
+   `PKG_API_R2_ACCOUNT_ID`, `PKG_API_R2_BUCKET`,
+   `PKG_API_R2_ACCESS_KEY_ID`, and `PKG_API_R2_SECRET_ACCESS_KEY`.
 4. If the bucket uses the EU jurisdiction, add
-   `PKG_R2_JURISDICTION=eu` to the Render service environment before deploying.
+   `PKG_API_R2_JURISDICTION=eu` to the Render service environment before deploying.
 5. If Render assigns a hostname other than
    `psychedelics-kg-api.onrender.com`, add the assigned hostname to
    `PKG_MCP_ALLOWED_HOSTS`.
@@ -103,8 +116,8 @@ PKG_MCP_ALLOWED_HOSTS=api.psychedelicskg.com,psychedelics-kg-api.onrender.com
 PKG_MCP_ALLOWED_ORIGINS=https://psychedelicskg.com,https://www.psychedelicskg.com
 ```
 
-Connect `data.psychedelicskg.com` to the bucket under **Settings > Custom
-Domains**. The custom domain makes the sanitized public release objects
+Connect `data.psychedelicskg.com` only to the browser bucket under **Settings >
+Custom Domains**. The custom domain makes the allowlisted browser payloads
 readable through Cloudflare and allows them to use Cloudflare's cache. Add an R2
 CORS policy allowing `GET` and `HEAD` from both website origins:
 
@@ -140,8 +153,22 @@ Do not include `/browser/active.json` in that rule. The active pointer must be
 revalidated so new releases become visible immediately, while the versioned
 release files are safe to cache indefinitely.
 
-Set `PKG_R2_PUBLIC_BASE_URL=https://data.psychedelicskg.com` on Render so API
-downloads also use the custom domain instead of expiring signed URLs.
+Never connect the private API bucket to `data.psychedelicskg.com` or another
+public hostname. Render reads that bucket only through authenticated S3 calls.
+
+## One-time migration from the shared bucket
+
+The earlier deployment stored browser and API objects together. After the first
+successful private API publish and Render verification:
+
+1. delete the `query-api/` prefix from the public browser bucket;
+2. confirm that `https://data.psychedelicskg.com/query-api/active/catalogue-v2.json`
+   no longer returns an object;
+3. retain only `browser/` objects in the public bucket.
+
+Do not perform this cleanup before the API is reading successfully from the new
+private bucket. Deleting old objects is intentional and is not part of the
+automatic publisher.
 
 ## Automatic deployment after data updates
 

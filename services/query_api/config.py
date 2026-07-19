@@ -15,24 +15,13 @@ def csv_env(name: str) -> tuple[str, ...]:
     )
 
 
-def int_env(name: str, default: int, *, minimum: int, maximum: int) -> int:
-    raw = os.environ.get(name, "").strip()
-    try:
-        value = int(raw) if raw else default
-    except ValueError as exc:
-        raise ValueError(f"{name} must be an integer") from exc
-    if value < minimum or value > maximum:
-        raise ValueError(f"{name} must be between {minimum} and {maximum}")
-    return value
-
-
-def normalize_r2_prefix(value: str) -> str:
+def normalize_r2_prefix(value: str, *, variable_name: str = "R2 prefix") -> str:
     prefix = value.strip().strip("/")
     if not prefix:
         return "query-api"
     parts = prefix.split("/")
     if any(part in {"", ".", ".."} for part in parts):
-        raise ValueError("PKG_R2_PREFIX must be a safe object-key prefix")
+        raise ValueError(f"{variable_name} must be a safe object-key prefix")
     return "/".join(parts)
 
 
@@ -44,8 +33,6 @@ class R2Settings:
     secret_access_key: str
     endpoint_url: str
     prefix: str = "query-api"
-    public_base_url: str = ""
-    signed_url_ttl_seconds: int = 900
 
     @property
     def active_key(self) -> str:
@@ -56,35 +43,54 @@ class R2Settings:
         return f"{self.prefix}/active.json"
 
     @classmethod
-    def from_env(cls, *, required: bool = False) -> "R2Settings | None":
-        bucket = os.environ.get("PKG_R2_BUCKET", "").strip()
+    def from_env(
+        cls,
+        *,
+        required: bool = False,
+        env_prefix: str = "PKG_R2",
+        default_object_prefix: str = "query-api",
+    ) -> "R2Settings | None":
+        def name(suffix: str) -> str:
+            return f"{env_prefix}_{suffix}"
+
+        bucket_name = name("BUCKET")
+        bucket = os.environ.get(bucket_name, "").strip()
         if not bucket:
             if required:
-                raise ValueError("PKG_R2_BUCKET is required")
+                raise ValueError(f"{bucket_name} is required")
             return None
 
-        account_id = os.environ.get("PKG_R2_ACCOUNT_ID", "").strip()
-        endpoint_url = os.environ.get("PKG_R2_ENDPOINT_URL", "").strip().rstrip("/")
-        jurisdiction = os.environ.get("PKG_R2_JURISDICTION", "").strip().casefold()
+        account_name = name("ACCOUNT_ID")
+        endpoint_name = name("ENDPOINT_URL")
+        jurisdiction_name = name("JURISDICTION")
+        access_key_name = name("ACCESS_KEY_ID")
+        secret_key_name = name("SECRET_ACCESS_KEY")
+        object_prefix_name = name("PREFIX")
+
+        account_id = os.environ.get(account_name, "").strip()
+        endpoint_url = os.environ.get(endpoint_name, "").strip().rstrip("/")
+        jurisdiction = os.environ.get(jurisdiction_name, "").strip().casefold()
         if jurisdiction not in {"", "eu", "fedramp"}:
-            raise ValueError("PKG_R2_JURISDICTION must be blank, eu, or fedramp")
+            raise ValueError(
+                f"{jurisdiction_name} must be blank, eu, or fedramp"
+            )
         if not endpoint_url:
             if not account_id:
                 raise ValueError(
-                    "PKG_R2_ACCOUNT_ID is required when PKG_R2_ENDPOINT_URL is not set"
+                    f"{account_name} is required when {endpoint_name} is not set"
                 )
             jurisdiction_part = f".{jurisdiction}" if jurisdiction else ""
             endpoint_url = (
                 f"https://{account_id}{jurisdiction_part}.r2.cloudflarestorage.com"
             )
 
-        access_key_id = os.environ.get("PKG_R2_ACCESS_KEY_ID", "").strip()
-        secret_access_key = os.environ.get("PKG_R2_SECRET_ACCESS_KEY", "").strip()
+        access_key_id = os.environ.get(access_key_name, "").strip()
+        secret_access_key = os.environ.get(secret_key_name, "").strip()
         missing = [
             name
             for name, value in (
-                ("PKG_R2_ACCESS_KEY_ID", access_key_id),
-                ("PKG_R2_SECRET_ACCESS_KEY", secret_access_key),
+                (access_key_name, access_key_id),
+                (secret_key_name, secret_access_key),
             )
             if not value
         ]
@@ -97,15 +103,9 @@ class R2Settings:
             access_key_id=access_key_id,
             secret_access_key=secret_access_key,
             endpoint_url=endpoint_url,
-            prefix=normalize_r2_prefix(os.environ.get("PKG_R2_PREFIX", "query-api")),
-            public_base_url=os.environ.get("PKG_R2_PUBLIC_BASE_URL", "")
-            .strip()
-            .rstrip("/"),
-            signed_url_ttl_seconds=int_env(
-                "PKG_R2_SIGNED_URL_TTL_SECONDS",
-                900,
-                minimum=60,
-                maximum=604800,
+            prefix=normalize_r2_prefix(
+                os.environ.get(object_prefix_name, default_object_prefix),
+                variable_name=object_prefix_name,
             ),
         )
 
@@ -140,5 +140,10 @@ class Settings:
             cors_origins=csv_env("PKG_CORS_ORIGINS"),
             mcp_allowed_hosts=csv_env("PKG_MCP_ALLOWED_HOSTS"),
             mcp_allowed_origins=csv_env("PKG_MCP_ALLOWED_ORIGINS"),
-            r2=R2Settings.from_env(),
+            # API runtime data must live in a private bucket. Browser payloads use
+            # the separate PKG_R2_* publisher settings and a public custom domain.
+            r2=R2Settings.from_env(
+                env_prefix="PKG_API_R2",
+                default_object_prefix="query-api",
+            ),
         )

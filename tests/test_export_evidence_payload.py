@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 import pandas as pd
+import pipeline.publish.export_evidence_payload as evidence_exporter
 
 from pipeline.publish.export_evidence_payload import (
     dashboard_bootstrap_payload,
@@ -118,6 +119,18 @@ def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str
 
 
 class ExportEvidencePayloadTest(unittest.TestCase):
+    def test_browser_contract_rejects_forbidden_internal_fields(self) -> None:
+        original = evidence_exporter.PUBLIC_BROWSER_DETAIL_FIELDS
+        evidence_exporter.PUBLIC_BROWSER_DETAIL_FIELDS = (
+            *original,
+            "supporting_quote",
+        )
+        try:
+            with self.assertRaisesRegex(ValueError, "Forbidden internal fields"):
+                evidence_exporter.validate_public_browser_detail_contract()
+        finally:
+            evidence_exporter.PUBLIC_BROWSER_DETAIL_FIELDS = original
+
     def test_target_aliases_flow_from_entities_into_findings_and_graph_edges(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             kg_dir = Path(tmpdir)
@@ -455,27 +468,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(rows[0]["first_author"]["id"], "openalex:A1")
         self.assertEqual(rows[0]["last_author"]["name"], "Grace Example")
         self.assertEqual(rows[0]["last_author"]["id"], "openalex:A2")
-        self.assertEqual(
-            rows[0]["author_identities"],
-            [
-                {
-                    "id": "openalex:A1",
-                    "name": "Ada Example",
-                    "credited_name": "Ada Example",
-                    "aliases": ["Ada Example", "A. Example"],
-                    "openalex_author_id": "https://openalex.org/A1",
-                    "openalex_author_ids": ["https://openalex.org/A1"],
-                },
-                {
-                    "id": "openalex:A2",
-                    "name": "Grace Example",
-                    "credited_name": "Grace Example",
-                    "aliases": ["Grace Example"],
-                    "openalex_author_id": "https://openalex.org/A2",
-                    "openalex_author_ids": ["https://openalex.org/A2"],
-                },
-            ],
-        )
+        self.assertNotIn("author_identities", rows[0])
 
     def test_exports_route_native_findings_without_legacy_split_or_claim_type(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -565,7 +558,8 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(finding["entity_label"], "Hippocampal CA1")
         self.assertEqual(finding["entity_kind"], "brain_region")
         self.assertEqual(finding["graph_parent_label"], "Hippocampus")
-        self.assertEqual(finding["graph_parent_kind"], "brain_region")
+        self.assertNotIn("graph_parent_kind", finding)
+        self.assertNotIn("graph_parent_entity_id", finding)
         self.assertEqual(finding["text_depth"], "article_text")
         self.assertEqual(finding["assessment_timepoint"], "2 hours post-dose")
         self.assertEqual(finding["real_world_use_context"], "Microdosing; Self-treatment")
@@ -577,16 +571,23 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertNotIn("disorder", finding)
         self.assertEqual(graph_bootstrap["edge_count"], 0)
         self.assertEqual(graph_bootstrap["finding_count"], 0)
-        self.assertEqual(dashboard_bootstrap["schema_version"], "route_native_dashboard_bootstrap_v2")
+        self.assertEqual(dashboard_bootstrap["schema_version"], "route_native_dashboard_bootstrap_v3")
         self.assertEqual(dashboard_bootstrap["default_entity_view"], "condition_indication")
         self.assertEqual(dashboard_bootstrap["row_count"], 0)
-        self.assertEqual(detail_bootstrap["schema_version"], "route_native_detail_bootstrap_v2")
+        self.assertEqual(detail_bootstrap["schema_version"], "route_native_detail_bootstrap_v3")
         self.assertEqual(detail_bootstrap["row_count"], 1)
         self.assertIn("study_year", detail_bootstrap["fields"])
         self.assertIn("evidence_locator", detail_bootstrap["fields"])
         self.assertIn("support", detail_bootstrap["fields"])
         self.assertIn("effect_size", detail_bootstrap["fields"])
-        self.assertIn("supporting_quote", detail_bootstrap["fields"])
+        self.assertNotIn("supporting_quote", detail_bootstrap["fields"])
+        self.assertNotIn("confidence_interval", detail_bootstrap["fields"])
+        self.assertNotIn("graph_admission_reason", detail_bootstrap["fields"])
+        self.assertTrue(manifest["browser_publication_contract"]["default_private"])
+        self.assertEqual(
+            manifest["browser_publication_contract"]["fields"],
+            detail_bootstrap["fields"],
+        )
         self.assertIn("molecular_finding_subtopic", detail_bootstrap["fields"])
         self.assertEqual(len(detail_bootstrap["rows"]), 1)
         self.assertEqual(active["schema_version"], "route_native_evidence_payload_active_v1")
@@ -726,7 +727,7 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(meta_rows[0]["meta_analysis_result_role"], "primary_synthesis")
         self.assertEqual(meta_rows[0]["meta_analysis_overall_study_count"], "29")
         self.assertEqual(meta_rows[0]["heterogeneity_i_squared"], "I² = 61%")
-        self.assertEqual(meta_rows[0]["confidence_interval"], "95% CI -1.20 to -0.44")
+        self.assertNotIn("confidence_interval", meta_rows[0])
         self.assertEqual([row["study_doi"] for row in review_rows], ["10.1000/review"])
         self.assertEqual(review_rows[0]["coverage_type"], "review_synthesis")
         self.assertEqual(review_rows[0]["evidence_level"], "human_and_preclinical")

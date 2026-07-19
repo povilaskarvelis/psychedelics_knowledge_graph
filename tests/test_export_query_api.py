@@ -15,7 +15,7 @@ from tests.query_api_fixtures import write_minimal_kg
 
 
 class ExportQueryApiTest(unittest.TestCase):
-    def test_materializes_sanitized_database_and_bulk_tables(self) -> None:
+    def test_materializes_private_query_runtime_without_bulk_tables(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             kg_dir = root / "kg" / "test_run"
@@ -59,8 +59,10 @@ class ExportQueryApiTest(unittest.TestCase):
                 & relationship_columns
             )
             self.assertEqual(paper_types, {"primary_study": 2, "review": 1})
-            self.assertTrue((out_dir / "tables" / "papers.parquet").is_file())
-            self.assertFalse((out_dir / "tables" / "findings.parquet").exists())
+            self.assertFalse((out_dir / "tables").exists())
+            self.assertEqual(set(manifest["files"]), {"database", "schema"})
+            self.assertTrue(manifest["quality"]["query_only"])
+            self.assertTrue(manifest["quality"]["bulk_artifacts_excluded"])
             self.assertTrue(manifest["files"]["database"]["sha256"])
 
             schema = json.loads((out_dir / "schema.json").read_text(encoding="utf-8"))

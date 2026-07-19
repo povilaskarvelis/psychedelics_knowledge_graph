@@ -94,9 +94,11 @@ def validate_remote_active(value: object) -> dict:
         str(logical_name): validate_remote_entry(entry, label=str(logical_name))
         for logical_name, entry in files.items()
     }
-    for required in ("database", "schema"):
-        if required not in validated_files:
-            raise ValueError(f"R2 active release is missing {required}")
+    if set(validated_files) != {"database", "schema"}:
+        raise ValueError(
+            "R2 API runtime must contain only database and schema files; "
+            f"found {sorted(validated_files)}"
+        )
     return {
         **value,
         "run_id": run_id,

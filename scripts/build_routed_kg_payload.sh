@@ -8,7 +8,7 @@ usage() {
 Usage: scripts/build_routed_kg_payload.sh RUN_ID [build_author_tables args...]
 
 Rebuilds the routed KG tables, refreshes the author identity/authorship layer,
-exports the sanitized public query database and bulk tables, exports the compact
+exports the private query-service runtime, exports the allowlisted compact
 graph/dashboard/detail payloads used by the browser UI, and promotes the complete
 release through the guarded publisher when explicitly requested.
 

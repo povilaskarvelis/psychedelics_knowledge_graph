@@ -16,16 +16,4 @@
       }
     });
   });
-
-  document.querySelectorAll("[data-download-link]").forEach((link) => {
-    link.addEventListener("click", () => {
-      const original = link.textContent;
-      link.textContent = "Preparing…";
-      link.setAttribute("aria-busy", "true");
-      window.setTimeout(() => {
-        link.textContent = original;
-        link.removeAttribute("aria-busy");
-      }, 15000);
-    });
-  });
 })();

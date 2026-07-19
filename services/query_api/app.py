@@ -3,12 +3,11 @@ from __future__ import annotations
 import contextlib
 import logging
 import threading
-from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 
 from .config import Settings
 from .mcp_server import create_mcp_server
@@ -313,34 +312,6 @@ def create_app(
     @app.post("/api/v1/relationships/query", tags=["relationships"])
     def query_relationships(request: RelationshipQuery) -> dict[str, Any]:
         return service.query_relationships(request)
-
-    def download(logical_name: str) -> Response:
-        target = service.download_target(logical_name)
-        headers = {
-            "ETag": f'"{target.entry["sha256"]}"',
-            "X-Release-ID": target.info.release_id,
-            "Cache-Control": "public, max-age=3600",
-        }
-        if target.url:
-            return RedirectResponse(target.url, status_code=307, headers=headers)
-        assert target.path is not None
-        return FileResponse(
-            target.path,
-            filename=Path(target.path).name,
-            headers=headers,
-        )
-
-    @app.get("/api/v1/downloads/database", tags=["downloads"])
-    def download_database() -> Response:
-        return download("database")
-
-    @app.get("/api/v1/downloads/schema", tags=["downloads"])
-    def download_schema() -> Response:
-        return download("schema")
-
-    @app.get("/api/v1/downloads/tables/{table_name}", tags=["downloads"])
-    def download_table(table_name: str) -> Response:
-        return download(f"table:{table_name}")
 
     # The MCP app contains its own /mcp route. Mounting it last leaves REST and
     # OpenAPI routes in the parent application while sharing one process.

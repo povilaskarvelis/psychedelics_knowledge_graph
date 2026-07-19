@@ -30,9 +30,10 @@ promotion, where those intentionally untracked working datasets are available.
 
 The REST/OpenAPI and MCP service is deployed separately from the static Netlify
 site. GitHub contains the application code and small metadata files; browser
-graph JSON, sanitized DuckDB, and Parquet releases are published to Cloudflare
-R2. See [R2 deployment](r2_deployment.md) for the Cloudflare, Render, DNS,
-first-publish, and recurring-update checklist.
+graph JSON is published to a public Cloudflare R2 bucket, while the API's
+unpublished query database is kept in a separate private R2 bucket. No Parquet
+or database downloads are published. See [R2 deployment](r2_deployment.md) for
+the Cloudflare, Render, DNS, first-publish, and recurring-update checklist.
 
 ## Custom Domain
 

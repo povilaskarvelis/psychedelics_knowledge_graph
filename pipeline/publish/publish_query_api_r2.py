@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish the active sanitized query release to Cloudflare R2.
+"""Publish the active query runtime to a private Cloudflare R2 bucket.
 
 Release objects are immutable and content-verified. The small active pointer is
 written only after every object is present, so a failed upload leaves the
@@ -90,6 +90,11 @@ def collect_release_files(artifact_dir: Path, manifest: dict) -> list[LocalRelea
     entries = manifest.get("files") or {}
     if not isinstance(entries, dict):
         raise ValueError("Public query manifest files must be an object")
+    if set(entries) != {"database", "schema"}:
+        raise ValueError(
+            "Query runtime publishing accepts only database and schema files; "
+            f"found {sorted(entries)}"
+        )
     for logical_name, entry in entries.items():
         if not isinstance(entry, dict):
             raise ValueError(f"Invalid public artifact entry: {logical_name}")
@@ -158,20 +163,13 @@ def upload_immutable_file(
             f"Remote immutable object differs from this release: {key}"
         )
 
-    downloadable = (
-        release_file.logical_name == "database"
-        or release_file.logical_name.startswith("table:")
-    )
-    disposition = (
-        f'attachment; filename="{release_file.path.name}"' if downloadable else ""
-    )
     store.upload_file(
         key,
         release_file.path,
         sha256=release_file.sha256,
         content_type=content_type_for(release_file.path),
         cache_control=IMMUTABLE_CACHE_CONTROL,
-        content_disposition=disposition,
+        content_disposition="",
     )
     uploaded = store.head(key)
     if uploaded is None:
@@ -323,7 +321,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    settings = R2Settings.from_env(required=True)
+    settings = R2Settings.from_env(
+        required=True,
+        env_prefix="PKG_API_R2",
+        default_object_prefix="query-api",
+    )
     assert settings is not None
     result = publish_active_query_release(
         store=R2ObjectStore(settings),

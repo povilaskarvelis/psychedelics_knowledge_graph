@@ -32,10 +32,11 @@ bash scripts/refresh_public_release.sh
 ```
 
 It regenerates the graph and API from the current KG run, binds both manifests
-to one new public release ID, validates and rebuilds the site, publishes the API
-and browser artifacts to their R2 pointers, and triggers the configured API
-deploy hook. Generated graph payloads are no longer committed to Git. It never
-changes extraction or evidence decisions.
+to one new public release ID, validates and rebuilds the site, publishes the
+allowlisted browser artifacts to the public R2 bucket and the API runtime to its
+separate private R2 bucket, and triggers the configured API deploy hook.
+Generated graph payloads are no longer committed to Git. It never changes
+extraction or evidence decisions.
 
 The promoter validates the KG, payload, author tables, and extraction inputs;
 materializes every final graph decision into the canonical
@@ -149,9 +150,16 @@ The decoded rows are flat and route-native. Important fields include:
 - domain-specific evidence fields such as `support`, `effect_size`,
   `outcome_measure`, `sample_size_total`, `mechanism_type`, `assay_type`, and
   `assessment_timepoint`
-- meta-analysis fields such as result role, population, comparator, follow-up
-  window, included-study count, effect metric and interval, heterogeneity,
-  subgroup or moderator, risk-of-bias summary, and evidence strength
+- meta-analysis fields currently rendered by the interface, such as result
+  role, population, comparator, follow-up window, included-study count,
+  heterogeneity summary, subgroup or moderator, risk-of-bias summary, and
+  evidence strength
+
+The field list is a default-private publication allowlist. Unused statistical,
+network-meta-analysis, quotation, extraction-warning, normalization, and graph
+audit fields are excluded even if they exist in the internal findings table.
+The exporter fails if a forbidden internal field is added to the browser
+contract without an explicit policy and test change.
 
 Detail rows may include metadata/detail entity kinds that are not graph
 anchors, such as `outcome_scale`, `compound`, `symptom_problem`, and

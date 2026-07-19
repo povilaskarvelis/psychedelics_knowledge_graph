@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
-from urllib.parse import quote
 
 from .config import R2Settings
 
@@ -81,8 +80,6 @@ class ObjectStore(Protocol):
     def get_bytes(self, key: str) -> bytes: ...
 
     def download_file(self, key: str, path: Path) -> None: ...
-
-    def download_url(self, key: str) -> str: ...
 
 
 class R2ObjectStore:
@@ -190,14 +187,3 @@ class R2ObjectStore:
     def download_file(self, key: str, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.client.download_file(self.settings.bucket, key, str(path))
-
-    def download_url(self, key: str) -> str:
-        if self.settings.public_base_url:
-            return f"{self.settings.public_base_url}/{quote(key, safe='/')}"
-        return str(
-            self.client.generate_presigned_url(
-                "get_object",
-                Params={"Bucket": self.settings.bucket, "Key": key},
-                ExpiresIn=self.settings.signed_url_ttl_seconds,
-            )
-        )

@@ -65,6 +65,3 @@ class FakeObjectStore:
         self.operations.append(("download_file", key))
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(self.objects[key])
-
-    def download_url(self, key: str) -> str:
-        return f"https://r2.example.test/{key}"

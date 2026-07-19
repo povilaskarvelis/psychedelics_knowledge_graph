@@ -241,7 +241,13 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    settings = R2Settings.from_env(required=True)
+    # PKG_R2_* is reserved for the public browser bucket. The API runtime uses
+    # the separate PKG_API_R2_* namespace and must never be published here.
+    settings = R2Settings.from_env(
+        required=True,
+        env_prefix="PKG_R2",
+        default_object_prefix="browser",
+    )
     assert settings is not None
     result = publish_active_browser_release(
         store=R2ObjectStore(settings),

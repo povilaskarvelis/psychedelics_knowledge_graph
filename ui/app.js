@@ -2419,7 +2419,6 @@ function administrationFacetText(claim) {
     metaText,
     claim.study_title,
     claim.support,
-    claim.supporting_quote,
   ]
     .map(cleanDisplayText)
     .filter(Boolean)

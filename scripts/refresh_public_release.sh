@@ -8,9 +8,9 @@ usage() {
 Usage: scripts/refresh_public_release.sh [RUN_ID]
 
 Regenerates the browser graph and public API from an already-built KG run,
-binds them to one new public release ID, validates the static site, and
-publishes both browser and API releases to R2. RUN_ID defaults to the current
-graph run.
+binds them to one new public release ID, validates the static site, publishes
+the browser payload to public R2 and the API runtime to private R2. RUN_ID
+defaults to the current graph run.
 
 Use this for public-export, author-identity, API, or browser-payload changes
 that do not change the underlying evidence decisions. For a new evidence run,

@@ -212,54 +212,6 @@
   font-size: 0.78rem;
 }
 
-.access-download-note {
-  margin-top: 10px !important;
-  font-size: 0.84rem !important;
-}
-
-.access-download-list {
-  margin-top: 18px;
-  border-top: 1px solid var(--access-line);
-}
-
-.access-download-list article {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 24px;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--access-line);
-}
-
-.access-download-list strong {
-  display: block;
-  color: var(--fg);
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 0.92rem;
-}
-
-.access-download-list span {
-  display: block;
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.45;
-}
-
-.access-download-list a {
-  color: var(--link-color);
-  font-size: 0.84rem;
-  font-weight: 600;
-  text-decoration: none;
-  border-bottom: 1px solid var(--link-border);
-}
-
-.access-download-list a:hover,
-.access-download-list a:focus-visible {
-  color: var(--link-color-hover);
-  border-bottom-color: var(--link-border-hover);
-}
-
 @media (max-width: 900px) {
   .access-example-grid,
   .access-agent-layout {
@@ -278,15 +230,6 @@
 
   .access-endpoint code {
     font-size: 0.72rem;
-  }
-
-  .access-download-list article {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .access-download-list a {
-    width: fit-content;
   }
 
   .access-tool-list li {

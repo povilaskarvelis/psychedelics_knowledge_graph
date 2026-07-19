@@ -1,10 +1,9 @@
 # API and agent access
 
-The project provides three read-only machine interfaces:
+The project provides two read-only machine interfaces:
 
 - REST with an OpenAPI schema;
-- Model Context Protocol (MCP) for AI agents;
-- a DuckDB database and individual Parquet tables.
+- Model Context Protocol (MCP) for AI agents.
 
 Public entry points:
 
@@ -27,6 +26,9 @@ It does not expose granular findings, effect or statistical fields, source
 quotes, result direction, confidence, extraction warnings, human-review state,
 or other internal curation detail.
 
+Bulk database and table releases are intentionally disabled while the public
+data contract is still being reviewed. See [Public data policy](public_data_policy.md).
+
 Public author records require an OpenAlex or ORCID identity. ORCID is canonical
 when available, including when it links multiple OpenAlex profiles. Profiles
 without an ORCID remain separate unless a reviewed correction explicitly links
@@ -44,13 +46,10 @@ data/processed/query_api_runs/<run_id>/
   manifest.json
   schema.json
   public_api.duckdb
-  tables/
-    papers.parquet
-    concepts.parquet
-    authors.parquet
-    paper_authors.parquet
-    relationships.parquet
 ```
+
+`public_api.duckdb` is an unpublished runtime artifact used by the API service,
+not a public data release. The build does not create downloadable Parquet copies.
 
 After adding papers or rebuilding the graph, run the normal routed release
 command:
@@ -150,21 +149,13 @@ Both MCP transports expose:
 - `get_paper`
 - `find_relationships`
 
-## Bulk downloads
+## Bulk data policy
 
-The REST service provides:
-
-- `/api/v1/downloads/database`
-- `/api/v1/downloads/schema`
-- `/api/v1/downloads/tables/papers`
-- `/api/v1/downloads/tables/concepts`
-- `/api/v1/downloads/tables/authors`
-- `/api/v1/downloads/tables/paper_authors`
-- `/api/v1/downloads/tables/relationships`
-
-Responses include the current release ID and a SHA-256-based ETag. The API never
-serves the internal database, extraction rows, detailed findings, or
-normalization audit.
+The REST service has no bulk-download routes. `/api/v1/schema` documents tables,
+fields, keys, and limitations used by the query service, but does not return the
+underlying records. A future downloadable release requires a separately reviewed
+field allowlist, complete documentation, integrity checks, licensing review,
+versioning, checksums, release notes, and manual approval.
 
 ## Deployment
 
@@ -178,8 +169,8 @@ Build the image from the repository root:
 docker build -f services/query_api/Dockerfile -t psychedelics-kg-api .
 ```
 
-The code-only service starts immediately, loads the current database from R2 in
-the background, and redirects bulk downloads directly to R2. Apply public rate
-limits at the hosting layer. The API is read-only and does not require user
-authorization; authentication must be added before any private or write
-operation is introduced.
+The code-only service starts immediately and loads its unpublished query database
+from a private R2 bucket in the background. The public browser payload lives in a
+different R2 bucket. Apply public rate limits at the hosting layer. The API is
+read-only and does not require user authorization; authentication must be added
+before any private or write operation is introduced.

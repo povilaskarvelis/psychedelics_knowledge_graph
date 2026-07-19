@@ -24,6 +24,23 @@ def r2_settings() -> R2Settings:
 
 
 class PublishQueryApiR2Test(unittest.TestCase):
+    def test_refuses_runtime_manifest_with_bulk_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pointer, query_runs = build_active_query_release(root)
+            manifest_path = query_runs / "test_run" / "manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["files"]["table:papers"] = dict(manifest["files"]["schema"])
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "only database and schema"):
+                publish_active_query_release(
+                    store=FakeObjectStore(),
+                    settings=r2_settings(),
+                    active_pointer_path=pointer,
+                    query_runs_dir=query_runs,
+                )
+
     def test_publishes_immutable_files_then_switches_active_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -43,10 +60,7 @@ class PublishQueryApiR2Test(unittest.TestCase):
             self.assertEqual(store.operations[-2], ("put_bytes", settings.active_key))
             self.assertEqual(store.operations[-1], ("get_bytes", settings.active_key))
             active = json.loads(store.objects[settings.active_key])
-            self.assertIn("database", active["files"])
-            self.assertIn("table:papers", active["files"])
-            self.assertIn("table:relationships", active["files"])
-            self.assertNotIn("table:findings", active["files"])
+            self.assertEqual(set(active["files"]), {"database", "schema"})
             self.assertTrue(active["manifest"]["key"].endswith("/manifest.json"))
             self.assertEqual(result["uploaded_count"], len(active["files"]) + 1)
             self.assertEqual(active["contract_key"], "catalogue-v2")

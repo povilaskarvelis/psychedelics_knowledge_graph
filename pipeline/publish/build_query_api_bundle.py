@@ -49,6 +49,10 @@ def build_bundle(*, active_pointer: Path, query_runs_dir: Path, out_dir: Path) -
         raise ValueError(f"Unexpected query artifact schema: {source_query_dir}")
     if query_manifest.get("run_id") != run_id:
         raise ValueError("Active graph and query artifact run IDs differ")
+    if set(query_manifest.get("files") or {}) != {"database", "schema"}:
+        raise ValueError("Query deployment bundle may contain only database and schema")
+    if (source_query_dir / "tables").exists():
+        raise ValueError("Query deployment bundle must not contain bulk table artifacts")
     for key in ("database", "schema"):
         if not (source_query_dir / str(query_manifest.get(key) or "")).is_file():
             raise FileNotFoundError(f"Query artifact is missing {key}: {source_query_dir}")

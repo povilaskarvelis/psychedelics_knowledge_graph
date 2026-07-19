@@ -48,9 +48,11 @@ readable view of that data rather than trying to display everything at once.
 
 For machine use, every release can also produce a narrow public catalogue of
 papers, concepts, OpenAlex/ORCID-backed authors, and paper-level relationships. It is
-available through DuckDB and Parquet downloads, a read-only REST/OpenAPI
-service, and MCP tools for AI agents. Granular extraction data remains internal;
-see the [API and agent access guide](docs/agent_access.md).
+available through a read-only REST/OpenAPI service and MCP tools for AI agents.
+Bulk data releases are intentionally withheld until their fields and semantics
+have a separate publication review. Granular extraction data remains internal;
+see the [API and agent access guide](docs/agent_access.md) and
+[public data policy](docs/public_data_policy.md).
 Production setup is covered by the [R2 browser and API deployment checklist](docs/r2_deployment.md).
 
 ## Repository map
@@ -98,5 +100,5 @@ public data is released under [CC0 1.0](DATA_LICENSE.md); third-party reports,
 abstracts, figures, tables, and provider data retain their original rights and
 terms.
 
-If you use the project or its public data exports, please cite it using
+If you use the project or its public API, please cite it using
 [`CITATION.cff`](CITATION.cff).

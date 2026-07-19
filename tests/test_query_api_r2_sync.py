@@ -19,7 +19,7 @@ from tests.test_publish_query_api_r2 import r2_settings
 
 
 class QueryApiR2SyncTest(unittest.TestCase):
-    def test_syncs_core_release_and_redirects_bulk_downloads(self) -> None:
+    def test_syncs_private_query_runtime_without_bulk_routes(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             source = root / "source"
@@ -58,7 +58,7 @@ class QueryApiR2SyncTest(unittest.TestCase):
             self.assertEqual(local_pointer["release_id"], "test_run:r1")
             artifact = settings.query_runs_dir / "test_run"
             self.assertTrue((artifact / "public_api.duckdb").is_file())
-            self.assertFalse((artifact / "tables/findings.parquet").exists())
+            self.assertFalse((artifact / "tables").exists())
 
             service = QueryService(
                 resolver=ReleaseResolver(
@@ -66,24 +66,16 @@ class QueryApiR2SyncTest(unittest.TestCase):
                     query_runs_dir=settings.query_runs_dir,
                 ),
                 public_base_url=settings.public_base_url,
-                remote_store=store,
             )
             query = service.query_papers(PaperQuery(limit=10))
             self.assertEqual(query["meta"]["total"], 3)
-            target = service.download_target("table:papers")
-            self.assertIsNone(target.path)
-            self.assertTrue(target.url.startswith("https://r2.example.test/"))
             app = create_app(service, settings=settings)
             with TestClient(app) as client:
                 response = client.get(
                     "/api/v1/downloads/tables/papers",
                     follow_redirects=False,
                 )
-            self.assertEqual(response.status_code, 307)
-            self.assertTrue(
-                response.headers["location"].startswith("https://r2.example.test/")
-            )
-            self.assertEqual(response.headers["x-release-id"], "test_run:r1")
+            self.assertEqual(response.status_code, 404)
 
             second = R2ReleaseSynchronizer(
                 service_settings=settings,
@@ -129,20 +121,35 @@ class QueryApiR2SyncTest(unittest.TestCase):
 
     def test_r2_environment_supports_default_and_eu_endpoints(self) -> None:
         env = {
-            "PKG_R2_ACCOUNT_ID": "abc",
-            "PKG_R2_BUCKET": "bucket",
-            "PKG_R2_ACCESS_KEY_ID": "key",
-            "PKG_R2_SECRET_ACCESS_KEY": "secret",
-            "PKG_R2_JURISDICTION": "eu",
+            "PKG_API_R2_ACCOUNT_ID": "abc",
+            "PKG_API_R2_BUCKET": "bucket",
+            "PKG_API_R2_ACCESS_KEY_ID": "key",
+            "PKG_API_R2_SECRET_ACCESS_KEY": "secret",
+            "PKG_API_R2_JURISDICTION": "eu",
         }
         with patch.dict(os.environ, env, clear=True):
-            settings = R2Settings.from_env(required=True)
+            settings = R2Settings.from_env(
+                required=True,
+                env_prefix="PKG_API_R2",
+                default_object_prefix="query-api",
+            )
         assert settings is not None
         self.assertEqual(
             settings.endpoint_url, "https://abc.eu.r2.cloudflarestorage.com"
         )
         self.assertEqual(settings.active_key, "query-api/active/catalogue-v2.json")
         self.assertEqual(settings.legacy_active_key, "query-api/active.json")
+
+    def test_service_does_not_use_public_browser_bucket_credentials(self) -> None:
+        browser_only_env = {
+            "PKG_R2_ACCOUNT_ID": "public-account",
+            "PKG_R2_BUCKET": "public-browser-bucket",
+            "PKG_R2_ACCESS_KEY_ID": "public-key",
+            "PKG_R2_SECRET_ACCESS_KEY": "public-secret",
+        }
+        with patch.dict(os.environ, browser_only_env, clear=True):
+            settings = Settings.from_env()
+        self.assertIsNone(settings.r2)
 
     def test_remote_pointer_rejects_path_traversal_run_id(self) -> None:
         with self.assertRaisesRegex(ValueError, "unsafe run_id"):

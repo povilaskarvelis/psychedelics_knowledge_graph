@@ -34,8 +34,8 @@ ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
 GRAPH_BOOTSTRAP_SCHEMA_VERSION = "route_native_graph_bootstrap_v1"
-DASHBOARD_BOOTSTRAP_SCHEMA_VERSION = "route_native_dashboard_bootstrap_v2"
-DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v2"
+DASHBOARD_BOOTSTRAP_SCHEMA_VERSION = "route_native_dashboard_bootstrap_v3"
+DETAIL_BOOTSTRAP_SCHEMA_VERSION = "route_native_detail_bootstrap_v3"
 PRIMARY_SOURCE_KEY = "primary"
 META_ANALYSES_SOURCE_KEY = "meta_analyses"
 REVIEWS_SOURCE_KEY = "reviews"
@@ -305,7 +305,10 @@ FINDING_FIELDS = (
     "direction_consistency",
 )
 
-DETAIL_BOOTSTRAP_FIELDS = (
+# Explicit publication contract for row-level data sent to a browser. New
+# extraction columns are private by default and appear here only after the UI
+# needs them and their public meaning has been reviewed.
+PUBLIC_BROWSER_DETAIL_FIELDS = (
     "domain",
     "finding_type",
     "evidence_type",
@@ -313,7 +316,6 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "compound",
     "graph_subject_label",
     "graph_subject_kind",
-    "atomic_compound_candidate",
     "graph_overview_subject_label",
     "graph_overview_subject_kind",
     "graph_overview_subject_reason",
@@ -324,8 +326,6 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "entity_aliases",
     "graph_entity_label",
     "graph_parent_label",
-    "graph_parent_kind",
-    "graph_parent_entity_id",
     "molecular_finding_subtopic",
     "mechanism_type",
     "assay_type",
@@ -354,7 +354,6 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "paper_assessment_route",
     "study_design",
     "study_design_category",
-    "evidence_design",
     "population_model_category",
     "outcome_type",
     "population",
@@ -380,72 +379,61 @@ DETAIL_BOOTSTRAP_FIELDS = (
     "support",
     "effect_size",
     "p_value",
-    "confidence_interval",
     "meta_analysis_result_role",
-    "meta_analysis_primary_subject_area",
-    "meta_analysis_subject_areas",
     "meta_analysis_study_count",
-    "meta_analysis_effect_or_experiment_count",
-    "meta_analysis_dataset_or_comparison_count",
     "meta_analysis_overall_study_count",
-    "meta_analysis_overall_effect_or_experiment_count",
-    "meta_analysis_overall_dataset_or_comparison_count",
-    "meta_analysis_evidence_design_summary",
-    "meta_analysis_search_end_date",
-    "meta_analysis_effect_metric",
-    "meta_analysis_interval_type",
-    "meta_analysis_interval_lower",
-    "meta_analysis_interval_upper",
-    "meta_analysis_standard_error",
     "heterogeneity_i_squared",
     "heterogeneity_tau_squared",
-    "heterogeneity_q_statistic",
-    "heterogeneity_q_p_value",
-    "heterogeneity_prediction_interval",
     "heterogeneity_interpretation",
-    "meta_analysis_analysis_type",
     "meta_analysis_subgroup_or_moderator",
-    "meta_analysis_regression_coefficient",
-    "meta_analysis_sensitivity_method",
-    "network_treatment_a",
-    "network_treatment_b",
-    "network_reference_treatment",
-    "network_evidence_type",
-    "network_ranking_metric",
-    "network_ranking_value",
-    "network_inconsistency_assessment",
-    "network_transitivity_assessment",
     "risk_of_bias_summary",
     "evidence_strength",
     "outcome_measure",
     "outcome_measure_normalized",
     "evidence_location",
     "evidence_locator",
-    "supporting_quote",
     "coverage_type",
     "coverage_focus",
     "coverage_focus_normalized",
     "evidence_level",
-    "result_direction_normalized",
     "graph_admission_status",
-    "graph_admission_reason",
     "proposition_group_id",
-    "proposition_duplicate_count",
-    "direction_consistency",
     "first_author",
     "last_author",
-    "author_identities",
     "authors",
     "trial_registry_ids",
     "data_source_type",
     "public_health_graph_label",
-    "public_health_topic_category",
     "public_health_measure",
     "real_world_use_context",
     "assay_family_normalized",
     "normalized_assay_family",
     "mechanistic_relationship_type",
 )
+
+# These fields are useful internally but are not part of the browser contract.
+# The export fails if a future edit attempts to add one without an explicit
+# policy change and corresponding test review.
+FORBIDDEN_BROWSER_DETAIL_FIELDS = {
+    "raw_row_json",
+    "supporting_quote",
+    "confidence_interval",
+    "extraction_warnings",
+    "needs_human_review",
+    "normalization_status",
+    "normalization_notes",
+    "graph_admission_reason",
+    "proposition_conflict_group_id",
+    "proposition_duplicate_count",
+    "direction_consistency",
+    "heterogeneity_q_statistic",
+    "heterogeneity_q_p_value",
+    "heterogeneity_prediction_interval",
+    "meta_analysis_regression_coefficient",
+    "meta_analysis_sensitivity_method",
+    "network_inconsistency_assessment",
+    "network_transitivity_assessment",
+}
 BOOL_FIELDS = {"needs_human_review", "is_retracted", "has_correction", "open_access_is_oa", "unpaywall_is_oa"}
 
 
@@ -1527,6 +1515,19 @@ def detail_bootstrap_value(value: object) -> object:
     return value
 
 
+def validate_public_browser_detail_contract() -> None:
+    fields = list(PUBLIC_BROWSER_DETAIL_FIELDS)
+    duplicates = sorted({field for field in fields if fields.count(field) > 1})
+    if duplicates:
+        raise ValueError(f"Duplicate public browser detail fields: {duplicates}")
+    forbidden = sorted(set(fields) & FORBIDDEN_BROWSER_DETAIL_FIELDS)
+    if forbidden:
+        raise ValueError(
+            "Forbidden internal fields were added to the public browser payload: "
+            f"{forbidden}"
+        )
+
+
 def columnar_bootstrap_payload(
     findings: list[dict],
     generated_at: str,
@@ -1536,6 +1537,7 @@ def columnar_bootstrap_payload(
     schema_version: str,
     payload_scope: str | None = None,
 ) -> dict:
+    validate_public_browser_detail_contract()
     values: list[object] = [None]
     value_indexes = {json.dumps(None): 0}
     rows: list[list[int]] = []
@@ -1549,7 +1551,9 @@ def columnar_bootstrap_payload(
         return value_indexes[key]
 
     for finding in findings:
-        rows.append([value_index(finding.get(field)) for field in DETAIL_BOOTSTRAP_FIELDS])
+        rows.append(
+            [value_index(finding.get(field)) for field in PUBLIC_BROWSER_DETAIL_FIELDS]
+        )
 
     payload = {
         "schema_version": schema_version,
@@ -1559,7 +1563,7 @@ def columnar_bootstrap_payload(
         "literature_source": source_key,
         "source": source_key,
         "row_count": len(rows),
-        "fields": list(DETAIL_BOOTSTRAP_FIELDS),
+        "fields": list(PUBLIC_BROWSER_DETAIL_FIELDS),
         "values": values,
         "rows": rows,
     }
@@ -1761,6 +1765,12 @@ def export_evidence_payload(
         "files": payload_files,
         "row_count": len(findings),
         "author_tables": author_table_status,
+        "browser_publication_contract": {
+            "detail_schema_version": DETAIL_BOOTSTRAP_SCHEMA_VERSION,
+            "default_private": True,
+            "field_count": len(PUBLIC_BROWSER_DETAIL_FIELDS),
+            "fields": list(PUBLIC_BROWSER_DETAIL_FIELDS),
+        },
         "summary_stats": {
             "default": stats,
             "sources": source_summary_stats,
