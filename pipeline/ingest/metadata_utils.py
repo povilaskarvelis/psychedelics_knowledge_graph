@@ -17,7 +17,14 @@ from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import Request
+
+from pipeline.ingest.http_safety import (
+    DEFAULT_MAX_RESPONSE_BYTES,
+    build_public_http_opener,
+    read_bounded_response,
+    validate_public_http_url,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_METADATA_PROVIDER_ORDER = ["pubmed", "pmc", "unpaywall", "crossref", "openalex", "semantic_scholar"]
@@ -180,6 +187,7 @@ class RateLimitedHttpClient:
         timeout_sec: int = 40,
         max_retry_after_sec: int = 120,
         user_agent: str = "kg-pipeline/0.1",
+        max_response_bytes: int = DEFAULT_MAX_RESPONSE_BYTES,
     ):
         self.rps = max(0.01, rps)
         self.min_interval = 1.0 / self.rps
@@ -187,6 +195,8 @@ class RateLimitedHttpClient:
         self.timeout_sec = timeout_sec
         self.max_retry_after_sec = max(0, max_retry_after_sec)
         self.user_agent = user_agent
+        self.max_response_bytes = max(1, int(max_response_bytes))
+        self._opener = build_public_http_opener()
         self._last_request_ts = 0.0
 
     def _wait_for_slot(self) -> None:
@@ -197,12 +207,13 @@ class RateLimitedHttpClient:
 
     def _request_bytes(self, url: str, headers: Optional[Dict[str, str]] = None) -> bytes:
         req_headers = {"User-Agent": self.user_agent}
+        validate_public_http_url(url)
         if headers:
             req_headers.update(headers)
         req = Request(url, headers=req_headers)
-        with urlopen(req, timeout=self.timeout_sec) as response:
+        with self._opener.open(req, timeout=self.timeout_sec) as response:
             self._last_request_ts = time.monotonic()
-            return response.read()
+            return read_bounded_response(response, self.max_response_bytes)
 
     def get_bytes(self, url: str, headers: Optional[Dict[str, str]] = None) -> bytes:
         backoff = 2.5

@@ -1,6 +1,14 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, model_validator
+from typing import Annotated
+
+from pydantic import BaseModel, Field, StringConstraints, model_validator
+
+
+FILTER_LIST_MAX_ITEMS = 100
+FILTER_VALUE_MAX_LENGTH = 500
+CURSOR_MAX_LENGTH = 2048
+FilterValue = Annotated[str, StringConstraints(max_length=FILTER_VALUE_MAX_LENGTH)]
 
 
 class YearRange(BaseModel):
@@ -24,41 +32,80 @@ class PaperFilters(YearRange):
         max_length=300,
         description="Case-insensitive match across title, DOI, journal, and credited author names.",
     )
-    paper_ids: list[str] = Field(default_factory=list)
-    dois: list[str] = Field(default_factory=list)
-    paper_types: list[str] = Field(default_factory=list)
-    paper_subtypes: list[str] = Field(default_factory=list)
-    author_ids: list[str] = Field(default_factory=list)
-    author_names: list[str] = Field(default_factory=list)
-    concept_ids: list[str] = Field(default_factory=list)
-    domains: list[str] = Field(default_factory=list)
-    relation_types: list[str] = Field(default_factory=list)
+    paper_ids: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    dois: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    paper_types: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    paper_subtypes: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    author_ids: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    author_names: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    concept_ids: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    domains: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    relation_types: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
 
 
 class PaperQuery(BaseModel):
     filters: PaperFilters = Field(default_factory=PaperFilters)
     limit: int = Field(default=25, ge=1, le=100)
-    cursor: str | None = None
+    cursor: str | None = Field(default=None, max_length=CURSOR_MAX_LENGTH)
 
 
 class RelationshipFilters(YearRange):
-    paper_ids: list[str] = Field(default_factory=list)
-    dois: list[str] = Field(default_factory=list)
-    paper_types: list[str] = Field(default_factory=list)
-    paper_subtypes: list[str] = Field(default_factory=list)
-    author_ids: list[str] = Field(default_factory=list)
-    author_names: list[str] = Field(default_factory=list)
-    concept_ids: list[str] = Field(
+    paper_ids: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    dois: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    paper_types: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    paper_subtypes: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    author_ids: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    author_names: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    concept_ids: list[FilterValue] = Field(
         default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
         description="Match a concept at either end of the relationship.",
     )
-    subject_ids: list[str] = Field(default_factory=list)
-    object_ids: list[str] = Field(default_factory=list)
-    domains: list[str] = Field(default_factory=list)
-    relation_types: list[str] = Field(default_factory=list)
+    subject_ids: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    object_ids: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    domains: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    relation_types: list[FilterValue] = Field(
+        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
 
 
 class RelationshipQuery(BaseModel):
     filters: RelationshipFilters = Field(default_factory=RelationshipFilters)
     limit: int = Field(default=25, ge=1, le=100)
-    cursor: str | None = None
+    cursor: str | None = Field(default=None, max_length=CURSOR_MAX_LENGTH)

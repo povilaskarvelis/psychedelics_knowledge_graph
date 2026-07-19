@@ -26,6 +26,12 @@ try:
         sha256_file,
     )
     from pipeline.fulltext.pdf_alternate_sources import title_validation_result
+    from pipeline.ingest.http_safety import (
+        DEFAULT_MAX_RESPONSE_BYTES,
+        ResponseTooLarge,
+        UnsafeOutboundUrl,
+        validate_public_http_url,
+    )
     from pipeline.ingest.metadata_utils import (
         file_is_valid_pdf,
         is_probable_pdf_url,
@@ -45,6 +51,12 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         sha256_file,
     )
     from pipeline.fulltext.pdf_alternate_sources import title_validation_result
+    from pipeline.ingest.http_safety import (
+        DEFAULT_MAX_RESPONSE_BYTES,
+        ResponseTooLarge,
+        UnsafeOutboundUrl,
+        validate_public_http_url,
+    )
     from pipeline.ingest.metadata_utils import (
         file_is_valid_pdf,
         is_probable_pdf_url,
@@ -77,6 +89,74 @@ RESCUE_PRESETS = {"", "none", "akjournals"}
 FIGSHARE_REDIRECT_HOSTS = {
     "sro.sussex.ac.uk",
 }
+
+
+class SafeRequestsSession(requests.Session):
+    """A requests session that checks every redirect and bounds decoded bodies."""
+
+    def __init__(self, *, max_response_bytes: int = DEFAULT_MAX_RESPONSE_BYTES):
+        super().__init__()
+        self.max_response_bytes = max(1, int(max_response_bytes))
+
+    def _read_bounded(self, response: requests.Response) -> bytes:
+        raw_length = response.headers.get("Content-Length", "").strip()
+        if raw_length:
+            try:
+                declared_length = int(raw_length)
+            except ValueError:
+                declared_length = 0
+            if declared_length > self.max_response_bytes:
+                raise ResponseTooLarge(
+                    f"Response declares {declared_length} bytes; "
+                    f"limit is {self.max_response_bytes} bytes"
+                )
+        chunks: list[bytes] = []
+        total = 0
+        for chunk in response.iter_content(chunk_size=64 * 1024):
+            if not chunk:
+                continue
+            total += len(chunk)
+            if total > self.max_response_bytes:
+                raise ResponseTooLarge(
+                    f"Response exceeded the {self.max_response_bytes}-byte limit"
+                )
+            chunks.append(chunk)
+        return b"".join(chunks)
+
+    def get(self, url: str, **kwargs) -> requests.Response:
+        follow_redirects = bool(kwargs.pop("allow_redirects", True))
+        kwargs.pop("stream", None)
+        current_url = str(url)
+        history: list[requests.Response] = []
+        try:
+            for redirect_count in range(11):
+                validate_public_http_url(current_url)
+                response = super().get(
+                    current_url,
+                    allow_redirects=False,
+                    stream=True,
+                    **kwargs,
+                )
+                location = response.headers.get("Location", "").strip()
+                if follow_redirects and response.is_redirect and location:
+                    if redirect_count >= 10:
+                        response.close()
+                        raise requests.TooManyRedirects("More than 10 redirects")
+                    history.append(response)
+                    current_url = urljoin(response.url, location)
+                    response.close()
+                    continue
+                try:
+                    response._content = self._read_bounded(response)
+                except ResponseTooLarge:
+                    response.close()
+                    raise
+                response._content_consumed = True
+                response.history = history
+                return response
+        except (UnsafeOutboundUrl, ResponseTooLarge) as exc:
+            raise requests.RequestException(str(exc)) from exc
+        raise requests.TooManyRedirects("More than 10 redirects")
 
 LANDING_PAGE_RECOVERY_HEADERS = {
     "User-Agent": (
@@ -595,7 +675,7 @@ def recover_pdf_landing_pages(
     if limit > 0:
         rows = rows[:limit]
 
-    session = requests.Session()
+    session = SafeRequestsSession()
     session.headers.update(LANDING_PAGE_RECOVERY_HEADERS)
     min_interval = 1.0 / max(0.01, rps)
     last_request_at = 0.0

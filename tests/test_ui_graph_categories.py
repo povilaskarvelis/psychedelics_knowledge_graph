@@ -1,12 +1,34 @@
 from colorsys import rgb_to_hls
 from pathlib import Path
 import re
+import tomllib
 
 
 ROOT = Path(__file__).resolve().parents[1]
 APP_JS = ROOT / "ui" / "app.js"
 INDEX_HTML = ROOT / "index.html"
 STYLES_CSS = ROOT / "ui" / "styles.css"
+NETLIFY_TOML = ROOT / "netlify.toml"
+
+
+def test_payload_derived_labels_are_escaped_before_html_insertion() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    assert '${escapeHtml(label)}</span>`' in source
+    assert "<h3>${escapeHtml(relation)}</h3>" in source
+    assert "<strong>${escapeHtml(compound)} → ${escapeHtml(target)}</strong>" in source
+    assert "<strong>${escapeHtml(compound)}</strong>" in source
+    assert "<strong>${escapeHtml(target)}</strong>" in source
+
+
+def test_public_site_has_non_disruptive_browser_security_headers() -> None:
+    config = tomllib.loads(NETLIFY_TOML.read_text(encoding="utf-8"))
+    wildcard = next(header for header in config["headers"] if header["for"] == "/*")
+    values = wildcard["values"]
+
+    assert values["X-Content-Type-Options"] == "nosniff"
+    assert values["X-Frame-Options"] == "DENY"
+    assert "frame-ancestors 'none'" in values["Content-Security-Policy"]
 
 
 def test_real_world_use_contains_exposure_contexts_without_a_separate_graph_view() -> None:

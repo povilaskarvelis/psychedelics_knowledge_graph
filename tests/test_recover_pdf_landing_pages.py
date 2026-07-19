@@ -1,4 +1,8 @@
+import pytest
+import requests
+
 from pipeline.fulltext.recover_pdf_landing_pages import (
+    SafeRequestsSession,
     figshare_article_ids,
     figshare_download_urls_for_article,
     has_standard_recovery_signal,
@@ -10,6 +14,13 @@ from pipeline.fulltext.recover_pdf_landing_pages import (
     selected_rows,
     try_candidate,
 )
+
+
+def test_runtime_session_enforces_bounded_public_http() -> None:
+    assert issubclass(SafeRequestsSession, requests.Session)
+    assert SafeRequestsSession().max_response_bytes == 128 * 1024 * 1024
+    with pytest.raises(requests.RequestException):
+        SafeRequestsSession().get("http://127.0.0.1:8070/api/isalive", timeout=1)
 
 
 class FakeResponse:

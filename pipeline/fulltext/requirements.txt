@@ -1,0 +1,2 @@
+# PDF inspection used by manual import and publication-format auditing.
+pypdf==6.14.2

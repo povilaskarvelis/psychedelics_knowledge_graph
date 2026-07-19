@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from services.query_api.app import create_app
 from services.query_api.config import Settings
@@ -14,7 +15,13 @@ from services.query_api.models import (
     RelationshipFilters,
     RelationshipQuery,
 )
-from services.query_api.repository import QueryService, ReleaseChanged, ReleaseResolver
+from services.query_api.repository import (
+    InvalidQuery,
+    QueryService,
+    ReleaseChanged,
+    ReleaseResolver,
+    encode_cursor,
+)
 from tests.query_api_fixtures import build_active_query_release
 
 
@@ -98,6 +105,22 @@ class QueryApiTest(unittest.TestCase):
                 PaperQuery(limit=1, cursor=first["meta"]["next_cursor"])
             )
 
+    def test_cursor_rejects_impractically_large_offsets(self) -> None:
+        cursor = encode_cursor(release_id="test_run:r1", offset=1_000_001)
+        with self.assertRaises(InvalidQuery):
+            self.service.query_papers(PaperQuery(cursor=cursor))
+
+    def test_query_models_bound_filter_and_cursor_sizes(self) -> None:
+        PaperFilters(paper_ids=["paper:test"] * 100)
+        with self.assertRaises(ValidationError):
+            PaperFilters(paper_ids=["paper:test"] * 101)
+        with self.assertRaises(ValidationError):
+            PaperFilters(paper_ids=["x" * 501])
+        with self.assertRaises(ValidationError):
+            PaperQuery(cursor="x" * 2049)
+        with self.assertRaises(InvalidQuery):
+            self.service.search_concepts("test", concept_kinds=["kind"] * 101)
+
     def test_paper_download_and_http_contract(self) -> None:
         paper = self.service.get_paper("10.1000/primary")
         self.assertEqual(paper["data"]["paper_id"], "paper:10.1000/primary")
@@ -134,6 +157,13 @@ class QueryApiTest(unittest.TestCase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["meta"]["total"], 1)
+
+            too_large = client.post(
+                "/api/v1/papers/query",
+                content=b"x" * (256 * 1024 + 1),
+                headers={"content-type": "application/json"},
+            )
+            self.assertEqual(too_large.status_code, 413)
 
             openapi = client.get("/openapi.json").json()
             self.assertIn("/api/v1/papers/query", openapi["paths"])

@@ -3,6 +3,12 @@
 This stage converts locally available PDFs into structured full-text artifacts
 that downstream extraction and provenance checks can reuse.
 
+Install the Python PDF-inspection dependency with:
+
+```bash
+python3 -m pip install -r pipeline/fulltext/requirements.txt
+```
+
 The current goal is a DOI-verified canonical article store feeding routed
 article-text inputs. Conversion, source-identity checks, routing, and extraction
 all operate on the unified corpus rather than dataset-specific claim files.

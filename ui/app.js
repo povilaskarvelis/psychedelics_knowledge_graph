@@ -3406,7 +3406,7 @@ function classToken(value) {
 
 function chipHtml(kind, label, token = label) {
   if (!label) return "";
-  return `<span class="badge ${kind} ${classToken(token)}">${label}</span>`;
+  return `<span class="badge ${kind} ${classToken(token)}">${escapeHtml(label)}</span>`;
 }
 
 function paperTypeBadgeHtml(paperType) {
@@ -4117,7 +4117,7 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
 
   return `
       <div class="card-header">
-        <h3>${relation}</h3>
+        <h3>${escapeHtml(relation)}</h3>
         <div class="badge-row">${badges}</div>
       </div>
       <div class="meta">
@@ -4512,8 +4512,8 @@ function bibliographyCitationHtml(entry) {
       ${yearHtml}
       ${titleHtml}
       ${journal ? `<em>${escapeHtml(journal)}</em>` : ""}
-      ${doiHref ? `<a class="doi-link" href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(doiHref)}</a>` : ""}
-      ${openAlexHref ? `<a href="${openAlexHref}" target="_blank" rel="noopener noreferrer">OpenAlex</a>` : ""}
+      ${doiHref ? `<a class="doi-link" href="${escapeHtml(doiHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(doiHref)}</a>` : ""}
+      ${openAlexHref ? `<a href="${escapeHtml(openAlexHref)}" target="_blank" rel="noopener noreferrer">OpenAlex</a>` : ""}
     </p>
   `;
 }
@@ -4657,13 +4657,13 @@ function linkedStudyIdentifierHtml(claim) {
   const doiValue = meaningfulText(claim.study_doi);
   const doiHref = doiUrl(doiValue);
   if (doiValue && doiHref) {
-    return `<a class="doi-link" href="${doiHref}" target="_blank" rel="noopener noreferrer">doi:${escapeHtml(doiValue)}</a>`;
+    return `<a class="doi-link" href="${escapeHtml(doiHref)}" target="_blank" rel="noopener noreferrer">doi:${escapeHtml(doiValue)}</a>`;
   }
 
   const openAlexId = meaningfulText(claim.openalex_id);
   const openAlexHref = openAlexUrl(openAlexId);
   if (openAlexId && openAlexHref) {
-    return `<a href="${openAlexHref}" target="_blank" rel="noopener noreferrer">OpenAlex</a>`;
+    return `<a href="${escapeHtml(openAlexHref)}" target="_blank" rel="noopener noreferrer">OpenAlex</a>`;
   }
 
   return "";
@@ -6536,9 +6536,9 @@ function renderStudyDetail(studyKeyValue) {
   const year = parseYearValue(firstClaim.study_year);
   const doiHref = doiUrl(firstClaim.study_doi);
   const source = doiHref
-    ? `<a class="doi-link" href="${doiHref}" target="_blank" rel="noopener noreferrer">${escapeHtml(firstClaim.study_doi)}</a>`
+    ? `<a class="doi-link" href="${escapeHtml(doiHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(firstClaim.study_doi)}</a>`
     : firstClaim.openalex_id
-      ? `<a href="${openAlexUrl(firstClaim.openalex_id)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+      ? `<a href="${escapeHtml(openAlexUrl(firstClaim.openalex_id))}" target="_blank" rel="noopener noreferrer">${escapeHtml(
           firstClaim.openalex_id
         )}</a>`
       : "";
@@ -7418,7 +7418,7 @@ function buildGraph(data) {
       path.classList.add("selected");
     }
     edgeElementByKey.set(key, path);
-    const edgeTooltipHtml = `<strong>${compound} → ${target}</strong><br/>${evidenceCountTooltipHtml(edge.claims)}`;
+    const edgeTooltipHtml = `<strong>${escapeHtml(compound)} → ${escapeHtml(target)}</strong><br/>${evidenceCountTooltipHtml(edge.claims)}`;
 
     path.addEventListener("mouseenter", (event) => {
       cancelPendingFocusRestore();
@@ -7489,7 +7489,7 @@ function buildGraph(data) {
     compoundNodeElements.set(compound, { node, label });
 
     const nodeClaims = claimsByCompound.get(compound) || [];
-    const nodeTooltipHtml = `<strong>${compound}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Connections: ${
+    const nodeTooltipHtml = `<strong>${escapeHtml(compound)}</strong><br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Connections: ${
       summarizeConnections(nodeClaims, rightKey).length
     }`;
     const enter = (event) => {
@@ -7577,7 +7577,7 @@ function buildGraph(data) {
     const familyLine = currentEntityViewKey() === "target_system" && targetParent && targetParent !== canonicalTarget
       ? `<br/>Family: ${escapeHtml(targetParent)}`
       : "";
-    const nodeTooltipHtml = `<strong>${target}</strong>${canonicalLine}${familyLine}${clarifier ? `<br/>${escapeHtml(clarifier)}` : ""}<br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
+    const nodeTooltipHtml = `<strong>${escapeHtml(target)}</strong>${canonicalLine}${familyLine}${clarifier ? `<br/>${escapeHtml(clarifier)}` : ""}<br/>${evidenceCountTooltipHtml(nodeClaims)}<br/>Compounds: ${
       summarizeConnections(nodeClaims, "compound").length
     }`;
     const enter = (event) => {
@@ -8015,7 +8015,7 @@ function renderLoadError(messages) {
       Start a local static server from the project root (for example: <code>python3 -m http.server</code>), then open <code>/</code>.
     </div>
     <div class="detail-list">
-      ${messages.map((msg) => `<div class="detail-item"><div class="meta">${msg}</div></div>`).join("")}
+      ${messages.map((msg) => `<div class="detail-item"><div class="meta">${escapeHtml(msg)}</div></div>`).join("")}
     </div>
   `;
   cardsEl.innerHTML = `<div class="detail-empty">No findings loaded.</div>`;

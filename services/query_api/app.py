@@ -24,6 +24,7 @@ from .r2_sync import sync_from_settings
 
 
 LOGGER = logging.getLogger("uvicorn.error")
+MAX_REQUEST_BODY_BYTES = 256 * 1024
 
 
 def create_app(
@@ -99,6 +100,36 @@ def create_app(
         else:
             app.state.data_status = "ready"
     app.state.data_error = ""
+
+    @app.middleware("http")
+    async def limit_request_body(request: Request, call_next):
+        if request.method in {"POST", "PUT", "PATCH"}:
+            raw_length = request.headers.get("content-length", "").strip()
+            try:
+                content_length = int(raw_length) if raw_length else 0
+            except ValueError:
+                content_length = 0
+            if content_length > MAX_REQUEST_BODY_BYTES:
+                return JSONResponse(
+                    status_code=413,
+                    content={
+                        "error": "request_too_large",
+                        "detail": f"Request bodies are limited to {MAX_REQUEST_BODY_BYTES} bytes.",
+                    },
+                )
+            body = bytearray()
+            async for chunk in request.stream():
+                if len(body) + len(chunk) > MAX_REQUEST_BODY_BYTES:
+                    return JSONResponse(
+                        status_code=413,
+                        content={
+                            "error": "request_too_large",
+                            "detail": f"Request bodies are limited to {MAX_REQUEST_BODY_BYTES} bytes.",
+                        },
+                    )
+                body.extend(chunk)
+            request._body = bytes(body)
+        return await call_next(request)
 
     if settings.cors_origins:
         app.add_middleware(
@@ -259,7 +290,7 @@ def create_app(
     def get_author_papers(
         author_id: str,
         limit: int = Query(default=25, ge=1, le=100),
-        cursor: str | None = Query(default=None),
+        cursor: str | None = Query(default=None, max_length=2048),
     ) -> dict[str, Any]:
         return service.get_author_papers(author_id, limit=limit, cursor=cursor)
 

@@ -12,7 +12,15 @@ from typing import Any, Iterator, Sequence
 import duckdb
 
 from .config import Settings
-from .models import PaperFilters, PaperQuery, RelationshipFilters, RelationshipQuery
+from .models import (
+    CURSOR_MAX_LENGTH,
+    FILTER_LIST_MAX_ITEMS,
+    FILTER_VALUE_MAX_LENGTH,
+    PaperFilters,
+    PaperQuery,
+    RelationshipFilters,
+    RelationshipQuery,
+)
 from .r2_store import R2_RELEASE_SIDECAR_NAME, ObjectStore, R2ObjectStore
 
 
@@ -20,6 +28,7 @@ PUBLIC_DB_NAME = "public_api.duckdb"
 PUBLIC_MANIFEST_NAME = "manifest.json"
 PUBLIC_SCHEMA_NAME = "schema.json"
 PUBLIC_QUERY_MANIFEST_VERSION = "psychedelics_kg_public_catalogue_manifest_v2"
+MAX_CURSOR_OFFSET = 1_000_000
 
 JSON_VALUE_FIELDS = {
     "aliases_json",
@@ -187,6 +196,8 @@ def encode_cursor(*, release_id: str, offset: int) -> str:
 def decode_cursor(value: str | None, *, release_id: str) -> int:
     if not value:
         return 0
+    if len(value) > CURSOR_MAX_LENGTH:
+        raise InvalidQuery("Pagination cursor is too long")
     try:
         padded = value + "=" * (-len(value) % 4)
         payload = json.loads(base64.urlsafe_b64decode(padded).decode("utf-8"))
@@ -199,6 +210,8 @@ def decode_cursor(value: str | None, *, release_id: str) -> int:
         )
     if offset < 0:
         raise InvalidQuery("Invalid pagination cursor offset")
+    if offset > MAX_CURSOR_OFFSET:
+        raise InvalidQuery(f"Pagination cursor offset exceeds {MAX_CURSOR_OFFSET}")
     return offset
 
 
@@ -300,6 +313,14 @@ class QueryService:
         cleaned = [str(value).strip() for value in values if str(value).strip()]
         if not cleaned:
             return
+        if len(cleaned) > FILTER_LIST_MAX_ITEMS:
+            raise InvalidQuery(
+                f"Filters accept at most {FILTER_LIST_MAX_ITEMS} values per field"
+            )
+        if any(len(value) > FILTER_VALUE_MAX_LENGTH for value in cleaned):
+            raise InvalidQuery(
+                f"Filter values must be at most {FILTER_VALUE_MAX_LENGTH} characters"
+            )
         placeholders = ",".join("?" for _ in cleaned)
         if casefold:
             clauses.append(f"lower({expression}) IN ({placeholders})")
@@ -533,6 +554,8 @@ class QueryService:
         query = query.strip()
         if not query:
             raise InvalidQuery("Concept search query must not be empty")
+        if len(query) > 200:
+            raise InvalidQuery("Concept search query must be at most 200 characters")
         limit = max(1, min(int(limit), 50))
         info = self.resolver.resolve()
         clauses = ["(lower(c.label) LIKE ? OR lower(coalesce(c.aliases_json, '')) LIKE ?)"]
@@ -600,6 +623,8 @@ class QueryService:
         query = query.strip()
         if not query:
             raise InvalidQuery("Author search query must not be empty")
+        if len(query) > 200:
+            raise InvalidQuery("Author search query must be at most 200 characters")
         limit = max(1, min(int(limit), 50))
         info = self.resolver.resolve()
         value = query.casefold()

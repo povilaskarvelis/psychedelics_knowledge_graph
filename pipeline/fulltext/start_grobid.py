@@ -13,7 +13,6 @@ from __future__ import annotations
 import argparse
 import re
 import subprocess
-import sys
 import time
 import urllib.request
 from pathlib import Path
@@ -92,7 +91,7 @@ def start_container(args: argparse.Namespace) -> None:
         "--name",
         args.container,
         "-p",
-        "8070:8070",
+        "127.0.0.1:8070:8070",
         "-v",
         f"{args.config}:/opt/grobid/grobid-home/config/grobid.yaml:ro",
     ]
