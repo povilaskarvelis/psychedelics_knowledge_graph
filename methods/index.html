@@ -121,9 +121,7 @@
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">open source</a>
           and available for inspection, reuse, and improvement. A detailed
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md" target="_blank" rel="noopener noreferrer">workflow guide</a>
-          documents its implementation, while the
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">licensing information</a>
-          explains the reuse terms for project code, data, and source material.
+          documents its implementation.
         </p>
         <div class="method-workflow-list">
           <article>
@@ -279,10 +277,17 @@
           terms, domain-specific entity or outcome terms, and evidence-context
           terms. Terms inside each block are joined with OR; the blocks are
           joined with AND. Broad modules cover domain families, while focused
-          modules target well-studied compound-topic combinations so that
-          important reports are not captured only through broad queries. The
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md" target="_blank" rel="noopener noreferrer">search coverage guide</a>
-          describes the scope and known coverage limits of this approach.
+          modules use more specific terminology to target well-studied
+          compound-topic combinations.
+        </p>
+        <p>
+          Coverage depends on how the databases index the literature and on the
+          terms used to represent each evidence domain. The search strategy is
+          therefore maintained as an evolving part of the pipeline. Each release
+          reflects the cumulative set of records identified across all completed
+          searches. As gaps are identified, queries can be refined or expanded,
+          and newly retrieved reports can be screened and incorporated into later
+          releases.
         </p>
         <div class="method-query-details-grid">
           <details class="method-query-details">
@@ -619,9 +624,9 @@
           article cannot be accessed. Gemini 3 Flash Preview was selected to
           balance model capability with the cost of processing literature at
           scale; more capable models could improve screening or extraction
-          quality, but would also increase processing costs. The graph is intended for
-          research exploration, not as a complete systematic review or as
-          clinical guidance.
+          quality, but would also increase processing costs. The graph is
+          intended for research exploration, not as a complete systematic review
+          or as clinical guidance.
         </p>
       </section>
     </main>
