@@ -62,6 +62,11 @@
         <path d="M42 43h13M49 36l7 7-7 7" />
         <path d="M16 51h17" />
       </symbol>
+      <symbol id="method-icon-source" viewBox="0 0 64 64">
+        <path d="M16 8h24l10 10v38H16z" />
+        <path d="M40 8v12h10M23 29h20M23 36h16" />
+        <path d="M32 42v10M27 47l5 5 5-5" />
+      </symbol>
       <symbol id="method-icon-extract" viewBox="0 0 64 64">
         <rect x="12" y="13" width="40" height="32" rx="4" />
         <path d="M12 24h40M25 13v32M38 13v32" />
@@ -105,9 +110,11 @@
           and real-world evidence. Each report is then interpreted according to
           what it actually contains and how much source text is available, so
           the graph shows findings that can be traced back to specific reports.
-          Automated screening and structured extraction help process the
-          literature at scale, while source links, evidence locations, and
-          validation rules keep the results auditable.
+          Rules-based checks and structured LLM workflows support screening and
+          evidence extraction at scale, while source links, evidence locations,
+          and validation rules keep the results auditable. The current batch
+          workflow uses Gemini 3 Flash Preview for LLM-based title-and-abstract
+          screening and evidence extraction.
         </p>
         <div class="method-workflow-list">
           <article>
@@ -158,12 +165,29 @@
             <div>
               <h3>Screen Records and Classify Reports</h3>
               <p>
-                Records first pass an initial rules-based screen. Title and
-                abstract screening then assesses relevance, identifies the
-                evidence topics substantially discussed, and classifies the
-                report type. Primary studies, meta-analyses, other reviews, and
-                non-primary context remain separate throughout the later
-                workflow.
+                Records first pass an initial rules-based screen. An LLM-based
+                title-and-abstract screening stage then assesses relevance,
+                identifies the evidence topics substantially discussed, and
+                classifies the report type. Primary studies, meta-analyses,
+                other reviews, and non-primary context remain separate
+                throughout the later workflow.
+              </p>
+            </div>
+          </article>
+          <article>
+            <div class="method-workflow-marker" aria-hidden="true">
+              <span class="method-workflow-illustration">
+                <svg><use href="#method-icon-source"></use></svg>
+              </span>
+            </div>
+            <div>
+              <h3>Prepare Source Text</h3>
+              <p>
+                For selected reports, available PMC article text and PDFs are
+                retrieved and validated. PDFs are converted into structured
+                article text that preserves sections, tables, figures, and
+                references. When article text is unavailable, the report
+                remains eligible for extraction using its abstract alone.
               </p>
             </div>
           </article>
@@ -176,15 +200,14 @@
             <div>
               <h3>Extract Structured Evidence</h3>
               <p>
-                Primary studies, meta-analyses, and other reviews use different
-                extraction instructions and data structures so their evidence
-                is not flattened into one type. The resulting findings retain
-                compounds or exposures, related entities or outcomes, study
-                context, reported direction, and source locations. When article
-                text is available, PDFs or PMC text are converted into
-                structured content that preserves sections, tables, figures,
-                and references. Otherwise, extraction is limited to what the
-                abstract reports.
+                LLM-based extraction uses different instructions and data
+                structures for primary studies, meta-analyses, and other
+                reviews so their evidence is not flattened into one type. The
+                instructions and expected outputs also reflect the relevant
+                evidence topic and the available source text. The resulting
+                findings retain compounds or exposures, related entities or
+                outcomes, study context, reported direction, and source
+                locations.
               </p>
             </div>
           </article>
@@ -197,9 +220,10 @@
             <div>
               <h3>Validate and Publish</h3>
               <p>
-                Before publication, extracted information is checked against
-                the source report. Relationships that are unclear, unsupported,
-                or cannot be represented accurately are left out of the graph.
+                Model outputs are validated against the expected structures and
+                checked for source support before findings are normalized and
+                assembled for the graph. Relationships that are unclear,
+                unsupported, or cannot be represented accurately are left out.
               </p>
             </div>
           </article>
@@ -489,7 +513,7 @@
       <section class="about-section methods-analytics methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
         <div class="methods-section-header">
           <div>
-            <h2 id="paper-bibliography-heading">Record Selection And Audit Trail</h2>
+            <h2 id="paper-bibliography-heading">Record selection and audit trail</h2>
             <p>
               Evidence synthesis needs a visible audit trail for every search
               result and what happened next. The

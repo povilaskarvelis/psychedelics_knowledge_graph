@@ -1333,22 +1333,21 @@ button.primary:hover {
 }
 
 .method-query-details summary::before {
-  content: "+";
+  content: "";
   width: 1.4rem;
   height: 1.4rem;
-  display: inline-grid;
-  place-items: center;
+  display: inline-block;
   flex: 0 0 auto;
   border-radius: 999px;
   color: var(--method-teal);
   border: 1px solid rgba(110, 227, 215, 0.45);
-  font-family: "IBM Plex Sans", sans-serif;
-  font-size: 1rem;
-  line-height: 1;
+  background:
+    linear-gradient(currentColor, currentColor) center / 8px 1px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1px 8px no-repeat;
 }
 
 .method-query-details[open] summary::before {
-  content: "-";
+  background: linear-gradient(currentColor, currentColor) center / 8px 1px no-repeat;
 }
 
 .method-query-details summary span {
