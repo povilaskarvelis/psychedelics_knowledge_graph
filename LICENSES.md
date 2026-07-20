@@ -1,7 +1,7 @@
-# Data, Code, and Source-Material Licenses
+# Licensing
 
-Psychedelics Knowledge Graph uses a split license model, following common
-practice in open scientific infrastructure projects.
+Different licenses apply to project code, project-created data, and material
+obtained from external sources.
 
 | Material | License |
 | --- | --- |
@@ -12,9 +12,8 @@ practice in open scientific infrastructure projects.
 The main repository license is in [`LICENSE`](LICENSE). The data license and
 source-material boundary are described in [`DATA_LICENSE.md`](DATA_LICENSE.md).
 
-The public KG/data exports are intended for open scientific reuse. They are not
-medical advice, clinical guidance, or a substitute for expert review of the
-underlying literature.
+The CC0 dedication allows the public knowledge-graph data to be copied,
+modified, redistributed, and incorporated into other research resources.
 
 If you use the project or public data exports, please cite the project using
 [`CITATION.cff`](CITATION.cff).

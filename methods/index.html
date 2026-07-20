@@ -117,10 +117,13 @@
           evidence extraction at scale, while source links, evidence locations,
           and validation rules keep the results auditable. The current batch
           workflow uses Gemini 3 Flash Preview for LLM-based title-and-abstract
-          screening and evidence extraction. The pipeline is open source, with
-          its code and supporting documentation available on
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">GitHub</a>
-          for inspection, reuse, and improvement.
+          screening and evidence extraction. The pipeline is
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">open source</a>
+          and available for inspection, reuse, and improvement. A detailed
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md" target="_blank" rel="noopener noreferrer">workflow guide</a>
+          documents its implementation, while the
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">licensing information</a>
+          explains the reuse terms for project code, data, and source material.
         </p>
         <div class="method-workflow-list">
           <article>
@@ -139,6 +142,8 @@
                 exposure, intervention context, real-world use, clinical
                 outcomes, functioning, and safety. These vocabularies define
                 what the graph can represent and what the search needs to cover.
+                The <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/terminology.md" target="_blank" rel="noopener noreferrer">terminology guide</a>
+                documents how key terms are used throughout the project.
               </p>
             </div>
           </article>
@@ -212,8 +217,7 @@
                 instructions and expected outputs also reflect the relevant
                 evidence topic and the available source text. The resulting
                 findings retain compounds or exposures, related entities or
-                outcomes, study context, reported direction, and source
-                locations.
+                outcomes, study context, and source locations.
               </p>
             </div>
           </article>
@@ -230,6 +234,9 @@
                 checked for source support before findings are normalized and
                 assembled for the graph. Relationships that are unclear,
                 unsupported, or cannot be represented accurately are left out.
+                The <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/evidence_policy.md" target="_blank" rel="noopener noreferrer">evidence policy</a>
+                documents the inclusion and source-support rules used at this
+                stage.
               </p>
             </div>
           </article>
@@ -273,7 +280,9 @@
           terms. Terms inside each block are joined with OR; the blocks are
           joined with AND. Broad modules cover domain families, while focused
           modules target well-studied compound-topic combinations so that
-          important reports are not captured only through broad queries.
+          important reports are not captured only through broad queries. The
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md" target="_blank" rel="noopener noreferrer">search coverage guide</a>
+          describes the scope and known coverage limits of this approach.
         </p>
         <div class="method-query-details-grid">
           <details class="method-query-details">
@@ -607,19 +616,12 @@
           The graph may not include every relevant report, and automated
           screening and extraction can miss or misinterpret information,
           especially when only an abstract is available because the full
-          article cannot be accessed. We add new research and correct errors as
-          they are reviewed, updating the public graph and bibliography
-          together. Project data can be reused under CC0 and the code under
-          Apache 2.0; articles, abstracts, and quoted text remain subject to
-          their original licenses. The graph is intended for exploring the
-          research, not as a complete systematic review or as clinical guidance.
-          Further detail is available in the
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md" target="_blank" rel="noopener noreferrer">workflow guide</a>,
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/search_completeness.md" target="_blank" rel="noopener noreferrer">search coverage guide</a>,
-          <a href="#search-seed-words">search strategy</a>,
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/evidence_policy.md" target="_blank" rel="noopener noreferrer">evidence policy</a>,
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/terminology.md" target="_blank" rel="noopener noreferrer">terminology guide</a>, and
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">licensing information</a>.
+          article cannot be accessed. Gemini 3 Flash Preview was selected to
+          balance model capability with the cost of processing literature at
+          scale; more capable models could improve screening or extraction
+          quality, but would also increase processing costs. The graph is intended for
+          research exploration, not as a complete systematic review or as
+          clinical guidance.
         </p>
       </section>
     </main>

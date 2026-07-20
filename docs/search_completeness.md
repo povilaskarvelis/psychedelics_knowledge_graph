@@ -1,39 +1,38 @@
-# Checking Search Completeness
+# Assessing Literature Search Coverage
 
-No literature search can prove that it found every relevant report. The
-current expanding-corpus search therefore treats completeness as an operational
-retrieval property, not an estimate of recall: every configured query must be
-fully paginated and reconciled, but promotion does not depend on a small sample
-of known papers.
+No bibliographic search can guarantee that it has identified every eligible
+report. Psychedelics Knowledge Graph therefore documents both the completeness
+of database retrieval and the known limits of its search strategy.
 
-The repository still contains the historical **known relevant study set** for
-provenance, but the living-search pipeline no longer reads it, tests it, uses it
-as a promotion gate, or uses it as an implicit citation-search seed cohort.
-The pilot was useful while the strategy was being formed; at the current corpus
-scale it is neither a recall estimate nor a useful acceptance test.
+## Database retrieval checks
 
-## Operational completeness gates
+For every query and date range, the pipeline records:
 
-The current living-search runner adds retrieval checks that are separate from
-known-study coverage. For every query and date partition it records the
-provider's total, every retrieved provider ID, pagination state, errors, and
-the exact query and search surface. A query is incomplete when counts do not
-reconcile, a provider returns an error, or a request budget pauses the run.
+- the database and exact search query;
+- the number of results reported by the database;
+- every retrieved database identifier;
+- the completion of result pagination; and
+- any errors or interruptions.
 
-V3 separates retrieval completeness from descriptive search diagnostics. A run
-can be promoted when every selected execution is mechanically complete. The
-initial small known-record pilot has been retired. Provider-ID records without
-DOIs remain in an identifier resolution queue and do not disappear during DOI
-enrichment. See
-[`pipeline/discovery/README.md`](../pipeline/discovery/README.md) for the full
-operating procedure.
+A search run is complete when all result pages have been retrieved successfully
+and the number of retrieved records matches the number reported by the database.
+Runs interrupted by database errors or request limits remain incomplete until
+retrieval resumes and these checks pass.
 
-These gates establish that the configured search was retrieved completely;
-they do not prove that the configured concepts and information sources capture
-all relevant literature. Source overlap, citation searching, and later strategy
-review remain separate activities rather than promotion requirements.
+## Coverage of the literature
 
-OpenAlex publication-date updates do not identify every older work newly added
-to its index. Created-date filtering is a paid-plan feature, so standard
-free-plan operations use periodic all-time OpenAlex reruns for that recovery;
-the run manifest records whether a created-date stream was included.
+Complete retrieval confirms that the pipeline obtained all results returned by
+the specified queries. The coverage of relevant literature also depends on the
+databases searched, their indexing practices, the search terms, and the
+availability and accuracy of bibliographic metadata. Database overlap, query
+yield, and the search terms are reviewed separately.
+
+During early development, a small set of known relevant studies was used to
+help test the search strategy. That set is retained to document the development
+process, but it is not sufficiently representative to estimate recall for the
+current evidence base. A formal recall estimate would require an appropriate
+reference standard.
+
+OpenAlex publication-date filters do not identify every older work that has
+recently been added to the index. The pipeline therefore periodically repeats
+OpenAlex searches across all publication years.

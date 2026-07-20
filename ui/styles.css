@@ -3860,10 +3860,10 @@ input[type="number"] {
 
 .feedback-panel {
   padding: clamp(24px, 4vw, 38px);
-  border: 1px solid var(--method-line);
+  border: 1px solid rgba(188, 200, 201, 0.24);
   border-radius: 12px;
-  background: var(--method-surface);
-  box-shadow: var(--surface-highlight), 0 20px 44px rgba(0, 0, 0, 0.2);
+  background: rgba(19, 23, 25, 0.96);
+  box-shadow: var(--surface-highlight), 0 20px 44px rgba(0, 0, 0, 0.24);
 }
 
 .feedback-form {
@@ -3879,6 +3879,11 @@ input[type="number"] {
 .feedback-field > span:first-child {
   color: var(--fg);
   font-weight: 500;
+  transition: color 0.16s ease;
+}
+
+.feedback-field:focus-within > span:first-child {
+  color: var(--link-color-hover);
 }
 
 .feedback-field .optional,
@@ -3896,11 +3901,18 @@ input[type="number"] {
   border: 1px solid var(--control-border);
   border-radius: 10px;
   outline: 0;
-  background: rgba(7, 10, 10, 0.78);
+  background: rgba(7, 10, 10, 0.96);
   color: var(--fg);
   font: inherit;
   line-height: 1.45;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.feedback-field input:hover,
+.feedback-field select:hover,
+.feedback-field textarea:hover {
+  border-color: var(--control-border-hover);
 }
 
 .feedback-field select {
@@ -3921,8 +3933,9 @@ input[type="number"] {
 .feedback-field input:focus-visible,
 .feedback-field select:focus-visible,
 .feedback-field textarea:focus-visible {
-  border-color: rgba(73, 214, 200, 0.62);
-  box-shadow: 0 0 0 3px rgba(73, 214, 200, 0.11);
+  border-color: rgba(101, 189, 173, 0.7);
+  background-color: rgba(9, 13, 13, 0.98);
+  box-shadow: 0 0 0 3px rgba(101, 189, 173, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .feedback-field input::placeholder,
@@ -3932,6 +3945,10 @@ input[type="number"] {
 
 .feedback-privacy {
   margin: 0;
+  padding: 12px 14px;
+  border-left: 2px solid rgba(101, 189, 173, 0.48);
+  border-radius: 0 8px 8px 0;
+  background: rgba(101, 189, 173, 0.04);
   color: var(--muted);
   font-size: 0.86rem;
   line-height: 1.55;
@@ -3940,6 +3957,8 @@ input[type="number"] {
 .feedback-submit {
   justify-self: start;
   min-width: 150px;
+  padding: 12px 22px;
+  box-shadow: 0 10px 24px rgba(241, 183, 75, 0.13);
 }
 
 .feedback-honeypot {
