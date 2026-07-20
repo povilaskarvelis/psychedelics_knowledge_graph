@@ -1,5 +1,8 @@
 # Files and directories copied into dist/ for Netlify.
 index.html
+favicon.ico
+favicon.svg
+apple-touch-icon.png
 about
 api
 feedback
