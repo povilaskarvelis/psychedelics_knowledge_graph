@@ -68,7 +68,7 @@ def create_app(
     app = FastAPI(
         title="Psychedelics Knowledge Graph API",
         version="1.0.0",
-        summary="Read-only access to a curated psychedelic-research catalogue.",
+        summary="Programmatic access to Psychedelics Knowledge Graph.",
         description=(
             "Search papers, concepts, externally identified authors, and deduplicated "
             "paper-level relationships. Primary studies, meta-analyses, and reviews "

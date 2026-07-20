@@ -54,8 +54,8 @@
       <div class="about-hero-copy">
         <h1>API</h1>
         <p>
-          Psychedelics Knowledge Graph offers programmatic access through a public,
-          read-only REST API and an MCP server for AI agents.
+          Psychedelics Knowledge Graph offers programmatic access through a public REST
+          API and an MCP server for AI agents.
         </p>
       </div>
     </header>
@@ -64,23 +64,26 @@
       <section class="about-section" id="rest-api" aria-labelledby="rest-api-heading">
         <h2 id="rest-api-heading">Using the API</h2>
         <p>
-          No API key is required. The service is public and read-only. It
-          provides papers, concepts, externally identified authors, and paper-level
-          relationships. Searches can be filtered by paper type, subtype,
-          author, concept, domain, relationship type, or year.
+          The API provides access to the public Psychedelics Knowledge Graph catalogue,
+          including papers, concepts, externally identified authors, and paper-level
+          relationships. Searches can be filtered by paper type, subtype, author,
+          concept, domain, relationship type, or year. No API key is required.
         </p>
         <p>
-          ORCID is used as the author ID when available, including across split
-          OpenAlex profiles. Otherwise, the OpenAlex profile ID is retained.
-          Unresolved name-only records are left out instead of being merged
-          speculatively, as are profiles carrying conflicting ORCID evidence.
+          Endpoint definitions, schemas, and examples are available in the API
+          reference.
         </p>
+        <div class="access-reference-actions" aria-label="API documentation">
+          <a class="site-button primary" href="https://psychedelics-kg-api.onrender.com/docs" target="_blank" rel="noopener noreferrer">API reference</a>
+          <a class="site-button secondary" href="https://psychedelics-kg-api.onrender.com/openapi.json" target="_blank" rel="noopener noreferrer">OpenAPI specification</a>
+        </div>
         <div class="access-endpoint" aria-label="REST API base URL">
           <span>Base URL</span>
           <code id="restBaseUrl">https://psychedelics-kg-api.onrender.com/api/v1</code>
           <button type="button" data-copy-target="restBaseUrl">Copy</button>
         </div>
 
+        <h3 class="access-subheading">Examples</h3>
         <div class="access-example-grid">
           <article class="access-code-card">
             <div>
@@ -108,19 +111,18 @@
   }'</code></pre>
           </article>
         </div>
+        <p class="access-filter-note">
+          Valid controlled filter values are available from
+          <a href="https://psychedelics-kg-api.onrender.com/api/v1/facets" target="_blank" rel="noopener noreferrer"><code>GET /api/v1/facets</code></a>.
+        </p>
       </section>
 
       <section class="about-section" id="agent-access" aria-labelledby="agent-access-heading">
-        <h2 id="agent-access-heading">AI agents</h2>
+        <h2 id="agent-access-heading">MCP for AI agents</h2>
         <p>
-          AI agents can connect through Model Context Protocol (MCP), a standard
-          way for them to use external tools. Give an MCP-compatible agent the
-          URL below. No login is required because every available operation is
-          read-only.
+          The MCP server exposes public graph data as tools for compatible AI agents.
+          Connect using the hosted server URL below. No authentication is required.
         </p>
-        <div class="access-inline-links">
-          <a href="/api/agent-guide.md">Machine-readable guide</a>
-        </div>
 
         <div class="access-endpoint" aria-label="MCP server URL">
           <span>MCP server</span>
@@ -131,7 +133,7 @@
         <div class="access-agent-layout">
           <article class="access-code-card">
             <div>
-              <span>Typical client configuration</span>
+              <span>Example client configuration</span>
               <button type="button" data-copy-target="mcpConfigExample">Copy</button>
             </div>
             <pre id="mcpConfigExample"><code>{
@@ -141,11 +143,10 @@
     }
   }
 }</code></pre>
-            <p class="access-code-note">Use your client’s own field names if they differ.</p>
           </article>
 
           <div class="access-tool-list">
-            <h3>Available tools</h3>
+            <h3>Tool overview</h3>
             <ul>
               <li><code>get_release_info</code><span>Current version, scope, and record counts</span></li>
               <li><code>list_available_filters</code><span>See valid categories and values</span></li>
@@ -158,6 +159,10 @@
               <li><code>find_relationships</code><span>Search paper-level concept relationships</span></li>
             </ul>
           </div>
+        </div>
+
+        <div class="access-inline-links">
+          <a class="site-button secondary" href="/api/agent-guide.md">Agent guide</a>
         </div>
       </section>
 
