@@ -1,6 +1,6 @@
 # Evidence and Provenance Policy
 
-This policy explains what a finding in the Psychedelics Knowledge Graph means,
+This policy explains what a finding in Psychedelics Knowledge Graph means,
 what information should accompany it, and what the graph does not claim.
 
 ## Core principles

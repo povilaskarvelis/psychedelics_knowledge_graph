@@ -1121,6 +1121,93 @@ button.primary:hover {
   max-width: var(--method-copy-width);
 }
 
+.why-intro {
+  margin-bottom: 22px !important;
+}
+
+.evidence-comparison-wrap {
+  max-width: 900px;
+  margin: 0 0 24px;
+  overflow-x: auto;
+  border: 1px solid rgba(188, 200, 201, 0.16);
+  border-radius: 12px;
+  background: rgba(12, 16, 17, 0.76);
+  box-shadow: var(--surface-highlight), 0 16px 36px rgba(0, 0, 0, 0.14);
+  scrollbar-width: thin;
+}
+
+.evidence-comparison {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.evidence-comparison th,
+.evidence-comparison td {
+  padding: 18px;
+  border-right: 1px solid rgba(188, 200, 201, 0.11);
+  border-bottom: 1px solid rgba(188, 200, 201, 0.11);
+  text-align: left;
+  vertical-align: top;
+}
+
+.evidence-comparison th:last-child,
+.evidence-comparison td:last-child {
+  border-right: 0;
+}
+
+.evidence-comparison tbody tr:last-child th,
+.evidence-comparison tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.evidence-comparison thead th {
+  color: rgba(174, 181, 180, 0.78);
+  background: rgba(7, 10, 10, 0.46);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  line-height: 1.35;
+}
+
+.evidence-comparison-axis,
+.evidence-comparison tbody th {
+  width: 175px;
+}
+
+.evidence-comparison-current-heading {
+  color: rgba(241, 183, 75, 0.88) !important;
+}
+
+.evidence-comparison-agentic-heading {
+  color: rgba(73, 214, 200, 0.9) !important;
+}
+
+.evidence-comparison tbody th {
+  color: var(--fg);
+  background: rgba(237, 240, 239, 0.022);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.evidence-comparison td {
+  color: rgba(174, 181, 180, 0.88);
+  font-size: 0.88rem;
+  line-height: 1.58;
+}
+
+.evidence-comparison td.evidence-comparison-current {
+  background: rgba(241, 183, 75, 0.025);
+}
+
+.evidence-comparison td.evidence-comparison-agentic {
+  background: rgba(73, 214, 200, 0.035);
+}
+
 .method-stage-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

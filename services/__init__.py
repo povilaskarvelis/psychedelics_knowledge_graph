@@ -1,1 +1,1 @@
-"""Long-running services for the Psychedelics Knowledge Graph."""
+"""Long-running services for Psychedelics Knowledge Graph."""

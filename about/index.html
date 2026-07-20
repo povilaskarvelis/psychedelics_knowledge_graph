@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Why the Psychedelics Knowledge Graph exists and how it supports living, auditable evidence synthesis."
+      content="Why Psychedelics Knowledge Graph exists and how it supports living, auditable evidence synthesis."
     />
     <title>About | Psychedelics Knowledge Graph</title>
     <!-- Google tag (gtag.js) -->
@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/ui/styles.css?v=20260718-footer-v1" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260720-about-shifts-v1" />
   </head>
   <body class="methods-page about-page">
     <div class="bg" aria-hidden="true"></div>
@@ -52,42 +52,97 @@
       <div class="about-hero-copy">
         <h1>About</h1>
         <p>
-          Why the Psychedelics Knowledge Graph exists and how it is intended to
-          support a more accessible, auditable, and continuously updated view of
-          psychedelic research.
+          Psychedelics Knowledge Graph provides a new type of evidence synthesis,
+          enabled by and optimized for the emerging era of agentic science
         </p>
       </div>
     </header>
 
     <main class="about-content">
       <section class="about-section methods-motivation" aria-labelledby="why-this-project">
-        <h2 id="why-this-project">Why this project</h2>
-        <p>
+        <h2 id="why-this-project">Why</h2>
+        <p class="why-intro">
           We are entering the era of agentic science, where AI agents can support
-          many steps of knowledge generation. This creates an opportunity to address
-          long-standing inefficiencies in academic workflows: findings are
-          scattered across source reports, evidence is split across disciplinary silos,
-          and reviews require substantial expert labor, become static snapshots
-          once published, and are difficult to query or reuse. As a result, human
-          researchers struggle to see relationships, trends, gaps, and the overall
-          shape of a field, while AI agents cannot easily use the evidence directly.
+          many parts of scientific knowledge generation. This creates new possibilities
+          for how scientific evidence is synthesized, organized, and kept up to date.
+          Current evidence synthesis methods such as reviews and meta-analyses are
+          generally bounded in scope, provide uneven coverage across a field, and
+          result in static snapshots that require substantial expert labor to produce
+          and update. Agentic tools make it possible to build living evidence systems
+          that complement these approaches by turning literature discovery, screening,
+          and the organization of findings into a largely automated workflow that can
+          operate at scale. The resulting knowledge graph can be made interactive and
+          explorable, allowing researchers to move between field-level patterns and
+          individual studies, filter the evidence around their interests, and examine
+          relationships across the literature. The evidence base can also be audited,
+          corrected, reused, and extended as the literature evolves.
         </p>
+        <div class="evidence-comparison-wrap">
+          <table class="evidence-comparison">
+            <thead>
+              <tr>
+                <th class="evidence-comparison-axis" scope="col" aria-label="Theme"></th>
+                <th class="evidence-comparison-current-heading" scope="col">Current evidence synthesis limitations</th>
+                <th class="evidence-comparison-agentic-heading" scope="col">Opportunity with agentic tools</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">
+                  Continuous synthesis
+                </th>
+                <td class="evidence-comparison-current">
+                  Reviews and meta-analyses are static snapshots of the literature at
+                  a particular point in time. Keeping them current as new research
+                  appears requires substantial expert labor.
+                </td>
+                <td class="evidence-comparison-agentic">
+                  Agentic tools can support continuous literature monitoring and
+                  updating, allowing the evidence base to evolve as new research
+                  appears.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  Synthesis at scale
+                </th>
+                <td class="evidence-comparison-current">
+                  Reviews and meta-analyses are usually organized around defined
+                  research questions and bodies of literature. As a result, coverage
+                  across a broader field can remain uneven.
+                </td>
+                <td class="evidence-comparison-agentic">
+                  Literature discovery, screening, and the organization of findings can
+                  be largely automated, making broader synthesis feasible at scale.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  Structured &amp; explorable
+                </th>
+                <td class="evidence-comparison-current">
+                  Reviews and meta-analyses present evidence through a fixed narrative
+                  and a predefined set of figures and analyses, limiting how readers
+                  can explore the underlying findings.
+                </td>
+                <td class="evidence-comparison-agentic">
+                  Findings can be organized into an interactive knowledge graph that
+                  researchers can filter, explore from multiple perspectives, and navigate
+                  from field-level patterns to individual studies.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <p>
-          Agentic tools make it possible to build a new type of living evidence
-          system, where literature discovery, screening, evidence extraction,
-          visualization, and updating are part of a continuous workflow. Findings
-          can be converted into structured, provenance-rich evidence that remains
-          linked to source reports and evidence locators, so the evidence base can
-          be searched, corrected, reused, and extended as the literature changes.
-        </p>
-        <p>
-          The Psychedelics Knowledge Graph applies this model to psychedelic
-          research, where a fast-growing literature spans clinical, biological,
-          brain, behavioral, and translational work that is often read separately.
-          Selected reports are converted into structured findings that power an
-          interactive graph and dashboard. Human researchers can move from
-          field-level patterns and gaps to source studies visually, while agents
-          and analytic tools can query the same provenance-rich evidence directly.
+          Psychedelics Knowledge Graph brings this form of living evidence synthesis
+          to the broad and rapidly evolving field of psychedelic science. It converts
+          findings from selected papers into structured evidence that powers an
+          interactive graph and dashboard. Researchers can use these tools to follow
+          emerging trends, identify connections and gaps across the literature, and
+          trace individual findings back to the papers from which they came. AI agents
+          and analytic tools can access public graph data through the REST API or MCP
+          server.
         </p>
       </section>
 

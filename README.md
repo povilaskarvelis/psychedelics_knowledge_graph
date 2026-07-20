@@ -20,7 +20,7 @@ behavioral effects, subjective experience, safety, and real-world use. The
 evidence is growing quickly but remains scattered across source reports and
 research domains.
 
-The Psychedelics Knowledge Graph organizes that literature into structured
+Psychedelics Knowledge Graph organizes that literature into structured
 findings linked to their source reports. Its public interface helps researchers
 move between broad patterns, individual findings, and the underlying studies.
 
