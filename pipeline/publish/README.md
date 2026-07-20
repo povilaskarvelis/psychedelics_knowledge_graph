@@ -33,10 +33,10 @@ bash scripts/refresh_public_release.sh
 
 It regenerates the graph and API from the current KG run, binds both manifests
 to one new public release ID, validates and rebuilds the site, publishes the
-allowlisted browser artifacts to the public R2 bucket and the API runtime to its
-separate private R2 bucket, and triggers the configured API deploy hook.
-Generated graph payloads are no longer committed to Git. It never changes
-extraction or evidence decisions.
+allowlisted graph and Methods artifacts to the public R2 bucket and the API
+runtime to its separate private R2 bucket, and triggers the configured API
+deploy hook. Generated public payloads are no longer committed to Git. It never
+changes extraction or evidence decisions.
 
 The promoter validates the KG, payload, author tables, and extraction inputs;
 materializes every final graph decision into the canonical
@@ -50,9 +50,9 @@ build-and-promote shorthand and uses the same guarded promoter.
 
 The wrapper is non-activating by default. This keeps historical or diagnostic
 rebuilds from changing the public graph by accident. The publisher validates
-the local pointer, manifest, and every browser payload before switching the R2
-pointer. The promoter separately checks that the extraction pointer, public
-pointer, and canonical corpus identify the same release; that deeper check
+the local pointer and every required graph and Methods artifact before switching
+the R2 pointer. The promoter separately checks that the extraction pointer,
+public pointer, and canonical corpus identify the same release; that deeper check
 stays in promotion because its extraction and Parquet inputs are intentionally
 not part of a clean deployment checkout.
 
@@ -79,6 +79,11 @@ file. Do not run a separate bibliography step afterward.
 - `data/processed/graph_payload_runs/<RUN_ID>/detail_bootstrap_<source>.json`
 - `data/kg/views/pipeline_status_graph.json`
 - `data/kg/views/methods_bibliography.json`
+- `data/kg/views/graph_inclusion_dispositions.json`
+
+These are generated local outputs. The graph and Methods files are uploaded
+together under one immutable public R2 release and are not copied into the
+Netlify bundle or committed to Git.
 
 ## Contract
 

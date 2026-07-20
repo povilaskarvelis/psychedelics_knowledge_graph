@@ -1,10 +1,10 @@
-# R2 browser and private API deployment
+# R2 public data and private API deployment
 
 The public website remains a static Netlify project. The REST and MCP service is
-a separate code-only container deployed from the same GitHub repository. Browser
-payloads and API runtime data are both versioned in Cloudflare R2, but they live
-in different buckets: the browser bucket is public and the API bucket is private.
-Neither is committed to Git.
+a separate code-only container deployed from the same GitHub repository. Public
+website data and API runtime data are both versioned in Cloudflare R2, but they
+live in different buckets: the website-data bucket is public and the API bucket
+is private. Neither generated release is committed to Git.
 
 The checked-in `render.yaml` configures the container deployment. At startup,
 the container privately downloads and verifies only `public_api.duckdb`,
@@ -13,9 +13,10 @@ the build produces no public Parquet copies.
 
 ## One-time Cloudflare setup
 
-1. Use the existing `psychedelics-kg-releases` bucket as the public browser
-   bucket. It remains connected to `data.psychedelicskg.com`; no browser-data
-   migration is required.
+1. Use the existing `psychedelics-kg-releases` bucket as the public website-data
+   bucket. It remains connected to `data.psychedelicskg.com` and stores the graph
+   payloads, Methods bibliography, Methods flow summary, and graph-inclusion
+   audit.
 2. Create a separate private API bucket, for example
    `psychedelics-kg-api-private`. Do not connect a custom domain and do not enable
    its `r2.dev` URL.
@@ -72,9 +73,9 @@ python3 pipeline/publish/publish_browser_payload_r2.py
 python3 pipeline/publish/publish_query_api_r2.py
 ```
 
-The publishers verify every local file against its manifest, upload objects
-under immutable release prefixes, verify R2 object size and SHA-256 metadata,
-and replace the small public `browser/active.json` and private
+The publishers validate every required local artifact, upload objects under
+immutable release prefixes, verify R2 object size and SHA-256 metadata, and
+replace the small public `browser/active.json` and private
 `query-api/active/catalogue-v2.json` pointers only after their release files are
 complete. Re-running them is safe: matching objects are reused, while a
 conflicting immutable object stops activation.
@@ -137,9 +138,10 @@ CORS policy allowing `GET` and `HEAD` from both website origins:
 ```
 
 The website reads `https://data.psychedelicskg.com/browser/active.json`, then
-loads only the immutable files named by that validated pointer. Localhost uses
-the local pointer and payloads for development. Production does not silently
-fall back to Netlify files when R2 is unavailable.
+loads only the immutable graph and Methods files named by that validated
+pointer. Production does not silently fall back to Netlify files when R2 is
+unavailable. The graph UI can use its local generated graph pointer during
+development; the Methods page exercises the same R2 path used in production.
 
 Because Cloudflare does not cache JSON by default, add a Cache Rule for the
 immutable release objects:
@@ -206,11 +208,11 @@ bash scripts/refresh_public_release.sh
 ```
 
 This command loads the ignored `.env`, rebuilds both public outputs, gives them
-one shared public release ID, validates every referenced browser file by size
-and SHA-256, builds the static site, publishes the matching API data to the
-versioned R2 pointers, and then triggers the deploy hook when configured. Data
-updates no longer require committing generated browser payloads or rebuilding
-Netlify. Use `NO_R2_PUBLISH=1` only for a local dry run.
+one shared public release ID, validates every referenced graph and Methods file,
+builds the code-only static site, publishes the matching public and private API
+data to their versioned R2 pointers, and then triggers the deploy hook when
+configured. Data updates no longer require committing generated payloads or
+rebuilding Netlify. Use `NO_R2_PUBLISH=1` only for a local dry run.
 
 If no deploy hook is configured, publishing still succeeds; manually redeploy or
 restart the API service so it synchronizes the new active release.
@@ -226,11 +228,12 @@ restart the API service so it synchronizes the new active release.
   guarded promotion creates a new release ID while preserving the older
   immutable R2 objects for auditability.
 
-## Browser payload layout
+## Public website-data layout
 
-Browser files are stored under immutable `browser/releases/...` keys. The
-stable `browser/active.json` pointer contains the release ID and the exact
-manifest, graph, dashboard, and detail object keys. The pointer is written last
-and served with revalidation; versioned payload files use immutable one-year
-cache headers. This keeps routine data refreshes independent of GitHub and
-Netlify while preserving deterministic rollback to an older release.
+Public graph and Methods files are stored under immutable
+`browser/releases/...` keys. The stable `browser/active.json` pointer contains
+the release ID and the exact manifest, graph, dashboard, detail, bibliography,
+Methods flow, and inclusion-audit object keys. The pointer is written last and
+served with revalidation; versioned payload files use immutable one-year cache
+headers. This keeps routine data refreshes independent of GitHub and Netlify
+while preserving deterministic rollback to an older release.

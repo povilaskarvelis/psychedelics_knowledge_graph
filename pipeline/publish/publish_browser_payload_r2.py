@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish the active browser graph payload to Cloudflare R2.
+"""Publish the active public website data release to Cloudflare R2.
 
 Release objects are immutable and checksum-verified. The stable browser pointer
 is replaced only after every file in the release is readable from R2.
@@ -40,9 +40,15 @@ from services.query_api.r2_store import (  # noqa: E402
 
 DEFAULT_ACTIVE_POINTER = ROOT / "data" / "processed" / "graph_payload_active.json"
 DEFAULT_BROWSER_RUNS_DIR = ROOT / "data" / "processed" / "graph_payload_runs"
+DEFAULT_METHODS_VIEWS_DIR = ROOT / "data" / "kg" / "views"
 BROWSER_ACTIVE_SCHEMA_VERSION = "psychedelics_kg_browser_r2_active_v1"
 BROWSER_POINTER_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
 BROWSER_MANIFEST_SCHEMA_VERSION = "route_native_evidence_manifest_v1"
+METHODS_RELEASE_FILES = {
+    "pipeline_status": "pipeline_status_graph.json",
+    "bibliography": "methods_bibliography.json",
+    "graph_inclusion_dispositions": "graph_inclusion_dispositions.json",
+}
 
 
 def safe_payload_path(browser_runs_dir: Path, relative_path: str) -> Path:
@@ -105,6 +111,28 @@ def collect_browser_release_files(
     return files
 
 
+def collect_methods_release_files(methods_views_dir: Path) -> list[LocalReleaseFile]:
+    """Collect every generated dataset used by, or published with, Methods."""
+    views_root = methods_views_dir.resolve()
+    files: list[LocalReleaseFile] = []
+    for public_name, filename in METHODS_RELEASE_FILES.items():
+        path = (views_root / filename).resolve()
+        if path.parent != views_root:
+            raise ValueError(f"Unsafe Methods data path: {filename}")
+        if not path.is_file():
+            raise FileNotFoundError(f"Missing required Methods data file: {path}")
+        files.append(
+            LocalReleaseFile(
+                logical_name=f"methods:{public_name}",
+                path=path,
+                relative_path=filename,
+                sha256=sha256_file(path),
+                size=path.stat().st_size,
+            )
+        )
+    return files
+
+
 def remote_path_map(pointer: dict, remote_files: dict[str, dict], prefix: str) -> dict:
     result: dict[str, str] = {}
     mapping = pointer.get(prefix) or {}
@@ -126,12 +154,24 @@ def remote_path_map(pointer: dict, remote_files: dict[str, dict], prefix: str) -
     return result
 
 
+def remote_methods_map(remote_files: dict[str, dict]) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for public_name, filename in METHODS_RELEASE_FILES.items():
+        logical_name = f"methods:{public_name}"
+        entry = remote_files.get(logical_name) or {}
+        if Path(str(entry.get("path") or "")).name != filename:
+            raise ValueError(f"Public data release is missing {logical_name}")
+        result[public_name] = str(entry["key"])
+    return result
+
+
 def publish_active_browser_release(
     *,
     store: ObjectStore,
     settings: R2Settings,
     active_pointer_path: Path = DEFAULT_ACTIVE_POINTER,
     browser_runs_dir: Path = DEFAULT_BROWSER_RUNS_DIR,
+    methods_views_dir: Path = DEFAULT_METHODS_VIEWS_DIR,
     browser_prefix: str = "browser",
     expected_run_id: str = "",
     published_at: str | None = None,
@@ -169,6 +209,10 @@ def publish_active_browser_release(
         manifest_path=manifest_path,
         manifest=manifest,
     )
+    release_files.extend(collect_methods_release_files(methods_views_dir))
+    relative_names = [release_file.relative_path for release_file in release_files]
+    if len(relative_names) != len(set(relative_names)):
+        raise ValueError("Public data release contains duplicate filenames")
     uploaded_count = 0
     existing_count = 0
     remote_files: dict[str, dict] = {}
@@ -208,6 +252,7 @@ def publish_active_browser_release(
         "active_detail_bootstraps": remote_path_map(
             pointer, remote_files, "active_detail_bootstraps"
         ),
+        "methods": remote_methods_map(remote_files),
         "files": remote_files,
     }
     active_bytes = canonical_json_bytes(active)
@@ -234,6 +279,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--active-pointer", type=Path, default=DEFAULT_ACTIVE_POINTER)
     parser.add_argument("--browser-runs-dir", type=Path, default=DEFAULT_BROWSER_RUNS_DIR)
+    parser.add_argument("--methods-views-dir", type=Path, default=DEFAULT_METHODS_VIEWS_DIR)
     parser.add_argument("--browser-prefix", default=os.environ.get("PKG_R2_BROWSER_PREFIX", "browser"))
     parser.add_argument("--run-id", default="", help="Require this run to be active")
     return parser.parse_args()
@@ -254,6 +300,7 @@ def main() -> int:
         settings=settings,
         active_pointer_path=args.active_pointer.resolve(),
         browser_runs_dir=args.browser_runs_dir.resolve(),
+        methods_views_dir=args.methods_views_dir.resolve(),
         browser_prefix=args.browser_prefix,
         expected_run_id=args.run_id.strip(),
     )

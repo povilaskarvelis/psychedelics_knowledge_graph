@@ -4,6 +4,13 @@ const methodsBibliographySearchEl = document.getElementById("methodsBibliography
 const methodsBibliographySummaryEl = document.getElementById("methodsBibliographySummary");
 const methodsBibliographyRowsEl = document.getElementById("methodsBibliographyRows");
 const methodsBibliographyLoadMoreEl = document.getElementById("methodsBibliographyLoadMore");
+const PUBLIC_DATA_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json";
+const PUBLIC_DATA_POINTER_SCHEMAS = new Set(["psychedelics_kg_browser_r2_active_v1"]);
+const REQUIRED_METHODS_DATA = new Set([
+  "pipeline_status",
+  "bibliography",
+  "graph_inclusion_dispositions",
+]);
 
 const methodsState = {
   pipelineStatus: null,
@@ -12,6 +19,7 @@ const methodsState = {
   bibliographyRendered: 0,
   bibliographyPromise: null,
   bibliographySearchTimer: null,
+  publicDataPointerPromise: null,
 };
 const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
@@ -65,6 +73,45 @@ async function fetchJsonFromCandidates(candidates) {
     }
   }
   throw new Error(errors.join("; "));
+}
+
+function validatedPublicDataPointer(data) {
+  const schemaVersion = String(data?.schema_version || "").trim();
+  if (!PUBLIC_DATA_POINTER_SCHEMAS.has(schemaVersion)) {
+    throw new Error("The public data pointer has an unsupported schema.");
+  }
+  const releaseId = String(data?.release_id || "").trim();
+  const objectPrefix = String(data?.object_prefix || "").replace(/^\/+|\/+$/g, "");
+  if (!releaseId || !objectPrefix.startsWith("browser/releases/")) {
+    throw new Error("The public data pointer is missing its release identity.");
+  }
+  if (!data?.methods || typeof data.methods !== "object") {
+    throw new Error("The public data pointer is missing Methods data.");
+  }
+  REQUIRED_METHODS_DATA.forEach((name) => {
+    const key = String(data.methods[name] || "").replace(/^\/+/, "");
+    if (!key || !key.startsWith(`${objectPrefix}/`)) {
+      throw new Error(`The public data pointer is missing methods.${name}.`);
+    }
+  });
+  return data;
+}
+
+async function loadPublicDataPointer() {
+  if (methodsState.publicDataPointerPromise) return methodsState.publicDataPointerPromise;
+  methodsState.publicDataPointerPromise = fetchJsonFromCandidates([PUBLIC_DATA_POINTER_URL])
+    .then(validatedPublicDataPointer);
+  return methodsState.publicDataPointerPromise;
+}
+
+async function loadMethodsData(name) {
+  if (!REQUIRED_METHODS_DATA.has(name)) {
+    throw new Error(`Unknown Methods dataset: ${name}`);
+  }
+  const pointer = await loadPublicDataPointer();
+  const key = String(pointer.methods[name]).replace(/^\/+/, "");
+  const url = new URL(key, `${new URL(PUBLIC_DATA_POINTER_URL).origin}/`).href;
+  return fetchJsonFromCandidates([url]);
 }
 
 function prismaStep(flow, key) {
@@ -429,11 +476,7 @@ function renderBibliographyError(error) {
 async function loadMethodsBibliography() {
   if (!methodsBibliographyRowsEl) return;
   if (methodsState.bibliographyPromise) return methodsState.bibliographyPromise;
-  methodsState.bibliographyPromise = fetchJsonFromCandidates([
-    "../data/kg/views/methods_bibliography.json",
-    "/data/kg/views/methods_bibliography.json",
-    "data/kg/views/methods_bibliography.json",
-  ])
+  methodsState.bibliographyPromise = loadMethodsData("bibliography")
     .then((payload) => {
       methodsState.bibliographyRows = bibliographyRowsFromPayload(payload);
       renderBibliography();
@@ -483,11 +526,7 @@ function renderMethodsError(error) {
 async function initMethods() {
   if (!methodsPipelineEl) return;
   try {
-    const pipelineStatus = await fetchJsonFromCandidates([
-      "../data/kg/views/pipeline_status_graph.json",
-      "/data/kg/views/pipeline_status_graph.json",
-      "data/kg/views/pipeline_status_graph.json",
-    ]);
+    const pipelineStatus = await loadMethodsData("pipeline_status");
     methodsState.pipelineStatus = pipelineStatus;
     renderPipeline();
   } catch (error) {

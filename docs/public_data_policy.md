@@ -10,7 +10,9 @@ it.
   catalogue fields for papers, concepts, externally identified authors, and
   paper-level relationships.
 - The browser receives only the allowlisted fields required to render the
-  interactive graph, filters, summaries, and evidence cards.
+  interactive graph, filters, summaries, evidence cards, Methods flow, and
+  bibliography. The release also retains the generated graph-inclusion audit
+  used to verify those public Methods statuses.
 - Bulk database and table downloads are not published.
 - `/api/v1/schema` documents the query contract but does not return data rows.
 
@@ -45,8 +47,9 @@ is not an access-control mechanism.
 
 ## Automated safeguards
 
-The release pipeline fails when the browser field contract contains forbidden
-internal fields or duplicate entries. The query build emits only the private
-DuckDB runtime and its schema; it does not emit Parquet download tables. The R2
-publisher and API synchronizer reject any runtime manifest containing files
-other than the database and schema.
+The release pipeline fails when the public field contract contains forbidden
+internal fields or duplicate entries. The public R2 pointer is switched only
+after all required graph and Methods files are present and checksum-verified.
+The query build emits only the private DuckDB runtime and its schema; it does
+not emit Parquet download tables. The private API synchronizer rejects any
+runtime manifest containing files other than the database and schema.

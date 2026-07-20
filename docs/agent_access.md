@@ -66,7 +66,7 @@ paper, the generated tables do not match the manifest, or structured author
 coverage falls below 95%.
 
 When the evidence itself is unchanged and only author resolution, the public
-schema, API behavior, or browser payload changed, run:
+schema, API behavior, graph payload, or Methods data changed, run:
 
 ```bash
 bash scripts/refresh_public_release.sh
@@ -159,9 +159,9 @@ versioning, checksums, release notes, and manual approval.
 
 ## Deployment
 
-Production stores generated browser and API data in Cloudflare R2 rather than
-Git or the container image. See [R2 deployment](r2_deployment.md) for the setup
-and release checklist.
+Production stores generated graph, Methods, and API data in Cloudflare R2 rather
+than Git or the container image. See [R2 deployment](r2_deployment.md) for the
+setup and release checklist.
 
 Build the image from the repository root:
 
@@ -170,7 +170,7 @@ docker build -f services/query_api/Dockerfile -t psychedelics-kg-api .
 ```
 
 The code-only service starts immediately and loads its unpublished query database
-from a private R2 bucket in the background. The public browser payload lives in a
-different R2 bucket. Apply public rate limits at the hosting layer. The API is
-read-only and does not require user authorization; authentication must be added
-before any private or write operation is introduced.
+from a private R2 bucket in the background. Public graph and Methods payloads
+live in a different R2 bucket. Apply public rate limits at the hosting layer.
+The API is read-only and does not require user authorization; authentication
+must be added before any private or write operation is introduced.

@@ -11,6 +11,12 @@ schemas in files such as:
 - `data/processed/graph_payload_*.json`
 - `data/kg/views/pipeline_status_graph.json`
 - `data/kg/views/methods_bibliography.json`
+- `data/kg/views/graph_inclusion_dispositions.json`
+
+Generated public files are delivered from immutable Cloudflare R2 release keys,
+not from the Git repository or Netlify. The current file keys and checksums are
+listed by `https://data.psychedelicskg.com/browser/active.json`; moving these
+exports does not change their license.
 
 To view the CC0 1.0 Universal legal code, see:
 https://creativecommons.org/publicdomain/zero/1.0/legalcode

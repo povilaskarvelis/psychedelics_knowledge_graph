@@ -53,7 +53,7 @@ Bulk data releases are intentionally withheld until their fields and semantics
 have a separate publication review. Granular extraction data remains internal;
 see the [API and agent access guide](docs/agent_access.md) and
 [public data policy](docs/public_data_policy.md).
-Production setup is covered by the [R2 browser and API deployment checklist](docs/r2_deployment.md).
+Production setup is covered by the [R2 public-data and API deployment checklist](docs/r2_deployment.md).
 
 ## Repository map
 
@@ -61,8 +61,8 @@ Production setup is covered by the [R2 browser and API deployment checklist](doc
   extraction, validation, updates, and publishing
 - `schema/` — definitions for extracted fields, graph mappings, and standard
   names
-- `data/` — curated inputs, processed corpus tables, graph tables, and public
-  payloads
+- `data/` — curated inputs plus generated local corpus, graph, and publication
+  artifacts; generated production data is released through R2
 - `about/`, `methods/`, and `feedback/` — public project pages
 - `ui/` — shared static browser assets and interface scripts
 - `scripts/` — graph and site build entry points
