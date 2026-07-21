@@ -141,7 +141,10 @@ The website reads `https://data.psychedelicskg.com/browser/active.json`, then
 loads only the immutable graph and Methods files named by that validated
 pointer. Production does not silently fall back to Netlify files when R2 is
 unavailable. The graph UI can use its local generated graph pointer during
-development; the Methods page exercises the same R2 path used in production.
+development only through `bash scripts/preview_site.sh local`, which visibly
+uses `?data-source=local` on a loopback host. The normal local preview uses
+`bash scripts/preview_site.sh public`; Graph and Methods then exercise the same
+R2 path used in production.
 
 Because Cloudflare does not cache JSON by default, add a Cache Rule for the
 immutable release objects:

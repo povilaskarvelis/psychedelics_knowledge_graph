@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "record_count": 24,
+  "record_count": 50,
   "description": "Exceptional curator-reviewed PDF identities bound to exact file hashes. These records do not authorize a different download or DOI alias.",
   "records": [
     {
@@ -211,6 +211,240 @@
       "expected_title": "IS PSYCHEDELIC TREATMENT OF MENTAL HEALTH DISORDERS READY FOR PRIME TIME?",
       "review_basis": "Migrated from the completed July 2026 repair attestation: page-one title validation accepted with score 1.0 across 3221 extracted front-page characters; exact PDF hash is required.",
       "reviewed_at": "2026-07-10"
+    },
+    {
+      "requested_doi": "10.1248/bpb.20.969",
+      "pdf_sha256": "0416701fbdd87a2a520814925111ec4254425a50ca988d91e2ccf9673702975e",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1248/bpb.20.969",
+      "expected_title": "Hair Analysis for Drugs of Abuse. XVIII. 3,4-Methylenedioxymethamphetamine (MDMA) Disposition in Hair Roots and Use in Identification of Acute MDMA Poisoning.",
+      "review_basis": "The browser-downloaded four-page publisher PDF and filename identify volume 20, first page 969; the requested title is confirmed in the curated batch record. Exact PDF hash is required because the scanned first page has no machine-readable DOI or title.",
+      "reviewed_at": "2026-07-17"
+    },
+    {
+      "requested_doi": "10.1088/1757-899x/440/1/012045",
+      "pdf_sha256": "dd8aee3f6a475784ba744635c30e240d12183e1d72db2b9ad5230cacaa33b325",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1088/1757-899x/440/1/012045",
+      "expected_title": "Dream over life: Psychedelic terphenyl derivative induce hallucination via cannabinoid receptor 1",
+      "review_basis": "The ten-page IOP Conference Series paper prints the exact requested title, volume 440, and article number 012045 on page one. Exact PDF hash is required because the DOI is absent from extracted front matter.",
+      "reviewed_at": "2026-07-17"
+    },
+    {
+      "requested_doi": "10.1146/annurev-neuro-112723-062031",
+      "pdf_sha256": "54d85578088e29fff33c01286f5c0069fecd4ec77640e8b11222540af7c4ae77",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1146/annurev-neuro-112723-062031",
+      "expected_title": "Anesthetics as Treatments for Depression: Clinical Insights and Underlying Mechanisms",
+      "review_basis": "The 22-page Annual Review of Neuroscience PDF displays the exact requested article title and authors on page one. Exact PDF hash is required because title matching is ambiguous against the mature corpus.",
+      "reviewed_at": "2026-07-17"
+    },
+    {
+      "requested_doi": "10.2217/cer-2020-0276",
+      "pdf_sha256": "85c72e8d749b4cf8291ba9fb383679462545813184217fd29217e999320ad441",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.2217/cer-2020-0276",
+      "expected_title": "Cost-per-remitter with esketamine nasal spray versus standard of care for treatment-resistant depression",
+      "review_basis": "The publisher PDF labels itself a research article and prints the exact requested title and authors on page one. Exact PDF hash is required because the DOI is absent from extracted front matter.",
+      "reviewed_at": "2026-07-17"
+    },
+    {
+      "requested_doi": "10.3390/psychoactives3040031",
+      "pdf_sha256": "0fed9c386db40a37d8a429ce1e5471624a84983ce7c3679a0893eb88b4a13779",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.3390/psychoactives3040031",
+      "expected_title": "Long-Term Effects of Single and Repeated Ketamine Infusions on Treatment-Resistant Depression: A Retrospective Chart Review Study",
+      "review_basis": "The ten-page Psychoactives PDF labels itself an article and displays the exact requested title and authors on page one. Exact PDF hash is required because the DOI is absent from extracted front matter.",
+      "reviewed_at": "2026-07-17"
+    },
+    {
+      "requested_doi": "10.2139/ssrn.3367057",
+      "pdf_sha256": "4e077ed2d7f6a15b93947db484abb142aa6135b383ef31379bb7573d410ed953",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.2139/ssrn.3367057",
+      "expected_title": "Intranasal Ketamine for Alleviation of Acute Suicidal Ideation. An Emergency Department, Trans-Diagnostic Approach: Randomized, Double-Blind, Placebo-Controlled, Proof-of-Concept Trial",
+      "review_basis": "The 54-page SSRN manuscript draft prints the exact requested title and identifies itself as a clinical-trial article manuscript on page one. Exact PDF hash is required because the DOI is absent from extracted front matter.",
+      "reviewed_at": "2026-07-17"
+    },
+    {
+      "requested_doi": "10.1037/tra0001625",
+      "pdf_sha256": "68df2389409d0b71898e620de4bd3732132d911bd42fcd9e92c741933a7cd21a",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1037/tra0001625",
+      "expected_title": "Ayahuasca in the Treatment of Posttraumatic Stress Disorder: Mixed-Methods Case Series Evaluation in Military Combat Veterans",
+      "review_basis": "The five-page Psychological Trauma brief report prints the exact title and DOI 10.1037/tra0001625 on page one. Exact PDF hash distinguishes the article from its separately indexed correction and supplement records.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1248/bpb.23.1521",
+      "pdf_sha256": "6844d38cf6d56a441895c9feabffa53d3663357663bcd20a7636fabd984fb490",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://www.jstage.jst.go.jp/article/bpb1993/23/12/23_12_1521/_pdf",
+      "expected_title": "Effects of the 5-HT2A Receptor Agonist 1-(2,5-Dimethoxy-4-iodophenyl)-2-aminopropane (DOI) on Plasma Glucose and Glucagon Levels of Rats.",
+      "review_basis": "The browser-downloaded J-STAGE scan and filename identify volume 23, first page 1521; the requested title and publication coordinates are confirmed by the curated batch record. Exact PDF hash is required because OCR exposes only repository watermarks.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1111/adb.70111",
+      "pdf_sha256": "824f202c4bef092bce18aca80443c587265a5bee4d201307d5c55f46bd969c7f",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1111/adb.70111",
+      "expected_title": "Psilocybin and Ibogaine in Cocaine-Seeking: Extinction Enhancement Without Relapse Prevention",
+      "review_basis": "The open-access Addiction Biology PDF labels itself an original article and prints the exact requested title and authors on page one.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.4414/smw.2007.11852",
+      "pdf_sha256": "f6f4a77d67f187feac32e62b97ccf5bd7e6a5c865fac8c73214b088477bf9e0d",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.4414/smw.2007.11852",
+      "expected_title": "Intravenous ketamine therapy in a patient with a treatment-resistant major depression",
+      "review_basis": "The three-page Swiss Medical Weekly PDF labels itself a peer-reviewed short communication and displays the exact requested title and authors on page one.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.2139/ssrn.3555255",
+      "pdf_sha256": "b74c4baa2e9eb55dfd92506a222ab958e702beeb7d3f331d9ff69a50fc9241ad",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.2139/ssrn.3555255",
+      "expected_title": "Ketamine Alleviates Perioperative Depression in Patients Undergoing Intracranial Tumor Resection: A Randomized Controlled Trial",
+      "review_basis": "The SSRN-hosted Lancet Psychiatry manuscript draft prints the exact requested title and identifies itself as a clinical-trial article on page one. Both browser downloads were byte-identical.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.3929/ethz-c-000791180",
+      "pdf_sha256": "304c1df005e717efeafcbf835ca44d5db793cf18ec4c383d730a59046e327cf9",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.3929/ethz-c-000791180",
+      "expected_title": "The 3D-ASCr scale: A revalidation of the core dimensions of the Altered States of Consciousness Rating Scale 5D(11)-ASC for psychedelic research",
+      "review_basis": "The ETH repository cover identifies repository DOI 10.3929/ethz-c-000791180 and the exact requested article; the following publisher article prints DOI 10.1177/02698811251397328. The DOI alias registry collapses the repository copy into the published record.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1017/s1461145713001132",
+      "pdf_sha256": "5427e33e754cc2d5189904ef5ff4285d882f5df28a2781f5f78b63d574a0bc6b",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1017/s1461145713001132",
+      "expected_title": "Pharmacokinetic and pharmacodynamic effects of methylphenidate and MDMA administered alone or in combination",
+      "review_basis": "The International Journal of Neuropsychopharmacology PDF prints the exact title and DOI 10.1017/S1461145713001132 on the article's first journal page; a preceding Oxford download cover causes the DOI to fall outside the importer's automatic front-text window.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1097/j.pain.0000000000003912",
+      "pdf_sha256": "dd615c5aa833ed13e6bb19457362de6c4dc6c5adfc43e4fdf998a5509ac145ac",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1097/j.pain.0000000000003912",
+      "expected_title": "Dissociating pain dimensions in cold allodynia: subanesthetic ketamine reveals heritable affective-motivational traits in mice",
+      "review_basis": "The 12-page open-access PAIN research paper prints the exact title, authors, journal coordinates, and DOI 10.1097/j.pain.0000000000003912 on page one.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1093/ijnp/pyaf056",
+      "pdf_sha256": "2eadc6835426530805a26b8a42b571cf6ad8582fb26bb41f3ffbd5ea1dca1e99",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1093/ijnp/pyaf056",
+      "expected_title": "Antidepressant efficacy of ketamine plus naltrexone for major depression comorbid with alcohol use disorder: a randomized controlled trial",
+      "review_basis": "The International Journal of Neuropsychopharmacology PDF prints the exact title and DOI 10.1093/ijnp/pyaf056 on the article's first journal page; a preceding Oxford download cover causes the DOI to fall outside the importer's automatic front-text window.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1073/pnas.1518377113",
+      "pdf_sha256": "c676e804fd2c3dd82e5b861c0c46e51a663f3a7c90664b88ba410a2d9832f106",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/et5z-st50",
+      "expected_title": "Neural correlates of the LSD experience revealed by multimodal neuroimaging",
+      "review_basis": "The six-page PNAS PDF prints the exact requested article title and DOI 10.1073/pnas.1518377113 on page one. The DOI alias registry collapses the UNC repository record into the published article.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1021/acschemneuro.8b00293",
+      "pdf_sha256": "0415934ecffb64558f56fdc43f33b66321d0203d70f3cb2ab677d26d37a0d402",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/9cme-dj65",
+      "expected_title": "Discrepancies in Kappa Opioid Agonist Binding Revealed through PET Imaging",
+      "review_basis": "The 12-page ACS Chemical Neuroscience PDF prints the exact article title and DOI 10.1021/acschemneuro.8b00293. The DOI alias registry collapses the UNC repository record into the published article.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.17615/mkj7-w712",
+      "pdf_sha256": "90ff0d29b88fb184e4228266db8c230cee652a56d662012f6975c493717df933",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/mkj7-w712",
+      "expected_title": "Convenient synthesis and in vitro pharmacological activity of 2-thioanalogs of salvinorin A and B",
+      "review_basis": "The UNC repository PDF is the four-page Bioorganic & Medicinal Chemistry Letters article with the exact requested title and publication coordinates 17(8):2229-2232. The DOI alias registry collapses the repository record into published DOI 10.1016/j.bmcl.2007.01.100.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.17615/pkdc-f989",
+      "pdf_sha256": "eec9a0d215b07ecf6aaabbf431a272173e818103a1ae5d3019c3c0527714525b",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/pkdc-f989",
+      "expected_title": "Short synthesis of a novel class of salvinorin A analogs with hemiacetalic structure",
+      "review_basis": "The UNC repository PDF is the four-page Tetrahedron Letters article with the exact requested title and publication coordinates 49(6):937-940. The DOI alias registry collapses the repository record into published DOI 10.1016/j.tetlet.2007.12.041.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.17615/ms2h-d627",
+      "pdf_sha256": "297ea068f9f426c2cca2173bd102de2723cbdf60bc8515a6bb188e58fc69fae0",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/ms2h-d627",
+      "expected_title": "Structure of the Nanobody-Stabilized Active State of the Kappa Opioid Receptor",
+      "review_basis": "The UNC repository PDF prints the exact requested Cell article title and published DOI 10.1016/j.cell.2017.12.011 on page one. The DOI alias registry collapses the repository record into the published article.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.17615/rd8y-nq91",
+      "pdf_sha256": "6425cd7d003d1ef79ba5c07cf49f914ff612b069b3237b5d502a28a39fa30e49",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/rd8y-nq91",
+      "expected_title": "Mental Health Facilities With Ketamine Infusion Therapy in the United States in 2020: Co-Location of Dual Diagnosis Mental Health and Substance Use Disorder Treatment",
+      "review_basis": "The UNC repository PDF prints the exact requested article title and main article DOI 10.1037/pha0000686 on page one. The separate .supp DOI is only a supplemental-material citation; the DOI alias registry maps this repository record to the main article.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1097/yic.0000000000000409",
+      "pdf_sha256": "675d61b737e72fe8fb7a236c18b0079aba529f669db4fab33a04b4891b585985",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1097/yic.0000000000000409",
+      "expected_title": "Repeated subcutaneous racemic ketamine in treatment-resistant depression: case series",
+      "review_basis": "The nine-page International Clinical Psychopharmacology PDF labels itself an original article and prints the exact requested title, authors, journal coordinates, and DOI 10.1097/YIC.0000000000000409.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.17615/yfyn-kp22",
+      "pdf_sha256": "f20261ec79e14bc7741566217d5103048d9fc4e338677da1a3beb11c1961f116",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/yfyn-kp22",
+      "expected_title": "Signaling snapshots of a serotonin receptor activated by the prototypical psychedelic LSD",
+      "review_basis": "The 61-page accepted-manuscript PDF identifies the exact requested Neuron article title and PII S0896627322007528. The DOI alias registry collapses the UNC repository record into published DOI 10.1016/j.neuron.2022.08.006.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.17615/v233-8587",
+      "pdf_sha256": "f2de95695ac896167ed3f0b930f56c4527d9f36d414d49576fc0757bc394d19f",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.17615/v233-8587",
+      "expected_title": "PSD-95 Is Essential for Hallucinogen and Atypical Antipsychotic Drug Actions at Serotonin Receptors",
+      "review_basis": "The 13-page Journal of Neuroscience PDF prints the exact requested article title and published DOI 10.1523/JNEUROSCI.1090-09.2009 on page one. The DOI alias registry collapses the UNC repository record into the published article.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1016/j.pnpbp.2015.03.011",
+      "pdf_sha256": "80228181368bb53bbf89c1bfed8a4fcf550a420aefbc24bbeea44de48b761390",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1016/j.pnpbp.2015.03.011",
+      "expected_title": "MDMA-assisted therapy: A new treatment model for social anxiety in autistic adults",
+      "review_basis": "The 13-page Progress in Neuro-Psychopharmacology & Biological Psychiatry PDF prints the exact requested title, authors, journal volume 64, and pages 237-249. Its downloaded filename exposes Elsevier PII S0278584615000603 while the DOI is outside the importer identity window.",
+      "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1016/j.neuroscience.2019.07.022",
+      "pdf_sha256": "148d5eeeeebc3692fceb8713cee0ca0fdd982bb129257449b100c160979a3440",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1016/j.neuroscience.2019.07.022",
+      "expected_title": "Behavioral Changes and Neuronal Damage in Rhesus Monkeys after 10 Weeks of Ketamine Administration Involve Prefrontal Cortex Dopamine D2 Receptor and Dopamine Transporter",
+      "review_basis": "The 10-page Neuroscience research article prints the exact requested title, authors, volume 415, and pages 97-106. Its downloaded filename exposes Elsevier PII S0306452219305068 while the DOI is outside the importer identity window.",
+      "reviewed_at": "2026-07-18"
     }
   ]
 }

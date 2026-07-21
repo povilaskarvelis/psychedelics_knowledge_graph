@@ -58,9 +58,11 @@ flowchart TD
    evidence topics, available source text, and reviewed corrections to determine
    how each eligible report will be processed. Assignments are stored in
    `paper_extraction_routes.parquet`.
-6. **Full-text preparation** retrieves reusable PMC XML and legally accessible
-   PDFs, then converts them into structured article content. Eligible reports
-   proceed with abstract-only extraction when full text cannot be obtained.
+6. **Full-text preparation** retrieves reusable JATS XML directly from Europe
+   PMC or PMC when available. Otherwise, legally accessible PDFs are parsed
+   with GROBID into TEI XML. Both sources are stored as machine-readable article
+   records that preserve sections, tables, figures, references, and source
+   locations.
 7. **Structured evidence extraction** uses Gemini 3 Flash Preview with separate
    procedures for primary studies, meta-analyses, and other reviews. This
    preserves the distinctions among individual study results, pooled estimates,
@@ -207,6 +209,8 @@ This writes `paper_domain_routing_gemini.parquet`,
 `paper_domain_routing_gemini_counts.csv`. The Gemini response includes
 `screening_decision`, `domain_tags`, `primary_domain`, `paper_type_group`, and
 `paper_type`; this table is the source of report type for new extraction routes.
+The model instruction is maintained separately in
+[`docs/screening/title_abstract_screening.md`](../docs/screening/title_abstract_screening.md).
 
 ### Full-text preparation worklist
 
@@ -218,11 +222,16 @@ python pipeline/fulltext/build_fulltext_enrichment_worklist.py
 ```
 
 This is the standard incremental handoff after screening. It applies
-report-level and non-primary/context-only eligibility decisions, subtracts the
-prior processed ledger and active graph, and writes a selected DOI list, the
+report-level, non-primary/context-only, and confirmed post-retrieval
+eligibility decisions, excludes reports already represented in the active graph,
+and writes a selected DOI list, the
 subset still needing full-text enrichment, a one-row-per-DOI worklist with the
-next full-text action, and a provenance report. It does not construct topic
-routes, prompts, schemas, extraction tasks, or model jobs.
+next full-text action, and a provenance report. Evidence-topic assignments,
+prompts, schemas, extraction tasks, and model jobs are created at later stages.
+
+Post-retrieval decisions are recorded separately from initial title and abstract
+screening. Retrieval failures appear in attempt logs and retry queues while the
+report's eligibility decision remains unchanged.
 
 PMC retrieval, PDF retrieval, and conversion consume this worklist directly.
 Use explicit versioned output paths when retaining multiple update runs.
@@ -301,14 +310,29 @@ Refresh PDF URL candidates for the post-screen full-text worklist:
 
 ```bash
 python pipeline/ingest/refresh_open_access_links.py \
-  --doi-file data/processed/corpus/fulltext_enrichment_dois.txt \
+  --doi-file data/processed/corpus/fulltext_link_discovery_dois.txt \
+  --pmc-report data/processed/fulltext/pmc_xml_report.postscreen_<run>.json \
+  --report-json data/processed/fulltext/open_access_link_refresh_report.postscreen_<run>.json \
   --only-missing-pdf-url \
   --provider-order unpaywall,openalex,pmc \
   --progress-every 100
 ```
 
-Use the full-text worklist to keep attempts scoped to newly selected,
-unprocessed records and to avoid retrying existing corpus papers.
+Rebuild the worklist after refreshing the links. It distinguishes open-access
+records that require resolution of a landing page
+(`resolve_oa_landing_page`, also exported as
+`fulltext_oa_landing_dois.txt`) from records with no known full-text source
+(`discover_fulltext`). The standard downloader processes landing-page records
+alongside records with direct PDF links. Unsuccessful attempts are transferred
+to the manual-review queue.
+
+Bibliographic databases sometimes provide PDF download endpoints without a
+`.pdf` suffix. Retain these as download candidates and use
+`--include-weak-pdf-urls` during PDF retrieval. The pipeline validates the file
+format and article identity before accepting a download.
+
+Use the full-text worklist to limit retrieval to newly selected, unprocessed
+reports.
 
 Run PMC recovery first, then PDF retrieval directly from the worklist:
 
@@ -356,17 +380,26 @@ still be run separately:
 
 ```bash
 python pipeline/fulltext/download_routed_pdfs.py \
-  --limit 25 \
-  --alternate-pdf-sources pmc,openalex,semantic_scholar
+  --selection-table data/processed/corpus/fulltext_enrichment_worklist.parquet \
+  --alternate-pdf-sources pmc,openalex \
+  --alternate-sources-only \
+  --workers 8 \
+  --rps 4 \
+  --limit 25
 python pipeline/fulltext/recover_pdf_landing_pages.py \
   --standard-recovery-only \
-  --categories forbidden,non_pdf_response,provider_error,timeout,other_download_failure,not_found
+  --categories forbidden,non_pdf_response,rate_limited,provider_error,timeout,other_download_failure,not_found
 python pipeline/fulltext/export_manual_pdf_queue.py
 ```
 
-For explicit post-direct cleanup of publisher landing pages known to expose
-downloadable same-host PDFs, use a named rescue preset instead of making broad
-host probing the default retrieval path:
+Only validated recoveries update the report table. The standard alternate-source
+search uses PMC and OpenAlex; Semantic Scholar can be enabled as an additional
+resolver. With `--include-weak-pdf-urls`,
+the downloader also resolves the record's open-access landing URL and DOI URL,
+then accepts only a PDF whose document-front DOI/title evidence matches.
+
+For publisher landing pages known to expose downloadable PDFs on the same host,
+use a named recovery preset:
 
 ```bash
 python pipeline/fulltext/recover_pdf_landing_pages.py \

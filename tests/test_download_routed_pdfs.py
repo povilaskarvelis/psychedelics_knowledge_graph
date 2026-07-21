@@ -16,6 +16,7 @@ from pipeline.ingest.metadata_utils import (
 )
 from pipeline.fulltext.download_routed_pdfs import (
     apply_result_to_candidate_table,
+    apply_results_to_candidate_parquet,
     build_download_tasks,
     classify_download_failure,
     deprioritize_candidates_by_host,
@@ -30,6 +31,114 @@ from pipeline.fulltext.download_routed_pdfs import (
 
 
 class TestDownloadRoutedPdfs(unittest.TestCase):
+    def test_streaming_candidate_patch_preserves_unrelated_rows_and_columns(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            candidate_table = Path(tmpdir) / "candidate_papers.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/target",
+                        "study_title": "Target",
+                        "pdf_download_status": "download_failed",
+                        "pdf_local_path": "",
+                        "payload_not_used_by_retrieval": "keep-target",
+                    },
+                    {
+                        "doi": "10.1000/unrelated",
+                        "study_title": "Unrelated",
+                        "pdf_download_status": "",
+                        "pdf_local_path": "",
+                        "payload_not_used_by_retrieval": "keep-unrelated",
+                    },
+                ]
+            ).to_parquet(candidate_table, engine="pyarrow", index=False)
+
+            changed = apply_results_to_candidate_parquet(
+                candidate_table,
+                [
+                    {
+                        "doi": "10.1000/target",
+                        "status": "downloaded",
+                        "pdf_local_path": "/tmp/target.pdf",
+                        "pdf_sha256": "abc123",
+                        "selected_url": "https://example.org/target.pdf",
+                        "pdf_url_candidates": "https://example.org/target.pdf",
+                    }
+                ],
+                batch_size=1,
+            )
+
+            updated = pd.read_parquet(candidate_table)
+            self.assertEqual(changed, 1)
+            self.assertEqual(updated.loc[0, "pdf_download_status"], "downloaded")
+            self.assertEqual(updated.loc[0, "pdf_local_path"], "/tmp/target.pdf")
+            self.assertEqual(updated.loc[0, "payload_not_used_by_retrieval"], "keep-target")
+            self.assertEqual(updated.loc[1, "payload_not_used_by_retrieval"], "keep-unrelated")
+            self.assertEqual(updated.loc[1, "pdf_download_status"], "")
+
+    def test_streaming_candidate_patch_can_preserve_prior_failure_after_unsuccessful_resolver(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            candidate_table = Path(tmpdir) / "candidate_papers.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/target",
+                        "pdf_download_status": "download_failed",
+                        "pdf_download_failure_category": "forbidden",
+                    }
+                ]
+            ).to_parquet(candidate_table, engine="pyarrow", index=False)
+
+            changed = apply_results_to_candidate_parquet(
+                candidate_table,
+                [
+                    {
+                        "doi": "10.1000/target",
+                        "status": "no_pdf_url",
+                        "apply_candidate_result": False,
+                    }
+                ],
+            )
+
+            updated = pd.read_parquet(candidate_table)
+            self.assertEqual(changed, 0)
+            self.assertEqual(updated.loc[0, "pdf_download_status"], "download_failed")
+            self.assertEqual(updated.loc[0, "pdf_download_failure_category"], "forbidden")
+
+    def test_streaming_candidate_patch_can_invalidate_stale_success_after_file_is_quarantined(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            candidate_table = Path(tmpdir) / "candidate_papers.parquet"
+            missing_pdf = Path(tmpdir) / "quarantined.pdf"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/target",
+                        "pdf_download_status": "downloaded",
+                        "pdf_local_path": str(missing_pdf),
+                    }
+                ]
+            ).to_parquet(candidate_table, engine="pyarrow", index=False)
+
+            changed = apply_results_to_candidate_parquet(
+                candidate_table,
+                [
+                    {
+                        "doi": "10.1000/target",
+                        "status": "download_failed",
+                        "error": "supplementary_pdf_artifact",
+                        "failure_category": "source_identity_mismatch",
+                        "failure_categories": "source_identity_mismatch",
+                        "retry_recommended": False,
+                    }
+                ],
+            )
+
+            updated = pd.read_parquet(candidate_table)
+            self.assertEqual(changed, 1)
+            self.assertEqual(updated.loc[0, "pdf_download_status"], "download_failed")
+            self.assertEqual(updated.loc[0, "pdf_local_path"], "")
+            self.assertFalse(bool(updated.loc[0, "flag_has_local_pdf"]))
+
     def test_download_rows_from_postscreen_selection(self) -> None:
         selection = pd.DataFrame(
             [
@@ -46,6 +155,12 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
                     "fulltext_enrichment_action": "discover_fulltext",
                 },
                 {
+                    "doi": "10.1000/oa-landing",
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": True,
+                    "fulltext_enrichment_action": "resolve_oa_landing_page",
+                },
+                {
                     "doi": "10.1000/reuse",
                     "selected_for_downstream": True,
                     "fulltext_enrichment_needed": False,
@@ -57,8 +172,11 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
         direct = download_rows_from_selection(selection, include_discovery=False)
         discovery = download_rows_from_selection(selection, include_discovery=True)
 
-        self.assertEqual(direct["doi"].tolist(), ["10.1000/known"])
-        self.assertEqual(set(discovery["doi"]), {"10.1000/known", "10.1000/discover"})
+        self.assertEqual(direct["doi"].tolist(), ["10.1000/known", "10.1000/oa-landing"])
+        self.assertEqual(
+            set(discovery["doi"]),
+            {"10.1000/known", "10.1000/discover", "10.1000/oa-landing"},
+        )
         self.assertTrue(discovery["retained_for_extraction_candidate"].all())
         self.assertTrue(discovery["route_action"].eq("download_pdf_then_extract").all())
 
@@ -158,6 +276,39 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
         self.assertIn("https://example.org/route.pdf", tasks[0]["pdf_url_candidates"])
         self.assertIn("https://example.org/other.pdf", tasks[0]["pdf_url_candidates"])
         self.assertIn("https://example.org/meta.pdf", tasks[0]["pdf_url_candidates"])
+
+    def test_build_download_tasks_can_add_open_access_and_doi_landing_pages(self) -> None:
+        routes = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/example",
+                    "retained_for_extraction_candidate": True,
+                    "route_action": "download_pdf_then_extract",
+                    "best_pdf_url": "https://example.org/paper.pdf",
+                }
+            ]
+        )
+        metadata = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/example",
+                    "open_access_url": "https://repository.example/item/123",
+                }
+            ]
+        )
+
+        tasks = build_download_tasks(routes, metadata, include_landing_page_candidates=True)
+
+        self.assertIn("https://repository.example/item/123", tasks[0]["pdf_url_candidates"])
+        self.assertIn("https://doi.org/10.1000/example", tasks[0]["pdf_url_candidates"])
+        self.assertEqual(
+            tasks[0]["pdf_url_candidates"].split(" | "),
+            [
+                "https://example.org/paper.pdf",
+                "https://repository.example/item/123",
+                "https://doi.org/10.1000/example",
+            ],
+        )
 
     def test_apply_result_updates_candidate_row_for_downloaded_pdf(self) -> None:
         df = pd.DataFrame(
@@ -483,6 +634,65 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
             self.assertEqual(payload["counts"]["tasks"], 2)
         self.assertEqual(payload["counts"]["deferred_by_limit"], 1)
 
+    def test_concurrent_downloads_share_one_main_thread_candidate_update(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            routes = root / "routes.parquet"
+            metadata = root / "metadata.parquet"
+            candidates = root / "candidate_papers.parquet"
+            report = root / "report.json"
+            pdf_dir = root / "pdfs"
+            dois = ["10.1000/concurrent-a", "10.1000/concurrent-b"]
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "retained_for_extraction_candidate": True,
+                        "route_action": "download_pdf_then_extract",
+                        "best_pdf_url": f"https://example.org/{index}.pdf",
+                    }
+                    for index, doi in enumerate(dois)
+                ]
+            ).to_parquet(routes, engine="pyarrow", index=False)
+            pd.DataFrame([{"doi": doi} for doi in dois]).to_parquet(metadata, engine="pyarrow", index=False)
+            pd.DataFrame([{"doi": doi, "pdf_download_status": ""} for doi in dois]).to_parquet(
+                candidates,
+                engine="pyarrow",
+                index=False,
+            )
+
+            def fake_process(**kwargs):
+                return {
+                    **kwargs["task"],
+                    "status": "download_failed",
+                    "error": "HTTP Error 404: Not Found",
+                    "selected_url": "",
+                    "pdf_local_path": "",
+                    "pdf_sha256": "",
+                    **classify_download_failure("download_failed", "HTTP Error 404: Not Found"),
+                }
+
+            with patch("pipeline.fulltext.download_routed_pdfs.process_pdf_task", side_effect=fake_process):
+                payload = download_routed_pdfs(
+                    route_table=routes,
+                    metadata_table=metadata,
+                    candidate_table=candidates,
+                    pdf_dir=pdf_dir,
+                    report_path=report,
+                    workers=2,
+                    write_every=1,
+                    attempt_log_every=0,
+                    candidate_log_every=0,
+                    progress_every=0,
+                )
+
+            updated = pd.read_parquet(candidates)
+
+        self.assertEqual(payload["counts"]["tasks"], 2)
+        self.assertEqual(payload["counts"]["status"], {"download_failed": 2})
+        self.assertEqual(payload["workers"], 2)
+        self.assertTrue(updated["pdf_download_status"].eq("download_failed").all())
+
     def test_filter_tasks_by_candidate_status_skips_prior_failures_when_requested(self) -> None:
         tasks = [
             {"doi": "10.1000/failed", "best_pdf_url": "https://example.org/a.pdf"},
@@ -504,6 +714,58 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
         self.assertEqual([task["doi"] for task in kept], ["10.1000/fresh"])
         self.assertEqual([task["doi"] for task in skipped], ["10.1000/failed"])
         self.assertEqual(skipped[0]["skip_reason"], "candidate_status:download_failed")
+
+    def test_filter_tasks_retries_stale_success_status_when_pdf_is_missing(self) -> None:
+        tasks = [{"doi": "10.1000/missing", "best_pdf_url": "https://example.org/a.pdf"}]
+        candidates = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/missing",
+                    "pdf_download_status": "downloaded",
+                    "pdf_local_path": "/definitely/missing/paper.pdf",
+                }
+            ]
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kept, skipped = filter_tasks_by_candidate_status(
+                tasks,
+                candidates,
+                skip_candidate_statuses={"downloaded"},
+                pdf_dir=Path(tmpdir),
+            )
+
+        self.assertEqual([task["doi"] for task in kept], ["10.1000/missing"])
+        self.assertTrue(kept[0]["candidate_pdf_status_stale"])
+        self.assertEqual(skipped, [])
+
+    def test_apply_failure_clears_stale_local_pdf_state(self) -> None:
+        df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/stale",
+                    "pdf_local_path": "/missing/stale.pdf",
+                    "local_pdf_paths": "/missing/stale.pdf",
+                    "local_pdf_count": 1,
+                    "pdf_download_status": "downloaded",
+                    "pdf_sha256": "stale",
+                    "flag_has_local_pdf": True,
+                    "library_status": "in_database",
+                }
+            ]
+        )
+        result = {
+            "doi": "10.1000/stale",
+            "status": "download_failed",
+            "error": "HTTP Error 404: Not Found",
+            **classify_download_failure("download_failed", "HTTP Error 404: Not Found"),
+        }
+
+        self.assertTrue(apply_result_to_candidate_table(df, result))
+        self.assertEqual(df.loc[0, "pdf_local_path"], "")
+        self.assertEqual(df.loc[0, "local_pdf_count"], 0)
+        self.assertEqual(df.loc[0, "pdf_sha256"], "")
+        self.assertFalse(bool(df.loc[0, "flag_has_local_pdf"]))
 
     def test_filter_tasks_can_select_retryable_failure_categories(self) -> None:
         tasks = [

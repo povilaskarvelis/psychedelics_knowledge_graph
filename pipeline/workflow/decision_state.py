@@ -20,7 +20,13 @@ import pandas as pd
 from pipeline.ingest.candidate_status import normalize_doi
 
 
-STAGE_ORDER = ("prescreen", "model_screening", "extraction", "graph")
+STAGE_ORDER = (
+    "prescreen",
+    "model_screening",
+    "post_retrieval",
+    "extraction",
+    "graph",
+)
 
 # Each field is owned by the earliest stage whose current decision/output it
 # represents.  Invalidating a stage clears fields owned by later stages only.
@@ -347,6 +353,7 @@ def reconcile_workflow_decision(
     previous_included_dois: set[str],
     current_included_dois: set[str],
     active_artifacts: Iterable[ActiveArtifact] = (),
+    active_artifact_allowed_dois: set[str] | None = None,
     pending_status: str = "",
     excluded_status: str = "",
     report_path: Path | None = None,
@@ -373,16 +380,27 @@ def reconcile_workflow_decision(
     stable_included = normalized_dois(previous_included_dois).intersection(
         normalized_dois(current_included_dois)
     )
+    # Full-stage reconciliations historically filtered active artifacts to
+    # stable includes.  A later scoped decision stage (for example a
+    # post-retrieval eligibility assessment) sees only a small DOI subset, so
+    # using that subset as the global allow-list would incorrectly delete
+    # unrelated routes/tasks.  Callers for scoped stages provide the complete
+    # downstream-eligible DOI set explicitly.
+    artifact_allowed = (
+        normalized_dois(active_artifact_allowed_dois)
+        if active_artifact_allowed_dois is not None
+        else stable_included
+    )
     artifact_summaries: list[dict] = []
     for artifact in active_artifacts:
         path = Path(artifact.path).resolve()
         if artifact.kind == "parquet":
-            artifact_summaries.append(filter_active_parquet(path, allowed_dois=stable_included))
+            artifact_summaries.append(filter_active_parquet(path, allowed_dois=artifact_allowed))
         elif artifact.kind == "jsonl":
             artifact_summaries.append(
                 filter_active_jsonl(
                     path,
-                    allowed_dois=stable_included,
+                    allowed_dois=artifact_allowed,
                     doi_fields=artifact.doi_fields,
                 )
             )
@@ -397,6 +415,7 @@ def reconcile_workflow_decision(
         "candidate_table": str(candidate_table),
         "candidate": candidate_summary,
         "active_artifacts": artifact_summaries,
+        "active_artifact_allowed_dois": len(artifact_allowed),
         "historical_artifact_policy": "preserved; only declared active views are filtered",
         "context": dict(context or {}),
     }

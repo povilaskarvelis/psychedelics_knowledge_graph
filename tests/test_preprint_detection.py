@@ -43,6 +43,12 @@ class PreprintDetectionTest(unittest.TestCase):
                 "publication_type": "article",
             }
         )
+        osf_current_prefix = classify_publication_stage(
+            {
+                "doi": "10.31235/osf.io/fv6wj_v1",
+                "publication_type": "article",
+            }
+        )
         mixed = classify_publication_stage(
             {
                 "doi": "10.64898/2026.04.16.718915",
@@ -53,6 +59,8 @@ class PreprintDetectionTest(unittest.TestCase):
         self.assertEqual(osf["publication_stage"], "preprint")
         self.assertEqual(osf["preprint_signal_strength"], "strong")
         self.assertIn("doi:OSF preprint", osf["preprint_detection_basis"])
+        self.assertEqual(osf_current_prefix["publication_stage"], "preprint")
+        self.assertIn("doi:OSF preprint", osf_current_prefix["preprint_detection_basis"])
         self.assertEqual(mixed["publication_stage"], "preprint")
         self.assertEqual(mixed["preprint_signal_strength"], "strong")
         self.assertIn("publication_type:preprint", mixed["preprint_detection_basis"])

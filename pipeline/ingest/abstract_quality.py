@@ -45,6 +45,8 @@ COLLECTION_BODY_RE = re.compile(
     r"\b(?:no\.\s*:\s*abs\d+|abstract\s*(?:no\.|number)?\s*\d+|publishing number\s+\d+)\b",
     re.IGNORECASE,
 )
+ISSUE_POINTERS_RE = re.compile(r"^\s*Pointers\b", re.IGNORECASE)
+ISSUE_PAGE_POINTER_RE = re.compile(r"\(p\.\s*\d+\)", re.IGNORECASE)
 NON_ABSTRACT_LEADING_TEXT_RE = re.compile(
     r"(?:click to (?:increase|decrease) image size|previous article|next article|"
     r"back to table of contents|you have access|full access|book review|"
@@ -127,6 +129,9 @@ def contamination_reasons(
         return ()
     lowered = text.lower()
     reasons: list[str] = []
+
+    if ISSUE_POINTERS_RE.search(text) and len(ISSUE_PAGE_POINTER_RE.findall(text)) >= 3:
+        reasons.append("journal_issue_contents_not_article_abstract")
 
     if any(phrase in lowered for phrase in NAVIGATION_PHRASES):
         reasons.append("publisher_page_or_fulltext_navigation")

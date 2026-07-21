@@ -3,6 +3,16 @@ from pathlib import Path
 from pipeline.fulltext import run_pdf_retrieval_pipeline as runner
 
 
+def test_pdf_retrieval_pipeline_defaults_are_concurrent_but_do_not_enable_optional_sources() -> None:
+    args = runner.build_arg_parser().parse_args([])
+
+    assert args.direct_workers == 8
+    assert args.direct_rps == 4.0
+    assert args.direct_rate_limit_cooldown_sec == 30.0
+    assert args.alternate_pdf_sources == ""
+    assert "rate_limited" in args.recovery_categories
+
+
 def test_pdf_retrieval_pipeline_runs_standard_recovery_after_direct_download(monkeypatch, tmp_path) -> None:
     calls: dict[str, object] = {"exports": 0}
 
@@ -30,6 +40,7 @@ def test_pdf_retrieval_pipeline_runs_standard_recovery_after_direct_download(mon
 
     report = runner.run_pdf_retrieval_pipeline(
         route_table=tmp_path / "routes.parquet",
+        selection_table=tmp_path / "worklist.parquet",
         metadata_table=tmp_path / "metadata.parquet",
         candidate_table=tmp_path / "candidate_papers.parquet",
         pdf_dir=tmp_path / "pdfs",
@@ -44,20 +55,29 @@ def test_pdf_retrieval_pipeline_runs_standard_recovery_after_direct_download(mon
         recovery_report_path=tmp_path / "recovery.json",
         report_path=tmp_path / "pipeline.json",
         alternate_pdf_sources={"pmc", "openalex", "semantic_scholar"},
+        alternate_sources_only=True,
         alternate_pdf_min_title_score=0.35,
+        direct_workers=6,
+        direct_include_weak_pdf_urls=True,
         attempt_log_every=0,
         candidate_log_every=0,
         progress_every=0,
     )
 
     assert calls["exports"] == 2
-    assert calls["download_kwargs"]["rebuild_routes_after"] is True
+    assert calls["download_kwargs"]["selection_table"] == tmp_path / "worklist.parquet"
+    assert calls["download_kwargs"]["rebuild_routes_after"] is False
+    assert calls["download_kwargs"]["workers"] == 6
+    assert calls["download_kwargs"]["include_weak_pdf_urls"] is True
     assert calls["download_kwargs"]["alternate_pdf_sources"] == {"pmc", "openalex", "semantic_scholar"}
+    assert calls["download_kwargs"]["alternate_sources_only"] is True
     assert calls["download_kwargs"]["alternate_pdf_min_title_score"] == 0.35
     assert calls["recovery_kwargs"]["standard_recovery_only"] is True
     assert calls["recovery_kwargs"]["min_title_score"] == 0.86
     assert calls["recovery_kwargs"]["apply"] is True
+    assert calls["recovery_kwargs"]["rebuild_routes_after"] is False
     assert report["alternate_pdf_sources"] == ["openalex", "pmc", "semantic_scholar"]
+    assert report["alternate_sources_only"] is True
     assert report["standard_recovery"]["status"] == {"downloaded": 1}
     assert report["manual_queue_final"]["rows"] == 1
     assert Path(report["manual_queue_csv"]).name == "manual.csv"

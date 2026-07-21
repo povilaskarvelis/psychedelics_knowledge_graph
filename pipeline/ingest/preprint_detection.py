@@ -10,6 +10,7 @@ PREPRINT_DOI_PATTERNS = (
     ("doi:bioRxiv/medRxiv", re.compile(r"^10\.1101/", re.I)),
     ("doi:PsyArXiv/OSF", re.compile(r"^10\.31234/", re.I)),
     ("doi:OSF preprint", re.compile(r"^10\.31219/osf\.io/", re.I)),
+    ("doi:OSF preprint", re.compile(r"^10\.31235/osf\.io/", re.I)),
     ("doi:OSF", re.compile(r"^10\.17605/osf\.io/", re.I)),
     ("doi:Authorea", re.compile(r"^10\.22541/", re.I)),
     ("doi:Preprints.org", re.compile(r"^10\.20944/preprints", re.I)),

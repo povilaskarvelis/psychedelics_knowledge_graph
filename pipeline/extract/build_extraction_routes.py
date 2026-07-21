@@ -41,6 +41,11 @@ try:
         split_candidates,
     )
     from pipeline.ingest.preprint_detection import classify_publication_stage
+    from pipeline.validate.doi_aliases import (
+        DEFAULT_DOI_ALIAS_REGISTRY,
+        active_doi_aliases,
+        load_doi_aliases,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
     from pipeline.fulltext.convert_pdfs import doi_to_slug, normalize_doi
@@ -55,6 +60,11 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         join_candidates,
         rank_pdf_candidates,
         split_candidates,
+    )
+    from pipeline.validate.doi_aliases import (
+        DEFAULT_DOI_ALIAS_REGISTRY,
+        active_doi_aliases,
+        load_doi_aliases,
     )
 
 
@@ -113,6 +123,8 @@ CANDIDATE_STATUS_DEFAULTS = {
     "manual_fulltext_access_reason": "",
     "extraction_routes_table_version": "",
     "extraction_routes_updated_at_utc": "",
+    "doi_alias_status": "",
+    "doi_alias_of": "",
 }
 PRIMARY_PROMPT_BY_DOMAIN = {
     "clinical_outcome": "primary_clinical",
@@ -199,6 +211,7 @@ def split_values(value: object) -> list[str]:
 
 def thesis_or_dissertation_flags(row: dict) -> str:
     publication_type = clean(row.get("publication_type", ""))
+    doi = clean(row.get("doi", ""))
     title = clean(row.get("study_title", "")) or clean(row.get("title", ""))
     journal = clean(row.get("study_journal", "")) or clean(row.get("journal", ""))
     abstract = clean(row.get("abstract", ""))
@@ -206,6 +219,7 @@ def thesis_or_dissertation_flags(row: dict) -> str:
         clean(row.get(field, ""))
         for field in ("best_pdf_url", "open_access_url", "pdf_url_candidates", "unpaywall_best_pdf_url")
     )
+    explicit_journal_article = bool(re.search(r"\bjournal article\b", publication_type, flags=re.IGNORECASE))
     flags: list[str] = []
     if THESIS_OR_DISSERTATION_RE.search(publication_type):
         flags.append("thesis_or_dissertation_publication_type")
@@ -213,7 +227,12 @@ def thesis_or_dissertation_flags(row: dict) -> str:
         flags.append("thesis_or_dissertation_venue")
     if THESIS_OR_DISSERTATION_RE.search(title):
         flags.append("thesis_or_dissertation_title")
-    if THESIS_OR_DISSERTATION_RE.search(url_text):
+    if THESIS_OR_DISSERTATION_RE.search(doi) and not explicit_journal_article:
+        flags.append("thesis_or_dissertation_doi")
+    # Repository link graphs sometimes attach a same-title thesis to an
+    # ordinary journal article. A URL-only thesis signal must not override an
+    # explicit Journal Article publication type.
+    if THESIS_OR_DISSERTATION_RE.search(url_text) and not explicit_journal_article:
         flags.append("thesis_or_dissertation_url")
     if flags and THESIS_OR_DISSERTATION_RE.search(abstract):
         flags.append("thesis_or_dissertation_abstract")
@@ -1092,6 +1111,7 @@ def build_route_rows(
     manual_fulltext_access_overrides: dict[str, dict] | None = None,
     paper_root: Path = DEFAULT_PAPER_ROOT,
     source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
+    doi_aliases: dict[str, str] | None = None,
 ) -> list[dict]:
     prescreen = prescreen_context_by_doi(prescreen_df)
     prescreen_dois = {
@@ -1106,6 +1126,7 @@ def build_route_rows(
     manual_overrides = manual_overrides or {}
     screening_overrides = screening_overrides or {}
     manual_fulltext_access_overrides = manual_fulltext_access_overrides or {}
+    doi_aliases = doi_aliases or {}
     local_pdf_index = build_local_pdf_index(paper_root)
     canonical_artifact_dir = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR
     source_identity_gate = (
@@ -1117,6 +1138,10 @@ def build_route_rows(
     for metadata in metadata_df.to_dict("records"):
         doi = normalize_doi(metadata.get("doi", ""))
         if not doi:
+            continue
+        if clean(metadata.get("post_retrieval_decision", "")).lower() == "exclude":
+            continue
+        if doi in doi_aliases:
             continue
         if scoped_dois and doi not in scoped_dois:
             continue
@@ -1373,6 +1398,7 @@ def build_candidate_status_updates(
     literature_df: pd.DataFrame | None = None,
     route_rows: list[dict],
     generated_at_utc: str,
+    doi_aliases: dict[str, str] | None = None,
 ) -> pd.DataFrame:
     if candidate_df.empty or "doi" not in candidate_df.columns:
         return pd.DataFrame()
@@ -1381,11 +1407,13 @@ def build_candidate_status_updates(
     literature_by_doi = literature_status_by_doi(literature_df if literature_df is not None else pd.DataFrame())
     routes_by_doi = route_rows_by_doi(route_rows)
     records: list[dict] = []
+    doi_aliases = doi_aliases or {}
 
     for candidate in candidate_df.to_dict("records"):
         doi = normalize_doi(candidate.get("doi", ""))
         if not doi:
             continue
+        alias_of = doi_aliases.get(doi, "")
         publication_classification = classify_publication_stage(candidate)
         prescreen = prescreen_by_doi.get(doi, {})
         rows = routes_by_doi.get(doi, [])
@@ -1398,6 +1426,18 @@ def build_candidate_status_updates(
             route_rows=rows,
             prescreen_retained=prescreen_retained,
         )
+        if alias_of:
+            route_status = "duplicate_doi_alias"
+            route_reason = f"Duplicate publication identifier; canonical DOI is {alias_of}."
+            retained_for_extraction = False
+            rows = []
+        elif clean(candidate.get("post_retrieval_decision", "")).lower() == "exclude":
+            route_status = "post_retrieval_excluded"
+            route_reason = clean(candidate.get("post_retrieval_reason", "")) or (
+                "Excluded by the post-retrieval eligibility assessment."
+            )
+            retained_for_extraction = False
+            rows = []
         publication_stage = clean(publication_classification.get("publication_stage", ""))
         is_preprint_like = bool(publication_classification.get("is_preprint_like", False))
         preprint_signal_strength = clean(publication_classification.get("preprint_signal_strength", ""))
@@ -1456,6 +1496,8 @@ def build_candidate_status_updates(
                 "manual_fulltext_access_reason": join_route_values(rows, "manual_fulltext_access_reason"),
                 "extraction_routes_table_version": TABLE_VERSION,
                 "extraction_routes_updated_at_utc": generated_at_utc,
+                "doi_alias_status": "alias_suppressed" if alias_of else "",
+                "doi_alias_of": alias_of,
             }
         )
 
@@ -1569,6 +1611,7 @@ def build_extraction_routes(
     manual_overrides_path: Path | None = DEFAULT_MANUAL_ROUTE_OVERRIDES,
     screening_overrides_path: Path | None = DEFAULT_SCREENING_DECISION_OVERRIDES,
     manual_fulltext_access_overrides_path: Path | None = DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES,
+    doi_alias_registry_path: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
     fulltext_dir: Path = DEFAULT_FULLTEXT_DIR,
     source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
     paper_root: Path = DEFAULT_PAPER_ROOT,
@@ -1593,6 +1636,9 @@ def build_extraction_routes(
         if manual_fulltext_access_overrides_path is not None
         else None
     )
+    doi_alias_registry_path = (
+        Path(doi_alias_registry_path).resolve() if doi_alias_registry_path is not None else None
+    )
     fulltext_dir = Path(fulltext_dir).resolve()
     source_identity_audit = Path(source_identity_audit).resolve()
     paper_root = Path(paper_root).resolve()
@@ -1610,6 +1656,12 @@ def build_extraction_routes(
     manual_overrides = load_manual_route_overrides(manual_overrides_path)
     screening_overrides = load_screening_decision_overrides(screening_overrides_path)
     manual_fulltext_access_overrides = load_manual_fulltext_access_overrides(manual_fulltext_access_overrides_path)
+    available_dois = {
+        normalize_doi(value)
+        for value in metadata_df.get("doi", pd.Series(dtype="string"))
+        if normalize_doi(value)
+    }
+    doi_aliases = active_doi_aliases(load_doi_aliases(doi_alias_registry_path), available_dois)
     generated_at_utc = now_utc()
     rows = build_route_rows(
         metadata_df,
@@ -1624,6 +1676,7 @@ def build_extraction_routes(
         manual_fulltext_access_overrides=manual_fulltext_access_overrides,
         paper_root=paper_root,
         source_identity_audit=source_identity_audit,
+        doi_aliases=doi_aliases,
     )
 
     write_route_table(output_table, rows)
@@ -1637,6 +1690,7 @@ def build_extraction_routes(
             prescreen_df=prescreen_df,
             route_rows=rows,
             generated_at_utc=generated_at_utc,
+            doi_aliases=doi_aliases,
         )
         candidate_update = apply_candidate_updates(
             candidate_table=candidate_table,
@@ -1660,6 +1714,8 @@ def build_extraction_routes(
             if manual_fulltext_access_overrides_path is not None
             else "",
             "manual_fulltext_access_override_dois": len(manual_fulltext_access_overrides),
+            "doi_alias_registry": str(doi_alias_registry_path) if doi_alias_registry_path is not None else "",
+            "suppressed_doi_aliases": len(doi_aliases),
             "fulltext_dir": str(fulltext_dir),
             "source_identity_audit": str(source_identity_audit),
             "paper_root": str(paper_root),
@@ -1697,6 +1753,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--manual-route-overrides", default=str(DEFAULT_MANUAL_ROUTE_OVERRIDES))
     parser.add_argument("--screening-decision-overrides", default=str(DEFAULT_SCREENING_DECISION_OVERRIDES))
     parser.add_argument("--manual-fulltext-access-overrides", default=str(DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES))
+    parser.add_argument("--doi-alias-registry", default=str(DEFAULT_DOI_ALIAS_REGISTRY))
     parser.add_argument("--doi-file", default="", help="Optional DOI list for a scoped route-table build.")
     parser.add_argument("--include-non-retained", action="store_true", help="Route all metadata rows, not only retained pre-screen candidates.")
     parser.add_argument(
@@ -1726,6 +1783,7 @@ def main() -> int:
         if clean(args.manual_fulltext_access_overrides)
         else None
     )
+    doi_alias_registry_path = Path(args.doi_alias_registry).resolve() if clean(args.doi_alias_registry) else None
     fulltext_dir = Path(args.fulltext_dir).resolve()
     source_identity_audit = Path(args.source_identity_audit).resolve()
     paper_root = Path(args.paper_root).resolve()
@@ -1742,6 +1800,7 @@ def main() -> int:
         manual_overrides_path=manual_overrides_path,
         screening_overrides_path=screening_overrides_path,
         manual_fulltext_access_overrides_path=manual_fulltext_access_overrides_path,
+        doi_alias_registry_path=doi_alias_registry_path,
         fulltext_dir=fulltext_dir,
         source_identity_audit=source_identity_audit,
         paper_root=paper_root,

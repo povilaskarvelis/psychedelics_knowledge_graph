@@ -1,24 +1,11 @@
 {
-  "schema_version": "route_native_evidence_payload_active_v1",
-  "release_id": "source_recovery_media_20260714:85b9f8a521804c1e8a0f14edcf2d0c01",
-  "public_release_id": "source_recovery_media_20260714:public:f3fa6b9e6210424baf1cac6c81759f25",
+  "evidence_release_id": "source_recovery_media_20260714:85b9f8a521804c1e8a0f14edcf2d0c01",
+  "query_api_r2": {
+    "active_key": "query-api/active/catalogue-v2.json",
+    "object_prefix": "query-api/releases/source_recovery_media_20260714-a4ab4873/source_recovery_media_20260714-public-f3fa6b9e6210424baf1cac6c81759f25-fe05f7ddf994",
+    "published_at": "2026-07-19T22:11:48.556340+00:00"
+  },
+  "release_id": "source_recovery_media_20260714:public:f3fa6b9e6210424baf1cac6c81759f25",
   "run_id": "source_recovery_media_20260714",
-  "active_graph_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_bootstrap_reviews.json"
-  },
-  "active_dashboard_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/dashboard_bootstrap_reviews.json"
-  },
-  "active_detail_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/source_recovery_media_20260714/detail_bootstrap_reviews.json"
-  },
-  "active_manifest": "data/processed/graph_payload_runs/source_recovery_media_20260714/graph_payload_manifest.json",
-  "evidence_source": "kg_tables",
-  "kg_dir": "data/processed/kg_routed_runs/source_recovery_media_20260714"
+  "schema_version": "route_native_evidence_payload_active_v1"
 }

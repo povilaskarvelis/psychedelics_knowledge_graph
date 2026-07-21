@@ -1,17 +1,85 @@
 import unittest
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pandas as pd
 
 from pipeline.review.run_deterministic_prescreen import (
+    before_model_exclusion_decision,
     build_prescreen_decisions,
     build_summary_rows,
+    load_curated_publication_format_exclusions,
     run,
 )
 
 
 class TableDeterministicPrescreenTest(unittest.TestCase):
+    def test_repository_and_dataset_identifiers_are_non_evidence_formats(self) -> None:
+        for doi, expected in (
+            ("10.25772/1zzj-vn14", "dissertation"),
+            ("10.14288/1.0379503", "dissertation"),
+            ("10.17632/5yhxtvcgyy.1", "dataset_or_data_deposit"),
+            ("10.26226/morressier.5d1a038457558b317a140d4f", "conference_abstract"),
+        ):
+            decision = before_model_exclusion_decision(
+                {
+                    "study_doi": doi,
+                    "study_title": "Psychedelic research record",
+                    "abstract": "This record discusses psilocybin.",
+                    "publication_type": "article",
+                }
+            )
+            self.assertIsNotNone(decision)
+            self.assertIn(expected, decision["matched_terms"])
+
+    def test_book_metadata_is_excluded(self) -> None:
+        decision = before_model_exclusion_decision(
+            {
+                "study_doi": "10.6027/tn2008-606",
+                "study_title": "Occurrence and use of hallucinogenic mushrooms",
+                "abstract": "A book-length report about psilocybin.",
+                "publication_type": "book",
+            }
+        )
+        self.assertIsNotNone(decision)
+        self.assertIn("book_or_monograph", decision["matched_terms"])
+
+    def test_bmj_coded_supplement_title_is_conference_abstract(self) -> None:
+        decision = before_model_exclusion_decision(
+            {
+                "study_doi": "10.1136/sextrans-2015-052270.508",
+                "study_title": "P13.10 Club drug use in sexual health clinic attendees",
+                "abstract": "This abstract discusses drug use.",
+                "publication_type": "article",
+                "study_journal": "Sexually Transmitted Infections",
+            }
+        )
+        self.assertIsNotNone(decision)
+        self.assertIn("coded_conference_title", decision["matched_terms"])
+
+    def test_curated_loader_skips_decisions_migrated_to_post_retrieval_stage(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "formats.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "records": [
+                            {"doi": "10.example/prescreen", "publication_format": "conference_abstract"},
+                            {
+                                "doi": "10.example/later",
+                                "publication_format": "conference_poster",
+                                "decision_stage": "post_retrieval_eligibility",
+                            },
+                        ]
+                    }
+                )
+            )
+
+            loaded = load_curated_publication_format_exclusions(path)
+
+            self.assertEqual(set(loaded), {"10.example/prescreen"})
+
     def test_curated_metadata_override_wins_over_mismatched_provider_abstract(self) -> None:
         doi = "10.example/mismatched"
         papers = pd.DataFrame(
@@ -314,9 +382,9 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertFalse(by_doi["10.31219/osf.io/dy5cu_v1"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.3389/fnins.2025.1554049.s002"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.64898/2026.04.16.718915"]["retained_for_extraction_candidate"])
-        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_decision"], "retain")
-        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_action"], "retain_for_screening")
-        self.assertTrue(by_doi["10.example/case-letter"]["retained_for_extraction_candidate"])
+        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_decision"], "exclude")
+        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertFalse(by_doi["10.example/case-letter"]["retained_for_extraction_candidate"])
 
     def test_lumpy_skin_disease_lsd_acronym_is_excluded(self) -> None:
         papers = pd.DataFrame(
@@ -644,6 +712,20 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "publication_type": "dissertation",
                 },
                 {
+                    "doi": "10.example/peer-object",
+                    "study_title": "Author response for a ketamine treatment article",
+                    "abstract": "The authors respond to reviewer comments.",
+                    "study_journal": "Open peer review",
+                    "publication_type": "peer-review",
+                },
+                {
+                    "doi": "10.1017/dep.2025.10001.pr2",
+                    "study_title": "Review: Real-world esketamine treatment",
+                    "abstract": "This document contains a reviewer's comments.",
+                    "study_journal": "Open peer review",
+                    "publication_type": "journal-article",
+                },
+                {
                     "doi": "10.1093/sleep/32.11.1513",
                     "study_title": "Effects of acute MDMA on sleep and daytime sleepiness in MDMA users",
                     "abstract": "This full journal article reports original MDMA sleep outcomes across multiple pages.",
@@ -667,6 +749,8 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             "10.1093/ijnp/pyae059.031",
             "10.1007/7854_2023_453",
             "10.example/thesis",
+            "10.example/peer-object",
+            "10.1017/dep.2025.10001.pr2",
         ):
             self.assertEqual(by_doi[doi]["prescreen_decision"], "exclude")
             self.assertEqual(by_doi[doi]["prescreen_action"], "exclude_non_evidence_artifact")
@@ -957,6 +1041,87 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertEqual(by_doi["10.example/existing"]["prescreen_decision_id"], "old-existing")
         self.assertEqual(by_doi["10.example/new"]["run_id"], "existing_prescreen_run")
         self.assertEqual(by_doi["10.example/new"]["prescreen_action"], "retain_for_screening")
+
+    def test_scoped_update_does_not_reset_unrequested_excluded_candidates(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            papers_path = root / "candidate_papers.parquet"
+            metadata_path = root / "paper_metadata_enrichment.parquet"
+            contexts_path = root / "candidate_contexts.parquet"
+            decisions_path = root / "paper_prescreen_decisions.parquet"
+            summary_path = root / "paper_prescreen_summary.parquet"
+
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.example/update",
+                        "study_title": "Psilocybin conference record",
+                        "abstract": "",
+                        "prescreen_retained_for_extraction_candidate": True,
+                        "extraction_route_status": "ready",
+                    },
+                    {
+                        "doi": "10.example/unrequested",
+                        "study_title": "Previously excluded record",
+                        "abstract": "",
+                        "prescreen_retained_for_extraction_candidate": False,
+                        "extraction_route_status": "historical_value_must_remain",
+                    },
+                ]
+            ).to_parquet(papers_path, index=False)
+            pd.DataFrame([]).to_parquet(metadata_path, index=False)
+            pd.DataFrame([]).to_parquet(contexts_path, index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "table_version": "0.2",
+                        "run_id": "existing_prescreen_run",
+                        "generated_at_utc": "old",
+                        "prescreen_decision_id": "old-update",
+                        "doi": "10.example/update",
+                        "has_abstract": True,
+                        "prescreen_decision": "retain",
+                        "prescreen_action": "retain_for_screening",
+                        "deterministic_action": "escalate",
+                    },
+                    {
+                        "table_version": "0.2",
+                        "run_id": "existing_prescreen_run",
+                        "generated_at_utc": "old",
+                        "prescreen_decision_id": "old-unrequested",
+                        "doi": "10.example/unrequested",
+                        "has_abstract": False,
+                        "prescreen_decision": "exclude",
+                        "prescreen_action": "exclude_no_usable_abstract",
+                        "deterministic_action": "exclude_no_usable_abstract",
+                    },
+                ]
+            ).to_parquet(decisions_path, index=False)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "papers_table": str(papers_path),
+                    "metadata_table": str(metadata_path),
+                    "contexts_table": str(contexts_path),
+                    "decisions_table": str(decisions_path),
+                    "summary_table": str(summary_path),
+                    "run_id": "",
+                    "doi_file": "",
+                    "doi": ["10.example/update"],
+                    "progress_every": 0,
+                },
+            )()
+
+            run(args)
+            candidates = pd.read_parquet(papers_path).set_index("doi")
+
+        self.assertEqual(candidates.loc["10.example/update", "extraction_route_status"], "")
+        self.assertEqual(
+            candidates.loc["10.example/unrequested", "extraction_route_status"],
+            "historical_value_must_remain",
+        )
 
     def test_scoped_update_rejects_an_older_prescreen_schema(self) -> None:
         with TemporaryDirectory() as tmpdir:

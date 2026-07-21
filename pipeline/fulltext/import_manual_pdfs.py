@@ -27,6 +27,10 @@ from pipeline.fulltext.source_identity import (  # noqa: E402
     load_pdf_hash_attestation_registry,
     pdf_bytes_match_hash_attestation,
 )
+from pipeline.validate.doi_aliases import (  # noqa: E402
+    DEFAULT_DOI_ALIAS_REGISTRY,
+    load_doi_aliases,
+)
 
 DEFAULT_INBOX_DIR = ROOT / "data" / "raw" / "papers" / "manual_pdf_inbox"
 DEFAULT_PDF_DIR = ROOT / "data" / "raw" / "papers" / "pdfs"
@@ -39,7 +43,13 @@ DEFAULT_REPORT = ROOT / "data" / "processed" / "corpus" / "audits" / "manual_pdf
 DEFAULT_REVIEW_CSV = ROOT / "data" / "processed" / "corpus" / "audits" / "manual_pdf_import_review.csv"
 
 DOI_RE = re.compile(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
-PII_RE = re.compile(r"\bS\d{4}-?\d{4}\(?\d{2}\)?\d{5}-?\d\b", re.IGNORECASE)
+# Elsevier PIIs contain 16 characters after the leading ``S``.  Most are
+# digits, but ``X`` is a valid check character and also occurs inside some
+# ISSN-derived prefixes (for example ``S0169328X99001783``).
+PII_RE = re.compile(
+    r"\bS[0-9X]{4}-?[0-9X]{4}\(?[0-9X]{2}\)?[0-9X]{5}-?[0-9X]\b",
+    re.IGNORECASE,
+)
 STOPWORDS = {
     "about",
     "after",
@@ -154,11 +164,33 @@ def extract_pii_candidates(text: str) -> list[str]:
         if pii and pii not in out:
             out.append(pii)
     compact = normalize_pii(text)
-    compact_match = re.search(r"s\d{16}", compact)
+    compact_match = re.search(r"s[0-9x]{16}(?![0-9x])", compact)
     if compact_match:
         compact_pii = compact_match.group(0)
         if compact_pii not in out:
             out.append(compact_pii)
+    # Older Elsevier PIIs often use the compact 16-character form derived
+    # from the DOI suffix (for example ``000689939091718v``), without the
+    # leading ``S`` used by newer PIIs.  Browser downloads expose that value
+    # either bare (``PII0740547294900493.pdf``) or after the ScienceDirect
+    # ``1-s2.0-`` prefix.  Retain only these tightly bounded forms so ordinary
+    # long numbers in article text are not treated as identifiers.
+    legacy_candidates: list[str] = []
+    if len(compact) == 16 and compact.isalnum():
+        legacy_candidates.append(compact)
+    if compact.endswith("pdf") and len(compact[:-3]) == 16 and compact[:-3].isalnum():
+        legacy_candidates.append(compact[:-3])
+    for pattern in (r"(?:1s20|pii)([a-z0-9]{16})(?:main)?(?:pdf)?$",):
+        match = re.search(pattern, compact)
+        if match:
+            legacy_candidates.append(match.group(1))
+    for doi in extract_dois_from_text(text):
+        suffix = normalize_pii(doi.split("/", 1)[-1])
+        if len(suffix) == 16 and suffix.isalnum():
+            legacy_candidates.append(suffix)
+    for candidate in legacy_candidates:
+        if candidate not in out:
+            out.append(candidate)
     return out
 
 
@@ -379,8 +411,79 @@ def build_pii_lookup(known_records: dict[str, dict]) -> dict[str, list[str]]:
     return lookup
 
 
+def build_title_token_lookup(known_records: dict[str, dict]) -> dict[str, list[str]]:
+    """Index title tokens so opaque PDF filenames do not scan the full corpus."""
+
+    lookup: dict[str, list[str]] = {}
+    for doi, record in known_records.items():
+        title = clean(record.get("study_title", "") or record.get("title", ""))
+        tokens = set(title_tokens(title))
+        if len(tokens) < 4:
+            continue
+        for token in tokens:
+            lookup.setdefault(token, []).append(doi)
+    return lookup
+
+
+def load_validated_document_audits(
+    paths: Iterable[Path],
+    *,
+    doi_aliases: dict[str, str],
+) -> dict[str, dict]:
+    """Return PDF hash attestations from explicit document-level audit rows."""
+
+    validated: dict[str, dict] = {}
+    for path in paths:
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        frame = pd.read_csv(path).fillna("")
+        required = {"file_sha256", "requested_doi", "final_outcome", "recommended_staging_action"}
+        if not required.issubset(frame.columns):
+            raise ValueError(f"Validated document audit lacks columns {sorted(required - set(frame.columns))}: {path}")
+        for row in frame.to_dict("records"):
+            digest = clean(row.get("file_sha256", "")).lower()
+            requested = normalize_doi(row.get("requested_doi", "")).lower()
+            outcome = clean(row.get("final_outcome", ""))
+            action = clean(row.get("recommended_staging_action", ""))
+            title_score = float(row.get("front_title_score", 0) or 0)
+            doi = ""
+            if outcome == "valid_article_or_review" and action == "eligible_for_import":
+                doi = requested
+            elif outcome == "alias_or_foreign_doi_mismatch" and title_score >= 0.999:
+                doi = doi_aliases.get(requested, "")
+            if digest and doi:
+                validated[digest] = {
+                    "doi": doi,
+                    "requested_doi": requested,
+                    "basis": "validated_document_audit_hash",
+                    "source_artifact": str(path.resolve()),
+                }
+    return validated
+
+
 def load_known_records(manual_csv: Path, candidate_table: Path, metadata_table: Path) -> dict[str, dict]:
     records: dict[str, dict] = {}
+
+    # These source tables contain large abstracts and many downstream pipeline
+    # columns that are irrelevant to PDF identity matching.  Reading every
+    # column and then materialising every row as a Python dict can require
+    # several GB for a mature corpus, causing the manual importer to be killed
+    # before it can write its audit.  Keep this projection aligned with the
+    # fields consumed by the matchers below.
+    identity_columns = {
+        "doi",
+        "study_title",
+        "title",
+        "retained_for_extraction_candidate",
+        "post_retrieval_decision",
+        "pipeline_exclusion_stage",
+        "best_pdf_url",
+        "open_access_url",
+        "pdf_url_candidates",
+        "probable_pdf_url_candidates",
+        "other_url_candidates",
+        "related_dois",
+    }
 
     def add(row: dict, source: str) -> None:
         doi = normalize_doi(row.get("doi", "")).lower()
@@ -398,10 +501,22 @@ def load_known_records(manual_csv: Path, candidate_table: Path, metadata_table: 
         for row in pd.read_csv(manual_csv).fillna("").to_dict("records"):
             add(row, "manual_pdf_download_csv")
     if metadata_table.exists():
-        for row in pd.read_parquet(metadata_table).fillna("").to_dict("records"):
+        available = set(pd.read_parquet(metadata_table, engine="pyarrow", columns=[]).columns)
+        if not available:
+            import pyarrow.parquet as pq
+
+            available = set(pq.ParquetFile(metadata_table).schema.names)
+        columns = sorted(identity_columns & available)
+        for row in pd.read_parquet(metadata_table, columns=columns).fillna("").to_dict("records"):
             add(row, "metadata_table")
     if candidate_table.exists():
-        for row in pd.read_parquet(candidate_table).fillna("").to_dict("records"):
+        available = set(pd.read_parquet(candidate_table, engine="pyarrow", columns=[]).columns)
+        if not available:
+            import pyarrow.parquet as pq
+
+            available = set(pq.ParquetFile(candidate_table).schema.names)
+        columns = sorted(identity_columns & available)
+        for row in pd.read_parquet(candidate_table, columns=columns).fillna("").to_dict("records"):
             add(row, "candidate_table")
     return records
 
@@ -419,6 +534,8 @@ def select_match(
     source_filename_lookup: dict[str, list[str]] | None = None,
     pii_lookup: dict[str, list[str]] | None = None,
     pdf_hash_attestations: dict[str, dict] | None = None,
+    doi_aliases: dict[str, str] | None = None,
+    title_token_lookup: dict[str, list[str]] | None = None,
 ) -> tuple[str, str, list[dict]]:
     known_dois = set(known_records)
     attestations = (
@@ -432,9 +549,28 @@ def select_match(
             {"doi": attested_doi, "basis": "curated_pdf_hash"}
         ]
     front_identity_text = document_front_identity_text(text, metadata_text)
+    doi_aliases = doi_aliases or {}
     filename_dois = [doi for doi in parse_doi_from_filename(file_path) if doi in known_dois]
     if len(filename_dois) == 1:
         filename_doi = filename_dois[0]
+        canonical_doi = doi_aliases.get(filename_doi, "")
+        if canonical_doi and canonical_doi in known_dois:
+            embedded = extract_dois_from_text(front_identity_text)
+            if canonical_doi in embedded:
+                return canonical_doi, "filename_doi_alias+document_canonical_doi", [
+                    {"doi": filename_doi, "basis": "registered_alias_doi"},
+                    {"doi": canonical_doi, "basis": "embedded_canonical_doi"},
+                ]
+            canonical_title = clean(
+                known_records[canonical_doi].get("study_title", "")
+                or known_records[canonical_doi].get("title", "")
+            )
+            score = title_match_score(canonical_title, document_front_title_text(text, metadata_text))
+            if score >= min_title_score:
+                return canonical_doi, "filename_doi_alias+canonical_title_match", [
+                    {"doi": filename_doi, "basis": "registered_alias_doi"},
+                    {"doi": canonical_doi, "basis": "canonical_title_match", "score": round(score, 4)},
+                ]
         accepted, support, candidates = document_support_for_doi(
             filename_doi,
             known_records=known_records,
@@ -493,7 +629,7 @@ def select_match(
 
     if pii_lookup:
         pii_matches: list[str] = []
-        for value in [metadata_text, front_identity_text]:
+        for value in [file_path.name, metadata_text, front_identity_text]:
             for pii in extract_pii_candidates(value):
                 for doi in pii_lookup.get(pii, []):
                     if doi not in pii_matches:
@@ -516,7 +652,20 @@ def select_match(
 
     scored: list[dict] = []
     combined_text_norm = document_front_title_text(text, metadata_text)
-    for doi, record in known_records.items():
+    candidate_dois: set[str]
+    if title_token_lookup:
+        hit_counts: dict[str, int] = {}
+        for token in set(combined_text_norm.split()):
+            for doi in title_token_lookup.get(token, []):
+                hit_counts[doi] = hit_counts.get(doi, 0) + 1
+        # A match at the default 0.86 threshold necessarily contains at least
+        # four informative title tokens.  This reduces an opaque-file lookup
+        # from every corpus row to a small, evidence-bearing candidate pool.
+        candidate_dois = {doi for doi, count in hit_counts.items() if count >= 4}
+    else:
+        candidate_dois = set(known_records)
+    for doi in candidate_dois:
+        record = known_records[doi]
         title = clean(record.get("study_title", "") or record.get("title", ""))
         # Short titles such as "I", "LSD", or "Treatment" are unsafe global
         # fuzzy-match candidates because they occur incidentally in many PDFs.
@@ -665,6 +814,8 @@ def import_manual_pdfs(
     manual_csv: Path = DEFAULT_MANUAL_CSV,
     candidate_table: Path = DEFAULT_CANDIDATE_TABLE,
     metadata_table: Path = DEFAULT_METADATA_TABLE,
+    doi_alias_registry: Path = DEFAULT_DOI_ALIAS_REGISTRY,
+    validated_document_audits: Iterable[Path] = (),
     report_path: Path = DEFAULT_REPORT,
     review_csv: Path = DEFAULT_REVIEW_CSV,
     apply: bool = False,
@@ -683,6 +834,12 @@ def import_manual_pdfs(
     filename_slug_lookup = build_filename_slug_lookup(known_records)
     source_filename_lookup = build_source_filename_lookup(known_records)
     pii_lookup = build_pii_lookup(known_records)
+    title_token_lookup = build_title_token_lookup(known_records)
+    doi_aliases = load_doi_aliases(doi_alias_registry.resolve())
+    validated_hashes = load_validated_document_audits(
+        [Path(path).resolve() for path in validated_document_audits],
+        doi_aliases=doi_aliases,
+    )
     pdf_hash_attestations = load_pdf_hash_attestation_registry()["records"]
     files = sorted(path for path in inbox_dir.glob("*.pdf") if path.is_file()) if inbox_dir.exists() else []
 
@@ -712,21 +869,29 @@ def import_manual_pdfs(
                     shutil.copy2(file_path, dest)
             continue
 
-        metadata_text = extract_pdf_metadata_text(file_path)
-        text = extract_pdf_text(file_path, max_pages=max_pages)
-        doi, basis, candidates = select_match(
-            file_path=file_path,
-            known_records=known_records,
-            text=text,
-            metadata_text=metadata_text,
-            enable_title_match=enable_title_match,
-            min_title_score=min_title_score,
-            min_title_margin=min_title_margin,
-            filename_slug_lookup=filename_slug_lookup,
-            source_filename_lookup=source_filename_lookup,
-            pii_lookup=pii_lookup,
-            pdf_hash_attestations=pdf_hash_attestations,
-        )
+        validated = validated_hashes.get(source_hash)
+        if validated and validated["doi"] in known_records:
+            doi = validated["doi"]
+            basis = validated["basis"]
+            candidates = [validated]
+        else:
+            metadata_text = extract_pdf_metadata_text(file_path)
+            text = extract_pdf_text(file_path, max_pages=max_pages)
+            doi, basis, candidates = select_match(
+                file_path=file_path,
+                known_records=known_records,
+                text=text,
+                metadata_text=metadata_text,
+                enable_title_match=enable_title_match,
+                min_title_score=min_title_score,
+                min_title_margin=min_title_margin,
+                filename_slug_lookup=filename_slug_lookup,
+                source_filename_lookup=source_filename_lookup,
+                pii_lookup=pii_lookup,
+                pdf_hash_attestations=pdf_hash_attestations,
+                doi_aliases=doi_aliases,
+                title_token_lookup=title_token_lookup,
+            )
         if not doi:
             row = {
                 **base,
@@ -741,18 +906,40 @@ def import_manual_pdfs(
         dest = pdf_dir / canonical_name
         record = known_records.get(doi, {})
         retained_text = clean(record.get("retained_for_extraction_candidate", "")).lower()
-        if retained_text in {"false", "0", "no"}:
-            skipped.append(
-                {
-                    **base,
-                    "status": "skipped_not_retained_for_extraction",
-                    "doi": doi,
-                    "match_basis": basis,
-                    "study_title": clean(record.get("study_title", "") or record.get("title", "")),
-                    "reason": "canonical candidate record is not retained for extraction",
-                    "candidate_matches_json": json.dumps(candidates, ensure_ascii=False),
-                }
-            )
+        post_retrieval_decision = clean(record.get("post_retrieval_decision", "")).lower()
+        pipeline_exclusion_stage = clean(record.get("pipeline_exclusion_stage", ""))
+        excluded_after_prescreen = (
+            post_retrieval_decision == "exclude" or bool(pipeline_exclusion_stage)
+        )
+        if retained_text in {"false", "0", "no"} or excluded_after_prescreen:
+            skipped_dest = conflict_dir / "not_retained_for_extraction" / file_path.name
+            if excluded_after_prescreen:
+                skip_reason = (
+                    "canonical candidate record was excluded at a later pipeline stage"
+                )
+            else:
+                skip_reason = "canonical candidate record is not retained for extraction"
+            skipped_row = {
+                **base,
+                "status": "skipped_not_retained_for_extraction",
+                "doi": doi,
+                "match_basis": basis,
+                "study_title": clean(record.get("study_title", "") or record.get("title", "")),
+                "reason": skip_reason,
+                "pipeline_exclusion_stage": pipeline_exclusion_stage,
+                "post_retrieval_decision": post_retrieval_decision,
+                "destination": str(skipped_dest),
+                "candidate_matches_json": json.dumps(candidates, ensure_ascii=False),
+            }
+            skipped.append(skipped_row)
+            if apply and move:
+                skipped_dest.parent.mkdir(parents=True, exist_ok=True)
+                if skipped_dest.exists() and sha256_file(skipped_dest) == source_hash:
+                    file_path.unlink()
+                    skipped_row["quarantine_status"] = "duplicate_removed_from_inbox"
+                else:
+                    shutil.move(str(file_path), str(skipped_dest))
+                    skipped_row["quarantine_status"] = "moved_to_not_retained_quarantine"
             continue
         row = {
             **base,
@@ -827,6 +1014,10 @@ def import_manual_pdfs(
             "manual_csv": str(manual_csv.resolve()),
             "candidate_table": str(candidate_table.resolve()),
             "metadata_table": str(metadata_table.resolve()),
+            "doi_alias_registry": str(doi_alias_registry.resolve()),
+            "validated_document_audits": [
+                str(Path(path).resolve()) for path in validated_document_audits
+            ],
             "apply": apply,
             "move": move,
             "enable_title_match": enable_title_match,
@@ -856,6 +1047,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--manual-csv", default=str(DEFAULT_MANUAL_CSV))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
+    parser.add_argument("--doi-alias-registry", default=str(DEFAULT_DOI_ALIAS_REGISTRY))
+    parser.add_argument(
+        "--validated-document-audit",
+        action="append",
+        default=[],
+        help="Document audit whose accepted rows can attest PDF identity by SHA-256; repeat as needed.",
+    )
     parser.add_argument("--report", default=str(DEFAULT_REPORT))
     parser.add_argument("--review-csv", default=str(DEFAULT_REVIEW_CSV))
     parser.add_argument("--apply", action="store_true")
@@ -882,6 +1080,8 @@ def main() -> int:
         manual_csv=Path(args.manual_csv),
         candidate_table=Path(args.candidate_table),
         metadata_table=Path(args.metadata_table),
+        doi_alias_registry=Path(args.doi_alias_registry),
+        validated_document_audits=[Path(value) for value in args.validated_document_audit],
         report_path=Path(args.report),
         review_csv=Path(args.review_csv),
         apply=bool(args.apply),

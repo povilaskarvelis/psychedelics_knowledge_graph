@@ -87,6 +87,36 @@ class ImportManualPdfsTest(unittest.TestCase):
     def test_extract_pii_candidates_normalizes_compact_pii_filename(self) -> None:
         self.assertEqual(extract_pii_candidates("PIIS0006322399000979.pdf"), ["s0006322399000979"])
 
+    def test_extract_pii_candidates_accepts_terminal_x_check_character(self) -> None:
+        self.assertEqual(
+            extract_pii_candidates("1-s2.0-S000689939901224X-main.pdf"),
+            ["s000689939901224x"],
+        )
+
+    def test_extract_pii_candidates_accepts_x_inside_issn_prefix(self) -> None:
+        self.assertEqual(
+            extract_pii_candidates("1-s2.0-S0169328X99001783-main.pdf"),
+            ["s0169328x99001783"],
+        )
+
+    def test_extract_pii_candidates_normalizes_legacy_sciencedirect_filename(self) -> None:
+        self.assertEqual(
+            extract_pii_candidates("1-s2.0-000689939091718V-main.pdf"),
+            ["000689939091718v"],
+        )
+
+    def test_extract_pii_candidates_normalizes_legacy_doi_suffix(self) -> None:
+        self.assertEqual(
+            extract_pii_candidates("10.1016/0006-8993(90)91718-V"),
+            ["000689939091718v"],
+        )
+
+    def test_extract_pii_candidates_normalizes_bare_legacy_pii_filename(self) -> None:
+        self.assertEqual(
+            extract_pii_candidates("PII0740547294900493.pdf"),
+            ["0740547294900493"],
+        )
+
     def test_select_match_prefers_known_doi_in_text(self) -> None:
         known = {
             "10.1001/example": {"doi": "10.1001/example", "study_title": "Example title"},
@@ -236,7 +266,73 @@ class ImportManualPdfsTest(unittest.TestCase):
             self.assertEqual(result["counts"]["new_imports"], 0)
             self.assertEqual(result["skipped"][0]["status"], "skipped_not_retained_for_extraction")
             self.assertFalse(pdf_dir.exists())
-            self.assertTrue(source_pdf.exists())
+            self.assertFalse(source_pdf.exists())
+            self.assertTrue(
+                (root / "conflicts" / "not_retained_for_extraction" / source_pdf.name).exists()
+            )
+            self.assertEqual(
+                result["skipped"][0]["quarantine_status"],
+                "moved_to_not_retained_quarantine",
+            )
+
+    def test_import_skips_pdf_for_record_excluded_after_prescreen(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            inbox = root / "manual_pdf_inbox"
+            pdf_dir = root / "pdfs"
+            candidate_table = root / "candidate_papers.parquet"
+            inbox.mkdir()
+            doi = "10.1234/post-retrieval-excluded"
+            source_pdf = inbox / "excluded_later.pdf"
+            source_pdf.write_bytes(b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n")
+            pd.DataFrame(
+                [
+                    {
+                        "doi": doi,
+                        "study_title": "Conference abstract identified after retrieval",
+                        "retained_for_extraction_candidate": True,
+                        "post_retrieval_decision": "exclude",
+                        "pipeline_exclusion_stage": "post_retrieval_eligibility",
+                    }
+                ]
+            ).to_parquet(candidate_table, engine="pyarrow", index=False)
+
+            with patch(
+                "pipeline.fulltext.import_manual_pdfs.extract_pdf_text",
+                return_value=(
+                    "Conference abstract identified after retrieval\n"
+                    "DOI 10.1234/post-retrieval-excluded"
+                ),
+            ):
+                result = import_manual_pdfs(
+                    inbox_dir=inbox,
+                    pdf_dir=pdf_dir,
+                    conflict_dir=root / "conflicts",
+                    invalid_dir=root / "invalid",
+                    manual_csv=root / "missing_manual_queue.csv",
+                    candidate_table=candidate_table,
+                    metadata_table=root / "missing_metadata.parquet",
+                    report_path=root / "report.json",
+                    review_csv=root / "review.csv",
+                    apply=True,
+                    move=True,
+                )
+
+            self.assertEqual(result["counts"]["new_imports"], 0)
+            self.assertEqual(result["skipped"][0]["status"], "skipped_not_retained_for_extraction")
+            self.assertEqual(
+                result["skipped"][0]["reason"],
+                "canonical candidate record was excluded at a later pipeline stage",
+            )
+            self.assertEqual(
+                result["skipped"][0]["pipeline_exclusion_stage"],
+                "post_retrieval_eligibility",
+            )
+            self.assertFalse(pdf_dir.exists())
+            self.assertFalse(source_pdf.exists())
+            self.assertTrue(
+                (root / "conflicts" / "not_retained_for_extraction" / source_pdf.name).exists()
+            )
 
     def test_import_updates_candidate_pdf_status_for_manual_import(self) -> None:
         with TemporaryDirectory() as tmpdir:

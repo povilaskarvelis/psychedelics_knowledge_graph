@@ -12,7 +12,6 @@ from pathlib import Path
 import re
 import sys
 import time
-from typing import Iterable
 from urllib.parse import urljoin, urlparse
 
 import pandas as pd
@@ -20,7 +19,7 @@ import requests
 
 try:
     from pipeline.fulltext.download_routed_pdfs import (
-        apply_result_to_candidate_table,
+        apply_results_to_candidate_parquet,
         classify_download_failure,
         rebuild_routes_after_pdf_downloads,
         sha256_file,
@@ -45,7 +44,7 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.download_routed_pdfs import (
-        apply_result_to_candidate_table,
+        apply_results_to_candidate_parquet,
         classify_download_failure,
         rebuild_routes_after_pdf_downloads,
         sha256_file,
@@ -664,7 +663,6 @@ def recover_pdf_landing_pages(
     selected_categories = set(categories or set()) or rescue_preset_categories(rescue_preset)
 
     manual_df = pd.read_csv(manual_csv).fillna("")
-    candidate_df = pd.read_parquet(candidate_table) if candidate_table.exists() else pd.DataFrame()
     rows = selected_rows(
         manual_df,
         doi_filter=doi_filter,
@@ -835,12 +833,11 @@ def recover_pdf_landing_pages(
             f"events={len(events):,}",
             flush=True,
         )
-        if apply and status in {"downloaded", "already_present"}:
-            if apply_result_to_candidate_table(candidate_df, result):
-                rows_changed += 1
-
-    if apply and not candidate_df.empty:
-        candidate_df.to_parquet(candidate_table, engine="pyarrow", index=False)
+    if apply:
+        rows_changed = apply_results_to_candidate_parquet(
+            candidate_table,
+            [record for record in records if record.get("status") in {"downloaded", "already_present"}],
+        )
 
     route_rebuild_summary: dict | None = None
     if apply and rebuild_routes_after and any(record["status"] in {"downloaded", "already_present"} for record in records):

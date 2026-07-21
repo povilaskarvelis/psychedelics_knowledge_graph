@@ -5,17 +5,22 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter, deque
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime as dt
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import sys
+import tempfile
 import time
 from typing import Iterable
 from urllib.parse import urlparse
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 try:
     from pipeline.extract.build_extraction_routes import build_extraction_routes, merged_extraction_metadata
@@ -76,6 +81,28 @@ DEFAULT_MANUAL_ROUTE_OVERRIDES = ROOT / "pipeline" / "extract" / "manual_extract
 RETRYABLE_FAILURE_CATEGORIES = {"rate_limited", "provider_error", "timeout"}
 URL_RE = re.compile(r"https?://[^\s|]+")
 
+TASK_METADATA_COLUMNS = {
+    "doi",
+    "study_title",
+    "study_year",
+    "open_access_status",
+    "pmid",
+    "pmcid",
+    "best_pdf_url",
+    "pdf_url_candidates",
+    "probable_pdf_url_candidates",
+    "other_url_candidates",
+    "open_access_url",
+}
+CANDIDATE_STATUS_COLUMNS = {
+    "doi",
+    "pdf_download_status",
+    "pdf_local_path",
+    "pdf_download_failure_category",
+    "pdf_download_failure_categories",
+    "pdf_download_retry_recommended",
+}
+
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -122,6 +149,33 @@ def read_doi_file(path: Path) -> set[str]:
         if doi:
             out.add(doi)
     return out
+
+
+def read_parquet_projection(
+    path: Path,
+    *,
+    columns: set[str] | None = None,
+    doi_filter: set[str] | None = None,
+) -> pd.DataFrame:
+    """Read only the columns and DOI rows needed by a retrieval stage.
+
+    The canonical candidate ledger is deliberately wide. Loading it in full
+    alongside enrichment and worklist tables can require several gigabytes
+    even for a one-DOI retry. Projection keeps retrieval memory proportional
+    to the active worklist rather than to the historical corpus.
+    """
+    if not path.exists():
+        return pd.DataFrame()
+    available = set(pq.read_schema(path).names)
+    selected_columns = None
+    if columns is not None:
+        selected_columns = [column for column in columns if column in available]
+        if "doi" in available and "doi" not in selected_columns:
+            selected_columns.append("doi")
+    frame = pd.read_parquet(path, columns=selected_columns)
+    if doi_filter and "doi" in frame.columns:
+        frame = frame[frame["doi"].map(doi_key).isin(doi_filter)].copy()
+    return frame
 
 
 def metadata_by_doi(metadata_df: pd.DataFrame) -> dict[str, dict]:
@@ -200,6 +254,7 @@ def build_download_tasks(
     *,
     doi_filter: set[str] | None = None,
     route_action: str = DEFAULT_ROUTE_ACTION,
+    include_landing_page_candidates: bool = False,
     limit: int = 0,
 ) -> list[dict]:
     selected = selected_route_rows(routes_df, route_action=route_action, doi_filter=doi_filter)
@@ -216,15 +271,34 @@ def build_download_tasks(
         rows = grouped[key]
         metadata = metadata_map.get(key, {})
         candidates: list[str] = []
+        landing_candidates: list[str] = []
         for row in rows:
             add_candidates(candidates, row.get("best_pdf_url", ""))
             add_candidates(candidates, row.get("pdf_url_candidates", ""))
             add_candidates(candidates, row.get("probable_pdf_url_candidates", ""))
         add_candidates(candidates, metadata.get("best_pdf_url", ""))
         add_candidates(candidates, metadata.get("pdf_url_candidates", ""))
+        if include_landing_page_candidates:
+            for row in rows:
+                add_candidates(landing_candidates, row.get("open_access_url", ""))
+            add_candidates(landing_candidates, metadata.get("open_access_url", ""))
+            add_candidates(landing_candidates, f"https://doi.org/{key}")
+            for value in landing_candidates:
+                add_candidates(candidates, value)
         ranked = rank_pdf_candidates(candidates)
         probable = probable_pdf_candidates(ranked)
-        weak = [value for value in ranked if value not in set(probable)]
+        probable_set = set(probable)
+        ordered_landing = [
+            value for value in landing_candidates if value in ranked and value not in probable_set
+        ]
+        ordered_landing_set = set(ordered_landing)
+        other_weak = [
+            value
+            for value in ranked
+            if value not in probable_set and value not in ordered_landing_set
+        ]
+        ranked = [*probable, *ordered_landing, *other_weak]
+        weak = [*ordered_landing, *other_weak]
         tasks.append(
             {
                 "doi": key,
@@ -261,7 +335,7 @@ def download_rows_from_selection(
         selection_df["selected_for_downstream"].map(truthy)
         & selection_df["fulltext_enrichment_needed"].map(truthy)
     ].copy()
-    actions = {"download_known_pdf"}
+    actions = {"download_known_pdf", "resolve_oa_landing_page"}
     if include_discovery:
         actions.update({"discover_fulltext", "fetch_pmc_xml"})
     selected = selected[selected["fulltext_enrichment_action"].fillna("").astype(str).isin(actions)].copy()
@@ -483,6 +557,7 @@ def filter_tasks_by_candidate_status(
     *,
     skip_candidate_statuses: set[str],
     only_failure_categories: set[str] | None = None,
+    pdf_dir: Path | None = None,
 ) -> tuple[list[dict], list[dict]]:
     candidate_map = candidate_pdf_status_by_doi(candidate_df)
     kept: list[dict] = []
@@ -499,9 +574,18 @@ def filter_tasks_by_candidate_status(
             "candidate_pdf_failure_categories": clean(row.get("pdf_download_failure_categories", "")),
             "candidate_pdf_retry_recommended": truthy(row.get("pdf_download_retry_recommended", False)),
         }
-        if status in skip_candidate_statuses:
+        recorded_path = Path(local_path).expanduser() if local_path else None
+        canonical_path = pdf_dir / pdf_filename_for_doi(task["doi"]) if pdf_dir is not None else None
+        local_pdf_exists = any(
+            path is not None and path.is_file() and path.stat().st_size > 0
+            for path in (recorded_path, canonical_path)
+        )
+        stale_success_status = status in {"downloaded", "already_present", "manual_import"} and not local_pdf_exists
+        if status in skip_candidate_statuses and not stale_success_status:
             skipped.append({**annotated, "skip_reason": f"candidate_status:{status}"})
             continue
+        if stale_success_status:
+            annotated["candidate_pdf_status_stale"] = True
         if only_failure_categories:
             categories = split_pipe_values(annotated["candidate_pdf_failure_categories"])
             if annotated["candidate_pdf_failure_category"]:
@@ -591,8 +675,13 @@ def apply_result_to_candidate_table(
         elif status:
             updates.update(
                 {
+                    "pdf_local_path": "",
+                    "local_pdf_paths": "",
+                    "local_pdf_count": 0,
                     "pdf_download_status": status,
+                    "pdf_sha256": "",
                     "flag_has_local_pdf": False,
+                    "library_status": "",
                     "pdf_download_error": error,
                     "pdf_download_failure_category": failure_category,
                     "pdf_download_failure_categories": failure_categories,
@@ -612,7 +701,117 @@ def apply_result_to_candidate_table(
 
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    handle = tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        dir=path.parent,
+        delete=False,
+    )
+    temporary = Path(handle.name)
+    try:
+        json.dump(payload, handle, indent=2, ensure_ascii=False)
+        handle.write("\n")
+        handle.close()
+        os.replace(temporary, path)
+    finally:
+        if not handle.closed:
+            handle.close()
+        temporary.unlink(missing_ok=True)
+
+
+def write_parquet(path: Path, frame: pd.DataFrame) -> None:
+    """Atomically replace a checkpoint table without exposing partial Parquet bytes."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = tempfile.NamedTemporaryFile(
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        dir=path.parent,
+        delete=False,
+    )
+    temporary = Path(handle.name)
+    handle.close()
+    try:
+        frame.to_parquet(temporary, engine="pyarrow", index=False)
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def apply_results_to_candidate_parquet(
+    candidate_table: Path,
+    results: list[dict],
+    *,
+    batch_size: int = 8_192,
+) -> int:
+    """Atomically patch retrieval results into a wide candidate Parquet file.
+
+    Parquet is immutable, so the file must be rewritten. Iterating Arrow
+    batches avoids materializing the complete 268k-row historical ledger as a
+    pandas DataFrame and keeps peak memory bounded during routine retry runs.
+    """
+    if not results or not candidate_table.exists():
+        return 0
+    result_by_doi = {
+        doi_key(result.get("doi", "")): result
+        for result in results
+        if doi_key(result.get("doi", "")) and result.get("apply_candidate_result", True)
+    }
+    if not result_by_doi:
+        return 0
+
+    candidate_table.parent.mkdir(parents=True, exist_ok=True)
+    handle = tempfile.NamedTemporaryFile(
+        prefix=f".{candidate_table.name}.",
+        suffix=".tmp",
+        dir=candidate_table.parent,
+        delete=False,
+    )
+    temporary = Path(handle.name)
+    handle.close()
+    changed_dois: set[str] = set()
+    writer: pq.ParquetWriter | None = None
+    try:
+        parquet_file = pq.ParquetFile(candidate_table)
+        for batch in parquet_file.iter_batches(batch_size=max(1, batch_size)):
+            frame = batch.to_pandas()
+            frame = ensure_candidate_columns(frame)
+            batch_dois = set(frame["doi"].map(doi_key)) if "doi" in frame.columns else set()
+            for doi in batch_dois.intersection(result_by_doi):
+                result = result_by_doi[doi]
+                mask = frame["doi"].map(doi_key).eq(doi)
+                matching_rows = frame.loc[mask]
+                existing_success = matching_rows["pdf_download_status"].map(clean).str.lower().isin(
+                    {"downloaded", "already_present", "manual_import"}
+                )
+                existing_local_pdf = matching_rows["pdf_local_path"].map(
+                    lambda value: bool(clean(value)) and Path(clean(value)).expanduser().is_file()
+                )
+                incoming_status = clean(result.get("status", "")).lower()
+                # Never erase a valid PDF that appeared after the retry queue
+                # was built (for example, from a simultaneous manual import).
+                if (
+                    (existing_success & existing_local_pdf).any()
+                    and incoming_status not in {"downloaded", "already_present"}
+                ):
+                    continue
+                if apply_result_to_candidate_table(frame, result):
+                    changed_dois.add(doi)
+            table = pa.Table.from_pandas(frame, preserve_index=False)
+            if writer is None:
+                writer = pq.ParquetWriter(temporary, table.schema, compression="snappy")
+            writer.write_table(table)
+        if writer is None:
+            return 0
+        writer.close()
+        writer = None
+        os.replace(temporary, candidate_table)
+    finally:
+        if writer is not None:
+            writer.close()
+        temporary.unlink(missing_ok=True)
+    return len(changed_dois)
 
 
 def wait_for_host_cooldown(candidates: list[str], cooldown_until_by_host: dict[str, float]) -> None:
@@ -695,6 +894,196 @@ def rebuild_routes_after_pdf_downloads(
     return summary
 
 
+def process_pdf_task(
+    *,
+    position: int,
+    total_tasks: int,
+    task: dict,
+    pdf_dir: Path,
+    client: RateLimitedHttpClient,
+    dry_run: bool,
+    include_weak_pdf_urls: bool,
+    deprioritized_hosts: set[str],
+    excluded_hosts: set[str],
+    attempt_log_every: int,
+    candidate_log_every: int,
+    alternate_pdf_sources: set[str],
+    alternate_sources_only: bool,
+    alternate_pdf_min_title_score: float,
+    pdf_identity_min_title_score: float,
+) -> dict:
+    """Retrieve and validate one DOI without mutating shared corpus tables."""
+    doi = task["doi"]
+    target_path = pdf_dir / pdf_filename_for_doi(doi)
+    candidates = task_download_candidates(
+        task,
+        include_weak_pdf_urls=include_weak_pdf_urls,
+        deprioritized_hosts=deprioritized_hosts,
+        excluded_hosts=excluded_hosts,
+    )
+    all_candidates = split_candidates(task.get("pdf_url_candidates", ""))
+    candidate_event_count = 0
+    alternate_source_events: list[dict] = []
+    alternate_source_status = ""
+    alternate_source_selected = ""
+    alternate_source_attempts = ""
+    alternate_source_candidate_count = 0
+
+    def log_candidate_event(event: dict) -> None:
+        nonlocal candidate_event_count
+        if candidate_log_every <= 0:
+            return
+        candidate_event_count += 1
+        if candidate_event_count % candidate_log_every != 0:
+            return
+        event_name = clean(event.get("event", "")).upper()
+        status_text = clean(event.get("status", ""))
+        error_text = clean(event.get("error", "")).replace("\n", " ")[:180]
+        print(
+            f"PDF_URL_{event_name}: PDF download "
+            f"{position:,}/{total_tasks:,} "
+            f"doi={doi} "
+            f"round={event.get('round', '')} "
+            f"host={clean(event.get('host', '')) or '<none>'} "
+            f"status={status_text or '<pending>'} "
+            f"size={event.get('size', '')} "
+            f"error={error_text or '<blank>'}",
+            flush=True,
+        )
+
+    if attempt_log_every > 0 and (
+        position == 1 or position % attempt_log_every == 0 or position == total_tasks
+    ):
+        candidate_hosts = hosts_from_candidates(join_candidates(candidates))
+        print(
+            "ATTEMPT: PDF download "
+            f"{position:,}/{total_tasks:,} "
+            f"doi={doi} "
+            f"candidates={len(candidates):,} "
+            f"hosts={','.join(candidate_hosts[:3]) or '<none>'} "
+            f"previous_status={clean(task.get('candidate_pdf_download_status', '')) or '<blank>'} "
+            f"previous_failure={clean(task.get('candidate_pdf_failure_category', '')) or '<blank>'}",
+            flush=True,
+        )
+
+    if dry_run:
+        status, error, size, selected_url, attempts = "dry_run", "", 0, "", join_candidates(candidates)
+    elif alternate_sources_only:
+        status, error, size, selected_url, attempts = "no_pdf_url", "alternate_sources_only", 0, "", ""
+    elif not candidates and all_candidates:
+        status = "no_probable_pdf_url"
+        error = "weak_or_landing_page_urls_only"
+        size = 0
+        selected_url = ""
+        attempts = ""
+    elif not candidates:
+        status, error, size, selected_url, attempts = "no_pdf_url", "no_pdf_url", 0, "", ""
+    else:
+        direct_result = download_alternate_pdf_candidates(
+            client=client,
+            candidates=[
+                AlternatePdfCandidate(
+                    url=url,
+                    source="metadata_direct",
+                    reason="ranked_pdf_candidate",
+                )
+                for url in candidates
+            ],
+            target_path=target_path,
+            study_doi=doi,
+            study_title=clean(task.get("study_title", "")),
+            min_title_score=max(0.0, pdf_identity_min_title_score),
+            progress_callback=log_candidate_event if candidate_log_every > 0 else None,
+        )
+        status = clean(direct_result.get("status", "")) or "download_failed"
+        error = clean(direct_result.get("error", ""))
+        size = int(direct_result.get("size", 0) or 0)
+        selected_url = clean(direct_result.get("selected_url", ""))
+        attempts = clean(direct_result.get("attempted_pdf_url_candidates", ""))
+        alternate_source_events.extend(direct_result.get("events", []))
+
+    if (
+        not dry_run
+        and alternate_pdf_sources
+        and status not in {"downloaded", "already_present", "invalid_pdf_existing"}
+    ):
+        discovery = collect_alternate_pdf_candidates(
+            client=client,
+            task=task,
+            sources=alternate_pdf_sources,
+        )
+        alternate_source_events.extend(discovery.get("events", []))
+        alternate_source_attempts = clean(discovery.get("candidate_urls", ""))
+        alternate_source_candidate_count = len(discovery.get("candidates", []))
+        if alternate_source_candidate_count:
+            alternate_result = download_alternate_pdf_candidates(
+                client=client,
+                candidates=discovery["candidates"],
+                target_path=target_path,
+                study_doi=doi,
+                study_title=clean(task.get("study_title", "")),
+                min_title_score=max(0.0, alternate_pdf_min_title_score),
+                progress_callback=log_candidate_event if candidate_log_every > 0 else None,
+            )
+            alternate_source_events.extend(alternate_result.get("events", []))
+            alternate_source_status = clean(alternate_result.get("status", ""))
+            alternate_source_selected = clean(alternate_result.get("selected_url", ""))
+            alternate_source_attempts = (
+                clean(alternate_result.get("attempted_pdf_url_candidates", "")) or alternate_source_attempts
+            )
+            if alternate_source_status in {"downloaded", "already_present"}:
+                status = alternate_source_status
+                error = ""
+                size = int(alternate_result.get("size", 0))
+                selected_url = alternate_source_selected
+                attempts = alternate_source_attempts
+            elif status in {"no_pdf_url", "no_probable_pdf_url"}:
+                status = alternate_source_status or status
+                error = clean(alternate_result.get("error", "")) or error
+                size = int(alternate_result.get("size", 0))
+                selected_url = alternate_source_selected
+                attempts = alternate_source_attempts or attempts
+            else:
+                alternate_error = clean(alternate_result.get("error", ""))
+                if alternate_error:
+                    error = (
+                        f"{error} || alternate_pdf_sources: {alternate_source_status}: {alternate_error}"
+                        if error
+                        else alternate_error
+                    )
+        elif status in {"no_pdf_url", "no_probable_pdf_url"}:
+            error = "no_alternate_pdf_candidates"
+
+    pdf_exists = target_path.exists() and target_path.is_file() and status in {"downloaded", "already_present"}
+    result_pdf_url_candidates = task.get("pdf_url_candidates", "")
+    if alternate_source_attempts:
+        result_pdf_url_candidates = join_candidates(
+            split_candidates(result_pdf_url_candidates) + split_candidates(alternate_source_attempts)
+        )
+    failure = classify_download_failure(status, error)
+    return {
+        **task,
+        "status": status,
+        "error": error,
+        "selected_url": selected_url,
+        "pdf_url_candidates": result_pdf_url_candidates,
+        "attempted_pdf_url_candidates": attempts,
+        "primary_candidate_host": task_primary_host(task, deprioritized_hosts, excluded_hosts),
+        "candidate_hosts": "|".join(hosts_from_candidates(attempts or task.get("pdf_url_candidates", ""))),
+        "alternate_pdf_sources": "|".join(sorted(alternate_pdf_sources)),
+        "pdf_identity_min_title_score": pdf_identity_min_title_score,
+        "alternate_pdf_status": alternate_source_status,
+        "alternate_pdf_selected_url": alternate_source_selected,
+        "alternate_pdf_candidate_count": alternate_source_candidate_count,
+        "alternate_pdf_events": alternate_source_events,
+        "pdf_local_path": str(target_path.resolve()) if pdf_exists else "",
+        "pdf_size_bytes": int(target_path.stat().st_size) if pdf_exists else size,
+        "pdf_sha256": sha256_file(target_path) if pdf_exists else "",
+        "apply_candidate_result": not alternate_sources_only or status in {"downloaded", "already_present"},
+        **failure,
+    }
+
+
 def download_routed_pdfs(
     *,
     route_table: Path = DEFAULT_ROUTE_TABLE,
@@ -720,9 +1109,12 @@ def download_routed_pdfs(
     excluded_hosts: set[str] | None = None,
     attempt_log_every: int = 1,
     candidate_log_every: int = 1,
+    workers: int = 1,
     write_every: int = 25,
     progress_every: int = 25,
     alternate_pdf_sources: set[str] | None = None,
+    alternate_sources_only: bool = False,
+    include_discovery_rows: bool = False,
     alternate_pdf_min_title_score: float = 0.86,
     pdf_identity_min_title_score: float = 0.86,
     rebuild_routes_after: bool = False,
@@ -738,27 +1130,43 @@ def download_routed_pdfs(
     if selection_table is not None:
         routes_df = download_rows_from_selection(
             pd.read_parquet(selection_table),
-            include_discovery=bool(alternate_pdf_sources),
+            include_discovery=include_discovery_rows,
         )
     else:
         routes_df = pd.read_parquet(route_table)
-    metadata_df = pd.read_parquet(metadata_table) if metadata_table.exists() else pd.DataFrame()
-    candidate_df = pd.read_parquet(candidate_table) if candidate_table.exists() else pd.DataFrame()
-    metadata_df = merged_extraction_metadata(candidate_df, metadata_df)
-    candidate_df = ensure_candidate_columns(candidate_df)
+    route_dois = {
+        doi_key(value)
+        for value in routes_df.get("doi", pd.Series(dtype="object"))
+        if doi_key(value)
+    }
+    if doi_filter:
+        route_dois.intersection_update(doi_filter)
+    candidate_scope_df = read_parquet_projection(
+        candidate_table,
+        columns=TASK_METADATA_COLUMNS | CANDIDATE_STATUS_COLUMNS,
+        doi_filter=route_dois,
+    )
+    metadata_df = read_parquet_projection(
+        metadata_table,
+        columns=TASK_METADATA_COLUMNS,
+        doi_filter=route_dois,
+    )
+    metadata_df = merged_extraction_metadata(candidate_scope_df, metadata_df)
 
     all_tasks = build_download_tasks(
         routes_df,
         metadata_df,
         doi_filter=doi_filter,
         route_action=route_action,
+        include_landing_page_candidates=include_weak_pdf_urls,
         limit=0,
     )
     tasks, skipped_tasks = filter_tasks_by_candidate_status(
         all_tasks,
-        candidate_df,
+        candidate_scope_df,
         skip_candidate_statuses=skip_candidate_statuses or set(),
         only_failure_categories=only_failure_categories,
+        pdf_dir=pdf_dir,
     )
     deprioritized_hosts = deprioritized_hosts or set()
     excluded_hosts = excluded_hosts or set()
@@ -781,6 +1189,7 @@ def download_routed_pdfs(
     if limit > 0 and len(tasks) > limit:
         deferred_by_limit = len(tasks) - limit
         tasks = tasks[:limit]
+    task_count = len(tasks)
     client = RateLimitedHttpClient(
         rps=max(0.01, rps),
         max_retries=max(0, max_retries),
@@ -805,6 +1214,7 @@ def download_routed_pdfs(
             f"skipped={len(skipped_tasks):,} "
             f"deferred={deferred_by_limit:,} "
             f"dry_run={dry_run} "
+            f"workers={max(1, workers)} "
             f"host_interleaving={host_interleaving} "
             f"include_weak_pdf_urls={include_weak_pdf_urls} "
             f"deprioritized_hosts={','.join(sorted(deprioritized_hosts)) or '<none>'} "
@@ -812,6 +1222,113 @@ def download_routed_pdfs(
             f"alternate_pdf_sources={','.join(sorted(alternate_pdf_sources)) or '<none>'}",
             flush=True,
         )
+
+    def write_progress_checkpoint(completed: int) -> None:
+        if dry_run or write_every <= 0:
+            return
+        write_json(
+            report_path,
+            {
+                "generated_at_utc": now_utc(),
+                "complete": False,
+                "stage": stage_label,
+                "selection_table": str(selection_table.resolve()) if selection_table is not None else "",
+                "candidate_table": str(candidate_table.resolve()),
+                "tasks": task_count,
+                "completed": completed,
+                "workers": max(1, workers),
+                "alternate_pdf_sources": sorted(alternate_pdf_sources),
+                "alternate_sources_only": alternate_sources_only,
+                "counts": {
+                    "status": dict(counts),
+                    "failure_category": dict(failure_category_counts),
+                    "pdf_availability_results": pdf_availability_results,
+                    "retry_recommended": retry_recommended_count,
+                },
+                "records": [
+                    {
+                        field: record.get(field, "")
+                        for field in (
+                            "doi",
+                            "status",
+                            "failure_category",
+                            "error",
+                            "selected_url",
+                            "alternate_pdf_selected_url",
+                            "pdf_local_path",
+                            "pdf_size_bytes",
+                        )
+                    }
+                    for record in records
+                ],
+            },
+        )
+
+    if workers > 1 and tasks and not dry_run:
+        concurrent_tasks = list(tasks)
+        with ThreadPoolExecutor(max_workers=max(1, workers), thread_name_prefix="pdf-download") as executor:
+            future_positions = {
+                executor.submit(
+                    process_pdf_task,
+                    position=position,
+                    total_tasks=task_count,
+                    task=task,
+                    pdf_dir=pdf_dir,
+                    client=client,
+                    dry_run=False,
+                    include_weak_pdf_urls=include_weak_pdf_urls,
+                    deprioritized_hosts=deprioritized_hosts,
+                    excluded_hosts=excluded_hosts,
+                    attempt_log_every=attempt_log_every,
+                    candidate_log_every=candidate_log_every,
+                    alternate_pdf_sources=alternate_pdf_sources,
+                    alternate_sources_only=alternate_sources_only,
+                    alternate_pdf_min_title_score=alternate_pdf_min_title_score,
+                    pdf_identity_min_title_score=pdf_identity_min_title_score,
+                ): position
+                for position, task in enumerate(concurrent_tasks, start=1)
+            }
+            for completed, future in enumerate(as_completed(future_positions), start=1):
+                position = future_positions[future]
+                result = future.result()
+                status = clean(result.get("status", ""))
+                records.append(result)
+                counts[status] += 1
+                if status in {"downloaded", "already_present"}:
+                    pdf_availability_results += 1
+                if result.get("failure_category"):
+                    failure_category_counts[clean(result.get("failure_category", ""))] += 1
+                if result.get("retry_recommended"):
+                    retry_recommended_count += 1
+                update_rate_limit_cooldowns(
+                    result=result,
+                    cooldown_until_by_host=cooldown_until_by_host,
+                    cooldown_sec=rate_limit_cooldown_sec,
+                )
+                if attempt_log_every > 0 and (
+                    completed == 1 or completed % attempt_log_every == 0 or completed == task_count
+                ):
+                    print(
+                        f"RESULT: {stage_label} completed={completed:,}/{task_count:,} "
+                        f"source_position={position:,} doi={result.get('doi', '')} status={status} "
+                        f"failure={clean(result.get('failure_category', '')) or '<blank>'}",
+                        flush=True,
+                    )
+                if progress_every > 0 and (completed % progress_every == 0 or completed == task_count):
+                    print(
+                        f"PROGRESS: {stage_label} {completed:,}/{task_count:,} "
+                        f"downloaded={counts.get('downloaded', 0):,} "
+                        f"already_present={counts.get('already_present', 0):,} "
+                        f"failed={counts.get('download_failed', 0):,} "
+                        f"invalid={counts.get('invalid_pdf_content', 0) + counts.get('invalid_pdf_existing', 0):,} "
+                        f"retryable={retry_recommended_count:,}",
+                        flush=True,
+                    )
+                if write_every > 0 and (completed % write_every == 0 or completed == task_count):
+                    write_progress_checkpoint(completed)
+        # Preserve the single-worker loop below as the reference path while
+        # preventing a completed concurrent queue from being processed twice.
+        tasks = []
 
     for position, task in enumerate(tasks, start=1):
         doi = task["doi"]
@@ -868,6 +1385,8 @@ def download_routed_pdfs(
             )
         if dry_run:
             status, error, size, selected_url, attempts = "dry_run", "", 0, "", join_candidates(candidates)
+        elif alternate_sources_only:
+            status, error, size, selected_url, attempts = "no_pdf_url", "alternate_sources_only", 0, "", ""
         elif not candidates and all_candidates:
             status = "no_probable_pdf_url"
             error = "weak_or_landing_page_urls_only"
@@ -974,6 +1493,7 @@ def download_routed_pdfs(
             "pdf_local_path": str(target_path.resolve()) if pdf_exists else "",
             "pdf_size_bytes": int(target_path.stat().st_size) if pdf_exists else size,
             "pdf_sha256": sha256_file(target_path) if pdf_exists else "",
+            "apply_candidate_result": not alternate_sources_only or status in {"downloaded", "already_present"},
             **failure,
         }
         records.append(result)
@@ -1004,11 +1524,6 @@ def download_routed_pdfs(
             cooldown_sec=rate_limit_cooldown_sec,
         )
 
-        if not dry_run and apply_result_to_candidate_table(candidate_df, result):
-            candidate_rows_changed += 1
-        if not dry_run and write_every > 0 and position % write_every == 0:
-            candidate_df.to_parquet(candidate_table, engine="pyarrow", index=False)
-
         if progress_every > 0 and (position % progress_every == 0 or position == len(tasks)):
             print(
                 f"PROGRESS: {stage_label} "
@@ -1020,9 +1535,11 @@ def download_routed_pdfs(
                 f"retryable={retry_recommended_count:,}",
                 flush=True,
             )
+        if write_every > 0 and (position % write_every == 0 or position == len(tasks)):
+            write_progress_checkpoint(position)
 
-    if not dry_run:
-        candidate_df.to_parquet(candidate_table, engine="pyarrow", index=False)
+    if not dry_run and records:
+        candidate_rows_changed = apply_results_to_candidate_parquet(candidate_table, records)
 
     skipped_existing = skipped_existing_pdf_status_count(skipped_tasks)
     route_rebuild_summary: dict | None = None
@@ -1042,6 +1559,7 @@ def download_routed_pdfs(
 
     report = {
         "generated_at_utc": now_utc(),
+        "complete": True,
         "dry_run": dry_run,
         "route_table": str(route_table.resolve()),
         "selection_table": str(selection_table.resolve()) if selection_table is not None else "",
@@ -1052,19 +1570,22 @@ def download_routed_pdfs(
         "host_interleaving": host_interleaving,
         "include_weak_pdf_urls": include_weak_pdf_urls,
         "alternate_pdf_sources": sorted(alternate_pdf_sources),
+        "alternate_sources_only": alternate_sources_only,
+        "include_discovery_rows": include_discovery_rows,
         "alternate_pdf_min_title_score": alternate_pdf_min_title_score,
         "pdf_identity_min_title_score": pdf_identity_min_title_score,
         "deprioritized_hosts": sorted(deprioritized_hosts),
         "excluded_hosts": sorted(excluded_hosts),
         "attempt_log_every": attempt_log_every,
         "candidate_log_every": candidate_log_every,
+        "workers": max(1, workers),
         "progress_every": progress_every,
         "write_every": write_every,
         "rebuild_routes_after": rebuild_routes_after,
         "limit": limit,
         "counts": {
             "tasks_before_candidate_filter": len(all_tasks),
-            "tasks": len(tasks),
+            "tasks": task_count,
             "skipped_by_candidate_status": len(skipped_tasks),
             "skipped_existing_pdf_status": skipped_existing,
             "deferred_by_limit": deferred_by_limit,
@@ -1092,8 +1613,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--selection-table",
         default="",
         help=(
-            "Route-independent post-screen full-text worklist. Known-PDF rows are selected directly; "
-            "discovery rows are also selected when alternate PDF sources are enabled."
+            "Route-independent post-screen full-text worklist. Known-PDF and OA-landing rows are "
+            "selected directly; "
+            "discovery rows are selected only with --include-discovery-rows."
         ),
     )
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
@@ -1152,6 +1674,19 @@ def build_arg_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--alternate-sources-only",
+        action="store_true",
+        help="Skip previously attempted metadata PDF URLs and use only --alternate-pdf-sources.",
+    )
+    parser.add_argument(
+        "--include-discovery-rows",
+        action="store_true",
+        help=(
+            "When a selection table is used, also process discover_fulltext/fetch_pmc_xml rows. "
+            "This is an explicit recovery pass and is not implied by --alternate-pdf-sources."
+        ),
+    )
+    parser.add_argument(
         "--alternate-pdf-min-title-score",
         type=float,
         default=0.86,
@@ -1170,6 +1705,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=int,
         default=1,
         help="Log every N candidate-URL attempt/result events; use 0 to disable candidate URL logging.",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Bounded concurrent DOI downloads; all workers share the global --rps request budget.",
     )
     parser.add_argument(
         "--no-rebuild-routes-after",
@@ -1212,11 +1753,14 @@ def main() -> int:
         deprioritized_hosts=parse_csv_values(args.deprioritize_hosts),
         excluded_hosts=parse_csv_values(args.exclude_hosts),
         alternate_pdf_sources=parse_csv_values(args.alternate_pdf_sources),
+        alternate_sources_only=bool(args.alternate_sources_only),
+        include_discovery_rows=bool(args.include_discovery_rows),
         alternate_pdf_min_title_score=args.alternate_pdf_min_title_score,
         write_every=args.write_every,
         progress_every=args.progress_every,
         attempt_log_every=args.attempt_log_every,
         candidate_log_every=args.candidate_log_every,
+        workers=max(1, args.workers),
         rebuild_routes_after=not bool(args.no_rebuild_routes_after) and not bool(clean(args.selection_table)),
         prescreen_table=Path(args.prescreen_table).resolve(),
         domain_routing_table=Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None,

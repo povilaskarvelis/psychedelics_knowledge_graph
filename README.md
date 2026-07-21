@@ -75,15 +75,26 @@ a DOI list, use the [scoped update workflow](docs/scoped_paper_updates.md).
 
 ## Local site preview
 
-Build the curated static site and serve the same `dist/` output used for
-deployment:
+Preview local UI changes against the currently published R2 data:
 
 ```bash
-bash scripts/build_site.sh
-python3 -m http.server 8011 --bind 127.0.0.1 --directory dist
+bash scripts/preview_site.sh public
 ```
 
 Then open <http://127.0.0.1:8011>.
+
+To review an unpublished candidate release, first build and promote it locally
+without setting `PUBLISH_QUERY_API_R2=1`, then run:
+
+```bash
+bash scripts/preview_site.sh local
+```
+
+The local server opens the explicit `?data-source=local` mode and serves only
+the generated graph and Methods artifacts named by the candidate release. It
+does not expose the repository, papers, `.env`, or other pipeline data. It also
+verifies graph checksums and requires the graph, Methods flow, bibliography, and
+inclusion audit to name the same run and release before starting.
 
 ## Project principles
 

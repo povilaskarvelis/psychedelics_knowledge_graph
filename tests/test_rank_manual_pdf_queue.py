@@ -56,3 +56,59 @@ def test_rank_rows_prioritizes_recoverable_high_value_records() -> None:
     assert bool(ranked.iloc[0]["manual_preprint_like"]) is True
     assert ranked.iloc[-1]["doi"] == "10.1000/low"
     assert ranked.iloc[-1]["manual_priority_tier"] in {"C", "D"}
+
+
+def test_doi_article_recovery_excludes_untrusted_and_nonarticle_records() -> None:
+    df = pd.DataFrame(
+        [
+            {
+                "doi": "10.7454/jpdi.v9i4.1025",
+                "study_title": "A journal case report",
+                "study_journal": "Jurnal Penyakit Dalam Indonesia",
+                "publication_type": "article",
+                "best_pdf_url": "https://scholarhub.ui.ac.id/cgi/viewcontent.cgi?article=1025&context=jpdi",
+                "pdf_download_failure_category": "forbidden",
+                "route_count": 1,
+            },
+            {
+                "doi": "10.26021/7388",
+                "study_title": "Adolescent exposure study",
+                "study_journal": "UC Research Repository (University of Canterbury)",
+                "publication_type": "article",
+                "best_pdf_url": "https://example.org/thesis3.pdf",
+                "pdf_download_failure_category": "forbidden",
+                "route_count": 1,
+            },
+            {
+                "doi": "10.1002/example.123",
+                "study_title": "A journal systematic review",
+                "study_journal": "Example Journal",
+                "publication_type": "article",
+                "best_pdf_url": "https://publisher.example/article.pdf",
+                "pdf_download_failure_category": "forbidden",
+                "route_count": 1,
+            },
+            {
+                "doi": "10.1093/example/qdad060.055",
+                "study_title": "(058) A numbered conference abstract",
+                "study_journal": "Example Journal",
+                "publication_type": "review",
+                "best_pdf_url": "https://publisher.example/supplement.pdf",
+                "pdf_download_failure_category": "forbidden",
+                "route_count": 1,
+            },
+        ]
+    )
+
+    ranked = rank_rows(df).set_index("doi")
+
+    assert not bool(ranked.loc["10.7454/jpdi.v9i4.1025", "manual_doi_article_recovery_candidate"])
+    assert "untrusted" in ranked.loc["10.7454/jpdi.v9i4.1025", "manual_doi_article_recovery_hint"]
+    assert not bool(ranked.loc["10.26021/7388", "manual_doi_article_recovery_candidate"])
+    assert "repository" in ranked.loc["10.26021/7388", "manual_doi_article_recovery_hint"]
+    assert bool(ranked.loc["10.1002/example.123", "manual_doi_article_recovery_candidate"])
+    assert ranked.loc["10.1002/example.123", "manual_doi_landing_url"] == "https://doi.org/10.1002/example.123"
+    assert not bool(ranked.loc["10.1093/example/qdad060.055", "manual_doi_article_recovery_candidate"])
+    assert "conference" in ranked.loc[
+        "10.1093/example/qdad060.055", "manual_doi_article_recovery_hint"
+    ]

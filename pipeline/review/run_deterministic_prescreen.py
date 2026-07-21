@@ -122,6 +122,8 @@ NON_SOURCE_PUBLICATION_TYPES = {
     "news",
     "newspaper article",
     "poster abstract",
+    "peer review",
+    "peer-review",
     "perspective",
     "thesis",
     "viewpoint",
@@ -134,7 +136,6 @@ AMBIGUOUS_NARRATIVE_PUBLICATION_TYPES = {
     "editorial",
     "insight",
     "insight article",
-    "letter",
     "perspective",
     "viewpoint",
 }
@@ -158,6 +159,7 @@ EVIDENCE_BEARING_TEXT_PATTERNS = (
 )
 OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES = {
     "abstract book entry": "conference_abstract",
+    "book": "book_or_monograph",
     "book chapter": "book_chapter",
     "book-chapter": "book_chapter",
     "chapter": "book_chapter",
@@ -165,17 +167,38 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES = {
     "conference-abstract": "conference_abstract",
     "commentary": "commentary",
     "dissertation": "dissertation",
+    "data set": "dataset_or_data_deposit",
+    "dataset": "dataset_or_data_deposit",
     "dispatch": "commentary",
     "insight": "commentary",
     "insight article": "commentary",
     "meeting abstract": "conference_abstract",
+    "monograph": "book_or_monograph",
     "perspective": "commentary",
     "poster abstract": "conference_abstract",
+    "peer review": "peer_review",
+    "peer-review": "peer_review",
     "thesis": "dissertation",
     "viewpoint": "commentary",
     "visual essay": "visual_essay",
 }
 OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
+    (
+        re.compile(r"^10\.17632/", re.IGNORECASE),
+        "dataset_or_data_deposit",
+    ),
+    (
+        re.compile(r"^10\.25772/", re.IGNORECASE),
+        "dissertation",
+    ),
+    (
+        re.compile(r"^10\.14288/1\.", re.IGNORECASE),
+        "dissertation",
+    ),
+    (
+        re.compile(r"^10\.26226/morressier\.", re.IGNORECASE),
+        "conference_abstract",
+    ),
     (
         re.compile(r"^10\.1093/ijnp/[a-z]{4}\d{3}\.\d{1,4}$", re.IGNORECASE),
         "conference_abstract",
@@ -187,6 +210,10 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
     (
         re.compile(r"^10\.17579/abstractbook", re.IGNORECASE),
         "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1017/.+\.pr\d+$", re.IGNORECASE),
+        "peer_review",
     ),
 )
 VISUAL_ESSAY_TEXT_RE = re.compile(r"\bvisual essay\b", re.IGNORECASE)
@@ -273,6 +300,14 @@ NUMBERED_TITLE_CONFERENCE_DOI_PATTERNS = (
     re.compile(r"^10\.1016/j\.biopsych\.\d{4}\.\d{2}\.\d{2,4}$", re.IGNORECASE),
     re.compile(r"^10\.1016/s\d{4}-\d{4}\(\d{2}\)\d{5}-\d$", re.IGNORECASE),
     re.compile(r"^10\.1136/[a-z0-9-]+\.\d{1,4}$", re.IGNORECASE),
+)
+CODED_CONFERENCE_TITLE_RE = re.compile(
+    r"^\s*(?:P|O|OP|PL)\d+(?:[-.]S?\d+)*(?:\s|[\u2000-\u206f])",
+    re.IGNORECASE,
+)
+CODED_CONFERENCE_DOI_RE = re.compile(
+    r"^10\.1136/sextrans-.+\.\d+$",
+    re.IGNORECASE,
 )
 NON_EVIDENCE_DOI_PATTERNS = (
     re.compile(r"^10\.1371/journal\.[^.]+\.\d+\.[fgst]\d+$", re.IGNORECASE),
@@ -410,6 +445,8 @@ def load_curated_publication_format_exclusions(path: Path) -> dict[str, dict]:
     out: dict[str, dict] = {}
     for record in records:
         if not isinstance(record, dict):
+            continue
+        if clean(record.get("decision_stage", "")) == "post_retrieval_eligibility":
             continue
         doi = normalize_doi(clean(record.get("doi", ""))).lower()
         if doi:
@@ -636,9 +673,9 @@ def out_of_scope_publication_format_decision(row: dict) -> dict | None:
         "confidence": 1.0,
         "supporting_quote": title or clean(row.get("publication_type", "")) or doi,
         "reason": (
-            "Record is a book chapter, dissertation/thesis, conference/poster/meeting abstract, "
-            "abstract-book contribution, or visual essay rather than an eligible source article, "
-            "review, or meta-analysis."
+            "Record is a book/monograph, book chapter, dataset, dissertation/thesis, "
+            "conference/poster/meeting abstract, abstract-book contribution, peer-review/decision "
+            "object, or visual essay rather than an eligible source article, review, or meta-analysis."
         ),
         "matched_terms": [*sorted(matched_formats), *matched_terms],
     }
@@ -807,6 +844,25 @@ def numbered_conference_abstract_decision(row: dict) -> dict | None:
     }
 
 
+def coded_conference_abstract_decision(row: dict) -> dict | None:
+    """Exclude journal-supplement abstracts whose title and DOI carry session codes."""
+
+    doi = normalize_doi(clean(row.get("study_doi", "")))
+    title = clean(row.get("study_title", ""))
+    if not CODED_CONFERENCE_DOI_RE.search(doi) or not CODED_CONFERENCE_TITLE_RE.search(title):
+        return None
+    return {
+        "action": "exclude_non_evidence_artifact",
+        "confidence": 1.0,
+        "supporting_quote": title,
+        "reason": (
+            "The coded title and Sexually Transmitted Infections supplement DOI identify a "
+            "conference/poster abstract rather than a source article or review."
+        ),
+        "matched_terms": ["coded_conference_title", "sextrans_supplement_doi"],
+    }
+
+
 def publication_stage_row(row: dict) -> dict:
     out = dict(row)
     if not clean(out.get("doi", "")):
@@ -915,6 +971,7 @@ def before_model_exclusion_decision(
         or out_of_scope_publication_format_decision(row)
         or non_evidence_artifact_decision(row)
         or numbered_conference_abstract_decision(row)
+        or coded_conference_abstract_decision(row)
         or preprint_or_unpublished_decision(row)
         or acronym_false_positive_decision(row)
         or production_method_false_positive_decision(row)
@@ -1228,7 +1285,9 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         report_value = clean(getattr(args, "reconciliation_report", ""))
         candidate_update = reconcile_workflow_decision(
             candidate_table=Path(args.papers_table).resolve(),
-            decision_updates=candidate_prescreen_updates(decisions),
+            decision_updates=candidate_prescreen_updates(
+                updated_decisions if scoped_dois else decisions
+            ),
             update_defaults=CANDIDATE_PRESCREEN_DEFAULTS,
             stage="prescreen",
             previous_included_dois=previous_included_dois,

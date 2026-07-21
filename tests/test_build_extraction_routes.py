@@ -40,6 +40,31 @@ def write_source_identity_audit(
 
 
 class BuildExtractionRoutesTests(unittest.TestCase):
+    def test_thesis_url_does_not_override_explicit_journal_article(self) -> None:
+        self.assertEqual(
+            thesis_or_dissertation_flags(
+                {
+                    "doi": "10.3109/example",
+                    "publication_type": "Journal Article",
+                    "study_journal": "International Journal",
+                    "open_access_url": "https://figshare.com/articles/thesis/same_title/123",
+                }
+            ),
+            "",
+        )
+
+    def test_thesis_doi_is_detected_without_access_url(self) -> None:
+        self.assertIn(
+            "thesis_or_dissertation_doi",
+            thesis_or_dissertation_flags(
+                {
+                    "doi": "10.25365/thesis.46291",
+                    "publication_type": "article",
+                    "study_journal": "University of Vienna",
+                }
+            ),
+        )
+
     def test_blank_string_enrichment_does_not_erase_candidate_abstract(self) -> None:
         candidate = pd.DataFrame(
             {
@@ -370,7 +395,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(routes.loc[0, "source_type"], "non_primary_publication")
         self.assertEqual(
             routes.loc[0, "non_primary_flags"],
-            "thesis_or_dissertation_publication_type|thesis_or_dissertation_title|thesis_or_dissertation_abstract",
+            "thesis_or_dissertation_publication_type|thesis_or_dissertation_title|thesis_or_dissertation_doi|thesis_or_dissertation_abstract",
         )
         self.assertEqual(routes.loc[0, "domain_route"], "context_only")
         self.assertEqual(routes.loc[0, "route_action"], "skip_or_context_only")

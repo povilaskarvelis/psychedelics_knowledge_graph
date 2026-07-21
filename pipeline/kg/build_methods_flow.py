@@ -305,13 +305,33 @@ class MethodsFlowBuilder:
             },
         }
 
-    def payloads(self) -> dict:
+    def release_identity(self) -> dict[str, str]:
+        run_ids = {
+            normalize(row.get("graph_inclusion_run_id"))
+            for row in self.candidate_rows
+            if normalize(row.get("graph_inclusion_run_id"))
+        }
+        release_ids = {
+            normalize(row.get("graph_inclusion_release_id"))
+            for row in self.candidate_rows
+            if normalize(row.get("graph_inclusion_release_id"))
+        }
+        if len(run_ids) != 1 or len(release_ids) != 1:
+            raise ValueError("Methods data requires one canonical graph run and release")
         return {
+            "run_id": next(iter(run_ids)),
+            "release_id": next(iter(release_ids)),
+        }
+
+    def payloads(self) -> dict:
+        identity = self.release_identity()
+        payloads = {
             "pipeline_status": self.pipeline_status_view(),
             "methods_bibliography": candidate_bibliography_payload(self.candidate_rows),
             "graph_inclusion_dispositions": graph_inclusion_disposition_payload(self.candidate_rows),
             "manifest": {
                 "contract_version": KG_VERSION,
+                **identity,
                 "generated_at": now_utc(),
                 "input_files": sorted(set(self.input_files)),
                 "warnings": self.warnings,
@@ -320,6 +340,13 @@ class MethodsFlowBuilder:
                 },
             },
         }
+        for key in (
+            "pipeline_status",
+            "methods_bibliography",
+            "graph_inclusion_dispositions",
+        ):
+            payloads[key].update(identity)
+        return payloads
 
 
 def candidate_field(row: dict, field: str, fallback: str = "unknown") -> str:
@@ -909,6 +936,8 @@ def schema_payload() -> dict:
             "pipeline_status": {
                 "required": [
                     "contract_version",
+                    "run_id",
+                    "release_id",
                     "view",
                     "generated_at",
                     "current_stage",
@@ -921,6 +950,8 @@ def schema_payload() -> dict:
             "methods_bibliography": {
                 "required": [
                     "contract_version",
+                    "run_id",
+                    "release_id",
                     "view",
                     "generated_at",
                     "unit",
@@ -937,6 +968,8 @@ def schema_payload() -> dict:
             "graph_inclusion_dispositions": {
                 "required": [
                     "contract_version",
+                    "run_id",
+                    "release_id",
                     "view",
                     "generated_at",
                     "unit",

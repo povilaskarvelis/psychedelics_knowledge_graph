@@ -385,6 +385,10 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
 
         self.assertEqual(payloads["pipeline_status"]["counts"]["papers_found_by_search"], 1)
         self.assertEqual(payloads["manifest"]["counts"], {"papers_found_by_search": 1})
+        self.assertEqual(payloads["manifest"]["run_id"], "test_run")
+        self.assertEqual(payloads["manifest"]["release_id"], "test_run:release")
+        self.assertEqual(payloads["pipeline_status"]["run_id"], "test_run")
+        self.assertEqual(payloads["methods_bibliography"]["release_id"], "test_run:release")
         self.assertEqual([Path(path).resolve() for path in builder.input_files], [table.resolve()])
 
     def test_methods_builder_rejects_missing_final_graph_decision(self) -> None:

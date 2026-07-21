@@ -5,7 +5,15 @@ const methodsBibliographySummaryEl = document.getElementById("methodsBibliograph
 const methodsBibliographyRowsEl = document.getElementById("methodsBibliographyRows");
 const methodsBibliographyLoadMoreEl = document.getElementById("methodsBibliographyLoadMore");
 const PUBLIC_DATA_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json";
-const PUBLIC_DATA_POINTER_SCHEMAS = new Set(["psychedelics_kg_browser_r2_active_v1"]);
+const PUBLIC_PREVIEW_POINTER_URL = "/__preview__/published.json";
+const LOCAL_DATA_POINTER_URL = "/__preview__/active.json";
+const LOCAL_DATA_HOSTS = new Set(["", "localhost", "127.0.0.1", "::1"]);
+const LOCAL_DATA_SOURCE_QUERY_PARAMETER = "data-source";
+const LOCAL_DATA_POINTER_SCHEMA = "psychedelics_kg_local_preview_active_v1";
+const PUBLIC_DATA_POINTER_SCHEMAS = new Set([
+  "psychedelics_kg_browser_r2_active_v1",
+  LOCAL_DATA_POINTER_SCHEMA,
+]);
 const REQUIRED_METHODS_DATA = new Set([
   "pipeline_status",
   "bibliography",
@@ -75,32 +83,54 @@ async function fetchJsonFromCandidates(candidates) {
   throw new Error(errors.join("; "));
 }
 
-function validatedPublicDataPointer(data) {
+function localDataSourceRequested() {
+  if (!LOCAL_DATA_HOSTS.has(window.location.hostname)) return false;
+  return new URLSearchParams(window.location.search).get(LOCAL_DATA_SOURCE_QUERY_PARAMETER) === "local";
+}
+
+function selectedDataPointerUrl() {
+  if (localDataSourceRequested()) return LOCAL_DATA_POINTER_URL;
+  if (LOCAL_DATA_HOSTS.has(window.location.hostname)) return PUBLIC_PREVIEW_POINTER_URL;
+  return PUBLIC_DATA_POINTER_URL;
+}
+
+function validatedPublicDataPointer(data, pointerUrl) {
   const schemaVersion = String(data?.schema_version || "").trim();
   if (!PUBLIC_DATA_POINTER_SCHEMAS.has(schemaVersion)) {
     throw new Error("The public data pointer has an unsupported schema.");
   }
   const releaseId = String(data?.release_id || "").trim();
-  const objectPrefix = String(data?.object_prefix || "").replace(/^\/+|\/+$/g, "");
-  if (!releaseId || !objectPrefix.startsWith("browser/releases/")) {
+  if (!releaseId) {
     throw new Error("The public data pointer is missing its release identity.");
   }
   if (!data?.methods || typeof data.methods !== "object") {
     throw new Error("The public data pointer is missing Methods data.");
   }
+  const isLocalPreview = schemaVersion === LOCAL_DATA_POINTER_SCHEMA;
+  if (isLocalPreview && !localDataSourceRequested()) {
+    throw new Error("Local preview data was not explicitly requested.");
+  }
+  const objectPrefix = String(data?.object_prefix || "").replace(/^\/+|\/+$/g, "");
+  if (!isLocalPreview && !objectPrefix.startsWith("browser/releases/")) {
+    throw new Error("The public data pointer has an invalid release path.");
+  }
   REQUIRED_METHODS_DATA.forEach((name) => {
     const key = String(data.methods[name] || "").replace(/^\/+/, "");
-    if (!key || !key.startsWith(`${objectPrefix}/`)) {
+    const validKey = isLocalPreview
+      ? key.startsWith("data/kg/views/") && !key.includes("..")
+      : key.startsWith(`${objectPrefix}/`);
+    if (!key || !validKey) {
       throw new Error(`The public data pointer is missing methods.${name}.`);
     }
   });
-  return data;
+  return { ...data, __pointer_url: new URL(pointerUrl, window.location.href).href };
 }
 
 async function loadPublicDataPointer() {
   if (methodsState.publicDataPointerPromise) return methodsState.publicDataPointerPromise;
-  methodsState.publicDataPointerPromise = fetchJsonFromCandidates([PUBLIC_DATA_POINTER_URL])
-    .then(validatedPublicDataPointer);
+  const pointerUrl = selectedDataPointerUrl();
+  methodsState.publicDataPointerPromise = fetchJsonFromCandidates([pointerUrl])
+    .then((data) => validatedPublicDataPointer(data, pointerUrl));
   return methodsState.publicDataPointerPromise;
 }
 
@@ -110,7 +140,7 @@ async function loadMethodsData(name) {
   }
   const pointer = await loadPublicDataPointer();
   const key = String(pointer.methods[name]).replace(/^\/+/, "");
-  const url = new URL(key, `${new URL(PUBLIC_DATA_POINTER_URL).origin}/`).href;
+  const url = new URL(key, `${new URL(pointer.__pointer_url).origin}/`).href;
   return fetchJsonFromCandidates([url]);
 }
 
@@ -295,7 +325,6 @@ function renderPrismaDiagram(dataset, flow) {
   const rows = dynamicPrismaRows(flow);
   return `
     <article class="prisma-diagram" aria-label="${escapeHtml(title)} PRISMA-style flow">
-      <h3>${escapeHtml(title)}</h3>
       <div class="prisma-flow">
         ${rows.join("")}
       </div>
@@ -462,7 +491,7 @@ function renderBibliography() {
 
 function renderBibliographyError(error) {
   if (methodsBibliographySummaryEl) {
-    methodsBibliographySummaryEl.textContent = `The full record audit is not available yet. ${error.message}`;
+    methodsBibliographySummaryEl.textContent = `The selection records are not available yet. ${error.message}`;
   }
   if (methodsBibliographyRowsEl) {
     methodsBibliographyRowsEl.innerHTML = `

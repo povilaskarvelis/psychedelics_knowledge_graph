@@ -1,52 +1,480 @@
 {
   "schema_version": "doi_alias_registry_v1",
-  "checked_at": "2026-07-13",
-  "evidence_provider": "Crossref REST API /works/{doi}, repository landing records, and published-version title/author matching",
+  "checked_at": "2026-07-20T22:45:18.153432+00:00",
+  "evidence_provider": "Crossref and DataCite DOI APIs, repository landing records, and published-version title/author matching",
   "notes": [
     "Most aliases repair punctuation that was incorrectly reconstructed from canonical PDF filename slugs; the canonical DOI resolved in Crossref while the malformed alias did not.",
-    "Repository-version DOIs are mapped only when their title and authors identify the same paper as the registered published DOI."
+    "Repository-version DOIs are mapped only when their title and authors identify the same paper as the registered published DOI.",
+    "DataCite concept/version mappings are accepted when the registry relation is explicit and the recovered document bytes are identical."
   ],
   "records": [
-    {"alias_doi": "10.1007/7854/2020/202", "canonical_doi": "10.1007/7854_2020_202"},
-    {"alias_doi": "10.1007/7854/2021/266", "canonical_doi": "10.1007/7854_2021_266"},
-    {"alias_doi": "10.1007/7854/2021/278", "canonical_doi": "10.1007/7854_2021_278"},
-    {"alias_doi": "10.1007/7854/2021/284", "canonical_doi": "10.1007/7854_2021_284"},
-    {"alias_doi": "10.1007/7854/2022/365", "canonical_doi": "10.1007/7854_2022_365"},
-    {"alias_doi": "10.1007/7854/2023/453", "canonical_doi": "10.1007/7854_2023_453"},
-    {"alias_doi": "10.1007/7854/2024/531", "canonical_doi": "10.1007/7854_2024_531"},
-    {"alias_doi": "10.1007/7854/2025/606", "canonical_doi": "10.1007/7854_2025_606"},
-    {"alias_doi": "10.1007/978-981-19-7376-5/21", "canonical_doi": "10.1007/978-981-19-7376-5_21"},
-    {"alias_doi": "10.1007/978-981-95-6872-7/23", "canonical_doi": "10.1007/978-981-95-6872-7_23"},
-    {"alias_doi": "10.1016/s0893-133x/00/00227-x", "canonical_doi": "10.1016/s0893-133x(00)00227-x"},
-    {"alias_doi": "10.1016/s0893-133x/01/00423-7", "canonical_doi": "10.1016/s0893-133x(01)00423-7"},
-    {"alias_doi": "10.1016/s0893-133x/98/00060-8", "canonical_doi": "10.1016/s0893-133x(98)00060-8"},
-    {"alias_doi": "10.1016/s0893-133x/99/00006-8", "canonical_doi": "10.1016/s0893-133x(99)00006-8"},
-    {"alias_doi": "10.1016/s0893-133x/00/00163-9", "canonical_doi": "10.1016/s0893-133x(00)00163-9"},
-    {"alias_doi": "10.1016/s0924-9338/09/70667-4", "canonical_doi": "10.1016/s0924-9338(09)70667-4"},
-    {"alias_doi": "10.1016/s0924-9338/15/30573-3", "canonical_doi": "10.1016/s0924-9338(15)30573-3"},
-    {"alias_doi": "10.1016/s2215-0366/18/30170-6", "canonical_doi": "10.1016/s2215-0366(18)30170-6"},
-    {"alias_doi": "10.1016/s2215-0366/16/30065-7", "canonical_doi": "10.1016/s2215-0366(16)30065-7"},
-    {"alias_doi": "10.1254/fpj.97.4_209", "canonical_doi": "10.1254/fpj.97.4/209"},
-    {"alias_doi": "10.4103/abr.abr_166_18", "canonical_doi": "10.4103/abr.abr/166/18"},
-    {"alias_doi": "10.4103/abr.abr_388_22", "canonical_doi": "10.4103/abr.abr/388/22"},
-    {"alias_doi": "10.4103/indianjpsychiatry.indianjpsychiatry_80_21", "canonical_doi": "10.4103/indianjpsychiatry.indianjpsychiatry/80/21"},
-    {"alias_doi": "10.4103/indianjpsychiatry_1144_24", "canonical_doi": "10.4103/indianjpsychiatry/1144/24"},
-    {"alias_doi": "10.4103/ipj.ipj_231_21", "canonical_doi": "10.4103/ipj.ipj/231/21"},
-    {"alias_doi": "10.4103/pm.pm_90_17", "canonical_doi": "10.4103/pm.pm/90/17"},
-    {"alias_doi": "10.4103/psychiatry.indianjpsychiatry_484_18", "canonical_doi": "10.4103/psychiatry.indianjpsychiatry/484/18"},
-    {"alias_doi": "10.1097/ftd.0b013e3182690127.", "canonical_doi": "10.1097/ftd.0b013e3182690127"},
-    {"alias_doi": "10.17514/jnds-1997-16-1-p71-78.", "canonical_doi": "10.17514/jnds-1997-16-1-p71-78"},
-    {"alias_doi": "10.31219/osf.io/qpx2z/v3", "canonical_doi": "10.31219/osf.io/qpx2z_v3"},
-    {"alias_doi": "10.31219/osf.io/ujtpf/v2", "canonical_doi": "10.31219/osf.io/ujtpf_v2"},
-    {"alias_doi": "10.31234/osf.io/7x8q4/v3", "canonical_doi": "10.31234/osf.io/7x8q4_v3"},
-    {"alias_doi": "10.31234/osf.io/9yxwp/v2", "canonical_doi": "10.31234/osf.io/9yxwp_v2"},
-    {"alias_doi": "10.31234/osf.io/aps5g/v3", "canonical_doi": "10.31234/osf.io/aps5g_v3"},
-    {"alias_doi": "10.31234/osf.io/aps5g/v4", "canonical_doi": "10.31234/osf.io/aps5g_v4"},
-    {"alias_doi": "10.31234/osf.io/b6tvz/v1", "canonical_doi": "10.31234/osf.io/b6tvz_v1"},
-    {"alias_doi": "10.31234/osf.io/pefct/v1", "canonical_doi": "10.31234/osf.io/pefct_v1"},
-    {"alias_doi": "10.31234/osf.io/vhs4a/v1", "canonical_doi": "10.31234/osf.io/vhs4a_v1"},
-    {"alias_doi": "10.31986/issn.2689-0690/rdw.stratford/research/day.149/2024", "canonical_doi": "10.31986/issn.2689-0690_rdw.stratford_research_day.149_2024"},
-    {"alias_doi": "10.3929/ethz-c-000786103", "canonical_doi": "10.1038/s41398-025-03638-3"},
-    {"alias_doi": "10.5167/uzh-282729", "canonical_doi": "10.1038/s41398-025-03638-3"}
+    {
+      "alias_doi": "10.1007/7854/2020/202",
+      "canonical_doi": "10.1007/7854_2020_202"
+    },
+    {
+      "alias_doi": "10.1007/7854/2021/266",
+      "canonical_doi": "10.1007/7854_2021_266"
+    },
+    {
+      "alias_doi": "10.1007/7854/2021/278",
+      "canonical_doi": "10.1007/7854_2021_278"
+    },
+    {
+      "alias_doi": "10.1007/7854/2021/284",
+      "canonical_doi": "10.1007/7854_2021_284"
+    },
+    {
+      "alias_doi": "10.1007/7854/2022/365",
+      "canonical_doi": "10.1007/7854_2022_365"
+    },
+    {
+      "alias_doi": "10.1007/7854/2023/453",
+      "canonical_doi": "10.1007/7854_2023_453"
+    },
+    {
+      "alias_doi": "10.1007/7854/2024/531",
+      "canonical_doi": "10.1007/7854_2024_531"
+    },
+    {
+      "alias_doi": "10.1007/7854/2025/606",
+      "canonical_doi": "10.1007/7854_2025_606"
+    },
+    {
+      "alias_doi": "10.1007/978-981-19-7376-5/21",
+      "canonical_doi": "10.1007/978-981-19-7376-5_21"
+    },
+    {
+      "alias_doi": "10.1007/978-981-95-6872-7/23",
+      "canonical_doi": "10.1007/978-981-95-6872-7_23"
+    },
+    {
+      "alias_doi": "10.1016/s0893-133x/00/00163-9",
+      "canonical_doi": "10.1016/s0893-133x(00)00163-9"
+    },
+    {
+      "alias_doi": "10.1016/s0893-133x/00/00227-x",
+      "canonical_doi": "10.1016/s0893-133x(00)00227-x"
+    },
+    {
+      "alias_doi": "10.1016/s0893-133x/01/00423-7",
+      "canonical_doi": "10.1016/s0893-133x(01)00423-7"
+    },
+    {
+      "alias_doi": "10.1016/s0893-133x/98/00060-8",
+      "canonical_doi": "10.1016/s0893-133x(98)00060-8"
+    },
+    {
+      "alias_doi": "10.1016/s0893-133x/99/00006-8",
+      "canonical_doi": "10.1016/s0893-133x(99)00006-8"
+    },
+    {
+      "alias_doi": "10.1016/s0924-9338/09/70667-4",
+      "canonical_doi": "10.1016/s0924-9338(09)70667-4"
+    },
+    {
+      "alias_doi": "10.1016/s0924-9338/15/30573-3",
+      "canonical_doi": "10.1016/s0924-9338(15)30573-3"
+    },
+    {
+      "alias_doi": "10.1016/s2215-0366/16/30065-7",
+      "canonical_doi": "10.1016/s2215-0366(16)30065-7"
+    },
+    {
+      "alias_doi": "10.1016/s2215-0366/18/30170-6",
+      "canonical_doi": "10.1016/s2215-0366(18)30170-6"
+    },
+    {
+      "alias_doi": "10.1097/ftd.0b013e3182690127.",
+      "canonical_doi": "10.1097/ftd.0b013e3182690127"
+    },
+    {
+      "alias_doi": "10.1254/fpj.97.4_209",
+      "canonical_doi": "10.1254/fpj.97.4/209"
+    },
+    {
+      "alias_doi": "10.1254/jjp.46.197",
+      "canonical_doi": "10.1016/s0021-5198(19)43336-2",
+      "relationship_type": "alternate_journal_doi",
+      "evidence_basis": "Exact normalized title, authors, journal, and publication year match; the downloaded publisher PDF was registered under the alternate Elsevier DOI.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/manual_pdf_high_quality_batches_003_005_doi_alias_review_20260721.csv",
+      "reviewed_at_utc": "2026-07-20T22:45:18.153432+00:00"
+    },
+    {
+      "alias_doi": "10.1254/jjp.59.419",
+      "canonical_doi": "10.1016/s0021-5198(19)35545-3",
+      "relationship_type": "alternate_journal_doi",
+      "evidence_basis": "Exact normalized title, authors, journal, and publication year match; the downloaded publisher PDF was registered under the alternate Elsevier DOI.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/manual_pdf_high_quality_batches_003_005_doi_alias_review_20260721.csv",
+      "reviewed_at_utc": "2026-07-20T22:45:18.153432+00:00"
+    },
+    {
+      "alias_doi": "10.1254/jjp.60.25",
+      "canonical_doi": "10.1016/s0021-5198(19)32468-0",
+      "relationship_type": "alternate_journal_doi",
+      "evidence_basis": "Exact normalized title, authors, journal, and publication year match; the downloaded publisher PDF was registered under the alternate Elsevier DOI.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/manual_pdf_high_quality_batches_003_005_doi_alias_review_20260721.csv",
+      "reviewed_at_utc": "2026-07-20T22:45:18.153432+00:00"
+    },
+    {
+      "alias_doi": "10.17514/jnds-1997-16-1-p71-78.",
+      "canonical_doi": "10.17514/jnds-1997-16-1-p71-78"
+    },
+    {
+      "alias_doi": "10.17615/4jp1-mb35",
+      "canonical_doi": "10.1016/j.bmcl.2013.03.111"
+    },
+    {
+      "alias_doi": "10.17615/531q-5a63",
+      "canonical_doi": "10.1074/jbc.m609264200"
+    },
+    {
+      "alias_doi": "10.17615/69pg-jt60",
+      "canonical_doi": "10.1016/j.bmcl.2010.11.046"
+    },
+    {
+      "alias_doi": "10.17615/6zw1-n365",
+      "canonical_doi": "10.1111/bph.13212"
+    },
+    {
+      "alias_doi": "10.17615/7zhp-cq80",
+      "canonical_doi": "10.1007/s12012-015-9311-5"
+    },
+    {
+      "alias_doi": "10.17615/9cme-dj65",
+      "canonical_doi": "10.1021/acschemneuro.8b00293"
+    },
+    {
+      "alias_doi": "10.17615/dj89-pm49",
+      "canonical_doi": "10.1016/j.neuron.2015.03.065"
+    },
+    {
+      "alias_doi": "10.17615/dk44-1567",
+      "canonical_doi": "10.1016/j.jmgm.2009.12.008"
+    },
+    {
+      "alias_doi": "10.17615/et5z-st50",
+      "canonical_doi": "10.1073/pnas.1518377113"
+    },
+    {
+      "alias_doi": "10.17615/m6xp-kb38",
+      "canonical_doi": "10.1523/jneurosci.21-24-09856.2001"
+    },
+    {
+      "alias_doi": "10.17615/mkj7-w712",
+      "canonical_doi": "10.1016/j.bmcl.2007.01.100"
+    },
+    {
+      "alias_doi": "10.17615/ms2h-d627",
+      "canonical_doi": "10.1016/j.cell.2017.12.011"
+    },
+    {
+      "alias_doi": "10.17615/pkdc-f989",
+      "canonical_doi": "10.1016/j.tetlet.2007.12.041"
+    },
+    {
+      "alias_doi": "10.17615/pp8r-zq26",
+      "canonical_doi": "10.1021/jm800771x"
+    },
+    {
+      "alias_doi": "10.17615/rd8y-nq91",
+      "canonical_doi": "10.1037/pha0000686"
+    },
+    {
+      "alias_doi": "10.17615/s14n-1x62",
+      "canonical_doi": "10.1038/s41586-022-05258-z"
+    },
+    {
+      "alias_doi": "10.17615/t8my-xj88",
+      "canonical_doi": "10.1074/jbc.m113.515668"
+    },
+    {
+      "alias_doi": "10.17615/v233-8587",
+      "canonical_doi": "10.1523/jneurosci.1090-09.2009"
+    },
+    {
+      "alias_doi": "10.17615/wb9e-4z40",
+      "canonical_doi": "10.1016/j.ejmech.2014.07.077"
+    },
+    {
+      "alias_doi": "10.17615/xwfg-s242",
+      "canonical_doi": "10.1007/s00213-010-1834-7"
+    },
+    {
+      "alias_doi": "10.17615/yb2v-ca64",
+      "canonical_doi": "10.1016/j.cell.2020.08.024"
+    },
+    {
+      "alias_doi": "10.17615/yfyn-kp22",
+      "canonical_doi": "10.1016/j.neuron.2022.08.006"
+    },
+    {
+      "alias_doi": "10.17615/yvqh-4030",
+      "canonical_doi": "10.1038/nature10939"
+    },
+    {
+      "alias_doi": "10.26091/esrnz.31665202",
+      "canonical_doi": "10.1111/1556-4029.70284",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository DOI PDF identifies published DOI 10.1111/1556-4029.70284; title matches.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/browser_recovery_document_audit_20260719_v2.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.26091/esrnz.31665202.v1",
+      "canonical_doi": "10.1111/1556-4029.70284",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository DOI PDF identifies published DOI 10.1111/1556-4029.70284; title matches.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/browser_recovery_document_audit_20260719_v2.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.26181/30937268",
+      "canonical_doi": "10.1111/dar.13426",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository DOI PDF identifies published DOI 10.1111/dar.13426; title matches.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/browser_recovery_document_audit_20260719_v2.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.26599/bsa.2024.905006",
+      "canonical_doi": "10.26599/bsa.2024.9050006"
+    },
+    {
+      "alias_doi": "10.31219/osf.io/qpx2z/v3",
+      "canonical_doi": "10.31219/osf.io/qpx2z_v3"
+    },
+    {
+      "alias_doi": "10.31219/osf.io/ujtpf/v2",
+      "canonical_doi": "10.31219/osf.io/ujtpf_v2"
+    },
+    {
+      "alias_doi": "10.31234/osf.io/7x8q4/v3",
+      "canonical_doi": "10.31234/osf.io/7x8q4_v3"
+    },
+    {
+      "alias_doi": "10.31234/osf.io/9yxwp/v2",
+      "canonical_doi": "10.31234/osf.io/9yxwp_v2"
+    },
+    {
+      "alias_doi": "10.31234/osf.io/aps5g/v3",
+      "canonical_doi": "10.31234/osf.io/aps5g_v3"
+    },
+    {
+      "alias_doi": "10.31234/osf.io/aps5g/v4",
+      "canonical_doi": "10.31234/osf.io/aps5g_v4"
+    },
+    {
+      "alias_doi": "10.31234/osf.io/b6tvz/v1",
+      "canonical_doi": "10.31234/osf.io/b6tvz_v1"
+    },
+    {
+      "alias_doi": "10.31234/osf.io/pefct/v1",
+      "canonical_doi": "10.31234/osf.io/pefct_v1"
+    },
+    {
+      "alias_doi": "10.31234/osf.io/vhs4a/v1",
+      "canonical_doi": "10.31234/osf.io/vhs4a_v1"
+    },
+    {
+      "alias_doi": "10.31235/osf.io/tk4bv_v1",
+      "canonical_doi": "10.1108/dhs-01-2026-0003",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Matching title with a foreign article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.31986/issn.2689-0690/rdw.stratford/research/day.149/2024",
+      "canonical_doi": "10.31986/issn.2689-0690_rdw.stratford_research_day.149_2024"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000786103",
+      "canonical_doi": "10.1038/s41398-025-03638-3"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000786541",
+      "canonical_doi": "10.1162/imag.a.907"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000789080",
+      "canonical_doi": "10.1038/s41398-025-03722-8",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000791180",
+      "canonical_doi": "10.1177/02698811251397328"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000795706",
+      "canonical_doi": "10.1192/j.eurpsy.2026.10156",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000797688",
+      "canonical_doi": "10.1093/brain/awaf391",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000798382",
+      "canonical_doi": "10.1080/2153599x.2026.2635353",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000800020",
+      "canonical_doi": "10.1038/s41598-026-39261-5",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000801722",
+      "canonical_doi": "10.1177/0271678x261454172",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.4103/abr.abr_166_18",
+      "canonical_doi": "10.4103/abr.abr/166/18"
+    },
+    {
+      "alias_doi": "10.4103/abr.abr_388_22",
+      "canonical_doi": "10.4103/abr.abr/388/22"
+    },
+    {
+      "alias_doi": "10.4103/indianjpsychiatry.indianjpsychiatry_80_21",
+      "canonical_doi": "10.4103/indianjpsychiatry.indianjpsychiatry/80/21"
+    },
+    {
+      "alias_doi": "10.4103/indianjpsychiatry_1144_24",
+      "canonical_doi": "10.4103/indianjpsychiatry/1144/24"
+    },
+    {
+      "alias_doi": "10.4103/ipj.ipj_231_21",
+      "canonical_doi": "10.4103/ipj.ipj/231/21"
+    },
+    {
+      "alias_doi": "10.4103/pm.pm_90_17",
+      "canonical_doi": "10.4103/pm.pm/90/17"
+    },
+    {
+      "alias_doi": "10.4103/psychiatry.indianjpsychiatry_484_18",
+      "canonical_doi": "10.4103/psychiatry.indianjpsychiatry/484/18"
+    },
+    {
+      "alias_doi": "10.5167/uzh-280470",
+      "canonical_doi": "10.1162/imag.a.907"
+    },
+    {
+      "alias_doi": "10.5167/uzh-280475",
+      "canonical_doi": "10.1080/09515089.2025.2532761",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-280550",
+      "canonical_doi": "10.3390/healthcare13182275",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-282729",
+      "canonical_doi": "10.1038/s41398-025-03638-3"
+    },
+    {
+      "alias_doi": "10.5167/uzh-284146",
+      "canonical_doi": "10.1177/02698811251344689",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-284377",
+      "canonical_doi": "10.1002/hup.70019",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-284451",
+      "canonical_doi": "10.1093/brain/awaf391",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-290810",
+      "canonical_doi": "10.1038/s41398-024-02761-x",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-291670",
+      "canonical_doi": "10.1002/ejsp.3162",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-291896",
+      "canonical_doi": "10.1038/s41398-025-03722-8",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5167/uzh-434709",
+      "canonical_doi": "10.1177/0271678x261454172",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository wrapper DOI plus matching title and a published article DOI on page 1.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/targeted_repository_eth_document_audit_20260719_v1.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.5281/zenodo.18031683",
+      "canonical_doi": "10.5281/zenodo.18031682"
+    },
+    {
+      "alias_doi": "10.71889/5fylantbak.30790355",
+      "canonical_doi": "10.1007/s12103-013-9233-3",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository DOI PDF identifies published DOI 10.1007/s12103-013-9233-3; title matches.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/browser_recovery_document_audit_20260719_v2.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.71889/5fylantbak.30790355.v1",
+      "canonical_doi": "10.1007/s12103-013-9233-3",
+      "relationship_type": "repository_or_preprint_wrapper_doi",
+      "evidence_basis": "Repository DOI PDF identifies published DOI 10.1007/s12103-013-9233-3; title matches.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/browser_recovery_document_audit_20260719_v2.csv",
+      "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    }
   ]
 }

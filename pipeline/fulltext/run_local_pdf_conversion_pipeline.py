@@ -28,7 +28,7 @@ DEFAULT_SOURCE_IDENTITY_AUDIT_CSV = FULLTEXT_DATA_DIR / "source_identity_audit.c
 DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS = FULLTEXT_DATA_DIR / "source_identity_unverified_dois.txt"
 
 try:
-    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, normalize_doi
+    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, grobid_is_available, normalize_doi
     from pipeline.fulltext.convert_routed_local_pdfs import (
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_OUT_DIR,
@@ -41,6 +41,7 @@ try:
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PAPER_ROOT,
         DEFAULT_PRESCREEN_TABLE,
+        conversion_rows_from_selection,
         read_doi_file,
         selected_pdf_rows,
     )
@@ -51,7 +52,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
-    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, normalize_doi
+    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, grobid_is_available, normalize_doi
     from pipeline.fulltext.convert_routed_local_pdfs import (
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_OUT_DIR,
@@ -64,6 +65,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PAPER_ROOT,
         DEFAULT_PRESCREEN_TABLE,
+        conversion_rows_from_selection,
         read_doi_file,
         selected_pdf_rows,
     )
@@ -129,7 +131,12 @@ def run_command(cmd: list[str], *, label: str, cwd: Path, verbose: bool) -> dict
 def local_pdf_conversion_queue(args: argparse.Namespace) -> list[str]:
     route_table = Path(args.route_table).resolve()
     metadata_table = Path(args.metadata_table).resolve()
-    routes_df = pd.read_parquet(route_table)
+    selection_table = Path(args.selection_table).resolve() if args.selection_table.strip() else None
+    routes_df = (
+        conversion_rows_from_selection(pd.read_parquet(selection_table))
+        if selection_table is not None
+        else pd.read_parquet(route_table)
+    )
     metadata_df = pd.read_parquet(metadata_table) if metadata_table.exists() else pd.DataFrame()
     doi_filter = read_doi_file(Path(args.doi_file).resolve()) if args.doi_file.strip() else None
     rows, skipped = selected_pdf_rows(
@@ -143,6 +150,13 @@ def local_pdf_conversion_queue(args: argparse.Namespace) -> list[str]:
     if skipped:
         print(f"Queue skipped: {dict(skipped)}", flush=True)
     dois = [row["study_doi"] for row in rows]
+    excluded_dois = {
+        normalize_doi(value)
+        for value in getattr(args, "exclude_doi", [])
+        if normalize_doi(value)
+    }
+    if excluded_dois:
+        dois = [doi for doi in dois if normalize_doi(doi) not in excluded_dois]
     if args.limit > 0:
         dois = dois[: args.limit]
     return dois
@@ -212,6 +226,8 @@ def convert_batch_command(args: argparse.Namespace, doi_file: Path, report_path:
         str(args.grobid_timeout_sec),
         "--no-rebuild-routes-after",
     ]
+    if args.selection_table.strip():
+        cmd.extend(["--selection-table", str(Path(args.selection_table).resolve())])
     if args.domain_routing_table.strip():
         cmd.extend(["--domain-routing-table", str(Path(args.domain_routing_table).resolve())])
     else:
@@ -311,7 +327,11 @@ def run_batch(args: argparse.Namespace, batch: list[str], batch_index: int, batc
         "failed_dois": [],
         "single_retries": [],
     }
-    if not args.skip_grobid_managed_start and (args.grobid_restart_each_batch or batch_index == 1):
+    if not args.skip_grobid_managed_start and (
+        args.grobid_restart_each_batch
+        or batch_index == 1
+        or not grobid_is_available(args.grobid_url)
+    ):
         start_result = run_command(
             start_grobid_command(args),
             label=f"grobid_start_{batch_index:04d}",
@@ -358,7 +378,9 @@ def retry_single_failures(
             "convert": None,
             "failed_after_retry": [],
         }
-        if not args.skip_grobid_managed_start:
+        if not args.skip_grobid_managed_start and (
+            args.grobid_restart_each_batch or not grobid_is_available(args.grobid_url)
+        ):
             retry_record["start"] = run_command(
                 start_grobid_command(args),
                 label=f"grobid_start_{batch_index:04d}_retry_{retry_index:04d}",
@@ -381,6 +403,11 @@ def retry_single_failures(
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--route-table", default=str(DEFAULT_OUTPUT_TABLE))
+    parser.add_argument(
+        "--selection-table",
+        default="",
+        help="Route-independent full-text worklist containing convert_local_pdf rows.",
+    )
     parser.add_argument("--candidate-table", default=str(ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--prescreen-table", default=str(DEFAULT_PRESCREEN_TABLE))
@@ -392,6 +419,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--route-counts-csv", default=str(DEFAULT_COUNTS_CSV))
     parser.add_argument("--manual-route-overrides", default=str(DEFAULT_MANUAL_ROUTE_OVERRIDES))
     parser.add_argument("--doi-file", default="", help="Optional DOI list to restrict local PDF conversion.")
+    parser.add_argument(
+        "--exclude-doi",
+        action="append",
+        default=[],
+        help="DOI to omit from this conversion run; repeat for known parser-crashing files.",
+    )
     parser.add_argument("--route-action", default=DEFAULT_ROUTE_ACTION)
     parser.add_argument("--limit", type=int, default=0, help="Maximum queued DOIs to process; 0 means all.")
     parser.add_argument("--batch-size", type=int, default=25)
@@ -521,6 +554,8 @@ def main() -> int:
         "generated_at_utc": now_utc(),
         "status": overall_status,
         "queue_size": len(queue),
+        "excluded_dois": sorted({normalize_doi(value) for value in args.exclude_doi if normalize_doi(value)}),
+        "selection_table": str(Path(args.selection_table).resolve()) if args.selection_table.strip() else "",
         "batch_size": batch_size,
         "batch_count": len(batches),
         "final_failed_dois": sorted(final_failed),

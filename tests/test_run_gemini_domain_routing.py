@@ -5,6 +5,7 @@ import pandas as pd
 from pipeline.review.run_gemini_domain_routing import (
     DOMAIN_RESPONSE_SCHEMA,
     METHODOLOGICAL_VALIDITY_TAGS,
+    SCREENING_PROMPT_PATH,
     SCREENING_DECISIONS,
     SYSTEM_INSTRUCTION,
     normalize_payload,
@@ -16,6 +17,13 @@ from pipeline.review.run_gemini_domain_routing import (
 
 
 class GeminiDomainRoutingTests(unittest.TestCase):
+    def test_system_instruction_is_loaded_from_standalone_prompt(self) -> None:
+        self.assertTrue(SCREENING_PROMPT_PATH.is_file())
+        self.assertEqual(
+            SYSTEM_INSTRUCTION,
+            SCREENING_PROMPT_PATH.read_text(encoding="utf-8").strip(),
+        )
+
     def test_prompt_includes_compact_context_metadata(self) -> None:
         prompt = prompt_for_record(
             {

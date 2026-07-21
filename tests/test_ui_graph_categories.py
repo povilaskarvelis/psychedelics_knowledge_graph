@@ -56,7 +56,7 @@ def test_graph_bootstrap_does_not_wait_for_detail_payload() -> None:
     assert "loadDetailBootstrapClaims" not in bootstrap
 
 
-def test_production_graph_payload_uses_r2_without_silent_local_fallback() -> None:
+def test_graph_payload_uses_r2_by_default_without_silent_local_fallback() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     loader = source.split("function graphPayloadPointerCandidates", 1)[1].split(
         "function graphPayloadCandidates", 1
@@ -66,9 +66,22 @@ def test_production_graph_payload_uses_r2_without_silent_local_fallback() -> Non
     )[0]
 
     assert "https://data.psychedelicskg.com/browser/active.json" in source
-    assert "LOCAL_GRAPH_DATA_HOSTS.has(window.location.hostname)" in loader
+    assert "if (localDataSourceRequested())" in loader
+    assert "return [GRAPH_PAYLOAD_LOCAL_POINTER_URL]" in loader
+    assert "return [GRAPH_PAYLOAD_PUBLIC_PREVIEW_POINTER_URL]" in loader
     assert "return [GRAPH_PAYLOAD_REMOTE_POINTER_URL]" in loader
     assert ".catch(() => ({}))" not in config_loader
+
+
+def test_unpublished_local_graph_data_requires_an_explicit_localhost_query() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    selector = source.split("function localDataSourceRequested", 1)[1].split(
+        "function graphPayloadPointerCandidates", 1
+    )[0]
+
+    assert "LOCAL_GRAPH_DATA_HOSTS.has(window.location.hostname)" in selector
+    assert 'LOCAL_DATA_SOURCE_QUERY_PARAMETER = "data-source"' in source
+    assert '=== "local"' in selector
 
 
 def test_graph_payload_failures_are_not_converted_to_empty_datasets() -> None:

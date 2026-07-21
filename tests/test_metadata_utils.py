@@ -12,6 +12,7 @@ from pipeline.ingest.metadata_utils import (
     funding_from_openalex_work,
     lookup_crossref_metadata,
     lookup_openalex_work,
+    lookup_openalex_work_by_id,
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
@@ -402,8 +403,8 @@ class MetadataUtilsTest(unittest.TestCase):
         client = FakeClient(
             json_responses=[
                 (
-                    lambda url, params: url == "https://api.openalex.org/works",
-                    {"results": [{"doi": "https://doi.org/10.1000/example"}]},
+                    lambda url, params: url == "https://api.openalex.org/works/doi:10.1000%2Fexample",
+                    {"doi": "https://doi.org/10.1000/example"},
                 )
             ]
         )
@@ -415,6 +416,26 @@ class MetadataUtilsTest(unittest.TestCase):
         self.assertIn("awards", select)
         self.assertIn("funders", select)
         self.assertNotIn("grants", select)
+
+    def test_openalex_id_lookup_uses_free_singleton_endpoint(self) -> None:
+        client = FakeClient(
+            json_responses=[
+                (
+                    lambda url, params: url == "https://api.openalex.org/works/W123",
+                    {"id": "https://openalex.org/W123"},
+                )
+            ]
+        )
+
+        work = lookup_openalex_work_by_id(
+            client,
+            openalex_id="https://openalex.org/W123",
+            email="curator@example.org",
+            api_key="key",
+        )
+
+        self.assertEqual(work["id"], "https://openalex.org/W123")
+        self.assertEqual(client.calls[0]["params"]["api_key"], "key")
 
     def test_openalex_funding_reads_awards_and_funders(self) -> None:
         funders, grant_ids = funding_from_openalex_work(

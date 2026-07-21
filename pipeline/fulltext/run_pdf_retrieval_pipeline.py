@@ -25,6 +25,7 @@ try:
         parse_statuses,
     )
     from pipeline.fulltext.export_manual_pdf_queue import (
+        DEFAULT_SELECTION_TABLE,
         DEFAULT_OUTPUT_CSV as DEFAULT_MANUAL_QUEUE_CSV,
         DEFAULT_OUTPUT_TXT as DEFAULT_MANUAL_QUEUE_TXT,
         export_manual_pdf_queue,
@@ -48,6 +49,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         parse_statuses,
     )
     from pipeline.fulltext.export_manual_pdf_queue import (
+        DEFAULT_SELECTION_TABLE,
         DEFAULT_OUTPUT_CSV as DEFAULT_MANUAL_QUEUE_CSV,
         DEFAULT_OUTPUT_TXT as DEFAULT_MANUAL_QUEUE_TXT,
         export_manual_pdf_queue,
@@ -61,7 +63,7 @@ DEFAULT_DIRECT_REPORT = ROOT / "data" / "processed" / "corpus" / "audits" / "rou
 DEFAULT_RECOVERY_REPORT = ROOT / "data" / "processed" / "corpus" / "audits" / "standard_pdf_recovery_report.json"
 DEFAULT_REPORT = ROOT / "data" / "processed" / "corpus" / "audits" / "pdf_retrieval_pipeline_report.json"
 DEFAULT_STANDARD_RECOVERY_CATEGORIES = (
-    "forbidden,non_pdf_response,provider_error,timeout,other_download_failure,not_found"
+    "forbidden,non_pdf_response,rate_limited,provider_error,timeout,other_download_failure,not_found"
 )
 
 
@@ -77,6 +79,7 @@ def write_json(path: Path, payload: object) -> None:
 def run_pdf_retrieval_pipeline(
     *,
     route_table: Path = DEFAULT_ROUTE_TABLE,
+    selection_table: Path | None = DEFAULT_SELECTION_TABLE,
     metadata_table: Path = DEFAULT_METADATA_TABLE,
     candidate_table: Path = DEFAULT_CANDIDATE_TABLE,
     pdf_dir: Path = DEFAULT_PDF_DIR,
@@ -94,26 +97,30 @@ def run_pdf_retrieval_pipeline(
     limit: int = 0,
     dry_run: bool = False,
     skip_standard_recovery: bool = False,
-    direct_rps: float = 1.0,
+    direct_rps: float = 4.0,
     direct_timeout_sec: int = 45,
     direct_max_retries: int = 1,
-    direct_rate_limit_cooldown_sec: float = 0.0,
+    direct_rate_limit_cooldown_sec: float = 30.0,
+    direct_workers: int = 8,
+    direct_include_weak_pdf_urls: bool = False,
     direct_skip_candidate_statuses: set[str] | None = None,
     direct_only_failure_categories: set[str] | None = None,
     alternate_pdf_sources: set[str] | None = None,
+    alternate_sources_only: bool = False,
     alternate_pdf_min_title_score: float = 0.86,
     pdf_identity_min_title_score: float = 0.86,
     recovery_categories: set[str] | None = None,
     recovery_rps: float = 0.8,
     recovery_timeout_sec: int = 30,
-    attempt_log_every: int = 1,
-    candidate_log_every: int = 1,
+    attempt_log_every: int = 0,
+    candidate_log_every: int = 0,
     progress_every: int = 25,
     write_every: int = 25,
 ) -> dict:
     print("PDF_RETRIEVAL: starting direct PDF download stage", flush=True)
     direct_report = download_routed_pdfs(
         route_table=route_table,
+        selection_table=selection_table,
         metadata_table=metadata_table,
         candidate_table=candidate_table,
         pdf_dir=pdf_dir,
@@ -127,14 +134,17 @@ def run_pdf_retrieval_pipeline(
         skip_candidate_statuses=direct_skip_candidate_statuses or {"downloaded", "already_present", "manual_import"},
         only_failure_categories=direct_only_failure_categories,
         rate_limit_cooldown_sec=direct_rate_limit_cooldown_sec,
+        workers=max(1, direct_workers),
+        include_weak_pdf_urls=direct_include_weak_pdf_urls,
         write_every=write_every,
         progress_every=progress_every,
         attempt_log_every=attempt_log_every,
         candidate_log_every=candidate_log_every,
         alternate_pdf_sources=alternate_pdf_sources,
+        alternate_sources_only=alternate_sources_only,
         alternate_pdf_min_title_score=alternate_pdf_min_title_score,
         pdf_identity_min_title_score=pdf_identity_min_title_score,
-        rebuild_routes_after=True,
+        rebuild_routes_after=selection_table is None,
         prescreen_table=prescreen_table,
         domain_routing_table=domain_routing_table,
         fulltext_dir=fulltext_dir,
@@ -144,6 +154,7 @@ def run_pdf_retrieval_pipeline(
 
     queue_after_direct = export_manual_pdf_queue(
         route_table=route_table,
+        selection_table=selection_table,
         metadata_table=metadata_table,
         candidate_table=candidate_table,
         pdf_dir=pdf_dir,
@@ -173,7 +184,7 @@ def run_pdf_retrieval_pipeline(
             rps=recovery_rps,
             min_title_score=pdf_identity_min_title_score,
             apply=True,
-            rebuild_routes_after=True,
+            rebuild_routes_after=selection_table is None,
             route_table=route_table,
             metadata_table=metadata_table,
             prescreen_table=prescreen_table,
@@ -184,6 +195,7 @@ def run_pdf_retrieval_pipeline(
         )
         queue_after_recovery = export_manual_pdf_queue(
             route_table=route_table,
+            selection_table=selection_table,
             metadata_table=metadata_table,
             candidate_table=candidate_table,
             pdf_dir=pdf_dir,
@@ -196,14 +208,18 @@ def run_pdf_retrieval_pipeline(
         "dry_run": dry_run,
         "standard_recovery_enabled": not dry_run and not skip_standard_recovery,
         "route_table": str(route_table.resolve()),
+        "selection_table": str(selection_table.resolve()) if selection_table is not None else "",
         "candidate_table": str(candidate_table.resolve()),
         "pdf_dir": str(pdf_dir.resolve()),
         "direct_report_path": str(direct_report_path.resolve()),
         "recovery_report_path": str(recovery_report_path.resolve()) if recovery_report is not None else "",
         "manual_queue_csv": str(manual_queue_csv.resolve()),
         "alternate_pdf_sources": sorted(alternate_pdf_sources or set()),
+        "alternate_sources_only": alternate_sources_only,
         "alternate_pdf_min_title_score": alternate_pdf_min_title_score,
         "pdf_identity_min_title_score": pdf_identity_min_title_score,
+        "direct_workers": max(1, direct_workers),
+        "direct_include_weak_pdf_urls": direct_include_weak_pdf_urls,
         "direct": {
             "status": direct_report.get("counts", {}).get("status", {}),
             "candidate_rows_changed": direct_report.get("counts", {}).get("candidate_rows_changed", 0),
@@ -233,6 +249,13 @@ def run_pdf_retrieval_pipeline(
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--route-table", default=str(DEFAULT_ROUTE_TABLE))
+    parser.add_argument(
+        "--selection-table",
+        default=str(DEFAULT_SELECTION_TABLE),
+        help=(
+            "Route-independent full-text worklist. Pass an empty value only for legacy extraction-route mode."
+        ),
+    )
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--pdf-dir", default=str(DEFAULT_PDF_DIR))
@@ -250,10 +273,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--skip-standard-recovery", action="store_true")
-    parser.add_argument("--direct-rps", type=float, default=1.0)
+    parser.add_argument("--direct-rps", type=float, default=4.0)
     parser.add_argument("--direct-timeout-sec", type=int, default=45)
     parser.add_argument("--direct-max-retries", type=int, default=1)
-    parser.add_argument("--direct-rate-limit-cooldown-sec", type=float, default=0.0)
+    parser.add_argument("--direct-rate-limit-cooldown-sec", type=float, default=30.0)
+    parser.add_argument("--direct-workers", type=int, default=8)
+    parser.add_argument("--direct-include-weak-pdf-urls", action="store_true")
     parser.add_argument(
         "--direct-skip-candidate-statuses",
         default="downloaded,already_present,manual_import",
@@ -266,6 +291,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
             "Optional comma-separated alternate source strategies to try after direct PDF URLs fail. "
             "Supported values: pmc,openalex,semantic_scholar."
         ),
+    )
+    parser.add_argument(
+        "--alternate-sources-only",
+        action="store_true",
+        help="Skip known publisher URLs and run only the configured alternate-source resolvers.",
     )
     parser.add_argument(
         "--alternate-pdf-min-title-score",
@@ -282,8 +312,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--recovery-categories", default=DEFAULT_STANDARD_RECOVERY_CATEGORIES)
     parser.add_argument("--recovery-rps", type=float, default=0.8)
     parser.add_argument("--recovery-timeout-sec", type=int, default=30)
-    parser.add_argument("--attempt-log-every", type=int, default=1)
-    parser.add_argument("--candidate-log-every", type=int, default=1)
+    parser.add_argument("--attempt-log-every", type=int, default=0)
+    parser.add_argument("--candidate-log-every", type=int, default=0)
     parser.add_argument("--progress-every", type=int, default=25)
     parser.add_argument("--write-every", type=int, default=25)
     return parser
@@ -304,6 +334,7 @@ def main() -> int:
     doi_filter = read_doi_file(Path(args.doi_file).resolve()) if args.doi_file.strip() else None
     run_pdf_retrieval_pipeline(
         route_table=Path(args.route_table).resolve(),
+        selection_table=Path(args.selection_table).resolve() if args.selection_table.strip() else None,
         metadata_table=Path(args.metadata_table).resolve(),
         candidate_table=Path(args.candidate_table).resolve(),
         pdf_dir=Path(args.pdf_dir).resolve(),
@@ -325,9 +356,12 @@ def main() -> int:
         direct_timeout_sec=args.direct_timeout_sec,
         direct_max_retries=args.direct_max_retries,
         direct_rate_limit_cooldown_sec=max(0.0, args.direct_rate_limit_cooldown_sec),
+        direct_workers=max(1, args.direct_workers),
+        direct_include_weak_pdf_urls=bool(args.direct_include_weak_pdf_urls),
         direct_skip_candidate_statuses=parse_statuses(args.direct_skip_candidate_statuses),
         direct_only_failure_categories=parse_csv_values(args.direct_only_failure_categories) or None,
         alternate_pdf_sources=parse_csv_values(args.alternate_pdf_sources),
+        alternate_sources_only=bool(args.alternate_sources_only),
         alternate_pdf_min_title_score=args.alternate_pdf_min_title_score,
         pdf_identity_min_title_score=args.pdf_identity_min_title_score,
         recovery_categories=parse_csv_values(args.recovery_categories),

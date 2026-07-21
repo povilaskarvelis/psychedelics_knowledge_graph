@@ -13,6 +13,12 @@ outputs.
 Use `dist/` for both Netlify deploys and local previews. The old `site/`
 output is retired and should not be rebuilt.
 
+Use `bash scripts/preview_site.sh public` for local UI development against the
+active R2 release. Use `bash scripts/preview_site.sh local` only after a
+candidate has been promoted locally without R2 publication. The latter exposes
+only allowlisted generated public artifacts through a loopback-only server and
+refuses stale graph/Methods combinations.
+
 ## Netlify
 
 Use the settings in `netlify.toml`:

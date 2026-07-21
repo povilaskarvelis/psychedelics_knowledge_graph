@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "record_count": 109,
+  "record_count": 110,
   "description": "Curated source-identity relationships and identifier overrides. Entries are audit evidence, not unconditional aliases and not artifact mutations.",
   "source_manifests": [
     "pipeline/fulltext/attestations/source_identity_repair_20260710.json"
@@ -121,6 +121,7 @@
     {"requested_doi": "10.1177/2045125316640440", "observed_document_doi": "10.1177/2045125316640440therapeutic", "relationship_type": "doi_parse_truncation_or_suffix", "identity_action": "ignore_incorrect_extracted_document_doi", "record_group": "pmc_valid_exact"},
     {"requested_doi": "10.1177/2045125316676092", "observed_document_doi": "10.1177/2045125316676092therapeutic", "relationship_type": "doi_parse_truncation_or_suffix", "identity_action": "ignore_incorrect_extracted_document_doi", "record_group": "pmc_valid_exact"},
     {"requested_doi": "10.22092/ari.2023.78.5.1603", "observed_document_doi": "10.32592/ari.2023.78.5.1603", "relationship_type": "publisher_doi_alias", "identity_action": "accept_related_document_doi", "record_group": "pmc_valid_exact"},
-    {"requested_doi": "10.3325/cmj.2021.62.528", "observed_document_doi": "10.1080/1355621021000005937", "relationship_type": "grobid_related_doi_misidentification", "identity_action": "ignore_incorrect_extracted_document_doi", "record_group": "pmc_valid_exact"}
+    {"requested_doi": "10.3325/cmj.2021.62.528", "observed_document_doi": "10.1080/1355621021000005937", "relationship_type": "grobid_related_doi_misidentification", "identity_action": "ignore_incorrect_extracted_document_doi", "record_group": "pmc_valid_exact"},
+    {"requested_doi": "10.26599/bsa.2024.905006", "observed_document_doi": "10.26599/bsa.2024.9050006", "relationship_type": "publisher_doi_alias", "identity_action": "accept_related_document_doi", "record_group": "benign_conflict"}
   ]
 }

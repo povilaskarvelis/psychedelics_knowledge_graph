@@ -110,6 +110,26 @@ the public graph pointer names only compact browser artifacts.
 - `dashboard_bootstraps`
 - `detail_bootstraps`
 
+Each generated Methods artifact also contains the canonical graph `run_id` and
+evidence `release_id`. The local preview server and public R2 publisher require
+those values to match the graph manifest, so a stale bibliography or Methods
+flow cannot be mixed into a candidate or published release.
+
+## Review before R2 publication
+
+Build and promote a candidate locally without setting `PUBLISH_QUERY_API_R2=1`.
+Promotion updates the local graph pointer and rebuilds the matching Methods
+artifacts, but does not change either R2 bucket. Review that exact candidate with:
+
+```bash
+bash scripts/preview_site.sh local
+```
+
+The preview URL contains `?data-source=local`, and internal navigation preserves
+the selection across Graph and Methods. After approval, publish the already-
+validated release with the R2 commands in `docs/r2_deployment.md`; commit and
+deploy code changes separately when there are any.
+
 `summary_stats.paper_counts` is the generated source of truth for the four
 public header metrics: primary studies, reviews, meta-analyses, and their total
 represented anywhere in the underlying normalized evidence graph. These values

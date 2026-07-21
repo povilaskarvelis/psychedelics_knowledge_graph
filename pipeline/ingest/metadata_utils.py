@@ -7,10 +7,10 @@ import datetime as dt
 import hashlib
 import html
 import json
-import os
 import random
 import re
 import sys
+import threading
 import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -197,22 +197,25 @@ class RateLimitedHttpClient:
         self.user_agent = user_agent
         self.max_response_bytes = max(1, int(max_response_bytes))
         self._opener = build_public_http_opener()
-        self._last_request_ts = 0.0
+        self._rate_lock = threading.Lock()
+        self._next_request_ts = 0.0
 
     def _wait_for_slot(self) -> None:
-        now = time.monotonic()
-        elapsed = now - self._last_request_ts
-        if elapsed < self.min_interval:
-            time.sleep(self.min_interval - elapsed)
+        with self._rate_lock:
+            now = time.monotonic()
+            request_ts = max(now, self._next_request_ts)
+            self._next_request_ts = request_ts + self.min_interval
+        delay = request_ts - now
+        if delay > 0:
+            time.sleep(delay)
 
     def _request_bytes(self, url: str, headers: Optional[Dict[str, str]] = None) -> bytes:
-        req_headers = {"User-Agent": self.user_agent}
         validate_public_http_url(url)
+        req_headers = {"User-Agent": self.user_agent}
         if headers:
             req_headers.update(headers)
         req = Request(url, headers=req_headers)
         with self._opener.open(req, timeout=self.timeout_sec) as response:
-            self._last_request_ts = time.monotonic()
             return read_bounded_response(response, self.max_response_bytes)
 
     def get_bytes(self, url: str, headers: Optional[Dict[str, str]] = None) -> bytes:
@@ -222,7 +225,6 @@ class RateLimitedHttpClient:
             try:
                 return self._request_bytes(url=url, headers=headers)
             except HTTPError as err:
-                self._last_request_ts = time.monotonic()
                 retryable = err.code in {429, 500, 502, 503, 504}
                 if attempt >= self.max_retries or not retryable:
                     raise
@@ -236,7 +238,6 @@ class RateLimitedHttpClient:
                 time.sleep(delay + random.uniform(0.0, 0.35))
                 backoff *= 1.7
             except URLError:
-                self._last_request_ts = time.monotonic()
                 if attempt >= self.max_retries:
                     raise
                 time.sleep(backoff + random.uniform(0.0, 0.35))
@@ -792,26 +793,66 @@ def decode_openalex_abstract(index: object) -> str:
     return " ".join([w for w in ordered if w]).strip()
 
 
-def lookup_openalex_work(client: RateLimitedHttpClient, doi: str, email: str, api_key: str) -> Optional[dict]:
-    endpoint = "https://api.openalex.org/works"
+OPENALEX_WORK_SELECT = (
+    "doi,ids,display_name,publication_year,publication_date,type,authorships,"
+    "abstract_inverted_index,open_access,best_oa_location,primary_location,locations,"
+    "language,biblio,awards,funders,mesh,concepts,keywords,is_retracted"
+)
+
+
+def lookup_openalex_work_by_id(
+    client: RateLimitedHttpClient,
+    openalex_id: str,
+    email: str,
+    api_key: str,
+) -> Optional[dict]:
+    """Fetch one OpenAlex work through the free singleton endpoint."""
+    identifier = normalize(openalex_id)
+    if not identifier:
+        return None
+    identifier = identifier.rstrip("/").rsplit("/", 1)[-1]
+    if not re.fullmatch(r"W\d+", identifier, flags=re.IGNORECASE):
+        return None
+    endpoint = f"https://api.openalex.org/works/{quote(identifier, safe='')}"
     params = {
-        "filter": f"doi:https://doi.org/{doi}",
-        "per-page": 1,
-        "select": (
-            "doi,ids,display_name,publication_year,publication_date,type,authorships,"
-            "abstract_inverted_index,open_access,best_oa_location,primary_location,locations,"
-            "language,biblio,awards,funders,mesh,concepts,keywords,is_retracted"
-        ),
+        "select": OPENALEX_WORK_SELECT,
     }
     if api_key:
         params["api_key"] = api_key
     if email:
         params["mailto"] = email
-    payload = client.get_json(endpoint, params=params, headers={})
-    results = payload.get("results", []) or []
-    if not results:
+    try:
+        payload = client.get_json(endpoint, params=params, headers={})
+    except HTTPError as err:
+        if err.code == 404:
+            return None
+        raise
+    return payload if isinstance(payload, dict) else None
+
+
+def lookup_openalex_work(client: RateLimitedHttpClient, doi: str, email: str, api_key: str) -> Optional[dict]:
+    """Fetch one OpenAlex work by DOI through the singleton endpoint."""
+    normalized_doi = normalize_doi(doi)
+    if not normalized_doi:
         return None
-    return results[0]
+    endpoint = f"https://api.openalex.org/works/doi:{quote(normalized_doi, safe='')}"
+    params = {"select": OPENALEX_WORK_SELECT}
+    if api_key:
+        params["api_key"] = api_key
+    if email:
+        params["mailto"] = email
+    try:
+        payload = client.get_json(endpoint, params=params, headers={})
+    except HTTPError as err:
+        if err.code == 404:
+            return None
+        raise
+    if not isinstance(payload, dict):
+        return None
+    returned_doi = normalize_doi(payload.get("doi", ""))
+    if returned_doi and returned_doi.lower() != normalized_doi.lower():
+        return None
+    return payload
 
 
 def metadata_from_openalex_work(work: dict, paper: dict) -> dict:

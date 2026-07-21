@@ -100,6 +100,14 @@ STOPWORDS = {
 PDF_TITLE_FRONT_CHAR_LIMIT = 2000
 PDF_HASH_ATTESTATIONS = load_pdf_hash_attestation_registry()["records"]
 
+NON_PRIMARY_PDF_HEADINGS = {
+    "supplementary material",
+    "supplemental material",
+    "supplementary information",
+    "supplemental information",
+    "supporting information",
+}
+
 
 @dataclass(frozen=True)
 class AlternatePdfCandidate:
@@ -188,6 +196,30 @@ def extract_pdf_text_from_bytes(body: bytes, max_pages: int = 3) -> str:
             tmp_path.unlink(missing_ok=True)
 
 
+def non_primary_pdf_artifact_basis(text: str) -> str:
+    """Identify high-confidence ancillary files that are not the requested article.
+
+    Ancillary PDFs commonly repeat the article title, so title similarity alone
+    cannot distinguish them from the primary paper. Keep this deliberately
+    narrow: only explicit headings and boilerplate near the start of page one
+    are rejected.
+    """
+    first_page = text.split("\f", 1)[0]
+    lines = [clean(line).lower() for line in first_page.splitlines() if clean(line)]
+    for line in lines[:8]:
+        if line in NON_PRIMARY_PDF_HEADINGS:
+            return "supplementary_pdf_artifact"
+        if any(line.startswith(f"{heading} for ") for heading in NON_PRIMARY_PDF_HEADINGS):
+            return "supplementary_pdf_artifact"
+    front = normalize_for_title_match(first_page)[:1200]
+    if (
+        "this supplementary material has been provided by the author" in front
+        or "list of supplementary material for the article" in front
+    ):
+        return "supplementary_pdf_artifact"
+    return ""
+
+
 def title_validation_result(
     title: str,
     body: bytes,
@@ -212,6 +244,9 @@ def title_validation_result(
         # otherwise unreadable PDFs go to manual review instead of entering the
         # canonical store without a title check.
         return False, 0.0, "no_text_extracted"
+    artifact_basis = non_primary_pdf_artifact_basis(text)
+    if artifact_basis:
+        return False, 0.0, artifact_basis
     # Conference books and supplements can contain many valid paper titles.
     # A match anywhere in the first few pages therefore does not identify the
     # PDF as the requested article. Require the title in the top region of page
@@ -730,7 +765,10 @@ def download_alternate_pdf_candidates(
         )
         events.extend(candidate_events)
         if not looks_like_pdf_bytes(body):
-            errors.append(f"{candidate.source}: {candidate.url} -> {mode}")
+            event_errors = [clean(event.get("error", "")) for event in candidate_events]
+            error_detail = next((error for error in reversed(event_errors) if error), "")
+            suffix = f": {error_detail}" if error_detail else ""
+            errors.append(f"{candidate.source}: {candidate.url} -> {mode}{suffix}")
             continue
         valid_title, score, validation_basis = title_validation_result(
             study_title,

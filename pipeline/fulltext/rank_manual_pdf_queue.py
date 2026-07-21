@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import Counter
 from pathlib import Path
 from urllib.parse import urlparse
@@ -18,6 +19,9 @@ DEFAULT_OUTPUT_CSV = ROOT / "data" / "processed" / "corpus" / "audits" / "manual
 DEFAULT_OUTPUT_TXT = ROOT / "data" / "processed" / "corpus" / "audits" / "manual_pdf_download_ranked.txt"
 DEFAULT_REPORT_JSON = ROOT / "data" / "processed" / "corpus" / "audits" / "manual_pdf_download_ranked_report.json"
 DEFAULT_BROWSER_CSV = ROOT / "data" / "processed" / "corpus" / "audits" / "manual_pdf_browser_recovery_candidates.csv"
+DEFAULT_DOI_ARTICLE_CSV = (
+    ROOT / "data" / "processed" / "corpus" / "audits" / "manual_pdf_doi_article_recovery_candidates.csv"
+)
 DEFAULT_PREPRINT_CSV = ROOT / "data" / "processed" / "corpus" / "audits" / "manual_pdf_preprint_review_candidates.csv"
 
 TIER_ORDER = {"A": 0, "B": 1, "C": 2, "D": 3}
@@ -29,6 +33,9 @@ PRIORITY_COLUMNS = [
     "manual_host_class",
     "manual_browser_recovery_candidate",
     "manual_browser_recovery_hint",
+    "manual_doi_article_recovery_candidate",
+    "manual_doi_article_recovery_hint",
+    "manual_doi_landing_url",
     "manual_preprint_like",
     "manual_preprint_review_hint",
     "manual_priority_reason",
@@ -77,6 +84,9 @@ PUBLISHER_HOST_MARKERS = (
     "degruyter.com",
     "cambridge.org",
     "oup.com",
+)
+UNTRUSTED_BROWSER_HOSTS = (
+    "scholarhub.ui.ac.id",
 )
 
 
@@ -168,7 +178,7 @@ def browser_recovery_candidate(row: dict, hclass: str) -> tuple[bool, str]:
     )
     if not has_url:
         return False, "no URL to inspect"
-    if failure not in {"forbidden", "non_pdf_response", "provider_error", "timeout"}:
+    if failure not in {"forbidden", "non_pdf_response", "other_download_failure", "provider_error", "timeout"}:
         return False, f"failure={failure or 'unknown'} is lower-yield for browser recovery"
     if oa == "closed":
         return False, "closed-access metadata"
@@ -176,11 +186,75 @@ def browser_recovery_candidate(row: dict, hclass: str) -> tuple[bool, str]:
         return True, "repository/preprint page may expose a browser-only download path"
     if failure == "non_pdf_response":
         return True, "landing page may require article/full-text link, then PDF/download click-through"
+    if failure == "other_download_failure":
+        return True, "direct URL did not yield a PDF; browser navigation may expose the actual download control"
     if failure == "forbidden" and oa in {"gold", "green", "bronze", "diamond", "hybrid"}:
         return True, "direct PDF blocked; browser may expose article/full-text links or viewer download"
     if failure in {"provider_error", "timeout"} and oa in {"gold", "green", "diamond"}:
         return True, "provider failed direct request; browser retry may still work"
     return False, "lower-yield browser candidate"
+
+
+def untrusted_browser_source(row: dict) -> str:
+    hosts = unique_hosts(
+        row.get("best_pdf_url", ""),
+        row.get("pdf_url_candidates", ""),
+        row.get("open_access_url", ""),
+    )
+    return next(
+        (host for host in hosts if any(marker in host for marker in UNTRUSTED_BROWSER_HOSTS)),
+        "",
+    )
+
+
+def suspected_nonarticle_record(row: dict) -> str:
+    doi = clean(row.get("doi", "")).lower()
+    title = clean(row.get("study_title", "")).lower()
+    journal = clean(row.get("study_journal", "")).lower()
+    publication_type = clean(row.get("publication_type", "")).lower()
+    best_url = clean(row.get("best_pdf_url", "")).lower()
+    if doi.startswith("10.5281/zenodo."):
+        return "Zenodo deposit"
+    if publication_type in {
+        "conference-abstract",
+        "conference abstract",
+        "dissertation",
+        "thesis",
+        "dataset",
+        "posted-content",
+    }:
+        return f"publication_type={publication_type}"
+    if re.match(r"^\(\d{2,4}\)\s+", title):
+        return "numbered conference/supplement abstract title"
+    if re.match(r"^(?:ps|op|oc|poster)\s*0*\d+\b", title, flags=re.IGNORECASE):
+        return "conference/supplement abstract title code"
+    if any(marker in title for marker in ("conference abstract", "meeting abstract")):
+        return "title identifies a conference abstract"
+    if any(marker in title for marker in ("doctoral thesis", "phd thesis", "master's thesis", "master thesis")):
+        return "title identifies a thesis"
+    if any(marker in journal for marker in ("research repository", "institutional repository", "thesis repository")):
+        return "journal/source identifies a repository record"
+    if "thesis" in Path(urlparse(best_url).path).name.lower():
+        return "PDF filename identifies a thesis"
+    return ""
+
+
+def doi_article_recovery_candidate(row: dict) -> tuple[bool, str, str]:
+    doi = clean(row.get("doi", "")).lower()
+    landing_url = f"https://doi.org/{doi}" if doi.startswith("10.") else ""
+    if not landing_url:
+        return False, "missing or invalid DOI", ""
+    untrusted_host = untrusted_browser_source(row)
+    if untrusted_host:
+        return False, f"untrusted browser source host={untrusted_host}", landing_url
+    nonarticle_reason = suspected_nonarticle_record(row)
+    if nonarticle_reason:
+        return False, nonarticle_reason, landing_url
+    return (
+        True,
+        "open DOI landing page; require a matching journal-article page before following full-text/PDF/download controls",
+        landing_url,
+    )
 
 
 def int_value(value: object) -> int:
@@ -299,6 +373,7 @@ def rank_rows(df: pd.DataFrame) -> pd.DataFrame:
         tier = tier_for_scores(total_score, recovery_score, value_score)
         is_preprint = preprint_like(row)
         browser_candidate, browser_hint = browser_recovery_candidate(row, hclass)
+        doi_article_candidate, doi_article_hint, doi_landing_url = doi_article_recovery_candidate(row)
         ranked = {
             **row,
             "manual_priority_tier": tier,
@@ -308,6 +383,9 @@ def rank_rows(df: pd.DataFrame) -> pd.DataFrame:
             "manual_host_class": hclass,
             "manual_browser_recovery_candidate": browser_candidate,
             "manual_browser_recovery_hint": browser_hint,
+            "manual_doi_article_recovery_candidate": doi_article_candidate,
+            "manual_doi_article_recovery_hint": doi_article_hint,
+            "manual_doi_landing_url": doi_landing_url,
             "manual_preprint_like": is_preprint,
             "manual_preprint_review_hint": (
                 "search title for a published article DOI; keep preprint only if no published duplicate is found"
@@ -334,6 +412,7 @@ def write_outputs(
     output_txt: Path,
     report_json: Path,
     browser_csv: Path,
+    doi_article_csv: Path,
     preprint_csv: Path,
 ) -> dict:
     output_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -341,21 +420,28 @@ def write_outputs(
     output_txt.parent.mkdir(parents=True, exist_ok=True)
     output_txt.write_text("\n".join(ranked.get("doi", pd.Series(dtype=str)).astype(str).tolist()) + ("\n" if len(ranked) else ""), encoding="utf-8")
     browser = ranked[ranked.get("manual_browser_recovery_candidate", pd.Series(dtype=bool)).astype(bool)].copy()
+    doi_articles = ranked[
+        ranked.get("manual_doi_article_recovery_candidate", pd.Series(dtype=bool)).astype(bool)
+    ].copy()
     preprints = ranked[ranked.get("manual_preprint_like", pd.Series(dtype=bool)).astype(bool)].copy()
     browser_csv.parent.mkdir(parents=True, exist_ok=True)
+    doi_article_csv.parent.mkdir(parents=True, exist_ok=True)
     preprint_csv.parent.mkdir(parents=True, exist_ok=True)
     browser.to_csv(browser_csv, index=False)
+    doi_articles.to_csv(doi_article_csv, index=False)
     preprints.to_csv(preprint_csv, index=False)
     report = {
         "input_rows": int(len(ranked)),
         "output_csv": str(output_csv.resolve()),
         "output_txt": str(output_txt.resolve()),
         "browser_recovery_csv": str(browser_csv.resolve()),
+        "doi_article_recovery_csv": str(doi_article_csv.resolve()),
         "preprint_review_csv": str(preprint_csv.resolve()),
         "tier_counts": dict(Counter(ranked.get("manual_priority_tier", pd.Series(dtype=str)).astype(str))),
         "failure_category_counts": dict(Counter(ranked.get("pdf_download_failure_category", pd.Series(dtype=str)).astype(str))),
         "host_class_counts": dict(Counter(ranked.get("manual_host_class", pd.Series(dtype=str)).astype(str))),
         "browser_recovery_candidate_rows": int(len(browser)),
+        "doi_article_recovery_candidate_rows": int(len(doi_articles)),
         "preprint_like_rows": int(len(preprints)),
         "browser_recovery_tier_counts": dict(Counter(browser.get("manual_priority_tier", pd.Series(dtype=str)).astype(str))),
         "preprint_like_tier_counts": dict(Counter(preprints.get("manual_priority_tier", pd.Series(dtype=str)).astype(str))),
@@ -372,6 +458,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-txt", default=str(DEFAULT_OUTPUT_TXT))
     parser.add_argument("--report-json", default=str(DEFAULT_REPORT_JSON))
     parser.add_argument("--browser-recovery-csv", default=str(DEFAULT_BROWSER_CSV))
+    parser.add_argument("--doi-article-recovery-csv", default=str(DEFAULT_DOI_ARTICLE_CSV))
     parser.add_argument("--preprint-review-csv", default=str(DEFAULT_PREPRINT_CSV))
     return parser
 
@@ -388,6 +475,7 @@ def main() -> int:
         Path(args.output_txt).resolve(),
         Path(args.report_json).resolve(),
         Path(args.browser_recovery_csv).resolve(),
+        Path(args.doi_article_recovery_csv).resolve(),
         Path(args.preprint_review_csv).resolve(),
     )
     print(f"RANKED_MANUAL_PDF_QUEUE: rows={len(ranked):,} tiers={report['tier_counts']} csv={report['output_csv']}", flush=True)

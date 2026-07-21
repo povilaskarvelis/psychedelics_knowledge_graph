@@ -71,7 +71,13 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
             "graph_inclusion_dispositions.json",
         ):
             (methods_views / filename).write_text(
-                json.dumps({"view": filename.removesuffix(".json")}),
+                json.dumps(
+                    {
+                        "view": filename.removesuffix(".json"),
+                        "run_id": "test_run",
+                        "release_id": "test_run:evidence:r1",
+                    }
+                ),
                 encoding="utf-8",
             )
         return pointer_path, runs, methods_views
@@ -147,6 +153,26 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
             store = FakeObjectStore()
 
             with self.assertRaisesRegex(FileNotFoundError, "Methods data file"):
+                publish_active_browser_release(
+                    store=store,
+                    settings=r2_settings(),
+                    active_pointer_path=pointer,
+                    browser_runs_dir=runs,
+                    methods_views_dir=methods_views,
+                )
+            self.assertNotIn("browser/active.json", store.objects)
+
+    def test_stale_methods_release_does_not_switch_pointer(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pointer, runs, methods_views = self.build_release(root)
+            bibliography = methods_views / "methods_bibliography.json"
+            payload = json.loads(bibliography.read_text(encoding="utf-8"))
+            payload["release_id"] = "older:evidence:release"
+            bibliography.write_text(json.dumps(payload), encoding="utf-8")
+            store = FakeObjectStore()
+
+            with self.assertRaisesRegex(ValueError, "Methods data release ID mismatch"):
                 publish_active_browser_release(
                     store=store,
                     settings=r2_settings(),

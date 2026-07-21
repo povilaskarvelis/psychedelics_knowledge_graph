@@ -111,7 +111,12 @@ def collect_browser_release_files(
     return files
 
 
-def collect_methods_release_files(methods_views_dir: Path) -> list[LocalReleaseFile]:
+def collect_methods_release_files(
+    methods_views_dir: Path,
+    *,
+    expected_run_id: str,
+    expected_release_id: str,
+) -> list[LocalReleaseFile]:
     """Collect every generated dataset used by, or published with, Methods."""
     views_root = methods_views_dir.resolve()
     files: list[LocalReleaseFile] = []
@@ -121,6 +126,11 @@ def collect_methods_release_files(methods_views_dir: Path) -> list[LocalReleaseF
             raise ValueError(f"Unsafe Methods data path: {filename}")
         if not path.is_file():
             raise FileNotFoundError(f"Missing required Methods data file: {path}")
+        payload = read_json_object(path)
+        if str(payload.get("run_id") or "").strip() != expected_run_id:
+            raise ValueError(f"Methods data run ID mismatch: {path}")
+        if str(payload.get("release_id") or "").strip() != expected_release_id:
+            raise ValueError(f"Methods data release ID mismatch: {path}")
         files.append(
             LocalReleaseFile(
                 logical_name=f"methods:{public_name}",
@@ -209,7 +219,13 @@ def publish_active_browser_release(
         manifest_path=manifest_path,
         manifest=manifest,
     )
-    release_files.extend(collect_methods_release_files(methods_views_dir))
+    release_files.extend(
+        collect_methods_release_files(
+            methods_views_dir,
+            expected_run_id=run_id,
+            expected_release_id=evidence_release_id,
+        )
+    )
     relative_names = [release_file.relative_path for release_file in release_files]
     if len(relative_names) != len(set(relative_names)):
         raise ValueError("Public data release contains duplicate filenames")

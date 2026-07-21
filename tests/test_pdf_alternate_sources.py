@@ -269,6 +269,24 @@ def test_title_validation_accepts_title_near_top_of_first_page(monkeypatch) -> N
     assert basis == "front_title_match"
 
 
+def test_title_validation_rejects_supplementary_pdf_even_when_article_title_matches(monkeypatch) -> None:
+    requested = "Single Dose Ketamine in Treatment Resistant Depression"
+    monkeypatch.setattr(
+        "pipeline.fulltext.pdf_alternate_sources.extract_pdf_text_from_bytes",
+        lambda body: (
+            "Supplementary Material\n"
+            f"Article Title: {requested}\n"
+            "List of Supplementary Material for the article\n"
+        ),
+    )
+
+    accepted, score, basis = title_validation_result(requested, b"%PDF-supplement", 0.86)
+
+    assert accepted is False
+    assert score == 0.0
+    assert basis == "supplementary_pdf_artifact"
+
+
 def test_title_validation_accepts_only_exact_doi_and_registered_pdf_hash() -> None:
     body = b"%PDF-1.4\ncurator reviewed multilingual article\n%%EOF\n"
     records = {

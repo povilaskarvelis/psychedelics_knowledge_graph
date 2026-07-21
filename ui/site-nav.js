@@ -1,4 +1,17 @@
 (function () {
+  const localHosts = new Set(["", "localhost", "127.0.0.1", "::1"]);
+  const query = new URLSearchParams(window.location.search);
+  if (localHosts.has(window.location.hostname) && query.get("data-source") === "local") {
+    document.querySelectorAll('a[href]').forEach((link) => {
+      const rawHref = link.getAttribute("href") || "";
+      if (!rawHref || rawHref.startsWith("#")) return;
+      const url = new URL(rawHref, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      url.searchParams.set("data-source", "local");
+      link.href = `${url.pathname}${url.search}${url.hash}`;
+    });
+  }
+
   const headers = document.querySelectorAll("[data-site-header]");
 
   headers.forEach((header) => {

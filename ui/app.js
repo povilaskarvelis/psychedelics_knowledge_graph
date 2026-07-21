@@ -15,7 +15,10 @@ const studyListEl = document.getElementById("studyList");
 const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
 const GRAPH_PAYLOAD_REMOTE_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json";
+const GRAPH_PAYLOAD_PUBLIC_PREVIEW_POINTER_URL = "/__preview__/published.json";
+const GRAPH_PAYLOAD_LOCAL_POINTER_URL = "/__preview__/active.json";
 const LOCAL_GRAPH_DATA_HOSTS = new Set(["", "localhost", "127.0.0.1", "::1"]);
+const LOCAL_DATA_SOURCE_QUERY_PARAMETER = "data-source";
 
 if (tooltip && tooltip.parentElement !== document.body) {
   document.body.appendChild(tooltip);
@@ -7972,9 +7975,15 @@ function dataCandidates(path) {
   return [`../${path}`, `/${path}`, path];
 }
 
+function localDataSourceRequested() {
+  if (!LOCAL_GRAPH_DATA_HOSTS.has(window.location.hostname)) return false;
+  return new URLSearchParams(window.location.search).get(LOCAL_DATA_SOURCE_QUERY_PARAMETER) === "local";
+}
+
 function graphPayloadPointerCandidates() {
+  if (localDataSourceRequested()) return [GRAPH_PAYLOAD_LOCAL_POINTER_URL];
   if (LOCAL_GRAPH_DATA_HOSTS.has(window.location.hostname)) {
-    return dataCandidates("data/processed/graph_payload_active.json");
+    return [GRAPH_PAYLOAD_PUBLIC_PREVIEW_POINTER_URL];
   }
   return [GRAPH_PAYLOAD_REMOTE_POINTER_URL];
 }
@@ -7982,7 +7991,7 @@ function graphPayloadPointerCandidates() {
 function graphPayloadCandidates(config, path) {
   if (/^https:\/\//i.test(path)) return [path];
   const pointerUrl = cleanDisplayText(config?.__pointer_url || "");
-  if (/^https:\/\//i.test(pointerUrl)) {
+  if (/^https?:\/\//i.test(pointerUrl)) {
     const origin = new URL(pointerUrl).origin;
     return [new URL(path.replace(/^\/+/, ""), `${origin}/`).href];
   }
@@ -7994,6 +8003,7 @@ function validatedGraphPayloadConfig(data, url) {
   const supportedSchemas = new Set([
     "route_native_evidence_payload_active_v1",
     "psychedelics_kg_browser_r2_active_v1",
+    "psychedelics_kg_local_preview_active_v1",
   ]);
   if (!supportedSchemas.has(schemaVersion)) {
     throw new Error(`Unsupported graph data pointer from ${url}`);
@@ -8016,7 +8026,7 @@ function validatedGraphPayloadConfig(data, url) {
   if (!cleanDisplayText(data?.active_manifest || "")) {
     throw new Error("Graph data pointer is missing active_manifest");
   }
-  return { ...data, __pointer_url: url };
+  return { ...data, __pointer_url: new URL(url, window.location.href).href };
 }
 
 async function loadGraphPayloadConfig() {
