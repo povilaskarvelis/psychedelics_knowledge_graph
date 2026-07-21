@@ -5800,7 +5800,7 @@ def graphable_entity_match(
                 "item": item,
                 "status": "entity_normalized",
                 "match_type": "intervention_specific_with_topic",
-                "notes": "specific treatment-context wording retained beneath a recognizable researcher-facing topic",
+                "notes": "specific treatment context wording retained beneath a recognizable researcher-facing topic",
             }
         return {
             "matched": False,
@@ -5809,7 +5809,7 @@ def graphable_entity_match(
             "item": None,
             "status": "intervention_context_topic_unmapped",
             "match_type": "",
-            "notes": "treatment-context wording did not match a recognizable graph topic",
+            "notes": "treatment context wording did not match a recognizable graph topic",
         }
     if domain == "general_topic_coverage" and entity_kind == "public_health_measure":
         label = general_topic_coverage_label(row)

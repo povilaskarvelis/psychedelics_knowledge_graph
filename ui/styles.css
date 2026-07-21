@@ -1657,16 +1657,16 @@ button.primary:hover {
 .method-extraction-inputs {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 9px;
 }
 
 .method-extraction-inputs::after {
   content: "";
   position: absolute;
-  right: 12.5%;
+  right: 16.6667%;
   bottom: -15px;
-  left: 12.5%;
+  left: 16.6667%;
   height: 1px;
   background: rgba(144, 186, 255, 0.25);
 }

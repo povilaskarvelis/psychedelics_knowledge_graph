@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/ui/styles.css?v=20260721-screening-controls-v1" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260721-extraction-flow-v1" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
@@ -109,7 +109,7 @@
         <p>
           The workflow is designed to keep literature discovery broad while
           making graph inclusion conservative. Searches cast a wide net across
-          clinical, biological, brain, behavioral, subjective, treatment-context,
+          clinical, biological, brain, behavioral, subjective, treatment context,
           and real-world evidence. Each publication is then interpreted according to
           what it actually contains and how much source text is available, so
           the graph shows findings that can be traced back to specific publications.
@@ -117,7 +117,7 @@
           allow the workflow to operate at scale, while source links, evidence
           locations within source publications, and validation rules keep the
           results auditable. The current
-          workflow uses Gemini 3 Flash Preview for LLM-based title-and-abstract
+          workflow uses Gemini 3 Flash for LLM-based title-and-abstract
           screening and evidence extraction. The pipeline is
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">open source</a>
           and available for inspection, reuse, and improvement. A detailed
@@ -154,8 +154,8 @@
               <h3>Find records</h3>
               <p>
                 PubMed and OpenAlex searches combine broad searches across the
-                main research areas with compound-identity searches that are
-                not restricted to a particular topic. Newly added compounds are
+                main research areas with compound searches that are not
+                restricted to a particular topic. Newly added compounds are
                 also searched across the historical literature. Results are
                 matched by DOI and merged into a single set of records. Metadata
                 enrichment uses PubMed, PMC, OpenAlex, Crossref, Semantic
@@ -229,10 +229,10 @@
               <h3>Validate and publish</h3>
               <p>
                 Extracted findings are checked for the required fields and for
-                support in the source publication. Accepted terminology is then
-                standardized before the graph is assembled. Relationships that
-                are unclear, unsupported, or cannot be represented accurately
-                are left out.
+                support in the source publication. Extracted compounds and
+                concepts are then normalized to consistent graph entities
+                before the graph is assembled. Relationships that are unclear,
+                unsupported, or cannot be represented accurately are left out.
               </p>
             </div>
           </article>
@@ -260,49 +260,59 @@
       <section class="about-section method-seeds-section" aria-labelledby="search-seed-words">
         <h2 id="search-seed-words">Literature search strategy</h2>
         <p>
-          The active search strategy uses PubMed and OpenAlex to cover the main
-          research areas represented in the graph: targets, pathways and
-          readouts, brain systems, cognitive and behavioral functions,
-          subjective experience, pharmacokinetics and exposure, intervention
-          context, real-world use and public health, clinical outcomes and
-          safety, and clinical studies with biological or behavioral endpoints.
-          PubMed searches combine text words with MeSH and Supplementary Concept
-          terms, while OpenAlex searches titles and abstracts.
+          The search strategy is organized around a defined set of psychedelic
+          compounds and the research areas represented in the graph. The
+          compound vocabulary includes compound names, selected chemical,
+          botanical, and common aliases that identify them with sufficient
+          specificity, and broader psychedelic class terms. Terms for each
+          research area were selected to cover its major concepts, methods,
+          measures, and outcomes, with PubMed subject headings added where
+          available. The compound vocabulary is combined with these
+          research area terms to retrieve literature addressing each area.
+          Each compound and its aliases are also searched without research area
+          terms to identify potentially relevant publications whose wording
+          falls outside those predefined vocabularies. When a compound is added
+          to the project scope, searches also cover its earlier literature
+          rather than only publications appearing after it was added.
         </p>
         <p>
-          Two complementary types of search are used. Research-area searches
-          combine psychedelic compound or class terms with broad vocabulary for
-          each research area. Compound-identity searches use compound names
-          and aliases without limiting results to a particular area, allowing
-          relevant publications to be classified during screening. When a new
-          compound is added to the project scope, its earlier literature is also
-          searched so that the graph does not begin tracking it only from that
-          point forward.
-        </p>
-        <p>
-          Together, these choices define the current scope and sensitivity of
-          the search. The strategy aims to identify relevant literature across
-          all research areas represented in the graph, but its coverage is
-          limited by the selected compounds, evidence vocabularies, query
-          structures, and databases. It is therefore maintained as an evolving
-          part of the pipeline. The graph represents the cumulative results of
-          all completed searches, and identified gaps can be addressed by
-          revising vocabularies, adding searches for specific identified gaps,
-          or extending the search to underrepresented areas. Newly retrieved
-          publications can then be screened and incorporated into the graph.
-          The research-area vocabularies used in the active strategy are shown
-          below.
+          The research area searches cover molecular targets and pathways,
+          brain systems, cognition and behavior, subjective experience,
+          pharmacokinetics, intervention context, real-world use and public
+          health, clinical outcomes and safety, and biological or behavioral
+          endpoints in clinical studies. PubMed and OpenAlex are searched
+          because their overlapping coverage and different indexing systems
+          provide complementary routes to relevant records. PubMed queries use
+          text words together with MeSH and Supplementary Concept terms, while
+          OpenAlex queries search titles and abstracts. Results are matched by
+          DOI and merged. The graph represents the cumulative results of all
+          completed searches. Coverage depends on the compounds, aliases,
+          research area vocabulary, query structures, and databases used, so
+          the strategy can be revised as gaps are identified and newly
+          retrieved publications can be screened and incorporated. The search
+          vocabularies are summarized below: within each research area search,
+          the compound terms are joined with OR, as are the terms for that
+          research area, and the two groups are combined with AND.
         </p>
         <div class="method-query-details-grid">
           <details class="method-query-details">
-            <summary>Compound identity <span>Names, aliases, and compound classes</span></summary>
+            <summary>Compound search terms <span>Names, aliases, and compound classes</span></summary>
             <ol class="method-query-list">
               <li>
-                <h3>Cross-domain compound searches</h3>
+                <h3>Compound vocabulary</h3>
                 <dl>
-                  <div><dt>Search terms</dt><dd>Standardized compound names and high-specificity aliases, together with broader class terms such as psychedelic, serotonergic psychedelic, hallucinogen, entactogen, and psychoplastogen</dd></div>
-                  <div><dt>Purpose</dt><dd>Identify potentially relevant publications that may not use the predefined vocabulary for a particular research area; screening determines whether and where they belong</dd></div>
-                  <div><dt>New compounds</dt><dd>When a compound is added to the project scope, its earlier literature is searched as well as publications from the current update period</dd></div>
+                  <div>
+                    <dt>Compounds in scope</dt>
+                    <dd>LSD; psilocybin; psilocin; mescaline; DMT; 5-MeO-DMT; bufotenin; 4-AcO-DMT; 4-HO-MET; 4-HO-MiPT; 5-MeO-MiPT; ayahuasca; ibogaine; noribogaine; MDMA; MDA; ketamine; S-ketamine; R-ketamine; DOI; DOB; DOM; DOC; DOET; 2C-B; 2C-C; 2C-D; 2C-E; 2C-I; 2C-P; 2C-T-2; 2C-T-7; 25CN-NBOH; 5-MeO-DiPT; DiPT; DPT; alpha-methyltryptamine; LSA; AL-LAD; ETH-LAD; PRO-LAD; 1P-LSD; salvinorin A; lisuride; Bromo-DragonFLY; 25I-NBOMe; 25B-NBOMe; 25C-NBOMe; 25I-NBOH; 25B-NBOH; 25C-NBOH; TMA; TMA-2</dd>
+                  </div>
+                  <div>
+                    <dt>Alias examples</dt>
+                    <dd>lysergide and lysergic acid diethylamide for LSD; magic mushroom and 4-PO-DMT for psilocybin; midomafetamine and 3,4-methylenedioxymethamphetamine for MDMA; esketamine and arketamine for ketamine; hoasca and yage for ayahuasca</dd>
+                  </div>
+                  <div>
+                    <dt>Compound class terms</dt>
+                    <dd>psychedelic; psychedelics; classical psychedelic; serotonergic psychedelic; hallucinogen; entheogen; entactogen; empathogen; psychoplastogen; dissociative anesthetic; psychedelic-assisted therapy</dd>
+                  </div>
                 </dl>
               </li>
             </ol>
@@ -434,30 +444,20 @@
           and preprints; protocols, corrections, peer-review records, and
           citation-only records; and records with no recognized psychedelic
           compound or intervention term in the title, abstract, author
-          keywords, or MeSH terms. Narrow rules also remove known false
-          positives, such as LSD referring to lumpy skin disease. Each decision
-          and exclusion reason is retained with the record.
-        </p>
-        <p>
-          The remaining records are screened with Gemini 3 Flash Preview. The
-          decision is based primarily on the title and abstract, with
-          publication labels, MeSH terms, and keywords used as supporting
-          context. A publication is considered in scope when a psychedelic-related
-          substance, intervention, exposure, or relevant research area is a
-          central subject of the study or a major topic of the synthesis. Background
-          examples, incidental mentions, comparison points, and individual
-          items in broad lists are excluded. When relevance is plausible but
-          the abstract is limited or ambiguous, the publication is retained for
-          the next stage to reduce the chance of excluding relevant evidence.
-        </p>
-        <p>
-          The same LLM response identifies the publication type and every area
-          of evidence the publication substantially addresses, based on its
-          study question, measured outcomes, original findings, or main
-          synthesis topics. These classifications determine whether the extraction
-          procedure for primary studies, meta-analyses, or reviews is used. For
-          primary studies, they also determine which research areas are
-          extracted.
+          keywords, or MeSH terms. The remaining records are screened with
+          Gemini 3 Flash. The decision is based primarily on the title
+          and abstract, with publication labels, MeSH terms, and keywords used
+          as supporting context. A publication is considered in scope when a
+          psychedelic-related substance, intervention, exposure, or relevant
+          research area is a central subject of the study or a major topic of
+          the synthesis. Background examples, incidental mentions, comparison
+          points, and individual items in broad lists are excluded. When
+          relevance is plausible but the abstract is limited or ambiguous, the
+          publication is retained for the next stage to reduce the chance of
+          excluding relevant evidence.
+          LLM-based screening also determines the publication type and the
+          research areas the paper addresses. These classifications determine
+          the evidence extraction strategy used in the next stage.
         </p>
         <div class="method-screening-visual" aria-label="Two-stage screening and classification process">
           <details class="method-query-details method-screening-details">
@@ -499,7 +499,7 @@
       </section>
 
       <section class="about-section" aria-labelledby="source-text-preparation">
-        <h2 id="source-text-preparation">Source-text preparation</h2>
+        <h2 id="source-text-preparation">Source text preparation</h2>
         <p>
           For each eligible publication, the pipeline first looks for reusable
           full-text XML from Europe PMC or PubMed Central. This source is
@@ -508,8 +508,6 @@
           paragraphs, tables, figures, references, and identifiers. When an XML
           record contains more than one article or sub-article, the pipeline
           retains only the entry whose DOI matches the requested publication.
-        </p>
-        <p>
           When reusable JATS XML is unavailable, the pipeline retrieves an
           accessible PDF and uses GROBID to parse it into Text Encoding
           Initiative (TEI) XML. GROBID reconstructs the article hierarchy from
@@ -519,7 +517,7 @@
           text is used for evidence extraction, identifiers and title metadata
           are checked to confirm that the source corresponds to the intended
           publication. The
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/fulltext/README.md" target="_blank" rel="noopener noreferrer">source-text workflow</a>
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/fulltext/README.md" target="_blank" rel="noopener noreferrer">source text workflow</a>
           documents retrieval, file validation, conversion, and provenance in
           more detail.
         </p>
@@ -528,55 +526,46 @@
       <section class="about-section" aria-labelledby="evidence-extraction">
         <h2 id="evidence-extraction">Evidence extraction</h2>
         <p>
-          Evidence extraction begins only after the publication type and best
-          available source text have been established. Primary studies are
-          processed using instructions for the research areas identified
-          during screening, with a focus on original empirical findings.
-          Meta-analyses are processed as quantitative syntheses, preserving their synthesis-level
-          questions and results. Other reviews are processed once at the paper
-          level to identify the relationships they address in substantive
-          detail. This keeps findings from primary studies, pooled results from
-          meta-analyses, and relationships described in reviews distinct
-          throughout the graph.
-        </p>
-        <p>
-          Gemini 3 Flash Preview receives instructions matched to the
-          publication type and to whether full article text or only an abstract
-          is available. Prepared article text is used when available; otherwise,
-          an eligible publication can be processed with separate
-          abstract-only instructions that limit the output to information
-          stated in the abstract. For primary studies, the instructions are
-          tailored to the relevant research areas and specify the fields to
-          be returned. The model is asked to extract only evidence stated in the supplied
-          source, preserve the publication's terminology, and provide a source
-          location when available. Extracted findings are checked for the
-          required fields before their terminology is standardized. Results that
-          contain no extractable evidence or require human review are recorded
-          but are not added to the graph automatically.
+          To extract relevant findings from a paper, the pipeline supplies
+          three inputs to an LLM: the available source text, an extraction
+          prompt describing what evidence to identify, and
+          an output schema defining the fields and structure in which the
+          findings must be returned. The prompt and output schema are selected
+          based on the publication type and, for primary studies, the research
+          areas identified during screening. Separate prompt variants are used
+          for full article text and abstracts, with abstract extraction limited
+          to information stated in the abstract. Primary study prompts focus on
+          original empirical findings. Meta-analysis prompts preserve the
+          questions and pooled results of the quantitative synthesis, while
+          review prompts identify
+          relationships addressed in substantive detail. Across all
+          publication types, the LLM is instructed to extract only evidence
+          stated in the supplied source, preserve the publication's
+          terminology, and provide a source location when available. Extracted
+          findings are checked for the required fields before their compounds
+          and concepts are normalized. Results that contain no extractable
+          evidence or require human review are recorded but are not added to
+          the graph automatically.
         </p>
         <div class="method-extraction-panel">
-          <div class="method-extraction-visual" aria-label="Source text, publication type, prompt, and schema supplied to Gemini 3 Flash Preview">
+          <div class="method-extraction-visual" aria-label="Source text, prompt, and output schema supplied to Gemini 3 Flash">
             <div class="method-extraction-inputs">
               <div>
-                <span>Source</span>
+                <span>Source text</span>
                 <strong>Full article text or abstract</strong>
               </div>
               <div>
-                <span>Publication type</span>
-                <strong>Primary study, meta-analysis, or review</strong>
-              </div>
-              <div>
                 <span>Prompt</span>
-                <strong>Relevant extraction instructions</strong>
+                <strong>Selected by publication type, text availability, and research area</strong>
               </div>
               <div>
-                <span>Schema</span>
-                <strong>Required output fields</strong>
+                <span>Output schema</span>
+                <strong>Required fields and structure for extracted findings</strong>
               </div>
             </div>
             <div class="method-extraction-output">
-              <span>Gemini 3 Flash Preview</span>
-              <strong>Extracted findings checked against the required schema</strong>
+              <span>Gemini 3 Flash</span>
+              <strong>Extracted findings checked against the output schema</strong>
             </div>
           </div>
           <div class="method-extraction-instructions">
@@ -650,41 +639,42 @@
       </section>
 
       <section class="about-section" aria-labelledby="normalization-and-graph-inclusion">
-        <h2 id="normalization-and-graph-inclusion">Standardization and graph inclusion</h2>
+        <h2 id="normalization-and-graph-inclusion">Entity normalization and graph inclusion</h2>
         <p>
-          Before extracted findings are added to the graph, their terminology
-          is standardized while the wording and context from the publication
-          are preserved. Alternative names and spellings for the same compound
-          are mapped to a standard compound name. Compound classes,
+          Before extracted findings are added to the graph, compound names and
+          other extracted concepts are normalized to consistent graph entities
+          while the wording and context from the publication are preserved.
+          Alternative names and spellings for the same compound are mapped to
+          the same compound entity. Compound classes,
           combinations, exposure contexts, and treatment regimens remain
-          distinct. Other extracted concepts are matched to consistent labels,
-          aliases, or broader parent categories only when the mapping preserves
-          their meaning. The repository provides the
+          distinct. Other extracted concepts are matched directly to existing
+          graph entities or through recognized aliases. A broader parent entity
+          is used only when the mapping preserves the original meaning. The
+          repository provides the
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/data/curated/entity_registry.json" target="_blank" rel="noopener noreferrer">compound and entity registry</a>
           and the
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/schema/kg_node_vocabularies.json" target="_blank" rel="noopener noreferrer">controlled vocabularies for graph concepts</a>.
-        </p>
-        <p>
           Inclusion in the graph is deliberately conservative. A finding must
           identify a compound, exposure, or intervention and a concept or
           relationship that can be represented consistently without changing
-          its meaning. Findings that cannot yet be standardized confidently are
-          flagged for review rather than added to the graph. The same applies to
-          findings that require human review or are supported only by background
-          text. Valid information that is too specific for the visualization may
-          remain searchable without being shown directly. The
+          its meaning. Findings whose compounds or concepts cannot yet be
+          normalized confidently are flagged for review rather than added to
+          the graph. The same applies to findings that require human review or
+          are supported only by background text. Valid information that is too
+          specific for the visualization may remain searchable without being
+          shown directly. The
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/kg/README.md#normalized-evidence-tables" target="_blank" rel="noopener noreferrer">graph inclusion rules</a>
           document how these decisions are applied.
         </p>
-        <div class="method-normalization-visual" aria-label="Standardization and graph-inclusion outcomes">
+        <div class="method-normalization-visual" aria-label="Entity normalization and graph inclusion outcomes">
           <div class="method-process-stage">
             <h3>Extracted finding</h3>
             <p>Original terminology, context, and source location</p>
           </div>
           <span class="method-process-connector" aria-hidden="true"></span>
           <div class="method-process-stage method-normalization-stage">
-            <h3>Standardize terminology</h3>
-            <p>Align compound names, aliases, and related concepts without changing their meaning</p>
+            <h3>Normalize entities</h3>
+            <p>Map compound names, aliases, and related concepts to consistent graph entities without changing their meaning</p>
           </div>
           <span class="method-process-connector method-normalization-split-connector" aria-hidden="true">
             <span></span>
@@ -706,51 +696,20 @@
             </article>
           </div>
         </div>
-        <p>
-          The visualization applies one further inclusion rule: concepts drawn
-          from primary research and reviews must be supported by at least two
-          distinct publications. Findings supported by only one publication
-          remain searchable but do not appear in the visualization. Concepts
-          drawn from meta-analyses are exempt because each meta-analysis already
-          represents a synthesis.
-        </p>
-      </section>
-
-      <section class="about-section" aria-labelledby="validation-publication-and-updates">
-        <h2 id="validation-publication-and-updates">Validation, publication, and updates</h2>
-        <p>
-          Before publication, the standardized evidence is assembled into a
-          draft version of the graph. Automated checks verify that screening
-          decisions, extracted findings, standardized terminology, source
-          publications, and decisions about inclusion in the graph are complete and
-          consistent. The draft does not replace the public graph until it has
-          passed these checks and been reviewed.
-        </p>
-        <p>
-          The graph, API data, bibliography, PRISMA counts, and Methods data are
-          generated from the same reviewed evidence base so that the public
-          views remain consistent. Later searches pass through the same
-          workflow, while corrections can replace the extracted findings for
-          selected publications without reprocessing unaffected literature.
-          This allows new evidence, improved standardization, and research
-          community feedback to be incorporated without rebuilding the project
-          from the beginning. The
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/publish/README.md" target="_blank" rel="noopener noreferrer">publication workflow</a>
-          describes the checks applied before updates are published.
-        </p>
       </section>
 
       <section class="about-section methods-analytics methods-bibliography-section" id="paper-bibliography" aria-labelledby="paper-bibliography-heading">
         <div class="methods-section-header">
           <div>
-            <h2 id="paper-bibliography-heading">Study selection</h2>
+            <h2 id="paper-bibliography-heading">Search results and study selection</h2>
             <p>
-              The results of the search and selection process are reported at
-              two levels. The
-              <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>-style
-              flow diagram summarizes how many records and reports reached each
-              stage, while the searchable table documents the corresponding
-              selection decisions for every record identified by the searches.
+              The sections above describe how publications move through the
+              pipeline. The results of the literature search and study
+              selection process are summarized below: the
+              <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>
+              flow diagram reports the number of records and reports reaching
+              each stage, while the searchable table provides the selection
+              decision for every record identified by the searches.
             </p>
           </div>
         </div>
@@ -817,14 +776,18 @@
         <h2 id="limitations">Limitations</h2>
         <p>
           The graph may not include every relevant report, and automated
-          screening and extraction can miss or misinterpret information,
-          especially when only an abstract is available because the full
-          article cannot be accessed. Gemini 3 Flash Preview was selected to
+          screening and extraction can miss or misinterpret information.
+          Evidence extraction is more limited when only an abstract is
+          available. Full-text retrieval depends on the availability and
+          accuracy of article links and open-access metadata supplied by
+          external providers. These records are not always complete or
+          consistent, so the workflow may fail to retrieve some articles that
+          are in fact openly accessible. Gemini 3 Flash was selected to
           balance model capability with the cost of processing literature at
           scale; more capable models could improve screening or extraction
           quality, but would also increase processing costs. The graph is
-          intended for research exploration, not as a complete systematic review
-          or as clinical guidance.
+          intended for research exploration, not as a complete systematic
+          review or as clinical guidance.
         </p>
       </section>
     </main>
