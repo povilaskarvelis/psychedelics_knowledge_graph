@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/ui/styles.css?v=20260721-prisma-teal-v1" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260721-screening-controls-v1" />
   </head>
   <body class="methods-page">
     <div class="bg" aria-hidden="true"></div>
@@ -460,22 +460,41 @@
           extracted.
         </p>
         <div class="method-screening-visual" aria-label="Two-stage screening and classification process">
-          <article class="method-screening-stage method-screening-rules">
-            <span class="method-screening-number" aria-hidden="true">1</span>
-            <div class="method-screening-step-copy">
-              <h3>Rules-based screening</h3>
-              <p>Removes clearly ineligible records using explicit metadata and text rules.</p>
+          <details class="method-query-details method-screening-details">
+            <summary>1. Rules-based screening <span>Metadata and text rules</span></summary>
+            <div class="method-screening-details-content">
+              <p>Records are excluded before LLM screening when any of the following applies:</p>
+              <ul>
+                <li>No abstract is available.</li>
+                <li>The publication is a book, book chapter, thesis, preprint, or conference abstract.</li>
+                <li>The record is a protocol, correction, peer-review record, or citation-only record.</li>
+                <li>No recognized psychedelic compound or intervention term appears in the title, abstract, keywords, or MeSH terms.</li>
+                <li>The text matches a known false positive, such as LSD referring to lumpy skin disease.</li>
+              </ul>
+              <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/review/run_deterministic_prescreen.py" target="_blank" rel="noopener noreferrer">View screening code</a>
             </div>
-            <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/review/run_deterministic_prescreen.py" target="_blank" rel="noopener noreferrer">View screening code</a>
-          </article>
-          <article class="method-screening-stage method-screening-llm">
-            <span class="method-screening-number" aria-hidden="true">2</span>
-            <div class="method-screening-step-copy">
-              <h3>LLM-based screening and classification</h3>
-              <p>Assesses the remaining records for inclusion, publication type, and research areas.</p>
+          </details>
+          <details class="method-query-details method-screening-details">
+            <summary>2. LLM-based screening and classification <span>Inclusion and classification</span></summary>
+            <div class="method-screening-details-content">
+              <p>For the remaining records, Gemini uses the title and abstract to make three linked decisions:</p>
+              <dl class="method-screening-decision-list">
+                <div>
+                  <dt>Inclusion</dt>
+                  <dd>Whether psychedelic-related evidence is a central subject of the study or synthesis.</dd>
+                </div>
+                <div>
+                  <dt>Publication type</dt>
+                  <dd>Whether the publication is a primary study, meta-analysis, review, or another publication type.</dd>
+                </div>
+                <div>
+                  <dt>Research areas</dt>
+                  <dd>Which research areas the publication substantially addresses.</dd>
+                </div>
+              </dl>
+              <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/screening/title_abstract_screening.md" target="_blank" rel="noopener noreferrer">View screening prompt</a>
             </div>
-            <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/screening/title_abstract_screening.md" target="_blank" rel="noopener noreferrer">View screening prompt</a>
-          </article>
+          </details>
         </div>
       </section>
 
@@ -563,6 +582,11 @@
           <div class="method-extraction-instructions">
             <div class="method-prompt-matrix-wrap">
               <table class="method-prompt-matrix">
+                <colgroup>
+                  <col class="method-prompt-type-col" />
+                  <col class="method-prompt-source-col" />
+                  <col class="method-prompt-source-col" />
+                </colgroup>
                 <thead>
                   <tr>
                     <th scope="col">Publication type</th>
@@ -576,12 +600,14 @@
                     <td>
                       <div class="method-prompt-links">
                         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/extraction_profiles/paper_type/primary_article_text.md" target="_blank" rel="noopener noreferrer">Prompt</a>
+                        <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/tree/main/docs/extraction_domains" target="_blank" rel="noopener noreferrer">Domain prompts</a>
                         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/tree/main/schema/extraction_profiles/primary" target="_blank" rel="noopener noreferrer">Schemas</a>
                       </div>
                     </td>
                     <td>
                       <div class="method-prompt-links">
                         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/extraction_profiles/paper_type/primary_abstract_only.md" target="_blank" rel="noopener noreferrer">Prompt</a>
+                        <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/tree/main/docs/extraction_domains" target="_blank" rel="noopener noreferrer">Domain prompts</a>
                         <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/tree/main/schema/extraction_profiles/primary" target="_blank" rel="noopener noreferrer">Schemas</a>
                       </div>
                     </td>
@@ -619,10 +645,6 @@
                 </tbody>
               </table>
             </div>
-            <p>
-              The public repository also contains the
-              <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/tree/main/docs/extraction_domains" target="_blank" rel="noopener noreferrer">extraction instructions for each research area</a>.
-            </p>
           </div>
         </div>
       </section>

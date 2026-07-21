@@ -1334,9 +1334,9 @@ button.primary:hover {
 .method-screening-visual {
   max-width: var(--method-copy-width);
   grid-template-columns: 1fr;
-  gap: 0;
+  gap: 12px;
   padding: 0;
-  border-top: 1px solid var(--method-line);
+  border: 0;
   background: transparent;
 }
 
@@ -1440,6 +1440,57 @@ button.primary:hover {
 .method-screening-resource:hover,
 .method-screening-resource:focus-visible {
   color: var(--link-color-hover) !important;
+}
+
+.method-screening-details-content {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-top: 1px solid var(--method-line-soft);
+}
+
+.about-section .method-screening-details-content > p {
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.method-screening-details-content > ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--method-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.method-screening-decision-list {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--method-line-soft);
+}
+
+.method-screening-decision-list > div {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.2fr) minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--method-line-soft);
+}
+
+.method-screening-decision-list dt {
+  color: var(--method-gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.method-screening-decision-list dd {
+  margin: 0;
+  color: var(--method-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 .method-visual-heading,
@@ -1705,6 +1756,14 @@ button.primary:hover {
   border-collapse: collapse;
 }
 
+.method-prompt-type-col {
+  width: 22%;
+}
+
+.method-prompt-source-col {
+  width: 39%;
+}
+
 .method-prompt-matrix th,
 .method-prompt-matrix td {
   padding: 12px 14px;
@@ -1939,6 +1998,11 @@ button.primary:hover {
 
 .method-query-details[open] summary::before {
   background: linear-gradient(currentColor, currentColor) center / 8px 1px no-repeat;
+}
+
+.method-screening-details summary::before {
+  color: var(--method-blue);
+  border-color: rgba(144, 186, 255, 0.45);
 }
 
 .method-query-details summary span {
@@ -5494,7 +5558,7 @@ input[type="number"] {
 
   .method-screening-visual {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 12px;
     padding: 0;
   }
 
@@ -5505,8 +5569,13 @@ input[type="number"] {
   }
 
   .method-screening-resource {
-    grid-column: 2;
+    grid-column: auto;
     justify-self: start;
+  }
+
+  .method-screening-decision-list > div {
+    grid-template-columns: 1fr;
+    gap: 3px;
   }
 
   .method-extraction-output {
