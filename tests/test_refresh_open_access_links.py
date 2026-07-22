@@ -173,7 +173,7 @@ class RefreshOpenAccessLinksTest(unittest.TestCase):
         selected = materialized[materialized["doi"].isin({"10.1000/existing", "10.1000/new"})]
         self.assertEqual(added, 1)
         self.assertEqual(set(selected["doi"]), {"10.1000/existing", "10.1000/new"})
-        self.assertEqual(selected.set_index("doi").at["10.1000/existing", "study_title"], "Existing")
+        self.assertEqual(selected.set_index("doi").at["10.1000/existing", "study_title"], "Fallback")
         self.assertEqual(selected.set_index("doi").at["10.1000/existing", "pmcid"], "PMC1")
 
     def test_candidate_rows_can_select_existing_pdf_url_hosts(self) -> None:

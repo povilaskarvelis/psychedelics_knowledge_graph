@@ -71,6 +71,16 @@ REVIEW_TYPES = {
     "literature_review",
     "umbrella_review",
 }
+READY_REVIEW_ROUTE_STATUSES = {
+    "ready_for_article_text_extraction",
+    "ready_for_abstract_extraction",
+}
+ACTIVE_CANDIDATE_FIELDS = {
+    "doi",
+    "prescreen_decisions",
+    "retained_for_extraction_candidate",
+    "extraction_route_status",
+}
 GRAPH_EXCLUDED_COMPOUND_SCOPES = {
     "out_of_scope",
     "out_of_scope_comparator",
@@ -154,6 +164,45 @@ def now_utc() -> str:
 
 def normalized_doi(value: object) -> str:
     return normalize(value).lower()
+
+
+def truthy(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    return normalize(value).lower() in {"1", "true", "yes", "y"}
+
+
+def active_review_candidate_dois(candidate_rows: list[dict]) -> set[str]:
+    """Return candidates that remain eligible for review evidence conversion.
+
+    This gate deliberately uses the current canonical corpus rather than the
+    historical task files associated with a completed model run. Missing
+    eligibility fields are an error so an incomplete table cannot silently
+    admit stale review outputs.
+    """
+
+    available_fields = {
+        key
+        for row in candidate_rows
+        if isinstance(row, dict)
+        for key in row
+    }
+    missing_fields = ACTIVE_CANDIDATE_FIELDS - available_fields
+    if missing_fields:
+        raise ValueError(
+            "Candidate table is missing fields required for active review gating: "
+            + ", ".join(sorted(missing_fields))
+        )
+
+    return {
+        doi
+        for row in candidate_rows
+        if (doi := normalized_doi(row.get("doi", "")))
+        and normalize(row.get("prescreen_decisions", "")).lower() == "retain"
+        and truthy(row.get("retained_for_extraction_candidate", False))
+        and normalize(row.get("extraction_route_status", ""))
+        in READY_REVIEW_ROUTE_STATUSES
+    }
 
 
 def json_array(path: Path) -> list[dict]:
@@ -398,6 +447,7 @@ def convert_bundles(
     task_rows: list[dict],
     registry_payload: dict,
     *,
+    active_candidate_dois: set[str],
     allow_stale_bundles: bool = False,
 ) -> tuple[list[dict], dict]:
     tasks = {normalized_doi(row.get("study_doi", "")): row for row in task_rows}
@@ -410,6 +460,9 @@ def convert_bundles(
             skipped[normalize(bundle.get("status", "")) or "missing_status"] += 1
             continue
         doi = normalized_doi(bundle.get("study_doi", ""))
+        if doi not in active_candidate_dois:
+            skipped["inactive_candidate"] += 1
+            continue
         task = tasks.get(doi)
         if task is None:
             skipped[
@@ -432,7 +485,7 @@ def convert_bundles(
                     )
                 )
     report = {
-        "schema_version": "review_relationship_evidence_conversion_v1",
+        "schema_version": "review_relationship_evidence_conversion_v2",
         "generated_at_utc": now_utc(),
         "counts": {
             "bundle_rows": len(bundle_rows),
@@ -532,10 +585,13 @@ def main() -> int:
         raise SystemExit("No review task JSONL files were found")
     tasks = [task for path in task_paths for task in read_jsonl(path)]
     registry_payload = json.loads(args.registry_json.read_text(encoding="utf-8"))
+    candidate_rows = pd.read_parquet(args.candidate_parquet).to_dict("records")
+    active_candidate_dois = active_review_candidate_dois(candidate_rows)
     review_rows, report = convert_bundles(
         bundles,
         tasks,
         registry_payload,
+        active_candidate_dois=active_candidate_dois,
         allow_stale_bundles=args.allow_stale_bundles,
     )
     if report["skipped"].get("missing_task", 0):
@@ -546,8 +602,9 @@ def main() -> int:
     report["inputs"] = {
         "bundles_jsonl": str(args.bundles_jsonl.resolve()),
         "task_jsonl_files": [str(path.resolve()) for path in task_paths],
+        "candidate_parquet": str(args.candidate_parquet.resolve()),
     }
-    candidate_rows = pd.read_parquet(args.candidate_parquet).to_dict("records")
+    report["counts"]["active_candidate_dois"] = len(active_candidate_dois)
     report["counts"]["papers_with_canonical_metadata"] = enrich_canonical_metadata(review_rows, candidate_rows)
     base_rows = json_array(args.base_evidence_json) if args.base_evidence_json else []
     removed_review_rows = [row for row in base_rows if review_row(row)]

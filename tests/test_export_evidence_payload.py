@@ -830,6 +830,28 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(keys["meta_analyses"], {"doi:10.1000/meta"})
         self.assertEqual(len(keys["all"]), 3)
 
+    def test_selected_candidate_denominator_resolves_registered_doi_aliases(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            table = Path(tmpdir) / "candidate_papers.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "doi": "10.1000/repository",
+                        "literature_source_family": "primary",
+                        "literature_source_type": "primary",
+                        "retained_for_extraction_candidate": True,
+                    }
+                ]
+            ).to_parquet(table, index=False)
+
+            keys = load_selected_candidate_study_key_sets(
+                table, {"10.1000/repository": "10.1000/article"}
+            )
+
+        self.assertIsNotNone(keys)
+        assert keys is not None
+        self.assertEqual(keys["all"], {"doi:10.1000/article"})
+
     def test_exports_pharmacokinetics_with_all_other_domains(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

@@ -52,6 +52,10 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
                 "10.1000/new",
                 "10.1000/oa-landing",
                 "10.1000/opaque",
+                "10.1000/closed",
+                "10.1000/retry",
+                "10.1000/terminal",
+                "10.1000/unknown-access",
                 "10.1000/processed",
                 "10.1000/context",
             )
@@ -108,6 +112,38 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
                 "model": "test-model",
             },
             {
+                "doi": "10.1000/closed",
+                "screening_decision": "include_in_scope",
+                "paper_type_group": "primary",
+                "paper_type": "primary",
+                "source_family": "primary",
+                "model": "test-model",
+            },
+            {
+                "doi": "10.1000/retry",
+                "screening_decision": "include_in_scope",
+                "paper_type_group": "primary",
+                "paper_type": "primary",
+                "source_family": "primary",
+                "model": "test-model",
+            },
+            {
+                "doi": "10.1000/terminal",
+                "screening_decision": "include_in_scope",
+                "paper_type_group": "primary",
+                "paper_type": "primary",
+                "source_family": "primary",
+                "model": "test-model",
+            },
+            {
+                "doi": "10.1000/unknown-access",
+                "screening_decision": "include_in_scope",
+                "paper_type_group": "primary",
+                "paper_type": "primary",
+                "source_family": "primary",
+                "model": "test-model",
+            },
+            {
                 "doi": "10.1000/processed",
                 "screening_decision": "include_in_scope",
                 "paper_type_group": "primary",
@@ -132,6 +168,24 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
             {"doi": "10.1000/new", "study_title": "New paper", "pmcid": "PMC123"},
             {"doi": "10.1000/oa-landing", "study_title": "OA landing paper"},
             {"doi": "10.1000/opaque", "study_title": "Opaque provider PDF"},
+            {"doi": "10.1000/closed", "study_title": "Closed paper"},
+            {
+                "doi": "10.1000/retry",
+                "study_title": "Retryable PDF paper",
+                "pdf_download_status": "download_failed",
+                "pdf_download_failure_category": "timeout",
+                "pdf_download_failure_categories": "timeout",
+                "pdf_download_retry_recommended": True,
+            },
+            {
+                "doi": "10.1000/terminal",
+                "study_title": "Terminal PDF paper",
+                "pdf_download_status": "download_failed",
+                "pdf_download_failure_category": "forbidden",
+                "pdf_download_failure_categories": "forbidden",
+                "pdf_download_retry_recommended": False,
+            },
+            {"doi": "10.1000/unknown-access", "study_title": "Unknown-access paper"},
             {"doi": "10.1000/processed", "study_title": "Old paper"},
             {"doi": "10.1000/context", "study_title": "Commentary"},
         ]
@@ -153,6 +207,30 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
                 "pmcid": "",
                 "best_pdf_url": "https://publisher.example/action/showPdf?pii=ABC123",
             },
+            {
+                "doi": "10.1000/closed",
+                "pmcid": "",
+                "best_pdf_url": "",
+                "open_access_is_oa": "false",
+                "open_access_status": "closed",
+            },
+            {
+                "doi": "10.1000/retry",
+                "pmcid": "",
+                "best_pdf_url": "https://publisher.example/retry.pdf",
+            },
+            {
+                "doi": "10.1000/terminal",
+                "pmcid": "",
+                "best_pdf_url": "https://publisher.example/terminal.pdf",
+            },
+            {
+                "doi": "10.1000/unknown-access",
+                "pmcid": "",
+                "best_pdf_url": "",
+                "open_access_is_oa": "",
+                "open_access_status": "",
+            },
         ]
     ).to_parquet(metadata, index=False)
     graph_dir = tmp_path / "graph"
@@ -168,7 +246,8 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
     access_overrides.write_text(json.dumps({"records": []}), encoding="utf-8")
     selected_output = tmp_path / "selected.txt"
     enrichment_output = tmp_path / "enrichment.txt"
-    discovery_output = tmp_path / "discovery.txt"
+    access_metadata_refresh_output = tmp_path / "access_metadata_refresh.txt"
+    no_accessible_fulltext_output = tmp_path / "no_accessible_fulltext.txt"
     oa_landing_output = tmp_path / "oa_landing.txt"
     table_output = tmp_path / "worklist.parquet"
     report_output = tmp_path / "report.json"
@@ -190,23 +269,47 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
             paper_root=str(tmp_path / "pdfs"),
             output_selected_dois=str(selected_output),
             output_enrichment_dois=str(enrichment_output),
-            output_discovery_dois=str(discovery_output),
+            output_access_metadata_refresh_dois=str(access_metadata_refresh_output),
+            output_no_accessible_fulltext_dois=str(no_accessible_fulltext_output),
             output_oa_landing_dois=str(oa_landing_output),
             output_table=str(table_output),
             report_json=str(report_output),
         )
     )
 
-    assert selected_output.read_text(encoding="utf-8") == "10.1000/new\n10.1000/oa-landing\n10.1000/opaque\n"
-    assert enrichment_output.read_text(encoding="utf-8") == "10.1000/new\n10.1000/oa-landing\n10.1000/opaque\n"
-    assert discovery_output.read_text(encoding="utf-8") == "10.1000/oa-landing\n"
+    assert selected_output.read_text(encoding="utf-8") == (
+        "10.1000/closed\n10.1000/new\n10.1000/oa-landing\n10.1000/opaque\n"
+        "10.1000/retry\n10.1000/terminal\n10.1000/unknown-access\n"
+    )
+    assert enrichment_output.read_text(encoding="utf-8") == (
+        "10.1000/closed\n10.1000/new\n10.1000/oa-landing\n10.1000/opaque\n"
+        "10.1000/retry\n10.1000/terminal\n10.1000/unknown-access\n"
+    )
+    assert access_metadata_refresh_output.read_text(encoding="utf-8") == "10.1000/unknown-access\n"
+    assert no_accessible_fulltext_output.read_text(encoding="utf-8") == (
+        "10.1000/closed\n10.1000/terminal\n"
+    )
     assert oa_landing_output.read_text(encoding="utf-8") == "10.1000/oa-landing\n"
     worklist = pd.read_parquet(table_output)
     assert worklist[["doi", "fulltext_enrichment_action"]].to_dict("records") == [
+        {"doi": "10.1000/closed", "fulltext_enrichment_action": "no_accessible_fulltext"},
         {"doi": "10.1000/new", "fulltext_enrichment_action": "fetch_pmc_xml"},
         {"doi": "10.1000/oa-landing", "fulltext_enrichment_action": "resolve_oa_landing_page"},
         {"doi": "10.1000/opaque", "fulltext_enrichment_action": "download_known_pdf"},
+        {"doi": "10.1000/retry", "fulltext_enrichment_action": "download_known_pdf"},
+        {"doi": "10.1000/terminal", "fulltext_enrichment_action": "no_accessible_fulltext"},
+        {"doi": "10.1000/unknown-access", "fulltext_enrichment_action": "refresh_access_metadata"},
     ]
-    assert report["counts"]["newly_selected_unprocessed_dois"] == 3
-    assert report["counts"]["fulltext_enrichment_needed_dois"] == 3
+    terminal = worklist.loc[worklist["doi"].eq("10.1000/terminal")].iloc[0]
+    assert terminal["pdf_download_status"] == "download_failed"
+    assert terminal["pdf_download_failure_category"] == "forbidden"
+    assert bool(terminal["pdf_download_terminal_failure"])
+    assert terminal["fulltext_enrichment_basis"] == "terminal_pdf_download_failure"
+    assert report["schema_version"] == "fulltext_enrichment_worklist_report_v4"
+    assert report["counts"]["newly_selected_unprocessed_dois"] == 7
+    assert report["counts"]["fulltext_enrichment_needed_dois"] == 7
+    assert report["counts"]["fulltext_access_metadata_refresh_dois"] == 1
+    assert report["counts"]["fulltext_no_accessible_fulltext_dois"] == 2
     assert report["counts"]["fulltext_oa_landing_dois"] == 1
+    assert report["counts"]["fulltext_terminal_pdf_failure_dois"] == 1
+    assert report["counts"]["candidate_terminal_pdf_failure_status_dois"] == 1

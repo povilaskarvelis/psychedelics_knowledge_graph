@@ -45,6 +45,9 @@ OUTPUT_COLUMNS = (
     "authors",
     "abstract",
     "study_journal",
+    "journal_volume",
+    "journal_issue",
+    "journal_pages",
     "publication_type",
     "trial_registry_ids",
     "publication_date",
@@ -79,6 +82,30 @@ OUTPUT_COLUMNS = (
     "open_access_url",
     "best_pdf_url",
     "pdf_url_candidates",
+)
+
+# These fields jointly identify the bibliographic object attached to a DOI.
+# During a reviewed identity repair they are rebuilt from DOI-verified provider
+# responses rather than inherited from the possibly contaminated canonical row.
+IDENTITY_METADATA_FIELDS = (
+    "study_title",
+    "study_year",
+    "authors",
+    "abstract",
+    "study_journal",
+    "journal_volume",
+    "journal_issue",
+    "journal_pages",
+    "publication_type",
+    "publication_date",
+    "journal_issn",
+    "journal_eissn",
+    "publisher",
+    "language",
+    "pmid",
+    "pmcid",
+    "openalex_id",
+    "semantic_scholar_id",
 )
 
 
@@ -194,6 +221,41 @@ def merge_rows(primary: dict, fallback: dict) -> dict:
     return reconcile_open_access_metadata(out, primary, fallback)
 
 
+def apply_selective_metadata_update(
+    fetched_row: dict,
+    base_row: dict,
+    update_fields: tuple[str, ...],
+) -> dict:
+    """Apply only requested provider fields while preserving richer canonical metadata."""
+
+    if not update_fields:
+        return fetched_row
+    out = {column: clean(base_row.get(column, "")) for column in OUTPUT_COLUMNS}
+    for field in update_fields:
+        out[field] = clean(fetched_row.get(field, ""))
+    for field in (
+        "metadata_provider",
+        "metadata_provider_chain",
+        "metadata_providers_queried",
+        "metadata_lookup_error",
+        "metadata_lookup_warnings",
+        "metadata_missing_reason",
+        "metadata_enrichment_status",
+        "metadata_enrichment_run_id",
+        "metadata_enriched_at_utc",
+        "paper_metadata_schema_version",
+    ):
+        out[field] = clean(fetched_row.get(field, ""))
+    chain = []
+    for source in (base_row, fetched_row):
+        for provider in clean(source.get("metadata_provider_chain", "")).split("|"):
+            if provider and provider not in chain:
+                chain.append(provider)
+    if chain:
+        out["metadata_provider_chain"] = "|".join(chain)
+    return reconcile_open_access_metadata(out, fetched_row, base_row)
+
+
 def fetch_metadata_row(
     *,
     doi: str,
@@ -208,6 +270,7 @@ def fetch_metadata_row(
     unpaywall_email: str,
     semantic_scholar_api_key: str,
     run_id: str,
+    replace_identity_fields: bool = False,
 ) -> tuple[dict, list[dict], list[str]]:
     paper = {
         "study_doi": doi,
@@ -217,6 +280,9 @@ def fetch_metadata_row(
         "abstract": clean(base_row.get("abstract", "")),
         **{field: clean(base_row.get(field, "")) for field in PAPER_METADATA_FIELDS},
     }
+    if replace_identity_fields:
+        for field in IDENTITY_METADATA_FIELDS:
+            paper[field] = ""
     metadata, provider_errors, providers_queried = fetch_metadata_with_fallbacks(
         doi=doi,
         paper=paper,
@@ -239,7 +305,11 @@ def fetch_metadata_row(
             metadata_error = " | ".join(f"{err['provider']}: {err['error']}" for err in provider_errors)
         metadata = {}
 
-    merged_metadata = merge_metadata_values(metadata, base_row)
+    merge_base = dict(base_row)
+    if replace_identity_fields:
+        for field in IDENTITY_METADATA_FIELDS:
+            merge_base[field] = ""
+    merged_metadata = merge_metadata_values(metadata, merge_base)
     metadata_missing_reason = clean(merged_metadata.get("metadata_missing_reason", ""))
     if metadata_error and not clean(merged_metadata.get("abstract", "")):
         metadata_missing_reason = metadata_missing_reason or "metadata_lookup_unresolved"
@@ -406,6 +476,23 @@ def main() -> int:
     parser.add_argument("--retry-core-metadata", action="store_true", help="Retry previous lookup errors or missing titles.")
     parser.add_argument("--retry-missing-metadata", action="store_true", help="Retry title, abstract, or metadata-error gaps.")
     parser.add_argument("--refresh-existing", action="store_true", help="Query providers for all rows.")
+    parser.add_argument(
+        "--replace-identity-fields",
+        action="store_true",
+        help=(
+            "For a reviewed DOI scope, rebuild bibliographic identity fields only from "
+            "DOI-verified provider responses. Blank verified results clear contaminated values. "
+            "Requires --doi-file and --refresh-existing."
+        ),
+    )
+    parser.add_argument(
+        "--update-fields",
+        default="",
+        help=(
+            "Optional comma-separated metadata fields to update. Other canonical and cache "
+            "fields are preserved; intended for targeted backfills such as journal_issue."
+        ),
+    )
     parser.add_argument("--openalex-email", default="")
     parser.add_argument("--openalex-api-key", default="")
     parser.add_argument("--openalex-rps", type=float, default=None)
@@ -435,7 +522,27 @@ def main() -> int:
         action="store_true",
         help="Only process rows whose merged existing/candidate metadata has no abstract.",
     )
+    parser.add_argument(
+        "--no-update-candidate-table",
+        action="store_true",
+        help=(
+            "Write only the enrichment cache; normally successful values are materialized "
+            "into the candidate ledger."
+        ),
+    )
     args = parser.parse_args()
+
+    update_fields = tuple(
+        dict.fromkeys(part.strip() for part in args.update_fields.split(",") if part.strip())
+    )
+    unknown_update_fields = sorted(set(update_fields) - set(OUTPUT_COLUMNS))
+    if unknown_update_fields:
+        raise SystemExit(f"Unsupported --update-fields values: {unknown_update_fields}")
+    if args.replace_identity_fields and update_fields:
+        raise SystemExit("--replace-identity-fields cannot be combined with --update-fields")
+
+    if args.replace_identity_fields and (not clean(args.doi_file) or not args.refresh_existing):
+        raise SystemExit("--replace-identity-fields requires --doi-file and --refresh-existing")
 
     provider_order = []
     if clean(args.metadata_provider_order).lower() != "none":
@@ -491,7 +598,9 @@ def main() -> int:
     for idx, candidate in enumerate(candidate_rows, start=1):
         doi = candidate["doi"]
         existing = existing_by_doi.get(doi.lower())
-        base_row = merge_rows(existing or {}, candidate)
+        # The candidate ledger is canonical. The enrichment cache may fill a
+        # blank, but it must not silently replace an already materialized value.
+        base_row = merge_rows(candidate, existing or {})
         if args.only_missing_abstract and clean(base_row.get("abstract", "")):
             skipped_complete_abstract += 1
             if existing:
@@ -519,6 +628,7 @@ def main() -> int:
                 unpaywall_email=provider_settings["unpaywall_email"],
                 semantic_scholar_api_key=provider_settings["semantic_scholar_api_key"],
                 run_id=run_id,
+                replace_identity_fields=bool(args.replace_identity_fields),
             )
             for provider in provider_chain(row):
                 provider_success_counts[provider] += 1
@@ -528,6 +638,7 @@ def main() -> int:
                 unresolved += 1
             else:
                 enriched_now += 1
+            row = apply_selective_metadata_update(row, base_row, update_fields)
         else:
             row = base_row
             if existing:
@@ -557,6 +668,42 @@ def main() -> int:
     final_rows = merged_output_rows(output_by_doi, existing_by_doi)
     write_table(output_table, final_rows)
 
+    candidate_materialization: dict = {}
+    if not args.no_update_candidate_table:
+        # Local import avoids a module cycle: the materializer reuses this
+        # module's canonical enrichment column definition.
+        from pipeline.ingest.materialize_candidate_metadata import materialize_candidate_metadata
+
+        candidate_materialization = materialize_candidate_metadata(
+            candidate_table=papers_table,
+            metadata_table=output_table,
+            run_id=run_id,
+            fields=(
+                tuple(
+                    dict.fromkeys(
+                        (
+                            *update_fields,
+                            "metadata_provider",
+                            "metadata_provider_chain",
+                            "metadata_providers_queried",
+                            "metadata_lookup_error",
+                            "metadata_lookup_warnings",
+                            "metadata_missing_reason",
+                            "metadata_enrichment_status",
+                            "metadata_enrichment_run_id",
+                            "metadata_enriched_at_utc",
+                            "paper_metadata_schema_version",
+                        )
+                    )
+                )
+                if update_fields
+                else tuple(column for column in OUTPUT_COLUMNS if column != "doi")
+            ),
+            scoped_dois={row["doi"] for row in candidate_rows},
+            overwrite_existing=bool(args.refresh_existing),
+            clear_blank_fields=(IDENTITY_METADATA_FIELDS if args.replace_identity_fields else ()),
+        )
+
     print(f"Metadata enrichment table: {output_table}")
     print(f"Rows written: {len(final_rows)}")
     print(f"Enriched this run: {enriched_now}")
@@ -564,6 +711,12 @@ def main() -> int:
     print(f"Carried from candidate table: {carried_from_candidate}")
     print(f"Unresolved this run: {unresolved}")
     print(f"Skipped complete abstracts: {skipped_complete_abstract}")
+    if candidate_materialization:
+        print(
+            "Candidate metadata materialization: "
+            f"matched={candidate_materialization['materialized_candidate_rows']:,} "
+            f"changed={candidate_materialization['changed_candidate_rows']:,}"
+        )
     print(f"Provider successes: {dict(provider_success_counts)}")
     print(f"Provider errors: {dict(provider_error_counts)}")
     return 0

@@ -895,6 +895,18 @@ def add_common_field_aliases(row: dict, domain: str) -> None:
         row.setdefault("timepoint", assessment_timepoint)
 
 
+def normalize_primary_controlled_categories(row: dict) -> None:
+    """Repair logically impossible cross-field primary-study combinations."""
+
+    population_category = normalize(row.get("population_model_category", ""))
+    session_context = normalize(row.get("session_context", ""))
+    if population_category in {"human_participants", "clinical_population"} and session_context == "preclinical_experiment":
+        row["session_context"] = "other"
+        note = "session_context normalized from preclinical_experiment to other for human evidence"
+        existing = normalize(row.get("normalization_notes", ""))
+        row["normalization_notes"] = f"{existing} | {note}" if existing else note
+
+
 def evidence_row_for_item(
     *,
     output_row: dict,
@@ -944,6 +956,7 @@ def evidence_row_for_item(
     warnings = result.get("warnings", []) if isinstance(result.get("warnings"), list) else []
     if warnings:
         row["extraction_warnings"] = " | ".join(normalize(value) for value in warnings if normalize(value))
+    normalize_primary_controlled_categories(row)
     add_common_field_aliases(row, domain)
     apply_graph_subject(row)
     row["result_direction_normalized"] = normalized_result_direction(row.get("result_direction", ""))

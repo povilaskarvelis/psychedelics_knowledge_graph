@@ -101,6 +101,9 @@ CANDIDATE_STATUS_COLUMNS = {
     "pdf_download_failure_category",
     "pdf_download_failure_categories",
     "pdf_download_retry_recommended",
+    "pdf_download_attempt_count",
+    "pdf_download_retry_budget_exhausted",
+    "pdf_download_last_attempt_at_utc",
 }
 
 
@@ -120,6 +123,13 @@ def truthy(value: object) -> bool:
     if isinstance(value, bool):
         return value
     return clean(value).lower() in {"1", "true", "yes", "y"}
+
+
+def safe_int(value: object, default: int = 0) -> int:
+    try:
+        return int(float(clean(value)))
+    except (TypeError, ValueError):
+        return default
 
 
 def doi_key(value: object) -> str:
@@ -323,11 +333,7 @@ def build_download_tasks(
     return tasks
 
 
-def download_rows_from_selection(
-    selection_df: pd.DataFrame,
-    *,
-    include_discovery: bool,
-) -> pd.DataFrame:
+def download_rows_from_selection(selection_df: pd.DataFrame) -> pd.DataFrame:
     """Project a post-screen full-text worklist into downloader task rows."""
     if selection_df.empty:
         return selection_df.copy()
@@ -336,8 +342,6 @@ def download_rows_from_selection(
         & selection_df["fulltext_enrichment_needed"].map(truthy)
     ].copy()
     actions = {"download_known_pdf", "resolve_oa_landing_page"}
-    if include_discovery:
-        actions.update({"discover_fulltext", "fetch_pmc_xml"})
     selected = selected[selected["fulltext_enrichment_action"].fillna("").astype(str).isin(actions)].copy()
     selected["retained_for_extraction_candidate"] = True
     selected["route_action"] = DEFAULT_ROUTE_ACTION
@@ -551,6 +555,42 @@ def classify_download_failure(status: str, error: str) -> dict[str, object]:
     }
 
 
+def apply_download_retry_budget(
+    result: dict,
+    task: dict,
+    *,
+    max_download_attempts: int,
+) -> dict:
+    """Add durable attempt provenance and stop retrying after the configured budget."""
+    out = dict(result)
+    status = clean(out.get("status", "")).lower()
+    if status == "dry_run":
+        return out
+
+    previous_count = safe_int(task.get("candidate_pdf_download_attempt_count", 0))
+    if previous_count <= 0 and clean(task.get("candidate_pdf_download_status", "")):
+        # Legacy rows predate explicit attempt counters. A recorded status proves
+        # that at least one earlier retrieval attempt occurred.
+        previous_count = 1
+    attempt_count = previous_count + 1
+    out["pdf_download_attempt_count"] = attempt_count
+    out["pdf_download_last_attempt_at_utc"] = now_utc()
+
+    exhausted = bool(
+        out.get("retry_recommended", False)
+        and max_download_attempts > 0
+        and attempt_count >= max_download_attempts
+    )
+    out["pdf_download_retry_budget_exhausted"] = exhausted
+    if exhausted:
+        categories = list(split_pipe_values(out.get("failure_categories", "")))
+        if "retry_budget_exhausted" not in categories:
+            categories.append("retry_budget_exhausted")
+        out["failure_categories"] = "|".join(categories)
+        out["retry_recommended"] = False
+    return out
+
+
 def filter_tasks_by_candidate_status(
     tasks: list[dict],
     candidate_df: pd.DataFrame,
@@ -573,6 +613,13 @@ def filter_tasks_by_candidate_status(
             "candidate_pdf_failure_category": clean(row.get("pdf_download_failure_category", "")),
             "candidate_pdf_failure_categories": clean(row.get("pdf_download_failure_categories", "")),
             "candidate_pdf_retry_recommended": truthy(row.get("pdf_download_retry_recommended", False)),
+            "candidate_pdf_download_attempt_count": safe_int(row.get("pdf_download_attempt_count", 0)),
+            "candidate_pdf_retry_budget_exhausted": truthy(
+                row.get("pdf_download_retry_budget_exhausted", False)
+            ),
+            "candidate_pdf_download_last_attempt_at_utc": clean(
+                row.get("pdf_download_last_attempt_at_utc", "")
+            ),
         }
         recorded_path = Path(local_path).expanduser() if local_path else None
         canonical_path = pdf_dir / pdf_filename_for_doi(task["doi"]) if pdf_dir is not None else None
@@ -615,6 +662,9 @@ def ensure_candidate_columns(df: pd.DataFrame) -> pd.DataFrame:
         "pdf_download_failure_category": "",
         "pdf_download_failure_categories": "",
         "pdf_download_retry_recommended": False,
+        "pdf_download_attempt_count": 0,
+        "pdf_download_retry_budget_exhausted": False,
+        "pdf_download_last_attempt_at_utc": "",
     }
     for column, default in defaults.items():
         if column not in df.columns:
@@ -647,6 +697,9 @@ def apply_result_to_candidate_table(
     failure_category = clean(result.get("failure_category", ""))
     failure_categories = clean(result.get("failure_categories", ""))
     retry_recommended = bool(result.get("retry_recommended", False))
+    attempt_count = safe_int(result.get("pdf_download_attempt_count", 0))
+    retry_budget_exhausted = bool(result.get("pdf_download_retry_budget_exhausted", False))
+    last_attempt_at_utc = clean(result.get("pdf_download_last_attempt_at_utc", ""))
 
     for index in candidate_df.index[mask]:
         updates: dict[str, object] = {
@@ -670,6 +723,9 @@ def apply_result_to_candidate_table(
                     "pdf_download_failure_category": "",
                     "pdf_download_failure_categories": "",
                     "pdf_download_retry_recommended": False,
+                    "pdf_download_attempt_count": attempt_count,
+                    "pdf_download_retry_budget_exhausted": False,
+                    "pdf_download_last_attempt_at_utc": last_attempt_at_utc,
                 }
             )
         elif status:
@@ -686,6 +742,9 @@ def apply_result_to_candidate_table(
                     "pdf_download_failure_category": failure_category,
                     "pdf_download_failure_categories": failure_categories,
                     "pdf_download_retry_recommended": retry_recommended,
+                    "pdf_download_attempt_count": attempt_count,
+                    "pdf_download_retry_budget_exhausted": retry_budget_exhausted,
+                    "pdf_download_last_attempt_at_utc": last_attempt_at_utc,
                 }
             )
 
@@ -911,6 +970,7 @@ def process_pdf_task(
     alternate_sources_only: bool,
     alternate_pdf_min_title_score: float,
     pdf_identity_min_title_score: float,
+    max_download_attempts: int,
 ) -> dict:
     """Retrieve and validate one DOI without mutating shared corpus tables."""
     doi = task["doi"]
@@ -1061,7 +1121,7 @@ def process_pdf_task(
             split_candidates(result_pdf_url_candidates) + split_candidates(alternate_source_attempts)
         )
     failure = classify_download_failure(status, error)
-    return {
+    result = {
         **task,
         "status": status,
         "error": error,
@@ -1082,6 +1142,11 @@ def process_pdf_task(
         "apply_candidate_result": not alternate_sources_only or status in {"downloaded", "already_present"},
         **failure,
     }
+    return apply_download_retry_budget(
+        result,
+        task,
+        max_download_attempts=max_download_attempts,
+    )
 
 
 def download_routed_pdfs(
@@ -1114,9 +1179,9 @@ def download_routed_pdfs(
     progress_every: int = 25,
     alternate_pdf_sources: set[str] | None = None,
     alternate_sources_only: bool = False,
-    include_discovery_rows: bool = False,
     alternate_pdf_min_title_score: float = 0.86,
     pdf_identity_min_title_score: float = 0.86,
+    max_download_attempts: int = 2,
     rebuild_routes_after: bool = False,
     prescreen_table: Path = DEFAULT_PRESCREEN_TABLE,
     domain_routing_table: Path | None = DEFAULT_DOMAIN_ROUTING_TABLE,
@@ -1128,10 +1193,7 @@ def download_routed_pdfs(
     stage_label = "full-text worklist PDF download" if selection_table is not None else "routed PDF download"
     alternate_pdf_sources = {clean(source).lower() for source in (alternate_pdf_sources or set()) if clean(source)}
     if selection_table is not None:
-        routes_df = download_rows_from_selection(
-            pd.read_parquet(selection_table),
-            include_discovery=include_discovery_rows,
-        )
+        routes_df = download_rows_from_selection(pd.read_parquet(selection_table))
     else:
         routes_df = pd.read_parquet(route_table)
     route_dois = {
@@ -1285,6 +1347,7 @@ def download_routed_pdfs(
                     alternate_sources_only=alternate_sources_only,
                     alternate_pdf_min_title_score=alternate_pdf_min_title_score,
                     pdf_identity_min_title_score=pdf_identity_min_title_score,
+                    max_download_attempts=max_download_attempts,
                 ): position
                 for position, task in enumerate(concurrent_tasks, start=1)
             }
@@ -1496,6 +1559,11 @@ def download_routed_pdfs(
             "apply_candidate_result": not alternate_sources_only or status in {"downloaded", "already_present"},
             **failure,
         }
+        result = apply_download_retry_budget(
+            result,
+            task,
+            max_download_attempts=max_download_attempts,
+        )
         records.append(result)
         counts[status] += 1
         if status in {"downloaded", "already_present"}:
@@ -1571,9 +1639,9 @@ def download_routed_pdfs(
         "include_weak_pdf_urls": include_weak_pdf_urls,
         "alternate_pdf_sources": sorted(alternate_pdf_sources),
         "alternate_sources_only": alternate_sources_only,
-        "include_discovery_rows": include_discovery_rows,
         "alternate_pdf_min_title_score": alternate_pdf_min_title_score,
         "pdf_identity_min_title_score": pdf_identity_min_title_score,
+        "max_download_attempts": max_download_attempts,
         "deprioritized_hosts": sorted(deprioritized_hosts),
         "excluded_hosts": sorted(excluded_hosts),
         "attempt_log_every": attempt_log_every,
@@ -1594,6 +1662,9 @@ def download_routed_pdfs(
             "status": dict(counts),
             "failure_category": dict(failure_category_counts),
             "retry_recommended": retry_recommended_count,
+            "retry_budget_exhausted": sum(
+                1 for record in records if truthy(record.get("pdf_download_retry_budget_exhausted", False))
+            ),
         },
         "route_rebuild": {
             "performed": route_rebuild_summary is not None,
@@ -1614,8 +1685,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default="",
         help=(
             "Route-independent post-screen full-text worklist. Known-PDF and OA-landing rows are "
-            "selected directly; "
-            "discovery rows are selected only with --include-discovery-rows."
+            "selected directly; access-metadata-refresh and no-accessible-full-text rows are excluded."
         ),
     )
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
@@ -1629,6 +1699,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout-sec", type=int, default=45)
     parser.add_argument("--max-retries", type=int, default=1)
     parser.add_argument("--max-retry-after-sec", type=int, default=60)
+    parser.add_argument(
+        "--max-download-attempts",
+        type=int,
+        default=2,
+        help=(
+            "Maximum DOI-level retrieval runs before a retryable failure becomes terminal. "
+            "Set to 0 for no DOI-level attempt limit; HTTP retries within one run are controlled separately."
+        ),
+    )
     parser.add_argument(
         "--skip-candidate-statuses",
         default="downloaded,already_present,manual_import",
@@ -1677,14 +1756,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--alternate-sources-only",
         action="store_true",
         help="Skip previously attempted metadata PDF URLs and use only --alternate-pdf-sources.",
-    )
-    parser.add_argument(
-        "--include-discovery-rows",
-        action="store_true",
-        help=(
-            "When a selection table is used, also process discover_fulltext/fetch_pmc_xml rows. "
-            "This is an explicit recovery pass and is not implied by --alternate-pdf-sources."
-        ),
     )
     parser.add_argument(
         "--alternate-pdf-min-title-score",
@@ -1745,6 +1816,7 @@ def main() -> int:
         timeout_sec=args.timeout_sec,
         max_retries=args.max_retries,
         max_retry_after_sec=args.max_retry_after_sec,
+        max_download_attempts=max(0, args.max_download_attempts),
         skip_candidate_statuses=parse_statuses(args.skip_candidate_statuses),
         only_failure_categories=parse_csv_values(args.only_failure_categories) or None,
         rate_limit_cooldown_sec=max(0.0, args.rate_limit_cooldown_sec),
@@ -1754,7 +1826,6 @@ def main() -> int:
         excluded_hosts=parse_csv_values(args.exclude_hosts),
         alternate_pdf_sources=parse_csv_values(args.alternate_pdf_sources),
         alternate_sources_only=bool(args.alternate_sources_only),
-        include_discovery_rows=bool(args.include_discovery_rows),
         alternate_pdf_min_title_score=args.alternate_pdf_min_title_score,
         write_every=args.write_every,
         progress_every=args.progress_every,

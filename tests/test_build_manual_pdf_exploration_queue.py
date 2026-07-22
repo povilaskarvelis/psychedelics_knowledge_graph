@@ -3,10 +3,26 @@ import unittest
 import pandas as pd
 
 from pipeline.fulltext.build_manual_pdf_exploration_queue import (
+    build_host_summary,
     build_queue,
     pick_primary_route,
     priority_lane,
 )
+
+
+def test_empty_queue_produces_an_empty_host_summary_with_stable_schema() -> None:
+    queue = build_queue(
+        pd.DataFrame(columns=["doi", "fulltext_enrichment_action"]),
+        pd.DataFrame(columns=["doi"]),
+    )
+    summary = build_host_summary(queue)
+
+    assert queue.empty
+    assert "doi" in queue.columns
+    assert "route_host" in queue.columns
+    assert summary.empty
+    assert "route_host" in summary.columns
+    assert "high_priority_count" in summary.columns
 
 
 class ManualPdfExplorationQueueTests(unittest.TestCase):
@@ -78,7 +94,7 @@ class ManualPdfExplorationQueueTests(unittest.TestCase):
                 },
                 {
                     "doi": "10.1000/drop",
-                    "fulltext_enrichment_action": "discover_fulltext",
+                    "fulltext_enrichment_action": "no_accessible_fulltext",
                     "open_access_is_oa": "false",
                     "open_access_status": "closed",
                     "pdf_url_quality": "",

@@ -32,14 +32,6 @@ ALLOWED_FORMATS = {
     "commentary_or_editorial",
     "preprint_or_unpublished",
 }
-LEGACY_PRESCREEN_EVIDENCE_PREFIXES = (
-    "Crossref supplement",
-    "publication-form audit",
-    "multi-item European Psychiatry",
-    "DataCite resourceTypeGeneral",
-)
-
-
 def clean(value: object) -> str:
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return ""
@@ -137,13 +129,12 @@ def audit_exclusions(path: Path) -> list[dict]:
 
 
 def legacy_post_retrieval_exclusions(path: Path) -> list[dict]:
-    """Migrate curated decisions whose evidence came from a later document/page review.
+    """Migrate every DOI-specific legacy decision out of deterministic prescreen.
 
-    The legacy ledger mixed metadata-level prescreen evidence with evidence
-    obtained only after opening landing pages or documents.  The four explicit
-    metadata/audit prefixes remain owned by prescreen; every other legacy row
-    is a confirmed later-stage decision and is projected here with its original
-    reason and evidence intact.
+    Deterministic prescreen owns reusable rules over canonical metadata. A
+    reviewed DOI-level exception remains a valid eligibility decision, but its
+    provenance belongs in the dedicated later eligibility ledger regardless of
+    whether the evidence came from a provider record, landing page, or document.
     """
 
     if not path.is_file():
@@ -156,7 +147,7 @@ def legacy_post_retrieval_exclusions(path: Path) -> list[dict]:
         doi = normalize_doi(raw.get("doi", ""))
         evidence = clean(raw.get("evidence_basis", ""))
         publication_format = clean(raw.get("publication_format", ""))
-        if not doi or not evidence or evidence.startswith(LEGACY_PRESCREEN_EVIDENCE_PREFIXES):
+        if not doi or not evidence:
             continue
         rows.append(
             {
@@ -270,8 +261,11 @@ def main() -> int:
         selected[row["doi"]] = row
     legacy_path = Path(args.legacy_prescreen_ledger).resolve() if clean(args.legacy_prescreen_ledger) else None
     legacy_rows = legacy_post_retrieval_exclusions(legacy_path) if legacy_path is not None else []
+    legacy_only_dois: set[str] = set()
     for row in legacy_rows:
-        selected[row["doi"]] = row
+        if row["doi"] not in selected:
+            selected[row["doi"]] = row
+            legacy_only_dois.add(row["doi"])
 
     ledger_path = Path(args.ledger).resolve()
     payload = load_ledger(ledger_path)
@@ -288,6 +282,11 @@ def main() -> int:
     for doi, raw in selected.items():
         record = {**raw, "run_id": run_id, "decided_at_utc": decided_at}
         previous = existing.get(doi)
+        # Migration fills gaps but never replaces a richer current decision
+        # that is already present in the dedicated eligibility ledger.
+        if previous is not None and doi in legacy_only_dois:
+            unchanged += 1
+            continue
         # Generated run/timestamp fields should not turn an otherwise
         # idempotent registration into a new decision revision.
         comparable_previous = {

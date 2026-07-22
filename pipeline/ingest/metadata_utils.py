@@ -28,9 +28,12 @@ from pipeline.ingest.http_safety import (
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_METADATA_PROVIDER_ORDER = ["pubmed", "pmc", "unpaywall", "crossref", "openalex", "semantic_scholar"]
-PAPER_METADATA_SCHEMA_VERSION = "paper_metadata_v2"
+PAPER_METADATA_SCHEMA_VERSION = "paper_metadata_v3"
 PAPER_METADATA_FIELDS = [
     "study_journal",
+    "journal_volume",
+    "journal_issue",
+    "journal_pages",
     "publication_type",
     "trial_registry_ids",
     "publication_date",
@@ -861,6 +864,12 @@ def metadata_from_openalex_work(work: dict, paper: dict) -> dict:
     abstract = decode_openalex_abstract(work.get("abstract_inverted_index", {}))
     journal_issn, journal_eissn = issns_from_openalex_work(work)
     funders, grant_ids = funding_from_openalex_work(work)
+    biblio = work.get("biblio", {}) if isinstance(work.get("biblio", {}), dict) else {}
+    first_page = normalize(biblio.get("first_page", ""))
+    last_page = normalize(biblio.get("last_page", ""))
+    pages = first_page
+    if first_page and last_page and first_page != last_page:
+        pages = f"{first_page}-{last_page}"
     return {
         "metadata_provider": "openalex",
         "metadata_provider_chain": "openalex",
@@ -871,6 +880,9 @@ def metadata_from_openalex_work(work: dict, paper: dict) -> dict:
         "study_year": normalize(work.get("publication_year", "")) or normalize(paper.get("study_year", "")),
         "authors": authors_from_openalex(work.get("authorships", []) or []) or normalize(paper.get("authors", "")),
         "study_journal": journal_from_openalex_work(work) or normalize(paper.get("study_journal", "")),
+        "journal_volume": normalize(biblio.get("volume", "")) or normalize(paper.get("journal_volume", "")),
+        "journal_issue": normalize(biblio.get("issue", "")) or normalize(paper.get("journal_issue", "")),
+        "journal_pages": pages or normalize(paper.get("journal_pages", "")),
         "publication_type": normalize(work.get("type", "")) or normalize(paper.get("publication_type", "")),
         "trial_registry_ids": extract_trial_registry_ids(
             title,
@@ -967,6 +979,13 @@ def metadata_from_pubmed_article(article: ET.Element, paper: dict) -> dict:
         "study_year": year_from_pubmed_article(article) or normalize(paper.get("study_year", "")),
         "authors": authors_from_pubmed_article(article) or normalize(paper.get("authors", "")),
         "study_journal": journal or normalize(paper.get("study_journal", "")),
+        "journal_volume": normalize(article.findtext(".//Article/Journal/JournalIssue/Volume"))
+        or normalize(paper.get("journal_volume", "")),
+        "journal_issue": normalize(article.findtext(".//Article/Journal/JournalIssue/Issue"))
+        or normalize(paper.get("journal_issue", "")),
+        "journal_pages": normalize(article.findtext(".//Article/Pagination/MedlinePgn"))
+        or normalize(article.findtext(".//Article/ELocationID[@EIdType='pii']"))
+        or normalize(paper.get("journal_pages", "")),
         "publication_type": publication_types_from_pubmed_article(article) or normalize(paper.get("publication_type", "")),
         "trial_registry_ids": extract_trial_registry_ids(
             title,
@@ -1037,11 +1056,13 @@ def lookup_pubmed_metadata(
     if not articles:
         return None
     doi_norm = normalize_doi(doi).lower()
-    selected = articles[0]
+    selected = None
     for article in articles:
         if normalize_doi(pubmed_article_id(article, "doi")).lower() == doi_norm:
             selected = article
             break
+    if selected is None:
+        return None
     return metadata_from_pubmed_article(selected, paper)
 
 
@@ -1326,6 +1347,11 @@ def lookup_crossref_metadata(
         or normalize(paper.get("study_year", "")),
         "authors": authors_from_crossref(item.get("author", []) or []) or normalize(paper.get("authors", "")),
         "study_journal": first_list_value(item.get("container-title", "")) or first_list_value(item.get("short-container-title", "")) or normalize(paper.get("study_journal", "")),
+        "journal_volume": normalize(item.get("volume", "")) or normalize(paper.get("journal_volume", "")),
+        "journal_issue": normalize(item.get("issue", "")) or normalize(paper.get("journal_issue", "")),
+        "journal_pages": normalize(item.get("page", ""))
+        or normalize(item.get("article-number", ""))
+        or normalize(paper.get("journal_pages", "")),
         "publication_type": normalize(item.get("type", "")) or normalize(paper.get("publication_type", "")),
         "trial_registry_ids": extract_trial_registry_ids(
             title,
@@ -1925,6 +1951,9 @@ def metadata_has_useful_fields(metadata: dict) -> bool:
             "abstract",
             "authors",
             "study_journal",
+            "journal_volume",
+            "journal_issue",
+            "journal_pages",
             "publication_type",
             "trial_registry_ids",
             "publication_date",

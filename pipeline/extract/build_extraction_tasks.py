@@ -26,6 +26,7 @@ try:
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
     from pipeline.extract.route_extraction_profiles import (
         domain_prompt_path,
+        is_legacy_v1_secondary_profile,
         profile_for_key,
         prompt_path_for_depth,
         schema_path_for_profile,
@@ -37,6 +38,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
     from pipeline.extract.route_extraction_profiles import (
         domain_prompt_path,
+        is_legacy_v1_secondary_profile,
         profile_for_key,
         prompt_path_for_depth,
         schema_path_for_profile,
@@ -665,7 +667,7 @@ def task_from_route(
     }
 
 
-def route_row_is_selected(route_row: dict, args: argparse.Namespace, doi_filter: set[str]) -> bool:
+def route_row_matches_requested_scope(route_row: dict, args: argparse.Namespace, doi_filter: set[str]) -> bool:
     doi = normalize_doi(route_row.get("doi", ""))
     if doi_filter and doi not in doi_filter:
         return False
@@ -686,6 +688,13 @@ def route_row_is_selected(route_row: dict, args: argparse.Namespace, doi_filter:
     return True
 
 
+def route_row_is_selected(route_row: dict, args: argparse.Namespace, doi_filter: set[str]) -> bool:
+    return route_row_matches_requested_scope(route_row, args, doi_filter) and not is_legacy_v1_secondary_profile(
+        route_row.get("prompt_profile", ""),
+        route_row.get("schema_profile", ""),
+    )
+
+
 def build_tasks(args: argparse.Namespace) -> tuple[list[dict], dict]:
     route_table = Path(args.route_table).resolve()
     metadata_table = Path(args.metadata_table).resolve()
@@ -703,9 +712,19 @@ def build_tasks(args: argparse.Namespace) -> tuple[list[dict], dict]:
     packet_paths = [Path(path).resolve() for path in args.fulltext_packets_jsonl]
     packets_by_doi = load_packet_index(packet_paths)
 
+    route_rows = route_df.to_dict("records")
+    legacy_v1_secondary_route_rows = [
+        row
+        for row in route_rows
+        if is_legacy_v1_secondary_profile(
+            row.get("prompt_profile", ""),
+            row.get("schema_profile", ""),
+        )
+        and route_row_matches_requested_scope(row, args, doi_filter)
+    ]
     selected_rows = [
         row
-        for row in route_df.to_dict("records")
+        for row in route_rows
         if route_row_is_selected(row, args, doi_filter)
     ]
     tasks = [
@@ -736,6 +755,13 @@ def build_tasks(args: argparse.Namespace) -> tuple[list[dict], dict]:
             "include_packet_content": bool(args.include_packet_content),
         },
         "route_rows_read": len(route_df),
+        "legacy_v1_secondary_route_rows_hard_disabled": len(legacy_v1_secondary_route_rows),
+        "legacy_v1_secondary_profile_counts": dict(
+            Counter(
+                f"{normalize(row.get('prompt_profile', ''))}/{normalize(row.get('schema_profile', ''))}"
+                for row in legacy_v1_secondary_route_rows
+            )
+        ),
         "route_rows_selected_before_limit": len(selected_rows),
         "tasks_written": len(tasks),
         "unique_dois": len({task["study_doi"] for task in tasks}),

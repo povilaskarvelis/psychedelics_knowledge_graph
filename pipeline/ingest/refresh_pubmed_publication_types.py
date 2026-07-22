@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 from http.client import IncompleteRead
 from pathlib import Path
 import sys
@@ -17,12 +18,14 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pipeline.ingest.enrich_paper_metadata import DEFAULT_OUTPUT_TABLE, clean
+from pipeline.ingest.enrich_paper_metadata import DEFAULT_OUTPUT_TABLE, DEFAULT_PAPERS_TABLE, clean
+from pipeline.ingest.materialize_candidate_metadata import materialize_candidate_metadata
 from pipeline.ingest.metadata_utils import (
     PAPER_METADATA_SCHEMA_VERSION,
     RateLimitedHttpClient,
     load_config,
     normalize,
+    normalize_doi,
     publication_types_from_pubmed_article,
     read_float,
     read_int,
@@ -121,6 +124,12 @@ def update_publication_types(
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Refresh corpus publication_type values from PubMed by PMID.")
     parser.add_argument("--metadata-table", default=str(DEFAULT_OUTPUT_TABLE))
+    parser.add_argument("--candidate-table", default=str(DEFAULT_PAPERS_TABLE))
+    parser.add_argument(
+        "--no-update-candidate-table",
+        action="store_true",
+        help="Do not materialize refreshed publication types into the candidate ledger.",
+    )
     parser.add_argument("--output-table", default="")
     parser.add_argument("--config", default=str(ROOT / "pipeline" / "config.example.yaml"))
     parser.add_argument("--doi-file", default="", help="Optional DOI list limiting rows to refresh.")
@@ -186,14 +195,38 @@ def main() -> int:
             )
 
     refreshed, updated = update_publication_types(df, pubmed_types_by_pmid)
+    candidate_materialization: dict = {}
     if not args.dry_run:
         output_table.parent.mkdir(parents=True, exist_ok=True)
         refreshed.to_parquet(output_table, engine="pyarrow", index=False)
+        if not args.no_update_candidate_table and pubmed_types_by_pmid:
+            updated_dois = {
+                normalize_doi(value).lower()
+                for value in refreshed.loc[
+                    refreshed["pmid"].map(normalize).isin(pubmed_types_by_pmid), "doi"
+                ].tolist()
+                if normalize_doi(value)
+            }
+            candidate_materialization = materialize_candidate_metadata(
+                candidate_table=Path(args.candidate_table).resolve(),
+                metadata_table=output_table,
+                run_id="pubmed_publication_type_refresh_"
+                + dt.datetime.now(dt.timezone.utc).strftime("%Y_%m_%d_%H%M%S"),
+                fields=("publication_type", "paper_metadata_schema_version"),
+                scoped_dois=updated_dois,
+                overwrite_existing=True,
+            )
 
     print(f"Rows with PubMed publication type labels: {len(pubmed_types_by_pmid):,}")
     print(f"Rows updated: {updated:,}")
     print(f"Dry run: {bool(args.dry_run)}")
     print(f"Metadata table: {output_table}")
+    if candidate_materialization:
+        print(
+            "Candidate metadata materialization: "
+            f"matched={candidate_materialization['materialized_candidate_rows']:,} "
+            f"changed={candidate_materialization['changed_candidate_rows']:,}"
+        )
     return 0
 
 

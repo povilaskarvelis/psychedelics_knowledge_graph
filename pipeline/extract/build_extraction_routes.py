@@ -82,7 +82,8 @@ DEFAULT_MANUAL_ROUTE_OVERRIDES = ROOT / "pipeline" / "extract" / "manual_extract
 DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES = ROOT / "pipeline" / "fulltext" / "manual_fulltext_access_overrides.json"
 DEFAULT_SCREENING_DECISION_OVERRIDES = ROOT / "data" / "curated" / "screening_decision_overrides.json"
 
-TABLE_VERSION = "0.4"
+TABLE_VERSION = "0.5"
+RETRYABLE_PDF_FAILURE_CATEGORIES = {"rate_limited", "provider_error", "timeout"}
 CANDIDATE_STATUS_DEFAULTS = {
     "publication_stage": "",
     "is_preprint_like": False,
@@ -192,6 +193,13 @@ def truthy(value: object) -> bool:
     if isinstance(value, bool):
         return value
     return clean(value).lower() in {"1", "true", "yes", "y", "retain"}
+
+
+def safe_int(value: object, default: int = 0) -> int:
+    try:
+        return int(float(clean(value)))
+    except (TypeError, ValueError):
+        return default
 
 
 def prescreen_row_is_extraction_candidate(row: dict) -> bool:
@@ -365,6 +373,41 @@ def apply_fulltext_access_override(metadata: dict, override: dict | None) -> dic
     is_oa = truthy_override(override.get("open_access_is_oa", ""))
     if is_oa is not None:
         out["open_access_is_oa"] = is_oa
+    return out
+
+
+def pipe_values(value: object) -> set[str]:
+    return {part.strip().lower() for part in clean(value).split("|") if part.strip()}
+
+
+def pdf_download_terminal_failure(metadata: dict) -> bool:
+    if clean(metadata.get("pdf_download_status", "")).lower() != "download_failed":
+        return False
+    if truthy(metadata.get("pdf_download_retry_budget_exhausted", False)):
+        return True
+    categories = pipe_values(metadata.get("pdf_download_failure_categories", ""))
+    category = clean(metadata.get("pdf_download_failure_category", "")).lower()
+    if category:
+        categories.add(category)
+    retry_reported = truthy(metadata.get("pdf_download_retry_recommended", False))
+    retry_effective = bool(
+        retry_reported
+        and (
+            not categories
+            or bool(categories.intersection(RETRYABLE_PDF_FAILURE_CATEGORIES))
+        )
+    )
+    return not retry_effective
+
+
+def suppress_terminal_pdf_candidates(metadata: dict) -> dict:
+    if not pdf_download_terminal_failure(metadata):
+        return metadata
+    out = dict(metadata)
+    out["best_pdf_url"] = ""
+    out["pdf_url_candidates"] = ""
+    out["probable_pdf_url_candidates"] = ""
+    out["other_url_candidates"] = ""
     return out
 
 
@@ -601,10 +644,10 @@ def access_tier(metadata: dict, fulltext_status: dict, local_pdf_status: dict) -
         return "full_text_available"
     if local_pdf_status.get("has_local_pdf"):
         return "local_pdf_available"
-    if metadata_probable_pdf_url_candidates(metadata):
-        return "pdf_download_url_available"
     if clean(metadata.get("abstract", "")):
         return "abstract_only"
+    if metadata_probable_pdf_url_candidates(metadata):
+        return "pdf_download_url_available"
     return "no_usable_text"
 
 
@@ -1172,6 +1215,8 @@ def build_route_rows(
         tags = [tag for tag in context.get("routing_tags", []) if tag != "uncertain"]
         fulltext_access_override = manual_fulltext_access_overrides.get(doi, {})
         access_metadata = apply_fulltext_access_override(metadata, fulltext_access_override)
+        terminal_pdf_failure = pdf_download_terminal_failure(metadata)
+        access_metadata = suppress_terminal_pdf_candidates(access_metadata)
         manual_fulltext_access_action = clean(fulltext_access_override.get("manual_access_action", ""))
         manual_fulltext_access_reason = clean(fulltext_access_override.get("manual_reason", ""))
         domains = domain_plan_for(
@@ -1282,6 +1327,24 @@ def build_route_rows(
                     "probable_pdf_url_candidates": join_candidates(probable_pdf_candidates),
                     "other_url_candidates": join_candidates(other_url_candidates),
                     "pdf_url_quality": pdf_quality,
+                    "pdf_download_status": clean(metadata.get("pdf_download_status", "")),
+                    "pdf_download_failure_category": clean(
+                        metadata.get("pdf_download_failure_category", "")
+                    ),
+                    "pdf_download_failure_categories": clean(
+                        metadata.get("pdf_download_failure_categories", "")
+                    ),
+                    "pdf_download_retry_recommended": truthy(
+                        metadata.get("pdf_download_retry_recommended", False)
+                    )
+                    and not terminal_pdf_failure,
+                    "pdf_download_attempt_count": safe_int(
+                        metadata.get("pdf_download_attempt_count", 0)
+                    ),
+                    "pdf_download_retry_budget_exhausted": truthy(
+                        metadata.get("pdf_download_retry_budget_exhausted", False)
+                    ),
+                    "pdf_download_terminal_failure": terminal_pdf_failure,
                     "manual_fulltext_access_action": manual_fulltext_access_action,
                     "manual_fulltext_access_reason": manual_fulltext_access_reason,
                     "route_action": row_action,
@@ -1555,12 +1618,11 @@ def write_route_table(path: Path, rows: list[dict]) -> None:
 
 
 def merged_extraction_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataFrame) -> pd.DataFrame:
-    """Return complete candidate-ledger coverage with enrichment values preferred.
+    """Return complete coverage with materialized candidate values preferred.
 
-    The standalone enrichment table is intentionally sparse: a candidate may
-    already have a usable title, abstract, and access metadata from discovery
-    without having a separate enrichment row. Extraction routing must therefore
-    iterate the union, not the enrichment table alone.
+    The enrichment table remains a provider/provenance cache. It may fill a
+    blank for legacy or sparse inputs, but it cannot silently replace a
+    populated value in the canonical candidate ledger.
     """
     frames: list[pd.DataFrame] = []
     for frame in (candidate_df, metadata_df):
@@ -1581,13 +1643,12 @@ def merged_extraction_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataF
         out = candidate.copy()
     else:
         index = candidate.index.union(enrichment.index)
-        out = candidate.reindex(index).copy()
-        for column in enrichment.columns:
-            values = enrichment[column].reindex(index)
+        out = enrichment.reindex(index).copy()
+        for column in candidate.columns:
+            values = candidate[column].reindex(index)
             present = values.notna()
-            # Parquet commonly restores text as pandas' dedicated string dtype,
-            # not ``object``. Empty enrichment strings must never overwrite a
-            # usable value already present in the candidate ledger.
+            # Empty candidate strings do not erase a legacy cache value, but a
+            # populated candidate value is always authoritative.
             if pd.api.types.is_string_dtype(values.dtype) or values.dtype == object:
                 present &= values.map(
                     lambda value: bool(clean(value)) if value is not None and not pd.isna(value) else False

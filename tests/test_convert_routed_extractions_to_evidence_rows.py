@@ -13,6 +13,7 @@ from pipeline.kg.convert_routed_extractions_to_evidence_rows import (
     apply_graph_subject,
     convert_outputs,
     evidence_design_for,
+    normalize_primary_controlled_categories,
     normalized_result_direction,
     resolve_output_paths,
 )
@@ -23,6 +24,17 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
 
 
 class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
+    def test_normalizes_preclinical_session_context_for_human_evidence(self) -> None:
+        row = {
+            "population_model_category": "human_participants",
+            "session_context": "preclinical_experiment",
+        }
+
+        normalize_primary_controlled_categories(row)
+
+        self.assertEqual(row["session_context"], "other")
+        self.assertIn("human evidence", row["normalization_notes"])
+
     def test_converts_guideline_recommendation_without_treating_care_component_as_compound(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

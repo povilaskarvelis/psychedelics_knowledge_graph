@@ -26,6 +26,13 @@ try:
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
     from pipeline.extract.assay_family import normalize_assay_family
     from pipeline.extract.io_utils import SYSTEM_NORMALIZATION, normalize, write_json
+    from pipeline.ingest.materialize_candidate_funding import (
+        DEFAULT_DOI_ALIAS_REGISTRY,
+        load_doi_aliases,
+        materialize_funding,
+        source_sha256,
+        subset_assertions_for_papers,
+    )
     from pipeline.kg.compound_combinations import (
         aliases_for_components,
         canonical_components,
@@ -44,6 +51,13 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
     from pipeline.extract.assay_family import normalize_assay_family
     from pipeline.extract.io_utils import SYSTEM_NORMALIZATION, normalize, write_json
+    from pipeline.ingest.materialize_candidate_funding import (
+        DEFAULT_DOI_ALIAS_REGISTRY,
+        load_doi_aliases,
+        materialize_funding,
+        source_sha256,
+        subset_assertions_for_papers,
+    )
     from pipeline.kg.compound_combinations import (
         aliases_for_components,
         canonical_components,
@@ -65,7 +79,12 @@ DEFAULT_ROUTED_KG_RUN_ROOT = ROOT / "data" / "processed" / "kg_routed_runs"
 DEFAULT_REGISTRY_PATH = ROOT / "data" / "curated" / "entity_registry.json"
 DEFAULT_DISORDER_ALIASES_PATH = ROOT / "schema" / "disorder_canonicalization.json"
 DEFAULT_NODE_VOCABULARY_PATH = ROOT / "schema" / "kg_node_vocabularies.json"
+DEFAULT_FUNDING_ASSERTIONS_PATH = ROOT / "data" / "processed" / "corpus" / "paper_funding.parquet"
+DEFAULT_FUNDING_ATTEMPTS_PATH = (
+    ROOT / "data" / "processed" / "corpus" / "paper_funding_provider_attempts.parquet"
+)
 KG_TABLE_VERSION = "0.2"
+MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v3_20260722"
 
 ROUTED_GRAPH_SOURCES = {
     "routed_extractions": {
@@ -154,6 +173,11 @@ PAPER_FIELDS = (
     "keywords",
     "funders",
     "grant_ids",
+    "funding_metadata_status",
+    "funding_providers",
+    "funding_assertion_count",
+    "funding_funder_count",
+    "funding_award_count",
     "trial_registry_ids",
     "study_design",
     "funding",
@@ -4559,7 +4583,7 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Circuit connectivity & plasticity", re.compile(r"functional connectivity|\bdfc\b|coherence|pathway plasticity|circuit connectivity|connection strength", re.I)),
     ),
     "Receptor regulation & trafficking": (
-        ("Serotonin receptors", re.compile(r"5[- ]?ht\s*[1-7]|serotonin.*receptor|htr\d|serotonin autoreceptor|\bs2 receptor", re.I)),
+        ("Serotonin receptors", re.compile(r"5[- ]?ht\s*[1-7]|serotonin.*receptor|htr\d|serotonin autoreceptor|\bs2 receptor|(?:serotonin|5[- ]?ht).*(?:agonis|antagonis|binding|response|action|sensitivity)|(?:agonis|antagonis|binding|response|action|sensitivity).*(?:serotonin|5[- ]?ht)", re.I)),
         ("Monoamine transporters", re.compile(r"\bsert\b|slc6a4|\bdat\b|slc6a3|\bnet\b|slc6a2|vmat|slc18a|paroxetine binding|imipramine binding", re.I)),
         ("Glutamate receptors", re.compile(r"ampa|nmda|nma receptor|mglur|mglu\d|glua|glur|gria|glun|grin|glutamate receptor|kainate receptor", re.I)),
         ("Dopamine receptors", re.compile(r"dopamine [dD]?[1-5] receptor|\bd[1-5][ -]?receptor|\bdrd[1-5]\b", re.I)),
@@ -4570,11 +4594,13 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Cholinergic receptors", re.compile(r"muscarinic|nicotinic|acetylcholine receptor|nachr|mchr", re.I)),
         ("Sigma receptors", re.compile(r"sigma[- ]?[12]? receptor|sigmar", re.I)),
         ("Purinergic & ion-channel receptors", re.compile(r"p2x\d|p2y\d|trpv\d|purinergic|ionotropic channel", re.I)),
-        ("Receptor trafficking & internalization", re.compile(r"trafficking|internalization|surface expression|membrane localization|receptor recycling|desensiti[sz]", re.I)),
+        ("Receptor trafficking & internalization", re.compile(r"trafficking|internalization|endocytosis|vesicle mobility|surface (?:expression|density)|membrane localization|membrane redistribution|receptor recycling|desensiti[sz]", re.I)),
         ("Neuropeptide & hormone receptors", re.compile(r"oxytocin receptor|vasopressin receptor|glucocorticoid receptor|mineralocorticoid receptor|neuropeptide receptor|trk receptor", re.I)),
         ("Receptor binding & availability", re.compile(r"receptor binding|binding potential|binding kinetics|receptor availability|receptor occupancy", re.I)),
         ("Glutamate transporters", re.compile(r"eaat\d|glt[- ]?1|slc1a\d|glutamate transporter", re.I)),
         ("Drug-efflux transporters", re.compile(r"p[- ]?glycoprotein|abcb1|bcrp|abc transport", re.I)),
+        ("Non-monoamine membrane transporters", re.compile(r"\bmct[1-4]\b|monocarboxylate transporter|\baqp\d\b|aquaporin|\bcd36\b|fatty acid translocase|\bnhe\d\b", re.I)),
+        ("Additional GPCR & growth-factor receptors", re.compile(r"\bgpr\d+\b|\bffar\d\b|\bchrm\d\b|\bngfr\b|p75ntr|p75 neurotrophin|tgf[- ]?beta.*receptor|receptor tyrosine kinase", re.I)),
         ("Other", re.compile(r"receptor|transporter|availability|occupancy|slc\d|s1r", re.I)),
     ),
     "Intracellular signal transduction": (
@@ -4624,6 +4650,13 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("NF-κB & TLR signaling", re.compile(r"nf[- ]?(?:kappa[- ]?b|kb)|tlr[- ]?\d|hmgb1|inflammasome|nlrp3", re.I)),
         ("COX & prostaglandin signaling", re.compile(r"cox[- ]?[12]|ptgs|prostaglandin", re.I)),
         ("CRP & systemic inflammation", re.compile(r"c[- ]?reactive protein|\bcrp\b|systemic inflammation", re.I)),
+        ("Nitric oxide & iNOS signaling", re.compile(r"inducible nitric oxide|\binos\b|nitric oxide|nitrite|nitrosative", re.I)),
+        ("Innate immune-cell function", re.compile(r"macrophage|neutrophil|myeloperoxidase|\bmpo\b|phagocyt|procalcitonin|acyloxyacyl hydrolase|\baoah\b", re.I)),
+        ("Adaptive immune cells & immunoglobulins", re.compile(r"\b(?:cd3|cd4|cd8)\+?\b|t[- ]?cell|b[- ]?cell|natural killer|nk[- ]?cell|immunoglobulin|\big[agem]\b|antibody[- ]forming", re.I)),
+        ("Mast-cell, eosinophil & allergic signaling", re.compile(r"mast cell|tryptase|eosinophil|allerg|\bige\b", re.I)),
+        ("Eicosanoid & lipoxygenase signaling", re.compile(r"pge\d|prostaglandin|lipoxygenase|5[- ]?lox|leukotriene", re.I)),
+        ("Glial inflammatory spectroscopy markers", re.compile(r"myo[- ]?inositol|myoinositol|\bmi/cr\b", re.I)),
+        ("Kynurenine immune metabolism", re.compile(r"kynuren|kyn/trp", re.I)),
         ("General neuroinflammation", re.compile(r"neuroinflamm|inflammat|immune activation|immune signaling", re.I)),
     ),
     "Neurotransmitter release, uptake & turnover": (
@@ -4649,6 +4682,13 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Neural oscillations", re.compile(r"oscillation|gamma|theta|delta|alpha power|beta power|aperiodic|cross[- ]frequency|sample entropy", re.I)),
         ("Membrane potential & ion channels", re.compile(r"membrane potential|membrane current|ion channel|conductance|depolarization|hyperpolarization|afterhyperpolarization", re.I)),
         ("Excitation–inhibition balance", re.compile(r"excitation.?inhibition|e/?i balance|excitatory/inhibitory|e-i balance", re.I)),
+        ("Resting-state & spontaneous neural activity", re.compile(r"\bfalff\b|fractional amplitude|spontaneous (?:brain|neural|neuronal) activity|resting[- ]state activity|neural variability|rhythmic slow activity", re.I)),
+        ("Excitatory–inhibitory synaptic markers", re.compile(r"\bvglut\d*\b|\bvgat\b|parvalbumin|\bpv\+?\b|synaptic puncta|synaptic junction", re.I)),
+        ("Reflexes & motor-circuit excitability", re.compile(r"ventral root potential|dorsal root potential|monosynaptic reflex|motor response|motor transmission|convulsion|seizure|raphe unit activity|unit activity", re.I)),
+        ("Peripheral neuroeffector transmission", re.compile(r"uterine contraction|detrusor contraction|smooth muscle|organ bath|nerve stimulation|pharyngeal pumping|intracavernosal pressure|neuromuscular|neuroeffector|adrenergic nerve|cholinergic contraction", re.I)),
+        ("Membrane pumps & transmitter enzymes", re.compile(r"na\+?,?k\+?[- ]?atpase|sodium[- ]potassium atpase|acetylcholinesterase|cholinesterase|transmitter reuptake", re.I)),
+        ("Retinal & evoked electrophysiology", re.compile(r"electroretinogram|\berg\b|retinal activity|evoked response|evoked activity", re.I)),
+        ("Gap-junction & electrical coupling", re.compile(r"gap junction|electrical coupling|connexin", re.I)),
         ("General synaptic transmission", re.compile(r"synaptic transmission|neurotransmission|neuronal excitability|electrophysiolog", re.I)),
     ),
     "Cellular stress & mitochondrial function": (
@@ -4662,14 +4702,19 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("General cellular stress", re.compile(r"cellular stress|stress response|redox|protein damage", re.I)),
     ),
     "Drug metabolism": (
-        ("CYP-mediated metabolism", re.compile(r"cyp\d|cytochrome p450", re.I)),
+        ("CYP-mediated metabolism", re.compile(r"cyp\d|cytochrome p[- ]?450|\bp[- ]?450\b|o[- ]?dealkylation", re.I)),
         ("MAO & COMT metabolism", re.compile(r"monoamine oxidase|mao[- ]?[ab]?|\bcomt\b", re.I)),
         ("Glucuronidation & conjugation", re.compile(r"glucuron|\bugt\d|sulfation|conjugat|glutathione s[- ]transferase|\bgst\b", re.I)),
         ("Hydrolysis & dephosphorylation", re.compile(r"hydrolys|dephosphoryl|phosphatase|esterase", re.I)),
         ("Hydrolase & dehydrogenase metabolism", re.compile(r"fatty acid amide hydrolase|\bfaah\b|mag lipase|monoacylglycerol lipase|aldehyde dehydrogenase|\baldh\d*\b", re.I)),
         ("Demethylation & oxidation", re.compile(r"demethyl|hydroxylat|oxidation|deaminat", re.I)),
-        ("Metabolite formation", re.compile(r"metabolite|biotransformation|metabolic conversion|enzymatic conversion|metabolism to|bufotenine formation", re.I)),
-        ("Drug biosynthesis & production", re.compile(r"biosynthetic pathway|heterologous .* production|drug biosynthesis", re.I)),
+        ("Metabolite formation", re.compile(r"metabolite|biotransformation|metabolic conversion|enzymatic conversion|metabolism to|bufotenine formation|metabolic product", re.I)),
+        ("Drug biosynthesis & production", re.compile(r"biosynth|heterologous .* production|drug production|alkaloid production|product titer|metabolic engineering|gene cluster|methyltransferase|\bsynthase\b|enzymatic synthesis|conversion of .* to", re.I)),
+        ("Compound content & natural occurrence", re.compile(r"(?:psilocybin|psilocin|baeocystin|norbaeocystin|aeruginascin|dmt|dimethyltryptamine|ergot alkaloid|tryptamine|salvinorin|lysergic acid).*(?:content|concentration|level|composition|chemotype|detected|enrichment)|(?:content|concentration|level|composition|chemotype|detected|enrichment).*(?:psilocybin|psilocin|baeocystin|norbaeocystin|aeruginascin|dmt|dimethyltryptamine|ergot alkaloid|tryptamine|salvinorin|lysergic acid)", re.I)),
+        ("Elimination, excretion & disposition", re.compile(r"elimination half[- ]?life|urinary excretion|renal excretion|clearance|excretion|drug disposition", re.I)),
+        ("Tracer uptake & distribution", re.compile(r"\b(?:c|carbon)[- ]?1?[34]\b|\[1?[34]c\]|radiolabel|rate of appearance|brain uptake|tissue distribution|isotopic enrichment", re.I)),
+        ("Metabolic-enzyme activity", re.compile(r"enzyme activity|catalytic activity|n[- ]?methyltransferase|methyltransferase activity|decarboxylase|reductase activity", re.I)),
+        ("Reactive metabolic intermediates", re.compile(r"radical anion|reactive intermediate|electrochemical reduction|redox metabol", re.I)),
         ("Drug transport & barrier permeability", re.compile(r"blood[- ]brain barrier|\bbbb\b|permeability|bcrp|p[- ]?glycoprotein|abcb1|drug transport|accumulation", re.I)),
         ("Tryptophan–kynurenine metabolism", re.compile(r"kynuren|tryptophan|quinolinic acid|indoleamine[- ]?2,3|\bido\b", re.I)),
         ("Drug exposure & tissue concentrations", re.compile(r"pharmacokinetic|\bauc\b|(?:plasma|serum|brain|tissue|csf|striatal|extracellular) .*?(?:concentration|levels?|content)|drug content|protein binding|subcellular binding|metabolite ratio|norketamine:ketamine ratio", re.I)),
@@ -4685,16 +4730,31 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Catecholamine stress hormones", re.compile(r"epinephrine|adrenaline|alpha amylase|sam axis", re.I)),
         ("Gonadal hormones", re.compile(r"estradiol|estrogen|testosterone|progesterone", re.I)),
         ("Melatonin & circadian hormones", re.compile(r"melatonin|pineal|circadian hormone", re.I)),
+        ("Renin–angiotensin–aldosterone & natriuretic peptides", re.compile(r"\brenin\b|aldosterone|angiotensin|natriuretic peptide|\banp\b", re.I)),
+        ("Thyroid hormones", re.compile(r"triiodothyronine|thyroxine|thyroid|\bft?[34]\b", re.I)),
+        ("Gonadotropins & reproductive steroids", re.compile(r"\blh\b|\bfsh\b|gonadotrop|ovulation|androsterone|dehydroepiandrosterone|\bdhea\b|pregnenolone|17[- ]?(?:keto|hydroxy)corticoid|gonadal function", re.I)),
+        ("Glucose, lipid & thermogenic homeostasis", re.compile(r"blood (?:sugar|glucose)|serum glucose|plasma glucose|cholesterol|triglyceride|non[- ]?esterified fatty|\bnefa\b|thermogenesis|brown adipose", re.I)),
+        ("Electrolyte & osmoregulatory response", re.compile(r"serum sodium|urine sodium|osmolality|osmolarity|electrolyte|fluid balance", re.I)),
+        ("Neurosecretory response", re.compile(r"neurosecretory|melanophore", re.I)),
+        ("Adrenal steroid output", re.compile(r"cortisone|adrenal (?:weight|steroid|secretion)", re.I)),
         ("General endocrine response", re.compile(r"hormone|endocrine|neuroendocrine", re.I)),
     ),
     "Cell injury & survival": (
-        ("Apoptosis & caspase signaling", re.compile(r"apoptos|caspase|\bbax\b|bcl[- ]?2|tunel|annexin", re.I)),
+        ("Apoptosis & caspase signaling", re.compile(r"apopt|caspase|\bcasp\d|\bbax\b|bcl[- ]?[2x]|smac|diablo|apoptosis[- ]inducing factor|\baif\b|cytochrome c release|tunel|annexin", re.I)),
         ("Cell viability & cytotoxicity", re.compile(r"cell viability|cytotox|mtt|ldh release|excitotoxic", re.I)),
         ("Neuroprotection", re.compile(r"neuroprotect|protection against|rescue from injury", re.I)),
         ("Axonal & neurofilament injury", re.compile(r"neurofilament|\bnfl\b|nf200|axonal injury|neuroaxonal", re.I)),
         ("Necrosis & cell death", re.compile(r"necros|cell death|neuronal death|dark neurons?", re.I)),
         ("Neuronal survival & loss", re.compile(r"neuronal survival|neuron survival|neuronal loss|neuron loss|neu[nN]\+", re.I)),
-        ("General cell injury", re.compile(r"cell injury|neuronal injury|neural injury|cell survival|tissue damage", re.I)),
+        ("Genotoxicity & chromosomal damage", re.compile(r"chromosom|genotox|dna fragment|dna integrity|dna binding|micronucle|8[- ]?(?:oxo|oh)dg|p53|\bparp\b", re.I)),
+        ("Neural structural integrity & degeneration", re.compile(r"neuronal cell bod|nerve cell bod|healthy neuron|neuron(?:al)? count|neuronal degeneration|degenerated neuron|neural crest cell|purkinje cell|pyramidal cell|cortical cell|serotonergic (?:nerve|axon|fiber|terminal)|dopaminergic (?:nerve|axon|fiber|terminal|injury|neurotox)|demyelin|myelin sheath|nissl|outer nuclear layer|retinal (?:layer|thickness)|ventricular enlargement|atrophy|terminal damage|n[- ]?acetylaspartate|\bnaa(?:/cr)?\b|s100|tyrosine hydroxylase.*(?:loss|count|immuno)|th[- ]immunoreactive|parvalbumin.*(?:loss|count)|neuronal preservation", re.I)),
+        ("Protein aggregation & cytoskeletal pathology", re.compile(r"amyloid|\bapp\b|bace1|tau|microtubule|cytoskeleton|ubiquitin.*inclusion|intracellular inclusion|endosom|lysosom|cathepsin|calpain|spectrin|parkin|pink1", re.I)),
+        ("Barrier & tissue structural integrity", re.compile(r"tight junction|\bzo[- ]?1\b|occludin|e[- ]?cadherin|basement membrane|endothelial cell|blood[- ]brain barrier|\bbbb\b|urothel|uroplakin|\bupiii\b|\bmuc[- ]?2\b|villi|mucosal thickness|fibronectin|collagen|laminin|\bmmp[- ]?9\b|fibrosis|tissue integrity|structural integrity|membrane integrity|histopath|microcirculation|organ damage|infarction|edema", re.I)),
+        ("Organ-injury biomarkers", re.compile(r"\b(?:alt|ast|alp|ggt|ck|bun)\b|creatine kinase|blood urea nitrogen|bilirubin|ammonia|liver (?:weight|enzyme|function)|hepatic injury|hepatitis|renal injury|kidney injury", re.I)),
+        ("Autophagy & regulated cell injury", re.compile(r"\blc3\b|beclin|\bp62\b|sqstm1|autophag|\bmlkl\b|necropt|ferropt|gsdmd|pyropt", re.I)),
+        ("Cell proliferation, senescence & repair", re.compile(r"brdu incorporation|cell proliferation|cellular proliferation|cell cycle|g2/m|cell doubling|cellular life extension|senesc|\bp21\b|tissue repair|regeneration", re.I)),
+        ("Survival, lethality & general toxicity", re.compile(r"\bld50\b|lethality|survival rate|organismal survival|mortality|general toxicity|toxic dose", re.I)),
+        ("General cell injury", re.compile(r"cell injury|neuronal injury|neural injury|neuronal damage|neural damage|neurotox|cell survival|tissue damage|cellular damage|degenerat|morphological abnormal|pyknotic|pyknosis", re.I)),
     ),
     "Epigenetic regulation": (
         ("DNA methylation", re.compile(r"dna methylation|dnam|cpg|dnmt", re.I)),
@@ -4708,12 +4768,17 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
     ),
     "Genetic moderators": (
         ("Serotonin-system variants", re.compile(r"5[- ]?httlpr|slc6a4|sert genotype|htr\d|5[- ]?ht\d.*genotype|serotonin.*(?:variant|genotype)", re.I)),
-        ("Dopamine & monoamine variants", re.compile(r"\bcomt\b|mao[- ]?a|drd\d|dopamine.*(?:variant|genotype)|taar1", re.I)),
+        ("Dopamine & monoamine variants", re.compile(r"\bcomt\b|mao[- ]?a|drd\d|slc6a3|\bhdat\b|(?:dopamine|\bdat\b).*(?:variant|genotype|polymorphism)|taar1", re.I)),
+        ("Norepinephrine-transporter variants", re.compile(r"slc6a2|norepinephrine transporter|\bnet\b.*(?:variant|genotype|polymorphism|rs\d+)", re.I)),
+        ("Glutamate-receptor variants", re.compile(r"grin\d|gria\d|grm\d|glutamate receptor.*(?:variant|genotype|polymorphism)", re.I)),
+        ("Nitric-oxide signaling variants", re.compile(r"\bnos[123]\b|nitric oxide synthase.*(?:variant|genotype|polymorphism)", re.I)),
         ("Drug-metabolism variants", re.compile(r"cyp\d|ugt\d|metabolizer|activity score|metabolism phenotype", re.I)),
         ("Neuroplasticity-related variants", re.compile(r"bdnf|ntrk2|robo2|sec11a|plasticity.*(?:variant|genotype)", re.I)),
         ("Stress & HPA-axis variants", re.compile(r"fkbp5|nr3c1|crhr1|stress.*(?:variant|genotype)", re.I)),
         ("Opioid-system variants", re.compile(r"opioid|oprm\d|oprk\d|oprd\d", re.I)),
         ("Oxytocin & vasopressin variants", re.compile(r"oxytocin|oxtr|vasopressin|avpr\d", re.I)),
+        ("Genome-wide & polygenic markers", re.compile(r"genome[- ]?wide|\bgwas\b|polygenic|\bsnps?\b|genotyping information", re.I)),
+        ("Biosynthetic & taxonomic variation", re.compile(r"gene cluster|biosynthetic pathway|mating[- ]?type|\bpr locus\b|\bhd\d?\b.*locus|ka/ks|selection pressure|rrna gene sequence|allopolyploid|allelic diversity|inbreeding|selfing", re.I)),
         ("Other", re.compile(r"genotype|polymorphism|allele|variant|rs\d+|gene interaction|phenotype interaction", re.I)),
     ),
     "Gut microbiome": (
@@ -4735,29 +4800,61 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
 }
 
 
-def molecular_subtopic_context(row: dict, entity_label: str) -> str:
+MOLECULAR_SUBTOPIC_RESIDUAL_LABELS = {"", "other", "other findings"}
+
+
+def molecular_subtopic_context(row: dict, entity_label: str, *, extended: bool = False) -> str:
+    values = [
+        entity_label,
+        row.get("specific_readout_or_marker", ""),
+        row.get("pathway_or_readout", ""),
+        row.get("pathway_or_process", ""),
+        row.get("readout_or_biomarker", ""),
+        row.get("mechanistic_relationship_type", ""),
+    ]
+    if extended:
+        values.extend(
+            [
+                row.get("support", ""),
+                row.get("finding_summary", ""),
+                row.get("assay_type", ""),
+                row.get("tissue_or_sample", ""),
+                row.get("model_or_system", ""),
+                row.get("system", ""),
+                row.get("readout", ""),
+                row.get("outcome_measure", ""),
+            ]
+        )
     return ascii_fold(
         " ".join(
             normalize(value)
-            for value in (
-                entity_label,
-                row.get("specific_readout_or_marker", ""),
-                row.get("pathway_or_readout", ""),
-                row.get("pathway_or_process", ""),
-                row.get("readout_or_biomarker", ""),
-                row.get("mechanistic_relationship_type", ""),
-            )
+            for value in values
             if normalize(value)
         )
     )
 
 
-def molecular_finding_subtopic(row: dict, parent_label: str, entity_label: str) -> str:
-    context = molecular_subtopic_context(row, entity_label)
+def molecular_subtopic_match(parent_label: str, context: str, *, allow_residual: bool) -> str:
     for subtopic, pattern in MOLECULAR_SUBTOPIC_RULES_BY_PARENT.get(normalize(parent_label), ()):
-        if pattern.search(context):
+        subtopic_key = normalize(subtopic).casefold()
+        fallback_label = subtopic_key in MOLECULAR_SUBTOPIC_RESIDUAL_LABELS or subtopic_key.startswith("general ")
+        if pattern.search(context) and (
+            allow_residual or not fallback_label
+        ):
             return subtopic
     return ""
+
+
+def molecular_finding_subtopic(row: dict, parent_label: str, entity_label: str) -> str:
+    primary_context = molecular_subtopic_context(row, entity_label)
+    specific = molecular_subtopic_match(parent_label, primary_context, allow_residual=False)
+    if specific:
+        return specific
+    extended_context = molecular_subtopic_context(row, entity_label, extended=True)
+    specific = molecular_subtopic_match(parent_label, extended_context, allow_residual=False)
+    if specific:
+        return specific
+    return molecular_subtopic_match(parent_label, extended_context, allow_residual=True)
 
 
 MOLECULAR_SPECIFIC_PARENT_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -9189,6 +9286,9 @@ def build_tables(
     evidence_run_id: str = "",
     registry_path: Path = DEFAULT_REGISTRY_PATH,
     node_vocabulary_path: Path = DEFAULT_NODE_VOCABULARY_PATH,
+    funding_assertions_path: Path | None = None,
+    funding_attempts_path: Path | None = None,
+    doi_alias_registry_path: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
     out_dir: Path = DEFAULT_OUT_DIR,
     write_duckdb: bool = True,
 ) -> dict:
@@ -9719,8 +9819,53 @@ def build_tables(
                 audits.append(audit_row(row, source_name, domain, dataset))
 
     proposition_summary = finalize_proposition_groups(findings, evidence_edges, finding_id_field)
+    papers_df = dataframe(list(papers.values()))
+    funding_assertions = pd.DataFrame()
+    funding_attempts = pd.DataFrame()
+    funding_report = {
+        "status": "not_available",
+        "assertions_path": str(funding_assertions_path) if funding_assertions_path else "",
+        "attempts_path": str(funding_attempts_path) if funding_attempts_path else "",
+    }
+    if funding_assertions_path is not None and funding_assertions_path.is_file():
+        funding_assertions = pd.read_parquet(funding_assertions_path)
+        if funding_attempts_path is not None and funding_attempts_path.is_file():
+            funding_attempts = pd.read_parquet(funding_attempts_path)
+        doi_aliases = load_doi_aliases(doi_alias_registry_path)
+        papers_df, projection_report = materialize_funding(
+            papers_df,
+            funding_assertions,
+            funding_attempts,
+            doi_aliases,
+        )
+        funding_assertions = subset_assertions_for_papers(
+            funding_assertions, papers_df, doi_aliases
+        )
+        funding_report = {
+            "status": "ok",
+            "assertions_path": str(funding_assertions_path.resolve()),
+            "assertions_sha256": source_sha256(funding_assertions_path),
+            "attempts_path": (
+                str(funding_attempts_path.resolve())
+                if funding_attempts_path is not None and funding_attempts_path.is_file()
+                else ""
+            ),
+            "doi_alias_registry_path": (
+                str(doi_alias_registry_path.resolve())
+                if doi_alias_registry_path is not None and doi_alias_registry_path.is_file()
+                else ""
+            ),
+            "attempts_sha256": (
+                source_sha256(funding_attempts_path)
+                if funding_attempts_path is not None and funding_attempts_path.is_file()
+                else ""
+            ),
+            **projection_report,
+            "kg_funding_assertion_rows": len(funding_assertions),
+        }
     tables = {
-        "papers": dataframe(list(papers.values())),
+        "papers": papers_df,
+        "paper_funding": funding_assertions,
         "entities": dataframe(list(entities.values())),
         finding_table_name: dataframe(findings),
         "evidence_edges": dataframe(evidence_edges),
@@ -9753,6 +9898,7 @@ def build_tables(
     entity_df = tables["entities"]
     manifest = {
         "kg_table_version": KG_TABLE_VERSION,
+        "molecular_subtopic_taxonomy_version": MOLECULAR_SUBTOPIC_TAXONOMY_VERSION,
         "generated_at": now_utc(),
         "out_dir": str(out_dir),
         "source_preset": manifest_source_preset,
@@ -9773,6 +9919,7 @@ def build_tables(
         "entity_counts_by_type_kind": entity_counts(entity_df),
         "molecular_subtopic_coverage": molecular_subtopic_coverage,
         "proposition_summary": proposition_summary,
+        "funding_metadata": funding_report,
         "graph_admission_counts": dict(Counter(normalize(row.get("graph_admission_status", "")) for row in findings)),
         "graph_subject_kind_counts": dict(Counter(normalize(row.get("graph_subject_kind", "")) for row in findings)),
         "duckdb": duckdb_status,
@@ -9853,6 +10000,24 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--out-dir", type=Path, default=None)
     parser.add_argument(
+        "--funding-assertions",
+        type=Path,
+        default=DEFAULT_FUNDING_ASSERTIONS_PATH,
+        help="Provider-backed normalized funding assertions to project onto paper rows.",
+    )
+    parser.add_argument(
+        "--funding-attempts",
+        type=Path,
+        default=DEFAULT_FUNDING_ATTEMPTS_PATH,
+        help="Provider-attempt ledger used to distinguish no reported funding from not enriched.",
+    )
+    parser.add_argument(
+        "--doi-alias-registry",
+        type=Path,
+        default=DEFAULT_DOI_ALIAS_REGISTRY,
+        help="Registered DOI aliases applied to paper and funding identities.",
+    )
+    parser.add_argument(
         "--allow-current-overwrite",
         action="store_true",
         help="Allow a routed KG build to write directly to data/processed/kg.",
@@ -9881,6 +10046,9 @@ def main() -> None:
         run_id=run_id,
         evidence_run_id=args.evidence_run_id,
         registry_path=args.registry,
+        funding_assertions_path=args.funding_assertions,
+        funding_attempts_path=args.funding_attempts,
+        doi_alias_registry_path=args.doi_alias_registry,
         out_dir=out_dir,
         write_duckdb=not args.skip_duckdb,
     )

@@ -26,18 +26,22 @@ from pathlib import Path
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
+        legacy_v1_secondary_block_message,
         profile_key_for_task,
         task_has_model_profile,
         task_has_registered_profile,
+        task_uses_legacy_v1_secondary_profile,
     )
     from pipeline.extract.run_route_extraction import safe_run_id, text_depth_for_task
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
+        legacy_v1_secondary_block_message,
         profile_key_for_task,
         task_has_model_profile,
         task_has_registered_profile,
+        task_uses_legacy_v1_secondary_profile,
     )
     from pipeline.extract.run_route_extraction import safe_run_id, text_depth_for_task
 
@@ -82,6 +86,9 @@ def row_status(row: dict) -> str:
     return normalize(row.get("status", ""))
 
 
+RETRYABLE_RAW_STATUSES = {"error", "quality_error"}
+
+
 def attempted_task_keys(run_dir: Path, *, retry_errors: bool = False) -> set[str]:
     keys: set[str] = set()
     output_jsonl = run_dir / "route_extraction_outputs.jsonl"
@@ -93,13 +100,33 @@ def attempted_task_keys(run_dir: Path, *, retry_errors: bool = False) -> set[str
             keys.add(key)
 
     for row in read_jsonl(raw_jsonl) if raw_jsonl.exists() else []:
-        if retry_errors and row_status(row) == "error":
+        if retry_errors and row_status(row) in RETRYABLE_RAW_STATUSES:
             continue
         key = route_key(row)
         if key:
             keys.add(key)
 
     return keys
+
+
+def stale_input_fingerprint_task_keys(run_dir: Path, tasks: list[dict]) -> set[str]:
+    """Return attempted routes whose current model input no longer matches the attempt."""
+
+    current_fingerprints = {
+        route_key(task): normalize(task.get("input_fingerprint", ""))
+        for task in tasks
+        if route_key(task) and normalize(task.get("input_fingerprint", ""))
+    }
+    stale: set[str] = set()
+    for filename in ("route_extraction_outputs.jsonl", "route_extraction_raw.jsonl"):
+        path = run_dir / filename
+        for row in read_jsonl(path) if path.exists() else []:
+            key = route_key(row)
+            recorded = normalize(row.get("input_fingerprint", ""))
+            current = current_fingerprints.get(key, "")
+            if key and recorded and current and recorded != current:
+                stale.add(key)
+    return stale
 
 
 def route_domain(task: dict) -> str:
@@ -135,8 +162,6 @@ def task_matches_filters(task: dict, args: argparse.Namespace) -> bool:
         return False
 
     prompt_profile, schema_profile = profile_key_for_task(task)
-    if schema_profile == "review_coverage_schema" and not getattr(args, "include_legacy_review_routes", False):
-        return False
     if not value_allowed(prompt_profile, args.prompt_profile):
         return False
     if not value_allowed(schema_profile, args.schema_profile):
@@ -304,7 +329,10 @@ def run_batch(args: argparse.Namespace) -> dict:
     batch_selection_report_json = batch_prefix.with_name(f"{batch_id}_selection_report.json")
 
     tasks = read_jsonl(Path(args.input_jsonl))
+    if any(task_uses_legacy_v1_secondary_profile(task) for task in tasks):
+        raise SystemExit(legacy_v1_secondary_block_message(tasks))
     attempted = attempted_task_keys(run_dir, retry_errors=args.retry_errors)
+    attempted -= stale_input_fingerprint_task_keys(run_dir, tasks)
     selected = select_next_tasks(tasks, attempted, args)
     base_outputs = {
         "batch_selection_report_json": str(batch_selection_report_json),
@@ -454,11 +482,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--retry-errors", action="store_true", help="Allow tasks with prior raw error rows to be selected again.")
     parser.add_argument("--include-not-ready", action="store_true")
     parser.add_argument("--include-scaffold-profiles", action="store_true")
-    parser.add_argument(
-        "--include-legacy-review-routes",
-        action="store_true",
-        help="Allow the older domain-by-domain review extraction path. Reviews use paper-centered extraction by default.",
-    )
     parser.add_argument("--prompt-profile", action="append", default=[])
     parser.add_argument("--schema-profile", action="append", default=[])
     parser.add_argument("--domain-route", action="append", default=[])

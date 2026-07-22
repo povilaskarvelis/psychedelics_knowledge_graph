@@ -6544,6 +6544,16 @@ function renderStudyDetail(studyKeyValue) {
     .filter(Boolean)
     .join(" · ");
   const sample = sampleSizeText(firstClaim);
+  const funders = meaningfulText(firstClaim.funders).replace(/\s*\|\s*/g, ", ");
+  const grantIds = meaningfulText(firstClaim.grant_ids).replace(/\s*\|\s*/g, ", ");
+  const fundingProviders = meaningfulText(firstClaim.funding_providers).replace(/\s*\|\s*/g, ", ");
+  const fundingStatus = normalizeValue(firstClaim.funding_metadata_status);
+  const fundingStatusLabel =
+    fundingStatus === "not_reported_by_queried_providers"
+      ? "No funding reported by queried providers"
+      : fundingStatus === "not_enriched"
+        ? "Not enriched"
+        : "";
 
   setDetailHeader(title);
   detailBody.innerHTML = `
@@ -6564,6 +6574,10 @@ function renderStudyDetail(studyKeyValue) {
       <section class="study-detail-note">
         ${context ? `<div>${escapeHtml(context)}</div>` : ""}
         ${sample ? `<div>Sample: ${escapeHtml(sample)}</div>` : ""}
+        ${funders ? `<div>Funders: ${escapeHtml(funders)}</div>` : ""}
+        ${grantIds ? `<div>Grant IDs: ${escapeHtml(grantIds)}</div>` : ""}
+        ${fundingStatusLabel ? `<div>Funding metadata: ${escapeHtml(fundingStatusLabel)}</div>` : ""}
+        ${fundingProviders ? `<div>Funding sources: ${escapeHtml(fundingProviders)}</div>` : ""}
         ${source ? `<div>${source}</div>` : ""}
       </section>
     </div>

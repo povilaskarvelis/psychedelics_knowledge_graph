@@ -16,6 +16,7 @@ from typing import Iterable
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
+RETRYABLE_PDF_FAILURE_CATEGORIES = {"rate_limited", "provider_error", "timeout"}
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -50,6 +51,7 @@ from pipeline.fulltext.source_identity_audit_gate import (  # noqa: E402
 from pipeline.ingest.metadata_utils import (  # noqa: E402
     extract_pmcid_from_url,
     split_candidates,
+    status_is_closed,
     status_is_open,
 )
 from pipeline.validate.doi_aliases import (  # noqa: E402
@@ -63,7 +65,12 @@ DEFAULT_QUEUE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_g
 DEFAULT_ACTIVE_GRAPH = ROOT / "data" / "processed" / "graph_payload_active.json"
 DEFAULT_SELECTED_DOIS = ROOT / "data" / "processed" / "corpus" / "postscreen_selected_dois.txt"
 DEFAULT_ENRICHMENT_DOIS = ROOT / "data" / "processed" / "corpus" / "fulltext_enrichment_dois.txt"
-DEFAULT_DISCOVERY_DOIS = ROOT / "data" / "processed" / "corpus" / "fulltext_link_discovery_dois.txt"
+DEFAULT_ACCESS_METADATA_REFRESH_DOIS = (
+    ROOT / "data" / "processed" / "corpus" / "fulltext_access_metadata_refresh_dois.txt"
+)
+DEFAULT_NO_ACCESSIBLE_FULLTEXT_DOIS = (
+    ROOT / "data" / "processed" / "corpus" / "fulltext_no_accessible_fulltext_dois.txt"
+)
 DEFAULT_OA_LANDING_DOIS = ROOT / "data" / "processed" / "corpus" / "fulltext_oa_landing_dois.txt"
 DEFAULT_WORKLIST = ROOT / "data" / "processed" / "corpus" / "fulltext_enrichment_worklist.parquet"
 DEFAULT_REPORT = ROOT / "data" / "processed" / "corpus" / "fulltext_enrichment_worklist_report.json"
@@ -79,10 +86,25 @@ def clean(value: object) -> str:
     return str(value).strip()
 
 
+def safe_int(value: object, default: int = 0) -> int:
+    try:
+        return int(float(clean(value)))
+    except (TypeError, ValueError):
+        return default
+
+
+def pipe_values(value: object) -> set[str]:
+    return {part.strip().lower() for part in clean(value).split("|") if part.strip()}
+
+
 def truthy(value: object) -> bool:
     if isinstance(value, bool):
         return value
     return clean(value).lower() in {"1", "true", "yes", "y", "include", "retain"}
+
+
+def explicitly_false(value: object) -> bool:
+    return clean(value).lower() in {"0", "false", "no", "n"}
 
 
 def read_json(path: Path) -> dict:
@@ -340,39 +362,96 @@ def build(args: argparse.Namespace) -> dict:
         open_access_positive = truthy(open_access_is_oa) or status_is_open(open_access_status)
         pdf_url_quality = clean(access_metadata.get("pdf_url_quality", ""))
         manual_access_action = clean(access_override.get("manual_access_action", ""))
+        pdf_download_status = clean(metadata.get("pdf_download_status", "")).lower()
+        pdf_download_failure_category = clean(metadata.get("pdf_download_failure_category", ""))
+        pdf_download_failure_categories = clean(metadata.get("pdf_download_failure_categories", ""))
+        pdf_download_retry_recommended_reported = truthy(
+            metadata.get("pdf_download_retry_recommended", False)
+        )
+        pdf_download_attempt_count = safe_int(metadata.get("pdf_download_attempt_count", 0))
+        pdf_download_retry_budget_exhausted = truthy(
+            metadata.get("pdf_download_retry_budget_exhausted", False)
+        )
+        pdf_download_last_attempt_at_utc = clean(
+            metadata.get("pdf_download_last_attempt_at_utc", "")
+        )
+        failure_categories = pipe_values(pdf_download_failure_categories)
+        if pdf_download_failure_category:
+            failure_categories.add(pdf_download_failure_category.lower())
+        pdf_download_retry_recommended = bool(
+            pdf_download_retry_recommended_reported
+            and not pdf_download_retry_budget_exhausted
+            and (
+                not failure_categories
+                or bool(failure_categories.intersection(RETRYABLE_PDF_FAILURE_CATEGORIES))
+            )
+        )
+        terminal_pdf_download_failure = (
+            pdf_download_status == "download_failed" and not pdf_download_retry_recommended
+        )
         if fulltext.get("has_converted_full_text"):
             action = "reuse_existing_fulltext"
+            action_basis = "verified_fulltext_available"
             needed = False
-        elif manual_access_action in {"abstract_only", "suppress_pdf_download"}:
+        elif manual_access_action == "abstract_only":
             action = "use_abstract_only"
+            action_basis = "manual_abstract_only"
             needed = False
+        elif manual_access_action == "suppress_pdf_download":
+            action = "no_accessible_fulltext"
+            action_basis = "manual_suppress_pdf_download"
+            needed = True
         elif local_pdf.get("has_local_pdf"):
             action = "convert_local_pdf"
+            action_basis = "local_pdf_available"
             needed = True
         elif pmcid and not pmc_outcome:
             action = "fetch_pmc_xml"
+            action_basis = "pmc_id_available"
+            needed = True
+        elif terminal_pdf_download_failure:
+            # A completed, non-retryable download attempt is durable workflow
+            # state. Do not silently replay the same failed URLs whenever the
+            # worklist is regenerated. A later successful/manual import or an
+            # explicitly retryable outcome will supersede this branch.
+            action = "no_accessible_fulltext"
+            action_basis = "terminal_pdf_download_failure"
             needed = True
         elif pdf_candidates:
             action = "download_known_pdf"
+            action_basis = (
+                "retryable_pdf_download_failure"
+                if pdf_download_status == "download_failed"
+                else "known_pdf_url_available"
+            )
             needed = True
         elif open_access_positive:
             # OA metadata is useful retrieval evidence even when the provider
-            # exposes only a landing page. Keep this tier separate from truly
-            # route-less/closed records so DOI resolution can be scoped safely.
+            # exposes only a landing page. Keep this tier separate from records
+            # for which the providers report no accessible full text.
             action = "resolve_oa_landing_page"
+            action_basis = "oa_landing_page_resolution"
+            needed = True
+        elif status_is_closed(open_access_status) or explicitly_false(open_access_is_oa):
+            action = "no_accessible_fulltext"
+            action_basis = "provider_reports_closed_access"
             needed = True
         else:
-            action = "discover_fulltext"
+            # Access metadata has not established whether full text is available.
+            # Refresh provider metadata before assigning a retrieval state.
+            action = "refresh_access_metadata"
+            action_basis = "access_metadata_unknown"
             needed = True
         decision = eligibility[doi]
         rows.append(
             {
-                "table_version": "fulltext_enrichment_worklist_v1",
+                "table_version": "fulltext_enrichment_worklist_v4",
                 "generated_at_utc": generated_at_utc,
                 "doi": doi,
                 "selected_for_downstream": True,
                 "fulltext_enrichment_needed": needed,
                 "fulltext_enrichment_action": action,
+                "fulltext_enrichment_basis": action_basis,
                 **decision,
                 "study_title": clean(metadata.get("study_title", "")),
                 "study_year": clean(metadata.get("study_year", "")),
@@ -388,6 +467,15 @@ def build(args: argparse.Namespace) -> dict:
                 "probable_pdf_url_candidates": "|".join(probable),
                 "other_url_candidates": "|".join(metadata_other_url_candidates(access_metadata)),
                 "pdf_url_quality": pdf_url_quality,
+                "pdf_download_status": pdf_download_status,
+                "pdf_download_failure_category": pdf_download_failure_category,
+                "pdf_download_failure_categories": pdf_download_failure_categories,
+                "pdf_download_retry_recommended": pdf_download_retry_recommended,
+                "pdf_download_retry_recommended_reported": pdf_download_retry_recommended_reported,
+                "pdf_download_attempt_count": pdf_download_attempt_count,
+                "pdf_download_retry_budget_exhausted": pdf_download_retry_budget_exhausted,
+                "pdf_download_last_attempt_at_utc": pdf_download_last_attempt_at_utc,
+                "pdf_download_terminal_failure": terminal_pdf_download_failure,
                 "has_converted_full_text": bool(fulltext.get("has_converted_full_text")),
                 "fulltext_artifact_paths": clean(fulltext.get("fulltext_artifact_paths", "")),
                 "has_local_pdf": bool(local_pdf.get("has_local_pdf")),
@@ -400,16 +488,23 @@ def build(args: argparse.Namespace) -> dict:
     frame = pd.DataFrame(rows)
     selected_path = Path(args.output_selected_dois).resolve()
     enrichment_path = Path(args.output_enrichment_dois).resolve()
-    discovery_path = Path(getattr(args, "output_discovery_dois", DEFAULT_DISCOVERY_DOIS)).resolve()
+    access_metadata_refresh_path = Path(
+        getattr(args, "output_access_metadata_refresh_dois", DEFAULT_ACCESS_METADATA_REFRESH_DOIS)
+    ).resolve()
+    no_accessible_fulltext_path = Path(
+        getattr(args, "output_no_accessible_fulltext_dois", DEFAULT_NO_ACCESSIBLE_FULLTEXT_DOIS)
+    ).resolve()
     oa_landing_path = Path(getattr(args, "output_oa_landing_dois", DEFAULT_OA_LANDING_DOIS)).resolve()
     table_path = Path(args.output_table).resolve()
     report_path = Path(args.report_json).resolve()
     enrichment_dois = frame.loc[frame["fulltext_enrichment_needed"], "doi"].tolist() if not frame.empty else []
-    discovery_dois = (
-        frame.loc[
-            frame["fulltext_enrichment_action"].isin({"resolve_oa_landing_page", "discover_fulltext"}),
-            "doi",
-        ].tolist()
+    access_metadata_refresh_dois = (
+        frame.loc[frame["fulltext_enrichment_action"].eq("refresh_access_metadata"), "doi"].tolist()
+        if not frame.empty
+        else []
+    )
+    no_accessible_fulltext_dois = (
+        frame.loc[frame["fulltext_enrichment_action"].eq("no_accessible_fulltext"), "doi"].tolist()
         if not frame.empty
         else []
     )
@@ -420,11 +515,18 @@ def build(args: argparse.Namespace) -> dict:
     )
     write_text_atomic(selected_path, "".join(f"{doi}\n" for doi in selected))
     write_text_atomic(enrichment_path, "".join(f"{doi}\n" for doi in enrichment_dois))
-    write_text_atomic(discovery_path, "".join(f"{doi}\n" for doi in discovery_dois))
+    write_text_atomic(
+        access_metadata_refresh_path,
+        "".join(f"{doi}\n" for doi in access_metadata_refresh_dois),
+    )
+    write_text_atomic(
+        no_accessible_fulltext_path,
+        "".join(f"{doi}\n" for doi in no_accessible_fulltext_dois),
+    )
     write_text_atomic(oa_landing_path, "".join(f"{doi}\n" for doi in oa_landing_dois))
     write_parquet_atomic(table_path, frame)
     report = {
-        "schema_version": "fulltext_enrichment_worklist_report_v1",
+        "schema_version": "fulltext_enrichment_worklist_report_v4",
         "generated_at_utc": generated_at_utc,
         "inputs": {
             "queue_json": str(queue_path),
@@ -441,7 +543,8 @@ def build(args: argparse.Namespace) -> dict:
         "outputs": {
             "selected_dois": str(selected_path),
             "enrichment_dois": str(enrichment_path),
-            "link_discovery_dois": str(discovery_path),
+            "access_metadata_refresh_dois": str(access_metadata_refresh_path),
+            "no_accessible_fulltext_dois": str(no_accessible_fulltext_path),
             "oa_landing_dois": str(oa_landing_path),
             "worklist_table": str(table_path),
             "report_json": str(report_path),
@@ -453,8 +556,24 @@ def build(args: argparse.Namespace) -> dict:
             "newly_selected_unprocessed_dois": len(selected),
             "newly_selected_duplicate_doi_aliases_suppressed": len(suppressed_aliases),
             "fulltext_enrichment_needed_dois": len(enrichment_dois),
-            "fulltext_link_discovery_dois": len(discovery_dois),
+            "fulltext_access_metadata_refresh_dois": len(access_metadata_refresh_dois),
+            "fulltext_no_accessible_fulltext_dois": len(no_accessible_fulltext_dois),
             "fulltext_oa_landing_dois": len(oa_landing_dois),
+            "fulltext_terminal_pdf_failure_dois": int(
+                frame["fulltext_enrichment_basis"].eq("terminal_pdf_download_failure").sum()
+            )
+            if not frame.empty
+            else 0,
+            "candidate_terminal_pdf_failure_status_dois": int(
+                frame["pdf_download_terminal_failure"].sum()
+            )
+            if not frame.empty
+            else 0,
+            "candidate_pdf_retry_budget_exhausted_dois": int(
+                frame["pdf_download_retry_budget_exhausted"].sum()
+            )
+            if not frame.empty
+            else 0,
             "fulltext_already_available_dois": int((frame["fulltext_enrichment_action"] == "reuse_existing_fulltext").sum()) if not frame.empty else 0,
         },
         "eligibility_counts_all_screened_in": dict(eligibility_counts),
@@ -491,7 +610,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--paper-root", default=str(DEFAULT_PAPER_ROOT))
     parser.add_argument("--output-selected-dois", default=str(DEFAULT_SELECTED_DOIS))
     parser.add_argument("--output-enrichment-dois", default=str(DEFAULT_ENRICHMENT_DOIS))
-    parser.add_argument("--output-discovery-dois", default=str(DEFAULT_DISCOVERY_DOIS))
+    parser.add_argument(
+        "--output-access-metadata-refresh-dois",
+        default=str(DEFAULT_ACCESS_METADATA_REFRESH_DOIS),
+    )
+    parser.add_argument(
+        "--output-no-accessible-fulltext-dois",
+        default=str(DEFAULT_NO_ACCESSIBLE_FULLTEXT_DOIS),
+    )
     parser.add_argument("--output-oa-landing-dois", default=str(DEFAULT_OA_LANDING_DOIS))
     parser.add_argument("--output-table", default=str(DEFAULT_WORKLIST))
     parser.add_argument("--report-json", default=str(DEFAULT_REPORT))

@@ -9,6 +9,12 @@ The browser can still render the existing graph, cards, filters, and
 bibliography layout. It derives its display grouping from each finding's
 `domain` and `entity_kind` after loading the compact detail bootstrap.
 
+Paper payloads and the public query catalogue carry compact provider-backed
+funding fields (`funders`, `grant_ids`, provider/status fields, and counts).
+The complete assertion-level funding provenance remains in the versioned KG
+table rather than being duplicated into every finding or turned into evidence
+edges.
+
 ## Run
 
 Build a versioned routed KG and payload without changing the public graph:
@@ -43,6 +49,9 @@ materializes every final graph decision into the canonical
 `candidate_papers.parquet` corpus ledger; serializes promotions with a lock;
 stages the Methods and `dist/` rebuilds; and updates the extraction and
 public-graph compatibility pointers to the same release. The promotion fails if
+the routed output stream contains any legacy v1 meta-analysis or review
+contract; those archived outputs are audit-only and must be re-extracted through
+the dedicated current secondary-literature pipelines. It also fails if
 any selected report lacks a final disposition or if screening, routing, graph,
 or release decisions contradict one another. `ACTIVATE_DEFAULT=1
 scripts/build_routed_kg_payload.sh "$RUN_ID"` remains a one-command

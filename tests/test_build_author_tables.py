@@ -2,12 +2,55 @@ import pandas as pd
 import pytest
 from pathlib import Path
 
+import pipeline.kg.build_author_tables as author_tables
+
 from pipeline.kg.build_author_tables import (
     apply_orcid_identities,
     build_tables,
     require_offline_cache_coverage,
+    refresh_cache_for_papers,
     require_structured_authorship_coverage,
 )
+
+
+def test_cache_refresh_retries_errors_but_preserves_terminal_entries(tmp_path, monkeypatch) -> None:
+    papers = pd.DataFrame(
+        [
+            {"doi": "10.1000/error"},
+            {"doi": "10.1000/ok"},
+            {"doi": "10.1000/not-found"},
+            {"doi": "10.1000/missing"},
+        ]
+    )
+    cache = {
+        "works_by_doi": {
+            "10.1000/error": {"status": "error"},
+            "10.1000/ok": {"status": "ok", "authorships": [{"display_name": "A"}]},
+            "10.1000/not-found": {"status": "not_found"},
+        }
+    }
+    requested = []
+
+    def fake_fetch(_client, dois):
+        requested.extend(dois)
+        return {
+            doi: {"status": "ok", "doi": doi, "authorships": [{"display_name": "A"}]}
+            for doi in dois
+        }
+
+    monkeypatch.setattr(author_tables, "fetch_openalex_batch", fake_fetch)
+    refreshed = refresh_cache_for_papers(
+        papers,
+        cache,
+        client=object(),
+        cache_path=tmp_path / "cache.json",
+        batch_size=10,
+        refresh=False,
+        checkpoint_every=0,
+    )
+
+    assert requested == ["10.1000/error", "10.1000/missing"]
+    assert refreshed["works_by_doi"]["10.1000/not-found"]["status"] == "not_found"
 
 
 def test_exact_name_local_author_aliases_to_single_structured_identity() -> None:

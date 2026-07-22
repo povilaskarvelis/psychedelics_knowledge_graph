@@ -95,6 +95,26 @@ def test_apply_progress_updates_records_terminal_batch_results(tmp_path: Path) -
     assert updated["manual_status"].tolist() == ["article_pdf_recovered", "closed_access", "opened_for_manual_review"]
 
 
+def test_reconcile_preserves_user_directed_batch_closeout_provenance() -> None:
+    batch = pd.DataFrame(
+        [
+            {
+                "doi": "10.1/batch-closed",
+                "manual_status": "batch_closed_access",
+                "manual_notes": "User directed closure of the remaining low-yield queue.",
+            }
+        ]
+    )
+
+    outcome, report = reconcile(batch, {"imported": [], "review": []}, {"records": []})
+
+    assert report["status_counts"] == {"batch_closed_access": 1}
+    assert outcome.iloc[0]["browser_recovery_status"] == "batch_closed_access"
+    assert outcome.iloc[0]["browser_recovery_detail"] == (
+        "User directed closure of the remaining low-yield queue."
+    )
+
+
 def test_reconcile_counts_existing_pdf_conflict_as_already_recovered() -> None:
     outcome, _ = reconcile(
         pd.DataFrame([{"doi": "10.1/conflict"}]),

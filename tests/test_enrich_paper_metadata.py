@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 import pandas as pd
 
 from pipeline.ingest.enrich_paper_metadata import (
+    apply_selective_metadata_update,
     candidate_metadata_row,
     main,
     merged_output_rows,
@@ -18,6 +19,33 @@ from pipeline.ingest.enrich_paper_metadata import (
 
 
 class EnrichPaperMetadataTest(unittest.TestCase):
+    def test_selective_update_preserves_non_requested_canonical_fields(self) -> None:
+        row = apply_selective_metadata_update(
+            {
+                "doi": "10.1000/example",
+                "study_title": "Generic Crossref title",
+                "publication_type": "journal-article",
+                "language": "en",
+                "journal_issue": "S1",
+                "metadata_provider": "crossref",
+                "metadata_enrichment_run_id": "issue_backfill",
+            },
+            {
+                "doi": "10.1000/example",
+                "study_title": "Canonical title",
+                "publication_type": "conference-abstract",
+                "language": "fr",
+                "journal_issue": "",
+            },
+            ("journal_issue",),
+        )
+
+        self.assertEqual(row["journal_issue"], "S1")
+        self.assertEqual(row["study_title"], "Canonical title")
+        self.assertEqual(row["publication_type"], "conference-abstract")
+        self.assertEqual(row["language"], "fr")
+        self.assertEqual(row["metadata_provider"], "crossref")
+
     def test_candidate_metadata_row_uses_plain_doi_and_metadata_fields(self) -> None:
         row = candidate_metadata_row(
             {
@@ -159,6 +187,47 @@ class EnrichPaperMetadataTest(unittest.TestCase):
         self.assertEqual(set(rows), {"10.1000/complete", "10.1000/missing", "10.1000/not-listed"})
         self.assertEqual(rows["10.1000/complete"]["abstract"], "Existing abstract.")
         self.assertEqual(rows["10.1000/missing"]["metadata_enrichment_status"], "existing")
+
+    def test_existing_enrichment_value_is_materialized_into_blank_candidate_field(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            papers = tmp / "candidate_papers.parquet"
+            output = tmp / "paper_metadata_enrichment.parquet"
+            pd.DataFrame(
+                [{"doi": "10.1000/recovered", "study_title": "Paper", "abstract": ""}]
+            ).to_parquet(papers, engine="pyarrow", index=False)
+            write_table(
+                output,
+                [
+                    {
+                        "doi": "10.1000/recovered",
+                        "study_title": "Paper",
+                        "abstract": "Previously recovered abstract.",
+                        "metadata_provider": "pmc",
+                    }
+                ],
+            )
+
+            argv = [
+                "enrich_paper_metadata.py",
+                "--papers-table",
+                str(papers),
+                "--output-table",
+                str(output),
+                "--metadata-provider-order",
+                "none",
+                "--only-missing-abstract",
+                "--progress-every",
+                "0",
+            ]
+            with patch("sys.argv", argv), redirect_stdout(StringIO()):
+                exit_code = main()
+            candidate = pd.read_parquet(papers).iloc[0]
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(candidate["abstract"], "Previously recovered abstract.")
+        self.assertEqual(candidate["metadata_provider"], "pmc")
+        self.assertTrue(candidate["metadata_materialization_run_id"])
 
 
 if __name__ == "__main__":

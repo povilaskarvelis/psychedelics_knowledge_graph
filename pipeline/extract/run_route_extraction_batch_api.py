@@ -37,16 +37,20 @@ try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
         build_system_instruction,
+        is_legacy_v1_secondary_profile,
+        legacy_v1_secondary_block_message,
         load_schema_for_profile,
         profile_for_task,
         profile_key_for_task,
         schema_for_assigned_domain,
         schema_for_native,
         schema_in_native_config,
+        task_uses_legacy_v1_secondary_profile,
     )
     from pipeline.extract.run_route_extraction import (
         DEFAULT_ENV,
         DEFAULT_GEMINI_MODEL,
+        OutputQualityError,
         build_contents,
         build_generation_config,
         domain_route_for_task,
@@ -54,6 +58,9 @@ try:
         max_output_tokens_for_task,
         model_for_task,
         parse_json_response,
+        reject_corrupt_output_text,
+        reject_inconsistent_primary_categories,
+        reject_inconsistent_recommendation_tones,
         safe_run_id,
         schema_error_messages,
         text_depth_for_task,
@@ -64,6 +71,7 @@ try:
         route_key,
         select_next_tasks,
         source_type,
+        stale_input_fingerprint_task_keys,
         write_jsonl,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
@@ -71,16 +79,20 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.extract.route_extraction_profiles import (
         build_system_instruction,
+        is_legacy_v1_secondary_profile,
+        legacy_v1_secondary_block_message,
         load_schema_for_profile,
         profile_for_task,
         profile_key_for_task,
         schema_for_assigned_domain,
         schema_for_native,
         schema_in_native_config,
+        task_uses_legacy_v1_secondary_profile,
     )
     from pipeline.extract.run_route_extraction import (
         DEFAULT_ENV,
         DEFAULT_GEMINI_MODEL,
+        OutputQualityError,
         build_contents,
         build_generation_config,
         domain_route_for_task,
@@ -88,6 +100,9 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         max_output_tokens_for_task,
         model_for_task,
         parse_json_response,
+        reject_corrupt_output_text,
+        reject_inconsistent_primary_categories,
+        reject_inconsistent_recommendation_tones,
         safe_run_id,
         schema_error_messages,
         text_depth_for_task,
@@ -98,6 +113,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         route_key,
         select_next_tasks,
         source_type,
+        stale_input_fingerprint_task_keys,
         write_jsonl,
     )
 
@@ -166,13 +182,64 @@ def task_by_route_key(tasks: list[dict]) -> dict[str, dict]:
     return {route_key(task): task for task in tasks if route_key(task)}
 
 
+def reserved_manifest_task_keys(
+    batch_dir: Path,
+    *,
+    exclude_batch_id: str = "",
+    ignore_recorded_keys: set[str] | None = None,
+) -> set[str]:
+    """Return route keys already assigned to other prepared batches in a run.
+
+    Batch API preparation can happen ahead of submission or parsing.  Parsed
+    raw output therefore cannot be the only reservation source: without this
+    guard, preparing batch_002 immediately after batch_001 would select the
+    same tasks again. Once a batch has parsed raw output, its manifest defers
+    to the status-aware attempted set; this lets ``--retry-errors`` release a
+    failed task while later prepared manifests still reserve that retry once.
+    """
+
+    reserved: set[str] = set()
+    ignored = ignore_recorded_keys or set()
+    excluded_name = f"{normalize(exclude_batch_id)}_manifest.json" if normalize(exclude_batch_id) else ""
+    if not batch_dir.is_dir():
+        return reserved
+    for manifest_path in sorted(batch_dir.glob("*_manifest.json")):
+        if excluded_name and manifest_path.name == excluded_name:
+            continue
+        batch_id = manifest_path.name.removesuffix("_manifest.json")
+        manifest_has_parsed_raw = (batch_dir / f"{batch_id}_raw.jsonl").is_file()
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError(f"Cannot read existing batch manifest {manifest_path}: {exc}") from exc
+        for record in manifest.get("records", []):
+            if not isinstance(record, dict):
+                continue
+            key = normalize(record.get("route_id", "") or record.get("task_id", ""))
+            if key and not (manifest_has_parsed_raw and key in ignored):
+                reserved.add(key)
+    return reserved
+
+
 def selected_for_batch(args: argparse.Namespace) -> list[tuple[int, dict]]:
     tasks = read_jsonl(Path(args.input_jsonl).resolve())
-    attempted = attempted_task_keys(appendable_output_paths(args.run_id)["run_dir"], retry_errors=args.retry_errors)
+    if any(task_uses_legacy_v1_secondary_profile(task) for task in tasks):
+        raise SystemExit(legacy_v1_secondary_block_message(tasks))
+    run_dir = appendable_output_paths(args.run_id)["run_dir"]
+    attempted = attempted_task_keys(run_dir, retry_errors=args.retry_errors)
+    recorded = attempted_task_keys(run_dir, retry_errors=False)
+    attempted -= stale_input_fingerprint_task_keys(run_dir, tasks)
+    attempted |= reserved_manifest_task_keys(
+        run_batch_dir(args),
+        exclude_batch_id=normalize(getattr(args, "batch_id", "")),
+        ignore_recorded_keys=recorded,
+    )
     return select_next_tasks(tasks, attempted, args)
 
 
 def request_for_task(*, api_client: object, task: dict, args: argparse.Namespace, env_values: dict[str, str]) -> tuple[dict, dict]:
+    if task_uses_legacy_v1_secondary_profile(task):
+        raise SystemExit(legacy_v1_secondary_block_message([task]))
     profile = profile_for_task(task)
     assigned_domain = domain_route_for_task(task)
     assigned_text_depth = text_depth_for_task(task)
@@ -220,11 +287,14 @@ def request_for_task(*, api_client: object, task: dict, args: argparse.Namespace
 
 
 def write_batch_requests(args: argparse.Namespace) -> dict:
+    # Validate the input before creating a run directory or initializing the
+    # SDK.  A legacy v1 secondary task file must fail without leaving what
+    # looks like a prepared extraction run behind.
+    selected = selected_for_batch(args)
     paths = batch_paths(args)
     paths["batch_dir"].mkdir(parents=True, exist_ok=True)
     client = genai.Client(api_key=api_key_from_env(args, required=False))
     env_values = load_dotenv(Path(args.env_file).resolve())
-    selected = selected_for_batch(args)
 
     records: list[dict] = []
     with paths["requests_jsonl"].open("w", encoding="utf-8") as handle:
@@ -315,6 +385,29 @@ def submit_batch(args: argparse.Namespace) -> dict:
         raise SystemExit(f"Batch request JSONL does not exist: {paths['requests_jsonl']}")
     if not paths["manifest_json"].exists():
         raise SystemExit(f"Batch manifest does not exist: {paths['manifest_json']}")
+    manifest = json.loads(paths["manifest_json"].read_text(encoding="utf-8"))
+    legacy_records = [
+        record
+        for record in manifest.get("records", [])
+        if is_legacy_v1_secondary_profile(
+            record.get("prompt_profile", ""),
+            record.get("schema_profile", ""),
+        )
+    ]
+    if legacy_records:
+        raise SystemExit(
+            legacy_v1_secondary_block_message(
+                [
+                    {
+                        "extraction_contract": {
+                            "prompt_profile": record.get("prompt_profile", ""),
+                            "schema_profile": record.get("schema_profile", ""),
+                        }
+                    }
+                    for record in legacy_records
+                ]
+            )
+        )
     client = genai.Client(api_key=api_key_from_env(args, required=True))
     display_name = normalize(args.display_name) or f"psychedelics-kg-{safe_run_id(args.run_id)}-{normalize(args.batch_id)}"
     model = normalize(args.model) or DEFAULT_GEMINI_MODEL
@@ -484,6 +577,74 @@ def append_unique_jsonl(path: Path, rows: list[dict]) -> int:
     return len(new_rows)
 
 
+def materialize_run_projection_from_batch_files(run_dir: Path) -> dict:
+    """Rebuild current run-level rows from parsed batch artifacts.
+
+    The downloaded result file preserves the provider response, and batch-level
+    raw/output files preserve the current parse of each API job. The run-level
+    JSONL files are a current projection used for retry selection and KG
+    conversion. Re-parsing a batch after a validator upgrade must therefore be
+    able to remove a formerly accepted output; append-only writes cannot do that
+    safely.
+
+    Rows not owned by an async batch are preserved so a run can also contain
+    synchronous extraction results. For routes present in more than one parsed
+    async batch, the later batch ID wins. A latest raw error intentionally
+    removes any older parsed output for the same route.
+    """
+
+    run_dir = Path(run_dir)
+    batch_dir = run_dir / "async_batches"
+    run_paths = {
+        "raw_jsonl": run_dir / "route_extraction_raw.jsonl",
+        "outputs_jsonl": run_dir / "route_extraction_outputs.jsonl",
+    }
+    parsed_batches: list[tuple[str, Path, Path]] = []
+    for raw_path in sorted(batch_dir.glob("batch_*_raw.jsonl")) if batch_dir.is_dir() else []:
+        batch_id = raw_path.name.removesuffix("_raw.jsonl")
+        outputs_path = batch_dir / f"{batch_id}_outputs.jsonl"
+        parsed_batches.append((batch_id, raw_path, outputs_path))
+
+    async_raw_by_route: dict[str, dict] = {}
+    async_output_by_route: dict[str, dict] = {}
+    owned_routes: set[str] = set()
+    for _batch_id, raw_path, outputs_path in parsed_batches:
+        batch_raw = read_jsonl(raw_path)
+        batch_outputs = read_jsonl(outputs_path) if outputs_path.exists() else []
+        for row in batch_raw:
+            key = route_key(row)
+            if not key:
+                continue
+            owned_routes.add(key)
+            async_raw_by_route[key] = row
+            async_output_by_route.pop(key, None)
+        for row in batch_outputs:
+            key = route_key(row)
+            if key:
+                async_output_by_route[key] = row
+
+    existing_raw = read_jsonl(run_paths["raw_jsonl"]) if run_paths["raw_jsonl"].exists() else []
+    existing_outputs = (
+        read_jsonl(run_paths["outputs_jsonl"])
+        if run_paths["outputs_jsonl"].exists()
+        else []
+    )
+    preserved_raw = [row for row in existing_raw if route_key(row) not in owned_routes]
+    preserved_outputs = [row for row in existing_outputs if route_key(row) not in owned_routes]
+    materialized_raw = [*preserved_raw, *async_raw_by_route.values()]
+    materialized_outputs = [*preserved_outputs, *async_output_by_route.values()]
+    write_jsonl(run_paths["raw_jsonl"], materialized_raw)
+    write_jsonl(run_paths["outputs_jsonl"], materialized_outputs)
+    return {
+        "parsed_batches": len(parsed_batches),
+        "owned_async_routes": len(owned_routes),
+        "preserved_non_async_raw_rows": len(preserved_raw),
+        "preserved_non_async_output_rows": len(preserved_outputs),
+        "materialized_raw_rows": len(materialized_raw),
+        "materialized_output_rows": len(materialized_outputs),
+    }
+
+
 def run_command(cmd: list[str]) -> dict:
     print(" ".join(cmd), flush=True)
     completed = subprocess.run(cmd, cwd=ROOT, text=True, capture_output=True)
@@ -545,6 +706,9 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
         text = response_text(response)
         usage = response.get("usageMetadata") or response.get("usage_metadata") or {}
         error = batch_line_error(row)
+        for usage_key, value in usage.items():
+            if isinstance(value, int):
+                usage_totals[usage_key] += value
         raw_row = {
             "generated_at_utc": now_utc(),
             "input_row_index": manifest_record.get("input_row_index", line_index),
@@ -576,6 +740,9 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             validator = Draft7Validator(model_schema)
             parsed, parse_method = parse_json_response(text)
             result = inject_route_identity_fields(parsed, task, profile)
+            reject_corrupt_output_text(result)
+            reject_inconsistent_recommendation_tones(result)
+            reject_inconsistent_primary_categories(result)
             schema_errors = schema_error_messages(validator, result)
             raw_row.update(
                 {
@@ -595,11 +762,15 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
                 "result": result,
                 "schema_errors": schema_errors,
             }
-            for usage_key, value in usage.items():
-                if isinstance(value, int):
-                    usage_totals[usage_key] += value
         except Exception as exc:
-            raw_row.update({"status": "error", "error": str(exc), "error_type": type(exc).__name__})
+            error_status = "quality_error" if isinstance(exc, OutputQualityError) else "error"
+            raw_row.update(
+                {
+                    "status": error_status,
+                    "error": str(exc),
+                    "error_type": type(exc).__name__,
+                }
+            )
         status_counts[raw_row["status"]] += 1
         raw_rows.append(raw_row)
         if output_row is not None:
@@ -610,11 +781,16 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
     run_paths = appendable_output_paths(args.run_id)
     appended_raw = append_unique_jsonl(run_paths["raw_jsonl"], raw_rows)
     appended_outputs = append_unique_jsonl(run_paths["outputs_jsonl"], parsed_rows)
+    run_projection = materialize_run_projection_from_batch_files(run_paths["run_dir"])
     commands = [] if args.skip_rebuild else rebuild_run_tables(args)
     report = {
         "schema_version": REPORT_SCHEMA_VERSION,
         "generated_at_utc": now_utc(),
-        "status": "ok" if not status_counts.get("error") else "issues_found",
+        "status": (
+            "ok"
+            if not status_counts.get("error") and not status_counts.get("quality_error")
+            else "issues_found"
+        ),
         "run_id": safe_run_id(args.run_id),
         "batch_id": normalize(args.batch_id),
         "inputs": {
@@ -636,6 +812,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             "appended_output_rows": appended_outputs,
             "status_counts": dict(status_counts),
             "usage": dict(usage_totals),
+            "run_projection": run_projection,
         },
         "commands": commands,
     }
@@ -653,11 +830,6 @@ def add_selection_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--retry-errors", action="store_true")
     parser.add_argument("--include-not-ready", action="store_true")
     parser.add_argument("--include-scaffold-profiles", action="store_true")
-    parser.add_argument(
-        "--include-legacy-review-routes",
-        action="store_true",
-        help="Allow the older domain-by-domain review extraction path. Reviews use paper-centered extraction by default.",
-    )
     parser.add_argument("--prompt-profile", action="append", default=[])
     parser.add_argument("--schema-profile", action="append", default=[])
     parser.add_argument("--domain-route", action="append", default=[])

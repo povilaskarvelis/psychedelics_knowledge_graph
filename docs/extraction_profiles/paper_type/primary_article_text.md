@@ -64,6 +64,14 @@ Prefer central results over exhaustive extraction.
   outside this evidence scope.
 - Use the exact token `not_reported` for missing details and `not_applicable`
   only when a field truly does not apply.
+- Controlled vocabulary fields must use their stated meaning, not the nearest
+  available label. If the exact administration route or session context has no
+  dedicated label, use `other` (or `not_reported` when it is not stated).
+  Inhaled gas is not `intranasal`, and a laboratory task completed by human
+  participants is not a `preclinical_experiment`.
+- Do not force a molecular readout into the closest biological-process family.
+  Leave an optional parent category unfilled when none of the documented
+  categories genuinely applies; keep the specific measured marker.
 - Keep statistics and locators compact. If table or PDF layout makes a
   value unreadable, use `not_reported` rather than copying broken fragments,
   repeated whitespace, line breaks, or column spacing.

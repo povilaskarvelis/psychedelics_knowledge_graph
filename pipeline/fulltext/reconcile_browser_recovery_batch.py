@@ -87,6 +87,12 @@ def reconcile(
         elif clean(row.get("manual_status", "")).lower() == "closed_access":
             status = "confirmed_closed_access"
             detail = "Manual DOI-page review explicitly confirmed that the article is closed access."
+        elif clean(row.get("manual_status", "")).lower() == "batch_closed_access":
+            status = "batch_closed_access"
+            detail = clean(row.get("manual_notes", "")) or (
+                "User-directed closeout of the remaining manual-recovery queue; "
+                "no accessible article PDF will be pursued further."
+            )
         elif clean(row.get("manual_status", "")).lower() in {
             "partial_review_rate_limited",
             "opened_for_manual_review",
@@ -130,10 +136,6 @@ def apply_access_overrides(path: Path, outcome: pd.DataFrame) -> int:
         if normalize_doi(row.get("doi", ""))
     }
     changed = 0
-    reason = (
-        "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. "
-        "Suppress repeated PDF retrieval and use abstract-level extraction when available."
-    )
     for row in outcome.to_dict("records"):
         doi = normalize_doi(row.get("doi", ""))
         status = clean(row.get("browser_recovery_status", ""))
@@ -143,13 +145,25 @@ def apply_access_overrides(path: Path, outcome: pd.DataFrame) -> int:
                 del records[doi]
                 changed += 1
             continue
-        if status != "confirmed_closed_access":
+        if status not in {"confirmed_closed_access", "batch_closed_access"}:
             # Pending and technical outcomes do not overwrite or erase a
             # previously curated access decision.
             continue
+        if status == "batch_closed_access":
+            reason = (
+                clean(row.get("browser_recovery_detail", ""))
+                + " Suppress repeated PDF retrieval and use abstract-level extraction when available."
+            ).strip()
+        else:
+            reason = (
+                "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. "
+                "Suppress repeated PDF retrieval and use abstract-level extraction when available."
+            )
         replacement = {
             "doi": doi,
             "manual_access_action": "suppress_pdf_download",
+            "open_access_status": "closed",
+            "open_access_is_oa": False,
             "manual_reason": reason,
         }
         if records.get(doi) != replacement:
@@ -180,7 +194,12 @@ def project_access_overrides_to_candidate(
         normalize_doi(row.get("doi", ""))
         for row in outcome.to_dict("records")
         if clean(row.get("browser_recovery_status", ""))
-        in {"article_pdf_recovered", "duplicate_of_canonical", "confirmed_closed_access"}
+        in {
+            "article_pdf_recovered",
+            "duplicate_of_canonical",
+            "confirmed_closed_access",
+            "batch_closed_access",
+        }
         and normalize_doi(row.get("doi", ""))
     }
     if not terminal:
@@ -226,6 +245,7 @@ def apply_progress_updates(path: Path, outcome: pd.DataFrame) -> int:
         "duplicate_of_canonical": "duplicate_of_canonical",
         "excluded_publication_format": "excluded_publication_format",
         "confirmed_closed_access": "closed_access",
+        "batch_closed_access": "closed_access",
         "pending_manual_review": "partial_review_rate_limited",
         "technical_or_unresolved_retrieval": "technical_failure_retryable",
     }

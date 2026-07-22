@@ -110,6 +110,58 @@ def split_values(value: object) -> list[str]:
     return [part.strip() for part in text.split(separator) if part.strip()]
 
 
+def current_prescreen_retained_dois(prescreen_df: pd.DataFrame) -> set[str]:
+    """Return the DOI gate owned by the current deterministic prescreen."""
+
+    if prescreen_df.empty or "doi" not in prescreen_df.columns:
+        raise ValueError("Current prescreen table is empty or has no doi column")
+    if "prescreen_decision" in prescreen_df.columns:
+        retained = prescreen_df["prescreen_decision"].fillna("").astype(str).str.strip().eq("retain")
+    elif "retained_for_extraction_candidate" in prescreen_df.columns:
+        retained = prescreen_df["retained_for_extraction_candidate"].map(truthy)
+    else:
+        raise ValueError(
+            "Current prescreen table has neither prescreen_decision nor "
+            "retained_for_extraction_candidate"
+        )
+    return {
+        doi
+        for value in prescreen_df.loc[retained, "doi"]
+        if (doi := normalize_doi(value).lower())
+    }
+
+
+def assert_current_prescreen_eligibility(
+    routes_df: pd.DataFrame,
+    prescreen_df: pd.DataFrame,
+    *,
+    route_action: str,
+) -> set[str]:
+    """Fail before conversion if an actionable row is not currently retained."""
+
+    selected = routes_df.copy()
+    if "retained_for_extraction_candidate" in selected.columns:
+        selected = selected[selected["retained_for_extraction_candidate"].map(truthy)].copy()
+    if "route_action" not in selected.columns:
+        raise ValueError("Conversion selection has no route_action column")
+    selected = selected[selected["route_action"].fillna("").astype(str).eq(route_action)]
+    if "doi" not in selected.columns:
+        raise ValueError("Conversion selection has no doi column")
+    selected_dois = {
+        doi
+        for value in selected["doi"]
+        if (doi := normalize_doi(value).lower())
+    }
+    retained_dois = current_prescreen_retained_dois(prescreen_df)
+    blocked = sorted(selected_dois - retained_dois)
+    if blocked:
+        raise ValueError(
+            "Conversion selection contains DOIs not retained by the current deterministic "
+            f"prescreen ({len(blocked):,}): {blocked[:20]}. Rebuild the selection table."
+        )
+    return selected_dois
+
+
 def read_doi_file(path: Path) -> set[str]:
     out: set[str] = set()
     for raw in path.read_text(encoding="utf-8").splitlines():
@@ -299,6 +351,13 @@ def convert_routed_local_pdfs(
         conversion_rows_from_selection(pd.read_parquet(selection_table))
         if selection_table is not None
         else pd.read_parquet(route_table)
+    )
+    if not prescreen_table.is_file():
+        raise FileNotFoundError(f"Current prescreen table not found: {prescreen_table}")
+    assert_current_prescreen_eligibility(
+        routes_df,
+        pd.read_parquet(prescreen_table),
+        route_action=route_action,
     )
     metadata_df = pd.read_parquet(metadata_table) if metadata_table.exists() else pd.DataFrame()
     candidate_df = pd.read_parquet(candidate_table) if candidate_table.exists() else pd.DataFrame()

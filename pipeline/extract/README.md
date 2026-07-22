@@ -47,6 +47,12 @@ handling step:
 - `pdf_download_url_available` -> `download_pdf_then_extract`
 - `abstract_only` -> `extract_from_abstract_only`
 
+A recorded terminal PDF-download failure, including an exhausted DOI-level
+retry budget or a source-identity mismatch, suppresses the failed PDF candidates
+when routes are rebuilt. If an abstract exists, the paper therefore proceeds as
+`abstract_only` instead of being repeatedly returned to the PDF queue. A later
+verified local PDF or converted full-text artifact still takes precedence.
+
 Build the Gemini routing table first, then pass it explicitly:
 
 ```bash
@@ -132,13 +138,15 @@ Current JSON files use these `packet_profile` values:
 
 ## Route-Specific Extraction Schemas
 
-Route profiles are registered with one of three statuses:
+Route profiles are registered with one of four statuses:
 
 - `runnable`: detailed enough for normal model pilots.
 - `scaffold`: schema and prompt shell exist, but the profile should be tuned
   before production-scale model calls.
 - `terminal_no_model`: route is retained for audit/accounting but is not sent to
   an extraction model.
+- `legacy_read_only`: old contracts remain registered so archived outputs can
+  be parsed, but task builders and all generic runners refuse new model calls.
 
 The primary KG extraction target is original empirical evidence. Primary
 profiles are runnable and share:
@@ -152,21 +160,18 @@ Use these for `schema_profile=primary_evidence_schema`. Domain addenda under
 Primary extraction produces KG evidence candidates from original study results;
 it is the first route family to pilot.
 
-The route-specific meta-analysis contract is also runnable, but it is a
-secondary layer:
+The older route-specific meta-analysis v1 contract is retained only for parsing
+historical outputs:
 
 - domain schemas under `schema/extraction_profiles/meta_analysis/`
 - `docs/extraction_profiles/paper_type/meta_analysis_article_text.md`
 - `docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md`
 
-Use this for `prompt_profile=secondary_meta_analysis` and
-`schema_profile=meta_analysis_evidence_schema`. The runner selects the meta-analysis
-domain schema from `domain_route`; text depth selects the prompt and is injected
-as output provenance. The shared domain schema can hold meta-analysis scope,
-aggregate included evidence summaries, pooled or network synthesis results, and
-domain-specific result details. Abstract-only prompts ask the model to fill only
-what is visible in the abstract and leave unavailable fields empty.
-Meta-analysis extraction does not create primary-study graph findings.
+The generic synchronous and asynchronous routed runners permanently reject
+`prompt_profile=secondary_meta_analysis` with
+`schema_profile=meta_analysis_evidence_schema`. Do not create new v1
+meta-analysis calls. The files remain available only so archived runs can be
+audited and reparsed.
 
 The current paper-level meta-analysis contract is:
 
@@ -182,8 +187,8 @@ heterogeneity, network-meta-analysis details, risk of bias, certainty, and
 publication-bias assessments. Optional fields are omitted when the supplied
 paper does not report them.
 
-The v2 pilot path is paper-level and isolated from the live routed
-meta-analysis extraction. Build one task per retained meta-analysis with:
+The production v2 path is paper-level and separate from primary routed
+extraction. Build one task per retained meta-analysis with:
 
 ```bash
 python pipeline/extract/build_meta_analysis_v2_tasks.py
@@ -233,8 +238,9 @@ Human-readable schema descriptions are removed from the API request because
 the prompt already supplies those instructions and Gemini's structured-output
 validator rejects the more verbose full-text schema. The saved schema and input
 snapshot retain the descriptions.
-The existing routed meta-analysis path remains the live production path until
-the v2 pilot has been reviewed.
+The v2 pilot was reviewed on 2026-07-12 and approved for the remaining
+meta-analysis extraction with fail-closed QA. V1 meta-analysis extraction is
+legacy read-only and cannot be submitted by the generic runners.
 
 ## Article Text Inputs And Audits
 
@@ -306,16 +312,11 @@ python pipeline/extract/run_route_extraction.py \
   --dry-run
 ```
 
-The runner processes registered model-runnable route profiles only. Unsupported
-terminal routes are never sent to the model. Use profile filters when you want a
-dry run for a specific family:
-
-```bash
-python pipeline/extract/run_route_extraction.py \
-  --input-jsonl data/processed/extraction/route_extraction_tasks.jsonl \
-  --schema-profile review_coverage_schema \
-  --dry-run
-```
+The routed runner processes primary and guideline/consensus profiles only.
+Unsupported terminal routes are never sent to the model. Legacy v1
+meta-analysis and review tasks cause a hard failure rather than being silently
+selected or skipped. Use the dedicated v2 meta-analysis and review relationship
+builders and runners for secondary literature.
 
 For the actual accumulating extraction, use the batch wrapper. It appends each
 batch to a named routed extraction run, converts all accumulated outputs for that
@@ -337,6 +338,29 @@ calling Gemini. Outputs accumulate under:
 
 - `data/processed/extraction/routed_runs/<RUN_ID>/`
 - `data/processed/kg_routed_runs/<RUN_ID>/`
+
+For large primary runs, the asynchronous equivalent is
+`run_route_extraction_batch_api.py`. Prepare each numbered batch from the same
+task file and run ID. Prepared, unparsed manifests reserve their route IDs so
+later batches cannot select the same work. Use `--retry-errors` when rebuilding
+the remaining batches after QA; ordinary parse failures and `quality_error`
+outputs are then eligible for exactly one newly prepared batch.
+An attempted route is also released automatically when its current task input
+fingerprint differs from the recorded attempt. This prevents a successful
+extraction over stale title, abstract, full text, or routing input from being
+silently reused after canonical repair.
+
+The parser validates the schema and also rejects disallowed ASCII control
+characters anywhere in nested output text. Those responses are recorded as
+`quality_error` in the raw audit, are omitted from parsed outputs, and never
+enter evidence projection. Re-parsing a downloaded batch rematerializes the
+run-level current projection from the per-batch parse artifacts, so an output
+accepted by an older validator cannot remain active after the newer validator
+rejects it. The downloaded provider result remains available for audit.
+
+Use `--skip-rebuild` while parsing an incomplete multi-batch run. After all
+batches have been parsed and QA has passed, rebuild the cumulative evidence and
+KG tables once; partial-run ontology coverage checks are not meaningful.
 
 ## Main review extraction path
 
@@ -425,8 +449,8 @@ python pipeline/kg/project_review_relationship_bundles.py
 ```
 
 The extraction run and projection remain separate from the active KG until the
-results have been checked. The routed primary-study and meta-analysis paths are
-unchanged.
+results have been checked. Primary studies remain on the routed path;
+meta-analyses use the dedicated v2 path.
 
 The manually read 50-paper comparison tool remains available for evaluation:
 
@@ -434,56 +458,13 @@ The manually read 50-paper comparison tool remains available for evaluation:
 python pipeline/validate/compare_review_relationships_to_manual_gold.py
 ```
 
-The older paper-complete routed evaluation below remains a historical baseline,
-not the production review extraction design.
+The older routed paper-complete review evaluation is a historical baseline
+only. Its v1 task files remain auditable, but the generic routed runners refuse
+to submit them. All new reviews use `build_review_relationship_tasks.py` and
+`run_review_relationship_batch_api.py`.
 
-### Routed paper-complete review baseline
-
-The normal batch runner selects paper-domain tasks independently. For an
-evaluation where every selected review must be extracted across all of its
-current routed domains, build a paper-complete cohort first:
-
-```bash
-python pipeline/extract/build_review_paper_complete_evaluation.py \
-  --cohort-id review_paper_complete_50_20260711 \
-  --cohort-size 50 \
-  --seed 20260711 \
-  --include-doi 10.3389/fphar.2021.749068
-```
-
-The cohort builder is review-only. It does not change primary-study routing or
-the active KG. It exports every ready review task for each selected DOI plus
-paper- and relationship-level annotation templates under
-`data/processed/evaluation/<cohort-id>/`.
-
-Pass the cohort's task JSONL to the existing Batch API runner. Use a separate
-run ID so parsing and KG projection remain isolated:
-
-```bash
-python pipeline/extract/run_route_extraction_batch_api.py prepare \
-  --run-id gemini3_flash_20260711_review_eval50 \
-  --batch-id batch_001 \
-  --input-jsonl data/processed/evaluation/review_paper_complete_50_20260711/route_extraction_tasks.jsonl \
-  --batch-size 500 \
-  --schema-profile review_coverage_schema \
-  --include-legacy-review-routes \
-  --model gemini-3-flash-preview
-```
-
-After downloading and parsing the batch, combine all domain outputs into one QA
-bundle per paper:
-
-```bash
-python pipeline/extract/build_review_paper_complete_bundles.py \
-  --cohort-jsonl data/processed/evaluation/review_paper_complete_50_20260711/cohort.jsonl \
-  --outputs-jsonl data/processed/extraction/routed_runs/gemini3_flash_20260711_review_eval50/route_extraction_outputs.jsonl \
-  --out-dir data/processed/evaluation/review_paper_complete_50_20260711/results
-```
-
-The bundle report checks paper/domain completeness, inventory-to-coverage-item
-links, and peripheral coverage rows before any decision to publish the results.
-
-Audit meta-analysis readiness before running extraction:
+The following audit is retained only for archived routed-v1 task files; it is
+not part of the production meta-analysis workflow:
 
 ```bash
 python pipeline/extract/audit_meta_analysis_extraction_readiness.py
@@ -494,7 +475,7 @@ Default outputs:
 - `data/processed/extraction/meta_analysis_extraction_readiness_report.json`
 - `data/processed/extraction/meta_analysis_extraction_readiness.csv`
 
-The audit is no-model. It counts meta-analysis route tasks by readiness,
+The historical audit is no-model. It counts meta-analysis route tasks by readiness,
 access tier, text mode, expected section selection strategy, actual article text
 input strategy, and compatibility status.
 
@@ -507,13 +488,12 @@ explicit:
   empirical findings that may later become compound-target, compound-disorder,
   endpoint, mechanism, or domain-specific evidence tables after deterministic
   normalization.
-- `secondary_meta_analysis` extracts synthesis evidence. These rows should stay
-  separate from primary-study graph claims. They can support evidence-synthesis
-  views, certainty summaries, and later KG overlays.
-- `secondary_structured_review`, `secondary_narrative_review`, and
-  `secondary_review_coverage` are in-scope coverage routes, not primary KG
-  evidence. They describe what a review covers, summarizes, or identifies as
-  uncertain.
+- Meta-analyses use the dedicated v2 paper-level extraction path. Their
+  synthesis evidence stays separate from primary-study graph claims and can
+  support evidence-synthesis views, certainty summaries, and later KG overlays.
+- Reviews use the dedicated paper-centered relationship path, not the legacy
+  per-domain `secondary_*review*` v1 contracts. They are in-scope coverage
+  sources rather than primary KG evidence.
 - `guideline_consensus` is an in-scope recommendation/context route when the
   paper is relevant, but it is not extracted into the KG for now.
 - `context_only_or_skip` is for papers that may be useful for provenance,

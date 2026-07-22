@@ -140,7 +140,7 @@ def materialize_scoped_metadata(
         candidate = candidate_by_doi.get(doi, {})
         if doi not in existing_by_doi:
             added += 1
-        existing_by_doi[doi] = merge_rows(existing_by_doi.get(doi, {}), candidate)
+        existing_by_doi[doi] = merge_rows(candidate, existing_by_doi.get(doi, {}))
     rows = merged_output_rows({}, existing_by_doi)
     return pd.DataFrame(rows, columns=list(OUTPUT_COLUMNS)), added
 

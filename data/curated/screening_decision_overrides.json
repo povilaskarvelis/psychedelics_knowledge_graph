@@ -103,6 +103,13 @@
       ],
       "decision": "exclude_out_of_scope",
       "reason": "The meta-analysis compares substance-use outcomes by demographic group and contains no psychedelic, ketamine, or entactogen exposure."
+    },
+    {
+      "dois": [
+        "10.1136/bjophthalmol-2012-302233"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "Corrected source review identifies this DOI as an ophthalmology article outside project scope; the ketamine/PTSD meta-analysis abstract attached to the candidate row belongs to a different paper."
     }
   ]
 }

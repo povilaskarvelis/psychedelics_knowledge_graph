@@ -18,6 +18,12 @@ from pathlib import Path
 
 import pandas as pd
 
+from pipeline.ingest.materialize_candidate_funding import (
+    DEFAULT_DOI_ALIAS_REGISTRY,
+    load_doi_aliases,
+    resolve_registered_doi,
+)
+
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CANDIDATE_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
@@ -43,6 +49,7 @@ FINAL_DISPOSITIONS = {
     "source_not_verified",
     "not_results_report",
     "unsupported_finding_detail",
+    "extraction_failed",
 }
 
 AUDIT_NOT_GRAPHABLE_SUFFIXES = ("_not_graphable",)
@@ -79,7 +86,9 @@ def normalize_doi(value: object) -> str:
     return doi.strip()
 
 
-def load_disposition_overrides(path: Path) -> dict[str, dict]:
+def load_disposition_overrides(
+    path: Path, aliases: dict[str, str] | None = None
+) -> dict[str, dict]:
     if not path.is_file():
         raise FileNotFoundError(f"Missing final-disposition input: {path}")
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -97,7 +106,7 @@ def load_disposition_overrides(path: Path) -> dict[str, dict]:
         if not reason or not next_action:
             raise ValueError(f"Disposition {disposition!r} must have a reason and next action")
         for raw_doi in group.get("dois", []):
-            doi = normalize_doi(raw_doi)
+            doi = resolve_registered_doi(raw_doi, aliases)
             if not doi:
                 raise ValueError(f"Blank DOI in final-disposition input: {path}")
             if doi in out:
@@ -110,29 +119,65 @@ def load_disposition_overrides(path: Path) -> dict[str, dict]:
     return out
 
 
-def load_represented_dois(kg_dir: Path) -> set[str]:
+def load_represented_dois(
+    kg_dir: Path, aliases: dict[str, str] | None = None
+) -> set[str]:
     findings_path = kg_dir / "findings.parquet"
     if not findings_path.is_file():
         raise FileNotFoundError(f"Missing routed findings table: {findings_path}")
     findings = pd.read_parquet(findings_path, columns=["study_doi"])
     return {
         doi
-        for doi in (normalize_doi(value) for value in findings["study_doi"].tolist())
+        for doi in (
+            resolve_registered_doi(value, aliases)
+            for value in findings["study_doi"].tolist()
+        )
         if doi
     }
 
 
-def load_audit_statuses(kg_dir: Path) -> dict[str, set[str]]:
+def load_audit_statuses(
+    kg_dir: Path, aliases: dict[str, str] | None = None
+) -> dict[str, set[str]]:
     audit_path = kg_dir / "normalization_audit.parquet"
     if not audit_path.is_file():
         raise FileNotFoundError(f"Missing routed normalization audit: {audit_path}")
     audit = pd.read_parquet(audit_path, columns=["study_doi", "normalization_status"])
     out: dict[str, set[str]] = defaultdict(set)
     for row in audit.to_dict("records"):
-        doi = normalize_doi(row.get("study_doi"))
+        doi = resolve_registered_doi(row.get("study_doi"), aliases)
         status = clean(row.get("normalization_status")).lower()
         if doi and status:
             out[doi].add(status)
+    return dict(out)
+
+
+def load_extraction_outcomes(
+    paths: list[Path], aliases: dict[str, str] | None = None
+) -> dict[str, set[str]]:
+    """Load terminal paper outcomes from primary/meta-analysis JSONL outputs."""
+
+    out: dict[str, set[str]] = defaultdict(set)
+    for path in paths:
+        if not path.is_file():
+            raise FileNotFoundError(f"Missing extraction outcome input: {path}")
+        with path.open("r", encoding="utf-8") as handle:
+            for line_number, line in enumerate(handle, start=1):
+                if not line.strip():
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"Invalid JSON at {path}:{line_number}") from exc
+                if not isinstance(row, dict):
+                    raise ValueError(f"Expected an object at {path}:{line_number}")
+                result = row.get("result") if isinstance(row.get("result"), dict) else {}
+                doi = resolve_registered_doi(
+                    row.get("study_doi") or result.get("study_doi"), aliases
+                )
+                status = clean(result.get("extraction_status")).lower()
+                if doi and status:
+                    out[doi].add(status)
     return dict(out)
 
 
@@ -158,6 +203,33 @@ def decision_from_audit(statuses: set[str]) -> dict:
             "next_action": "Retain the report and its completed evidence-assessment result.",
         }
     raise ValueError(f"No final graph disposition is defined for audit statuses: {sorted(statuses)}")
+
+
+def decision_from_extraction_outcome(statuses: set[str]) -> dict:
+    """Translate a completed extraction with no graph row into a final disposition."""
+
+    if any(status == "extracted" or status.startswith("no_extractable") for status in statuses):
+        return {
+            "disposition": "no_extractable_finding",
+            "reason": (
+                "The completed extraction did not yield an admissible normalized finding for "
+                "the evidence graph."
+            ),
+            "next_action": "Retain the completed extraction outcome for audit.",
+        }
+    if "wrong_source_type" in statuses:
+        return {
+            "disposition": "not_results_report",
+            "reason": "The completed extraction identified the record as the wrong source type.",
+            "next_action": "Reconcile the upstream screening and routing decision.",
+        }
+    if "not_relevant" in statuses:
+        return {
+            "disposition": "adjudicated_outside_scope",
+            "reason": "The completed extraction identified the record as outside the evidence scope.",
+            "next_action": "Reconcile the upstream screening decision.",
+        }
+    raise ValueError(f"No final graph disposition is defined for extraction outcomes: {sorted(statuses)}")
 
 
 def validate_candidate_ledger(df: pd.DataFrame) -> None:
@@ -237,6 +309,8 @@ def build_updated_corpus(
     *,
     represented_dois: set[str],
     audit_statuses: dict[str, set[str]],
+    extraction_outcomes: dict[str, set[str]] | None = None,
+    doi_aliases: dict[str, str] | None = None,
     disposition_overrides: dict[str, dict],
     run_id: str,
     release_id: str,
@@ -248,9 +322,12 @@ def build_updated_corpus(
             df[column] = default
 
     records: list[dict] = []
+    unresolved_selected: list[str] = []
     unused_overrides = set(disposition_overrides)
+    extraction_outcomes = extraction_outcomes or {}
     for row in df.to_dict("records"):
-        doi = normalize_doi(row.get("doi"))
+        raw_doi = normalize_doi(row.get("doi"))
+        doi = resolve_registered_doi(raw_doi, doi_aliases)
         selected = truthy(row.get("retained_for_extraction_candidate"))
         if not selected:
             decision = {
@@ -282,11 +359,15 @@ def build_updated_corpus(
                 **decision_from_audit(audit_statuses[doi]),
                 "source": "routed_normalization_audit",
             }
+        elif doi in extraction_outcomes:
+            decision = {
+                "status": "not_represented",
+                **decision_from_extraction_outcome(extraction_outcomes[doi]),
+                "source": "completed_extraction_outcome",
+            }
         else:
-            raise ValueError(
-                f"Selected report {doi} is not represented and has neither an explicit final "
-                "disposition nor a recognized normalization-audit decision"
-            )
+            unresolved_selected.append(raw_doi)
+            continue
 
         row.update(
             {
@@ -301,6 +382,15 @@ def build_updated_corpus(
             }
         )
         records.append(row)
+
+    if unresolved_selected:
+        preview = sorted(unresolved_selected)[:25]
+        suffix = f"; ... and {len(unresolved_selected) - 25} more" if len(unresolved_selected) > 25 else ""
+        raise ValueError(
+            f"{len(unresolved_selected)} selected reports are not represented and have no "
+            "completed extraction, explicit final disposition, or recognized normalization-audit "
+            f"decision: {preview}{suffix}"
+        )
 
     if unused_overrides:
         preview = sorted(unused_overrides)[:20]
@@ -333,6 +423,8 @@ def update_corpus_graph_status(
     output_table: Path,
     kg_dir: Path,
     disposition_overrides: Path,
+    extraction_results: list[Path] | None,
+    doi_alias_registry: Path | None,
     run_id: str,
     release_id: str,
 ) -> dict:
@@ -342,11 +434,14 @@ def update_corpus_graph_status(
         raise ValueError("run_id and release_id are required")
     candidate_df = pd.read_parquet(candidate_table)
     updated_at = now_utc()
+    aliases = load_doi_aliases(doi_alias_registry)
     out = build_updated_corpus(
         candidate_df,
-        represented_dois=load_represented_dois(kg_dir),
-        audit_statuses=load_audit_statuses(kg_dir),
-        disposition_overrides=load_disposition_overrides(disposition_overrides),
+        represented_dois=load_represented_dois(kg_dir, aliases),
+        audit_statuses=load_audit_statuses(kg_dir, aliases),
+        extraction_outcomes=load_extraction_outcomes(extraction_results or [], aliases),
+        disposition_overrides=load_disposition_overrides(disposition_overrides, aliases),
+        doi_aliases=aliases,
         run_id=clean(run_id),
         release_id=clean(release_id),
         updated_at_utc=updated_at,
@@ -368,6 +463,19 @@ def main() -> int:
     parser.add_argument("--output-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--kg-dir", required=True)
     parser.add_argument("--disposition-overrides", default=str(DEFAULT_DISPOSITION_OVERRIDES))
+    parser.add_argument(
+        "--doi-alias-registry",
+        type=Path,
+        default=DEFAULT_DOI_ALIAS_REGISTRY,
+        help="Registered DOI aliases used to reconcile candidate and graph identities.",
+    )
+    parser.add_argument(
+        "--extraction-results",
+        action="append",
+        type=Path,
+        default=[],
+        help="Completed primary or meta-analysis JSONL outputs used for terminal no-finding decisions.",
+    )
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--release-id", required=True)
     args = parser.parse_args()
@@ -376,6 +484,8 @@ def main() -> int:
         output_table=Path(args.output_table).resolve(),
         kg_dir=Path(args.kg_dir).resolve(),
         disposition_overrides=Path(args.disposition_overrides).resolve(),
+        extraction_results=[path.resolve() for path in args.extraction_results],
+        doi_alias_registry=args.doi_alias_registry.resolve(),
         run_id=args.run_id,
         release_id=args.release_id,
     )

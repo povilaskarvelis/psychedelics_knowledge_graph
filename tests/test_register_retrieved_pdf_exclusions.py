@@ -62,7 +62,7 @@ def test_browser_url_exclusions_accepts_only_deterministic_poster_outcomes() -> 
     ]
 
 
-def test_legacy_migration_keeps_metadata_prescreen_evidence_separate(tmp_path) -> None:
+def test_legacy_migration_moves_all_doi_specific_evidence_out_of_prescreen(tmp_path) -> None:
     path = tmp_path / "legacy.json"
     path.write_text(
         json.dumps(
@@ -87,5 +87,8 @@ def test_legacy_migration_keeps_metadata_prescreen_evidence_separate(tmp_path) -
 
     rows = legacy_post_retrieval_exclusions(path)
 
-    assert [row["doi"] for row in rows] == ["10.example/document"]
-    assert rows[0]["decision_method"] == "legacy_curated_post_retrieval_evidence_migration"
+    assert [row["doi"] for row in rows] == ["10.example/metadata", "10.example/document"]
+    assert all(
+        row["decision_method"] == "legacy_curated_post_retrieval_evidence_migration"
+        for row in rows
+    )

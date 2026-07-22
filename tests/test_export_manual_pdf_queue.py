@@ -107,10 +107,10 @@ def test_export_manual_pdf_queue_can_use_route_independent_worklist() -> None:
                     "best_pdf_url": "https://example.org/paper.pdf",
                 },
                 {
-                    "doi": "10.1000/discover",
+                    "doi": "10.1000/no-access",
                     "selected_for_downstream": True,
                     "fulltext_enrichment_needed": True,
-                    "fulltext_enrichment_action": "discover_fulltext",
+                    "fulltext_enrichment_action": "no_accessible_fulltext",
                 },
                 {
                     "doi": "10.1000/oa-landing",
@@ -200,7 +200,7 @@ def test_export_manual_pdf_queue_applies_manual_progress_ledger() -> None:
         candidate_table = root / "candidate_papers.parquet"
         progress_csv = root / "progress.csv"
         rows = []
-        for doi in ("10.1000/closed", "10.1000/partial"):
+        for doi in ("10.1000/closed", "10.1000/invalid", "10.1000/partial"):
             rows.append(
                 {
                     "doi": doi,
@@ -219,6 +219,11 @@ def test_export_manual_pdf_queue_applies_manual_progress_ledger() -> None:
         pd.DataFrame(
             [
                 {"doi": "10.1000/closed", "manual_status": "closed_access", "manual_notes": "Paywalled"},
+                {
+                    "doi": "10.1000/invalid",
+                    "manual_status": "invalid_nonresolving_doi",
+                    "manual_notes": "DOI.org returned DOI Not Found",
+                },
                 {
                     "doi": "10.1000/partial",
                     "manual_status": "partial_review_rate_limited",
@@ -239,7 +244,7 @@ def test_export_manual_pdf_queue_applies_manual_progress_ledger() -> None:
 
         exported = pd.read_csv(root / "manual.csv").fillna("")
         assert summary["rows"] == 1
-        assert summary["skipped_terminal_manual_status"] == 1
+        assert summary["skipped_terminal_manual_status"] == 2
         assert exported.loc[0, "doi"] == "10.1000/partial"
         assert exported.loc[0, "manual_status"] == "partial_review_rate_limited"
         assert exported.loc[0, "manual_notes"] == "Retry after cooldown"

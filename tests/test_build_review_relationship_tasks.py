@@ -62,6 +62,7 @@ def test_production_cohort_selects_ready_reviews_without_domain_routes() -> None
             "retained_for_extraction_candidate": True,
             "primary_secondary_source_type": "narrative_review",
             "extraction_route_status": "needs_pdf_download",
+            "abstract": "A usable review abstract.",
         },
     ]
 

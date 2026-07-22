@@ -1,4 +1,5 @@
 from pipeline.kg.convert_review_relationship_bundles_to_evidence_rows import (
+    active_review_candidate_dois,
     convert_bundles,
     legacy_review_row,
     review_scope_for_relationship,
@@ -31,7 +32,9 @@ def test_converts_one_paper_centered_relationship_to_one_evidence_row() -> None:
     tasks = [{"study_doi": "10.1/test", "paper_metadata": {"review_type": "systematic_review", "study_year": "2024"}}]
     registry = {"compounds": [{"label": "Ketamine", "aliases": []}], "targets": [], "disorders": []}
 
-    rows, report = convert_bundles(bundles, tasks, registry)
+    rows, report = convert_bundles(
+        bundles, tasks, registry, active_candidate_dois={"10.1/test"}
+    )
 
     assert len(rows) == 1
     assert report["counts"]["papers_converted"] == 1
@@ -65,7 +68,9 @@ def test_secondary_context_is_kept_as_paper_detail() -> None:
     tasks = [{"study_doi": "10.1/test", "paper_metadata": {"review_type": "review"}}]
     registry = {"compounds": [], "targets": [], "disorders": []}
 
-    rows, _report = convert_bundles([bundle], tasks, registry)
+    rows, _report = convert_bundles(
+        [bundle], tasks, registry, active_candidate_dois={"10.1/test"}
+    )
 
     assert rows[0]["graph_admission_status"] == "paper_detail"
     assert rows[0]["coverage_focus_normalized"] == "Context only"
@@ -112,7 +117,9 @@ def test_review_without_paper_defining_psychedelic_scope_is_marked_not_graphable
     tasks = [{"study_doi": "10.1/peripheral", "paper_metadata": {"review_type": "systematic_review"}}]
     registry = {"compounds": [{"label": "Ketamine", "aliases": []}], "targets": [], "disorders": []}
 
-    rows, report = convert_bundles([bundle], tasks, registry)
+    rows, report = convert_bundles(
+        [bundle], tasks, registry, active_candidate_dois={"10.1/peripheral"}
+    )
 
     assert rows[0]["review_scope_status"] == "psychedelics_peripheral_or_absent"
     assert rows[0]["graph_admission_status"] == "paper_detail"
@@ -156,7 +163,67 @@ def test_current_task_set_can_explicitly_skip_stale_append_only_bundle() -> None
         bundles,
         tasks,
         {"compounds": [], "targets": [], "disorders": []},
+        active_candidate_dois={"10.1/current", "10.1/stale"},
         allow_stale_bundles=True,
     )
 
     assert report["skipped"] == {"stale_bundle_not_in_current_tasks": 1}
+
+
+def test_inactive_candidate_bundle_is_not_converted_even_if_task_exists() -> None:
+    bundles = [{
+        "study_doi": "10.1/excluded",
+        "status": "ok",
+        "result": {"relationships": [{"relationship_statement": "Should not progress."}]},
+    }]
+    tasks = [{"study_doi": "10.1/excluded", "paper_metadata": {}}]
+
+    rows, report = convert_bundles(
+        bundles,
+        tasks,
+        {"compounds": [], "targets": [], "disorders": []},
+        active_candidate_dois=set(),
+    )
+
+    assert rows == []
+    assert report["skipped"] == {"inactive_candidate": 1}
+
+
+def test_active_candidate_gate_requires_complete_canonical_state() -> None:
+    incomplete_candidates = [{
+        "doi": "10.1/test",
+        "retained_for_extraction_candidate": True,
+        "extraction_route_status": "ready_for_abstract_extraction",
+    }]
+
+    try:
+        active_review_candidate_dois(incomplete_candidates)
+    except ValueError as exc:
+        assert "prescreen_decisions" in str(exc)
+    else:  # pragma: no cover - assertion aid
+        raise AssertionError("Expected incomplete canonical candidate state to fail closed")
+
+
+def test_active_candidate_gate_requires_current_retain_and_ready_status() -> None:
+    candidates = [
+        {
+            "doi": "10.1/active",
+            "prescreen_decisions": "retain",
+            "retained_for_extraction_candidate": True,
+            "extraction_route_status": "ready_for_article_text_extraction",
+        },
+        {
+            "doi": "10.1/prescreen-excluded",
+            "prescreen_decisions": "exclude",
+            "retained_for_extraction_candidate": False,
+            "extraction_route_status": "",
+        },
+        {
+            "doi": "10.1/not-ready",
+            "prescreen_decisions": "retain",
+            "retained_for_extraction_candidate": True,
+            "extraction_route_status": "post_retrieval_excluded",
+        },
+    ]
+
+    assert active_review_candidate_dois(candidates) == {"10.1/active"}

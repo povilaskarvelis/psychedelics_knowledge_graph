@@ -3,9 +3,9 @@
 
 The normal routed batch runner selects individual paper-domain tasks. This
 utility selects review papers first, then exports every ready review-domain
-task for each selected DOI. The resulting task JSONL can be passed directly to
-``run_route_extraction_batch_api.py prepare`` without changing primary-study
-batching or the active KG.
+task for each selected DOI. It is retained only to reproduce historical v1
+evaluation cohorts. The generic batch API now rejects these task files; all new
+review extraction uses the paper-centered review-relationship pipeline.
 """
 
 from __future__ import annotations
@@ -23,12 +23,12 @@ from pathlib import Path
 
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
-    from pipeline.extract.route_extraction_profiles import task_has_model_profile
+    from pipeline.extract.route_extraction_profiles import task_has_registered_profile
     from pipeline.extract.run_route_extraction import text_depth_for_task
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
-    from pipeline.extract.route_extraction_profiles import task_has_model_profile
+    from pipeline.extract.route_extraction_profiles import task_has_registered_profile
     from pipeline.extract.run_route_extraction import text_depth_for_task
 
 
@@ -154,8 +154,8 @@ def build_review_candidates(tasks: list[dict]) -> tuple[list[ReviewCandidate], l
         reasons: list[str] = []
         if any(normalize(task.get("task_status", "")) != "ready_for_model" for task in doi_tasks):
             reasons.append("not_all_review_routes_ready")
-        if any(not task_has_model_profile(task) for task in doi_tasks):
-            reasons.append("review_route_not_model_runnable")
+        if any(not task_has_registered_profile(task) for task in doi_tasks):
+            reasons.append("review_route_not_registered")
 
         domains = [route_domain(task) for task in doi_tasks]
         if any(not domain for domain in domains):

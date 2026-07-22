@@ -154,7 +154,7 @@ def classify_action(
     if manual_action == "abstract_only":
         return "manual_abstract_only", False, "A curated override requires abstract-only extraction."
     if manual_action == "suppress_pdf_download":
-        return "manual_no_usable_pdf", False, "Manual review already found no usable article PDF."
+        return "no_accessible_fulltext", False, "Manual review found no accessible article full text."
     if truthy(row.get("has_converted_full_text", False)):
         return "reextract_existing_fulltext", False, "Converted article text is already available."
     if local_pdf_available(row):
@@ -168,7 +168,7 @@ def classify_action(
             clean(access_row.get("open_access_status", ""))
         )
     if not fresh_oa_positive:
-        return "no_open_access_route", False, "No provider returned positive OA evidence in this refresh run."
+        return "no_accessible_fulltext", False, "No provider identified accessible full text in this refresh run."
     probable_pdf_candidates = metadata_probable_pdf_url_candidates(access_row)
     if probable_pdf_candidates:
         return "download_known_pdf", True, "Fresh OA metadata identifies an open-access PDF candidate."
@@ -216,14 +216,13 @@ def build(args: argparse.Namespace) -> dict:
         local_paths = local_pdf_paths(metadata)
         rows.append(
             {
-                "table_version": "historical_fulltext_backfill_v1",
+                "table_version": "historical_fulltext_backfill_v2",
                 "generated_at_utc": generated_at,
                 "doi": doi,
                 "selected_for_downstream": action not in {
                     "not_currently_retained",
                     "manual_abstract_only",
-                    "manual_no_usable_pdf",
-                    "no_open_access_route",
+                    "no_accessible_fulltext",
                 },
                 "fulltext_enrichment_needed": enrichment_needed,
                 "fulltext_enrichment_action": action,
@@ -276,7 +275,7 @@ def build(args: argparse.Namespace) -> dict:
         "fulltext_reextraction_ready_dois.txt", {"reextract_existing_fulltext"}
     )
     report = {
-        "schema_version": "historical_fulltext_backfill_report_v1",
+        "schema_version": "historical_fulltext_backfill_report_v2",
         "generated_at_utc": generated_at,
         "inputs": {
             "active_extraction_pointer": str(pointer_path),

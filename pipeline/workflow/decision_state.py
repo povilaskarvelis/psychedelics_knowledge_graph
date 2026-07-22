@@ -43,6 +43,18 @@ CANDIDATE_STAGE_DEFAULTS: dict[str, dict[str, object]] = {
         "extraction_domain_screening_decisions": "",
         "extraction_domain_screening_reasons": "",
     },
+    "post_retrieval": {
+        "post_retrieval_decision": "",
+        "post_retrieval_reason": "",
+        "post_retrieval_reason_code": "",
+        "post_retrieval_publication_format": "",
+        "post_retrieval_evidence": "",
+        "post_retrieval_decision_method": "",
+        "post_retrieval_reviewer": "",
+        "post_retrieval_source_artifact": "",
+        "post_retrieval_run_id": "",
+        "post_retrieval_updated_at_utc": "",
+    },
     "extraction": {
         "extraction_route_status": "",
         "extraction_route_reason": "",

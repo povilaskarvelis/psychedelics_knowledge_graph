@@ -28,7 +28,8 @@ DEFAULT_SOURCE_IDENTITY_AUDIT_CSV = FULLTEXT_DATA_DIR / "source_identity_audit.c
 DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS = FULLTEXT_DATA_DIR / "source_identity_unverified_dois.txt"
 
 try:
-    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, grobid_is_available, normalize_doi
+    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, doi_to_slug, grobid_is_available, normalize_doi
+    from pipeline.fulltext.source_identity import identity_is_verified
     from pipeline.fulltext.convert_routed_local_pdfs import (
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_OUT_DIR,
@@ -41,6 +42,7 @@ try:
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PAPER_ROOT,
         DEFAULT_PRESCREEN_TABLE,
+        assert_current_prescreen_eligibility,
         conversion_rows_from_selection,
         read_doi_file,
         selected_pdf_rows,
@@ -52,7 +54,8 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
-    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, grobid_is_available, normalize_doi
+    from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, doi_to_slug, grobid_is_available, normalize_doi
+    from pipeline.fulltext.source_identity import identity_is_verified
     from pipeline.fulltext.convert_routed_local_pdfs import (
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_OUT_DIR,
@@ -65,6 +68,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_OUTPUT_TABLE,
         DEFAULT_PAPER_ROOT,
         DEFAULT_PRESCREEN_TABLE,
+        assert_current_prescreen_eligibility,
         conversion_rows_from_selection,
         read_doi_file,
         selected_pdf_rows,
@@ -136,6 +140,14 @@ def local_pdf_conversion_queue(args: argparse.Namespace) -> list[str]:
         conversion_rows_from_selection(pd.read_parquet(selection_table))
         if selection_table is not None
         else pd.read_parquet(route_table)
+    )
+    prescreen_table = Path(args.prescreen_table).resolve()
+    if not prescreen_table.is_file():
+        raise FileNotFoundError(f"Current prescreen table not found: {prescreen_table}")
+    assert_current_prescreen_eligibility(
+        routes_df,
+        pd.read_parquet(prescreen_table),
+        route_action=args.route_action,
     )
     metadata_df = pd.read_parquet(metadata_table) if metadata_table.exists() else pd.DataFrame()
     doi_filter = read_doi_file(Path(args.doi_file).resolve()) if args.doi_file.strip() else None
@@ -309,7 +321,35 @@ def failed_dois_from_report(report_path: Path) -> list[str]:
         if not isinstance(record, dict):
             continue
         doi = normalize_doi(record.get("study_doi", ""))
-        if doi and not str(record.get("best_backend", "")).strip():
+        write_status = str(record.get("write_status", "")).strip().lower()
+        successful = write_status in {
+            "successful extraction with verified source identity",
+            "preserved existing successful artifact",
+        }
+        if doi and not successful:
+            failed.append(doi)
+    return failed
+
+
+def failed_dois_from_artifacts(
+    dois: list[str],
+    out_dir: Path,
+) -> list[str]:
+    """Reconcile final failures against canonical, identity-verified artifacts."""
+
+    failed: list[str] = []
+    for raw_doi in dois:
+        doi = normalize_doi(raw_doi)
+        artifact_path = out_dir / f"{doi_to_slug(doi)}.json"
+        try:
+            artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
+        except Exception:
+            failed.append(doi)
+            continue
+        if (
+            not str(artifact.get("best_backend", "")).strip()
+            or not identity_is_verified(artifact.get("source_identity", {}))
+        ):
             failed.append(doi)
     return failed
 
@@ -526,6 +566,15 @@ def main() -> int:
             overall_status = "completed_with_pdf_failures"
         if command_failed and not args.continue_on_error:
             break
+
+    # Report rows can contain a successful parser backend even when identity
+    # validation correctly rejected the artifact. Reconcile against the actual
+    # canonical output state so the terminal failure count cannot under-report.
+    final_failed = set(
+        failed_dois_from_artifacts(queue, Path(args.out_dir).resolve())
+    )
+    if final_failed and overall_status == "ok":
+        overall_status = "completed_with_pdf_failures"
 
     source_identity_audit = None
     if not args.skip_source_identity_audit:

@@ -406,7 +406,7 @@ def apply_repairs(
                     candidates.at[index, column] = value
 
             candidate_row["abstract"] = replacement_abstract
-            base = merge_rows(existing, candidate_metadata_row(candidate_row))
+            base = merge_rows(candidate_metadata_row(candidate_row), existing)
             base["abstract"] = replacement_abstract
             base["metadata_provider"] = replacement_provider
             base["metadata_provider_chain"] = append_pipe_token(base.get("metadata_provider_chain", ""), replacement_provider)

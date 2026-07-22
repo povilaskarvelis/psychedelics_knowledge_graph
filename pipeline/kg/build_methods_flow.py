@@ -84,6 +84,7 @@ GRAPH_DISPOSITION_LABELS = {
     "source_not_verified": "Source document could not be verified",
     "not_results_report": "Not a results report",
     "unsupported_finding_detail": "Finding too broad or ambiguous",
+    "extraction_failed": "Evidence extraction failed",
     # Transitional values remain readable for older override files, but a
     # completed release should not contain them.
     "extraction_needed": "Extraction needs correction",
@@ -99,6 +100,7 @@ FINAL_GRAPH_EXCLUSION_ORDER = (
     "source_not_verified",
     "not_results_report",
     "unsupported_finding_detail",
+    "extraction_failed",
 )
 TRANSITIONAL_GRAPH_DISPOSITIONS = {
     "extraction_needed",

@@ -91,6 +91,13 @@ PUBLIC_PAPER_SOURCE_FIELDS = (
     "open_access_is_oa",
     "open_access_status",
     "open_access_url",
+    "funders",
+    "grant_ids",
+    "funding_metadata_status",
+    "funding_providers",
+    "funding_assertion_count",
+    "funding_funder_count",
+    "funding_award_count",
 )
 
 PUBLIC_AUTHOR_FIELDS = (
@@ -132,6 +139,13 @@ FIELD_DESCRIPTIONS = {
     "open_access_is_oa": "Whether an open-access copy is known to be available.",
     "open_access_status": "Open-access category when available.",
     "open_access_url": "URL of a known open-access copy when available.",
+    "funders": "Provider-backed funder names associated with the paper, joined as a pipe-delimited list.",
+    "grant_ids": "Provider-backed grant or award identifiers associated with the paper, joined as a pipe-delimited list.",
+    "funding_metadata_status": "Funding-enrichment result for the paper, distinguishing reported funding from no funding reported by queried providers.",
+    "funding_providers": "Providers that supplied at least one normalized funding assertion for the paper.",
+    "funding_assertion_count": "Number of normalized provider funding assertions retained for the paper.",
+    "funding_funder_count": "Number of distinct normalized funders retained for the paper.",
+    "funding_award_count": "Number of distinct grant or award identifiers retained for the paper.",
     "paper_type": "Broad controlled type: primary_study, meta_analysis, or review.",
     "paper_subtype": "More specific controlled paper classification when available.",
     "concept_id": "Stable identifier for a standardized concept.",
@@ -329,7 +343,14 @@ def paper_classifications(kg_dir: Path) -> dict[str, tuple[str, str]]:
 def normalize_public_frame(frame: pd.DataFrame) -> pd.DataFrame:
     out = frame.copy()
     for column in out.columns:
-        if column in {"year", "author_position", "paper_count"}:
+        if column in {
+            "year",
+            "author_position",
+            "paper_count",
+            "funding_assertion_count",
+            "funding_funder_count",
+            "funding_award_count",
+        }:
             out[column] = pd.to_numeric(out[column], errors="coerce").astype("Int64")
         elif column in {"open_access_is_oa", "is_first_author", "is_last_author"}:
             out[column] = out[column].map(

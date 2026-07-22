@@ -18,11 +18,21 @@ try:
     from pipeline.extract.clinical_comparator import normalize_clinical_comparator
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
     from pipeline.extract.assay_family import normalize_assay_family
+    from pipeline.ingest.materialize_candidate_funding import (
+        DEFAULT_DOI_ALIAS_REGISTRY,
+        load_doi_aliases,
+        resolve_registered_doi,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
     from pipeline.extract.clinical_comparator import normalize_clinical_comparator
     from pipeline.extract.clinical_followup_window import normalize_clinical_followup_window
     from pipeline.extract.assay_family import normalize_assay_family
+    from pipeline.ingest.materialize_candidate_funding import (
+        DEFAULT_DOI_ALIAS_REGISTRY,
+        load_doi_aliases,
+        resolve_registered_doi,
+    )
 
 
 DEFAULT_KG_DIR = ROOT / "data" / "processed" / "kg"
@@ -105,6 +115,11 @@ PAPER_FIELDS = (
     "keywords",
     "funders",
     "grant_ids",
+    "funding_metadata_status",
+    "funding_providers",
+    "funding_assertion_count",
+    "funding_funder_count",
+    "funding_award_count",
     "related_dois",
     "publication_relations",
     "is_retracted",
@@ -976,9 +991,12 @@ def study_key(finding: dict) -> str:
     return f"title:{title}|{year}" if title or year else ""
 
 
-def candidate_study_key(record: dict) -> str:
+def candidate_study_key(
+    record: dict, doi_aliases: dict[str, str] | None = None
+) -> str:
     doi = normalize(record.get("study_doi") or record.get("doi")).lower()
     if doi:
+        doi = resolve_registered_doi(doi, doi_aliases)
         return f"doi:{doi}"
     openalex = normalize(record.get("openalex_id")).lower()
     if openalex:
@@ -1026,7 +1044,10 @@ def load_candidate_study_key_sets(kg_dir: Path) -> dict[str, set[str]] | None:
     return keys_by_source
 
 
-def load_selected_candidate_study_key_sets(candidate_papers_table: Path) -> dict[str, set[str]] | None:
+def load_selected_candidate_study_key_sets(
+    candidate_papers_table: Path,
+    doi_aliases: dict[str, str] | None = None,
+) -> dict[str, set[str]] | None:
     """Load the selected-paper denominator independently of extraction output.
 
     The KG tables only contain papers that reached extraction or normalization.
@@ -1047,7 +1068,7 @@ def load_selected_candidate_study_key_sets(candidate_papers_table: Path) -> dict
     selected = df[df["retained_for_extraction_candidate"].fillna(False).astype(bool)]
     keys_by_source = {source_key: set() for source_key in UI_SOURCE_KEYS}
     for record in selected.to_dict(orient="records"):
-        key = candidate_study_key(record)
+        key = candidate_study_key(record, doi_aliases)
         if not key:
             continue
         source_type = source_type_token(
@@ -1661,6 +1682,7 @@ def export_evidence_payload(
     active_json: Path | None = None,
     require_fresh_author_tables: bool = True,
     candidate_papers_table: Path | None = None,
+    doi_alias_registry: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
     generated_at: str | None = None,
 ) -> dict:
     author_table_status = (
@@ -1672,8 +1694,9 @@ def export_evidence_payload(
         kg_dir,
         require_author_identities=require_fresh_author_tables,
     )
+    doi_aliases = load_doi_aliases(doi_alias_registry)
     candidate_study_key_sets = (
-        load_selected_candidate_study_key_sets(candidate_papers_table)
+        load_selected_candidate_study_key_sets(candidate_papers_table, doi_aliases)
         if candidate_papers_table is not None
         else load_candidate_study_key_sets(kg_dir)
     )
@@ -1814,6 +1837,11 @@ def main() -> int:
         help="Canonical selected-paper table used as the coverage denominator.",
     )
     parser.add_argument(
+        "--doi-alias-registry",
+        default=str(DEFAULT_DOI_ALIAS_REGISTRY),
+        help="Registered DOI aliases used to reconcile candidate coverage with canonical graph papers.",
+    )
+    parser.add_argument(
         "--activate-default",
         action="store_true",
         help="Write data/processed/graph_payload_active.json so the browser UI loads this evidence payload by default.",
@@ -1842,6 +1870,7 @@ def main() -> int:
         active_json=Path(args.active_json).resolve() if args.activate_default else None,
         require_fresh_author_tables=not args.allow_stale_authors,
         candidate_papers_table=Path(args.candidate_papers).resolve(),
+        doi_alias_registry=Path(args.doi_alias_registry).resolve(),
         generated_at=args.generated_at,
     )
     manifest = result["manifest"]

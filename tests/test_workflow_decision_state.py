@@ -6,9 +6,18 @@ import pandas as pd
 
 from pipeline.workflow.decision_state import (
     ActiveArtifact,
+    downstream_candidate_defaults,
     reconcile_candidate_frame,
     reconcile_workflow_decision,
 )
+
+
+def test_prescreen_invalidation_clears_post_retrieval_projection_fields() -> None:
+    defaults = downstream_candidate_defaults("prescreen")
+
+    assert defaults["post_retrieval_decision"] == ""
+    assert defaults["post_retrieval_publication_format"] == ""
+    assert defaults["post_retrieval_run_id"] == ""
 
 
 def candidate_rows() -> pd.DataFrame:

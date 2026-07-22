@@ -77,6 +77,8 @@ class StandardMetadataEnrichmentTest(unittest.TestCase):
 
         publication_types = by_label["refresh PubMed publication-type labels"]
         self.assertIn("refresh_pubmed_publication_types.py", " ".join(publication_types))
+        self.assertIn("--candidate-table", publication_types)
+        self.assertIn(str(Path(args().papers_table).resolve()), publication_types)
         self.assertIn(str(doi_file), publication_types)
 
         open_access = by_label["refresh open-access status and PDF URLs"]

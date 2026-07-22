@@ -142,6 +142,5 @@ class FulltextConversionTest(unittest.TestCase):
         self.assertFalse(write)
         self.assertIn("identity", reason)
 
-
 if __name__ == "__main__":
     unittest.main()

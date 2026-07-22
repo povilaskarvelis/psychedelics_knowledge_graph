@@ -6,30 +6,18 @@
         "10.1001/archneur.1963.00460070079008",
         "10.1001/jama.1968.03140090195028",
         "10.1016/j.jad.2020.01.120",
-        "10.1016/s0960-894x(03)00504-3",
         "10.1016/s0968-0896(02)00209-2",
         "10.1021/np50052a030",
-        "10.1056/nejm-jw.na46715",
-        "10.1080/00275514.1981.12021406",
-        "10.1080/02791072.1980.10471438",
         "10.1520/jfs11977j",
         "10.70423/0002",
         "10.1001/archneurpsyc.1956.02330240017002",
         "10.1001/archneurpsyc.1957.02330340026002",
-        "10.1055/a-2524-6277",
         "10.1055/s-0032-1307601",
         "10.1055/s-0033-1336486",
-        "10.1055/s-0042-1747662",
         "10.1093/oxfordjournals.bmb.a070352",
-        "10.1097/00005053-195607000-00010",
-        "10.1097/mjt.0000000000000886",
         "10.1097/yct.0000000000000878",
-        "10.1192/bjp.86.360.29",
         "10.1210/jcem-17-5-608",
-        "10.1212/wnl.0000000000210945",
-        "10.17615/xwfg-s242",
-        "10.2399/ana.15.027",
-        "10.46998/ijcmcr.2023.32.000787"
+        "10.2399/ana.15.027"
       ],
       "disposition": "insufficient_source_text",
       "reason": "The report appears to contain relevant results, but the available abstract or converted article text stops before the results or contains only metadata, affiliations, or other non-result material.",
@@ -51,6 +39,14 @@
       "disposition": "no_extractable_finding",
       "reason": "The available abstract describes guideline development or the existence of guidance but does not state a concrete recommendation that can be represented reliably.",
       "next_action": "Retain the report and revisit if recommendation-bearing full text becomes available."
+    },
+    {
+      "dois": [
+        "10.3109/10409238.2010.516741"
+      ],
+      "disposition": "extraction_failed",
+      "reason": "Gemini V2 review extraction failed twice from verified article text and once from the abstract because the model generated pathological repeated Unicode combining marks until truncation.",
+      "next_action": "Retain the selected report and retry only with a materially different model or extraction implementation."
     }
   ]
 }

@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from pipeline.extract.run_routed_extraction_batch import (
     attempted_task_keys,
     select_next_tasks,
+    stale_input_fingerprint_task_keys,
     task_matches_filters,
     write_jsonl,
 )
@@ -53,7 +54,6 @@ def make_args(**overrides: object) -> SimpleNamespace:
     args = {
         "include_not_ready": False,
         "include_scaffold_profiles": False,
-        "include_legacy_review_routes": False,
         "prompt_profile": [],
         "schema_profile": [],
         "domain_route": [],
@@ -82,7 +82,7 @@ class RunRoutedExtractionBatchTest(unittest.TestCase):
         self.assertTrue(task_matches_filters(article_task, args))
         self.assertFalse(task_matches_filters(abstract_task, args))
 
-    def test_legacy_review_routes_are_opt_in(self) -> None:
+    def test_legacy_review_routes_are_permanently_disabled(self) -> None:
         task = make_task("review-route")
         task["route_context"].update(
             {
@@ -100,15 +100,42 @@ class RunRoutedExtractionBatchTest(unittest.TestCase):
         )
 
         self.assertFalse(task_matches_filters(task, make_args()))
-        self.assertTrue(task_matches_filters(task, make_args(include_legacy_review_routes=True)))
+
+    def test_legacy_meta_analysis_routes_are_permanently_disabled(self) -> None:
+        task = make_task("meta-route")
+        task["route_context"].update(
+            {
+                "source_type": "meta_analysis",
+                "prompt_profile": "secondary_meta_analysis",
+                "schema_profile": "meta_analysis_evidence_schema",
+            }
+        )
+        task["extraction_contract"].update(
+            {
+                "source_type": "meta_analysis",
+                "prompt_profile": "secondary_meta_analysis",
+                "schema_profile": "meta_analysis_evidence_schema",
+            }
+        )
+
+        self.assertFalse(task_matches_filters(task, make_args()))
 
     def test_attempted_task_keys_skip_prior_outputs_and_raw_errors_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             run_dir = Path(tmpdir)
             write_jsonl(run_dir / "route_extraction_outputs.jsonl", [{"route_id": "route-done", "status": "ok"}])
-            write_jsonl(run_dir / "route_extraction_raw.jsonl", [{"route_id": "route-error", "status": "error"}])
+            write_jsonl(
+                run_dir / "route_extraction_raw.jsonl",
+                [
+                    {"route_id": "route-error", "status": "error"},
+                    {"route_id": "route-corrupt", "status": "quality_error"},
+                ],
+            )
 
-            self.assertEqual(attempted_task_keys(run_dir), {"route-done", "route-error"})
+            self.assertEqual(
+                attempted_task_keys(run_dir),
+                {"route-done", "route-error", "route-corrupt"},
+            )
             self.assertEqual(attempted_task_keys(run_dir, retry_errors=True), {"route-done"})
 
     def test_select_next_tasks_omits_attempted_routes(self) -> None:
@@ -117,6 +144,28 @@ class RunRoutedExtractionBatchTest(unittest.TestCase):
         selected = select_next_tasks(tasks, {"route-1"}, make_args(batch_size=2))
 
         self.assertEqual([task["route_id"] for _, task in selected], ["route-2", "route-3"])
+
+    def test_changed_input_fingerprint_releases_a_successful_route_for_reprocessing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            run_dir = Path(tmpdir)
+            task = make_task("route-updated")
+            task["input_fingerprint"] = "new-fingerprint"
+            write_jsonl(
+                run_dir / "route_extraction_outputs.jsonl",
+                [
+                    {
+                        "route_id": "route-updated",
+                        "status": "ok",
+                        "input_fingerprint": "old-fingerprint",
+                    }
+                ],
+            )
+
+            attempted = attempted_task_keys(run_dir)
+            attempted -= stale_input_fingerprint_task_keys(run_dir, [task])
+            selected = select_next_tasks([task], attempted, make_args())
+
+        self.assertEqual([row["route_id"] for _, row in selected], ["route-updated"])
 
     def test_write_jsonl_writes_json_lines(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

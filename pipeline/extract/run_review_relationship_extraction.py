@@ -29,6 +29,7 @@ try:
         build_generation_config,
         load_dotenv,
         parse_json_response,
+        reject_corrupt_output_text,
         usage_dict,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
@@ -42,6 +43,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
         build_generation_config,
         load_dotenv,
         parse_json_response,
+        reject_corrupt_output_text,
         usage_dict,
     )
 
@@ -300,6 +302,7 @@ def call_structured_model(
         ),
     )
     parsed, parse_method = parse_json_response(response.text or "")
+    reject_corrupt_output_text(parsed)
     return parsed, usage_dict(response), parse_method
 
 

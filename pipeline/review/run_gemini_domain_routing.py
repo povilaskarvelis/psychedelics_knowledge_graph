@@ -234,9 +234,13 @@ ROUTING_METADATA_FIELDS = (
 
 
 def merged_routing_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataFrame) -> pd.DataFrame:
-    """Return one DOI row using enrichment values over the complete candidate ledger."""
+    """Return one DOI row with the materialized candidate ledger authoritative.
+
+    The enrichment table is a fallback cache for legacy/sparse inputs and may
+    fill blanks; it cannot silently replace a populated candidate value.
+    """
     by_doi: dict[str, dict] = {}
-    for frame in (candidate_df, metadata_df):
+    for frame in (metadata_df, candidate_df):
         if frame.empty or "doi" not in frame.columns:
             continue
         for row in frame.to_dict("records"):
@@ -601,6 +605,8 @@ def run_gemini(args: argparse.Namespace) -> list[dict]:
 def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_df: pd.DataFrame) -> list[dict]:
     metadata_by_doi = row_by_doi(metadata_df)
     prescreen_context = aggregate_prescreen_context(prescreen_df)
+    prescreen_gate_active = not prescreen_df.empty and "doi" in prescreen_df.columns
+    current_prescreen_dois = retained_dois(prescreen_df, scoped_dois=set())
     rows = []
     if not raw_jsonl.exists():
         return rows
@@ -614,6 +620,13 @@ def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_d
             doi = normalize_doi(raw.get("doi", ""))
             parsed = raw.get("parsed", {})
             if not doi or not isinstance(parsed, dict):
+                continue
+            # The raw JSONL is an immutable audit of every model decision ever
+            # obtained.  The materialized routing table, however, is a current
+            # workflow view and must not resurrect records excluded by a later
+            # prescreen revision.  Keep the raw result for provenance while
+            # applying the current prescreen gate when rebuilding the table.
+            if prescreen_gate_active and doi not in current_prescreen_dois:
                 continue
             meta = metadata_by_doi.get(doi, {})
             context = prescreen_context.get(doi, {})

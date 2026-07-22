@@ -31,6 +31,7 @@ TERMINAL_MANUAL_STATUSES = {
     "closed_access",
     "duplicate_of_canonical",
     "excluded_publication_format",
+    "invalid_nonresolving_doi",
     "reviewed_pending_pdf_reconciliation",
 }
 QUEUE_COLUMNS = [

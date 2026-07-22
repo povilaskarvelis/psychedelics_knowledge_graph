@@ -6,6 +6,7 @@ from pipeline.extract.build_extraction_routes import (
 )
 from pipeline.extract.route_extraction_profiles import (
     DOMAIN_PROMPT_PATHS,
+    PROFILE_STATUS_LEGACY_READ_ONLY,
     PROFILE_STATUS_RUNNABLE,
     PROFILE_STATUS_TERMINAL_NO_MODEL,
     ROUTE_EXTRACTION_PROFILES,
@@ -52,6 +53,11 @@ def test_profile_statuses_and_files_are_consistent() -> None:
             assert profile.prompt_path is None
             assert profile.schema_path is None
             assert profile.default_max_output_tokens == 0
+        elif profile.status == PROFILE_STATUS_LEGACY_READ_ONLY:
+            assert profile.prompt_path is not None
+            assert profile.prompt_path.exists()
+            assert not profile.has_model_contract
+            assert profile.default_max_output_tokens > 0
         else:
             assert profile.prompt_path is not None
             assert profile.prompt_path.exists()
@@ -80,17 +86,17 @@ def test_secondary_profiles_require_a_current_domain_schema() -> None:
             raise AssertionError("A secondary extraction profile accepted a missing domain")
 
 
-def test_current_runnable_profiles_include_primary_meta_analysis_and_reviews() -> None:
+def test_current_runnable_profiles_exclude_legacy_v1_secondary_contracts() -> None:
     runnable = {
         (profile.prompt_profile, profile.schema_profile)
         for profile in ROUTE_EXTRACTION_PROFILES.values()
         if profile.status == PROFILE_STATUS_RUNNABLE
     }
 
-    assert ("secondary_meta_analysis", "meta_analysis_evidence_schema") in runnable
+    assert ("secondary_meta_analysis", "meta_analysis_evidence_schema") not in runnable
     assert ("primary_clinical", "primary_evidence_schema") in runnable
     assert ("primary_molecular_target", "primary_evidence_schema") in runnable
-    assert {(prompt, "review_coverage_schema") for prompt in REVIEW_COVERAGE_PROMPT_PROFILES}.issubset(runnable)
+    assert {(prompt, "review_coverage_schema") for prompt in REVIEW_COVERAGE_PROMPT_PROFILES}.isdisjoint(runnable)
     assert ("guideline_consensus", "recommendation_consensus_schema") in runnable
 
 
@@ -133,7 +139,7 @@ def test_system_instruction_uses_paper_type_depth_prompt_and_scope_notes_for_pri
     assert profile.schema_path.name == "clinical_outcome.schema.json"
 
 
-def test_system_instruction_includes_scope_for_secondary_profiles() -> None:
+def test_system_instruction_can_reconstruct_legacy_v1_secondary_prompt_for_audit() -> None:
     profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
     schema = load_schema_for_profile(profile, "clinical_outcome")
 
@@ -184,4 +190,5 @@ def test_supported_profile_keys_reports_status() -> None:
     rows = supported_profile_keys()
 
     assert any(row["status"] == PROFILE_STATUS_TERMINAL_NO_MODEL for row in rows)
+    assert any(row["status"] == PROFILE_STATUS_LEGACY_READ_ONLY for row in rows)
     assert any(row["status"] == PROFILE_STATUS_RUNNABLE for row in rows)

@@ -27,6 +27,12 @@ from typing import Iterator
 
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from pipeline.extract.route_extraction_profiles import is_legacy_v1_secondary_profile
+
+
 PROCESSED_DIR = ROOT / "data" / "processed"
 EXTRACTION_DIR = PROCESSED_DIR / "extraction"
 ROUTED_RUNS_DIR = EXTRACTION_DIR / "routed_runs"
@@ -36,7 +42,10 @@ QUERY_RUNS_DIR = PROCESSED_DIR / "query_api_runs"
 ACTIVE_EXTRACTION_POINTER = EXTRACTION_DIR / "active_routed_run.json"
 ACTIVE_GRAPH_POINTER = PROCESSED_DIR / "graph_payload_active.json"
 CANDIDATE_PAPERS_TABLE = PROCESSED_DIR / "corpus" / "candidate_papers.parquet"
+PAPER_FUNDING_TABLE = PROCESSED_DIR / "corpus" / "paper_funding.parquet"
+PAPER_FUNDING_ATTEMPTS_TABLE = PROCESSED_DIR / "corpus" / "paper_funding_provider_attempts.parquet"
 GRAPH_DISPOSITION_OVERRIDES = ROOT / "data" / "curated" / "graph_inclusion_disposition_overrides.json"
+DOI_ALIAS_REGISTRY = ROOT / "pipeline" / "validate" / "doi_alias_registry.json"
 PROMOTION_LOCK = PROCESSED_DIR / ".routed_release_promotion.lock"
 
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
@@ -77,6 +86,36 @@ def read_json_object(path: Path) -> dict:
     if not isinstance(value, dict):
         raise ValueError(f"Expected a JSON object: {path}")
     return value
+
+
+def legacy_v1_secondary_counts(outputs_jsonl: Path) -> dict[str, int]:
+    """Return legacy secondary contracts present in a routed output stream."""
+
+    counts: dict[str, int] = {}
+    with outputs_jsonl.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            contract = row.get("extraction_contract", {}) if isinstance(row.get("extraction_contract"), dict) else {}
+            prompt_profile = normalize(row.get("prompt_profile") or contract.get("prompt_profile"))
+            schema_profile = normalize(row.get("schema_profile") or contract.get("schema_profile"))
+            if is_legacy_v1_secondary_profile(prompt_profile, schema_profile):
+                key = f"{prompt_profile}/{schema_profile}"
+                counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def reject_legacy_v1_secondary_outputs(outputs_jsonl: Path) -> None:
+    counts = legacy_v1_secondary_counts(outputs_jsonl)
+    if not counts:
+        return
+    details = ", ".join(f"{key}={count}" for key, count in sorted(counts.items()))
+    raise ValueError(
+        "Promotion refused: routed outputs contain permanently disabled legacy v1 "
+        f"meta-analysis/review extraction ({details}). Re-extract meta-analyses with "
+        "the v2 pipeline and reviews with the paper-centered relationship pipeline."
+    )
 
 
 def write_json_atomic(path: Path, value: object) -> None:
@@ -598,6 +637,7 @@ def promote(args: argparse.Namespace) -> dict:
     run_id = safe_run_id(args.run_id)
     with promotion_lock():
         outputs, evidence, source_manifest = resolve_extraction_inputs(args, run_id)
+        reject_legacy_v1_secondary_outputs(outputs)
         release_id = f"{run_id}:{uuid.uuid4().hex}"
         graph_pointer = graph_pointer_for_run(run_id, release_id)
         payload_manifest = validate_built_release(run_id, graph_pointer)
@@ -619,8 +659,7 @@ def promote(args: argparse.Namespace) -> dict:
         current_methods = ROOT / "data" / "kg"
         current_dist = ROOT / "dist"
 
-        run_checked(
-            [
+        graph_status_command = [
                 sys.executable,
                 str(ROOT / "pipeline" / "kg" / "update_corpus_graph_status.py"),
                 "--candidate-table",
@@ -631,10 +670,33 @@ def promote(args: argparse.Namespace) -> dict:
                 str(KG_RUNS_DIR / run_id),
                 "--disposition-overrides",
                 str(GRAPH_DISPOSITION_OVERRIDES),
+                "--doi-alias-registry",
+                str(DOI_ALIAS_REGISTRY),
                 "--run-id",
                 run_id,
                 "--release-id",
                 release_id,
+            ]
+        extraction_results = [outputs]
+        extraction_results.extend(resolve_repo_path(value) for value in args.extraction_results)
+        for path in dict.fromkeys(extraction_results):
+            graph_status_command.extend(["--extraction-results", str(path)])
+        run_checked(graph_status_command)
+
+        run_checked(
+            [
+                sys.executable,
+                str(ROOT / "pipeline" / "ingest" / "materialize_candidate_funding.py"),
+                "--candidate-table",
+                str(staged_candidate),
+                "--output-table",
+                str(staged_candidate),
+                "--assertions",
+                str(PAPER_FUNDING_TABLE),
+                "--attempts",
+                str(PAPER_FUNDING_ATTEMPTS_TABLE),
+                "--doi-alias-registry",
+                str(DOI_ALIAS_REGISTRY),
             ]
         )
 
@@ -751,6 +813,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--outputs-jsonl", default="")
     parser.add_argument("--evidence-rows-json", default="")
     parser.add_argument("--source-update-manifest", default="")
+    parser.add_argument(
+        "--extraction-results",
+        action="append",
+        default=[],
+        help=(
+            "Additional completed extraction JSONL used to finalize selected reports with no "
+            "graph finding (for example meta-analysis v2 outputs). The routed outputs are always included."
+        ),
+    )
     return parser.parse_args()
 
 

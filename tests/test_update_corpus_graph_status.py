@@ -22,6 +22,8 @@ class UpdateCorpusGraphStatusTest(unittest.TestCase):
             pd.DataFrame(rows),
             represented_dois=kwargs.get("represented_dois", set()),
             audit_statuses=kwargs.get("audit_statuses", {}),
+            extraction_outcomes=kwargs.get("extraction_outcomes", {}),
+            doi_aliases=kwargs.get("doi_aliases", {}),
             disposition_overrides=kwargs.get("disposition_overrides", {}),
             run_id="run",
             release_id="run:release",
@@ -55,8 +57,42 @@ class UpdateCorpusGraphStatusTest(unittest.TestCase):
         self.assertEqual(by_doi.loc["10.1000/excluded", "graph_inclusion_disposition"], "not_reached")
 
     def test_rejects_selected_report_without_a_final_decision(self) -> None:
-        with self.assertRaisesRegex(ValueError, "neither an explicit final disposition"):
+        with self.assertRaisesRegex(ValueError, "no completed extraction"):
             self.build([candidate("10.1000/missing")])
+
+    def test_curated_extraction_failure_is_a_final_auditable_decision(self) -> None:
+        out = self.build(
+            [candidate("10.1000/model-failure")],
+            disposition_overrides={
+                "10.1000/model-failure": {
+                    "disposition": "extraction_failed",
+                    "reason": "Repeated model-output corruption.",
+                    "next_action": "Retry with a different implementation.",
+                }
+            },
+        )
+
+        row = out.iloc[0]
+        self.assertEqual(row["graph_inclusion_status"], "not_represented")
+        self.assertEqual(row["graph_inclusion_disposition"], "extraction_failed")
+        self.assertEqual(row["graph_inclusion_decision_source"], "curated_final_disposition")
+
+    def test_completed_no_finding_outcome_is_auditable_terminal_decision(self) -> None:
+        out = self.build(
+            [candidate("10.1000/no-result")],
+            extraction_outcomes={"10.1000/no-result": {"no_extractable_scoped_evidence"}},
+        )
+        row = out.iloc[0]
+        self.assertEqual(row["graph_inclusion_disposition"], "no_extractable_finding")
+        self.assertEqual(row["graph_inclusion_decision_source"], "completed_extraction_outcome")
+
+    def test_candidate_alias_resolves_to_represented_canonical_paper(self) -> None:
+        out = self.build(
+            [candidate("10.1000/repository")],
+            represented_dois={"10.1000/article"},
+            doi_aliases={"10.1000/repository": "10.1000/article"},
+        )
+        self.assertEqual(out.iloc[0]["graph_inclusion_disposition"], "represented")
 
     def test_rejects_scope_exclusion_left_in_selected_set(self) -> None:
         with self.assertRaisesRegex(ValueError, "screening exclusion was left"):

@@ -45,6 +45,7 @@ from pipeline.extract.run_route_extraction import (
     DEFAULT_GEMINI_MODEL,
     build_generation_config,
     parse_json_response,
+    reject_corrupt_output_text,
     safe_run_id,
 )
 
@@ -472,6 +473,7 @@ def parse_results(args: argparse.Namespace) -> dict:
                 raise RuntimeError("Batch result could not be matched to its task")
             parsed, parse_method = parse_json_response(text)
             result = inject_fixed_fields(parsed, task)
+            reject_corrupt_output_text(result)
             validation_errors = schema_errors(schema, result)
             qa_flags = bundle_semantic_errors(result) if not validation_errors else []
             status = "schema_error" if validation_errors else "ok"

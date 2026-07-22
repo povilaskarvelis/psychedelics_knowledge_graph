@@ -166,6 +166,33 @@ class PromoteRoutedRunTest(unittest.TestCase):
         self.assertEqual(extraction["kg_dir"], graph["kg_dir"])
         self.assertEqual(extraction["graph_payload_manifest"], graph["active_manifest"])
 
+    def test_legacy_v1_secondary_outputs_cannot_be_promoted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outputs = Path(tmpdir) / "outputs.jsonl"
+            outputs.write_text(
+                json.dumps(
+                    {
+                        "prompt_profile": "secondary_meta_analysis",
+                        "schema_profile": "meta_analysis_evidence_schema",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "Promotion refused.*legacy v1"):
+                promotion.reject_legacy_v1_secondary_outputs(outputs)
+
+    def test_current_secondary_outputs_are_not_blocked_by_legacy_guard(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outputs = Path(tmpdir) / "outputs.jsonl"
+            outputs.write_text(
+                json.dumps({"schema_version": "meta_analysis_evidence_v2"}) + "\n",
+                encoding="utf-8",
+            )
+
+            promotion.reject_legacy_v1_secondary_outputs(outputs)
+
     def test_public_artifact_revision_is_separate_from_evidence_release(self) -> None:
         graph = promotion.graph_pointer_for_run(
             "candidate",

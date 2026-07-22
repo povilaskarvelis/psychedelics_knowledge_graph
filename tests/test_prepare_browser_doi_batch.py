@@ -6,15 +6,15 @@ from pipeline.fulltext.prepare_browser_doi_batch import prepare_batch
 def test_prepare_batch_skips_every_previously_assigned_doi() -> None:
     queue = pd.DataFrame(
         [
-            {"doi": "10.1/partial", "study_title": "Partial"},
-            {"doi": "10.1/new-a", "study_title": "New A"},
-            {"doi": "10.1/new-b", "study_title": "New B"},
+            {"doi": "10.1000/partial", "study_title": "Partial"},
+            {"doi": "10.1000/new-a", "study_title": "New A"},
+            {"doi": "10.1000/new-b", "study_title": "New B"},
         ]
     )
     progress = pd.DataFrame(
         [
             {
-                "doi": "10.1/partial",
+                "doi": "10.1000/partial",
                 "study_title": "Partial",
                 "browser_batch": 4,
                 "manual_status": "partial_review_rate_limited",
@@ -25,7 +25,7 @@ def test_prepare_batch_skips_every_previously_assigned_doi() -> None:
 
     batch, reservations = prepare_batch(queue, progress, batch_size=2)
 
-    assert batch["doi"].tolist() == ["10.1/new-a", "10.1/new-b"]
+    assert batch["doi"].tolist() == ["10.1000/new-a", "10.1000/new-b"]
     assert reservations["browser_batch"].tolist() == [5, 5]
     assert set(reservations["manual_status"]) == {"opened_for_manual_review"}
 
@@ -64,3 +64,16 @@ def test_prepare_batch_can_skip_a_reconstructed_reviewed_head() -> None:
     )
 
     assert batch["doi"].tolist() == ["10.3000/c"]
+
+
+def test_prepare_batch_excludes_non_doi_identifiers() -> None:
+    queue = pd.DataFrame(
+        [
+            {"doi": "pii: 1039", "study_title": "Not a DOI"},
+            {"doi": "10.1000/valid", "study_title": "Valid DOI"},
+        ]
+    )
+
+    batch, _ = prepare_batch(queue, pd.DataFrame(), batch_size=2, batch_number=1)
+
+    assert batch["doi"].tolist() == ["10.1000/valid"]

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "record_count": 50,
+  "record_count": 52,
   "description": "Exceptional curator-reviewed PDF identities bound to exact file hashes. These records do not authorize a different download or DOI alias.",
   "records": [
     {
@@ -445,6 +445,24 @@
       "expected_title": "Behavioral Changes and Neuronal Damage in Rhesus Monkeys after 10 Weeks of Ketamine Administration Involve Prefrontal Cortex Dopamine D2 Receptor and Dopamine Transporter",
       "review_basis": "The 10-page Neuroscience research article prints the exact requested title, authors, volume 415, and pages 97-106. Its downloaded filename exposes Elsevier PII S0306452219305068 while the DOI is outside the importer identity window.",
       "reviewed_at": "2026-07-18"
+    },
+    {
+      "requested_doi": "10.1080/10826084.2023.2181036",
+      "pdf_sha256": "c5572443772197722107d3b6516ad5fff4888c9d5d227ce1abf09ab9afdd1ac5",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1080/10826084.2023.2181036",
+      "expected_title": "The Global Distribution and Epidemiology of Psychoactive Substance Use and Injection Drug Use Among Street-Involved Children and Youth: A Meta-Analysis",
+      "review_basis": "Visual review of page one confirms the exact Substance Use & Misuse title, authors, article type, and requested DOI. The title and DOI are visibly rendered but were omitted from both GROBID header fields and the PDF text layer used by automatic front-title validation.",
+      "reviewed_at": "2026-07-21"
+    },
+    {
+      "requested_doi": "10.19080/jcmah.2024.13.555852",
+      "pdf_sha256": "914ee6c910d08496598c4ab12a2c2004d6d997bd1a42057c79e754701238eb4a",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.19080/JCMAH.2024.13.555852",
+      "expected_title": "Use of Psilocybin in the Treatment of Mental Disorders: Systematic Review of Clinical Trials",
+      "review_basis": "Visual review of the 22-page review confirms the exact requested title, authors, journal, volume, and manuscript identifier 555852. The publisher header prints apparent DOI typo 10.19080/JCMAH.2024.13.5558512, which correctly triggered the automatic conflicting-DOI gate; this attestation is limited to the reviewed file hash.",
+      "reviewed_at": "2026-07-21"
     }
   ]
 }

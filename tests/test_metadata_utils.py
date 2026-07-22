@@ -13,6 +13,7 @@ from pipeline.ingest.metadata_utils import (
     lookup_crossref_metadata,
     lookup_openalex_work,
     lookup_openalex_work_by_id,
+    lookup_pubmed_metadata,
     lookup_pmc_metadata,
     metadata_pdf_candidates,
     metadata_from_unpaywall_payload,
@@ -81,6 +82,39 @@ class SequencedPdfClient:
 
 
 class MetadataUtilsTest(unittest.TestCase):
+    def test_pubmed_lookup_rejects_search_hits_without_the_requested_doi(self) -> None:
+        client = FakeClient(
+            json_responses=[
+                (
+                    lambda url, params: url.endswith("/esearch.fcgi"),
+                    {"esearchresult": {"idlist": ["12345"]}},
+                )
+            ],
+            bytes_responses=[
+                (
+                    lambda url: "/efetch.fcgi?" in url,
+                    b"""
+                    <PubmedArticleSet>
+                      <PubmedArticle>
+                        <MedlineCitation><PMID>12345</PMID><Article><ArticleTitle>Adjacent paper</ArticleTitle></Article></MedlineCitation>
+                        <PubmedData><ArticleIdList><ArticleId IdType="doi">10.1000/adjacent</ArticleId></ArticleIdList></PubmedData>
+                      </PubmedArticle>
+                    </PubmedArticleSet>
+                    """,
+                )
+            ],
+        )
+
+        metadata = lookup_pubmed_metadata(
+            client,
+            doi="10.1000/requested",
+            email="",
+            api_key="",
+            paper={},
+        )
+
+        self.assertIsNone(metadata)
+
     def test_pubmed_article_id_ignores_cited_reference_identifiers(self) -> None:
         article = ET.fromstring(
             """

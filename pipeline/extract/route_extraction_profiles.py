@@ -37,11 +37,13 @@ SCHEMA_MODES = ("native", "prompt", "both")
 PROFILE_STATUS_RUNNABLE = "runnable"
 PROFILE_STATUS_SCAFFOLD = "scaffold"
 PROFILE_STATUS_TERMINAL_NO_MODEL = "terminal_no_model"
+PROFILE_STATUS_LEGACY_READ_ONLY = "legacy_read_only"
 MODEL_PROFILE_STATUSES = {PROFILE_STATUS_RUNNABLE, PROFILE_STATUS_SCAFFOLD}
 VALID_PROFILE_STATUSES = {
     PROFILE_STATUS_RUNNABLE,
     PROFILE_STATUS_SCAFFOLD,
     PROFILE_STATUS_TERMINAL_NO_MODEL,
+    PROFILE_STATUS_LEGACY_READ_ONLY,
 }
 
 DOMAIN_PROMPT_PATHS = {
@@ -108,6 +110,41 @@ REVIEW_COVERAGE_PROMPT_PROFILES = (
     "secondary_narrative_review",
     "secondary_review_coverage",
 )
+
+# These contracts remain registered only so historical v1 outputs can still be
+# inspected and parsed.  New meta-analysis and review model calls must use the
+# dedicated paper-centered v2 pipelines.
+LEGACY_V1_SECONDARY_PROFILE_KEYS = frozenset(
+    {
+        ("secondary_meta_analysis", "meta_analysis_evidence_schema"),
+        *((prompt, "review_coverage_schema") for prompt in REVIEW_COVERAGE_PROMPT_PROFILES),
+    }
+)
+
+
+def is_legacy_v1_secondary_profile(prompt_profile: object, schema_profile: object) -> bool:
+    return (str(prompt_profile or "").strip(), str(schema_profile or "").strip()) in LEGACY_V1_SECONDARY_PROFILE_KEYS
+
+
+def task_uses_legacy_v1_secondary_profile(task: dict) -> bool:
+    return is_legacy_v1_secondary_profile(*profile_key_for_task(task))
+
+
+def legacy_v1_secondary_block_message(tasks: list[dict]) -> str:
+    blocked = [task for task in tasks if task_uses_legacy_v1_secondary_profile(task)]
+    counts: dict[str, int] = {}
+    for task in blocked:
+        prompt_profile, schema_profile = profile_key_for_task(task)
+        key = f"{prompt_profile}/{schema_profile}"
+        counts[key] = counts.get(key, 0) + 1
+    details = ", ".join(f"{key}={count}" for key, count in sorted(counts.items()))
+    return (
+        "Legacy v1 secondary extraction is permanently disabled"
+        + (f" ({details})" if details else "")
+        + ". Meta-analyses must use build_meta_analysis_v2_tasks.py with "
+        "run_meta_analysis_v2_batch_api.py; reviews must use "
+        "build_review_relationship_tasks.py with run_review_relationship_batch_api.py."
+    )
 
 ENTITY_TYPES_BY_DOMAIN = {
     "clinical_outcome": {"disorder", "symptom_or_outcome", "not_applicable", "uncertain"},
@@ -186,11 +223,11 @@ def review_coverage_profile(prompt_profile: str) -> RouteExtractionProfile:
         schema_profile="review_coverage_schema",
         output_family="review_coverage",
         output_schema_version="review_coverage_v1",
-        status=PROFILE_STATUS_RUNNABLE,
+        status=PROFILE_STATUS_LEGACY_READ_ONLY,
         prompt_path=PAPER_TYPE_PROMPT_PATHS[("review", TEXT_DEPTH_ARTICLE)],
         schema_path=None,
         default_max_output_tokens=16384,
-        description="Extract domain-specific secondary review coverage.",
+        description="Legacy v1 review contract retained only for historical parsing; new model calls are blocked.",
     )
 
 
@@ -200,11 +237,11 @@ ROUTE_EXTRACTION_PROFILES: dict[tuple[str, str], RouteExtractionProfile] = {
         schema_profile="meta_analysis_evidence_schema",
         output_family="meta_analysis_evidence",
         output_schema_version="meta_analysis_evidence_v1",
-        status=PROFILE_STATUS_RUNNABLE,
+        status=PROFILE_STATUS_LEGACY_READ_ONLY,
         prompt_path=PAPER_TYPE_PROMPT_PATHS[("meta_analysis", TEXT_DEPTH_ARTICLE)],
         schema_path=None,
         default_max_output_tokens=24576,
-        description="Extract structured quantitative synthesis results from meta-analyses.",
+        description="Legacy v1 meta-analysis contract retained only for historical parsing; new model calls are blocked.",
     ),
     **{profile.key: profile for profile in (primary_profile(prompt) for prompt in PRIMARY_PROMPT_PROFILES)},
     **{profile.key: profile for profile in (review_coverage_profile(prompt) for prompt in REVIEW_COVERAGE_PROMPT_PROFILES)},
@@ -471,7 +508,7 @@ def build_system_instruction(
 ) -> str:
     if schema_mode not in SCHEMA_MODES:
         raise ValueError(f"Unsupported schema mode `{schema_mode}`")
-    if not profile.has_model_contract:
+    if not profile.has_model_contract and profile.status != PROFILE_STATUS_LEGACY_READ_ONLY:
         raise ValueError(f"Profile `{profile.prompt_profile}/{profile.schema_profile}` is not model-runnable")
     assert profile.prompt_path is not None
     depth_key = TEXT_DEPTH_ARTICLE

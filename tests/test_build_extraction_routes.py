@@ -86,6 +86,18 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(merged.iloc[0]["study_title"], "Candidate title")
         self.assertEqual(merged.iloc[0]["abstract"], "A usable candidate abstract.")
 
+    def test_nonblank_enrichment_cache_does_not_override_candidate_abstract(self) -> None:
+        candidate = pd.DataFrame(
+            [{"doi": "10.1000/canonical", "abstract": "Canonical candidate abstract."}]
+        )
+        enrichment = pd.DataFrame(
+            [{"doi": "10.1000/canonical", "abstract": "Stale enrichment-cache abstract."}]
+        )
+
+        merged = merged_extraction_metadata(candidate, enrichment)
+
+        self.assertEqual(merged.iloc[0]["abstract"], "Canonical candidate abstract.")
+
     def test_candidate_ledger_supplies_metadata_when_enrichment_row_is_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -990,7 +1002,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         )
 
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["route_action"], "download_pdf_then_extract")
+        self.assertEqual(rows[0]["route_action"], "extract_from_abstract_only")
 
     def test_valid_local_pdf_gets_local_pdf_route_before_pdf_url_route(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1051,7 +1063,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(rows[0]["pdf_url_quality"], "probable_pdf")
         self.assertFalse(rows[0]["has_converted_full_text"])
 
-    def test_probable_pdf_url_routes_to_download(self) -> None:
+    def test_probable_pdf_url_does_not_block_available_abstract(self) -> None:
         metadata_df = pd.DataFrame(
             [
                 {
@@ -1093,12 +1105,108 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             generated_at_utc="2026-05-28T00:00:00+00:00",
         )
 
-        self.assertEqual(rows[0]["access_tier"], "pdf_download_url_available")
-        self.assertEqual(rows[0]["route_action"], "download_pdf_then_extract")
+        self.assertEqual(rows[0]["access_tier"], "abstract_only")
+        self.assertEqual(rows[0]["route_action"], "extract_from_abstract_only")
         self.assertTrue(rows[0]["has_pdf_url"])
         self.assertTrue(rows[0]["has_probable_pdf_url"])
         self.assertEqual(rows[0]["pdf_url_quality"], "probable_pdf")
         self.assertIn("content/pdf", rows[0]["probable_pdf_url_candidates"])
+
+    def test_probable_pdf_url_without_abstract_routes_to_download(self) -> None:
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/probable-pdf-no-abstract",
+                    "study_title": "Psilocybin study without an abstract",
+                    "abstract": "",
+                    "publication_type": "Journal Article",
+                    "best_pdf_url": "https://publisher.example/content/pdf/10.1000/probable.pdf",
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/probable-pdf-no-abstract",
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "prescreen_action": "retain_for_extraction_candidate",
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/probable-pdf-no-abstract",
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                    "literature_type_confidence": "medium",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-05-28T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["access_tier"], "pdf_download_url_available")
+        self.assertEqual(rows[0]["route_action"], "download_pdf_then_extract")
+
+    def test_terminal_pdf_failure_falls_back_to_abstract_route(self) -> None:
+        doi = "10.1000/terminal-pdf-failure"
+        metadata_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "study_title": "Psilocybin study with a mismatched PDF",
+                    "abstract": "A usable study abstract remains available for extraction.",
+                    "publication_type": "Journal Article",
+                    "best_pdf_url": "https://publisher.example/content/pdf/wrong-paper.pdf",
+                    "pdf_download_status": "download_failed",
+                    "pdf_download_failure_category": "source_identity_mismatch",
+                    "pdf_download_failure_categories": "source_identity_mismatch",
+                    "pdf_download_retry_recommended": True,
+                }
+            ]
+        )
+        prescreen_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "prescreen_decision": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "routing_tags": "clinical_outcome",
+                }
+            ]
+        )
+        literature_df = pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "retained_for_extraction_candidate": True,
+                    "source_family": "primary_or_unclear",
+                }
+            ]
+        )
+
+        rows = build_route_rows(
+            metadata_df,
+            prescreen_df,
+            literature_df,
+            fulltext_dir=Path("/tmp/does-not-exist"),
+            generated_at_utc="2026-07-21T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["access_tier"], "abstract_only")
+        self.assertEqual(rows[0]["route_action"], "extract_from_abstract_only")
+        self.assertTrue(rows[0]["pdf_download_terminal_failure"])
+        self.assertFalse(rows[0]["pdf_download_retry_recommended"])
+        self.assertFalse(rows[0]["has_pdf_url"])
 
     def test_weak_pdf_url_stays_visible_but_does_not_route_to_automated_download(self) -> None:
         metadata_df = pd.DataFrame(

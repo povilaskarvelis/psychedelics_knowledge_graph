@@ -381,6 +381,7 @@ class BatchAbstractEnrichmentTest(unittest.TestCase):
                 run_dir=run_dir,
             )
             rows = {row["doi"]: row for row in read_table(metadata)}
+            candidate_rows = pd.read_parquet(candidates).set_index("doi")
 
         self.assertEqual(report["abstracts_added"], 1)
         self.assertEqual(report["skipped_existing_abstract"], 1)
@@ -388,6 +389,12 @@ class BatchAbstractEnrichmentTest(unittest.TestCase):
         self.assertEqual(rows["10.1000/new"]["semantic_scholar_id"], "s2-new")
         self.assertEqual(rows["10.1000/existing"]["abstract"], "Canonical abstract")
         self.assertEqual(rows["10.1000/unrelated"]["abstract"], "Preserve me")
+        self.assertEqual(
+            candidate_rows.loc["10.1000/new", "abstract"], "Newly recovered abstract."
+        )
+        self.assertEqual(
+            report["candidate_materialization"]["changed_candidate_rows"], 1
+        )
 
     def test_best_recovered_rows_prefers_pmc(self) -> None:
         selected = best_recovered_rows(

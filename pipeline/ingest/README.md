@@ -38,7 +38,9 @@ The command:
 - checkpoints each successful provider batch and automatically reuses the
   checkpoint when the same run command is resumed;
 - never overwrites an existing abstract;
-- backs up `paper_metadata_enrichment.parquet` before an atomic merge; and
+- backs up `paper_metadata_enrichment.parquet` before an atomic merge;
+- materializes every recovered abstract and its provider/run provenance into
+  `candidate_papers.parquet`; and
 - records provider attempts, identifier mismatches, recovery counts, and the
   final metadata-table checksum in run artifacts under
   `data/processed/corpus/metadata_enrichment_runs/<run_id>/`.
@@ -94,9 +96,26 @@ python pipeline/ingest/run_standard_metadata_enrichment.py \
   --progress-every 100
 ```
 
-Use `--doi-file <path>` for a small scoped update. The runner writes metadata to
-`data/processed/corpus/paper_metadata_enrichment.parquet` and leaves the
-canonical candidate corpus unchanged.
+Use `--doi-file <path>` for a small scoped update. Provider responses and
+lookup provenance remain in `paper_metadata_enrichment.parquet`, while every
+successful bibliographic value is materialized into the matching row in
+`candidate_papers.parquet`. The candidate ledger is the canonical input to
+prescreen and later workflow stages; the enrichment table is not a hidden
+override layer.
+
+For a one-time migration or integrity repair, run:
+
+```bash
+python pipeline/ingest/materialize_candidate_metadata.py \
+  --run-id candidate_metadata_materialization_YYYYMMDD \
+  --report-json data/processed/corpus/audits/candidate_metadata_materialization_YYYYMMDD.json
+```
+
+By default this fills only blank candidate cells. Fresh enrichment commands
+may explicitly overwrite values within their own DOI/field scope, after which
+curated metadata corrections are reapplied. Downstream merge helpers treat a
+populated candidate value as authoritative and use the enrichment cache only
+to fill legacy blanks.
 
 The provider roles are intentionally separate:
 
@@ -116,6 +135,20 @@ python pipeline/ingest/enrich_paper_metadata.py \
   --retry-missing-metadata
 ```
 
+Canonical bibliographic metadata includes journal volume, issue, and pages.
+These fields are used by source-format checks when a provider's broad
+`journal-article` label cannot distinguish a conference supplement. For a
+targeted field backfill, use `--update-fields journal_volume,journal_issue,journal_pages`;
+all other candidate and cache values are preserved.
+
+When a reviewed QA finding shows that a DOI has been joined to another paper's
+title or abstract, use a DOI-scoped authoritative refresh with
+`--refresh-existing --replace-identity-fields`. This mode requires
+`--doi-file`, rebuilds bibliographic identity only from DOI-verified provider
+responses, and clears a contaminated field when no verified replacement is
+available. PubMed search hits are accepted only when the returned article's
+own DOI exactly matches the requested DOI.
+
 To refresh only access metadata:
 
 ```bash
@@ -127,3 +160,66 @@ python pipeline/ingest/refresh_open_access_links.py \
 
 PDF retrieval begins after extraction assignments are built and belongs to
 `pipeline/fulltext/`.
+
+## Post-screen funding enrichment
+
+Funding metadata has its own provider-only stage after title/abstract
+screening. It is not a fallback inside general metadata enrichment and is not
+an LLM extraction task. Run:
+
+```bash
+python pipeline/ingest/enrich_paper_funding.py \
+  --run-id funding_enrichment_YYYYMMDD
+```
+
+By default the command queries OpenAlex, PubMed, and Crossref independently for
+every distinct DOI with an `include_in_scope` model-screening decision, after
+applying curated report-level exclusions and suppressing DOI aliases. Use
+`--scope retained` only when the narrower, later extraction-eligible cohort is
+intended. `--doi-file` intersects either cohort for an incremental update, and
+`--dry-run` reports the scope without making requests.
+
+The stage writes:
+
+- `paper_funding.parquet`, one row per provider-asserted funder/award
+  relationship, retaining funder IDs, award IDs, provider record IDs, run IDs,
+  payload checksums, and retrieval timestamps;
+- `paper_funding_provider_attempts.parquet`, an append-only attempt log that
+  distinguishes funding found, a provider record with no funding metadata, a
+  missing provider record, and a request/parser error; and
+- a frozen DOI scope, manifest, and report under
+  `funding_enrichment_runs/<run_id>/` for safe resume.
+
+All three providers are supplementary: finding funding at one does not stop the
+other lookups. Completed provider/DOI pairs are reused unless
+`--refresh-existing` is set, while errors remain retryable. A successful
+refresh replaces only that provider's assertions for that DOI. Existing
+`funders`, `grant_ids`, narrative `funding`, and historical KG values never
+seed this table. `materialize_candidate_funding.py` projects only these
+provider-backed assertions onto the canonical candidate ledger and KG paper
+records. The normalized assertion table remains separate so provider, award,
+record, checksum, run, and retrieval provenance are not flattened away.
+Registered DOI aliases are resolved during projection, so repository or legacy
+DOI funding assertions attach to the canonical article identity without
+creating duplicate paper-funder rows.
+
+```bash
+python pipeline/ingest/materialize_candidate_funding.py \
+  --candidate-table data/processed/corpus/candidate_papers.parquet \
+  --funding-assertions data/processed/corpus/paper_funding.parquet \
+  --funding-attempts data/processed/corpus/paper_funding_provider_attempts.parquet
+```
+
+Audit a completed run as a frozen-scope census:
+
+```bash
+python pipeline/ingest/audit_paper_funding.py \
+  --scope data/processed/corpus/funding_enrichment_runs/<run_id>/scope.parquet \
+  --output data/processed/corpus/funding_enrichment_runs/<run_id>/audit_report.json
+```
+
+The audit selects the latest attempt for each DOI/provider pair, checks matrix
+completeness, terminal status, assertion keys and counts, and stored payload
+hashes, then reports provider coverage, overlap, structured identifier
+coverage, and gains over the legacy candidate columns. Those legacy columns
+are read only for the post hoc comparison.

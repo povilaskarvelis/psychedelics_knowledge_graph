@@ -367,7 +367,13 @@ def refresh_cache_for_papers(
 ) -> dict[str, Any]:
     works_by_doi = cache.setdefault("works_by_doi", {})
     dois = sorted({normalize_doi(value) for value in papers.get("doi", []) if normalize_doi(value)})
-    missing = [doi for doi in dois if refresh or doi not in works_by_doi]
+    missing = [
+        doi
+        for doi in dois
+        if refresh
+        or doi not in works_by_doi
+        or normalize((works_by_doi.get(doi) or {}).get("status", "")) == "error"
+    ]
     if not missing:
         return cache
 
@@ -843,7 +849,7 @@ def main() -> int:
         action="store_true",
         help=(
             "Do not query OpenAlex. Requires the existing cache to resolve at least "
-            f"{MIN_OFFLINE_CACHE_COVERAGE:.0%} of DOI-bearing papers."
+            f"{MIN_OFFLINE_CACHE_COVERAGE:.0%} of DOI-bearing papers.".replace("%", "%%")
         ),
     )
     args = parser.parse_args()

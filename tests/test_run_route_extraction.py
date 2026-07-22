@@ -18,11 +18,17 @@ from pipeline.extract.route_extraction_profiles import (
 from pipeline.extract.run_route_extraction import (
     DEFAULT_GEMINI_MODEL,
     DEFAULT_ROUTED_RUN_ROOT,
+    OutputQualityError,
     build_contents,
     dry_run_report,
     inject_route_identity_fields,
     model_for_task,
     parse_json_response,
+    output_control_character_violations,
+    output_pathological_unicode_violations,
+    reject_corrupt_output_text,
+    reject_inconsistent_primary_categories,
+    reject_inconsistent_recommendation_tones,
     resolve_output_paths,
     selected_tasks,
     text_depth_for_task,
@@ -271,6 +277,103 @@ def make_args(**overrides: object) -> SimpleNamespace:
 
 
 class RouteExtractionRunnerTest(unittest.TestCase):
+    def test_output_quality_gate_rejects_disallowed_ascii_controls_recursively(self) -> None:
+        result = {
+            "items": [
+                {
+                    "finding_summary": "Drug na\x07ve participants received 500 \x19M ketamine.",
+                }
+            ]
+        }
+
+        violations = output_control_character_violations(result)
+
+        self.assertEqual(
+            violations,
+            [
+                {
+                    "path": "$.items[0].finding_summary",
+                    "codepoint": "U+0007",
+                    "escaped": "\\u0007",
+                },
+                {
+                    "path": "$.items[0].finding_summary",
+                    "codepoint": "U+0019",
+                    "escaped": "\\u0019",
+                },
+            ],
+        )
+        with self.assertRaisesRegex(OutputQualityError, r"finding_summary=U\+0007"):
+            reject_corrupt_output_text(result)
+
+    def test_output_quality_gate_allows_tabs_and_line_breaks(self) -> None:
+        result = {"evidence": "Line one\nLine two\tvalue"}
+
+        self.assertEqual(output_control_character_violations(result), [])
+        reject_corrupt_output_text(result)
+
+    def test_output_quality_gate_rejects_pathological_combining_mark_run(self) -> None:
+        result = {"objective": "serotonin" + "\u0322" * 80}
+
+        violations = output_pathological_unicode_violations(result)
+
+        self.assertEqual(violations[0]["path"], "$.objective")
+        self.assertEqual(violations[0]["reason"], "combining_mark_run")
+        with self.assertRaisesRegex(OutputQualityError, r"pathological Unicode repetition"):
+            reject_corrupt_output_text(result)
+
+    def test_output_quality_gate_rejects_unanchored_recommends_against(self) -> None:
+        result = {
+            "recommendation_items": [
+                {
+                    "item_id": "REC_001",
+                    "direction_or_tone": "recommends_against",
+                    "recommendation_statement": "Clinicians should monitor vital signs after administration.",
+                }
+            ]
+        }
+
+        with self.assertRaisesRegex(OutputQualityError, r"REC_001"):
+            reject_inconsistent_recommendation_tones(result)
+
+    def test_output_quality_gate_accepts_explicit_recommendation_against(self) -> None:
+        result = {
+            "recommendation_items": [
+                {
+                    "item_id": "REC_002",
+                    "direction_or_tone": "recommends_against",
+                    "recommendation_statement": "Avoid ketamine in active substance use disorder.",
+                }
+            ]
+        }
+
+        reject_inconsistent_recommendation_tones(result)
+
+    def test_output_quality_gate_rejects_primary_proxy_category(self) -> None:
+        result = {
+            "paper_type": "primary_study",
+            "items": [],
+            "warnings": ["Intranasal selected as closest proxy for inhaled gas."],
+        }
+
+        with self.assertRaisesRegex(OutputQualityError, r"approximate controlled category"):
+            reject_inconsistent_primary_categories(result)
+
+    def test_output_quality_gate_rejects_preclinical_context_for_humans(self) -> None:
+        result = {
+            "paper_type": "primary_study",
+            "items": [
+                {
+                    "population_model_category": "human_participants",
+                    "session_context": "preclinical_experiment",
+                }
+            ],
+            "warnings": [],
+        }
+
+        with self.assertRaisesRegex(OutputQualityError, r"preclinical session context"):
+            reject_inconsistent_primary_categories(result)
+
     def test_run_id_resolves_runner_outputs_to_versioned_directory(self) -> None:
         args = resolve_output_paths(
             make_args(
@@ -310,7 +413,7 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             )
         )
 
-    def test_system_instruction_can_use_prompt_or_native_schema_mode(self) -> None:
+    def test_system_instruction_can_reconstruct_legacy_v1_prompt_for_audit(self) -> None:
         profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
         schema = load_schema_for_profile(profile, "clinical_outcome")
 
@@ -473,7 +576,7 @@ class RouteExtractionRunnerTest(unittest.TestCase):
 
         selected = selected_tasks(tasks, make_args())
 
-        self.assertEqual([task["route_id"] for _index, task in selected], ["route-meta", "route-primary"])
+        self.assertEqual([task["route_id"] for _index, task in selected], ["route-primary"])
 
     def test_dry_run_report_lists_selected_supported_tasks(self) -> None:
         tasks = [
@@ -484,11 +587,10 @@ class RouteExtractionRunnerTest(unittest.TestCase):
         report = dry_run_report(tasks, selected, make_args())
 
         self.assertEqual(report["status"], "dry_run")
-        self.assertEqual(report["tasks_selected"], 2)
+        self.assertEqual(report["tasks_selected"], 1)
         self.assertEqual(report["unregistered_tasks_skipped"], 0)
-        self.assertEqual(report["registered_non_model_tasks_skipped"], 0)
-        self.assertEqual(report["selected_tasks"][0]["route_id"], "route-meta")
-        self.assertEqual(report["selected_tasks"][1]["route_id"], "route-primary")
+        self.assertEqual(report["registered_non_model_tasks_skipped"], 1)
+        self.assertEqual(report["selected_tasks"][0]["route_id"], "route-primary")
 
     def test_inject_identity_fields_makes_minimal_result_schema_valid(self) -> None:
         profile = profile_for_key("secondary_meta_analysis", "meta_analysis_evidence_schema")
@@ -658,7 +760,18 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             root = Path(tmpdir)
             input_jsonl = root / "tasks.jsonl"
             report_json = root / "report.json"
-            input_jsonl.write_text(json.dumps(make_task()) + "\n", encoding="utf-8")
+            input_jsonl.write_text(
+                json.dumps(
+                    make_task(
+                        route_id="route-primary",
+                        prompt_profile="primary_clinical",
+                        schema_profile="primary_evidence_schema",
+                        source_type="primary",
+                    )
+                )
+                + "\n",
+                encoding="utf-8",
+            )
 
             from pipeline.extract.run_route_extraction import run_tasks
 
@@ -693,6 +806,46 @@ class RouteExtractionRunnerTest(unittest.TestCase):
         self.assertEqual(report["status"], "dry_run")
         self.assertEqual(report["tasks_selected"], 1)
         self.assertTrue(report_exists)
+
+    def test_live_runner_rejects_legacy_v1_secondary_task_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            input_jsonl = root / "tasks.jsonl"
+            input_jsonl.write_text(json.dumps(make_task()) + "\n", encoding="utf-8")
+            output_paths = [root / "out.jsonl", root / "raw.jsonl", root / "report.json"]
+            for path in output_paths:
+                path.write_text("preserve-existing-run\n", encoding="utf-8")
+
+            from pipeline.extract.run_route_extraction import run_tasks
+
+            with self.assertRaisesRegex(SystemExit, "Legacy v1 secondary extraction is permanently disabled"):
+                run_tasks(
+                    SimpleNamespace(
+                        input_jsonl=str(input_jsonl),
+                        out_jsonl=str(output_paths[0]),
+                        raw_jsonl=str(output_paths[1]),
+                        report_json=str(output_paths[2]),
+                        env_file=str(root / "missing.env"),
+                        model="",
+                        schema_mode="native",
+                        prompt_profile=[],
+                        schema_profile=[],
+                        route_id=[],
+                        doi=[],
+                        start_index=1,
+                        limit=0,
+                        only_ready=True,
+                        include_scaffold_profiles=False,
+                        include_unsupported=False,
+                        dry_run=True,
+                        overwrite=True,
+                        temperature=0.0,
+                        max_output_tokens=0,
+                        thinking_budget=0,
+                        sleep_sec=0.0,
+                    )
+                )
+            self.assertTrue(all(path.read_text(encoding="utf-8") == "preserve-existing-run\n" for path in output_paths))
 
 
 if __name__ == "__main__":

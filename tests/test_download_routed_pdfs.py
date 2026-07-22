@@ -15,6 +15,7 @@ from pipeline.ingest.metadata_utils import (
     rank_pdf_candidates,
 )
 from pipeline.fulltext.download_routed_pdfs import (
+    apply_download_retry_budget,
     apply_result_to_candidate_table,
     apply_results_to_candidate_parquet,
     build_download_tasks,
@@ -149,10 +150,16 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
                     "fulltext_enrichment_action": "download_known_pdf",
                 },
                 {
-                    "doi": "10.1000/discover",
+                    "doi": "10.1000/no-access",
                     "selected_for_downstream": True,
                     "fulltext_enrichment_needed": True,
-                    "fulltext_enrichment_action": "discover_fulltext",
+                    "fulltext_enrichment_action": "no_accessible_fulltext",
+                },
+                {
+                    "doi": "10.1000/refresh-access",
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": True,
+                    "fulltext_enrichment_action": "refresh_access_metadata",
                 },
                 {
                     "doi": "10.1000/oa-landing",
@@ -169,16 +176,11 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
             ]
         )
 
-        direct = download_rows_from_selection(selection, include_discovery=False)
-        discovery = download_rows_from_selection(selection, include_discovery=True)
+        direct = download_rows_from_selection(selection)
 
         self.assertEqual(direct["doi"].tolist(), ["10.1000/known", "10.1000/oa-landing"])
-        self.assertEqual(
-            set(discovery["doi"]),
-            {"10.1000/known", "10.1000/discover", "10.1000/oa-landing"},
-        )
-        self.assertTrue(discovery["retained_for_extraction_candidate"].all())
-        self.assertTrue(discovery["route_action"].eq("download_pdf_then_extract").all())
+        self.assertTrue(direct["retained_for_extraction_candidate"].all())
+        self.assertTrue(direct["route_action"].eq("download_pdf_then_extract").all())
 
     def test_probable_pdf_url_classifier_accepts_common_pdf_patterns(self) -> None:
         positives = [
@@ -986,6 +988,42 @@ class TestDownloadRoutedPdfs(unittest.TestCase):
 
         self.assertEqual(failure["failure_category"], "access_controlled")
         self.assertFalse(failure["retry_recommended"])
+
+    def test_retry_budget_allows_first_retryable_failure(self) -> None:
+        result = {
+            "status": "download_failed",
+            **classify_download_failure("download_failed", "TimeoutError: timed out"),
+        }
+
+        finalized = apply_download_retry_budget(
+            result,
+            {"candidate_pdf_download_status": ""},
+            max_download_attempts=2,
+        )
+
+        self.assertEqual(finalized["pdf_download_attempt_count"], 1)
+        self.assertTrue(finalized["retry_recommended"])
+        self.assertFalse(finalized["pdf_download_retry_budget_exhausted"])
+
+    def test_retry_budget_terminalizes_second_retryable_failure(self) -> None:
+        result = {
+            "status": "download_failed",
+            **classify_download_failure("download_failed", "TimeoutError: timed out"),
+        }
+
+        finalized = apply_download_retry_budget(
+            result,
+            {
+                "candidate_pdf_download_status": "download_failed",
+                "candidate_pdf_download_attempt_count": 1,
+            },
+            max_download_attempts=2,
+        )
+
+        self.assertEqual(finalized["pdf_download_attempt_count"], 2)
+        self.assertFalse(finalized["retry_recommended"])
+        self.assertTrue(finalized["pdf_download_retry_budget_exhausted"])
+        self.assertIn("retry_budget_exhausted", finalized["failure_categories"])
 
 
 if __name__ == "__main__":

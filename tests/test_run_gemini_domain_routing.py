@@ -1,4 +1,7 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 import pandas as pd
 
@@ -8,8 +11,10 @@ from pipeline.review.run_gemini_domain_routing import (
     SCREENING_PROMPT_PATH,
     SCREENING_DECISIONS,
     SYSTEM_INSTRUCTION,
+    merged_routing_metadata,
     normalize_payload,
     parse_response_text,
+    parsed_rows_from_raw,
     prompt_for_record,
     route_rows_from_parsed,
     selected_records,
@@ -17,6 +22,78 @@ from pipeline.review.run_gemini_domain_routing import (
 
 
 class GeminiDomainRoutingTests(unittest.TestCase):
+    def test_parse_only_materialization_applies_current_prescreen_gate(self) -> None:
+        raw_rows = [
+            {
+                "status": "ok",
+                "doi": "10.example/retain",
+                "model": "gemini-test",
+                "parsed": {
+                    "domain_tags": ["clinical_outcome"],
+                    "primary_domain": "clinical_outcome",
+                    "screening_decision": "include_in_scope",
+                    "screening_reason": "In scope.",
+                    "paper_type_group": "primary",
+                    "paper_type": "primary",
+                    "paper_type_labels": ["primary"],
+                    "paper_type_reason": "Original study.",
+                    "methodological_validity_tags": [],
+                    "rationale": "Clinical evidence.",
+                },
+            },
+            {
+                "status": "ok",
+                "doi": "10.example/now-excluded",
+                "model": "gemini-test",
+                "parsed": {
+                    "domain_tags": [],
+                    "primary_domain": "general_topic",
+                    "screening_decision": "exclude_out_of_scope",
+                    "screening_reason": "Out of scope.",
+                    "paper_type_group": "primary",
+                    "paper_type": "primary",
+                    "paper_type_labels": ["primary"],
+                    "paper_type_reason": "Original study.",
+                    "methodological_validity_tags": [],
+                    "rationale": "Not relevant.",
+                },
+            },
+        ]
+        metadata = pd.DataFrame(
+            [
+                {"doi": "10.example/retain", "study_title": "Retained"},
+                {"doi": "10.example/now-excluded", "study_title": "Excluded"},
+            ]
+        )
+        prescreen = pd.DataFrame(
+            [
+                {"doi": "10.example/retain", "retained_for_extraction_candidate": True},
+                {"doi": "10.example/now-excluded", "retained_for_extraction_candidate": False},
+            ]
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            raw_path = Path(tmpdir) / "raw.jsonl"
+            raw_path.write_text(
+                "".join(json.dumps(row) + "\n" for row in raw_rows),
+                encoding="utf-8",
+            )
+            parsed = parsed_rows_from_raw(raw_path, metadata, prescreen)
+
+        self.assertEqual([row["doi"] for row in parsed], ["10.example/retain"])
+
+    def test_materialized_candidate_metadata_is_authoritative_over_cache(self) -> None:
+        candidate = pd.DataFrame(
+            [{"doi": "10.example/paper", "abstract": "Canonical candidate abstract."}]
+        )
+        metadata = pd.DataFrame(
+            [{"doi": "10.example/paper", "abstract": "Stale cache abstract."}]
+        )
+
+        merged = merged_routing_metadata(candidate, metadata)
+
+        self.assertEqual(merged.iloc[0]["abstract"], "Canonical candidate abstract.")
+
     def test_system_instruction_is_loaded_from_standalone_prompt(self) -> None:
         self.assertTrue(SCREENING_PROMPT_PATH.is_file())
         self.assertEqual(

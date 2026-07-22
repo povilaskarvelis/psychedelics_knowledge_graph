@@ -135,6 +135,21 @@ class BuildExtractionTasksTest(unittest.TestCase):
                         schema_profile="meta_analysis_evidence_schema",
                     ),
                     route_row(
+                        route_id="route-review-v1",
+                        doi="10.1000/review-v1",
+                        study_title="Legacy routed review",
+                        source_family="secondary_literature",
+                        source_type="review",
+                        primary_secondary_source_type="review",
+                        access_tier="abstract_only",
+                        has_converted_full_text=False,
+                        fulltext_artifact_paths="",
+                        fulltext_char_count=0,
+                        route_action="extract_from_abstract_only",
+                        prompt_profile="secondary_review_coverage",
+                        schema_profile="review_coverage_schema",
+                    ),
+                    route_row(
                         route_id="route-download-first",
                         doi="10.1000/download-first",
                         route_action="download_pdf_then_extract",
@@ -187,7 +202,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
 
             tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
 
-        self.assertEqual(report["tasks_written"], 3)
+        self.assertEqual(report["tasks_written"], 2)
         self.assertEqual({task["schema_version"] for task in tasks}, {TASK_SCHEMA_VERSION})
         self.assertTrue(all(task["task_id"] != task["route_id"] for task in tasks))
         self.assertTrue(all(len(task["task_id"]) == 20 for task in tasks))
@@ -195,15 +210,15 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertTrue(all(len(task["text_source"]["source_fingerprint"]) == 64 for task in tasks))
         self.assertEqual(
             {task["route_id"] for task in tasks},
-            {"route-primary-clinical", "route-primary-safety", "route-meta"},
+            {"route-primary-clinical", "route-primary-safety"},
         )
         self.assertEqual({task["task_status"] for task in tasks}, {"ready_for_model"})
         self.assertEqual(
             {task["extraction_contract"]["schema_profile"] for task in tasks},
-            {"primary_evidence_schema", "meta_analysis_evidence_schema"},
+            {"primary_evidence_schema"},
         )
         self.assertEqual(report["by_output_family"]["primary_evidence"], 2)
-        self.assertEqual(report["by_output_family"]["meta_analysis_evidence"], 1)
+        self.assertEqual(report["legacy_v1_secondary_route_rows_hard_disabled"], 2)
         by_route_id = {task["route_id"]: task for task in tasks}
         self.assertNotIn("datasets", by_route_id["route-primary-clinical"]["route_context"])
         self.assertNotIn("dataset", by_route_id["route-primary-clinical"]["content"]["packet_summary"])
@@ -211,12 +226,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
             by_route_id["route-primary-clinical"]["extraction_contract"]["expected_packet_profile"],
             "primary_empirical",
         )
-        self.assertEqual(
-            by_route_id["route-meta"]["extraction_contract"]["expected_packet_profile"],
-            "secondary_synthesis",
-        )
         self.assertEqual(report["by_expected_packet_profile"]["primary_empirical"], 2)
-        self.assertEqual(report["by_expected_packet_profile"]["secondary_synthesis"], 1)
 
         schema = json.loads((ROOT / "schema" / "extraction_task.schema.json").read_text(encoding="utf-8"))
         validator = Draft7Validator(schema)
@@ -319,7 +329,7 @@ class BuildExtractionTasksTest(unittest.TestCase):
         self.assertEqual([error.message for error in Draft7Validator(schema).iter_errors(tasks[0])], [])
         self.assertEqual(report["by_task_status"], {"needs_fulltext_packet": 1})
 
-    def test_fulltext_meta_analysis_selects_expected_packet_profile(self) -> None:
+    def test_fulltext_meta_analysis_v1_route_is_hard_disabled(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             pd.DataFrame(
@@ -378,16 +388,11 @@ class BuildExtractionTasksTest(unittest.TestCase):
 
             tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
 
-        self.assertEqual(len(tasks), 1)
-        task = tasks[0]
-        self.assertEqual(task["task_status"], "ready_for_model")
-        self.assertEqual(task["text_source"]["expected_packet_profile"], "secondary_synthesis")
-        self.assertEqual(task["text_source"]["packet_profile"], "secondary_synthesis")
-        self.assertEqual(task["text_source"]["packet_profile_status"], "matches_expected")
-        self.assertEqual(task["text_source"]["packet_id"], "article:10.1000/meta-fulltext:synthesis")
-        self.assertEqual(report["by_packet_profile_status"], {"matches_expected": 1})
+        self.assertEqual(tasks, [])
+        self.assertEqual(report["tasks_written"], 0)
+        self.assertEqual(report["legacy_v1_secondary_route_rows_hard_disabled"], 1)
 
-    def test_fulltext_profile_mismatch_is_not_model_ready(self) -> None:
+    def test_legacy_meta_profile_is_not_emitted_even_with_packet_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             pd.DataFrame(
@@ -431,9 +436,8 @@ class BuildExtractionTasksTest(unittest.TestCase):
             tasks, report = build_tasks(make_args(root, packet_paths=[packets]))
             ready_tasks, _ = build_tasks(make_args(root, packet_paths=[packets], only_ready=True))
 
-        self.assertEqual(tasks[0]["task_status"], "needs_expected_fulltext_packet")
-        self.assertEqual(tasks[0]["text_source"]["packet_profile_status"], "profile_mismatch")
-        self.assertEqual(report["by_task_status"], {"needs_expected_fulltext_packet": 1})
+        self.assertEqual(tasks, [])
+        self.assertEqual(report["legacy_v1_secondary_route_rows_hard_disabled"], 1)
         self.assertEqual(ready_tasks, [])
 
 

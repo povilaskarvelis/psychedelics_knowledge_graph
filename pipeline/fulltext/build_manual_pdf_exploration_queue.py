@@ -54,6 +54,41 @@ LANE_LABELS = {
     5: "identity_publication_format_or_language_review",
     6: "non_english_excluded_from_manual_recovery",
 }
+QUEUE_COLUMNS = [
+    "queue_rank",
+    "priority_lane",
+    "priority_group",
+    "priority_reason",
+    "doi",
+    "doi_url",
+    "study_title",
+    "study_year",
+    "study_journal",
+    "source_family",
+    "source_type",
+    "open_access_is_oa",
+    "open_access_status",
+    "route_type",
+    "primary_route_url",
+    "route_host",
+    "route_host_class",
+    "alternate_urls",
+    "pdf_url_quality",
+    "publication_format_review_signal",
+    "metadata_language",
+    "detected_title_language",
+    "detected_title_language_confidence",
+    "language_audit_decision",
+    "language_audit_evidence",
+    "prior_download_failure",
+    "prior_browser_status",
+    "prior_browser_reason",
+    "manual_recovery_instruction",
+    "manual_review_status",
+    "manual_review_notes",
+    "host_candidate_count",
+    "priority_score",
+]
 
 
 def clean(value: object) -> str:
@@ -287,7 +322,7 @@ def build_queue(
         })
     out = pd.DataFrame(records)
     if out.empty:
-        return out
+        return pd.DataFrame(columns=QUEUE_COLUMNS)
     counts = out["route_host"].value_counts().to_dict()
     out["host_candidate_count"] = out["route_host"].map(counts).fillna(0).astype(int)
     out["priority_score"] = [priority_score(row, int(row["host_candidate_count"])) for row in out.to_dict("records")]
@@ -298,6 +333,24 @@ def build_queue(
 
 
 def build_host_summary(queue: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "host_pattern_rank",
+        "route_host",
+        "route_host_class",
+        "candidate_count",
+        "high_priority_count",
+        "probable_pdf_count",
+        "landing_page_count",
+        "priority_groups",
+        "oa_statuses",
+        "prior_failure_categories",
+        "recommended_pattern_test",
+        "example_doi",
+        "example_title",
+        "example_route_url",
+    ]
+    if queue.empty or "route_host" not in queue.columns:
+        return pd.DataFrame(columns=columns)
     rows = []
     for host, group in queue.groupby("route_host", dropna=False):
         top = group.sort_values(["priority_lane", "priority_score"], ascending=[True, False]).iloc[0]
@@ -314,7 +367,7 @@ def build_host_summary(queue: pd.DataFrame) -> pd.DataFrame:
             "example_doi": top["doi"], "example_title": top["study_title"], "example_route_url": top["primary_route_url"],
         })
     if not rows:
-        return pd.DataFrame()
+        return pd.DataFrame(columns=columns)
     out = pd.DataFrame(rows).sort_values(["high_priority_count", "candidate_count", "route_host"],
                                          ascending=[False, False, True]).reset_index(drop=True)
     out.insert(0, "host_pattern_rank", range(1, len(out) + 1))

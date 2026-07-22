@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from collections import Counter
 from pathlib import Path
 
@@ -33,6 +34,7 @@ try:
         RouteExtractionProfile,
         build_system_instruction,
         compact_schema,
+        legacy_v1_secondary_block_message,
         load_schema_for_profile,
         profile_for_task,
         profile_key_for_task,
@@ -42,6 +44,7 @@ try:
         supported_profile_keys,
         task_has_model_profile,
         task_has_registered_profile,
+        task_uses_legacy_v1_secondary_profile,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -53,6 +56,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         RouteExtractionProfile,
         build_system_instruction,
         compact_schema,
+        legacy_v1_secondary_block_message,
         load_schema_for_profile,
         profile_for_task,
         profile_key_for_task,
@@ -62,6 +66,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         supported_profile_keys,
         task_has_model_profile,
         task_has_registered_profile,
+        task_uses_legacy_v1_secondary_profile,
     )
 
 
@@ -75,6 +80,17 @@ GENERIC_EXTRACTION_MODEL_ENV = "GEMINI_ROUTE_EXTRACTION_MODEL"
 ARTICLE_TEXT_EXTRACTION_MODEL_ENV = "GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL"
 ABSTRACT_EXTRACTION_MODEL_ENV = "GEMINI_ABSTRACT_EXTRACTION_MODEL"
 PACKET_INDEX_CACHE: dict[str, dict[str, dict]] = {}
+DISALLOWED_OUTPUT_CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+RECOMMENDS_AGAINST_MARKER_RE = re.compile(
+    r"\b(?:against|avoid|contraindicat(?:e|ed|ion)|discourag(?:e|ed)|"
+    r"do\s+not|does\s+not|must\s+not|should\s+not|shouldn['’]?t|"
+    r"not\s+recommend(?:ed)?|prohibit(?:ed|ion)?|never)\b",
+    re.IGNORECASE,
+)
+
+
+class OutputQualityError(ValueError):
+    """Raised when a schema-shaped model response contains unsafe text corruption."""
 
 
 def now_utc() -> str:
@@ -507,6 +523,182 @@ def schema_error_messages(validator: Draft7Validator, result: dict) -> list[str]
     return [error.message for error in sorted(validator.iter_errors(result), key=lambda error: list(error.path))]
 
 
+def output_control_character_violations(
+    value: object,
+    *,
+    path: str = "$",
+    limit: int = 20,
+) -> list[dict[str, str]]:
+    """Locate disallowed C0/DEL characters in parsed model-output strings.
+
+    Tabs and line breaks are allowed because they can occur legitimately in
+    quoted evidence. Other ASCII control characters indicate observed model
+    corruption and must not enter extraction projections or the graph.
+    """
+
+    violations: list[dict[str, str]] = []
+
+    def visit(item: object, item_path: str) -> None:
+        if len(violations) >= limit:
+            return
+        if isinstance(item, str):
+            for match in DISALLOWED_OUTPUT_CONTROL_RE.finditer(item):
+                codepoint = ord(match.group(0))
+                violations.append(
+                    {
+                        "path": item_path,
+                        "codepoint": f"U+{codepoint:04X}",
+                        "escaped": f"\\u{codepoint:04x}",
+                    }
+                )
+                if len(violations) >= limit:
+                    return
+            return
+        if isinstance(item, dict):
+            for key, child in item.items():
+                visit(child, f"{item_path}.{key}")
+            return
+        if isinstance(item, list):
+            for index, child in enumerate(item):
+                visit(child, f"{item_path}[{index}]")
+
+    visit(value, path)
+    return violations
+
+
+def output_pathological_unicode_violations(
+    value: object,
+    *,
+    path: str = "$",
+    limit: int = 20,
+) -> list[dict[str, str]]:
+    """Locate implausible repeated/combining-character runs in model text."""
+
+    violations: list[dict[str, str]] = []
+
+    def visit(item: object, item_path: str) -> None:
+        if len(violations) >= limit:
+            return
+        if isinstance(item, str):
+            repeated_char = ""
+            repeated_count = 0
+            combining_count = 0
+            for char in item:
+                if char == repeated_char:
+                    repeated_count += 1
+                else:
+                    repeated_char = char
+                    repeated_count = 1
+                combining_count = combining_count + 1 if unicodedata.combining(char) else 0
+                if repeated_count >= 64 or combining_count >= 8:
+                    violations.append(
+                        {
+                            "path": item_path,
+                            "codepoint": f"U+{ord(char):04X}",
+                            "reason": "repeated_character_run" if repeated_count >= 64 else "combining_mark_run",
+                        }
+                    )
+                    return
+            return
+        if isinstance(item, dict):
+            for key, child in item.items():
+                visit(child, f"{item_path}.{key}")
+            return
+        if isinstance(item, list):
+            for index, child in enumerate(item):
+                visit(child, f"{item_path}[{index}]")
+
+    visit(value, path)
+    return violations
+
+
+def reject_corrupt_output_text(result: dict) -> None:
+    violations = output_control_character_violations(result)
+    if violations:
+        preview = ", ".join(
+            f"{violation['path']}={violation['codepoint']}"
+            for violation in violations[:10]
+        )
+        suffix = " (additional violations omitted)" if len(violations) >= 20 else ""
+        raise OutputQualityError(
+            "Parsed model output contains disallowed ASCII control characters: "
+            f"{preview}{suffix}"
+        )
+    unicode_violations = output_pathological_unicode_violations(result)
+    if unicode_violations:
+        preview = ", ".join(
+            f"{violation['path']}={violation['codepoint']}:{violation['reason']}"
+            for violation in unicode_violations[:10]
+        )
+        raise OutputQualityError(
+            "Parsed model output contains pathological Unicode repetition: " + preview
+        )
+
+
+def reject_inconsistent_recommendation_tones(result: dict) -> None:
+    """Reject explicit negative labels that contradict positive statements.
+
+    `recommends_against` changes graph-edge meaning. The model must therefore
+    anchor that label in an explicit negative or avoidance instruction rather
+    than using it as a synonym for a strong recommendation.
+    """
+
+    items = result.get("recommendation_items")
+    if not isinstance(items, list):
+        return
+    violations: list[str] = []
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            continue
+        if normalize(item.get("direction_or_tone", "")) != "recommends_against":
+            continue
+        statement = normalize(item.get("recommendation_statement", ""))
+        if statement and not RECOMMENDS_AGAINST_MARKER_RE.search(statement):
+            item_id = normalize(item.get("item_id", "")) or str(index)
+            violations.append(f"{item_id}: {statement[:160]}")
+    if violations:
+        raise OutputQualityError(
+            "Recommendation items use `recommends_against` without an explicit "
+            "negative or avoidance instruction: " + " | ".join(violations[:5])
+        )
+
+
+def reject_inconsistent_primary_categories(result: dict) -> None:
+    """Reject category assignments that the output itself identifies as proxies."""
+
+    if normalize(result.get("paper_type", "")) != "primary_study":
+        return
+    warnings = result.get("warnings")
+    if isinstance(warnings, list):
+        proxy_warnings = [
+            normalize(warning)
+            for warning in warnings
+            if re.search(r"\bclosest\s+(?:proxy|.*\b(?:category|family))\b", normalize(warning), re.IGNORECASE)
+        ]
+        if proxy_warnings:
+            raise OutputQualityError(
+                "Primary output declares a knowingly approximate controlled category: "
+                + " | ".join(proxy_warnings[:5])
+            )
+
+    items = result.get("items")
+    if not isinstance(items, list):
+        return
+    violations: list[str] = []
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            continue
+        population_category = normalize(item.get("population_model_category", ""))
+        session_context = normalize(item.get("session_context", ""))
+        if population_category in {"human_participants", "clinical_population"} and session_context == "preclinical_experiment":
+            violations.append(f"items[{index}]: {population_category}/preclinical_experiment")
+    if violations:
+        raise OutputQualityError(
+            "Primary output assigns a preclinical session context to human evidence: "
+            + " | ".join(violations[:10])
+        )
+
+
 def task_is_ready(task: dict) -> bool:
     return normalize(task.get("task_status", "")) == "ready_for_model"
 
@@ -686,12 +878,15 @@ def run_tasks(args: argparse.Namespace) -> dict:
     out_jsonl = Path(args.out_jsonl).resolve()
     raw_jsonl = Path(args.raw_jsonl).resolve()
     report_json = Path(args.report_json).resolve()
+    tasks = read_jsonl(input_jsonl)
+    if any(task_uses_legacy_v1_secondary_profile(task) for task in tasks):
+        raise SystemExit(legacy_v1_secondary_block_message(tasks))
+
     if args.overwrite:
         for path in (out_jsonl, raw_jsonl, report_json):
             if path.exists():
                 path.unlink()
 
-    tasks = read_jsonl(input_jsonl)
     selected = selected_tasks(tasks, args)
     if args.dry_run:
         report = dry_run_report(tasks, selected, args)
@@ -764,12 +959,15 @@ def run_tasks(args: argparse.Namespace) -> dict:
                     "max_output_tokens": max_output_tokens,
                 }
             )
-            parsed, parse_method = parse_json_response(text)
-            result = inject_route_identity_fields(parsed, task, profile)
-            schema_errors = schema_error_messages(validator, result)
             for key, value in usage.items():
                 if isinstance(value, (int, float)):
                     usage_totals[key] += value
+            parsed, parse_method = parse_json_response(text)
+            result = inject_route_identity_fields(parsed, task, profile)
+            reject_corrupt_output_text(result)
+            reject_inconsistent_recommendation_tones(result)
+            reject_inconsistent_primary_categories(result)
+            schema_errors = schema_error_messages(validator, result)
             raw_row.update(
                 {
                     "status": "schema_error" if schema_errors else "ok",
@@ -793,9 +991,16 @@ def run_tasks(args: argparse.Namespace) -> dict:
             )
             status_counts[raw_row["status"]] += 1
         except Exception as exc:  # pragma: no cover - exercised only during live API runs
-            raw_row.update({"status": "error", "error": str(exc)})
+            error_status = "quality_error" if isinstance(exc, OutputQualityError) else "error"
+            raw_row.update(
+                {
+                    "status": error_status,
+                    "error": str(exc),
+                    "error_type": type(exc).__name__,
+                }
+            )
             append_jsonl(raw_jsonl, raw_row)
-            status_counts["error"] += 1
+            status_counts[error_status] += 1
             errors.append(
                 {
                     "task_id": normalize(task.get("task_id", "")),

@@ -40,7 +40,7 @@ def test_active_outputs_select_abstract_only_and_canonicalize_alias(tmp_path: Pa
 def test_backfill_action_requires_fresh_positive_oa_status() -> None:
     base = {"retained_for_extraction_candidate": True}
     assert classify_action(base, refreshed=False, access_override={})[0] == "refresh_oa_status"
-    assert classify_action(base, refreshed=True, access_override={})[0] == "no_open_access_route"
+    assert classify_action(base, refreshed=True, access_override={})[0] == "no_accessible_fulltext"
     assert (
         classify_action(
             {**base, "open_access_is_oa": "true", "best_pdf_url": "https://example.org/paper.pdf"},
@@ -77,7 +77,7 @@ def test_manual_no_pdf_override_prevents_repeated_backfill() -> None:
         refreshed=True,
         access_override={"manual_access_action": "suppress_pdf_download"},
     )
-    assert action[0] == "manual_no_usable_pdf"
+    assert action[0] == "no_accessible_fulltext"
     assert action[1] is False
 
 
@@ -120,7 +120,7 @@ def test_old_oa_label_cannot_override_fresh_negative_evidence() -> None:
         fresh_oa_positive=False,
         access_override={},
     )
-    assert action[0] == "no_open_access_route"
+    assert action[0] == "no_accessible_fulltext"
 
 
 def test_stale_local_pdf_flag_is_not_a_usable_file(tmp_path: Path) -> None:

@@ -1126,7 +1126,7 @@ def merge_recovered_abstracts(
         candidate = candidate_by_doi.get(doi)
         if candidate is None:
             continue
-        base = merge_rows(existing_by_doi.get(doi, {}), candidate_metadata_row(candidate))
+        base = merge_rows(candidate_metadata_row(candidate), existing_by_doi.get(doi, {}))
         if normalized_text(base.get("abstract", "")):
             skipped_existing += 1
             continue
@@ -1158,6 +1158,33 @@ def merge_recovered_abstracts(
     temporary = metadata_path.with_name(metadata_path.stem + ".batch_abstract_tmp.parquet")
     write_table(temporary, merged_rows)
     temporary.replace(metadata_path)
+    from pipeline.ingest.materialize_candidate_metadata import materialize_candidate_metadata
+
+    candidate_materialization = (
+        materialize_candidate_metadata(
+            candidate_table=candidates_path,
+            metadata_table=metadata_path,
+            run_id=run_id,
+            fields=(
+                "abstract",
+                "semantic_scholar_id",
+                "metadata_provider",
+                "metadata_provider_chain",
+                "metadata_providers_queried",
+                "metadata_lookup_error",
+                "metadata_lookup_warnings",
+                "metadata_missing_reason",
+                "metadata_enrichment_status",
+                "metadata_enrichment_run_id",
+                "metadata_enriched_at_utc",
+                "paper_metadata_schema_version",
+            ),
+            scoped_dois=set(updates),
+            overwrite_existing=False,
+        )
+        if updates
+        else {"materialized_candidate_rows": 0, "changed_candidate_rows": 0}
+    )
     return {
         "schema_version": "batch_abstract_merge_report_v1",
         "run_id": run_id,
@@ -1169,6 +1196,7 @@ def merge_recovered_abstracts(
         "abstracts_added": len(updates),
         "skipped_existing_abstract": skipped_existing,
         "abstracts_added_by_provider": dict(provider_counts),
+        "candidate_materialization": candidate_materialization,
         "metadata_table_sha256": sha256_file(metadata_path),
     }
 

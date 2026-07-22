@@ -38,6 +38,14 @@ class ExportQueryApiTest(unittest.TestCase):
                         "SELECT paper_type, count(*) FROM papers GROUP BY 1"
                     ).fetchall()
                 )
+                funding_row = con.execute(
+                    """
+                    SELECT funders, grant_ids, funding_metadata_status,
+                           funding_providers, funding_assertion_count,
+                           funding_funder_count, funding_award_count
+                    FROM papers WHERE doi = '10.1000/primary'
+                    """
+                ).fetchone()
             finally:
                 con.close()
 
@@ -59,6 +67,18 @@ class ExportQueryApiTest(unittest.TestCase):
                 & relationship_columns
             )
             self.assertEqual(paper_types, {"primary_study": 2, "review": 1})
+            self.assertEqual(
+                funding_row,
+                (
+                    "Example Foundation",
+                    "EF-001",
+                    "reported",
+                    "openalex|crossref",
+                    2,
+                    1,
+                    1,
+                ),
+            )
             self.assertFalse((out_dir / "tables").exists())
             self.assertEqual(set(manifest["files"]), {"database", "schema"})
             self.assertTrue(manifest["quality"]["query_only"])

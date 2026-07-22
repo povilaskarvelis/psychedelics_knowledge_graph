@@ -43,7 +43,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CORPUS_DIR = ROOT / "data" / "processed" / "corpus"
 DEFAULT_PAPERS_TABLE = DEFAULT_CORPUS_DIR / "candidate_papers.parquet"
-DEFAULT_METADATA_TABLE = DEFAULT_CORPUS_DIR / "paper_metadata_enrichment.parquet"
 DEFAULT_CONTEXTS_TABLE = DEFAULT_CORPUS_DIR / "candidate_contexts.parquet"
 DEFAULT_DECISIONS_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_decisions.parquet"
 DEFAULT_SUMMARY_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_summary.parquet"
@@ -53,14 +52,10 @@ DEFAULT_EXTRACTION_TASKS_JSONL = (
     ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 )
 DEFAULT_RECONCILIATION_REPORT = DEFAULT_CORPUS_DIR / "prescreen_workflow_reconciliation.json"
-DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS = (
-    ROOT / "data" / "curated" / "prescreen_publication_format_exclusions.json"
-)
-DEFAULT_CURATED_PAPER_METADATA_OVERRIDES = (
-    ROOT / "data" / "curated" / "paper_metadata_overrides.json"
-)
-TABLE_VERSION = "0.2"
-RULE_VERSION = "deterministic_prescreen_v2_1_20260716"
+TABLE_VERSION = "0.3"
+RULE_VERSION = "deterministic_prescreen_v2_9_20260722"
+MINIMUM_ABSTRACT_WORD_COUNT = 50
+ENGLISH_LANGUAGE_CODES = {"en", "eng", "english"}
 CANDIDATE_PRESCREEN_DEFAULTS = {
     "prescreen_retained_for_extraction_candidate": False,
     "prescreen_decisions": "",
@@ -72,13 +67,20 @@ CANDIDATE_PRESCREEN_DEFAULTS = {
     "prescreen_run_id": "",
     "prescreen_updated_at_utc": "",
     "prescreen_has_abstract": False,
+    "prescreen_abstract_word_count": 0,
+    "pipeline_exclusion_stage": "",
+    "pipeline_exclusion_reason": "",
+    "pipeline_exclusion_decision_source": "",
 }
-METADATA_FIELDS = [
+SCREENING_FIELDS = [
     "study_title",
     "study_year",
     "authors",
     "abstract",
     "study_journal",
+    "journal_volume",
+    "journal_issue",
+    "journal_pages",
     "publication_type",
     "publication_date",
     "pmid",
@@ -111,6 +113,8 @@ NON_SOURCE_PUBLICATION_TYPES = {
     "commentary",
     "conference abstract",
     "conference-abstract",
+    "conference paper",
+    "conference-paper",
     "dissertation",
     "dispatch",
     "editorial",
@@ -165,6 +169,13 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES = {
     "chapter": "book_chapter",
     "conference abstract": "conference_abstract",
     "conference-abstract": "conference_abstract",
+    "conference paper": "conference_paper",
+    "conference-paper": "conference_paper",
+    "conference proceedings": "conference_paper",
+    "proceedings article": "conference_paper",
+    "proceedings-article": "conference_paper",
+    "conference poster": "conference_poster",
+    "conference-poster": "conference_poster",
     "commentary": "commentary",
     "dissertation": "dissertation",
     "data set": "dataset_or_data_deposit",
@@ -176,16 +187,37 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES = {
     "monograph": "book_or_monograph",
     "perspective": "commentary",
     "poster abstract": "conference_abstract",
+    "poster": "conference_poster",
     "peer review": "peer_review",
     "peer-review": "peer_review",
+    "software": "dataset_or_data_deposit",
     "thesis": "dissertation",
     "viewpoint": "commentary",
     "visual essay": "visual_essay",
 }
 OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
+    # Psychopharmacology Institute Quick Takes are educational summaries of
+    # other publications, not the underlying evidence report.
+    (
+        re.compile(r"^10\.64239/pi-qt\d+$", re.IGNORECASE),
+        "commentary",
+    ),
     (
         re.compile(r"^10\.17632/", re.IGNORECASE),
         "dataset_or_data_deposit",
+    ),
+    # A 10.5281 DOI identifies a Zenodo repository object rather than the
+    # canonical journal report. Article-shaped deposits remain repository
+    # records; a separately discovered journal DOI is handled as its own paper.
+    (
+        re.compile(r"^10\.5281/zenodo\.", re.IGNORECASE),
+        "repository_deposit",
+    ),
+    # PsycEXTRA e-series DOIs identify indexed database/repository records,
+    # including NIDA monograph chapters, rather than canonical source articles.
+    (
+        re.compile(r"^10\.1037/e\d", re.IGNORECASE),
+        "bibliographic_repository_record",
     ),
     (
         re.compile(r"^10\.25772/", re.IGNORECASE),
@@ -199,6 +231,73 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
         re.compile(r"^10\.26226/morressier\.", re.IGNORECASE),
         "conference_abstract",
     ),
+    # European Psychiatry abstract-book blocks whose PII-style DOI ranges are
+    # shared with the journal and therefore mislabeled as ordinary articles by
+    # some providers. Adjacent regular-issue years/ranges are not matched.
+    (
+        re.compile(r"^10\.1016/s0924-9338\(02\)8\d{4}-[0-9x]$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1016/s0924-9338\(12\)7\d{4}-[0-9x]$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1016/s0924-9338\(15\)3\d{4}-[0-9x]$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    # Frontiers assigns the 10.3389/conf.* namespace to Event Abstracts, which
+    # its landing pages explicitly distinguish from peer-reviewed articles.
+    (
+        re.compile(r"^10\.3389/conf\.", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    # F1000 uses this DOI namespace for its poster objects rather than its
+    # peer-reviewed F1000Research articles.
+    (
+        re.compile(r"^10\.7490/f1000research\.", re.IGNORECASE),
+        "conference_poster",
+    ),
+    # The Japanese Pharmacological Society assigns this namespace to items in
+    # its annual-meeting proceedings rather than to ordinary journal articles.
+    (
+        re.compile(r"^10\.1254/jpssuppl\.", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    # FASEB annual-meeting abstracts use volume/supplement or volume/issue/A-page
+    # identifiers. Ordinary FASEB research articles use the 10.1096/fj.* block.
+    (
+        re.compile(
+            r"^10\.1096/fasebj\.(?:\d{4}\.)?\d+\.(?:s\d+\.|\d+\.a\d)",
+            re.IGNORECASE,
+        ),
+        "conference_abstract",
+    ),
+    # BMC/Springer supplement contributions use A/P/L item suffixes for
+    # abstracts, posters, and lectures (for example, -S1-A33 or -S4-P10).
+    (
+        re.compile(r"^10\.1186/.+-s\d+-(?:a|p|l)\d+$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    # Named BMJ congress series. The event token is part of the DOI, so this
+    # does not affect ordinary articles in the same journals.
+    (
+        re.compile(
+            r"^10\.1136/[a-z0-9-]+-(?:eular|esra|eahp|sti|europaediatrics)\.\d+$",
+            re.IGNORECASE,
+        ),
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1136/sextrans-icar-\d{4}\.\d+$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    # STI abstract supplements use an article-level DOI plus a final abstract
+    # number. Normal STI articles stop before that final dotted number.
+    (
+        re.compile(r"^10\.1136/sextrans-\d{4}-\d+[a-z]?\.\d+$", re.IGNORECASE),
+        "conference_abstract",
+    ),
     (
         re.compile(r"^10\.1093/ijnp/[a-z]{4}\d{3}\.\d{1,4}$", re.IGNORECASE),
         "conference_abstract",
@@ -207,13 +306,132 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
         re.compile(r"^10\.1007/7854_\d{4}_\d+$", re.IGNORECASE),
         "book_chapter",
     ),
+    # Elsevier B978 identifiers are chapters/entries within ISBN-addressed
+    # books or abstract volumes, not standalone journal reports.
+    (
+        re.compile(r"^10\.1016/b978-", re.IGNORECASE),
+        "book_chapter",
+    ),
     (
         re.compile(r"^10\.17579/abstractbook", re.IGNORECASE),
         "conference_abstract",
     ),
     (
+        re.compile(r"^10\.17579/sepd\d{4}[op]\d+", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    # Publisher-verified conference collections. These patterns are scoped to
+    # DOI blocks used by the named collections, not to their journals overall.
+    # Neuroscience Applied: ECNP congress/workshop abstract collections.
+    (
+        re.compile(r"^10\.1016/j\.nsa\.2022\.100\d{3}$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1016/j\.nsa\.2023\.(?:102|103)\d{3}$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1016/j\.nsa\.2024\.(?:103|104)\d{3}$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1016/j\.nsa\.2025\.(?:105|106)\d{3}$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    # IBRO 11th World Congress of Neuroscience supplement (volume 15, S1).
+    (
+        re.compile(r"^10\.1016/j\.ibneur\.2023\.08\.\d{3,4}$", re.IGNORECASE),
+        "conference_abstract",
+    ),
+    (
         re.compile(r"^10\.1017/.+\.pr\d+$", re.IGNORECASE),
         "peer_review",
+    ),
+    # DOI namespaces dedicated to proceedings series. These are deliberately
+    # narrower than publisher prefixes so ordinary articles from the same
+    # publishers are not excluded.
+    (
+        re.compile(r"^10\.1051/(?:bioconf|e3sconf|epjconf|matecconf)/", re.IGNORECASE),
+        "conference_paper",
+    ),
+    (
+        re.compile(r"^10\.1088/(?:1742-6596|1755-1315|1757-899x)/", re.IGNORECASE),
+        "conference_paper",
+    ),
+    (
+        re.compile(r"^10\.30955/gnc", re.IGNORECASE),
+        "conference_paper",
+    ),
+    (
+        re.compile(r"^10\.32470/ccn\.", re.IGNORECASE),
+        "conference_paper",
+    ),
+    # Explicit supplement tokens in an item DOI identify contributions to a
+    # journal supplement. In this corpus these are overwhelmingly meeting
+    # abstracts; the broader format label remains accurate for the few review
+    # or article-shaped supplement contributions.
+    (
+        re.compile(
+            r"(?:^|[._/-])(?:supplement(?:ary)?|suppl)(?:[._/-]|$)",
+            re.IGNORECASE,
+        ),
+        "supplement_issue_contribution",
+    ),
+)
+
+# Some publishers share a DOI prefix between journals and proceedings. Exclude
+# only when both the DOI family and source metadata independently identify a
+# conference venue. This protects ordinary AIP and IEEE journal articles and
+# avoids relying on venue text alone, which is occasionally misassigned.
+CORROBORATED_CONFERENCE_VENUE_PATTERNS = (
+    (
+        re.compile(r"^10\.1063/1\.", re.IGNORECASE),
+        re.compile(r"^aip conference proceedings$", re.IGNORECASE),
+    ),
+    (
+        re.compile(r"^10\.1109/", re.IGNORECASE),
+        re.compile(r"\bconference\b", re.IGNORECASE),
+    ),
+    # The publisher uses this DOI namespace for contributions to its dated
+    # InterConf scientific collections. Crossref labels the objects as generic
+    # journal articles, so the DOI family and collection title are both needed.
+    (
+        re.compile(r"^10\.51582/interconf\.", re.IGNORECASE),
+        re.compile(r"^InterConf(?:\+)?$", re.IGNORECASE),
+    ),
+)
+
+# Some conference-abstract supplements share the journal's normal DOI prefix
+# and Crossref's generic `journal-article` type. Canonical issue metadata is the
+# safe discriminator; a DOI-suffix heuristic would also remove regular papers.
+CORROBORATED_CONFERENCE_SUPPLEMENT_PATTERNS = (
+    (
+        re.compile(r"^European Psychiatry$", re.IGNORECASE),
+        re.compile(r"^S\d+$", re.IGNORECASE),
+        re.compile(r"^S\d+(?:-S?\d+)?$", re.IGNORECASE),
+    ),
+)
+SINGLE_PAGE_SUPPLEMENT_PAGES_RE = re.compile(
+    r"^S(?P<first>\d+)(?:-S?(?P<last>\d+))?$",
+    re.IGNORECASE,
+)
+
+# Exact article-number ranges assigned by Elsevier to the NPS conference
+# sections of the mixed-content ETDAH volumes. Keeping the bounds explicit
+# avoids excluding the research and review articles in those same volumes.
+VERIFIED_CONFERENCE_COLLECTION_DOI_RANGES = (
+    (
+        re.compile(r"^10\.1016/j\.etdah\.2023\.(?P<article_number>\d{6})$", re.IGNORECASE),
+        100061,
+        100131,
+        "conference_abstract",
+    ),
+    (
+        re.compile(r"^10\.1016/j\.etdah\.2025\.(?P<article_number>\d{6})$", re.IGNORECASE),
+        100188,
+        100265,
+        "conference_abstract",
     ),
 )
 VISUAL_ESSAY_TEXT_RE = re.compile(r"\bvisual essay\b", re.IGNORECASE)
@@ -226,6 +444,11 @@ NON_EVIDENCE_TITLE_PATTERNS = (
     re.compile(r"\breview for [\"“]", re.IGNORECASE),
     re.compile(r"\bfaculty opinions recommendation\b", re.IGNORECASE),
     re.compile(r"\bsupplementary material for\b", re.IGNORECASE),
+    re.compile(
+        r"(?:^|[.:;–—-]\s+)\s*(?:supplementary|supplemental|supporting)\s+"
+        r"(?:materials?|information|data|files?|figures?|tables?|appendi(?:x|ces))\b",
+        re.IGNORECASE,
+    ),
     re.compile(r"\bstudy protocol\b", re.IGNORECASE),
     re.compile(r"\btrial protocol\b", re.IGNORECASE),
     re.compile(r"\bprotocol for\b", re.IGNORECASE),
@@ -251,12 +474,13 @@ NON_EVIDENCE_PUBLICATION_PATTERNS = (
 )
 NON_EVIDENCE_TEXT_PATTERNS = (
     re.compile(r"\bpatent highlight\b", re.IGNORECASE),
+    re.compile(r"\bthis theoretical article\b", re.IGNORECASE),
 )
 NON_EVIDENCE_SOURCE_PATTERNS = (
     re.compile(r"\bbrown university(?: child & adolescent)? psychopharmacology update\b", re.IGNORECASE),
 )
 NUMBERED_TITLE_TOKEN_RE = re.compile(
-    r"^\s*(?P<number>\d{1,4})(?P<sep>[.)\]:])?\s+(?P<rest>\S.*)$",
+    r"^\s*(?:abstract\s+)?(?P<number>\d{1,4})(?P<sep>[.)\]:])?\s+(?P<rest>\S.*)$",
     re.IGNORECASE,
 )
 NUMBERED_TITLE_PROTECTED_REST_PATTERNS = (
@@ -282,6 +506,13 @@ NUMBERED_TITLE_CONFERENCE_PUBLICATION_PATTERNS = (
     re.compile(r"\bproceedings\b", re.IGNORECASE),
 )
 NUMBERED_TITLE_CONFERENCE_JOURNAL_PATTERNS = (
+    re.compile(
+        r"\bproceedings?\s+(?:for|of)\s+(?:the\s+)?"
+        r"(?:annual|scientific)?\s*meeting\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\b(?:annual|scientific)\s+meeting\b", re.IGNORECASE),
+    re.compile(r"\bconference proceedings?\b", re.IGNORECASE),
     re.compile(r"\binternational journal of neuropsychopharmacology\b", re.IGNORECASE),
     re.compile(r"\bcns spectrums\b", re.IGNORECASE),
     re.compile(r"\bjournal of clinical and translational science\b", re.IGNORECASE),
@@ -302,7 +533,12 @@ NUMBERED_TITLE_CONFERENCE_DOI_PATTERNS = (
     re.compile(r"^10\.1136/[a-z0-9-]+\.\d{1,4}$", re.IGNORECASE),
 )
 CODED_CONFERENCE_TITLE_RE = re.compile(
-    r"^\s*(?:P|O|OP|PL)\d+(?:[-.]S?\d+)*(?:\s|[\u2000-\u206f])",
+    r"^\s*(?:AS|CS|EPA|P|PW|O|OP|PL|S)[-.]?\d+(?:[-.]S?\d+)*(?:\s|[\u2000-\u206f])",
+    re.IGNORECASE,
+)
+GENERIC_CODED_CONFERENCE_TITLE_RE = re.compile(
+    r"^\s*(?P<code>(?:AS|CS|EPA|P|PW|O|OP|PL|S)(?:[.-]\d+){1,3})"
+    r"(?:\s*[-–—:]\s*|\s+)(?P<rest>\S.*)$",
     re.IGNORECASE,
 )
 CODED_CONFERENCE_DOI_RE = re.compile(
@@ -358,6 +594,9 @@ CITATION_ONLY_ABSTRACT_PATTERNS = (
         re.IGNORECASE,
     ),
 )
+ABSTRACT_WORD_RE = re.compile(r"\b\w+(?:[’'-]\w+)*\b", re.UNICODE)
+
+
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
@@ -385,6 +624,12 @@ def clean_bool(value: object) -> bool:
     return text in {"1", "true", "yes", "y"}
 
 
+def abstract_word_count(value: object) -> int:
+    """Count Unicode word tokens while keeping hyphenated terms as one word."""
+
+    return len(ABSTRACT_WORD_RE.findall(clean(value)))
+
+
 def unusable_abstract_reason(value: object) -> str:
     text = re.sub(r"\s+", " ", clean(value)).strip()
     if not text:
@@ -395,6 +640,12 @@ def unusable_abstract_reason(value: object) -> str:
     for pattern in CITATION_ONLY_ABSTRACT_PATTERNS:
         if pattern.search(text):
             return "Abstract field contains citation metadata rather than a substantive abstract."
+    word_count = abstract_word_count(text)
+    if word_count < MINIMUM_ABSTRACT_WORD_COUNT:
+        return (
+            f"Abstract contains {word_count} words, below the {MINIMUM_ABSTRACT_WORD_COUNT}-word "
+            "minimum for deterministic title/abstract screening."
+        )
     return ""
 
 
@@ -435,39 +686,6 @@ def read_table(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
     return pd.read_parquet(path)
-
-
-def load_curated_publication_format_exclusions(path: Path) -> dict[str, dict]:
-    if not path.exists():
-        return {}
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    records = payload.get("records", []) if isinstance(payload, dict) else []
-    out: dict[str, dict] = {}
-    for record in records:
-        if not isinstance(record, dict):
-            continue
-        if clean(record.get("decision_stage", "")) == "post_retrieval_eligibility":
-            continue
-        doi = normalize_doi(clean(record.get("doi", ""))).lower()
-        if doi:
-            out[doi] = record
-    return out
-
-
-def load_curated_paper_metadata_overrides(path: Path) -> dict[str, dict]:
-    if not path.exists():
-        return {}
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    records = payload.get("records", []) if isinstance(payload, dict) else []
-    out: dict[str, dict] = {}
-    for record in records:
-        if not isinstance(record, dict):
-            continue
-        doi = normalize_doi(clean(record.get("doi", ""))).lower()
-        fields = record.get("fields", {}) if isinstance(record.get("fields"), dict) else {}
-        if doi:
-            out[doi] = {field: value for field, value in fields.items() if field in METADATA_FIELDS}
-    return out
 
 
 def write_table(path: Path, rows: list[dict]) -> None:
@@ -574,19 +792,12 @@ def compact_contexts(contexts: list[dict]) -> list[dict]:
     return out
 
 
-def merged_screening_row(
-    paper: dict,
-    metadata: dict | None,
-    metadata_overrides: dict[str, dict] | None = None,
-) -> dict:
-    metadata = metadata or {}
+def candidate_screening_row(paper: dict) -> dict:
+    """Return prescreen input from the materialized candidate ledger only."""
     doi = normalize_doi(clean(paper.get("doi", "")))
     row = {"study_doi": doi}
-    for field in METADATA_FIELDS:
-        row[field] = clean(metadata.get(field, "")) or clean(paper.get(field, ""))
-    for field, value in (metadata_overrides or {}).get(doi, {}).items():
-        if field in METADATA_FIELDS and clean(value):
-            row[field] = clean(value)
+    for field in SCREENING_FIELDS:
+        row[field] = clean(paper.get(field, ""))
     return row
 
 
@@ -603,6 +814,29 @@ def no_usable_abstract_decision(row: dict, reason: str = "") -> dict:
         "supporting_quote": title or "not_found",
         "reason": detail,
         "matched_terms": [],
+    }
+
+
+def non_english_language_decision(row: dict) -> dict | None:
+    """Exclude records whose bibliographic metadata explicitly identifies a non-English source.
+
+    Blank language metadata remains undecided here.  This rule deliberately
+    avoids guessing language from scientific names, symbols, or short titles.
+    """
+
+    languages = {value.lower() for value in split_values(row.get("language", ""))}
+    if not languages or languages.intersection(ENGLISH_LANGUAGE_CODES):
+        return None
+    language = join_values(sorted(languages))
+    return {
+        "action": "exclude_non_english_language",
+        "confidence": 1.0,
+        "supporting_quote": language,
+        "reason": (
+            "Bibliographic metadata explicitly identifies the source language as non-English, "
+            "outside the project's English-language evidence corpus."
+        ),
+        "matched_terms": sorted(languages),
     }
 
 
@@ -640,6 +874,9 @@ def out_of_scope_publication_format_decision(row: dict) -> dict | None:
     doi = normalize_doi(clean(row.get("study_doi", ""))).lower()
     title = clean(row.get("study_title", ""))
     abstract = clean(row.get("abstract", ""))
+    journal = clean(row.get("study_journal", ""))
+    journal_issue = clean(row.get("journal_issue", ""))
+    journal_pages = clean(row.get("journal_pages", ""))
     publication_types = {value.lower() for value in split_values(row.get("publication_type", ""))}
     matched_formats = {
         OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES[value]
@@ -663,6 +900,39 @@ def out_of_scope_publication_format_decision(row: dict) -> dict | None:
         if match:
             matched_formats.add(publication_format)
             matched_terms.append(match.group(0))
+    for pattern, first_article, last_article, publication_format in VERIFIED_CONFERENCE_COLLECTION_DOI_RANGES:
+        match = pattern.search(doi)
+        if not match:
+            continue
+        article_number = int(match.group("article_number"))
+        if first_article <= article_number <= last_article:
+            matched_formats.add(publication_format)
+            matched_terms.append(
+                f"verified_conference_collection:{first_article}-{last_article}"
+            )
+    for doi_pattern, venue_pattern in CORROBORATED_CONFERENCE_VENUE_PATTERNS:
+        doi_match = doi_pattern.search(doi)
+        venue_match = venue_pattern.search(journal)
+        if doi_match and venue_match:
+            matched_formats.add("conference_paper")
+            matched_terms.append(f"corroborated_conference_venue:{venue_match.group(0)}")
+    for venue_pattern, issue_pattern, pages_pattern in CORROBORATED_CONFERENCE_SUPPLEMENT_PATTERNS:
+        venue_match = venue_pattern.search(journal)
+        issue_match = issue_pattern.search(journal_issue)
+        pages_match = pages_pattern.search(journal_pages)
+        if venue_match and (issue_match or pages_match):
+            matched_formats.add("conference_abstract")
+            matched_terms.append(
+                "corroborated_conference_supplement:"
+                f"{venue_match.group(0)}:{journal_issue}:{journal_pages}"
+            )
+    supplement_page_match = SINGLE_PAGE_SUPPLEMENT_PAGES_RE.search(journal_pages)
+    if supplement_page_match:
+        first_page = supplement_page_match.group("first")
+        last_page = supplement_page_match.group("last")
+        if not last_page or last_page == first_page:
+            matched_formats.add("supplement_issue_contribution")
+            matched_terms.append(f"single_page_supplement:{supplement_page_match.group(0)}")
     if VISUAL_ESSAY_TEXT_RE.search(" ".join(value for value in (title, abstract) if value)):
         matched_formats.add("visual_essay")
         matched_terms.append("visual essay")
@@ -673,34 +943,12 @@ def out_of_scope_publication_format_decision(row: dict) -> dict | None:
         "confidence": 1.0,
         "supporting_quote": title or clean(row.get("publication_type", "")) or doi,
         "reason": (
-            "Record is a book/monograph, book chapter, dataset, dissertation/thesis, "
-            "conference/poster/meeting abstract, abstract-book contribution, peer-review/decision "
-            "object, or visual essay rather than an eligible source article, review, or meta-analysis."
+            "Record is a book/monograph, book chapter, dataset or repository/index deposit, dissertation/thesis, "
+            "conference paper, conference/poster/meeting abstract, abstract-book contribution, "
+            "journal-supplement contribution, peer-review/decision object, or visual essay rather "
+            "than an eligible source article, review, or meta-analysis."
         ),
         "matched_terms": [*sorted(matched_formats), *matched_terms],
-    }
-
-
-def curated_publication_format_exclusion_decision(
-    row: dict,
-    curated_exclusions: dict[str, dict],
-) -> dict | None:
-    doi = normalize_doi(clean(row.get("study_doi", ""))).lower()
-    record = curated_exclusions.get(doi)
-    if not record:
-        return None
-    publication_format = clean(record.get("publication_format", "")) or "out_of_scope_publication_format"
-    evidence_basis = clean(record.get("evidence_basis", ""))
-    return {
-        "action": "exclude_non_evidence_artifact",
-        "confidence": 1.0,
-        "supporting_quote": clean(row.get("study_title", "")) or evidence_basis or doi,
-        "reason": clean(record.get("reason", ""))
-        or "Curated publication-format evidence identifies this record as outside the eligible evidence sources.",
-        "matched_terms": [
-            publication_format,
-            *([evidence_basis] if evidence_basis else []),
-        ],
     }
 
 
@@ -849,17 +1097,44 @@ def coded_conference_abstract_decision(row: dict) -> dict | None:
 
     doi = normalize_doi(clean(row.get("study_doi", "")))
     title = clean(row.get("study_title", ""))
-    if not CODED_CONFERENCE_DOI_RE.search(doi) or not CODED_CONFERENCE_TITLE_RE.search(title):
+    if CODED_CONFERENCE_DOI_RE.search(doi) and CODED_CONFERENCE_TITLE_RE.search(title):
+        return {
+            "action": "exclude_non_evidence_artifact",
+            "confidence": 1.0,
+            "supporting_quote": title,
+            "reason": (
+                "The coded title and Sexually Transmitted Infections supplement DOI identify a "
+                "conference/poster abstract rather than a source article or review."
+            ),
+            "matched_terms": ["coded_conference_title", "sextrans_supplement_doi"],
+        }
+
+    coded_match = GENERIC_CODED_CONFERENCE_TITLE_RE.search(title)
+    if not coded_match:
+        return None
+    publication_type = clean(row.get("publication_type", ""))
+    journal = clean(row.get("study_journal", ""))
+    matched_terms = [f"coded_conference_title:{coded_match.group('code')}"]
+    for value, patterns in (
+        (publication_type, NUMBERED_TITLE_CONFERENCE_PUBLICATION_PATTERNS),
+        (journal, NUMBERED_TITLE_CONFERENCE_JOURNAL_PATTERNS),
+        (doi, NUMBERED_TITLE_CONFERENCE_DOI_PATTERNS),
+    ):
+        for pattern in patterns:
+            match = pattern.search(value)
+            if match:
+                matched_terms.append(match.group(0))
+    if len(matched_terms) == 1:
         return None
     return {
         "action": "exclude_non_evidence_artifact",
         "confidence": 1.0,
         "supporting_quote": title,
         "reason": (
-            "The coded title and Sexually Transmitted Infections supplement DOI identify a "
+            "The coded title and meeting, proceedings, journal, or DOI metadata identify a "
             "conference/poster abstract rather than a source article or review."
         ),
-        "matched_terms": ["coded_conference_title", "sextrans_supplement_doi"],
+        "matched_terms": matched_terms,
     }
 
 
@@ -957,17 +1232,10 @@ def broad_nps_background_false_positive_decision(row: dict) -> dict | None:
     }
 
 
-def before_model_exclusion_decision(
-    row: dict,
-    curated_publication_format_exclusions: dict[str, dict] | None = None,
-) -> dict | None:
-    curated_publication_format_exclusions = curated_publication_format_exclusions or {}
+def before_model_exclusion_decision(row: dict) -> dict | None:
     return (
-        non_paper_container_without_title_decision(row)
-        or curated_publication_format_exclusion_decision(
-            row,
-            curated_publication_format_exclusions,
-        )
+        non_english_language_decision(row)
+        or non_paper_container_without_title_decision(row)
         or out_of_scope_publication_format_decision(row)
         or non_evidence_artifact_decision(row)
         or numbered_conference_abstract_decision(row)
@@ -988,24 +1256,12 @@ def final_prescreen_fields(decision: dict) -> tuple[str, str, str]:
 
 def build_prescreen_decisions(
     papers_df: pd.DataFrame,
-    metadata_df: pd.DataFrame,
     contexts_df: pd.DataFrame,
     *,
     run_id: str,
     generated_at_utc: str,
     progress_every: int = 0,
-    curated_publication_format_exclusions: dict[str, dict] | None = None,
-    curated_paper_metadata_overrides: dict[str, dict] | None = None,
 ) -> list[dict]:
-    if curated_publication_format_exclusions is None:
-        curated_publication_format_exclusions = load_curated_publication_format_exclusions(
-            DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS
-        )
-    if curated_paper_metadata_overrides is None:
-        curated_paper_metadata_overrides = load_curated_paper_metadata_overrides(
-            DEFAULT_CURATED_PAPER_METADATA_OVERRIDES
-        )
-    metadata_by_doi = rows_by_doi(metadata_df)
     contexts_lookup = contexts_by_doi(contexts_df)
     rows: list[dict] = []
 
@@ -1017,17 +1273,11 @@ def build_prescreen_decisions(
         if not doi:
             continue
         paper_contexts = compact_contexts(contexts_lookup.get(doi, []))
-        screening_row = merged_screening_row(
-            paper,
-            metadata_by_doi.get(doi),
-            curated_paper_metadata_overrides,
-        )
+        screening_row = candidate_screening_row(paper)
+        screening_abstract_word_count = abstract_word_count(screening_row.get("abstract", ""))
         abstract_status_reason = unusable_abstract_reason(screening_row.get("abstract", ""))
         has_abstract = not bool(abstract_status_reason)
-        before_model_decision = before_model_exclusion_decision(
-            screening_row,
-            curated_publication_format_exclusions,
-        )
+        before_model_decision = before_model_exclusion_decision(screening_row)
         if before_model_decision:
             decision = before_model_decision
         elif not has_abstract:
@@ -1050,6 +1300,7 @@ def build_prescreen_decisions(
                 "study_year": clean(screening_row.get("study_year", "")),
                 "has_abstract": has_abstract,
                 "abstract_char_count": len(clean(screening_row.get("abstract", ""))),
+                "abstract_word_count": screening_abstract_word_count,
                 "candidate_context_count": len(paper_contexts),
                 "context_compounds": join_values(context.get("compound", "") for context in paper_contexts),
                 "context_entities": join_values(context.get("entity", "") for context in paper_contexts),
@@ -1110,6 +1361,14 @@ def validate_prescreen_decisions(decisions: list[dict], *, expected_dois: set[st
             and not bool(row.get("has_abstract", False))
         ):
             errors.append(f"{doi}: title-only record was retained despite the no-abstract exclusion policy")
+        if (
+            clean(row.get("rule_version", "")) == RULE_VERSION
+            and expected_retained
+            and int(row.get("abstract_word_count", 0) or 0) < MINIMUM_ABSTRACT_WORD_COUNT
+        ):
+            errors.append(
+                f"{doi}: record with fewer than {MINIMUM_ABSTRACT_WORD_COUNT} abstract words was retained"
+            )
 
     if errors:
         preview = "\n".join(errors[:25])
@@ -1117,11 +1376,36 @@ def validate_prescreen_decisions(decisions: list[dict], *, expected_dois: set[st
         raise ValueError(f"Deterministic prescreen validation failed:\n{preview}{suffix}")
 
 
-def candidate_prescreen_updates(decisions: list[dict]) -> pd.DataFrame:
-    return pd.DataFrame(
-        [
+def candidate_prescreen_updates(
+    decisions: list[dict],
+    candidate_df: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    candidate_by_doi = rows_by_doi(candidate_df if candidate_df is not None else pd.DataFrame())
+    rows: list[dict] = []
+    for row in decisions:
+        doi = normalize_doi(row.get("doi", ""))
+        if not doi:
+            continue
+        excluded = clean(row.get("prescreen_decision", "")) == "exclude"
+        existing_stage = clean(candidate_by_doi.get(doi, {}).get("pipeline_exclusion_stage", ""))
+        later_exclusion_exists = bool(existing_stage and existing_stage != "prescreen")
+        if excluded:
+            exclusion_stage: object = "prescreen"
+            exclusion_reason: object = clean(row.get("prescreen_reason", ""))
+            exclusion_source: object = RULE_VERSION
+        elif later_exclusion_exists:
+            # Preserve a still-valid decision made by a later evidence stage.
+            # pd.NA makes candidate reconciliation leave these cells untouched.
+            exclusion_stage = pd.NA
+            exclusion_reason = pd.NA
+            exclusion_source = pd.NA
+        else:
+            exclusion_stage = ""
+            exclusion_reason = ""
+            exclusion_source = ""
+        rows.append(
             {
-                "doi": normalize_doi(row.get("doi", "")),
+                "doi": doi,
                 "prescreen_retained_for_extraction_candidate": bool(
                     row.get("retained_for_extraction_candidate", False)
                 ),
@@ -1134,11 +1418,13 @@ def candidate_prescreen_updates(decisions: list[dict]) -> pd.DataFrame:
                 "prescreen_run_id": clean(row.get("run_id", "")),
                 "prescreen_updated_at_utc": clean(row.get("generated_at_utc", "")),
                 "prescreen_has_abstract": bool(row.get("has_abstract", False)),
+                "prescreen_abstract_word_count": int(row.get("abstract_word_count", 0) or 0),
+                "pipeline_exclusion_stage": exclusion_stage,
+                "pipeline_exclusion_reason": exclusion_reason,
+                "pipeline_exclusion_decision_source": exclusion_source,
             }
-            for row in decisions
-            if normalize_doi(row.get("doi", ""))
-        ]
-    )
+        )
+    return pd.DataFrame(rows)
 
 
 def build_summary_rows(decisions: list[dict], *, run_id: str, generated_at_utc: str) -> list[dict]:
@@ -1161,6 +1447,14 @@ def build_summary_rows(decisions: list[dict], *, run_id: str, generated_at_utc: 
     add("decisions", "total", len(decisions))
     add("papers", "unique_doi", len({row.get("doi") for row in decisions}))
     add("abstract", "missing", sum(not row.get("has_abstract") for row in decisions))
+    add(
+        "abstract",
+        f"below_{MINIMUM_ABSTRACT_WORD_COUNT}_words",
+        sum(
+            0 < int(row.get("abstract_word_count", 0) or 0) < MINIMUM_ABSTRACT_WORD_COUNT
+            for row in decisions
+        ),
+    )
     for field in ("prescreen_decision", "prescreen_action", "deterministic_action"):
         for label, count in Counter(clean(row.get(field, "")) for row in decisions).items():
             add(field, label, count)
@@ -1174,27 +1468,7 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
     existing_decisions_df = read_table(decisions_table) if scoped_dois else pd.DataFrame()
     run_id = clean(args.run_id) or (existing_run_id(existing_decisions_df) if scoped_dois else "") or default_run_id()
     generated_at_utc = now_utc()
-    curated_publication_format_exclusions = load_curated_publication_format_exclusions(
-        Path(
-            getattr(
-                args,
-                "curated_publication_format_exclusions",
-                DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS,
-            )
-        ).resolve()
-    )
-    curated_paper_metadata_overrides = load_curated_paper_metadata_overrides(
-        Path(
-            getattr(
-                args,
-                "curated_paper_metadata_overrides",
-                DEFAULT_CURATED_PAPER_METADATA_OVERRIDES,
-            )
-        ).resolve()
-    )
-
     papers_df = read_table(Path(args.papers_table).resolve())
-    metadata_df = read_table(Path(args.metadata_table).resolve())
     contexts_df = read_table(Path(args.contexts_table).resolve())
 
     if papers_df.empty:
@@ -1233,20 +1507,16 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
                 "Run one full deterministic pre-screen pass first."
             )
         papers_df = filter_table_to_dois(papers_df, scoped_dois)
-        metadata_df = filter_table_to_dois(metadata_df, scoped_dois)
         contexts_df = filter_table_to_dois(contexts_df, scoped_dois)
         if papers_df.empty:
             raise SystemExit("No matching DOI rows found in the papers table for the requested scoped update.")
 
     updated_decisions = build_prescreen_decisions(
         papers_df,
-        metadata_df,
         contexts_df,
         run_id=run_id,
         generated_at_utc=generated_at_utc,
         progress_every=getattr(args, "progress_every", 0),
-        curated_publication_format_exclusions=curated_publication_format_exclusions,
-        curated_paper_metadata_overrides=curated_paper_metadata_overrides,
     )
     if scoped_dois:
         decisions, replaced_count = merge_scoped_decisions(
@@ -1286,7 +1556,8 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         candidate_update = reconcile_workflow_decision(
             candidate_table=Path(args.papers_table).resolve(),
             decision_updates=candidate_prescreen_updates(
-                updated_decisions if scoped_dois else decisions
+                updated_decisions if scoped_dois else decisions,
+                papers_df,
             ),
             update_defaults=CANDIDATE_PRESCREEN_DEFAULTS,
             stage="prescreen",
@@ -1332,7 +1603,6 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run deterministic pre-screening on corpus Parquet tables.")
     parser.add_argument("--papers-table", default=str(DEFAULT_PAPERS_TABLE))
-    parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--contexts-table", default=str(DEFAULT_CONTEXTS_TABLE))
     parser.add_argument("--decisions-table", default=str(DEFAULT_DECISIONS_TABLE))
     parser.add_argument("--summary-table", default=str(DEFAULT_SUMMARY_TABLE))
@@ -1348,19 +1618,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--extraction-routes-table", default=str(DEFAULT_EXTRACTION_ROUTES_TABLE))
     parser.add_argument("--extraction-tasks-jsonl", default=str(DEFAULT_EXTRACTION_TASKS_JSONL))
     parser.add_argument("--reconciliation-report", default=str(DEFAULT_RECONCILIATION_REPORT))
-    parser.add_argument(
-        "--curated-publication-format-exclusions",
-        default=str(DEFAULT_CURATED_PUBLICATION_FORMAT_EXCLUSIONS),
-        help=(
-            "Curated DOI-level publication-format exclusions used when provider metadata is "
-            "incomplete or misleading."
-        ),
-    )
-    parser.add_argument(
-        "--curated-paper-metadata-overrides",
-        default=str(DEFAULT_CURATED_PAPER_METADATA_OVERRIDES),
-        help="Curated DOI-level replacements for provider metadata known to belong to another paper.",
-    )
     parser.add_argument("--run-id", default="")
     parser.add_argument("--doi-file", default="", help="Optional newline-delimited DOI list for a scoped update.")
     parser.add_argument("--doi", action="append", default=[], help="Single DOI for a scoped update; can be repeated.")

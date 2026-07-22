@@ -40,6 +40,27 @@ For each item capture:
 - a concise recommendation statement and its rationale or evidence basis;
 - the most precise available evidence locator.
 
+Use `direction_or_tone` for the direction of the recommendation, not its
+strength:
+
+- `supports`: recommends, endorses, requires, or advises doing the stated
+  action;
+- `cautions`: permits or discusses the action but emphasizes a risk,
+  limitation, or need for caution;
+- `recommends_against`: explicitly says not to do, to avoid, or that the action
+  is contraindicated;
+- `insufficient_evidence`: explicitly concludes that the evidence is
+  insufficient to recommend for or against;
+- `descriptive_only`: describes practice or context without taking a
+  recommendation position;
+- `mixed`: contains materially conflicting positions that cannot be split into
+  separate items.
+
+A strong positive instruction using words such as "should", "must",
+"recommend", "implement", or "required" is `supports`, not
+`recommends_against`. Use `recommends_against` only when the recommendation
+statement itself contains an explicit negative or avoidance instruction.
+
 Use `intervention_component` for concrete care components such as preparation,
 monitoring, informed consent, therapist training, setting, integration, or
 adverse-event assessment. Do not put dosing sessions, psychotherapy, care

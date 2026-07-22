@@ -23,25 +23,38 @@ python pipeline/fulltext/build_fulltext_enrichment_worklist.py
 
 The worklist is one row per newly selected, unprocessed DOI. It assigns only a
 full-text handling action; it does not construct extraction domains, prompt
-profiles, schemas, or model tasks. It also writes
-`fulltext_link_discovery_dois.txt`, the exact scope for the subsequent
-Unpaywall/OpenAlex link-refresh pass.
+profiles, schemas, or model tasks. Records whose access status is not yet known
+are assigned `refresh_access_metadata` and written to
+`fulltext_access_metadata_refresh_dois.txt`, the exact scope for the subsequent
+Unpaywall/OpenAlex access-metadata refresh.
 
-After access-link refresh, rebuild the worklist. OA-positive records that still
-lack a provider-declared PDF are assigned `resolve_oa_landing_page` and written
-to `fulltext_oa_landing_dois.txt`; closed records with no known route remain
-`discover_fulltext`. This keeps DOI/landing-page resolution scoped to positive
-OA evidence without treating a negative OA status as a veto on a concrete PDF
-URL. Once the landing/DOI tier has been attempted, its recorded URLs become
-known attempted routes; unsuccessful records leave this pending tier and enter
-the normal known-failed/manual recovery queue instead of being replayed.
+After the refresh, rebuild the worklist. OA-positive records that still lack a
+provider-declared PDF are assigned `resolve_oa_landing_page` and written to
+`fulltext_oa_landing_dois.txt`. Records for which providers report closed access
+are assigned `no_accessible_fulltext` and written separately to
+`fulltext_no_accessible_fulltext_dois.txt`. They are not PDF-download or browser
+recovery tasks. A concrete PDF URL remains actionable even if its OA status
+field is negative, unless the candidate ledger already records a completed,
+non-retryable failure. `download_failed` rows with
+`pdf_download_retry_recommended=true` remain actionable; non-retryable failures
+are assigned `no_accessible_fulltext` and use abstract-level extraction for the
+current run. The downloader records `pdf_download_attempt_count` and, by
+default, permits two DOI-level retrieval runs (`--max-download-attempts 2`). A
+retryable failure on the second run is marked
+`pdf_download_retry_budget_exhausted=true`, becomes non-retryable, and therefore
+cannot be silently requeued forever. HTTP retries inside a single retrieval run
+remain controlled separately by `--max-retries`. A later successful/manual
+import supersedes the failure because
+local PDF and verified full-text state take precedence. The worklist retains
+the download status, failure categories, retry flag, and terminal-state flag
+so this decision remains auditable after regeneration.
 
 After PMC recovery and worklist regeneration, refresh missing PDF links only
 for that discovery scope:
 
 ```bash
 python pipeline/ingest/refresh_open_access_links.py \
-  --doi-file data/processed/corpus/fulltext_link_discovery_dois.txt \
+  --doi-file data/processed/corpus/fulltext_access_metadata_refresh_dois.txt \
   --pmc-report data/processed/fulltext/pmc_xml_report.postscreen_<run>.json \
   --report-json data/processed/fulltext/open_access_link_refresh_report.postscreen_<run>.json \
   --only-missing-pdf-url \
@@ -66,14 +79,12 @@ python pipeline/fulltext/download_fulltext_worklist_pdfs.py \
 The first pass uses provider-declared PDF candidates from `download_known_pdf`
 rows plus OA/DOI landing routes from `resolve_oa_landing_page` rows in the worklist,
 including opaque publisher/repository download endpoints when
-`--include-weak-pdf-urls` is set. Keep alternate-source discovery out of this
-pass so it cannot silently expand the queue to every `discover_fulltext` row.
+`--include-weak-pdf-urls` is set. `no_accessible_fulltext` and
+`refresh_access_metadata` rows are never projected into the downloader.
 After the direct pass, run a separately scoped recovery pass with
 `--alternate-pdf-sources --alternate-sources-only`; this avoids replaying known
-failed publisher endpoints before each repository lookup. Add
-`--include-discovery-rows` only when the broader
-discovery queue is intentionally in scope. Opaque candidates are attempts, not
-accepted PDFs: the downloader
+failed publisher endpoints before each repository lookup. Opaque candidates
+are attempts, not accepted PDFs: the downloader
 validates both PDF bytes and document identity before saving:
 the expected title must match the bounded top region of page one. A title that
 appears later on page one or elsewhere in the document is not sufficient,
@@ -85,11 +96,12 @@ but does not build extraction routes when a selection table is supplied. Build
 routes once after retrieval and conversion are finished.
 
 For human recovery, `build_manual_pdf_exploration_queue.py` converts the
-current `download_known_pdf` population into recovery-oriented lanes. It also
+current actionable `download_known_pdf` population into recovery-oriented lanes. It also
 writes a host summary and a representative pattern-scout list so a reviewer
 can identify repeatable publisher or repository click paths before automating
-them. Prior browser/download failures remain retrieval provenance; they do not
-become eligibility or terminal access decisions.
+them. Retrieval outcomes do not change study eligibility: records with
+terminal retrieval failures remain eligible for abstract-level extraction and
+can be reactivated later if a usable full text is imported.
 
 Before presenting that scout, audit title language on macOS with the local
 Natural Language framework:
@@ -364,6 +376,27 @@ After importing manual PDFs, rebuild routes and convert any newly local PDFs:
 python pipeline/extract/build_extraction_routes.py
 python pipeline/fulltext/run_local_pdf_conversion_pipeline.py --batch-size 25
 ```
+
+When both the new-paper worklist and historical full-text backfill contain
+local PDFs, rebuild both worklists and create one canonical conversion
+selection before starting GROBID:
+
+```bash
+python pipeline/fulltext/build_local_pdf_conversion_selection.py
+python pipeline/fulltext/run_local_pdf_conversion_pipeline.py \
+  --selection-table data/processed/corpus/local_pdf_conversion_selection.parquet \
+  --batch-size 25
+```
+
+The selection builder requires current deterministic-prescreen retention and
+current downstream eligibility, resolves registered DOI aliases, deduplicates
+the two explicit cohorts, and also reconciles any retained
+`convert_local_pdf_then_extract` route that predates those worklists. This
+route-based union is a conversion safety net, not the source of the initial
+full-text discovery scope. The builder blocks unresolved byte-identical PDFs assigned to
+different non-alias DOIs. The managed runner and lower-level converter also
+re-check the current prescreen table and fail before conversion if a stale
+selection contains an excluded DOI.
 
 Successful conversion writes canonical artifacts under
 `data/processed/fulltext/articles/` and the final route rebuild moves those

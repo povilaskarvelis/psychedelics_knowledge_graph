@@ -42,6 +42,54 @@ disposition files.
 
 ## Normalized evidence tables
 
+### Combined historical + update releases
+
+An updated KG is assembled as one release, not published as a disconnected
+"new papers" graph. `assemble_combined_release.py` starts from the historical
+routed evidence, applies complete-paper overlays for new primary, review-v2,
+and meta-analysis-v2 outputs, canonicalizes DOI aliases, and applies the
+current candidate-eligibility gate. If an overlay contains a DOI, its complete
+previous evidence contribution is replaced; stale findings from a newly
+excluded report cannot survive through the base release.
+
+The assembler also removes obsolete V1 review/meta-analysis audit outputs and
+fails closed if any meta-analysis evidence row is not from the V2 converter.
+This prevents a historical V1 secondary extraction contract from surviving in
+or re-entering a current combined release.
+
+For an overlay that legitimately produces no evidence rows for some papers,
+pass `--evidence-replacement-cohort LABEL=PATH`. The cohort declares every DOI
+whose complete prior contribution must be replaced, so a valid zero-result
+extraction deletes stale evidence instead of silently leaving it behind.
+
+```bash
+python pipeline/kg/assemble_combined_release.py \
+  --run-id "$RUN_ID" \
+  --base-evidence data/processed/extraction/routed_runs/<base>/routed_evidence_rows.json \
+  --evidence-overlay primary_update=<primary-evidence.json> \
+  --evidence-overlay review_update_v2=<review-v2-evidence.json> \
+  --evidence-overlay meta_analysis_update_v2=<meta-v2-evidence.json> \
+  --base-outputs data/processed/extraction/routed_runs/<base>/route_extraction_outputs.jsonl \
+  --output-overlay primary_update=<primary-outputs.jsonl> \
+  --candidate-table data/processed/corpus/candidate_papers.parquet \
+  --doi-alias-registry pipeline/validate/doi_alias_registry.json \
+  --out-dir "data/processed/extraction/routed_runs/$RUN_ID"
+```
+
+The subsequent KG build reads that combined evidence run. It writes compact
+funding summaries on `papers.parquet` and a release-scoped
+`paper_funding.parquet` containing the full normalized provider assertions.
+Funding is paper metadata/provenance, not a scientific finding edge.
+The KG build applies `pipeline/validate/doi_alias_registry.json` to both paper
+and funding identities before writing release-scoped assertions.
+
+Before Methods promotion, `update_corpus_graph_status.py` reconciles every
+selected report to a represented finding, normalization-audit decision,
+explicit disposition, or terminal completed-extraction outcome supplied with
+one or more `--extraction-results` JSONL files. A selected report absent from
+all of those sources stops the release and is an extraction gap; it is never
+silently labeled as a completed no-finding report.
+
 The main KG backbone is the normalized evidence-table layer:
 
 Meta-analysis v2 outputs have a separate fail-closed conversion step. Convert
@@ -99,6 +147,8 @@ python pipeline/kg/build_evidence_tables.py \
 Each KG output directory contains:
 
 - `papers.parquet`: one row per source report represented in normalized evidence.
+- `paper_funding.parquet`: provider-attributed funder/award assertions for the
+  DOI set in this KG release.
 - `entities.parquet`: compounds plus normalized graph entities.
 - `findings.parquet`: one rich normalized finding row per routed evidence record.
 - `evidence_edges.parquet`: graph-oriented compound-to-entity evidence edges.
@@ -107,6 +157,15 @@ Each KG output directory contains:
 - `manifest.json`: table counts, source counts, and entity-kind summaries.
 - `kg.duckdb`: optional local DuckDB database materialized when the `duckdb`
   Python package is installed.
+
+Molecular finding subtopics are assigned by the versioned taxonomy recorded in
+`manifest.json` as `molecular_subtopic_taxonomy_version`. The matcher first uses
+the exact normalized entity and readout fields. Only when those fields do not
+identify a specific subtopic does it consult supporting finding text, assay,
+tissue, and system context. Broad `Other` assignments remain residual rather
+than satisfying the coverage audit. For every molecular parent with at least 50
+primary-evidence findings, the build fails closed when more than 20% remain
+residual; the threshold is not relaxed for new extraction batches.
 
 The routed table layer preserves the complete extracted graph subject before
 normalization. `graph_subject_kind` distinguishes an `atomic_compound` from a

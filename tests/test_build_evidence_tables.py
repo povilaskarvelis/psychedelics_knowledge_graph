@@ -1711,11 +1711,27 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ("Neurogenesis", "BrdU-positive progenitor proliferation", "Neural progenitor proliferation"),
             ("Neuroplasticity", "GDNF protein levels", "Neurotrophic growth factors"),
             ("Receptor regulation & trafficking", "Oxytocin receptor mRNA expression", "Neuropeptide & hormone receptors"),
+            ("Receptor regulation & trafficking", "MCT1 membrane expression", "Non-monoamine membrane transporters"),
             ("Intracellular signal transduction", "STING/TBK pathway activation", "STING–TBK signaling"),
             ("Neuroinflammation & immune signaling", "Serum CXCL10 levels", "Cytokines & chemokines"),
+            ("Neuroinflammation & immune signaling", "iNOS-mediated nitric oxide production", "Nitric oxide & iNOS signaling"),
+            ("Neuroinflammation & immune signaling", "CD4+ T-cell count", "Adaptive immune cells & immunoglobulins"),
             ("Neurotransmitter release, uptake & turnover", "Extracellular histamine release", "Histamine release & turnover"),
             ("Drug metabolism", "CSF metabolome", "Metabolomics & endogenous metabolism"),
+            ("Drug metabolism", "Psilocybin biosynthesis titer", "Drug biosynthesis & production"),
+            ("Drug metabolism", "Urinary DMT excretion", "Elimination, excretion & disposition"),
+            ("Endocrine response", "Plasma renin and aldosterone levels", "Renin–angiotensin–aldosterone & natriuretic peptides"),
+            ("Endocrine response", "Free triiodothyronine FT3", "Thyroid hormones"),
+            ("Cell injury & survival", "Chromosomal aberration frequency", "Genotoxicity & chromosomal damage"),
+            ("Cell injury & survival", "Amyloid-beta and phospho-tau accumulation", "Protein aggregation & cytoskeletal pathology"),
+            ("Neuronal excitability & synaptic transmission", "VGLUT1 and VGAT puncta density", "Excitatory–inhibitory synaptic markers"),
+            ("Neuronal excitability & synaptic transmission", "fALFF spontaneous brain activity", "Resting-state & spontaneous neural activity"),
             ("Genetic moderators", "OXTR gene variant", "Oxytocin & vasopressin variants"),
+            ("Genetic moderators", "SLC6A2 rs1861647 genotype", "Norepinephrine-transporter variants"),
+            ("Genetic moderators", "GRIN2B rs1806201", "Glutamate-receptor variants"),
+            ("Genetic moderators", "NOS1 rs6490121", "Nitric-oxide signaling variants"),
+            ("Genetic moderators", "GWAS-based SNPs", "Genome-wide & polygenic markers"),
+            ("Genetic moderators", "psilocybin gene cluster allelic diversity", "Biosynthetic & taxonomic variation"),
             ("Receptor regulation & trafficking", "orphan receptor abundance", "Other"),
         ]
         for parent, entity_label, expected in cases:
@@ -1729,6 +1745,33 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             if subtopic.casefold().startswith("other ")
         }
         self.assertEqual(specific_other_labels, set())
+
+    def test_molecular_subtopic_support_is_used_only_as_a_fallback(self) -> None:
+        vague_marker = {
+            "support": "Ketamine reduced iNOS expression and nitric oxide production in inflamed tissue.",
+            "assay_type": "Western blot",
+        }
+        self.assertEqual(
+            molecular_finding_subtopic(
+                vague_marker,
+                "Neuroinflammation & immune signaling",
+                "Inflammatory biomarker response",
+            ),
+            "Nitric oxide & iNOS signaling",
+        )
+
+        specific_marker_with_broader_support = {
+            "specific_readout_or_marker": "Iba1-positive microglia",
+            "support": "The same experiment also measured serum IL-6 and TNF.",
+        }
+        self.assertEqual(
+            molecular_finding_subtopic(
+                specific_marker_with_broader_support,
+                "Neuroinflammation & immune signaling",
+                "Microglial Iba1 expression",
+            ),
+            "Microglial activation",
+        )
 
     def test_molecular_subtopic_coverage_audit_rejects_large_junk_drawers(self) -> None:
         failing = pd.DataFrame(

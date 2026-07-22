@@ -158,7 +158,9 @@ python pipeline/ingest/run_standard_metadata_enrichment.py \
   --progress-every 100
 ```
 
-This writes `paper_metadata_enrichment.parquet`. Core metadata and abstracts
+This records provider responses and provenance in
+`paper_metadata_enrichment.parquet` and materializes successful values into
+the canonical `candidate_papers.parquet` ledger. Core metadata and abstracts
 are refreshed separately from PubMed publication types and open-access/PDF URL
 candidates. The default source selection is controlled in
 `run_standard_metadata_enrichment.py`: core metadata uses
@@ -177,14 +179,23 @@ python pipeline/review/run_deterministic_prescreen.py \
 ```
 
 This writes `paper_prescreen_decisions.parquet` and
-`paper_prescreen_summary.parquet`. It excludes clear non-evidence artifacts and
-records that are clearly outside scope. Missing or unusable abstracts receive a
-uniform `exclude_no_usable_abstract` decision. Records with usable abstracts
+`paper_prescreen_summary.parquet`. It reads title, abstract, and publication
+metadata only from the already
+materialized candidate ledger; it does not apply a second enrichment-table
+overlay. It excludes clear non-evidence artifacts and records that are clearly
+outside scope. Missing or unusable abstracts receive a
+uniform `exclude_no_usable_abstract` decision. An abstract must contain at
+least 50 words to be usable; shorter fields are excluded under the same action
+with their measured word count recorded for auditability. Records with usable abstracts
 proceed to LLM screening, where evidence topics are assigned. The
 validated decisions are written into `candidate_papers.parquet`, and the shared
 stage-aware decision reconciler clears superseded downstream active state while
 preserving metadata, source artifacts, and historical run provenance. Use
 `--doi-file <doi_list>` or repeated `--doi <doi>` for scoped updates.
+Publication-format rules use dedicated DOI namespaces, explicit publication
+types, or corroborated DOI-plus-venue signals for repository deposits, book
+entries, proceedings, meeting abstracts, posters, and supplementary objects.
+They do not blanket-exclude a publisher or rely on a venue name alone.
 
 ### LLM-based title and abstract screening
 
@@ -310,7 +321,7 @@ Refresh PDF URL candidates for the post-screen full-text worklist:
 
 ```bash
 python pipeline/ingest/refresh_open_access_links.py \
-  --doi-file data/processed/corpus/fulltext_link_discovery_dois.txt \
+  --doi-file data/processed/corpus/fulltext_access_metadata_refresh_dois.txt \
   --pmc-report data/processed/fulltext/pmc_xml_report.postscreen_<run>.json \
   --report-json data/processed/fulltext/open_access_link_refresh_report.postscreen_<run>.json \
   --only-missing-pdf-url \
@@ -318,13 +329,15 @@ python pipeline/ingest/refresh_open_access_links.py \
   --progress-every 100
 ```
 
-Rebuild the worklist after refreshing the links. It distinguishes open-access
-records that require resolution of a landing page
+Rebuild the worklist after refreshing the access metadata. It distinguishes
+open-access records that require resolution of a landing page
 (`resolve_oa_landing_page`, also exported as
-`fulltext_oa_landing_dois.txt`) from records with no known full-text source
-(`discover_fulltext`). The standard downloader processes landing-page records
-alongside records with direct PDF links. Unsuccessful attempts are transferred
-to the manual-review queue.
+`fulltext_oa_landing_dois.txt`) from records for which providers report no
+accessible full text (`no_accessible_fulltext`, exported separately as
+`fulltext_no_accessible_fulltext_dois.txt`). The standard downloader processes
+landing-page records alongside records with direct PDF links; it never treats
+`no_accessible_fulltext` as a retrieval queue. Unsuccessful actionable attempts
+are transferred to the manual-review queue.
 
 Bibliographic databases sometimes provide PDF download endpoints without a
 `.pdf` suffix. Retain these as download candidates and use
@@ -567,7 +580,11 @@ Meta-analyses use `build_meta_analysis_v2_tasks.py`,
 `build_review_relationship_tasks.py`, the review relationship runner, and
 `convert_review_relationship_bundles_to_evidence_rows.py`. These paths preserve
 pooled estimates and review-level relationships separately from primary-study
-findings.
+findings. Review conversion rechecks every bundle against the current canonical
+prescreen decision, retained-candidate flag, and extraction-ready status. Old
+model outputs remain preserved as provenance, but a bundle excluded by the
+current corpus state cannot enter the active evidence projection even when its
+historical task file remains present.
 
 Before building a graph update, assemble the complete set of accepted findings
 from primary studies, meta-analyses, and reviews. This preserves unaffected

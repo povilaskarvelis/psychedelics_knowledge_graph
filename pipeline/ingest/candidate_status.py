@@ -108,19 +108,24 @@ def apply_candidate_updates(
     update_df = update_df.set_index("_doi_key", drop=True)
     changed_rows: set[int] = set()
     changed = False
+    matched_index = df.index[matched_mask]
     for column in columns:
-        mapped = df["_doi_key"].map(update_df[column])
+        # Map only rows that actually have an update. Mapping over the full
+        # corpus introduces NaN for every unmatched row, which coerces integer
+        # update values to float and can then fail when assigned back into an
+        # existing int64 column (for example, clearing ``local_pdf_count``).
+        mapped = df.loc[matched_index, "_doi_key"].map(update_df[column])
         mapped = mapped.where(mapped.notna(), defaults.get(column, ""))
-        equal = df[column].eq(mapped)
+        equal = df.loc[matched_index, column].eq(mapped)
         if hasattr(equal, "fillna"):
             equal = equal.fillna(False)
-        equal = equal | (df[column].isna() & mapped.isna())
-        column_changed = matched_mask & ~equal
-        if not column_changed.any():
+        equal = equal | (df.loc[matched_index, column].isna() & mapped.isna())
+        changed_index = matched_index[~equal]
+        if len(changed_index) == 0:
             continue
-        df.loc[column_changed, column] = mapped.loc[column_changed].to_numpy()
-        summary["updated_cells"] += int(column_changed.sum())
-        changed_rows.update(int(index) for index in df.index[column_changed])
+        df.loc[changed_index, column] = mapped.loc[changed_index].to_numpy()
+        summary["updated_cells"] += len(changed_index)
+        changed_rows.update(int(index) for index in changed_index)
         changed = True
 
     summary["updated_candidate_rows"] = len(changed_rows)

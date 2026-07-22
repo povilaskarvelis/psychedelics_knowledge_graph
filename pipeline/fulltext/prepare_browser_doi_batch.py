@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from collections import OrderedDict, deque
 from pathlib import Path
+import re
 import sys
 
 import pandas as pd
@@ -18,10 +19,15 @@ from pipeline.ingest.metadata_utils import normalize_doi
 
 
 PROGRESS_COLUMNS = ["doi", "study_title", "browser_batch", "manual_status", "manual_notes"]
+DOI_RE = re.compile(r"^10\.\d{4,9}/\S+$", re.IGNORECASE)
 
 
 def doi_key(value: object) -> str:
     return normalize_doi("" if value is None else str(value)).lower()
+
+
+def valid_doi(value: object) -> bool:
+    return bool(DOI_RE.fullmatch(doi_key(value)))
 
 
 def host_balanced_head(frame: pd.DataFrame, limit: int) -> pd.DataFrame:
@@ -53,7 +59,9 @@ def prepare_batch(
     seen = {doi_key(value) for value in progress.get("doi", pd.Series(dtype=str)) if doi_key(value)}
     eligible = queue.copy()
     eligible["_doi_key"] = eligible.get("doi", pd.Series(dtype=str)).map(doi_key)
-    eligible = eligible[eligible["_doi_key"].ne("") & ~eligible["_doi_key"].isin(seen)].copy()
+    eligible = eligible[
+        eligible["_doi_key"].map(valid_doi) & ~eligible["_doi_key"].isin(seen)
+    ].copy()
     if skip_unseen:
         eligible = eligible.iloc[max(0, skip_unseen) :].copy()
     batch = host_balanced_head(eligible.drop(columns="_doi_key"), batch_size)

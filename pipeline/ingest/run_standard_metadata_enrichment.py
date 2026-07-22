@@ -127,6 +127,8 @@ def build_commands(args: argparse.Namespace, doi_file: Path | None) -> list[tupl
             str(ROOT / "pipeline" / "ingest" / "refresh_pubmed_publication_types.py"),
             "--metadata-table",
             str(Path(args.metadata_table).resolve()),
+            "--candidate-table",
+            str(Path(args.papers_table).resolve()),
             "--config",
             str(Path(args.config).resolve()),
             "--progress-every",
