@@ -646,6 +646,6 @@ def test_homepage_displays_current_graph_version_and_search_cutoff() -> None:
     source = INDEX_HTML.read_text(encoding="utf-8")
 
     assert "Graph version: v1.0.0" in source
-    assert "Literature search through: 2026-07-15" in source
+    assert "Literature updated: 2026-07-15" in source
     assert "Graph version: v0.0.1" not in source
     assert "Literature search through: 2026-05-28" not in source
