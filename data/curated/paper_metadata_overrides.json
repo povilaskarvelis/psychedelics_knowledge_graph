@@ -1,0 +1,67 @@
+{
+  "schema_version": "paper_metadata_overrides_v1",
+  "policy": "Curated replacements for provider metadata that was verified to belong to a different publication. Overrides are applied after DOI alias reconciliation and retain their evidence basis in corpus provenance.",
+  "records": [
+    {
+      "doi": "10.1001/jama.215.6.980",
+      "evidence_basis": "Crossref's DOI record identifies this JAMA article title.",
+      "fields": {
+        "study_title": "Phenothiazine and Biperiden in LSD Reactions"
+      }
+    },
+    {
+      "doi": "10.1001/jama.219.12.1633",
+      "evidence_basis": "Crossref's DOI record identifies this JAMA article title.",
+      "fields": {
+        "study_title": "Covert Drug Abuse"
+      }
+    },
+    {
+      "doi": "10.1023/a:1025055109480",
+      "evidence_basis": "Springer and the Journal of Near-Death Studies issue record identify this title for volume 16, issue 1, pages 5-26.",
+      "fields": {
+        "study_title": "The Ketamine Model of the Near-Death Experience: A Central Role for the N-Methyl-D-Aspartate Receptor"
+      }
+    },
+    {
+      "doi": "10.4295/audiology.27.214",
+      "evidence_basis": "The official J-STAGE record supplies the Japanese title and Japanese-language article page.",
+      "fields": {
+        "study_title": "Auditory Event Related Potentials in the Guinea Pigs",
+        "language": "ja"
+      }
+    },
+    {
+      "doi": "10.3408/jasti.7.53",
+      "evidence_basis": "The official J-STAGE record supplies the Japanese title and Japanese-language article page.",
+      "fields": {
+        "study_title": "カラムスイッチング LC/MS によるフェネチルアミン系薬物およびその代謝物の分析",
+        "language": "ja"
+      }
+    },
+    {
+      "doi": "10.3408/jafst.11.221",
+      "evidence_basis": "The official J-STAGE record supplies the Japanese title and Japanese-language article page.",
+      "fields": {
+        "study_title": "5-Methoxy-N,N-diisopropyltryptamineおよび関連化合物のヒト尿中からの検出",
+        "language": "ja"
+      }
+    },
+    {
+      "doi": "10.3310/hta13050",
+      "evidence_basis": "Crossref identifies HTA 13(5) as the prostate-cancer review. PubMed PMID 19128541 and the verified local full text provide the matching prostate-cancer abstract; the previously stored abstract belongs to the ecstasy report 10.3310/hta13060.",
+      "fields": {
+        "pmid": "19128541",
+        "abstract": "To provide an evidence-based perspective on the prognostic value of novel markers in localised prostate cancer and to identify the best prognostic model including the three classical markers and investigate whether models incorporating novel markers are better. Eight electronic bibliographic databases were searched during March-April 2007. The reference lists of relevant articles were checked and various health services research-related resources consulted via the internet. The search was restricted to publications from 1970 onwards in the English language. Selected studies were assessed, data extracted using a standard template, and quality assessed using an adaptation of published criteria. Because of the heterogeneity regarding populations, outcomes and study type, meta-analyses were not undertaken and the results are presented in tabulated format with a narrative synthesis of the results. In total 30 papers met the inclusion criteria, of which 28 reported on prognostic novel markers and five on prognostic models. A total of 21 novel markers were identified from the 28 novel marker studies. There was considerable variability in the results reported, the quality of the studies was generally poor and there was a shortage of studies in some categories. The marker with the strongest evidence for its prognostic significance was prostate-specific antigen (PSA) velocity (or doubling time). This review highlighted the poor quality and heterogeneity of studies, which render much of the results inconclusive. PSA velocity, however, stood out in terms of the strength of the evidence supporting its prognostic value and the relatively high hazard ratios."
+      }
+    },
+    {
+      "doi": "10.1007/s00213-022-06272-9",
+      "evidence_basis": "PubMed PMID 36401646 identifies the journal publication as Psychopharmacology 240(1), January 2023. OpenAlex W4309412689 matches the DOI, title, PMID, and article; W2281695666 is a corrupted duplicate for an unrelated 1885 record.",
+      "fields": {
+        "study_year": "2023",
+        "openalex_id": "W4309412689"
+      }
+    }
+  ]
+}

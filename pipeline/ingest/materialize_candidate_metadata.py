@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 from typing import Iterable, Sequence
@@ -39,6 +40,8 @@ MATERIALIZATION_COLUMNS = (
     "metadata_materialization_run_id",
     "metadata_materialized_at_utc",
 )
+YEAR_FIELDS = frozenset({"study_year", "publication_date"})
+YEAR_PATTERN = re.compile(r"(?<!\d)(1[5-9]\d{2}|20\d{2}|21\d{2})(?!\d)")
 
 
 def normalized_value(value: object) -> str:
@@ -50,6 +53,36 @@ def normalized_value(value: object) -> str:
     except (TypeError, ValueError):
         pass
     return clean(value)
+
+
+def bibliographic_year(value: object) -> int | None:
+    match = YEAR_PATTERN.search(normalized_value(value))
+    return int(match.group(1)) if match else None
+
+
+def validate_year_date_consistency(candidates: pd.DataFrame, row_indices: set[int]) -> None:
+    """Reject newly materialized year/date contradictions before they reach releases."""
+
+    if not row_indices or not YEAR_FIELDS.issubset(candidates.columns):
+        return
+    conflicts: list[dict[str, object]] = []
+    for index in sorted(row_indices):
+        study_year = bibliographic_year(candidates.at[index, "study_year"])
+        date_year = bibliographic_year(candidates.at[index, "publication_date"])
+        if study_year is None or date_year is None or abs(study_year - date_year) <= 1:
+            continue
+        conflicts.append(
+            {
+                "doi": candidates.at[index, "_doi_key"],
+                "study_year": study_year,
+                "publication_date_year": date_year,
+            }
+        )
+    if conflicts:
+        raise ValueError(
+            "Refusing to materialize inconsistent bibliographic timing: "
+            f"{len(conflicts)} row(s), examples={conflicts[:10]}"
+        )
 
 
 def now_utc() -> str:
@@ -202,6 +235,7 @@ def materialize_candidate_metadata(
 
     metadata = metadata.set_index("_doi_key", drop=False)
     changed_rows: set[int] = set()
+    year_date_changed_rows: set[int] = set()
     filled_cells = 0
     overwritten_cells = 0
     cleared_cells = 0
@@ -246,6 +280,8 @@ def materialize_candidate_metadata(
         overwritten_cells += overwrite_count
         cleared_cells += clear_count
         changed_rows.update(int(index) for index in candidates.index[changed])
+        if field in YEAR_FIELDS:
+            year_date_changed_rows.update(int(index) for index in candidates.index[changed])
 
     curated_overrides = read_curated_overrides(
         Path(curated_overrides_path).resolve() if curated_overrides_path is not None else None
@@ -268,6 +304,10 @@ def materialize_candidate_metadata(
             curated_cells += 1
             curated_rows.add(int(index))
             changed_rows.add(int(index))
+            if field in YEAR_FIELDS:
+                year_date_changed_rows.add(int(index))
+
+    validate_year_date_consistency(candidates, year_date_changed_rows)
 
     timestamp = now_utc()
     for column in MATERIALIZATION_COLUMNS:
@@ -301,6 +341,7 @@ def materialize_candidate_metadata(
         "cleared_cells": cleared_cells,
         "curated_override_rows": len(curated_rows),
         "curated_override_cells": curated_cells,
+        "year_date_consistency_checked_rows": len(year_date_changed_rows),
         "field_updates": field_updates,
         "field_fills": field_fills,
         "field_overwrites": field_overwrites,

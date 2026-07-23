@@ -434,6 +434,32 @@ def test_publication_year_hover_regions_do_not_overlap_at_chart_edges() -> None:
     assert "clampNumber(x - (hitWidth - barWidth) / 2" not in chart_source
 
 
+def test_right_detail_panel_exposes_expandable_leading_funders_without_coverage_subtitle() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    assert "function renderFundingCharts(items)" in source
+    assert '"Leading funders"' in source
+    assert 'filterField: "funding_funder_facet"' in source
+    assert "renderFundingCharts(items)" in source
+    assert "funding-summary-grid" not in source
+    assert '"funding_status_facet"' not in source
+    assert "Funding metadata found for ${formatCompactNumber(metadataFound)} of" not in source
+    assert 'expandKey: "funders"' in source
+
+
+def test_ranked_detail_lists_offer_incremental_expansion_only() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    assert "function renderRankedChartExpansionControls" in source
+    assert 'data-chart-expand-action="more"' in source
+    assert "Show ${formatCompactNumber(increment)} more" in source
+    assert 'data-chart-expand-action="all"' not in source
+    assert 'data-chart-expand-action="collapse"' not in source
+    assert "Show top ${formatCompactNumber(initialCount)}" not in source
+    assert 'rankedChartVisibleCount("authors"' in source
+    assert 'if (key === "funders") chartCard.outerHTML = renderFundingCharts(activeDetailItems);' in source
+
+
 def test_in_text_and_doi_links_share_one_muted_teal_family() -> None:
     source = STYLES_CSS.read_text(encoding="utf-8")
     app_source = APP_JS.read_text(encoding="utf-8")
@@ -578,14 +604,12 @@ def test_graph_allocates_more_label_space_to_the_right_side() -> None:
     assert "GRAPH_RIGHT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX + GRAPH_RIGHT_LABEL_GUTTER_PX" in source
 
 
-def test_unspecified_psychedelic_assisted_therapy_label_can_use_three_lines() -> None:
+def test_graph_labels_use_two_lines_without_unspecified_therapy_special_case() -> None:
     source = APP_JS.read_text(encoding="utf-8")
-    helper = source.split("function graphLabelMaxLines", 1)[1].split("function studyId", 1)[0]
 
-    assert '"psychedelic-assisted therapy (unspecified compounds)"' in source
-    assert "GRAPH_THREE_LINE_LABELS.has(normalizeValue(label)) ? 3 : 2" in helper
-    assert "graphLabelMaxLines(compound)" in source
-    assert "graphLabelMaxLines(target)" in source
+    assert '"psychedelic-assisted therapy (unspecified compounds)"' not in source
+    assert "GRAPH_THREE_LINE_LABELS" not in source
+    assert source.count("pos.y, 2);") >= 2
 
 
 def test_slash_separated_graph_labels_wrap_without_an_inserted_hyphen() -> None:
@@ -616,3 +640,12 @@ def test_graph_elements_are_not_revealed_in_separate_waves() -> None:
 
     assert "graph-enter" not in app_source
     assert ".graph svg.graph-enter" not in style_source
+
+
+def test_homepage_displays_current_graph_version_and_search_cutoff() -> None:
+    source = INDEX_HTML.read_text(encoding="utf-8")
+
+    assert "Graph version: v1.0.0" in source
+    assert "Literature search through: 2026-07-15" in source
+    assert "Graph version: v0.0.1" not in source
+    assert "Literature search through: 2026-05-28" not in source

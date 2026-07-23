@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict
+from difflib import SequenceMatcher
 import hashlib
 import json
 from pathlib import Path
@@ -92,6 +93,84 @@ def first_best(rows: list[dict], field: str) -> object:
     return max(values, key=lambda value: len(clean(value)))
 
 
+def normalized_title(value: object) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", clean(value).casefold()))
+
+
+def titles_are_coherent(left: object, right: object) -> bool:
+    """Return whether two provider titles plausibly describe the same work."""
+
+    left_key = normalized_title(left)
+    right_key = normalized_title(right)
+    if not left_key or not right_key:
+        return False
+    if left_key == right_key:
+        return True
+    shorter, longer = sorted((left_key, right_key), key=len)
+    if len(shorter) >= 24 and shorter in longer and len(shorter) / len(longer) >= 0.72:
+        return True
+    return SequenceMatcher(None, left_key, right_key).ratio() >= 0.90
+
+
+def coherent_bibliographic_rows(rows: list[dict]) -> tuple[object, list[dict]]:
+    """Choose a title anchor and reject same-identifier rows for other works."""
+
+    titled_rows = [row for row in rows if clean(row.get("title"))]
+    if not titled_rows:
+        return "", rows
+    anchor = max(
+        titled_rows,
+        key=lambda row: (
+            sum(
+                titles_are_coherent(row.get("title"), other.get("title"))
+                for other in titled_rows
+            ),
+            -provider_priority(row),
+            len(clean(row.get("title"))),
+        ),
+    )
+    title = anchor.get("title")
+    coherent = [row for row in rows if titles_are_coherent(row.get("title"), title)]
+    return title, coherent or rows
+
+
+def publication_year_from_date(value: object) -> str:
+    match = re.search(r"(?<!\d)(1[5-9]\d{2}|20\d{2}|21\d{2})(?!\d)", clean(value))
+    return match.group(1) if match else ""
+
+
+def provider_priority(row: dict) -> int:
+    return {
+        "pubmed": 0,
+        "crossref": 1,
+        "openalex": 2,
+        "semantic_scholar": 3,
+    }.get(clean(row.get("provider")).casefold(), 10)
+
+
+def preferred_value(rows: list[dict], field: str) -> tuple[object, int]:
+    candidates = [row for row in rows if clean(row.get(field))]
+    if not candidates:
+        return "", 99
+    row = min(candidates, key=lambda item: (provider_priority(item), -len(clean(item.get(field)))))
+    return row.get(field), provider_priority(row)
+
+
+def coherent_publication_timing(rows: list[dict]) -> tuple[object, object]:
+    """Select timing fields coherently and prevent extreme year/date chimeras."""
+
+    publication_year, year_priority = preferred_value(rows, "publication_year")
+    publication_date, date_priority = preferred_value(rows, "publication_date")
+    year_text = publication_year_from_date(publication_year)
+    date_year = publication_year_from_date(publication_date)
+    if year_text and date_year and abs(int(year_text) - int(date_year)) > 1:
+        if date_priority < year_priority:
+            publication_year = date_year
+        else:
+            publication_date = ""
+    return publication_year, publication_date
+
+
 def canonicalize_records(records: pd.DataFrame) -> list[dict]:
     rows = records.to_dict("records")
     disjoint = DisjointSet()
@@ -113,17 +192,22 @@ def canonicalize_records(records: pd.DataFrame) -> list[dict]:
         "pmcid",
         "openalex_id",
         "semantic_scholar_id",
-        "title",
         "authors",
-        "publication_year",
-        "publication_date",
         "journal",
         "publication_type",
         "language",
     )
     for group_rows in groups.values():
-        row = {field: first_best(group_rows, field) for field in scalar_fields}
-        abstract_row = best_valid_abstract(group_rows)
+        title, bibliographic_rows = coherent_bibliographic_rows(group_rows)
+        row = {
+            field: first_best(group_rows if field == "doi" else bibliographic_rows, field)
+            for field in scalar_fields
+        }
+        row["title"] = title
+        row["publication_year"], row["publication_date"] = coherent_publication_timing(
+            bibliographic_rows
+        )
+        abstract_row = best_valid_abstract(bibliographic_rows)
         row["abstract"] = clean(abstract_row.get("abstract", "")) if abstract_row else ""
         row["doi"] = normalize_doi(row["doi"])
         row["providers"] = join_values({item.get("provider", "") for item in group_rows})

@@ -700,7 +700,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ),
             (
                 {"compound_or_intervention": "psychedelic-assisted psychotherapy"},
-                "Psychedelic-assisted therapy (unspecified compounds)",
+                "Psychedelic-assisted therapy",
             ),
             (
                 {"support": "Psychedelic compounds were examined."},

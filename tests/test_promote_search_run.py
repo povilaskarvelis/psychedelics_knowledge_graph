@@ -239,3 +239,46 @@ def test_canonicalization_drops_contaminated_openalex_only_abstract() -> None:
     canonical = canonicalize_records(records)
 
     assert canonical[0]["abstract"] == ""
+
+
+def test_canonicalization_rejects_wrong_openalex_work_joined_by_corrupt_doi() -> None:
+    records = pd.DataFrame(
+        [
+            {
+                "provider": "openalex",
+                "provider_record_id": "openalex:W2281695666",
+                "doi": "10.1007/s00213-022-06272-9",
+                "openalex_id": "W2281695666",
+                "title": "Sesión del 11 de mayo de 1925",
+                "publication_year": "1885",
+                "publication_date": "1885-01-01",
+            },
+            {
+                "provider": "openalex",
+                "provider_record_id": "openalex:W4309412689",
+                "doi": "10.1007/s00213-022-06272-9",
+                "openalex_id": "W4309412689",
+                "title": "The effect of ketamine and D-cycloserine on the high frequency resting EEG spectrum in humans",
+                "publication_year": "2022",
+                "publication_date": "2022-11-19",
+            },
+            {
+                "provider": "pubmed",
+                "provider_record_id": "pmid:36401646",
+                "doi": "10.1007/s00213-022-06272-9",
+                "pmid": "36401646",
+                "title": "The effect of ketamine and D-cycloserine on the high frequency resting EEG spectrum in humans",
+                "publication_year": "2023",
+                "publication_date": "2023-01-01",
+            },
+        ]
+    )
+
+    canonical = canonicalize_records(records)
+
+    assert len(canonical) == 1
+    assert canonical[0]["title"].startswith("The effect of ketamine")
+    assert canonical[0]["publication_year"] == "2023"
+    assert canonical[0]["publication_date"] == "2023-01-01"
+    assert canonical[0]["openalex_id"] == "W4309412689"
+    assert canonical[0]["pmid"] == "36401646"

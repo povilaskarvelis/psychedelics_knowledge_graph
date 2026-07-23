@@ -131,6 +131,53 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         finally:
             evidence_exporter.PUBLIC_BROWSER_DETAIL_FIELDS = original
 
+    def test_canonical_paper_funding_metadata_reaches_browser_detail_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kg_dir = Path(tmpdir)
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-funded",
+                        "paper_id": "paper-funded",
+                        "source_name": "routed_extractions",
+                        "study_doi": "10.1000/funded",
+                        "study_year": 2024,
+                        "domain": "clinical_outcome",
+                        "compound": "Ketamine",
+                        "entity_label": "Depression",
+                        "raw_row_json": "{}",
+                    }
+                ]
+            ).to_parquet(kg_dir / "findings.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "paper_id": "paper-funded",
+                        "study_doi": "10.1000/funded",
+                        "study_year": 2024,
+                        "funders": "Example Foundation | National Research Council",
+                        "grant_ids": "ABC-123",
+                        "funding_metadata_status": "reported",
+                        "funding_providers": "crossref | pubmed",
+                        "funding_assertion_count": 3,
+                        "funding_funder_count": 2,
+                        "funding_award_count": 1,
+                    }
+                ]
+            ).to_parquet(kg_dir / "papers.parquet", index=False)
+
+            findings = load_findings(kg_dir, require_author_identities=False)
+            detail = detail_bootstrap_payload(findings, "2026-07-23T00:00:00Z", kg_dir, "primary")
+            row = detail_bootstrap_rows(detail)[0]
+
+        self.assertEqual(row["funders"], "Example Foundation | National Research Council")
+        self.assertEqual(row["grant_ids"], "ABC-123")
+        self.assertEqual(row["funding_metadata_status"], "reported")
+        self.assertEqual(row["funding_providers"], "crossref | pubmed")
+        self.assertEqual(row["funding_assertion_count"], "3")
+        self.assertEqual(row["funding_funder_count"], "2")
+        self.assertEqual(row["funding_award_count"], "1")
+
     def test_target_aliases_flow_from_entities_into_findings_and_graph_edges(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             kg_dir = Path(tmpdir)

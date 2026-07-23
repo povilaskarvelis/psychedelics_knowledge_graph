@@ -3502,7 +3502,7 @@ def _overview_graph_subjects(
             context_with_raw = f"{raw} {context}".strip()
             if PSYCHEDELIC_THERAPY_RE.search(context_with_raw):
                 return [{
-                    "label": "Psychedelic-assisted therapy (unspecified compounds)",
+                    "label": "Psychedelic-assisted therapy",
                     "kind": "treatment_regimen",
                     "reason": "controlled_broad_psychedelic_therapy",
                 }]

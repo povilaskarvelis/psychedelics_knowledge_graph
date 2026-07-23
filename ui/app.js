@@ -476,7 +476,9 @@ let activeDetailItems = [];
 let activeDetailAllAccessItems = [];
 let detailGraphFilter = null;
 let accessView = "open";
-const expandedChartKeys = new Set();
+const chartVisibleCounts = new Map();
+const DEFAULT_RANKED_CHART_VISIBLE_COUNT = 10;
+const RANKED_CHART_EXPANSION_STEP = 10;
 let currentDataLoadToken = 0;
 let heroStatsSnapshot = null;
 let graphManifestPromise = null;
@@ -539,9 +541,6 @@ const GRAPH_RIGHT_LABEL_MAX_WIDTH_PX = 210;
 const GRAPH_RIGHT_LABEL_GUTTER_PX = 24;
 const GRAPH_LABEL_MARGIN_BUFFER_PX = 36;
 const GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT = 22;
-const GRAPH_THREE_LINE_LABELS = new Set([
-  "psychedelic-assisted therapy (unspecified compounds)",
-]);
 const GRAPH_BASE_HEIGHT_PX = 820;
 const GRAPH_COMPACT_BASE_HEIGHT_PX = 560;
 const GRAPH_MIN_NODE_SPACING_PX = 40;
@@ -1789,10 +1788,6 @@ function setWrappedSvgLabel(textNode, fullLabel, maxWidthPx, x, centerY, maxLine
     tspan.textContent = line;
     textNode.appendChild(tspan);
   });
-}
-
-function graphLabelMaxLines(label) {
-  return GRAPH_THREE_LINE_LABELS.has(normalizeValue(label)) ? 3 : 2;
 }
 
 function studyId(claim) {
@@ -5208,6 +5203,17 @@ function journalFacetValue(claim) {
   return label && value ? { label, value } : "";
 }
 
+function splitPipeSeparatedMetadata(value) {
+  return meaningfulText(value)
+    .split(/\s*\|\s*/)
+    .map((item) => meaningfulText(item))
+    .filter(Boolean);
+}
+
+function fundingFunderFacetValues(claim) {
+  return splitPipeSeparatedMetadata(claim.funders);
+}
+
 function summarizeAuthorRoleEvidence(items) {
   const map = new Map();
   const authorAliases = buildAuthorRoleAliasMap(items);
@@ -5412,7 +5418,21 @@ function renderMetadataFacetCharts(items) {
     ${trialRegistrationChart}
     ${renderAuthorRoleChart(items)}
     ${renderJournalChart(items)}
+    ${renderFundingCharts(items)}
   `;
+}
+
+function renderFundingCharts(items) {
+  const funders = summarizeMultiFacetEvidence(items, fundingFunderFacetValues);
+  const leadingFunders = funders.length
+    ? renderHorizontalBarChart(funders, "Leading funders", "", {
+        filterField: "funding_funder_facet",
+        maxEntries: 10,
+        expandKey: "funders",
+        extraClass: "bar-tone-stone funding-funders-card",
+      })
+    : "";
+  return leadingFunders;
 }
 
 function renderAuthorRoleChart(items) {
@@ -5421,8 +5441,9 @@ function renderAuthorRoleChart(items) {
     return trendCardHtml("Authors", "", '<div class="trend-empty">No author metadata in this selection.</div>');
   }
 
-  const maxEntries = 10;
-  const visibleEntries = entries.slice(0, maxEntries);
+  const maxEntries = DEFAULT_RANKED_CHART_VISIBLE_COUNT;
+  const visibleCount = rankedChartVisibleCount("authors", entries.length, maxEntries);
+  const visibleEntries = entries.slice(0, visibleCount);
   const rows = visibleEntries
     .map((entry) => {
       const studiesLabel = `${formatCompactNumber(entry.studies)} stud${entry.studies === 1 ? "y" : "ies"}`;
@@ -5452,7 +5473,13 @@ function renderAuthorRoleChart(items) {
     })
     .join("");
 
-  return trendCardHtml("Authors", "", `<div class="author-rank-list">${rows}</div>`, "author-role-card");
+  const controls = renderRankedChartExpansionControls("authors", entries.length, visibleCount, maxEntries);
+  return trendCardHtml(
+    "Authors",
+    "",
+    `<div class="author-rank-list">${rows}</div>${controls}`,
+    "author-role-card"
+  );
 }
 
 function renderJournalChart(items) {
@@ -6120,21 +6147,17 @@ function renderHorizontalBarChart(entries, title, subtitle, options = {}) {
   const maxEntries = Number(options.maxEntries) || entries.length;
   const expandKey = options.expandKey || "";
   const rankedEntries = sortEntriesByValue(entries, valueKey);
-  const canExpand = Boolean(expandKey && rankedEntries.length > maxEntries);
-  const isExpanded = canExpand && expandedChartKeys.has(expandKey);
-  const visibleEntries = canExpand && !isExpanded ? rankedEntries.slice(0, maxEntries) : rankedEntries;
+  const visibleCount = expandKey
+    ? rankedChartVisibleCount(expandKey, rankedEntries.length, maxEntries)
+    : rankedEntries.length;
+  const visibleEntries = rankedEntries.slice(0, visibleCount);
   const maxValue = Math.max(1, ...rankedEntries.map((entry) => Number(entry[valueKey]) || 0));
-  const expandControl = canExpand
-    ? `
-      <div class="trend-chart-actions">
-        <button class="chart-expand-toggle" type="button"
-          data-chart-expand-key="${escapeHtml(expandKey)}"
-          aria-expanded="${escapeHtml(String(isExpanded))}">
-          ${isExpanded ? `Show top ${formatCompactNumber(maxEntries)}` : `Show all ${formatCompactNumber(rankedEntries.length)}`}
-        </button>
-      </div>
-    `
-    : "";
+  const expandControl = renderRankedChartExpansionControls(
+    expandKey,
+    rankedEntries.length,
+    visibleCount,
+    maxEntries
+  );
   const body = `
     <div class="trend-bars">
       ${visibleEntries
@@ -6169,6 +6192,28 @@ function renderHorizontalBarChart(entries, title, subtitle, options = {}) {
   `;
 
   return trendCardHtml(title, subtitle, body, options.extraClass || "");
+}
+
+function rankedChartVisibleCount(key, total, initialCount = DEFAULT_RANKED_CHART_VISIBLE_COUNT) {
+  if (!key) return total;
+  const stored = Number(chartVisibleCounts.get(key));
+  const requested = Number.isFinite(stored) && stored > 0 ? stored : initialCount;
+  return Math.min(total, Math.max(initialCount, requested));
+}
+
+function renderRankedChartExpansionControls(key, total, visibleCount, initialCount) {
+  if (!key || total <= initialCount || visibleCount >= total) return "";
+
+  const increment = Math.min(RANKED_CHART_EXPANSION_STEP, total - visibleCount);
+  return `
+    <div class="trend-chart-actions">
+      <button class="chart-expand-toggle" type="button"
+        data-chart-expand-key="${escapeHtml(key)}"
+        data-chart-expand-action="more">
+        Show ${formatCompactNumber(increment)} more
+      </button>
+    </div>
+  `;
 }
 
 function renderOutcomeMeasureChart(items) {
@@ -6431,6 +6476,7 @@ function fieldValueDetailTitle(field, value) {
 }
 
 function fieldValueForClaim(claim, field) {
+  if (field === "funding_funder_facet") return fundingFunderFacetValues(claim);
   if (field === "trial_registration_facet") return trialRegistrationFacetLabel(claim);
   if (field === "population_model_facet") return populationModelFacetLabel(claim);
   if (field === "assay_family_facet") return mechanisticAssayFamilyFacetLabel(claim);
@@ -6550,9 +6596,9 @@ function renderStudyDetail(studyKeyValue) {
   const fundingStatus = normalizeValue(firstClaim.funding_metadata_status);
   const fundingStatusLabel =
     fundingStatus === "not_reported_by_queried_providers"
-      ? "No funding reported by queried providers"
+      ? "No funding metadata found in queried providers"
       : fundingStatus === "not_enriched"
-        ? "Not enriched"
+        ? "Funding metadata not queried"
         : "";
 
   setDetailHeader(title);
@@ -6746,7 +6792,9 @@ function overviewDetailCacheKeyForContext({
   yearRange = activeYearRange(activeClaimsForMode()),
 } = {}) {
   const yearKey = yearRange?.constrained ? `${yearRange.min || ""}-${yearRange.max || ""}` : "all-years";
-  const journalKey = expandedChartKeys.has("journals") ? "journals-expanded" : "journals-top";
+  const rankedChartKey = ["authors", "journals", "funders"]
+    .map((key) => `${key}-${chartVisibleCounts.get(key) || DEFAULT_RANKED_CHART_VISIBLE_COUNT}`)
+    .join("-");
   return [
     sourceKey,
     claimArrayId(sourceClaims),
@@ -6754,7 +6802,7 @@ function overviewDetailCacheKeyForContext({
     viewKey,
     accessKey,
     yearKey,
-    journalKey,
+    rankedChartKey,
   ].join("|");
 }
 
@@ -7489,7 +7537,7 @@ function buildGraph(data) {
     label.setAttribute("x", pos.x - labelOffset);
     label.setAttribute("class", "node-label");
     label.setAttribute("text-anchor", "end");
-    setWrappedSvgLabel(label, compound, leftLabelMaxWidth, pos.x - labelOffset, pos.y, graphLabelMaxLines(compound));
+    setWrappedSvgLabel(label, compound, leftLabelMaxWidth, pos.x - labelOffset, pos.y, 2);
     if (selected?.type === "compound" && selected.name === compound) {
       label.classList.add("selected");
     }
@@ -7568,7 +7616,7 @@ function buildGraph(data) {
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", pos.x + labelOffset);
     label.setAttribute("class", "node-label");
-    setWrappedSvgLabel(label, target, rightLabelMaxWidth, pos.x + labelOffset, pos.y, graphLabelMaxLines(target));
+    setWrappedSvgLabel(label, target, rightLabelMaxWidth, pos.x + labelOffset, pos.y, 2);
     if (selected?.type === "target" && selected.name === target) {
       label.classList.add("selected");
     }
@@ -8472,7 +8520,9 @@ function scheduleOverviewDetailPrewarmForSource(sourceKey, startDelay = 0) {
     sourceKey,
     claimArrayId(sourceClaims),
     accessKey,
-    expandedChartKeys.has("journals") ? "journals-expanded" : "journals-top",
+    ["authors", "journals", "funders"]
+      .map((key) => `${key}-${chartVisibleCounts.get(key) || DEFAULT_RANKED_CHART_VISIBLE_COUNT}`)
+      .join("-"),
   ].join("|");
   if (overviewDetailPrewarmScheduled.has(scheduleKey)) return;
   overviewDetailPrewarmScheduled.add(scheduleKey);
@@ -8876,16 +8926,14 @@ if (detailBody) {
     event.preventDefault();
     hideTooltip();
     const key = target.dataset.chartExpandKey || "";
-    if (expandedChartKeys.has(key)) {
-      expandedChartKeys.delete(key);
-    } else {
-      expandedChartKeys.add(key);
-    }
     const chartCard = target.closest(".trend-card");
-    if (key === "journals" && chartCard) {
-      chartCard.outerHTML = renderJournalChart(activeDetailItems);
-      rekeyActiveOverviewDetail();
-    }
+    if (!key || !chartCard) return;
+    const currentVisible = rankedChartVisibleCount(key, Number.MAX_SAFE_INTEGER);
+    chartVisibleCounts.set(key, currentVisible + RANKED_CHART_EXPANSION_STEP);
+    if (key === "authors") chartCard.outerHTML = renderAuthorRoleChart(activeDetailItems);
+    if (key === "journals") chartCard.outerHTML = renderJournalChart(activeDetailItems);
+    if (key === "funders") chartCard.outerHTML = renderFundingCharts(activeDetailItems);
+    rekeyActiveOverviewDetail();
   });
   detailBody.addEventListener("click", (event) => {
     const target = event.target.closest?.(".interactive-bar, .composition-filter-target");

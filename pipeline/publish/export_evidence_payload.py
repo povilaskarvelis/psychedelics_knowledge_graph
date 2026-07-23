@@ -354,6 +354,13 @@ PUBLIC_BROWSER_DETAIL_FIELDS = (
     "study_year",
     "study_journal",
     "publication_type",
+    "funders",
+    "grant_ids",
+    "funding_metadata_status",
+    "funding_providers",
+    "funding_assertion_count",
+    "funding_funder_count",
+    "funding_award_count",
     "open_access_is_oa",
     "open_access_status",
     "unpaywall_is_oa",
@@ -861,6 +868,68 @@ def merge_edge_metadata(rows, kg_dir: Path):
     return rows.merge(edges, on=join_key, how="left", suffixes=("", "_edge"))
 
 
+def merge_paper_metadata(rows, kg_dir: Path):
+    """Attach canonical paper metadata to every finding before browser export.
+
+    ``papers.parquet`` is the normalized paper-level source of truth. Finding
+    rows intentionally do not repeat fields such as funders and grants, so the
+    browser exporter must join them here rather than relying on extraction
+    ``raw_row_json`` snapshots.
+    """
+
+    papers_path = kg_dir / "papers.parquet"
+    if rows.empty or "paper_id" not in rows.columns or not papers_path.exists():
+        return rows
+
+    import pandas as pd
+
+    papers = pd.read_parquet(papers_path)
+    if papers.empty or "paper_id" not in papers.columns:
+        return rows
+    duplicate_ids = papers.loc[
+        papers["paper_id"].fillna("").astype(str).str.strip().ne("")
+        & papers["paper_id"].duplicated(keep=False),
+        "paper_id",
+    ]
+    if not duplicate_ids.empty:
+        raise ValueError(
+            "papers.parquet contains duplicate paper_id values: "
+            + ", ".join(sorted({normalize(value) for value in duplicate_ids})[:10])
+        )
+
+    paper_columns = [field for field in PAPER_FIELDS if field in papers.columns]
+    if not paper_columns:
+        return rows
+    merged = rows.merge(
+        papers[["paper_id", *paper_columns]],
+        on="paper_id",
+        how="left",
+        suffixes=("", "_paper"),
+    )
+    for field in paper_columns:
+        paper_field = f"{field}_paper" if field in rows.columns else field
+        if paper_field not in merged.columns:
+            continue
+        paper_values = merged[paper_field]
+        present = paper_values.notna()
+        if paper_values.dtype == object:
+            present &= paper_values.astype(str).str.strip().ne("")
+        if field not in merged.columns:
+            merged[field] = paper_values
+        elif paper_field != field:
+            # Canonical paper metadata may use string-backed columns while a
+            # finding column (notably ``study_year``) is numeric. Build the
+            # replacement as an object series so pandas does not reject the
+            # authoritative value as a lossy in-place dtype change.
+            combined = merged[field].astype(object)
+            incoming = paper_values.astype(object)
+            combined.loc[present] = incoming.loc[present]
+            merged[field] = combined
+        if paper_field != field:
+            merged = merged.drop(columns=[paper_field])
+    return merged
+
+
 def finding_from_record(
     record: dict,
     author_identities: dict[str, dict],
@@ -958,6 +1027,7 @@ def load_findings(
     if "source_name" in df.columns:
         df = df[df["source_name"].isin(ROUTED_SOURCE_NAMES)].copy()
     df = merge_edge_metadata(df, kg_dir)
+    df = merge_paper_metadata(df, kg_dir)
     author_identities = (
         load_author_identities(kg_dir) if require_author_identities else {}
     )

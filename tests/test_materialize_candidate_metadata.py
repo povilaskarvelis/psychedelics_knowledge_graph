@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from pipeline.ingest.enrich_paper_metadata import write_table
 from pipeline.ingest.materialize_candidate_metadata import materialize_candidate_metadata
@@ -194,3 +195,35 @@ def test_materialization_rejects_metadata_rows_missing_from_candidate_ledger() -
             raise AssertionError("Expected orphan metadata DOI validation failure")
 
     assert "missing from the canonical candidate ledger" in message
+
+
+def test_materialization_rejects_new_year_date_conflict_before_writing() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        candidates = root / "candidate_papers.parquet"
+        metadata = root / "paper_metadata_enrichment.parquet"
+        pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/conflict",
+                    "study_year": "2023",
+                    "publication_date": "2023-01-01",
+                }
+            ]
+        ).to_parquet(candidates, index=False)
+        write_table(metadata, [{"doi": "10.1000/conflict", "study_year": "1885"}])
+
+        with pytest.raises(ValueError, match="inconsistent bibliographic timing"):
+            materialize_candidate_metadata(
+                candidate_table=candidates,
+                metadata_table=metadata,
+                run_id="test_conflict",
+                fields=("study_year",),
+                scoped_dois={"10.1000/conflict"},
+                overwrite_existing=True,
+                curated_overrides_path=None,
+            )
+
+        out = pd.read_parquet(candidates).set_index("doi")
+
+    assert out.loc["10.1000/conflict", "study_year"] == "2023"
