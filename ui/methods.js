@@ -40,13 +40,13 @@ const PRISMA_STEP_LABELS = {
   records_screened: "Records assessed by rules-based screening",
   prescreen_retained: "Records retained for LLM-based screening",
   evidence_extraction_selected: "Reports selected for evidence extraction",
-  kg_included: "Reports represented in the current knowledge graph",
+  kg_included: "Reports included in the knowledge graph",
 };
 const PRISMA_SIDE_LABELS = {
   removed_before_screening: "Records not assessed by rules-based screening",
   records_excluded: "Records excluded by rules-based screening",
   route_not_selected: "Records not selected after LLM-based screening",
-  kg_not_included: "Reports not represented in the current graph",
+  kg_not_included: "Reports excluded during evidence extraction",
 };
 const PRISMA_REASON_LABELS = {
   exclude_obvious_irrelevant: "No clear in-scope psychedelic evidence signal",

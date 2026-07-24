@@ -187,7 +187,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         )
         self.assertEqual(
             flow["steps"]["kg_included"]["label"],
-            "Reports represented in the current knowledge graph",
+            "Reports included in the knowledge graph",
         )
         self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
         self.assertEqual(flow["steps"]["prescreen_retained"]["count"], 3)
@@ -213,7 +213,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(flow["side_boxes"]["kg_not_included"]["count"], 1)
         self.assertEqual(
             flow["side_boxes"]["kg_not_included"]["label"],
-            "Reports not represented in the current graph",
+            "Reports excluded during evidence extraction",
         )
         self.assertEqual(
             flow["side_boxes"]["kg_not_included"]["reasons"][0]["key"],

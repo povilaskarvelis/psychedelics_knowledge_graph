@@ -1283,7 +1283,7 @@ button.primary:hover {
   position: absolute;
   top: 8px;
   bottom: 8px;
-  left: 4px;
+  left: 6px;
   width: 1px;
   background: rgba(110, 227, 215, 0.3);
 }
@@ -1300,13 +1300,14 @@ button.primary:hover {
 .knowledge-shift-steps span::before {
   content: "";
   position: absolute;
-  top: 0.48em;
+  top: 50%;
   left: -17px;
   width: 7px;
   height: 7px;
   border: 2px solid rgba(110, 227, 215, 0.8);
   border-radius: 50%;
   background: var(--method-surface);
+  transform: translateY(-50%);
 }
 
 .knowledge-shift-outcomes {
@@ -2723,9 +2724,11 @@ button.primary:hover {
 }
 
 .prisma-side > div span {
+  flex: 0 0 auto;
   color: var(--method-rose);
   font-size: 0.76rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .prisma-side {
@@ -2737,7 +2740,7 @@ button.primary:hover {
   min-height: 68px;
   align-content: center;
   padding: 10px 11px;
-  margin: 6px 0;
+  margin: 0 0 12px;
   border-radius: 8px;
   align-self: start;
   background: rgba(240, 128, 163, 0.14);
@@ -2991,7 +2994,7 @@ button.primary:hover {
   position: relative;
   align-self: start;
   height: 68px;
-  margin-top: 6px;
+  margin-top: 0;
 }
 
 .prisma-side-arrow::before {

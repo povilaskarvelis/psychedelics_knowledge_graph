@@ -844,7 +844,7 @@ def prisma_flow_for_candidate_papers(
                 "count": len(extraction_selected),
             },
             "kg_included": {
-                "label": "Reports represented in the current knowledge graph",
+                "label": "Reports included in the knowledge graph",
                 "count": len(kg_included_rows),
             },
         },
@@ -891,7 +891,7 @@ def prisma_flow_for_candidate_papers(
                 ),
             },
             "kg_not_included": {
-                "label": "Reports not represented in the current graph",
+                "label": "Reports excluded during evidence extraction",
                 "count": len(kg_not_included),
                 "reasons": labeled_reason_counts(
                     kg_not_included_reasons,

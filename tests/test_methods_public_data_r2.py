@@ -36,7 +36,7 @@ def test_methods_labels_distinguish_screening_extraction_and_graph_representatio
     assert "Records assessed by rules-based screening" in script
     assert "Records retained for LLM-based screening" in script
     assert "Selected reports assessed for graph representation" not in script
-    assert "Reports not represented in the current graph" in script
+    assert "Reports excluded during evidence extraction" in script
     assert "Non-English-language record" in script
     assert "<th scope=\"col\">Rules-based screening</th>" in page
     assert "<th scope=\"col\">Extraction selection</th>" in page
