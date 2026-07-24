@@ -19,20 +19,21 @@ KG_VERSION = "0.1"
 CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 
 PRISMA_CANDIDATE_PRESCREEN_LABELS = {
-    "exclude_obvious_irrelevant": "No in-scope title/abstract signal",
-    "exclude_no_usable_abstract": "No usable abstract and title alone insufficient",
+    "exclude_obvious_irrelevant": "No clear in-scope psychedelic evidence signal",
+    "exclude_no_usable_abstract": "No usable abstract; title alone insufficient",
     "exclude_missing_abstract": "No abstract available",
-    "exclude_non_evidence_artifact": "Non-evidence artifact",
-    "exclude_non_paper_container": "Non-report container",
-    "exclude_preprint_or_unpublished": "Preprint or unpublished posted content",
-    "unknown": "Screening status not available",
+    "exclude_non_evidence_artifact": "Ineligible publication type or non-evidence record",
+    "exclude_non_paper_container": "Journal or container record, not a paper",
+    "exclude_preprint_or_unpublished": "Preprint or unpublished record",
+    "exclude_non_english_language": "Non-English-language record",
+    "unknown": "Rules-based screening status unavailable",
 }
 
 PRISMA_PUBLIC_LLM_SCREENING_LABELS = {
-    "excluded_during_llm_screening": "Excluded during title and abstract screening",
-    "background_context_only": "Kept as background/context only",
-    "not_selected_for_extraction": "Not selected for evidence extraction",
-    "unknown": "Title and abstract screening status not available",
+    "excluded_during_llm_screening": "Out of scope after LLM-based screening",
+    "background_context_only": "Background/context only",
+    "not_selected_for_extraction": "No evidence-extraction assignment available",
+    "unknown": "LLM-based screening status unavailable",
 }
 
 METHODS_BIBLIOGRAPHY_COLUMNS = (
@@ -77,13 +78,13 @@ METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS = (
 )
 
 GRAPH_DISPOSITION_LABELS = {
-    "represented": "Represented in the evidence graph",
-    "adjudicated_outside_scope": "Outside the evidence scope",
-    "no_extractable_finding": "No specific finding to represent",
-    "insufficient_source_text": "Available text is too limited",
+    "represented": "Represented in the current graph",
+    "adjudicated_outside_scope": "Outside the graph's evidence scope",
+    "no_extractable_finding": "No specific finding available for graph representation",
+    "insufficient_source_text": "Available text too limited for reliable extraction",
     "source_not_verified": "Source document could not be verified",
     "not_results_report": "Not a results report",
-    "unsupported_finding_detail": "Finding too broad or ambiguous",
+    "unsupported_finding_detail": "Finding too broad or ambiguous for graph representation",
     "extraction_failed": "Evidence extraction failed",
     # Transitional values remain readable for older override files, but a
     # completed release should not contain them.
@@ -111,11 +112,11 @@ TRANSITIONAL_GRAPH_DISPOSITIONS = {
 
 METHODS_BIBLIOGRAPHY_STAGE_LABELS = {
     "selected_for_extraction": "Selected for evidence extraction",
-    "excluded_during_llm_screening": "Excluded during title and abstract screening",
-    "background_context_only": "Kept as background/context only",
-    "not_selected_for_extraction": "Not selected for evidence extraction",
-    "excluded_during_initial_screening": "Excluded during initial screening",
-    "identified_not_screened": "Identified, not screened",
+    "excluded_during_llm_screening": "Out of scope after LLM-based screening",
+    "background_context_only": "Retained as background/context only",
+    "not_selected_for_extraction": "No evidence-extraction assignment available",
+    "excluded_during_initial_screening": "Excluded by rules-based screening",
+    "identified_not_screened": "Not assessed by rules-based screening",
 }
 
 METHODS_BIBLIOGRAPHY_STAGE_ORDER = (
@@ -128,23 +129,24 @@ METHODS_BIBLIOGRAPHY_STAGE_ORDER = (
 )
 
 METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER = (
-    "In graph",
-    "Outside the evidence scope",
-    "No specific finding to represent",
-    "Available text is too limited",
+    "Represented in graph",
+    "Outside the graph's evidence scope",
+    "No specific finding available for graph representation",
+    "Available text too limited for reliable extraction",
     "Source document could not be verified",
     "Not a results report",
-    "Finding too broad or ambiguous",
-    "Not reached",
+    "Finding too broad or ambiguous for graph representation",
+    "Not assessed",
 )
 
 METHODS_BIBLIOGRAPHY_SCREENING_REASONS = {
-    "exclude_obvious_irrelevant": "No in-scope signal",
-    "exclude_no_usable_abstract": "No usable abstract; title insufficient",
-    "exclude_missing_abstract": "No abstract",
-    "exclude_non_evidence_artifact": "Not an evidence report",
-    "exclude_non_paper_container": "Journal/container record",
-    "exclude_preprint_or_unpublished": "Preprint/unpublished",
+    "exclude_obvious_irrelevant": "No clear in-scope psychedelic evidence signal",
+    "exclude_no_usable_abstract": "No usable abstract; title alone insufficient",
+    "exclude_missing_abstract": "No abstract available",
+    "exclude_non_evidence_artifact": "Ineligible publication type or non-evidence record",
+    "exclude_non_paper_container": "Journal or container record, not a paper",
+    "exclude_preprint_or_unpublished": "Preprint or unpublished record",
+    "exclude_non_english_language": "Non-English-language record",
     "retain_for_screening": "",
     "retain_for_extraction_candidate": "",
 }
@@ -418,12 +420,12 @@ def public_llm_screening_reason(row: dict) -> str:
         return "The report was selected for evidence extraction."
     if route_status == "excluded_after_domain_screen":
         return strip_markup(row.get("extraction_domain_screening_reasons", "")) or (
-            "Title and abstract screening did not identify an in-scope evidence topic for extraction."
+            "LLM-based screening did not identify an in-scope evidence topic for extraction."
         )
     if route_status == "context_only_or_skip":
         return "The report may be useful as background, but it is not part of the extracted evidence set."
     if not candidate_prescreen_retained(row):
-        return "The record did not pass initial screening."
+        return "The record was excluded by rules-based screening."
     return "No current evidence extraction assignment is stored for this record."
 
 
@@ -440,29 +442,29 @@ def public_screening_reason(row: dict, action: str = "") -> str:
 
 def candidate_screening_cell(row: dict) -> tuple[str, str, str]:
     if not candidate_screened(row):
-        return "not_reached", "Not screened", "No screening status"
+        return "not_reached", "Not assessed", "No rules-based screening status"
     action = normalize(row.get("prescreen_actions", "")).lower() or "unknown"
     if candidate_prescreen_retained(row):
-        return "pass", "Passed", ""
-    return "fail", "Did not pass", public_screening_reason(row, action)
+        return "pass", "Retained", ""
+    return "fail", "Excluded", public_screening_reason(row, action)
 
 
 def candidate_llm_screening_cell(row: dict) -> tuple[str, str, str]:
     if not candidate_prescreen_retained(row):
-        return "not_reached", "Not reached", ""
+        return "not_reached", "Not assessed", ""
     route_status = normalize(row.get("extraction_route_status", "")).lower() or "unknown"
     if boolish(row.get("retained_for_extraction_candidate", False)):
-        return "pass", "Passed", ""
+        return "pass", "In scope", ""
     if route_status == "context_only_or_skip":
         return "fail", "Background/context only", ""
     if route_status == "excluded_after_domain_screen":
-        return "fail", "Did not pass", public_llm_screening_reason(row)
-    return "fail", "Did not pass", ""
+        return "fail", "Out of scope", public_llm_screening_reason(row)
+    return "fail", "Not selected", ""
 
 
 def candidate_extraction_cell(row: dict) -> tuple[str, str, str]:
     if not candidate_prescreen_retained(row):
-        return "not_reached", "Not reached", ""
+        return "not_reached", "Not assessed", ""
     if not boolish(row.get("retained_for_extraction_candidate", False)):
         return "fail", "Not selected", ""
     return "pass", "Selected", ""
@@ -470,12 +472,12 @@ def candidate_extraction_cell(row: dict) -> tuple[str, str, str]:
 
 def candidate_kg_cell(row: dict) -> tuple[str, str, str]:
     if not boolish(row.get("retained_for_extraction_candidate", False)):
-        return "not_reached", "Not reached", ""
+        return "not_reached", "Not assessed", ""
     status = normalize(row.get("graph_inclusion_status", ""))
     disposition = normalize(row.get("graph_inclusion_disposition", ""))
     reason = strip_markup(row.get("graph_inclusion_reason", ""))
     if status == "represented" and disposition == "represented":
-        return "pass", "In graph", reason
+        return "pass", "Represented in graph", reason
     if status == "not_represented" and disposition in GRAPH_DISPOSITION_LABELS:
         return "fail", GRAPH_DISPOSITION_LABELS[disposition], reason
     raise ValueError(
@@ -815,7 +817,7 @@ def prisma_flow_for_candidate_papers(
 
     return {
         "dataset": "overall",
-        "label": "Search and graph-inclusion flow",
+        "label": "Literature selection and graph representation",
         "unit": "records and reports",
         "current_stage": "kg_inclusion_summary",
         "metrics": {
@@ -826,15 +828,15 @@ def prisma_flow_for_candidate_papers(
         },
         "steps": {
             "records_identified": {
-                "label": "Records found by the search",
+                "label": "Records identified by literature searches",
                 "count": len(rows),
             },
             "records_screened": {
-                "label": "Records screened for relevance",
+                "label": "Records assessed by rules-based screening",
                 "count": len(screened_rows),
             },
             "prescreen_retained": {
-                "label": "Records kept after initial screening",
+                "label": "Records retained for LLM-based screening",
                 "count": len(prescreen_retained_rows),
             },
             "evidence_extraction_selected": {
@@ -842,13 +844,13 @@ def prisma_flow_for_candidate_papers(
                 "count": len(extraction_selected),
             },
             "kg_included": {
-                "label": "Reports represented in the knowledge graph",
+                "label": "Reports represented in the current knowledge graph",
                 "count": len(kg_included_rows),
             },
         },
         "side_boxes": {
             "removed_before_screening": {
-                "label": "Records not screened",
+                "label": "Records not assessed by rules-based screening",
                 "count": len(not_screened_rows),
                 "reasons": labeled_reason_counts(
                     not_screened_reasons,
@@ -857,7 +859,7 @@ def prisma_flow_for_candidate_papers(
                 ),
             },
             "records_excluded": {
-                "label": "Records excluded during initial screening",
+                "label": "Records excluded by rules-based screening",
                 "count": len(prescreen_excluded_rows),
                 "reasons": labeled_reason_counts(
                     prescreen_reasons,
@@ -869,12 +871,13 @@ def prisma_flow_for_candidate_papers(
                         "exclude_non_evidence_artifact",
                         "exclude_non_paper_container",
                         "exclude_preprint_or_unpublished",
+                        "exclude_non_english_language",
                         "unknown",
                     ),
                 ),
             },
             "route_not_selected": {
-                "label": "Records not selected for evidence extraction",
+                "label": "Records not selected after LLM-based screening",
                 "count": len(route_not_selected_rows),
                 "reasons": labeled_reason_counts(
                     route_not_selected_reasons,
@@ -888,7 +891,7 @@ def prisma_flow_for_candidate_papers(
                 ),
             },
             "kg_not_included": {
-                "label": "Selected reports not represented in graph",
+                "label": "Reports not represented in the current graph",
                 "count": len(kg_not_included),
                 "reasons": labeled_reason_counts(
                     kg_not_included_reasons,
@@ -901,10 +904,7 @@ def prisma_flow_for_candidate_papers(
             {"step": "records_identified", "side_box": "removed_before_screening"},
             {"step": "records_screened", "side_box": "records_excluded"},
             {"step": "prescreen_retained", "side_box": "route_not_selected"},
-            {
-                "step": "evidence_extraction_selected",
-                "side_box": "kg_not_included",
-            },
+            {"step": "evidence_extraction_selected", "side_box": "kg_not_included"},
             {
                 "step": "kg_included",
                 "last": True,

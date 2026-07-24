@@ -166,19 +166,28 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         )
 
         self.assertEqual(flow["dataset"], "overall")
-        self.assertEqual(flow["label"], "Search and graph-inclusion flow")
+        self.assertEqual(flow["label"], "Literature selection and graph representation")
         self.assertEqual(flow["unit"], "records and reports")
         self.assertEqual(flow["current_stage"], "kg_inclusion_summary")
-        self.assertEqual(flow["steps"]["records_identified"]["label"], "Records found by the search")
-        self.assertEqual(flow["steps"]["records_screened"]["label"], "Records screened for relevance")
-        self.assertEqual(flow["steps"]["prescreen_retained"]["label"], "Records kept after initial screening")
+        self.assertEqual(
+            flow["steps"]["records_identified"]["label"],
+            "Records identified by literature searches",
+        )
+        self.assertEqual(
+            flow["steps"]["records_screened"]["label"],
+            "Records assessed by rules-based screening",
+        )
+        self.assertEqual(
+            flow["steps"]["prescreen_retained"]["label"],
+            "Records retained for LLM-based screening",
+        )
         self.assertEqual(
             flow["steps"]["evidence_extraction_selected"]["label"],
             "Reports selected for evidence extraction",
         )
         self.assertEqual(
             flow["steps"]["kg_included"]["label"],
-            "Reports represented in the knowledge graph",
+            "Reports represented in the current knowledge graph",
         )
         self.assertEqual(flow["steps"]["records_identified"]["count"], 4)
         self.assertEqual(flow["steps"]["prescreen_retained"]["count"], 3)
@@ -191,7 +200,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertEqual(flow["side_boxes"]["route_not_selected"]["count"], 1)
         self.assertEqual(
             flow["side_boxes"]["route_not_selected"]["label"],
-            "Records not selected for evidence extraction",
+            "Records not selected after LLM-based screening",
         )
         self.assertEqual(
             flow["side_boxes"]["route_not_selected"]["reasons"][0]["key"],
@@ -199,18 +208,19 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         )
         self.assertEqual(
             flow["side_boxes"]["route_not_selected"]["reasons"][0]["label"],
-            "Excluded during title and abstract screening",
+            "Out of scope after LLM-based screening",
         )
         self.assertEqual(flow["side_boxes"]["kg_not_included"]["count"], 1)
         self.assertEqual(
             flow["side_boxes"]["kg_not_included"]["label"],
-            "Selected reports not represented in graph",
+            "Reports not represented in the current graph",
         )
         self.assertEqual(
             flow["side_boxes"]["kg_not_included"]["reasons"][0]["key"],
             "no_extractable_finding",
         )
         self.assertEqual(flow["rows"][-2]["side_box"], "kg_not_included")
+        self.assertEqual(flow["rows"][-2]["step"], "evidence_extraction_selected")
         self.assertEqual(flow["rows"][-1]["step"], "kg_included")
         self.assertEqual(
             public_candidate_pipeline_counts(flow)["represented_in_knowledge_graph"],
@@ -280,30 +290,39 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         self.assertTrue(forbidden_public_columns.isdisjoint(payload["columns"]))
         self.assertEqual(payload["unit"], "records")
         self.assertIn("papers", payload["counts"])
-        self.assertEqual(payload["counts"]["by_kg_status"]["No specific finding to represent"], 1)
-        self.assertEqual(payload["counts"]["by_kg_status"]["Not reached"], 1)
+        self.assertEqual(
+            payload["counts"]["by_kg_status"]["No specific finding available for graph representation"],
+            1,
+        )
+        self.assertEqual(payload["counts"]["by_kg_status"]["Not assessed"], 1)
         self.assertNotIn("candidate_papers", payload["counts"])
         selected = by_doi["10.1000/selected"]
         self.assertEqual(selected["initial_screening_status"], "pass")
-        self.assertEqual(selected["initial_screening_label"], "Passed")
+        self.assertEqual(selected["initial_screening_label"], "Retained")
         self.assertEqual(selected["llm_screening_status"], "pass")
-        self.assertEqual(selected["llm_screening_label"], "Passed")
+        self.assertEqual(selected["llm_screening_label"], "In scope")
         self.assertEqual(selected["extraction_status"], "pass")
         self.assertEqual(selected["extraction_label"], "Selected")
         self.assertEqual(selected["kg_status"], "fail")
-        self.assertEqual(selected["kg_label"], "No specific finding to represent")
+        self.assertEqual(
+            selected["kg_label"],
+            "No specific finding available for graph representation",
+        )
         self.assertIn("no_extractable_finding", selected["kg_note"])
         self.assertEqual(selected["stage_key"], "selected_for_extraction")
         self.assertTrue(selected["selected_for_extraction"])
 
         excluded = by_doi["10.1000/excluded"]
         self.assertEqual(excluded["initial_screening_status"], "fail")
-        self.assertEqual(excluded["initial_screening_label"], "Did not pass")
-        self.assertEqual(excluded["initial_screening_note"], "No usable abstract; title insufficient")
+        self.assertEqual(excluded["initial_screening_label"], "Excluded")
+        self.assertEqual(
+            excluded["initial_screening_note"],
+            "No usable abstract; title alone insufficient",
+        )
         self.assertEqual(excluded["llm_screening_status"], "not_reached")
         self.assertEqual(excluded["extraction_status"], "not_reached")
         self.assertEqual(excluded["kg_status"], "not_reached")
-        self.assertEqual(excluded["kg_label"], "Not reached")
+        self.assertEqual(excluded["kg_label"], "Not assessed")
         self.assertEqual(excluded["stage_key"], "excluded_during_initial_screening")
         self.assertFalse(excluded["selected_for_extraction"])
 
@@ -354,15 +373,18 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         flow = prisma_flow_for_candidate_papers(rows)
         bibliography = candidate_bibliography_payload(rows)
 
-        self.assertEqual(flow["steps"]["kg_included"]["count"], bibliography["counts"]["by_kg_status"]["In graph"])
+        self.assertEqual(
+            flow["steps"]["kg_included"]["count"],
+            bibliography["counts"]["by_kg_status"]["Represented in graph"],
+        )
         flow_not_in_graph = {
             reason["label"]: reason["count"]
             for reason in flow["side_boxes"]["kg_not_included"]["reasons"]
         }
         for label in (
-            "No specific finding to represent",
-            "Finding too broad or ambiguous",
-            "Available text is too limited",
+            "No specific finding available for graph representation",
+            "Finding too broad or ambiguous for graph representation",
+            "Available text too limited for reliable extraction",
         ):
             self.assertEqual(flow_not_in_graph[label], bibliography["counts"]["by_kg_status"][label])
 

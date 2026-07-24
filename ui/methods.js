@@ -33,14 +33,60 @@ const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
 
 const DATASET_LABELS = {
-  overall: "Search and graph-inclusion flow",
+  overall: "Literature selection and graph representation",
+};
+const PRISMA_STEP_LABELS = {
+  records_identified: "Records identified by literature searches",
+  records_screened: "Records assessed by rules-based screening",
+  prescreen_retained: "Records retained for LLM-based screening",
+  evidence_extraction_selected: "Reports selected for evidence extraction",
+  kg_included: "Reports represented in the current knowledge graph",
+};
+const PRISMA_SIDE_LABELS = {
+  removed_before_screening: "Records not assessed by rules-based screening",
+  records_excluded: "Records excluded by rules-based screening",
+  route_not_selected: "Records not selected after LLM-based screening",
+  kg_not_included: "Reports not represented in the current graph",
+};
+const PRISMA_REASON_LABELS = {
+  exclude_obvious_irrelevant: "No clear in-scope psychedelic evidence signal",
+  exclude_no_usable_abstract: "No usable abstract; title alone insufficient",
+  exclude_missing_abstract: "No abstract available",
+  exclude_non_evidence_artifact: "Ineligible publication type or non-evidence record",
+  exclude_non_paper_container: "Journal or container record, not a paper",
+  exclude_preprint_or_unpublished: "Preprint or unpublished record",
+  exclude_non_english_language: "Non-English-language record",
+  excluded_during_llm_screening: "Out of scope after LLM-based screening",
+  background_context_only: "Background/context only",
+  not_selected_for_extraction: "No evidence-extraction assignment available",
+  no_extractable_finding: "No specific finding available for graph representation",
+  insufficient_source_text: "Available text too limited for reliable extraction",
+  source_not_verified: "Source document could not be verified",
+  not_results_report: "Not a results report",
+  unsupported_finding_detail: "Finding too broad or ambiguous for graph representation",
+  extraction_failed: "Evidence extraction failed",
 };
 const BIBLIOGRAPHY_GRAPH_STATUS_LABELS = {
   "In graph": "Represented in graph",
+  "Represented in graph": "Represented in graph",
+  "Represented in the current graph": "Represented in graph",
   "Not graphable": "No suitable graph relationship",
   "Not normalized": "Names not matched",
   "No graph finding": "No publishable finding",
-  "Not reached": "Not reached",
+  "Outside the evidence scope": "Outside the graph's evidence scope",
+  "No specific finding to represent": "No specific finding available for graph representation",
+  "Available text is too limited": "Available text too limited for reliable extraction",
+  "Finding too broad or ambiguous": "Finding too broad or ambiguous for graph representation",
+  "Not reached": "Not assessed",
+  "Not assessed": "Not assessed",
+};
+const BIBLIOGRAPHY_SCREENING_NOTE_LABELS = {
+  "No in-scope signal": "No clear in-scope psychedelic evidence signal",
+  "No usable abstract; title insufficient": "No usable abstract; title alone insufficient",
+  "No abstract": "No abstract available",
+  "Not an evidence report": "Ineligible publication type or non-evidence record",
+  "Journal/container record": "Journal or container record, not a paper",
+  "Preprint/unpublished": "Preprint or unpublished record",
 };
 const BIBLIOGRAPHY_PAGE_SIZE = 120;
 
@@ -145,11 +191,13 @@ async function loadMethodsData(name) {
 }
 
 function prismaStep(flow, key) {
-  return flow?.steps?.[key] || { label: key, count: 0 };
+  const step = flow?.steps?.[key] || { label: key, count: 0 };
+  return { ...step, label: PRISMA_STEP_LABELS[key] || step.label };
 }
 
 function prismaSideBox(flow, key) {
-  return flow?.side_boxes?.[key] || { label: key, count: 0, reasons: [] };
+  const box = flow?.side_boxes?.[key] || { label: key, count: 0, reasons: [] };
+  return { ...box, label: PRISMA_SIDE_LABELS[key] || box.label };
 }
 
 function renderPrismaReasons(box) {
@@ -162,7 +210,11 @@ function renderPrismaReasons(box) {
     <ul>
       ${reasons.map((reason) => `
         <li>
-          <span>${escapeHtml(BIBLIOGRAPHY_GRAPH_STATUS_LABELS[reason.label] || reason.label)}</span>
+          <span>${escapeHtml(
+            PRISMA_REASON_LABELS[reason.key] ||
+            BIBLIOGRAPHY_GRAPH_STATUS_LABELS[reason.label] ||
+            reason.label
+          )}</span>
           <strong>${formatNumber(reason.count)}</strong>
         </li>
       `).join("")}
@@ -321,7 +373,7 @@ function dynamicPrismaRows(flow) {
 }
 
 function renderPrismaDiagram(dataset, flow) {
-  const title = flow?.label || DATASET_LABELS[dataset] || dataset;
+  const title = DATASET_LABELS[dataset] || flow?.label || dataset;
   const rows = dynamicPrismaRows(flow);
   return `
     <article class="prisma-diagram" aria-label="${escapeHtml(title)} PRISMA-style flow">
@@ -400,7 +452,7 @@ function bibliographyStageCellHtml(status, label, note) {
     fail: "×",
     not_reached: "–",
   };
-  const cleanLabel = label || "Not reached";
+  const cleanLabel = label || "Not assessed";
   const cleanNote = note || "";
   return `
     <div class="bibliography-stage-cell ${escapeHtml(statusKey)}">
@@ -428,12 +480,37 @@ function bibliographyPaperHtml(row) {
 
 function bibliographyRowHtml(row) {
   const selectedClass = row.selected_for_extraction ? " selected" : "";
+  const initialLabel =
+    row.initial_screening_status === "pass"
+      ? "Retained"
+      : row.initial_screening_status === "fail"
+        ? "Excluded"
+        : "Not assessed";
+  const llmLabel =
+    row.llm_screening_status === "pass"
+      ? "In scope"
+      : row.llm_screening_status === "not_reached"
+        ? "Not assessed"
+        : row.stage_key === "background_context_only"
+          ? "Background/context only"
+          : row.stage_key === "excluded_during_llm_screening"
+            ? "Out of scope"
+            : "Not selected";
+  const extractionLabel =
+    row.extraction_status === "pass"
+      ? "Selected"
+      : row.extraction_status === "fail"
+        ? "Not selected"
+        : "Not assessed";
+  const initialNote =
+    BIBLIOGRAPHY_SCREENING_NOTE_LABELS[row.initial_screening_note] ||
+    row.initial_screening_note;
   return `
     <tr class="methods-bibliography-row${selectedClass}">
       <td>${bibliographyPaperHtml(row)}</td>
-      <td>${bibliographyStageCellHtml(row.initial_screening_status, row.initial_screening_label, row.initial_screening_note)}</td>
-      <td>${bibliographyStageCellHtml(row.llm_screening_status, row.llm_screening_label, row.llm_screening_note)}</td>
-      <td>${bibliographyStageCellHtml(row.extraction_status, row.extraction_label, row.extraction_note)}</td>
+      <td>${bibliographyStageCellHtml(row.initial_screening_status, initialLabel, initialNote)}</td>
+      <td>${bibliographyStageCellHtml(row.llm_screening_status, llmLabel, row.llm_screening_note)}</td>
+      <td>${bibliographyStageCellHtml(row.extraction_status, extractionLabel, row.extraction_note)}</td>
       <td>${bibliographyStageCellHtml(row.kg_status, BIBLIOGRAPHY_GRAPH_STATUS_LABELS[row.kg_label] || row.kg_label, row.kg_note)}</td>
     </tr>
   `;

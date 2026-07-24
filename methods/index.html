@@ -710,6 +710,12 @@
               flow diagram reports the number of records and reports reaching
               each stage, while the searchable table provides the selection
               decision for every record identified by the searches.
+              Selection for evidence extraction does not guarantee graph
+              representation. During evidence extraction, each selected report
+              is also evaluated for graph representation. A report may remain
+              outside the current graph when its source text is insufficient,
+              extraction fails, or it does not provide a sufficiently specific
+              finding to represent.
             </p>
           </div>
         </div>
@@ -756,10 +762,10 @@
                 <thead>
                   <tr>
                     <th scope="col">Records</th>
-                    <th scope="col">Initial screening</th>
-                    <th scope="col">Title &amp; abstract screening</th>
-                    <th scope="col">Evidence extraction</th>
-                    <th scope="col">Knowledge graph</th>
+                    <th scope="col">Rules-based screening</th>
+                    <th scope="col">LLM-based screening</th>
+                    <th scope="col">Extraction selection</th>
+                    <th scope="col">Graph representation</th>
                   </tr>
                 </thead>
                 <tbody id="methodsBibliographyRows"></tbody>
@@ -794,7 +800,7 @@
       <section class="about-section" aria-labelledby="release-notes">
         <h2 id="release-notes">Release notes</h2>
         <p>
-          <strong>v1 — Initial release.</strong> The first public version of the
+          <strong>v1.0.0 — Initial release</strong>. The first public version of the
           Psychedelics Knowledge Graph, including the interactive graph,
           supporting study details, and documented methods.
         </p>

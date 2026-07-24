@@ -3,6 +3,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 METHODS_JS = ROOT / "ui" / "methods.js"
+METHODS_HTML = ROOT / "methods" / "index.html"
 PUBLIC_SITE_MANIFEST = ROOT / "scripts" / "public_site_files.txt"
 SITE_NAV_JS = ROOT / "ui" / "site-nav.js"
 
@@ -26,6 +27,21 @@ def test_methods_local_data_requires_explicit_local_preview_mode() -> None:
     assert "LOCAL_DATA_HOSTS.has(window.location.hostname)" in source
     assert '=== "local"' in source
     assert 'key.startsWith("data/kg/views/")' in source
+
+
+def test_methods_labels_distinguish_screening_extraction_and_graph_representation() -> None:
+    script = METHODS_JS.read_text(encoding="utf-8")
+    page = METHODS_HTML.read_text(encoding="utf-8")
+
+    assert "Records assessed by rules-based screening" in script
+    assert "Records retained for LLM-based screening" in script
+    assert "Selected reports assessed for graph representation" not in script
+    assert "Reports not represented in the current graph" in script
+    assert "Non-English-language record" in script
+    assert "<th scope=\"col\">Rules-based screening</th>" in page
+    assert "<th scope=\"col\">Extraction selection</th>" in page
+    assert "<th scope=\"col\">Graph representation</th>" in page
+    assert "Selection for evidence extraction does not guarantee graph" in page
 
 
 def test_netlify_bundle_contains_no_generated_data_files() -> None:
