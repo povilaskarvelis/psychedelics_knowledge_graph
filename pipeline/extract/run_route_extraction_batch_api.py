@@ -61,6 +61,7 @@ try:
         reject_corrupt_output_text,
         reject_inconsistent_primary_categories,
         reject_inconsistent_recommendation_tones,
+        reject_source_identity_mismatch_warnings,
         safe_run_id,
         schema_error_messages,
         text_depth_for_task,
@@ -103,6 +104,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         reject_corrupt_output_text,
         reject_inconsistent_primary_categories,
         reject_inconsistent_recommendation_tones,
+        reject_source_identity_mismatch_warnings,
         safe_run_id,
         schema_error_messages,
         text_depth_for_task,
@@ -741,6 +743,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             parsed, parse_method = parse_json_response(text)
             result = inject_route_identity_fields(parsed, task, profile)
             reject_corrupt_output_text(result)
+            reject_source_identity_mismatch_warnings(result)
             reject_inconsistent_recommendation_tones(result)
             reject_inconsistent_primary_categories(result)
             schema_errors = schema_error_messages(validator, result)

@@ -33,6 +33,10 @@ try:
         source_sha256,
         subset_assertions_for_papers,
     )
+    from pipeline.ingest.materialize_paper_open_science import (
+        materialize_open_science,
+        subset_open_science_assertions,
+    )
     from pipeline.kg.compound_combinations import (
         aliases_for_components,
         canonical_components,
@@ -58,6 +62,10 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         source_sha256,
         subset_assertions_for_papers,
     )
+    from pipeline.ingest.materialize_paper_open_science import (
+        materialize_open_science,
+        subset_open_science_assertions,
+    )
     from pipeline.kg.compound_combinations import (
         aliases_for_components,
         canonical_components,
@@ -82,6 +90,12 @@ DEFAULT_NODE_VOCABULARY_PATH = ROOT / "schema" / "kg_node_vocabularies.json"
 DEFAULT_FUNDING_ASSERTIONS_PATH = ROOT / "data" / "processed" / "corpus" / "paper_funding.parquet"
 DEFAULT_FUNDING_ATTEMPTS_PATH = (
     ROOT / "data" / "processed" / "corpus" / "paper_funding_provider_attempts.parquet"
+)
+DEFAULT_OPEN_SCIENCE_FEATURES_PATH = (
+    ROOT / "data" / "processed" / "corpus" / "paper_open_science_features.parquet"
+)
+DEFAULT_OPEN_SCIENCE_ASSERTIONS_PATH = (
+    ROOT / "data" / "processed" / "corpus" / "paper_open_science_assertions.parquet"
 )
 KG_TABLE_VERSION = "0.2"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v3_20260722"
@@ -178,6 +192,34 @@ PAPER_FIELDS = (
     "funding_assertion_count",
     "funding_funder_count",
     "funding_award_count",
+    "has_registered_trial",
+    "registered_trial_ids",
+    "registered_trial_urls",
+    "registered_trial_count",
+    "has_open_data",
+    "open_data_resource_ids",
+    "open_data_urls",
+    "open_data_repositories",
+    "open_data_resource_count",
+    "has_shared_code",
+    "shared_code_resource_ids",
+    "shared_code_urls",
+    "shared_code_repositories",
+    "shared_code_resource_count",
+    "has_preregistered",
+    "preregistration_ids",
+    "preregistration_urls",
+    "preregistration_repositories",
+    "preregistration_count",
+    "open_science_features",
+    "open_science_feature_count",
+    "open_science_assertion_count",
+    "open_science_evidence_providers",
+    "open_science_evidence_source_types",
+    "open_science_has_fulltext_evidence_source",
+    "open_science_enrichment_status",
+    "open_science_retrieval_run_id",
+    "open_science_retrieved_at_utc",
     "trial_registry_ids",
     "study_design",
     "funding",
@@ -1614,7 +1656,10 @@ SUBJECTIVE_EXPERIENCE_RULES = (
     ),
     (
         "Euphoria",
-        re.compile(r"\b(euphoria|euphoric|liking|good effects|high\b|bliss|amazing|drug liking)\b", re.IGNORECASE),
+        re.compile(
+            r"\b(euphoria|euphoric|liking|good effects|feel(?:ing)? high|drug high|bliss|amazing|drug liking)\b",
+            re.IGNORECASE,
+        ),
     ),
     (
         "Negative affect",
@@ -2286,6 +2331,145 @@ PUBLIC_HEALTH_USE_CONTEXT_LABEL_BY_KEY = {label_key(label): label for label, _pa
 
 def compact_key(value: object) -> str:
     return re.sub(r"[^a-z0-9]+", "", label_key(value))
+
+
+CANONICAL_ENTITY_FORMAT_GROUPS = (
+    ("biomarker_readout", "TNF-α levels", ("TNF-alpha levels",)),
+    ("biomarker_readout", "TNF-α mRNA expression", ("TNF-alpha mRNA expression",)),
+    ("biomarker_readout", "TNF-α expression", ("TNF-alpha expression",)),
+    ("biomarker_readout", "TNF-α gene expression mRNA expression", ("TNF-alpha gene expression mRNA expression",)),
+    ("biomarker_readout", "TNF-α protein levels", ("TNF-alpha protein levels",)),
+    ("biomarker_readout", "TNF-α production levels", ("TNF-alpha production levels",)),
+    ("biomarker_readout", "serum TNF-α levels", ("Serum TNF-α levels", "serum TNF-alpha levels")),
+    ("biomarker_readout", "plasma TNF-α levels", ("plasma TNF-alpha levels",)),
+    (
+        "biomarker_readout",
+        "Plasma TNF-α concentration levels",
+        ("Plasma TNF-alpha concentration levels",),
+    ),
+    (
+        "biomarker_readout",
+        "tumor necrosis factor-α levels",
+        ("Tumor necrosis factor alpha levels",),
+    ),
+    (
+        "biomarker_readout",
+        "tumor necrosis factor-α (TNF-α) expression",
+        ("Tumor necrosis factor-alpha (TNF-alpha) expression",),
+    ),
+    ("biomarker_readout", "IL-1β levels", ("IL-1beta levels", "IL-1 beta levels")),
+    ("biomarker_readout", "IL-1β mRNA expression", ("IL-1beta mRNA expression",)),
+    ("biomarker_readout", "IL-1β protein levels", ("IL-1beta protein levels",)),
+    ("biomarker_readout", "TGF-β1 expression", ("TGF-beta1 expression",)),
+    ("biomarker_readout", "serotonin (5-HT) levels", ("serotonin (5HT) levels",)),
+    (
+        "biomarker_readout",
+        "extracellular serotonin (5-HT) levels",
+        ("extracellular serotonin (5HT) levels",),
+    ),
+    (
+        "biomarker_readout",
+        "serotonin (5-HT) depletion release",
+        ("Serotonin (5HT) depletion release",),
+    ),
+    (
+        "biomarker_readout",
+        "dopamine D2/D3 receptors",
+        ("dopamine D 2 /D 3 receptors",),
+    ),
+    (
+        "biomarker_readout",
+        "TPH2 gene expression mRNA expression",
+        ("Tph2 gene expression mRNA expression", "TPH-2 gene expression mRNA expression"),
+    ),
+    ("biomarker_readout", "p47phox phosphorylation", ("P47(phox) phosphorylation",)),
+    ("biomarker_readout", "IBA-1 activation", ("Iba1 activation",)),
+    (
+        "biomarker_readout",
+        "5-hydroxyindoleacetic acid (5-HIAA) levels",
+        ("5-hydroxyindoleacetic acid (5HIAA) levels",),
+    ),
+    (
+        "biomarker_readout",
+        "3-methoxytyramine (3-MT) levels",
+        ("3-methoxytyramine (3MT) levels",),
+    ),
+    (
+        "pathway_process",
+        "[35S]GTPγS binding activation",
+        ("[35S]GTPgammaS binding activation",),
+    ),
+    (
+        "biomarker_readout",
+        "[35S]GTPγS binding activation",
+        ("[35S]GTPgammaS binding activation",),
+    ),
+    ("pathway_process", "[3H]-paroxetine binding", ("[(3)H]paroxetine binding",)),
+    ("pathway_process", "EGR1 mRNA expression", ("Egr-1 mRNA expression",)),
+    ("pathway_process", "EGR2 mRNA expression", ("Egr2 mRNA expression", "Egr-2 mRNA expression")),
+    ("pathway_process", "EGR1", ("Egr1", "Egr-1")),
+    (
+        "pathway_process",
+        "β-arrestin-2 recruitment",
+        ("Β-arrestin2 recruitment", "Beta-arrestin2 recruitment", "Beta-arrestin 2 recruitment", "Β-arrestin-2 recruitment"),
+    ),
+    ("pathway_process", "p-Akt/Akt ratio phosphorylation", ("pAkt/Akt ratio phosphorylation",)),
+    ("pathway_process", "p-ERK phosphorylation", ("pERK phosphorylation",)),
+    (
+        "pathway_process",
+        "Spontaneous excitatory postsynaptic currents (sEPSCs) frequency",
+        ("Spontaneous excitatory post-synaptic currents (sEPSCs) frequency",),
+    ),
+    ("pathway_process", "BCL2 gene expression", ("Bcl2 gene expression", "Bcl-2 gene expression")),
+    ("pathway_process", "MiniGαq recruitment", ("MiniGalpha q recruitment", "MiniGq recruitment")),
+    (
+        "pathway_process",
+        "Gαq/11 protein phosphorylation",
+        ("Galphaq/11 protein phosphorylation", "Galpha q/11 protein phosphorylation"),
+    ),
+    (
+        "pathway_process",
+        "Immediate early gene expression (EGR1)",
+        ("Immediate early gene expression (Egr1)", "Immediate early gene expression (egr-1)"),
+    ),
+    (
+        "pathway_process",
+        "Phosphatidylinositol (PI) hydrolysis",
+        ("Phosphatidyl inositol (PI) hydrolysis",),
+    ),
+    (
+        "pathway_process",
+        "Pro-inflammatory cytokine levels",
+        ("Proinflammatory cytokine levels",),
+    ),
+    (
+        "pathway_process",
+        "Pro-inflammatory cytokine production",
+        ("Proinflammatory cytokine production",),
+    ),
+    ("pathway_process", "GSK3β phosphorylation", ("GSK3beta phosphorylation",)),
+    ("pathway_process", "Metaplasticity", ("Meta-plasticity",)),
+    (
+        "intervention_component",
+        "Set & setting",
+        ("Set and setting",),
+    ),
+    (
+        "intervention_component",
+        "Non-directive, supportive approach",
+        ("Nondirective, supportive approach",),
+    ),
+)
+CANONICAL_ENTITY_FORMAT_BY_KEY = {
+    (kind, compact_key(candidate)): canonical
+    for kind, canonical, aliases in CANONICAL_ENTITY_FORMAT_GROUPS
+    for candidate in (canonical, *aliases)
+}
+
+
+def canonical_entity_format_label(label: object, entity_kind: str) -> str:
+    text = normalize(label)
+    return CANONICAL_ENTITY_FORMAT_BY_KEY.get((entity_kind, compact_key(text)), text)
 
 
 def target_variants(label: str) -> list[str]:
@@ -4137,6 +4321,226 @@ def exact_node_vocabulary_matches(
     return matches
 
 
+def literal_node_vocabulary_hits_in_text(
+    value: object,
+    entity_kinds: Iterable[str],
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> list[tuple[str, str]]:
+    """Match only explicit vocabulary labels or aliases in evidence text.
+
+    The broader node-vocabulary matcher intentionally supports normalized key
+    variants for entity labels. Evidence-text projection is more conservative:
+    it must not turn a generated abbreviation or ontology normalization into a
+    brain region that the evidence did not actually name.
+    """
+
+    text_key = label_key(value)
+    if not text_key:
+        return []
+    allowed_kinds = set(entity_kinds)
+    candidates: dict[tuple[str, str], dict] = {}
+    for (entity_kind, _key), item in node_vocabulary.items():
+        if entity_kind not in allowed_kinds:
+            continue
+        label = normalize(item.get("label", ""))
+        if label:
+            candidates[(entity_kind, label)] = item
+
+    hits: dict[tuple[str, str], tuple[int, int]] = {}
+    for (entity_kind, label), item in candidates.items():
+        literals = [label, *item.get("aliases", [])]
+        for literal in literals:
+            literal_key = label_key(literal)
+            if not literal_key or not node_vocabulary_key_allowed_in_text(entity_kind, literal_key):
+                continue
+            match = re.search(rf"\b{re.escape(literal_key)}\b", text_key)
+            if not match:
+                continue
+            hit_key = (entity_kind, label)
+            score = (match.start(), -len(literal_key))
+            if hit_key not in hits or score < hits[hit_key]:
+                hits[hit_key] = score
+
+    parent_by_hit = {
+        (entity_kind, label): normalize(candidates[(entity_kind, label)].get("parent", ""))
+        for entity_kind, label in hits
+    }
+
+    def has_descendant_in_hits(entity_kind: str, label: str) -> bool:
+        for descendant_kind, descendant_label in hits:
+            if descendant_kind != entity_kind or descendant_label == label:
+                continue
+            parent = parent_by_hit.get((descendant_kind, descendant_label), "")
+            seen: set[str] = set()
+            while parent and parent not in seen:
+                if parent == label:
+                    return True
+                seen.add(parent)
+                parent = normalize(candidates.get((entity_kind, parent), {}).get("parent", ""))
+        return False
+
+    specific_hits = {
+        hit: score
+        for hit, score in hits.items()
+        if not has_descendant_in_hits(*hit)
+    }
+    return [hit for hit, _score in sorted(specific_hits.items(), key=lambda item: item[1])]
+
+
+META_ANALYSIS_BRAIN_PROJECTION_MAX_ENTITIES = 12
+META_ANALYSIS_TARGET_PROJECTION_MAX_ENTITIES = 12
+BRAIN_ENTITY_SPLIT_MAX_PARTS = 24
+
+
+def meta_analysis_brain_support_matches(
+    row: dict,
+    domain: str,
+    entity_kind: str,
+    node_vocabulary: dict[tuple[str, str], dict],
+) -> list[tuple[str, str]]:
+    source_type = normalize(row.get("source_type", "") or row.get("paper_type", "")).casefold()
+    if (
+        normalize(domain).casefold() != "brain_system"
+        or source_type not in {"meta_analysis", "network_meta_analysis"}
+    ):
+        return []
+    raw_label = entity_label_for(row, domain, entity_kind)
+    if exact_node_vocabulary_matches(raw_label, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary):
+        return []
+    evidence_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in ("support", "finding_summary", "supporting_quote")
+        if normalize(row.get(field, ""))
+    )
+    matches = literal_node_vocabulary_hits_in_text(
+        evidence_text,
+        BRAIN_SYSTEM_ENTITY_KINDS,
+        node_vocabulary,
+    )
+    return matches if 1 <= len(matches) <= META_ANALYSIS_BRAIN_PROJECTION_MAX_ENTITIES else []
+
+
+def registry_item_for_label(
+    label: str,
+    registry: dict[tuple[str, str], dict],
+) -> dict | None:
+    _canonical, item = canonicalize_registry_label("mechanistic_entity", label, registry)
+    return item
+
+
+def target_label_ancestors(
+    label: str,
+    registry: dict[tuple[str, str], dict],
+) -> set[str]:
+    ancestors: set[str] = set()
+    current = registry_item_for_label(label, registry)
+    while current:
+        parent = normalize(current.get("parent", ""))
+        if not parent or parent in ancestors:
+            break
+        ancestors.add(parent)
+        current = registry_item_for_label(parent, registry)
+    return ancestors
+
+
+def explicit_target_labels_in_text(
+    value: object,
+    registry: dict[tuple[str, str], dict],
+) -> list[tuple[str, str]]:
+    text = normalize(value)
+    text_key = label_key(text)
+    if not text_key:
+        return []
+
+    labels = set(registry_entity_labels_in_text(text, "mechanistic_entity", registry))
+    short_target_alias_re = re.compile(
+        r"^(?:d[1-5]|htr\d[a-z]?|5 ht\d[a-z]?|sert|dat|net|vmat\d?|oprm\d|oprd\d|oprk\d)$",
+        re.IGNORECASE,
+    )
+    seen_items: set[int] = set()
+    for (entity_type, _key), item in registry.items():
+        if entity_type != "mechanistic_entity" or id(item) in seen_items:
+            continue
+        seen_items.add(id(item))
+        candidates = [
+            normalize(item.get("label", "")),
+            *[normalize(alias) for alias in item.get("aliases", []) if normalize(alias)],
+        ]
+        if any(
+            short_target_alias_re.fullmatch(label_key(candidate))
+            and re.search(rf"\b{re.escape(label_key(candidate))}\b", text_key)
+            for candidate in candidates
+        ):
+            labels.add(normalize(item.get("label", "")))
+
+    typed: dict[str, str] = {}
+    for label in labels:
+        item = registry_item_for_label(label, registry)
+        kind = registry_kind_for_item("target", item, text, label)
+        if kind in {"target", "system_family"}:
+            typed[label] = kind
+
+    ancestor_labels = {
+        ancestor
+        for label in typed
+        for ancestor in target_label_ancestors(label, registry)
+        if ancestor in typed
+    }
+    retained = [(kind, label) for label, kind in typed.items() if label not in ancestor_labels]
+    return sorted(retained, key=lambda item: text_key.find(label_key(item[1])))
+
+
+def structured_target_entity_matches(
+    row: dict,
+) -> list[tuple[str, str]]:
+    raw = row.get("molecular_target_entities_json", "") or row.get("molecular_target_entities", [])
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return []
+    if not isinstance(raw, list):
+        return []
+    matches: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        kind = normalized_entity_kind(item.get("entity_type", ""))
+        label = normalize(item.get("label", ""))
+        match = (kind, label)
+        if kind not in {"target", "system_family"} or not label or match in seen:
+            continue
+        seen.add(match)
+        matches.append(match)
+    return matches
+
+
+def meta_analysis_target_support_matches(
+    row: dict,
+    domain: str,
+    entity_kind: str,
+    registry: dict[tuple[str, str], dict],
+) -> list[tuple[str, str]]:
+    source_type = normalize(row.get("source_type", "") or row.get("paper_type", "")).casefold()
+    if (
+        normalize(domain).casefold() != "molecular_target"
+        or entity_kind not in {"target", "system_family"}
+        or source_type not in {"meta_analysis", "network_meta_analysis"}
+    ):
+        return []
+    raw_label = entity_label_for(row, domain, entity_kind)
+    if match_registry_entity(raw_label, entity_kind, registry, row=row)["matched"]:
+        return []
+    evidence_text = " ".join(
+        normalize(row.get(field, ""))
+        for field in ("support", "finding_summary", "supporting_quote")
+        if normalize(row.get(field, ""))
+    )
+    matches = explicit_target_labels_in_text(evidence_text, registry)
+    return matches if 1 <= len(matches) <= META_ANALYSIS_TARGET_PROJECTION_MAX_ENTITIES else []
+
+
 def brain_entity_list_parts(value: object) -> list[str]:
     text = normalize(value)
     if not text or not BRAIN_LIST_SEPARATOR_RE.search(text):
@@ -4160,7 +4564,7 @@ def brain_entity_split_matches(
 
     parts = brain_entity_list_parts(raw)
     if parts:
-        if len(parts) > ENTITY_SPLIT_MAX_PARTS:
+        if len(parts) > BRAIN_ENTITY_SPLIT_MAX_PARTS:
             return []
         matches: list[tuple[str, str]] = []
         seen: set[tuple[str, str]] = set()
@@ -4171,20 +4575,20 @@ def brain_entity_split_matches(
                 if len(contained_matches) == 1 or BRAIN_RELATIONAL_LABEL_RE.search(part):
                     part_matches = contained_matches
             if not part_matches:
-                return []
+                continue
             for match in part_matches:
                 if match in seen:
                     continue
                 seen.add(match)
                 matches.append(match)
-        if len(matches) <= ENTITY_SPLIT_MAX_PARTS:
+        if len(matches) <= BRAIN_ENTITY_SPLIT_MAX_PARTS:
             return matches
         return []
 
     if not BRAIN_RELATIONAL_LABEL_RE.search(raw):
         return []
     matches = node_vocabulary_hits_in_text(raw, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
-    return matches if 1 < len(matches) <= ENTITY_SPLIT_MAX_PARTS else []
+    return matches if 1 < len(matches) <= BRAIN_ENTITY_SPLIT_MAX_PARTS else []
 
 
 def match_brain_vocabulary_entity(
@@ -5729,6 +6133,19 @@ def graphable_entity_match(
             "match_type": "",
             "notes": "entity label is empty",
         }
+    if domain == "molecular_target" and entity_kind == "compound" and is_review_row(row):
+        return {
+            "matched": False,
+            "label": "",
+            "kind": entity_kind,
+            "item": None,
+            "status": "review_compound_object_not_target",
+            "match_type": "",
+            "notes": (
+                "a review's compound object is retained in the evidence audit but cannot be "
+                "projected as a molecular target"
+            ),
+        }
     if entity_kind in MOLECULAR_EFFECT_ENTITY_KINDS and generic_molecular_effect_placeholder(raw):
         specific_raw = molecular_specific_anchor_label(row, entity_kind)
         if not specific_raw or label_key(specific_raw) == label_key(raw):
@@ -5746,6 +6163,13 @@ def graphable_entity_match(
         entity_kind == "cognitive_behavioral_construct"
         and normalize(row.get("endpoint_label_source", "")) == "controlled_behavioral_detail"
     ):
+        vocabulary_match = match_vocabulary_entity(raw, entity_kind, node_vocabulary)
+        if vocabulary_match["matched"]:
+            vocabulary_match["match_type"] = "controlled_behavioral_vocabulary"
+            vocabulary_match["notes"] = (
+                "controlled behavioral label matched the route-native cognitive vocabulary"
+            )
+            return vocabulary_match
         return {
             "matched": raw in CONTROLLED_BEHAVIORAL_DETAIL_NODE_LABELS,
             "label": raw if raw in CONTROLLED_BEHAVIORAL_DETAIL_NODE_LABELS else "",
@@ -6429,6 +6853,7 @@ SAFETY_SPECIFIC_ENDPOINT_PATTERNS = (
     (re.compile(r"\b(anxiety|panic)\b", re.IGNORECASE), "Anxiety/panic"),
     (re.compile(r"\b(dissociation|derealization|depersonalization)\b", re.IGNORECASE), "Dissociation"),
     (re.compile(r"\b(hallucinat\w*)\b", re.IGNORECASE), "Perceptual disturbances"),
+    (re.compile(r"\bpsychotomimetic\w*\b", re.IGNORECASE), "Psychotomimetic effects"),
     (re.compile(r"\b(psychosis|psychotic|delusion|paranoia)\b", re.IGNORECASE), "Psychosis risk"),
     (re.compile(r"\b(visual impairment|reduced vision|blurred vision)\b", re.IGNORECASE), "Visual impairment"),
     (re.compile(r"\b(confusion|disorientation|delirium|thought disorder|spaced out|disconnected)\b", re.IGNORECASE), "Confusion/cognitive disturbance"),
@@ -6458,6 +6883,7 @@ SAFETY_SPECIFIC_PARENT_LABELS = {
     "Anxiety/panic": "Anxiety/panic",
     "Dissociation": "Dissociation",
     "Perceptual disturbances": "Challenging subjective effects",
+    "Psychotomimetic effects": "Psychosis risk",
     "Psychosis risk": "Psychosis risk",
     "Visual impairment": "Adverse events",
     "Confusion/cognitive disturbance": "Sedation/cognitive or motor impairment",
@@ -7285,6 +7711,61 @@ def entity_expanded_rows(
         return [row]
 
     entity_kind = entity_kind_for(row, domain)
+    structured_target_matches = structured_target_entity_matches(row)
+    if domain == "molecular_target" and structured_target_matches:
+        source_label = entity_label_for(row, domain, entity_kind)
+        return [
+            {
+                **entity_split_row(row, target_kind, target_label, source_label),
+                "endpoint_label_source": "meta_analysis_structured_target_entity",
+                "normalization_boundary_reason": "explicit_target_entity_from_structured_result",
+            }
+            for target_kind, target_label in structured_target_matches
+        ]
+    support_target_matches = meta_analysis_target_support_matches(
+        row,
+        domain,
+        entity_kind,
+        registry,
+    )
+    if support_target_matches:
+        source_label = entity_label_for(row, domain, entity_kind)
+        projected_rows: list[dict] = []
+        for projected_kind, projected_label in support_target_matches:
+            projected = entity_split_row(
+                row,
+                projected_kind,
+                projected_label,
+                source_label,
+            )
+            projected["endpoint_label_source"] = "meta_analysis_support_target_entity_projection"
+            projected["normalization_boundary_reason"] = (
+                "explicit_target_entity_recovered_from_result_support"
+            )
+            projected_rows.append(projected)
+        return projected_rows
+    support_brain_matches = meta_analysis_brain_support_matches(
+        row,
+        domain,
+        entity_kind,
+        node_vocabulary,
+    )
+    if support_brain_matches:
+        source_label = entity_label_for(row, domain, entity_kind)
+        projected_rows: list[dict] = []
+        for projected_kind, projected_label in support_brain_matches:
+            projected = entity_split_row(
+                row,
+                projected_kind,
+                projected_label,
+                source_label,
+            )
+            projected["endpoint_label_source"] = "meta_analysis_support_brain_entity_projection"
+            projected["normalization_boundary_reason"] = (
+                "explicit_brain_entity_recovered_from_result_support"
+            )
+            projected_rows.append(projected)
+        return projected_rows
     if entity_kind not in SAFE_ENTITY_SPLIT_KINDS:
         return [row]
 
@@ -7334,7 +7815,7 @@ def entity_expanded_rows(
             split_rows: list[dict] = []
             for split_kind, split_label in brain_matches:
                 split_rows.append(entity_split_row(row, split_kind, split_label, raw_entity_label))
-            return split_rows if len(split_rows) > 1 else [row]
+            return split_rows
 
     initial_match = graphable_entity_match(row, domain, entity_kind, raw_entity_label, registry, node_vocabulary)
     if initial_match["matched"] or initial_match["status"] not in ENTITY_SPLIT_STATUS_CANDIDATES:
@@ -8010,6 +8491,20 @@ REVIEW_DESIGN_CATEGORY_BY_PAPER_TYPE = {
     "narrative_review": "narrative_or_literature_review",
     "literature_review": "narrative_or_literature_review",
 }
+REVIEW_SOURCE_TYPES = {
+    "review",
+    "systematic_review",
+    "narrative_review",
+    "scoping_review",
+    "umbrella_review",
+    "literature_review",
+}
+REVIEW_SAFETY_ENTITY_ROLES = {"safety_event", "safety_or_adverse_event"}
+
+
+def is_review_row(row: dict) -> bool:
+    source_type = normalize(row.get("source_type", "") or row.get("paper_type", "")).casefold()
+    return source_type in REVIEW_SOURCE_TYPES
 
 
 def review_paper_frame(row: dict) -> dict:
@@ -8210,6 +8705,38 @@ def apply_review_context_metadata(row: dict) -> dict:
     return row
 
 
+def apply_review_safety_role_boundary(row: dict) -> dict:
+    if not is_review_row(row):
+        return row
+    entity_role = normalize(row.get("entity_role", "")).casefold()
+    if entity_role not in REVIEW_SAFETY_ENTITY_ROLES:
+        return row
+
+    out = dict(row)
+    raw_safety_label = first_endpoint_value(
+        out,
+        (
+            "safety_event_or_measure",
+            "safety_event_or_risk",
+            "graph_entity_label",
+            "raw_entity_label",
+            "entity_label",
+        ),
+    )
+    if raw_safety_label:
+        out["safety_event_or_measure"] = raw_safety_label
+    parent_label = safety_endpoint_label(out)
+    specific_label = safety_specific_endpoint_label(out, parent_label) if parent_label else ""
+    out["domain"] = "safety_tolerability"
+    out["domain_route"] = "safety_tolerability"
+    out["dataset"] = "safety_tolerability"
+    out["kg_entity_kind_override"] = "safety_adverse_event"
+    out["graph_entity_label"] = specific_label or parent_label or raw_safety_label
+    out["endpoint_label_source"] = "review_explicit_safety_role"
+    out["normalization_boundary_reason"] = "explicit_review_safety_role_routed_to_safety"
+    return out
+
+
 META_ANALYSIS_POPULATION_ENTITY_RE = re.compile(
     r"\b(adults?|patients?|participants?|people|persons?|individuals?|subjects?|volunteers?|"
     r"population|men|women|children|adolescents?|surgical patients?|cancer patients?)\b",
@@ -8274,6 +8801,13 @@ def apply_meta_analysis_context_metadata(row: dict) -> dict:
 
 def apply_psychosis_family_boundary(row: dict, domain: str) -> tuple[dict, str]:
     """Separate transient psychotomimetic effects from actual psychosis risk."""
+
+    if (
+        is_review_row(row)
+        and normalize(row.get("entity_role", "")).casefold() in REVIEW_SAFETY_ENTITY_ROLES
+        and normalize(domain).casefold() == "safety_tolerability"
+    ):
+        return row, domain
 
     anchor = " ".join(
         normalize(row.get(field, ""))
@@ -8358,6 +8892,7 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
     out = dict(row)
     out = apply_review_context_metadata(out)
     out = apply_meta_analysis_context_metadata(out)
+    out = apply_review_safety_role_boundary(out)
     coverage_focus = normalize(out.get("coverage_focus", ""))
     if coverage_focus and not normalize(out.get("coverage_focus_normalized", "")):
         out["coverage_focus_normalized"] = REVIEW_COVERAGE_FOCUS_LABELS.get(coverage_focus, "")
@@ -8969,33 +9504,24 @@ def has_only_nonblocking_provenance_warnings(row: dict) -> bool:
     return bool(warnings) and all(NONBLOCKING_PROVENANCE_WARNING_RE.fullmatch(warning) for warning in warnings)
 
 
-def quote_only_warning_is_graph_admissible(row: dict) -> bool:
+def provenance_only_warning_is_graph_admissible(row: dict) -> bool:
     if not has_only_nonblocking_provenance_warnings(row):
         return False
     source_type = normalize(row.get("source_type", "") or row.get("paper_type", "")).casefold()
-    if source_type not in {"meta_analysis", "network_meta_analysis"}:
-        return False
-    if normalized_entity_kind(row.get("kg_entity_kind_override", "")) != "condition_indication":
-        return False
-    has_effect = bool(normalize(row.get("effect_size", "") or row.get("estimate_value", "")))
-    has_uncertainty = bool(
-        normalize(row.get("confidence_interval", "") or row.get("p_value", ""))
-        or (
-            normalize(row.get("meta_analysis_interval_lower", ""))
-            and normalize(row.get("meta_analysis_interval_upper", ""))
-        )
-    )
-    return has_effect and has_uncertainty
+    return source_type in {"meta_analysis", "network_meta_analysis"}
 
 
 def graph_admission_decision(row: dict) -> tuple[str, str]:
     explicit = normalize(row.get("graph_admission_status", "")).casefold()
     if explicit == "paper_detail":
         return "paper_detail", normalize(row.get("graph_admission_reason", "")) or "source_marked_paper_detail"
-    if normalize(row.get("endpoint_label_source", "")) == "controlled_behavioral_detail":
+    if (
+        normalize(row.get("endpoint_label_source", "")) == "controlled_behavioral_detail"
+        and normalize(row.get("entity_match_type", "")) != "controlled_behavioral_vocabulary"
+    ):
         return "paper_detail", "controlled_behavioral_measure_detail_only"
-    quote_warning_admissible = quote_only_warning_is_graph_admissible(row)
-    if as_bool(row.get("needs_human_review", False)) and not quote_warning_admissible:
+    provenance_warning_admissible = provenance_only_warning_is_graph_admissible(row)
+    if as_bool(row.get("needs_human_review", False)) and not provenance_warning_admissible:
         return "paper_detail", "extraction_marked_for_human_review"
     nontherapeutic_context_reason = nontherapeutic_clinical_context_reason(row)
     if nontherapeutic_context_reason:
@@ -9011,7 +9537,7 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
     if item_type == "primary_item" and background_only:
         return "paper_detail", "primary_claim_supported_only_by_background_location"
 
-    if quote_warning_admissible:
+    if provenance_warning_admissible:
         return "main_graph", "semantically_complete_with_unverified_quote"
     return "main_graph", "semantically_complete"
 
@@ -9288,6 +9814,8 @@ def build_tables(
     node_vocabulary_path: Path = DEFAULT_NODE_VOCABULARY_PATH,
     funding_assertions_path: Path | None = None,
     funding_attempts_path: Path | None = None,
+    open_science_features_path: Path | None = None,
+    open_science_assertions_path: Path | None = None,
     doi_alias_registry_path: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
     out_dir: Path = DEFAULT_OUT_DIR,
     write_duckdb: bool = True,
@@ -9520,6 +10048,7 @@ def build_tables(
                 raw_entity_label,
                 registry_item,
             )
+            entity_label = canonical_entity_format_label(entity_label, entity_kind)
             if entity_kind == "symptom_problem":
                 entity_label = symptom_problem_display_label(entity_label)
             display_label_note = ""
@@ -9820,6 +10349,7 @@ def build_tables(
 
     proposition_summary = finalize_proposition_groups(findings, evidence_edges, finding_id_field)
     papers_df = dataframe(list(papers.values()))
+    doi_aliases = load_doi_aliases(doi_alias_registry_path)
     funding_assertions = pd.DataFrame()
     funding_attempts = pd.DataFrame()
     funding_report = {
@@ -9831,7 +10361,6 @@ def build_tables(
         funding_assertions = pd.read_parquet(funding_assertions_path)
         if funding_attempts_path is not None and funding_attempts_path.is_file():
             funding_attempts = pd.read_parquet(funding_attempts_path)
-        doi_aliases = load_doi_aliases(doi_alias_registry_path)
         papers_df, projection_report = materialize_funding(
             papers_df,
             funding_assertions,
@@ -9863,9 +10392,69 @@ def build_tables(
             **projection_report,
             "kg_funding_assertion_rows": len(funding_assertions),
         }
+    open_science_assertions = pd.DataFrame()
+    open_science_report = {
+        "status": "not_available",
+        "features_path": (
+            str(open_science_features_path) if open_science_features_path else ""
+        ),
+        "assertions_path": (
+            str(open_science_assertions_path)
+            if open_science_assertions_path
+            else ""
+        ),
+    }
+    if (
+        open_science_features_path is not None
+        and open_science_features_path.is_file()
+    ):
+        open_science_features = pd.read_parquet(open_science_features_path)
+        papers_df, projection_report = materialize_open_science(
+            papers_df,
+            open_science_features,
+            doi_aliases,
+        )
+        if (
+            open_science_assertions_path is not None
+            and open_science_assertions_path.is_file()
+        ):
+            open_science_assertions = pd.read_parquet(
+                open_science_assertions_path
+            )
+        open_science_assertions = subset_open_science_assertions(
+            open_science_assertions,
+            papers_df,
+            doi_aliases,
+        )
+        open_science_report = {
+            "status": "ok",
+            "features_path": str(open_science_features_path.resolve()),
+            "features_sha256": source_sha256(open_science_features_path),
+            "assertions_path": (
+                str(open_science_assertions_path.resolve())
+                if open_science_assertions_path is not None
+                and open_science_assertions_path.is_file()
+                else ""
+            ),
+            "assertions_sha256": (
+                source_sha256(open_science_assertions_path)
+                if open_science_assertions_path is not None
+                and open_science_assertions_path.is_file()
+                else ""
+            ),
+            "doi_alias_registry_path": (
+                str(doi_alias_registry_path.resolve())
+                if doi_alias_registry_path is not None
+                and doi_alias_registry_path.is_file()
+                else ""
+            ),
+            **projection_report,
+            "kg_open_science_assertion_rows": len(open_science_assertions),
+        }
     tables = {
         "papers": papers_df,
         "paper_funding": funding_assertions,
+        "paper_open_science_assertions": open_science_assertions,
         "entities": dataframe(list(entities.values())),
         finding_table_name: dataframe(findings),
         "evidence_edges": dataframe(evidence_edges),
@@ -9920,6 +10509,7 @@ def build_tables(
         "molecular_subtopic_coverage": molecular_subtopic_coverage,
         "proposition_summary": proposition_summary,
         "funding_metadata": funding_report,
+        "open_science_metadata": open_science_report,
         "graph_admission_counts": dict(Counter(normalize(row.get("graph_admission_status", "")) for row in findings)),
         "graph_subject_kind_counts": dict(Counter(normalize(row.get("graph_subject_kind", "")) for row in findings)),
         "duckdb": duckdb_status,
@@ -10012,6 +10602,18 @@ def parse_args() -> argparse.Namespace:
         help="Provider-attempt ledger used to distinguish no reported funding from not enriched.",
     )
     parser.add_argument(
+        "--open-science-features",
+        type=Path,
+        default=DEFAULT_OPEN_SCIENCE_FEATURES_PATH,
+        help="DOI-keyed open-science feature summaries to project onto paper rows.",
+    )
+    parser.add_argument(
+        "--open-science-assertions",
+        type=Path,
+        default=DEFAULT_OPEN_SCIENCE_ASSERTIONS_PATH,
+        help="Normalized open-science assertions retained with the KG release.",
+    )
+    parser.add_argument(
         "--doi-alias-registry",
         type=Path,
         default=DEFAULT_DOI_ALIAS_REGISTRY,
@@ -10048,6 +10650,8 @@ def main() -> None:
         registry_path=args.registry,
         funding_assertions_path=args.funding_assertions,
         funding_attempts_path=args.funding_attempts,
+        open_science_features_path=args.open_science_features,
+        open_science_assertions_path=args.open_science_assertions,
         doi_alias_registry_path=args.doi_alias_registry,
         out_dir=out_dir,
         write_duckdb=not args.skip_duckdb,

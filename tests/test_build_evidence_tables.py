@@ -12,6 +12,7 @@ from pipeline.kg.build_evidence_tables import (
     DEFAULT_ROUTED_KG_RUN_ROOT,
     MOLECULAR_SUBTOPIC_RULES_BY_PARENT,
     build_tables,
+    canonical_entity_format_label,
     canonicalize_registry_label,
     clinical_endpoint_rows,
     condition_expanded_rows,
@@ -426,6 +427,95 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         )
         self.assertTrue(dying_anxiety["matched"])
         self.assertEqual(dying_anxiety["label"], "Distress associated with life-threatening disease")
+
+    def test_review_safety_roles_are_routed_to_safety_before_psychosis_boundary(self) -> None:
+        row = normalize_claim_metadata(
+            {
+                "source_type": "review",
+                "paper_type": "systematic_review",
+                "entity_role": "safety_or_adverse_event",
+                "domain": "cognitive_behavioral",
+                "graph_entity_label": "Psychotomimetic effects",
+                "raw_entity_label": "Psychotomimetic effects",
+                "support": "The review summarized transient psychotomimetic adverse effects.",
+            },
+            "cognitive_behavioral",
+        )
+
+        self.assertEqual(row["domain"], "safety_tolerability")
+        self.assertEqual(row["kg_entity_kind_override"], "safety_adverse_event")
+        self.assertEqual(row["graph_entity_label"], "Psychotomimetic effects")
+        self.assertEqual(row["endpoint_label_source"], "review_explicit_safety_role")
+
+    def test_review_compounds_cannot_be_projected_as_molecular_targets(self) -> None:
+        match = graphable_entity_match(
+            row={"source_type": "review", "entity_role": "compound"},
+            domain="molecular_target",
+            entity_kind="compound",
+            raw_label="Ketamine",
+            registry=registry_lookup(DEFAULT_REGISTRY_PATH),
+            node_vocabulary={},
+        )
+
+        self.assertFalse(match["matched"])
+        self.assertEqual(match["status"], "review_compound_object_not_target")
+
+    def test_controlled_behavioral_vocabulary_is_graph_admissible(self) -> None:
+        row = normalize_claim_metadata(
+            {
+                "domain": "cognitive_behavioral",
+                "graph_entity_label": "Anxiety-like behavior",
+                "construct_or_behavior": "Anxiety-like behavior",
+                "task_or_measure": "Elevated plus maze",
+                "kg_entity_kind_override": "cognitive_behavioral_construct",
+            },
+            "cognitive_behavioral",
+        )
+        row["endpoint_label_source"] = "controlled_behavioral_detail"
+        match = graphable_entity_match(
+            row=row,
+            domain="cognitive_behavioral",
+            entity_kind="cognitive_behavioral_construct",
+            raw_label=row["graph_entity_label"],
+            registry=registry_lookup(DEFAULT_REGISTRY_PATH),
+            node_vocabulary=node_vocabulary_lookup(),
+        )
+        row["entity_match_type"] = match["match_type"]
+
+        self.assertTrue(match["matched"])
+        self.assertEqual(match["label"], "Anxiety-like behavior")
+        self.assertEqual(match["match_type"], "controlled_behavioral_vocabulary")
+        self.assertEqual(graph_admission_decision(row), ("main_graph", "semantically_complete"))
+
+    def test_subjective_high_dose_wording_does_not_imply_euphoria(self) -> None:
+        row = normalize_claim_metadata(
+            {
+                "domain": "subjective_experience",
+                "graph_entity_label": "Overall subjective effects",
+                "support": "High doses were associated with a high risk of adverse events.",
+            },
+            "subjective_experience",
+        )
+
+        self.assertNotEqual(row.get("subjective_experience_graph_label"), "Euphoria")
+        self.assertNotEqual(row.get("graph_entity_label"), "Euphoria")
+
+    def test_biochemical_typography_variants_share_one_canonical_label(self) -> None:
+        self.assertEqual(
+            canonical_entity_format_label("TNF-α levels", "biomarker_readout"),
+            "TNF-α levels",
+        )
+        self.assertEqual(
+            canonical_entity_format_label("TNF-alpha levels", "biomarker_readout"),
+            "TNF-α levels",
+        )
+        self.assertEqual(
+            canonical_entity_format_label(
+                "[35S]GTPgammaS binding activation",
+                "biomarker_readout",
+            ),
+            "[35S]GTPγS binding activation",
+        )
 
     def test_review_research_topic_uses_controlled_research_landscape_parent(self) -> None:
         match = graphable_entity_match(
@@ -3803,7 +3893,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             )
             self.assertNotIn("10.1000/generic-neurotransmitter-unspecified", by_doi)
             self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_kind"], "biomarker_readout")
-            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_label"], "TNF-alpha levels")
+            self.assertEqual(by_doi["10.1000/explicit-inflammation"]["entity_label"], "TNF-α levels")
             self.assertEqual(
                 finding_by_doi["10.1000/explicit-inflammation"]["molecular_effect_label"],
                 "Neuroinflammation & immune signaling",
@@ -3862,7 +3952,10 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertEqual(perineuronal_entity["graph_parent_label"], "Neuroplasticity")
             self.assertIn("Neuroplasticity", set(entities["label"]))
             self.assertNotIn("10.1000/unsafe-split-targets", by_doi)
-            self.assertNotIn("10.1000/unsafe-brain-network-list", by_doi)
+            self.assertEqual(
+                labels_by_doi["10.1000/unsafe-brain-network-list"],
+                {"Default mode network"},
+            )
             self.assertEqual(labels_by_doi["10.1000/composite-family"], {"5-HT2A", "5-HT2C"})
             self.assertEqual(by_doi["10.1000/nicotinic-family"]["entity_kind"], "system_family")
             self.assertEqual(by_doi["10.1000/nicotinic-family"]["entity_label"], "Nicotinic acetylcholine receptor family")

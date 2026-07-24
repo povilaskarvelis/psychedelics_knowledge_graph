@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import json
+
+import pandas as pd
 import pytest
 
 from pipeline.kg.assemble_combined_release import (
     apply_candidate_metadata,
     assemble_layers,
+    candidate_metadata,
+    explicit_metadata_clears,
     reject_non_v2_meta_analysis_evidence,
     remove_legacy_v1_secondary_outputs,
 )
@@ -145,7 +150,51 @@ def test_candidate_metadata_replaces_stale_and_fills_blank_fields():
         "papers_updated_from_candidate_metadata": 1,
         "row_fields_updated_from_candidate_metadata": 2,
         "blank_row_fields_filled_from_candidate_metadata": 1,
+        "row_fields_cleared_from_candidate_metadata": 0,
     }
+
+
+def test_explicit_candidate_metadata_clear_removes_stale_evidence_field(tmp_path):
+    candidates = tmp_path / "candidate_papers.parquet"
+    overrides = tmp_path / "paper_metadata_overrides.json"
+    pd.DataFrame(
+        [
+            {
+                "doi": "10.1/chimera",
+                "study_title": "Canonical title",
+                "openalex_id": "",
+            }
+        ]
+    ).to_parquet(candidates, index=False)
+    overrides.write_text(
+        json.dumps(
+            {
+                "records": [
+                    {
+                        "doi": "10.1/chimera",
+                        "clear_fields": ["openalex_id"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    clears = explicit_metadata_clears(overrides, {})
+    metadata = candidate_metadata(candidates, {}, explicit_clears=clears)
+    rows, report = apply_candidate_metadata(
+        [
+            {
+                **evidence("10.1/chimera", "a"),
+                "study_title": "Canonical title",
+                "openalex_id": "W-corrupt",
+            }
+        ],
+        metadata,
+    )
+
+    assert rows[0]["openalex_id"] == ""
+    assert report["row_fields_cleared_from_candidate_metadata"] == 1
 
 
 def test_legacy_v1_secondary_outputs_are_removed_with_audit_counts():

@@ -21,6 +21,8 @@ from pipeline.extract.route_extraction_profiles import is_legacy_v1_secondary_pr
 from pipeline.ingest.metadata_utils import normalize_doi
 
 
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_METADATA_OVERRIDES = ROOT / "data" / "curated" / "paper_metadata_overrides.json"
 CANONICAL_PAPER_METADATA_FIELDS = (
     "pmid",
     "pmcid",
@@ -157,11 +159,46 @@ def eligible_dois(candidate_table: Path, field: str, aliases: dict[str, str]) ->
     }
 
 
-def candidate_metadata(candidate_table: Path, aliases: dict[str, str]) -> dict[str, dict]:
+def explicit_metadata_clears(
+    path: Path | None,
+    aliases: dict[str, str],
+) -> dict[str, set[str]]:
+    """Load reviewed field removals that must propagate beyond the candidate ledger."""
+
+    if path is None or not path.is_file():
+        return {}
+    payload = read_json(path)
+    records = payload.get("records", []) if isinstance(payload, dict) else []
+    clears: dict[str, set[str]] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        doi = normalize_doi(record.get("doi", "")).lower()
+        clear_fields = record.get("clear_fields", [])
+        if not doi or not isinstance(clear_fields, list):
+            continue
+        canonical = resolve_doi(doi, aliases)
+        kept = {
+            clean(field)
+            for field in clear_fields
+            if clean(field) in CANONICAL_PAPER_METADATA_FIELDS
+        }
+        if kept:
+            clears.setdefault(canonical, set()).update(kept)
+    return clears
+
+
+def candidate_metadata(
+    candidate_table: Path,
+    aliases: dict[str, str],
+    *,
+    explicit_clears: dict[str, set[str]] | None = None,
+) -> dict[str, dict]:
     """Load one authoritative metadata record per canonical candidate DOI."""
 
     frame = pd.read_parquet(candidate_table)
     available = [field for field in CANONICAL_PAPER_METADATA_FIELDS if field in frame.columns]
+    explicit_clears = explicit_clears or {}
     by_doi: dict[str, tuple[bool, dict]] = {}
     for record in frame[["doi", *available]].to_dict(orient="records"):
         original = normalize_doi(record.pop("doi", "")).lower()
@@ -175,10 +212,16 @@ def candidate_metadata(candidate_table: Path, aliases: dict[str, str]) -> dict[s
         cleaned: dict[str, object] = {}
         for field, value in record.items():
             if isinstance(value, float) and pd.isna(value):
+                if field in explicit_clears.get(canonical, set()):
+                    cleaned[field] = ""
                 continue
             if value is None:
+                if field in explicit_clears.get(canonical, set()):
+                    cleaned[field] = ""
                 continue
             if isinstance(value, str) and not value.strip():
+                if field in explicit_clears.get(canonical, set()):
+                    cleaned[field] = ""
                 continue
             cleaned[field] = value
         by_doi[canonical] = (is_canonical_record, cleaned)
@@ -195,6 +238,7 @@ def apply_candidate_metadata(
     papers_updated: set[str] = set()
     fields_updated = 0
     blank_fields_filled = 0
+    fields_cleared = 0
     for row in rows:
         updated = dict(row)
         doi = evidence_doi(updated)
@@ -205,6 +249,8 @@ def apply_candidate_metadata(
                 continue
             if not clean(previous):
                 blank_fields_filled += 1
+            elif not clean(value):
+                fields_cleared += 1
             updated[field] = value
             fields_updated += 1
             papers_updated.add(doi)
@@ -213,6 +259,7 @@ def apply_candidate_metadata(
         "papers_updated_from_candidate_metadata": len(papers_updated),
         "row_fields_updated_from_candidate_metadata": fields_updated,
         "blank_row_fields_filled_from_candidate_metadata": blank_fields_filled,
+        "row_fields_cleared_from_candidate_metadata": fields_cleared,
     }
 
 
@@ -522,6 +569,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-outputs", type=Path, required=True)
     parser.add_argument("--output-overlay", action="append", type=parse_layer, default=[])
     parser.add_argument("--candidate-table", type=Path, required=True)
+    parser.add_argument(
+        "--metadata-overrides",
+        type=Path,
+        default=DEFAULT_METADATA_OVERRIDES,
+        help=(
+            "Curated metadata override registry. Explicit clear_fields entries are "
+            "propagated from the canonical candidate ledger into evidence rows."
+        ),
+    )
     parser.add_argument("--eligibility-field", default="retained_for_extraction_candidate")
     parser.add_argument("--doi-alias-registry", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
@@ -535,7 +591,12 @@ def main() -> int:
         args.evidence_replacement_cohort, aliases
     )
     eligible = eligible_dois(args.candidate_table, args.eligibility_field, aliases)
-    metadata_by_doi = candidate_metadata(args.candidate_table, aliases)
+    metadata_clears = explicit_metadata_clears(args.metadata_overrides, aliases)
+    metadata_by_doi = candidate_metadata(
+        args.candidate_table,
+        aliases,
+        explicit_clears=metadata_clears,
+    )
     evidence, evidence_report = assemble_layers(
         read_json_list(args.base_evidence),
         [(label, read_json_list(path)) for label, path in args.evidence_overlay],
@@ -577,6 +638,8 @@ def main() -> int:
             "candidate_table": str(args.candidate_table.resolve()),
             "field": args.eligibility_field,
             "eligible_canonical_dois": len(eligible),
+            "metadata_overrides": str(args.metadata_overrides.resolve()),
+            "metadata_override_clear_dois": len(metadata_clears),
         },
         "doi_alias_registry": str(args.doi_alias_registry.resolve()),
         "evidence": evidence_report,

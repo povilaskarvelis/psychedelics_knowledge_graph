@@ -170,6 +170,63 @@ def test_scoped_identity_repair_can_clear_an_unverified_contaminated_field() -> 
     assert report["field_clears"] == {"abstract": 1}
 
 
+def test_curated_override_can_clear_identity_fields_without_editing_provider_cache() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        candidates = root / "candidate_papers.parquet"
+        metadata = root / "paper_metadata_enrichment.parquet"
+        overrides = root / "overrides.json"
+        pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/chimera",
+                    "study_title": "Wrong provider title",
+                    "study_year": "1946",
+                    "publication_date": "1946-06-01",
+                    "pmid": "999",
+                    "openalex_id": "W999",
+                }
+            ]
+        ).to_parquet(candidates, index=False)
+        write_table(metadata, [{"doi": "10.1000/chimera"}])
+        overrides.write_text(
+            json.dumps(
+                {
+                    "records": [
+                        {
+                            "doi": "10.1000/chimera",
+                            "fields": {
+                                "study_title": "Verified title",
+                                "study_year": "2003",
+                                "publication_date": "2003-12-01",
+                            },
+                            "clear_fields": ["pmid", "openalex_id"],
+                        }
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        report = materialize_candidate_metadata(
+            candidate_table=candidates,
+            metadata_table=metadata,
+            run_id="test_curated_clear",
+            fields=("study_title", "study_year", "publication_date", "pmid", "openalex_id"),
+            scoped_dois={"10.1000/chimera"},
+            curated_overrides_path=overrides,
+        )
+        out = pd.read_parquet(candidates).set_index("doi")
+
+    assert out.loc["10.1000/chimera", "study_title"] == "Verified title"
+    assert out.loc["10.1000/chimera", "study_year"] == "2003"
+    assert out.loc["10.1000/chimera", "publication_date"] == "2003-12-01"
+    assert out.loc["10.1000/chimera", "pmid"] == ""
+    assert out.loc["10.1000/chimera", "openalex_id"] == ""
+    assert report["curated_override_cleared_cells"] == 2
+    assert report["year_date_consistency_checked_rows"] == 1
+
+
 def test_materialization_rejects_metadata_rows_missing_from_candidate_ledger() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         root = Path(tmpdir)

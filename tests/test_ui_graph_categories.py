@@ -38,6 +38,14 @@ def test_real_world_use_contains_exposure_contexts_without_a_separate_graph_view
     assert 'label: "Use contexts"' not in source
 
 
+def test_molecular_effects_category_is_kind_based_across_source_domains() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    molecular = source.split('key: "pathway_readout"', 1)[1].split("},", 1)[0]
+
+    assert 'kinds: ["pathway_process", "biomarker_readout"]' in molecular
+    assert "domains:" not in molecular
+
+
 def test_category_matching_reuses_precompiled_sets() -> None:
     source = APP_JS.read_text(encoding="utf-8")
 
@@ -256,6 +264,16 @@ def test_full_graph_does_not_promote_detail_only_findings() -> None:
 
     assert 'admission === "main_graph"' in admission
     assert "data.filter(isMainGraphAdmitted)" in graph_build
+
+
+def test_single_study_node_suppression_applies_only_to_primary_evidence() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    eligibility = source.split("function findingsWithEligibleGraphNodes", 1)[1].split(
+        "function graphRelationshipKeyForClaim", 1
+    )[0]
+
+    assert "if (isSecondaryEvidenceView()) return data;" in eligibility
+    assert 'evidenceView === "meta_analyses"' not in eligibility
 
 
 def test_graph_selection_details_match_the_admitted_graph_projection() -> None:

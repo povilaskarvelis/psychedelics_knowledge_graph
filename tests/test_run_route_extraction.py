@@ -29,6 +29,7 @@ from pipeline.extract.run_route_extraction import (
     reject_corrupt_output_text,
     reject_inconsistent_primary_categories,
     reject_inconsistent_recommendation_tones,
+    reject_source_identity_mismatch_warnings,
     resolve_output_paths,
     selected_tasks,
     text_depth_for_task,
@@ -321,6 +322,28 @@ class RouteExtractionRunnerTest(unittest.TestCase):
         self.assertEqual(violations[0]["reason"], "combining_mark_run")
         with self.assertRaisesRegex(OutputQualityError, r"pathological Unicode repetition"):
             reject_corrupt_output_text(result)
+
+    def test_output_quality_gate_rejects_report_identity_mismatch_warning(self) -> None:
+        result = {
+            "warnings": [
+                "abstract_only_limited_detail",
+                "The DOI and title provided in metadata appear to be for a 1917 BMJ "
+                "article, but the abstract text describes a modern ketamine study.",
+            ]
+        }
+
+        with self.assertRaisesRegex(OutputQualityError, r"source-identity mismatch"):
+            reject_source_identity_mismatch_warnings(result)
+
+    def test_output_quality_gate_allows_ignored_unrelated_extra_abstract(self) -> None:
+        result = {
+            "warnings": [
+                "The supplied text contains two abstracts; C002 is unrelated and was "
+                "ignored in favor of C001, which matches the DOI and title."
+            ]
+        }
+
+        reject_source_identity_mismatch_warnings(result)
 
     def test_output_quality_gate_rejects_unanchored_recommends_against(self) -> None:
         result = {

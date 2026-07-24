@@ -206,7 +206,6 @@ const ENTITY_CATEGORY_OPTIONS = [
   {
     key: "pathway_readout",
     kinds: ["pathway_process", "biomarker_readout"],
-    domains: ["molecular_pathway_readout", "pharmacokinetics_exposure"],
     label: "Molecular effects",
     singular: "Molecular effect",
     lowerPlural: "molecular effects",
@@ -2114,8 +2113,27 @@ function sortEntriesByValue(entries, valueKey = "studies", preferredLabels = [])
   });
 }
 
-function trialRegistrationFacetLabel(claim) {
-  return meaningfulText(claim.trial_registry_ids) ? "Registered trial" : "Registration not reported";
+const OPEN_SCIENCE_FACETS = [
+  { field: "has_registered_trial", label: "Registered trial", tone: "chip-tone-blue" },
+  { field: "has_open_data", label: "Open data", tone: "chip-tone-blue" },
+  { field: "has_shared_code", label: "Shared code", tone: "chip-tone-blue" },
+  { field: "has_preregistered", label: "Preregistered", tone: "chip-tone-blue" },
+];
+
+function metadataBoolean(value) {
+  if (value === true || value === 1) return true;
+  return ["true", "1", "yes"].includes(normalizeValue(value));
+}
+
+function openScienceFacetValues(claim) {
+  return OPEN_SCIENCE_FACETS.filter((facet) => metadataBoolean(claim[facet.field])).map(
+    (facet) => facet.label
+  );
+}
+
+function openScienceChipTone(entry) {
+  const label = normalizeValue(entry?.label || entry?.value);
+  return OPEN_SCIENCE_FACETS.find((facet) => normalizeValue(facet.label) === label)?.tone || "";
 }
 
 const POPULATION_MODEL_CATEGORY_LABELS = {
@@ -5280,8 +5298,12 @@ function renderFacetChipChart(entries, title, filterField, options = {}) {
       const claims = Number(entry.claims ?? entry.count ?? 0) || 0;
       const studies = Number(entry.studies ?? claims) || 0;
       const filterValue = entry.value || entry.label;
+      const entryClass =
+        typeof options.classForEntry === "function"
+          ? meaningfulText(options.classForEntry(entry))
+          : "";
       return `
-        <button class="scale-chip facet-chip" type="button"
+        <button class="scale-chip facet-chip${entryClass ? ` ${escapeHtml(entryClass)}` : ""}" type="button"
           data-filter-field="${escapeHtml(filterField)}"
           data-filter-value="${escapeHtml(filterValue)}"
           data-filter-label="${escapeHtml(entry.label)}"
@@ -5393,29 +5415,17 @@ function renderFacetCompositionChart(entries, title, filterField, options = {}) 
   );
 }
 
-function hasRegisteredTrial(items) {
-  return items.some((claim) => trialRegistrationFacetLabel(claim) === "Registered trial");
-}
-
 function renderMetadataFacetCharts(items) {
-  const profile = currentDetailPanelProfile();
-  const shouldShowTrialRegistration = evidenceView === "primary" && profile.trialRegistration && hasRegisteredTrial(items);
-  const trialEntries = shouldShowTrialRegistration
-    ? summarizeFacetEvidence(items, trialRegistrationFacetLabel).filter(
-        (entry) => normalizeValue(entry.label) === "registered trial"
-      )
-    : [];
-  const trialRegistrationChart =
-    trialEntries.length
-      ? renderFacetChipChart(trialEntries, "Trial registration", "trial_registration_facet", {
-          order: ["Registered trial"],
-          extraClass: "chip-tone-pink",
-          emptyText: "No trial-registration metadata in this selection.",
-        })
-      : "";
+  const openScienceEntries = summarizeMultiFacetEvidence(items, openScienceFacetValues);
+  const openScienceChart = openScienceEntries.length
+    ? renderFacetChipChart(openScienceEntries, "Open science", "open_science_facet", {
+        order: OPEN_SCIENCE_FACETS.map((facet) => facet.label),
+        classForEntry: openScienceChipTone,
+      })
+    : "";
 
   return `
-    ${trialRegistrationChart}
+    ${openScienceChart}
     ${renderAuthorRoleChart(items)}
     ${renderJournalChart(items)}
     ${renderFundingCharts(items)}
@@ -5429,7 +5439,7 @@ function renderFundingCharts(items) {
         filterField: "funding_funder_facet",
         maxEntries: 10,
         expandKey: "funders",
-        extraClass: "bar-tone-stone funding-funders-card",
+        extraClass: "bar-tone-gray funding-funders-card",
       })
     : "";
   return leadingFunders;
@@ -5489,7 +5499,7 @@ function renderJournalChart(items) {
     emptyText: "No journal metadata in this selection.",
     expandKey: "journals",
     maxEntries: 10,
-    extraClass: "bar-tone-gray",
+    extraClass: "bar-tone-stone",
   });
 }
 
@@ -6449,7 +6459,7 @@ function fieldValueDetailTitle(field, value) {
   if (field === "last_author") return `Last author: ${value}`;
   if (field === "study_journal") return `Journal: ${value}`;
   if (field === "specific_pathway_readout") return `Specific finding: ${value}`;
-  if (field === "trial_registration_facet") return `Trial registration: ${value}`;
+  if (field === "open_science_facet") return `Open science: ${value}`;
   if (field === "population_model_facet") return `Population: ${value}`;
   if (field === "assay_family_facet") return `Assay family: ${value}`;
   if (field === "brain_measure_facet") return `Measure: ${value}`;
@@ -6477,7 +6487,7 @@ function fieldValueDetailTitle(field, value) {
 
 function fieldValueForClaim(claim, field) {
   if (field === "funding_funder_facet") return fundingFunderFacetValues(claim);
-  if (field === "trial_registration_facet") return trialRegistrationFacetLabel(claim);
+  if (field === "open_science_facet") return openScienceFacetValues(claim);
   if (field === "population_model_facet") return populationModelFacetLabel(claim);
   if (field === "assay_family_facet") return mechanisticAssayFamilyFacetLabel(claim);
   if (field === "brain_measure_facet") return brainMeasureFacetLabels(claim);
@@ -6971,7 +6981,7 @@ function renderSelectedDetailFromData(data, allAccessData = data) {
 }
 
 function findingsWithEligibleGraphNodes(data) {
-  if (evidenceView === "meta_analyses") return data;
+  if (isSecondaryEvidenceView()) return data;
 
   const subjectStudies = new Map();
   const entityStudies = new Map();

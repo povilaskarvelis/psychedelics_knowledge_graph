@@ -87,6 +87,21 @@ RECOMMENDS_AGAINST_MARKER_RE = re.compile(
     r"not\s+recommend(?:ed)?|prohibit(?:ed|ion)?|never)\b",
     re.IGNORECASE,
 )
+SOURCE_IDENTITY_MISMATCH_WARNING_RE = re.compile(
+    r"(?:"
+    r"(?:doi|metadata|study title|title(?: provided| in (?:the )?metadata)?)"
+    r".{0,180}?(?:does not match|mismatch(?:ed)?|appears (?:to be )?mismatched)"
+    r".{0,180}?(?:abstract|content|text)"
+    r"|"
+    r"(?:doi|study title|title).{0,180}?appear(?:s)? to be for"
+    r".{0,180}?but (?:the )?(?:abstract|content|text)"
+    r"|"
+    r"(?:abstract|content|text)"
+    r".{0,180}?(?:does not match|mismatch(?:ed)?|appears (?:to be )?mismatched)"
+    r".{0,180}?(?:doi|metadata|study title|title)"
+    r")",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 class OutputQualityError(ValueError):
@@ -635,6 +650,26 @@ def reject_corrupt_output_text(result: dict) -> None:
         )
 
 
+def reject_source_identity_mismatch_warnings(result: dict) -> None:
+    """Fail closed when the model says the supplied report identity is incoherent."""
+
+    warnings = result.get("warnings", result.get("extraction_warnings", []))
+    if isinstance(warnings, str):
+        warning_values = [warnings]
+    elif isinstance(warnings, list):
+        warning_values = [normalize(value) for value in warnings if normalize(value)]
+    else:
+        warning_values = []
+    violations = [
+        warning for warning in warning_values if SOURCE_IDENTITY_MISMATCH_WARNING_RE.search(warning)
+    ]
+    if violations:
+        raise OutputQualityError(
+            "Model output reports a source-identity mismatch between DOI/title metadata "
+            "and supplied text: " + " | ".join(violations[:3])
+        )
+
+
 def reject_inconsistent_recommendation_tones(result: dict) -> None:
     """Reject explicit negative labels that contradict positive statements.
 
@@ -965,6 +1000,7 @@ def run_tasks(args: argparse.Namespace) -> dict:
             parsed, parse_method = parse_json_response(text)
             result = inject_route_identity_fields(parsed, task, profile)
             reject_corrupt_output_text(result)
+            reject_source_identity_mismatch_warnings(result)
             reject_inconsistent_recommendation_tones(result)
             reject_inconsistent_primary_categories(result)
             schema_errors = schema_error_messages(validator, result)

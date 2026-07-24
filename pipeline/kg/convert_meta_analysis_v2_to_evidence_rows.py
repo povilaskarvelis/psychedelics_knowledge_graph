@@ -282,6 +282,30 @@ def entity_for_result(item: dict, domain: str, overview: dict) -> tuple[str, str
         explicit_context = normalize(item.get("intervention_or_exposure", ""))
         if explicit_context and INTERVENTION_CONTEXT_FACTOR_RE.search(explicit_context):
             return explicit_context, "intervention_component", "result_context_factor"
+    if domain == "brain_system":
+        brain_entities = [
+            (normalize(entity.get("entity_type", "")), normalize(entity.get("label", "")))
+            for entity in item.get("brain_system_entities", [])
+            if isinstance(entity, dict)
+            and normalize(entity.get("entity_type", ""))
+            and normalize(entity.get("label", ""))
+        ]
+        brain_entities = list(dict.fromkeys(brain_entities))
+        if brain_entities:
+            labels = "; ".join(label for _kind, label in brain_entities)
+            return labels, brain_entities[0][0], "result_brain_system_entities"
+    if domain == "molecular_target":
+        target_entities = [
+            (normalize(entity.get("entity_type", "")), normalize(entity.get("label", "")))
+            for entity in item.get("molecular_target_entities", [])
+            if isinstance(entity, dict)
+            and normalize(entity.get("entity_type", "")) in {"target", "system_family"}
+            and normalize(entity.get("label", ""))
+        ]
+        target_entities = list(dict.fromkeys(target_entities))
+        if target_entities:
+            labels = "; ".join(label for _kind, label in target_entities)
+            return labels, target_entities[0][0], "result_molecular_target_entities"
     if outcome:
         if (
             domain == "clinical_outcome"
@@ -648,12 +672,45 @@ def evidence_row(
         row["adverse_events"] = entity
     elif domain == "molecular_target":
         row["target"] = entity
+        target_entities = [
+            {
+                "entity_type": normalize(value.get("entity_type", "")),
+                "label": normalize(value.get("label", "")),
+            }
+            for value in item.get("molecular_target_entities", [])
+            if isinstance(value, dict)
+            and normalize(value.get("entity_type", "")) in {"target", "system_family"}
+            and normalize(value.get("label", ""))
+        ]
+        if target_entities:
+            row["molecular_target_entities_json"] = json.dumps(
+                target_entities,
+                ensure_ascii=False,
+                sort_keys=True,
+            )
     elif domain == "molecular_pathway_readout":
         row["specific_readout_or_marker"] = entity
     elif domain == "brain_system":
-        row["readout_or_measure"] = entity
-        if entity_kind == "brain_measure":
-            row["brain_measure"] = entity
+        brain_measure = normalize(item.get("outcome_or_entity", "")) or entity
+        row["readout_or_measure"] = brain_measure
+        if BRAIN_MEASURE_RE.search(brain_measure):
+            row["brain_measure"] = brain_measure
+        brain_entities = [
+            {
+                "entity_type": normalize(value.get("entity_type", "")),
+                "label": normalize(value.get("label", "")),
+            }
+            for value in item.get("brain_system_entities", [])
+            if isinstance(value, dict)
+            and normalize(value.get("entity_type", ""))
+            and normalize(value.get("label", ""))
+        ]
+        if brain_entities:
+            row["brain_system_entities_json"] = json.dumps(
+                brain_entities,
+                ensure_ascii=False,
+                sort_keys=True,
+            )
     elif domain == "cognitive_behavioral":
         row["graph_construct_label"] = entity
     elif domain == "subjective_experience":

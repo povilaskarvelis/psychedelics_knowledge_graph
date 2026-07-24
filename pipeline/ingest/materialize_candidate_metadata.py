@@ -153,26 +153,37 @@ def normalized_unique_frame(
     return out
 
 
-def read_curated_overrides(path: Path | None) -> dict[str, dict[str, str]]:
+def read_curated_overrides(path: Path | None) -> dict[str, dict[str, object]]:
     if path is None or not path.exists():
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
     records = payload.get("records", []) if isinstance(payload, dict) else []
-    out: dict[str, dict[str, str]] = {}
+    out: dict[str, dict[str, object]] = {}
     for record in records:
         if not isinstance(record, dict):
             continue
         doi = normalize_doi(record.get("doi", ""))
         fields = record.get("fields", {})
-        if not doi or not isinstance(fields, dict):
+        clear_fields = record.get("clear_fields", [])
+        if not doi or not isinstance(fields, dict) or not isinstance(clear_fields, list):
             continue
         kept = {
             field: clean(value)
             for field, value in fields.items()
             if field in MATERIALIZED_METADATA_FIELDS and clean(value)
         }
-        if kept:
-            out[doi] = kept
+        cleared = {
+            clean(field)
+            for field in clear_fields
+            if clean(field) in MATERIALIZED_METADATA_FIELDS
+        }
+        overlap = sorted(set(kept) & cleared)
+        if overlap:
+            raise ValueError(
+                f"Curated metadata override for {doi} both sets and clears fields: {overlap}"
+            )
+        if kept or cleared:
+            out[doi] = {"fields": kept, "clear_fields": cleared}
     return out
 
 
@@ -288,11 +299,14 @@ def materialize_candidate_metadata(
     )
     curated_scope = set(curated_overrides) if not scope else set(curated_overrides) & scope
     curated_cells = 0
+    curated_cleared_cells = 0
     curated_rows: set[int] = set()
     for index, row in candidates.iterrows():
         if row["_doi_key"] not in curated_scope:
             continue
-        fields_for_doi = curated_overrides.get(row["_doi_key"], {})
+        override = curated_overrides.get(row["_doi_key"], {})
+        fields_for_doi = override.get("fields", {})
+        clear_fields_for_doi = override.get("clear_fields", set())
         for field, value in fields_for_doi.items():
             if field not in requested_fields:
                 continue
@@ -306,8 +320,24 @@ def materialize_candidate_metadata(
             changed_rows.add(int(index))
             if field in YEAR_FIELDS:
                 year_date_changed_rows.add(int(index))
+        for field in clear_fields_for_doi:
+            if field not in requested_fields:
+                continue
+            if field not in candidates.columns:
+                candidates[field] = ""
+            if not normalized_value(candidates.at[index, field]):
+                continue
+            candidates.at[index, field] = ""
+            curated_cells += 1
+            curated_cleared_cells += 1
+            curated_rows.add(int(index))
+            changed_rows.add(int(index))
+            if field in YEAR_FIELDS:
+                year_date_changed_rows.add(int(index))
 
-    validate_year_date_consistency(candidates, year_date_changed_rows)
+    # Validate each reviewed identity repair as a complete bibliographic row,
+    # even when only a title or provider identifier changed.
+    validate_year_date_consistency(candidates, year_date_changed_rows | curated_rows)
 
     timestamp = now_utc()
     for column in MATERIALIZATION_COLUMNS:
@@ -341,7 +371,8 @@ def materialize_candidate_metadata(
         "cleared_cells": cleared_cells,
         "curated_override_rows": len(curated_rows),
         "curated_override_cells": curated_cells,
-        "year_date_consistency_checked_rows": len(year_date_changed_rows),
+        "curated_override_cleared_cells": curated_cleared_cells,
+        "year_date_consistency_checked_rows": len(year_date_changed_rows | curated_rows),
         "field_updates": field_updates,
         "field_fills": field_fills,
         "field_overwrites": field_overwrites,

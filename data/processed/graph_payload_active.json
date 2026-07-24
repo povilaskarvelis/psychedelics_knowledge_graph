@@ -1,24 +1,24 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
-  "release_id": "full_corpus_label_fix_20260723:215d5eb1694241c7bc83f77ad3f4feea",
-  "public_release_id": "full_corpus_label_fix_20260723:215d5eb1694241c7bc83f77ad3f4feea",
-  "run_id": "full_corpus_label_fix_20260723",
+  "release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
+  "public_release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
+  "run_id": "full_corpus_normalization_patch_qa_20260724",
   "active_graph_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/graph_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/graph_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/graph_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_bootstrap_reviews.json"
   },
   "active_dashboard_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/dashboard_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/dashboard_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/dashboard_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/dashboard_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/dashboard_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/dashboard_bootstrap_reviews.json"
   },
   "active_detail_bootstraps": {
-    "primary": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/detail_bootstrap_primary.json",
-    "meta_analyses": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/detail_bootstrap_meta_analyses.json",
-    "reviews": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/detail_bootstrap_reviews.json"
+    "primary": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary.json",
+    "meta_analyses": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses.json",
+    "reviews": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews.json"
   },
-  "active_manifest": "data/processed/graph_payload_runs/full_corpus_label_fix_20260723/graph_payload_manifest.json",
+  "active_manifest": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_payload_manifest.json",
   "evidence_source": "kg_tables",
-  "kg_dir": "data/processed/kg_routed_runs/full_corpus_label_fix_20260723"
+  "kg_dir": "data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724"
 }

@@ -68,6 +68,112 @@ def test_brain_measure_is_normalized_to_a_stable_measure_family(tmp_path: Path) 
     assert set(edges["entity_label"]) == {"Functional connectivity"}
 
 
+def test_meta_analysis_brain_measure_projects_explicit_supported_networks(tmp_path: Path) -> None:
+    edges, audit = build_rows(
+        tmp_path,
+        [
+            meta_row(
+                study_doi="10.1038/s41398-024-03187-1",
+                domain="brain_system",
+                compound="Classic psychedelics",
+                graph_entity_label="Functional connectivity (FC) between Yeo networks",
+                readout_or_measure="Functional connectivity (FC) between Yeo networks",
+                brain_measure="Functional connectivity (FC) between Yeo networks",
+                kg_entity_kind_override="brain_measure",
+                supporting_quote=(
+                    "Within-network connectivity significantly decreased in the visual network, "
+                    "ventral attention network (VAN), and default mode network (DMN)."
+                ),
+                needs_human_review=True,
+                extraction_warnings="nonverbatim_supporting_text:R1:1",
+            )
+        ],
+    )
+
+    assert audit.empty
+    assert set(edges["entity_kind"]) == {"brain_network"}
+    assert set(edges["entity_label"]) == {
+        "Default mode network",
+        "Salience network",
+        "Visual network",
+    }
+    assert set(edges["graph_admission_status"]) == {"main_graph"}
+    assert set(edges["graph_admission_reason"]) == {
+        "semantically_complete_with_unverified_quote"
+    }
+
+
+def test_meta_analysis_target_measure_projects_explicit_supported_targets(tmp_path: Path) -> None:
+    edges, audit = build_rows(
+        tmp_path,
+        [
+            meta_row(
+                study_doi="10.1038/s41398-024-03187-1",
+                domain="molecular_target",
+                compound="Classic psychedelics",
+                graph_entity_label="Binding selectivity (Ki ratio)",
+                target="Binding selectivity (Ki ratio)",
+                kg_entity_kind_override="target",
+                support=(
+                    "Binding profiles included 5-HT2A, 5-HT2C, D2, and 5-HT1A receptors."
+                ),
+            ),
+            meta_row(
+                study_doi="10.1016/j.csbj.2025.12.023",
+                source_item_id="R2",
+                domain="molecular_target",
+                compound="Ketamine",
+                graph_entity_label="Network Degree Centrality",
+                target="Network Degree Centrality",
+                kg_entity_kind_override="target",
+                support=(
+                    "Network analysis identified OPRM1 (opioid receptor mu 1) as the explicit "
+                    "molecular target."
+                ),
+            ),
+        ],
+    )
+
+    assert audit.empty
+    labels_by_doi = edges.groupby("study_doi")["entity_label"].apply(set).to_dict()
+    assert labels_by_doi["10.1038/s41398-024-03187-1"] == {
+        "5-HT1A",
+        "5-HT2A",
+        "5-HT2C",
+        "Dopamine D2 receptor (DRD2)",
+    }
+    assert labels_by_doi["10.1016/j.csbj.2025.12.023"] == {
+        "mu opioid receptor (OPRM1)"
+    }
+
+
+def test_meta_analysis_brain_measure_recovers_regions_from_support_when_measure_is_generic(
+    tmp_path: Path,
+) -> None:
+    edges, audit = build_rows(
+        tmp_path,
+        [
+            meta_row(
+                domain="brain_system",
+                graph_entity_label="Neural activation overlap (ALE conjunction)",
+                brain_measure="Neural activation overlap (ALE conjunction)",
+                kg_entity_kind_override="brain_measure",
+                support=(
+                    "The conjunction identified convergent activation in the anterior cingulate "
+                    "cortex and supramarginal gyrus."
+                ),
+            )
+        ],
+    )
+
+    assert audit.empty
+    assert set(edges["entity_label"]) == {
+        "Anterior cingulate cortex",
+        "Supramarginal gyrus",
+    }
+    assert set(edges["entity_kind"]) == {"brain_region"}
+
+
 def test_broad_meta_analysis_endpoints_are_retained_as_searchable_detail(tmp_path: Path) -> None:
     edges, audit = build_rows(
         tmp_path,
@@ -341,7 +447,7 @@ def test_substantive_human_review_warning_still_blocks_graph_admission(tmp_path:
     assert condition["graph_admission_reason"] == "extraction_marked_for_human_review"
 
 
-def test_nonstatistical_quote_only_warning_remains_paper_detail(tmp_path: Path) -> None:
+def test_nonstatistical_provenance_only_warning_remains_graphable(tmp_path: Path) -> None:
     edges, audit = build_rows(
         tmp_path,
         [
@@ -358,5 +464,35 @@ def test_nonstatistical_quote_only_warning_remains_paper_detail(tmp_path: Path) 
 
     assert audit.empty
     condition = edges.loc[edges["entity_kind"] == "condition_indication"].iloc[0]
-    assert condition["graph_admission_status"] == "paper_detail"
-    assert condition["graph_admission_reason"] == "extraction_marked_for_human_review"
+    assert condition["graph_admission_status"] == "main_graph"
+    assert condition["graph_admission_reason"] == "semantically_complete_with_unverified_quote"
+
+
+def test_provenance_only_warning_is_nonblocking_across_meta_analysis_domains(tmp_path: Path) -> None:
+    edges, audit = build_rows(
+        tmp_path,
+        [
+            meta_row(
+                domain="subjective_experience",
+                graph_entity_label="Perceptual alterations",
+                kg_entity_kind_override="subjective_experience_construct",
+                needs_human_review=True,
+                extraction_warnings="nonverbatim_supporting_text:R1:1",
+            ),
+                meta_row(
+                    source_item_id="R2",
+                    domain="molecular_pathway_readout",
+                    graph_entity_label="Inositol phosphate (IP) formation at 5-HT2A",
+                    specific_readout_or_marker="Inositol phosphate (IP) formation at 5-HT2A",
+                    kg_entity_kind_override="pathway_process",
+                    needs_human_review=True,
+                    extraction_warnings="nonverbatim_supporting_text:R2:1",
+                ),
+        ],
+    )
+
+    assert audit.empty
+    assert set(edges["graph_admission_status"]) == {"main_graph"}
+    assert set(edges["graph_admission_reason"]) == {
+        "semantically_complete_with_unverified_quote"
+    }

@@ -1,6 +1,6 @@
 {
-  "schema_version": "paper_metadata_overrides_v1",
-  "policy": "Curated replacements for provider metadata that was verified to belong to a different publication. Overrides are applied after DOI alias reconciliation and retain their evidence basis in corpus provenance.",
+  "schema_version": "paper_metadata_overrides_v2",
+  "policy": "Curated replacements and explicit field removals for provider metadata verified to belong to a different publication. Overrides are applied after DOI alias reconciliation and retain their evidence basis in corpus provenance.",
   "records": [
     {
       "doi": "10.1001/jama.215.6.980",
@@ -62,6 +62,79 @@
         "study_year": "2023",
         "openalex_id": "W4309412689"
       }
+    },
+    {
+      "doi": "10.5055/jom.2008.0023",
+      "evidence_basis": "PubMed PMID 18717513 identifies the Journal of Opioid Management case report as May-June 2008. OpenAlex W95260028 matches the DOI, title, authors, PMID, and article text; W18717513 is a corrupted duplicate for an unrelated 1921 Gandhi letter.",
+      "fields": {
+        "study_title": "Ketamine for acute and subacute pain in opioid-tolerant patients",
+        "study_year": "2008",
+        "publication_date": "2008-05-01",
+        "authors": "Shoshana Chazan; Margaret Ekstein; Nissim Marouani; Avi A. Weinbroum",
+        "study_journal": "Journal of Opioid Management",
+        "openalex_id": "W95260028"
+      }
+    },
+    {
+      "doi": "10.1136/bmj.1.2935.429-a",
+      "evidence_basis": "Crossref and the BMJ DOI record identify a one-page 1917 news item. OpenAlex W4243502335 has attached the abstract of 10.1124/jpet.116.233627, a 2016 ketamine paper, to this unrelated historical DOI.",
+      "fields": {
+        "study_title": "OUR BELGIAN COLLEAGUES AT HOME AND ABROAD",
+        "study_year": "1917",
+        "publication_date": "1917-03-31",
+        "study_journal": "BMJ"
+      },
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.2427/6151",
+      "evidence_basis": "The authors' publication record identifies this DOI as the December 2003 Italian Journal of Public Health article. OpenAlex W20984771 is a corrupted merge with an unrelated 1946 PubMed record for penicillin.",
+      "fields": {
+        "study_title": "I diversi comportamenti dei consumatori di sostanze stupefacenti: indagine campionaria nella provincia di Teramo",
+        "study_year": "2003",
+        "publication_date": "2003-12-01",
+        "study_journal": "Italian Journal of Public Health",
+        "publication_type": "Journal Article",
+        "language": "it"
+      },
+      "clear_fields": [
+        "pmid",
+        "openalex_id"
+      ]
+    },
+    {
+      "doi": "10.64719/pb.4347",
+      "evidence_basis": "PubMed PMID 27738380 and PMC5044468 identify the article as Psychopharmacology Bulletin 46(2), published 15 August 2016. Crossref and OpenAlex currently expose the DOI-registration/backfill date in 2025 rather than the article date.",
+      "fields": {
+        "study_year": "2016",
+        "publication_date": "2016-08-15"
+      }
+    },
+    {
+      "doi": "10.1080/02791072.1968.10524522",
+      "evidence_basis": "The Taylor & Francis DOI record and OpenAlex W2328960148 identify the DOI publication as Journal of Psychedelic Drugs volume 1 issue 2, April 1968. The prior 1962 date and PMID referred to an earlier publication of the same text rather than this DOI object.",
+      "fields": {
+        "study_year": "1968",
+        "publication_date": "1968-04-01",
+        "study_journal": "Journal of Psychedelic Drugs",
+        "openalex_id": "W2328960148"
+      },
+      "clear_fields": [
+        "pmid"
+      ]
+    },
+    {
+      "doi": "10.1038/s41398-026-04018-1",
+      "evidence_basis": "The Nature article and PubMed PMID 42034628 identify the article as published 25 April 2026. OpenAlex W3028755640 incorrectly merges the 2026 article DOI and PMID with a 2020 conference-abstract record.",
+      "fields": {
+        "study_year": "2026",
+        "publication_date": "2026-04-25"
+      },
+      "clear_fields": [
+        "openalex_id"
+      ]
     }
   ]
 }

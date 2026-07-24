@@ -745,7 +745,14 @@
       },
       {
         "label": "Salience network",
-        "aliases": ["SN", "SAL", "salience network (SAL)", "ventral salience network"],
+        "aliases": [
+          "SN",
+          "SAL",
+          "salience network (SAL)",
+          "ventral salience network",
+          "ventral attention network",
+          "salience/ventral attention network"
+        ],
         "ids": {},
         "status": "seed_alias"
       },

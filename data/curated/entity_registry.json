@@ -494,14 +494,18 @@
       "aliases": ["HTR1A", "5-HT1AR", "5-HT1ARs", "h5-HT1A", "h5-HT1AR", "5-HT1A serotonin receptor", "serotonin 1A receptor", "serotonin 1A receptors", "Serotonin 5-HT1A receptor", "5-HT1A receptors"],
       "ids": {"gene_symbol": "HTR1A", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT1 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT1B",
-      "aliases": ["HTR1B", "5-HT1B receptor", "5-HT1B receptors", "5-HT1B serotonin receptor", "serotonin 1B receptor", "serotonin 1B receptors"],
+      "aliases": ["HTR1B", "5-HT1BR", "5-HT1B receptor", "5-HT1B receptors", "5-HT1B serotonin receptor", "serotonin 1B receptor", "serotonin 1B receptors"],
       "ids": {"gene_symbol": "HTR1B", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT1 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT receptor family",
@@ -509,6 +513,15 @@
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "broad_target_family"
+    },
+    {
+      "label": "5-HT1 receptor family",
+      "aliases": ["5-HT1 receptor", "5-HT1 receptors", "serotonin 1 receptor", "serotonin 1 receptors", "5-HT1R"],
+      "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
+      "organism": "mixed or unspecified",
+      "status": "broad_target_family",
+      "parent": "5-HT receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT2 receptor family",
@@ -546,7 +559,7 @@
     },
     {
       "label": "5-HT2C",
-      "aliases": ["HTR2C", "5-HT1C receptor", "5HT1C receptor", "5-HT1C serotonin receptor", "5-HT2C serotonin receptor", "serotonin 2C receptor", "serotonin 2C receptors", "Serotonin 5-HT2C receptor", "5-HT2C receptor", "5-HT2C receptors", "h5-HT(2C) receptor", "h5-HT2C receptor", "5-HT2C-INI receptor", "5-HT2C-VGV receptor", "5-HT2CR", "5-HT2CRs"],
+      "aliases": ["HTR2C", "5-HT1C receptor", "5HT1C receptor", "5-HT1C serotonin receptor", "5-HT2C serotonin receptor", "serotonin 2C receptor", "serotonin 2C receptors", "Serotonin 5-HT2C receptor", "5-HT2C receptor", "5-HT2C receptors", "h5-HT(2C) receptor", "h5-HT2C", "h5-HT2C receptor", "5-HT2C-INI receptor", "5-HT2C-VGV receptor", "5-HT2CR", "5-HT2CRs"],
       "ids": {"gene_symbol": "HTR2C", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup",
@@ -558,14 +571,18 @@
       "aliases": ["HTR1D", "5-HT1D receptor", "5-HT1D receptors", "serotonin 1D receptor", "serotonin 1D receptors"],
       "ids": {"gene_symbol": "HTR1D", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT1 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT1E",
       "aliases": ["HTR1E", "5-HT1E receptor", "5-HT1E receptors", "serotonin 1E receptor", "serotonin 1E receptors"],
       "ids": {"gene_symbol": "HTR1E", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "5-HT1 receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "5-HT4",
@@ -957,7 +974,7 @@
     },
     {
       "label": "NET (SLC6A2)",
-      "aliases": ["NET", "norepinephrine transporter", "norepinephrine reuptake transporter", "Noradrenaline transporter", "noradrenaline transporter", "noradrenaline reuptake transporter", "Sodium-dependent noradrenaline transporter", "SLC6A2"],
+      "aliases": ["NET", "hNET", "norepinephrine transporter", "norepinephrine reuptake transporter", "Noradrenaline transporter", "noradrenaline transporter", "noradrenaline reuptake transporter", "Sodium-dependent noradrenaline transporter", "SLC6A2"],
       "ids": {"gene_symbol": "SLC6A2", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
       "status": "needs_external_id_lookup"
@@ -1005,7 +1022,7 @@
     },
     {
       "label": "NMDA receptor",
-      "aliases": ["NMDAR", "NMDARs", "NMDA receptors", "NMDA glutamate receptor", "NMDA glutamate receptors", "glutamatergic NMDA receptor", "phencyclidine (PCP) binding sites", "PCP binding sites", "N-methyl-D-aspartate receptor", "N-methyl-D-aspartate receptors", "N-methyl-D-aspartate (NMDA) receptor", "N-methyl-D-aspartate (NMDA) receptors", "N-methyl-D-aspartate glutamate receptor", "N-methyl-D-aspartic acid receptor"],
+      "aliases": ["NMDAR", "NMDARs", "NMDA receptors", "NMDA glutamate receptor", "NMDA glutamate receptors", "glutamatergic NMDA receptor", "phencyclidine (PCP) binding sites", "PCP binding sites", "N-methyl-D-aspartate receptor", "N-methyl-D-aspartate receptors", "N-methyl-D-aspartate (NMDA) receptor", "N-methyl-D-aspartate (NMDA) receptors", "N-methyl-D-aspartate glutamate receptor", "N-methyl-D-aspartic acid receptor", "N-methyl-aspartate (NMA) receptor", "NMA receptor"],
       "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "mixed or unspecified",
       "status": "complex_target_needs_subunit_mapping"
@@ -1078,7 +1095,9 @@
       "aliases": ["MOR", "mu opioid receptor", "mu-opioid receptor", "µ-opioid receptor", "μ-opioid receptor", "OPRM1"],
       "ids": {"gene_symbol": "OPRM1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "Opioid receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "SERT (SLC6A4)",
@@ -1194,14 +1213,18 @@
       "aliases": ["KOR", "KOP", "KOPr", "hKOR", "hKOPR", "rKOR", "kappa opioid receptor", "kappa-opioid receptor", "kappa opioid receptors", "kappa-opioid receptors", "kappa opiate receptor", "kappa-opiate receptor", "kappa 1-opioid receptor", "kappa-1 opioid receptor", "κ-opioid receptor", "OPRK1"],
       "ids": {"gene_symbol": "OPRK1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "Opioid receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "delta opioid receptor (OPRD1)",
       "aliases": ["DOR", "delta opioid receptor", "delta-opioid receptor", "delta opioid receptors", "OPRD1"],
       "ids": {"gene_symbol": "OPRD1", "uniprot_id": "", "chembl_target_id": ""},
       "organism": "Homo sapiens",
-      "status": "needs_external_id_lookup"
+      "status": "needs_external_id_lookup",
+      "parent": "Opioid receptor family",
+      "parent_kind": "system_family"
     },
     {
       "label": "CB1 receptor (CNR1)",
@@ -1499,13 +1522,19 @@
     {"label": "CaV2.2 (CACNA1B)", "aliases": ["Cav2.2", "CaV2.2", "N-type voltage-gated calcium channel", "CACNA1B"], "ids": {"gene_symbol": "CACNA1B", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "Vasopressin V1A receptor (AVPR1A)", "aliases": ["vasopressin 1A receptor", "vasopressin V1A receptor", "V1A receptor", "AVPR1A"], "ids": {"gene_symbol": "AVPR1A", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "Protein kinase C family", "aliases": ["Protein Kinase C", "PKC", "protein kinase C family"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "pathway_node_needs_subtype_mapping"},
-    {"label": "mGluR4 (GRM4)", "aliases": ["GRM4", "metabotropic glutamate receptor 4", "mGluR4"], "ids": {"gene_symbol": "GRM4", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "mGluR4 (GRM4)", "aliases": ["GRM4", "metabotropic glutamate receptor 4", "mGluR4", "mGlu4 receptor", "mGlu 4 receptor"], "ids": {"gene_symbol": "GRM4", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "SIRT2", "aliases": ["sirtuin 2"], "ids": {"gene_symbol": "SIRT2", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "FAAH", "aliases": ["fatty acid amide hydrolase", "fatty acid amide hydrolase (FAAH)"], "ids": {"gene_symbol": "FAAH", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "SULT1A3", "aliases": ["sulfotransferase 1A3"], "ids": {"gene_symbol": "SULT1A3", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "Extraneuronal monoamine transporter", "aliases": ["hEMT", "HEMT", "extraneuronal monoamine transporter", "organic cation transporter 3", "OCT3", "SLC22A3"], "ids": {"gene_symbol": "SLC22A3", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
     {"label": "BK channel (KCNMA1)", "aliases": ["BK channel", "large-conductance calcium-activated potassium channel", "KCNMA1"], "ids": {"gene_symbol": "KCNMA1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
-    {"label": "KCNQ channel family", "aliases": ["KCNQ channel", "M-current channels"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "family_target_needs_subtype_mapping"}
+    {"label": "KCNQ channel family", "aliases": ["KCNQ channel", "M-current channels"], "ids": {"gene_symbol": "", "uniprot_id": "", "chembl_target_id": ""}, "organism": "mixed or unspecified", "status": "family_target_needs_subtype_mapping"},
+    {"label": "HCN1", "aliases": ["HCN1 channel", "hyperpolarization-activated cyclic nucleotide-gated channel 1"], "ids": {"gene_symbol": "HCN1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup", "parent": "HCN channel family", "parent_kind": "system_family"},
+    {"label": "TRPV1", "aliases": ["TRPV1 receptor", "transient receptor potential vanilloid 1", "vanilloid receptor 1"], "ids": {"gene_symbol": "TRPV1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "TRPA1", "aliases": ["TRPA1 receptor", "transient receptor potential ankyrin 1"], "ids": {"gene_symbol": "TRPA1", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "TREK-1 (KCNK2)", "aliases": ["TREK-1", "TREK1", "KCNK2", "two-pore-domain potassium channel TREK-1"], "ids": {"gene_symbol": "KCNK2", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "P2X7 receptor (P2RX7)", "aliases": ["P2X7", "P2X7 receptor", "P2RX7", "purinergic receptor P2X7"], "ids": {"gene_symbol": "P2RX7", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"},
+    {"label": "Acetylcholinesterase (ACHE)", "aliases": ["acetylcholinesterase", "AChE", "ACHE"], "ids": {"gene_symbol": "ACHE", "uniprot_id": "", "chembl_target_id": ""}, "organism": "Homo sapiens", "status": "needs_external_id_lookup"}
   ],
   "disorders": [
     {"label": "Alzheimer's disease", "aliases": ["Alzheimer disease", "AD dementia"], "ids": {"mondo_id": "", "efo_id": "", "mesh_id": ""}, "status": "needs_external_id_lookup"},

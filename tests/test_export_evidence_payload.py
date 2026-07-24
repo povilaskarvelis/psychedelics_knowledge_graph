@@ -178,6 +178,62 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(row["funding_funder_count"], "2")
         self.assertEqual(row["funding_award_count"], "1")
 
+    def test_canonical_open_science_metadata_reaches_browser_detail_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kg_dir = Path(tmpdir)
+            pd.DataFrame(
+                [
+                    {
+                        "finding_id": "finding-open-science",
+                        "paper_id": "paper-open-science",
+                        "source_name": "routed_extractions",
+                        "study_doi": "10.1000/open-science",
+                        "study_year": 2024,
+                        "domain": "clinical_outcome",
+                        "compound": "Psilocybin",
+                        "entity_label": "Depression",
+                        "raw_row_json": "{}",
+                    }
+                ]
+            ).to_parquet(kg_dir / "findings.parquet", index=False)
+            pd.DataFrame(
+                [
+                    {
+                        "paper_id": "paper-open-science",
+                        "study_doi": "10.1000/open-science",
+                        "study_year": 2024,
+                        "has_registered_trial": True,
+                        "registered_trial_ids": "NCT01234567",
+                        "registered_trial_urls": "https://clinicaltrials.gov/study/NCT01234567",
+                        "has_open_data": True,
+                        "open_data_resource_ids": "10.5281/zenodo.123",
+                        "open_data_urls": "https://doi.org/10.5281/zenodo.123",
+                        "open_data_repositories": "zenodo",
+                        "has_shared_code": False,
+                        "shared_code_resource_ids": "",
+                        "shared_code_urls": "",
+                        "shared_code_repositories": "",
+                        "has_preregistered": True,
+                        "preregistration_ids": "https://osf.io/abcd1",
+                        "preregistration_urls": "https://osf.io/abcd1",
+                        "preregistration_repositories": "osf",
+                    }
+                ]
+            ).to_parquet(kg_dir / "papers.parquet", index=False)
+
+            findings = load_findings(kg_dir, require_author_identities=False)
+            detail = detail_bootstrap_payload(
+                findings, "2026-07-23T00:00:00Z", kg_dir, "primary"
+            )
+            row = detail_bootstrap_rows(detail)[0]
+
+        self.assertIs(row["has_registered_trial"], True)
+        self.assertEqual(row["registered_trial_ids"], "NCT01234567")
+        self.assertIs(row["has_open_data"], True)
+        self.assertEqual(row["open_data_repositories"], "zenodo")
+        self.assertIs(row["has_shared_code"], False)
+        self.assertIs(row["has_preregistered"], True)
+
     def test_target_aliases_flow_from_entities_into_findings_and_graph_edges(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             kg_dir = Path(tmpdir)
@@ -435,6 +491,25 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         ]
 
         payload = graph_bootstrap_payload(findings, "2026-07-12T00:00:00Z", Path("kg"), "meta_analyses")
+
+        self.assertEqual(payload["finding_count"], 1)
+        self.assertEqual(payload["edge_count"], 1)
+        self.assertEqual(payload["single_study_subject_finding_count"], 0)
+        self.assertEqual(payload["detail_only_entity_count"], 0)
+
+    def test_review_graph_keeps_single_paper_nodes(self) -> None:
+        findings = [
+            {
+                "compound": "Salvinorin A",
+                "graph_subject_kind": "atomic_compound",
+                "entity_label": "Default mode network",
+                "entity_kind": "brain_network",
+                "domain": "brain_system",
+                "study_doi": "10.1000/single-review",
+            }
+        ]
+
+        payload = graph_bootstrap_payload(findings, "2026-07-23T00:00:00Z", Path("kg"), "reviews")
 
         self.assertEqual(payload["finding_count"], 1)
         self.assertEqual(payload["edge_count"], 1)

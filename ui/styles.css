@@ -3631,8 +3631,8 @@ button.primary:hover {
 }
 
 .trend-bar-track {
-  height: 7px;
-  border-radius: 4px;
+  height: 10px;
+  border-radius: 3px;
   overflow: hidden;
   background: rgba(238, 240, 235, 0.08);
   box-shadow: inset 0 0 0 1px rgba(238, 240, 235, 0.035);
@@ -3651,17 +3651,18 @@ button.primary:hover {
 }
 
 .trend-card.bar-tone-gray .trend-bar-track span {
-  background: #9ea9b5;
-  filter: saturate(1.02) brightness(0.99);
+  background: #ad9999;
+  filter: saturate(0.72) brightness(1);
   box-shadow:
-    0 0 10px rgba(188, 197, 207, 0.14),
-    inset 0 0 5px rgba(238, 240, 235, 0.08);
+    0 0 10px rgba(198, 164, 164, 0.15),
+    inset 0 0 5px rgba(238, 240, 235, 0.07);
 }
 
 .trend-card.bar-tone-gray .trend-bar-row.interactive-bar:hover .trend-bar-track span,
 .trend-card.bar-tone-gray .trend-bar-row.interactive-bar.hovered .trend-bar-track span,
 .trend-card.bar-tone-gray .trend-bar-row.interactive-bar:focus-visible .trend-bar-track span {
-  box-shadow: 0 0 12px rgba(188, 197, 207, 0.22);
+  background: #c0abab;
+  box-shadow: 0 0 12px rgba(211, 178, 178, 0.22);
 }
 
 .trend-card.bar-tone-stone .trend-bar-track span {
@@ -3899,7 +3900,8 @@ button.primary:hover {
   gap: 8px;
 }
 
-.trend-card.chip-tone-teal {
+.trend-card.chip-tone-teal,
+.scale-chip.chip-tone-teal {
   --chip-text: #d8f5f1;
   --chip-bg: rgba(69, 194, 184, 0.08);
   --chip-border: rgba(69, 194, 184, 0.24);
@@ -3911,7 +3913,8 @@ button.primary:hover {
   --chip-count-text: #071010;
 }
 
-.trend-card.chip-tone-purple {
+.trend-card.chip-tone-purple,
+.scale-chip.chip-tone-purple {
   --chip-text: #e5d9f2;
   --chip-bg: rgba(111, 78, 150, 0.1);
   --chip-border: rgba(111, 78, 150, 0.42);
@@ -3923,7 +3926,8 @@ button.primary:hover {
   --chip-count-text: #f2e9fb;
 }
 
-.trend-card.chip-tone-blue {
+.trend-card.chip-tone-blue,
+.scale-chip.chip-tone-blue {
   --chip-text: #dce9ff;
   --chip-bg: rgba(144, 186, 255, 0.08);
   --chip-border: rgba(144, 186, 255, 0.24);
@@ -3935,7 +3939,8 @@ button.primary:hover {
   --chip-count-text: #071010;
 }
 
-.trend-card.chip-tone-green {
+.trend-card.chip-tone-green,
+.scale-chip.chip-tone-green {
   --chip-text: #e3f5ec;
   --chip-bg: rgba(154, 197, 174, 0.08);
   --chip-border: rgba(154, 197, 174, 0.24);
@@ -3947,7 +3952,8 @@ button.primary:hover {
   --chip-count-text: #071010;
 }
 
-.trend-card.chip-tone-amber {
+.trend-card.chip-tone-amber,
+.scale-chip.chip-tone-amber {
   --chip-text: #eadfca;
   --chip-bg: rgba(241, 183, 75, 0.07);
   --chip-border: rgba(241, 183, 75, 0.22);
@@ -3959,7 +3965,8 @@ button.primary:hover {
   --chip-count-text: #0d0d0a;
 }
 
-.trend-card.chip-tone-pink {
+.trend-card.chip-tone-pink,
+.scale-chip.chip-tone-pink {
   --chip-text: #f4d8e2;
   --chip-bg: rgba(224, 106, 150, 0.08);
   --chip-border: rgba(224, 106, 150, 0.3);
@@ -3971,7 +3978,8 @@ button.primary:hover {
   --chip-count-text: #12080d;
 }
 
-.trend-card.chip-tone-gray {
+.trend-card.chip-tone-gray,
+.scale-chip.chip-tone-gray {
   --chip-text: #e2e6eb;
   --chip-bg: rgba(158, 169, 181, 0.08);
   --chip-border: rgba(158, 169, 181, 0.26);

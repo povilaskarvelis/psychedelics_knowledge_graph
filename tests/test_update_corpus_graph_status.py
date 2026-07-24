@@ -1,8 +1,14 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 import pandas as pd
 
-from pipeline.kg.update_corpus_graph_status import build_updated_corpus
+from pipeline.kg.update_corpus_graph_status import (
+    build_updated_corpus,
+    load_extraction_outcomes,
+)
 
 
 def candidate(doi: str, *, selected: bool = True, prescreened: bool = True) -> dict:
@@ -85,6 +91,32 @@ class UpdateCorpusGraphStatusTest(unittest.TestCase):
         row = out.iloc[0]
         self.assertEqual(row["graph_inclusion_disposition"], "no_extractable_finding")
         self.assertEqual(row["graph_inclusion_decision_source"], "completed_extraction_outcome")
+
+    def test_meta_analysis_v2_zero_finding_output_is_loaded_as_completed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outputs = Path(tmpdir) / "meta_analysis_extractions.jsonl"
+            outputs.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "meta_analysis_evidence_v2",
+                        "study_doi": "10.1000/meta-no-result",
+                        "status": "ok",
+                        "result": {
+                            "extraction_status": "no_extractable_synthesis_result",
+                            "synthesis_results": [],
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            outcomes = load_extraction_outcomes([outputs])
+
+        self.assertEqual(
+            outcomes,
+            {"10.1000/meta-no-result": {"no_extractable_synthesis_result"}},
+        )
 
     def test_candidate_alias_resolves_to_represented_canonical_paper(self) -> None:
         out = self.build(

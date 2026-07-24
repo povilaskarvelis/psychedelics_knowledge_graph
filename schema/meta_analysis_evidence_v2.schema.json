@@ -331,6 +331,16 @@
           "type": ["string", "null"],
           "description": "Outcome, endpoint, biological entity, construct, or measure represented by this result, or null when none is identified."
         },
+        "brain_system_entities": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/brain_system_entity"},
+          "description": "Explicit brain regions, networks, or neural circuits represented by a brain-system result. Keep the measured phenomenon in outcome_or_entity."
+        },
+        "molecular_target_entities": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/molecular_target_entity"},
+          "description": "Explicit receptors, transporters, enzymes, channels, or target families represented by a molecular-target result. Keep the measured quantity or statistic in outcome_or_entity."
+        },
         "outcome_measure": {
           "type": "string",
           "description": "Instrument, scale, assay, task, or operational measure used for this result."
@@ -359,6 +369,38 @@
           "type": "array",
           "items": {"type": "string"},
           "description": "Reported values or associations that could not be assigned reliably."
+        }
+      }
+    },
+    "brain_system_entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "label"],
+      "properties": {
+        "entity_type": {
+          "type": "string",
+          "enum": ["brain_region", "brain_network", "neural_circuit"]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Brain region, named network, or neural circuit explicitly identified for this result."
+        }
+      }
+    },
+    "molecular_target_entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_type", "label"],
+      "properties": {
+        "entity_type": {
+          "type": "string",
+          "enum": ["target", "system_family"]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Molecular target or target family explicitly identified for this result."
         }
       }
     },

@@ -69,6 +69,19 @@ Each result must identify:
   measure represented by the result;
 - `timepoint_or_window`: the assessment or exposure window represented.
 
+For a `brain_system` result, keep the measured phenomenon—such as functional
+connectivity, BOLD response, blood flow, or signal complexity—in
+`outcome_or_entity`. Put every brain region, named brain network, or neural
+circuit explicitly represented by that same result in `brain_system_entities`,
+using one entry per entity. Do not infer an anatomical entity that the paper
+does not identify.
+
+For a `molecular_target` result, keep the measured quantity—such as binding
+selectivity, affinity, occupancy, or a network measure—in `outcome_or_entity`.
+Put every receptor, transporter, enzyme, channel, or target family explicitly
+represented by that same result in `molecular_target_entities`, using one entry
+per entity. Do not infer a molecular target that the paper does not identify.
+
 Use `null` for one of these fields only when the paper does not identify it.
 Link results to the relevant questions with `addresses_question_ids`.
 

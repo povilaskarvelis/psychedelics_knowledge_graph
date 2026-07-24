@@ -110,6 +110,62 @@
       ],
       "decision": "exclude_out_of_scope",
       "reason": "Corrected source review identifies this DOI as an ophthalmology article outside project scope; the ketamine/PTSD meta-analysis abstract attached to the candidate row belongs to a different paper."
+    },
+    {
+      "dois": [
+        "10.5055/jom.2008.0023"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The report concerns ketamine as analgesic adjunct treatment for acute or subacute pain and opioid tolerance, outside the project's psychiatric, psychedelic, and entactogen evidence scope."
+    },
+    {
+      "dois": [
+        "10.3181/00379727-29-6140"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The report's extracted result concerns cardiotoxic bufagins rather than an in-scope psychedelic, ketamine, or entactogen finding."
+    },
+    {
+      "dois": [
+        "10.3181/00379727-29-6142"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "Reviewed source-format adjudication excludes this one-page proceedings-style communication from the eligible full research-report corpus."
+    },
+    {
+      "dois": [
+        "10.1136/jnnp.s1-13.51.259"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "Reviewed source-format adjudication identifies this as an abstracts/digest entry summarizing another mescaline study rather than the underlying eligible research report."
+    },
+    {
+      "dois": [
+        "10.1136/bmj.1.2935.429-a"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The DOI belongs to an out-of-scope 1917 BMJ news item; the ketamine abstract and findings previously attached to it belong to 10.1124/jpet.116.233627."
+    },
+    {
+      "dois": [
+        "10.1001/jama.1916.02580290038015"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "Reviewed source-format adjudication identifies this one-page historical commentary as non-empirical material rather than an eligible research report."
+    },
+    {
+      "dois": [
+        "10.1001/jama.1928.02690430058041"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "The JAMA record is a one-page book review of An Approach to the Psychology of Religion, not an eligible primary study, review, or meta-analysis."
+    },
+    {
+      "dois": [
+        "10.2427/6151"
+      ],
+      "decision": "exclude_out_of_scope",
+      "reason": "Corrected source review identifies this as a 2003 Italian-language public-health article; non-English reports are outside the eligible corpus."
     }
   ]
 }

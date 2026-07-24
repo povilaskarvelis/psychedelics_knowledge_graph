@@ -120,6 +120,21 @@ PAPER_FIELDS = (
     "funding_assertion_count",
     "funding_funder_count",
     "funding_award_count",
+    "has_registered_trial",
+    "registered_trial_ids",
+    "registered_trial_urls",
+    "has_open_data",
+    "open_data_resource_ids",
+    "open_data_urls",
+    "open_data_repositories",
+    "has_shared_code",
+    "shared_code_resource_ids",
+    "shared_code_urls",
+    "shared_code_repositories",
+    "has_preregistered",
+    "preregistration_ids",
+    "preregistration_urls",
+    "preregistration_repositories",
     "related_dois",
     "publication_relations",
     "is_retracted",
@@ -361,6 +376,21 @@ PUBLIC_BROWSER_DETAIL_FIELDS = (
     "funding_assertion_count",
     "funding_funder_count",
     "funding_award_count",
+    "has_registered_trial",
+    "registered_trial_ids",
+    "registered_trial_urls",
+    "has_open_data",
+    "open_data_resource_ids",
+    "open_data_urls",
+    "open_data_repositories",
+    "has_shared_code",
+    "shared_code_resource_ids",
+    "shared_code_urls",
+    "shared_code_repositories",
+    "has_preregistered",
+    "preregistration_ids",
+    "preregistration_urls",
+    "preregistration_repositories",
     "open_access_is_oa",
     "open_access_status",
     "unpaywall_is_oa",
@@ -456,7 +486,17 @@ FORBIDDEN_BROWSER_DETAIL_FIELDS = {
     "network_inconsistency_assessment",
     "network_transitivity_assessment",
 }
-BOOL_FIELDS = {"needs_human_review", "is_retracted", "has_correction", "open_access_is_oa", "unpaywall_is_oa"}
+BOOL_FIELDS = {
+    "needs_human_review",
+    "is_retracted",
+    "has_correction",
+    "open_access_is_oa",
+    "unpaywall_is_oa",
+    "has_registered_trial",
+    "has_open_data",
+    "has_shared_code",
+    "has_preregistered",
+}
 
 
 def normalize(value: object) -> str:
@@ -1473,7 +1513,11 @@ def overview_graph_projections(
 
 def graph_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Path, source_key: str) -> dict:
     edges: dict[tuple[str, str, str, str, str, str, str, str], dict] = {}
-    minimum_node_studies = 1 if source_key == "meta_analyses" else MIN_OVERVIEW_NODE_STUDIES
+    minimum_node_studies = (
+        1
+        if source_key in {META_ANALYSES_SOURCE_KEY, REVIEWS_SOURCE_KEY}
+        else MIN_OVERVIEW_NODE_STUDIES
+    )
     projected, projection_counts = overview_graph_projections(
         findings, minimum_node_studies=minimum_node_studies
     )

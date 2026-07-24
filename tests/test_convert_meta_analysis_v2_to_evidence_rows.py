@@ -1,3 +1,5 @@
+import json
+
 from pipeline.kg.convert_meta_analysis_v2_to_evidence_rows import (
     convert_outputs,
     primary_domain_for,
@@ -216,6 +218,56 @@ def test_converter_uses_brain_measure_kind_for_connectivity_result() -> None:
     assert rows[0]["domain"] == "brain_system"
     assert rows[0]["kg_entity_kind_override"] == "brain_measure"
     assert rows[0]["brain_measure"] == "Between-network functional connectivity"
+
+
+def test_converter_preserves_structured_brain_entities_separately_from_measure() -> None:
+    item = base_item()
+    item["primary_subject_area"] = "brain_system"
+    item["subject_areas"] = ["brain_system"]
+    item["population_or_system"] = "Healthy volunteers"
+    item["outcome_or_entity"] = "Between-network functional connectivity"
+    item["relationship_statement"] = (
+        "Psilocybin altered connectivity in the default mode and visual networks."
+    )
+    item["intervention_or_exposure"] = "Psilocybin"
+    item["brain_system_entities"] = [
+        {"entity_type": "brain_network", "label": "Default mode network"},
+        {"entity_type": "brain_network", "label": "Visual network"},
+    ]
+
+    rows, report = convert_outputs([output_with_result(item)], {"task-1": task()})
+
+    assert report["counts"]["rows_written"] == 1
+    row = rows[0]
+    assert row["graph_entity_label"] == "Default mode network; Visual network"
+    assert row["kg_entity_kind_override"] == "brain_network"
+    assert row["brain_measure"] == "Between-network functional connectivity"
+    assert json.loads(row["brain_system_entities_json"]) == item["brain_system_entities"]
+
+
+def test_converter_preserves_structured_target_entities_separately_from_measure() -> None:
+    item = base_item()
+    item["primary_subject_area"] = "molecular_target"
+    item["subject_areas"] = ["molecular_target"]
+    item["population_or_system"] = "Heterologous receptor assays"
+    item["outcome_or_entity"] = "Binding selectivity (Ki ratio)"
+    item["relationship_statement"] = (
+        "Classic psychedelics showed binding selectivity across serotonergic and dopaminergic targets."
+    )
+    item["intervention_or_exposure"] = "Classic psychedelics"
+    item["molecular_target_entities"] = [
+        {"entity_type": "target", "label": "5-HT2A"},
+        {"entity_type": "target", "label": "Dopamine D2 receptor (DRD2)"},
+    ]
+
+    rows, report = convert_outputs([output_with_result(item)], {"task-1": task()})
+
+    assert report["counts"]["rows_written"] == 1
+    row = rows[0]
+    assert row["graph_entity_label"] == "5-HT2A; Dopamine D2 receptor (DRD2)"
+    assert row["kg_entity_kind_override"] == "target"
+    assert row["primary_outcome"] == "Binding selectivity (Ki ratio)"
+    assert json.loads(row["molecular_target_entities_json"]) == item["molecular_target_entities"]
 
 
 def test_intervention_context_analysis_keeps_treatment_as_subject_and_factor_as_entity() -> None:
