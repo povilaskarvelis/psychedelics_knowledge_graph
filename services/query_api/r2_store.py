@@ -87,10 +87,12 @@ class R2ObjectStore:
 
     def __init__(self, settings: R2Settings, *, client: Any | None = None) -> None:
         self.settings = settings
+        self.transfer_config: Any | None = None
         if client is None:
             try:
                 import boto3
                 from botocore.config import Config
+                from boto3.s3.transfer import TransferConfig
             except ModuleNotFoundError as exc:  # pragma: no cover - installation error
                 raise RuntimeError(
                     "R2 support requires boto3; install services/query_api/requirements.txt"
@@ -103,11 +105,19 @@ class R2ObjectStore:
                 aws_secret_access_key=settings.secret_access_key,
                 config=Config(
                     signature_version="s3v4",
-                    connect_timeout=10,
-                    read_timeout=60,
-                    retries={"max_attempts": 3, "mode": "standard"},
+                    connect_timeout=15,
+                    read_timeout=300,
+                    retries={"max_attempts": 8, "mode": "adaptive"},
                     s3={"addressing_style": "path"},
+                    tcp_keepalive=True,
                 ),
+            )
+            self.transfer_config = TransferConfig(
+                multipart_threshold=8 * 1024 * 1024,
+                multipart_chunksize=8 * 1024 * 1024,
+                max_concurrency=3,
+                num_download_attempts=8,
+                use_threads=True,
             )
         self.client = client
 
@@ -154,11 +164,14 @@ class R2ObjectStore:
         }
         if content_disposition:
             extra_args["ContentDisposition"] = content_disposition
+        upload_args: dict[str, Any] = {"ExtraArgs": extra_args}
+        if self.transfer_config is not None:
+            upload_args["Config"] = self.transfer_config
         self.client.upload_file(
             str(path),
             self.settings.bucket,
             key,
-            ExtraArgs=extra_args,
+            **upload_args,
         )
 
     def put_bytes(

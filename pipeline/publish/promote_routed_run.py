@@ -256,6 +256,70 @@ def resolve_extraction_inputs(args: argparse.Namespace, run_id: str) -> tuple[Pa
     return outputs.resolve(), evidence.resolve(), source_manifest.resolve() if source_manifest else None
 
 
+def materialize_active_extraction_inputs(
+    *,
+    run_id: str,
+    outputs_jsonl: Path,
+    evidence_rows_json: Path,
+    source_update_manifest: Path | None,
+) -> tuple[Path, Path, Path | None]:
+    """Make the promoted extraction snapshot self-contained under its run ID."""
+    run_dir = (ROUTED_RUNS_DIR / safe_run_id(run_id)).resolve()
+    run_dir.mkdir(parents=True, exist_ok=True)
+    values: list[tuple[Path, Path]] = [
+        (
+            outputs_jsonl.resolve(),
+            run_dir / "route_extraction_outputs.jsonl",
+        ),
+        (
+            evidence_rows_json.resolve(),
+            run_dir / "routed_evidence_rows.json",
+        ),
+    ]
+    if source_update_manifest is not None:
+        values.append(
+            (
+                source_update_manifest.resolve(),
+                run_dir / "source_update_manifest.json",
+            )
+        )
+
+    materialized: list[Path] = []
+    for source, target in values:
+        if source == target.resolve():
+            materialized.append(target)
+            continue
+        if not source.is_file():
+            raise FileNotFoundError(f"Missing extraction release input: {source}")
+        if (
+            target.is_file()
+            and target.stat().st_size == source.stat().st_size
+            and sha256_file(target) == sha256_file(source)
+        ):
+            materialized.append(target)
+            continue
+        temporary = target.with_name(f".{target.name}.{uuid.uuid4().hex}.tmp")
+        try:
+            shutil.copy2(source, temporary)
+            if (
+                temporary.stat().st_size != source.stat().st_size
+                or sha256_file(temporary) != sha256_file(source)
+            ):
+                raise RuntimeError(
+                    f"Copied extraction input failed verification: {source}"
+                )
+            os.replace(temporary, target)
+        finally:
+            temporary.unlink(missing_ok=True)
+        materialized.append(target)
+
+    return (
+        materialized[0],
+        materialized[1],
+        materialized[2] if len(materialized) == 3 else None,
+    )
+
+
 def validate_public_payload(
     run_id: str,
     graph_pointer: dict,
@@ -638,6 +702,12 @@ def promote(args: argparse.Namespace) -> dict:
     with promotion_lock():
         outputs, evidence, source_manifest = resolve_extraction_inputs(args, run_id)
         reject_legacy_v1_secondary_outputs(outputs)
+        outputs, evidence, source_manifest = materialize_active_extraction_inputs(
+            run_id=run_id,
+            outputs_jsonl=outputs,
+            evidence_rows_json=evidence,
+            source_update_manifest=source_manifest,
+        )
         release_id = f"{run_id}:{uuid.uuid4().hex}"
         graph_pointer = graph_pointer_for_run(run_id, release_id)
         payload_manifest = validate_built_release(run_id, graph_pointer)

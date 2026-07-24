@@ -41,8 +41,10 @@ It regenerates the graph and API from the current KG run, binds both manifests
 to one new public release ID, validates and rebuilds the site, publishes the
 allowlisted graph and Methods artifacts to the public R2 bucket and the API
 runtime to its separate private R2 bucket, and triggers the configured API
-deploy hook. Generated public payloads are no longer committed to Git. It never
-changes extraction or evidence decisions.
+deploy hook. After both active pointers have been verified, it deletes
+superseded browser/API release objects and older local versioned release
+directories, leaving only the active run. Generated public payloads are no
+longer committed to Git. It never changes extraction or evidence decisions.
 
 The promoter validates the KG, payload, author tables, and extraction inputs;
 materializes every final graph decision into the canonical
@@ -64,6 +66,11 @@ the R2 pointer. The promoter separately checks that the extraction pointer,
 public pointer, and canonical corpus identify the same release; that deeper check
 stays in promotion because its extraction and Parquet inputs are intentionally
 not part of a clean deployment checkout.
+
+Promotion copies reused combined extraction outputs into the promoted run
+directory before activation. This makes the active release self-contained and
+allows history pruning to fail closed if any pointer still depends on an older
+run.
 
 If the KG tables have already been rebuilt and only the public payload needs to
 be regenerated, make sure `pipeline/kg/build_author_tables.py` has run after the
@@ -138,6 +145,10 @@ The preview URL contains `?data-source=local`, and internal navigation preserves
 the selection across Graph and Methods. After approval, publish the already-
 validated release with the R2 commands in `docs/r2_deployment.md`; commit and
 deploy code changes separately when there are any.
+
+Preview mode must always be explicit. A public preview cannot serve a URL that
+requests `data-source=local`, and a local preview refuses to start unless every
+allowlisted file belongs to the same release.
 
 `summary_stats.paper_counts` is the generated source of truth for the four
 public header metrics: primary studies, reviews, meta-analyses, and their total

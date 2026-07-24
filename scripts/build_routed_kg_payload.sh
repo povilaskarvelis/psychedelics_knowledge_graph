@@ -113,4 +113,8 @@ fi
 if [[ "${PUBLISH_QUERY_API_R2}" == "1" ]]; then
   python3 "${ROOT_DIR}/pipeline/publish/publish_browser_payload_r2.py" --run-id "${RUN_ID}"
   python3 "${ROOT_DIR}/pipeline/publish/publish_query_api_r2.py" --run-id "${RUN_ID}"
+  python3 "${ROOT_DIR}/pipeline/publish/prune_release_history.py" \
+    --remote \
+    --local \
+    --execute
 fi

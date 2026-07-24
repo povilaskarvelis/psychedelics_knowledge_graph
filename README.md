@@ -96,6 +96,10 @@ does not expose the repository, papers, `.env`, or other pipeline data. It also
 verifies graph checksums and requires the graph, Methods flow, bibliography, and
 inclusion audit to name the same run and release before starting.
 
+The preview mode is mandatory; neither preview command has an implicit data
+source. A public-mode server rejects `?data-source=local` instead of loading a
+different release.
+
 ## Project principles
 
 - Link every public finding back to its source.

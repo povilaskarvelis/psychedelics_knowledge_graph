@@ -193,6 +193,45 @@ class PromoteRoutedRunTest(unittest.TestCase):
 
             promotion.reject_legacy_v1_secondary_outputs(outputs)
 
+    def test_promoted_extraction_inputs_are_materialized_under_the_active_run(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            source_dir = root / "older_run"
+            source_dir.mkdir()
+            outputs = source_dir / "outputs.jsonl"
+            evidence = source_dir / "evidence.json"
+            source_manifest = source_dir / "source_manifest.json"
+            outputs.write_text('{"result":"ok"}\n', encoding="utf-8")
+            evidence.write_text('[{"finding":"ok"}]\n', encoding="utf-8")
+            source_manifest.write_text('{"source":"older"}\n', encoding="utf-8")
+            routed_runs = root / "routed_runs"
+
+            with mock.patch.object(promotion, "ROUTED_RUNS_DIR", routed_runs):
+                materialized = promotion.materialize_active_extraction_inputs(
+                    run_id="current_run",
+                    outputs_jsonl=outputs,
+                    evidence_rows_json=evidence,
+                    source_update_manifest=source_manifest,
+                )
+
+            expected_dir = (routed_runs / "current_run").resolve()
+            self.assertEqual(
+                materialized,
+                (
+                    expected_dir / "route_extraction_outputs.jsonl",
+                    expected_dir / "routed_evidence_rows.json",
+                    expected_dir / "source_update_manifest.json",
+                ),
+            )
+            self.assertEqual(materialized[0].read_bytes(), outputs.read_bytes())
+            self.assertEqual(materialized[1].read_bytes(), evidence.read_bytes())
+            self.assertEqual(
+                materialized[2].read_bytes(),
+                source_manifest.read_bytes(),
+            )
+
     def test_public_artifact_revision_is_separate_from_evidence_release(self) -> None:
         graph = promotion.graph_pointer_for_run(
             "candidate",

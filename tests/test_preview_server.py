@@ -6,6 +6,8 @@ import pytest
 
 from scripts.serve_site import (
     LOCAL_POINTER_SCHEMA,
+    LOCAL_PAGE_PATHS,
+    PreviewRequestHandler,
     build_local_preview,
     validated_published_preview,
 )
@@ -164,3 +166,31 @@ def test_published_preview_rejects_an_object_outside_the_active_release() -> Non
 
     with pytest.raises(ValueError, match="Unsafe published preview object key"):
         validated_published_preview(pointer)
+
+
+def test_public_preview_rejects_a_local_data_source_url() -> None:
+    handler = object.__new__(PreviewRequestHandler)
+    handler.path = "/?data-source=local"
+    handler.local_pointer = None
+    errors: list[tuple[int, str]] = []
+    handler.send_error = lambda code, message: errors.append((code, message))
+
+    assert handler.reject_preview_mode_mismatch() is True
+    assert errors == [
+        (
+            409,
+            "Local release requested, but this server is running in public mode. "
+            "Restart with: bash scripts/preview_site.sh local",
+        )
+    ]
+
+
+@pytest.mark.parametrize("path", sorted(LOCAL_PAGE_PATHS))
+def test_local_preview_pages_do_not_conflict_when_local_data_is_available(
+    path: str,
+) -> None:
+    handler = object.__new__(PreviewRequestHandler)
+    handler.path = f"{path}?data-source=local"
+    handler.local_pointer = b"{}"
+
+    assert handler.reject_preview_mode_mismatch() is False

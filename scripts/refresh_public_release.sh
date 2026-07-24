@@ -89,6 +89,10 @@ if [[ "${NO_R2_PUBLISH}" == "0" ]]; then
     publish_args+=(--write-legacy-active-alias)
   fi
   python3 "${ROOT_DIR}/pipeline/publish/publish_query_api_r2.py" "${publish_args[@]}"
+  python3 "${ROOT_DIR}/pipeline/publish/prune_release_history.py" \
+    --remote \
+    --local \
+    --execute
 else
   echo "Skipped browser and API R2 publication because NO_R2_PUBLISH=1"
 fi

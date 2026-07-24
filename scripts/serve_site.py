@@ -270,6 +270,21 @@ class PreviewRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         return True
 
+    def reject_preview_mode_mismatch(self) -> bool:
+        parsed = urlsplit(self.path)
+        if parsed.path not in LOCAL_PAGE_PATHS:
+            return False
+        query = parse_qs(parsed.query, keep_blank_values=True)
+        local_requested = query.get("data-source") == ["local"]
+        if not local_requested or self.local_pointer is not None:
+            return False
+        self.send_error(
+            409,
+            "Local release requested, but this server is running in public mode. "
+            "Restart with: bash scripts/preview_site.sh local",
+        )
+        return True
+
     def send_preview_bytes(self, payload: bytes, *, head_only: bool) -> None:
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -313,6 +328,8 @@ class PreviewRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(502, f"Published R2 preview failed: {error}")
 
     def handle_request(self, *, head_only: bool) -> None:
+        if self.reject_preview_mode_mismatch():
+            return
         if self.redirect_local_page():
             return
         request_path = urlsplit(self.path).path
@@ -354,7 +371,7 @@ class PreviewRequestHandler(SimpleHTTPRequestHandler):
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=("public", "local"), default="public")
+    parser.add_argument("--mode", choices=("public", "local"), required=True)
     parser.add_argument("--run-id", default="")
     parser.add_argument("--directory", type=Path, default=DEFAULT_DIST)
     parser.add_argument("--bind", default="127.0.0.1")
@@ -399,6 +416,8 @@ def main() -> int:
             raise SystemExit(
                 f"Could not prepare the published R2 preview: {error}"
             ) from None
+        published = json.loads(published_pointer)
+        run_id = str(published.get("run_id") or "").strip()
 
     handler = partial(
         PreviewRequestHandler,
@@ -417,6 +436,7 @@ def main() -> int:
         )
     else:
         print("Data source: published R2 release", flush=True)
+        print(f"Published release: {run_id}", flush=True)
         print(f"Open http://{args.bind}:{args.port}/", flush=True)
     try:
         server.serve_forever()

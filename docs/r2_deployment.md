@@ -80,6 +80,11 @@ replace the small public `browser/active.json` and private
 complete. Re-running them is safe: matching objects are reused, while a
 conflicting immutable object stops activation.
 
+Routine publication uses the repository wrappers below. Once both active
+pointers identify the same verified release, the wrappers prune every older
+browser/API release prefix and older local versioned release directory. The
+project intentionally retains only the current active release.
+
 ## Deploy the API from GitHub
 
 Publish the first R2 release before creating the service; otherwise its first
@@ -213,23 +218,25 @@ bash scripts/refresh_public_release.sh
 This command loads the ignored `.env`, rebuilds both public outputs, gives them
 one shared public release ID, validates every referenced graph and Methods file,
 builds the code-only static site, publishes the matching public and private API
-data to their versioned R2 pointers, and then triggers the deploy hook when
-configured. Data updates no longer require committing generated payloads or
-rebuilding Netlify. Use `NO_R2_PUBLISH=1` only for a local dry run.
+data to their versioned R2 pointers, triggers the deploy hook when configured,
+and then prunes inactive remote and local release history. Data updates no
+longer require committing generated payloads or rebuilding Netlify. Use
+`NO_R2_PUBLISH=1` only for a local dry run.
 
 If no deploy hook is configured, publishing still succeeds; manually redeploy or
 restart the API service so it synchronizes the new active release.
 
-## Failure and rollback behavior
+## Failure behavior
 
 - An upload or checksum failure leaves the previous versioned R2 active pointer untouched.
 - A failed container sync leaves `/readyz` unavailable and catalogue requests
   return 503 while documentation and process health checks remain reachable.
 - API pagination cursors remain bound to their release and return HTTP 409 after
   a release change.
-- To roll back, promote the desired older local run and publish it again. The
-  guarded promotion creates a new release ID while preserving the older
-  immutable R2 objects for auditability.
+- After successful synchronized publication, older remote and local release
+  payloads are deleted. A prior release can only be reconstructed from the
+  canonical pipeline inputs and extraction evidence, not activated from stored
+  release history.
 
 ## Public website-data layout
 
