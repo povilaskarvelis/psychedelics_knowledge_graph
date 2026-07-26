@@ -2828,7 +2828,14 @@ NON_ATOMIC_GRAPH_SUBJECT_KINDS = {
 }
 
 OVERVIEW_SUBJECT_CLASS_RULES = (
-    (re.compile(r"\b(?:classic(?:al)?(?:\s+serotonergic)?|serotonergic)\s+psychedelics?\b", re.I), "Serotonergic psychedelics"),
+    (
+        re.compile(
+            r"\b(?:classic(?:al)?(?:\s+serotonergic)?|serotonergic)\s+"
+            r"(?:psychedelics?|hallucinogens?)\b",
+            re.I,
+        ),
+        "Classic psychedelics",
+    ),
     (re.compile(r"\bhallucinogens?\b", re.I), "Hallucinogens"),
     (re.compile(r"\bnmda(?: receptor)? antagonists?\b", re.I), "NMDA receptor antagonists"),
     (re.compile(r"\bdissociatives?\b", re.I), "Dissociatives"),
@@ -2837,6 +2844,7 @@ OVERVIEW_SUBJECT_CLASS_RULES = (
     (re.compile(r"\bentheogens?\b", re.I), "Entheogens"),
 )
 UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL = "Psychedelics (unspecified compounds)"
+BROAD_PSYCHEDELIC_CLASS_LABEL = "Psychedelics (broad or mixed)"
 DETAIL_ONLY_OVERVIEW_SUBJECT_REASONS = {
     "controlled_unresolved_psychedelic_class_detail_only",
     RECOVERED_FINDING_SCOPE_REASON,
@@ -3061,7 +3069,12 @@ def finding_level_in_scope_subjects(
     if not FINDING_LEVEL_PSYCHEDELIC_CLASS_RE.search(context):
         return []
 
-    if re.search(r"\b(?:classic(?:al)?(?:\s+serotonergic)?|serotonergic)\s+psychedelics?\b", context, re.I):
+    if re.search(
+        r"\b(?:classic(?:al)?(?:\s+serotonergic)?|serotonergic)\s+"
+        r"(?:psychedelics?|hallucinogens?)\b",
+        context,
+        re.I,
+    ):
         label = "Classic psychedelics"
     elif re.search(r"\bhallucinogenic\s+drugs?\b|\bhallucinogens?\b", context, re.I):
         label = "Hallucinogens"
@@ -3540,8 +3553,6 @@ def registered_compound_overview_subject(
 def explicit_overview_compound_class_subject(
     value: object,
     registry: dict[tuple[str, str], dict],
-    *,
-    secondary_literature: bool,
 ) -> dict | None:
     """Preserve an explicitly pooled class instead of assigning its examples to each drug."""
 
@@ -3565,13 +3576,8 @@ def explicit_overview_compound_class_subject(
             # This is a mixed class + named-compound exposure, not a pooled
             # class whose parenthetical merely lists examples or composition.
             continue
-        display_label = (
-            "Classic psychedelics"
-            if label == "Serotonergic psychedelics" and not secondary_literature
-            else label
-        )
         return {
-            "label": display_label,
+            "label": label,
             "kind": "compound_class",
             "reason": "controlled_compound_class",
         }
@@ -3625,7 +3631,6 @@ def _overview_graph_subjects(
         explicit_class_subject = explicit_overview_compound_class_subject(
             subject_context,
             registry,
-            secondary_literature=secondary_literature,
         )
         if explicit_class_subject:
             return [explicit_class_subject]
@@ -3693,7 +3698,7 @@ def _overview_graph_subjects(
             mentioned_compounds = registry_compound_labels_in_text(context, registry)
             if len(mentioned_compounds) > 1 or PSYCHEDELIC_MIXED_CONTEXT_RE.search(context_with_raw):
                 return [{
-                    "label": "Multiple psychedelic compounds"
+                    "label": BROAD_PSYCHEDELIC_CLASS_LABEL
                     if secondary_literature
                     else UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL,
                     "kind": "compound_class",
@@ -3703,12 +3708,12 @@ def _overview_graph_subjects(
                 }]
             if PSYCHEDELIC_SEROTONERGIC_CONTEXT_RE.search(context_with_raw):
                 return [{
-                    "label": "Serotonergic psychedelics" if secondary_literature else "Classic psychedelics",
+                    "label": "Classic psychedelics",
                     "kind": "compound_class",
                     "reason": "controlled_serotonergic_psychedelic_class",
                 }]
             return [{
-                "label": "Psychedelic compounds"
+                "label": BROAD_PSYCHEDELIC_CLASS_LABEL
                 if secondary_literature
                 else UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL,
                 "kind": "compound_class",
@@ -3744,12 +3749,6 @@ def _overview_graph_subjects(
                 "reason": "single_in_scope_compound_with_exposure_detail",
             }]
         if len(labels) > 1:
-            if secondary_literature:
-                return [{
-                    "label": "Multi-compound exposure",
-                    "kind": "compound_combination",
-                    "reason": "controlled_secondary_multi_compound_summary",
-                }]
             combination = explicit_combination_projection(row, raw, labels)
             if combination:
                 if re.search(r"\bor\b", raw, re.I) and "+" in raw:

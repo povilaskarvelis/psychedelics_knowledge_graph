@@ -8,54 +8,9 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <base href="./ui/" />
-    <script>
-      (function () {
-        const root = document.documentElement;
-        let revealed = false;
-        root.classList.add("fonts-pending");
-
-        function revealStyledPage() {
-          if (revealed) return;
-          revealed = true;
-          window.clearTimeout(fallbackTimer);
-          root.classList.remove("fonts-pending");
-        }
-
-        const fallbackTimer = window.setTimeout(revealStyledPage, 1600);
-        window.addEventListener(
-          "DOMContentLoaded",
-          function () {
-            if (!document.fonts || typeof document.fonts.load !== "function") {
-              revealStyledPage();
-              return;
-            }
-            Promise.all([
-              document.fonts.load('300 1em "IBM Plex Sans"'),
-              document.fonts.load('400 1em "IBM Plex Sans"'),
-              document.fonts.load('500 1em "IBM Plex Sans"'),
-              document.fonts.load('600 1em "IBM Plex Sans"'),
-              document.fonts.load('italic 400 1em "IBM Plex Sans"'),
-              document.fonts.load('400 1em "Space Grotesk"'),
-              document.fonts.load('500 1em "Space Grotesk"'),
-              document.fonts.load('600 1em "Space Grotesk"'),
-              document.fonts.load('700 1em "Space Grotesk"'),
-            ])
-              .then(function () {
-                return document.fonts.ready;
-              })
-              .then(revealStyledPage, revealStyledPage);
-          },
-          { once: true }
-        );
-      })();
-    </script>
     <style>
       html {
         background: #080a0b;
-      }
-
-      html.fonts-pending body {
-        visibility: hidden;
       }
     </style>
     <!-- Google tag (gtag.js) -->
@@ -80,7 +35,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260718-footer-v1" />
+    <link rel="stylesheet" href="styles.css?v=20260726-performance-v1" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -242,6 +197,6 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
-    <script src="app.js?v=20260720-r2-local-preview-v3"></script>
+    <script src="app.js?v=20260726-performance-v1"></script>
   </body>
 </html>

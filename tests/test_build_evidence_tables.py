@@ -637,7 +637,22 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             {"label": "LSD or psilocybin", "subject_kind": "compound_combination"},
             registry,
         )
-        self.assertEqual(secondary[0]["label"], "Multi-compound exposure")
+        self.assertEqual([item["label"] for item in secondary], ["LSD", "Psilocybin"])
+        self.assertTrue(all(item["kind"] == "atomic_compound" for item in secondary))
+
+        secondary_combination = overview_graph_subjects(
+            {
+                "paper_assessment_route": "secondary_literature",
+                "dose_or_exposure": "100 µg LSD + 100 mg MDMA",
+                "support": "The compounds were co-administered.",
+            },
+            {"label": "MDMA and LSD", "subject_kind": "compound_combination"},
+            registry,
+        )
+        self.assertEqual(
+            secondary_combination[0]["label"],
+            "LSD + MDMA (candyflipping)",
+        )
 
         dmt_harmine = overview_graph_subjects(
             {"support": "The DMT/harmine formulation was administered during a retreat."},
@@ -891,6 +906,37 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             registry,
         )
         self.assertEqual(hallucinogen_class["label"], "Hallucinogens")
+
+        secondary_generic = overview_graph_subject(
+            {"paper_assessment_route": "secondary_literature"},
+            {"label": "Psychedelics", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(secondary_generic["label"], "Psychedelics (broad or mixed)")
+
+        secondary_mixed = overview_graph_subject(
+            {
+                "paper_assessment_route": "secondary_literature",
+                "primary_compounds_or_classes": "psilocybin, LSD, DMT, and MDMA",
+            },
+            {"label": "Psychedelics", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(secondary_mixed["label"], "Psychedelics (broad or mixed)")
+
+        for raw_label in (
+            "Classic psychedelics",
+            "Serotonergic psychedelics",
+            "Classic hallucinogens",
+            "Serotonergic hallucinogens",
+        ):
+            with self.subTest(raw_label=raw_label):
+                classic_class = overview_graph_subject(
+                    {"paper_assessment_route": "secondary_literature"},
+                    {"label": raw_label, "subject_kind": "compound_class"},
+                    registry,
+                )
+                self.assertEqual(classic_class["label"], "Classic psychedelics")
 
         for raw_label in (
             "Psychedelics other than LSD",

@@ -49,6 +49,18 @@ METHODS_RELEASE_FILES = {
     "bibliography": "methods_bibliography.json",
     "graph_inclusion_dispositions": "graph_inclusion_dispositions.json",
 }
+DETAIL_VIEW_KEYS = {
+    "condition_indication",
+    "safety_adverse_event",
+    "cognitive_behavioral_construct",
+    "behavioral_effect",
+    "subjective_experience_construct",
+    "intervention_component",
+    "public_health_measure",
+    "brain_system",
+    "pathway_readout",
+    "target_system",
+}
 
 
 def safe_payload_path(browser_runs_dir: Path, relative_path: str) -> Path:
@@ -164,6 +176,32 @@ def remote_path_map(pointer: dict, remote_files: dict[str, dict], prefix: str) -
     return result
 
 
+def remote_detail_view_path_map(pointer: dict, remote_files: dict[str, dict]) -> dict:
+    prefix = "active_detail_bootstraps_by_view"
+    mapping = pointer.get(prefix)
+    if mapping is None:
+        return {}
+    expected_sources = {"primary", "meta_analyses", "reviews"}
+    if not isinstance(mapping, dict) or set(mapping) != expected_sources:
+        raise ValueError(f"Browser pointer {prefix} must contain {sorted(expected_sources)}")
+
+    result: dict[str, dict[str, str]] = {}
+    for source_key, source_views in mapping.items():
+        if not isinstance(source_views, dict) or set(source_views) != DETAIL_VIEW_KEYS:
+            raise ValueError(
+                f"Browser pointer {prefix}.{source_key} must contain {sorted(DETAIL_VIEW_KEYS)}"
+            )
+        result[source_key] = {}
+        for view_key, local_path in source_views.items():
+            filename = Path(str(local_path)).name
+            logical_name = f"detail_view:{source_key}:{view_key}"
+            entry = remote_files.get(logical_name) or {}
+            if Path(str(entry.get("path") or "")).name != filename:
+                raise ValueError(f"Browser manifest does not match {prefix}.{source_key}.{view_key}")
+            result[source_key][view_key] = str(entry["key"])
+    return result
+
+
 def remote_methods_map(remote_files: dict[str, dict]) -> dict[str, str]:
     result: dict[str, str] = {}
     for public_name, filename in METHODS_RELEASE_FILES.items():
@@ -251,6 +289,7 @@ def publish_active_browser_release(
     if remote_manifest is None:  # pragma: no cover - always collected above
         raise RuntimeError("Browser release has no manifest")
 
+    detail_view_paths = remote_detail_view_path_map(pointer, remote_files)
     active = {
         "schema_version": BROWSER_ACTIVE_SCHEMA_VERSION,
         "published_at": published_at or now_utc(),
@@ -271,6 +310,8 @@ def publish_active_browser_release(
         "methods": remote_methods_map(remote_files),
         "files": remote_files,
     }
+    if detail_view_paths:
+        active["active_detail_bootstraps_by_view"] = detail_view_paths
     active_bytes = canonical_json_bytes(active)
     active_sha = sha256_bytes(active_bytes)
     active_key = f"{prefix}/active.json"

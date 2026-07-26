@@ -116,7 +116,7 @@ def test_initial_dashboard_bootstrap_renders_before_full_detail_payload() -> Non
         "function canonicalOverviewBootstrapClaims", 1
     )[0]
     loader = source.split("async function loadCurrentClaimsAndRender", 1)[1].split(
-        "function loadBibliographyPayloadsInBackground", 1
+        "function scheduleIdleTask", 1
     )[0]
 
     assert 'currentEntityViewKey() !== "condition_indication"' in dashboard
@@ -195,18 +195,19 @@ def test_overview_dashboard_is_restored_from_prebuilt_dom_before_async_render() 
     assert "resetDetail: !detailRestored" in switch
 
 
-def test_overview_dashboards_are_precomputed_in_idle_chunks() -> None:
+def test_overview_dashboards_are_precomputed_only_for_an_intended_view() -> None:
     source = APP_JS.read_text(encoding="utf-8")
 
-    prewarm = source.split("function scheduleOverviewDetailPrewarmForSource", 1)[1].split(
+    prewarm = source.split("function scheduleOverviewDetailPrewarmForView", 1)[1].split(
         "function normalizedCurrentSourceLoaded", 1
     )[0]
     init = source.split("async function init()", 1)[1].split("if (yearMinFilter)", 1)[0]
 
-    assert "ENTITY_CATEGORY_OPTIONS.forEach" in prewarm
     assert "scheduleIdleTask(" in prewarm
     assert "prewarmOverviewDetailEntry" in prewarm
-    assert "scheduleOverviewDetailPrewarmForSource(currentSourceKey())" in init
+    assert "ENTITY_CATEGORY_OPTIONS.forEach" not in prewarm
+    assert "scheduleOverviewDetailPrewarm" not in init
+    assert "preloadLikelyNextData" not in source
 
 
 def test_dashboard_paints_before_findings_and_bibliography_render() -> None:
@@ -391,18 +392,105 @@ def test_header_uses_graph_counts_without_awaiting_queue_labels() -> None:
     assert "data-stat-detail" not in html_source
 
 
-def test_initial_page_reveals_only_after_required_fonts_are_ready() -> None:
+def test_initial_page_uses_swap_fonts_without_hiding_content() -> None:
     source = INDEX_HTML.read_text(encoding="utf-8")
     head = source.split("<body>", 1)[0]
 
-    assert 'classList.add("fonts-pending")' in head
-    assert "html.fonts-pending body" in head
-    assert "visibility: hidden" in head
-    assert 'document.fonts.load(\'400 1em "IBM Plex Sans"\')' in head
-    assert 'document.fonts.load(\'700 1em "Space Grotesk"\')' in head
-    assert "document.fonts.ready" in head
     assert "display=swap" in head
-    assert "setTimeout(revealStyledPage, 1600)" in head
+    assert 'classList.add("fonts-pending")' not in head
+    assert "html.fonts-pending body" not in head
+    assert "visibility: hidden" not in head
+    assert "document.fonts.load" not in head
+
+
+def test_initial_dashboard_becomes_an_interactive_browse_surface() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    dashboard = source.split("async function renderCurrentDashboardBootstrap", 1)[1].split(
+        "function canonicalOverviewBootstrapClaims", 1
+    )[0]
+    loader = source.split("async function loadCurrentClaimsAndRender", 1)[1].split(
+        "function scheduleIdleTask", 1
+    )[0]
+    graph = source.split("function prepareBootstrapInteraction", 1)[1].split(
+        "edgeEntries.forEach", 1
+    )[0]
+
+    assert "dashboardSourceReady[sourceKey] = true" in dashboard
+    assert "scheduleDeferredSurfaceRender(graphFiltered, allAccessGraphFiltered, false)" in dashboard
+    assert "scheduleFindingSearchIndexWarmup()" in dashboard
+    assert "if (dashboardRendered && !hasFindingSearchQuery())" in loader
+    assert loader.index("if (dashboardRendered && !hasFindingSearchQuery())") < loader.index(
+        "ensureClaimsForCurrentView"
+    )
+    assert "currentViewClaimsReady()" in graph
+
+
+def test_detail_bootstrap_is_decoded_and_normalized_once() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    decoder = source.split("function columnarBootstrapClaimsFromPayload", 1)[1].split(
+        "function dashboardBootstrapClaimsFromPayload", 1
+    )[0]
+    loader = source.split("async function loadRouteNativeEvidenceSource", 1)[1].split(
+        "function currentSourceKey", 1
+    )[0]
+
+    assert decoder.count("routeNativeFindingForCurrentUi") == 1
+    assert "item[bootstrapMarker] = true" in decoder
+    assert "routeNativeFindingForCurrentUi" not in loader
+    assert "claimStores.normalized.bySource[sourceKey] = enrichedItems" in loader
+
+
+def test_entity_navigation_prefers_category_shards_and_keeps_full_search_fallback() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    view_loader = source.split("async function loadNormalizedClaimView", 1)[1].split(
+        "async function ensureClaimsForCurrentView", 1
+    )[0]
+    search = source.split("function scheduleFindingSearchRender", 1)[1].split(
+        "function scheduleFindingSearchIndexWarmup", 1
+    )[0]
+    listeners = source.split("if (entityKindToggle)", 1)[1].split(
+        'window.addEventListener("resize"', 1
+    )[0]
+
+    assert "loadRouteNativeEvidenceView(sourceKey, viewKey)" in view_loader
+    assert "loadNormalizedClaimSource(sourceKey)" in view_loader
+    assert "loadNormalizedClaimSource(currentSourceKey())" in search
+    assert "preloadClaimsForEntityView(viewKey)" in listeners
+    assert "preloadFullClaimsForCurrentSource" not in source
+    assert 'searchInput.addEventListener("focus"' not in source
+
+
+def test_card_progressive_rendering_uses_a_real_scroll_root() -> None:
+    app_source = APP_JS.read_text(encoding="utf-8")
+    style_source = STYLES_CSS.read_text(encoding="utf-8")
+    cards = app_source.split("function renderCards", 1)[1].split(
+        "function bibliographyEntryId", 1
+    )[0]
+    panel = style_source.split(".cards-panel {", 1)[1].split("}", 1)[0]
+
+    assert "cardsEl.scrollHeight > cardsEl.clientHeight + 1" in cards
+    assert "root: observerRoot" in cards
+    assert "height: min(78vh, 960px)" in panel
+
+
+def test_manifest_stats_do_not_block_the_initial_graph() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    init = source.split("async function init()", 1)[1].split("if (yearMinFilter)", 1)[0]
+
+    assert "loadGraphManifestStats();" in init
+    assert "await loadGraphManifestStats()" not in init
+    assert "await loadCurrentClaimsAndRender" in init
+
+
+def test_versioned_static_assets_are_browser_immutable() -> None:
+    config = tomllib.loads(NETLIFY_TOML.read_text(encoding="utf-8"))
+    headers = {entry["for"]: entry["values"] for entry in config["headers"]}
+    html_source = INDEX_HTML.read_text(encoding="utf-8")
+
+    assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
+    assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
+    assert 'styles.css?v=20260726-performance-v1' in html_source
+    assert 'app.js?v=20260726-performance-v1' in html_source
 
 
 def test_stacked_bar_full_views_restart_palette_and_filtered_categories_keep_their_color() -> None:

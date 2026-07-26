@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from scripts.serve_site import (
+    DETAIL_VIEW_KEYS,
     LOCAL_POINTER_SCHEMA,
     LOCAL_PAGE_PATHS,
     PreviewRequestHandler,
@@ -22,6 +23,7 @@ def write_preview_fixture(root: Path) -> None:
         "graph_bootstraps": {},
         "dashboard_bootstraps": {},
         "detail_bootstraps": {},
+        "detail_bootstraps_by_view": {},
     }
     for manifest_key, logical_prefix in (
         ("graph_bootstraps", "graph"),
@@ -38,6 +40,23 @@ def write_preview_fixture(root: Path) -> None:
             relative = path.relative_to(root).as_posix()
             mappings[manifest_key][source_key] = relative
             files[f"{logical_prefix}:{source_key}"] = {
+                "path": relative,
+                "bytes": path.stat().st_size,
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            }
+    for source_key in ("primary", "meta_analyses", "reviews"):
+        mappings["detail_bootstraps_by_view"][source_key] = {}
+        for view_key in DETAIL_VIEW_KEYS:
+            path = run_dir / f"detail_bootstrap_{source_key}_{view_key}.json"
+            path.write_text(
+                json.dumps(
+                    {"kind": "detail_view", "source": source_key, "view": view_key}
+                ),
+                encoding="utf-8",
+            )
+            relative = path.relative_to(root).as_posix()
+            mappings["detail_bootstraps_by_view"][source_key][view_key] = relative
+            files[f"detail_view:{source_key}:{view_key}"] = {
                 "path": relative,
                 "bytes": path.stat().st_size,
                 "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
@@ -92,8 +111,11 @@ def test_local_preview_builds_one_verified_pointer_for_graph_and_methods(
     assert pointer["methods"]["bibliography"] == (
         "data/kg/views/methods_bibliography.json"
     )
+    assert pointer["active_detail_bootstraps_by_view"]["primary"]["brain_system"].endswith(
+        "/detail_bootstrap_primary_brain_system.json"
+    )
     assert "/data/kg/views/methods_bibliography.json" in allowed_files
-    assert len(allowed_files) == 13
+    assert len(allowed_files) == 43
 
 
 def test_local_preview_can_select_an_unpublished_run_without_changing_active_pointer(

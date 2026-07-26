@@ -665,6 +665,12 @@ class ExportEvidencePayloadTest(unittest.TestCase):
             graph_bootstrap = json.loads(result["graph_bootstrap_paths"]["primary"].read_text())
             dashboard_bootstrap = json.loads(result["dashboard_bootstrap_paths"]["primary"].read_text())
             detail_bootstrap = json.loads(result["detail_bootstrap_paths"]["primary"].read_text())
+            brain_view_bootstrap = json.loads(
+                result["detail_view_bootstrap_paths"]["primary"]["brain_system"].read_text()
+            )
+            condition_view_bootstrap = json.loads(
+                result["detail_view_bootstrap_paths"]["primary"]["condition_indication"].read_text()
+            )
             active = json.loads(active_json.read_text())
             manifest = json.loads(result["manifest_path"].read_text())
             rows = detail_bootstrap_rows(detail_bootstrap)
@@ -698,6 +704,9 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertEqual(dashboard_bootstrap["row_count"], 0)
         self.assertEqual(detail_bootstrap["schema_version"], "route_native_detail_bootstrap_v3")
         self.assertEqual(detail_bootstrap["row_count"], 1)
+        self.assertEqual(brain_view_bootstrap["payload_scope"], "entity_view:brain_system")
+        self.assertEqual(brain_view_bootstrap["row_count"], 1)
+        self.assertEqual(condition_view_bootstrap["row_count"], 0)
         self.assertIn("study_year", detail_bootstrap["fields"])
         self.assertIn("evidence_locator", detail_bootstrap["fields"])
         self.assertIn("support", detail_bootstrap["fields"])
@@ -722,6 +731,14 @@ class ExportEvidencePayloadTest(unittest.TestCase):
         self.assertIn("primary", active["active_dashboard_bootstraps"])
         self.assertIn("active_detail_bootstraps", active)
         self.assertIn("primary", active["active_detail_bootstraps"])
+        self.assertEqual(
+            set(active["active_detail_bootstraps_by_view"]["primary"]),
+            set(evidence_exporter.DETAIL_VIEW_ENTITY_KINDS),
+        )
+        self.assertIn(
+            "detail_view:primary:brain_system",
+            manifest["files"],
+        )
         self.assertEqual(set(active["active_graph_bootstraps"]), {"primary", "meta_analyses", "reviews"})
         self.assertEqual(set(active["active_dashboard_bootstraps"]), {"primary", "meta_analyses", "reviews"})
         self.assertEqual(set(active["active_detail_bootstraps"]), {"primary", "meta_analyses", "reviews"})

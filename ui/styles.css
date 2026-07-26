@@ -4325,6 +4325,7 @@ input[type="number"] {
 .cards-panel {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  height: min(78vh, 960px);
   min-height: 320px;
   max-height: min(78vh, 960px);
 }
@@ -5535,6 +5536,7 @@ input[type="number"] {
   }
 
   .cards-panel {
+    height: auto;
     max-height: none;
   }
 

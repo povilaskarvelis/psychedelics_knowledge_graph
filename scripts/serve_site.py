@@ -22,6 +22,18 @@ PUBLIC_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json"
 PUBLIC_DATA_ORIGIN = "https://data.psychedelicskg.com"
 GRAPH_MANIFEST_SCHEMA = "route_native_evidence_manifest_v1"
 SOURCE_KEYS = {"primary", "meta_analyses", "reviews"}
+DETAIL_VIEW_KEYS = {
+    "condition_indication",
+    "safety_adverse_event",
+    "cognitive_behavioral_construct",
+    "behavioral_effect",
+    "subjective_experience_construct",
+    "intervention_component",
+    "public_health_measure",
+    "brain_system",
+    "pathway_readout",
+    "target_system",
+}
 METHODS_FILES = {
     "pipeline_status": "data/kg/views/pipeline_status_graph.json",
     "bibliography": "data/kg/views/methods_bibliography.json",
@@ -130,6 +142,42 @@ def build_local_preview(
                 "bytes": size,
                 "sha256": digest,
             }
+    detail_view_mapping = manifest.get("detail_bootstraps_by_view")
+    if detail_view_mapping is not None:
+        if not isinstance(detail_view_mapping, dict) or set(detail_view_mapping) != SOURCE_KEYS:
+            raise ValueError(
+                f"Graph manifest detail_bootstraps_by_view must contain {sorted(SOURCE_KEYS)}"
+            )
+        pointer_mappings["active_detail_bootstraps_by_view"] = {}
+        for source_key, source_views in detail_view_mapping.items():
+            if not isinstance(source_views, dict) or set(source_views) != DETAIL_VIEW_KEYS:
+                raise ValueError(
+                    "Graph manifest detail_bootstraps_by_view."
+                    f"{source_key} must contain {sorted(DETAIL_VIEW_KEYS)}"
+                )
+            pointer_mappings["active_detail_bootstraps_by_view"][source_key] = {}
+            for view_key, relative_path in source_views.items():
+                logical_name = f"detail_view:{source_key}:{view_key}"
+                expected_logical_names.add(logical_name)
+                entry = (manifest.get("files") or {}).get(logical_name) or {}
+                if entry.get("path") != relative_path:
+                    raise ValueError(f"Manifest path mismatch for {logical_name}")
+                path = safe_release_path(repository_root, run_root, relative_path)
+                size = path.stat().st_size
+                digest = sha256_file(path)
+                if int(entry.get("bytes", -1)) != size:
+                    raise ValueError(f"Manifest size mismatch for {logical_name}")
+                if str(entry.get("sha256") or "").casefold() != digest:
+                    raise ValueError(f"Manifest checksum mismatch for {logical_name}")
+                public_path = str(relative_path).lstrip("/")
+                allowed_files[f"/{public_path}"] = path
+                pointer_mappings["active_detail_bootstraps_by_view"][source_key][view_key] = public_path
+                remote_files[logical_name] = {
+                    "key": public_path,
+                    "path": path.name,
+                    "bytes": size,
+                    "sha256": digest,
+                }
     if set(manifest.get("files") or {}) != expected_logical_names:
         raise ValueError("Graph manifest contains an unexpected file set")
 
@@ -202,6 +250,18 @@ def validated_published_preview(pointer: dict) -> dict[str, str]:
         if not isinstance(mapping, dict) or not mapping:
             raise ValueError(f"Published preview pointer is missing {mapping_name}")
         keys.update(str(value or "").strip("/") for value in mapping.values())
+    detail_view_mapping = pointer.get("active_detail_bootstraps_by_view")
+    if detail_view_mapping is not None:
+        if not isinstance(detail_view_mapping, dict) or not detail_view_mapping:
+            raise ValueError(
+                "Published preview pointer has an invalid active_detail_bootstraps_by_view mapping"
+            )
+        for source_views in detail_view_mapping.values():
+            if not isinstance(source_views, dict) or not source_views:
+                raise ValueError(
+                    "Published preview pointer has an invalid detail-view source mapping"
+                )
+            keys.update(str(value or "").strip("/") for value in source_views.values())
     files = pointer.get("files") or {}
     if not isinstance(files, dict) or not files:
         raise ValueError("Published preview pointer is missing its file catalogue")

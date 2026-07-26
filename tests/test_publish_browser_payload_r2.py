@@ -12,6 +12,19 @@ from pipeline.publish.publish_query_api_r2 import ImmutableObjectConflict
 from tests.r2_fixtures import FakeObjectStore
 from tests.test_publish_query_api_r2 import r2_settings
 
+DETAIL_VIEW_KEYS = (
+    "condition_indication",
+    "safety_adverse_event",
+    "cognitive_behavioral_construct",
+    "behavioral_effect",
+    "subjective_experience_construct",
+    "intervention_component",
+    "public_health_measure",
+    "brain_system",
+    "pathway_readout",
+    "target_system",
+)
+
 
 class PublishBrowserPayloadR2Test(unittest.TestCase):
     def build_release(self, root: Path) -> tuple[Path, Path, Path]:
@@ -23,6 +36,7 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
             "active_graph_bootstraps": {},
             "active_dashboard_bootstraps": {},
             "active_detail_bootstraps": {},
+            "active_detail_bootstraps_by_view": {},
         }
         for prefix, pointer_key in (
             ("graph", "active_graph_bootstraps"),
@@ -43,6 +57,23 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
                     "sha256": digest,
                 }
                 pointer_maps[pointer_key][source_key] = relative
+        for source_key in ("primary", "meta_analyses", "reviews"):
+            pointer_maps["active_detail_bootstraps_by_view"][source_key] = {}
+            for view_key in DETAIL_VIEW_KEYS:
+                path = release / f"detail_bootstrap_{source_key}_{view_key}.json"
+                path.write_text(
+                    json.dumps(
+                        {"kind": "detail_view", "source": source_key, "view": view_key}
+                    ),
+                    encoding="utf-8",
+                )
+                relative = path.relative_to(root).as_posix()
+                files[f"detail_view:{source_key}:{view_key}"] = {
+                    "path": relative,
+                    "bytes": path.stat().st_size,
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+                pointer_maps["active_detail_bootstraps_by_view"][source_key][view_key] = relative
 
         manifest = {
             "schema_version": "route_native_evidence_manifest_v1",
@@ -111,11 +142,16 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
                 )
             )
             self.assertTrue(
+                active["active_detail_bootstraps_by_view"]["primary"]["brain_system"].endswith(
+                    "/detail_bootstrap_primary_brain_system.json"
+                )
+            )
+            self.assertTrue(
                 active["methods"]["bibliography"].endswith(
                     "/methods_bibliography.json"
                 )
             )
-            self.assertEqual(result["uploaded_count"], 13)
+            self.assertEqual(result["uploaded_count"], 43)
 
             second = publish_active_browser_release(
                 store=store,
@@ -125,7 +161,7 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
                 methods_views_dir=methods_views,
             )
             self.assertEqual(second["uploaded_count"], 0)
-            self.assertEqual(second["existing_count"], 13)
+            self.assertEqual(second["existing_count"], 43)
 
     def test_checksum_failure_does_not_switch_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

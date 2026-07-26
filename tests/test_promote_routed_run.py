@@ -45,6 +45,15 @@ class PromoteRoutedRunTest(unittest.TestCase):
                     "bytes": payload_path.stat().st_size,
                     "sha256": promotion.sha256_file(payload_path),
                 }
+        for source_key, source_views in pointer["active_detail_bootstraps_by_view"].items():
+            for view_key, path_value in source_views.items():
+                payload_path = root / path_value
+                payload_path.write_text("{}", encoding="utf-8")
+                files[f"detail_view:{source_key}:{view_key}"] = {
+                    "path": path_value,
+                    "bytes": payload_path.stat().st_size,
+                    "sha256": promotion.sha256_file(payload_path),
+                }
         manifest_path.write_text(
             json.dumps(
                 {
@@ -57,6 +66,9 @@ class PromoteRoutedRunTest(unittest.TestCase):
                     "graph_bootstraps": pointer["active_graph_bootstraps"],
                     "dashboard_bootstraps": pointer["active_dashboard_bootstraps"],
                     "detail_bootstraps": pointer["active_detail_bootstraps"],
+                    "detail_bootstraps_by_view": pointer[
+                        "active_detail_bootstraps_by_view"
+                    ],
                     "files": files,
                 }
             ),

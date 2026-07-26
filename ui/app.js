@@ -486,6 +486,7 @@ const graphBootstrapPayloadPromises = new Map();
 const graphBootstrapClaimsBySource = new Map();
 const dashboardBootstrapPayloadPromises = new Map();
 const detailBootstrapPayloadPromises = new Map();
+const detailViewBootstrapPayloadPromises = new Map();
 const expandedUseContextClaimsCache = new WeakMap();
 let activeClaimsMemo = null;
 let entityCategoryCountsMemo = null;
@@ -1370,7 +1371,7 @@ function isOpenAccessClaim(claim) {
 function applyClaimLayerStore() {
   const store = claimStores[claimLayer] || claimStores.normalized;
   if (claimLayer === "normalized" && store.bySource) {
-    claims = store.bySource[currentSourceKey()] || [];
+    claims = normalizedClaimsForSourceView(currentSourceKey(), currentEntityViewKey());
   } else {
     claims = store.all || [];
   }
@@ -3890,7 +3891,6 @@ function setAccessView(nextView) {
   clearDetailGraphFilter();
   if (!restoreCachedOverviewDetail()) clearDetailForTransition();
   scheduleRender();
-  scheduleOverviewDetailPrewarmForSource(currentSourceKey(), 300);
 }
 
 function applyFilters(options = {}) {
@@ -4260,6 +4260,10 @@ function renderCards(data) {
     sentinel.setAttribute("aria-hidden", "true");
     cardsEl.appendChild(sentinel);
 
+    const observerRoot =
+      cardsEl.clientHeight > 0 && cardsEl.scrollHeight > cardsEl.clientHeight + 1
+        ? cardsEl
+        : null;
     cardsLoadObserver = new IntersectionObserver(
       (entries) => {
         if (!entries[0]?.isIntersecting) return;
@@ -4267,7 +4271,7 @@ function renderCards(data) {
         appendCardsChunk();
         attachCardsSentinelIfNeeded();
       },
-      { root: cardsEl, rootMargin: "360px", threshold: 0 }
+      { root: observerRoot, rootMargin: "360px 0px", threshold: 0 }
     );
     cardsLoadObserver.observe(sentinel);
   }
@@ -7433,7 +7437,7 @@ function buildGraph(data) {
 
   function prepareBootstrapInteraction() {
     if (!graphIsAggregateBootstrap) return true;
-    if (!normalizedCurrentSourceLoaded()) return false;
+    if (!currentViewClaimsReady()) return false;
     if (cacheKey) graphDomCache.delete(cacheKey);
     retainVisibleBootstrapGraph = false;
     return true;
@@ -7780,10 +7784,10 @@ function scheduleDeferredSurfaceRender(graphFiltered, allAccessGraphFiltered, up
       if (detailGraphFilter) {
         // Keep the current right-panel drilldown visible while refreshing the graph.
       } else if (selected) {
-        detailBody.dataset.renderStage = normalizedCurrentSourceLoaded() ? "full-detail" : "dashboard-bootstrap";
+        detailBody.dataset.renderStage = currentViewClaimsReady() ? "full-detail" : "dashboard-bootstrap";
         renderSelectedDetailFromData(graphFiltered, allAccessGraphFiltered);
       } else {
-        detailBody.dataset.renderStage = normalizedCurrentSourceLoaded() ? "full-detail" : "dashboard-bootstrap";
+        detailBody.dataset.renderStage = currentViewClaimsReady() ? "full-detail" : "dashboard-bootstrap";
         renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
       }
     }
@@ -7818,8 +7822,21 @@ function scheduleFindingSearchRender() {
   const token = ++findingSearchRenderToken;
   if (findingSearchTimer) window.clearTimeout(findingSearchTimer);
   cardsEl.setAttribute("aria-busy", "true");
-  findingSearchTimer = window.setTimeout(() => {
+  findingSearchTimer = window.setTimeout(async () => {
     findingSearchTimer = 0;
+    if (hasFindingSearchQuery() && !normalizedCurrentSourceLoaded()) {
+      try {
+        await loadNormalizedClaimSource(currentSourceKey());
+      } catch (error) {
+        if (token !== findingSearchRenderToken) return;
+        cardsEl.removeAttribute("aria-busy");
+        cardsEl.innerHTML = `<div class="detail-empty">Search data could not be loaded. ${escapeHtml(error.message)}</div>`;
+        return;
+      }
+      if (token !== findingSearchRenderToken) return;
+      applyClaimLayerStore();
+      updateModeUI();
+    }
     window.requestAnimationFrame(() => {
       if (token !== findingSearchRenderToken) return;
       const graphFiltered = applyFilters({ ignoreSearch: true });
@@ -7914,11 +7931,15 @@ function entityCategoryCounts() {
     return counts;
   }
 
-  const visibleClaims = graphViewClaims(expandedClaimsWithUseContextProjections(claims));
+  const bootstrapClaims = !normalizedCurrentSourceLoaded()
+    ? graphBootstrapClaimsBySource.get(currentSourceKey())
+    : null;
+  const countSource = bootstrapClaims?.length ? bootstrapClaims : claims;
+  const visibleClaims = graphViewClaims(expandedClaimsWithUseContextProjections(countSource));
   visibleClaims.forEach((claim) => {
     ENTITY_CATEGORY_OPTIONS.forEach((option) => {
       if (claimMatchesEntityViewOption(claim, option)) {
-        counts.set(option.key, (counts.get(option.key) || 0) + 1);
+        counts.set(option.key, (counts.get(option.key) || 0) + graphRecordCount(claim));
       }
     });
   });
@@ -8022,7 +8043,10 @@ function switchEntityView(nextView) {
   syncYearFilterControls(activeClaimsForMode(), true);
   const detailRestored = restoreCachedOverviewDetail();
   if (!detailRestored) clearDetailForTransition();
-  loadCurrentClaimsAndRender({ resetDetail: !detailRestored });
+  loadCurrentClaimsAndRender({
+    resetDetail: !detailRestored,
+    showGraphBootstrap: claimLayer === "normalized",
+  });
 }
 
 async function fetchJsonFromCandidates(candidates) {
@@ -8095,6 +8119,25 @@ function validatedGraphPayloadConfig(data, url) {
       }
     });
   });
+  const viewBootstraps = data?.active_detail_bootstraps_by_view;
+  if (viewBootstraps !== undefined) {
+    if (!viewBootstraps || typeof viewBootstraps !== "object") {
+      throw new Error("Graph data pointer has an invalid active_detail_bootstraps_by_view mapping");
+    }
+    ["primary", "meta_analyses", "reviews"].forEach((sourceKey) => {
+      const sourceViews = viewBootstraps[sourceKey];
+      if (!sourceViews || typeof sourceViews !== "object") {
+        throw new Error(`Graph data pointer is missing active_detail_bootstraps_by_view.${sourceKey}`);
+      }
+      ENTITY_CATEGORY_OPTIONS.forEach(({ key: viewKey }) => {
+        if (!cleanDisplayText(sourceViews[viewKey] || "")) {
+          throw new Error(
+            `Graph data pointer is missing active_detail_bootstraps_by_view.${sourceKey}.${viewKey}`
+          );
+        }
+      });
+    });
+  }
   if (!cleanDisplayText(data?.active_manifest || "")) {
     throw new Error("Graph data pointer is missing active_manifest");
   }
@@ -8154,10 +8197,34 @@ const normalizedSourceLoaded = {
   reviews: false,
 };
 
+const dashboardSourceReady = {
+  primary: false,
+  meta_analyses: false,
+  reviews: false,
+};
+
 const normalizedSourceTasks = {
   primary: null,
   meta_analyses: null,
   reviews: null,
+};
+
+const normalizedViewClaimsBySource = {
+  primary: {},
+  meta_analyses: {},
+  reviews: {},
+};
+
+const normalizedViewLoaded = {
+  primary: {},
+  meta_analyses: {},
+  reviews: {},
+};
+
+const normalizedViewTasks = {
+  primary: {},
+  meta_analyses: {},
+  reviews: {},
 };
 
 function renderDataLoading() {
@@ -8185,6 +8252,11 @@ function enrichAllLoadedClaimsWithBibliography() {
     }
     store.all = enrichClaimsWithBibliographyMetadata(store.all || []);
   });
+  Object.values(normalizedViewClaimsBySource).forEach((sourceViews) => {
+    Object.keys(sourceViews).forEach((viewKey) => {
+      sourceViews[viewKey] = enrichClaimsWithBibliographyMetadata(sourceViews[viewKey] || []);
+    });
+  });
   clearOverviewDetailCache();
   activeClaimsMemo = null;
   entityCategoryCountsMemo = null;
@@ -8203,6 +8275,11 @@ function activeDashboardBootstrapPath(config, sourceKey) {
 function activeDetailBootstrapPath(config, sourceKey) {
   const bootstraps = config?.active_detail_bootstraps || {};
   return cleanDisplayText(bootstraps?.[sourceKey]);
+}
+
+function activeDetailViewBootstrapPath(config, sourceKey, viewKey) {
+  const bootstraps = config?.active_detail_bootstraps_by_view || {};
+  return cleanDisplayText(bootstraps?.[sourceKey]?.[viewKey]);
 }
 
 function isSecondarySourceKey(sourceKey) {
@@ -8260,32 +8337,36 @@ function graphBootstrapClaimsFromPayload(payload, sourceKey) {
   });
 }
 
-function columnarBootstrapClaimsFromPayload(payload, bootstrapMarker) {
+function columnarBootstrapClaimsFromPayload(payload, bootstrapMarker, sourceKey = "") {
   const fields = Array.isArray(payload?.fields) ? payload.fields : [];
   const values = Array.isArray(payload?.values) ? payload.values : [];
   const rows = Array.isArray(payload?.rows) ? payload.rows : [];
   if (!fields.length || !values.length || !rows.length) return [];
 
-  return rows.map((row) => {
+  const items = [];
+  rows.forEach((row) => {
     const raw = {};
-    fields.forEach((field, index) => {
+    for (let index = 0; index < fields.length; index += 1) {
+      const field = fields[index];
       const value = values[Number(row[index]) || 0];
-      if (value === null || value === undefined || value === "") return;
+      if (value === null || value === undefined || value === "") continue;
       raw[field] = value;
-    });
-    return {
-      ...routeNativeFindingForCurrentUi(raw),
-      [bootstrapMarker]: true,
-    };
+    }
+    const item = routeNativeFindingForCurrentUi(raw);
+    if (isHiddenMainGraphItem(item)) return;
+    if (sourceKey && routeNativeSourceKey(item) !== sourceKey) return;
+    item[bootstrapMarker] = true;
+    items.push(item);
   });
+  return items;
 }
 
-function dashboardBootstrapClaimsFromPayload(payload) {
-  return columnarBootstrapClaimsFromPayload(payload, "__dashboard_bootstrap");
+function dashboardBootstrapClaimsFromPayload(payload, sourceKey) {
+  return columnarBootstrapClaimsFromPayload(payload, "__dashboard_bootstrap", sourceKey);
 }
 
-function detailBootstrapClaimsFromPayload(payload) {
-  return columnarBootstrapClaimsFromPayload(payload, "__detail_bootstrap");
+function detailBootstrapClaimsFromPayload(payload, sourceKey) {
+  return columnarBootstrapClaimsFromPayload(payload, "__detail_bootstrap", sourceKey);
 }
 
 async function loadGraphBootstrapClaims(sourceKey) {
@@ -8311,9 +8392,29 @@ async function loadDetailBootstrapClaims(sourceKey) {
   if (detailBootstrapPayloadPromises.has(path)) return detailBootstrapPayloadPromises.get(path);
 
   const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
-    .then(({ data }) => detailBootstrapClaimsFromPayload(data));
+    .then(({ data }) => detailBootstrapClaimsFromPayload(data, sourceKey));
   detailBootstrapPayloadPromises.set(path, task);
   return task;
+}
+
+async function loadDetailViewBootstrapClaims(sourceKey, viewKey) {
+  const config = await loadGraphPayloadConfig();
+  const path = activeDetailViewBootstrapPath(config, sourceKey, viewKey);
+  if (!path) return null;
+  if (detailViewBootstrapPayloadPromises.has(path)) {
+    return detailViewBootstrapPayloadPromises.get(path);
+  }
+
+  const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
+    .then(({ data }) => detailBootstrapClaimsFromPayload(data, sourceKey));
+  detailViewBootstrapPayloadPromises.set(path, task);
+  try {
+    return await task;
+  } finally {
+    if (detailViewBootstrapPayloadPromises.get(path) === task) {
+      detailViewBootstrapPayloadPromises.delete(path);
+    }
+  }
 }
 
 async function loadDashboardBootstrapClaims(sourceKey) {
@@ -8323,15 +8424,15 @@ async function loadDashboardBootstrapClaims(sourceKey) {
   if (dashboardBootstrapPayloadPromises.has(path)) return dashboardBootstrapPayloadPromises.get(path);
 
   const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
-    .then(({ data }) => {
-      const items = dashboardBootstrapClaimsFromPayload(data)
-        .filter((finding) => !isHiddenMainGraphItem(finding))
-        .filter((finding) => routeNativeSourceKey(finding) === sourceKey)
-        .map((finding) => routeNativeFindingForCurrentUi(finding));
-      return items;
-    });
+    .then(({ data }) => dashboardBootstrapClaimsFromPayload(data, sourceKey));
   dashboardBootstrapPayloadPromises.set(path, task);
-  return task;
+  try {
+    return await task;
+  } finally {
+    if (dashboardBootstrapPayloadPromises.get(path) === task) {
+      dashboardBootstrapPayloadPromises.delete(path);
+    }
+  }
 }
 
 function routeNativeSourceKey(finding) {
@@ -8412,19 +8513,46 @@ function routeNativeFindingForCurrentUi(finding) {
 async function loadRouteNativeEvidenceSource(sourceKey) {
   const findings = await loadDetailBootstrapClaims(sourceKey);
   if (!Array.isArray(findings)) return false;
-  const items = findings
-    .filter((finding) => !isHiddenMainGraphItem(finding))
-    .filter((finding) => routeNativeSourceKey(finding) === sourceKey)
-    .map((finding) => routeNativeFindingForCurrentUi(finding));
-
   const enrichedItems = bibliographyPayloadsLoaded()
-    ? enrichClaimsWithBibliographyMetadata(items)
-    : items;
+    ? enrichClaimsWithBibliographyMetadata(findings)
+    : findings;
   // The routed detail payload is already canonical. Client-side legacy deduplication
   // collapsed distinct entities from the same paper and changed overview counts.
   claimStores.normalized.bySource[sourceKey] = enrichedItems;
   claimStores.normalized.all = Object.values(claimStores.normalized.bySource).flat();
   normalizedSourceLoaded[sourceKey] = true;
+  normalizedViewClaimsBySource[sourceKey] = {};
+  normalizedViewLoaded[sourceKey] = {};
+  activeClaimsMemo = null;
+  entityCategoryCountsMemo = null;
+  clearOverviewDetailCacheForSource(sourceKey);
+  clearGraphDomCacheForSource(sourceKey, { preserveBootstrap: true });
+  return true;
+}
+
+function normalizedViewIsReady(sourceKey, viewKey) {
+  return Boolean(
+    normalizedSourceLoaded[sourceKey] ||
+    normalizedViewLoaded[sourceKey]?.[viewKey]
+  );
+}
+
+function normalizedClaimsForSourceView(sourceKey, viewKey) {
+  if (normalizedSourceLoaded[sourceKey]) {
+    return claimStores.normalized.bySource[sourceKey] || [];
+  }
+  return normalizedViewClaimsBySource[sourceKey]?.[viewKey] || [];
+}
+
+async function loadRouteNativeEvidenceView(sourceKey, viewKey) {
+  const findings = await loadDetailViewBootstrapClaims(sourceKey, viewKey);
+  if (findings === null) return false;
+  if (normalizedSourceLoaded[sourceKey]) return true;
+  const enrichedItems = bibliographyPayloadsLoaded()
+    ? enrichClaimsWithBibliographyMetadata(findings)
+    : findings;
+  normalizedViewClaimsBySource[sourceKey][viewKey] = enrichedItems;
+  normalizedViewLoaded[sourceKey][viewKey] = true;
   activeClaimsMemo = null;
   entityCategoryCountsMemo = null;
   clearOverviewDetailCacheForSource(sourceKey);
@@ -8445,7 +8573,7 @@ function evidenceViewForSourceKey(sourceKey) {
 }
 
 function prewarmOverviewDetailEntry(sourceKey, viewKey, accessKey) {
-  const sourceClaims = claimStores.normalized.bySource[sourceKey] || [];
+  const sourceClaims = normalizedClaimsForSourceView(sourceKey, viewKey);
   if (!sourceClaims.length) return;
 
   const evidenceKey = evidenceViewForSourceKey(sourceKey);
@@ -8522,13 +8650,14 @@ function prewarmOverviewDetailEntry(sourceKey, viewKey, accessKey) {
   }
 }
 
-function scheduleOverviewDetailPrewarmForSource(sourceKey, startDelay = 0) {
-  const sourceClaims = claimStores.normalized.bySource[sourceKey] || [];
-  if (!sourceClaims.length) return;
+function scheduleOverviewDetailPrewarmForView(sourceKey, viewKey, startDelay = 0) {
+  const sourceClaims = normalizedClaimsForSourceView(sourceKey, viewKey);
+  if (!normalizedViewIsReady(sourceKey, viewKey) || !sourceClaims.length) return;
   const accessKey = accessView;
   const scheduleKey = [
     sourceKey,
     claimArrayId(sourceClaims),
+    viewKey,
     accessKey,
     ["authors", "journals", "funders"]
       .map((key) => `${key}-${chartVisibleCounts.get(key) || DEFAULT_RANKED_CHART_VISIBLE_COUNT}`)
@@ -8537,18 +8666,26 @@ function scheduleOverviewDetailPrewarmForSource(sourceKey, startDelay = 0) {
   if (overviewDetailPrewarmScheduled.has(scheduleKey)) return;
   overviewDetailPrewarmScheduled.add(scheduleKey);
 
-  ENTITY_CATEGORY_OPTIONS.forEach((option, index) => {
-    scheduleIdleTask(
-      () => prewarmOverviewDetailEntry(sourceKey, option.key, accessKey),
-      startDelay + index * 140
-    );
-  });
+  scheduleIdleTask(
+    () => prewarmOverviewDetailEntry(sourceKey, viewKey, accessKey),
+    startDelay
+  );
 }
 
 function normalizedCurrentSourceLoaded() {
   return Boolean(normalizedSourceLoaded[currentSourceKey()]);
 }
 
+function currentViewClaimsReady() {
+  return claimLayer === "normalized" &&
+    normalizedViewIsReady(currentSourceKey(), currentEntityViewKey());
+}
+
+function preloadClaimsForEntityView(viewKey) {
+  const sourceKey = currentSourceKey();
+  if (normalizedViewIsReady(sourceKey, viewKey)) return Promise.resolve();
+  return loadNormalizedClaimView(sourceKey, viewKey).catch(() => {});
+}
 
 async function loadNormalizedClaimSource(sourceKey) {
   if (normalizedSourceLoaded[sourceKey]) return;
@@ -8570,8 +8707,27 @@ async function loadNormalizedClaimSource(sourceKey) {
   }
 }
 
+async function loadNormalizedClaimView(sourceKey, viewKey) {
+  if (normalizedViewIsReady(sourceKey, viewKey)) return;
+  if (normalizedViewTasks[sourceKey][viewKey]) {
+    await normalizedViewTasks[sourceKey][viewKey];
+    return;
+  }
+
+  normalizedViewTasks[sourceKey][viewKey] = (async () => {
+    if (await loadRouteNativeEvidenceView(sourceKey, viewKey)) return;
+    await loadNormalizedClaimSource(sourceKey);
+  })();
+
+  try {
+    await normalizedViewTasks[sourceKey][viewKey];
+  } finally {
+    normalizedViewTasks[sourceKey][viewKey] = null;
+  }
+}
+
 async function ensureClaimsForCurrentView() {
-  await loadNormalizedClaimSource(currentSourceKey());
+  await loadNormalizedClaimView(currentSourceKey(), currentEntityViewKey());
 }
 
 function waitForPaint() {
@@ -8616,10 +8772,12 @@ async function renderCurrentDashboardBootstrap(loadToken, sourceKey, dashboardCl
     return false;
   }
 
-  claimStores.normalized.bySource[sourceKey] = dashboardClaims;
-  claimStores.normalized.all = Object.values(claimStores.normalized.bySource).flat();
+  normalizedViewClaimsBySource[sourceKey].condition_indication = dashboardClaims;
+  normalizedViewLoaded[sourceKey].condition_indication = true;
+  dashboardSourceReady[sourceKey] = true;
   clearOverviewDetailCacheForSource(sourceKey);
   applyClaimLayerStore();
+  updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
 
   const graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
@@ -8630,6 +8788,8 @@ async function renderCurrentDashboardBootstrap(loadToken, sourceKey, dashboardCl
 
   detailBody.dataset.renderStage = "dashboard-bootstrap";
   renderOverviewDetail(graphFiltered, allAccessGraphFiltered);
+  scheduleDeferredSurfaceRender(graphFiltered, allAccessGraphFiltered, false);
+  scheduleFindingSearchIndexWarmup();
   return true;
 }
 
@@ -8655,10 +8815,13 @@ function canonicalOverviewBootstrapClaims() {
 
 async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = true, showGraphBootstrap = false } = {}) {
   const token = ++currentDataLoadToken;
-  const sourceWasLoaded = normalizedCurrentSourceLoaded();
+  const sourceWasLoaded = currentViewClaimsReady();
   const sourceKey = currentSourceKey();
   const dashboardTask =
-    showGraphBootstrap && claimLayer === "normalized" && !sourceWasLoaded
+    showGraphBootstrap &&
+    claimLayer === "normalized" &&
+    currentEntityViewKey() === "condition_indication" &&
+    !sourceWasLoaded
       ? loadDashboardBootstrapClaims(sourceKey)
       : null;
   let bootstrapRendered = false;
@@ -8676,12 +8839,17 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
   }
   if (token !== currentDataLoadToken) return;
 
+  let dashboardRendered = false;
   if (dashboardTask) {
     const dashboardClaims = await dashboardTask;
-    const dashboardRendered = await renderCurrentDashboardBootstrap(token, sourceKey, dashboardClaims);
+    dashboardRendered = await renderCurrentDashboardBootstrap(token, sourceKey, dashboardClaims);
     if (dashboardRendered) await waitForPaint();
   }
   if (token !== currentDataLoadToken) return;
+
+  if (dashboardRendered && !hasFindingSearchQuery()) {
+    return;
+  }
 
   try {
     await ensureClaimsForCurrentView();
@@ -8703,20 +8871,6 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
   scheduleRender();
 }
 
-function loadBibliographyPayloadsInBackground() {
-  if (bibliographyPayloadsPromise) return bibliographyPayloadsPromise;
-  bibliographyPayloadsPromise = loadBibliographyPayloads()
-    .then(() => {
-      enrichAllLoadedClaimsWithBibliography();
-      applyClaimLayerStore();
-      scheduleRender();
-    })
-    .catch(() => {
-      bibliographyPayloadsPromise = null;
-    });
-  return bibliographyPayloadsPromise;
-}
-
 function scheduleIdleTask(callback, delay = 0) {
   window.setTimeout(() => {
     if ("requestIdleCallback" in window) {
@@ -8727,44 +8881,9 @@ function scheduleIdleTask(callback, delay = 0) {
   }, delay);
 }
 
-function preloadNormalizedSourceInBackground(sourceKey, delay) {
-  scheduleIdleTask(() => {
-    loadNormalizedClaimSource(sourceKey)
-      .then(() => {
-        scheduleOverviewDetailPrewarmForSource(sourceKey, 900);
-        if (currentSourceKey() === sourceKey) {
-          applyClaimLayerStore();
-          updateModeUI();
-          updateStats();
-        }
-      })
-      .catch(() => {});
-  }, delay);
-}
-
-function preloadLikelyNextData() {
-  const saveData = Boolean(window.navigator?.connection?.saveData);
-  const activeSourceKey = currentSourceKey();
-  const queue = saveData
-    ? []
-    : activeSourceKey === "primary"
-      ? ["meta_analyses", "reviews"]
-      : ["primary"];
-  const seen = new Set();
-
-  queue.forEach((sourceKey, index) => {
-    if (seen.has(sourceKey)) return;
-    seen.add(sourceKey);
-    preloadNormalizedSourceInBackground(sourceKey, 650 + index * 900);
-  });
-  scheduleIdleTask(loadBibliographyPayloadsInBackground, saveData ? 3000 : 4200);
-}
-
 async function init() {
-  await loadGraphManifestStats();
+  loadGraphManifestStats();
   await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
-  scheduleOverviewDetailPrewarmForSource(currentSourceKey());
-  preloadLikelyNextData();
 }
 
 if (yearMinFilter) {
@@ -9030,6 +9149,17 @@ evidenceViewButtons.forEach((button) => {
   });
 });
 if (entityKindToggle) {
+  const prepareEntityView = (event) => {
+    const button = event.target.closest?.("[data-entity-view]");
+    if (!button || !entityKindToggle.contains(button)) return;
+    const viewKey = button.dataset.entityView || "";
+    if (!viewKey || viewKey === currentEntityViewKey()) return;
+    preloadClaimsForEntityView(viewKey).then(() => {
+      scheduleOverviewDetailPrewarmForView(currentSourceKey(), viewKey, 120);
+    });
+  };
+  entityKindToggle.addEventListener("pointerover", prepareEntityView);
+  entityKindToggle.addEventListener("focusin", prepareEntityView);
   entityKindToggle.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-entity-view]");
     if (!button || !entityKindToggle.contains(button)) return;

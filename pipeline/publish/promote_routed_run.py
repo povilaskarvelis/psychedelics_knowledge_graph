@@ -60,6 +60,18 @@ PUBLIC_QUERY_TABLES = {
     "paper_authors",
     "relationships",
 }
+DETAIL_VIEW_KEYS = (
+    "condition_indication",
+    "safety_adverse_event",
+    "cognitive_behavioral_construct",
+    "behavioral_effect",
+    "subjective_experience_construct",
+    "intervention_component",
+    "public_health_measure",
+    "brain_system",
+    "pathway_readout",
+    "target_system",
+)
 
 
 def now_utc() -> str:
@@ -187,6 +199,15 @@ def graph_pointer_for_run(
             "primary": (payload_rel / "detail_bootstrap_primary.json").as_posix(),
             "meta_analyses": (payload_rel / "detail_bootstrap_meta_analyses.json").as_posix(),
             "reviews": (payload_rel / "detail_bootstrap_reviews.json").as_posix(),
+        },
+        "active_detail_bootstraps_by_view": {
+            source_key: {
+                view_key: (
+                    payload_rel / f"detail_bootstrap_{source_key}_{view_key}.json"
+                ).as_posix()
+                for view_key in DETAIL_VIEW_KEYS
+            }
+            for source_key in ("primary", "meta_analyses", "reviews")
         },
         "active_manifest": (payload_rel / "graph_payload_manifest.json").as_posix(),
         "evidence_source": "kg_tables",
@@ -376,6 +397,26 @@ def validate_public_payload(
             if not path.is_file():
                 raise FileNotFoundError(f"Missing payload file: {path_value}")
             logical_name = f"{file_prefix}:{source_key}"
+            expected_file_keys.add(logical_name)
+            entry = (payload_manifest.get("files") or {}).get(logical_name) or {}
+            if entry.get("path") != path_value:
+                raise ValueError(f"Payload manifest file path mismatch for {logical_name}")
+            if int(entry.get("bytes", -1)) != path.stat().st_size:
+                raise ValueError(f"Payload manifest file size mismatch for {logical_name}")
+            if normalize(entry.get("sha256")).casefold() != sha256_file(path):
+                raise ValueError(f"Payload manifest checksum mismatch for {logical_name}")
+    expected_detail_views = graph_pointer["active_detail_bootstraps_by_view"]
+    actual_detail_views = payload_manifest.get("detail_bootstraps_by_view") or {}
+    if actual_detail_views != expected_detail_views:
+        raise ValueError(
+            "Payload manifest detail_bootstraps_by_view does not match the expected run files"
+        )
+    for source_key, source_views in expected_detail_views.items():
+        for view_key, path_value in source_views.items():
+            path = ROOT / path_value
+            if not path.is_file():
+                raise FileNotFoundError(f"Missing payload file: {path_value}")
+            logical_name = f"detail_view:{source_key}:{view_key}"
             expected_file_keys.add(logical_name)
             entry = (payload_manifest.get("files") or {}).get(logical_name) or {}
             if entry.get("path") != path_value:

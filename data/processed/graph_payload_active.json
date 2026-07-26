@@ -1,7 +1,7 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
   "release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
-  "public_release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
+  "public_release_id": "full_corpus_normalization_patch_qa_20260724:public:5fe75dd5abf64522b57e94af946fbffd",
   "run_id": "full_corpus_normalization_patch_qa_20260724",
   "active_graph_bootstraps": {
     "primary": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_bootstrap_primary.json",
@@ -17,6 +17,44 @@
     "primary": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary.json",
     "meta_analyses": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses.json",
     "reviews": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews.json"
+  },
+  "active_detail_bootstraps_by_view": {
+    "primary": {
+      "condition_indication": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_condition_indication.json",
+      "safety_adverse_event": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_safety_adverse_event.json",
+      "cognitive_behavioral_construct": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_cognitive_behavioral_construct.json",
+      "behavioral_effect": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_behavioral_effect.json",
+      "subjective_experience_construct": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_subjective_experience_construct.json",
+      "intervention_component": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_intervention_component.json",
+      "public_health_measure": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_public_health_measure.json",
+      "brain_system": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_brain_system.json",
+      "pathway_readout": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_pathway_readout.json",
+      "target_system": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_primary_target_system.json"
+    },
+    "meta_analyses": {
+      "condition_indication": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_condition_indication.json",
+      "safety_adverse_event": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_safety_adverse_event.json",
+      "cognitive_behavioral_construct": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_cognitive_behavioral_construct.json",
+      "behavioral_effect": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_behavioral_effect.json",
+      "subjective_experience_construct": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_subjective_experience_construct.json",
+      "intervention_component": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_intervention_component.json",
+      "public_health_measure": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_public_health_measure.json",
+      "brain_system": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_brain_system.json",
+      "pathway_readout": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_pathway_readout.json",
+      "target_system": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_meta_analyses_target_system.json"
+    },
+    "reviews": {
+      "condition_indication": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_condition_indication.json",
+      "safety_adverse_event": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_safety_adverse_event.json",
+      "cognitive_behavioral_construct": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_cognitive_behavioral_construct.json",
+      "behavioral_effect": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_behavioral_effect.json",
+      "subjective_experience_construct": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_subjective_experience_construct.json",
+      "intervention_component": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_intervention_component.json",
+      "public_health_measure": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_public_health_measure.json",
+      "brain_system": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_brain_system.json",
+      "pathway_readout": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_pathway_readout.json",
+      "target_system": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/detail_bootstrap_reviews_target_system.json"
+    }
   },
   "active_manifest": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_payload_manifest.json",
   "evidence_source": "kg_tables",

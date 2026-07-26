@@ -51,6 +51,18 @@ META_ANALYSES_SOURCE_KEY = "meta_analyses"
 REVIEWS_SOURCE_KEY = "reviews"
 UI_SOURCE_KEYS = (PRIMARY_SOURCE_KEY, META_ANALYSES_SOURCE_KEY, REVIEWS_SOURCE_KEY)
 DASHBOARD_BOOTSTRAP_ENTITY_KINDS = {"condition_indication", "outcome_scale"}
+DETAIL_VIEW_ENTITY_KINDS = {
+    "condition_indication": {"condition_indication", "outcome_scale"},
+    "safety_adverse_event": {"safety_adverse_event"},
+    "cognitive_behavioral_construct": {"cognitive_behavioral_construct"},
+    "behavioral_effect": {"cognitive_behavioral_construct"},
+    "subjective_experience_construct": {"subjective_experience_construct"},
+    "intervention_component": {"intervention_component"},
+    "public_health_measure": {"public_health_measure", "exposure_context"},
+    "brain_system": {"brain_region", "brain_network", "neural_circuit"},
+    "pathway_readout": {"pathway_process", "biomarker_readout"},
+    "target_system": {"target", "system_family"},
+}
 META_ANALYSIS_SOURCE_TYPES = {
     "meta_analysis",
     "network_meta_analysis",
@@ -1333,6 +1345,10 @@ def ui_detail_bootstrap_name(source_key: str) -> str:
     return f"detail_bootstrap_{source_key}.json"
 
 
+def ui_detail_view_bootstrap_name(source_key: str, view_key: str) -> str:
+    return f"detail_bootstrap_{source_key}_{view_key}.json"
+
+
 OVERVIEW_PARENT_COLLAPSE_KINDS = {"pathway_process", "biomarker_readout", "intervention_component"}
 
 
@@ -1737,6 +1753,33 @@ def detail_bootstrap_payload(findings: list[dict], generated_at: str, kg_dir: Pa
     )
 
 
+def detail_view_bootstrap_payload(
+    findings: list[dict],
+    generated_at: str,
+    kg_dir: Path,
+    source_key: str,
+    view_key: str,
+) -> dict:
+    entity_kinds = DETAIL_VIEW_ENTITY_KINDS[view_key]
+    view_findings = [
+        finding
+        for finding in findings
+        if normalize(finding.get("entity_kind") or finding.get("kg_entity_kind")).lower()
+        in entity_kinds
+    ]
+    payload = columnar_bootstrap_payload(
+        view_findings,
+        generated_at,
+        kg_dir,
+        source_key,
+        schema_version=DETAIL_BOOTSTRAP_SCHEMA_VERSION,
+        payload_scope=f"entity_view:{view_key}",
+    )
+    payload["entity_view"] = view_key
+    payload["source_row_count"] = len(findings)
+    return payload
+
+
 def remove_stale_payload_files(out_dir: Path, keep_names: set[str]) -> None:
     for pattern in (
         "graph_payload_*.json",
@@ -1770,6 +1813,7 @@ def write_active_pointer(
     graph_bootstrap_paths: dict[str, Path],
     dashboard_bootstrap_paths: dict[str, Path],
     detail_bootstrap_paths: dict[str, Path],
+    detail_view_bootstrap_paths: dict[str, dict[str, Path]],
     kg_dir: Path,
 ) -> dict:
     payload = {
@@ -1779,6 +1823,13 @@ def write_active_pointer(
             source_key: relative_path(path) for source_key, path in dashboard_bootstrap_paths.items()
         },
         "active_detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
+        "active_detail_bootstraps_by_view": {
+            source_key: {
+                view_key: relative_path(path)
+                for view_key, path in view_paths.items()
+            }
+            for source_key, view_paths in detail_view_bootstrap_paths.items()
+        },
         "active_manifest": relative_path(manifest_path),
         "evidence_source": "kg_tables",
         "kg_dir": relative_path(kg_dir),
@@ -1836,10 +1887,22 @@ def export_evidence_payload(
         source_key: out_dir / ui_detail_bootstrap_name(source_key)
         for source_key in UI_SOURCE_KEYS
     }
+    detail_view_bootstrap_paths = {
+        source_key: {
+            view_key: out_dir / ui_detail_view_bootstrap_name(source_key, view_key)
+            for view_key in DETAIL_VIEW_ENTITY_KINDS
+        }
+        for source_key in UI_SOURCE_KEYS
+    }
     keep_names = {manifest_path.name}
     keep_names.update(path.name for path in graph_bootstrap_paths.values())
     keep_names.update(path.name for path in dashboard_bootstrap_paths.values())
     keep_names.update(path.name for path in detail_bootstrap_paths.values())
+    keep_names.update(
+        path.name
+        for view_paths in detail_view_bootstrap_paths.values()
+        for path in view_paths.values()
+    )
     remove_stale_payload_files(out_dir, keep_names)
 
     generated_at = generated_at or now_utc()
@@ -1860,6 +1923,15 @@ def export_evidence_payload(
         dashboard_bootstrap_paths[source_key].write_text(compact_json(dashboard_bootstrap), encoding="utf-8")
         detail_bootstrap = detail_bootstrap_payload(source_findings, generated_at, kg_dir, source_key)
         detail_bootstrap_paths[source_key].write_text(compact_json(detail_bootstrap), encoding="utf-8")
+        for view_key, path in detail_view_bootstrap_paths[source_key].items():
+            view_bootstrap = detail_view_bootstrap_payload(
+                source_findings,
+                generated_at,
+                kg_dir,
+                source_key,
+                view_key,
+            )
+            path.write_text(compact_json(view_bootstrap), encoding="utf-8")
 
     overview_paper_counts = {
         "primary_studies": source_summary_stats[PRIMARY_SOURCE_KEY]["study_count"],
@@ -1886,6 +1958,11 @@ def export_evidence_payload(
             f"detail:{source_key}": payload_file_entry(path)
             for source_key, path in detail_bootstrap_paths.items()
         },
+        **{
+            f"detail_view:{source_key}:{view_key}": payload_file_entry(path)
+            for source_key, view_paths in detail_view_bootstrap_paths.items()
+            for view_key, path in view_paths.items()
+        },
     }
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -1897,6 +1974,13 @@ def export_evidence_payload(
             source_key: relative_path(path) for source_key, path in dashboard_bootstrap_paths.items()
         },
         "detail_bootstraps": {source_key: relative_path(path) for source_key, path in detail_bootstrap_paths.items()},
+        "detail_bootstraps_by_view": {
+            source_key: {
+                view_key: relative_path(path)
+                for view_key, path in view_paths.items()
+            }
+            for source_key, view_paths in detail_view_bootstrap_paths.items()
+        },
         "release_id": "",
         "evidence_release_id": "",
         "files": payload_files,
@@ -1928,6 +2012,7 @@ def export_evidence_payload(
             graph_bootstrap_paths=graph_bootstrap_paths,
             dashboard_bootstrap_paths=dashboard_bootstrap_paths,
             detail_bootstrap_paths=detail_bootstrap_paths,
+            detail_view_bootstrap_paths=detail_view_bootstrap_paths,
             kg_dir=kg_dir,
         )
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -1935,6 +2020,7 @@ def export_evidence_payload(
         "graph_bootstrap_paths": graph_bootstrap_paths,
         "dashboard_bootstrap_paths": dashboard_bootstrap_paths,
         "detail_bootstrap_paths": detail_bootstrap_paths,
+        "detail_view_bootstrap_paths": detail_view_bootstrap_paths,
         "manifest_path": manifest_path,
         "manifest": manifest,
     }
