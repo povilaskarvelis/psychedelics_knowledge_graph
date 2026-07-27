@@ -38,6 +38,19 @@ def test_real_world_use_contains_exposure_contexts_without_a_separate_graph_view
     assert 'label: "Use contexts"' not in source
 
 
+def test_real_world_topic_facets_include_social_context_without_a_catch_all() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    topic_order = source.split("const PUBLIC_HEALTH_TOPIC_ORDER = [", 1)[1].split("];", 1)[0]
+    facet_labeler = source.split("function publicHealthTopicFacetLabel", 1)[1].split(
+        "function publicHealthUseContextFacetLabels",
+        1,
+    )[0]
+
+    assert '"Culture, religion & social context"' in topic_order
+    assert '"Other real-world topics"' not in topic_order
+    assert 'return canonical || "";' in facet_labeler
+
+
 def test_molecular_effects_category_is_kind_based_across_source_domains() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     molecular = source.split('key: "pathway_readout"', 1)[1].split("},", 1)[0]

@@ -1,7 +1,7 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
   "release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
-  "public_release_id": "full_corpus_normalization_patch_qa_20260724:public:5fe75dd5abf64522b57e94af946fbffd",
+  "public_release_id": "full_corpus_normalization_patch_qa_20260724:public:ddad82b8b0894e9b940d583fbc8d7c96",
   "run_id": "full_corpus_normalization_patch_qa_20260724",
   "active_graph_bootstraps": {
     "primary": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_bootstrap_primary.json",

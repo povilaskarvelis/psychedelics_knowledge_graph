@@ -530,6 +530,30 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertTrue(match["matched"])
         self.assertEqual(match["label"], "Research landscape")
 
+    def test_review_coverage_mechanics_and_unresolved_real_world_topics_are_detail_only(self) -> None:
+        review_coverage = {
+            "domain": "general_topic_coverage",
+            "evidence_type": "secondary_literature",
+            "source_family": "secondary_literature",
+            "kg_entity_kind_override": "public_health_measure",
+            "graph_entity_label": "Review synthesis",
+        }
+        unresolved_real_world = {
+            "domain": "real_world_public_health",
+            "evidence_type": "secondary_literature",
+            "kg_entity_kind_override": "public_health_measure",
+            "graph_entity_label": "Other real-world topics",
+        }
+
+        self.assertEqual(
+            graph_admission_decision(review_coverage),
+            ("paper_detail", "review_coverage_metadata_detail_only"),
+        )
+        self.assertEqual(
+            graph_admission_decision(unresolved_real_world),
+            ("paper_detail", "unresolved_real_world_topic_detail_only"),
+        )
+
     def test_preclinical_review_antidepressant_effect_uses_behavioral_boundary(self) -> None:
         row = normalize_claim_metadata(
             {
@@ -805,7 +829,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ),
             (
                 {"compound_or_intervention": "psychedelic-assisted psychotherapy"},
-                "Psychedelic-assisted therapy",
+                "Psychedelics (unspecified compounds)",
             ),
             (
                 {"support": "Psychedelic compounds were examined."},
@@ -923,6 +947,41 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             registry,
         )
         self.assertEqual(secondary_mixed["label"], "Psychedelics (broad or mixed)")
+
+        secondary_title_only_therapy = overview_graph_subject(
+            {
+                "paper_assessment_route": "secondary_literature",
+                "study_title": "An overview of psychedelic-assisted therapy",
+            },
+            {"label": "Psychedelics", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(secondary_title_only_therapy["label"], "Psychedelics (broad or mixed)")
+
+        explicit_secondary_therapy = overview_graph_subject(
+            {"paper_assessment_route": "secondary_literature"},
+            {"label": "Psychedelic-assisted psychotherapy", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(explicit_secondary_therapy["label"], "Psychedelic-assisted therapy")
+
+        secondary_entheogens = overview_graph_subject(
+            {"paper_assessment_route": "secondary_literature"},
+            {"label": "Entheogens", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(secondary_entheogens["label"], "Psychedelics (broad or mixed)")
+
+        primary_entheogens = overview_graph_subject(
+            {},
+            {"label": "Entheogens", "subject_kind": "compound_class"},
+            registry,
+        )
+        self.assertEqual(primary_entheogens["label"], "Psychedelics (unspecified compounds)")
+        self.assertEqual(
+            primary_entheogens["reason"],
+            "controlled_unresolved_psychedelic_class_detail_only",
+        )
 
         for raw_label in (
             "Classic psychedelics",
@@ -2155,6 +2214,55 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "public_health_topic_category": "Abuse liability and misuse",
                 },
                 "Problematic use & dependence",
+            ),
+            (
+                {
+                    "public_health_measure": "1:500 sentencing ratio",
+                    "support": "The federal sentencing ratio increased MDMA penalties.",
+                },
+                "Policy & legal outcomes",
+            ),
+            (
+                {
+                    "public_health_measure": "social movement",
+                    "support": "The LSD phenomenon developed as a social movement.",
+                },
+                "Culture, religion & social context",
+            ),
+            (
+                {
+                    "public_health_measure": "Molecular dynamics simulations",
+                    "support": "A translational gap remains between simulations and in vivo outcomes.",
+                },
+                "Research landscape",
+            ),
+            (
+                {
+                    "public_health_measure": "American news media",
+                    "support": "News media influenced public understanding of LSD.",
+                },
+                "Commercialization & public communication",
+            ),
+            (
+                {
+                    "public_health_measure": "standard urine drug tests",
+                    "support": "Standard urine drug tests did not detect the emerging substance.",
+                },
+                "Harm reduction practices",
+            ),
+            (
+                {
+                    "graph_entity_label": "Other real-world topics",
+                    "entity": "Access & equity",
+                },
+                "Access & equity",
+            ),
+            (
+                {
+                    "public_health_measure": "Odds of visual pseudo-hallucinations",
+                    "public_health_topic_category": "Risk factors",
+                },
+                "Predictors & correlates",
             ),
         ]
 

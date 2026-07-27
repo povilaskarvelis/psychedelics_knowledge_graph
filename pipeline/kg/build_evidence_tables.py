@@ -599,7 +599,7 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"health equity|equity|inequit\w*|disparit\w*|ethnoracial|racial inclusion|representation|"
             r"socioeconomic(?:ally)? advantaged|"
             r"social determinants|underserved|affordability|claim approval|prior authorization|"
-            r"reimbursement|coverage approval)\b",
+            r"reimbursement|coverage approval|right to health|upward mobility)\b",
             re.IGNORECASE,
         ),
     ),
@@ -610,7 +610,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"feasibility|provider attitudes?|clinician attitudes?|stakeholder attitudes?|willingness to (?:offer|"
             r"provide|participate)|prescrib\w*|certified treatment centers?|provider training|workforce training|"
             r"social workers?|psychiatrists?|practice readiness|implementation barrier|clinical adoption|"
-            r"widespread adoption)\b",
+            r"widespread adoption|therapeutic acceptance|treatment algorithms?|clinical guidelines?|"
+            r"standards? of care|healthcare integration)\b",
             re.IGNORECASE,
         ),
     ),
@@ -619,7 +620,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         re.compile(
             r"\b(ethic\w*|governance|informed consent|research consent|autonomy|cultural appropriation|"
             r"indigenous|distributive justice|conflicts? of interest|research subject protections?|"
-            r"participant protections?|exploitation|misconduct|sexual violations?)\b",
+            r"participant protections?|exploitation|misconduct|sexual violations?|cognitive liberty|"
+            r"human rights?|power dynamics?)\b",
             re.IGNORECASE,
         ),
     ),
@@ -630,7 +632,7 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"psychedelic industry|wellness (?:industry|market|sector|products?)|marketing|media hype|public hype|"
             r"public misinterpretation|public advocacy|social media|mislead(?:ing)? (?:patients?|public|"
             r"health professionals?)|online information|controversy|controversial|stigma|de[- ]?stigmat\w*|"
-            r"public perception)\b",
+            r"public perception|public acceptance|news media|mass media|social reaction|internet)\b",
             re.IGNORECASE,
         ),
     ),
@@ -639,7 +641,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         re.compile(
             r"\b(conservation|over[- ]?harvest\w*|wild populations?|poaching|habitat loss|climate change|"
             r"anthropogenic pressures?|endangered|threatened species|harvesting pressure|ecological|"
-            r"environmental sustainability)\b",
+            r"environmental sustainability|biodiversity|environmental pollution|chemical waste|"
+            r"river systems?)\b",
             re.IGNORECASE,
         ),
     ),
@@ -647,11 +650,26 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         "Policy & legal outcomes",
         re.compile(
             r"\b(policy|regulat\w*|legal status|legalization|legalisation|decriminal\w*|criminal\w*|"
-            r"crime|arrest\w*|prison|incarcerat\w*|scheduling|drug classification|politic\w*|"
+            r"legal aspects?|legal controls?|legal precedent|legal implications?|legal ambiguity|laws?|"
+            r"court|judicial|legislative|sentenc\w*|crime|arrest\w*|prison|incarcerat\w*|"
+            r"scheduling|drug classification|politic\w*|"
             r"prohibition|international ban|un conventions?|controlled substances? act|schedule i|dea\b|"
             r"fda approval|tga\b|rems\b|off[- ]label|legislative reform|treaty obligations?|rulemaking|"
-            r"hybrid psychedelic laws?|government agencies?|"
+            r"hybrid psychedelic laws?|government agencies?|religious freedom|ministerial authorization|"
+            r"workplace drug testing|drug testing guidelines?|civil liability|malpractice|war on drugs|"
             r"licensed supervised use|medical treatment status|public approval of legal)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "Culture, religion & social context",
+        re.compile(
+            r"\b(cultural transformation|cultural history|counterculture|psychedelic subculture|"
+            r"rave culture|club culture|religious use|religious practice|ayahuasca religions?|"
+            r"entheogen use|social movement|social institutions?|social tolerance|"
+            r"social and ideological processes|societal (?:health|cohesion|effects?)|"
+            r"sociological consequences?|civilizational pedigree|historical and cultural shift|"
+            r"psychedelic renaissance|psychedelic scene)\b",
             re.IGNORECASE,
         ),
     ),
@@ -661,7 +679,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"\b(harm[- ]?reduction|safer use|risk reduction|trip[- ]?sitter|sober sitter|babysitter|"
             r"drug information source|information seeking|checking before use|behavior change after (?:testing|"
             r"drug checking)|intended use behavior change|integration support|peer support|overdose prevention|"
-            r"risk assessments?|control measures?)\b",
+            r"risk assessments?|control measures?|substance testing services?|drug screen\w*|urine drug tests?|"
+            r"urine drug screen\w*|detection devices?|confirmatory testing)\b",
             re.IGNORECASE,
         ),
     ),
@@ -671,7 +690,7 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"\b(cryptomarket|darknet|market availability|market trend|market share|purchase|purchasing|"
             r"easy to obtain|availability of (?:drugs?|substances?)|perceived availability|street price|"
             r"price trend|drug supply|drug seizures?|seized by law enforcement|online market|"
-            r"recreational drug market|clandestine distribution|retail availability)\b",
+            r"recreational drug market|illicit drug market|clandestine distribution|retail availability)\b",
             re.IGNORECASE,
         ),
     ),
@@ -708,7 +727,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
         re.compile(
             r"\b(epidemiology|prevalence|incidence of (?:drug |psychedelic |substance )?use|lifetime use|"
             r"past[- ]year use|past 12[- ]month use|"
-            r"past[- ]month use|use prevalence|population trend|temporal trend|geographical distribution of use|"
+            r"past[- ]month use|use prevalence|population trend|drug use trends?|substance abuse trends?|"
+            r"temporal trend|geographical distribution of use|"
             r"population[- ]normalised|population[- ]normalized|mass load|drug load|daily consumption per capita|"
             r"per inhabitant consumption|estimated daily consumption|population consumption|pndl|pnl|"
             r"wastewater[- ]based epidemiology|age of initiation)\b",
@@ -721,6 +741,7 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"\b(mental health|psychiatric|psychological distress|depression|anxiety|well[- ]?being|"
             r"quality of life|functioning|disability|cognitive (?:risk|outcome|function)|sleep quality|"
             r"urinary|urolog\w*|renal|morbidity|infectious complications?|health status|"
+            r"infectious disease risk|health behavior|work[- ]related outcomes?|"
             r"symptom improvement|symptom worsening|mood change|nature relatedness|social functioning|"
             r"relationship quality|violence|intimate partner violence|sexual assault|public health (?:risk|harm)|"
             r"preventive medicine|long[- ]term health)\b",
@@ -733,7 +754,8 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"\b(use patterns?|pattern of use|frequency of use|use frequency|route of administration|"
             r"administration route|dose pattern|dosing pattern|first[- ]time use|regular use|chronic use|"
             r"co[- ]?use|polysubstance|poly[- ]?drug|polydrug|co[- ]ingest\w*|concomitant use|"
-            r"number of substances|user profiles?|duration of use|use practices?|consumption pattern)\b",
+            r"number of substances|user profiles?|duration of use|use practices?|consumption pattern|"
+            r"conventional illicit drug use|recreational drug use|drug sequencing|other substances)\b",
             re.IGNORECASE,
         ),
     ),
@@ -746,7 +768,9 @@ PUBLIC_HEALTH_TOPIC_RULES = (
             r"evidence base|quality of evidence|methodological (?:quality|limitations?|concerns?|weaknesses?)|"
             r"research funding|funding patterns?|research grants?|zero grants?|national institutes of health|nih\b|"
             r"research agenda|research priorit\w*|study design|"
-            r"clinical trial design|underreporting|research bias|scientific evidence)\b",
+            r"clinical trial design|underreporting|research bias|scientific evidence|"
+            r"molecular dynamics simulations?|chemometric procedures?|drug education curricula?|"
+            r"field research methodolog\w*)\b",
             re.IGNORECASE,
         ),
     ),
@@ -787,21 +811,50 @@ PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS = {
 PUBLIC_HEALTH_RAW_TOPIC_FALLBACKS = {
     "epidemiology": "Population use & trends",
     "epidemiology and surveillance": "Population use & trends",
+    "epidemiology and mental health": "Health & functioning outcomes",
+    "epidemiology and risk factors": "Predictors & correlates",
     "use pattern": "Use patterns & practices",
     "use patterns": "Use patterns & practices",
+    "use patterns and administration routes": "Use patterns & practices",
+    "use patterns and drug sequencing": "Use patterns & practices",
+    "use patterns and substance use reduction": "Use patterns & practices",
+    "exposure pattern": "Use patterns & practices",
+    "use patterns and motivations": "Motivations & intentions",
+    "use patterns and subjective risk benefit": "Perceived benefits & harms",
+    "use patterns and outcomes": "Health & functioning outcomes",
+    "use patterns and treatment outcomes": "Health & functioning outcomes",
+    "use patterns and neurobehavioral traits": "Health & functioning outcomes",
+    "use patterns and work related outcomes": "Health & functioning outcomes",
+    "use patterns and population level risk": "Health & functioning outcomes",
     "harm reduction": "Harm reduction practices",
+    "harm reduction and service delivery": "Harm reduction practices",
+    "harm reduction and use patterns": "Harm reduction practices",
+    "use patterns and detection": "Harm reduction practices",
+    "substance abuse detection": "Harm reduction practices",
     "access": "Access & equity",
     "access and equity": "Access & equity",
+    "equity and access": "Access & equity",
     "equity": "Access & equity",
     "service delivery": "Implementation & acceptability",
     "service delivery and access": "Implementation & acceptability",
     "implementation and service delivery": "Implementation & acceptability",
+    "service delivery and healthcare integration": "Implementation & acceptability",
+    "service delivery and care preferences": "Implementation & acceptability",
+    "workforce and training": "Implementation & acceptability",
     "policy": "Policy & legal outcomes",
     "policy and regulation": "Policy & legal outcomes",
     "abuse potential": "Problematic use & dependence",
     "abuse liability and misuse": "Problematic use & dependence",
     "population level safety": "Health & functioning outcomes",
     "population level risk benefit": "Health & functioning outcomes",
+    "mental health and well being": "Health & functioning outcomes",
+    "cognitive and behavioral impact": "Health & functioning outcomes",
+    "health behavior": "Health & functioning outcomes",
+    "public health impact and well being": "Health & functioning outcomes",
+    "risk factors": "Predictors & correlates",
+    "public perception and health communication": "Commercialization & public communication",
+    "patient preferences and research priorities": "Motivations & intentions",
+    "risk assessment": "Drug composition & adulteration",
 }
 PUBLIC_HEALTH_USE_CONTEXT_RULES = (
     ("Microdosing", re.compile(r"\bmicrodos\w*\b", re.IGNORECASE)),
@@ -2850,7 +2903,11 @@ DETAIL_ONLY_OVERVIEW_SUBJECT_REASONS = {
     RECOVERED_FINDING_SCOPE_REASON,
 }
 GENERIC_PSYCHEDELIC_CLASS_RE = re.compile(r"\bpsychedelics?\b", re.I)
-PSYCHEDELIC_THERAPY_RE = re.compile(r"psychedelic[- ]assisted (?:therapy|psychotherapy|treatment)", re.I)
+PSYCHEDELIC_THERAPY_RE = re.compile(
+    r"\bpsychedelic[- ]assisted (?:therap(?:y|ies)|psychotherap(?:y|ies)|treatments?)\b|"
+    r"\bpsychedelic therapy\b",
+    re.I,
+)
 PSYCHEDELIC_SEROTONERGIC_CONTEXT_RE = re.compile(
     r"\bserotonergic\b|\bclassic(?:al)? psychedelics?\b|5[- ]?ht2a|serotonin[- ]?2a",
     re.I,
@@ -3633,6 +3690,16 @@ def _overview_graph_subjects(
             registry,
         )
         if explicit_class_subject:
+            if explicit_class_subject["label"] == "Entheogens":
+                return [{
+                    "label": BROAD_PSYCHEDELIC_CLASS_LABEL
+                    if secondary_literature
+                    else UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL,
+                    "kind": "compound_class",
+                    "reason": "controlled_broad_psychedelic_class"
+                    if secondary_literature
+                    else "controlled_unresolved_psychedelic_class_detail_only",
+                }]
             return [explicit_class_subject]
         if focal_match.get("matched"):
             return [{
@@ -3689,7 +3756,7 @@ def _overview_graph_subjects(
                 if normalize(row.get(field, ""))
             )
             context_with_raw = f"{raw} {context}".strip()
-            if PSYCHEDELIC_THERAPY_RE.search(context_with_raw):
+            if PSYCHEDELIC_THERAPY_RE.search(raw):
                 return [{
                     "label": "Psychedelic-assisted therapy",
                     "kind": "treatment_regimen",
@@ -8173,11 +8240,21 @@ def normalized_public_health_data_source_type(row: dict) -> str:
 
 
 def public_health_graph_label(row: dict) -> str:
-    explicit_label = first_endpoint_value(row, ("public_health_graph_label", "public_health_topic_category"))
-    explicit_key = label_key(explicit_label)
-    canonical_explicit = PUBLIC_HEALTH_TOPIC_LABEL_BY_KEY.get(explicit_key)
-    if canonical_explicit and canonical_explicit not in {"Other real-world outcome", "Other real-world topics"}:
-        return canonical_explicit
+    explicit_labels = [
+        first_endpoint_value(row, (field,))
+        for field in (
+            "public_health_graph_label",
+            "public_health_topic_category",
+            "graph_entity_label",
+            "entity_label",
+            "entity",
+        )
+    ]
+    explicit_keys = [label_key(label) for label in explicit_labels if label]
+    for explicit_key in explicit_keys:
+        canonical_explicit = PUBLIC_HEALTH_TOPIC_LABEL_BY_KEY.get(explicit_key)
+        if canonical_explicit and canonical_explicit not in {"Other real-world outcome", "Other real-world topics"}:
+            return canonical_explicit
 
     measure_context = ascii_fold(
         " ".join(normalize(row.get(field, "")) for field in PUBLIC_HEALTH_TOPIC_MEASURE_FIELDS)
@@ -8200,9 +8277,10 @@ def public_health_graph_label(row: dict) -> str:
         return "Drug composition & adulteration"
 
     raw_topic_key = label_key(row.get("public_health_topic_category", ""))
+    legacy_explicit_key = explicit_keys[0] if explicit_keys else ""
     return (
         PUBLIC_HEALTH_RAW_TOPIC_FALLBACKS.get(raw_topic_key)
-        or PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS.get(explicit_key)
+        or PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS.get(legacy_explicit_key)
         or "Other real-world topics"
     )
 
@@ -9514,6 +9592,24 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
     explicit = normalize(row.get("graph_admission_status", "")).casefold()
     if explicit == "paper_detail":
         return "paper_detail", normalize(row.get("graph_admission_reason", "")) or "source_marked_paper_detail"
+    domain = normalize(row.get("domain", "") or row.get("domain_route", "")).casefold()
+    entity_kind = normalized_entity_kind(row.get("kg_entity_kind_override", "") or row.get("entity_type", ""))
+    entity_label = first_normalized_value(
+        row,
+        ("graph_entity_label", "canonical_entity", "entity_label", "public_health_graph_label"),
+    )
+    secondary_literature = (
+        normalize(row.get("evidence_type", "")).casefold() == "secondary_literature"
+        or normalize(row.get("source_family", "")).casefold() == "secondary_literature"
+        or normalize(row.get("paper_assessment_route", "")).casefold() == "secondary_literature"
+    )
+    if domain == "general_topic_coverage" and secondary_literature:
+        return "paper_detail", "review_coverage_metadata_detail_only"
+    if (
+        entity_kind == "public_health_measure"
+        and label_key(entity_label) in {"other real world outcome", "other real world topics"}
+    ):
+        return "paper_detail", "unresolved_real_world_topic_detail_only"
     if (
         normalize(row.get("endpoint_label_source", "")) == "controlled_behavioral_detail"
         and normalize(row.get("entity_match_type", "")) != "controlled_behavioral_vocabulary"

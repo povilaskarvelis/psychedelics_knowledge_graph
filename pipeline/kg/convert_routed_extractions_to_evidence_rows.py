@@ -953,6 +953,13 @@ def evidence_row_for_item(
     merge_prefer_meaningful(row, item)
     domain_result = item.get("domain_result", {}) if isinstance(item.get("domain_result"), dict) else {}
     merge_prefer_meaningful(row, domain_result)
+    if item_kind == "recommendation_item":
+        recommendation_entity = first_meaningful(
+            item,
+            ("graph_entity_label", "entity_label", "entity"),
+        )
+        if recommendation_entity:
+            row["graph_entity_label"] = recommendation_entity
     warnings = result.get("warnings", []) if isinstance(result.get("warnings"), list) else []
     if warnings:
         row["extraction_warnings"] = " | ".join(normalize(value) for value in warnings if normalize(value))

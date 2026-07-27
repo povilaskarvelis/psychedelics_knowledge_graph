@@ -72,6 +72,7 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
                             "recommendation_assessment": {
                                 "relationship_domain": "intervention_context",
                                 "population_or_system": "clinical services",
+                                "graph_entity_label": "Other real-world topics",
                             },
                             "recommendation_items": [
                                 {

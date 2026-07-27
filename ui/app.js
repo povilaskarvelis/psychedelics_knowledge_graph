@@ -2629,8 +2629,8 @@ const PUBLIC_HEALTH_TOPIC_ORDER = [
   "Commercialization & public communication",
   "Environmental sustainability",
   "Policy & legal outcomes",
+  "Culture, religion & social context",
   "Research landscape",
-  "Other real-world topics",
 ];
 const PUBLIC_HEALTH_CONTEXT_ORDER = [
   "Microdosing",
@@ -2666,7 +2666,7 @@ function publicHealthTopicFacetLabel(claim) {
   const canonical = PUBLIC_HEALTH_TOPIC_ORDER.find(
     (label) => normalizeValue(label) === normalizeValue(graphLabel)
   );
-  return canonical || "Other real-world topics";
+  return canonical || "";
 }
 
 function publicHealthUseContextFacetLabels(claim) {
