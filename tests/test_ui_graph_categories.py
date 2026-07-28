@@ -502,8 +502,8 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260727-mobile-v1' in html_source
-    assert 'app.js?v=20260727-mobile-v1' in html_source
+    assert 'styles.css?v=20260728-responsive-v2' in html_source
+    assert 'app.js?v=20260728-responsive-v2' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 
@@ -752,14 +752,32 @@ def test_graph_edge_control_points_stay_between_the_node_columns() -> None:
     assert "const curve = 80;" not in edge_source
 
 
-def test_mobile_category_tabs_are_a_single_horizontal_scroll_row() -> None:
+def test_constrained_graph_category_tabs_are_a_single_horizontal_scroll_row() -> None:
     source = STYLES_CSS.read_text(encoding="utf-8")
-    mobile_styles = source.rsplit("@media (max-width: 640px)", 1)[1]
-    category_styles = mobile_styles.split(".category-toggle {", 1)[1].split("}", 1)[0]
+    constrained_styles = source.split(
+        "@container graph-column (max-width: 1000px)", 1
+    )[1].split("@container graph-column (max-width: 820px)", 1)[0]
+    category_styles = constrained_styles.split(".category-toggle {", 1)[1].split("}", 1)[0]
 
     assert "flex-wrap: nowrap;" in category_styles
     assert "justify-content: flex-start;" in category_styles
     assert "overflow-x: auto;" in category_styles
+
+
+def test_year_controls_stack_when_the_graph_column_is_constrained() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    graph_column_styles = source.split(".graph-column {", 1)[1].split("}", 1)[0]
+    constrained_styles = source.split(
+        "@container graph-column (max-width: 820px)", 1
+    )[1].split(".panel h2", 1)[0]
+
+    assert "container-type: inline-size;" in graph_column_styles
+    assert "container-name: graph-column;" in graph_column_styles
+    assert "grid-template-columns: minmax(0, 1fr);" in constrained_styles
+    assert ".evidence-view-toggle," in constrained_styles
+    assert ".year-range-inline" in constrained_styles
+    assert "grid-column: 1;" in constrained_styles
+    assert "justify-self: center;" in constrained_styles
 
 
 def test_graph_labels_use_two_lines_without_unspecified_therapy_special_case() -> None:

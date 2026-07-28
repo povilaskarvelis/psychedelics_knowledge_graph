@@ -673,6 +673,8 @@ button.primary:hover {
   min-height: 0;
   min-width: 0;
   gap: 0;
+  container-type: inline-size;
+  container-name: graph-column;
 }
 
 /* Layout-only wrapper: controls sit directly on the panel surface (no nested strip). */
@@ -974,6 +976,40 @@ button.primary:hover {
   outline: 0;
   background: transparent;
   color: rgba(155, 167, 196, 0.92);
+}
+
+@container graph-column (max-width: 1000px) {
+  .category-toggle {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 14px;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .category-toggle button {
+    flex: 0 0 auto;
+  }
+}
+
+@container graph-column (max-width: 820px) {
+  .filter-center-controls {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 8px;
+  }
+
+  .evidence-view-toggle,
+  .year-range-inline {
+    grid-column: 1;
+    justify-self: center;
+  }
 }
 
 .panel h2 {
@@ -5675,24 +5711,6 @@ input[type="number"] {
 @media (max-width: 640px) {
   .hero {
     padding: 38px 6vw 24px;
-  }
-
-  .category-toggle {
-    width: 100%;
-    max-width: 100%;
-    margin-inline: 0;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    overflow-y: hidden;
-    border-radius: 14px;
-    scrollbar-width: none;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .category-toggle button {
-    flex: 0 0 auto;
   }
 
   .graph-column .graph {
