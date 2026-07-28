@@ -5677,6 +5677,39 @@ input[type="number"] {
     padding: 38px 6vw 24px;
   }
 
+  .category-toggle {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 14px;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .category-toggle button {
+    flex: 0 0 auto;
+  }
+
+  .graph-column .graph {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-color: rgba(174, 181, 180, 0.44) transparent;
+    scrollbar-width: thin;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .graph svg[data-mobile-scrollable="true"] {
+    width: var(--kg-graph-layout-width);
+    min-width: var(--kg-graph-layout-width);
+    max-width: none;
+  }
+
   .toolbar-filter-row {
     display: flex;
     align-items: center;

@@ -502,8 +502,10 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260726-performance-v1' in html_source
-    assert 'app.js?v=20260726-performance-v1' in html_source
+    assert 'styles.css?v=20260727-mobile-v1' in html_source
+    assert 'app.js?v=20260727-mobile-v1' in html_source
+    assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
+    assert '"@type": "Dataset"' in html_source
 
 
 def test_stacked_bar_full_views_restart_palette_and_filtered_categories_keep_their_color() -> None:
@@ -721,6 +723,43 @@ def test_graph_allocates_more_label_space_to_the_right_side() -> None:
     assert "const GRAPH_RIGHT_LABEL_MAX_WIDTH_PX = 210;" in source
     assert "GRAPH_LEFT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX" in source
     assert "GRAPH_RIGHT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX + GRAPH_RIGHT_LABEL_GUTTER_PX" in source
+
+
+def test_mobile_graph_uses_a_scrollable_canvas_instead_of_compressing_the_layout() -> None:
+    app_source = APP_JS.read_text(encoding="utf-8")
+    style_source = STYLES_CSS.read_text(encoding="utf-8")
+    graph_source = app_source.split("function buildGraph", 1)[1].split("function render()", 1)[0]
+
+    assert "const GRAPH_COMPACT_LAYOUT_WIDTH_PX = 720;" in app_source
+    assert "const compactGraph = viewportWidth < 640;" in graph_source
+    assert "Math.max(viewportWidth, GRAPH_COMPACT_LAYOUT_WIDTH_PX)" in graph_source
+    assert 'svg.dataset.mobileScrollable = compactGraph ? "true" : "false";' in graph_source
+    assert '.graph svg[data-mobile-scrollable="true"]' in style_source
+    assert "min-width: var(--kg-graph-layout-width);" in style_source
+
+
+def test_graph_edge_control_points_stay_between_the_node_columns() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    graph_source = source.split("function buildGraph", 1)[1].split("function render()", 1)[0]
+    edge_source = graph_source.split("edgeEntries.forEach", 1)[1].split(
+        "path.setAttribute", 1
+    )[0]
+
+    assert "const horizontalSpan = Math.max(0, tPos.x - cPos.x);" in edge_source
+    assert "const controlOffset = horizontalSpan * 0.4;" in edge_source
+    assert "const firstControlX = cPos.x + controlOffset;" in edge_source
+    assert "const secondControlX = tPos.x - controlOffset;" in edge_source
+    assert "const curve = 80;" not in edge_source
+
+
+def test_mobile_category_tabs_are_a_single_horizontal_scroll_row() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    mobile_styles = source.rsplit("@media (max-width: 640px)", 1)[1]
+    category_styles = mobile_styles.split(".category-toggle {", 1)[1].split("}", 1)[0]
+
+    assert "flex-wrap: nowrap;" in category_styles
+    assert "justify-content: flex-start;" in category_styles
+    assert "overflow-x: auto;" in category_styles
 
 
 def test_graph_labels_use_two_lines_without_unspecified_therapy_special_case() -> None:

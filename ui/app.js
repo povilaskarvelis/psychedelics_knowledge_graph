@@ -543,6 +543,7 @@ const GRAPH_LABEL_MARGIN_BUFFER_PX = 36;
 const GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT = 22;
 const GRAPH_BASE_HEIGHT_PX = 820;
 const GRAPH_COMPACT_BASE_HEIGHT_PX = 560;
+const GRAPH_COMPACT_LAYOUT_WIDTH_PX = 720;
 const GRAPH_MIN_NODE_SPACING_PX = 40;
 const GRAPH_COMPACT_MIN_NODE_SPACING_PX = 38;
 const HIDDEN_MAIN_GRAPH_DOMAINS = new Set(["pharmacokinetics_exposure"]);
@@ -7101,7 +7102,11 @@ function buildGraph(data) {
     graphStage === "full" &&
     !selected &&
     !detailGraphFilter;
-  const width = graphEl.clientWidth || 800;
+  const viewportWidth = graphEl.clientWidth || 800;
+  const compactGraph = viewportWidth < 640;
+  const width = compactGraph
+    ? Math.max(viewportWidth, GRAPH_COMPACT_LAYOUT_WIDTH_PX)
+    : viewportWidth;
   const cacheKey = graphDomCacheKey(width, data);
   const cached = cacheKey ? graphDomCache.get(cacheKey) : null;
   if (cached) {
@@ -7177,7 +7182,6 @@ function buildGraph(data) {
     return a.localeCompare(b);
   });
 
-  const compactGraph = width < 520;
   if (compactGraph) {
     const maxMobileNodes = 12;
     compounds = compounds.slice(0, maxMobileNodes);
@@ -7278,6 +7282,8 @@ function buildGraph(data) {
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.style.setProperty("--kg-graph-layout-width", `${width}px`);
+  svg.dataset.mobileScrollable = compactGraph ? "true" : "false";
   svg.dataset.graphStage = graphStage;
   const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
   const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -7450,9 +7456,11 @@ function buildGraph(data) {
     if (!cPos || !tPos) return;
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    const midX = (cPos.x + tPos.x) / 2;
-    const curve = 80;
-    const d = `M ${cPos.x} ${cPos.y} C ${midX - curve} ${cPos.y}, ${midX + curve} ${tPos.y}, ${tPos.x} ${tPos.y}`;
+    const horizontalSpan = Math.max(0, tPos.x - cPos.x);
+    const controlOffset = horizontalSpan * 0.4;
+    const firstControlX = cPos.x + controlOffset;
+    const secondControlX = tPos.x - controlOffset;
+    const d = `M ${cPos.x} ${cPos.y} C ${firstControlX} ${cPos.y}, ${secondControlX} ${tPos.y}, ${tPos.x} ${tPos.y}`;
     path.setAttribute("d", d);
     path.setAttribute("class", "edge");
     const edgeWidth = edgeWidthForCount(edge.count, maxEdgeCount);

@@ -3,10 +3,58 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Psychedelics Knowledge Graph</title>
+    <meta
+      name="description"
+      content="Explore a living, evidence-linked map of psychedelic research connecting publications, compounds, conditions, research areas, and structured findings."
+    />
+    <title>Psychedelics Research Knowledge Graph | Evidence Map</title>
+    <link rel="canonical" href="https://psychedelicskg.com/" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Psychedelics Knowledge Graph" />
+    <meta property="og:title" content="Psychedelics Research Knowledge Graph | Evidence Map" />
+    <meta
+      property="og:description"
+      content="Explore a living, evidence-linked map of psychedelic research connecting publications, compounds, conditions, research areas, and structured findings."
+    />
+    <meta property="og:url" content="https://psychedelicskg.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Psychedelics Research Knowledge Graph | Evidence Map" />
+    <meta
+      name="twitter:description"
+      content="Explore a living, evidence-linked map of psychedelic research connecting publications, compounds, conditions, research areas, and structured findings."
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://psychedelicskg.com/#website",
+            "url": "https://psychedelicskg.com/",
+            "name": "Psychedelics Knowledge Graph",
+            "description": "A living, evidence-linked map of psychedelic research."
+          },
+          {
+            "@type": "Dataset",
+            "@id": "https://psychedelicskg.com/#dataset",
+            "name": "Psychedelics Knowledge Graph",
+            "url": "https://psychedelicskg.com/",
+            "description": "A public catalogue connecting psychedelic research publications, compounds, conditions, research areas, and structured findings.",
+            "dateModified": "2026-07-15",
+            "isAccessibleForFree": true,
+            "license": "https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md",
+            "creator": {
+              "@type": "Person",
+              "name": "Povilas Karvelis",
+              "url": "https://povilaskarvelis.github.io/"
+            }
+          }
+        ]
+      }
+    </script>
     <base href="./ui/" />
     <style>
       html {
@@ -35,7 +83,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260726-performance-v1" />
+    <link rel="stylesheet" href="styles.css?v=20260727-mobile-v1" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -197,6 +245,6 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
-    <script src="app.js?v=20260726-performance-v1"></script>
+    <script src="app.js?v=20260727-mobile-v1"></script>
   </body>
 </html>
