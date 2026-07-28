@@ -31,6 +31,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.extract.route_extraction_profiles import is_legacy_v1_secondary_profile
+from pipeline.kg.graph_view_contract import graph_view_ids
 
 
 PROCESSED_DIR = ROOT / "data" / "processed"
@@ -60,18 +61,7 @@ PUBLIC_QUERY_TABLES = {
     "paper_authors",
     "relationships",
 }
-DETAIL_VIEW_KEYS = (
-    "condition_indication",
-    "safety_adverse_event",
-    "cognitive_behavioral_construct",
-    "behavioral_effect",
-    "subjective_experience_construct",
-    "intervention_component",
-    "public_health_measure",
-    "brain_system",
-    "pathway_readout",
-    "target_system",
-)
+DETAIL_VIEW_KEYS = graph_view_ids()
 
 
 def now_utc() -> str:

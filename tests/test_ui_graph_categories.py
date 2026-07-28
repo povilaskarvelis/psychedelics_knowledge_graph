@@ -1,4 +1,5 @@
 from colorsys import rgb_to_hls
+import json
 from pathlib import Path
 import re
 import tomllib
@@ -9,6 +10,7 @@ APP_JS = ROOT / "ui" / "app.js"
 INDEX_HTML = ROOT / "index.html"
 STYLES_CSS = ROOT / "ui" / "styles.css"
 NETLIFY_TOML = ROOT / "netlify.toml"
+GRAPH_VIEW_CONTRACT = ROOT / "schema" / "graph_view_contract.json"
 
 
 def test_payload_derived_labels_are_escaped_before_html_insertion() -> None:
@@ -32,10 +34,14 @@ def test_public_site_has_non_disruptive_browser_security_headers() -> None:
 
 
 def test_real_world_use_contains_exposure_contexts_without_a_separate_graph_view() -> None:
-    source = APP_JS.read_text(encoding="utf-8")
+    contract = json.loads(GRAPH_VIEW_CONTRACT.read_text(encoding="utf-8"))
+    views = {view["id"]: view for view in contract["views"]}
 
-    assert 'key: "public_health_measure",\n    kinds: ["public_health_measure", "exposure_context"]' in source
-    assert 'label: "Use contexts"' not in source
+    assert views["public_health_measure"]["object_kinds"] == [
+        "public_health_measure",
+        "exposure_context",
+    ]
+    assert all(view["label"] != "Use contexts" for view in views.values())
 
 
 def test_real_world_topic_facets_include_social_context_without_a_catch_all() -> None:
@@ -52,11 +58,24 @@ def test_real_world_topic_facets_include_social_context_without_a_catch_all() ->
 
 
 def test_molecular_effects_category_is_kind_based_across_source_domains() -> None:
-    source = APP_JS.read_text(encoding="utf-8")
-    molecular = source.split('key: "pathway_readout"', 1)[1].split("},", 1)[0]
+    contract = json.loads(GRAPH_VIEW_CONTRACT.read_text(encoding="utf-8"))
+    molecular = next(
+        view for view in contract["views"] if view["id"] == "pathway_readout"
+    )
 
-    assert 'kinds: ["pathway_process", "biomarker_readout"]' in molecular
-    assert "domains:" not in molecular
+    assert molecular["object_kinds"] == ["pathway_process", "biomarker_readout"]
+    assert "domains" not in molecular
+
+
+def test_graph_categories_load_from_the_versioned_shared_contract() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    init = source.split("async function init()", 1)[1].split("if (yearMinFilter)", 1)[0]
+
+    assert 'GRAPH_VIEW_CONTRACT_PATH = "schema/graph_view_contract.json"' in source
+    assert "await loadGraphViewContract()" in init
+    assert init.index("await loadGraphViewContract()") < init.index(
+        "loadGraphManifestStats()"
+    )
 
 
 def test_category_matching_reuses_precompiled_sets() -> None:
@@ -503,7 +522,7 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert 'styles.css?v=20260728-responsive-v2' in html_source
-    assert 'app.js?v=20260728-responsive-v2' in html_source
+    assert 'app.js?v=20260728-graph-view-contract-v1' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 

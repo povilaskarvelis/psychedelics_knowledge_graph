@@ -6774,6 +6774,15 @@ SAFETY_ENDPOINT_PATTERNS = (
         "Drug interaction risk",
     ),
     (
+        re.compile(
+            r"\b(?:(?:developmental|embryonic|fetal|foetal|larval|perinatal|prenatal|neonatal)\s+"
+            r"(?:mortality|deaths?|lethality)|(?:mortality|deaths?|lethality)\s+(?:in|among)\s+"
+            r"(?:embryos?|fetuses|foetuses|larvae|neonates?))\b",
+            re.IGNORECASE,
+        ),
+        "Developmental toxicity",
+    ),
+    (
         re.compile(r"\b(placenta|placental|fetal|foetal|pregnancy|pregnant)\b", re.IGNORECASE),
         "Pregnancy/fetal exposure",
     ),
@@ -6800,7 +6809,7 @@ SAFETY_ENDPOINT_PATTERNS = (
     (
         re.compile(
             r"\b(developmental anomal\w*|embryonic development|developmental tox\w*|cephalic disorders?|"
-            r"tail/spine deformit\w*|mortality)\b",
+            r"tail/spine deformit\w*)\b",
             re.IGNORECASE,
         ),
         "Developmental toxicity",
@@ -6888,7 +6897,7 @@ SAFETY_ENDPOINT_PATTERNS = (
     ),
     (
         re.compile(
-            r"\b(serious adverse|serious adverse events?|sae|saes|death|fatal|fatalit|life[- ]threat|"
+            r"\b(serious adverse|serious adverse events?|sae|saes|mortality|deaths?|died|dying|fatal|fatalit|life[- ]threat|"
             r"hospitali[sz]ation|emergency department|emergency medical treatment|medical attention|medical intervention|psychiatric attention|"
             r"critical care|intensive care|icu|intubation|endotracheal|coma)\b",
             re.IGNORECASE,
@@ -8801,6 +8810,13 @@ REVIEW_OUTCOME_NORMALIZATION_RULES = (
     ),
 )
 
+PRECLINICAL_STRESS_COPING_EVIDENCE_RE = re.compile(
+    r"\b(?:forced[- ]swim(?:ming)?(?: test)?|tail[- ]suspension(?: test)?|learned helplessness|"
+    r"escape failures?|behavioral despair|behavioural despair|stress[- ]coping(?: behavior| behaviour)?|"
+    r"immobility (?:time|duration))\b",
+    re.IGNORECASE,
+)
+
 
 def repeated_review_outcome_normalization(row: dict) -> tuple[str, str]:
     raw = first_endpoint_value(
@@ -8828,6 +8844,25 @@ def narrow_review_construct_normalization(row: dict) -> str:
     return ""
 
 
+def has_preclinical_stress_coping_evidence(row: dict) -> bool:
+    context = " ".join(
+        normalize(row.get(field, ""))
+        for field in (
+            "assay_type",
+            "assay_family",
+            "construct_or_behavior",
+            "raw_task_or_measure",
+            "outcome_measure",
+            "graph_construct_label",
+            "finding_summary",
+            "support",
+            "supporting_quote",
+        )
+        if normalize(row.get(field, ""))
+    )
+    return bool(PRECLINICAL_STRESS_COPING_EVIDENCE_RE.search(ascii_fold(context)))
+
+
 def apply_review_context_metadata(row: dict) -> dict:
     if normalize(row.get("review_extraction_method", "")) != "paper_centered_one_pass_v2":
         return row
@@ -8850,12 +8885,17 @@ def apply_review_context_metadata(row: dict) -> dict:
         and label_key(row.get("graph_entity_label", ""))
         in {"antidepressant effect", "antidepressant effects", "antidepressant like effect", "antidepressant like effects"}
     ):
-        row["domain"] = "cognitive_behavioral"
-        row["domain_route"] = "cognitive_behavioral"
-        row["dataset"] = "cognitive_behavioral"
-        row["kg_entity_kind_override"] = "cognitive_behavioral_construct"
-        row["graph_entity_label"] = "Stress-coping behavior"
-        row["normalization_boundary_reason"] = "preclinical_antidepressant_effect_routed_to_stress_coping_behavior"
+        if has_preclinical_stress_coping_evidence(row):
+            row["domain"] = "cognitive_behavioral"
+            row["domain_route"] = "cognitive_behavioral"
+            row["dataset"] = "cognitive_behavioral"
+            row["kg_entity_kind_override"] = "cognitive_behavioral_construct"
+            row["graph_entity_label"] = "Stress-coping behavior"
+            row["normalization_boundary_reason"] = "preclinical_antidepressant_effect_routed_to_stress_coping_behavior"
+        else:
+            row["graph_admission_status"] = "paper_detail"
+            row["graph_admission_reason"] = "preclinical_antidepressant_effect_without_behavioral_anchor"
+            row["normalization_boundary_reason"] = "preclinical_antidepressant_effect_held_without_behavioral_anchor"
         return row
     outcome_label, outcome_kind = repeated_review_outcome_normalization(row)
     if outcome_label and normalize(row.get("evidence_level", "")).casefold() != "preclinical":
@@ -9103,13 +9143,21 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
             flags=re.IGNORECASE,
         )
         cardiac_electrophysiology = bool(cardiac_context and electrophysiology_context)
-        physiological_safety = re.search(
+        physiology_measure = re.search(
             r"\b(body temperature|core temperature|hypertherm\w*|hypotherm\w*|thermoregul\w*|"
             r"mean arterial pressure|blood pressure|heart rate|tachycard\w*|bradycard\w*|"
-            r"positive inotropic|force of contraction)\b",
+            r"hypertension|hypotension|hemodynamic instability|positive inotropic|force of contraction)\b",
             boundary_context,
             flags=re.IGNORECASE,
         )
+        explicit_physiology_safety_context = re.search(
+            r"\b(adverse (?:event|effect|reaction)|side effects?|toxicity|toxic effect|safety concern|"
+            r"clinically significant|medically significant|harmful|dangerous|intolerab\w*|"
+            r"life[- ]threatening|fatal)\b",
+            boundary_context,
+            flags=re.IGNORECASE,
+        )
+        physiological_safety = bool(physiology_measure and explicit_physiology_safety_context)
         if neurotoxicity_category or cardiac_electrophysiology or physiological_safety:
             domain = "safety_tolerability"
             out["domain"] = domain
@@ -9735,22 +9783,32 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
 
 
 def proposition_identifiers(row: dict, subject_label: str, entity_kind: str, entity_label: str) -> tuple[str, str]:
-    specific_anchor = first_normalized_value(
-        row,
-        (
+    typed_anchors = tuple(
+        label_key(row.get(field, ""))
+        for field in (
             "raw_entity_label",
             "graph_entity_original",
             "public_health_measure",
             "safety_event_or_measure",
             "specific_readout_or_marker",
+            "readout",
+            "readout_or_measure",
+            "pathway_or_readout",
+            "target",
+            "pathway_or_process",
             "brain_region",
             "brain_network",
             "neural_circuit",
+            "raw_task_or_measure",
             "construct_or_behavior",
             "subjective_construct",
             "context_component",
+            "assay_type",
+            "assay_family",
             "pk_or_exposure_parameter",
-        ),
+            "metabolite_or_analyte",
+            "relationship_anchors_json",
+        )
     )
     core = (
         normalize_doi(row.get("study_doi", "")),
@@ -9758,7 +9816,7 @@ def proposition_identifiers(row: dict, subject_label: str, entity_kind: str, ent
         label_key(row.get("graph_subject_label", "") or row.get("intervention_or_exposure", "")),
         normalized_entity_kind(entity_kind),
         label_key(entity_label),
-        label_key(specific_anchor),
+        *typed_anchors,
         label_key(row.get("population", "") or row.get("population_or_subgroup", "")),
         label_key(row.get("sample_size_total", "") or row.get("sample_size", "")),
         label_key(row.get("comparator_normalized", "") or row.get("comparator", "")),

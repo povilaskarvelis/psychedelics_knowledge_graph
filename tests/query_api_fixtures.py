@@ -217,9 +217,9 @@ def write_minimal_kg(kg_dir: Path, *, run_id: str = "test_run") -> None:
             },
             {
                 "entity_id": "target:nmda_receptor",
-                "entity_type": "target",
-                "domain": "molecular_target",
-                "entity_kind": "target",
+                "entity_type": "mechanistic_entity",
+                "domain": "molecular_pathway_readout",
+                "entity_kind": "biomarker_readout",
                 "label": "NMDA receptor",
                 "registry_status": "canonical",
                 "aliases_json": json.dumps(["NMDAR"]),

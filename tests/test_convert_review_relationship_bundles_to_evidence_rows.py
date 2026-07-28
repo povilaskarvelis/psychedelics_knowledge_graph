@@ -76,6 +76,48 @@ def test_secondary_context_is_kept_as_paper_detail() -> None:
     assert rows[0]["coverage_focus_normalized"] == "Context only"
 
 
+def test_untyped_review_object_cannot_override_domain_or_enter_main_graph() -> None:
+    bundle = {
+        "study_doi": "10.1/untyped",
+        "study_title": "Psilocybin mechanisms review",
+        "text_depth": "article_text",
+        "status": "ok",
+        "result": {
+            "paper_frame": {"primary_subjects": ["Psilocybin"]},
+            "relationships": [{
+                "item_id": "untyped",
+                "relationship_kind": "review_synthesis",
+                "relationship_statement": "Psilocybin altered an incompletely typed experimental feature.",
+                "anchors": [
+                    {"role": "compound", "label": "Psilocybin", "anchor_type": "named_entity"},
+                    {"role": "other", "label": "S-enantiomer", "anchor_type": "other"},
+                ],
+                "direction_or_tone": "descriptive_only",
+                "paper_prominence": "paper_defining",
+                "centrality_basis": ["review_conclusion"],
+                "evidence_stratum": "preclinical",
+                "domain_labels": ["cognitive_behavioral"],
+                "evidence_locators": [],
+                "limitations": [],
+                "graph_eligibility": "main_graph",
+                "graph_form": "atomic",
+                "covers_major_aspect_ids": ["A1"],
+            }],
+        },
+    }
+    tasks = [{"study_doi": "10.1/untyped", "paper_metadata": {"review_type": "review"}}]
+    registry = {"compounds": [{"label": "Psilocybin", "aliases": []}], "targets": [], "disorders": []}
+
+    rows, _report = convert_bundles(
+        [bundle], tasks, registry, active_candidate_dois={"10.1/untyped"}
+    )
+
+    assert rows[0]["domain"] == "general_topic_coverage"
+    assert rows[0]["kg_entity_kind_override"] == "public_health_measure"
+    assert rows[0]["graph_admission_status"] == "paper_detail"
+    assert rows[0]["graph_admission_reason"] == "review_relationship_untyped_object_detail_only"
+
+
 def test_legacy_review_rows_are_identified_but_meta_analysis_is_preserved() -> None:
     assert legacy_review_row({"source_item_type": "review_coverage_item", "paper_type": "review"})
     assert not legacy_review_row({"source_item_type": "meta_analysis_item", "paper_type": "meta_analysis"})

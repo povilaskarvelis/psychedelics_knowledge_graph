@@ -1,0 +1,179 @@
+{
+  "schema_version": "psychedelics_kg_graph_view_contract_v1",
+  "default_view": "condition_indication",
+  "description": "Versioned website graph presets expressed as relationship-level filters. API clients may reproduce these views or use the underlying filters independently.",
+  "views": [
+    {
+      "id": "condition_indication",
+      "label": "Conditions",
+      "singular": "Condition",
+      "lower_plural": "conditions",
+      "lower_singular": "condition",
+      "object_kinds": [
+        "condition_indication"
+      ]
+    },
+    {
+      "id": "safety_adverse_event",
+      "label": "Safety",
+      "singular": "Safety outcome",
+      "lower_plural": "safety outcomes",
+      "lower_singular": "safety outcome",
+      "object_kinds": [
+        "safety_adverse_event"
+      ]
+    },
+    {
+      "id": "cognitive_behavioral_construct",
+      "label": "Cognition",
+      "singular": "Cognitive construct",
+      "lower_plural": "cognitive constructs",
+      "lower_singular": "cognitive construct",
+      "object_kinds": [
+        "cognitive_behavioral_construct"
+      ],
+      "object_labels": [
+        "Anhedonia",
+        "Associative memory",
+        "Attention",
+        "Autobiographical memory",
+        "Avoidance learning",
+        "Cognitive flexibility",
+        "Creativity",
+        "Decentering",
+        "Declarative memory",
+        "Emotional processing",
+        "Episodic memory",
+        "Executive function",
+        "Fear extinction",
+        "Fear memory",
+        "Global cognition",
+        "Inhibitory control",
+        "Memory",
+        "Memory consolidation",
+        "Memory retrieval",
+        "Mindfulness",
+        "Motivation",
+        "Perceptual processing",
+        "Processing speed",
+        "Prospective memory",
+        "Psychological flexibility",
+        "Recognition memory",
+        "Reversal learning",
+        "Reward learning",
+        "Reward processing",
+        "Reward responsiveness",
+        "Semantic memory",
+        "Sensory memory",
+        "Set shifting",
+        "Short-term memory",
+        "Social cognition",
+        "Spatial memory",
+        "Time perception",
+        "Verbal memory",
+        "Visual memory",
+        "Visuospatial memory",
+        "Working memory"
+      ]
+    },
+    {
+      "id": "behavioral_effect",
+      "label": "Behavior",
+      "singular": "Behavior",
+      "lower_plural": "behavior",
+      "lower_singular": "behavior",
+      "object_kinds": [
+        "cognitive_behavioral_construct"
+      ],
+      "object_labels": [
+        "Anxiety-like behavior",
+        "Conditioned place preference",
+        "Compulsivity",
+        "Craving",
+        "Drug discrimination",
+        "Drug cue reactivity",
+        "Drug motivation",
+        "Drug reinstatement",
+        "Drug seeking",
+        "Drug self-administration",
+        "Head-twitch response",
+        "Motor coordination",
+        "Pain behavior",
+        "Psychomotor sensitization",
+        "Relapse",
+        "Sensorimotor gating",
+        "Social interaction",
+        "Stress-coping behavior",
+        "Threat avoidance"
+      ]
+    },
+    {
+      "id": "subjective_experience_construct",
+      "label": "Subjective effects",
+      "singular": "Subjective effect",
+      "lower_plural": "subjective effects",
+      "lower_singular": "subjective effect",
+      "object_kinds": [
+        "subjective_experience_construct"
+      ]
+    },
+    {
+      "id": "intervention_component",
+      "label": "Treatment context",
+      "singular": "Treatment context",
+      "lower_plural": "treatment context factors",
+      "lower_singular": "treatment context factor",
+      "object_kinds": [
+        "intervention_component"
+      ]
+    },
+    {
+      "id": "public_health_measure",
+      "label": "Real-world use",
+      "singular": "Real-world topic",
+      "lower_plural": "real-world topics",
+      "lower_singular": "real-world topic",
+      "object_kinds": [
+        "public_health_measure",
+        "exposure_context"
+      ],
+      "domains": [
+        "real_world_public_health"
+      ]
+    },
+    {
+      "id": "brain_system",
+      "label": "Brain regions",
+      "singular": "Brain region",
+      "lower_plural": "brain regions",
+      "lower_singular": "brain region",
+      "object_kinds": [
+        "brain_region",
+        "brain_network",
+        "neural_circuit"
+      ]
+    },
+    {
+      "id": "pathway_readout",
+      "label": "Molecular effects",
+      "singular": "Molecular effect",
+      "lower_plural": "molecular effects",
+      "lower_singular": "molecular effect",
+      "object_kinds": [
+        "pathway_process",
+        "biomarker_readout"
+      ]
+    },
+    {
+      "id": "target_system",
+      "label": "Targets",
+      "singular": "Target",
+      "lower_plural": "targets",
+      "lower_singular": "target",
+      "object_kinds": [
+        "target",
+        "system_family"
+      ]
+    }
+  ]
+}

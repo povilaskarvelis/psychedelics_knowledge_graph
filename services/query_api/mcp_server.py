@@ -47,7 +47,7 @@ def create_mcp_server(
 
     @mcp.tool()
     def list_available_filters() -> dict[str, Any]:
-        """List valid paper types, subtypes, domains, concept kinds, and relationship types."""
+        """List valid paper, relationship, endpoint-kind, and website-view filters."""
         return service.facets()
 
     @mcp.tool()
@@ -57,7 +57,7 @@ def create_mcp_server(
         domains: list[str] | None = None,
         limit: int = 15,
     ) -> dict[str, Any]:
-        """Resolve a compound, condition, target, outcome, or alias to a concept ID."""
+        """Resolve concepts; kind and domain filters use observed public relationships."""
         return service.search_concepts(
             query,
             concept_kinds=concept_kinds or [],
@@ -94,8 +94,12 @@ def create_mcp_server(
         author_ids: list[str] | None = None,
         author_names: list[str] | None = None,
         concept_ids: list[str] | None = None,
+        subject_labels: list[str] | None = None,
+        object_labels: list[str] | None = None,
         domains: list[str] | None = None,
         relation_types: list[str] | None = None,
+        subject_kinds: list[str] | None = None,
+        object_kinds: list[str] | None = None,
         year_from: int | None = None,
         year_to: int | None = None,
         limit: int = 25,
@@ -113,8 +117,12 @@ def create_mcp_server(
                     author_ids=author_ids or [],
                     author_names=author_names or [],
                     concept_ids=concept_ids or [],
+                    subject_labels=subject_labels or [],
+                    object_labels=object_labels or [],
                     domains=domains or [],
                     relation_types=relation_types or [],
+                    subject_kinds=subject_kinds or [],
+                    object_kinds=object_kinds or [],
                     year_from=year_from,
                     year_to=year_to,
                 ),
@@ -147,8 +155,12 @@ def create_mcp_server(
         concept_ids: list[str] | None = None,
         subject_ids: list[str] | None = None,
         object_ids: list[str] | None = None,
+        subject_labels: list[str] | None = None,
+        object_labels: list[str] | None = None,
         domains: list[str] | None = None,
         relation_types: list[str] | None = None,
+        subject_kinds: list[str] | None = None,
+        object_kinds: list[str] | None = None,
         year_from: int | None = None,
         year_to: int | None = None,
         limit: int = 25,
@@ -167,8 +179,12 @@ def create_mcp_server(
                     concept_ids=concept_ids or [],
                     subject_ids=subject_ids or [],
                     object_ids=object_ids or [],
+                    subject_labels=subject_labels or [],
+                    object_labels=object_labels or [],
                     domains=domains or [],
                     relation_types=relation_types or [],
+                    subject_kinds=subject_kinds or [],
+                    object_kinds=object_kinds or [],
                     year_from=year_from,
                     year_to=year_to,
                 ),

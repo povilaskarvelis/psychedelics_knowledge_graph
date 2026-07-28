@@ -27,6 +27,7 @@ from pipeline.publish.publish_query_api_r2 import (  # noqa: E402
     read_json_object,
     upload_immutable_file,
 )
+from pipeline.kg.graph_view_contract import graph_view_ids  # noqa: E402
 from services.query_api.config import R2Settings, normalize_r2_prefix  # noqa: E402
 from services.query_api.r2_store import (  # noqa: E402
     ObjectStore,
@@ -49,18 +50,7 @@ METHODS_RELEASE_FILES = {
     "bibliography": "methods_bibliography.json",
     "graph_inclusion_dispositions": "graph_inclusion_dispositions.json",
 }
-DETAIL_VIEW_KEYS = {
-    "condition_indication",
-    "safety_adverse_event",
-    "cognitive_behavioral_construct",
-    "behavioral_effect",
-    "subjective_experience_construct",
-    "intervention_component",
-    "public_health_measure",
-    "brain_system",
-    "pathway_readout",
-    "target_system",
-}
+DETAIL_VIEW_KEYS = set(graph_view_ids())
 
 
 def safe_payload_path(browser_runs_dir: Path, relative_path: str) -> Path:

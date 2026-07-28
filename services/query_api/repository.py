@@ -286,17 +286,10 @@ class QueryService:
         return {"status": "ok", **self.release_meta(info)}
 
     @staticmethod
-    def add_in_filter(
-        clauses: list[str],
-        params: list[Any],
-        *,
-        expression: str,
-        values: Sequence[str],
-        casefold: bool = False,
-    ) -> None:
+    def cleaned_filter_values(values: Sequence[str], *, casefold: bool = False) -> list[str]:
         cleaned = [str(value).strip() for value in values if str(value).strip()]
         if not cleaned:
-            return
+            return []
         if len(cleaned) > FILTER_LIST_MAX_ITEMS:
             raise InvalidQuery(
                 f"Filters accept at most {FILTER_LIST_MAX_ITEMS} values per field"
@@ -305,10 +298,25 @@ class QueryService:
             raise InvalidQuery(
                 f"Filter values must be at most {FILTER_VALUE_MAX_LENGTH} characters"
             )
+        return [value.casefold() for value in cleaned] if casefold else cleaned
+
+    @classmethod
+    def add_in_filter(
+        cls,
+        clauses: list[str],
+        params: list[Any],
+        *,
+        expression: str,
+        values: Sequence[str],
+        casefold: bool = False,
+    ) -> None:
+        cleaned = cls.cleaned_filter_values(values, casefold=casefold)
+        if not cleaned:
+            return
         placeholders = ",".join("?" for _ in cleaned)
         if casefold:
             clauses.append(f"lower({expression}) IN ({placeholders})")
-            params.extend(value.casefold() for value in cleaned)
+            params.extend(cleaned)
         else:
             clauses.append(f"{expression} IN ({placeholders})")
             params.extend(cleaned)
@@ -353,7 +361,13 @@ class QueryService:
                 )
                 params.extend(cleaned)
         relationship_filters = (
-            filters.concept_ids or filters.domains or filters.relation_types
+            filters.concept_ids
+            or filters.subject_labels
+            or filters.object_labels
+            or filters.domains
+            or filters.relation_types
+            or filters.subject_kinds
+            or filters.object_kinds
         )
         if relationship_filters:
             rel_clauses = ["r.paper_id = p.paper_id"]
@@ -367,6 +381,20 @@ class QueryService:
             self.add_in_filter(
                 rel_clauses,
                 params,
+                expression="r.subject_label",
+                values=filters.subject_labels,
+                casefold=True,
+            )
+            self.add_in_filter(
+                rel_clauses,
+                params,
+                expression="r.object_label",
+                values=filters.object_labels,
+                casefold=True,
+            )
+            self.add_in_filter(
+                rel_clauses,
+                params,
                 expression="r.domain",
                 values=filters.domains,
                 casefold=True,
@@ -376,6 +404,20 @@ class QueryService:
                 params,
                 expression="r.relation_type",
                 values=filters.relation_types,
+                casefold=True,
+            )
+            self.add_in_filter(
+                rel_clauses,
+                params,
+                expression="r.subject_kind",
+                values=filters.subject_kinds,
+                casefold=True,
+            )
+            self.add_in_filter(
+                rel_clauses,
+                params,
+                expression="r.object_kind",
+                values=filters.object_kinds,
                 casefold=True,
             )
             clauses.append(
@@ -404,8 +446,12 @@ class QueryService:
             ("r.paper_subtype", filters.paper_subtypes, True),
             ("r.subject_id", filters.subject_ids, False),
             ("r.object_id", filters.object_ids, False),
+            ("r.subject_label", filters.subject_labels, True),
+            ("r.object_label", filters.object_labels, True),
             ("r.domain", filters.domains, True),
             ("r.relation_type", filters.relation_types, True),
+            ("r.subject_kind", filters.subject_kinds, True),
+            ("r.object_kind", filters.object_kinds, True),
         ):
             self.add_in_filter(
                 clauses, params, expression=expression, values=values, casefold=casefold
@@ -486,6 +532,8 @@ class QueryService:
 
     def facets(self) -> dict[str, Any]:
         info = self.resolver.resolve()
+        public_schema = json.loads(info.schema_path.read_text(encoding="utf-8"))
+        graph_views = public_schema.get("graph_views") or {}
         with self.connection(info) as con:
             def values(sql: str) -> list[dict[str, Any]]:
                 return fetch_rows(con.execute(sql))
@@ -508,8 +556,21 @@ class QueryService:
                     "FROM relationships GROUP BY 1 ORDER BY 1"
                 ),
                 "concept_kinds": values(
-                    "SELECT concept_kind AS value, count(*) AS concept_count "
-                    "FROM concepts GROUP BY 1 ORDER BY 1"
+                    "SELECT kind AS value, count(DISTINCT concept_id) AS concept_count "
+                    "FROM ("
+                    "SELECT subject_id AS concept_id, subject_kind AS kind FROM relationships "
+                    "UNION ALL "
+                    "SELECT object_id AS concept_id, object_kind AS kind FROM relationships"
+                    ") observed "
+                    "WHERE kind IS NOT NULL AND kind <> '' GROUP BY 1 ORDER BY 1"
+                ),
+                "subject_kinds": values(
+                    "SELECT subject_kind AS value, count(*) AS relationship_count "
+                    "FROM relationships GROUP BY 1 ORDER BY 1"
+                ),
+                "object_kinds": values(
+                    "SELECT object_kind AS value, count(*) AS relationship_count "
+                    "FROM relationships GROUP BY 1 ORDER BY 1"
                 ),
             }
             year_range = fetch_rows(
@@ -524,6 +585,8 @@ class QueryService:
             "meta": self.release_meta(info),
             "paper_years": year_range,
             "unclassified_paper_count": unclassified_paper_count,
+            "graph_view_schema_version": graph_views.get("schema_version"),
+            "graph_views": graph_views.get("views") or [],
             **facets,
         }
 
@@ -544,16 +607,35 @@ class QueryService:
         info = self.resolver.resolve()
         clauses = ["(lower(c.label) LIKE ? OR lower(coalesce(c.aliases_json, '')) LIKE ?)"]
         params: list[Any] = [f"%{query.casefold()}%", f"%{query.casefold()}%"]
-        self.add_in_filter(
-            clauses,
-            params,
-            expression="c.concept_kind",
-            values=concept_kinds,
-            casefold=True,
-        )
-        self.add_in_filter(
-            clauses, params, expression="c.domain", values=domains, casefold=True
-        )
+        observed_kinds = self.cleaned_filter_values(concept_kinds, casefold=True)
+        observed_domains = self.cleaned_filter_values(domains, casefold=True)
+        observed_relationship_clauses: list[str] = []
+        if observed_kinds:
+            placeholders = ",".join("?" for _ in observed_kinds)
+            observed_relationship_clauses.append(
+                "((r.subject_id = c.concept_id "
+                f"AND lower(r.subject_kind) IN ({placeholders})) "
+                "OR (r.object_id = c.concept_id "
+                f"AND lower(r.object_kind) IN ({placeholders})))"
+            )
+            params.extend(observed_kinds)
+            params.extend(observed_kinds)
+        else:
+            observed_relationship_clauses.append(
+                "(r.subject_id = c.concept_id OR r.object_id = c.concept_id)"
+            )
+        if observed_domains:
+            placeholders = ",".join("?" for _ in observed_domains)
+            observed_relationship_clauses.append(
+                f"lower(r.domain) IN ({placeholders})"
+            )
+            params.extend(observed_domains)
+        if observed_kinds or observed_domains:
+            clauses.append(
+                "EXISTS (SELECT 1 FROM relationships r WHERE "
+                + " AND ".join(observed_relationship_clauses)
+                + ")"
+            )
         params.extend([query.casefold(), f"{query.casefold()}%", limit])
         with self.connection(info) as con:
             results = fetch_rows(
@@ -567,7 +649,23 @@ class QueryService:
                            (SELECT count(DISTINCT r.relationship_id)
                             FROM relationships r
                             WHERE c.concept_id = r.subject_id OR c.concept_id = r.object_id)
-                            AS relationship_count
+                            AS relationship_count,
+                           (SELECT list(DISTINCT kind ORDER BY kind)
+                            FROM (
+                                SELECT r.subject_kind AS kind
+                                FROM relationships r
+                                WHERE r.subject_id = c.concept_id
+                                UNION ALL
+                                SELECT r.object_kind AS kind
+                                FROM relationships r
+                                WHERE r.object_id = c.concept_id
+                            ) observed
+                            WHERE kind IS NOT NULL AND kind <> '')
+                            AS observed_kinds,
+                           (SELECT list(DISTINCT domain ORDER BY domain)
+                            FROM relationships r
+                            WHERE c.concept_id = r.subject_id OR c.concept_id = r.object_id)
+                            AS observed_domains
                     FROM concepts c
                     WHERE {' AND '.join(clauses)}
                     ORDER BY CASE
@@ -580,7 +678,14 @@ class QueryService:
                     params,
                 )
             )
-        return {"meta": self.release_meta(info), "results": results}
+        return {
+            "meta": {
+                **self.release_meta(info),
+                "concept_kind_filter_scope": "observed_relationship_endpoints",
+                "domain_filter_scope": "observed_relationships",
+            },
+            "results": results,
+        }
 
     def get_concept(self, concept_id: str) -> dict[str, Any]:
         info = self.resolver.resolve()
@@ -590,18 +695,28 @@ class QueryService:
             )
             if not rows:
                 raise QueryNotFound(f"Unknown concept_id: {concept_id}")
-            counts = fetch_rows(
+            relationship_summary = fetch_rows(
                 con.execute(
                     """
                     SELECT count(DISTINCT paper_id) AS paper_count,
-                           count(DISTINCT relationship_id) AS relationship_count
-                    FROM relationships
-                    WHERE subject_id = ? OR object_id = ?
+                           count(DISTINCT relationship_id) AS relationship_count,
+                           list(DISTINCT kind ORDER BY kind) AS observed_kinds,
+                           list(DISTINCT domain ORDER BY domain) AS observed_domains
+                    FROM (
+                        SELECT paper_id, relationship_id, subject_kind AS kind, domain
+                        FROM relationships WHERE subject_id = ?
+                        UNION ALL
+                        SELECT paper_id, relationship_id, object_kind AS kind, domain
+                        FROM relationships WHERE object_id = ?
+                    ) observed
                     """,
                     [concept_id, concept_id],
                 )
             )[0]
-        return {"meta": self.release_meta(info), "data": {**rows[0], **counts}}
+        return {
+            "meta": self.release_meta(info),
+            "data": {**rows[0], **relationship_summary},
+        }
 
     def search_authors(self, query: str, *, limit: int = 15) -> dict[str, Any]:
         query = query.strip()

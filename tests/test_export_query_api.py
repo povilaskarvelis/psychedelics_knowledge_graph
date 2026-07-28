@@ -91,6 +91,19 @@ class ExportQueryApiTest(unittest.TestCase):
                 self.assertTrue(table["grain"])
                 self.assertTrue(table["primary_key"])
                 self.assertTrue(all(field.get("description") for field in table["fields"]))
+            self.assertEqual(
+                schema["graph_views"]["schema_version"],
+                "psychedelics_kg_graph_view_contract_v1",
+            )
+            target_view = next(
+                view
+                for view in schema["graph_views"]["views"]
+                if view["value"] == "target_system"
+            )
+            self.assertEqual(
+                target_view["filters"]["object_kinds"],
+                ["target", "system_family"],
+            )
 
             checked = validate_query_artifact(
                 kg_dir=kg_dir,

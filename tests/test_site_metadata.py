@@ -130,4 +130,5 @@ def test_compound_view_is_part_of_the_public_build() -> None:
     assert "/compounds/psilocybin/" not in homepage
     assert "build_compound_pages.py" not in build_script
     assert "compounds" in public_files.splitlines()
+    assert "schema/graph_view_contract.json" in public_files.splitlines()
     assert "ui/compound.js" in public_files.splitlines()

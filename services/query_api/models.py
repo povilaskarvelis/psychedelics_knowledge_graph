@@ -53,11 +53,31 @@ class PaperFilters(YearRange):
     concept_ids: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
     )
+    subject_labels: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match papers with an exact relationship subject label. Prefer subject IDs for durable integrations.",
+    )
+    object_labels: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match papers with an exact relationship object label. Prefer object IDs for durable integrations.",
+    )
     domains: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
     )
     relation_types: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    subject_kinds: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match papers with a relationship whose subject has one of these contextual kinds.",
+    )
+    object_kinds: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match papers with a relationship whose object has one of these contextual kinds.",
     )
 
 
@@ -97,11 +117,31 @@ class RelationshipFilters(YearRange):
     object_ids: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
     )
+    subject_labels: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match an exact subject label. Prefer subject IDs for durable integrations.",
+    )
+    object_labels: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match an exact object label. Prefer object IDs for durable integrations.",
+    )
     domains: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
     )
     relation_types: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+    )
+    subject_kinds: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match the relationship-scoped subject kind.",
+    )
+    object_kinds: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match the relationship-scoped object kind.",
     )
 
 

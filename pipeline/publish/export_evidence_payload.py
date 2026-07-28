@@ -23,6 +23,10 @@ try:
         load_doi_aliases,
         resolve_registered_doi,
     )
+    from pipeline.kg.graph_view_contract import (
+        graph_view_kind_mapping,
+        record_matches_graph_view,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
     from pipeline.extract.clinical_comparator import normalize_clinical_comparator
@@ -32,6 +36,10 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_DOI_ALIAS_REGISTRY,
         load_doi_aliases,
         resolve_registered_doi,
+    )
+    from pipeline.kg.graph_view_contract import (
+        graph_view_kind_mapping,
+        record_matches_graph_view,
     )
 
 
@@ -51,18 +59,7 @@ META_ANALYSES_SOURCE_KEY = "meta_analyses"
 REVIEWS_SOURCE_KEY = "reviews"
 UI_SOURCE_KEYS = (PRIMARY_SOURCE_KEY, META_ANALYSES_SOURCE_KEY, REVIEWS_SOURCE_KEY)
 DASHBOARD_BOOTSTRAP_ENTITY_KINDS = {"condition_indication", "outcome_scale"}
-DETAIL_VIEW_ENTITY_KINDS = {
-    "condition_indication": {"condition_indication", "outcome_scale"},
-    "safety_adverse_event": {"safety_adverse_event"},
-    "cognitive_behavioral_construct": {"cognitive_behavioral_construct"},
-    "behavioral_effect": {"cognitive_behavioral_construct"},
-    "subjective_experience_construct": {"subjective_experience_construct"},
-    "intervention_component": {"intervention_component"},
-    "public_health_measure": {"public_health_measure", "exposure_context"},
-    "brain_system": {"brain_region", "brain_network", "neural_circuit"},
-    "pathway_readout": {"pathway_process", "biomarker_readout"},
-    "target_system": {"target", "system_family"},
-}
+DETAIL_VIEW_ENTITY_KINDS = graph_view_kind_mapping()
 META_ANALYSIS_SOURCE_TYPES = {
     "meta_analysis",
     "network_meta_analysis",
@@ -1760,12 +1757,10 @@ def detail_view_bootstrap_payload(
     source_key: str,
     view_key: str,
 ) -> dict:
-    entity_kinds = DETAIL_VIEW_ENTITY_KINDS[view_key]
     view_findings = [
         finding
         for finding in findings
-        if normalize(finding.get("entity_kind") or finding.get("kg_entity_kind")).lower()
-        in entity_kinds
+        if record_matches_graph_view(finding, view_key)
     ]
     payload = columnar_bootstrap_payload(
         view_findings,

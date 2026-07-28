@@ -141,8 +141,22 @@ def test_repeated_human_review_outcomes_use_stable_labels_but_preclinical_effect
             "graph_entity_label": "antidepressant effects",
         }
     )
-    assert preclinical["domain"] == "cognitive_behavioral"
-    assert preclinical["graph_entity_label"] == "Stress-coping behavior"
+    assert preclinical["graph_admission_status"] == "paper_detail"
+    assert (
+        preclinical["graph_admission_reason"]
+        == "preclinical_antidepressant_effect_without_behavioral_anchor"
+    )
+
+    behavioral_preclinical = apply_review_context_metadata(
+        {
+            "review_extraction_method": "paper_centered_one_pass_v2",
+            "evidence_level": "preclinical",
+            "graph_entity_label": "antidepressant effects",
+            "raw_task_or_measure": "tail-suspension test",
+        }
+    )
+    assert behavioral_preclinical["domain"] == "cognitive_behavioral"
+    assert behavioral_preclinical["graph_entity_label"] == "Stress-coping behavior"
 
 
 def test_intervention_clinical_safety_and_molecular_boundaries() -> None:

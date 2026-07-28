@@ -362,9 +362,8 @@ def relationship_row(
     object_role = normalize(object_anchor.get("role", "")) or "other"
     object_label = normalize(object_anchor.get("label", ""))
     domain, entity_kind, role_field = ROLE_GRAPH_MAPPING.get(object_role, ROLE_GRAPH_MAPPING["other"])
+    fallback_object_mapping = object_role == "other" or object_role not in ROLE_GRAPH_MAPPING
     model_domains = [normalize(value) for value in relationship.get("domain_labels", []) if normalize(value)]
-    if object_role == "other" and model_domains:
-        domain = model_domains[0]
     location, locator, supporting_quote = evidence_locations(relationship)
     prominence = normalize(relationship.get("paper_prominence", ""))
     requested_eligibility = normalize(relationship.get("graph_eligibility", ""))
@@ -373,6 +372,7 @@ def relationship_row(
         if scope_status == "in_scope"
         and requested_eligibility == "main_graph"
         and prominence in {"paper_defining", "major_supporting"}
+        and not fallback_object_mapping
         else "paper_detail"
     )
     statement = normalize(relationship.get("relationship_statement", ""))
@@ -425,6 +425,8 @@ def relationship_row(
         "graph_admission_reason": (
             "review_relationship_prominence"
             if admission == "main_graph"
+            else "review_relationship_untyped_object_detail_only"
+            if fallback_object_mapping
             else "review_paper_scope_not_graphable"
             if scope_status != "in_scope"
             else "review_relationship_paper_detail"

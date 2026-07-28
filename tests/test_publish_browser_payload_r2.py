@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from pipeline.kg.graph_view_contract import graph_view_ids
 from pipeline.publish.publish_browser_payload_r2 import (
     BROWSER_ACTIVE_SCHEMA_VERSION,
     publish_active_browser_release,
@@ -12,18 +13,7 @@ from pipeline.publish.publish_query_api_r2 import ImmutableObjectConflict
 from tests.r2_fixtures import FakeObjectStore
 from tests.test_publish_query_api_r2 import r2_settings
 
-DETAIL_VIEW_KEYS = (
-    "condition_indication",
-    "safety_adverse_event",
-    "cognitive_behavioral_construct",
-    "behavioral_effect",
-    "subjective_experience_construct",
-    "intervention_component",
-    "public_health_measure",
-    "brain_system",
-    "pathway_readout",
-    "target_system",
-)
+DETAIL_VIEW_KEYS = graph_view_ids()
 
 
 class PublishBrowserPayloadR2Test(unittest.TestCase):

@@ -27,6 +27,10 @@ try:
         load_findings,
         ui_source_key_for_finding,
     )
+    from pipeline.kg.graph_view_contract import (
+        GRAPH_VIEW_CONTRACT_SCHEMA_VERSION,
+        public_graph_view_facets,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     import sys
 
@@ -35,6 +39,10 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.publish.export_evidence_payload import (
         load_findings,
         ui_source_key_for_finding,
+    )
+    from pipeline.kg.graph_view_contract import (
+        GRAPH_VIEW_CONTRACT_SCHEMA_VERSION,
+        public_graph_view_facets,
     )
 
 
@@ -150,8 +158,8 @@ FIELD_DESCRIPTIONS = {
     "paper_subtype": "More specific controlled paper classification when available.",
     "concept_id": "Stable identifier for a standardized concept.",
     "concept_type": "Broad concept family used by the knowledge graph.",
-    "concept_kind": "Controlled concept category.",
-    "domain": "Research domain associated with a concept or relationship.",
+    "concept_kind": "Legacy singular category retained on the concept record. Relationship endpoint kinds describe contextual use and may include additional categories.",
+    "domain": "Legacy concept domain or relationship-scoped research domain, depending on the table.",
     "label": "Preferred human-readable concept label.",
     "parent_label": "Preferred label of the broader parent concept when available.",
     "parent_kind": "Category of the broader parent concept when available.",
@@ -682,11 +690,24 @@ def materialize_query_artifacts(
             "generated_at": generated_at,
             "run_id": run_id,
             "tables": schemas,
+            "graph_views": {
+                "schema_version": GRAPH_VIEW_CONTRACT_SCHEMA_VERSION,
+                "description": (
+                    "Optional website-view presets expressed as atomic relationship "
+                    "filters. API clients may combine or ignore these presets."
+                ),
+                "views": public_graph_view_facets(),
+            },
             "semantics": {
                 "paper_type": ["primary_study", "meta_analysis", "review"],
                 "relationship_scope": (
                     "Relationships are deduplicated at paper-subject-object-relation-domain "
                     "grain and include only relationships admitted to the public graph."
+                ),
+                "concept_kind_scope": (
+                    "The concepts table retains one legacy concept_kind for compatibility. "
+                    "Concept search and API concept-kind facets use all subject_kind and "
+                    "object_kind values observed on public relationships."
                 ),
                 "author_identity": (
                     "Public author records require an OpenAlex or ORCID identity. ORCID is "

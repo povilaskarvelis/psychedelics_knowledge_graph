@@ -37,6 +37,8 @@ const SAMPLE_YEAR_TARGET_BUCKET_COUNT = 14;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
 const LIST_CHUNK_SIZE = 120;
 const FINDING_SEARCH_DEBOUNCE_MS = 70;
+const GRAPH_VIEW_CONTRACT_PATH = "schema/graph_view_contract.json";
+const GRAPH_VIEW_CONTRACT_SCHEMA_VERSION = "psychedelics_kg_graph_view_contract_v1";
 
 let cardsLoadObserver = null;
 let bibliographyLoadObserver = null;
@@ -82,154 +84,81 @@ const PALETTE_GOLD_FIRST = CATEGORY_COLORS;
 const OTHER_CATEGORY_COLOR = "#8f9ba8";
 const PUBLICATION_YEAR_COLOR = "#69a196";
 const SAMPLE_SIZE_HEATMAP_COLOR = "#b89a5b";
-const COGNITION_NODE_LABELS = [
-  "Anhedonia",
-  "Associative memory",
-  "Attention",
-  "Autobiographical memory",
-  "Avoidance learning",
-  "Cognitive flexibility",
-  "Creativity",
-  "Decentering",
-  "Declarative memory",
-  "Emotional processing",
-  "Episodic memory",
-  "Executive function",
-  "Fear extinction",
-  "Fear memory",
-  "Global cognition",
-  "Inhibitory control",
-  "Memory",
-  "Memory consolidation",
-  "Memory retrieval",
-  "Mindfulness",
-  "Motivation",
-  "Perceptual processing",
-  "Processing speed",
-  "Prospective memory",
-  "Psychological flexibility",
-  "Recognition memory",
-  "Reversal learning",
-  "Reward learning",
-  "Reward processing",
-  "Reward responsiveness",
-  "Semantic memory",
-  "Sensory memory",
-  "Set shifting",
-  "Short-term memory",
-  "Social cognition",
-  "Spatial memory",
-  "Time perception",
-  "Verbal memory",
-  "Visual memory",
-  "Visuospatial memory",
-  "Working memory",
-];
-const BEHAVIORAL_EFFECT_NODE_LABELS = [
-  "Anxiety-like behavior",
-  "Conditioned place preference",
-  "Compulsivity",
-  "Craving",
-  "Drug discrimination",
-  "Drug cue reactivity",
-  "Drug motivation",
-  "Drug reinstatement",
-  "Drug seeking",
-  "Drug self-administration",
-  "Head-twitch response",
-  "Motor coordination",
-  "Pain behavior",
-  "Psychomotor sensitization",
-  "Relapse",
-  "Sensorimotor gating",
-  "Social interaction",
-  "Stress-coping behavior",
-  "Threat avoidance",
-];
-const ENTITY_CATEGORY_OPTIONS = [
-  { key: "condition_indication", label: "Conditions", singular: "Condition", lowerPlural: "conditions", lowerSingular: "condition" },
-  {
-    key: "safety_adverse_event",
-    label: "Safety",
-    singular: "Safety outcome",
-    lowerPlural: "safety outcomes",
-    lowerSingular: "safety outcome",
-  },
-  {
-    key: "cognitive_behavioral_construct",
-    label: "Cognition",
-    singular: "Cognitive construct",
-    lowerPlural: "cognitive constructs",
-    lowerSingular: "cognitive construct",
-    labels: COGNITION_NODE_LABELS,
-  },
-  {
-    key: "behavioral_effect",
-    kinds: ["cognitive_behavioral_construct"],
-    label: "Behavior",
-    singular: "Behavior",
-    lowerPlural: "behavior",
-    lowerSingular: "behavior",
-    labels: BEHAVIORAL_EFFECT_NODE_LABELS,
-  },
-  {
-    key: "subjective_experience_construct",
-    label: "Subjective effects",
-    singular: "Subjective effect",
-    lowerPlural: "subjective effects",
-    lowerSingular: "subjective effect",
-  },
-  {
-    key: "intervention_component",
-    label: "Treatment context",
-    singular: "Treatment context",
-    lowerPlural: "treatment context factors",
-    lowerSingular: "treatment context factor",
-  },
-  {
-    key: "public_health_measure",
-    kinds: ["public_health_measure", "exposure_context"],
-    domains: ["real_world_public_health"],
-    label: "Real-world use",
-    singular: "Real-world topic",
-    lowerPlural: "real-world topics",
-    lowerSingular: "real-world topic",
-  },
-  {
-    key: "brain_system",
-    kinds: ["brain_region", "brain_network", "neural_circuit"],
-    label: "Brain regions",
-    singular: "Brain region",
-    lowerPlural: "brain regions",
-    lowerSingular: "brain region",
-  },
-  {
-    key: "pathway_readout",
-    kinds: ["pathway_process", "biomarker_readout"],
-    label: "Molecular effects",
-    singular: "Molecular effect",
-    lowerPlural: "molecular effects",
-    lowerSingular: "molecular effect",
-  },
-  {
-    key: "target_system",
-    kinds: ["target", "system_family"],
-    label: "Targets",
-    singular: "Target",
-    lowerPlural: "targets",
-    lowerSingular: "target",
-  },
-];
-const ENTITY_CATEGORY_OPTION_SPECS = new Map(
-  ENTITY_CATEGORY_OPTIONS.map((option) => [
-    option.key,
-    {
-      kinds: new Set(Array.isArray(option.kinds) && option.kinds.length ? option.kinds : [option.key]),
-      domains: new Set((Array.isArray(option.domains) ? option.domains : []).map(normalizeValue).filter(Boolean)),
-      labels: new Set((Array.isArray(option.labels) ? option.labels : []).map(normalizeValue).filter(Boolean)),
-    },
-  ])
-);
+let ENTITY_CATEGORY_OPTIONS = [];
+let ENTITY_CATEGORY_OPTION_SPECS = new Map();
+let graphViewContractPromise = null;
+
+function validatedGraphViewContract(data, url) {
+  if (cleanDisplayText(data?.schema_version) !== GRAPH_VIEW_CONTRACT_SCHEMA_VERSION) {
+    throw new Error(`Unsupported graph view contract from ${url}`);
+  }
+  if (!Array.isArray(data?.views) || !data.views.length) {
+    throw new Error(`Graph view contract from ${url} defines no views`);
+  }
+  const ids = new Set();
+  const options = data.views.map((view, index) => {
+    const key = cleanDisplayText(view?.id);
+    const label = cleanDisplayText(view?.label);
+    const singular = cleanDisplayText(view?.singular);
+    const lowerPlural = cleanDisplayText(view?.lower_plural);
+    const lowerSingular = cleanDisplayText(view?.lower_singular);
+    const kinds = Array.isArray(view?.object_kinds)
+      ? view.object_kinds.map(cleanDisplayText).filter(Boolean)
+      : [];
+    if (!key || !label || !singular || !lowerPlural || !lowerSingular || !kinds.length) {
+      throw new Error(`Graph view contract from ${url} has an invalid view at index ${index}`);
+    }
+    if (ids.has(key)) {
+      throw new Error(`Graph view contract from ${url} repeats view ${key}`);
+    }
+    ids.add(key);
+    return {
+      key,
+      label,
+      singular,
+      lowerPlural,
+      lowerSingular,
+      kinds,
+      domains: Array.isArray(view?.domains)
+        ? view.domains.map(cleanDisplayText).filter(Boolean)
+        : [],
+      labels: Array.isArray(view?.object_labels)
+        ? view.object_labels.map(cleanDisplayText).filter(Boolean)
+        : [],
+    };
+  });
+  const defaultView = cleanDisplayText(data?.default_view);
+  if (!ids.has(defaultView)) {
+    throw new Error(`Graph view contract from ${url} has an invalid default view`);
+  }
+  return { ...data, default_view: defaultView, options };
+}
+
+function applyGraphViewContract(contract) {
+  ENTITY_CATEGORY_OPTIONS = contract.options;
+  ENTITY_CATEGORY_OPTION_SPECS = new Map(
+    ENTITY_CATEGORY_OPTIONS.map((option) => [
+      option.key,
+      {
+        kinds: new Set(option.kinds.map(normalizeValue).filter(Boolean)),
+        domains: new Set(option.domains.map(normalizeValue).filter(Boolean)),
+        labels: new Set(option.labels.map(normalizeValue).filter(Boolean)),
+      },
+    ])
+  );
+  entityViewKey = contract.default_view;
+}
+
+async function loadGraphViewContract() {
+  if (graphViewContractPromise) return graphViewContractPromise;
+  graphViewContractPromise = fetchJsonFromCandidates(dataCandidates(GRAPH_VIEW_CONTRACT_PATH))
+    .then(({ data, url }) => validatedGraphViewContract(data, url))
+    .then((contract) => {
+      applyGraphViewContract(contract);
+      return contract;
+    });
+  return graphViewContractPromise;
+}
 const CONDITION_GRAPH_LABEL_OVERRIDES = new Map([
   ["attention-deficit/hyperactivity disorder", "ADHD"],
   ["distress associated with life-threatening disease", "Distress in life-threatening illness"],
@@ -8890,6 +8819,12 @@ function scheduleIdleTask(callback, delay = 0) {
 }
 
 async function init() {
+  try {
+    await loadGraphViewContract();
+  } catch (error) {
+    renderLoadError([`Graph views: ${error.message}`]);
+    return;
+  }
   loadGraphManifestStats();
   await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
 }

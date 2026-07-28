@@ -37,16 +37,23 @@ evidence are also excluded.
 ## MCP tools
 
 - `get_release_info`: current version, record counts, scope, and limitations.
-- `list_available_filters`: paper types, subtypes, domains, concept kinds, and
-  relationship types.
-- `search_concepts`: resolve labels and aliases to concept IDs.
+- `list_available_filters`: paper types, subtypes, domains, relationship types,
+  relationship-scoped endpoint kinds, and reproducible website-view presets.
+- `search_concepts`: resolve labels and aliases to concept IDs. `concept_kinds`
+  and `domains` match observed public relationships rather than only the
+  concept record's legacy singular metadata.
 - `get_concept`: retrieve one concept, its hierarchy, and paper count.
 - `search_authors`: resolve a preferred name or known variant to an ORCID/OpenAlex author ID.
 - `get_author_papers`: retrieve papers across all types linked to that author.
 - `search_papers`: filter papers by metadata, author, concept, domain,
-  relationship type, or year.
+  relationship type, relationship-scoped subject/object kind, or year.
 - `get_paper`: retrieve one paper, credited authors, and public relationships.
 - `find_relationships`: filter deduplicated paper-level concept relationships.
+
+Website categories are documented by `list_available_filters.graph_views` as
+convenience presets. API clients can reproduce a website category using those
+atomic filters, combine them with narrower filters, or ignore the presets and
+query the relationship fields directly.
 
 ## REST examples
 
@@ -75,6 +82,21 @@ curl -sS \
       "concept_ids": ["compound:psilocybin"],
       "paper_types": ["primary_study"],
       "domains": ["clinical_outcome"]
+    },
+    "limit": 25
+  }'
+```
+
+Find relationships where NMDA receptor is used specifically as a target:
+
+```bash
+curl -sS \
+  "https://psychedelics-kg-api.onrender.com/api/v1/relationships/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filters": {
+      "object_ids": ["mechanistic_entity:nmda_receptor"],
+      "object_kinds": ["target"]
     },
     "limit": 25
   }'

@@ -49,6 +49,12 @@ class QueryApiTest(unittest.TestCase):
             {row["value"] for row in facets["paper_types"]},
             {"primary_study", "review"},
         )
+        self.assertIn("target", {row["value"] for row in facets["concept_kinds"]})
+        self.assertIn("target", {row["value"] for row in facets["object_kinds"]})
+        target_view = next(
+            view for view in facets["graph_views"] if view["value"] == "target_system"
+        )
+        self.assertEqual(target_view["filters"]["object_kinds"], ["target", "system_family"])
 
         concepts = self.service.search_concepts("depression")
         self.assertEqual(
@@ -56,6 +62,33 @@ class QueryApiTest(unittest.TestCase):
             "clinical_entity:major_depressive_disorder",
         )
         self.assertIn("MDD", concepts["results"][0]["aliases_json"])
+
+        targets = self.service.search_concepts(
+            "NMDA",
+            concept_kinds=["target"],
+            domains=["molecular_target"],
+        )
+        self.assertEqual(targets["results"][0]["concept_id"], "target:nmda_receptor")
+        self.assertEqual(targets["results"][0]["concept_kind"], "biomarker_readout")
+        self.assertEqual(targets["results"][0]["observed_kinds"], ["target"])
+        self.assertEqual(targets["results"][0]["observed_domains"], ["molecular_target"])
+        self.assertEqual(
+            self.service.search_concepts("NMDA", concept_kinds=["biomarker_readout"])[
+                "results"
+            ],
+            [],
+        )
+        self.assertEqual(
+            self.service.search_concepts(
+                "NMDA",
+                concept_kinds=["target"],
+                domains=["clinical_outcome"],
+            )["results"],
+            [],
+        )
+        target = self.service.get_concept("target:nmda_receptor")["data"]
+        self.assertEqual(target["observed_kinds"], ["target"])
+        self.assertEqual(target["observed_domains"], ["molecular_target"])
 
         authors = self.service.search_authors("Ada")
         self.assertEqual(authors["results"][0]["author_name"], "Ada Example")
@@ -79,6 +112,17 @@ class QueryApiTest(unittest.TestCase):
         self.assertEqual(papers["results"][0]["doi"], "10.1000/primary")
         self.assertEqual(papers["results"][0]["authors"][0]["author_name"], "Ada Example")
 
+        target_papers = self.service.query_papers(
+            PaperQuery(
+                filters=PaperFilters(
+                    subject_kinds=["atomic_compound"],
+                    object_kinds=["target"],
+                )
+            )
+        )
+        self.assertEqual(target_papers["meta"]["total"], 1)
+        self.assertEqual(target_papers["results"][0]["doi"], "10.1000/target")
+
         relationships = self.service.query_relationships(
             RelationshipQuery(
                 filters=RelationshipFilters(
@@ -91,6 +135,28 @@ class QueryApiTest(unittest.TestCase):
         self.assertEqual(
             relationships["results"][0]["object_id"],
             "clinical_entity:major_depressive_disorder",
+        )
+        target_relationships = self.service.query_relationships(
+            RelationshipQuery(
+                filters=RelationshipFilters(
+                    subject_kinds=["atomic_compound"],
+                    object_kinds=["target"],
+                    object_labels=["NMDA receptor"],
+                )
+            )
+        )
+        self.assertEqual(target_relationships["meta"]["total"], 1)
+        self.assertEqual(
+            target_relationships["results"][0]["object_id"],
+            "target:nmda_receptor",
+        )
+        self.assertEqual(
+            self.service.query_relationships(
+                RelationshipQuery(
+                    filters=RelationshipFilters(object_kinds=["biomarker_readout"])
+                )
+            )["meta"]["total"],
+            0,
         )
 
     def test_cursor_is_bound_to_release(self) -> None:
@@ -157,6 +223,19 @@ class QueryApiTest(unittest.TestCase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["meta"]["total"], 1)
+
+            relationship_response = client.post(
+                "/api/v1/relationships/query",
+                json={
+                    "filters": {
+                        "subject_kinds": ["atomic_compound"],
+                        "object_kinds": ["target"],
+                    },
+                    "limit": 10,
+                },
+            )
+            self.assertEqual(relationship_response.status_code, 200)
+            self.assertEqual(relationship_response.json()["meta"]["total"], 1)
 
             too_large = client.post(
                 "/api/v1/papers/query",
@@ -243,6 +322,15 @@ class QueryMcpTest(unittest.IsolatedAsyncioTestCase):
             _content, structured = await mcp.call_tool(
                 "search_papers",
                 {"paper_types": ["review"], "limit": 10},
+            )
+            self.assertEqual(structured["meta"]["total"], 1)
+            _content, structured = await mcp.call_tool(
+                "find_relationships",
+                {
+                    "subject_kinds": ["atomic_compound"],
+                    "object_kinds": ["target"],
+                    "limit": 10,
+                },
             )
             self.assertEqual(structured["meta"]["total"], 1)
 

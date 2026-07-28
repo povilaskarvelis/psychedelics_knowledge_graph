@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -15,6 +16,12 @@ from urllib.request import Request, urlopen
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from pipeline.kg.graph_view_contract import graph_view_ids
+
+
 DEFAULT_DIST = ROOT / "dist"
 LOCAL_POINTER_SCHEMA = "psychedelics_kg_local_preview_active_v1"
 PUBLIC_POINTER_SCHEMA = "psychedelics_kg_browser_r2_active_v1"
@@ -22,18 +29,7 @@ PUBLIC_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json"
 PUBLIC_DATA_ORIGIN = "https://data.psychedelicskg.com"
 GRAPH_MANIFEST_SCHEMA = "route_native_evidence_manifest_v1"
 SOURCE_KEYS = {"primary", "meta_analyses", "reviews"}
-DETAIL_VIEW_KEYS = {
-    "condition_indication",
-    "safety_adverse_event",
-    "cognitive_behavioral_construct",
-    "behavioral_effect",
-    "subjective_experience_construct",
-    "intervention_component",
-    "public_health_measure",
-    "brain_system",
-    "pathway_readout",
-    "target_system",
-}
+DETAIL_VIEW_KEYS = set(graph_view_ids())
 METHODS_FILES = {
     "pipeline_status": "data/kg/views/pipeline_status_graph.json",
     "bibliography": "data/kg/views/methods_bibliography.json",

@@ -36,6 +36,7 @@ from pipeline.kg.build_evidence_tables import (
     normalize_claim_metadata,
     overview_graph_subject,
     overview_graph_subjects,
+    proposition_identifiers,
     review_design_category,
     registry_lookup,
     resolve_kg_output_dir,
@@ -46,6 +47,53 @@ from pipeline.kg.build_evidence_tables import (
 
 
 class BuildEvidenceTablesTest(unittest.TestCase):
+    def test_proposition_identifiers_include_all_typed_anchors(self) -> None:
+        base = {
+            "study_doi": "10.1/proposition",
+            "graph_subject_label": "Ketamine",
+            "raw_entity_label": "c-Fos expression",
+            "specific_readout_or_marker": "c-Fos expression",
+            "result_direction_normalized": "increase",
+            "evidence_locator": "Figure 2",
+        }
+        striatum = {
+            **base,
+            "brain_region": "Striatum",
+        }
+        hippocampus = {
+            **base,
+            "brain_region": "Hippocampus",
+        }
+
+        striatum_group, striatum_conflict = proposition_identifiers(
+            striatum,
+            "Ketamine",
+            "biomarker_readout",
+            "c-Fos expression",
+        )
+        hippocampus_group, hippocampus_conflict = proposition_identifiers(
+            hippocampus,
+            "Ketamine",
+            "biomarker_readout",
+            "c-Fos expression",
+        )
+
+        self.assertNotEqual(striatum_group, hippocampus_group)
+        self.assertNotEqual(striatum_conflict, hippocampus_conflict)
+
+        opposite_direction = {
+            **striatum,
+            "result_direction_normalized": "decrease",
+        }
+        opposite_group, opposite_conflict = proposition_identifiers(
+            opposite_direction,
+            "Ketamine",
+            "biomarker_readout",
+            "c-Fos expression",
+        )
+        self.assertNotEqual(striatum_group, opposite_group)
+        self.assertEqual(striatum_conflict, opposite_conflict)
+
     def test_controlled_target_component_labels_preserve_broad_and_split_explicit_targets(self) -> None:
         cases = {
             "5-HT2A/2C receptors": ["5-HT2A", "5-HT2C"],
@@ -555,7 +603,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         )
 
     def test_preclinical_review_antidepressant_effect_uses_behavioral_boundary(self) -> None:
-        row = normalize_claim_metadata(
+        unanchored = normalize_claim_metadata(
             {
                 "review_extraction_method": "paper_centered_one_pass_v2",
                 "evidence_level": "preclinical",
@@ -566,9 +614,28 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             "clinical_outcome",
         )
 
-        self.assertEqual(row["domain"], "cognitive_behavioral")
-        self.assertEqual(row["kg_entity_kind_override"], "cognitive_behavioral_construct")
-        self.assertEqual(row["graph_entity_label"], "Stress-coping behavior")
+        self.assertEqual(unanchored["domain"], "clinical_outcome")
+        self.assertEqual(unanchored["graph_admission_status"], "paper_detail")
+        self.assertEqual(
+            unanchored["graph_admission_reason"],
+            "preclinical_antidepressant_effect_without_behavioral_anchor",
+        )
+
+        anchored = normalize_claim_metadata(
+            {
+                "review_extraction_method": "paper_centered_one_pass_v2",
+                "evidence_level": "preclinical",
+                "domain": "clinical_outcome",
+                "graph_entity_label": "antidepressant effects",
+                "kg_entity_kind_override": "symptom_problem",
+                "assay_type": "forced-swim test",
+                "support": "Ketamine reduced immobility time in the forced-swim test.",
+            },
+            "clinical_outcome",
+        )
+        self.assertEqual(anchored["domain"], "cognitive_behavioral")
+        self.assertEqual(anchored["kg_entity_kind_override"], "cognitive_behavioral_construct")
+        self.assertEqual(anchored["graph_entity_label"], "Stress-coping behavior")
 
     def test_real_world_use_context_projection_requires_finding_level_evidence(self) -> None:
         registry = {
@@ -1571,6 +1638,9 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         cases = [
             ({"safety_event_or_measure": "QTc prolongation"}, "Cardiovascular safety"),
             ({"finding_summary": "No serious adverse events occurred during treatment."}, "Serious adverse events"),
+            ({"finding_summary": "All-cause mortality was higher during follow-up."}, "Serious adverse events"),
+            ({"support": "Two adult mice died after dosing."}, "Serious adverse events"),
+            ({"support": "Larval mortality increased after developmental exposure."}, "Developmental toxicity"),
             (
                 {
                     "safety_event_or_measure": "psychotomimetic symptoms",
@@ -2104,9 +2174,51 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             },
             "molecular_pathway_readout",
         )
-        self.assertEqual(temperature["domain"], "safety_tolerability")
-        self.assertEqual(temperature["graph_entity_label"], "Body temperature effects")
-        self.assertEqual(temperature["normalization_boundary_reason"], "molecular_physiology_routed_to_safety")
+        self.assertEqual(
+            temperature.get("domain", "molecular_pathway_readout"),
+            "molecular_pathway_readout",
+        )
+        self.assertNotEqual(temperature.get("kg_entity_kind_override"), "safety_adverse_event")
+
+        adverse_temperature = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Endocrine response",
+                "specific_readout_or_marker": "Core body temperature",
+                "support": "The compound caused clinically significant hypothermia as an adverse effect.",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(adverse_temperature["domain"], "safety_tolerability")
+        self.assertEqual(adverse_temperature["graph_entity_label"], "Body temperature effects")
+        self.assertEqual(
+            adverse_temperature["normalization_boundary_reason"],
+            "molecular_physiology_routed_to_safety",
+        )
+
+        conditioned_arousal = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Autonomic physiology",
+                "specific_readout_or_marker": "Mean arterial pressure",
+                "support": "Ketamine restored the anticipatory mean arterial pressure response to the conditioned stimulus.",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(
+            conditioned_arousal.get("domain", "molecular_pathway_readout"),
+            "molecular_pathway_readout",
+        )
+        self.assertNotEqual(conditioned_arousal.get("kg_entity_kind_override"), "safety_adverse_event")
+
+        adverse_pressure = normalize_claim_metadata(
+            {
+                "molecular_effect_category": "Autonomic physiology",
+                "specific_readout_or_marker": "Blood pressure",
+                "support": "A clinically significant blood pressure change was reported as an adverse effect.",
+            },
+            "molecular_pathway_readout",
+        )
+        self.assertEqual(adverse_pressure["domain"], "safety_tolerability")
+        self.assertEqual(adverse_pressure["graph_entity_label"], "Cardiovascular safety")
 
     def test_real_world_public_health_metadata_uses_naturalistic_use_graph_nodes(self) -> None:
         cases = [

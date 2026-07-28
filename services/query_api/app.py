@@ -259,8 +259,14 @@ def create_app(
     @app.get("/api/v1/concepts/search", tags=["concepts"])
     def search_concepts(
         q: str = Query(min_length=1, max_length=200),
-        concept_kind: list[str] | None = Query(default=None),
-        domain: list[str] | None = Query(default=None),
+        concept_kind: list[str] | None = Query(
+            default=None,
+            description="Match kinds observed at either endpoint of public relationships.",
+        ),
+        domain: list[str] | None = Query(
+            default=None,
+            description="Match domains observed on public relationships involving the concept.",
+        ),
         limit: int = Query(default=15, ge=1, le=50),
     ) -> dict[str, Any]:
         return service.search_concepts(

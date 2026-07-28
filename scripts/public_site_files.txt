@@ -11,6 +11,7 @@ methods
 llms.txt
 robots.txt
 sitemap.xml
+schema/graph_view_contract.json
 ui/index.html
 ui/app.js
 ui/compound.js
