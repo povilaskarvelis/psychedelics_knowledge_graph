@@ -5,6 +5,7 @@ favicon.svg
 apple-touch-icon.png
 about
 api
+compounds
 feedback
 methods
 llms.txt
@@ -12,6 +13,7 @@ robots.txt
 sitemap.xml
 ui/index.html
 ui/app.js
+ui/compound.js
 ui/styles.css
 ui/methods.html
 ui/methods.js

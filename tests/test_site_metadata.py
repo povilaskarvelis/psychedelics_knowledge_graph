@@ -55,6 +55,7 @@ def test_indexable_html_pages_have_complete_unique_metadata() -> None:
         "about/index.html": "https://psychedelicskg.com/about/",
         "methods/index.html": "https://psychedelicskg.com/methods/",
         "api/index.html": "https://psychedelicskg.com/api/",
+        "compounds/psilocybin/index.html": "https://psychedelicskg.com/compounds/psilocybin/",
         "feedback/index.html": "https://psychedelicskg.com/feedback/",
     }
     titles: set[str] = set()
@@ -94,6 +95,7 @@ def test_sitemap_lists_only_public_canonical_urls_with_accurate_lastmods() -> No
         "https://psychedelicskg.com/methods/": "2026-07-28",
         "https://psychedelicskg.com/api/": "2026-07-28",
         "https://psychedelicskg.com/api/agent-guide.md": "2026-07-20",
+        "https://psychedelicskg.com/compounds/psilocybin/": "2026-07-28",
         "https://psychedelicskg.com/llms.txt": "2026-07-20",
         "https://psychedelicskg.com/feedback/": "2026-07-28",
     }
@@ -117,12 +119,15 @@ def test_robots_points_crawlers_to_the_canonical_sitemap() -> None:
     assert "Sitemap: https://psychedelicskg.com/sitemap.xml" in robots
 
 
-def test_discovery_prototype_is_not_part_of_the_public_build() -> None:
+def test_compound_view_is_part_of_the_public_build() -> None:
     build_script = (ROOT / "scripts/build_site.sh").read_text(encoding="utf-8")
     homepage = (ROOT / "index.html").read_text(encoding="utf-8")
-    styles = (ROOT / "ui/styles.css").read_text(encoding="utf-8")
+    public_files = (ROOT / "scripts/public_site_files.txt").read_text(encoding="utf-8")
 
-    assert not (ROOT / "scripts/build_discovery_pages.py").exists()
+    assert (ROOT / "scripts/build_compound_pages.py").exists()
+    assert (ROOT / "compounds/psilocybin/index.html").exists()
+    assert (ROOT / "compounds/psilocybin/data.json").exists()
     assert "/compounds/psilocybin/" not in homepage
-    assert "build_discovery_pages.py" not in build_script
-    assert "Psilocybin research brief" not in styles
+    assert "build_compound_pages.py" not in build_script
+    assert "compounds" in public_files.splitlines()
+    assert "ui/compound.js" in public_files.splitlines()

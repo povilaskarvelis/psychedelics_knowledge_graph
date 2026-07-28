@@ -1610,7 +1610,26 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ({"support": "The compound is predicted to cross the placenta, indicating fetal exposure."}, "Pregnancy/fetal exposure"),
             ({"support": "Driving under the influence increased accident risk."}, "Driving/accident risk"),
             ({"support": "Plasma cortisol and prolactin increased after dosing."}, "Endocrine effects"),
-            ({"graph_entity_label": "Neuropsychiatric sequelae"}, "Neuropsychiatric sequelae"),
+            (
+                {
+                    "graph_entity_label": "Neuropsychiatric sequelae",
+                    "support": "Large doses were associated with lasting adverse neuropsychiatric syndromes.",
+                },
+                "Persistent psychiatric or perceptual symptoms",
+            ),
+            (
+                {
+                    "graph_entity_label": "Neuropsychiatric sequelae",
+                    "support": "Ketamine induced transient negative symptoms and affective flattening.",
+                },
+                "Psychosis risk",
+            ),
+            (
+                {
+                    "support": "Persistent tinnitus (ear ringing) continued for several months.",
+                },
+                "Tinnitus/auditory symptoms",
+            ),
         ]
 
         for row, expected in cases:
@@ -1619,6 +1638,23 @@ class BuildEvidenceTablesTest(unittest.TestCase):
 
         self.assertEqual(
             safety_endpoint_label({"support": "Ketamine increased REM and slow-wave sleep after treatment."}),
+            "",
+        )
+        self.assertEqual(
+            safety_endpoint_label({"graph_entity_label": "Neuropsychiatric sequelae"}),
+            "",
+        )
+        self.assertEqual(
+            safety_endpoint_label(
+                {
+                    "graph_entity_label": "Neuropsychiatric sequelae",
+                    "assessment_timepoint": "Cross-sectional assessment",
+                    "support": (
+                        "Participants who continued illicit drug use showed more severe "
+                        "psychopathology."
+                    ),
+                }
+            ),
             "",
         )
 
@@ -3307,6 +3343,61 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         )
         self.assertEqual(ordinary_experience["graph_entity_label"], "Dissociation")
         self.assertNotEqual(ordinary_experience.get("kg_entity_kind_override"), "safety_adverse_event")
+
+        positive_persisting_effect = normalize_claim_metadata(
+            {
+                "graph_entity_label": "Spiritual significance",
+                "instrument_or_measure": "Persisting Effects Questionnaire (PEQ)",
+                "study_title": "Long-term persisting effects of psilocybin",
+                "support": (
+                    "At 12 months, participants rated the experience among the most spiritually "
+                    "significant experiences of their lives."
+                ),
+            },
+            "subjective_experience",
+        )
+        self.assertEqual(positive_persisting_effect["graph_entity_label"], "Spiritual significance")
+        self.assertNotEqual(
+            positive_persisting_effect.get("kg_entity_kind_override"),
+            "safety_adverse_event",
+        )
+
+        negated_persisting_adverse_effect = normalize_claim_metadata(
+            {
+                "graph_entity_label": "Personal significance",
+                "instrument_or_measure": "Persisting Effects Questionnaire",
+                "support": (
+                    "Participants rated the experience as personally meaningful and spiritually "
+                    "significant, with no persisting adverse effects."
+                ),
+            },
+            "subjective_experience",
+        )
+        self.assertEqual(
+            negated_persisting_adverse_effect["graph_entity_label"],
+            "Personal significance",
+        )
+        self.assertNotEqual(
+            negated_persisting_adverse_effect.get("kg_entity_kind_override"),
+            "safety_adverse_event",
+        )
+
+        persistent_adverse_effect = normalize_claim_metadata(
+            {
+                "graph_entity_label": "Body image distortion",
+                "assessment_timepoint": "up to 5 months post-ingestion",
+                "support": "Body image distortion persisted for five months post-ingestion.",
+            },
+            "subjective_experience",
+        )
+        self.assertEqual(
+            persistent_adverse_effect["graph_entity_label"],
+            "Persistent psychiatric or perceptual symptoms",
+        )
+        self.assertEqual(
+            persistent_adverse_effect["kg_entity_kind_override"],
+            "safety_adverse_event",
+        )
 
     def test_psychotomimetic_effects_are_separated_from_psychosis_risk(self) -> None:
         psychotomimetic = normalize_claim_metadata(

@@ -1780,18 +1780,41 @@ SUBJECTIVE_EXPERIENCE_SAFETY_CONTEXT_FIELDS = (
     "instrument_or_measure",
     "outcome_measure",
     "finding_summary",
-    "study_title",
     "support",
     "supporting_quote",
 )
 SUBJECTIVE_EXPERIENCE_SAFETY_RE = re.compile(
-    r"\b(persistent|persisting|daily panic|panic attacks?|visual snow|depersonalization[- ]derealization disorder|"
+    r"\b(daily panic|panic attacks?|visual snow|tinnitus|ear ringing|depersonalization[- ]derealization disorder|"
     r"depersonalisation[- ]derealisation disorder|\bdp/dr\b|\bddd\b|clinically significant|"
-    r"adverse events?|adverse effects?|adverse mental states?|dropout|dropped out|discontinuation|"
+    r"adverse events?|adverse effects?|adverse mental states?|"
     r"medical attention|psychotic symptoms?|full[- ]blown psychotic|manic symptoms?|mania|hypomania)\b",
     re.IGNORECASE,
 )
-SUBJECTIVE_EXPERIENCE_NONADVERSE_RE = re.compile(r"\b(no adverse events?|not associated with adverse|without adverse)\b", re.IGNORECASE)
+SUBJECTIVE_EXPERIENCE_NONADVERSE_RE = re.compile(
+    r"\b(no (?:clinically significant |serious |persisting )?adverse (?:events?|effects?)|"
+    r"not associated with adverse|without adverse)\b",
+    re.IGNORECASE,
+)
+PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_SYMPTOMS_LABEL = "Persistent psychiatric or perceptual symptoms"
+LEGACY_NEUROPSYCHIATRIC_LABEL_KEYS = {
+    "neuropsychiatric sequelae",
+    "neuropsychiatric syndrome",
+    "neuropsychiatric syndromes",
+}
+PERSISTENT_POST_ACUTE_RE = re.compile(
+    r"\b(persist(?:s|ed|ent|ently|ing)?|lasting|prolonged|enduring|not reversed)\b|"
+    r"\b(?:weeks?|months?|years?)\b.{0,45}\b(?:after|following|post|abstinence)\b|"
+    r"\b(?:after|following|post|follow[- ]?up|abstinence)\b.{0,45}\b(?:weeks?|months?|years?)\b",
+    re.IGNORECASE,
+)
+ADVERSE_PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_RE = re.compile(
+    r"\b(neuropsychiatric syndromes?|psychopathology|psychiatric symptoms?|psychotic symptoms?|psychosis|"
+    r"negative symptoms?|affective flattening|visual snow|palinopsia|photopsias?|"
+    r"perceptual (?:aberrations?|disturbances?)|body image distortion|impaired visual[- ]perceptual|"
+    r"hearing or seeing things|visual(?:/| and )auditory images?|cognitive and sensory material|"
+    r"obsessive (?:philosophical )?rumination)\b",
+    re.IGNORECASE,
+)
 
 PRIMARY_MARKERS = {"primary_evidence", "primary_study", "primary_results"}
 SECONDARY_MARKERS = {"secondary_literature", "secondary_evidence", "review", "meta_analysis", "systematic_review"}
@@ -6667,11 +6690,13 @@ SAFETY_ENDPOINT_PATTERNS = (
     (
         re.compile(
             r"\b(psychosis|psychotic|psychotomimetic|hallucinat\w*|delusion|paranoia|"
-            r"bprs|brief psychiatric rating)\b",
+            r"bprs|brief psychiatric rating|panss|positive symptoms?|negative symptoms?|"
+            r"affective flattening|schizophrenia[- ]like)\b",
             re.IGNORECASE,
         ),
         "Psychosis risk",
     ),
+    (re.compile(r"\b(tinnitus|ear ringing)\b", re.IGNORECASE), "Tinnitus/auditory symptoms"),
     (re.compile(r"\b(flashbacks?|hppd|persisting perceptual)\b", re.IGNORECASE), "Flashbacks/HPPD"),
     (
         re.compile(
@@ -6771,13 +6796,6 @@ SAFETY_ENDPOINT_PATTERNS = (
     (
         re.compile(r"\b(food intake|appetite|hypophagia)\b", re.IGNORECASE),
         "Eating/appetite effects",
-    ),
-    (
-        re.compile(
-            r"\b(neuropsychiatric sequelae|neuropsychiatric syndromes?|psychopathology|negative symptoms?|affective flattening)\b",
-            re.IGNORECASE,
-        ),
-        "Neuropsychiatric sequelae",
     ),
     (
         re.compile(
@@ -6920,7 +6938,15 @@ SAFETY_SPECIFIC_ENDPOINT_PATTERNS = (
     (re.compile(r"\b(dissociation|derealization|depersonalization)\b", re.IGNORECASE), "Dissociation"),
     (re.compile(r"\b(hallucinat\w*)\b", re.IGNORECASE), "Perceptual disturbances"),
     (re.compile(r"\bpsychotomimetic\w*\b", re.IGNORECASE), "Psychotomimetic effects"),
-    (re.compile(r"\b(psychosis|psychotic|delusion|paranoia)\b", re.IGNORECASE), "Psychosis risk"),
+    (
+        re.compile(
+            r"\b(psychosis|psychotic|delusion|paranoia|panss|positive symptoms?|negative symptoms?|"
+            r"affective flattening|schizophrenia[- ]like)\b",
+            re.IGNORECASE,
+        ),
+        "Psychosis risk",
+    ),
+    (re.compile(r"\b(tinnitus|ear ringing)\b", re.IGNORECASE), "Tinnitus/auditory symptoms"),
     (re.compile(r"\b(visual impairment|reduced vision|blurred vision)\b", re.IGNORECASE), "Visual impairment"),
     (re.compile(r"\b(confusion|disorientation|delirium|thought disorder|spaced out|disconnected)\b", re.IGNORECASE), "Confusion/cognitive disturbance"),
     (re.compile(r"\b(muscle pain|myalgia|musculoskeletal pain)\b", re.IGNORECASE), "Musculoskeletal effects"),
@@ -6951,6 +6977,8 @@ SAFETY_SPECIFIC_PARENT_LABELS = {
     "Perceptual disturbances": "Challenging subjective effects",
     "Psychotomimetic effects": "Psychosis risk",
     "Psychosis risk": "Psychosis risk",
+    "Tinnitus/auditory symptoms": "Adverse events",
+    PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_SYMPTOMS_LABEL: "Adverse events",
     "Visual impairment": "Adverse events",
     "Confusion/cognitive disturbance": "Sedation/cognitive or motor impairment",
     "Musculoskeletal effects": "Adverse events",
@@ -7352,9 +7380,63 @@ def pattern_endpoint_label(row: dict, patterns: tuple[tuple[re.Pattern[str], str
     return fallback
 
 
+def is_legacy_neuropsychiatric_label(value: object) -> bool:
+    return label_key(value) in LEGACY_NEUROPSYCHIATRIC_LABEL_KEYS
+
+
+def without_legacy_neuropsychiatric_labels(row: dict) -> dict:
+    out = dict(row)
+    for field in (
+        "graph_entity_label",
+        "entity_label",
+        "raw_entity_label",
+        "clinical_endpoint",
+        "clinical_endpoint_category",
+        "safety_event_or_measure",
+        "safety_event_or_risk",
+        "safety_category",
+    ):
+        if is_legacy_neuropsychiatric_label(out.get(field, "")):
+            out[field] = ""
+    return out
+
+
+def persistent_adverse_psychiatric_or_perceptual_symptoms(row: dict) -> bool:
+    context = ascii_fold(
+        " ".join(
+            normalize(row.get(field, ""))
+            for field in (
+                "clinical_endpoint",
+                "clinical_endpoint_category",
+                "outcome_domain",
+                "outcome_type",
+                "outcome_measure",
+                "outcome_measure_normalized",
+                "adverse_events",
+                "safety_event_or_measure",
+                "safety_event_or_risk",
+                "safety_category",
+                "finding_summary",
+                "support",
+                "supporting_quote",
+                "effect_or_statistic",
+                "follow_up_duration",
+                "follow_up_window_normalized",
+                "assessment_timepoint",
+                "timepoint",
+            )
+        )
+    )
+    return bool(
+        PERSISTENT_POST_ACUTE_RE.search(context)
+        and ADVERSE_PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_RE.search(context)
+    )
+
+
 def safety_endpoint_label(row: dict) -> str:
+    endpoint_row = without_legacy_neuropsychiatric_labels(row)
     explicit_endpoint = " ".join(
-        endpoint_value(row.get(field, ""))
+        endpoint_value(endpoint_row.get(field, ""))
         for field in (
             "graph_entity_label",
             "entity_label",
@@ -7369,7 +7451,12 @@ def safety_endpoint_label(row: dict) -> str:
     for pattern, label in SAFETY_ENDPOINT_PATTERNS:
         if pattern.search(explicit_endpoint):
             return label
-    return pattern_endpoint_label(row, SAFETY_ENDPOINT_PATTERNS, "")
+    pattern_label = pattern_endpoint_label(endpoint_row, SAFETY_ENDPOINT_PATTERNS, "")
+    if pattern_label:
+        return pattern_label
+    if persistent_adverse_psychiatric_or_perceptual_symptoms(endpoint_row):
+        return PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_SYMPTOMS_LABEL
+    return ""
 
 
 def safety_category_for_text(value: object) -> str:
@@ -8544,9 +8631,12 @@ def subjective_experience_safety_label(row: dict) -> str:
     context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in SUBJECTIVE_EXPERIENCE_SAFETY_CONTEXT_FIELDS))
     if SUBJECTIVE_EXPERIENCE_NONADVERSE_RE.search(context):
         return ""
-    if not SUBJECTIVE_EXPERIENCE_SAFETY_RE.search(context):
-        return ""
-    return safety_endpoint_label(row) or "Neuropsychiatric sequelae"
+    safety_label = safety_endpoint_label(row)
+    if SUBJECTIVE_EXPERIENCE_SAFETY_RE.search(context):
+        return safety_label
+    if persistent_adverse_psychiatric_or_perceptual_symptoms(row):
+        return safety_label or PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_SYMPTOMS_LABEL
+    return ""
 
 
 PSYCHOSIS_FAMILY_ENTITY_RE = re.compile(
@@ -8804,11 +8894,18 @@ def apply_review_safety_role_boundary(row: dict) -> dict:
         out["safety_event_or_measure"] = raw_safety_label
     parent_label = safety_endpoint_label(out)
     specific_label = safety_specific_endpoint_label(out, parent_label) if parent_label else ""
+    unresolved_legacy_label = is_legacy_neuropsychiatric_label(raw_safety_label) and not (
+        specific_label or parent_label
+    )
     out["domain"] = "safety_tolerability"
     out["domain_route"] = "safety_tolerability"
     out["dataset"] = "safety_tolerability"
     out["kg_entity_kind_override"] = "safety_adverse_event"
-    out["graph_entity_label"] = specific_label or parent_label or raw_safety_label
+    out["graph_entity_label"] = (
+        specific_label
+        or parent_label
+        or ("Adverse events" if unresolved_legacy_label else raw_safety_label)
+    )
     out["endpoint_label_source"] = "review_explicit_safety_role"
     out["normalization_boundary_reason"] = "explicit_review_safety_role_routed_to_safety"
     return out
