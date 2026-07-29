@@ -2,9 +2,13 @@ cff-version: 1.2.0
 message: "If you use Psychedelics Knowledge Graph or its public data exports, please cite this project."
 title: "Psychedelics Knowledge Graph"
 type: software
+version: "1.0.0"
+date-released: 2026-07-29
 authors:
   - family-names: "Karvelis"
     given-names: "Povilas"
+    affiliation: "Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health (CAMH)"
+    orcid: "https://orcid.org/0000-0001-7469-5624"
 abstract: "A provenance-aware literature pipeline and web interface for exploring structured findings about psychedelics, mechanisms, and mental health outcomes."
 repository-code: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph"
 url: "https://psychedelicskg.com"
@@ -13,4 +17,5 @@ keywords:
   - "psychedelics"
   - "knowledge graph"
   - "evidence synthesis"
+  - "research software"
   - "open science"

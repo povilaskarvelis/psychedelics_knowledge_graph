@@ -8,6 +8,7 @@ and keep up to date.
 [Methods](https://psychedelicskg.com/methods/) ·
 [API](https://psychedelicskg.com/api/) ·
 [Pipeline guide](pipeline/README.md) ·
+[Release guide](docs/releasing.md) ·
 [Evidence policy](docs/evidence_policy.md) ·
 [API and agent access](docs/agent_access.md)
 
@@ -116,4 +117,6 @@ abstracts, figures, tables, and provider data retain their original rights and
 terms.
 
 If you use the project or its public API, please cite it using
-[`CITATION.cff`](CITATION.cff).
+[`CITATION.cff`](CITATION.cff). Versioned software releases are archived on
+Zenodo and receive persistent DOIs; see the [release and archival
+guide](docs/releasing.md).
