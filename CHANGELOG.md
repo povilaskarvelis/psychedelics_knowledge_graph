@@ -7,6 +7,8 @@ Notable changes to Psychedelics Knowledge Graph are recorded here. Releases use
 
 Initial citable software release.
 
+DOI: [10.5281/zenodo.21671976](https://doi.org/10.5281/zenodo.21671976)
+
 ### Added
 
 - A public, provenance-aware interface for exploring psychedelic research

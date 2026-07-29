@@ -3,6 +3,7 @@ message: "If you use Psychedelics Knowledge Graph or its public data exports, pl
 title: "Psychedelics Knowledge Graph"
 type: software
 version: "1.0.0"
+doi: "10.5281/zenodo.21671976"
 date-released: 2026-07-29
 authors:
   - family-names: "Karvelis"
@@ -11,6 +12,7 @@ authors:
     orcid: "https://orcid.org/0000-0001-7469-5624"
 abstract: "A provenance-aware literature pipeline and web interface for exploring structured findings about psychedelics, mechanisms, and mental health outcomes."
 repository-code: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph"
+repository-artifact: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph/releases/tag/v1.0.0"
 url: "https://psychedelicskg.com"
 license: "Apache-2.0"
 keywords:

@@ -1,5 +1,7 @@
 # Psychedelics Knowledge Graph
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21671975.svg)](https://doi.org/10.5281/zenodo.21671975)
+
 A map of psychedelic research that makes findings easier to explore, audit,
 and keep up to date.
 
@@ -118,5 +120,8 @@ terms.
 
 If you use the project or its public API, please cite it using
 [`CITATION.cff`](CITATION.cff). Versioned software releases are archived on
-Zenodo and receive persistent DOIs; see the [release and archival
+Zenodo and receive persistent DOIs. For reproducible citation, use the
+[version-specific v1.0.0 DOI](https://doi.org/10.5281/zenodo.21671976); the
+[concept DOI](https://doi.org/10.5281/zenodo.21671975) always resolves to the
+project's latest archived version. See the [release and archival
 guide](docs/releasing.md).
