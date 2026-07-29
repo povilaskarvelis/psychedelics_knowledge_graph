@@ -118,10 +118,16 @@ public data is released under [CC0 1.0](DATA_LICENSE.md); third-party reports,
 abstracts, figures, tables, and provider data retain their original rights and
 terms.
 
-If you use the project or its public API, please cite it using
-[`CITATION.cff`](CITATION.cff). Versioned software releases are archived on
-Zenodo and receive persistent DOIs. For reproducible citation, use the
-[version-specific v1.0.0 DOI](https://doi.org/10.5281/zenodo.21671976); the
+If you use the project or its public API, cite both the software version and the
+literature update represented by the graph:
+
+> Karvelis, Povilas. (2026). *Psychedelics Knowledge Graph* (software v1.0.0;
+> literature updated 2026-07-15). Zenodo.
+> https://doi.org/10.5281/zenodo.21671976
+
+The version-specific DOI identifies the software release, while the literature
+date identifies the evidence represented by the graph. The
+[`CITATION.cff`](CITATION.cff) file contains the software citation metadata. The
 [concept DOI](https://doi.org/10.5281/zenodo.21671975) always resolves to the
-project's latest archived version. See the [release and archival
+project's latest archived software version. See the [release and archival
 guide](docs/releasing.md).

@@ -45,14 +45,31 @@ or communities are required; when both files exist, Zenodo ignores
 For reproducible research, cite the version-specific DOI. The concept DOI is
 useful when referring to the evolving project without selecting one version.
 
-## Software and data citations
+## Software and literature versions
 
 The GitHub–Zenodo integration archives the repository source as a **Software**
 record. It does not make the separately hosted, immutable Cloudflare R2 exports
 part of that archived snapshot.
 
-When the public bulk export is ready for reuse, publish each data snapshot as a
-separate Zenodo **Dataset** record. Include the release manifest, checksums,
-schemas, provenance documentation, and data files; link the dataset and software
-records with related identifiers. This lets readers cite the software version
-and the exact data snapshot independently.
+The recommended citation therefore identifies both the software version and the
+literature update represented by the graph:
+
+```text
+Karvelis, Povilas. (YEAR). Psychedelics Knowledge Graph
+(software vX.Y.Z; literature updated YYYY-MM-DD). Zenodo.
+VERSION-SPECIFIC SOFTWARE DOI
+```
+
+When a literature update changes the graph without changing the software,
+publish a new immutable R2 release and update the literature date without
+creating a GitHub or Zenodo software release. When the software changes, create
+a software release normally and associate the resulting graph with that
+version.
+
+For every software release, include `Literature updated: YYYY-MM-DD` in the
+GitHub release notes. Keep DOI details in `CITATION.cff` and the README rather
+than repeating them in the release notes.
+
+If a reusable bulk dataset is published in the future, it can receive a
+separate dataset DOI. This is not required for the current browser release,
+whose immutable R2 manifest records the exact files and checksums.

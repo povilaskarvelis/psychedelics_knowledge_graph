@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use Psychedelics Knowledge Graph or its public data exports, please cite this project."
+message: "Please cite software v1.0.0 and state that the literature was updated on 2026-07-15."
 title: "Psychedelics Knowledge Graph"
 type: software
 version: "1.0.0"
