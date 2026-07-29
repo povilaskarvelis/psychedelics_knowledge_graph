@@ -1,4 +1,5 @@
 const graphEl = document.getElementById("graph");
+const graphFocusNotice = document.getElementById("graphFocusNotice");
 const cardsEl = document.getElementById("cards");
 const yearMinFilter = document.getElementById("yearMinFilter");
 const yearMaxFilter = document.getElementById("yearMaxFilter");
@@ -377,6 +378,8 @@ let bibliographyBySource = {
 };
 let selected = null;
 let isolateSelection = false;
+let evidenceSelectionIntent = null;
+let evidenceSelectionRestorePending = false;
 let claimLayer = "normalized";
 let evidenceView = "primary";
 const EVIDENCE_VIEW_KEYS = ["primary", "meta_analyses", "reviews", "secondary"];
@@ -3453,9 +3456,60 @@ function clearSelectedStyles() {
   graphEl.querySelectorAll(".selected").forEach((el) => el.classList.remove("selected"));
 }
 
-function clearSelection() {
+function cloneGraphSelection(value) {
+  if (value?.type === "edge" && value.compound && value.target) {
+    return { type: "edge", compound: value.compound, target: value.target };
+  }
+  if ((value?.type === "compound" || value?.type === "target") && value.name) {
+    return { type: value.type, name: value.name };
+  }
+  return null;
+}
+
+function graphSelectionLabel(value) {
+  if (value?.type === "edge") return `${value.compound} → ${value.target}`;
+  return value?.name || "this selection";
+}
+
+function currentEvidenceViewLabel() {
+  if (evidenceView === "meta_analyses") return "meta-analyses";
+  if (isReviewEvidenceView()) return "reviews";
+  return "primary studies";
+}
+
+function hideGraphFocusNotice() {
+  if (!graphFocusNotice) return;
+  graphFocusNotice.hidden = true;
+  graphFocusNotice.textContent = "";
+}
+
+function showGraphFocusFallback(value) {
+  if (!graphFocusNotice) return;
+  const literatureLabel = currentEvidenceViewLabel();
+  graphFocusNotice.textContent =
+    `No ${literatureLabel} match ${graphSelectionLabel(value)} within the current filters. ` +
+    `Showing all ${literatureLabel}.`;
+  graphFocusNotice.hidden = false;
+}
+
+function rememberGraphSelection(value) {
+  const nextSelection = cloneGraphSelection(value);
+  selected = nextSelection;
+  evidenceSelectionIntent = cloneGraphSelection(nextSelection);
+  evidenceSelectionRestorePending = false;
+  hideGraphFocusNotice();
+}
+
+function resetGraphSelectionState() {
   selected = null;
   isolateSelection = false;
+  evidenceSelectionIntent = null;
+  evidenceSelectionRestorePending = false;
+  hideGraphFocusNotice();
+}
+
+function clearSelection() {
+  resetGraphSelectionState();
   detailGraphFilter = null;
   clearSelectedStyles();
   clearDetailForTransition();
@@ -3920,6 +3974,32 @@ function selectionIsValid(data) {
     return admittedData.some((claim) => claimMatchesGraphRight(claim, selected.name));
   }
   return false;
+}
+
+function reconcileGraphSelection(data) {
+  if (!selected) return false;
+  if (selectionIsValid(data)) {
+    if (evidenceSelectionRestorePending) {
+      evidenceSelectionRestorePending = false;
+      evidenceSelectionIntent = cloneGraphSelection(selected);
+      hideGraphFocusNotice();
+    }
+    return false;
+  }
+
+  const preserveIntent = evidenceSelectionRestorePending && evidenceSelectionIntent;
+  selected = null;
+  isolateSelection = false;
+  clearSelectedStyles();
+  evidenceSelectionRestorePending = false;
+
+  if (preserveIntent) {
+    showGraphFocusFallback(evidenceSelectionIntent);
+  } else {
+    evidenceSelectionIntent = null;
+    hideGraphFocusNotice();
+  }
+  return true;
 }
 
 function disconnectCardsLoadObserver() {
@@ -7455,7 +7535,7 @@ function buildGraph(data) {
         return;
       }
 
-      selected = { type: "edge", compound, target };
+      rememberGraphSelection({ type: "edge", compound, target });
       isolateSelection = true;
       requestGraphCenterAfterRender();
       clearSelectedStyles();
@@ -7527,7 +7607,7 @@ function buildGraph(data) {
         return;
       }
 
-      selected = { type: "compound", name: compound };
+      rememberGraphSelection({ type: "compound", name: compound });
       isolateSelection = true;
       requestGraphCenterAfterRender();
       clearSelectedStyles();
@@ -7615,7 +7695,7 @@ function buildGraph(data) {
         return;
       }
 
-      selected = { type: "target", name: target };
+      rememberGraphSelection({ type: "target", name: target });
       isolateSelection = true;
       requestGraphCenterAfterRender();
       clearSelectedStyles();
@@ -7674,10 +7754,7 @@ function render() {
   let allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
     isMainGraphAdmitted
   );
-  if (selected && !selectionIsValid(graphFiltered)) {
-    selected = null;
-    isolateSelection = false;
-    clearSelectedStyles();
+  if (reconcileGraphSelection(graphFiltered)) {
     graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
     allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
       isMainGraphAdmitted
@@ -7698,17 +7775,21 @@ function render() {
 }
 
 function refreshMainViews() {
-  const graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
-  if (selected && !selectionIsValid(graphFiltered)) {
-    selected = null;
-    isolateSelection = false;
-    clearSelectedStyles();
+  let graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
+  let allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
+    isMainGraphAdmitted
+  );
+  if (reconcileGraphSelection(graphFiltered)) {
+    graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
+    allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
+      isMainGraphAdmitted
+    );
   }
   updateStats();
   buildGraph(graphFiltered);
   scheduleDeferredSurfaceRender(
     graphFiltered,
-    applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(isMainGraphAdmitted),
+    allAccessGraphFiltered,
     false
   );
 }
@@ -7842,12 +7923,14 @@ function runPendingGraphCenter() {
 }
 
 function centerGraphInViewport() {
-  const rect = graphEl.getBoundingClientRect();
-  if (!rect.height) return;
-  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-  if (!viewportHeight) return;
-  const graphCenterY = window.scrollY + rect.top + rect.height / 2;
-  const targetTop = Math.max(0, graphCenterY - viewportHeight / 2);
+  const graphToolbar = graphEl.closest(".graph-column")?.querySelector(".graph-toolbar");
+  if (!graphToolbar) return;
+  const siteHeader = document.querySelector("[data-site-header]");
+  const graphToolbarRect = graphToolbar.getBoundingClientRect();
+  const siteHeaderHeight = siteHeader?.getBoundingClientRect().height || 0;
+  const controlsGap = 34;
+  const graphToolbarTop = window.scrollY + graphToolbarRect.top;
+  const targetTop = Math.max(0, graphToolbarTop - siteHeaderHeight - controlsGap);
   window.scrollTo({ top: targetTop, behavior: "smooth" });
 }
 
@@ -7934,8 +8017,7 @@ function switchClaimLayer(nextLayer) {
   retainVisibleBootstrapGraph = false;
   claimLayer = nextLayer;
   applyClaimLayerStore();
-  selected = null;
-  isolateSelection = false;
+  resetGraphSelectionState();
   detailGraphFilter = null;
   clearSelectedStyles();
   updateModeUI();
@@ -7950,17 +8032,22 @@ function switchClaimLayer(nextLayer) {
 
 function switchEvidenceView(nextView) {
   if (!EVIDENCE_VIEW_KEYS.includes(nextView) || evidenceView === nextView) return;
+  const focusToRestore = cloneGraphSelection(selected || evidenceSelectionIntent);
   retainVisibleBootstrapGraph = false;
   evidenceView = nextView;
   applyClaimLayerStore();
-  selected = null;
-  isolateSelection = false;
+  selected = cloneGraphSelection(focusToRestore);
+  isolateSelection = Boolean(selected);
+  evidenceSelectionIntent = cloneGraphSelection(focusToRestore);
+  evidenceSelectionRestorePending = Boolean(selected);
+  hideGraphFocusNotice();
   detailGraphFilter = null;
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
-  const detailRestored = restoreCachedOverviewDetail();
+  const detailRestored = !selected && restoreCachedOverviewDetail();
   if (!detailRestored) clearDetailForTransition();
+  if (selected) requestGraphCenterAfterRender();
   loadCurrentClaimsAndRender({
     resetDetail: !detailRestored,
     showGraphBootstrap: claimLayer === "normalized",
@@ -7972,8 +8059,7 @@ function switchEntityView(nextView) {
   if (currentEntityViewKey() === nextView) return;
   retainVisibleBootstrapGraph = false;
   entityViewKey = nextView;
-  selected = null;
-  isolateSelection = false;
+  resetGraphSelectionState();
   detailGraphFilter = null;
   clearSelectedStyles();
   updateModeUI();
@@ -8686,7 +8772,8 @@ async function renderCurrentGraphBootstrap(loadToken, resetDetail = true) {
   );
   const filtered = graphClaims.length ? applyFiltersToClaims(graphClaims, null, { ignoreSearch: true }) : [];
 
-  if (filtered.length) buildGraph(filtered);
+  if (!filtered.length) return false;
+  buildGraph(filtered);
   if (resetDetail) {
     clearDetailForTransition();
     cardsEl.innerHTML = '<div class="detail-empty">Loading findings...</div>';
@@ -8758,6 +8845,7 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
     showGraphBootstrap &&
     claimLayer === "normalized" &&
     currentEntityViewKey() === "condition_indication" &&
+    !selected &&
     !sourceWasLoaded
       ? loadDashboardBootstrapClaims(sourceKey)
       : null;
@@ -8802,6 +8890,7 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
   applyClaimLayerStore();
   if (!sourceWasLoaded) updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
+  if (selected) retainVisibleBootstrapGraph = false;
   if (resetDetail && !bootstrapRendered) {
     clearDetailForTransition();
   }

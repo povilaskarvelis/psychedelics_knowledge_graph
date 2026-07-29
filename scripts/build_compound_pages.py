@@ -382,7 +382,7 @@ def count_cell(count: int, source_label: str) -> str:
 def render_concept_rows(category: dict[str, Any]) -> str:
     rows = []
     for index, concept in enumerate(category["concepts"]):
-        extra = ' data-extra-concept hidden' if index >= 12 else ""
+        extra = "\n              data-extra-concept hidden" if index >= 12 else ""
         counts = "".join(
             count_cell(
                 int(concept["sources"][source]["studies"]),
@@ -397,8 +397,7 @@ def render_concept_rows(category: dict[str, Any]) -> str:
               type="button"
               data-category-key="{escape(category['key'])}"
               data-concept-index="{index}"
-              aria-label="View literature for {escape(concept['label'])}"
-              {extra}
+              aria-label="View literature for {escape(concept['label'])}"{extra}
             >
               <span class="compound-concept-name">{escape(concept['label'])}</span>
               {counts}
@@ -491,7 +490,7 @@ def render_compound_page(payload: dict[str, Any]) -> str:
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/ui/styles.css?v=20260728-compound-graph-v1" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260728-compound-charts-v3" />
   </head>
   <body class="methods-page compound-page" data-compound-data="/compounds/{escape(slug)}/data.json">
     <div class="bg" aria-hidden="true"></div>
@@ -532,14 +531,15 @@ def render_compound_page(payload: dict[str, Any]) -> str:
           <div class="compound-section-heading">
             <div class="compound-heading-copy">
               <h2 id="compoundAreasHeading">Research map</h2>
-              <p>Select an area or concept to trace its connected literature.</p>
+              <p id="compoundAreasDescription">Select an area or concept to trace its connected literature.</p>
             </div>
             <div class="compound-explorer-controls">
               <div class="segmented-toggle compound-view-toggle" role="tablist" aria-label="Compound view">
                 <button class="ghost small active" type="button" data-compound-view="map" role="tab" aria-selected="true">Map</button>
+                <button class="ghost small" type="button" data-compound-view="charts" role="tab" aria-selected="false">Charts</button>
                 <button class="ghost small" type="button" data-compound-view="table" role="tab" aria-selected="false">Table</button>
               </div>
-              <div class="segmented-toggle compound-graph-source-toggle" role="tablist" aria-label="Graph literature source">
+              <div class="segmented-toggle compound-graph-source-toggle" role="tablist" aria-label="Research literature source">
                 <button class="ghost small active" type="button" data-compound-graph-source="primary" role="tab" aria-selected="true">Primary studies</button>
                 <button class="ghost small" type="button" data-compound-graph-source="meta_analyses" role="tab" aria-selected="false">Meta-analyses</button>
                 <button class="ghost small" type="button" data-compound-graph-source="reviews" role="tab" aria-selected="false">Reviews</button>
@@ -558,6 +558,49 @@ def render_compound_page(payload: dict[str, Any]) -> str:
             <p class="compound-graph-note">
               Line weight represents the number of unique source papers. Color identifies
               the research area; labels and position carry the same distinction without color.
+            </p>
+          </div>
+          <div class="compound-chart-view">
+            <div class="compound-chart-grid">
+              <section class="compound-chart-section compound-coverage-section" aria-labelledby="compoundCoverageHeading">
+                <div class="compound-chart-heading">
+                  <h3 id="compoundCoverageHeading">Research coverage</h3>
+                  <p>Unique source papers connected to each research area.</p>
+                </div>
+                <div id="compoundCoverageChart" class="compound-coverage-chart"></div>
+              </section>
+              <div class="compound-chart-detail-column">
+                <section class="compound-chart-section compound-timeline-section" aria-labelledby="compoundTimelineHeading">
+                  <div class="compound-chart-heading">
+                    <h3 id="compoundTimelineHeading">Publication history</h3>
+                    <p id="compoundTimelineContext">Select an area to examine its publication trajectory.</p>
+                  </div>
+                  <div class="compound-chart-svg-shell">
+                    <div id="compoundTimelineChart" class="compound-timeline-chart"></div>
+                  </div>
+                </section>
+                <section class="compound-chart-section compound-entity-section" aria-labelledby="compoundEntityHeading">
+                  <div class="compound-chart-heading">
+                    <h3 id="compoundEntityHeading">Entity coverage</h3>
+                    <p id="compoundEntityContext">Entities ranked by unique source papers in the selected research area.</p>
+                  </div>
+                  <div id="compoundEntityChart" class="compound-entity-chart"></div>
+                </section>
+              </div>
+              <section class="compound-chart-section compound-overlap-section" aria-labelledby="compoundOverlapHeading">
+                <div class="compound-chart-heading">
+                  <h3 id="compoundOverlapHeading">Cross-domain overlap</h3>
+                  <p>The diagonal shows area totals; the lower triangle shows shared papers. Select a cell to inspect its literature.</p>
+                </div>
+                <div class="compound-chart-svg-shell compound-overlap-shell">
+                  <div id="compoundOverlapChart" class="compound-overlap-chart"></div>
+                </div>
+              </section>
+            </div>
+            <div class="compound-chart-tooltip" id="compoundChartTooltip" role="tooltip" hidden></div>
+            <p class="compound-chart-note">
+              Values are unique source papers in the current release. Research areas overlap,
+              and publication volume does not indicate efficacy or evidence quality.
             </p>
           </div>
           <div class="compound-table-view">
@@ -584,16 +627,6 @@ def render_compound_page(payload: dict[str, Any]) -> str:
               Select a concept to see the publications connected to it.
             </p>
           </div>
-          <div
-            class="segmented-toggle compound-source-toggle"
-            role="tablist"
-            aria-label="Literature source"
-            hidden
-          >
-            <button class="ghost small active" type="button" data-compound-source="primary" role="tab" aria-selected="true">Primary studies</button>
-            <button class="ghost small" type="button" data-compound-source="meta_analyses" role="tab" aria-selected="false">Meta-analyses</button>
-            <button class="ghost small" type="button" data-compound-source="reviews" role="tab" aria-selected="false">Reviews</button>
-          </div>
           <ol class="compound-paper-list" id="compoundPaperList"></ol>
           <button class="compound-paper-more" id="compoundPaperMore" type="button" hidden>Show more</button>
         </aside>
@@ -616,7 +649,7 @@ def render_compound_page(payload: dict[str, Any]) -> str:
       </div>
     </footer>
     <script src="/ui/site-nav.js?v=20260717-site-nav"></script>
-    <script src="/ui/compound.js?v=20260728-compound-graph-v1"></script>
+    <script src="/ui/compound.js?v=20260728-compound-charts-v3"></script>
   </body>
 </html>
 """

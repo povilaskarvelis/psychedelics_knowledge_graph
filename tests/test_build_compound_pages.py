@@ -144,8 +144,15 @@ def test_compound_page_is_a_restrained_research_matrix(tmp_path: Path) -> None:
     assert "Counts are unique source papers" in html
     assert 'id="compoundGraph"' in html
     assert 'data-compound-view="map"' in html
+    assert 'data-compound-view="charts"' in html
     assert 'data-compound-view="table"' in html
     assert 'data-compound-graph-source="primary"' in html
+    assert "data-compound-source" not in html
+    assert "compound-source-toggle" not in html
+    assert 'id="compoundCoverageChart"' in html
+    assert 'id="compoundTimelineChart"' in html
+    assert 'id="compoundEntityChart"' in html
+    assert 'id="compoundOverlapChart"' in html
     assert "hero-stats" not in html
     assert 'class="pill"' not in html
     assert 'class="site-button primary"' not in html
@@ -165,6 +172,19 @@ def test_compound_graph_is_data_driven_and_keyboard_interactive() -> None:
     assert "GRAPH_MAX_CONCEPTS = 12" in source
     assert "setGraphSource(" in source
     assert "stroke-width" in source
+    assert "function renderCoverageChart()" in source
+    assert "function renderTimelineChart()" in source
+    assert "function renderEntityChart()" in source
+    assert "function renderOverlapChart()" in source
+    assert "function chartSelectionPaperIds(" in source
+    assert "is partial through" in source
     assert ".compound-graph-edge.is-selected" in styles
     assert ".compound-concept-node.is-selected" in styles
+    assert ".compound-coverage-row.is-selected" in styles
+    assert ".compound-timeline-target.is-selected" in styles
+    assert ".compound-entity-row.is-selected" in styles
+    assert ".compound-overlap-target.is-selected" in styles
+    assert ".compound-timeline-target.is-partial" not in styles
+    assert "border-radius: 999px !important" in styles
+    assert '.compound-enhanced[data-compound-view="charts"]' in styles
     assert '.compound-enhanced[data-compound-view="table"]' in styles

@@ -701,6 +701,22 @@ button.primary:hover {
   box-sizing: border-box;
 }
 
+.graph-focus-notice {
+  width: fit-content;
+  max-width: calc(100% - 8px);
+  margin: 9px auto 0;
+  padding: 6px 9px;
+  border-left: 2px solid rgba(174, 181, 180, 0.42);
+  background: rgba(188, 200, 201, 0.045);
+  color: rgba(174, 181, 180, 0.82);
+  font-size: 0.74rem;
+  line-height: 1.42;
+}
+
+.graph-focus-notice[hidden] {
+  display: none;
+}
+
 .toolbar-main-row,
 .toolbar-filter-row {
   width: 100%;
@@ -6067,7 +6083,8 @@ input[type="number"] {
 }
 
 .compound-explorer-controls,
-.compound-graph-view {
+.compound-graph-view,
+.compound-chart-view {
   display: none;
 }
 
@@ -6087,7 +6104,20 @@ input[type="number"] {
   display: none;
 }
 
+.compound-enhanced[data-compound-view="charts"] .compound-chart-view {
+  display: block;
+}
+
+.compound-enhanced[data-compound-view="charts"] .compound-graph-view,
+.compound-enhanced[data-compound-view="charts"] .compound-table-view {
+  display: none;
+}
+
 .compound-enhanced[data-compound-view="table"] .compound-graph-view {
+  display: none;
+}
+
+.compound-enhanced[data-compound-view="table"] .compound-chart-view {
   display: none;
 }
 
@@ -6095,19 +6125,18 @@ input[type="number"] {
   display: block;
 }
 
-.compound-enhanced[data-compound-view="table"] .compound-graph-source-toggle {
-  display: none;
-}
-
 .compound-view-toggle,
 .compound-graph-source-toggle {
   height: auto;
+  border-radius: 999px;
 }
 
 .compound-view-toggle button,
 .compound-graph-source-toggle button {
   padding: 6px 10px;
+  border-radius: 999px !important;
   font-size: 0.7rem;
+  white-space: nowrap;
 }
 
 .compound-graph-shell {
@@ -6254,6 +6283,324 @@ input[type="number"] {
   border-top: 1px solid var(--stroke-soft);
   color: rgba(174, 181, 180, 0.68);
   font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.compound-chart-view {
+  position: relative;
+}
+
+.compound-chart-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
+}
+
+.compound-chart-section {
+  min-width: 0;
+  padding: 20px;
+}
+
+.compound-coverage-section {
+  border-right: 1px solid var(--stroke-soft);
+}
+
+.compound-chart-detail-column {
+  min-width: 0;
+}
+
+.compound-entity-section {
+  border-top: 1px solid var(--stroke-soft);
+}
+
+.compound-overlap-section {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--stroke-soft);
+}
+
+.compound-chart-heading {
+  margin-bottom: 18px;
+}
+
+.compound-chart-heading h3 {
+  margin: 0 0 5px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.compound-chart-heading p {
+  margin: 0;
+  color: rgba(174, 181, 180, 0.72);
+  font-size: 0.75rem;
+  line-height: 1.48;
+}
+
+.compound-coverage-chart,
+.compound-entity-chart {
+  display: grid;
+  gap: 3px;
+}
+
+.compound-coverage-row,
+.compound-entity-row {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  margin: 0;
+  padding: 7px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(232, 236, 232, 0.78);
+  text-align: left;
+  transform: none;
+}
+
+.compound-coverage-row:hover,
+.compound-coverage-row:focus-visible,
+.compound-coverage-row.is-selected,
+.compound-entity-row:hover,
+.compound-entity-row:focus-visible,
+.compound-entity-row.is-selected {
+  background: transparent;
+  box-shadow: none;
+  color: var(--fg);
+  transform: none;
+}
+
+.compound-coverage-row:focus-visible,
+.compound-entity-row:focus-visible,
+.compound-entity-more:focus-visible {
+  outline: 1px solid var(--link-border-hover);
+  outline-offset: 3px;
+}
+
+.compound-coverage-row:disabled {
+  cursor: default;
+  opacity: 0.36;
+}
+
+.compound-coverage-row.is-selected,
+.compound-entity-row.is-selected {
+  padding-left: 9px;
+  box-shadow: inset 2px 0 rgba(232, 236, 232, 0.58);
+}
+
+.compound-coverage-topline,
+.compound-entity-topline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.compound-coverage-topline > span,
+.compound-entity-topline > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compound-coverage-topline strong,
+.compound-entity-topline strong {
+  flex: 0 0 auto;
+  color: rgba(232, 236, 232, 0.78);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.compound-coverage-track,
+.compound-entity-track {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  background: rgba(188, 200, 201, 0.09);
+}
+
+.compound-coverage-track i,
+.compound-entity-track i {
+  display: block;
+  height: 100%;
+  opacity: 0.78;
+  transition: width 0.18s ease, opacity 0.16s ease;
+}
+
+.compound-coverage-track i {
+  width: var(--coverage-width);
+  background: var(--coverage-color);
+}
+
+.compound-entity-track i {
+  width: var(--entity-width);
+  background: var(--entity-color);
+}
+
+.compound-coverage-row:hover .compound-coverage-track i,
+.compound-coverage-row:focus-visible .compound-coverage-track i,
+.compound-coverage-row.is-selected .compound-coverage-track i,
+.compound-entity-row:hover .compound-entity-track i,
+.compound-entity-row:focus-visible .compound-entity-track i,
+.compound-entity-row.is-selected .compound-entity-track i {
+  opacity: 1;
+}
+
+.compound-entity-more {
+  width: 100%;
+  margin: 5px 0 0;
+  padding: 8px 0 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--link-color);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: left;
+  transform: none;
+}
+
+.compound-entity-more:hover,
+.compound-entity-more:focus-visible {
+  background: transparent;
+  box-shadow: none;
+  color: var(--link-color-hover);
+  transform: none;
+}
+
+.compound-chart-svg-shell {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.compound-timeline-chart {
+  min-width: 540px;
+}
+
+.compound-overlap-chart {
+  min-width: 700px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.compound-timeline-chart svg,
+.compound-overlap-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.compound-timeline-gridline {
+  stroke: rgba(188, 200, 201, 0.11);
+  stroke-width: 1;
+}
+
+.compound-chart-axis-label,
+.compound-overlap-axis-label,
+.compound-overlap-value {
+  font-family: "IBM Plex Sans", sans-serif;
+  pointer-events: none;
+}
+
+.compound-chart-axis-label {
+  fill: rgba(174, 181, 180, 0.66);
+  font-size: 10px;
+}
+
+.compound-timeline-target,
+.compound-overlap-target {
+  cursor: pointer;
+  outline: none;
+}
+
+.compound-timeline-total-bar {
+  fill: rgba(188, 200, 201, 0.16);
+}
+
+.compound-timeline-series-bar {
+  opacity: 0.86;
+  transition: opacity 0.15s ease;
+}
+
+.compound-timeline-hit {
+  fill: transparent;
+}
+
+.compound-timeline-target:hover .compound-timeline-series-bar,
+.compound-timeline-target:focus .compound-timeline-series-bar,
+.compound-timeline-target.is-selected .compound-timeline-series-bar {
+  opacity: 1;
+  stroke: rgba(232, 236, 232, 0.86);
+  stroke-width: 1.5;
+}
+
+.compound-overlap-axis-label {
+  fill: rgba(232, 236, 232, 0.72);
+  font-size: 10px;
+}
+
+.compound-overlap-value {
+  fill: rgba(238, 241, 240, 0.9);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.compound-overlap-target rect {
+  transition: stroke 0.14s ease, opacity 0.14s ease;
+}
+
+.compound-overlap-target:hover rect,
+.compound-overlap-target:focus rect,
+.compound-overlap-target.is-selected rect {
+  stroke: rgba(238, 241, 240, 0.9);
+  stroke-width: 1.5;
+}
+
+.compound-overlap-target.is-diagonal rect {
+  stroke: rgba(232, 236, 232, 0.1);
+  stroke-width: 1;
+}
+
+.compound-overlap-target.is-empty {
+  cursor: default;
+}
+
+.compound-chart-tooltip {
+  position: absolute;
+  z-index: 5;
+  width: min(225px, calc(100% - 20px));
+  padding: 9px 11px;
+  border: 1px solid rgba(188, 200, 201, 0.22);
+  border-radius: 8px;
+  background: rgba(7, 10, 10, 0.97);
+  color: var(--fg);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  pointer-events: none;
+  white-space: pre-line;
+}
+
+.compound-chart-note {
+  margin: 0;
+  padding: 12px 18px 15px;
+  border-top: 1px solid var(--stroke-soft);
+  color: rgba(174, 181, 180, 0.68);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.compound-chart-empty {
+  margin: 0;
+  padding: 34px 0;
+  color: var(--muted);
+  font-size: 0.8rem;
   line-height: 1.5;
 }
 
@@ -6441,25 +6788,19 @@ input[type="number"] {
 .compound-literature {
   position: sticky;
   top: 82px;
-  min-height: 540px;
+  min-height: min(540px, calc(100vh - 100px));
+  max-height: calc(100vh - 100px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
 }
 
-.compound-source-toggle {
-  width: calc(100% - 36px);
-  height: auto;
-  margin: 16px 18px 4px;
-}
-
-.compound-source-toggle button {
-  min-width: 0;
-  flex: 1 1 0;
-  padding-inline: 8px;
-  font-size: 0.7rem;
-}
-
-.compound-source-toggle button:disabled {
-  cursor: default;
-  opacity: 0.38;
+.compound-literature-heading {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  background: rgba(12, 15, 16, 0.98);
 }
 
 .compound-paper-list {
@@ -6528,6 +6869,7 @@ a.compound-paper-title:focus-visible {
   .compound-literature {
     position: static;
     min-height: 280px;
+    max-height: min(720px, 70vh);
   }
 }
 
@@ -6545,6 +6887,11 @@ a.compound-paper-title:focus-visible {
     font-size: clamp(2.3rem, 12vw, 3.3rem);
   }
 
+  .compound-literature {
+    max-height: none;
+    overflow-y: visible;
+  }
+
   .compound-section-heading {
     flex-direction: column;
   }
@@ -6557,6 +6904,24 @@ a.compound-paper-title:focus-visible {
     overflow-x: auto;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .compound-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compound-coverage-section {
+    border-right: 0;
+  }
+
+  .compound-chart-detail-column,
+  .compound-overlap-section {
+    grid-column: 1;
+    border-top: 1px solid var(--stroke-soft);
+  }
+
+  .compound-chart-section {
+    padding: 18px;
   }
 
   .compound-count-note {

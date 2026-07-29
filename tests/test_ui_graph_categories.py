@@ -188,7 +188,52 @@ def test_evidence_view_round_trip_renders_the_same_canonical_bootstrap() -> None
     )[0]
 
     assert 'showGraphBootstrap: claimLayer === "normalized"' in switch
+    assert "cloneGraphSelection(selected || evidenceSelectionIntent)" in switch
+    assert "evidenceSelectionRestorePending = Boolean(selected)" in switch
+    assert "if (selected) requestGraphCenterAfterRender()" in switch
+    assert "selected = null" not in switch
+    assert "if (!filtered.length) return false" in bootstrap
     assert "normalizedCurrentSourceLoaded()) return false" not in bootstrap
+
+
+def test_missing_cross_literature_focus_falls_back_with_an_explanation() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    html_source = INDEX_HTML.read_text(encoding="utf-8")
+    styles = STYLES_CSS.read_text(encoding="utf-8")
+
+    reconcile = source.split("function reconcileGraphSelection", 1)[1].split(
+        "function disconnectCardsLoadObserver", 1
+    )[0]
+    fallback = source.split("function showGraphFocusFallback", 1)[1].split(
+        "function rememberGraphSelection", 1
+    )[0]
+
+    assert "evidenceSelectionRestorePending && evidenceSelectionIntent" in reconcile
+    assert "showGraphFocusFallback(evidenceSelectionIntent)" in reconcile
+    assert "within the current filters" in fallback
+    assert 'id="graphFocusNotice"' in html_source
+    assert 'aria-live="polite"' in html_source
+    assert ".graph-focus-notice[hidden]" in styles
+
+
+def test_graph_selection_always_aligns_controls_below_the_sticky_header() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+
+    request = source.split("function requestGraphCenterAfterRender", 1)[1].split(
+        "function runPendingGraphCenter", 1
+    )[0]
+    alignment = source.split("function centerGraphInViewport", 1)[1].split(
+        "function updateSearchPlaceholder", 1
+    )[0]
+
+    assert "centerGraphAfterRender = true" in request
+    assert "graphTopIsVisibleInViewport" not in source
+    assert "graphScrollPositionAfterRender" not in source
+    assert 'querySelector(".graph-toolbar")' in alignment
+    assert 'querySelector("[data-site-header]")' in alignment
+    assert "const controlsGap = 34" in alignment
+    assert "graphToolbarTop - siteHeaderHeight - controlsGap" in alignment
+    assert 'behavior: "smooth"' in alignment
 
 
 def test_canonical_overview_svg_is_cached_across_background_detail_loading() -> None:
@@ -521,8 +566,8 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260728-responsive-v2' in html_source
-    assert 'app.js?v=20260728-graph-view-contract-v1' in html_source
+    assert 'styles.css?v=20260729-focus-persistence-v1' in html_source
+    assert 'app.js?v=20260729-graph-toolbar-alignment-v6' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 

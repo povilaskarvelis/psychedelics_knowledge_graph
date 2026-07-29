@@ -30,7 +30,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/ui/styles.css?v=20260728-compound-graph-v1" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260728-compound-charts-v3" />
   </head>
   <body class="methods-page compound-page" data-compound-data="/compounds/psilocybin/data.json">
     <div class="bg" aria-hidden="true"></div>
@@ -71,14 +71,15 @@
           <div class="compound-section-heading">
             <div class="compound-heading-copy">
               <h2 id="compoundAreasHeading">Research map</h2>
-              <p>Select an area or concept to trace its connected literature.</p>
+              <p id="compoundAreasDescription">Select an area or concept to trace its connected literature.</p>
             </div>
             <div class="compound-explorer-controls">
               <div class="segmented-toggle compound-view-toggle" role="tablist" aria-label="Compound view">
                 <button class="ghost small active" type="button" data-compound-view="map" role="tab" aria-selected="true">Map</button>
+                <button class="ghost small" type="button" data-compound-view="charts" role="tab" aria-selected="false">Charts</button>
                 <button class="ghost small" type="button" data-compound-view="table" role="tab" aria-selected="false">Table</button>
               </div>
-              <div class="segmented-toggle compound-graph-source-toggle" role="tablist" aria-label="Graph literature source">
+              <div class="segmented-toggle compound-graph-source-toggle" role="tablist" aria-label="Research literature source">
                 <button class="ghost small active" type="button" data-compound-graph-source="primary" role="tab" aria-selected="true">Primary studies</button>
                 <button class="ghost small" type="button" data-compound-graph-source="meta_analyses" role="tab" aria-selected="false">Meta-analyses</button>
                 <button class="ghost small" type="button" data-compound-graph-source="reviews" role="tab" aria-selected="false">Reviews</button>
@@ -97,6 +98,49 @@
             <p class="compound-graph-note">
               Line weight represents the number of unique source papers. Color identifies
               the research area; labels and position carry the same distinction without color.
+            </p>
+          </div>
+          <div class="compound-chart-view">
+            <div class="compound-chart-grid">
+              <section class="compound-chart-section compound-coverage-section" aria-labelledby="compoundCoverageHeading">
+                <div class="compound-chart-heading">
+                  <h3 id="compoundCoverageHeading">Research coverage</h3>
+                  <p>Unique source papers connected to each research area.</p>
+                </div>
+                <div id="compoundCoverageChart" class="compound-coverage-chart"></div>
+              </section>
+              <div class="compound-chart-detail-column">
+                <section class="compound-chart-section compound-timeline-section" aria-labelledby="compoundTimelineHeading">
+                  <div class="compound-chart-heading">
+                    <h3 id="compoundTimelineHeading">Publication history</h3>
+                    <p id="compoundTimelineContext">Select an area to examine its publication trajectory.</p>
+                  </div>
+                  <div class="compound-chart-svg-shell">
+                    <div id="compoundTimelineChart" class="compound-timeline-chart"></div>
+                  </div>
+                </section>
+                <section class="compound-chart-section compound-entity-section" aria-labelledby="compoundEntityHeading">
+                  <div class="compound-chart-heading">
+                    <h3 id="compoundEntityHeading">Entity coverage</h3>
+                    <p id="compoundEntityContext">Entities ranked by unique source papers in the selected research area.</p>
+                  </div>
+                  <div id="compoundEntityChart" class="compound-entity-chart"></div>
+                </section>
+              </div>
+              <section class="compound-chart-section compound-overlap-section" aria-labelledby="compoundOverlapHeading">
+                <div class="compound-chart-heading">
+                  <h3 id="compoundOverlapHeading">Cross-domain overlap</h3>
+                  <p>The diagonal shows area totals; the lower triangle shows shared papers. Select a cell to inspect its literature.</p>
+                </div>
+                <div class="compound-chart-svg-shell compound-overlap-shell">
+                  <div id="compoundOverlapChart" class="compound-overlap-chart"></div>
+                </div>
+              </section>
+            </div>
+            <div class="compound-chart-tooltip" id="compoundChartTooltip" role="tooltip" hidden></div>
+            <p class="compound-chart-note">
+              Values are unique source papers in the current release. Research areas overlap,
+              and publication volume does not indicate efficacy or evidence quality.
             </p>
           </div>
           <div class="compound-table-view">
@@ -131,7 +175,6 @@
               data-category-key="conditions"
               data-concept-index="0"
               aria-label="View literature for Major depressive disorder"
-              
             >
               <span class="compound-concept-name">Major depressive disorder</span>
               <span class="compound-count" aria-label="72 primary studies">72</span><span class="compound-count" aria-label="9 meta-analyses">9</span><span class="compound-count" aria-label="90 reviews">90</span>
@@ -142,7 +185,6 @@
               data-category-key="conditions"
               data-concept-index="1"
               aria-label="View literature for Treatment-resistant depression"
-              
             >
               <span class="compound-concept-name">Treatment-resistant depression</span>
               <span class="compound-count" aria-label="40 primary studies">40</span><span class="compound-count" aria-label="7 meta-analyses">7</span><span class="compound-count" aria-label="112 reviews">112</span>
@@ -153,7 +195,6 @@
               data-category-key="conditions"
               data-concept-index="2"
               aria-label="View literature for Distress associated with life-threatening disease"
-              
             >
               <span class="compound-concept-name">Distress associated with life-threatening disease</span>
               <span class="compound-count" aria-label="24 primary studies">24</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="36 reviews">36</span>
@@ -164,7 +205,6 @@
               data-category-key="conditions"
               data-concept-index="3"
               aria-label="View literature for Alcohol use disorder"
-              
             >
               <span class="compound-concept-name">Alcohol use disorder</span>
               <span class="compound-count" aria-label="19 primary studies">19</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="35 reviews">35</span>
@@ -175,7 +215,6 @@
               data-category-key="conditions"
               data-concept-index="4"
               aria-label="View literature for Suicidality"
-              
             >
               <span class="compound-concept-name">Suicidality</span>
               <span class="compound-count" aria-label="22 primary studies">22</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="10 reviews">10</span>
@@ -186,7 +225,6 @@
               data-category-key="conditions"
               data-concept-index="5"
               aria-label="View literature for Obsessive-compulsive disorder"
-              
             >
               <span class="compound-concept-name">Obsessive-compulsive disorder</span>
               <span class="compound-count" aria-label="13 primary studies">13</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="18 reviews">18</span>
@@ -197,7 +235,6 @@
               data-category-key="conditions"
               data-concept-index="6"
               aria-label="View literature for Substance use disorder"
-              
             >
               <span class="compound-concept-name">Substance use disorder</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="22 reviews">22</span>
@@ -208,7 +245,6 @@
               data-category-key="conditions"
               data-concept-index="7"
               aria-label="View literature for Post-traumatic stress disorder"
-              
             >
               <span class="compound-concept-name">Post-traumatic stress disorder</span>
               <span class="compound-count" aria-label="12 primary studies">12</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="14 reviews">14</span>
@@ -219,7 +255,6 @@
               data-category-key="conditions"
               data-concept-index="8"
               aria-label="View literature for Anorexia nervosa"
-              
             >
               <span class="compound-concept-name">Anorexia nervosa</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="19 reviews">19</span>
@@ -230,7 +265,6 @@
               data-category-key="conditions"
               data-concept-index="9"
               aria-label="View literature for Tobacco use disorder"
-              
             >
               <span class="compound-concept-name">Tobacco use disorder</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="16 reviews">16</span>
@@ -241,7 +275,6 @@
               data-category-key="conditions"
               data-concept-index="10"
               aria-label="View literature for Cluster headache"
-              
             >
               <span class="compound-concept-name">Cluster headache</span>
               <span class="compound-count" aria-label="13 primary studies">13</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="7 reviews">7</span>
@@ -252,7 +285,6 @@
               data-category-key="conditions"
               data-concept-index="11"
               aria-label="View literature for Eating disorders"
-              
             >
               <span class="compound-concept-name">Eating disorders</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="6 reviews">6</span>
@@ -263,7 +295,7 @@
               data-category-key="conditions"
               data-concept-index="12"
               aria-label="View literature for Chronic pain"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Chronic pain</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="6 reviews">6</span>
@@ -274,7 +306,7 @@
               data-category-key="conditions"
               data-concept-index="13"
               aria-label="View literature for Migraine"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Migraine</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -285,7 +317,7 @@
               data-category-key="conditions"
               data-concept-index="14"
               aria-label="View literature for Attention-deficit/hyperactivity disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Attention-deficit/hyperactivity disorder</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -296,7 +328,7 @@
               data-category-key="conditions"
               data-concept-index="15"
               aria-label="View literature for Demoralization"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Demoralization</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -307,7 +339,7 @@
               data-category-key="conditions"
               data-concept-index="16"
               aria-label="View literature for Bipolar II disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Bipolar II disorder</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -318,7 +350,7 @@
               data-category-key="conditions"
               data-concept-index="17"
               aria-label="View literature for Methamphetamine use disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Methamphetamine use disorder</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -329,7 +361,7 @@
               data-category-key="conditions"
               data-concept-index="18"
               aria-label="View literature for Parkinson&#x27;s disease"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Parkinson&#x27;s disease</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -340,7 +372,7 @@
               data-category-key="conditions"
               data-concept-index="19"
               aria-label="View literature for Traumatic brain injury"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Traumatic brain injury</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -351,7 +383,7 @@
               data-category-key="conditions"
               data-concept-index="20"
               aria-label="View literature for Bipolar disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Bipolar disorder</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -362,7 +394,7 @@
               data-category-key="conditions"
               data-concept-index="21"
               aria-label="View literature for Opioid use disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Opioid use disorder</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -373,7 +405,7 @@
               data-category-key="conditions"
               data-concept-index="22"
               aria-label="View literature for Fibromyalgia"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Fibromyalgia</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -384,7 +416,7 @@
               data-category-key="conditions"
               data-concept-index="23"
               aria-label="View literature for Cocaine use disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Cocaine use disorder</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -395,7 +427,7 @@
               data-category-key="conditions"
               data-concept-index="24"
               aria-label="View literature for Bipolar depression"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Bipolar depression</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -406,7 +438,7 @@
               data-category-key="conditions"
               data-concept-index="25"
               aria-label="View literature for Body dysmorphic disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Body dysmorphic disorder</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -417,7 +449,7 @@
               data-category-key="conditions"
               data-concept-index="26"
               aria-label="View literature for Alzheimer&#x27;s disease"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Alzheimer&#x27;s disease</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -428,7 +460,7 @@
               data-category-key="conditions"
               data-concept-index="27"
               aria-label="View literature for Mood disorders"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Mood disorders</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -439,7 +471,7 @@
               data-category-key="conditions"
               data-concept-index="28"
               aria-label="View literature for Schizophrenia"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Schizophrenia</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -450,7 +482,7 @@
               data-category-key="conditions"
               data-concept-index="29"
               aria-label="View literature for Headache disorders"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Headache disorders</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -461,7 +493,7 @@
               data-category-key="conditions"
               data-concept-index="30"
               aria-label="View literature for Neuropathic pain"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Neuropathic pain</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -472,7 +504,7 @@
               data-category-key="conditions"
               data-concept-index="31"
               aria-label="View literature for Postpartum depression"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Postpartum depression</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -483,7 +515,7 @@
               data-category-key="conditions"
               data-concept-index="32"
               aria-label="View literature for Bipolar I disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Bipolar I disorder</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -494,7 +526,7 @@
               data-category-key="conditions"
               data-concept-index="33"
               aria-label="View literature for Generalized anxiety disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Generalized anxiety disorder</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -505,7 +537,7 @@
               data-category-key="conditions"
               data-concept-index="34"
               aria-label="View literature for Post-treatment Lyme disease syndrome"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Post-treatment Lyme disease syndrome</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -516,7 +548,7 @@
               data-category-key="conditions"
               data-concept-index="35"
               aria-label="View literature for Persistent depressive disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Persistent depressive disorder</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -527,7 +559,7 @@
               data-category-key="conditions"
               data-concept-index="36"
               aria-label="View literature for Amyotrophic lateral sclerosis"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Amyotrophic lateral sclerosis</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -538,7 +570,7 @@
               data-category-key="conditions"
               data-concept-index="37"
               aria-label="View literature for Anosmia"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Anosmia</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -549,7 +581,7 @@
               data-category-key="conditions"
               data-concept-index="38"
               aria-label="View literature for Autism spectrum disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Autism spectrum disorder</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -560,7 +592,7 @@
               data-category-key="conditions"
               data-concept-index="39"
               aria-label="View literature for Borderline personality disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Borderline personality disorder</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -571,7 +603,7 @@
               data-category-key="conditions"
               data-concept-index="40"
               aria-label="View literature for Complex regional pain syndrome"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Complex regional pain syndrome</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -582,7 +614,7 @@
               data-category-key="conditions"
               data-concept-index="41"
               aria-label="View literature for Complicated grief"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Complicated grief</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -593,7 +625,7 @@
               data-category-key="conditions"
               data-concept-index="42"
               aria-label="View literature for Social anxiety disorder"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Social anxiety disorder</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -609,7 +641,7 @@
               aria-controls="compound-area-safety"
             >
               <span class="compound-area-name">Safety &amp; tolerability</span>
-              <span class="compound-count" aria-label="335 primary studies">335</span><span class="compound-count" aria-label="16 meta-analyses">16</span><span class="compound-count" aria-label="165 reviews">165</span>
+              <span class="compound-count" aria-label="319 primary studies">319</span><span class="compound-count" aria-label="16 meta-analyses">16</span><span class="compound-count" aria-label="166 reviews">166</span>
             </button>
             <div
               class="compound-area-detail"
@@ -623,7 +655,6 @@
               data-category-key="safety"
               data-concept-index="0"
               aria-label="View literature for Overall tolerability"
-              
             >
               <span class="compound-concept-name">Overall tolerability</span>
               <span class="compound-count" aria-label="127 primary studies">127</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="12 reviews">12</span>
@@ -634,10 +665,9 @@
               data-category-key="safety"
               data-concept-index="1"
               aria-label="View literature for Psychosis risk"
-              
             >
               <span class="compound-concept-name">Psychosis risk</span>
-              <span class="compound-count" aria-label="92 primary studies">92</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="15 reviews">15</span>
+              <span class="compound-count" aria-label="91 primary studies">91</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="16 reviews">16</span>
             </button>
             <button
               class="compound-concept-row"
@@ -645,10 +675,9 @@
               data-category-key="safety"
               data-concept-index="2"
               aria-label="View literature for Anxiety/panic"
-              
             >
               <span class="compound-concept-name">Anxiety/panic</span>
-              <span class="compound-count" aria-label="70 primary studies">70</span><span class="compound-count" aria-label="2 meta-analyses">2</span><span class="compound-count" aria-label="19 reviews">19</span>
+              <span class="compound-count" aria-label="67 primary studies">67</span><span class="compound-count" aria-label="2 meta-analyses">2</span><span class="compound-count" aria-label="19 reviews">19</span>
             </button>
             <button
               class="compound-concept-row"
@@ -656,7 +685,6 @@
               data-category-key="safety"
               data-concept-index="3"
               aria-label="View literature for Serious adverse events"
-              
             >
               <span class="compound-concept-name">Serious adverse events</span>
               <span class="compound-count" aria-label="66 primary studies">66</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="8 reviews">8</span>
@@ -667,10 +695,9 @@
               data-category-key="safety"
               data-concept-index="4"
               aria-label="View literature for Adverse events"
-              
             >
               <span class="compound-concept-name">Adverse events</span>
-              <span class="compound-count" aria-label="21 primary studies">21</span><span class="compound-count" aria-label="2 meta-analyses">2</span><span class="compound-count" aria-label="38 reviews">38</span>
+              <span class="compound-count" aria-label="20 primary studies">20</span><span class="compound-count" aria-label="2 meta-analyses">2</span><span class="compound-count" aria-label="38 reviews">38</span>
             </button>
             <button
               class="compound-concept-row"
@@ -678,7 +705,6 @@
               data-category-key="safety"
               data-concept-index="5"
               aria-label="View literature for Cardiovascular safety"
-              
             >
               <span class="compound-concept-name">Cardiovascular safety</span>
               <span class="compound-count" aria-label="48 primary studies">48</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="8 reviews">8</span>
@@ -689,7 +715,6 @@
               data-category-key="safety"
               data-concept-index="6"
               aria-label="View literature for Nausea"
-              
             >
               <span class="compound-concept-name">Nausea</span>
               <span class="compound-count" aria-label="41 primary studies">41</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="14 reviews">14</span>
@@ -700,7 +725,6 @@
               data-category-key="safety"
               data-concept-index="7"
               aria-label="View literature for Suicidality"
-              
             >
               <span class="compound-concept-name">Suicidality</span>
               <span class="compound-count" aria-label="38 primary studies">38</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="11 reviews">11</span>
@@ -711,7 +735,6 @@
               data-category-key="safety"
               data-concept-index="8"
               aria-label="View literature for Headache"
-              
             >
               <span class="compound-concept-name">Headache</span>
               <span class="compound-count" aria-label="32 primary studies">32</span><span class="compound-count" aria-label="4 meta-analyses">4</span><span class="compound-count" aria-label="9 reviews">9</span>
@@ -722,7 +745,6 @@
               data-category-key="safety"
               data-concept-index="9"
               aria-label="View literature for Blood pressure elevation"
-              
             >
               <span class="compound-concept-name">Blood pressure elevation</span>
               <span class="compound-count" aria-label="20 primary studies">20</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="9 reviews">9</span>
@@ -732,19 +754,7 @@
               type="button"
               data-category-key="safety"
               data-concept-index="10"
-              aria-label="View literature for Neuropsychiatric sequelae"
-              
-            >
-              <span class="compound-concept-name">Neuropsychiatric sequelae</span>
-              <span class="compound-count" aria-label="29 primary studies">29</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
-            </button>
-            <button
-              class="compound-concept-row"
-              type="button"
-              data-category-key="safety"
-              data-concept-index="11"
               aria-label="View literature for Flashbacks/HPPD"
-              
             >
               <span class="compound-concept-name">Flashbacks/HPPD</span>
               <span class="compound-count" aria-label="15 primary studies">15</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="6 reviews">6</span>
@@ -753,9 +763,8 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="12"
+              data-concept-index="11"
               aria-label="View literature for Abuse/dependence liability"
-               data-extra-concept hidden
             >
               <span class="compound-concept-name">Abuse/dependence liability</span>
               <span class="compound-count" aria-label="14 primary studies">14</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="6 reviews">6</span>
@@ -764,20 +773,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="13"
-              aria-label="View literature for Challenging subjective effects"
-               data-extra-concept hidden
-            >
-              <span class="compound-concept-name">Challenging subjective effects</span>
-              <span class="compound-count" aria-label="16 primary studies">16</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
-            </button>
-            <button
-              class="compound-concept-row"
-              type="button"
-              data-category-key="safety"
-              data-concept-index="14"
+              data-concept-index="12"
               aria-label="View literature for Mania/hypomania"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Mania/hypomania</span>
               <span class="compound-count" aria-label="13 primary studies">13</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -786,9 +784,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="15"
+              data-concept-index="13"
               aria-label="View literature for Perceptual disturbances"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Perceptual disturbances</span>
               <span class="compound-count" aria-label="15 primary studies">15</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -797,9 +795,20 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="16"
+              data-concept-index="14"
+              aria-label="View literature for Challenging subjective effects"
+              data-extra-concept hidden
+            >
+              <span class="compound-concept-name">Challenging subjective effects</span>
+              <span class="compound-count" aria-label="13 primary studies">13</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
+            </button>
+            <button
+              class="compound-concept-row"
+              type="button"
+              data-category-key="safety"
+              data-concept-index="15"
               aria-label="View literature for Sedation/cognitive or motor impairment"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Sedation/cognitive or motor impairment</span>
               <span class="compound-count" aria-label="15 primary studies">15</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -808,9 +817,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="17"
+              data-concept-index="16"
               aria-label="View literature for Confusion/cognitive disturbance"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Confusion/cognitive disturbance</span>
               <span class="compound-count" aria-label="13 primary studies">13</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -819,9 +828,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="18"
+              data-concept-index="17"
               aria-label="View literature for Heart-rate elevation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Heart-rate elevation</span>
               <span class="compound-count" aria-label="12 primary studies">12</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -830,9 +839,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="19"
+              data-concept-index="18"
               aria-label="View literature for Renal/muscle toxicity"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Renal/muscle toxicity</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -841,9 +850,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="20"
+              data-concept-index="19"
               aria-label="View literature for Suicidality risk"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Suicidality risk</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -852,9 +861,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="21"
+              data-concept-index="20"
               aria-label="View literature for Acute intoxication/poisoning"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Acute intoxication/poisoning</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="5 reviews">5</span>
@@ -863,20 +872,20 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="22"
+              data-concept-index="21"
               aria-label="View literature for Nausea/vomiting"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Nausea/vomiting</span>
-              <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
+              <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
             </button>
             <button
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="23"
+              data-concept-index="22"
               aria-label="View literature for Weight/metabolic safety"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Weight/metabolic safety</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -885,9 +894,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="24"
+              data-concept-index="23"
               aria-label="View literature for Neurotoxicity/cytotoxicity"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Neurotoxicity/cytotoxicity</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -896,9 +905,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="25"
+              data-concept-index="24"
               aria-label="View literature for Mania/hypomania risk"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Mania/hypomania risk</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -907,9 +916,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="26"
+              data-concept-index="25"
               aria-label="View literature for Body temperature effects"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Body temperature effects</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -918,9 +927,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="27"
+              data-concept-index="26"
               aria-label="View literature for Dissociation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dissociation</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -929,9 +938,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="28"
+              data-concept-index="27"
               aria-label="View literature for Dizziness/vertigo"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dizziness/vertigo</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="2 meta-analyses">2</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -940,9 +949,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="29"
+              data-concept-index="28"
               aria-label="View literature for All-cause discontinuation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">All-cause discontinuation</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="3 meta-analyses">3</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -951,9 +960,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="30"
+              data-concept-index="29"
               aria-label="View literature for Discontinuation due to adverse events"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Discontinuation due to adverse events</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -962,9 +971,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="31"
+              data-concept-index="30"
               aria-label="View literature for Seizure/convulsion"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Seizure/convulsion</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -973,9 +982,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="32"
+              data-concept-index="31"
               aria-label="View literature for Sleep disturbance"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Sleep disturbance</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -984,9 +993,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="33"
+              data-concept-index="32"
               aria-label="View literature for Drug interaction risk"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Drug interaction risk</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -995,9 +1004,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="34"
+              data-concept-index="33"
               aria-label="View literature for Hepatic toxicity"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Hepatic toxicity</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1006,9 +1015,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="35"
+              data-concept-index="34"
               aria-label="View literature for Developmental toxicity"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Developmental toxicity</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1017,9 +1026,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="36"
+              data-concept-index="35"
               aria-label="View literature for Pregnancy/fetal exposure"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Pregnancy/fetal exposure</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -1028,9 +1037,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="37"
+              data-concept-index="36"
               aria-label="View literature for Respiratory safety"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Respiratory safety</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1039,9 +1048,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="38"
+              data-concept-index="37"
               aria-label="View literature for Driving/accident risk"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Driving/accident risk</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1050,9 +1059,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="39"
+              data-concept-index="38"
               aria-label="View literature for Eating/appetite effects"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Eating/appetite effects</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1061,9 +1070,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="40"
+              data-concept-index="39"
               aria-label="View literature for QT prolongation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">QT prolongation</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1072,9 +1081,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="41"
+              data-concept-index="40"
               aria-label="View literature for Vomiting"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Vomiting</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1083,9 +1092,9 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
-              data-concept-index="42"
+              data-concept-index="41"
               aria-label="View literature for Symptom worsening"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Symptom worsening</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1094,9 +1103,20 @@
               class="compound-concept-row"
               type="button"
               data-category-key="safety"
+              data-concept-index="42"
+              aria-label="View literature for Tinnitus/auditory symptoms"
+              data-extra-concept hidden
+            >
+              <span class="compound-concept-name">Tinnitus/auditory symptoms</span>
+              <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
+            </button>
+            <button
+              class="compound-concept-row"
+              type="button"
+              data-category-key="safety"
               data-concept-index="43"
               aria-label="View literature for Blood pressure reduction"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Blood pressure reduction</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1107,7 +1127,7 @@
               data-category-key="safety"
               data-concept-index="44"
               aria-label="View literature for Cognitive impairment"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Cognitive impairment</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1118,7 +1138,7 @@
               data-category-key="safety"
               data-concept-index="45"
               aria-label="View literature for Motor impairment"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Motor impairment</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1129,7 +1149,7 @@
               data-category-key="safety"
               data-concept-index="46"
               aria-label="View literature for Psychedelic subjective effects"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Psychedelic subjective effects</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1140,7 +1160,7 @@
               data-category-key="safety"
               data-concept-index="47"
               aria-label="View literature for Sedation/somnolence"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Sedation/somnolence</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1151,7 +1171,7 @@
               data-category-key="safety"
               data-concept-index="48"
               aria-label="View literature for Serotonin syndrome"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Serotonin syndrome</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1162,7 +1182,7 @@
               data-category-key="safety"
               data-concept-index="49"
               aria-label="View literature for Visual impairment"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Visual impairment</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1192,7 +1212,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="0"
               aria-label="View literature for Anxiety-like behavior"
-              
             >
               <span class="compound-concept-name">Anxiety-like behavior</span>
               <span class="compound-count" aria-label="50 primary studies">50</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -1203,7 +1222,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="1"
               aria-label="View literature for Stress-coping behavior"
-              
             >
               <span class="compound-concept-name">Stress-coping behavior</span>
               <span class="compound-count" aria-label="43 primary studies">43</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -1214,7 +1232,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="2"
               aria-label="View literature for Social cognition"
-              
             >
               <span class="compound-concept-name">Social cognition</span>
               <span class="compound-count" aria-label="40 primary studies">40</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -1225,7 +1242,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="3"
               aria-label="View literature for Head-twitch response"
-              
             >
               <span class="compound-concept-name">Head-twitch response</span>
               <span class="compound-count" aria-label="39 primary studies">39</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1236,7 +1252,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="4"
               aria-label="View literature for Attention"
-              
             >
               <span class="compound-concept-name">Attention</span>
               <span class="compound-count" aria-label="28 primary studies">28</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1247,7 +1262,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="5"
               aria-label="View literature for Emotional processing"
-              
             >
               <span class="compound-concept-name">Emotional processing</span>
               <span class="compound-count" aria-label="24 primary studies">24</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1258,7 +1272,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="6"
               aria-label="View literature for Cognitive flexibility"
-              
             >
               <span class="compound-concept-name">Cognitive flexibility</span>
               <span class="compound-count" aria-label="19 primary studies">19</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1269,7 +1282,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="7"
               aria-label="View literature for Drug self-administration"
-              
             >
               <span class="compound-concept-name">Drug self-administration</span>
               <span class="compound-count" aria-label="18 primary studies">18</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1280,7 +1292,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="8"
               aria-label="View literature for Social interaction"
-              
             >
               <span class="compound-concept-name">Social interaction</span>
               <span class="compound-count" aria-label="19 primary studies">19</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1291,7 +1302,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="9"
               aria-label="View literature for Anhedonia"
-              
             >
               <span class="compound-concept-name">Anhedonia</span>
               <span class="compound-count" aria-label="20 primary studies">20</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1302,7 +1312,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="10"
               aria-label="View literature for Psychological flexibility"
-              
             >
               <span class="compound-concept-name">Psychological flexibility</span>
               <span class="compound-count" aria-label="11 primary studies">11</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -1313,7 +1322,6 @@
               data-category-key="cognition_behavior"
               data-concept-index="11"
               aria-label="View literature for Creativity"
-              
             >
               <span class="compound-concept-name">Creativity</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1324,7 +1332,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="12"
               aria-label="View literature for Mindfulness"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Mindfulness</span>
               <span class="compound-count" aria-label="11 primary studies">11</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1335,7 +1343,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="13"
               aria-label="View literature for Working memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Working memory</span>
               <span class="compound-count" aria-label="9 primary studies">9</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1346,7 +1354,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="14"
               aria-label="View literature for Compulsivity"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Compulsivity</span>
               <span class="compound-count" aria-label="9 primary studies">9</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1357,7 +1365,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="15"
               aria-label="View literature for Executive function"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Executive function</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1368,7 +1376,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="16"
               aria-label="View literature for Relapse"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Relapse</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1379,7 +1387,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="17"
               aria-label="View literature for Drug seeking"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Drug seeking</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1390,7 +1398,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="18"
               aria-label="View literature for Psychotomimetic effects"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Psychotomimetic effects</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -1401,7 +1409,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="19"
               aria-label="View literature for Pain behavior"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Pain behavior</span>
               <span class="compound-count" aria-label="9 primary studies">9</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1412,7 +1420,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="20"
               aria-label="View literature for Reward processing"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Reward processing</span>
               <span class="compound-count" aria-label="9 primary studies">9</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1423,7 +1431,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="21"
               aria-label="View literature for Reversal learning"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Reversal learning</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1434,7 +1442,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="22"
               aria-label="View literature for Fear memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Fear memory</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1445,7 +1453,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="23"
               aria-label="View literature for Perceptual processing"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Perceptual processing</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1456,7 +1464,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="24"
               aria-label="View literature for Sensorimotor gating"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Sensorimotor gating</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1467,7 +1475,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="25"
               aria-label="View literature for Motivation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Motivation</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1478,7 +1486,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="26"
               aria-label="View literature for Fear extinction"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Fear extinction</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1489,7 +1497,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="27"
               aria-label="View literature for Recognition memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Recognition memory</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1500,7 +1508,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="28"
               aria-label="View literature for Time perception"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Time perception</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1511,7 +1519,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="29"
               aria-label="View literature for Drug discrimination"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Drug discrimination</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1522,7 +1530,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="30"
               aria-label="View literature for Spatial memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Spatial memory</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1533,7 +1541,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="31"
               aria-label="View literature for Conditioned place preference"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Conditioned place preference</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1544,7 +1552,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="32"
               aria-label="View literature for Set shifting"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Set shifting</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1555,7 +1563,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="33"
               aria-label="View literature for Processing speed"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Processing speed</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1566,7 +1574,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="34"
               aria-label="View literature for Memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Memory</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1577,7 +1585,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="35"
               aria-label="View literature for Motor coordination"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Motor coordination</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1588,7 +1596,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="36"
               aria-label="View literature for Craving"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Craving</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1599,7 +1607,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="37"
               aria-label="View literature for Episodic memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Episodic memory</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1610,7 +1618,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="38"
               aria-label="View literature for Reward responsiveness"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Reward responsiveness</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1621,7 +1629,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="39"
               aria-label="View literature for Autobiographical memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Autobiographical memory</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1632,7 +1640,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="40"
               aria-label="View literature for Inhibitory control"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Inhibitory control</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1643,7 +1651,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="41"
               aria-label="View literature for Drug reinstatement"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Drug reinstatement</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1654,7 +1662,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="42"
               aria-label="View literature for Decentering"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Decentering</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1665,7 +1673,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="43"
               aria-label="View literature for Threat avoidance"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Threat avoidance</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1676,7 +1684,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="44"
               aria-label="View literature for Associative memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Associative memory</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1687,7 +1695,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="45"
               aria-label="View literature for Global cognition"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Global cognition</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -1698,7 +1706,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="46"
               aria-label="View literature for Declarative memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Declarative memory</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1709,7 +1717,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="47"
               aria-label="View literature for Avoidance learning"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Avoidance learning</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1720,7 +1728,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="48"
               aria-label="View literature for Memory retrieval"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Memory retrieval</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1731,7 +1739,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="49"
               aria-label="View literature for Psychomotor sensitization"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Psychomotor sensitization</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1742,7 +1750,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="50"
               aria-label="View literature for Reward learning"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Reward learning</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1753,7 +1761,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="51"
               aria-label="View literature for Self-related processing"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Self-related processing</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1764,7 +1772,7 @@
               data-category-key="cognition_behavior"
               data-concept-index="52"
               aria-label="View literature for Verbal memory"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Verbal memory</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1780,7 +1788,7 @@
               aria-controls="compound-area-subjective_effects"
             >
               <span class="compound-area-name">Subjective effects</span>
-              <span class="compound-count" aria-label="357 primary studies">357</span><span class="compound-count" aria-label="2 meta-analyses">2</span><span class="compound-count" aria-label="38 reviews">38</span>
+              <span class="compound-count" aria-label="369 primary studies">369</span><span class="compound-count" aria-label="2 meta-analyses">2</span><span class="compound-count" aria-label="38 reviews">38</span>
             </button>
             <div
               class="compound-area-detail"
@@ -1794,10 +1802,9 @@
               data-category-key="subjective_effects"
               data-concept-index="0"
               aria-label="View literature for Altered state profile"
-              
             >
               <span class="compound-concept-name">Altered state profile</span>
-              <span class="compound-count" aria-label="152 primary studies">152</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="9 reviews">9</span>
+              <span class="compound-count" aria-label="156 primary studies">156</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="9 reviews">9</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1805,10 +1812,9 @@
               data-category-key="subjective_effects"
               data-concept-index="1"
               aria-label="View literature for Mystical-type experience"
-              
             >
               <span class="compound-concept-name">Mystical-type experience</span>
-              <span class="compound-count" aria-label="119 primary studies">119</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="10 reviews">10</span>
+              <span class="compound-count" aria-label="125 primary studies">125</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="10 reviews">10</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1816,10 +1822,9 @@
               data-category-key="subjective_effects"
               data-concept-index="2"
               aria-label="View literature for Challenging experience"
-              
             >
               <span class="compound-concept-name">Challenging experience</span>
-              <span class="compound-count" aria-label="70 primary studies">70</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
+              <span class="compound-count" aria-label="76 primary studies">76</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1827,10 +1832,9 @@
               data-category-key="subjective_effects"
               data-concept-index="3"
               aria-label="View literature for Perceptual alterations"
-              
             >
               <span class="compound-concept-name">Perceptual alterations</span>
-              <span class="compound-count" aria-label="64 primary studies">64</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="5 reviews">5</span>
+              <span class="compound-count" aria-label="66 primary studies">66</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="5 reviews">5</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1838,65 +1842,59 @@
               data-category-key="subjective_effects"
               data-concept-index="4"
               aria-label="View literature for Psychological insight"
-              
             >
               <span class="compound-concept-name">Psychological insight</span>
-              <span class="compound-count" aria-label="60 primary studies">60</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
+              <span class="compound-count" aria-label="63 primary studies">63</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
             </button>
             <button
               class="compound-concept-row"
               type="button"
               data-category-key="subjective_effects"
               data-concept-index="5"
-              aria-label="View literature for Ego dissolution"
-              
+              aria-label="View literature for Positive affect"
             >
-              <span class="compound-concept-name">Ego dissolution</span>
-              <span class="compound-count" aria-label="45 primary studies">45</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="1 reviews">1</span>
+              <span class="compound-concept-name">Positive affect</span>
+              <span class="compound-count" aria-label="47 primary studies">47</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
             </button>
             <button
               class="compound-concept-row"
               type="button"
               data-category-key="subjective_effects"
               data-concept-index="6"
-              aria-label="View literature for Subjective intensity"
-              
+              aria-label="View literature for Ego dissolution"
             >
-              <span class="compound-concept-name">Subjective intensity</span>
-              <span class="compound-count" aria-label="44 primary studies">44</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
+              <span class="compound-concept-name">Ego dissolution</span>
+              <span class="compound-count" aria-label="46 primary studies">46</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="1 reviews">1</span>
             </button>
             <button
               class="compound-concept-row"
               type="button"
               data-category-key="subjective_effects"
               data-concept-index="7"
-              aria-label="View literature for Positive affect"
-              
+              aria-label="View literature for Subjective intensity"
             >
-              <span class="compound-concept-name">Positive affect</span>
-              <span class="compound-count" aria-label="41 primary studies">41</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
+              <span class="compound-concept-name">Subjective intensity</span>
+              <span class="compound-count" aria-label="46 primary studies">46</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
             </button>
             <button
               class="compound-concept-row"
               type="button"
               data-category-key="subjective_effects"
               data-concept-index="8"
-              aria-label="View literature for Connectedness"
-              
+              aria-label="View literature for Spiritual significance"
             >
-              <span class="compound-concept-name">Connectedness</span>
-              <span class="compound-count" aria-label="39 primary studies">39</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
+              <span class="compound-concept-name">Spiritual significance</span>
+              <span class="compound-count" aria-label="39 primary studies">39</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="4 reviews">4</span>
             </button>
             <button
               class="compound-concept-row"
               type="button"
               data-category-key="subjective_effects"
               data-concept-index="9"
-              aria-label="View literature for Spiritual significance"
-              
+              aria-label="View literature for Connectedness"
             >
-              <span class="compound-concept-name">Spiritual significance</span>
-              <span class="compound-count" aria-label="32 primary studies">32</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="4 reviews">4</span>
+              <span class="compound-concept-name">Connectedness</span>
+              <span class="compound-count" aria-label="41 primary studies">41</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1904,10 +1902,9 @@
               data-category-key="subjective_effects"
               data-concept-index="10"
               aria-label="View literature for Emotional breakthrough"
-              
             >
               <span class="compound-concept-name">Emotional breakthrough</span>
-              <span class="compound-count" aria-label="34 primary studies">34</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
+              <span class="compound-count" aria-label="36 primary studies">36</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1915,10 +1912,9 @@
               data-category-key="subjective_effects"
               data-concept-index="11"
               aria-label="View literature for Personal significance"
-              
             >
               <span class="compound-concept-name">Personal significance</span>
-              <span class="compound-count" aria-label="20 primary studies">20</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
+              <span class="compound-count" aria-label="25 primary studies">25</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1926,10 +1922,10 @@
               data-category-key="subjective_effects"
               data-concept-index="12"
               aria-label="View literature for Negative affect"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Negative affect</span>
-              <span class="compound-count" aria-label="15 primary studies">15</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
+              <span class="compound-count" aria-label="17 primary studies">17</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1937,10 +1933,10 @@
               data-category-key="subjective_effects"
               data-concept-index="13"
               aria-label="View literature for Somatic sensations"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Somatic sensations</span>
-              <span class="compound-count" aria-label="15 primary studies">15</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
+              <span class="compound-count" aria-label="16 primary studies">16</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1948,7 +1944,7 @@
               data-category-key="subjective_effects"
               data-concept-index="14"
               aria-label="View literature for Empathy"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Empathy</span>
               <span class="compound-count" aria-label="12 primary studies">12</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1959,10 +1955,10 @@
               data-category-key="subjective_effects"
               data-concept-index="15"
               aria-label="View literature for Dissociation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dissociation</span>
-              <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
+              <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
             </button>
             <button
               class="compound-concept-row"
@@ -1970,7 +1966,7 @@
               data-category-key="subjective_effects"
               data-concept-index="16"
               aria-label="View literature for Euphoria"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Euphoria</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -1981,7 +1977,7 @@
               data-category-key="subjective_effects"
               data-concept-index="17"
               aria-label="View literature for Time distortion"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Time distortion</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2011,7 +2007,6 @@
               data-category-key="treatment_context"
               data-concept-index="0"
               aria-label="View literature for Integration"
-              
             >
               <span class="compound-concept-name">Integration</span>
               <span class="compound-count" aria-label="45 primary studies">45</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2022,7 +2017,6 @@
               data-category-key="treatment_context"
               data-concept-index="1"
               aria-label="View literature for Set &amp; setting"
-              
             >
               <span class="compound-concept-name">Set &amp; setting</span>
               <span class="compound-count" aria-label="38 primary studies">38</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="7 reviews">7</span>
@@ -2033,7 +2027,6 @@
               data-category-key="treatment_context"
               data-concept-index="2"
               aria-label="View literature for Psychological support"
-              
             >
               <span class="compound-concept-name">Psychological support</span>
               <span class="compound-count" aria-label="36 primary studies">36</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -2044,7 +2037,6 @@
               data-category-key="treatment_context"
               data-concept-index="3"
               aria-label="View literature for Music"
-              
             >
               <span class="compound-concept-name">Music</span>
               <span class="compound-count" aria-label="29 primary studies">29</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2055,7 +2047,6 @@
               data-category-key="treatment_context"
               data-concept-index="4"
               aria-label="View literature for Psychotherapy"
-              
             >
               <span class="compound-concept-name">Psychotherapy</span>
               <span class="compound-count" aria-label="20 primary studies">20</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -2066,7 +2057,6 @@
               data-category-key="treatment_context"
               data-concept-index="5"
               aria-label="View literature for Preparation"
-              
             >
               <span class="compound-concept-name">Preparation</span>
               <span class="compound-count" aria-label="23 primary studies">23</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2077,7 +2067,6 @@
               data-category-key="treatment_context"
               data-concept-index="6"
               aria-label="View literature for Facilitator role"
-              
             >
               <span class="compound-concept-name">Facilitator role</span>
               <span class="compound-count" aria-label="21 primary studies">21</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2088,7 +2077,6 @@
               data-category-key="treatment_context"
               data-concept-index="7"
               aria-label="View literature for Therapist training"
-              
             >
               <span class="compound-concept-name">Therapist training</span>
               <span class="compound-count" aria-label="12 primary studies">12</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -2099,7 +2087,6 @@
               data-category-key="treatment_context"
               data-concept-index="8"
               aria-label="View literature for Therapeutic alliance"
-              
             >
               <span class="compound-concept-name">Therapeutic alliance</span>
               <span class="compound-count" aria-label="12 primary studies">12</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2110,7 +2097,6 @@
               data-category-key="treatment_context"
               data-concept-index="9"
               aria-label="View literature for Group therapy"
-              
             >
               <span class="compound-concept-name">Group therapy</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2121,7 +2107,6 @@
               data-category-key="treatment_context"
               data-concept-index="10"
               aria-label="View literature for Mindfulness-based intervention"
-              
             >
               <span class="compound-concept-name">Mindfulness-based intervention</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2132,7 +2117,6 @@
               data-category-key="treatment_context"
               data-concept-index="11"
               aria-label="View literature for Cognitive behavioral therapy"
-              
             >
               <span class="compound-concept-name">Cognitive behavioral therapy</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2143,7 +2127,7 @@
               data-category-key="treatment_context"
               data-concept-index="12"
               aria-label="View literature for Acceptance and commitment therapy"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Acceptance and commitment therapy</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2154,7 +2138,7 @@
               data-category-key="treatment_context"
               data-concept-index="13"
               aria-label="View literature for Prior psychedelic experience"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Prior psychedelic experience</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2165,7 +2149,7 @@
               data-category-key="treatment_context"
               data-concept-index="14"
               aria-label="View literature for Therapeutic touch"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Therapeutic touch</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2176,7 +2160,7 @@
               data-category-key="treatment_context"
               data-concept-index="15"
               aria-label="View literature for Cultural adaptation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Cultural adaptation</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2187,7 +2171,7 @@
               data-category-key="treatment_context"
               data-concept-index="16"
               aria-label="View literature for Non-directive support"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Non-directive support</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2198,7 +2182,7 @@
               data-category-key="treatment_context"
               data-concept-index="17"
               aria-label="View literature for Sensory environment"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Sensory environment</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2228,7 +2212,6 @@
               data-category-key="real_world"
               data-concept-index="0"
               aria-label="View literature for Population use &amp; trends"
-              
             >
               <span class="compound-concept-name">Population use &amp; trends</span>
               <span class="compound-count" aria-label="113 primary studies">113</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2239,7 +2222,6 @@
               data-category-key="real_world"
               data-concept-index="1"
               aria-label="View literature for Use patterns &amp; practices"
-              
             >
               <span class="compound-concept-name">Use patterns &amp; practices</span>
               <span class="compound-count" aria-label="84 primary studies">84</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2250,7 +2232,6 @@
               data-category-key="real_world"
               data-concept-index="2"
               aria-label="View literature for Health &amp; functioning outcomes"
-              
             >
               <span class="compound-concept-name">Health &amp; functioning outcomes</span>
               <span class="compound-count" aria-label="52 primary studies">52</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -2261,7 +2242,6 @@
               data-category-key="real_world"
               data-concept-index="3"
               aria-label="View literature for Policy &amp; legal outcomes"
-              
             >
               <span class="compound-concept-name">Policy &amp; legal outcomes</span>
               <span class="compound-count" aria-label="40 primary studies">40</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="15 reviews">15</span>
@@ -2272,7 +2252,6 @@
               data-category-key="real_world"
               data-concept-index="4"
               aria-label="View literature for Acute harms &amp; healthcare use"
-              
             >
               <span class="compound-concept-name">Acute harms &amp; healthcare use</span>
               <span class="compound-count" aria-label="42 primary studies">42</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -2283,7 +2262,6 @@
               data-category-key="real_world"
               data-concept-index="5"
               aria-label="View literature for Implementation &amp; acceptability"
-              
             >
               <span class="compound-concept-name">Implementation &amp; acceptability</span>
               <span class="compound-count" aria-label="36 primary studies">36</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -2294,7 +2272,6 @@
               data-category-key="real_world"
               data-concept-index="6"
               aria-label="View literature for Research landscape"
-              
             >
               <span class="compound-concept-name">Research landscape</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="39 reviews">39</span>
@@ -2305,7 +2282,6 @@
               data-category-key="real_world"
               data-concept-index="7"
               aria-label="View literature for Perceived benefits &amp; harms"
-              
             >
               <span class="compound-concept-name">Perceived benefits &amp; harms</span>
               <span class="compound-count" aria-label="34 primary studies">34</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2316,7 +2292,6 @@
               data-category-key="real_world"
               data-concept-index="8"
               aria-label="View literature for Access &amp; equity"
-              
             >
               <span class="compound-concept-name">Access &amp; equity</span>
               <span class="compound-count" aria-label="29 primary studies">29</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -2327,7 +2302,6 @@
               data-category-key="real_world"
               data-concept-index="9"
               aria-label="View literature for Problematic use &amp; dependence"
-              
             >
               <span class="compound-concept-name">Problematic use &amp; dependence</span>
               <span class="compound-count" aria-label="28 primary studies">28</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="3 reviews">3</span>
@@ -2338,7 +2312,6 @@
               data-category-key="real_world"
               data-concept-index="10"
               aria-label="View literature for Predictors &amp; correlates"
-              
             >
               <span class="compound-concept-name">Predictors &amp; correlates</span>
               <span class="compound-count" aria-label="19 primary studies">19</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2349,7 +2322,6 @@
               data-category-key="real_world"
               data-concept-index="11"
               aria-label="View literature for Drug composition &amp; adulteration"
-              
             >
               <span class="compound-concept-name">Drug composition &amp; adulteration</span>
               <span class="compound-count" aria-label="18 primary studies">18</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2360,7 +2332,7 @@
               data-category-key="real_world"
               data-concept-index="12"
               aria-label="View literature for Motivations &amp; intentions"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Motivations &amp; intentions</span>
               <span class="compound-count" aria-label="19 primary studies">19</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2371,7 +2343,7 @@
               data-category-key="real_world"
               data-concept-index="13"
               aria-label="View literature for Availability &amp; market trends"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Availability &amp; market trends</span>
               <span class="compound-count" aria-label="14 primary studies">14</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2382,7 +2354,7 @@
               data-category-key="real_world"
               data-concept-index="14"
               aria-label="View literature for Harm reduction practices"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Harm reduction practices</span>
               <span class="compound-count" aria-label="11 primary studies">11</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2393,7 +2365,7 @@
               data-category-key="real_world"
               data-concept-index="15"
               aria-label="View literature for Commercialization &amp; public communication"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Commercialization &amp; public communication</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -2404,7 +2376,7 @@
               data-category-key="real_world"
               data-concept-index="16"
               aria-label="View literature for Economic &amp; resource impacts"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Economic &amp; resource impacts</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -2415,7 +2387,7 @@
               data-category-key="real_world"
               data-concept-index="17"
               aria-label="View literature for Ethics &amp; governance"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Ethics &amp; governance</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -2426,7 +2398,7 @@
               data-category-key="real_world"
               data-concept-index="18"
               aria-label="View literature for Treatment effectiveness &amp; care outcomes"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Treatment effectiveness &amp; care outcomes</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2456,7 +2428,6 @@
               data-category-key="brain"
               data-concept-index="0"
               aria-label="View literature for Default mode network"
-              
             >
               <span class="compound-concept-name">Default mode network</span>
               <span class="compound-count" aria-label="27 primary studies">27</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="22 reviews">22</span>
@@ -2467,7 +2438,6 @@
               data-category-key="brain"
               data-concept-index="1"
               aria-label="View literature for Amygdala"
-              
             >
               <span class="compound-concept-name">Amygdala</span>
               <span class="compound-count" aria-label="15 primary studies">15</span><span class="compound-count" aria-label="1 meta-analyses">1</span><span class="compound-count" aria-label="5 reviews">5</span>
@@ -2478,7 +2448,6 @@
               data-category-key="brain"
               data-concept-index="2"
               aria-label="View literature for Hippocampus"
-              
             >
               <span class="compound-concept-name">Hippocampus</span>
               <span class="compound-count" aria-label="13 primary studies">13</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2489,7 +2458,6 @@
               data-category-key="brain"
               data-concept-index="3"
               aria-label="View literature for Anterior cingulate cortex"
-              
             >
               <span class="compound-concept-name">Anterior cingulate cortex</span>
               <span class="compound-count" aria-label="12 primary studies">12</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2500,7 +2468,6 @@
               data-category-key="brain"
               data-concept-index="4"
               aria-label="View literature for Frontoparietal network"
-              
             >
               <span class="compound-concept-name">Frontoparietal network</span>
               <span class="compound-count" aria-label="13 primary studies">13</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2511,7 +2478,6 @@
               data-category-key="brain"
               data-concept-index="5"
               aria-label="View literature for Striatum"
-              
             >
               <span class="compound-concept-name">Striatum</span>
               <span class="compound-count" aria-label="9 primary studies">9</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2522,7 +2488,6 @@
               data-category-key="brain"
               data-concept-index="6"
               aria-label="View literature for Medial prefrontal cortex"
-              
             >
               <span class="compound-concept-name">Medial prefrontal cortex</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2533,7 +2498,6 @@
               data-category-key="brain"
               data-concept-index="7"
               aria-label="View literature for Prefrontal cortex"
-              
             >
               <span class="compound-concept-name">Prefrontal cortex</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2544,7 +2508,6 @@
               data-category-key="brain"
               data-concept-index="8"
               aria-label="View literature for Frontal cortex"
-              
             >
               <span class="compound-concept-name">Frontal cortex</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2555,7 +2518,6 @@
               data-category-key="brain"
               data-concept-index="9"
               aria-label="View literature for Posterior cingulate cortex"
-              
             >
               <span class="compound-concept-name">Posterior cingulate cortex</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2566,7 +2528,6 @@
               data-category-key="brain"
               data-concept-index="10"
               aria-label="View literature for Occipital cortex"
-              
             >
               <span class="compound-concept-name">Occipital cortex</span>
               <span class="compound-count" aria-label="7 primary studies">7</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2577,7 +2538,6 @@
               data-category-key="brain"
               data-concept-index="11"
               aria-label="View literature for Nucleus accumbens"
-              
             >
               <span class="compound-concept-name">Nucleus accumbens</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2588,7 +2548,7 @@
               data-category-key="brain"
               data-concept-index="12"
               aria-label="View literature for Sensorimotor network"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Sensorimotor network</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2599,7 +2559,7 @@
               data-category-key="brain"
               data-concept-index="13"
               aria-label="View literature for Retrosplenial cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Retrosplenial cortex</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2610,7 +2570,7 @@
               data-category-key="brain"
               data-concept-index="14"
               aria-label="View literature for Thalamus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Thalamus</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2621,7 +2581,7 @@
               data-category-key="brain"
               data-concept-index="15"
               aria-label="View literature for Claustrum"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Claustrum</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2632,7 +2592,7 @@
               data-category-key="brain"
               data-concept-index="16"
               aria-label="View literature for Ventromedial prefrontal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Ventromedial prefrontal cortex</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2643,7 +2603,7 @@
               data-category-key="brain"
               data-concept-index="17"
               aria-label="View literature for Visual network"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Visual network</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2654,7 +2614,7 @@
               data-category-key="brain"
               data-concept-index="18"
               aria-label="View literature for Dorsal attention network"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dorsal attention network</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2665,7 +2625,7 @@
               data-category-key="brain"
               data-concept-index="19"
               aria-label="View literature for Insula"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Insula</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2676,7 +2636,7 @@
               data-category-key="brain"
               data-concept-index="20"
               aria-label="View literature for Salience network"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Salience network</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2687,7 +2647,7 @@
               data-category-key="brain"
               data-concept-index="21"
               aria-label="View literature for Supramarginal gyrus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Supramarginal gyrus</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2698,7 +2658,7 @@
               data-category-key="brain"
               data-concept-index="22"
               aria-label="View literature for Central executive network"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Central executive network</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2709,7 +2669,7 @@
               data-category-key="brain"
               data-concept-index="23"
               aria-label="View literature for Dorsal raphe nucleus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dorsal raphe nucleus</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2720,7 +2680,7 @@
               data-category-key="brain"
               data-concept-index="24"
               aria-label="View literature for Putamen"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Putamen</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2731,7 +2691,7 @@
               data-category-key="brain"
               data-concept-index="25"
               aria-label="View literature for Fusiform gyrus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Fusiform gyrus</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2742,7 +2702,7 @@
               data-category-key="brain"
               data-concept-index="26"
               aria-label="View literature for Primary visual cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Primary visual cortex</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2753,7 +2713,7 @@
               data-category-key="brain"
               data-concept-index="27"
               aria-label="View literature for Temporal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Temporal cortex</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2764,7 +2724,7 @@
               data-category-key="brain"
               data-concept-index="28"
               aria-label="View literature for Orbitofrontal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Orbitofrontal cortex</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2775,7 +2735,7 @@
               data-category-key="brain"
               data-concept-index="29"
               aria-label="View literature for Central amygdala"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Central amygdala</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2786,7 +2746,7 @@
               data-category-key="brain"
               data-concept-index="30"
               aria-label="View literature for Hypothalamus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Hypothalamus</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2797,7 +2757,7 @@
               data-category-key="brain"
               data-concept-index="31"
               aria-label="View literature for Auditory cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Auditory cortex</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2808,7 +2768,7 @@
               data-category-key="brain"
               data-concept-index="32"
               aria-label="View literature for Postcentral gyrus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Postcentral gyrus</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2819,7 +2779,7 @@
               data-category-key="brain"
               data-concept-index="33"
               aria-label="View literature for Basal ganglia"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Basal ganglia</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2830,7 +2790,7 @@
               data-category-key="brain"
               data-concept-index="34"
               aria-label="View literature for Basolateral amygdala"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Basolateral amygdala</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2841,7 +2801,7 @@
               data-category-key="brain"
               data-concept-index="35"
               aria-label="View literature for Caudate nucleus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Caudate nucleus</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2852,7 +2812,7 @@
               data-category-key="brain"
               data-concept-index="36"
               aria-label="View literature for Cerebellum"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Cerebellum</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2863,7 +2823,7 @@
               data-category-key="brain"
               data-concept-index="37"
               aria-label="View literature for Cingulate cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Cingulate cortex</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2874,7 +2834,7 @@
               data-category-key="brain"
               data-concept-index="38"
               aria-label="View literature for Dorsomedial prefrontal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dorsomedial prefrontal cortex</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2885,7 +2845,7 @@
               data-category-key="brain"
               data-concept-index="39"
               aria-label="View literature for Locus coeruleus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Locus coeruleus</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2896,7 +2856,7 @@
               data-category-key="brain"
               data-concept-index="40"
               aria-label="View literature for Parahippocampal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Parahippocampal cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -2907,7 +2867,7 @@
               data-category-key="brain"
               data-concept-index="41"
               aria-label="View literature for Parietal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Parietal cortex</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2918,7 +2878,7 @@
               data-category-key="brain"
               data-concept-index="42"
               aria-label="View literature for Somatosensory cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Somatosensory cortex</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2929,7 +2889,7 @@
               data-category-key="brain"
               data-concept-index="43"
               aria-label="View literature for Subgenual anterior cingulate cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Subgenual anterior cingulate cortex</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2940,7 +2900,7 @@
               data-category-key="brain"
               data-concept-index="44"
               aria-label="View literature for Superior temporal gyrus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Superior temporal gyrus</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2951,7 +2911,7 @@
               data-category-key="brain"
               data-concept-index="45"
               aria-label="View literature for Paraventricular hypothalamic nucleus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Paraventricular hypothalamic nucleus</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2962,7 +2922,7 @@
               data-category-key="brain"
               data-concept-index="46"
               aria-label="View literature for Visual cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Visual cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2973,7 +2933,7 @@
               data-category-key="brain"
               data-concept-index="47"
               aria-label="View literature for Infralimbic cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Infralimbic cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2984,7 +2944,7 @@
               data-category-key="brain"
               data-concept-index="48"
               aria-label="View literature for Auditory network"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Auditory network</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -2995,7 +2955,7 @@
               data-category-key="brain"
               data-concept-index="49"
               aria-label="View literature for Dorsal anterior cingulate cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dorsal anterior cingulate cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3006,7 +2966,7 @@
               data-category-key="brain"
               data-concept-index="50"
               aria-label="View literature for Dorsolateral prefrontal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dorsolateral prefrontal cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3017,7 +2977,7 @@
               data-category-key="brain"
               data-concept-index="51"
               aria-label="View literature for Entorhinal cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Entorhinal cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3028,7 +2988,7 @@
               data-category-key="brain"
               data-concept-index="52"
               aria-label="View literature for Frontal pole"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Frontal pole</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3039,7 +2999,7 @@
               data-category-key="brain"
               data-concept-index="53"
               aria-label="View literature for Hippocampal CA1"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Hippocampal CA1</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3050,7 +3010,7 @@
               data-category-key="brain"
               data-concept-index="54"
               aria-label="View literature for Lateral habenula"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Lateral habenula</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3061,7 +3021,7 @@
               data-category-key="brain"
               data-concept-index="55"
               aria-label="View literature for Limbic network"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Limbic network</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3072,7 +3032,7 @@
               data-category-key="brain"
               data-concept-index="56"
               aria-label="View literature for Medial habenula"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Medial habenula</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3083,7 +3043,7 @@
               data-category-key="brain"
               data-concept-index="57"
               aria-label="View literature for Medial temporal lobe"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Medial temporal lobe</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3094,7 +3054,7 @@
               data-category-key="brain"
               data-concept-index="58"
               aria-label="View literature for Motor cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Motor cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3105,7 +3065,7 @@
               data-category-key="brain"
               data-concept-index="59"
               aria-label="View literature for Paraventricular thalamic nucleus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Paraventricular thalamic nucleus</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3116,7 +3076,7 @@
               data-category-key="brain"
               data-concept-index="60"
               aria-label="View literature for Periaqueductal gray"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Periaqueductal gray</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3127,7 +3087,7 @@
               data-category-key="brain"
               data-concept-index="61"
               aria-label="View literature for Precuneus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Precuneus</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3138,7 +3098,7 @@
               data-category-key="brain"
               data-concept-index="62"
               aria-label="View literature for Prelimbic cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Prelimbic cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3149,7 +3109,7 @@
               data-category-key="brain"
               data-concept-index="63"
               aria-label="View literature for Primary motor cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Primary motor cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3160,7 +3120,7 @@
               data-category-key="brain"
               data-concept-index="64"
               aria-label="View literature for Sensorimotor cortex"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Sensorimotor cortex</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3171,7 +3131,7 @@
               data-category-key="brain"
               data-concept-index="65"
               aria-label="View literature for Supplementary motor area"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Supplementary motor area</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3182,7 +3142,7 @@
               data-category-key="brain"
               data-concept-index="66"
               aria-label="View literature for Thalamic reticular nucleus"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Thalamic reticular nucleus</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3193,7 +3153,7 @@
               data-category-key="brain"
               data-concept-index="67"
               aria-label="View literature for Ventral tegmental area"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Ventral tegmental area</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3223,7 +3183,6 @@
               data-category-key="molecular_effects"
               data-concept-index="0"
               aria-label="View literature for Neuroplasticity"
-              
             >
               <span class="compound-concept-name">Neuroplasticity</span>
               <span class="compound-count" aria-label="39 primary studies">39</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="31 reviews">31</span>
@@ -3234,7 +3193,6 @@
               data-category-key="molecular_effects"
               data-concept-index="1"
               aria-label="View literature for Receptor regulation &amp; trafficking"
-              
             >
               <span class="compound-concept-name">Receptor regulation &amp; trafficking</span>
               <span class="compound-count" aria-label="34 primary studies">34</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="9 reviews">9</span>
@@ -3245,7 +3203,6 @@
               data-category-key="molecular_effects"
               data-concept-index="2"
               aria-label="View literature for Gene expression &amp; activity markers"
-              
             >
               <span class="compound-concept-name">Gene expression &amp; activity markers</span>
               <span class="compound-count" aria-label="39 primary studies">39</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3256,7 +3213,6 @@
               data-category-key="molecular_effects"
               data-concept-index="3"
               aria-label="View literature for Neuroinflammation &amp; immune signaling"
-              
             >
               <span class="compound-concept-name">Neuroinflammation &amp; immune signaling</span>
               <span class="compound-count" aria-label="25 primary studies">25</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="4 reviews">4</span>
@@ -3267,7 +3223,6 @@
               data-category-key="molecular_effects"
               data-concept-index="4"
               aria-label="View literature for Neurotransmitter release, uptake &amp; turnover"
-              
             >
               <span class="compound-concept-name">Neurotransmitter release, uptake &amp; turnover</span>
               <span class="compound-count" aria-label="19 primary studies">19</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="6 reviews">6</span>
@@ -3278,7 +3233,6 @@
               data-category-key="molecular_effects"
               data-concept-index="5"
               aria-label="View literature for Intracellular signal transduction"
-              
             >
               <span class="compound-concept-name">Intracellular signal transduction</span>
               <span class="compound-count" aria-label="19 primary studies">19</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3289,7 +3243,6 @@
               data-category-key="molecular_effects"
               data-concept-index="6"
               aria-label="View literature for Endocrine response"
-              
             >
               <span class="compound-concept-name">Endocrine response</span>
               <span class="compound-count" aria-label="18 primary studies">18</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3300,7 +3253,6 @@
               data-category-key="molecular_effects"
               data-concept-index="7"
               aria-label="View literature for Drug metabolism"
-              
             >
               <span class="compound-concept-name">Drug metabolism</span>
               <span class="compound-count" aria-label="14 primary studies">14</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3311,7 +3263,6 @@
               data-category-key="molecular_effects"
               data-concept-index="8"
               aria-label="View literature for Neuronal excitability &amp; synaptic transmission"
-              
             >
               <span class="compound-concept-name">Neuronal excitability &amp; synaptic transmission</span>
               <span class="compound-count" aria-label="10 primary studies">10</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3322,7 +3273,6 @@
               data-category-key="molecular_effects"
               data-concept-index="9"
               aria-label="View literature for Neurogenesis"
-              
             >
               <span class="compound-concept-name">Neurogenesis</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -3333,7 +3283,6 @@
               data-category-key="molecular_effects"
               data-concept-index="10"
               aria-label="View literature for Cellular stress &amp; mitochondrial function"
-              
             >
               <span class="compound-concept-name">Cellular stress &amp; mitochondrial function</span>
               <span class="compound-count" aria-label="8 primary studies">8</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3344,7 +3293,6 @@
               data-category-key="molecular_effects"
               data-concept-index="11"
               aria-label="View literature for Cell injury &amp; survival"
-              
             >
               <span class="compound-concept-name">Cell injury &amp; survival</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3355,7 +3303,7 @@
               data-category-key="molecular_effects"
               data-concept-index="12"
               aria-label="View literature for Epigenetic regulation"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Epigenetic regulation</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3366,7 +3314,7 @@
               data-category-key="molecular_effects"
               data-concept-index="13"
               aria-label="View literature for Gut microbiome"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Gut microbiome</span>
               <span class="compound-count" aria-label="5 primary studies">5</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3377,7 +3325,7 @@
               data-category-key="molecular_effects"
               data-concept-index="14"
               aria-label="View literature for Genetic moderators"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Genetic moderators</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3388,7 +3336,7 @@
               data-category-key="molecular_effects"
               data-concept-index="15"
               aria-label="View literature for Dendritic spine density"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dendritic spine density</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3399,7 +3347,7 @@
               data-category-key="molecular_effects"
               data-concept-index="16"
               aria-label="View literature for c-Fos expression"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">c-Fos expression</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3410,7 +3358,7 @@
               data-category-key="molecular_effects"
               data-concept-index="17"
               aria-label="View literature for Synaptic marker family"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Synaptic marker family</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3440,7 +3388,6 @@
               data-category-key="targets"
               data-concept-index="0"
               aria-label="View literature for 5-HT2A"
-              
             >
               <span class="compound-concept-name">5-HT2A</span>
               <span class="compound-count" aria-label="73 primary studies">73</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="81 reviews">81</span>
@@ -3451,7 +3398,6 @@
               data-category-key="targets"
               data-concept-index="1"
               aria-label="View literature for 5-HT1A"
-              
             >
               <span class="compound-concept-name">5-HT1A</span>
               <span class="compound-count" aria-label="16 primary studies">16</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3462,7 +3408,6 @@
               data-category-key="targets"
               data-concept-index="2"
               aria-label="View literature for 5-HT receptor family"
-              
             >
               <span class="compound-concept-name">5-HT receptor family</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="7 reviews">7</span>
@@ -3473,7 +3418,6 @@
               data-category-key="targets"
               data-concept-index="3"
               aria-label="View literature for 5-HT2C"
-              
             >
               <span class="compound-concept-name">5-HT2C</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3484,7 +3428,6 @@
               data-category-key="targets"
               data-concept-index="4"
               aria-label="View literature for TrkB (NTRK2)"
-              
             >
               <span class="compound-concept-name">TrkB (NTRK2)</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="5 reviews">5</span>
@@ -3495,7 +3438,6 @@
               data-category-key="targets"
               data-concept-index="5"
               aria-label="View literature for 5-HT2B"
-              
             >
               <span class="compound-concept-name">5-HT2B</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3506,7 +3448,6 @@
               data-category-key="targets"
               data-concept-index="6"
               aria-label="View literature for SERT (SLC6A4)"
-              
             >
               <span class="compound-concept-name">SERT (SLC6A4)</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3517,7 +3458,6 @@
               data-category-key="targets"
               data-concept-index="7"
               aria-label="View literature for 5-HT1B"
-              
             >
               <span class="compound-concept-name">5-HT1B</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3528,7 +3468,6 @@
               data-category-key="targets"
               data-concept-index="8"
               aria-label="View literature for 5-HT7"
-              
             >
               <span class="compound-concept-name">5-HT7</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3539,7 +3478,6 @@
               data-category-key="targets"
               data-concept-index="9"
               aria-label="View literature for 5-HT4"
-              
             >
               <span class="compound-concept-name">5-HT4</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3550,7 +3488,6 @@
               data-category-key="targets"
               data-concept-index="10"
               aria-label="View literature for mu opioid receptor (OPRM1)"
-              
             >
               <span class="compound-concept-name">mu opioid receptor (OPRM1)</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3561,7 +3498,6 @@
               data-category-key="targets"
               data-concept-index="11"
               aria-label="View literature for P-glycoprotein (ABCB1)"
-              
             >
               <span class="compound-concept-name">P-glycoprotein (ABCB1)</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3572,7 +3508,7 @@
               data-category-key="targets"
               data-concept-index="12"
               aria-label="View literature for 5-HT1 receptor family"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">5-HT1 receptor family</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3583,7 +3519,7 @@
               data-category-key="targets"
               data-concept-index="13"
               aria-label="View literature for 5-HT2 receptor family"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">5-HT2 receptor family</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3594,7 +3530,7 @@
               data-category-key="targets"
               data-concept-index="14"
               aria-label="View literature for alpha7 nicotinic acetylcholine receptor (CHRNA7)"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">alpha7 nicotinic acetylcholine receptor (CHRNA7)</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3605,7 +3541,7 @@
               data-category-key="targets"
               data-concept-index="15"
               aria-label="View literature for AMPA receptor"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">AMPA receptor</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3616,7 +3552,7 @@
               data-category-key="targets"
               data-concept-index="16"
               aria-label="View literature for CYP2D6"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">CYP2D6</span>
               <span class="compound-count" aria-label="0 primary studies">—</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3627,7 +3563,7 @@
               data-category-key="targets"
               data-concept-index="17"
               aria-label="View literature for Dopamine D2 receptor (DRD2)"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dopamine D2 receptor (DRD2)</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3638,7 +3574,7 @@
               data-category-key="targets"
               data-concept-index="18"
               aria-label="View literature for Dopamine receptor family"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dopamine receptor family</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3649,7 +3585,7 @@
               data-category-key="targets"
               data-concept-index="19"
               aria-label="View literature for Monoamine oxidase family"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Monoamine oxidase family</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3660,7 +3596,7 @@
               data-category-key="targets"
               data-concept-index="20"
               aria-label="View literature for TAAR1"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">TAAR1</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3690,7 +3626,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="0"
               aria-label="View literature for Psilocin"
-              
             >
               <span class="compound-concept-name">Psilocin</span>
               <span class="compound-count" aria-label="33 primary studies">33</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3701,7 +3636,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="1"
               aria-label="View literature for Detection/monitoring"
-              
             >
               <span class="compound-concept-name">Detection/monitoring</span>
               <span class="compound-count" aria-label="28 primary studies">28</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3712,7 +3646,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="2"
               aria-label="View literature for Exposure-response relationship"
-              
             >
               <span class="compound-concept-name">Exposure-response relationship</span>
               <span class="compound-count" aria-label="22 primary studies">22</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3723,7 +3656,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="3"
               aria-label="View literature for Exposure measurement"
-              
             >
               <span class="compound-concept-name">Exposure measurement</span>
               <span class="compound-count" aria-label="4 primary studies">4</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="11 reviews">11</span>
@@ -3734,7 +3666,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="4"
               aria-label="View literature for Exposure modifier"
-              
             >
               <span class="compound-concept-name">Exposure modifier</span>
               <span class="compound-count" aria-label="11 primary studies">11</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3745,7 +3676,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="5"
               aria-label="View literature for Concentration"
-              
             >
               <span class="compound-concept-name">Concentration</span>
               <span class="compound-count" aria-label="9 primary studies">9</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3756,7 +3686,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="6"
               aria-label="View literature for Tissue distribution"
-              
             >
               <span class="compound-concept-name">Tissue distribution</span>
               <span class="compound-count" aria-label="6 primary studies">6</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3767,7 +3696,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="7"
               aria-label="View literature for Half-life"
-              
             >
               <span class="compound-concept-name">Half-life</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="2 reviews">2</span>
@@ -3778,7 +3706,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="8"
               aria-label="View literature for Excretion/elimination"
-              
             >
               <span class="compound-concept-name">Excretion/elimination</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="1 reviews">1</span>
@@ -3789,7 +3716,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="9"
               aria-label="View literature for Route/formulation effect"
-              
             >
               <span class="compound-concept-name">Route/formulation effect</span>
               <span class="compound-count" aria-label="3 primary studies">3</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3800,7 +3726,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="10"
               aria-label="View literature for Bioavailability"
-              
             >
               <span class="compound-concept-name">Bioavailability</span>
               <span class="compound-count" aria-label="2 primary studies">2</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3811,7 +3736,6 @@
               data-category-key="pharmacokinetics"
               data-concept-index="11"
               aria-label="View literature for Cmax"
-              
             >
               <span class="compound-concept-name">Cmax</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3822,7 +3746,7 @@
               data-category-key="pharmacokinetics"
               data-concept-index="12"
               aria-label="View literature for Dissolution profile"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Dissolution profile</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3833,7 +3757,7 @@
               data-category-key="pharmacokinetics"
               data-concept-index="13"
               aria-label="View literature for Monoamine oxidase family"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">Monoamine oxidase family</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3844,7 +3768,7 @@
               data-category-key="pharmacokinetics"
               data-concept-index="14"
               aria-label="View literature for P-glycoprotein (ABCB1)"
-               data-extra-concept hidden
+              data-extra-concept hidden
             >
               <span class="compound-concept-name">P-glycoprotein (ABCB1)</span>
               <span class="compound-count" aria-label="1 primary studies">1</span><span class="compound-count" aria-label="0 meta-analyses">—</span><span class="compound-count" aria-label="0 reviews">—</span>
@@ -3865,16 +3789,6 @@
             <p id="compoundLiteratureContext">
               Select a concept to see the publications connected to it.
             </p>
-          </div>
-          <div
-            class="segmented-toggle compound-source-toggle"
-            role="tablist"
-            aria-label="Literature source"
-            hidden
-          >
-            <button class="ghost small active" type="button" data-compound-source="primary" role="tab" aria-selected="true">Primary studies</button>
-            <button class="ghost small" type="button" data-compound-source="meta_analyses" role="tab" aria-selected="false">Meta-analyses</button>
-            <button class="ghost small" type="button" data-compound-source="reviews" role="tab" aria-selected="false">Reviews</button>
           </div>
           <ol class="compound-paper-list" id="compoundPaperList"></ol>
           <button class="compound-paper-more" id="compoundPaperMore" type="button" hidden>Show more</button>
@@ -3898,6 +3812,6 @@
       </div>
     </footer>
     <script src="/ui/site-nav.js?v=20260717-site-nav"></script>
-    <script src="/ui/compound.js?v=20260728-compound-graph-v1"></script>
+    <script src="/ui/compound.js?v=20260728-compound-charts-v3"></script>
   </body>
 </html>
