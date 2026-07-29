@@ -24,7 +24,7 @@ or communities are required; when both files exist, Zenodo ignores
 1. Choose the next [Semantic Version](https://semver.org/). Use `0.x` versions
    while public interfaces and data contracts may still change incompatibly.
 2. Update `version` and `date-released` in `CITATION.cff`.
-3. Add the release notes and comparison link to `CHANGELOG.md`.
+3. Add the release entry and comparison link to `CHANGELOG.md`.
 4. Validate the citation file and run the relevant test suite.
 5. Commit and push the release preparation to `main`.
 6. Create an annotated tag and push it:
@@ -35,13 +35,12 @@ or communities are required; when both files exist, Zenodo ignores
    ```
 
 7. Create the GitHub Release from that tag. Use the matching title
-   `Psychedelics Knowledge Graph vX.Y.Z` and copy the version's changelog entry
-   into the release notes.
+   `Psychedelics Knowledge Graph vX.Y.Z`. Summarize user-facing changes without
+   repeating the version or date already displayed by GitHub.
 8. Wait for Zenodo to finish processing the release. Verify its files,
    metadata, version-specific DOI, and Software Heritage archival status.
-9. Add the version-specific Zenodo DOI to the released version's changelog
-   entry. Add the Zenodo concept DOI and badge to `README.md`, and add the
-   appropriate DOI to `CITATION.cff` on `main`.
+9. Add the version-specific DOI to `CITATION.cff` on `main`. Keep the stable
+   Zenodo concept DOI badge and citation links in `README.md` up to date.
 
 For reproducible research, cite the version-specific DOI. The concept DOI is
 useful when referring to the evolving project without selecting one version.
