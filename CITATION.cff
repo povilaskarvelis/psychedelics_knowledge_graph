@@ -8,9 +8,9 @@ date-released: 2026-07-29
 authors:
   - family-names: "Karvelis"
     given-names: "Povilas"
-    affiliation: "Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health (CAMH)"
     orcid: "https://orcid.org/0000-0001-7469-5624"
-abstract: "A provenance-aware literature pipeline and web interface for exploring structured findings about psychedelics, mechanisms, and mental health outcomes."
+    affiliation: "Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health (CAMH)"
+abstract: "A knowledge graph that organizes psychedelic research into structured findings linked to their source publications."
 repository-code: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph"
 repository-artifact: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph/releases/tag/v1.0.0"
 url: "https://psychedelicskg.com"
