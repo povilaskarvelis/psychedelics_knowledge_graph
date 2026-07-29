@@ -181,10 +181,12 @@
   min-height: 174px;
   margin: 0;
   padding: 18px;
-  overflow: auto;
+  overflow: hidden;
+  overflow-wrap: anywhere;
   color: #d9e9e5;
   font-size: 0.76rem;
   line-height: 1.55;
+  white-space: pre-wrap;
 }
 
 .access-code-card code,
@@ -315,7 +317,7 @@ body {
 
 .site-header-inner {
   position: relative;
-  width: min(1500px, calc(100% - 16vw));
+  width: calc(100% - 16vw);
   min-height: 62px;
   margin: 0 auto;
   display: flex;
@@ -1177,6 +1179,35 @@ button.primary:hover {
 
 .about-feedback-action {
   margin-top: 18px;
+}
+
+.citation-card {
+  max-width: 820px;
+  margin-top: 18px;
+}
+
+.citation-card .citation-text {
+  color: var(--text);
+}
+
+.citation-card cite {
+  font-style: italic;
+}
+
+.citation-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.citation-copy-status {
+  display: block;
+  min-height: 1.4em;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.84rem;
 }
 
 .about-section p a {
@@ -3295,6 +3326,18 @@ button.primary:hover {
   min-height: 0;
   height: var(--kg-graph-height, 820px);
   margin-top: -6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-color: rgba(174, 181, 180, 0.44) transparent;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.graph svg[data-horizontal-scrollable="true"] {
+  width: var(--kg-graph-layout-width);
+  min-width: var(--kg-graph-layout-width);
+  max-width: none;
 }
 
 .graph-truncation-note {
@@ -5727,21 +5770,6 @@ input[type="number"] {
 @media (max-width: 640px) {
   .hero {
     padding: 38px 6vw 24px;
-  }
-
-  .graph-column .graph {
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-color: rgba(174, 181, 180, 0.44) transparent;
-    scrollbar-width: thin;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .graph svg[data-mobile-scrollable="true"] {
-    width: var(--kg-graph-layout-width);
-    min-width: var(--kg-graph-layout-width);
-    max-width: none;
   }
 
   .toolbar-filter-row {

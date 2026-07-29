@@ -474,10 +474,8 @@ const GRAPH_RIGHT_LABEL_GUTTER_PX = 24;
 const GRAPH_LABEL_MARGIN_BUFFER_PX = 36;
 const GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT = 22;
 const GRAPH_BASE_HEIGHT_PX = 820;
-const GRAPH_COMPACT_BASE_HEIGHT_PX = 560;
-const GRAPH_COMPACT_LAYOUT_WIDTH_PX = 720;
+const GRAPH_MIN_LAYOUT_WIDTH_PX = 720;
 const GRAPH_MIN_NODE_SPACING_PX = 40;
-const GRAPH_COMPACT_MIN_NODE_SPACING_PX = 38;
 const HIDDEN_MAIN_GRAPH_DOMAINS = new Set(["pharmacokinetics_exposure"]);
 const AUTHOR_LABEL_FILTER_PREFIX = "author_label:";
 
@@ -7112,10 +7110,8 @@ function buildGraph(data) {
     !selected &&
     !detailGraphFilter;
   const viewportWidth = graphEl.clientWidth || 800;
-  const compactGraph = viewportWidth < 640;
-  const width = compactGraph
-    ? Math.max(viewportWidth, GRAPH_COMPACT_LAYOUT_WIDTH_PX)
-    : viewportWidth;
+  const horizontallyScrollableGraph = viewportWidth < GRAPH_MIN_LAYOUT_WIDTH_PX;
+  const width = Math.max(viewportWidth, GRAPH_MIN_LAYOUT_WIDTH_PX);
   const cacheKey = graphDomCacheKey(width, data);
   const cached = cacheKey ? graphDomCache.get(cacheKey) : null;
   if (cached) {
@@ -7175,7 +7171,7 @@ function buildGraph(data) {
     incidentEdgeKeysByRight.set(right, byRight);
   });
 
-  let compounds = Array.from(compoundCounts.keys()).sort((a, b) => {
+  const compounds = Array.from(compoundCounts.keys()).sort((a, b) => {
     const byClaims = (compoundCounts.get(b) || 0) - (compoundCounts.get(a) || 0);
     if (byClaims !== 0) return byClaims;
     const byDegree = (compoundConnections.get(b)?.size || 0) - (compoundConnections.get(a)?.size || 0);
@@ -7183,19 +7179,13 @@ function buildGraph(data) {
     return a.localeCompare(b);
   });
 
-  let targets = Array.from(rightCounts.keys()).sort((a, b) => {
+  const targets = Array.from(rightCounts.keys()).sort((a, b) => {
     const byClaims = (rightCounts.get(b) || 0) - (rightCounts.get(a) || 0);
     if (byClaims !== 0) return byClaims;
     const byDegree = (rightConnections.get(b)?.size || 0) - (rightConnections.get(a)?.size || 0);
     if (byDegree !== 0) return byDegree;
     return a.localeCompare(b);
   });
-
-  if (compactGraph) {
-    const maxMobileNodes = 12;
-    compounds = compounds.slice(0, maxMobileNodes);
-    targets = targets.slice(0, maxMobileNodes);
-  }
 
   const baseSideMargin = clampNumber(Math.floor(width * 0.16), 96, 190);
   let leftMargin = Math.max(baseSideMargin, GRAPH_LEFT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX);
@@ -7213,10 +7203,13 @@ function buildGraph(data) {
   }
 
   const margin = { top: 40, right: rightMargin, bottom: 40, left: leftMargin };
-  const minNodeSpacing = compactGraph ? GRAPH_COMPACT_MIN_NODE_SPACING_PX : GRAPH_MIN_NODE_SPACING_PX;
-  const baseHeight = compactGraph ? GRAPH_COMPACT_BASE_HEIGHT_PX : GRAPH_BASE_HEIGHT_PX;
   const maxNodeCount = Math.max(compounds.length, targets.length, 1);
-  const height = Math.ceil(Math.max(baseHeight, margin.top + margin.bottom + maxNodeCount * minNodeSpacing));
+  const height = Math.ceil(
+    Math.max(
+      GRAPH_BASE_HEIGHT_PX,
+      margin.top + margin.bottom + maxNodeCount * GRAPH_MIN_NODE_SPACING_PX
+    )
+  );
   const graphGrid = graphEl.closest(".graph-grid");
   const graphToolbar = graphEl.closest(".graph-column")?.querySelector(".graph-toolbar");
   const defaultWorkspaceHeight =
@@ -7292,7 +7285,7 @@ function buildGraph(data) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.style.setProperty("--kg-graph-layout-width", `${width}px`);
-  svg.dataset.mobileScrollable = compactGraph ? "true" : "false";
+  svg.dataset.horizontalScrollable = horizontallyScrollableGraph ? "true" : "false";
   svg.dataset.graphStage = graphStage;
   const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
   const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");

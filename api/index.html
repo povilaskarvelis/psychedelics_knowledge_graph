@@ -9,9 +9,10 @@
     />
     <title>Public Research API | Psychedelics Knowledge Graph</title>
     <link rel="canonical" href="https://psychedelicskg.com/api/" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" />
+    <link rel="icon" href="/favicon-search.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Psychedelics Knowledge Graph" />
     <meta property="og:title" content="Public Research API | Psychedelics Knowledge Graph" />
@@ -42,7 +43,7 @@
     />
     <link rel="alternate" type="text/markdown" href="/api/agent-guide.md" title="Agent access guide" />
     <link rel="service-desc" type="application/vnd.oai.openapi+json" href="https://psychedelics-kg-api.onrender.com/openapi.json" />
-    <link rel="stylesheet" href="/ui/styles.css?v=20260718-footer-v1" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260729-api-code-wrap-v1" />
   </head>
   <body class="methods-page access-page">
     <div class="bg" aria-hidden="true"></div>
@@ -110,8 +111,10 @@
               <span>Find a concept ID</span>
               <button type="button" data-copy-target="conceptSearchExample">Copy</button>
             </div>
-            <pre id="conceptSearchExample"><code>curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/concepts/search?q=psilocybin&amp;limit=5"</code></pre>
+            <pre id="conceptSearchExample"><code>curl -sS --get \
+  "https://psychedelics-kg-api.onrender.com/api/v1/concepts/search" \
+  --data-urlencode "q=psilocybin" \
+  --data-urlencode "limit=5"</code></pre>
           </article>
           <article class="access-code-card">
             <div>
@@ -192,7 +195,7 @@
       <div class="footer-inner">
         <nav class="footer-links" aria-label="Project information">
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite this project</a>
+          <a href="/about/#citation">Cite this project</a>
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">Licenses</a>
         </nav>
         <div class="footer-identity">

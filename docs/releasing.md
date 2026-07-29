@@ -39,8 +39,13 @@ or communities are required; when both files exist, Zenodo ignores
    repeating the version or date already displayed by GitHub.
 8. Wait for Zenodo to finish processing the release. Verify its files,
    metadata, version-specific DOI, and Software Heritage archival status.
-9. Add the version-specific DOI to `CITATION.cff` on `main`. Keep the stable
-   Zenodo concept DOI badge and citation links in `README.md` up to date.
+9. Add the version-specific DOI to `CITATION.cff` on `main`.
+10. Update `release-metadata.json` with the released version, release date,
+    literature update date, version-specific DOI, and concept DOI. The static-site
+    build uses this file to generate the homepage release details, About-page
+    citation, BibTeX, DOI links, and structured metadata.
+11. Keep the stable Zenodo concept DOI badge and citation links in `README.md`
+    up to date.
 
 For reproducible research, cite the version-specific DOI. The concept DOI is
 useful when referring to the evolving project without selecting one version.
@@ -61,10 +66,10 @@ VERSION-SPECIFIC SOFTWARE DOI
 ```
 
 When a literature update changes the graph without changing the software,
-publish a new immutable R2 release and update the literature date without
-creating a GitHub or Zenodo software release. When the software changes, create
-a software release normally and associate the resulting graph with that
-version.
+publish a new immutable R2 release and update `literature_updated` in
+`release-metadata.json` without creating a GitHub or Zenodo software release.
+When the software changes, create a software release normally and associate the
+resulting graph with that version.
 
 For every software release, include `Literature updated: YYYY-MM-DD` in the
 GitHub release notes. Keep DOI details in `CITATION.cff` and the README rather

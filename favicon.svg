@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">Psychedelics Knowledge Graph</title>
   <desc id="desc">A symmetrical five-node knowledge graph.</desc>
-  <circle cx="32" cy="32" r="32" fill="#080a0b" />
-  <circle cx="32" cy="32" r="30.75" fill="none" stroke="#293132" stroke-width="1.5" />
+  <rect x="1" y="1" width="62" height="62" rx="12" fill="#080a0b" stroke="#293132" stroke-width="1.5" />
   <path
     d="M32 32V11M32 32 51.972 25.511M32 32 44.344 48.989M32 32 19.656 48.989M32 32 12.028 25.511"
     fill="none"

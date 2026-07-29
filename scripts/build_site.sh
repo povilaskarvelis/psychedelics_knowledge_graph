@@ -56,6 +56,9 @@ while IFS= read -r raw_line || [[ -n "${raw_line}" ]]; do
 done < "${MANIFEST}"
 
 find "${DIST_DIR}" -name ".DS_Store" -delete
+python3 "${ROOT_DIR}/scripts/render_release_metadata.py" \
+  --metadata "${ROOT_DIR}/release-metadata.json" \
+  --site-dir "${DIST_DIR}"
 python3 "${ROOT_DIR}/scripts/sanitize_public_json.py" \
   --manifest "${MANIFEST}" \
   --base-dir "${DIST_DIR}" \

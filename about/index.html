@@ -9,9 +9,10 @@
     />
     <title>About the Psychedelics Knowledge Graph</title>
     <link rel="canonical" href="https://psychedelicskg.com/about/" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" />
+    <link rel="icon" href="/favicon-search.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Psychedelics Knowledge Graph" />
     <meta property="og:title" content="About the Psychedelics Knowledge Graph" />
@@ -40,7 +41,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/ui/styles.css?v=20260723-about-knowledge-schema-v9" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20260729-about-citation-v10" />
   </head>
   <body class="methods-page about-page">
     <div class="bg" aria-hidden="true"></div>
@@ -191,13 +192,30 @@
         </p>
         <a class="site-button secondary feedback-accent about-feedback-action" href="/feedback/?source=about">Leave feedback</a>
       </section>
+
+      <section class="about-section citation-section" id="citation" aria-labelledby="citation-heading">
+        <h2 id="citation-heading">Citation</h2>
+        <p>If you use Psychedelics Knowledge Graph in your research, please cite it as:</p>
+        <div class="citation-card">
+          <p class="citation-text">
+            Karvelis, P. ({{RELEASE_YEAR}}). <cite>Psychedelics Knowledge Graph</cite>
+            (Version {{RELEASE_VERSION}}; literature updated {{RELEASE_LITERATURE_UPDATED}}). Zenodo.
+            https://doi.org/{{RELEASE_DOI}}
+          </p>
+          <div class="citation-actions">
+            <button class="site-button secondary" type="button" data-copy-citation>Copy citation</button>
+            <button class="site-button secondary" type="button" data-copy-bibtex>Copy BibTeX</button>
+          </div>
+          <span class="citation-copy-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
       <div class="footer-inner">
         <nav class="footer-links" aria-label="Project information">
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite this project</a>
+          <a href="/about/#citation">Cite this project</a>
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">Licenses</a>
         </nav>
         <div class="footer-identity">
@@ -209,5 +227,38 @@
       </div>
     </footer>
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
+    <script>
+      const copyCitationButton = document.querySelector("[data-copy-citation]");
+      const copyBibtexButton = document.querySelector("[data-copy-bibtex]");
+      const citationText = document.querySelector(".citation-text");
+      const citationCopyStatus = document.querySelector(".citation-copy-status");
+      const bibtex = `@software{Karvelis{{RELEASE_YEAR}}PKG,
+  author    = {Karvelis, Povilas},
+  title     = {Psychedelics Knowledge Graph (Version {{RELEASE_VERSION}}; literature updated {{RELEASE_LITERATURE_UPDATED}})},
+  month     = {{RELEASE_MONTH_BIBTEX}},
+  year      = {{{RELEASE_YEAR}}},
+  publisher = {Zenodo},
+  doi       = {{{RELEASE_DOI}}},
+  url       = {https://doi.org/{{RELEASE_DOI}}}
+}`;
+
+      copyCitationButton?.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(citationText.textContent.replace(/\s+/g, " ").trim());
+          citationCopyStatus.textContent = "Citation copied.";
+        } catch {
+          citationCopyStatus.textContent = "Unable to copy automatically. Select the citation text to copy it.";
+        }
+      });
+
+      copyBibtexButton?.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(bibtex);
+          citationCopyStatus.textContent = "BibTeX copied.";
+        } catch {
+          citationCopyStatus.textContent = "Unable to copy BibTeX automatically.";
+        }
+      });
+    </script>
   </body>
 </html>

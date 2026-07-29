@@ -566,10 +566,34 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260729-focus-persistence-v1' in html_source
-    assert 'app.js?v=20260729-graph-toolbar-alignment-v6' in html_source
+    assert 'styles.css?v=20260729-wide-header-v1' in html_source
+    assert 'app.js?v=20260729-responsive-graph-v2' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
+
+
+def test_desktop_header_and_home_content_share_the_same_horizontal_gutter() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    header = source.split(".site-header-inner {", 1)[1].split("}", 1)[0]
+    content = source.split(".content {", 1)[1].split("}", 1)[0]
+
+    assert "width: calc(100% - 16vw);" in header
+    assert "1500px" not in header
+    assert "padding: 16px 8vw 32px;" in content
+
+
+def test_api_code_examples_wrap_long_commands_without_horizontal_scrolling() -> None:
+    style_source = STYLES_CSS.read_text(encoding="utf-8")
+    api_source = (ROOT / "api" / "index.html").read_text(encoding="utf-8")
+    pre_styles = style_source.split(".access-code-card pre {", 1)[1].split("}", 1)[0]
+
+    assert "overflow: hidden;" in pre_styles
+    assert "overflow-wrap: anywhere;" in pre_styles
+    assert "white-space: pre-wrap;" in pre_styles
+    assert "curl -sS --get" in api_source
+    assert '--data-urlencode "q=psilocybin"' in api_source
+    assert '--data-urlencode "limit=5"' in api_source
+    assert "/ui/styles.css?v=20260729-api-code-wrap-v1" in api_source
 
 
 def test_stacked_bar_full_views_restart_palette_and_filtered_categories_keep_their_color() -> None:
@@ -789,17 +813,27 @@ def test_graph_allocates_more_label_space_to_the_right_side() -> None:
     assert "GRAPH_RIGHT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX + GRAPH_RIGHT_LABEL_GUTTER_PX" in source
 
 
-def test_mobile_graph_uses_a_scrollable_canvas_instead_of_compressing_the_layout() -> None:
+def test_constrained_graph_uses_a_scrollable_canvas_instead_of_scaling_its_contents() -> None:
     app_source = APP_JS.read_text(encoding="utf-8")
     style_source = STYLES_CSS.read_text(encoding="utf-8")
     graph_source = app_source.split("function buildGraph", 1)[1].split("function render()", 1)[0]
 
-    assert "const GRAPH_COMPACT_LAYOUT_WIDTH_PX = 720;" in app_source
-    assert "const compactGraph = viewportWidth < 640;" in graph_source
-    assert "Math.max(viewportWidth, GRAPH_COMPACT_LAYOUT_WIDTH_PX)" in graph_source
-    assert 'svg.dataset.mobileScrollable = compactGraph ? "true" : "false";' in graph_source
-    assert '.graph svg[data-mobile-scrollable="true"]' in style_source
+    assert "const GRAPH_MIN_LAYOUT_WIDTH_PX = 720;" in app_source
+    assert "viewportWidth < GRAPH_MIN_LAYOUT_WIDTH_PX" in graph_source
+    assert "Math.max(viewportWidth, GRAPH_MIN_LAYOUT_WIDTH_PX)" in graph_source
+    assert 'svg.dataset.horizontalScrollable = horizontallyScrollableGraph ? "true" : "false";' in graph_source
+    assert '.graph svg[data-horizontal-scrollable="true"]' in style_source
     assert "min-width: var(--kg-graph-layout-width);" in style_source
+
+
+def test_constrained_graph_preserves_all_nodes_and_vertical_spacing() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    graph_source = source.split("function buildGraph", 1)[1].split("function render()", 1)[0]
+
+    assert "maxMobileNodes" not in graph_source
+    assert "GRAPH_COMPACT_BASE_HEIGHT_PX" not in source
+    assert "GRAPH_COMPACT_MIN_NODE_SPACING_PX" not in source
+    assert "maxNodeCount * GRAPH_MIN_NODE_SPACING_PX" in graph_source
 
 
 def test_graph_edge_control_points_stay_between_the_node_columns() -> None:
@@ -882,10 +916,10 @@ def test_graph_elements_are_not_revealed_in_separate_waves() -> None:
     assert ".graph svg.graph-enter" not in style_source
 
 
-def test_homepage_displays_current_graph_version_and_search_cutoff() -> None:
+def test_homepage_uses_central_release_metadata_for_version_and_literature_date() -> None:
     source = INDEX_HTML.read_text(encoding="utf-8")
 
-    assert "Graph version: v1.0.0" in source
-    assert "Literature updated: 2026-07-15" in source
+    assert "Graph version: v{{RELEASE_VERSION}}" in source
+    assert "Literature updated: {{RELEASE_LITERATURE_UPDATED}}" in source
     assert "Graph version: v0.0.1" not in source
     assert "Literature search through: 2026-05-28" not in source

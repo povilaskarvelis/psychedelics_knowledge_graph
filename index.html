@@ -9,9 +9,10 @@
     />
     <title>Psychedelics Research Knowledge Graph | Evidence Map</title>
     <link rel="canonical" href="https://psychedelicskg.com/" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" />
+    <link rel="icon" href="/favicon-search.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Psychedelics Knowledge Graph" />
     <meta property="og:title" content="Psychedelics Research Knowledge Graph | Evidence Map" />
@@ -43,7 +44,11 @@
             "name": "Psychedelics Knowledge Graph",
             "url": "https://psychedelicskg.com/",
             "description": "A public catalogue connecting psychedelic research publications, compounds, conditions, research areas, and structured findings.",
-            "dateModified": "2026-07-15",
+            "datePublished": "{{RELEASE_DATE}}",
+            "dateModified": "{{RELEASE_LITERATURE_UPDATED}}",
+            "version": "{{RELEASE_VERSION}}",
+            "identifier": "https://doi.org/{{RELEASE_DOI}}",
+            "sameAs": "https://doi.org/{{RELEASE_CONCEPT_DOI}}",
             "isAccessibleForFree": true,
             "license": "https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md",
             "creator": {
@@ -83,7 +88,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260729-focus-persistence-v1" />
+    <link rel="stylesheet" href="styles.css?v=20260729-wide-header-v1" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -113,8 +118,8 @@
         <p>
           A living map of psychedelic research, built to keep scientific knowledge organized, connected, and easily explorable
           <span class="hero-version">
-            <span>Graph version: v1.0.0</span>
-            <span class="hero-version-date">Literature updated: 2026-07-15</span>
+            <span>Graph version: v{{RELEASE_VERSION}}</span>
+            <span class="hero-version-date">Literature updated: {{RELEASE_LITERATURE_UPDATED}}</span>
           </span>
         </p>
       </div>
@@ -239,7 +244,7 @@
       <div class="footer-inner">
         <nav class="footer-links" aria-label="Project information">
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite this project</a>
+          <a href="/about/#citation">Cite this project</a>
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">Licenses</a>
         </nav>
         <div class="footer-identity">
@@ -252,6 +257,6 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
-    <script src="app.js?v=20260729-graph-toolbar-alignment-v6"></script>
+    <script src="app.js?v=20260729-responsive-graph-v2"></script>
   </body>
 </html>

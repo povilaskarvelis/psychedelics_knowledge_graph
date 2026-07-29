@@ -8,11 +8,7 @@ and keep up to date.
 [Explore the knowledge graph](https://psychedelicskg.com/) ·
 [About](https://psychedelicskg.com/about/) ·
 [Methods](https://psychedelicskg.com/methods/) ·
-[API](https://psychedelicskg.com/api/) ·
-[Pipeline guide](pipeline/README.md) ·
-[Release guide](docs/releasing.md) ·
-[Evidence policy](docs/evidence_policy.md) ·
-[API and agent access](docs/agent_access.md)
+[API](https://psychedelicskg.com/api/)
 
 ![Psychedelics Knowledge Graph interface](ui/assets/gui-screenshot.png)
 
@@ -121,7 +117,7 @@ terms.
 If you use the project or its public API, cite both the software version and the
 literature update represented by the graph:
 
-> Karvelis, Povilas. (2026). *Psychedelics Knowledge Graph* (software v1.0.0;
+> Karvelis, P. (2026). *Psychedelics Knowledge Graph* (Version 1.0.0;
 > literature updated 2026-07-15). Zenodo.
 > https://doi.org/10.5281/zenodo.21671976
 

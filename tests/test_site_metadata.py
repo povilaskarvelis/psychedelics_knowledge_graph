@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 from html.parser import HTMLParser
+import json
 from pathlib import Path
 import re
-
+import shutil
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from scripts.render_release_metadata import render_site
 
 
 class HeadMetadataParser(HTMLParser):
@@ -88,6 +93,27 @@ def test_feedback_confirmation_is_not_indexable() -> None:
     assert metadata.canonicals == []
 
 
+def test_public_html_pages_use_current_favicon_assets() -> None:
+    pages = (
+        "index.html",
+        "about/index.html",
+        "methods/index.html",
+        "api/index.html",
+        "compounds/psilocybin/index.html",
+        "feedback/index.html",
+        "feedback/sent/index.html",
+        "ui/index.html",
+        "ui/methods.html",
+    )
+
+    for relative_path in pages:
+        source = (ROOT / relative_path).read_text(encoding="utf-8")
+        assert 'href="/favicon.ico" sizes="16x16 32x32"' in source
+        assert 'href="/favicon-search.png" type="image/png" sizes="192x192"' in source
+        assert 'href="/favicon.svg" type="image/svg+xml" sizes="any"' in source
+        assert 'href="/apple-touch-icon.png" sizes="180x180"' in source
+
+
 def test_sitemap_lists_only_public_canonical_urls_with_accurate_lastmods() -> None:
     expected = {
         "https://psychedelicskg.com/": "2026-07-28",
@@ -117,6 +143,68 @@ def test_robots_points_crawlers_to_the_canonical_sitemap() -> None:
     assert "User-agent: *" in robots
     assert "Allow: /" in robots
     assert "Sitemap: https://psychedelicskg.com/sitemap.xml" in robots
+
+
+def test_release_metadata_renders_site_citation_and_structured_data(tmp_path: Path) -> None:
+    site_dir = tmp_path / "site"
+    (site_dir / "about").mkdir(parents=True)
+    shutil.copy2(ROOT / "index.html", site_dir / "index.html")
+    shutil.copy2(ROOT / "about/index.html", site_dir / "about/index.html")
+    render_site(ROOT / "release-metadata.json", site_dir)
+
+    metadata = json.loads((ROOT / "release-metadata.json").read_text(encoding="utf-8"))
+    citation_cff = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    homepage = (site_dir / "index.html").read_text(encoding="utf-8")
+    about_page = (site_dir / "about/index.html").read_text(encoding="utf-8")
+    pages_with_footers = (
+        "index.html",
+        "about/index.html",
+        "methods/index.html",
+        "api/index.html",
+        "compounds/psilocybin/index.html",
+        "feedback/index.html",
+        "feedback/sent/index.html",
+    )
+
+    assert 'id="citation"' in about_page
+    assert f"Graph version: v{metadata['version']}" in homepage
+    assert f"Literature updated: {metadata['literature_updated']}" in homepage
+    assert f'"datePublished": "{metadata["release_date"]}"' in homepage
+    assert f'"dateModified": "{metadata["literature_updated"]}"' in homepage
+    assert f'"version": "{metadata["version"]}"' in homepage
+    assert f'"identifier": "https://doi.org/{metadata["doi"]}"' in homepage
+    assert f'"sameAs": "https://doi.org/{metadata["concept_doi"]}"' in homepage
+
+    assert (
+        f"Version {metadata['version']}; literature updated {metadata['literature_updated']}"
+        in about_page
+    )
+    assert f"https://doi.org/{metadata['doi']}" in about_page
+    assert f"@software{{Karvelis{metadata['release_date'][:4]}PKG," in about_page
+    assert (
+        "title     = {Psychedelics Knowledge Graph "
+        f"(Version {metadata['version']}; literature updated {metadata['literature_updated']})}}"
+        in about_page
+    )
+    assert "subtitle  =" not in about_page
+    assert "version   =" not in about_page
+    assert f"doi       = {{{metadata['doi']}}}" in about_page
+    assert "note      =" not in about_page
+    assert "Computer software" not in about_page
+    assert "Copy BibTeX" in about_page
+    assert "View on Zenodo" not in about_page
+    assert "Machine-readable citation metadata" not in about_page
+    assert about_page.index('id="work-in-progress"') < about_page.index('id="citation"')
+    assert "{{RELEASE_" not in homepage
+    assert "{{RELEASE_" not in about_page
+    assert f'version: "{metadata["version"]}"' in citation_cff
+    assert f'doi: "{metadata["doi"]}"' in citation_cff
+    assert f"date-released: {metadata['release_date']}" in citation_cff
+    assert metadata["literature_updated"] in citation_cff
+
+    for relative_path in pages_with_footers:
+        page = (ROOT / relative_path).read_text(encoding="utf-8")
+        assert '<a href="/about/#citation">Cite this project</a>' in page
 
 
 def test_compound_view_is_part_of_the_public_build() -> None:
